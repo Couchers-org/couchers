@@ -16,8 +16,8 @@ import {
   EventIcon,
   ExpandLessIcon,
   ExpandMoreIcon,
-  MessageIcon,
   PenIcon,
+  SegmentIcon,
   SinglePersonIcon,
 } from "components/Icons";
 import { AUTH } from "i18n/namespaces";
@@ -53,7 +53,7 @@ const mapTypeToIcon: { [key: string]: JSX.Element } = {
   friend_request: <SinglePersonIcon fontSize="large" color="action" />,
   host_request: <CouchFilledIcon fontSize="large" color="action" />,
   discussion: <CommentIcon fontSize="large" color="action" />,
-  thread: <MessageIcon fontSize="large" color="action" />,
+  reply: <SegmentIcon fontSize="large" color="action" />,
 };
 
 export default function NotificationSettingsListItem({
