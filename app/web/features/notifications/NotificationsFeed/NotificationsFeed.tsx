@@ -1,20 +1,21 @@
-import { Menu, styled, Typography } from "@mui/material";
 import { Check, Settings } from "@mui/icons-material";
-import { GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
-import { useTranslation } from "i18n";
-import { theme } from "theme";
-import { useRouter } from "next/router";
-import { notificationSettingsRoute } from "routes";
-import { useQuery } from "react-query";
-import { ListNotificationsRes } from "proto/notifications_pb";
-import { RpcError } from "grpc-web";
-import { listNotificationsQueryKey } from "features/queryKeys";
-import { service } from "service";
-import NotificationItem from "./NotificationItem";
-import dayjs from "dayjs";
-import { NOTIFICATIONS_LAST_SEEN_AT_COOKIE_NAME } from "components/Navigation/LoggedInMenu";
-import { timestamp2Date } from "utils/date";
+import { Alert, Menu, styled, Typography } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import { NOTIFICATIONS_LAST_SEEN_AT_COOKIE_NAME } from "components/Navigation/LoggedInMenu";
+import dayjs from "dayjs";
+import { listNotificationsQueryKey } from "features/queryKeys";
+import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
+import { useRouter } from "next/router";
+import { ListNotificationsRes } from "proto/notifications_pb";
+import { useQuery } from "react-query";
+import { notificationSettingsRoute } from "routes";
+import { service } from "service";
+import { theme } from "theme";
+import { timestamp2Date } from "utils/date";
+
+import NotificationItem from "./NotificationItem";
 
 interface NotificationsFeedProps {
   anchorEl: HTMLElement | null;
@@ -83,7 +84,10 @@ const NotificationsFeed = ({
           dayjs(timestamp2Date(notification.created!)) > lastSeenAt,
       )
       .map((notification) => (
-        <NotificationItem notification={notification} />
+        <NotificationItem
+          key={notification.notificationId}
+          notification={notification}
+        />
       )) ?? [];
 
   const earlierNotifications =
@@ -94,7 +98,10 @@ const NotificationsFeed = ({
           dayjs(timestamp2Date(notification.created!)) < lastSeenAt,
       )
       .map((notification) => (
-        <NotificationItem notification={notification} />
+        <NotificationItem
+          key={notification.notificationId}
+          notification={notification}
+        />
       )) ?? [];
 
   const handleNotificationSettingsClick = () => {
@@ -114,7 +121,7 @@ const NotificationsFeed = ({
       slotProps={{
         paper: {
           style: {
-            maxHeight: "600px", // controls total menu height
+            maxHeight: "600px",
             width: "355px",
           },
         },
@@ -148,6 +155,11 @@ const NotificationsFeed = ({
           <CenteredSpinner />
         ) : (
           <>
+            {error && (
+              <Alert severity="error" sx={{ marginBottom: theme.spacing(2) }}>
+                {t("notifications:error_loading")}
+              </Alert>
+            )}
             <Typography
               sx={{
                 fontWeight: 500,

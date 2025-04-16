@@ -114,9 +114,11 @@ export default function EditProfileForm() {
     aboutMeField === DEFAULT_ABOUT_ME_HEADINGS ? 0 : aboutMeField.length;
 
   useUnsavedChangesWarning({
-    isDirty,
-    isSubmitted,
-    warningMessage: t("profile:unsaved_changes_warning"),
+    isDirty: isDirty || isUploading,
+    isSubmitted: isSubmitted,
+    warningMessage: isUploading
+      ? t("profile:image_uploading_warning")
+      : t("profile:unsaved_changes_warning"),
   });
 
   const { regions, regionsLookup } = useRegions();

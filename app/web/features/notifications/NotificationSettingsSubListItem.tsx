@@ -11,7 +11,7 @@ import {
 import Alert from "components/Alert";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import { NotificationNewIcon } from "components/Icons";
-import { AUTH, GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
+import { GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { useState } from "react";
 import { NotificationPreferenceData } from "service/notifications";

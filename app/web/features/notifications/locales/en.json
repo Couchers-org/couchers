@@ -1,5 +1,6 @@
 {
   "earlier": "Earlier",
+  "error_loading": "Error loading notifications",
   "mark_all_read": "Mark all as read",
   "new": "New",
   "no_new_notifications": "No new notifications",
@@ -21,7 +22,7 @@
         "host_request": "Host requests",
         "reference": "References",
         "discussion": "Discussions",
-        "thread": "Threads"
+        "reply": "Replies"
       },
       "item_descriptions": {
         "host_request": {

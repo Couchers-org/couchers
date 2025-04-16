@@ -1,6 +1,6 @@
 import { CircularProgress, List, styled, Typography } from "@mui/material";
 import Snackbar from "components/Snackbar";
-import { AUTH, NOTIFICATIONS } from "i18n/namespaces";
+import { NOTIFICATIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { useEffect, useState } from "react";
 
@@ -14,7 +14,8 @@ export type NotificationType =
   | "event"
   | "reference"
   | "friend_request"
-  | "host_request";
+  | "host_request"
+  | "reply";
 
 export interface GroupAction {
   action: string;
@@ -80,7 +81,10 @@ export default function EditNotificationSettingsPage() {
                   ? "account_security"
                   : group.heading === "Account Settings"
                     ? "account_settings"
-                    : topic.topic;
+                    : subTopic.action === "reply" ||
+                        subTopic.action === "comment"
+                      ? "reply"
+                      : topic.topic;
 
               if (!acc[key]) {
                 acc[key] = [];

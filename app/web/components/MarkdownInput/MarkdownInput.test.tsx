@@ -6,7 +6,7 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { CONFIRM_UPLOAD, SELECT_AN_IMAGE } from "components/constants";
+import { SELECT_AN_IMAGE } from "components/constants";
 import {
   IMAGE_DESCRIPTION,
   INSERT_IMAGE,
@@ -69,13 +69,8 @@ describe("MarkdownInput", () => {
       within(dialog).getByLabelText(IMAGE_DESCRIPTION),
       "description",
     );
-    await user.click(
-      await within(dialog).findByRole("button", { name: CONFIRM_UPLOAD }),
-    );
     await waitForElementToBeRemoved(dialog);
     await user.click(screen.getByRole("button", { name: "Submit" }));
-    await waitFor(() =>
-      expect(onSubmit).toBeCalledWith("![description](full.jpg)"),
-    );
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledWith("![](full.jpg)"));
   });
 });

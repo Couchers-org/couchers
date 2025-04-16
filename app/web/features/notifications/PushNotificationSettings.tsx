@@ -2,7 +2,7 @@ import { styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import { Trans, useTranslation } from "i18n";
-import { AUTH, NOTIFICATIONS } from "i18n/namespaces";
+import { NOTIFICATIONS } from "i18n/namespaces";
 import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
 import {
