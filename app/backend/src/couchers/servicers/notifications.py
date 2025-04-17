@@ -39,7 +39,7 @@ def notification_to_pb(user, notification: Notification):
         body=rendered.push_body,
         icon=rendered.push_icon,
         url=rendered.push_url,
-        is_seen=notification.seen,
+        is_seen=notification.is_seen,
     )
 
 
@@ -106,13 +106,13 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         )
         if not notification:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.NOTIFICATION_NOT_FOUND)
-        notification.seen = request.set_seen
+        notification.is_seen = request.set_seen
         return empty_pb2.Empty()
 
     def MarkAllNotificationsSeen(self, request, context, session):
         session.execute(
             Notification.__table__.update()
-            .values(seen=True)
+            .values(is_seen=True)
             .where(Notification.user_id == context.user_id)
             .where(Notification.id <= request.latest_notification_id)
         )

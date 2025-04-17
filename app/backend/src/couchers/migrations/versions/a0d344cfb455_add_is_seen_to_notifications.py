@@ -1,4 +1,4 @@
-"""Add seen to notifications
+"""Add is_seen to notifications
 
 Revision ID: a0d344cfb455
 Revises: b16903ba2c18
@@ -17,8 +17,8 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column("notifications", sa.Column("seen", sa.Boolean(), server_default=sa.text("false"), nullable=False))
+    op.add_column("notifications", sa.Column("is_seen", sa.Boolean(), server_default=sa.text("false"), nullable=False))
 
 
 def downgrade():
-    op.drop_column("notifications", "seen")
+    op.drop_column("notifications", "is_seen")

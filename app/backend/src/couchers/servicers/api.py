@@ -189,7 +189,7 @@ class API(api_pb2_grpc.APIServicer):
         unseen_notification_count = session.execute(
             select(func.count(Notification.id))
             .where(Notification.user_id == context.user_id)
-            .where(Notification.seen == False)
+            .where(Notification.is_seen == False)
         ).scalar_one()
 
         return api_pb2.PingRes(
