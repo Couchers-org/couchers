@@ -1,4 +1,4 @@
-import { Coordinates } from "features/search/constants";
+import { Coordinates } from "features/search/utils/constants";
 import { LngLat } from "maplibre-gl";
 import { useRouter } from "next/router";
 import Sentry from "platform/sentry";
