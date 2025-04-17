@@ -19,8 +19,6 @@ const StyledIconButton = styled(IconButton)(({ theme }) => ({
   },
 }));
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 const ZoomControl = ({
   mapRef,
   onZoomIn,
@@ -29,7 +27,6 @@ const ZoomControl = ({
 }: ZoomControlProps) => {
   const handleZoomIn = () => {
     if (mapRef.current) {
-      delay(1000);
       const map = mapRef.current.getMap();
       const currentMapZoom = map.getZoom();
       const newZoom = Math.min(currentMapZoom + 2, MAX_ZOOM_LEVEL);
@@ -39,7 +36,6 @@ const ZoomControl = ({
 
   const handleZoomOut = () => {
     if (mapRef.current) {
-      delay(1000);
       const map = mapRef.current.getMap();
       const currentMapZoom = map.getZoom();
       const newZoom = Math.max(currentMapZoom - 2, MIN_ZOOM_LEVEL);

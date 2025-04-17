@@ -152,8 +152,7 @@
         "friend_request": "Freundschaftsanfragen",
         "host_request": "Gastgeberanfragen",
         "reference": "Referenzen",
-        "discussion": "Beiträge",
-        "thread": "Themen"
+        "discussion": "Beiträge"
       },
       "item_descriptions": {
         "host_request": {
