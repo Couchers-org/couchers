@@ -711,7 +711,58 @@ def test_get_updates(db):
         # other user can't access
         res = api.GetHostRequestUpdates(requests_pb2.GetHostRequestUpdatesReq(newest_message_id=message_id_1))
         assert len(res.updates) == 0
+        
+def test_archive_host_request(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    
+    with requests_session(token1) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 0"
+            )
+        ).host_request_id
 
+        api.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
+        )
+        api.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 2")
+        )
+    # negative testing archiving pending host request
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
+        assert len(res.host_requests) == 1
+        assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_PENDING
+        with pytest.raises(grpc.RpcError) as e:
+            api.ArchiveHostRequest(
+                requests_pb2.ArchiveHostRequestReq(host_request_id=host_request_id)
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.HOST_REQUEST_PENDING_ARCHIVE_ATTEMPT
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
+        assert len(res.host_requests) == 1
+    #happy path archiving host request
+    with requests_session(token1) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
+                text="Test message 3",
+            )
+        )
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
+        assert len(res.host_requests) == 1
+        assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+        api.ArchiveHostRequest(
+            requests_pb2.ArchiveHostRequestReq(host_request_id=host_request_id)
+        )
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
+        assert len(res.host_requests) == 0
+        
 
 def test_mark_last_seen(db):
     user1, token1 = generate_user()
@@ -1069,4 +1120,3 @@ def test_request_notifications(db, push_collector):
     push_collector.assert_user_has_single_matching(
         surfer.id,
         title=f"{host.name} accepted your host request",
-    )
