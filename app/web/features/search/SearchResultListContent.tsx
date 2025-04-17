@@ -75,7 +75,7 @@ const SearchResultListContent = ({
             marginBottom: theme.spacing(2),
           }}
         >
-          {error.message}
+          {t("search:error_loading_users")}
         </Alert>
       )}
       {showAlert && (

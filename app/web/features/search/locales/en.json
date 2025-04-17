@@ -1,6 +1,7 @@
 {
   "choose_search_criteria": "Type a location or apply a filter to search.",
   "choose_search_criteria_mobile": "Type a location or apply a filter to search. Please use the desktop version to use map search.",
+  "error_loading_users": "Error loading users",
   "filter_dialog": {
     "search_here_button": "Search in this area",
     "desktop_title": "Filters",
