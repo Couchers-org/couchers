@@ -1,5 +1,6 @@
 import { Alert, Box, styled, Typography, useMediaQuery } from "@mui/material";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
+import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
@@ -9,6 +10,7 @@ import SearchResultUserCard from "./SeachResultUserCard";
 import { useMapSearchState } from "./state/mapSearchContext";
 
 interface SearchResultListContentProps {
+  error: RpcError | null;
   numberOfTotal: number;
   onUserCardClick: (userId: number) => void;
   showAlert: boolean;
@@ -49,6 +51,7 @@ const CenteredRow = styled("div")(({ theme }) => ({
 }));
 
 const SearchResultListContent = ({
+  error,
   numberOfTotal,
   onUserCardClick,
   showAlert,
@@ -63,6 +66,18 @@ const SearchResultListContent = ({
 
   return (
     <ListContentWrapper showTopSpace={showTopSpace}>
+      {error && (
+        <Alert
+          severity="error"
+          sx={{
+            height: "fit-content",
+            width: "100%",
+            marginBottom: theme.spacing(2),
+          }}
+        >
+          {error.message}
+        </Alert>
+      )}
       {showAlert && (
         <Alert severity="info" sx={{ height: "fit-content", width: "100%" }}>
           {isMobile

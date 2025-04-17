@@ -83,6 +83,7 @@ export default function SearchPage() {
   );
 
   const {
+    error,
     fetchNextPage,
     fetchPreviousPage,
     isLoading,
@@ -169,6 +170,7 @@ export default function SearchPage() {
           onZoomIn={handleZoomIn}
         />
         <MapSearchContent
+          error={error}
           drawerWidth={drawerWidth}
           hasPreviousPage={hasPreviousPage}
           hasNextPage={hasNextPage}

@@ -1,6 +1,7 @@
 import { styled, useMediaQuery } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import ResizeableDrawer from "components/ResizeableDrawer";
+import { RpcError } from "grpc-web";
 import { User } from "proto/api_pb";
 import { theme } from "theme";
 
@@ -10,6 +11,7 @@ import { useMapSearchState } from "./state/mapSearchContext";
 import { MapViews } from "./utils/constants";
 
 interface MapSearchResultsListProps {
+  error: RpcError | null;
   drawerWidth: number;
   hasNextPage?: boolean;
   hasPreviousPage?: boolean;
@@ -36,6 +38,7 @@ const SpinnerWrapper = styled("div")(({ theme }) => ({
 }));
 
 const MapSearchResultsList = ({
+  error,
   drawerWidth,
   hasPreviousPage,
   hasNextPage,
@@ -83,6 +86,7 @@ const MapSearchResultsList = ({
           </SpinnerWrapper>
         ) : (
           <SearchResultListContent
+            error={error}
             numberOfTotal={numberOfTotal}
             onUserCardClick={onUserCardClick}
             showAlert={!isLoading && !meetsSearchCriteria}

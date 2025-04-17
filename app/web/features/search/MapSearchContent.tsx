@@ -1,5 +1,6 @@
 import { styled, useMediaQuery } from "@mui/material";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
+import { RpcError } from "grpc-web";
 import { User } from "proto/api_pb";
 import { LngLatLike, MapRef } from "react-map-gl/maplibre";
 import { theme } from "theme";
@@ -12,6 +13,7 @@ import { MapViewOptions, MapViews, MAX_ZOOM_LEVEL } from "./utils/constants";
 import { clearMapFeatureState, setMapFeatureState } from "./utils/mapUtils";
 
 interface MapSearchContentProps {
+  error: RpcError | null;
   drawerWidth: number;
   hasPreviousPage: boolean | undefined;
   hasNextPage: boolean | undefined;
@@ -62,6 +64,7 @@ const MapContainer = styled("div", {
 }));
 
 const MapSearchContent = ({
+  error,
   drawerWidth,
   hasPreviousPage,
   hasNextPage,
@@ -108,6 +111,7 @@ const MapSearchContent = ({
         isListOnlyView={mapView === MapViews.LIST_ONLY}
       >
         <MapSearchResultsList
+          error={error}
           drawerWidth={drawerWidth}
           hasPreviousPage={hasPreviousPage}
           hasNextPage={hasNextPage}

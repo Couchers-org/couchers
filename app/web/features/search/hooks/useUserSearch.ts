@@ -1,4 +1,6 @@
+import { RpcError } from "grpc-web";
 import { User } from "proto/api_pb";
+import { UserSearchRes } from "proto/search_pb";
 import { useInfiniteQuery } from "react-query";
 import { service } from "service";
 
@@ -30,16 +32,22 @@ export function useUserSearch(
     mapSearchState.search.query !== undefined ||
     mapSearchState.shouldSearchByUserId;
 
-  const { data, isLoading, isFetching, fetchNextPage, fetchPreviousPage } =
-    useInfiniteQuery(
-      ["userSearch", searchParams],
-      ({ pageParam }) => service.search.userSearch(searchParams, pageParam),
-      {
-        enabled: meetsSearchCriteria,
-        keepPreviousData: meetsSearchCriteria,
-        getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
-      },
-    );
+  const {
+    error,
+    data,
+    isLoading,
+    isFetching,
+    fetchNextPage,
+    fetchPreviousPage,
+  } = useInfiniteQuery<UserSearchRes.AsObject, RpcError>(
+    ["userSearch", searchParams],
+    ({ pageParam }) => service.search.userSearch(searchParams, pageParam),
+    {
+      enabled: meetsSearchCriteria,
+      keepPreviousData: meetsSearchCriteria,
+      getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+    },
+  );
 
   // React-query will keep the previously fetched data in the cache, so return undefined if we don't meet the search criteria
   const users = !meetsSearchCriteria
@@ -71,6 +79,7 @@ export function useUserSearch(
   });
 
   return {
+    error,
     users,
     isLoading: isLoading || isFetching,
     hasNextPage,
