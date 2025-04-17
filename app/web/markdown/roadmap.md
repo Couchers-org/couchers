@@ -199,4 +199,4 @@ Explore the latest updates and detailed information on our ongoing projects by v
 ## Do you have ideas or suggestions
 
 Please let us know at [support@couchers.org](mailto:support@couchers.org) - we love feedback!\
-Check out <https://couchers.org/volunteer> to see how you can help out.
+Check out <https://couchers.org/volunteer> to see how you can contribute.
