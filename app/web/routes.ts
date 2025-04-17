@@ -108,6 +108,7 @@ export const referenceStepStrings = [
 export type ReferenceStep = (typeof referenceStepStrings)[number];
 
 export const eventsRoute = "/events";
+export const communitiesRoute = "/communities";
 export const logoutRoute = "/logout";
 export const connectionsRoute = "/connections";
 export const friendsRoute = `${connectionsRoute}/friends`;
