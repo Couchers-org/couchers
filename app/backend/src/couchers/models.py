@@ -2458,6 +2458,9 @@ class Notification(Base):
 
     data = Column(Binary, nullable=False)
 
+    # whether the user has marked this notification as seen or not
+    is_seen = Column(Boolean, nullable=False, server_default=text("false"))
+
     user = relationship("User", foreign_keys="Notification.user_id")
 
     __table_args__ = (
