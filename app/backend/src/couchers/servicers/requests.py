@@ -261,8 +261,14 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         elif request.HasField("only_archived"):
             statement = statement.where(
                 or_(
-                    and_(HostRequest.surfer_user_id == context.user_id, HostRequest.is_surfer_archived),
-                    and_(HostRequest.host_user_id == context.user_id, HostRequest.is_host_archived),
+                    and_(
+                        HostRequest.surfer_user_id == context.user_id,
+                        HostRequest.is_surfer_archived == request.only_archived,
+                    ),
+                    and_(
+                        HostRequest.host_user_id == context.user_id,
+                        HostRequest.is_host_archived == request.only_archived,
+                    ),
                 )
             )
         else:
@@ -654,18 +660,14 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if not host_request:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
 
-        if host_request.surfer_user_id != context.user_id and host_request.host_user_id != context.user_id:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
-
         if host_request.status == HostRequestStatus.pending:
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.HOST_REQUEST_PENDING_ARCHIVE_ATTEMPT)
 
         if context.user_id == host_request.surfer_user_id:
-            host_request.is_surfer_archived = True
+            host_request.is_surfer_archived = request.is_archived
         else:
-            host_request.is_host_archived = True
+            host_request.is_host_archived = request.is_archived
 
-        session.commit()
         return empty_pb2.Empty()
 
     def GetResponseRate(self, request, context, session):
