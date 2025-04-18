@@ -21,16 +21,16 @@ const StyledCard = styled(Card)(({ theme }) => ({
   width: "100%",
 }));
 
-const StyledAvatar = styled(Avatar)`
-    height: 3rem,
-    width: 3rem,
-`;
+const StyledAvatar = styled(Avatar)({
+  height: "3rem",
+  width: "3rem",
+});
 
-const StyledAvatarFlagContainer = styled("div")`
-    display: flex,
-    flexDirection: column,
-    alignItems: center
-`;
+const StyledAvatarFlagContainer = styled("div")({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+});
 
 const StyledCardContent = styled(CardContent)(({ theme }) => ({
   display: "flex",
