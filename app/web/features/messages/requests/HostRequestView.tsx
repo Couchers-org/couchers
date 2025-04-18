@@ -3,6 +3,7 @@ import Alert from "components/Alert";
 import HeaderButton from "components/HeaderButton";
 import { BackIcon } from "components/Icons";
 import PageTitle from "components/PageTitle";
+import dayjs from "dayjs";
 import { useAuthContext } from "features/auth/AuthProvider";
 import HostRequestSendField from "features/messages/requests/HostRequestSendField";
 import useMarkLastSeen, {
@@ -138,16 +139,32 @@ export default function HostRequestView({
   const currentUserId = useAuthContext().authState.userId;
   const isHost = host?.userId === currentUserId;
   const otherUser = isHost ? surfer : host;
+  const isRequestExpired = dayjs(hostRequest?.toDate).isBefore(
+    dayjs().format("L"),
+  );
+
   const title =
     otherUser && hostRequest
       ? isHost
         ? t("host_request_view.title_for_host", {
             user: firstName(otherUser.name),
-            status: t(requestStatusToTransKey[hostRequest.status]),
+            status: t(
+              requestStatusToTransKey[
+                isRequestExpired
+                  ? "expired"
+                  : (hostRequest.status as keyof typeof requestStatusToTransKey)
+              ],
+            ),
           })
         : t("host_request_view.title_for_surfer", {
             user: firstName(otherUser.name),
-            status: t(requestStatusToTransKey[hostRequest.status]),
+            status: t(
+              requestStatusToTransKey[
+                isRequestExpired
+                  ? "expired"
+                  : (hostRequest.status as keyof typeof requestStatusToTransKey)
+              ],
+            ),
           })
       : undefined;
 

@@ -1,18 +1,15 @@
 import { Avatar, AvatarProps } from "@mui/material";
-import classNames from "classnames";
-import { CheckIcon, CrossIcon, QuestionIcon } from "components/Icons";
+import {
+  CheckIcon,
+  CrossIcon,
+  HistoryIcon,
+  QuestionIcon,
+} from "components/Icons";
+import dayjs from "dayjs";
 import { HostRequestStatus } from "proto/conversations_pb";
 import { HostRequest } from "proto/requests_pb";
 import React from "react";
-import makeStyles from "utils/makeStyles";
-
-const useStyles = makeStyles((theme) => ({
-  avatar: {
-    fontSize: theme.typography.pxToRem(16),
-    height: 18,
-    width: 18,
-  },
-}));
+import { theme } from "theme";
 
 interface HostRequestStatusIconProps extends AvatarProps {
   hostRequest: HostRequest.AsObject;
@@ -22,11 +19,18 @@ export default function HostRequestStatusIcon({
   hostRequest,
   ...props
 }: HostRequestStatusIconProps) {
-  const classes = useStyles();
   const s = hostRequest.status;
   let icon = null;
   let color = null;
-  if (s === HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED) {
+
+  const isRequestExpired = dayjs(hostRequest.toDate).isBefore(
+    dayjs().format("L"),
+  );
+
+  if (isRequestExpired) {
+    icon = <HistoryIcon fontSize="inherit" />;
+    color = "grey";
+  } else if (s === HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED) {
     icon = <CheckIcon fontSize="inherit" />;
     color = "gray";
   } else if (s === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED) {
@@ -47,8 +51,8 @@ export default function HostRequestStatusIcon({
     <Avatar
       {...props}
       style={{ backgroundColor: color }}
-      className={classNames(classes.avatar, props.className)}
       sizes=" "
+      sx={{ fontSize: theme.typography.pxToRem(16), height: 18, width: 18 }}
     >
       {icon}
     </Avatar>

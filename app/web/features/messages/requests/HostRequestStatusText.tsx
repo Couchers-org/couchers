@@ -5,7 +5,7 @@ import { HostRequestStatus } from "proto/conversations_pb";
 
 interface HostRequestStatusTextProps {
   isHost: boolean;
-  requestStatus: HostRequestStatus;
+  requestStatus: HostRequestStatus | "expired";
 }
 
 export default function HostRequestStatusText({
@@ -15,7 +15,9 @@ export default function HostRequestStatusText({
   const { t } = useTranslation(MESSAGES);
 
   let statusText = "";
-  if (requestStatus === HostRequestStatus.HOST_REQUEST_STATUS_PENDING) {
+  if (requestStatus === "expired") {
+    statusText = t("host_request_item.expired");
+  } else if (requestStatus === HostRequestStatus.HOST_REQUEST_STATUS_PENDING) {
     statusText = t("host_request_item.pending");
   }
 
@@ -51,5 +53,12 @@ export default function HostRequestStatusText({
     }
   }
 
-  return <Typography variant="body2">{statusText}</Typography>;
+  return (
+    <Typography
+      variant="body2"
+      color={requestStatus === "expired" ? "red" : "default"}
+    >
+      {statusText}
+    </Typography>
+  );
 }

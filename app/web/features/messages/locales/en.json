@@ -122,10 +122,12 @@
     "accepted": "Accepted",
     "cancelled": "Cancelled",
     "confirmed": "Confirmed",
+    "expired": "Expired",
     "pending": "Pending",
     "rejected": "Declined"
   },
   "host_request_item": {
+    "expired": "This request is expired",
     "pending": "This request is still pending",
     "host_status": {
       "accepted": "You have accepted this request",
