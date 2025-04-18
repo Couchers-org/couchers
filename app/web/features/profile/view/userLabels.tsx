@@ -50,6 +50,28 @@ export const ReferencesLastActiveLabels = ({ user }: Props) => {
   );
 };
 
+export const ResponseRateText = ({ user }: { user: User.AsObject }) => {
+  const { t } = useTranslation([PROFILE]);
+  const query = useQuery(responseRateKey(user.userId), () =>
+    service.requests.getResponseRate(user.userId),
+  );
+  let rateText = undefined;
+
+  if (query?.data?.insufficientData) {
+    rateText = t("response_rate_text_insufficient");
+  } else if (query?.data?.low) {
+    rateText = t("response_rate_text_low");
+  } else if (query?.data?.some) {
+    rateText = t("response_rate_text_some");
+  } else if (query?.data?.most) {
+    rateText = t("response_rate_text_most");
+  } else if (query?.data?.almostAll) {
+    rateText = t("response_rate_text_almost_all");
+  }
+
+  return <>{rateText}</>;
+};
+
 export const ResponseRateLabel = ({ user }: Props) => {
   const { t } = useTranslation("profile");
   const query = useQuery(responseRateKey(user.userId), () =>
@@ -114,7 +136,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const AgeAndGenderRenderer = ({ user }: Props) => {
+export const AgeAndGenderRenderer = ({ user }: Props) => {
   const classes = useStyles();
 
   const {

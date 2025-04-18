@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import MapUI from "components/Map";
+import MapUI from "components/OldMap";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { useEffect } from "react";
 import wrapper from "test/hookWrapper";
@@ -11,7 +11,7 @@ import EditLocationMap from "./EditLocationMap";
 
 const { t } = i18n;
 
-jest.mock("components/Map");
+jest.mock("components/OldMap");
 jest.mock("maplibre-gl");
 
 const getCanvasMock = MaplibreMap.prototype.getCanvas as jest.Mock;

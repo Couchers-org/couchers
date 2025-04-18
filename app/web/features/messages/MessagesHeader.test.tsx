@@ -34,6 +34,7 @@ describe.each`
       unseenMessageCount: 56,
       unseenReceivedHostRequestCount: 12,
       unseenSentHostRequestCount: 34,
+      unseenNotificationCount: 2,
       user,
     });
     render(<Component />, { wrapper });

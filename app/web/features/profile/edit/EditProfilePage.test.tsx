@@ -12,7 +12,7 @@ import EditProfilePage from "./EditProfilePage";
 
 const { t } = i18n;
 
-jest.mock("components/Map", () => () => "map");
+jest.mock("components/OldMap", () => () => "map");
 jest.mock("components/MarkdownInput");
 
 const getUserMock = service.user.getUser as jest.MockedFunction<
