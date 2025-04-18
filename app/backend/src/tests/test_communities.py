@@ -227,15 +227,15 @@ def testing_communities(testconfig):
 
     with session_scope() as session:
         w = create_community(session, 0, 100, "Global", [user1, user3, user7], [], None)
+        c2 = create_community(session, 52, 100, "Country 2", [user6, user7], [], w)
+        c2r1 = create_community(session, 52, 71, "Country 2, Region 1", [user6], [user8], c2)
+        c2r1c1 = create_community(session, 53, 70, "Country 2, Region 1, City 1", [user8], [], c2r1)
         c1 = create_community(session, 0, 50, "Country 1", [user1, user2], [], w)
         c1r1 = create_community(session, 0, 10, "Country 1, Region 1", [user1, user2], [], c1)
         c1r1c1 = create_community(session, 0, 5, "Country 1, Region 1, City 1", [user2], [], c1r1)
         c1r1c2 = create_community(session, 7, 10, "Country 1, Region 1, City 2", [user4, user5], [user2], c1r1)
         c1r2 = create_community(session, 20, 25, "Country 1, Region 2", [user2], [], c1)
         c1r2c1 = create_community(session, 21, 23, "Country 1, Region 2, City 1", [user2], [], c1r2)
-        c2 = create_community(session, 52, 100, "Country 2", [user6, user7], [], w)
-        c2r1 = create_community(session, 52, 71, "Country 2, Region 1", [user6], [user8], c2)
-        c2r1c1 = create_community(session, 53, 70, "Country 2, Region 1, City 1", [user8], [], c2r1)
 
         h = create_group(session, "Hitchhikers", [user1, user2], [user5, user8], w)
         create_group(session, "Country 1, Region 1, Foodies", [user1], [user2, user4], c1r1)
@@ -441,27 +441,28 @@ class TestCommunities:
             c2r1_id = get_community_id(session, "Country 2, Region 1")
             c2r1c1_id = get_community_id(session, "Country 2, Region 1, City 1")
 
+        # Fetch all communities ordered by name
         with communities_session(token1) as api:
             res = api.ListCommunities(
                 communities_pb2.ListCommunitiesReq(
                     page_size=5,
                 )
             )
-            assert [c.community_id for c in res.communities] == [w_id, c1_id, c1r1_id, c1r1c1_id, c1r1c2_id]
+            assert [c.community_id for c in res.communities] == [c1_id, c1r1_id, c1r1c1_id, c1r1c2_id, c1r2_id]
             res = api.ListCommunities(
                 communities_pb2.ListCommunitiesReq(
                     page_size=2,
                     page_token=res.next_page_token,
                 )
             )
-            assert [c.community_id for c in res.communities] == [c1r2_id, c1r2c1_id]
+            assert [c.community_id for c in res.communities] == [c1r2c1_id, c2_id]
             res = api.ListCommunities(
                 communities_pb2.ListCommunitiesReq(
                     page_size=5,
                     page_token=res.next_page_token,
                 )
             )
-            assert [c.community_id for c in res.communities] == [c2_id, c2r1_id, c2r1c1_id]
+            assert [c.community_id for c in res.communities] == [c2r1_id, c2r1c1_id, w_id]
 
     @staticmethod
     def test_ListUserCommunities(testing_communities):
