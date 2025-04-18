@@ -2,6 +2,8 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {
   GetNotificationSettingsReq,
   ListNotificationsReq,
+  MarkAllNotificationsSeenReq,
+  MarkNotificationSeenReq,
   RegisterPushNotificationSubscriptionReq,
   SetNotificationSettingsReq,
   SingleNotificationPreference,
@@ -70,5 +72,17 @@ export async function sendTestPushNotification() {
 export async function listNotifications() {
   const req = new ListNotificationsReq();
   const res = await client.notifications.listNotifications(req);
+  return res.toObject();
+}
+
+export async function markAllNotificationsSeen() {
+  const req = new MarkAllNotificationsSeenReq();
+  const res = await client.notifications.markAllNotificationsSeen(req);
+  return res.toObject();
+}
+
+export async function markNotificationSeen() {
+  const req = new MarkNotificationSeenReq();
+  const res = await client.notifications.markNotificationSeen(req);
   return res.toObject();
 }

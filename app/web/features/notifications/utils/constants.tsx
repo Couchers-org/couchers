@@ -318,9 +318,9 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   password_reset: (
     <Box
       sx={{
-        backgroundColor: theme.palette.common.white,
-        width: theme.spacing(2),
-        height: theme.spacing(2),
+        backgroundColor: theme.palette.primary.main,
+        width: theme.spacing(2.5),
+        height: theme.spacing(2.5),
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -329,7 +329,8 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
     >
       <LockResetRounded
         sx={{
-          color: theme.palette.primary.main,
+          color: theme.palette.common.white,
+          fontSize: "1.1rem",
         }}
       />
     </Box>

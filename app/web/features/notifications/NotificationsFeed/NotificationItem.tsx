@@ -1,12 +1,11 @@
 import { Circle } from "@mui/icons-material";
 import { Avatar, Box, MenuItem, styled, Typography } from "@mui/material";
-import { NOTIFICATIONS_LAST_SEEN_AT_COOKIE_NAME } from "components/Navigation/LoggedInMenu";
-import dayjs from "dayjs";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Notification } from "proto/notifications_pb";
 import LinesEllipsis from "react-lines-ellipsis";
+import { markNotificationSeen } from "service/notifications";
 import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import { timeAgoI18n } from "utils/timeAgo";
@@ -61,13 +60,9 @@ const NotificationItem = ({ notification }: NotificationItemProps) => {
   const router = useRouter();
 
   const userName = notification.title.split(" ")[0];
-  const lastSeenAt = dayjs(
-    window.localStorage.getItem(NOTIFICATIONS_LAST_SEEN_AT_COOKIE_NAME),
-  );
-  const isSeen =
-    lastSeenAt && dayjs(timestamp2Date(notification.created!)) < lastSeenAt;
 
-  const handleMenuItemClick = () => {
+  const handleMenuItemClick = async () => {
+    await markNotificationSeen();
     router.push(notification.url);
   };
 
@@ -97,7 +92,7 @@ const NotificationItem = ({ notification }: NotificationItemProps) => {
           })}
         </Typography>
       </FlexColumn>
-      {!isSeen && (
+      {!notification.isSeen && (
         <Circle
           sx={{
             color: theme.palette.primary.main,

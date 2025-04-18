@@ -1,8 +1,6 @@
 import { Check, Settings } from "@mui/icons-material";
 import { Alert, Menu, styled, Typography } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import { NOTIFICATIONS_LAST_SEEN_AT_COOKIE_NAME } from "components/Navigation/LoggedInMenu";
-import dayjs from "dayjs";
 import { listNotificationsQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -12,8 +10,8 @@ import { ListNotificationsRes } from "proto/notifications_pb";
 import { useQuery } from "react-query";
 import { notificationSettingsRoute } from "routes";
 import { service } from "service";
+import { markAllNotificationsSeen } from "service/notifications";
 import { theme } from "theme";
-import { timestamp2Date } from "utils/date";
 
 import NotificationItem from "./NotificationItem";
 
@@ -64,10 +62,6 @@ const NotificationsFeed = ({
   const { t } = useTranslation([GLOBAL, NOTIFICATIONS]);
   const router = useRouter();
 
-  const lastSeenAt = dayjs(
-    window.localStorage.getItem(NOTIFICATIONS_LAST_SEEN_AT_COOKIE_NAME),
-  );
-
   const { data, error, isLoading } = useQuery<
     ListNotificationsRes.AsObject,
     RpcError
@@ -78,11 +72,7 @@ const NotificationsFeed = ({
 
   const newNotifications =
     data?.notificationsList
-      .filter(
-        (notification) =>
-          lastSeenAt &&
-          dayjs(timestamp2Date(notification.created!)) > lastSeenAt,
-      )
+      .filter((notification) => !notification.isSeen)
       .map((notification) => (
         <NotificationItem
           key={notification.notificationId}
@@ -92,11 +82,7 @@ const NotificationsFeed = ({
 
   const earlierNotifications =
     data?.notificationsList
-      .filter(
-        (notification) =>
-          lastSeenAt &&
-          dayjs(timestamp2Date(notification.created!)) < lastSeenAt,
-      )
+      .filter((notification) => notification.isSeen)
       .map((notification) => (
         <NotificationItem
           key={notification.notificationId}
@@ -107,6 +93,14 @@ const NotificationsFeed = ({
   const handleNotificationSettingsClick = () => {
     router.push(notificationSettingsRoute);
     onClose();
+  };
+
+  const handleMarkAllReadClick = async () => {
+    try {
+      await markAllNotificationsSeen();
+    } catch (e) {
+      console.error("Error marking all notifications as seen", e);
+    }
   };
 
   return (
@@ -130,7 +124,7 @@ const NotificationsFeed = ({
       <TopContentWrapper>
         <Typography variant="h3">{t("global:nav.notifications")}</Typography>
         <ActionsContainer>
-          <FlexItem>
+          <FlexItem onClick={handleMarkAllReadClick}>
             <Check fontSize="small" />
             <Typography
               variant="body2"
