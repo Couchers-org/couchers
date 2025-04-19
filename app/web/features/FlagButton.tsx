@@ -105,6 +105,9 @@ export default function FlagButton({
         aria-labelledby="content-reporter"
         open={isOpen}
         onClose={handleClose}
+        onClick={(event) => {
+          event.stopPropagation();
+        }}
       >
         <DialogTitle id="content-reporter">
           {t("report.flag.title")}

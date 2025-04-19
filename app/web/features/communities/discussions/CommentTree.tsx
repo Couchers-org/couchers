@@ -1,57 +1,33 @@
-import { Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
+import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
-import makeStyles from "utils/makeStyles";
 
 import { useThread } from "../hooks";
 import Comment from "./Comment";
 import CommentForm from "./CommentForm";
 
-const useStyles = makeStyles((theme) => ({
-  commentsListContainer: {
-    "& > * + *": {
-      marginBlockStart: theme.spacing(2),
-    },
-    display: "flex",
-    flexDirection: "column",
+const StyledCommentsListContainer = styled("div")(({ theme }) => ({
+  "& > * + *": {
     marginBlockStart: theme.spacing(2),
-    marginBlockEnd: theme.spacing(6),
-    [theme.breakpoints.down("sm")]: {
-      //break out of page padding
-      left: "50%",
-      marginLeft: "-50vw",
-      marginRight: "-50vw",
-      position: "relative",
-      right: "50%",
-      width: "100vw",
-    },
   },
-  loadEarlierCommentsButton: {
-    alignSelf: "center",
-  },
-  commentContainer: {
-    display: "flex",
-    padding: theme.spacing(2),
-    width: "100%",
-  },
-  commentContent: {
-    "& > * + *": {
-      marginBlockStart: theme.spacing(0.5),
-    },
-    display: "flex",
-    flexDirection: "column",
-    marginInlineStart: theme.spacing(3),
-  },
-  noComment: {
-    marginBlockEnd: theme.spacing(6),
-  },
-  avatar: {
-    height: "3rem",
-    width: "3rem",
+  padding: theme.spacing(0, 2),
+  display: "flex",
+  flexDirection: "column",
+  marginBlockStart: theme.spacing(2),
+  marginBlockEnd: theme.spacing(6),
+  [theme.breakpoints.down("sm")]: {
+    //break out of page padding
+    left: "50%",
+    marginLeft: "-50vw",
+    marginRight: "-50vw",
+    position: "relative",
+    right: "50%",
+    width: "100vw",
   },
 }));
 
@@ -61,7 +37,6 @@ interface CommentTreeProps {
 
 export default function CommentTree({ threadId }: CommentTreeProps) {
   const { t } = useTranslation([COMMUNITIES]);
-  const classes = useStyles();
 
   const {
     data: comments,
@@ -78,12 +53,14 @@ export default function CommentTree({ threadId }: CommentTreeProps) {
       {isCommentsLoading ? (
         <CenteredSpinner />
       ) : hasAtLeastOnePage(comments, "repliesList") ? (
-        <div className={classes.commentsListContainer}>
+        <StyledCommentsListContainer>
           {hasNextPage && (
             <Button
-              className={classes.loadEarlierCommentsButton}
               loading={isFetchingNextPage}
               onClick={() => fetchNextPage()}
+              sx={{
+                alignSelf: "center",
+              }}
             >
               {t("communities:load_earlier_comments")}
             </Button>
@@ -96,11 +73,11 @@ export default function CommentTree({ threadId }: CommentTreeProps) {
                 <Comment key={comment.threadId} topLevel comment={comment} />
               );
             })}
-        </div>
+        </StyledCommentsListContainer>
       ) : (
         comments &&
         !commentsError && (
-          <Typography className={classes.noComment} variant="body1">
+          <Typography variant="body1" sx={{ marginBlockEnd: theme.spacing(6) }}>
             {t("communities:no_comments")}
           </Typography>
         )
