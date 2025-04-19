@@ -77,6 +77,7 @@ const NotificationsFeed = ({
         <NotificationItem
           key={notification.notificationId}
           notification={notification}
+          onClose={onClose}
         />
       )) ?? [];
 
@@ -87,6 +88,7 @@ const NotificationsFeed = ({
         <NotificationItem
           key={notification.notificationId}
           notification={notification}
+          onClose={onClose}
         />
       )) ?? [];
 
@@ -97,10 +99,15 @@ const NotificationsFeed = ({
 
   const handleMarkAllReadClick = async () => {
     try {
-      await markAllNotificationsSeen();
+      const lastestNotificationId =
+        data?.notificationsList?.[0]?.notificationId;
+      if (!lastestNotificationId) return;
+
+      await markAllNotificationsSeen(lastestNotificationId);
     } catch (e) {
       console.error("Error marking all notifications as seen", e);
     }
+    onClose();
   };
 
   return (

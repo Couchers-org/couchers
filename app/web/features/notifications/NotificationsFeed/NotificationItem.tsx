@@ -14,6 +14,7 @@ import { mapNotificationFeedTypeToIcon } from "../utils/constants";
 
 interface NotificationItemProps {
   notification: Notification.AsObject;
+  onClose: () => void;
 }
 
 const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
@@ -55,19 +56,26 @@ const BottomRightIconWrapper = styled(Box)(({ theme }) => ({
   justifyContent: "center",
 }));
 
-const NotificationItem = ({ notification }: NotificationItemProps) => {
+const NotificationItem = ({ notification, onClose }: NotificationItemProps) => {
   const { t } = useTranslation([GLOBAL]);
   const router = useRouter();
 
   const userName = notification.title.split(" ")[0];
 
   const handleMenuItemClick = async () => {
-    await markNotificationSeen();
+    await markNotificationSeen(notification.notificationId);
     router.push(notification.url);
+    onClose();
   };
 
   return (
-    <StyledMenuItem key={notification.key} onClick={handleMenuItemClick}>
+    <StyledMenuItem
+      data-testid={
+        notification.isSeen ? "notification-item" : "new-notification-item"
+      }
+      key={notification.key}
+      onClick={handleMenuItemClick}
+    >
       <AvatarWrapper>
         <Avatar alt={userName} src={notification.icon} />
         <BottomRightIconWrapper>

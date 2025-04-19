@@ -4,6 +4,7 @@ import {
   ListNotificationsReq,
   MarkAllNotificationsSeenReq,
   MarkNotificationSeenReq,
+  Notification,
   RegisterPushNotificationSubscriptionReq,
   SetNotificationSettingsReq,
   SingleNotificationPreference,
@@ -75,14 +76,25 @@ export async function listNotifications() {
   return res.toObject();
 }
 
-export async function markAllNotificationsSeen() {
+export async function markAllNotificationsSeen(
+  lastestNotificationId: Notification.AsObject["notificationId"],
+) {
   const req = new MarkAllNotificationsSeenReq();
+
+  req.setLatestNotificationId(lastestNotificationId);
+
   const res = await client.notifications.markAllNotificationsSeen(req);
   return res.toObject();
 }
 
-export async function markNotificationSeen() {
+export async function markNotificationSeen(
+  notificationId: Notification.AsObject["notificationId"],
+) {
   const req = new MarkNotificationSeenReq();
+
+  req.setNotificationId(notificationId);
+  req.setSetSeen(true);
+
   const res = await client.notifications.markNotificationSeen(req);
   return res.toObject();
 }

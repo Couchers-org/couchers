@@ -80,9 +80,6 @@
       "required_error": "E-mail nesmí zůstat prázdný."
     }
   },
-  "notification_settings": {
-    "title": "Nastavení upozornění"
-  },
   "community_guidelines_form": {
     "guideline": {
       "required_error": "Všechna pole jsou povinná"
