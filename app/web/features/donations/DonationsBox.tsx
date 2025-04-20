@@ -3,7 +3,6 @@ import {
   FormControl,
   FormControlLabel,
   FormHelperText,
-  Link,
   Radio,
   RadioGroup,
   Typography,
@@ -17,13 +16,12 @@ import {
   DONATIONSBOX_VALUES,
 } from "features/donations/constants";
 import { RpcError } from "grpc-web";
-import { Trans, useTranslation } from "i18n";
+import { useTranslation } from "i18n";
 import { DONATIONS } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
-import { latestFinancialsURL } from "routes";
 import { service } from "service";
 
 const useStyles = makeStyles((theme) => ({
@@ -339,16 +337,6 @@ export default function DonationsBox() {
         />
         <Typography variant="body2" gutterBottom>
           {t("donations_recurrence_explainer")}
-        </Typography>
-
-        <Typography variant="body2">
-          <Link href={latestFinancialsURL} underline="hover">
-            <Trans
-              t={t}
-              i18nKey="donations_use_explainer"
-              values={{ year: "2024" }}
-            />
-          </Link>
         </Typography>
 
         <Divider className={classes.marginY2} />
