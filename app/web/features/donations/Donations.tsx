@@ -205,7 +205,6 @@ export default function Donations() {
         <Typography
           className={classes.donationsLayoutSecondaryTitle}
           variant="h2"
-          gutterBottom
         >
           {t("donations:donations_title2")}
         </Typography>
@@ -216,7 +215,14 @@ export default function Donations() {
             classes.donationsLayoutSecondaryText,
           )}
         >
-          <Typography variant="body2" gutterBottom>
+          <Markdown
+            className={classNames(
+              classes.donationsText,
+              classes.donationsLayoutSecondaryText,
+            )}
+            source={t("donations:donations_text2")}
+          />
+          <Typography variant="body2">
             <Link href={latestFinancialsURL} underline="hover">
               <Trans
                 t={t}
@@ -225,14 +231,6 @@ export default function Donations() {
               />
             </Link>
           </Typography>
-
-          <Markdown
-            className={classNames(
-              classes.donationsText,
-              classes.donationsLayoutSecondaryText,
-            )}
-            source={t("donations:donations_text2")}
-          />
         </div>
       </section>
     </>
