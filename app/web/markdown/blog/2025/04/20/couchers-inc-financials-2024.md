@@ -14,7 +14,7 @@ This is a very short summary of the 2024 financials of Couchers, Inc.: the 501(c
 
 Couchers spent **$1948.26** in 2024, equivalent to **4.1 cents per user**, the breakdown of costs is as follows:
 
-* Amazon Web Services (AWS) &mdash; **$1524.64** (78.3%): hosting of the Couchers.org platform and development/support tools
+* Amazon Web Services (AWS) &mdash; **$1524.64** (78.3%): hosting of the Couchers.org platform and development/support/moderation tools
 * Calendly &mdash; **$162.00** (8.3%): meeting scheduling platform we use to organize volunteer onboarding calls
 * Zoom &mdash; **$159.89** (8.2%): videoconferencing platform for volunteer meetings
 * Expo.dev &mdash; **$39.00** (2.0%): a development tool to automatically build and deploy preview versions of the upcoming native app
@@ -35,7 +35,7 @@ We started the year with **$1270.31** in the bank account and ended it with **$5
 
 ## Outlook for 2025
 
-In 2025 we plan to reduce these expenses in various ways: we have reduced our number of Zoom licenses, gotten lower fees on Calendly, and are doing some cost optimizations in AWS. Nonetheless, we expect hosting costs on AWS to go up due to us hosting more support services, we expect Expo.dev costs to increase as we progress on the native mobile apps, and we expect to incur some fees for Strong Verification and postcard verification. We are now paying for Vercel (last year they provided the service to us for free), a tool to build developer previews of the platform, and expect this to cost us $240 this year. Finally, we can no longer use Figma (a UI/UX design tool) for free going forward and will be paying for a license.
+In 2025 we plan to reduce these expenses in various ways: we have reduced our number of Zoom licenses, gotten lower fees on Calendly, and are doing some cost optimizations in AWS. Nonetheless, we expect hosting costs on AWS to go up due to us hosting more support services, we expect Expo.dev costs to increase as we progress on the native mobile apps, and we expect to incur some fees for Strong Verification and postcard verification. We are now paying for Vercel (last year they provided the service to us for free), a tool to build developer previews of the platform, and expect this to cost us $240 this year. Finally, as we have been iterating and designing new features, we have grown out of our free Figma account (a collaborative tool for UI/UX design) and will need to pay for licenses going forward.
 
 **We project that these basic expenses will reach roughly $3000 in 2025.**
 
@@ -45,6 +45,6 @@ We are currently working on Couchers.org branded merchandise (hoodies, t-shirts,
 
 We hope this quick analysis helps you understand our financial situation, and in particular, that it may encourage you to donate to support the running costs of Couchers. This analysis was based on exports from our bank account and from Stripe which processes our donations, so some minor discrepancies may exist between rigorous accounting.
 
-_Written by [Aapeli](/user/aapeli), reviewed by the Board. Published on 2025/04/20_
+_Written by [Aapeli](/user/aapeli), reviewed by [the Board](/foundation). Published on 2025/04/20_
 
 **Want to submit to our blog? [Sign up](/contribute) and let us know.**
