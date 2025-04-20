@@ -28,4 +28,4 @@ One thing is for sure: if we are lucky enough to experience couch surfing connec
 
 _Written by Bob. Published on 2022/10/11_
 
-**Want to submit to our blog? [Sign up](/contribute) and let us know.**
+**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

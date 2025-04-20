@@ -51,4 +51,4 @@ We hope this quick analysis helps you understand our financial situation, and in
 
 _Written by [Aapeli](/user/aapeli), reviewed by [the Board](/foundation). Published on 2025/04/20_
 
-**Want to submit to our blog? [Sign up](/contribute) and let us know.**
+**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**
