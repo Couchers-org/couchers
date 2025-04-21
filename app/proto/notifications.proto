@@ -94,6 +94,8 @@ message Notification {
 }
 
 message ListNotificationsReq {
+  bool only_unread = 3;
+
   uint32 page_size = 1;
   string page_token = 2;
 }

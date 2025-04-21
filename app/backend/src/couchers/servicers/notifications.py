@@ -3,6 +3,7 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy.sql import or_
 
 from couchers import errors
 from couchers.config import config
@@ -83,6 +84,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
                 select(Notification)
                 .where(Notification.user_id == context.user_id)
                 .where(Notification.id <= next_notification_id)
+                .where(or_(request.only_unread == False, Notification.is_seen == False))
                 .order_by(Notification.id.desc())
                 .limit(page_size + 1)
             )
