@@ -745,6 +745,7 @@ def test_archive_host_request(db):
         assert e.value.details() == errors.HOST_REQUEST_PENDING_ARCHIVE_ATTEMPT
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
         assert len(res.host_requests) == 1
+        
     #happy path archiving host request
     with requests_session(token1) as api:
         api.RespondHostRequest(
@@ -1120,3 +1121,4 @@ def test_request_notifications(db, push_collector):
     push_collector.assert_user_has_single_matching(
         surfer.id,
         title=f"{host.name} accepted your host request",
+    )
