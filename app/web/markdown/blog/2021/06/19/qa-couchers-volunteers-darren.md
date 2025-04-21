@@ -39,4 +39,4 @@ Our code is so new and it really feels like the cutting edge. Our development is
 
 *Written by Emily. Published on 2021/06/19.*
 
-**Want to submit to our blog? [Sign up](/volunteer) and let us know.**
+**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

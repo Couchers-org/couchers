@@ -26,7 +26,7 @@ module.exports = {
     {
       source: "/foundation/constitution.pdf",
       destination:
-        "https://github.com/Couchers-org/couchers/raw/develop/foundation/constitution/constitution.pdf",
+        "https://github.com/Couchers-org/couchers/raw/develop/foundation/bylaws/bylaws.pdf",
       permanent: false,
     },
     {

@@ -48,4 +48,4 @@ None of this would be possible without our 100+ volunteers working in all areas 
 
 *Written by Aapeli. Published on 2021/04/25.*
 
-**Want to submit to our blog? [Sign up](/volunteer) and let us know.**
+**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**
