@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Couchers, Inc. financials for 2024](/blog/2025/04/20/couchers-inc-financials-2024)
+
+2025/04/20.
+
+Summary of the financials of Couchers, Inc. for 2024.
+
+[Read more.](/blog/2025/04/20/couchers-inc-financials-2024)
+
 ## [50 000+ Couchers Milestone Reached](/blog/2025/04/12/50k-couchers-milestone-reached)
 
 2025/04/12.
