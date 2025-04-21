@@ -350,6 +350,65 @@ def test_list_notifications(db, push_collector):
     assert bodys == [n.body for n in all_notifs]
 
 
+def test_notifications_seen(db, push_collector):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
+
+    with api_session(token2) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+
+    with api_session(token3) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+
+    with notifications_session(token1) as notifications, api_session(token1) as api:
+        res = notifications.ListNotifications(notifications_pb2.ListNotificationsReq())
+        assert len(res.notifications) == 2
+        assert [n.is_seen for n in res.notifications] == [False, False]
+        notification_ids = [n.notification_id for n in res.notifications]
+        # should be listed desc time
+        assert notification_ids[0] > notification_ids[1]
+
+        assert api.Ping(api_pb2.PingReq()).unseen_notification_count == 2
+
+    with api_session(token4) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+
+    with notifications_session(token1) as notifications, api_session(token1) as api:
+        # mark everything before just the last one as seen (pretend we didn't load the last one yet in the api)
+        notifications.MarkAllNotificationsSeen(
+            notifications_pb2.MarkAllNotificationsSeenReq(latest_notification_id=notification_ids[0])
+        )
+
+        # last one is still unseen
+        assert api.Ping(api_pb2.PingReq()).unseen_notification_count == 1
+
+        # mark the first one unseen
+        notifications.MarkNotificationSeen(
+            notifications_pb2.MarkNotificationSeenReq(notification_id=notification_ids[1], set_seen=False)
+        )
+        assert api.Ping(api_pb2.PingReq()).unseen_notification_count == 2
+
+        # mark the last one seen
+        res = notifications.ListNotifications(notifications_pb2.ListNotificationsReq())
+        assert len(res.notifications) == 3
+        assert [n.is_seen for n in res.notifications] == [False, True, False]
+        notification_ids2 = [n.notification_id for n in res.notifications]
+
+        assert api.Ping(api_pb2.PingReq()).unseen_notification_count == 2
+
+        notifications.MarkNotificationSeen(
+            notifications_pb2.MarkNotificationSeenReq(notification_id=notification_ids2[0], set_seen=True)
+        )
+
+        res = notifications.ListNotifications(notifications_pb2.ListNotificationsReq())
+        assert len(res.notifications) == 3
+        assert [n.is_seen for n in res.notifications] == [True, True, False]
+
+        assert api.Ping(api_pb2.PingReq()).unseen_notification_count == 1
+
+
 def test_GetVapidPublicKey(db):
     _, token = generate_user()
 

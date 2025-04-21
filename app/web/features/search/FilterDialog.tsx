@@ -1,369 +1,563 @@
+import { InfoOutlined } from "@mui/icons-material";
 import {
-  Checkbox,
-  Chip,
-  FormControlLabel,
-  Grid,
-  Input,
-  InputAdornment,
-  SelectChangeEvent,
-  Theme,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
-import Button from "components/Button";
-import {
-  Dialog,
+  Button,
   DialogActions,
-  DialogContent,
-  DialogTitle,
-} from "components/Dialog";
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Slider,
+  SliderThumb,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { styled, useMediaQuery } from "@mui/system";
+import CustomColorSwitch from "components/CustomColorSwitch";
+import { Dialog, DialogTitle } from "components/Dialog";
 import Divider from "components/Divider";
 import IconButton from "components/IconButton";
-import { CrossIcon } from "components/Icons";
-import LocationAutocomplete from "components/LocationAutocomplete";
-import Select from "components/Select";
-import TextField from "components/TextField";
-import { TFunction, useTranslation } from "i18n";
+import { CloseIcon } from "components/Icons";
+import PlusMinusSelector from "components/PlusMinusSelector";
+import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { HostingStatus } from "proto/api_pb";
-import { Dispatch, SetStateAction } from "react";
-import { useForm } from "react-hook-form";
-import { GeocodeResult } from "utils/hooks";
-import SearchFilters from "utils/searchFilters";
+import { HostingStatus, SleepingArrangement } from "proto/api_pb";
+import { theme } from "theme";
 
-import { lastActiveOptions } from "./constants";
-import { TypeHostingStatusOptions } from "./SearchPage";
+import { FilterOptions } from "./SearchPage";
+import { useMapSearchActions } from "./state/useMapSearchActions";
+import {
+  DEFAULT_AGE_MAX,
+  DEFAULT_AGE_MIN,
+  HostingStatusOptions,
+  lastActiveOptions,
+  SleepingArrangementOptions,
+} from "./utils/constants";
 
-const getLastActiveOptions = (t: TFunction) => ({
-  [lastActiveOptions.LAST_ACTIVE_ANY]: t("search:last_active_options.any"),
-  [lastActiveOptions.LAST_ACTIVE_LAST_DAY]: t(
-    "search:last_active_options.last_day",
-  ),
-  [lastActiveOptions.LAST_ACTIVE_LAST_WEEK]: t(
-    "search:last_active_options.last_week",
-  ),
-  [lastActiveOptions.LAST_ACTIVE_LAST_2_WEEKS]: t(
-    "search:last_active_options.last_2_weeks",
-  ),
-  [lastActiveOptions.LAST_ACTIVE_LAST_MONTH]: t(
-    "search:last_active_options.last_month",
-  ),
-  [lastActiveOptions.LAST_ACTIVE_LAST_3_MONTHS]: t(
-    "search:last_active_options.last_3_months",
-  ),
+interface FilterDialogProps {
+  filters: FilterOptions;
+  isOpen: boolean;
+  onCloseDialog: () => void;
+  resetFilters: () => void;
+  updateFilter: (filter: FilterOptions) => void;
+}
+
+const StyledDialog = styled(Dialog)({
+  "& .MuiDialog-paper": {
+    borderRadius: "20px",
+    width: "100%",
+    maxWidth: "50%",
+    padding: theme.spacing(1),
+  },
 });
 
-const getHostingStatusOptions = (t: TFunction) => ({
-  [HostingStatus.HOSTING_STATUS_CAN_HOST]: t("global:hosting_status.can_host"),
-  [HostingStatus.HOSTING_STATUS_MAYBE]: t("global:hosting_status.maybe"),
-  [HostingStatus.HOSTING_STATUS_CANT_HOST]: t(
-    "global:hosting_status.cant_host",
-  ),
+const FilterItemsContainer = styled("div")({
+  display: "flex",
+  flexDirection: "column",
+  padding: theme.spacing(1, 2),
+  overflowY: "auto",
+  maxHeight: "60vh",
 });
 
-const useStyles = makeStyles((theme) => ({
-  container: {
-    "& > * + *": {
-      marginBlockStart: theme.spacing(1),
+const FilterItemRow = styled("div")({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  width: "100%",
+  marginBottom: theme.spacing(2),
+});
+
+const StyledSlider = styled(Slider)(({ theme }) => ({
+  height: 3,
+  padding: "13px 0",
+  marginLeft: theme.spacing(1.5),
+  marginRight: theme.spacing(1.5),
+
+  "& .MuiSlider-thumb": {
+    height: 27,
+    width: 27,
+    backgroundColor: "#fff",
+    border: "1px solid currentColor",
+    "&:hover": {
+      boxShadow: "0 0 0 8px rgba(58, 133, 137, 0.16)",
+    },
+    "& .thumb-bar": {
+      height: 9,
+      width: 1,
+      backgroundColor: "currentColor",
+      marginLeft: 1,
+      marginRight: 1,
     },
   },
-  marginBottom: {
-    marginBottom: theme.spacing(2),
+  "& .MuiSlider-track": {
+    height: 3,
   },
-  smallLeftPadding: {
-    "& > li": {
-      paddingLeft: 10,
-      "&.Mui-selected": {
-        backgroundColor: theme.palette.primary.main + 70,
-        fontWeight: "bold",
-        "&:hover": {
-          backgroundColor: theme.palette.primary.main + 90,
-        },
-      },
-    },
-  },
-  noMargin: {
-    margin: 0,
-  },
-  noLeftPadding: {
-    paddingLeft: 0,
-  },
-  inputHostingStatus: {
-    minWidth: "160px",
-  },
-  chips: {
-    display: "flex",
-    flexWrap: "wrap",
-  },
-  chip: {
-    margin: 2,
+  "& .MuiSlider-rail": {
+    color: theme.palette.grey[200],
+    opacity: 1,
+    height: 3,
+    ...theme.applyStyles("dark", {
+      color: "#bfbfbf",
+      opacity: undefined,
+    }),
   },
 }));
 
-interface FilterModalFormData
-  extends Omit<SearchFilters, "location" | "lastActive"> {
-  location: GeocodeResult | "";
-  lastActive: ReturnType<typeof getLastActiveOptions>;
+interface SliderThumbComponentProps extends React.HTMLAttributes<unknown> {
+  children?: React.ReactNode;
 }
 
-interface FilterDialogProps {
-  isOpen: boolean;
-  onClose(): void;
-  queryName: string;
-  setQueryName: Dispatch<SetStateAction<string>>;
-  setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
-  lastActiveFilter: number;
-  setLastActiveFilter: Dispatch<SetStateAction<number>>;
-  hostingStatusFilter: TypeHostingStatusOptions;
-  setHostingStatusFilter: Dispatch<SetStateAction<TypeHostingStatusOptions>>;
-  completeProfileFilter: boolean;
-  setCompleteProfileFilter: Dispatch<SetStateAction<boolean>>;
-  numberOfGuestFilter: number | undefined;
-  setNumberOfGuestFilter: Dispatch<SetStateAction<number | undefined>>;
-}
-
-export default function FilterDialog({
-  isOpen,
-  onClose,
-  queryName,
-  setQueryName,
-  setLocationResult,
-  lastActiveFilter,
-  setLastActiveFilter,
-  hostingStatusFilter,
-  setHostingStatusFilter,
-  completeProfileFilter,
-  setCompleteProfileFilter,
-  numberOfGuestFilter,
-  setNumberOfGuestFilter,
-}: FilterDialogProps) {
-  const { t } = useTranslation([GLOBAL, SEARCH]);
-  const classes = useStyles();
-  const {
-    control,
-    register,
-    formState: { errors },
-  } = useForm<FilterModalFormData>({
-    mode: "onBlur",
-  });
-
-  const MenuProps = {
-    PaperProps: {
-      style: {
-        maxHeight: 48 * 4.5 + 8,
-        width: 250,
-      },
-    },
-    MenuListProps: {
-      className: classes.smallLeftPadding,
-    },
-  };
-
-  const isSmDown = useMediaQuery((theme: Theme) =>
-    theme.breakpoints.down("md"),
+function SliderThumbComponent(props: SliderThumbComponentProps) {
+  const { children, ...other } = props;
+  return (
+    <SliderThumb {...other}>
+      {children}
+      <span className="thumb-bar" />
+      <span className="thumb-bar" />
+      <span className="thumb-bar" />
+    </SliderThumb>
   );
+}
 
-  const handleNumGuestsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const convertedValue = parseInt(e.target.value);
-    const tempNumOfGuest =
-      !Number.isNaN(convertedValue) && convertedValue > 0
-        ? convertedValue
-        : undefined;
+const FilterDialog = ({
+  filters,
+  isOpen,
+  onCloseDialog,
+  resetFilters,
+  updateFilter,
+}: FilterDialogProps) => {
+  const { t } = useTranslation([GLOBAL, SEARCH]);
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-    setNumberOfGuestFilter(tempNumOfGuest);
+  const { setSearchFilters } = useMapSearchActions();
+
+  const handleAcceptsPetsChange = () => {
+    updateFilter({ acceptsPets: !filters.acceptsPets });
   };
 
-  const handleLastActiveChange = (event: SelectChangeEvent<unknown>) => {
-    const value = parseInt(event.target.value as string);
-    setLastActiveFilter(value);
+  const handleAcceptsKidsChange = () => {
+    updateFilter({ acceptsKids: !filters.acceptsKids });
+  };
+
+  const handleAcceptsLastMinRequestsChange = () => {
+    updateFilter({ acceptsLastMinRequests: !filters.acceptsLastMinRequests });
+  };
+
+  const handleAgeRangeChange = (event: Event, newValue: number | number[]) => {
+    if (Array.isArray(newValue)) {
+      updateFilter({ ageMin: newValue[0], ageMax: newValue[1] });
+    }
+  };
+
+  const handleDrinkingAllowedChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newDrinkingAllowed: boolean | undefined,
+  ) => {
+    updateFilter({ drinkingAllowed: newDrinkingAllowed });
+  };
+
+  const handleShowCompleteProfilesOnlyChange = () => {
+    updateFilter({ completeProfile: !filters.completeProfile });
+  };
+
+  const handleLastActiveSelect = (event: SelectChangeEvent<number>) => {
+    const value = event.target.value as lastActiveOptions;
+    updateFilter({ lastActive: value });
+  };
+
+  const handleHasReferencesChange = () => {
+    updateFilter({ hasReferences: !filters.hasReferences });
+  };
+
+  const handleHasStrongVerificationChange = () => {
+    updateFilter({ hasStrongVerification: !filters.hasStrongVerification });
+  };
+
+  const handleHostingStatusChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newHostingStatus: HostingStatusOptions[],
+  ) => {
+    updateFilter({ hostingStatus: newHostingStatus });
+  };
+
+  const handleNumberOfGuestsChange = (value: number | undefined) => {
+    updateFilter({ numGuests: value });
+  };
+
+  const handleSleepingArrangementChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newSleepingArrangement: SleepingArrangementOptions[],
+  ) => {
+    updateFilter({ sleepingArrangement: newSleepingArrangement });
+  };
+
+  const handleSmokesAtHomeChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newSmokesAtHome: boolean | undefined,
+  ) => {
+    updateFilter({ smokesAtHome: newSmokesAtHome });
+  };
+
+  const handleClearFilters = () => {
+    resetFilters();
+  };
+
+  const handleApplyFilters = () => {
+    setSearchFilters(filters);
+
+    onCloseDialog();
   };
 
   return (
-    <Dialog
+    <StyledDialog
+      aria-labelledby={t("search:filter_dialog.desktop_title")}
       open={isOpen}
-      onClose={onClose}
-      aria-labelledby="filter-dialog-title"
+      onClose={() => {}}
+      title={t("search:filter_dialog.desktop_title")}
     >
       <DialogTitle id="filter-dialog-title">
-        {isSmDown
+        {isMobile
           ? t("search:filter_dialog.mobile_title")
           : t("search:filter_dialog.desktop_title")}
       </DialogTitle>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          onClose();
-        }}
+      <IconButton
+        aria-label="close"
+        onClick={onCloseDialog}
+        sx={(theme) => ({
+          position: "absolute",
+          right: 8,
+          top: 8,
+          color: theme.palette.grey[500],
+        })}
       >
-        <DialogContent>
-          <div className={classes.container}>
-            <LocationAutocomplete
-              control={control}
-              name="location"
-              defaultValue={""}
-              label={t("search:form.location_field_label")}
-              onChange={(event) => {
-                if (event) {
-                  const { bbox } = event;
-                  const newLocationResult: GeocodeResult = {
-                    ...event,
-                    bbox: [bbox[2], bbox[3], bbox[0], bbox[1]], //sw long, sw lat, ne long, ne lat
-                  };
-                  setLocationResult(newLocationResult);
-                }
-              }}
-              fieldError={errors.location?.message}
-              disableRegions
-            />
-            <TextField
-              fullWidth
-              id="keywords-filter"
-              {...register("query")}
-              label={t("search:form.keywords.field_label")}
-              variant="standard"
-              onChange={(e) => {
-                if (e) {
-                  setQueryName(e.target.value);
-                }
-              }}
-              value={queryName}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label={t(
-                        "search:form.keywords.clear_field_action_a11y_label",
-                      )}
-                      onClick={() => {
-                        setQueryName("");
-                      }}
-                      size="small"
-                    >
-                      <CrossIcon />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </div>
-          <Divider />
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6} className={classes.container}>
-              <Typography variant="h3">
-                {t("search:form.host_filters.title")}
-              </Typography>
+        <CloseIcon />
+      </IconButton>
+      <FilterItemsContainer>
+        <FilterItemRow>
+          <Typography>
+            {t("search:form.empty_profile_filters.title")}
+          </Typography>
+          <CustomColorSwitch
+            checked={filters.completeProfile || false}
+            onClick={handleShowCompleteProfilesOnlyChange}
+            customColor={theme.palette.primary.main}
+          />
+        </FilterItemRow>
+        <FilterItemRow>
+          <Typography>
+            {t("search:form.host_filters.last_active_field_label")}
+          </Typography>
+          <Select<number>
+            id="last_active_filter"
+            onChange={handleLastActiveSelect}
+            variant="outlined"
+            size="small"
+            value={filters.lastActive}
+          >
+            <MenuItem value={lastActiveOptions.LAST_ACTIVE_ANY}>
+              {t("search:last_active_options.any")}
+            </MenuItem>
+            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_DAY}>
+              {t("search:last_active_options.last_day")}
+            </MenuItem>
+            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_WEEK}>
+              {t("search:last_active_options.last_week")}
+            </MenuItem>
+            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_2_WEEKS}>
+              {t("search:last_active_options.last_2_weeks")}
+            </MenuItem>
+            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_MONTH}>
+              {t("search:last_active_options.last_month")}
+            </MenuItem>
+            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_3_MONTHS}>
+              {t("search:last_active_options.last_3_months")}
+            </MenuItem>
+          </Select>
+        </FilterItemRow>
+        <FilterItemRow>
+          <Typography>
+            {t("search:form.general_filters.has_references")}
+          </Typography>
+          <CustomColorSwitch
+            checked={filters.hasReferences || false}
+            onClick={handleHasReferencesChange}
+            customColor={theme.palette.primary.main}
+          />
+        </FilterItemRow>
+        <FilterItemRow>
+          <Typography>
+            {t("search:form.general_filters.has_strong_verification")}{" "}
+            <Tooltip title={t("global:strong_verification.helper_text")}>
+              <InfoOutlined
+                sx={{
+                  fontSize: "16px",
+                  color: theme.palette.primary.main,
 
-              <Select
-                id="last_active_filter"
-                className={classes.marginBottom}
-                value={lastActiveFilter}
-                onChange={handleLastActiveChange}
-                label={t("search:form.host_filters.last_active_field_label")}
-                optionLabelMap={getLastActiveOptions(t)}
-                options={[
-                  lastActiveOptions.LAST_ACTIVE_ANY,
-                  lastActiveOptions.LAST_ACTIVE_LAST_DAY,
-                  lastActiveOptions.LAST_ACTIVE_LAST_WEEK,
-                  lastActiveOptions.LAST_ACTIVE_LAST_2_WEEKS,
-                  lastActiveOptions.LAST_ACTIVE_LAST_MONTH,
-                  lastActiveOptions.LAST_ACTIVE_LAST_3_MONTHS,
-                ]}
+                  "$:hover": {
+                    cursor: "pointer",
+                  },
+                }}
               />
+            </Tooltip>
+          </Typography>
+          <CustomColorSwitch
+            checked={filters.hasStrongVerification || false}
+            onClick={handleHasStrongVerificationChange}
+            customColor={theme.palette.primary.main}
+          />
+        </FilterItemRow>
+        <FilterItemRow>
+          <Typography>
+            {t("search:form.general_filters.accepts_last_minute_requests")}
+          </Typography>
+          <CustomColorSwitch
+            checked={filters.acceptsLastMinRequests || false}
+            onClick={handleAcceptsLastMinRequestsChange}
+            customColor={theme.palette.primary.main}
+          />
+        </FilterItemRow>
+        <Divider />
+        <Typography variant="h3" sx={{ marginBottom: theme.spacing(2) }}>
+          {t("search:form.rules.title")}
+        </Typography>
+        <FilterItemRow>
+          <Typography> {t("search:form.rules.kids_allowed")}</Typography>
+          <CustomColorSwitch
+            checked={filters.acceptsKids || false}
+            onClick={handleAcceptsKidsChange}
+            customColor={theme.palette.primary.main}
+          />
+        </FilterItemRow>
+        <FilterItemRow>
+          <Typography> {t("search:form.rules.pets_allowed")}</Typography>
+          <CustomColorSwitch
+            checked={filters.acceptsPets || false}
+            onClick={handleAcceptsPetsChange}
+            customColor={theme.palette.primary.main}
+          />
+        </FilterItemRow>
+        <FilterItemRow>
+          <Typography> {t("search:form.rules.smokes_at_home")}</Typography>
+          <ToggleButtonGroup
+            onChange={handleSmokesAtHomeChange}
+            value={filters.smokesAtHome}
+            aria-label={t("search:form.rules.smokes_at_home")}
+            exclusive
+            size="small"
+            color="primary"
+            sx={{
+              borderRadius: 20,
+              marginRight: "-5px",
+            }}
+          >
+            <ToggleButton
+              value={true}
+              aria-label={t("global:yes")}
+              sx={{ borderRadius: "20px 0 0 20px" }}
+            >
+              {t("global:yes")}
+            </ToggleButton>
+            <ToggleButton
+              value={false}
+              aria-label={t("global:no")}
+              sx={{ borderRadius: "0 20px 20px 0" }}
+            >
+              {t("global:no")}
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </FilterItemRow>
+        <FilterItemRow>
+          <Typography> {t("search:form.rules.alcohol_allowed")}</Typography>
+          <ToggleButtonGroup
+            onChange={handleDrinkingAllowedChange}
+            value={filters.drinkingAllowed}
+            aria-label={t("search:form.rules.smokes_at_home")}
+            exclusive
+            size="small"
+            color="primary"
+            sx={{
+              borderRadius: 20,
+              marginRight: "-5px",
+            }}
+          >
+            <ToggleButton
+              value={true}
+              aria-label={t("global:yes")}
+              sx={{ borderRadius: "20px 0 0 20px" }}
+            >
+              {t("global:yes")}
+            </ToggleButton>
+            <ToggleButton
+              value={false}
+              aria-label={t("global:no")}
+              sx={{ borderRadius: "0 20px 20px 0" }}
+            >
+              {t("global:no")}
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </FilterItemRow>
+        <Divider />
+        <Typography variant="h3" sx={{ marginBottom: theme.spacing(2) }}>
+          {t("search:form.host_filters.title")}
+        </Typography>
+        <FilterItemRow>
+          <Typography>
+            {t("search:form.host_filters.hosting_status_field_label")}
+          </Typography>
+          <ToggleButtonGroup
+            onChange={handleHostingStatusChange}
+            value={filters.hostingStatus}
+            aria-label={t(
+              "search:form.host_filters.hosting_status_field_label",
+            )}
+            size="small"
+            color="primary"
+            sx={{
+              borderRadius: 20,
+              marginRight: "-5px",
+            }}
+          >
+            <ToggleButton
+              value={HostingStatus.HOSTING_STATUS_CAN_HOST}
+              aria-label={t("global:hosting_status.can_host")}
+              sx={{ borderRadius: "20px 0 0 20px" }}
+            >
+              {t("global:hosting_status.can_host")}
+            </ToggleButton>
+            <ToggleButton
+              value={HostingStatus.HOSTING_STATUS_MAYBE}
+              aria-label={t("global:hosting_status.maybe")}
+            >
+              {t("global:hosting_status.maybe")}
+            </ToggleButton>
+            <ToggleButton
+              value={HostingStatus.HOSTING_STATUS_CANT_HOST}
+              aria-label={t("global:hosting_status.cant_host")}
+              sx={{ borderRadius: "0 20px 20px 0" }}
+            >
+              {t("global:hosting_status.cant_host")}
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </FilterItemRow>
+        <FilterItemRow>
+          <Typography>
+            {t("search:form.host_filters.age.field_label")}
+          </Typography>
+        </FilterItemRow>
+        <FilterItemRow>
+          <StyledSlider
+            getAriaLabel={(index) =>
+              index === 0
+                ? t("search:form.host_filters.age.min_age")
+                : t("search:form.host_filters.age.max_age")
+            }
+            value={[
+              filters.ageMin || DEFAULT_AGE_MIN,
+              filters.ageMax || DEFAULT_AGE_MAX,
+            ]}
+            onChange={handleAgeRangeChange}
+            valueLabelDisplay="auto"
+            slots={{ thumb: SliderThumbComponent }}
+            defaultValue={[DEFAULT_AGE_MIN, DEFAULT_AGE_MAX]}
+            min={DEFAULT_AGE_MIN}
+            max={DEFAULT_AGE_MAX}
+            marks={[
+              {
+                value: DEFAULT_AGE_MIN,
+                label: `${DEFAULT_AGE_MIN}`,
+              },
+              {
+                value: DEFAULT_AGE_MAX,
+                label: `${DEFAULT_AGE_MAX}`,
+              },
+            ]}
+          />
+        </FilterItemRow>
+        <Divider />
+        <Typography variant="h3" sx={{ marginBottom: theme.spacing(2) }}>
+          {t("search:form.accommodation_filters.title")}
+        </Typography>
+        <FilterItemRow>
+          <Typography>
+            {t("search:form.accommodation_filters.guests_field_label")}
+          </Typography>
+          <PlusMinusSelector
+            onChange={handleNumberOfGuestsChange}
+            value={filters.numGuests}
+          />
+        </FilterItemRow>
+        <FilterItemRow>
+          <Typography>
+            {t("search:form.accommodation_filters.sleeping_arrangement_label")}
+          </Typography>
+          <ToggleButtonGroup
+            onChange={handleSleepingArrangementChange}
+            value={filters.sleepingArrangement}
+            aria-label={t(
+              "search:form.accommodation_filters.sleeping_arrangement_label",
+            )}
+            size="small"
+            color="primary"
+            sx={{
+              borderRadius: 20,
+              marginRight: "-5px",
+            }}
+          >
+            <ToggleButton
+              value={SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON}
+              aria-label={t(
+                "search:form.accommodation_filters.sleeping_arrangement_filters.common",
+              )}
+              sx={{ borderRadius: "20px 0 0 20px" }}
+            >
+              {t(
+                "search:form.accommodation_filters.sleeping_arrangement_filters.common",
+              )}
+            </ToggleButton>
+            <ToggleButton
+              value={SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE}
+              aria-label={t(
+                "search:form.accommodation_filters.sleeping_arrangement_filters.private",
+              )}
+            >
+              {t(
+                "search:form.accommodation_filters.sleeping_arrangement_filters.private",
+              )}
+            </ToggleButton>
+            <ToggleButton
+              value={SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM}
+              aria-label={t(
+                "search:form.accommodation_filters.sleeping_arrangement_filters.shared_room",
+              )}
+              sx={{ borderRadius: "0 20px 20px 0" }}
+            >
+              {t(
+                "search:form.accommodation_filters.sleeping_arrangement_filters.shared_room",
+              )}
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </FilterItemRow>
+      </FilterItemsContainer>
+      <DialogActions sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Button onClick={handleClearFilters}>
+          {t("search:form.clear_filters")}
+        </Button>
+        <Button
+          onClick={handleApplyFilters}
+          sx={{
+            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.common.white,
 
-              <Select
-                id="can_host_status_filter_1"
-                variant="outlined"
-                label={t("search:form.host_filters.hosting_status_field_label")}
-                multiple={true}
-                menuItems={true}
-                value={hostingStatusFilter}
-                onChange={(e) =>
-                  setHostingStatusFilter(
-                    e.target.value as TypeHostingStatusOptions,
-                  )
-                }
-                input={
-                  <Input
-                    className={classes.inputHostingStatus}
-                    id="select-multiple-chip"
-                  />
-                }
-                className={classes.marginBottom}
-                native={false}
-                renderValue={(selected) => (
-                  <div className={classes.chips}>
-                    {(selected as TypeHostingStatusOptions).map(
-                      // Type coercion bc the selected value type is unknown in the mui Select component
-                      (
-                        value: Exclude<
-                          HostingStatus,
-                          | HostingStatus.HOSTING_STATUS_UNKNOWN
-                          | HostingStatus.HOSTING_STATUS_UNSPECIFIED
-                        >,
-                      ) => (
-                        <Chip
-                          key={value}
-                          label={getHostingStatusOptions(t)[value]}
-                          className={classes.chip}
-                        />
-                      ),
-                    )}
-                  </div>
-                )}
-                MenuProps={MenuProps}
-                optionLabelMap={getHostingStatusOptions(t)}
-                options={[
-                  HostingStatus.HOSTING_STATUS_CAN_HOST,
-                  HostingStatus.HOSTING_STATUS_MAYBE,
-                  HostingStatus.HOSTING_STATUS_CANT_HOST,
-                ]}
-              />
-
-              <FormControlLabel
-                className={classes.noMargin}
-                control={
-                  <Checkbox
-                    className={classes.noLeftPadding}
-                    color="primary"
-                    checked={completeProfileFilter}
-                    onChange={() => {
-                      setCompleteProfileFilter(!completeProfileFilter);
-                    }}
-                  />
-                }
-                label={t("search:form.empty_profile_filters.title")}
-              />
-            </Grid>
-            <Grid item xs={12} md={6} className={classes.container}>
-              <Typography variant="h3">
-                {t("search:form.accommodation_filters.title")}
-              </Typography>
-              <TextField
-                id="num-guests-filter"
-                {...register("numGuests", {
-                  valueAsNumber: true,
-                })}
-                className={classes.noMargin}
-                type="number"
-                variant="standard"
-                value={numberOfGuestFilter}
-                inputProps={{ min: 0 }}
-                onChange={handleNumGuestsChange}
-                fullWidth
-                label={t(
-                  "search:form.accommodation_filters.guests_field_label",
-                )}
-                error={!!errors.numGuests}
-                helperText={errors.numGuests?.message}
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button type="submit">{t("search:form.submit_button_label")}</Button>
-        </DialogActions>
-      </form>
-    </Dialog>
+            "&:hover": {
+              backgroundColor: theme.palette.primary.dark,
+            },
+          }}
+        >
+          {t("search:form.submit_button_label")}
+        </Button>
+      </DialogActions>
+    </StyledDialog>
   );
-}
+};
+
+export default FilterDialog;

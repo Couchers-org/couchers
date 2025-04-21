@@ -113,6 +113,8 @@ message PingRes {
   uint32 unseen_sent_host_request_count = 5;
   uint32 unseen_received_host_request_count = 6;
   uint32 pending_friend_request_count = 4;
+
+  uint32 unseen_notification_count = 7;
 }
 
 message MutualFriend {

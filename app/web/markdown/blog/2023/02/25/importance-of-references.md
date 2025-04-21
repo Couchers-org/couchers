@@ -64,4 +64,4 @@ Here are some ideas on what to include in your reference:
 
 _Written by Bob. Published on 2023/02/25_
 
-**Want to submit to our blog? [Sign up](/contribute) and let us know.**
+**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

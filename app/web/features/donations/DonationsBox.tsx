@@ -335,7 +335,7 @@ export default function DonationsBox() {
             </FormControl>
           )}
         />
-        <Typography variant="body2">
+        <Typography variant="body2" gutterBottom>
           {t("donations_recurrence_explainer")}
         </Typography>
 

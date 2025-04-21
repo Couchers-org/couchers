@@ -101,4 +101,4 @@ The full bylaws are available [here](/foundation/bylaws.pdf), and you can find m
 
 _Written by [Aapeli](/user/aapeli). Published on 2024/04/30_
 
-**Want to submit to our blog? [Sign up](/contribute) and let us know.**
+**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

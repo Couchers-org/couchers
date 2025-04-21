@@ -1,5 +1,7 @@
 {
   "close": "Close",
+  "expand": "Expand",
+  "retract": "Retract",
   "couchers": "Couchers.org",
   "legal_name": "Couchers, Inc.",
   "login": "Log in",
@@ -24,6 +26,8 @@
   "confirm": "Confirm",
   "load_more": "Load more",
   "read_more": "Read more",
+  "next": "Next",
+  "previous": "Previous",
   "cookie_message": "We use cookies to ensure that we give you the best experience on our website. If you continue to use this site, we will assume that you are happy with it. You can read more about our <1>Terms of Service</1>.",
   "hosting_status": {
     "any": "Any",
@@ -133,7 +137,7 @@
     "roadmap_updates": "Roadmap & Updates",
     "help": "Help",
     "log_out": "Log out",
-    "map_search": "Map Search",
+    "map_search": "Search",
     "mission": "Mission and Values",
     "messages": "Messages",
     "our_plan": "Our Plan",
