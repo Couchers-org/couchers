@@ -43,7 +43,7 @@ export default function CommunitiesSection() {
         </Trans>
       </Typography>
       <CommunitiesList />
-     
+
       <Typography
         variant="body1"
         paragraph

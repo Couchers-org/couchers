@@ -93,12 +93,12 @@ export default function HeroLinks() {
             </MuiLink>*/}
 
             <StyledLink
-            underline="none"
-            href="/communities"
-            className={classes.tabAppearance}
-          >
-            {t("browse_communities")}
-          </StyledLink>
+              underline="none"
+              href="/communities"
+              className={classes.tabAppearance}
+            >
+              {t("browse_communities")}
+            </StyledLink>
           </ThemeProvider>
         </StyledEngineProvider>
       </div>

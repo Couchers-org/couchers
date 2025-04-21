@@ -1,21 +1,29 @@
-import { Divider, List, ListItem, ListItemText, Typography } from "@mui/material";
+import {
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+} from "@mui/material";
 import MuiLink from "@mui/material/Link";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import PageTitle from "components/PageTitle";
 import StyledLink from "components/StyledLink";
 import {
   useCommunity,
   useListSubCommunities,
 } from "features/communities/hooks";
-import { Trans,useTranslation  } from "i18n";
-import { DASHBOARD } from "i18n/namespaces";
+import { Trans, useTranslation } from "i18n";
+import { COMMUNITIES, DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
 import React, { useEffect, useRef, useState } from "react";
 import { routeToCommunity } from "routes";
 import makeStyles from "utils/makeStyles";
 
-const COMMUNITY_BUILDER_FORM_LINK = "https://couchers.org/community-builder-form";
+const COMMUNITY_BUILDER_FORM_LINK =
+  "https://couchers.org/community-builder-form";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -41,10 +49,16 @@ const useStyles = makeStyles((theme) => ({
   createCommunityText: {
     paddingBlockStart: theme.spacing(2),
   },
+  headerRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    width: "100%",
+    paddingBottom: theme.spacing(1),
+  },
 }));
 
 const CommunitiesPage = () => {
-  const { t } = useTranslation([DASHBOARD]);
+  const { t } = useTranslation([COMMUNITIES, DASHBOARD, GLOBAL]);
   const classes = useStyles();
   const [selected, setSelected] = useState<Community.AsObject[]>([]);
 
@@ -105,64 +119,71 @@ const CommunitiesPage = () => {
   };
 
   return (
-    <div className={classes.root}>
-      {cachedQueryResults.map((query, index) => (
-        <BrowserColumn
-          key={index}
-          parent={selected?.[index - 1] ?? globalCommunityQuery.data}
-          communities={query.data}
-          handleClick={(community) => handleClick(community, index)}
-          selected={selected[index]?.communityId}
-        />
-      ))}
-      {query.isLoading ? ( // div prevents overflow scrollbar from spinner
-        <div className={classes.loader}>
-          <CenteredSpinner />
-        </div>
-      ) : query.isSuccess && globalCommunityQuery.isSuccess ? (
-        <div ref={lastColumnRef}>
+    <div>
+      <div className={classes.headerRow}>
+        <PageTitle>{t("communities:communities_title")}</PageTitle>
+      </div>
+      <div className={classes.root}>
+        {cachedQueryResults.map((query, index) => (
           <BrowserColumn
-            parent={
-              selected?.[selected.length - 1] ?? globalCommunityQuery.data
-            }
-            communities={query.data.pages.flatMap(
-              (page) => page.communitiesList,
-            )}
-            handleClick={(community) => handleClick(community, selected.length)}
+            key={index}
+            parent={selected?.[index - 1] ?? globalCommunityQuery.data}
+            communities={query.data}
+            handleClick={(community) => handleClick(community, index)}
+            selected={selected[index]?.communityId}
           />
-          {query.hasNextPage && (
-            <Button
-              onClick={() => query.fetchNextPage()}
-              loading={query.isFetchingNextPage}
-              variant="outlined"
+        ))}
+        {query.isLoading ? ( // div prevents overflow scrollbar from spinner
+          <div className={classes.loader}>
+            <CenteredSpinner />
+          </div>
+        ) : query.isSuccess && globalCommunityQuery.isSuccess ? (
+          <div ref={lastColumnRef}>
+            <BrowserColumn
+              parent={
+                selected?.[selected.length - 1] ?? globalCommunityQuery.data
+              }
+              communities={query.data.pages.flatMap(
+                (page) => page.communitiesList,
+              )}
+              handleClick={(community) =>
+                handleClick(community, selected.length)
+              }
+            />
+            {query.hasNextPage && (
+              <Button
+                onClick={() => query.fetchNextPage()}
+                loading={query.isFetchingNextPage}
+                variant="outlined"
+              >
+                {t("dashboard:load_more")}
+              </Button>
+            )}
+          </div>
+        ) : (
+          <Alert severity="error">{query?.error?.message || ""}</Alert>
+        )}
+        <Typography
+          variant="body1"
+          paragraph
+          className={classes.createCommunityText}
+        >
+          <Trans i18nKey="dashboard:your_communities_helper_text2">
+            {`Don't see your community? `}
+            <MuiLink
+              href={COMMUNITY_BUILDER_FORM_LINK}
+              target="_blank"
+              rel="noreferrer noopener"
+              underline="hover"
             >
-              {t("dashboard:load_more")}
-            </Button>
-          )}
-        </div>
-      ) : (
-        <Alert severity="error">{query?.error?.message || ""}</Alert>
-      )}
-      <Typography
-        variant="body1"
-        paragraph
-        className={classes.createCommunityText}
-      >
-        <Trans i18nKey="dashboard:your_communities_helper_text2">
-          {`Don't see your community? `}
-          <MuiLink
-            href={COMMUNITY_BUILDER_FORM_LINK}
-            target="_blank"
-            rel="noreferrer noopener"
-            underline="hover"
-          >
-            Get it started!
-          </MuiLink>
-        </Trans>
-      </Typography>
+              Get it started!
+            </MuiLink>
+          </Trans>
+        </Typography>
+      </div>
     </div>
   );
-}
+};
 
 function BrowserColumn({
   parent,
