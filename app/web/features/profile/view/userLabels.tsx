@@ -3,7 +3,6 @@ import makeStyles from "@mui/styles/makeStyles";
 import { CheckCircleIcon, ErrorIcon } from "components/Icons";
 import LabelAndText from "components/LabelAndText";
 import { useLanguages } from "features/profile/hooks/useLanguages";
-import { responseRateKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL, PROFILE } from "i18n/namespaces";
 import {
@@ -11,8 +10,6 @@ import {
   GenderVerificationStatus,
   User,
 } from "proto/api_pb";
-import { useQuery } from "react-query";
-import { service } from "service";
 import { monthFormatter, timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import { hourMillis, timeAgoI18n } from "utils/timeAgo";
@@ -52,20 +49,18 @@ export const ReferencesLastActiveLabels = ({ user }: Props) => {
 
 export const ResponseRateText = ({ user }: { user: User.AsObject }) => {
   const { t } = useTranslation([PROFILE]);
-  const query = useQuery(responseRateKey(user.userId), () =>
-    service.requests.getResponseRate(user.userId),
-  );
+
   let rateText = undefined;
 
-  if (query?.data?.insufficientData) {
+  if (user.insufficientData) {
     rateText = t("response_rate_text_insufficient");
-  } else if (query?.data?.low) {
+  } else if (user.low) {
     rateText = t("response_rate_text_low");
-  } else if (query?.data?.some) {
+  } else if (user.some) {
     rateText = t("response_rate_text_some");
-  } else if (query?.data?.most) {
+  } else if (user.most) {
     rateText = t("response_rate_text_most");
-  } else if (query?.data?.almostAll) {
+  } else if (user.almostAll) {
     rateText = t("response_rate_text_almost_all");
   }
 
@@ -74,42 +69,39 @@ export const ResponseRateText = ({ user }: { user: User.AsObject }) => {
 
 export const ResponseRateLabel = ({ user }: Props) => {
   const { t } = useTranslation("profile");
-  const query = useQuery(responseRateKey(user.userId), () =>
-    service.requests.getResponseRate(user.userId),
-  );
 
   let rateText = undefined;
   let timeText = undefined;
 
-  if (query?.data?.insufficientData) {
+  if (user.insufficientData) {
     rateText = t("response_rate_text_insufficient");
-  } else if (query?.data?.low) {
+  } else if (user.low) {
     rateText = t("response_rate_text_low");
-  } else if (query?.data?.some) {
+  } else if (user.some) {
     rateText = t("response_rate_text_some");
     timeText = t("response_time_text_some", {
       p33: dayjs
-        .duration(query.data.some.responseTimeP33!.seconds, "second")
+        .duration(user.some.responseTimeP33!.seconds, "second")
         .humanize(),
     });
-  } else if (query?.data?.most) {
+  } else if (user.most) {
     rateText = t("response_rate_text_most");
     timeText = t("response_time_text_most", {
       p33: dayjs
-        .duration(query.data.most.responseTimeP33!.seconds, "second")
+        .duration(user.most.responseTimeP33!.seconds, "second")
         .humanize(),
       p66: dayjs
-        .duration(query.data.most.responseTimeP66!.seconds, "second")
+        .duration(user.most.responseTimeP66!.seconds, "second")
         .humanize(),
     });
-  } else if (query?.data?.almostAll) {
+  } else if (user.almostAll) {
     rateText = t("response_rate_text_almost_all");
     timeText = t("response_time_text_almost_all", {
       p33: dayjs
-        .duration(query.data.almostAll.responseTimeP33!.seconds, "second")
+        .duration(user.almostAll.responseTimeP33!.seconds, "second")
         .humanize(),
       p66: dayjs
-        .duration(query.data.almostAll.responseTimeP66!.seconds, "second")
+        .duration(user.almostAll.responseTimeP66!.seconds, "second")
         .humanize(),
     });
   }
