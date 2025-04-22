@@ -215,7 +215,7 @@
         "host_request": "Host requests",
         "reference": "References",
         "discussion": "Discussions",
-        "thread": "Threads"
+        "reply": "Replies"
       },
       "item_descriptions": {
         "host_request": {
@@ -249,7 +249,7 @@
           "cancel": "An event you are attending is cancelled",
           "delete": "An event you are attending is deleted",
           "invite_organizer": "Someone invites you to co-organize an event",
-          "comment":" A user comments on an event you are going to"
+          "comment": " A user comments on an event you are going to"
         },
         "onboarding": {
           "reminder": "Reminder to complete your profile after signing up"
@@ -342,6 +342,7 @@
     "log_out_of_all_session": "Log out of all other sessions"
   },
   "strong_verification": {
+    "learn_more": "Learn about Strong Verification <a>here</a>.",
     "title": "Strong Verification",
     "subtitle": "Strong Verification is an additional safety feature that allows you to verify your date of birth and gender using your biometric passport.",
     "status": {

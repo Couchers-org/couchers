@@ -7,6 +7,7 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 
 import "annotations.proto";
+import "requests.proto";
 
 service API {
   option (auth_level) = AUTH_LEVEL_SECURE;
@@ -112,6 +113,8 @@ message PingRes {
   uint32 unseen_sent_host_request_count = 5;
   uint32 unseen_received_host_request_count = 6;
   uint32 pending_friend_request_count = 4;
+
+  uint32 unseen_notification_count = 7;
 }
 
 message MutualFriend {
@@ -286,6 +289,21 @@ message User {
   bool has_strong_verification = 39;
   BirthdateVerificationStatus birthdate_verification_status = 42;
   GenderVerificationStatus gender_verification_status = 43;
+
+  // Response rate is number of requests responded to (accepted/rejected/sent message) divided by total number of
+  // received requests.
+  oneof response_rate {
+    // received <3 requests
+    org.couchers.api.requests.ResponseRateInsufficientData insufficient_data = 51;
+    // response rate <= 33%
+    org.couchers.api.requests.ResponseRateLow low = 52;
+    // response rate > 33%, but <= 66%
+    org.couchers.api.requests.ResponseRateSome some = 53;
+    // response rate > 66%, but <= 90%
+    org.couchers.api.requests.ResponseRateMost most = 54;
+    // response rate > 90%
+    org.couchers.api.requests.ResponseRateAlmostAll almost_all = 55;
+  }
 }
 
 message GetUserReq {

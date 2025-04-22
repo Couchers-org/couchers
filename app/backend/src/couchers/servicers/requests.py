@@ -3,12 +3,11 @@ from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import Float
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
-from sqlalchemy.sql.functions import percentile_disc
 
 from couchers import errors
+from couchers.materialized_views import user_response_rates
 from couchers.metrics import (
     account_age_on_host_request_create_histogram,
     host_request_first_response_histogram,
@@ -18,10 +17,9 @@ from couchers.metrics import (
 )
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
 from couchers.notifications.notify import notify
-from couchers.servicers.api import user_model_to_pb
+from couchers.servicers.api import response_rate_to_pb, user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import (
-    Duration_from_timedelta,
     Timestamp_from_datetime,
     date_to_api,
     now,
@@ -639,83 +637,16 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         return empty_pb2.Empty()
 
     def GetResponseRate(self, request, context, session):
-        # this subquery gets the time that the request was sent
-        t = (
-            select(Message.conversation_id, Message.time)
-            .where(Message.message_type == MessageType.chat_created)
-            .subquery()
-        )
-        # this subquery gets the time that the user responded to the request
-        s = (
-            select(Message.conversation_id, func.min(Message.time).label("time"))
-            .where(Message.author_id == request.user_id)
-            .group_by(Message.conversation_id)
-            .subquery()
-        )
-
-        res = session.execute(
-            select(
-                User.id,
-                # number of requests received
-                func.count().label("n"),
-                # percentage of requests responded to
-                (func.count(s.c.time) / func.cast(func.greatest(func.count(t.c.time), 1.0), Float)).label(
-                    "response_rate"
-                ),
-                # the 33rd percentile response time
-                percentile_disc(0.33)
-                .within_group(func.coalesce(s.c.time - t.c.time, timedelta(days=1000)))
-                .label("response_time_p33"),
-                # the 66th percentile response time
-                percentile_disc(0.66)
-                .within_group(func.coalesce(s.c.time - t.c.time, timedelta(days=1000)))
-                .label("response_time_p66"),
-            )
+        user_res = session.execute(
+            select(User.id, user_response_rates)
+            .outerjoin(user_response_rates, user_response_rates.c.user_id == User.id)
             .where_users_visible(context)
             .where(User.id == request.user_id)
-            .outerjoin(HostRequest, HostRequest.host_user_id == User.id)
-            .outerjoin(t, t.c.conversation_id == HostRequest.conversation_id)
-            .outerjoin(s, s.c.conversation_id == HostRequest.conversation_id)
-            .group_by(User.id)
         ).one_or_none()
 
-        if not res:
+        # if user doesn't exist, return None
+        if not user_res:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-        _, n, response_rate, response_time_p33, response_time_p66 = res
-
-        if n < 3:
-            return requests_pb2.GetResponseRateRes(
-                insufficient_data=requests_pb2.ResponseRateInsufficientData(),
-            )
-
-        if response_rate <= 0.33:
-            return requests_pb2.GetResponseRateRes(
-                low=requests_pb2.ResponseRateLow(),
-            )
-
-        response_time_p33_coarsened = Duration_from_timedelta(
-            timedelta(seconds=round(response_time_p33.total_seconds() / 60) * 60)
-        )
-
-        if response_rate <= 0.66:
-            return requests_pb2.GetResponseRateRes(
-                some=requests_pb2.ResponseRateSome(response_time_p33=response_time_p33_coarsened),
-            )
-
-        response_time_p66_coarsened = Duration_from_timedelta(
-            timedelta(seconds=round(response_time_p66.total_seconds() / 60) * 60)
-        )
-
-        if response_rate <= 0.90:
-            return requests_pb2.GetResponseRateRes(
-                most=requests_pb2.ResponseRateMost(
-                    response_time_p33=response_time_p33_coarsened, response_time_p66=response_time_p66_coarsened
-                ),
-            )
-        else:
-            return requests_pb2.GetResponseRateRes(
-                almost_all=requests_pb2.ResponseRateAlmostAll(
-                    response_time_p33=response_time_p33_coarsened, response_time_p66=response_time_p66_coarsened
-                ),
-            )
+        user, *response_rates = user_res
+        return requests_pb2.GetResponseRateRes(**response_rate_to_pb(response_rates))

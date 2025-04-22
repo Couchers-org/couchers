@@ -9,7 +9,7 @@ from sqlalchemy.sql import and_, delete, func, intersect, or_, union
 from couchers import errors, urls
 from couchers.config import config
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
-from couchers.materialized_views import lite_users
+from couchers.materialized_views import lite_users, user_response_rates
 from couchers.models import (
     FriendRelationship,
     FriendStatus,
@@ -21,6 +21,7 @@ from couchers.models import (
     LanguageFluency,
     MeetupStatus,
     Message,
+    Notification,
     ParkingDetails,
     Reference,
     RegionLived,
@@ -36,13 +37,14 @@ from couchers.servicers.account import get_strong_verification_fields
 from couchers.sql import couchers_select as select
 from couchers.sql import is_valid_user_id, is_valid_username
 from couchers.utils import (
+    Duration_from_timedelta,
     Timestamp_from_datetime,
     create_coordinate,
     get_coordinates,
     is_valid_name,
     now,
 )
-from proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2
+from proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2, requests_pb2
 
 MAX_USERS_PER_QUERY = 200
 MAX_PAGINATION_LENGTH = 50
@@ -184,12 +186,19 @@ class API(api_pb2_grpc.APIServicer):
             .where(FriendRelationship.status == FriendStatus.pending)
         ).scalar_one()
 
+        unseen_notification_count = session.execute(
+            select(func.count(Notification.id))
+            .where(Notification.user_id == context.user_id)
+            .where(Notification.is_seen == False)
+        ).scalar_one()
+
         return api_pb2.PingRes(
             user=user_model_to_pb(user, session, context),
             unseen_message_count=unseen_message_count,
             unseen_sent_host_request_count=unseen_sent_host_request_count,
             unseen_received_host_request_count=unseen_received_host_request_count,
             pending_friend_request_count=pending_friend_request_count,
+            unseen_notification_count=unseen_notification_count,
         )
 
     def GetUser(self, request, context, session):
@@ -792,7 +801,46 @@ class API(api_pb2_grpc.APIServicer):
         )
 
 
+def response_rate_to_pb(response_rates):
+    if not response_rates:
+        return {"insufficient_data": requests_pb2.ResponseRateInsufficientData()}
+
+    _, n, response_rate, _, response_time_p33, response_time_p66 = response_rates
+
+    # if n is None, the user is new or they have no requests
+    if not n or n < 3:
+        return {"insufficient_data": requests_pb2.ResponseRateInsufficientData()}
+
+    if response_rate <= 0.33:
+        return {"low": requests_pb2.ResponseRateLow()}
+
+    response_time_p33_coarsened = Duration_from_timedelta(
+        timedelta(seconds=round(response_time_p33.total_seconds() / 60) * 60)
+    )
+
+    if response_rate <= 0.66:
+        return {"some": requests_pb2.ResponseRateSome(response_time_p33=response_time_p33_coarsened)}
+
+    response_time_p66_coarsened = Duration_from_timedelta(
+        timedelta(seconds=round(response_time_p66.total_seconds() / 60) * 60)
+    )
+
+    if response_rate <= 0.90:
+        return {
+            "most": requests_pb2.ResponseRateMost(
+                response_time_p33=response_time_p33_coarsened, response_time_p66=response_time_p66_coarsened
+            )
+        }
+    else:
+        return {
+            "almost_all": requests_pb2.ResponseRateAlmostAll(
+                response_time_p33=response_time_p33_coarsened, response_time_p66=response_time_p66_coarsened
+            )
+        }
+
+
 def user_model_to_pb(db_user, session, context):
+    # note that this function should work also for banned/deleted users as it's called from Admin.GetUser
     num_references = session.execute(
         select(func.count())
         .select_from(Reference)
@@ -857,6 +905,10 @@ def user_model_to_pb(db_user, session, context):
         else:
             friends_status = api_pb2.User.FriendshipStatus.NOT_FRIENDS
 
+    response_rates = session.execute(
+        select(user_response_rates).where(user_response_rates.c.user_id == db_user.id)
+    ).one_or_none()
+
     verification_score = 0.0
     if db_user.phone_verification_verified:
         verification_score += 1.0 * db_user.phone_is_verified
@@ -902,6 +954,7 @@ def user_model_to_pb(db_user, session, context):
         avatar_thumbnail_url=db_user.avatar.thumbnail_url if db_user.avatar else None,
         badges=[badge.badge_id for badge in db_user.badges],
         **get_strong_verification_fields(session, db_user),
+        **response_rate_to_pb(response_rates),
     )
 
     if db_user.max_guests is not None:

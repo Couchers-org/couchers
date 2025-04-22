@@ -1,15 +1,10 @@
 import { Link as MuiLink, Typography, useMediaQuery } from "@mui/material";
-import Alert from "components/Alert";
 import Button from "components/Button";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
 import { getLangCookie } from "i18n/getLangCookie";
 import { GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
-import { useMutation } from "react-query";
-import { service } from "service";
 import { theme } from "theme";
 
 import useChangeDetailsFormStyles from "../features/auth/useChangeDetailsFormStyles";
@@ -34,24 +29,11 @@ export default function LanguagePickerSettings({
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { handleSubmit, reset: resetForm } = useForm<ChangeLanguageFormData>();
-  const onSubmit = handleSubmit(({ newLanguage }) => {
+  const onSubmit = handleSubmit(() => {
     // TODO: send request to update cookie on backend w/ newLanguage code
     // TODO: uses i18n.changeLanguage to update UI language
+    resetForm();
   });
-
-  const {
-    error: changeLanguageError,
-    isLoading: isChangeLanguageLoading,
-    isSuccess: isChangeLanguageSuccess,
-    mutate: changeLanguage,
-  } = useMutation<Empty, RpcError, ChangeLanguageFormData>(
-    ({ newLanguage }) => service.account.changeLanguage(newLanguage),
-    {
-      onSuccess: () => {
-        resetForm();
-      },
-    },
-  );
 
   return (
     <div className={className}>
@@ -73,21 +55,9 @@ export default function LanguagePickerSettings({
             <strong>{t("global:language_preference.help_translate")}</strong>
           </MuiLink>
         </Typography>
-        {changeLanguageError && (
-          <Alert severity="error">{changeLanguageError.message}</Alert>
-        )}
-        {isChangeLanguageSuccess && (
-          <Alert severity="success">
-            {t("global:language_preference.success_message")}
-          </Alert>
-        )}
         <form className={formClasses.form} onSubmit={onSubmit}>
           <LanguagePickerSelect displayMode="rect" />
-          <Button
-            fullWidth={isMobile}
-            loading={isChangeLanguageLoading}
-            type="submit"
-          >
+          <Button fullWidth={isMobile} type="submit">
             {t("global:submit")}
           </Button>
         </form>

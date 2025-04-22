@@ -534,18 +534,30 @@ def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector):
     )
 
 
-def test_ChangePreferredLanguage(db, fast_passwords):
+def test_ChangeLanguagePreference(db, fast_passwords):
     # user changes from default to ISO 639-1 language code
     newLanguageCode = "zh"
     user, token = generate_user()
 
-    with account_session(token) as account:
+    with real_account_session(token) as account:
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert res.ui_language_preference == ""
 
-        account.ChangeLanguagePreference(
-            account_pb2.ChangeLanguagePreferenceReq(ui_language_preference=newLanguageCode)
-        )
+        request = account_pb2.ChangeLanguagePreferenceReq(ui_language_preference=newLanguageCode)
+
+        # call will have info about the request
+        res, call = account.ChangeLanguagePreference.with_call(request)
+
+        # cookies are sent via initial metadata, so we check for it there
+        metadata = dict(call.initial_metadata())
+
+        assert "set-cookie" in metadata, "expected 'set-cookie' in initial metadata"
+
+        # the value of "set-cookie" will be the full cookie string, pull the key value from the string
+        key_val = metadata["set-cookie"].split(";")[0]
+        assert key_val == "couchers-preferred-language=zh", f"expected 'couchers-preferred-language=zh', got {key_val}"
+
+        # the changed language preference should also be sent to the backend
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert res.ui_language_preference == "zh"
 

@@ -15,16 +15,16 @@ import {
 } from "@mui/material";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
+import { getLangCookie } from "i18n/getLangCookie";
 import { GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 import { theme } from "theme";
-import { getLangCookie } from "i18n/getLangCookie";
 
-interface StyledSelectProps {
-  displayMode: "round" | "rect";
+interface StyledMuiSelectProps {
+  displayMode?: "round" | "rect";
 }
 
-const StyledMuiSelect = styled(MuiSelect)<StyledSelectProps>(
+const StyledMuiSelect = styled(MuiSelect)<StyledMuiSelectProps>(
   ({ theme, displayMode }) => ({
     borderRadius: displayMode === "round" ? 999 : theme.shape.borderRadius,
     "& .MuiSelect-icon": {
@@ -34,21 +34,7 @@ const StyledMuiSelect = styled(MuiSelect)<StyledSelectProps>(
       transform: "translateY(-50%)",
       right: 10,
     },
-    "& .Mui-focused": {
-      borderColor: "red", // this is the focus override
-    },
     height: 41.25,
-    // "& .MuiOutlinedInput-root": {
-    //   // "& fieldset": {
-    //   //   borderColor: "gray", // or 'transparent' to remove
-    //   // },
-    //   // "&:hover fieldset": {
-    //   //   borderColor: "gray", // optional: consistent hover behavior
-    //   // },
-    //   "& .Mui-focused fieldset": {
-    //     borderColor: "gray", // this is the focus override
-    //   },
-    // },
   }),
 );
 
@@ -60,18 +46,20 @@ type LanguagePickerSelectProps = {
 };
 
 export default function LanguagePickerSelect({
-  defaultValue,
-  value,
+  defaultValue = "en",
   onSelect,
   displayMode = "round", // default to round if not specified
 }: LanguagePickerSelectProps) {
-  const [language, setLanguage] = useState(getLangCookie());
+  const [language, setLanguage] = useState(
+    getLangCookie() != "" ? getLangCookie() : defaultValue,
+  );
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t } = useTranslation([GLOBAL]);
 
-  const handleChange: (event: SelectChangeEvent<unknown>) => void = (event) => {
-    const value = event.target.value as string;
-    setLanguage(value); // uses i18n.changeLanguage to update UI language
+  const handleChange = (event: SelectChangeEvent<unknown>) => {
+    const newLang = event.target.value as string;
+    setLanguage(newLang);
+    onSelect?.(newLang); // uses i18n.changeLanguage to update UI language
   };
 
   // Helper function to render a flag icon from country flag icons collection

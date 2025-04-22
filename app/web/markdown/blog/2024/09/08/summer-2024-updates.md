@@ -101,4 +101,4 @@ In particular, we are currently looking for the volunteers with the following sk
 
 _Written by [Aapeli](/user/aapeli). Published on 2024/09/08_
 
-**Want to submit to our blog? [Sign up](/contribute) and let us know.**
+**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

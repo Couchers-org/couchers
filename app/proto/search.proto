@@ -102,6 +102,9 @@ message SearchRes {
 }
 
 message UserSearchReq {
+  // if this field is present, we filter to exactly these users (any invalid ids are ignored)
+  repeated int64 exactly_user_ids = 35;
+
   google.protobuf.StringValue query = 3;
   // whether the query (if any) should only search through username and display name
   bool query_name_only = 30;

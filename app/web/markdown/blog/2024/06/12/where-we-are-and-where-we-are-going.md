@@ -106,4 +106,4 @@ I hope that this blog post has been an interesting read! One reason for writing 
 
 _Written by [Aapeli](/user/aapeli), reviewed by Itsi and Jesse. Published on 2024/06/12_
 
-**Want to submit to our blog? [Sign up](/contribute) and let us know.**
+**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

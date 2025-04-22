@@ -208,6 +208,8 @@
   "response_time_text_most": "Usually in {{p33}} to {{p66}}",
   "response_time_text_almost_all": "Usually in {{p33}} to {{p66}}",
   "unsaved_changes_warning": "You haven't saved your changes. Are you sure you want to leave the page?",
+  "image_uploading_warning": "Your profile image is still uploading. Are you sure you want to leave the page?",
+  "click_replace_image": "Click to replace image",
   "profile_tag_input": {
     "header_text": "Press 'Enter' to add\n<support_link>Email us</support_link> to add an entry",
     "remove_button_a11y_text": "Remove {{tag}}"
@@ -219,5 +221,12 @@
     "click_on_left": "Choose a badge on the left to learn more.",
     "no_people": "There are no people with that badge!",
     "not_found": "Badge not found"
-  }
+  },
+  "open_profile_new_tab": "Open profile in new tab",
+  "reference_amounts": {
+    "no_references": "No references",
+    "references_single": "reference",
+    "references_plural": "references"
+  },
+  "incomplete_profile_haiku": "Blank avatar stares,\nMystery behind silence—\nWho are you, stranger?"
 }

@@ -26,6 +26,16 @@ describe("UserOverview", () => {
       expect(screen.getByText(defaultUser.name)).toBeInTheDocument();
     });
 
+    it("should display the user username with a leading @", () => {
+      render(
+        <ProfileUserProvider user={defaultUser}>
+          <UserOverview showHostAndMeetAvailability={false} />
+        </ProfileUserProvider>,
+        { wrapper },
+      );
+      expect(screen.getByText(`@${defaultUser.username}`)).toBeInTheDocument();
+    });
+
     it("should display the user location", () => {
       render(
         <ProfileUserProvider user={defaultUser}>

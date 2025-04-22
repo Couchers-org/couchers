@@ -6,6 +6,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy.sql import delete, func, or_
 
 from couchers import errors
+from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.db import can_moderate_node, get_node_parents_recursively
 from couchers.materialized_views import cluster_admin_counts, cluster_subscription_counts
 from couchers.models import (
@@ -110,21 +111,23 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
     def ListCommunities(self, request, context, session):
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        next_node_id = int(request.page_token) if request.page_token else 0
+        offset = int(decrypt_page_token(request.page_token)) if request.page_token else 0
         nodes = (
             session.execute(
                 select(Node)
+                .join(Cluster, Cluster.parent_node_id == Node.id)
                 .where(or_(Node.parent_node_id == request.community_id, request.community_id == 0))
-                .where(Node.id >= next_node_id)
-                .order_by(Node.id)
+                .where(Cluster.is_official_cluster)
+                .order_by(Cluster.name)
                 .limit(page_size + 1)
+                .offset(offset)
             )
             .scalars()
             .all()
         )
         return communities_pb2.ListCommunitiesRes(
             communities=[community_to_pb(session, node, context) for node in nodes[:page_size]],
-            next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
+            next_page_token=encrypt_page_token(str(offset + page_size)) if len(nodes) > page_size else None,
         )
 
     def ListGroups(self, request, context, session):

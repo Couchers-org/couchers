@@ -56,4 +56,4 @@ You can join our development team on GitHub at [Couchers-org/couchers](https://g
 
 *Written by Aapeli. Published on 2021/12/31.*
 
-**Want to submit to our blog? [Sign up](/volunteer) and let us know.**
+**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

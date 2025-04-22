@@ -15,7 +15,7 @@ import Navigation from "./Navigation";
 interface AppRouteProps {
   isPrivate: boolean;
   noFooter?: boolean;
-  variant?: "standard" | "full-screen" | "full-width";
+  variant?: "standard" | "full-screen" | "full-width" | "no-overflow";
   children: ReactNode;
 }
 
@@ -23,12 +23,11 @@ const globalStyles = (
   <GlobalStyles
     styles={{
       "html, body": {
-        height: "100vh",
         margin: 0,
         overflow: "hidden", // Prevents whole-page scrolling
       },
       "#__next": {
-        height: "100vh",
+        height: "calc(var(--vh, 1vh) * 100)", // Use the dynamic --vh value from _app
         display: "flex",
         flexDirection: "column",
       },
@@ -39,7 +38,7 @@ const globalStyles = (
 const PageWrapper = styled(Box)({
   display: "flex",
   flexDirection: "column",
-  flexGrow: 1,
+  flex: 1,
   overflowY: "auto",
 });
 
@@ -51,11 +50,14 @@ const ContentWrapper = styled(Container, {
 }>(({ theme, variant, isNativeEmbed }) => ({
   display: "flex",
   flexDirection: "column",
+  flex: 1,
+  ...(variant === "no-overflow" && {
+    overflow: "hidden",
+  }),
   ...(variant === "standard" && {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
     paddingBottom: theme.spacing(2),
-    flex: 1,
   }),
   ...(isNativeEmbed && {
     margin: "0 auto",
@@ -108,7 +110,9 @@ export default function AppRoute({
               isNativeEmbed={isNativeEmbed}
               variant={variant}
               maxWidth={
-                variant === "full-screen" || variant === "full-width"
+                variant === "full-screen" ||
+                variant === "full-width" ||
+                variant === "no-overflow"
                   ? false
                   : "lg"
               }

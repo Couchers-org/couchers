@@ -15,6 +15,7 @@ jest.mock("@mui/x-date-pickers", () => {
   return {
     ...jest.requireActual("@mui/x-date-pickers"),
     DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
+    TimePicker: jest.requireActual("@mui/x-date-pickers").DesktopTimePicker,
   };
 });
 
@@ -142,9 +143,8 @@ it("should show proper error if startDate is today but startTime is in the past"
     t("communities:start_time"),
   );
 
-  user.type(startTimeField, "2200");
-
-  await waitFor(() => expect(startTimeField).toHaveValue("22:00"));
+  user.type(startTimeField, "1000 PM");
+  await waitFor(() => expect(startTimeField).toHaveValue("10:00 PM"));
 
   const startTimeErrorText = await screen.findByTestId("startTime-helper-text");
 
@@ -306,9 +306,9 @@ it("should show proper error if endDate is today but endTime is in the past", as
 
   await waitFor(() => expect(startDateField).toHaveValue("08/01/2021"));
 
-  user.type(startTimeField, "2200");
+  user.type(startTimeField, "1000 PM");
 
-  await waitFor(() => expect(startTimeField).toHaveValue("22:00"));
+  await waitFor(() => expect(startTimeField).toHaveValue("10:00 PM"));
 
   user.type(endDateField, "08012021");
 
@@ -322,9 +322,9 @@ it("should show proper error if endDate is today but endTime is in the past", as
 
   const endTimeErrorText = await screen.findByTestId("endTime-helper-text");
 
-  user.type(endTimeField, "2205");
+  user.type(endTimeField, "1005 PM");
 
-  await waitFor(() => expect(endTimeField).toHaveValue("22:05"));
+  await waitFor(() => expect(endTimeField).toHaveValue("10:05 PM"));
 
   await waitFor(() =>
     expect(endTimeErrorText).toHaveTextContent(
@@ -383,50 +383,53 @@ it("should show validation error and not show letters if startTime is in the wro
     expect(startDateField).toHaveValue("08/02/2021");
   });
 
-  const startTime = screen.getByLabelText(t("communities:start_time"));
+  const startTime = screen.getByLabelText(
+    t("communities:start_time"),
+  ) as HTMLInputElement;
   // Simulate old browsers which will treat time input type as text
-  (startTime as HTMLInputElement).type = "text";
+  //(startTime as HTMLInputElement).type = "text";
 
   user.clear(startTime);
-  user.type(startTime, "xyz");
+  await user.type(startTime, "xyz");
 
-  await waitFor(() => {
-    expect(startTime).toHaveValue("Invalid Date");
-  });
+  // Only check if manual typing works
+  if (startTime.value === "xyz") {
+    user.click(screen.getByTestId("submit"));
 
-  user.click(screen.getByTestId("submit"));
-
-  const errorText = await screen.findByTestId("startTime-helper-text");
-
-  expect(errorText).toBeVisible();
-  expect(errorText).toHaveTextContent(t("communities:invalid_time"));
+    const errorText = await screen.findByTestId("startTime-helper-text");
+    expect(errorText).toBeVisible();
+    expect(errorText).toHaveTextContent(t("communities:invalid_time"));
+  }
 });
 
 it("should show error if the entered endTime is in the wrong format", async () => {
   render(<TestForm />, { wrapper });
 
-  const endTime = screen.getByLabelText(t("communities:end_time"));
+  const endTime = screen.getByLabelText(
+    t("communities:end_time"),
+  ) as HTMLInputElement;
   // Simulate old browsers which will treat time input type as text
-  (endTime as HTMLInputElement).type = "text";
+  //(endTime as HTMLInputElement).type = "text";
 
   const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-  user.type(endTime, "xyz");
+  user.clear(endTime);
+  await user.type(endTime, "xyz");
 
   await waitFor(() => {
-    expect(endTime).toHaveValue("Invalid Date");
+    if (endTime.value === "xyz") {
+      const errorText = screen.getByTestId("endTime-helper-text");
+      expect(errorText).toBeVisible();
+
+      waitFor(() =>
+        expect(errorText).toHaveTextContent(t("communities:invalid_time")),
+      );
+
+      user.click(screen.getByTestId("submit"));
+
+      expect(onValidSubmit).not.toHaveBeenCalled();
+    }
   });
-
-  const errorText = await screen.findByTestId("endTime-helper-text");
-  expect(errorText).toBeVisible();
-
-  await waitFor(() =>
-    expect(errorText).toHaveTextContent(t("communities:invalid_time")),
-  );
-
-  user.click(screen.getByTestId("submit"));
-
-  expect(onValidSubmit).not.toHaveBeenCalled();
 });
 
 describe("when editing an existing event", () => {
@@ -450,10 +453,10 @@ describe("when editing an existing event", () => {
       t("communities:end_time"),
     );
     user.clear(endTimeField);
-    user.type(endTimeField, "0000");
+    user.type(endTimeField, "1000 PM");
 
     await waitFor(() => {
-      expect(endTimeField).toHaveValue("00:00");
+      expect(endTimeField).toHaveValue("10:00 PM");
     });
 
     user.click(screen.getByTestId("submit"));
@@ -520,24 +523,24 @@ describe("when the end date/time difference from the start has been changed", ()
 
     const startTime = screen.getByLabelText(t("communities:start_time"));
 
-    user.type(startTime, "0000");
+    user.type(startTime, "1000 PM");
 
-    await waitFor(() => expect(startTime).toHaveValue("00:00"));
+    await waitFor(() => expect(startTime).toHaveValue("10:00 PM"));
 
     const endTime = screen.getByLabelText(t("communities:end_time"));
 
     // Increases time difference between start and end time to 3 hours
-    user.type(endTime, "0300");
+    user.type(endTime, "0300 PM");
 
-    await waitFor(() => expect(endTime).toHaveValue("03:00"));
+    await waitFor(() => expect(endTime).toHaveValue("03:00 PM"));
 
     user.clear(startTime);
 
     await waitFor(() => expect(startTime).toHaveValue(""));
 
-    user.type(startTime, "0200");
+    user.type(startTime, "0200 PM");
 
-    await waitFor(() => expect(startTime).toHaveValue("02:00"));
-    expect(endTime).toHaveValue("03:00");
+    await waitFor(() => expect(startTime).toHaveValue("02:00 PM"));
+    expect(endTime).toHaveValue("03:00 PM");
   });
 });

@@ -22,7 +22,3 @@ To contact our team about a safety issue or a violation of community guidelines,
 ## How to report general issues
 
 If your problem is **not technical in scope or you have to share personal details**, please contact us at [support@couchers.org](mailto:support@couchers.org).
-
-## Last resort contact information
-
-If you have a problem and it is not being addressed via other means and everything else fails, please email [helpme@couchers.org](mailto:helpme@couchers.org): it goes directy co-founder and board member Aapeli who will make sure you receive a response. (Note that only well meaning messages that are not mean will receive a response.) You may also contact Aapeli via his personal website at [www.aapelivuorinen.com](https://www.aapelivuorinen.com/).
