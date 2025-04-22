@@ -17,6 +17,7 @@ import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
 import { getLangCookie } from "i18n/getLangCookie";
 import { GLOBAL } from "i18n/namespaces";
+import { useRouter } from "next/router"; // we'll use this to reload the components w/ changed languages
 import { useState } from "react";
 import { theme } from "theme";
 
@@ -50,16 +51,26 @@ export default function LanguagePickerSelect({
   onSelect,
   displayMode = "round", // default to round if not specified
 }: LanguagePickerSelectProps) {
+  const { i18n } = useTranslation([GLOBAL]);
+  const router = useRouter();
   const [language, setLanguage] = useState(
     getLangCookie() != "" ? getLangCookie() : defaultValue,
   );
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t } = useTranslation([GLOBAL]);
 
-  const handleChange = (event: SelectChangeEvent<unknown>) => {
+  const handleChange = async (event: SelectChangeEvent<unknown>) => {
     const newLang = event.target.value as string;
     setLanguage(newLang);
-    onSelect?.(newLang); // uses i18n.changeLanguage to update UI language
+    onSelect?.(newLang);
+
+    // Set the language cookie -- I think we'll want to make this change on the backend instead
+    document.cookie = `couchers-preferred-language=${newLang}; path=/`;
+
+    // Change the language and reload the page with the new locale
+    await i18n.changeLanguage(newLang);
+    const { pathname, asPath, query } = router;
+    router.push({ pathname, query }, asPath, { locale: newLang }); // will we need to update this??
   };
 
   // Helper function to render a flag icon from country flag icons collection
