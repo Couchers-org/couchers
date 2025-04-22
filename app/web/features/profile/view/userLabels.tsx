@@ -52,20 +52,18 @@ export const ReferencesLastActiveLabels = ({ user }: Props) => {
 
 export const ResponseRateText = ({ user }: { user: User.AsObject }) => {
   const { t } = useTranslation([PROFILE]);
-  const query = useQuery(responseRateKey(user.userId), () =>
-    service.requests.getResponseRate(user.userId),
-  );
+
   let rateText = undefined;
 
-  if (query?.data?.insufficientData) {
+  if (user.insufficientData) {
     rateText = t("response_rate_text_insufficient");
-  } else if (query?.data?.low) {
+  } else if (user.low) {
     rateText = t("response_rate_text_low");
-  } else if (query?.data?.some) {
+  } else if (user.some) {
     rateText = t("response_rate_text_some");
-  } else if (query?.data?.most) {
+  } else if (user.most) {
     rateText = t("response_rate_text_most");
-  } else if (query?.data?.almostAll) {
+  } else if (user.almostAll) {
     rateText = t("response_rate_text_almost_all");
   }
 
