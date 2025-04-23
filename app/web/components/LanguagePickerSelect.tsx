@@ -20,6 +20,7 @@ import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router"; // we'll use this to reload the components w/ changed languages
 import { useState } from "react";
 import { theme } from "theme";
+import { service } from "service";
 
 interface StyledMuiSelectProps {
   displayMode?: "round" | "rect";
@@ -65,6 +66,8 @@ export default function LanguagePickerSelect({
     onSelect?.(newLang);
 
     // Set the language cookie -- I think we'll want to make this change on the backend instead
+    // make a gRPC request to Account servicer to ChangeLanguagePreference
+    await service.account.changeLanguage(newLang);
     document.cookie = `couchers-preferred-language=${newLang}; path=/`;
 
     // Change the language and reload the page with the new locale
