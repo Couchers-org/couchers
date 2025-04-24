@@ -112,7 +112,6 @@ export default function LoggedInMenu({
           </NotificationBadge>
         </NotificationMenuItemWrapper>
       </Tooltip>
-
       <NotificationsFeed
         isOpen={isNotificationsFeedOpen}
         anchorEl={notificationsAnchorEl}

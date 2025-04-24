@@ -70,8 +70,17 @@ export async function sendTestPushNotification() {
   await client.notifications.sendTestPushNotification(new Empty());
 }
 
-export async function listNotifications() {
+export async function listNotifications({
+  onlyUnread = false,
+}: {
+  onlyUnread: boolean;
+}) {
   const req = new ListNotificationsReq();
+
+  if (onlyUnread) {
+    req.setOnlyUnread(true);
+  }
+
   const res = await client.notifications.listNotifications(req);
   return res.toObject();
 }
@@ -89,11 +98,21 @@ export async function markAllNotificationsSeen(
 
 export async function markNotificationSeen(
   notificationId: Notification.AsObject["notificationId"],
+  setSeen: boolean = true,
 ) {
   const req = new MarkNotificationSeenReq();
 
+  if (!notificationId) {
+    throw new Error(
+      "Notification ID is required to mark notification as seen.",
+    );
+  }
+
+  if (setSeen) {
+    req.setSetSeen(setSeen);
+  }
+
   req.setNotificationId(notificationId);
-  req.setSetSeen(true);
 
   const res = await client.notifications.markNotificationSeen(req);
   return res.toObject();

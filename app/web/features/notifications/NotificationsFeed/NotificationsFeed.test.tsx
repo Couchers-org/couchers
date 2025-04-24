@@ -58,7 +58,7 @@ describe("NotificationsFeed", () => {
     jest.restoreAllMocks();
   });
 
-  it("renders notifications feed with new and earlier notifications", async () => {
+  it("renders notifications feed with notifications", async () => {
     render(
       <NotificationsFeed
         anchorEl={document.createElement("div")}
@@ -68,20 +68,14 @@ describe("NotificationsFeed", () => {
       { wrapper },
     );
 
-    // should be 2 notifications under new and 1 under earlier
-    const newNotifications = await screen.findAllByTestId(
-      "new-notification-item",
-    );
-    const earlierNotifications =
-      await screen.findAllByTestId("notification-item");
+    const notifications = await screen.findAllByTestId("notification-item");
 
     await waitFor(() => {
-      expect(newNotifications).toHaveLength(2);
-      expect(earlierNotifications).toHaveLength(1);
+      expect(notifications).toHaveLength(3);
     });
   });
 
-  it("marks notification as seen when clicked", async () => {
+  it("marks single notification as seen when clicked", async () => {
     const isNotSeenNotificationId = 2; // Assuming this is the ID of a notification that is not seen
 
     render(
@@ -93,12 +87,11 @@ describe("NotificationsFeed", () => {
       { wrapper },
     );
 
-    //click first notification item
-    const newNotificationItems = await screen.findAllByTestId(
-      "new-notification-item",
+    const notificationItem = await screen.findByText(
+      "You have unseen messages on Couchers.org",
     );
 
-    await userEvent.click(newNotificationItems[0]);
+    await userEvent.click(notificationItem);
 
     const callArg = markNotificationSeenMock.mock.calls[0][0];
 
@@ -124,9 +117,17 @@ describe("NotificationsFeed", () => {
       { wrapper },
     );
 
+    await userEvent.click(
+      screen.getByTestId("notifications-feed--more-options"),
+    );
+
     const markAllReadButton = screen.getByText(
       t("notifications:mark_all_read"),
     );
+
+    await waitFor(() => {
+      expect(markAllReadButton).toBeVisible();
+    });
 
     await userEvent.click(markAllReadButton);
 
@@ -137,8 +138,6 @@ describe("NotificationsFeed", () => {
     expect(callArg.toObject()).toMatchObject({
       latestNotificationId,
     });
-
-    expect(mockOnClose).toHaveBeenCalled();
   });
 
   it("navigates to notification settings when 'Notification Settings' is clicked", async () => {
@@ -151,9 +150,17 @@ describe("NotificationsFeed", () => {
       { wrapper },
     );
 
+    await userEvent.click(
+      screen.getByTestId("notifications-feed--more-options"),
+    );
+
     const notificationSettingsButton = screen.getByText(
       t("notifications:notification_settings.title"),
     );
+
+    await waitFor(() => {
+      expect(notificationSettingsButton).toBeVisible();
+    });
 
     await userEvent.click(notificationSettingsButton);
 
