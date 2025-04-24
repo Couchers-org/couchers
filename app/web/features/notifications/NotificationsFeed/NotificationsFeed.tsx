@@ -135,6 +135,7 @@ const NotificationsFeed = ({
         paper: {
           elevation: 0,
           style: {
+            minHeight: "300px",
             maxHeight: "600px",
             width: "355px",
           },
@@ -231,6 +232,15 @@ const NotificationsFeed = ({
                 : undefined
             }
             onClick={() => handleNotificationsFilterChange("all")}
+            sx={{
+              cursor: "pointer",
+              "&:hover": {
+                backgroundColor:
+                  notificationsFilter === "all"
+                    ? theme.palette.primary.dark
+                    : theme.palette.grey[300],
+              },
+            }}
           >
             {t("notifications:all")}
           </Pill>
@@ -242,6 +252,16 @@ const NotificationsFeed = ({
                 : undefined
             }
             onClick={() => handleNotificationsFilterChange("unread")}
+            sx={{
+              cursor: "pointer",
+
+              "&:hover": {
+                backgroundColor:
+                  notificationsFilter === "unread"
+                    ? theme.palette.primary.dark
+                    : theme.palette.grey[300],
+              },
+            }}
           >
             {t("notifications:unread")}
           </Pill>
@@ -270,7 +290,10 @@ const NotificationsFeed = ({
             ) : (
               <Typography
                 variant="body2"
-                sx={{ marginBottom: theme.spacing(2) }}
+                sx={{
+                  marginLeft: theme.spacing(1),
+                  marginBottom: theme.spacing(2),
+                }}
               >
                 {t("notifications:no_new_notifications")}
               </Typography>

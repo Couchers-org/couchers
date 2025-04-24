@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+import { Typography, TypographyProps } from "@mui/material";
 import { styled } from "@mui/system";
 import { theme } from "theme";
 
@@ -21,6 +21,7 @@ export interface PillProps {
   color?: string;
   onClick?: () => void;
   variant?: "rounded";
+  sx?: TypographyProps["sx"];
 }
 
 export default function Pill({
@@ -29,6 +30,7 @@ export default function Pill({
   color = theme.palette.text.primary,
   onClick,
   variant = "rounded",
+  sx,
 }: PillProps) {
   const handleClick = () => {
     if (onClick) {
@@ -44,6 +46,7 @@ export default function Pill({
         ...(variant === "rounded" && {
           borderRadius: theme.shape.borderRadius * 6,
         }),
+        ...sx,
       }}
       onClick={handleClick}
     >

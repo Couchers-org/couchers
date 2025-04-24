@@ -225,10 +225,7 @@ const NotificationItem = ({
           data-testid="mark-unread-menu-item"
           onClick={handleMarkItemUnread}
         >
-          <Typography
-            variant="body2"
-            sx={{ marginLeft: theme.spacing(1), fontWeight: 500 }}
-          >
+          <Typography variant="body2" sx={{ fontWeight: 500 }}>
             {t("notifications:mark_unread")}
           </Typography>
         </MenuItem>
