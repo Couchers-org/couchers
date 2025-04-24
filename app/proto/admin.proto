@@ -67,6 +67,9 @@ service Admin {
 
   rpc DeleteReference(DeleteReferenceReq) returns (google.protobuf.Empty) {}
 
+  rpc EditDiscussion(EditDiscussionReq) returns (google.protobuf.Empty) {}
+
+  rpc EditReply(EditReplyReq) returns (google.protobuf.Empty) {}
 }
 
 message UserDetails {
@@ -281,4 +284,15 @@ message EditReferenceTextReq {
 
 message DeleteReferenceReq {
   int64 reference_id = 1;
+}
+
+message EditDiscussionReq {
+  int64 discussion_id = 1;
+  string new_title = 2;
+  string new_content = 3;
+}
+
+message EditReplyReq {
+  int64 reply_id = 1;
+  string new_content = 2;
 }

@@ -75,4 +75,4 @@ Thanks from all of us at Couchers.org! We’re excited for what’s next in 2025
 
 _Written by [Colleen](/user/colleen) and [Jesse](/user/jesse). Published on 2025/04/12_
 
-**Want to submit to our blog? [Sign up](/contribute) and let us know.**
+**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

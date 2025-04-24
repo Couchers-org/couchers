@@ -48,4 +48,4 @@ Whatâ€™s so amazing about Couchers.org is this group of people who are saying, â
 
 *Written by Emily. Published on 2021/06/04.*
 
-**Want to submit to our blog? [Sign up](/volunteer) and let us know.**
+**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

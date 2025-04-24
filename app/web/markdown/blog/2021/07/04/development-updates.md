@@ -48,4 +48,4 @@ If you're a developer, please join our team on GitHub at [Couchers-org/couchers]
 
 *Written by Aapeli. Published on 2021/07/04.*
 
-**Want to submit to our blog? [Sign up](/volunteer) and let us know.**
+**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**
