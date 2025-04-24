@@ -28,6 +28,7 @@
   "your_communities_helper_text": "You have been added to all communities based on your location. Feel free to <1>browse communities</1> in other locations as well.",
   "your_communities_helper_text2": "Don't see your community? <1>Get it started!</1>",
   "community_builder_form_text": "Start your own local community",
+  "community_guidelines_helper_text": "Learn more about how we build our communities! <1>Read our community guidelines</1>",
   "upcoming_events": "Upcoming events",
   "member_count": "{{count}} member",
   "member_count_plural": "{{count}} members",

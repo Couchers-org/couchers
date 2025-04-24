@@ -24,6 +24,8 @@ import makeStyles from "utils/makeStyles";
 
 const COMMUNITY_BUILDER_FORM_LINK =
   "https://couchers.org/community-builder-form";
+const COMMUNITY_GUIDELINES_LINK =
+  "https://docs.google.com/document/d/1A9vCdKGQ_WKoyjCh5KScdGgpnighr9yL_F0-OaPT2yA/edit?usp=sharing";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -48,6 +50,7 @@ const useStyles = makeStyles((theme) => ({
   },
   createCommunityText: {
     paddingBlockStart: theme.spacing(2),
+    paddingBlockEnd: theme.spacing(2),
   },
   headerRow: {
     display: "flex",
@@ -123,6 +126,41 @@ const CommunitiesPage = () => {
       <div className={classes.headerRow}>
         <PageTitle>{t("communities:communities_title")}</PageTitle>
       </div>
+      <Typography
+        variant="body1"
+        paragraph
+        className={classes.createCommunityText}
+      >
+        <Trans i18nKey="dashboard:your_communities_helper_text2">
+          {`Don't see your community? `}
+          <MuiLink
+            href={COMMUNITY_BUILDER_FORM_LINK}
+            target="_blank"
+            rel="noreferrer noopener"
+            underline="hover"
+          >
+            Get it started!
+          </MuiLink>
+        </Trans>
+      </Typography>
+      <Typography
+        variant="body1"
+        paragraph
+        className={classes.createCommunityText}
+      >
+        <Trans i18nKey="dashboard:community_guidelines_helper_text">
+          {`Learn more about how we build our communities! `}
+          <MuiLink
+            href={COMMUNITY_GUIDELINES_LINK}
+            target="_blank"
+            rel="noreferrer noopener"
+            underline="hover"
+          >
+            Read our community guidelines
+          </MuiLink>
+        </Trans>
+      </Typography>
+
       <div className={classes.root}>
         {cachedQueryResults.map((query, index) => (
           <BrowserColumn
@@ -163,23 +201,6 @@ const CommunitiesPage = () => {
         ) : (
           <Alert severity="error">{query?.error?.message || ""}</Alert>
         )}
-        <Typography
-          variant="body1"
-          paragraph
-          className={classes.createCommunityText}
-        >
-          <Trans i18nKey="dashboard:your_communities_helper_text2">
-            {`Don't see your community? `}
-            <MuiLink
-              href={COMMUNITY_BUILDER_FORM_LINK}
-              target="_blank"
-              rel="noreferrer noopener"
-              underline="hover"
-            >
-              Get it started!
-            </MuiLink>
-          </Trans>
-        </Typography>
       </div>
     </div>
   );
