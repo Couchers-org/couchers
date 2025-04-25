@@ -15,6 +15,19 @@ from proto.google.api import httpbody_pb2
 logger = logging.getLogger(__name__)
 
 
+def _create_stripe_customer(session, user):
+    # create a new stripe id for this user
+    customer = stripe.Customer.create(
+        email=user.email,
+        # metadata allows us to store arbitrary metadata for ourselves
+        metadata={"user_id": user.id},
+        api_key=config["STRIPE_API_KEY"],
+    )
+    user.stripe_customer_id = customer.id
+    # commit since we only ever want one stripe customer id per user, so if the rest of this api call fails, this will still be saved in the db
+    session.commit()
+
+
 class Donations(donations_pb2_grpc.DonationsServicer):
     def InitiateDonation(self, request, context, session):
         if not config["ENABLE_DONATIONS"]:
@@ -27,16 +40,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DONATION_TOO_SMALL)
 
         if not user.stripe_customer_id:
-            # create a new stripe id for this user
-            customer = stripe.Customer.create(
-                email=user.email,
-                # metadata allows us to store arbitrary metadata for ourselves
-                metadata={"user_id": user.id},
-                api_key=config["STRIPE_API_KEY"],
-            )
-            user.stripe_customer_id = customer.id
-            # commit since we only ever want one stripe customer id per user, so if the rest of this api call fails, this will still be saved in the db
-            session.commit()
+            _create_stripe_customer(session, user)
 
         if request.recurring:
             item = {
@@ -80,6 +84,22 @@ class Donations(donations_pb2_grpc.DonationsServicer):
         return donations_pb2.InitiateDonationRes(
             stripe_checkout_session_id=checkout_session.id, stripe_checkout_url=checkout_session.url
         )
+
+    def GetDonationPortalLink(self, request, context, session):
+        if not config["ENABLE_DONATIONS"]:
+            context.abort(grpc.StatusCode.UNAVAILABLE, errors.DONATIONS_DISABLED)
+
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
+        if not user.stripe_customer_id:
+            _create_stripe_customer(session, user)
+
+        session = stripe.billing_portal.Session.create(
+            customer=user.stripe_customer_id,
+            return_url=urls.donation_url(),
+        )
+
+        return donations_pb2.GetDonationPortalLinkRes(stripe_portal_url=session.url)
 
 
 class Stripe(stripe_pb2_grpc.StripeServicer):
