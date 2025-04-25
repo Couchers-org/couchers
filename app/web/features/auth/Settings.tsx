@@ -17,6 +17,7 @@ import DeleteAccount from "./deletion/DeleteAccount";
 import LoginsLink from "./logins/LoginsLink";
 import useAccountInfo from "./useAccountInfo";
 import StrongVerification from "./verification/StrongVerification";
+import ManageDonations from "./donations/ManageDonations";
 
 const TopMarginWrapper = styled("div")(({ theme }) => ({
   margin: theme.spacing(4, 0),
@@ -61,6 +62,9 @@ export default function Settings() {
           </MarginWrapper>
           <MarginWrapper>
             <LoginsLink />
+          </MarginWrapper>
+          <MarginWrapper>
+            <ManageDonations />
           </MarginWrapper>
           <MarginWrapper>
             <Username username={accountInfo.username} />
