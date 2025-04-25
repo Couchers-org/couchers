@@ -1,5 +1,4 @@
-import { Theme, Typography } from "@mui/material";
-import { styled, SxProps } from "@mui/system";
+import { styled, SxProps, Typography } from "@mui/material";
 import { theme } from "theme";
 
 interface PillStylesProps {
@@ -21,7 +20,7 @@ export interface PillProps {
   color?: string;
   onClick?: () => void;
   variant?: "rounded";
-  sx?: SxProps<Theme>;
+  sx?: SxProps;
 }
 
 export default function Pill({
@@ -46,7 +45,7 @@ export default function Pill({
         ...(variant === "rounded" && {
           borderRadius: theme.shape.borderRadius * 6,
         }),
-        ...sx,
+        ...(sx || {}),
       }}
       onClick={handleClick}
     >
