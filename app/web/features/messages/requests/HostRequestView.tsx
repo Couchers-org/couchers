@@ -139,7 +139,7 @@ export default function HostRequestView({
   const currentUserId = useAuthContext().authState.userId;
   const isHost = host?.userId === currentUserId;
   const otherUser = isHost ? surfer : host;
-  const isRequestExpired = dayjs(hostRequest?.toDate).isBefore(
+  const isRequestPast = dayjs(hostRequest?.toDate).isBefore(
     dayjs().format("L"),
   );
 
@@ -164,7 +164,7 @@ export default function HostRequestView({
           })
       : undefined;
 
-  if (isRequestExpired) {
+  if (isRequestPast) {
     title = title + ` (${t("host_request_status.past")})`;
   }
 
