@@ -23,13 +23,11 @@ export default function HostRequestStatusIcon({
   let icon = null;
   let color = null;
 
-  const isRequestExpired = dayjs(hostRequest.toDate).isBefore(
-    dayjs().format("L"),
-  );
+  const isRequestPast = dayjs(hostRequest.toDate).isBefore(dayjs().format("L"));
 
-  if (isRequestExpired) {
+  if (isRequestPast) {
     icon = <HistoryIcon fontSize="inherit" />;
-    color = "grey";
+    color = "grey.500";
   } else if (s === HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED) {
     icon = <CheckIcon fontSize="inherit" />;
     color = "gray";
