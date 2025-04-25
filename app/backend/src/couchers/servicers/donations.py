@@ -97,6 +97,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
         session = stripe.billing_portal.Session.create(
             customer=user.stripe_customer_id,
             return_url=urls.donation_url(),
+            api_key=config["STRIPE_API_KEY"],
         )
 
         return donations_pb2.GetDonationPortalLinkRes(stripe_portal_url=session.url)
