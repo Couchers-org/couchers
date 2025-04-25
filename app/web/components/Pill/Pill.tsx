@@ -1,5 +1,5 @@
-import { Typography, TypographyProps } from "@mui/material";
-import { styled } from "@mui/system";
+import { Theme, Typography } from "@mui/material";
+import { styled, SxProps } from "@mui/system";
 import { theme } from "theme";
 
 interface PillStylesProps {
@@ -21,7 +21,7 @@ export interface PillProps {
   color?: string;
   onClick?: () => void;
   variant?: "rounded";
-  sx?: TypographyProps["sx"];
+  sx?: SxProps<Theme>;
 }
 
 export default function Pill({
