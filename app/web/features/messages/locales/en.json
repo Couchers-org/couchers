@@ -122,7 +122,7 @@
     "accepted": "Accepted",
     "cancelled": "Cancelled",
     "confirmed": "Confirmed",
-    "expired": "Expired",
+    "past": "Past",
     "pending": "Pending",
     "rejected": "Declined"
   },

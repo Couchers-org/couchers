@@ -83,12 +83,13 @@ export default function HostRequestListItem({
         }`
     : "";
 
-  const isRequestExpired = dayjs(hostRequest.toDate).isBefore(
-    dayjs().format("L"),
-  );
+  const isPast = dayjs(hostRequest?.toDate).isBefore(dayjs().format("L"));
 
   return (
-    <ListItem className={className}>
+    <ListItem
+      className={className}
+      sx={{ color: isPast ? "grey.500" : "text.primary" }}
+    >
       <ListItemAvatar>
         <Avatar user={otherUser} isProfileLink={false} />
       </ListItemAvatar>
@@ -108,9 +109,8 @@ export default function HostRequestListItem({
               ) : (
                 <HostRequestStatusText
                   isHost={isHost}
-                  requestStatus={
-                    isRequestExpired ? "expired" : hostRequest.status
-                  }
+                  requestStatus={hostRequest.status}
+                  isPast={isPast}
                 />
               )}
             </StyledHostStatusContainer>

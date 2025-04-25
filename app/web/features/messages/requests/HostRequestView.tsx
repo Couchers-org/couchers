@@ -143,16 +143,14 @@ export default function HostRequestView({
     dayjs().format("L"),
   );
 
-  const title =
+  let title =
     otherUser && hostRequest
       ? isHost
         ? t("host_request_view.title_for_host", {
             user: firstName(otherUser.name),
             status: t(
               requestStatusToTransKey[
-                isRequestExpired
-                  ? "expired"
-                  : (hostRequest.status as keyof typeof requestStatusToTransKey)
+                hostRequest.status as keyof typeof requestStatusToTransKey
               ],
             ),
           })
@@ -160,13 +158,15 @@ export default function HostRequestView({
             user: firstName(otherUser.name),
             status: t(
               requestStatusToTransKey[
-                isRequestExpired
-                  ? "expired"
-                  : (hostRequest.status as keyof typeof requestStatusToTransKey)
+                hostRequest.status as keyof typeof requestStatusToTransKey
               ],
             ),
           })
       : undefined;
+
+  if (isRequestExpired) {
+    title = title + ` (${t("host_request_status.past")})`;
+  }
 
   const queryClient = useQueryClient();
   const sendMutation = useMutation<string | undefined, RpcError, string>(
