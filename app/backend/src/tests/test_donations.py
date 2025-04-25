@@ -242,6 +242,36 @@ def test_recurring_donation_flow(db, monkeypatch):
         )
 
 
+def test_customer_portal_url(db, monkeypatch):
+    user, token = generate_user()
+    user_email = user.email
+    user_id = user.id
+
+    new_config = config.copy()
+    new_config["ENABLE_DONATIONS"] = True
+    new_config["STRIPE_API_KEY"] = "dummy_api_key"
+
+    monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
+
+    ## User first makes a req to Donations.InitiateDonation
+    with donations_session(token) as donations:
+        with patch("couchers.servicers.donations.stripe") as mock:
+            mock.Customer.create.return_value = type("__MockCustomer", (), {"id": "cus_Pv4uq0gT0rDZWN"})
+            mock.billing_portal.Session.create.return_value = type(
+                "__MockBillingPortalSession", (), {"url": "https://stripe.com.invalid/subman"}
+            )
+
+            res = donations.GetDonationPortalLink(empty_pb2.Empty())
+            assert res.stripe_portal_url == "https://stripe.com.invalid/subman"
+
+            res = donations.GetDonationPortalLink(empty_pb2.Empty())
+            assert res.stripe_portal_url == "https://stripe.com.invalid/subman"
+
+        mock.Customer.create.assert_called_once_with(
+            email=user_email, metadata={"user_id": user_id}, api_key="dummy_api_key"
+        )
+
+
 def fire_stripe_event(event_id):
     event = json.loads(STRIPE_WEBHOOK_EVENTS[event_id])
     with real_stripe_session() as api:
