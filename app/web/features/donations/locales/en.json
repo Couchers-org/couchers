@@ -16,7 +16,7 @@
       "success_message": "Thank you for donating to Couchers.org, we appreciate your support! You will receive an email shortly.",
       "warning_message": "The payment was cancelled."
     },
-    "helper_text": "You will be redirected to Stripe, our payment processor, to complete your donation."
+    "helper_text": "You will be redirected to Stripe, our payment processor, to complete your donation. To cancel or update an existing donation at any time, <2>click here to go to the donation portal</2>."
   },
   "donations_title": "Your donation is needed to grow the platform we need",
   "donations_title2": "Where your donation will go",
