@@ -276,7 +276,8 @@
     "delete_information_text2": "Wenn du deine Daten löschst, kannst du denselben Reisepass nicht erneut für die starke Verifizierung verwenden.",
     "delete_my_data_button": "Meine Daten löschen",
     "delete_button": "Meine Starke Verifizierungsdaten löschen",
-    "delete_success": "Deine Reisepassdaten wurden gelöscht."
+    "delete_success": "Deine Reisepassdaten wurden gelöscht.",
+    "learn_more": "Erfahre mehr über Starke Verifizierung <a>hier</a>."
   },
   "sign_up_resend_verification_email_help": "Du hast keine E-Mail erhalten? Klick <2>hier, um den Bestätigungslink erneut zu senden</2>.",
   "sign_up_resend_verification_done": "Erledigt! Wir haben dir eine weitere E-Mail gesendet.",

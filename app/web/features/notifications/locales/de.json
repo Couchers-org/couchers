@@ -16,7 +16,8 @@
         "friend_request": "Freundschaftsanfragen",
         "host_request": "Gastgeberanfragen",
         "reference": "Referenzen",
-        "discussion": "Beiträge"
+        "discussion": "Beiträge",
+        "reply": "Antworten"
       },
       "item_descriptions": {
         "host_request": {
