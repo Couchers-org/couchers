@@ -13,7 +13,9 @@ from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
+    Comment,
     ContentReport,
+    Discussion,
     Event,
     EventCommunityInviteRequest,
     EventOccurrence,
@@ -24,6 +26,7 @@ from couchers.models import (
     ModNote,
     Node,
     Reference,
+    Reply,
     User,
     UserBadge,
 )
@@ -33,6 +36,7 @@ from couchers.servicers.api import get_strong_verification_fields, user_model_to
 from couchers.servicers.auth import create_session
 from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import get_users_to_notify_for_new_event
+from couchers.servicers.threads import unpack_thread_id
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date
 from proto import admin_pb2, admin_pb2_grpc, notification_data_pb2
@@ -552,4 +556,25 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort(grpc.StatusCode.NOT_FOUND, errors.REFERENCE_NOT_FOUND)
 
         reference.is_deleted = True
+        return empty_pb2.Empty()
+
+    def EditDiscussion(self, request, context, session):
+        discussion = session.execute(
+            select(Discussion).where(Discussion.id == request.discussion_id)
+        ).scalar_one_or_none()
+        if request.new_title:
+            discussion.title = request.new_title.strip()
+        if request.new_content:
+            discussion.content = request.new_content.strip()
+        return empty_pb2.Empty()
+
+    def EditReply(self, request, context, session):
+        database_id, depth = unpack_thread_id(request.reply_id)
+        if depth == 1:
+            obj = session.execute(select(Comment).where(Comment.id == database_id)).scalar_one_or_none()
+        elif depth == 2:
+            obj = session.execute(select(Reply).where(Reply.id == database_id)).scalar_one_or_none()
+        if not obj:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.OBJECT_NOT_FOUND)
+        obj.content = request.new_content.strip()
         return empty_pb2.Empty()

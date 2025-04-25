@@ -58,4 +58,4 @@ Head on over to the [Couchers.org forum](https://community.couchers.org) and ask
 
 _Written by Bob. Published on 2022/08/30_
 
-**Want to submit to our blog? [Sign up](/contribute) and let us know.**
+**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

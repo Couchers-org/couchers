@@ -40,4 +40,4 @@ Nolo: Certainly the forum. I got pretty hooked and I love using it. I’m even u
 
 *Written by Emily. Published on 2021/03/29.*
 
-**Want to submit to our blog? [Sign up](/volunteer) and let us know.**
+**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

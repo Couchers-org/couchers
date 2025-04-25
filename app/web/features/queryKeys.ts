@@ -21,10 +21,6 @@ export function liteUserKey(userId?: number) {
 
 export const liteUsersKey = (ids: number[]) => ["liteUsers", ...ids];
 
-export function responseRateKey(userId: number) {
-  return ["responseRate", userId];
-}
-
 export const referencesGivenKey = (userId: number) => [
   "referencesGiven",
   { userId },
