@@ -170,9 +170,6 @@
     "field_label": "A tua localização",
     "validation_error": "Por favor seleciona uma localização válida."
   },
-  "notification_settings": {
-    "title": "Definições de notificação"
-  },
   "change_phone": {
     "phone_label": "Teu número de telefone",
     "change_to_different_description": "Para alterar o teu número de telefone para um diferente, digita-o abaixo.",

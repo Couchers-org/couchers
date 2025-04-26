@@ -7,25 +7,14 @@ import {
   styled,
   Typography,
 } from "@mui/material";
-import {
-  AccountSecurityIcon,
-  AccountSettingsIcon,
-  ChatBubbleIcon,
-  CommentIcon,
-  CouchFilledIcon,
-  EventIcon,
-  ExpandLessIcon,
-  ExpandMoreIcon,
-  PenIcon,
-  SegmentIcon,
-  SinglePersonIcon,
-} from "components/Icons";
-import { AUTH } from "i18n/namespaces";
+import { ExpandLessIcon, ExpandMoreIcon } from "components/Icons";
+import { NOTIFICATIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { useState } from "react";
 
 import { GroupAction, NotificationType } from "./EditNotificationSettingsPage";
 import NotificationSettingsSubListItem from "./NotificationSettingsSubListItem";
+import { mapNotificationSettingsTypeToIcon } from "./utils/constants";
 
 export interface NotificationSettingsListItemProps {
   items: GroupAction[];
@@ -44,26 +33,14 @@ const StyledListItem = styled(ListItem)<ListItemProps>(({ theme }) => ({
   },
 }));
 
-const mapTypeToIcon: { [key: string]: JSX.Element } = {
-  account_security: <AccountSecurityIcon fontSize="large" color="action" />,
-  account_settings: <AccountSettingsIcon fontSize="large" color="action" />,
-  chat: <ChatBubbleIcon fontSize="large" color="action" />,
-  event: <EventIcon fontSize="large" color="action" />,
-  reference: <PenIcon fontSize="large" color="action" />,
-  friend_request: <SinglePersonIcon fontSize="large" color="action" />,
-  host_request: <CouchFilledIcon fontSize="large" color="action" />,
-  discussion: <CommentIcon fontSize="large" color="action" />,
-  reply: <SegmentIcon fontSize="large" color="action" />,
-};
-
 export default function NotificationSettingsListItem({
   items,
   type,
 }: NotificationSettingsListItemProps) {
   const notificationType =
-    type as `auth:notification_settings.edit_preferences.list_items.${NotificationType}`;
+    type as `notifications:notification_settings.edit_preferences.list_items.${NotificationType}`;
 
-  const { t } = useTranslation([AUTH], {
+  const { t } = useTranslation([NOTIFICATIONS], {
     keyPrefix: "notification_settings.edit_preferences.list_items",
   });
   const [isCollapseOpen, setIsCollapseOpen] = useState<boolean>(false);
@@ -88,7 +65,7 @@ export default function NotificationSettingsListItem({
   return (
     <>
       <StyledListItem component="button" onClick={handleCollapseClick}>
-        <ListItemIcon>{mapTypeToIcon[type]}</ListItemIcon>
+        <ListItemIcon>{mapNotificationSettingsTypeToIcon[type]}</ListItemIcon>
         <ListItemText>
           <Typography variant="h3">{t(notificationType)}</Typography>
         </ListItemText>

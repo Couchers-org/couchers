@@ -1,12 +1,12 @@
 import { Typography } from "@mui/material";
 import Button from "components/Button";
 import { useTranslation } from "i18n";
-import { AUTH } from "i18n/namespaces";
+import { NOTIFICATIONS } from "i18n/namespaces";
 import Link from "next/link";
 import { notificationSettingsRoute } from "routes";
 
 export default function NotificationSettings() {
-  const { t } = useTranslation(AUTH);
+  const { t } = useTranslation([NOTIFICATIONS]);
 
   return (
     <div>

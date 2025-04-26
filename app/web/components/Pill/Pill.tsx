@@ -1,5 +1,4 @@
-import { Typography } from "@mui/material";
-import { styled } from "@mui/system";
+import { styled, SxProps, Typography } from "@mui/material";
 import { theme } from "theme";
 
 interface PillStylesProps {
@@ -19,15 +18,25 @@ export interface PillProps {
   children: React.ReactNode;
   backgroundColor?: string;
   color?: string;
+  onClick?: () => void;
   variant?: "rounded";
+  sx?: SxProps;
 }
 
 export default function Pill({
   children,
   backgroundColor = theme.palette.grey[200],
   color = theme.palette.text.primary,
+  onClick,
   variant = "rounded",
+  sx,
 }: PillProps) {
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    }
+  };
+
   return (
     <StyledPill
       sx={{
@@ -36,7 +45,9 @@ export default function Pill({
         ...(variant === "rounded" && {
           borderRadius: theme.shape.borderRadius * 6,
         }),
+        ...(sx || {}),
       }}
+      onClick={handleClick}
     >
       {children}
     </StyledPill>
