@@ -14,10 +14,10 @@ import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 
 import DeleteAccount from "./deletion/DeleteAccount";
+import ManageDonations from "./donations/ManageDonations";
 import LoginsLink from "./logins/LoginsLink";
 import useAccountInfo from "./useAccountInfo";
 import StrongVerification from "./verification/StrongVerification";
-import ManageDonations from "./donations/ManageDonations";
 
 const TopMarginWrapper = styled("div")(({ theme }) => ({
   margin: theme.spacing(4, 0),
