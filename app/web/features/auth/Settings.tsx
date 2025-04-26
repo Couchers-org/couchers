@@ -14,6 +14,7 @@ import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 
 import DeleteAccount from "./deletion/DeleteAccount";
+import ManageDonations from "./donations/ManageDonations";
 import LoginsLink from "./logins/LoginsLink";
 import useAccountInfo from "./useAccountInfo";
 import StrongVerification from "./verification/StrongVerification";
@@ -61,6 +62,9 @@ export default function Settings() {
           </MarginWrapper>
           <MarginWrapper>
             <LoginsLink />
+          </MarginWrapper>
+          <MarginWrapper>
+            <ManageDonations />
           </MarginWrapper>
           <MarginWrapper>
             <Username username={accountInfo.username} />
