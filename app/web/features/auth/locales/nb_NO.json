@@ -176,9 +176,6 @@
       "explanation": "En administrator vil med glede endre valgt kjønn. Vennligst kontakt support@couchers.org!"
     }
   },
-  "notification_settings": {
-    "title": "Instillinger for varsler"
-  },
   "unsubscribe": {
     "title": "Avslutt abonnementet",
     "button_text": "Bekreft sletting av abonnementet",

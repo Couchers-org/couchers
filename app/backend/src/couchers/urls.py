@@ -103,6 +103,10 @@ def change_email_link(*, confirmation_token):
     return f"{config['BASE_URL']}/confirm-email?token={confirmation_token}"
 
 
+def donation_url():
+    return f"{config['BASE_URL']}/donate"
+
+
 def donation_cancelled_url():
     return f"{config['BASE_URL']}/donate?cancelled=true"
 

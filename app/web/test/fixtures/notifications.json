@@ -1,80 +1,41 @@
 {
-  "doNotEmailEnabled": false,
-  "emailDigestEnabled": false,
-  "groupsList": [
+  "nextPageToken": "",
+  "notificationsList": [
     {
-      "heading": "Core Features",
-      "topicsList": [
-        {
-          "topic": "host_request",
-          "name": "Host Requests",
-          "itemsList": [
-            {
-              "action": "create",
-              "description": "Someone sends you a host request",
-              "userEditable": true,
-              "push": false,
-              "digest": false,
-              "email": true,
-              "topic": "host_request"
-            },
-            {
-              "action": "accept",
-              "description": "Someone accepts your host request",
-              "userEditable": true,
-              "push": true,
-              "email": true,
-              "digest": false,
-              "topic": "host_request"
-            },
-            {
-              "action": "confirm",
-              "description": "Someone confirms their host request",
-              "userEditable": true,
-              "push": true,
-              "email": true,
-              "digest": false,
-              "topic": "host_request"
-            },
-            {
-              "action": "reject",
-              "description": "Someone declines your host request",
-              "userEditable": true,
-              "push": true,
-              "email": true,
-              "digest": false,
-              "topic": "host_request"
-            },
-            {
-              "action": "cancel",
-              "description": "Someone cancels their host request",
-              "userEditable": true,
-              "push": true,
-              "digest": false,
-              "email": true,
-              "topic": "host_request"
-            },
-            {
-              "action": "message",
-              "description": "Someone sends a message in a host request",
-              "userEditable": true,
-              "push": true,
-              "digest": false,
-              "email": false,
-              "topic": "host_request"
-            },
-            {
-              "action": "missed_messages",
-              "description": "You miss messages in a host request",
-              "digest": false,
-              "email": true,
-              "push": false,
-              "topic": "host_request",
-              "userEditable": true
-            }
-          ]
-        }
-      ]
+      "action": "create",
+      "body": "You've received a friend request from Keanu Reeves",
+      "created": { "seconds": 1744816692, "nanos": 719860000 },
+      "icon": "https://www.test.com/icon.png",
+      "isSeen": true,
+      "key": "183",
+      "notificationId": 1,
+      "title": "Keanu Reeves wants to be your friend",
+      "topic": "friend_request",
+      "url": "https://locathost:3000/connections/friends/"
+    },
+    {
+      "action": "missed_messages",
+      "body": "Please check out any messages you missed.",
+      "created": { "seconds": 1741810991, "nanos": 311337000 },
+      "icon": "https://www.test.com/icon2.png",
+      "isSeen": false,
+      "key": "184",
+      "notificationId": 2,
+      "title": "You have unseen messages on Couchers.org",
+      "topic": "chat",
+      "url": "https://localhost:3000/messages/"
+    },
+    {
+      "action": "reminder_surfed",
+      "body": "It's a nice gesture to write references and helps us build a community together! References will become visible 2 weeks after the stay, or when you've both written a reference for each other, whichever happens first.",
+      "created": { "seconds": 1732874730, "nanos": 976434000 },
+      "icon": "https://www.test.com/icon2.png",
+      "isSeen": false,
+      "key": "185",
+      "notificationId": 3,
+      "title": "You have 3 days to write a reference for Test User!",
+      "topic": "reference",
+      "url": "https://localhost:3000/leave-reference/surfed/111/1364"
     }
   ]
 }

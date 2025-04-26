@@ -1,0 +1,123 @@
+{
+  "notification_settings": {
+    "title": "通知设置",
+    "edit_in_console": "您可以在<2>此页面</2>更改通知设置。我们将很快将此功能迁移至这里。",
+    "go_to_button": "管理通知设置",
+    "edit_preferences": {
+      "title": "通知设置",
+      "description": "您仍可能会收到与账户和内容相关的重要通知，即使这些通知不在您的首选通知设置中。",
+      "list_heading": "您可能会收到的通知",
+      "error_loading": "加载通知设置时出错",
+      "list_items": {
+        "account_security": "账户安全",
+        "account_settings": "账户设置",
+        "chat": "消息",
+        "event": "活动",
+        "friend_request": "好友请求",
+        "host_request": "接待请求",
+        "reference": "评语"
+      },
+      "item_descriptions": {
+        "host_request": {
+          "create": "有人向您发送接待请求",
+          "accept": "有人接受了您的接待请求",
+          "confirm": "有人确认了他们的接待请求",
+          "reject": "有人拒绝了您的接待请求",
+          "cancel": "有人取消了他们的接待请求",
+          "message": "有人在接待请求中发送了消息",
+          "missed_messages": "您错过了接待请求中的消息"
+        },
+        "chat": {
+          "message": "有人向您发送了消息",
+          "missed_messages": "您错过了聊天中的消息"
+        },
+        "reference": {
+          "receive_hosted": "您收到了一位接待您的人的评语",
+          "receive_surfed": "您收到了一位您接待过的人的评语",
+          "receive_friend": "您收到了一位朋友的评语",
+          "reminder_hosted": "提醒您给曾接待过您的人成写评语",
+          "reminder_surfed": "提醒您给曾与您共同旅行过的人写评语"
+        },
+        "friend_request": {
+          "create": "有人向您发送了好友请求",
+          "accept": "有人接受了您的好友请求"
+        },
+        "event": {
+          "create_approved": "您的社区中创建了一个管理员批准的活动",
+          "create_any": "用户在您的社区中创建了任何活动（未经管理员审核）",
+          "update": "您参加的活动已更新",
+          "cancel": "您参加的活动已取消",
+          "delete": "您参加的活动已删除",
+          "invite_organizer": "有人邀请您共同组织一个活动"
+        },
+        "onboarding": {
+          "reminder": "注册后提醒您完善个人资料"
+        },
+        "badge": {
+          "add": "您的账户添加了一个徽章",
+          "remove": "您的账户移除了一个徽章"
+        },
+        "donation": {
+          "received": "您的捐赠已收到"
+        },
+        "password": {
+          "change": "您的密码已更改"
+        },
+        "password_reset": {
+          "start": "密码重置已启动",
+          "complete": "密码重置已完成"
+        },
+        "email_address": {
+          "change": "电子邮件更改已启动",
+          "verify": "您的新电子邮件已验证"
+        },
+        "account_deletion": {
+          "start": "您已启动账户删除",
+          "complete": "您的账户已删除",
+          "recovered": "您的账户已恢复（未删除）"
+        },
+        "api_key": {
+          "create": "为您的账户创建了API密钥"
+        },
+        "phone_number": {
+          "change": "您的电话号码已更改",
+          "verify": "您的电话号码已验证"
+        },
+        "birthdate": {
+          "change": "您的出生日期已更改"
+        },
+        "gender": {
+          "change": "您的个人资料中显示的性别已更改"
+        }
+      }
+    },
+    "push_notifications": {
+      "title": "推送通知",
+      "description": "您可以在设备上为Couchers.org启用推送通知。我们正在扩展此功能。",
+      "allow_push": "点击浏览器弹出的“允许”按钮以启用推送通知。",
+      "enabled_message": "您当前已<1>启用</1>推送通知。",
+      "disabled_message": "您当前已<1>禁用</1>推送通知。",
+      "error_generic": "订阅推送通知时出错",
+      "error_unsupported": "此浏览器不支持推送通知或服务工作线程。",
+      "permission_denied": {
+        "platform_settings_description": "启用浏览器通知后仍有问题？您可能需要调整设备的通知权限设置。",
+        "instructions": {
+          "chrome": "您已屏蔽通知。请在浏览器设置中启用通知。在Chrome中，点击URL栏中的锁图标，然后调整“通知”设置。",
+          "firefox": "您已屏蔽通知。请在浏览器设置中启用通知。在Firefox中，进入设置 > 隐私与安全 > 权限 > 通知，修改相关网站权限。",
+          "safari": "您已屏蔽通知。请在Safari的偏好设置 > 网站 > 通知中调整权限。",
+          "generic": "您已屏蔽通知。请在浏览器设置中启用通知。",
+          "macos": "在 macOS 中，前往 系统设置 > 通知，并修改应用的权限。",
+          "windows": "在 Windows 中，前往 设置 > 系统 > 通知和操作，调整应用或网站的权限。",
+          "linux": {
+            "gnome": "在 GNOME 中，前往 设置 > 通知，调整应用的权限。",
+            "kde": "在 KDE 中，前往 系统设置 > 通知，修改权限。"
+          },
+          "mobile": {
+            "browser": "在您的移动浏览器设置中，调整此网站的通知权限。",
+            "os": "在您的移动设备通知设置中，调整权限以允许通知。"
+          }
+        }
+      }
+    }
+  }
+}

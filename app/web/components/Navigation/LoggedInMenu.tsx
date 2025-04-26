@@ -1,9 +1,16 @@
-import { Button, styled } from "@mui/material";
+import { NotificationsOutlined } from "@mui/icons-material";
+import { Button, styled, Tooltip } from "@mui/material";
 import Avatar from "components/Avatar";
+import IconButton from "components/IconButton";
 import { MenuIcon } from "components/Icons";
 import Menu from "components/Menu";
+import NotificationBadge from "components/NotificationBadge";
+import NotificationsFeed from "features/notifications/NotificationsFeed/NotificationsFeed";
 import useCurrentUser from "features/userQueries/useCurrentUser";
-import React, { Dispatch, ReactNode, SetStateAction } from "react";
+import { useTranslation } from "i18n";
+import { GLOBAL } from "i18n/namespaces";
+import { PingRes } from "proto/api_pb";
+import React, { Dispatch, ReactNode, SetStateAction, useState } from "react";
 import { theme } from "theme";
 
 import ReportButton from "./ReportButton";
@@ -44,23 +51,72 @@ const ReportButtonContainer = styled("div")(({ theme }) => ({
   padding: theme.spacing(2),
 }));
 
+const NotificationMenuItemWrapper = styled("div")(({ theme }) => ({
+  marginRight: theme.spacing(4),
+}));
+
 export default function LoggedInMenu({
   menuOpen,
+  notificationCount,
   setMenuOpen,
   children,
 }: {
   menuOpen: boolean;
+  notificationCount: PingRes.AsObject["unseenNotificationCount"] | undefined;
   setMenuOpen: Dispatch<SetStateAction<boolean>>;
   children: ReactNode;
 }) {
   const menuRef = React.useRef<HTMLButtonElement>(null);
   const { data: user } = useCurrentUser();
+  const { t } = useTranslation([GLOBAL]);
+
+  const [notificationsAnchorEl, setNotificationsAnchorEl] =
+    useState<HTMLButtonElement | null>(null);
+  const isNotificationsFeedOpen = Boolean(notificationsAnchorEl);
+
+  const handleNotificationsFeedOpen = (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    setNotificationsAnchorEl(event.currentTarget);
+  };
+
+  const handleNotificationsFeedClose = () => {
+    setNotificationsAnchorEl(null);
+  };
 
   return (
     <>
       <ReportButtonContainer>
         <ReportButton />
       </ReportButtonContainer>
+      <Tooltip title={t("global:nav.notifications")}>
+        <NotificationMenuItemWrapper>
+          <NotificationBadge count={notificationCount}>
+            <IconButton
+              id="notifications-feed-button"
+              onClick={handleNotificationsFeedOpen}
+              aria-label={t("global:nav.notifications")}
+              aria-controls="notifications-feed"
+              aria-haspopup="true"
+              aria-expanded={isNotificationsFeedOpen ? "true" : undefined}
+              sx={{
+                backgroundColor: theme.palette.grey[300],
+                "&:hover": {
+                  opacity: 0.8,
+                  backgroundColor: theme.palette.grey[300],
+                },
+              }}
+            >
+              <NotificationsOutlined />
+            </IconButton>
+          </NotificationBadge>
+        </NotificationMenuItemWrapper>
+      </Tooltip>
+      <NotificationsFeed
+        isOpen={isNotificationsFeedOpen}
+        anchorEl={notificationsAnchorEl}
+        onClose={handleNotificationsFeedClose}
+      />
       <StyledMenuButton
         aria-controls="navigation-menu"
         aria-haspopup="true"

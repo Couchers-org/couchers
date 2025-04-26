@@ -2,6 +2,7 @@ import { GetLiteUsersRes, LiteUser, User } from "proto/api_pb";
 import { ListAdminsRes } from "proto/communities_pb";
 import { HostRequestStatus } from "proto/conversations_pb";
 import { ListEventAttendeesRes, ListEventOrganizersRes } from "proto/events_pb";
+import { ListNotificationsRes } from "proto/notifications_pb";
 import {
   AvailableWriteReferencesRes,
   ReferenceType,
@@ -9,6 +10,7 @@ import {
 import comments from "test/fixtures/comments.json";
 import liteUsers from "test/fixtures/liteUsers.json";
 import messages from "test/fixtures/messages.json";
+import notifications from "test/fixtures/notifications.json";
 import users from "test/fixtures/users.json";
 
 const [user1, user2, user3, user4, user5] = users;
@@ -235,4 +237,8 @@ export async function getEventAttendees(): Promise<ListEventAttendeesRes.AsObjec
     attendeeUserIdsList: [1, 4],
     nextPageToken: "",
   };
+}
+
+export async function listNotifications(): Promise<ListNotificationsRes.AsObject> {
+  return notifications;
 }

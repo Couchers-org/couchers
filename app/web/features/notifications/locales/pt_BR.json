@@ -1,0 +1,123 @@
+{
+  "notification_settings": {
+    "title": "Definições de notificações",
+    "edit_preferences": {
+      "list_heading": "Notificações que você pode receber",
+      "item_descriptions": {
+        "friend_request": {
+          "accept": "Alguém aceita sua solicitação de amizade",
+          "create": "Alguém envia uma solicitação de amizade para você"
+        },
+        "reference": {
+          "receive_hosted": "Você recebe uma referência de alguém que te hospedou",
+          "receive_friend": "Você recebeu uma referência de um amigo",
+          "reminder_hosted": "Lembrete para escrever uma referência para alguém que você hospedou",
+          "reminder_surfed": "Lembrete para escrever uma referência para alguém com quem você se hospedou",
+          "receive_surfed": "Você recebe uma referência de alguém que hospedou"
+        },
+        "event": {
+          "invite_organizer": "Alguém convida você para ser co-organizador de um evento",
+          "create_approved": "Um evento aprovado pelos moderadores é criado em sua comunidade",
+          "create_any": "Um usuário cria um evento em sua comunidade (não verificado por um administrador)",
+          "update": "Um evento do qual você vai participar é atualizado",
+          "cancel": "Um evento do qual você vai participar é cancelado",
+          "delete": "Um evento do qual você vai participar é excluído"
+        },
+        "host_request": {
+          "reject": "Alguém recusa sua solicitação de hospedagem",
+          "create": "Alguém envia uma solicitação de hospedagem para você",
+          "accept": "Alguém aceita sua solicitação de hospedagem",
+          "confirm": "Alguém confirma a solicitação de hospedagem recebida",
+          "cancel": "Alguém cancela sua solicitação de hospedagem",
+          "message": "Alguém envia uma mensagem em uma solicitação de hospedagem",
+          "missed_messages": "Você tem mensagens pendentes em uma solicitação de hospedagem"
+        },
+        "badge": {
+          "remove": "Uma insígnia foi removida da sua conta",
+          "add": "Uma insígnia é adicionada à sua conta"
+        },
+        "chat": {
+          "message": "Alguém envia uma mensagem para você",
+          "missed_messages": "Mensagens pendentes em uma conversa"
+        },
+        "email_address": {
+          "verify": "Se novo e-mail foi verificado",
+          "change": "A alteração de e-mail foi iniciada"
+        },
+        "account_deletion": {
+          "start": "Você inicia a exclusão da conta",
+          "complete": "Sua conta foi excluída",
+          "recovered": "Sua conta foi recuperada (exclusão revertida)"
+        },
+        "api_key": {
+          "create": "Uma chave de API foi criada para sua conta"
+        },
+        "phone_number": {
+          "change": "Seu número de telefone foi alterado",
+          "verify": "Seu número de telefone foi verificado"
+        },
+        "birthdate": {
+          "change": "Sua data de nascimento foi alterada"
+        },
+        "gender": {
+          "change": "O sexo exibido no seu perfil foi alterado"
+        },
+        "password": {
+          "change": "Sua senha foi alterada"
+        },
+        "password_reset": {
+          "start": "A redefinição de senha foi iniciada",
+          "complete": "A redefinição de senha foi concluída"
+        },
+        "onboarding": {
+          "reminder": "Lembrete para completar seu perfil após se registrar"
+        },
+        "donation": {
+          "received": "Sua doação foi recebida"
+        }
+      },
+      "description": "Você ainda pode receber notificações importantes sobre sua conta e conteúdo, apesar de suas preferências de notificações.",
+      "error_loading": "Erro ao carregar preferências de notificações",
+      "list_items": {
+        "chat": "Mensagens",
+        "host_request": "Solicitações de hospedagem",
+        "event": "Eventos",
+        "friend_request": "Solicitações de amizade",
+        "reference": "Referências",
+        "account_security": "Segurança da conta",
+        "account_settings": "Configurações da conta"
+      },
+      "title": "Preferências de Notificações"
+    },
+    "push_notifications": {
+      "permission_denied": {
+        "instructions": {
+          "generic": "Você bloqueou as notificações. Habilite as notificações nas configurações do seu navegador para continuar.",
+          "macos": "No macOS, vá para Configurações do Sistema > Notificações, e modifique as permissões do aplicativo.",
+          "chrome": "Você bloqueou as notificações. Habilite as notificações nas configurações do seu navegador para continuar. No Chrome, clique no ícone de cadeado, na barra de endereço, em seguida, ajuste a configuração \"Notificações\".",
+          "firefox": "Você bloqueou as notificações. Habilite as notificações nas configurações do seu navegador para continuar. No Firefox, vá para Preferências > Privacidade e Segurança > Permissões > Notificações, e modifique a permissão do website.",
+          "safari": "Você bloqueou as notificações. Habilite as notificações nas configurações do seu navegador para continuar. No Safari, vá para Preferências > Websites > Notificações para modificar as permissões.",
+          "mobile": {
+            "browser": "Nas configurações do navegador do seu dispositivo móvel, ajuste as permissões de notificações para este website.",
+            "os": "Nas configurações de notificações do seu dispositivo móvel, ajuste as permissões para permitir notificações."
+          },
+          "windows": "No Windows, vá para Configurações > Sistema > Notificações e ações, e ajuste as permissões do aplicativo ou website.",
+          "linux": {
+            "gnome": "No GNOME, vá para Configurações > Notificações para ajustar as permissões do aplicativo.",
+            "kde": "No KDE, vá para Configurações do Sistema > Notificações para modificar as permissões."
+          }
+        },
+        "platform_settings_description": "Ainda enfrentando problemas após habilitar as notificações em seu navegador? Pode ser necessário ajustar as configurações da sua plataforma."
+      },
+      "description": "Você pode habilitar notificações por push para Couchers.org em seu dispositivo. Estamos trabalhando para expandir essa funcionalidade.",
+      "allow_push": "Clique no botão \"Permitir\" na pop-up do seu navegador para habilitar notificações por push.",
+      "title": "Notificações por Push",
+      "error_generic": "Erro durante a inscrição para notificações por push",
+      "error_unsupported": "Não há suporte para notificações por push ou Service Workers neste navegador.",
+      "enabled_message": "Atualmente as notificações por push estão <1>habilitadas</1>.",
+      "disabled_message": "Atualmente as notificações por push estão <1>desabilitadas</1>."
+    },
+    "edit_in_console": "Você pode alterar suas preferências de notificações <2>nesta página</2>. Em breve, elas serão movidas para cá.",
+    "go_to_button": "Gerenciar preferências de notificações"
+  }
+}

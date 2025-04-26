@@ -1,0 +1,133 @@
+{
+  "notification_settings": {
+    "title": "Benachrichtigungseinstellungen",
+    "edit_in_console": "Sie können Ihre Benachrichtigungseinstellungen <2>auf dieser Seite</2> ändern. Wir werden dies bald hierhin verlegen.",
+    "go_to_button": "Benachrichtigungseinstellungen verwalten",
+    "edit_preferences": {
+      "title": "Benachrichtigungseinstellungen",
+      "description": "Sie erhalten möglicherweise weiterhin wichtige Benachrichtigungen über Ihr Konto und Inhalte außerhalb Ihrer bevorzugten Benachrichtigungseinstellungen.",
+      "list_heading": "Benachrichtigungen, die Sie erhalten können",
+      "error_loading": "Fehler beim Laden der Benachrichtigungseinstellungen",
+      "list_items": {
+        "account_security": "Kontosicherheit",
+        "account_settings": "Kontoeinstellungen",
+        "chat": "Nachrichten",
+        "event": "Veranstaltungen",
+        "friend_request": "Freundschaftsanfragen",
+        "host_request": "Gastgeberanfragen",
+        "reference": "Referenzen",
+        "discussion": "Beiträge",
+        "reply": "Antworten"
+      },
+      "item_descriptions": {
+        "host_request": {
+          "create": "Jemand sendet Ihnen eine Gastgeberanfrage",
+          "accept": "Jemand akzeptiert Ihre Gastgeberanfrage",
+          "confirm": "Jemand bestätigt seine Gastgeberanfrage",
+          "reject": "Jemand lehnt Ihre Gastgeberanfrage ab",
+          "cancel": "Jemand storniert seine Gastgeberanfrage",
+          "message": "Jemand sendet eine Nachricht in einer Gastgeberanfrage",
+          "missed_messages": "Sie haben Nachrichten in einer Gastgeberanfrage verpasst"
+        },
+        "chat": {
+          "message": "Jemand sendet Ihnen eine Nachricht",
+          "missed_messages": "Sie haben Nachrichten in einem Chat verpasst"
+        },
+        "reference": {
+          "receive_hosted": "Sie erhalten eine Referenz von jemandem, der Sie beherbergt hat",
+          "receive_surfed": "Sie erhalten eine Referenz von jemandem, den Sie beherbergt haben",
+          "receive_friend": "Sie erhalten eine Referenz von einem Freund",
+          "reminder_hosted": "Erinnerung, eine Referenz für jemanden zu schreiben, den Sie beherbergt haben",
+          "reminder_surfed": "Erinnerung, eine Referenz für jemanden zu schreiben, mit dem Sie übernachtet haben"
+        },
+        "friend_request": {
+          "create": "Jemand sendet Ihnen eine Freundschaftsanfrage",
+          "accept": "Jemand akzeptiert Ihre Freundschaftsanfrage"
+        },
+        "event": {
+          "create_approved": "Eine von den Moderatoren genehmigte Veranstaltung wird in Ihrer Community erstellt",
+          "create_any": "Ein Benutzer erstellt eine beliebige Veranstaltung in Ihrer Community (nicht von einem Administrator überprüft)",
+          "update": "Eine Veranstaltung, an der Sie teilnehmen, wird aktualisiert",
+          "cancel": "Eine Veranstaltung, an der Sie teilnehmen, wird abgesagt",
+          "delete": "Eine Veranstaltung, an der Sie teilnehmen, wird gelöscht",
+          "invite_organizer": "Jemand lädt Sie ein, eine Veranstaltung mit zu organisieren",
+          "comment": " Ein Mitglied kommentiert ein Event, das du besuchst"
+        },
+        "onboarding": {
+          "reminder": "Erinnerung, Ihr Profil nach der Anmeldung zu vervollständigen"
+        },
+        "badge": {
+          "add": "Ein Abzeichen wird Ihrem Konto hinzugefügt",
+          "remove": "Ein Abzeichen wird von Ihrem Konto entfernt"
+        },
+        "donation": {
+          "received": "Ihre Spende wurde erhalten"
+        },
+        "password": {
+          "change": "Ihr Passwort wurde geändert"
+        },
+        "password_reset": {
+          "start": "Passwortzurücksetzung wurde eingeleitet",
+          "complete": "Passwortzurücksetzung wurde abgeschlossen"
+        },
+        "email_address": {
+          "change": "E-Mail-Änderung wurde eingeleitet",
+          "verify": "Ihre neue E-Mail wurde verifiziert"
+        },
+        "account_deletion": {
+          "start": "Sie haben die Kontolöschung eingeleitet",
+          "complete": "Ihr Konto wurde gelöscht",
+          "recovered": "Ihr Konto wurde wiederhergestellt (nicht gelöscht)"
+        },
+        "api_key": {
+          "create": "Ein API-Schlüssel wurde für Ihr Konto erstellt"
+        },
+        "phone_number": {
+          "change": "Ihre Telefonnummer wurde geändert",
+          "verify": "Ihre Telefonnummer wurde verifiziert"
+        },
+        "birthdate": {
+          "change": "Ihr Geburtsdatum wurde geändert"
+        },
+        "gender": {
+          "change": "Das auf Ihrem Profil angezeigte Geschlecht wurde geändert"
+        },
+        "discussion": {
+          "create": "Jemand schreibt einen Beitrag in einer Community, in der du Mitglied bist",
+          "comment": "Jemand kommentiert einen Beitrag, den du verfolgst"
+        },
+        "thread": {
+          "reply": "Jemand antwortet auf deinen Kommentar"
+        }
+      }
+    },
+    "push_notifications": {
+      "permission_denied": {
+        "platform_settings_description": "Hast du immernoch Probleme, nachdem du Benachrichtigungen in deinem Browser aktiviert hast? Möglicherweise musst du dein Plattformeinstellungen anpassen.",
+        "instructions": {
+          "chrome": "Du hast Benachrichtigungen blockiert. Bitte aktiviere Benachrichtigungen in deinen Browsereinstellungen, um fortzufahren. Klicke im Chrome-Browser auf das Vorhängeschloss-Symbol in der URL-Leiste und passe dann die Einstellung „Benachrichtigungen“ an.",
+          "firefox": "Du hast Benachrichtigungen blockiert. Bitte aktiviere Benachrichtigungen in deinen Browsereinstellungen, um fortzufahren. Gehe im Firefox-Browser zu „Einstellungen“ > „Datenschutz und Sicherheit“ > „Berechtigungen“ > „Benachrichtigungen“ und ändere die Berechtigung der Website.",
+          "safari": "Du hast Benachrichtigungen blockiert. Bitte aktiviere Benachrichtigungen in deinen Browsereinstellungen, um fortzufahren. Gehe in Safari zu „Einstellungen“ > „Websites“ > „Benachrichtigungen“, um Berechtigungen zu ändern.",
+          "generic": "Du hast Benachrichtigungen blockiert. Bitte aktiviere Benachrichtigungen in deinen Browsereinstellungen, um fortzufahren.",
+          "macos": "Gehe in macOS zu Systemeinstellungen > Benachrichtigungen und ändere die Berechtigung der App.",
+          "windows": "Gehe in Windows zu Einstellungen > System > Benachrichtigungen und Aktionen und passe die Berechtigung der App oder Website an.",
+          "linux": {
+            "gnome": "Gehe in GNOME zu Einstellungen > Benachrichtigungen, um die Berechtigung der App anzupassen.",
+            "kde": "Gehe in KDE zu Systemeinstellungen > Benachrichtigungen, um Berechtigungen zu ändern."
+          },
+          "mobile": {
+            "browser": "Passe in den Einstellungen deines Browsers die Benachrichtigungsberechtigung für diese Website an.",
+            "os": "Passe in den Benachrichtigungseinstellungen deines Mobilgeräts die Berechtigungen an, um Benachrichtigungen zuzulassen."
+          }
+        }
+      },
+      "title": "Push-Benachrichtigungen",
+      "description": "Du kannst Push-Benachrichtigungen für Couchers.org auf deinem Gerät aktivieren. Wir arbeiten daran, diese Funktion zu erweitern.",
+      "allow_push": "Klick im Browser-Popup auf die Schaltfläche „Zulassen“, um Push-Benachrichtigungen zu aktivieren.",
+      "enabled_message": "Du hast Push-Benachrichtigungen aktuell <1>aktiviert</1>.",
+      "disabled_message": "Du hast Push-Benachrichtigungen aktuell <1>deaktiviert</1>.",
+      "error_generic": "Fehler beim Abonnieren von Push-Benachrichtigungen",
+      "error_unsupported": "Push-Benachrichtigungen oder Service Worker werden in diesem Browser nicht unterstützt."
+    }
+  }
+}

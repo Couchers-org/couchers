@@ -16,29 +16,68 @@
     "missing_location_validation_error": "Gib einen Ort an, um diesen Filter zu verwenden",
     "accommodation_filters": {
       "guests_field_label": "Anzahl der Gäste",
-      "title": "Unterkunftsfilter"
+      "title": "Unterkunftsfilter",
+      "sleeping_arrangement_label": "Schlafmöglichkeiten",
+      "sleeping_arrangement_filters": {
+        "shared_room": "Gemeinsames Zimmer",
+        "private": "Eigenes Zimmer",
+        "common": "Gemeinschaftsraum"
+      }
     },
     "location_field_label": "In der Nähe von",
     "keywords": {
       "clear_field_action_a11y_label": "Suche zurücksetzen",
-      "field_label": "Name, Stichwort oder Nutzername"
+      "field_label": "Name, Stichwort oder Nutzername",
+      "search_this_keyword_a11y_label": "Dieses Stichwort suchen"
     },
     "by_location_filter_label": "Nach Standort",
     "host_filters": {
       "title": "Host Filter",
       "last_active_field_label": "Zuletzt aktiv",
       "hosting_status_field_label": "Hosting-Status",
-      "complete_profiles_label": "Vollständige Profile"
+      "complete_profiles_label": "Vollständige Profile",
+      "age": {
+        "field_label": "Alter",
+        "max_age": "Höchstalter",
+        "min_age": "Mindestalter"
+      }
     },
     "empty_profile_filters": {
-      "title": "Leere Profile herausfiltern"
+      "title": "Leere Profile ausblenden"
     },
     "submit_button_label": "Anwenden",
-    "by_keyword_filter_label": "Nach Stichwort oder Name"
+    "by_keyword_filter_label": "Nach Stichwort oder Name",
+    "general_filters": {
+      "accepts_last_minute_requests": "Nimmt Last-Minute-Anfragen an",
+      "has_strong_verification": "Hat eine starke Verifizierung",
+      "has_references": "Hat Referenzen"
+    },
+    "rules": {
+      "title": "Regeln",
+      "kids_allowed": "Kinder erlaubt",
+      "pets_allowed": "Haustiere erlaubt",
+      "smokes_at_home": "Raucht zu Hause",
+      "alcohol_allowed": "Alkohol erlaubt"
+    },
+    "search_filters": "Suchfilter",
+    "clear_filters": "Alle Filter entfernen"
   },
   "search_result": {
     "no_user_result_message": "Keine Benutzer gefunden.",
     "show_user_button_label": "{{name}} auf der Karte anzeigen",
-    "missing_about_description": "{{name}} hat noch nichts über sich gesagt"
-  }
+    "missing_about_description": "{{name}} hat noch nichts über sich gesagt",
+    "people_found_message": "Es werden {{numberOfTotal}} von {{totalItems}} Personen angezeigt"
+  },
+  "choose_search_criteria": "Gib einen Ort ein oder nutze einen Filter zum suchen.",
+  "error_loading_users": "Fehler beim Laden von Benutzern",
+  "views": {
+    "choose_map_view": "Kartenansicht auswählen",
+    "list": "Liste",
+    "map_and_list": "Karte & Liste"
+  },
+  "location": "Standort",
+  "keyword": "Stichwort",
+  "search_this_area": "In diesem Gebiet suchen",
+  "zoom_in_to_select_user": "Zoom heran, um einen Benutzer auszuwählen",
+  "choose_search_criteria_mobile": "Gib einen Ort ein oder nutze einen Filter zum suchen. Bitte verwende die Desktop-Version, um die Kartensuche zu nutzen."
 }
