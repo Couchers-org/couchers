@@ -24,6 +24,7 @@ interface MapSearchContentProps {
   onDrawerWidthChange: (width: number) => void;
   onLoadPreviousPage: () => void;
   onLoadNextPage: () => void;
+  onSetMapView: (view: MapViewOptions) => void;
   onZoomIn: (newZoom: number, center?: LngLatLike) => void;
   onZoomOut: (newZoom: number) => void;
   totalItems: number;
@@ -46,9 +47,14 @@ const SearchResultsContainer = styled("div", {
     height: "100%",
     width: isListOnlyView ? "100%" : `${drawerWidth}px`,
 
-    [theme.breakpoints.down("md")]: {
-      width: "100%",
-    },
+    ...(!isListOnlyView && {
+      [theme.breakpoints.down("md")]: {
+        position: "fixed",
+        width: "100%",
+        height: `calc(40% - 50px)`,
+        bottom: 0,
+      },
+    }),
   }),
 );
 
@@ -61,6 +67,11 @@ const MapContainer = styled("div", {
   position: "relative",
   display: "flex",
   alignItems: "center",
+
+  [theme.breakpoints.down("md")]: {
+    width: "100%",
+    height: `calc(60% - 20px)`,
+  },
 }));
 
 const MapSearchContent = ({
@@ -75,6 +86,7 @@ const MapSearchContent = ({
   onDrawerWidthChange,
   onLoadPreviousPage,
   onLoadNextPage,
+  onSetMapView,
   onZoomIn,
   onZoomOut,
   totalItems,
@@ -121,12 +133,13 @@ const MapSearchContent = ({
           onDrawerWidthChange={onDrawerWidthChange}
           onLoadPreviousPage={onLoadPreviousPage}
           onLoadNextPage={onLoadNextPage}
+          onSetMapView={onSetMapView}
           onUserCardClick={handleUserCardClick}
           totalItems={totalItems}
           users={users}
         />
       </SearchResultsContainer>
-      {!isMobile && mapView !== MapViews.LIST_ONLY && (
+      {mapView !== MapViews.LIST_ONLY && (
         <MapContainer drawerWidth={drawerWidth}>
           <MapView
             isDrawerExpanded={drawerWidth > DEFAULT_DRAWER_WIDTH}

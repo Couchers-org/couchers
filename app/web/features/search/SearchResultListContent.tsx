@@ -1,4 +1,12 @@
-import { Alert, Box, styled, Typography, useMediaQuery } from "@mui/material";
+import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
+import {
+  Alert,
+  Box,
+  IconButton,
+  styled,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -8,10 +16,13 @@ import { theme } from "theme";
 
 import SearchResultUserCard from "./SeachResultUserCard";
 import { useMapSearchState } from "./state/mapSearchContext";
+import { MapViews } from "./utils/constants";
 
 interface SearchResultListContentProps {
   error: RpcError | null;
+  mapView: MapViews;
   numberOfTotal: number;
+  onSetMapView: (view: MapViews) => void;
   onUserCardClick: (userId: number) => void;
   showAlert: boolean;
   showTopSpace?: boolean;
@@ -35,11 +46,20 @@ const UserCardsWrapper = styled("div")(({ theme }) => ({
   justifyContent: "start",
   width: "100%",
   paddingBottom: theme.spacing(2),
+
+  [theme.breakpoints.down("md")]: {
+    display: "flex",
+    flexDirection: "column",
+  },
 }));
 
 const StyledCardWrapper = styled("div")(({ theme }) => ({
   height: `${DEFAULT_DRAWER_WIDTH - 40}px`,
   display: "flex",
+
+  [theme.breakpoints.down("md")]: {
+    height: `${DEFAULT_DRAWER_WIDTH - 60}px`,
+  },
 }));
 
 const CenteredRow = styled("div")(({ theme }) => ({
@@ -52,7 +72,9 @@ const CenteredRow = styled("div")(({ theme }) => ({
 
 const SearchResultListContent = ({
   error,
+  mapView,
   numberOfTotal,
+  onSetMapView,
   onUserCardClick,
   showAlert,
   showTopSpace = false,
@@ -98,6 +120,42 @@ const SearchResultListContent = ({
               totalItems,
             })}
           </Typography>
+        )}
+
+        {isMobile && (
+          <IconButton
+            onClick={() => {
+              if (mapView === MapViews.LIST_ONLY) {
+                onSetMapView(MapViews.MAP_AND_LIST);
+              } else {
+                onSetMapView(MapViews.LIST_ONLY);
+              }
+            }}
+            aria-label={t(
+              `global:${mapView === MapViews.LIST_ONLY ? "retract" : "expand"}`,
+            )}
+            sx={{
+              fontSize: "24px",
+              backgroundColor: theme.palette.common.white,
+              border: `1px solid ${theme.palette.divider}`,
+              height: "30px",
+              width: "30px",
+              position: "absolute",
+              top: theme.spacing(0.5),
+              right: theme.spacing(2),
+              zIndex: 10,
+
+              "&:hover": {
+                backgroundColor: theme.palette.common.white,
+              },
+            }}
+          >
+            {mapView === MapViews.LIST_ONLY ? (
+              <KeyboardArrowDown />
+            ) : (
+              <KeyboardArrowUp />
+            )}
+          </IconButton>
         )}
       </CenteredRow>
       <UserCardsWrapper>
