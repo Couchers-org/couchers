@@ -1,10 +1,5 @@
 import { Avatar, AvatarProps } from "@mui/material";
-import {
-  CheckIcon,
-  CrossIcon,
-  HistoryIcon,
-  QuestionIcon,
-} from "components/Icons";
+import { CheckIcon, CrossIcon, QuestionIcon } from "components/Icons";
 import dayjs from "dayjs";
 import { HostRequestStatus } from "proto/conversations_pb";
 import { HostRequest } from "proto/requests_pb";
@@ -25,24 +20,21 @@ export default function HostRequestStatusIcon({
 
   const isRequestPast = dayjs(hostRequest.toDate).isBefore(dayjs().format("L"));
 
-  if (isRequestPast) {
-    icon = <HistoryIcon fontSize="inherit" />;
-    color = "grey.500";
-  } else if (s === HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED) {
+  if (s === HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED) {
     icon = <CheckIcon fontSize="inherit" />;
-    color = "gray";
+    color = isRequestPast ? "grey.500" : "gray";
   } else if (s === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED) {
     icon = <CrossIcon fontSize="inherit" />;
-    color = "red";
+    color = isRequestPast ? "grey.500" : "red";
   } else if (s === HostRequestStatus.HOST_REQUEST_STATUS_PENDING) {
     icon = <QuestionIcon fontSize="inherit" />;
-    color = "gray";
+    color = isRequestPast ? "grey.500" : "gray";
   } else if (s === HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED) {
     icon = <CrossIcon fontSize="inherit" />;
-    color = "gray";
+    color = isRequestPast ? "grey.500" : "gray";
   } else if (s === HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED) {
     icon = <CheckIcon fontSize="inherit" />;
-    color = "green";
+    color = isRequestPast ? "grey.500" : "green";
   } else throw new Error(`Unhandled host request case: ${s}`);
 
   return (

@@ -39,7 +39,6 @@ export { default as FlagIcon } from "@mui/icons-material/Flag";
 export { default as GithubIcon } from "@mui/icons-material/GitHub";
 export { default as GlobeIcon } from "@mui/icons-material/Language";
 export { default as HelpIcon } from "@mui/icons-material/Help";
-export { default as HistoryIcon } from "@mui/icons-material/History";
 export { default as InfoIcon } from "@mui/icons-material/InfoOutlined";
 export { default as LanguageIcon } from "@mui/icons-material/LanguageOutlined";
 export { default as LinkedInIcon } from "@mui/icons-material/LinkedIn";
