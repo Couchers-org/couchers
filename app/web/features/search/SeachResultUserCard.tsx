@@ -1,5 +1,5 @@
 import { styled, Tooltip, Typography } from "@mui/material";
-import { FlexboxProps } from "@mui/system";
+import { FlexboxProps, useMediaQuery } from "@mui/system";
 import Avatar from "components/Avatar";
 import { OpenInNewIcon } from "components/Icons";
 import StrongVerificationBadge from "components/StrongVerificationBadge";
@@ -115,6 +115,7 @@ const HaikuContainer = styled("div")(({ theme }) => ({
 const generateAboutText = (user: User.AsObject, t: TFunction) => {
   const missingAbout = user.aboutMe.length === 0;
   const hasPhoto = user.avatarUrl.length > 0;
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   if (missingAbout && !hasPhoto) {
     return (
@@ -125,7 +126,7 @@ const generateAboutText = (user: User.AsObject, t: TFunction) => {
       </HaikuContainer>
     );
   } else {
-    return stripMarkdown(aboutText(user, t));
+    return stripMarkdown(aboutText(user, t, isMobile));
   }
 };
 

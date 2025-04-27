@@ -54,11 +54,11 @@ const UserCardsWrapper = styled("div")(({ theme }) => ({
 }));
 
 const StyledCardWrapper = styled("div")(({ theme }) => ({
-  height: `${DEFAULT_DRAWER_WIDTH - 40}px`,
+  height: `${DEFAULT_DRAWER_WIDTH - 70}px`,
   display: "flex",
 
   [theme.breakpoints.down("md")]: {
-    height: `${DEFAULT_DRAWER_WIDTH - 60}px`,
+    height: `${DEFAULT_DRAWER_WIDTH - 160}px`,
   },
 }));
 
@@ -139,7 +139,7 @@ const SearchResultListContent = ({
               height: "30px",
               width: "30px",
               position: "absolute",
-              top: theme.spacing(0.5),
+              top: theme.spacing(1.5),
               right: theme.spacing(2),
               zIndex: 10,
 

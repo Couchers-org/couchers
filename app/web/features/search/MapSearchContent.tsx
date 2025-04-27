@@ -51,7 +51,7 @@ const SearchResultsContainer = styled("div", {
       [theme.breakpoints.down("md")]: {
         position: "fixed",
         width: "100%",
-        height: `calc(40% - 50px)`,
+        height: `calc(45% - 50px)`,
         bottom: 0,
       },
     }),
@@ -70,7 +70,7 @@ const MapContainer = styled("div", {
 
   [theme.breakpoints.down("md")]: {
     width: "100%",
-    height: `calc(60% - 20px)`,
+    height: `calc(55% - 20px)`,
   },
 }));
 
