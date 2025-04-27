@@ -1,11 +1,9 @@
 import { Link as MuiLink, Typography } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
 import StyledLink from "components/StyledLink";
-//import CommunitiesDialog from "features/dashboard/CommunitiesDialog";
 import CommunitiesList from "features/dashboard/CommunitiesList";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
-//import { useState } from "react";
 
 const COMMUNITY_BUILDER_FORM_LINK =
   "https://couchers.org/community-builder-form";
@@ -22,7 +20,6 @@ const useStyles = makeStyles((theme) => ({
 export default function CommunitiesSection() {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
   const classes = useStyles();
-  //const [isCommunitiesDialogOpen, setIsCommunitiesDialogOpen] = useState(false);
 
   return (
     <>

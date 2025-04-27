@@ -1,4 +1,4 @@
-import { Divider, List, ListItem, ListItemText } from "@mui/material";
+import { Divider, List, ListItem, ListItemText, styled } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -12,34 +12,47 @@ import { DASHBOARD } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
 import { useEffect, useRef, useState } from "react";
 import { routeToCommunity } from "routes";
-import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "flex-start",
-    "& > * + *": {
+const OuterWrapper = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "flex-start",
+  "& > * + *": {
       marginInlineStart: theme.spacing(2),
     },
+  overflow: "hidden",
+}));
+
+const InnerWrapper = styled("div")(({ theme }) => ({
+  overflow: "auto",
+  maxHeight: "60vh",
+}));
+
+const StyledList = styled(List)(({ theme }) => ({
+  minWidth: "10rem",
+}));
+
+const StyledLoader = styled("div")(({ theme }) => ({
+  margin: theme.spacing("auto", 2),
+}));
+
+const StyledListItem = styled(ListItem)(({ theme }) => ({
+  background: "transparent",
+  border: "none",
+  "&:hover": {
+    background: "#3135390A",
   },
-  list: {
-    minWidth: "10rem",
-  },
-  loader: {
-    margin: theme.spacing("auto", 2),
-  },
-  selected: {
+  "&.selected": {
     fontWeight: "bold",
   },
-  emptyState: {
-    color: theme.palette.grey[600],
-  },
+}));
+
+const StyledListItemText = styled(ListItemText)(({ theme }) => ({
+  color: theme.palette.text.primary,
 }));
 
 export default function CommunityBrowser() {
   const { t } = useTranslation([DASHBOARD]);
-  const classes = useStyles();
   const [selected, setSelected] = useState<Community.AsObject[]>([]);
 
   const globalCommunityQuery = useCommunity(1);
@@ -63,6 +76,7 @@ export default function CommunityBrowser() {
       () =>
         lastColumnRef.current?.scrollIntoView({
           behavior: "smooth",
+          block: "start",
           inline: "end",
         }),
       50,
@@ -99,7 +113,8 @@ export default function CommunityBrowser() {
   };
 
   return (
-    <div className={classes.root}>
+    <OuterWrapper>
+      <InnerWrapper>
       {cachedQueryResults.map((query, index) => (
         <BrowserColumn
           key={index}
@@ -110,9 +125,9 @@ export default function CommunityBrowser() {
         />
       ))}
       {query.isLoading ? ( // div prevents overflow scrollbar from spinner
-        <div className={classes.loader}>
+        <StyledLoader>
           <CenteredSpinner />
-        </div>
+        </StyledLoader>
       ) : query.isSuccess && globalCommunityQuery.isSuccess ? (
         <div ref={lastColumnRef}>
           <BrowserColumn
@@ -137,7 +152,8 @@ export default function CommunityBrowser() {
       ) : (
         <Alert severity="error">{query?.error?.message || ""}</Alert>
       )}
-    </div>
+      </InnerWrapper>
+      </OuterWrapper>
   );
 }
 
@@ -153,37 +169,34 @@ function BrowserColumn({
   selected?: number;
 }) {
   const { t } = useTranslation([DASHBOARD]);
-  const classes = useStyles();
 
   return (
-    <List className={classes.list}>
+    <StyledList>
       {parent && (
         <>
-          <ListItem
-            component={StyledLink}
-            href={routeToCommunity(parent.communityId, parent.slug)}
-          >
-            {parent.name}
-          </ListItem>
+          <StyledListItem>
+            <StyledLink href={routeToCommunity(parent.communityId, parent.slug)}>
+              <StyledListItemText primary={parent.name} />
+            </StyledLink>
+          </StyledListItem>
           <Divider />
         </>
       )}
       {communities.length === 0 ? (
-        <ListItem>
-          <ListItemText
+        <StyledListItem>
+          <StyledListItemText
             primaryTypographyProps={{
-              className: classes.emptyState,
+              className: "emptyState",
               variant: "body2",
             }}
           >
             {t("dashboard:no_sub_communities")}
-          </ListItemText>
-        </ListItem>
+          </StyledListItemText>
+        </StyledListItem>
       ) : (
         communities.map((community) => (
-          <ListItem
+          <StyledListItem
             key={community.communityId}
-            component="button"
             onClick={() => handleClick(community)}
             aria-selected={community.communityId === selected}
             sx={{
@@ -195,19 +208,16 @@ function BrowserColumn({
               },
             }}
           >
-            <ListItemText
+            <StyledListItemText
               primaryTypographyProps={{
-                className:
-                  community.communityId === selected
-                    ? classes.selected
-                    : undefined,
+                className: community.communityId === selected ? "selected" : undefined,
               }}
             >
               {community.name}
-            </ListItemText>
-          </ListItem>
+            </StyledListItemText>
+          </StyledListItem>
         ))
       )}
-    </List>
+    </StyledList>
   );
 }
