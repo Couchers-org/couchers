@@ -18,8 +18,8 @@ const OuterWrapper = styled("div")(({ theme }) => ({
   flexDirection: "row",
   alignItems: "flex-start",
   "& > * + *": {
-      marginInlineStart: theme.spacing(2),
-    },
+    marginInlineStart: theme.spacing(2),
+  },
   overflow: "hidden",
 }));
 
@@ -115,45 +115,47 @@ export default function CommunityBrowser() {
   return (
     <OuterWrapper>
       <InnerWrapper>
-      {cachedQueryResults.map((query, index) => (
-        <BrowserColumn
-          key={index}
-          parent={selected?.[index - 1] ?? globalCommunityQuery.data}
-          communities={query.data}
-          handleClick={(community) => handleClick(community, index)}
-          selected={selected[index]?.communityId}
-        />
-      ))}
-      {query.isLoading ? ( // div prevents overflow scrollbar from spinner
-        <StyledLoader>
-          <CenteredSpinner />
-        </StyledLoader>
-      ) : query.isSuccess && globalCommunityQuery.isSuccess ? (
-        <div ref={lastColumnRef}>
+        {cachedQueryResults.map((query, index) => (
           <BrowserColumn
-            parent={
-              selected?.[selected.length - 1] ?? globalCommunityQuery.data
-            }
-            communities={query.data.pages.flatMap(
-              (page) => page.communitiesList,
-            )}
-            handleClick={(community) => handleClick(community, selected.length)}
+            key={index}
+            parent={selected?.[index - 1] ?? globalCommunityQuery.data}
+            communities={query.data}
+            handleClick={(community) => handleClick(community, index)}
+            selected={selected[index]?.communityId}
           />
-          {query.hasNextPage && (
-            <Button
-              onClick={() => query.fetchNextPage()}
-              loading={query.isFetchingNextPage}
-              variant="outlined"
-            >
-              {t("dashboard:load_more")}
-            </Button>
-          )}
-        </div>
-      ) : (
-        <Alert severity="error">{query?.error?.message || ""}</Alert>
-      )}
+        ))}
+        {query.isLoading ? ( // div prevents overflow scrollbar from spinner
+          <StyledLoader>
+            <CenteredSpinner />
+          </StyledLoader>
+        ) : query.isSuccess && globalCommunityQuery.isSuccess ? (
+          <div ref={lastColumnRef}>
+            <BrowserColumn
+              parent={
+                selected?.[selected.length - 1] ?? globalCommunityQuery.data
+              }
+              communities={query.data.pages.flatMap(
+                (page) => page.communitiesList,
+              )}
+              handleClick={(community) =>
+                handleClick(community, selected.length)
+              }
+            />
+            {query.hasNextPage && (
+              <Button
+                onClick={() => query.fetchNextPage()}
+                loading={query.isFetchingNextPage}
+                variant="outlined"
+              >
+                {t("dashboard:load_more")}
+              </Button>
+            )}
+          </div>
+        ) : (
+          <Alert severity="error">{query?.error?.message || ""}</Alert>
+        )}
       </InnerWrapper>
-      </OuterWrapper>
+    </OuterWrapper>
   );
 }
 
@@ -175,7 +177,9 @@ function BrowserColumn({
       {parent && (
         <>
           <StyledListItem>
-            <StyledLink href={routeToCommunity(parent.communityId, parent.slug)}>
+            <StyledLink
+              href={routeToCommunity(parent.communityId, parent.slug)}
+            >
               <StyledListItemText primary={parent.name} />
             </StyledLink>
           </StyledListItem>
@@ -210,7 +214,8 @@ function BrowserColumn({
           >
             <StyledListItemText
               primaryTypographyProps={{
-                className: community.communityId === selected ? "selected" : undefined,
+                className:
+                  community.communityId === selected ? "selected" : undefined,
               }}
             >
               {community.name}

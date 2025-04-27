@@ -1,8 +1,4 @@
-import {
-  StyledEngineProvider,
-  ThemeProvider,
-  Typography,
-} from "@mui/material";
+import { StyledEngineProvider, ThemeProvider, Typography } from "@mui/material";
 import classNames from "classnames";
 import StyledLink from "components/StyledLink";
 import { DASHBOARD } from "i18n/namespaces";
