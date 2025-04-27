@@ -491,7 +491,11 @@ export default function Navigation() {
         </StyledNav>
         <StyledMenuContainer>
           {authState.authenticated && isMounted ? (
-            <LoggedInMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen}>
+            <LoggedInMenu
+              menuOpen={menuOpen}
+              notificationCount={pingData?.unseenNotificationCount}
+              setMenuOpen={setMenuOpen}
+            >
               {loggedMenuItems}
             </LoggedInMenu>
           ) : (

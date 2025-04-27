@@ -5,15 +5,16 @@ import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import ChangeEmail from "features/auth/email/ChangeEmail";
 import DoNotEmail from "features/auth/email/DoNotEmail";
-import NotificationSettings from "features/auth/notifications/NotificationSettings";
 import { ChangePassword } from "features/auth/password";
 import Section from "features/auth/section/Section";
 import Timezone from "features/auth/timezone/Timezone";
 import Username from "features/auth/username/Username";
+import NotificationSettings from "features/notifications/NotificationSettings";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 
 import DeleteAccount from "./deletion/DeleteAccount";
+import ManageDonations from "./donations/ManageDonations";
 import LoginsLink from "./logins/LoginsLink";
 import useAccountInfo from "./useAccountInfo";
 import StrongVerification from "./verification/StrongVerification";
@@ -61,6 +62,9 @@ export default function Settings() {
           </MarginWrapper>
           <MarginWrapper>
             <LoginsLink />
+          </MarginWrapper>
+          <MarginWrapper>
+            <ManageDonations />
           </MarginWrapper>
           <MarginWrapper>
             <Username username={accountInfo.username} />

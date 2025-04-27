@@ -5,7 +5,7 @@ import PageTitle from "components/PageTitle";
 import { AUTH } from "i18n/namespaces";
 import { useTranslation } from "react-i18next";
 
-import PushNotificationSettings from "./notifications/PushNotificationSettings";
+import PushNotificationSettings from "../notifications/PushNotificationSettings";
 import ChangePhone from "./phone/ChangePhone";
 import useAccountInfo from "./useAccountInfo";
 

@@ -14,6 +14,7 @@ const mkd = new markdown();
 
 export interface MarkdownPageFrontmatter {
   title: string;
+  hide_title?: boolean;
   subtitle?: string;
   bustitle?: string;
   crumb?: string;
@@ -181,7 +182,9 @@ export default function MarkdownPage({
             </Link>
           ))}
         </StyledBreadcrumbs>
-        <StyledTitle>{frontmatter.title}</StyledTitle>
+        {!frontmatter.hide_title && (
+          <StyledTitle>{frontmatter.title}</StyledTitle>
+        )}
         {subtitle && (
           <Typography component="h2">
             <div dangerouslySetInnerHTML={{ __html: subtitle }}></div>

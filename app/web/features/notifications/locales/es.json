@@ -1,0 +1,95 @@
+{
+  "notification_settings": {
+    "title": "Configuración de notificaciones",
+    "edit_in_console": "Puedes cambiar tu configuración de notificaciones <2>en esta página</2>. Pronto se moverá a aquí.",
+    "go_to_button": "Gestionar notificaciones",
+    "edit_preferences": {
+      "title": "Configuración de notificaciones",
+      "description": "Puede que aún recibas notificaciones importantes sobre tu cuenta y su contenido a pesar de la configuración de notificaciones.",
+      "list_heading": "Notificaciones que puedes recibir",
+      "error_loading": "Error al cargar la página",
+      "list_items": {
+        "account_security": "Seguridad de la cuenta",
+        "account_settings": "Configuración de la cuenta",
+        "chat": "Mensajes",
+        "event": "Eventos",
+        "friend_request": "Solicitudes de amistad",
+        "host_request": "Solicitudes de alojamiento",
+        "reference": "Recomendaciones"
+      },
+      "item_descriptions": {
+        "host_request": {
+          "create": "Alguien te envía una solicitud de alojamiento",
+          "accept": "Alguien acepta tu solicitud de alojamiento",
+          "confirm": "Alguien confirma su solicitud de alojamiento",
+          "reject": "Alguien rechaza tu solicitud de alojamiento",
+          "cancel": "Alguien cancela su solicitud de alojamiento",
+          "message": "Alguien envía un mensaje en una solicitud de alojamiento",
+          "missed_messages": "Mensajes pendientes en una solicitud de alojamiento"
+        },
+        "chat": {
+          "message": "Alguien te envía un mensaje",
+          "missed_messages": "Mensajes pendientes en un chat"
+        },
+        "reference": {
+          "receive_hosted": "Recibes una recomendación de alguien que te hospedó",
+          "receive_surfed": "Recibes una recomendación de alguien a quien hospedaste",
+          "receive_friend": "Recibes una recomendación de un amigo",
+          "reminder_hosted": "Recordatorio para escribir una recomendación a alguien a quien hospedaste",
+          "reminder_surfed": "Recordatorio para escribir una recomendación a alguien con quien surfeaste"
+        },
+        "friend_request": {
+          "create": "Alguien te envía una solicitud de amistad",
+          "accept": "Alguien acepta tu solicitud de amistad"
+        },
+        "event": {
+          "create_approved": "Un evento aprobado por los moderadores se crea en tu comunidad",
+          "create_any": "Un evento se crea en tu comunidad (sin ser revisado por un moderador)",
+          "update": "Se actualiza un evento en el que participas",
+          "cancel": "Se cancela un evento en el que participas",
+          "delete": "Se elimina un evento en el que participas",
+          "invite_organizer": "Alguien te invita a coorganizar un evento"
+        },
+        "onboarding": {
+          "reminder": "Recordatorio para completar tu perfil después de registrarte"
+        },
+        "badge": {
+          "add": "Se añade una insignia en tu cuenta",
+          "remove": "Se elimina una insignia de tu cuenta"
+        },
+        "donation": {
+          "received": "Tu donación ha sido recibida"
+        },
+        "password": {
+          "change": "Tu contraseña ha sido cambiada"
+        },
+        "password_reset": {
+          "start": "Se inicia el restablecimiento de la contraseña",
+          "complete": "El restablecimiento de la contraseña se ha completado"
+        },
+        "email_address": {
+          "change": "Se inicia el cambio de correo electrónico",
+          "verify": "Tu nuevo correo electrónico ha sido verificado"
+        },
+        "account_deletion": {
+          "start": "Inicias la eliminación de la cuenta",
+          "complete": "Tu cuenta ha sido eliminada",
+          "recovered": "Tu cuenta ha sido recuperada (sin ser eliminada)"
+        },
+        "api_key": {
+          "create": "Se crea una clave API para tu cuenta"
+        },
+        "phone_number": {
+          "change": "Tu número de teléfono ha sido cambiado",
+          "verify": "Tu número de teléfono ha sido verificado"
+        },
+        "birthdate": {
+          "change": "Tu fecha de nacimiento ha sido cambiada"
+        },
+        "gender": {
+          "change": "El género mostrado en tu perfil ha sido cambiado"
+        }
+      }
+    }
+  }
+}

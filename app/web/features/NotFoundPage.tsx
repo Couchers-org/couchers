@@ -15,7 +15,6 @@ const StyledWrapper = styled("div")(({ theme }) => ({
 }));
 
 const StyledImg = styled("img")(({ theme }) => ({
-  height: "50%",
   width: "50%",
   margin: theme.spacing(8, 0),
 }));

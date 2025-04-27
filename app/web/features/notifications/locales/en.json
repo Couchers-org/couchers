@@ -1,0 +1,139 @@
+{
+  "all": "All",
+  "unread": "Unread",
+  "error_loading": "Error loading notifications",
+  "mark_unread": "Mark unread",
+  "mark_all_read": "Mark all as read",
+  "no_new_notifications": "No new notifications",
+  "notification_settings": {
+    "title": "Notification settings",
+    "edit_in_console": "You can change your notification settings <2>on this page</2>. We will soon move it here.",
+    "go_to_button": "Manage notification settings",
+    "edit_preferences": {
+      "title": "Notification Settings",
+      "description": "You may still receive important notifications about your account and content outside of your preferred notification settings.",
+      "list_heading": "Notifications you may receive",
+      "error_loading": "Error loading notification settings",
+      "list_items": {
+        "account_security": "Account security",
+        "account_settings": "Account settings",
+        "chat": "Messages",
+        "event": "Events",
+        "friend_request": "Friend requests",
+        "host_request": "Host requests",
+        "reference": "References",
+        "discussion": "Discussions",
+        "reply": "Replies"
+      },
+      "item_descriptions": {
+        "host_request": {
+          "create": "Someone sends you a host request",
+          "accept": "Someone accepts your host request",
+          "confirm": "Someone confirms their host request",
+          "reject": "Someone declines your host request",
+          "cancel": "Someone cancels their host request",
+          "message": "Someone sends a message in a host request",
+          "missed_messages": "You miss messages in a host request"
+        },
+        "chat": {
+          "message": "Someone sends you a message",
+          "missed_messages": "You miss messages in a chat"
+        },
+        "reference": {
+          "receive_hosted": "You receive a reference from someone who hosted you",
+          "receive_surfed": "You receive a reference from someone you hosted",
+          "receive_friend": "You received a reference from a friend",
+          "reminder_hosted": "Reminder to write a reference to someone you hosted",
+          "reminder_surfed": "Reminder to write a reference to someone you surfed with"
+        },
+        "friend_request": {
+          "create": "Someone sends you a friend request",
+          "accept": "Someone accepts your friend request"
+        },
+        "event": {
+          "create_approved": "An event that is approved by the moderators is created in your community",
+          "create_any": "A user creates any event in your community (not checked by an admin)",
+          "update": "An event you are attending is updated",
+          "cancel": "An event you are attending is cancelled",
+          "delete": "An event you are attending is deleted",
+          "invite_organizer": "Someone invites you to co-organize an event",
+          "comment": " A user comments on an event you are going to"
+        },
+        "onboarding": {
+          "reminder": "Reminder to complete your profile after signing up"
+        },
+        "badge": {
+          "add": "A badge is added to your account",
+          "remove": "A badge is removed from your account"
+        },
+        "donation": {
+          "received": "Your donation is received"
+        },
+        "password": {
+          "change": "Your password is changed"
+        },
+        "password_reset": {
+          "start": "Password reset is initiated",
+          "complete": "Password reset is completed"
+        },
+        "email_address": {
+          "change": "Email change is initiated",
+          "verify": "Your new email is verified"
+        },
+        "account_deletion": {
+          "start": "You initiate account deletion",
+          "complete": "Your account is deleted",
+          "recovered": "Your account is recovered (undeleted)"
+        },
+        "api_key": {
+          "create": "An API key is created for your account"
+        },
+        "phone_number": {
+          "change": "Your phone number is changed",
+          "verify": "Your phone number is verified"
+        },
+        "birthdate": {
+          "change": "Your birthdate is changed"
+        },
+        "gender": {
+          "change": "The gender displayed on your profile is changed"
+        },
+        "discussion": {
+          "create": "Someone creates a discussion in a community you are in",
+          "comment": "Someone comments on a discussion you are following"
+        },
+        "thread": {
+          "reply": "Someone responds to your comment"
+        }
+      }
+    },
+    "push_notifications": {
+      "title": "Push Notifications",
+      "description": "You can enable push notifications for Couchers.org on your device. We are working on expanding this feature.",
+      "allow_push": "Click the 'Allow' button in your browser popup to enable push notifications.",
+      "enabled_message": "You currently have push notifications <1>enabled</1>.",
+      "disabled_message": "You currently have push notifications <1>disabled</1>.",
+      "error_generic": "Error during subscription to push notifications",
+      "error_unsupported": "Push notifications or Service Workers are not supported in this browser.",
+      "permission_denied": {
+        "platform_settings_description": "Still having issues after enabling notifications in your browser? You may need to adjust your platform settings.",
+        "instructions": {
+          "chrome": "You've blocked notifications. Please enable notifications in your browser settings to continue. In Chrome, click on the padlock icon in the URL bar, then adjust the \"Notifications\" setting.",
+          "firefox": "You've blocked notifications. Please enable notifications in your browser settings to continue. In Firefox, go to Preferences > Privacy & Security > Permissions > Notifications, and modify the website's permission.",
+          "safari": "You've blocked notifications. Please enable notifications in your browser settings to continue. In Safari, go to Preferences > Websites > Notifications to modify permissions.",
+          "generic": "You've blocked notifications. Please enable notifications in your browser settings to continue.",
+          "macos": "In macOS, go to System Settings > Notifications, and modify the app's permission.",
+          "windows": "In Windows, go to Settings > System > Notifications & actions, and adjust the app or website's permission.",
+          "linux": {
+            "gnome": "In GNOME, go to Settings > Notifications to adjust the app's permission.",
+            "kde": "In KDE, go to System Settings > Notifications to modify permissions."
+          },
+          "mobile": {
+            "browser": "In your mobile browser settings, adjust the notifications permission for this website.",
+            "os": "In your mobile device notification settings, adjust the permissions to allow notifications."
+          }
+        }
+      }
+    }
+  }
+}
