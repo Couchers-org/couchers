@@ -102,9 +102,7 @@ const SearchResultListContent = ({
       )}
       {showAlert && (
         <Alert severity="info" sx={{ height: "fit-content", width: "100%" }}>
-          {isMobile
-            ? t("search:choose_search_criteria_mobile")
-            : t("search:choose_search_criteria")}
+          {t("search:choose_search_criteria")}
         </Alert>
       )}
       <CenteredRow>
