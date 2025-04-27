@@ -112,10 +112,13 @@ const HaikuContainer = styled("div")(({ theme }) => ({
   height: "100%",
 }));
 
-const generateAboutText = (user: User.AsObject, t: TFunction) => {
+const generateAboutText = (
+  user: User.AsObject,
+  t: TFunction,
+  isMobile: boolean,
+) => {
   const missingAbout = user.aboutMe.length === 0;
   const hasPhoto = user.avatarUrl.length > 0;
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   if (missingAbout && !hasPhoto) {
     return (
@@ -135,6 +138,7 @@ const SearchResultUserCard = ({
   onUserCardClick,
   user,
 }: SearchResultUserCardProps) => {
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t } = useTranslation([GLOBAL, PROFILE]);
 
   const handleUserCardClick = () => {
@@ -193,7 +197,7 @@ const SearchResultUserCard = ({
           meetupStatus={user.meetupStatus}
           numberReferences={user.numReferences}
         />
-        {generateAboutText(user, t)}
+        {generateAboutText(user, t, isMobile)}
         <FlexRow alignItems="flex-end" justifyContent="space-between">
           <UserDetailsRow>
             <Typography variant="body2">

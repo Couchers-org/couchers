@@ -1,5 +1,6 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 
+import { useMediaQuery } from "@mui/system";
 import { useMapSearchState } from "features/search/state/mapSearchContext";
 import {
   clusterCountLayer,
@@ -18,7 +19,6 @@ import {
   Source,
   ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
-import { useMediaQuery } from "@mui/system";
 import { theme } from "theme";
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
