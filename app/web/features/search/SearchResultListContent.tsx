@@ -34,7 +34,7 @@ const ListContentWrapper = styled(Box, {
   shouldForwardProp: (prop) => prop !== "showTopSpace",
 })<{ showTopSpace: boolean }>(({ showTopSpace }) => ({
   width: "100%",
-  padding: theme.spacing(2),
+  padding: theme.spacing(0.5, 2),
   height: "100%",
   ...(showTopSpace && { paddingTop: theme.spacing(10) }),
 }));
@@ -54,11 +54,11 @@ const UserCardsWrapper = styled("div")(({ theme }) => ({
 }));
 
 const StyledCardWrapper = styled("div")(({ theme }) => ({
-  height: `${DEFAULT_DRAWER_WIDTH - 70}px`,
+  height: `${DEFAULT_DRAWER_WIDTH - 90}px`,
   display: "flex",
 
   [theme.breakpoints.down("md")]: {
-    height: `${DEFAULT_DRAWER_WIDTH - 160}px`,
+    height: `${DEFAULT_DRAWER_WIDTH - 200}px`,
   },
 }));
 
@@ -67,7 +67,7 @@ const CenteredRow = styled("div")(({ theme }) => ({
   justifyContent: "center",
   alignItems: "center",
   width: "100%",
-  marginBottom: theme.spacing(2),
+  padding: theme.spacing(1, 0),
 }));
 
 const SearchResultListContent = ({
@@ -101,7 +101,14 @@ const SearchResultListContent = ({
         </Alert>
       )}
       {showAlert && (
-        <Alert severity="info" sx={{ height: "fit-content", width: "100%" }}>
+        <Alert
+          severity="info"
+          sx={{
+            height: "fit-content",
+            width: "100%",
+            marginTop: theme.spacing(1),
+          }}
+        >
           {t("search:choose_search_criteria")}
         </Alert>
       )}
@@ -136,10 +143,10 @@ const SearchResultListContent = ({
               fontSize: "24px",
               backgroundColor: theme.palette.common.white,
               border: `1px solid ${theme.palette.divider}`,
-              height: "30px",
-              width: "30px",
+              height: "25px",
+              width: "25px",
               position: "absolute",
-              top: theme.spacing(1.5),
+              top: theme.spacing(1),
               right: theme.spacing(2),
               zIndex: 10,
 

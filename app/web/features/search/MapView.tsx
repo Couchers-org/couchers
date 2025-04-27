@@ -55,6 +55,8 @@ const SearchThisAreaButton = styled(Button, {
 
   [theme.breakpoints.down("md")]: {
     top: theme.spacing(1),
+    padding: theme.spacing(0.5, 1),
+    fontSize: "0.8rem",
   },
 
   "&:hover": {

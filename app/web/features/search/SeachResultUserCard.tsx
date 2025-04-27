@@ -42,7 +42,7 @@ const StyledTopContent = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "flex-start",
   gap: theme.spacing(2),
-  padding: theme.spacing(1, 2, 1),
+  padding: theme.spacing(0.5, 2, 1),
   flexShrink: 0,
 }));
 
@@ -50,9 +50,17 @@ const StyledBottomContent = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   flexGrow: 1,
-  padding: theme.spacing(1, 2, 1),
+  padding: theme.spacing(0, 2, 1),
   width: "100%",
   wordBreak: "break-word",
+
+  [theme.breakpoints.down("md")]: {
+    fontSize: ".9rem",
+  },
+
+  [theme.breakpoints.down("sm")]: {
+    fontSize: ".82rem",
+  },
 }));
 
 const StyledCardHeader = styled(Typography)(({ theme }) => ({
@@ -105,7 +113,7 @@ const HaikuContainer = styled("div")(({ theme }) => ({
   fontStyle: "italic",
   whiteSpace: "pre-line",
   lineHeight: 1.8,
-  padding: theme.spacing(2),
+  padding: theme.spacing(1),
   color: theme.palette.text.primary,
   opacity: 0.2,
   textAlign: "center",
@@ -123,7 +131,18 @@ const generateAboutText = (
   if (missingAbout && !hasPhoto) {
     return (
       <HaikuContainer>
-        <Typography variant="body1">
+        <Typography
+          variant="body1"
+          sx={{
+            [theme.breakpoints.down("md")]: {
+              fontSize: ".9rem",
+            },
+
+            [theme.breakpoints.down("sm")]: {
+              fontSize: ".82rem",
+            },
+          }}
+        >
           {t("profile:incomplete_profile_haiku")}
         </Typography>
       </HaikuContainer>
@@ -157,8 +176,9 @@ const SearchResultUserCard = ({
                 href={routeToUser(user.username)}
                 target="_blank"
                 rel="noopener noreferrer"
+                sx={{ fontSize: "1.1rem" }}
               >
-                <LinesEllipsis text={user.name} maxLine={2} />
+                <LinesEllipsis text={user.name} maxLine={1} />
               </StyledLink>
               {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
             </FlexRow>
@@ -181,10 +201,7 @@ const SearchResultUserCard = ({
           </StyledCardHeader>
           <FlexRow justifyContent="space-between">
             <Tooltip title={`${user.age}, ${user.gender}, ${user.city}`}>
-              <Typography
-                variant="body2"
-                sx={{ marginBottom: theme.spacing(1) }}
-              >
+              <Typography variant="body2">
                 {`${user.age}, ${user.gender}, ${truncateWithEllipsis(user.city)}`}
               </Typography>
             </Tooltip>

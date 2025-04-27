@@ -4,7 +4,7 @@ import { firstName } from "utils/names";
 
 const aboutText = (user: User.AsObject, t: TFunction, isMobile: boolean) => {
   const missingAbout = user.aboutMe.length === 0;
-  const characterLimit = isMobile ? 175 : 300;
+  const characterLimit = isMobile ? 200 : 300;
 
   return missingAbout
     ? t("search:search_result.missing_about_description", {
