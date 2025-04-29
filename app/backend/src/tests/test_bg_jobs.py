@@ -51,7 +51,7 @@ from tests.test_fixtures import (  # noqa
     requests_session,
     testconfig,
 )
-from tests.test_references import create_host_reference, create_host_request
+from tests.test_references import create_host_reference, create_host_request, create_host_request_2
 
 
 def now_5_min_in_future():
@@ -959,7 +959,7 @@ def test_send_host_request_reminders(db):
 
     with session_scope() as session:
         # case 1: pending, future, interval elapsed => notify
-        hr1 = create_host_request(
+        hr1 = create_host_request_2(
             session=session,
             surfer_user_id=user1.id,
             host_user_id=user2.id,
@@ -971,7 +971,7 @@ def test_send_host_request_reminders(db):
         )
 
         # case 2: max reminders reached => do not notify
-        hr2 = create_host_request(
+        hr2 = create_host_request_2(
             session=session,
             surfer_user_id=user3.id,
             host_user_id=user4.id,
@@ -983,7 +983,7 @@ def test_send_host_request_reminders(db):
         )
 
         #case 3: interval not yet elapsed => do not notify
-        hr3 = create_host_request(
+        hr3 = create_host_request_2(
             session=session,
             surfer_user_id=user5.id,
             host_user_id=user6.id,
@@ -995,7 +995,7 @@ def test_send_host_request_reminders(db):
         )
         
         # case 4: start date is today => do not notify
-        hr4 = create_host_request(
+        hr4 = create_host_request_2(
             session=session,
             surfer_user_id=user7.id,
             host_user_id=user8.id,
@@ -1007,7 +1007,7 @@ def test_send_host_request_reminders(db):
         )
 
         # case 5: from_date in the past => do not notify
-        hr5 = create_host_request(
+        hr5 = create_host_request_2(
             session=session,
             surfer_user_id=user9.id,
             host_user_id=user10.id,
@@ -1019,7 +1019,7 @@ def test_send_host_request_reminders(db):
         )
 
         # case 6: non-pending status => no notify
-        hr6 = create_host_request(
+        hr6 = create_host_request_2(
             session=session,
             surfer_user_id=user11.id,
             host_user_id=user12.id,

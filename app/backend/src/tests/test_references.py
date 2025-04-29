@@ -88,7 +88,7 @@ def create_host_request(
     session.commit()
     return host_request.conversation_id
 
-def create_host_request(
+def create_host_request_2(
     session,
     surfer_user_id,
     host_user_id,
