@@ -47,7 +47,7 @@ hide_title: true
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Badges</td>
     </tr>
     <tr >
-      <td colspan="5" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Notifications Feed</td>
+      <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Notifications Feed</td>
     </tr>
     <tr >
       <td colspan="1"</td>
@@ -63,7 +63,7 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="1"</td>
-      <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ How donations are used</td>
+      <td colspan="4" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Donations Portal</td>
     </tr>
     <tr >
       <td colspan="1"</td>
@@ -135,7 +135,7 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="2"</td>
-	  <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Mobile Map Search</td>
+	  <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Mobile Map Search</td>
     </tr>
     <tr >
       <td colspan="2"</td>
