@@ -32,8 +32,9 @@ from couchers.constants import (
     ACTIVENESS_PROBE_INACTIVITY_PERIOD,
     ACTIVENESS_PROBE_TIME_REMINDERS,
     HOST_REQUEST_MAX_REMINDERS,
-    HOST_REQUEST_REMINDER_INTERVAL
+    HOST_REQUEST_REMINDER_INTERVAL,
 )
+<<<<<<< HEAD
 from couchers.crypto import (
     USER_LOCATION_RANDOMIZATION_NAME,
     asym_encrypt,
@@ -42,6 +43,9 @@ from couchers.crypto import (
     simple_decrypt,
     stable_secure_uniform,
 )
+=======
+from couchers.crypto import asym_encrypt, b64decode, simple_decrypt
+>>>>>>> 31b1ee3bf (Formatting)
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email

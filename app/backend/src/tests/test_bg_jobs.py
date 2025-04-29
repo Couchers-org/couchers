@@ -1,4 +1,4 @@
-from datetime import timedelta, datetime
+from datetime import timedelta
 from unittest.mock import call, patch
 
 import pytest
@@ -8,6 +8,7 @@ from sqlalchemy.sql import delete, func
 
 import couchers.jobs.worker
 from couchers.config import config
+from couchers.constants import HOST_REQUEST_MAX_REMINDERS, HOST_REQUEST_REMINDER_INTERVAL
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.email import queue_email
@@ -15,10 +16,10 @@ from couchers.email.dev import print_dev_email
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import (
     add_users_to_email_list,
+    send_host_request_reminders,
     send_message_notifications,
     send_onboarding_emails,
     send_reference_reminders,
-    send_host_request_reminders,
     send_request_notifications,
     update_badges,
     update_recommendation_scores,
@@ -30,14 +31,13 @@ from couchers.models import (
     BackgroundJob,
     BackgroundJobState,
     Email,
+    HostRequestStatus,
     LoginToken,
     PasswordResetToken,
     UserBadge,
-    HostRequest,
-    HostRequestStatus
 )
 from couchers.sql import couchers_select as select
-from couchers.utils import now, today, date_in_timezone
+from couchers.utils import now, today
 from proto import conversations_pb2, requests_pb2
 from tests.test_fixtures import (  # noqa
     auth_api_session,
@@ -52,7 +52,6 @@ from tests.test_fixtures import (  # noqa
     testconfig,
 )
 from tests.test_references import create_host_reference, create_host_request
-from couchers.constants import HOST_REQUEST_MAX_REMINDERS, HOST_REQUEST_REMINDER_INTERVAL
 
 
 def now_5_min_in_future():
