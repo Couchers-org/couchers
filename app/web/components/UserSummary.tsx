@@ -3,6 +3,7 @@ import {
   ListItemText,
   Skeleton,
   Typography,
+  Tooltip,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import Avatar from "components/Avatar";
@@ -11,7 +12,6 @@ import StyledLink from "components/StyledLink";
 import { LiteUser } from "proto/api_pb";
 import React from "react";
 import { routeToUser } from "routes";
-import Tooltip from "@mui/material/Tooltip";
 import dynamic from "next/dynamic";
 
 import StrongVerificationBadge from "./StrongVerificationBadge";
@@ -74,7 +74,6 @@ export default function UserSummary({
   user,
   titleIsLink = false,
 }: UserSummaryProps) {
-  // Fix 2: Add client-side detection
   const [isClient, setIsClient] = React.useState(false);
 
   React.useEffect(() => {
@@ -101,18 +100,20 @@ export default function UserSummary({
 
     return (
       <>
-        <Tooltip title={user.name}>
-          {isClient ? (
-            <SafeLinesEllipsis
-              text={displayText}
-              maxLine={1}
-              ellipsis="..."
-              trimRight
-              basedOn="letters"
-            />
-          ) : (
-            <span>{displayText}</span>
-          )}
+        <Tooltip title={user.name} arrow placement="top">
+          <span style={{ display: "inline-block", maxWidth: "100%" }}>
+            {isClient ? (
+              <SafeLinesEllipsis
+                text={displayText}
+                maxLine={1}
+                ellipsis="..."
+                trimRight
+                basedOn="letters"
+              />
+            ) : (
+              displayText
+            )}
+          </span>
         </Tooltip>
         {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
       </>
