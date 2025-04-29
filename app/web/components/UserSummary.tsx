@@ -11,8 +11,11 @@ import StyledLink from "components/StyledLink";
 import { LiteUser } from "proto/api_pb";
 import React from "react";
 import { routeToUser } from "routes";
+import Tooltip from "@mui/material/Tooltip";
+import dynamic from "next/dynamic";
 
 import StrongVerificationBadge from "./StrongVerificationBadge";
+import SafeLinesEllipsis from "./SafeLinesEllipsis";
 
 const StyledWrapper = styled("div")(({ theme }) => ({
   display: "flex",
@@ -71,11 +74,50 @@ export default function UserSummary({
   user,
   titleIsLink = false,
 }: UserSummaryProps) {
+  // Fix 2: Add client-side detection
+  const [isClient, setIsClient] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const headlineComponentWithRef = React.forwardRef(
     function HeadlineComponentWithRef(props, ref) {
       return React.createElement(headlineComponent, { ...props, ref });
     },
   );
+
+  const renderUserName = () => {
+    if (!user) {
+      return (
+        <Skeleton
+          data-testid={USER_TITLE_SKELETON_TEST_ID}
+          sx={{ maxWidth: 300 }}
+        />
+      );
+    }
+
+    const displayText = nameOnly ? user.name : `${user.name}, ${user.age}`;
+
+    return (
+      <>
+        <Tooltip title={user.name}>
+          {isClient ? (
+            <SafeLinesEllipsis
+              text={displayText}
+              maxLine={1}
+              ellipsis="..."
+              trimRight
+              basedOn="letters"
+            />
+          ) : (
+            <span>{displayText}</span>
+          )}
+        </Tooltip>
+        {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
+      </>
+    );
+  };
 
   const title = (
     <Typography
@@ -84,17 +126,7 @@ export default function UserSummary({
       noWrap={nameOnly}
       sx={{ marginTop: "auto", fontSize: "1.2rem" }}
     >
-      {!user ? (
-        <Skeleton
-          data-testid={USER_TITLE_SKELETON_TEST_ID}
-          sx={{ maxWidth: 300 }}
-        />
-      ) : (
-        <>
-          {nameOnly ? user.name : `${user.name}, ${user.age}`}
-          {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
-        </>
-      )}
+      {renderUserName()}
     </Typography>
   );
 
