@@ -139,12 +139,12 @@ def render_notification(user, notification) -> RenderedNotification:
                     "view_link": view_link,
                     "host_request": data.host_request,
                     "message": description,
-                    "other": other,
+                    "other": host
                 },
                 email_topic_action_unsubscribe_text=f"Pending host request reminders",
                 push_title=message,
                 push_body="Check the app for more info.",
-                push_icon=v2avatar(other),
+                push_icon=v2avatar(host),
                 push_url=view_link,
             )
     elif notification.topic_action.display == "password:change":

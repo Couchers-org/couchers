@@ -522,7 +522,7 @@ def send_host_request_reminders(payload):
         for host_request in requests:
             host_request = host_request[0]
             host_request.host_sent_request_reminders += 1
-            host_request.last_sent_request_reminder_time = today_in_timezone(HostRequest.timezone)
+            host_request.last_sent_request_reminder_time = now()
             
             context = SimpleNamespace(user_id=host_request.host.id)
             notify(
@@ -535,9 +535,9 @@ def send_host_request_reminders(payload):
                     surfer=user_model_to_pb(host_request.surfer, session, context)
                 )
             )
-            
-            #Fazer o call utilizando a constante de intervalo
 
+send_host_request_reminders.PAYLOAD = empty_pb2.Empty
+send_host_request_reminders.SCHEDULE = HOST_REQUEST_REMINDER_INTERVAL
 
 def add_users_to_email_list(payload):
     if not config["LISTMONK_ENABLED"]:
