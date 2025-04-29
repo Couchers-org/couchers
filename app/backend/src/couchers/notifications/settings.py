@@ -105,7 +105,7 @@ settings_layout = [
                     ("cancel", "Someone cancels their host request"),
                     ("message", "Someone sends a message in a host request"),
                     ("missed_messages", "You miss messages in a host request"),
-                    ("reminder", "Someone sends you a host request but you did not respond after a while")
+                    ("reminder", "Someone sends you a host request but you did not respond after a while"),
                 ],
             ),
             (

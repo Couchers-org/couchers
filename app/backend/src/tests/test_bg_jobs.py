@@ -940,8 +940,8 @@ def test_send_reference_reminders(db):
                 assert find in plain, f"Expected to find string {find} in PLAIN email {subject} to {address}, didn't"
                 assert find in html, f"Expected to find string {find} in HTML email {subject} to {address}, didn't"
 
+
 def test_send_host_request_reminders(db):
-    
     user1, token1 = generate_user(email="user1@couchers.org.invalid", name="User 1")
     user2, token2 = generate_user(email="user2@couchers.org.invalid", name="User 2")
     user3, token3 = generate_user(email="user3@couchers.org.invalid", name="User 3")
@@ -967,7 +967,7 @@ def test_send_host_request_reminders(db):
             to_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=2),
             status=HostRequestStatus.pending,
             host_sent_request_reminders=0,
-            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL
+            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
         )
 
         # case 2: max reminders reached => do not notify
@@ -979,10 +979,10 @@ def test_send_host_request_reminders(db):
             to_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=2),
             status=HostRequestStatus.pending,
             host_sent_request_reminders=HOST_REQUEST_MAX_REMINDERS,
-            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL
+            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
         )
 
-        #case 3: interval not yet elapsed => do not notify
+        # case 3: interval not yet elapsed => do not notify
         hr3 = create_host_request_2(
             session=session,
             surfer_user_id=user5.id,
@@ -991,9 +991,9 @@ def test_send_host_request_reminders(db):
             to_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=2),
             status=HostRequestStatus.pending,
             host_sent_request_reminders=0,
-            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL + timedelta(hours=1)
+            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL + timedelta(hours=1),
         )
-        
+
         # case 4: start date is today => do not notify
         hr4 = create_host_request_2(
             session=session,
@@ -1003,7 +1003,7 @@ def test_send_host_request_reminders(db):
             to_date=today() + timedelta(days=2),
             status=HostRequestStatus.pending,
             host_sent_request_reminders=0,
-            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL
+            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
         )
 
         # case 5: from_date in the past => do not notify
@@ -1015,7 +1015,7 @@ def test_send_host_request_reminders(db):
             to_date=today() + timedelta(days=1),
             status=HostRequestStatus.pending,
             host_sent_request_reminders=0,
-            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL
+            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
         )
 
         # case 6: non-pending status => no notify
@@ -1027,14 +1027,14 @@ def test_send_host_request_reminders(db):
             to_date=today() + timedelta(days=4),
             status=HostRequestStatus.accepted,
             host_sent_request_reminders=0,
-            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL
+            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
         )
 
     send_host_request_reminders(empty_pb2.Empty())
 
     while process_job():
         pass
-    
+
     with session_scope() as session:
         emails = [
             (email.recipient, email.subject, email.plain, email.html)
@@ -1061,6 +1061,7 @@ def test_send_host_request_reminders(db):
         for find in search_strings:
             assert find in plain, f"Expected to find string {find} in PLAIN email {subject} to {address}, didn't"
             assert find in html, f"Expected to find string {find} in HTML email {subject} to {address}, didn't"
+
 
 def test_add_users_to_email_list(db):
     new_config = config.copy()

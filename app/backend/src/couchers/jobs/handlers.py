@@ -512,8 +512,8 @@ def send_reference_reminders(payload):
 send_reference_reminders.PAYLOAD = empty_pb2.Empty
 send_reference_reminders.SCHEDULE = timedelta(hours=1)
 
-def send_host_request_reminders(payload):
 
+def send_host_request_reminders(payload):
     with session_scope() as session:
         requests = session.execute(
             select(HostRequest)
@@ -522,12 +522,12 @@ def send_host_request_reminders(payload):
             .where(HostRequest.from_date > today_in_timezone(HostRequest.timezone))
             .where((now() - HostRequest.last_sent_request_reminder_time) >= HOST_REQUEST_REMINDER_INTERVAL)
         ).all()
-        
+
         for host_request in requests:
             host_request = host_request[0]
             host_request.host_sent_request_reminders += 1
             host_request.last_sent_request_reminder_time = now()
-            
+
             context = SimpleNamespace(user_id=host_request.host.id)
             notify(
                 session,
@@ -536,12 +536,14 @@ def send_host_request_reminders(payload):
                 data=notification_data_pb2.HostRequestReminder(
                     host_request=host_request_to_pb(host_request, session, context),
                     host=user_model_to_pb(host_request.host, session, context),
-                    surfer=user_model_to_pb(host_request.surfer, session, context)
-                )
+                    surfer=user_model_to_pb(host_request.surfer, session, context),
+                ),
             )
+
 
 send_host_request_reminders.PAYLOAD = empty_pb2.Empty
 send_host_request_reminders.SCHEDULE = HOST_REQUEST_REMINDER_INTERVAL
+
 
 def add_users_to_email_list(payload):
     if not config["LISTMONK_ENABLED"]:

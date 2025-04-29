@@ -88,6 +88,7 @@ def create_host_request(
     session.commit()
     return host_request.conversation_id
 
+
 def create_host_request_2(
     session,
     surfer_user_id,
@@ -96,8 +97,8 @@ def create_host_request_2(
     to_date,
     status,
     host_sent_request_reminders,
-    last_sent_request_reminder_time):
-
+    last_sent_request_reminder_time,
+):
     conversation = Conversation()
     session.add(conversation)
     session.flush()
@@ -110,7 +111,7 @@ def create_host_request_2(
             message_type=MessageType.chat_created,
         )
     )
-    
+
     message = Message(
         time=from_date + timedelta(seconds=2),
         conversation_id=conversation.id,
@@ -118,7 +119,7 @@ def create_host_request_2(
         text="Hi, I'm requesting to be hosted.",
         message_type=MessageType.text,
     )
-    
+
     host_request = HostRequest(
         conversation_id=conversation.id,
         surfer_user_id=surfer_user_id,
@@ -127,12 +128,13 @@ def create_host_request_2(
         to_date=to_date,
         status=status,
         host_sent_request_reminders=host_sent_request_reminders,
-        last_sent_request_reminder_time=last_sent_request_reminder_time
+        last_sent_request_reminder_time=last_sent_request_reminder_time,
     )
-    
+
     session.add(host_request)
     session.commit()
     return host_request.conversation_id
+
 
 def create_host_reference(session, from_user_id, to_user_id, reference_age, *, surfing=True, host_request_id=None):
     if host_request_id:

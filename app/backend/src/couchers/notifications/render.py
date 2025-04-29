@@ -128,7 +128,7 @@ def render_notification(user, notification) -> RenderedNotification:
         elif notification.action == "reminder":
             host = data.host
             surfer = data.surfer
-            
+
             message = f"You have a pending host request from {surfer.name}!"
             description = "Please accept or decline the request."
             return RenderedNotification(
@@ -139,7 +139,7 @@ def render_notification(user, notification) -> RenderedNotification:
                     "view_link": view_link,
                     "host_request": data.host_request,
                     "message": description,
-                    "other": host
+                    "other": host,
                 },
                 email_topic_action_unsubscribe_text=f"Pending host request reminders",
                 push_title=message,
