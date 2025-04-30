@@ -123,9 +123,6 @@
     "title": "Indica una password",
     "explanation": "Non hai ancora indicato una password per il tuo conto. Per favore, creane una ora per continuare."
   },
-  "notification_settings": {
-    "title": "Impostazioni notifiche"
-  },
   "jail": {
     "title": "Sono necessarie più informazioni",
     "description": "Per favore, verifica quanto segue prima di continuare.",

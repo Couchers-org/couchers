@@ -222,7 +222,7 @@ export default function Donations() {
             )}
             source={t("donations:donations_text2")}
           />
-          <Typography variant="body2">
+          <Typography variant="body1">
             <Link href={latestFinancialsURL} underline="hover">
               <Trans
                 t={t}
