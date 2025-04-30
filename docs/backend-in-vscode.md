@@ -17,19 +17,16 @@ Install the following extensions
 * [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python) (The Python extension is auto installed when loading app dir in container as per devcontainer.json)
 * Some language server like [Pylance](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance)
 
+## 1. Reopen the `app` directory with the Dev Containers extension
 
-## 1. Open the `app` sub-directory in VS Code
+Open the `app` sub-directory (where the .devcontainer folder is located) in an other VSCode window and reopen it in a container. To do so either click on the icon of two arrows pointing at each other in the lower left and select "Reopen in Container" or by opening the Command Palete (**CTRL/CMD+SHIFT+P**).
 
-This will not work if you open any subdirectory inside the `app` folder such as the `backend` directory, Python will spit out errors about the lack of `pip` and other stuff (let me know if you can get this working).
+This automatically builds and reopens the `app` directory in a container (default directory is `workspace` which has the contents of the `app` directory).
 
-## 2. Reopen this directory in a container
+Sometimes can be usefull to rebuild the container fo fix some issues. You can do this by clicking on the icon of two arrows pointing at each other in the lower left and select "Rebuild Container" or if this does not work from the Command Palete (**CTRL/CMD+SHIFT+P**) by typing `Dev Containers: Rebuild in Container without Cache`.
 
-Either click on the icon of two arrows pointing at each other in the lower left and select "Reopen in Container" or open the Command Palete (CTRL + SHIFT + P on Windows), search for "Reopen in Container" and press enter on the option "Remote-containers: Reopen in COntainer.
+## 2. Start the backend in debugging mode
 
-This automatically builds and reopens the `app` directory in a container (default directory is `workspace` which has the contents of the `app` directory)
+Start the backend in debugging mode by using the Run and Debug tab (**F5**). A launch.json file is already provided in the `.vscode` directory and you can customize it to your needs.
 
-From here you can interact with the codebase as if you were using VS Code regularly. Check to see if the backend runs properly by navigating to `app.py` and hitting CTRL + F5 (on Windows)
 
-If the backend runs properly, you can continue with debugging the code as you normally would in VS Code.
-
-Let me or one of the other devs know if there are any issues with this and any issues will be addressed ASAP.
