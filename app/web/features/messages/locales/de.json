@@ -98,7 +98,8 @@
     "pending": "Ausstehend",
     "rejected": "Abgelehnt",
     "cancelled": "Storniert",
-    "accepted": "Akzeptiert"
+    "accepted": "Akzeptiert",
+    "past": "Frühere"
   },
   "chat_input": {
     "label": "Nachricht"
@@ -136,7 +137,8 @@
       "cancelled": "Deine Anfrage wurde storniert",
       "confirmed": "Deine Anfrage wurde bestätigt",
       "rejected": "Deine Anfrage wurde abgelehnt"
-    }
+    },
+    "expired": "Diese Anfrage ist ausgelaufen"
   },
   "host_request_view": {
     "error_message": "Ungültige Host-Anfrage-ID",
