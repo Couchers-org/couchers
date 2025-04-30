@@ -6,7 +6,6 @@ Create Date: 2025-04-29 01:55:59.214122
 
 """
 
-import geoalchemy2
 import sqlalchemy as sa
 from alembic import op
 

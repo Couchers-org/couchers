@@ -141,7 +141,7 @@ def render_notification(user, notification) -> RenderedNotification:
                     "message": description,
                     "other": host,
                 },
-                email_topic_action_unsubscribe_text=f"Pending host request reminders",
+                email_topic_action_unsubscribe_text="Pending host request reminders",
                 push_title=message,
                 push_body="Check the app for more info.",
                 push_icon=v2avatar(host),
