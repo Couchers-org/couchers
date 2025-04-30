@@ -125,7 +125,6 @@
 		"coucher_was_appropriate": "是的，此人的行为适当。",
 		"coucher_was_not_appropriate": "不，此人的行为不适当。",
 		"contact_text": "如果你有任何问题或希望提供更多信息，请随时<1>联系我们</1>。",
-		"host_request_reference_success_dialog": "host-request-reference-success-dialog",
 		"host_request_reference_explanation": "主持请求评语仅在双方都写完评语或两周后才会公开。稍等！",
 		"invalid_reference_type": "无效的评语类型",
 		"invalid_step": "无效的表单步骤",

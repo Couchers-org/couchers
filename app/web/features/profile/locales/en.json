@@ -133,7 +133,6 @@
     "coucher_was_appropriate": "Yes, this person's behavior was appropriate.",
     "coucher_was_not_appropriate": "No, this person's behavior was not appropriate.",
     "contact_text": "If you have any questions or wish to provide additional information, please don't hesitate to <1>contact us here.</1>",
-    "host_request_reference_success_dialog": "host-request-reference-success-dialog",
     "host_request_reference_explanation": "Host request references are only made visible once both references have been written, or after 2 weeks. Hold tight!",
     "invalid_reference_type": "Invalid reference type",
     "invalid_step": "Invalid form step",
