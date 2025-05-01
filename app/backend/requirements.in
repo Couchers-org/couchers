@@ -31,7 +31,7 @@ sentry-sdk
 Shapely
 sqlalchemy
 sqlalchemy-utils
-stripe<12.0
+stripe<13.0
 # we include this here (even though it's a dependency of user-agent), so that dependabot will remind to update it if needed
 ua-parser
 user-agents
