@@ -36,6 +36,7 @@ const StyledDragger = styled("div")(({ theme }) => ({
 
 const ScrollableContent = styled("div")(({ theme }) => ({
   overflowY: "auto",
+  overflowX: "hidden",
   height: "100%",
   width: "100%",
 }));

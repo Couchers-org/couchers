@@ -181,6 +181,7 @@ export default function SearchPage() {
           onDrawerWidthChange={handleDrawerWidthChange}
           onLoadPreviousPage={handleLoadPreviousPage}
           onLoadNextPage={handleLoadNextPage}
+          onSetMapView={handleSetMapView}
           onZoomIn={handleZoomIn}
           onZoomOut={handleZoomOut}
           totalItems={totalItems}

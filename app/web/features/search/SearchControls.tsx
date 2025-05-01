@@ -30,6 +30,10 @@ const MapControlsWrapper = styled("div", {
     flexDirection: "column",
     gap: theme.spacing(2),
 
+    [theme.breakpoints.down("md")]: {
+      marginTop: theme.spacing(1),
+    },
+
     ...(!isMobile && {
       position: "absolute",
       top: theme.spacing(8),
