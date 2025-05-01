@@ -1,5 +1,5 @@
 import { styled, Tooltip, Typography } from "@mui/material";
-import { FlexboxProps, useMediaQuery } from "@mui/system";
+import { FlexboxProps } from "@mui/system";
 import Avatar from "components/Avatar";
 import { OpenInNewIcon } from "components/Icons";
 import StrongVerificationBadge from "components/StrongVerificationBadge";
@@ -120,11 +120,7 @@ const HaikuContainer = styled("div")(({ theme }) => ({
   height: "100%",
 }));
 
-const generateAboutText = (
-  user: User.AsObject,
-  t: TFunction,
-  isMobile: boolean,
-) => {
+const generateAboutText = (user: User.AsObject, t: TFunction) => {
   const missingAbout = user.aboutMe.length === 0;
   const hasPhoto = user.avatarUrl.length > 0;
 
@@ -148,7 +144,9 @@ const generateAboutText = (
       </HaikuContainer>
     );
   } else {
-    return stripMarkdown(aboutText(user, t, isMobile));
+    return (
+      <LinesEllipsis maxLine={3} text={stripMarkdown(aboutText(user, t))} />
+    );
   }
 };
 
@@ -157,7 +155,6 @@ const SearchResultUserCard = ({
   onUserCardClick,
   user,
 }: SearchResultUserCardProps) => {
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t } = useTranslation([GLOBAL, PROFILE]);
 
   const handleUserCardClick = () => {
@@ -214,7 +211,7 @@ const SearchResultUserCard = ({
           meetupStatus={user.meetupStatus}
           numberReferences={user.numReferences}
         />
-        {generateAboutText(user, t, isMobile)}
+        {generateAboutText(user, t)}
         <FlexRow alignItems="flex-end" justifyContent="space-between">
           <UserDetailsRow>
             <Typography variant="body2">

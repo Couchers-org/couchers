@@ -1,9 +1,9 @@
-import { styled, useMediaQuery } from "@mui/material";
+import { styled } from "@mui/material";
+import zIndex from "@mui/material/styles/zIndex";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
 import { User } from "proto/api_pb";
 import { LngLatLike, MapRef } from "react-map-gl/maplibre";
-import { theme } from "theme";
 
 import MapSearchResultsList from "./MapSearchResultsList";
 import MapView from "./MapView";
@@ -51,8 +51,10 @@ const SearchResultsContainer = styled("div", {
       [theme.breakpoints.down("md")]: {
         position: "fixed",
         width: "100%",
-        height: `calc(45% - 50px)`,
+        height: `calc(45% - 54px)`,
         bottom: 0,
+        boxShadow: "0px -2px 4px rgba(0,0,0,0.1)",
+        zIndex: zIndex.drawer + 1,
       },
     }),
   }),
@@ -70,7 +72,7 @@ const MapContainer = styled("div", {
 
   [theme.breakpoints.down("md")]: {
     width: "100%",
-    height: `calc(55% - 20px)`,
+    height: `calc(55% - 18px)`,
   },
 }));
 
@@ -92,17 +94,17 @@ const MapSearchContent = ({
   totalItems,
   users,
 }: MapSearchContentProps) => {
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
   const { setSelectedUserId } = useMapSearchActions();
   const { selectedUserId } = useMapSearchState();
 
   const handleUserCardClick = (userId: number) => {
-    if (
-      mapView === MapViews.LIST_ONLY ||
-      isMobile ||
-      userId === selectedUserId
-    ) {
+    if (mapView === MapViews.LIST_ONLY) {
+      return;
+    }
+
+    if (userId === selectedUserId) {
+      clearMapFeatureState(mapRef);
+      setSelectedUserId(undefined);
       return;
     }
 
