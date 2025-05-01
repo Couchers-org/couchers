@@ -6,7 +6,6 @@ import {
   styled,
   Typography,
 } from "@mui/material";
-import zIndex from "@mui/material/styles/zIndex";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { ChangeEvent } from "react";
@@ -20,7 +19,7 @@ const CenteredContainer = styled("div")(({ theme }) => ({
   width: "100%",
 
   boxShadow: "0px 4px 6px -1px rgba(0,0,0,0.2)", // bottom shadow only
-  zIndex: zIndex.drawer + 1,
+  zIndex: theme.zIndex.drawer + 1,
 }));
 
 const SearchTypeRadioGroup = ({

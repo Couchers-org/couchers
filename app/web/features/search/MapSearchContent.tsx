@@ -1,5 +1,4 @@
 import { styled } from "@mui/material";
-import zIndex from "@mui/material/styles/zIndex";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
 import { User } from "proto/api_pb";
@@ -54,7 +53,7 @@ const SearchResultsContainer = styled("div", {
         height: `calc(45% - 54px)`,
         bottom: 0,
         boxShadow: "0px -2px 4px rgba(0,0,0,0.1)",
-        zIndex: zIndex.drawer + 1,
+        zIndex: theme.zIndex.drawer + 1,
       },
     }),
   }),
