@@ -2424,7 +2424,7 @@ class NotificationTopicAction(enum.Enum):
     host_request__cancel = ("host_request:cancel", dt_all, True, nd.HostRequestCancel)
     host_request__message = ("host_request:message", [dt.push, dt.digest], True, nd.HostRequestMessage)
     host_request__missed_messages = ("host_request:missed_messages", [dt.email], True, nd.HostRequestMissedMessages)
-    host_request_reminder = ("host_request:reminder", dt_all, True, nd.HostRequestReminder)
+    host_request__reminder = ("host_request:reminder", dt_all, True, nd.HostRequestReminder)
 
     activeness__probe = ("activeness:probe", dt_sec, False, nd.ActivenessProbe)
 
