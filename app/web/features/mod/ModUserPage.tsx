@@ -19,6 +19,7 @@ import ModPanel from "./ModPanel";
 import { ModUserDetails } from "./useModUserDetails";
 
 const StyledBanDelBanner = styled("h1")(({ theme }) => ({
+  marginBottom: "0",
   color: "red",
   textAlign: "center",
   textTransform: "uppercase",
@@ -43,17 +44,23 @@ function BanDeleteBanner({
   userDetails: UserDetails.AsObject;
 }) {
   const { t } = useTranslation(MOD);
+  let status = "";
+  if (userDetails.banned || userDetails.deleted) {
+    status =
+      " " +
+      [
+        userDetails.deleted && t("mod:deleted"),
+        userDetails.banned && t("mod:banned"),
+      ]
+        .filter(Boolean)
+        .join(" + ");
+  }
 
-  if (!userDetails.banned && !userDetails.deleted) return null;
-
-  const status = [
-    userDetails.deleted && t("mod:deleted"),
-    userDetails.banned && t("mod:banned"),
-  ]
-    .filter(Boolean)
-    .join(" + ");
-
-  return <StyledBanDelBanner>☠️ {status} ☠️</StyledBanDelBanner>;
+  return (
+    <StyledBanDelBanner>
+      {status ? `☠️ ${status} ☠️` : t("mod:title")}
+    </StyledBanDelBanner>
+  );
 }
 
 export default function UserPage({
