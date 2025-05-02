@@ -29,6 +29,7 @@ const PreviousNextPagination: React.FC<PreviousNextPaginationProps> = ({
         position: "sticky",
         bottom: 0,
         backgroundColor: theme.palette.common.white,
+        boxShadow: `0 -1px 4px rgba(0, 0, 0, 0.1)`,
       }}
     >
       <Button

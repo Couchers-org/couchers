@@ -10,7 +10,7 @@
   "filter_dialog": {
     "mobile_title": "Suchen",
     "desktop_title": "Filter",
-    "search_here_button": "In diesem Gebiet suchen"
+    "search_here_button": "In diesem Bereich suchen"
   },
   "form": {
     "missing_location_validation_error": "Gib einen Ort an, um diesen Filter zu verwenden",
@@ -78,6 +78,5 @@
   "location": "Standort",
   "keyword": "Stichwort",
   "search_this_area": "In diesem Gebiet suchen",
-  "zoom_in_to_select_user": "Zoom heran, um einen Benutzer auszuwählen",
-  "choose_search_criteria_mobile": "Gib einen Ort ein oder nutze einen Filter zum suchen. Bitte verwende die Desktop-Version, um die Kartensuche zu nutzen."
+  "zoom_in_to_select_user": "Zoom heran, um einen Benutzer auszuwählen"
 }

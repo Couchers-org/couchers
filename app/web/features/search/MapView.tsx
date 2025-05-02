@@ -53,6 +53,12 @@ const SearchThisAreaButton = styled(Button, {
   left: "50%",
   transform: "translateX(-50%)",
 
+  [theme.breakpoints.down("md")]: {
+    top: theme.spacing(1),
+    padding: theme.spacing(0.5, 1),
+    fontSize: "0.8rem",
+  },
+
   "&:hover": {
     backgroundColor: theme.palette.grey[200],
   },

@@ -4,13 +4,12 @@ import { firstName } from "utils/names";
 
 const aboutText = (user: User.AsObject, t: TFunction) => {
   const missingAbout = user.aboutMe.length === 0;
+
   return missingAbout
     ? t("search:search_result.missing_about_description", {
         name: firstName(user?.name),
       })
-    : user.aboutMe.length < 300
-      ? user.aboutMe
-      : user.aboutMe.substring(0, 300) + "...";
+    : user.aboutMe;
 };
 
 const truncateWithEllipsis = (str: string, maxLength = 40): string =>
