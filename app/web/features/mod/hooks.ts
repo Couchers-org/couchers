@@ -1,7 +1,13 @@
-import { newUsersListKey } from "features/queryKeys";
+import {
+  modUserDetailsKey,
+  modUserKey,
+  newUsersListKey,
+} from "features/queryKeys";
+import { userStaleTime } from "features/userQueries/constants";
 import { RpcError } from "grpc-web";
-import { ListUserIdsRes } from "proto/admin_pb";
-import { useInfiniteQuery } from "react-query";
+import { ListUserIdsRes, UserDetails } from "proto/admin_pb";
+import { User } from "proto/api_pb";
+import { useInfiniteQuery, useQuery } from "react-query";
 import { service } from "service";
 
 export const useNewUsers = () => {
@@ -11,6 +17,7 @@ export const useNewUsers = () => {
       service.admin.listUserIds({
         startTime: new Date(1970, 0, 0, 0, 0, 1),
         endTime: new Date(2050, 0, 0),
+        pageSize: 50,
         pageToken: pageParam,
       }),
     {
@@ -22,3 +29,39 @@ export const useNewUsers = () => {
   console.log(userIds);
   return { ...query, userIds };
 };
+
+export default function useUserWithDetails(user: string) {
+  const query = useQuery<User.AsObject, RpcError>({
+    queryFn: () => service.admin.getUser(user),
+    queryKey: modUserKey(user),
+    staleTime: userStaleTime,
+  });
+
+  const detailsQuery = useQuery<UserDetails.AsObject, RpcError>({
+    queryFn: () => service.admin.getUserDetails(user),
+    queryKey: modUserDetailsKey(user),
+    staleTime: userStaleTime,
+  });
+
+  const errors = [];
+  if (query.error?.message) {
+    errors.push(query.error?.message || "");
+  }
+  if (detailsQuery.error?.message) {
+    errors.push(detailsQuery.error?.message || "");
+  }
+
+  const error = errors.join("\n");
+  const isLoading = query.isLoading || detailsQuery.isLoading;
+  const isFetching = query.isFetching || detailsQuery.isFetching;
+  const isError = query.isError || detailsQuery.isError;
+
+  return {
+    user: query.data,
+    userDetails: detailsQuery.data,
+    error,
+    isError,
+    isFetching,
+    isLoading,
+  };
+}

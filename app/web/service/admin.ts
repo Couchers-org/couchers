@@ -1,7 +1,27 @@
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
-import { ListUserIdsReq } from "proto/admin_pb";
+import {
+  GetUserDetailsReq,
+  GetUserReq,
+  ListUserIdsReq,
+  UserDetails,
+} from "proto/admin_pb";
+import { User } from "proto/api_pb";
 
 import client from "./client";
+
+export async function getUser(user: string): Promise<User.AsObject> {
+  const req = new GetUserReq();
+  req.setUser(user || "");
+  return (await client.admin.getUser(req)).toObject();
+}
+
+export async function getUserDetails(
+  user: string,
+): Promise<UserDetails.AsObject> {
+  const req = new GetUserDetailsReq();
+  req.setUser(user || "");
+  return (await client.admin.getUserDetails(req)).toObject();
+}
 
 interface ListUserIdsInput {
   startTime: Date;
@@ -17,19 +37,13 @@ export async function listUserIds({
   pageToken,
 }: ListUserIdsInput) {
   const req = new ListUserIdsReq();
-  console.log("GOT PAGE TOKEN", pageToken);
   req.setStartTime(Timestamp.fromDate(startTime));
   req.setEndTime(Timestamp.fromDate(endTime));
   if (pageSize) {
     req.setPageSize(pageSize);
   }
-  req.setPageSize(50);
   if (pageToken) {
-    console.log("USING PAGE TOKEN", pageToken);
     req.setPageToken(pageToken);
   }
-  console.log(req);
-  const res = (await client.admin.listUserIds(req)).toObject();
-  console.log("NEW PAGE TOKEN", res.nextPageToken);
-  return res;
+  return (await client.admin.listUserIds(req)).toObject();
 }
