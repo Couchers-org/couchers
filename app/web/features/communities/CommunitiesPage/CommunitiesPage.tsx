@@ -1,4 +1,4 @@
-import { styled,Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import MuiLink from "@mui/material/Link";
 import PageTitle from "components/PageTitle";
 import CommunityBrowser from "features/dashboard/CommunityBrowser";
@@ -9,18 +9,25 @@ import React from "react";
 const COMMUNITY_BUILDER_FORM_LINK =
   "https://couchers.org/community-builder-form";
 const COMMUNITY_GUIDELINES_LINK =
-  "https://docs.google.com/document/d/1A9vCdKGQ_WKoyjCh5KScdGgpnighr9yL_F0-OaPT2yA/edit?usp=sharing";
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder";
 
 const HeaderRow = styled("div")(({ theme }) => ({
   display: "flex",
-  justifyContent: "space-between",
+  justifyContent: "flex-start",
+  flexDirection: "column",
   width: "100%",
-  paddingBottom: theme.spacing(1),
+  paddingBottom: theme.spacing(2),
+}));
+
+const Subtitle = styled(Typography)(({ theme }) => ({
+  fontWeight: "bold",
+  fontSize: "1.25rem",
+  paddingBottom: theme.spacing(2),
 }));
 
 const StyledTypography = styled(Typography)(({ theme }) => ({
-  paddingBlockStart: theme.spacing(2),
-  paddingBlockEnd: theme.spacing(2),
+  paddingBlockStart: theme.spacing(1),
+  paddingBlockEnd: theme.spacing(1),
 }));
 
 const CommunitiesPage = () => {
@@ -33,30 +40,48 @@ const CommunitiesPage = () => {
           <PageTitle>{t("communities:communities_title")}</PageTitle>
         </HeaderRow>
       </div>
+      <Subtitle variant="h2">
+        {t("dashboard:communities_welcome_title")}
+      </Subtitle>
       <StyledTypography variant="body1" paragraph>
-        <Trans i18nKey="dashboard:your_communities_helper_text2">
-          {`Don't see your community? `}
-          <MuiLink
-            href={COMMUNITY_BUILDER_FORM_LINK}
-            target="_blank"
-            rel="noreferrer noopener"
-            underline="hover"
-          >
-            Get it started!
-          </MuiLink>
-        </Trans>
+        <Trans i18nKey="dashboard:communities_intro" />
       </StyledTypography>
       <StyledTypography variant="body1" paragraph>
-        <Trans i18nKey="dashboard:community_guidelines_helper_text">
-          {`Learn more about how we build our communities! `}
+        <Trans i18nKey="dashboard:communities_auto" />
+      </StyledTypography>
+
+      <StyledTypography variant="body1" paragraph>
+        <Trans i18nKey="dashboard:community_builder">
+          {`Want to be an ambassador for your community and help it grow? Become a `}
           <MuiLink
             href={COMMUNITY_GUIDELINES_LINK}
             target="_blank"
             rel="noreferrer noopener"
             underline="hover"
           >
-            Read our community guidelines
+            Community Builder!
           </MuiLink>
+        </Trans>
+      </StyledTypography>
+
+      <Subtitle variant="h2">{t("dashboard:all_communities_section")}</Subtitle>
+
+      <StyledTypography variant="body1" paragraph>
+        <Trans i18nKey="dashboard:all_communities_intro" />
+      </StyledTypography>
+
+      <StyledTypography variant="body1" paragraph>
+        <Trans i18nKey="dashboard:use_this_form">
+          {`Is your country or city missing? `}
+          <MuiLink
+            href={COMMUNITY_BUILDER_FORM_LINK}
+            target="_blank"
+            rel="noreferrer noopener"
+            underline="hover"
+          >
+            Use this form
+          </MuiLink>
+          {` to request it!`}
         </Trans>
       </StyledTypography>
 

@@ -10,7 +10,7 @@ import {
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { routeToCommunity } from "routes";
 
 const OuterWrapper = styled("div")(({ theme }) => ({
@@ -70,19 +70,6 @@ export default function CommunityBrowser() {
     }[]
   >([]);
 
-  const lastColumnRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    setTimeout(
-      () =>
-        lastColumnRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-          inline: "end",
-        }),
-      50,
-    );
-  }, [selected]);
-
   const handleClick = (community: Community.AsObject, level: number) => {
     //if the last column is clicked
     if (level === selected.length) {
@@ -129,7 +116,7 @@ export default function CommunityBrowser() {
             <CenteredSpinner />
           </StyledLoader>
         ) : query.isSuccess && globalCommunityQuery.isSuccess ? (
-          <div ref={lastColumnRef}>
+          <div>
             <BrowserColumn
               parent={
                 selected?.[selected.length - 1] ?? globalCommunityQuery.data
@@ -203,14 +190,6 @@ function BrowserColumn({
             key={community.communityId}
             onClick={() => handleClick(community)}
             aria-selected={community.communityId === selected}
-            sx={{
-              background: "transparent",
-              border: "none",
-
-              "&:hover": {
-                background: "#3135390A",
-              },
-            }}
           >
             <StyledListItemText
               primaryTypographyProps={{
