@@ -9,8 +9,8 @@ export const useNewUsers = () => {
     newUsersListKey,
     ({ pageParam }) =>
       service.admin.listUserIds({
-        startTime: new Date(1970, 1, 1),
-        endTime: new Date(),
+        startTime: new Date(1970, 0, 0, 0, 0, 1),
+        endTime: new Date(2050, 0, 0),
         pageToken: pageParam,
       }),
     {
