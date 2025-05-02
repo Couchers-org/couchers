@@ -161,3 +161,6 @@ export const badgeUsersKey = ({ badgeId }: BadgeUsersInput) => [
   "badgeUsers",
   badgeId,
 ];
+
+// mod
+export const newUsersListKey = "newUsersList";

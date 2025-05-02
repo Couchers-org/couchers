@@ -1,4 +1,5 @@
 import * as account from "./account";
+import * as admin from "./admin";
 import * as api from "./api";
 import * as auth from "./auth";
 import * as bugs from "./bugs";
@@ -22,6 +23,7 @@ import * as version from "./version";
 
 export const service = {
   account,
+  admin,
   api,
   auth,
   bugs,

@@ -619,10 +619,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
         user_ids = (
             session.execute(
                 select(User.id)
-                .where(User.id >= next_user_id)
+                .where(or_(User.id <= next_user_id, next_user_id == 0))
                 .where(User.joined >= start_date)
                 .where(User.joined <= end_date)
-                .order_by(User.joined.desc())
+                .order_by(User.id.desc())
                 .limit(page_size + 1)
             )
             .scalars()
