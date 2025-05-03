@@ -344,20 +344,20 @@ const FilterDialog = ({
             <MenuItem value={lastActiveOptions.LAST_ACTIVE_ANY}>
               {t("search:last_active_options.any")}
             </MenuItem>
-            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_DAY}>
-              {t("search:last_active_options.last_day")}
-            </MenuItem>
-            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_WEEK}>
-              {t("search:last_active_options.last_week")}
-            </MenuItem>
-            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_2_WEEKS}>
-              {t("search:last_active_options.last_2_weeks")}
+            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_3_MONTHS}>
+              {t("search:last_active_options.last_3_months")}
             </MenuItem>
             <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_MONTH}>
               {t("search:last_active_options.last_month")}
             </MenuItem>
-            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_3_MONTHS}>
-              {t("search:last_active_options.last_3_months")}
+            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_2_WEEKS}>
+              {t("search:last_active_options.last_2_weeks")}
+            </MenuItem>
+            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_WEEK}>
+              {t("search:last_active_options.last_week")}
+            </MenuItem>
+            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_DAY}>
+              {t("search:last_active_options.last_day")}
             </MenuItem>
           </Select>
         </FilterItemRow>
