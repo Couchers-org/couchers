@@ -309,11 +309,11 @@ const FilterDialog = ({
             }}
           >
             <ToggleButton
-              value={MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP}
-              aria-label={t("global:meetup_status.does_not_want_to_meetup")}
+              value={MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP}
+              aria-label={t("global:meetup_status.wants_to_meetup")}
               sx={{ borderRadius: "20px 0 0 20px" }}
             >
-              {t("global:meetup_status.does_not_want_to_meetup")}
+              {t("global:meetup_status.wants_to_meetup")}
             </ToggleButton>
             <ToggleButton
               value={MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP}
@@ -322,11 +322,11 @@ const FilterDialog = ({
               {t("global:meetup_status.open_to_meetup")}
             </ToggleButton>
             <ToggleButton
-              value={MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP}
-              aria-label={t("global:meetup_status.wants_to_meetup")}
+              value={MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP}
+              aria-label={t("global:meetup_status.does_not_want_to_meetup")}
               sx={{ borderRadius: "0 20px 20px 0" }}
             >
-              {t("global:meetup_status.wants_to_meetup")}
+              {t("global:meetup_status.does_not_want_to_meetup")}
             </ToggleButton>
           </ToggleButtonGroup>
         </FilterItemRow>
