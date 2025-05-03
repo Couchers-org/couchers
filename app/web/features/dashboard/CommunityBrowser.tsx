@@ -17,6 +17,7 @@ const OuterWrapper = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
   alignItems: "flex-start",
+  width: "100%",
   "& > * + *": {
     marginInlineStart: theme.spacing(2),
   },
@@ -26,6 +27,7 @@ const OuterWrapper = styled("div")(({ theme }) => ({
 const InnerWrapper = styled("div")(({ theme }) => ({
   overflow: "auto",
   maxHeight: "60vh",
+  display: "flex",
 }));
 
 const StyledList = styled(List)(({ theme }) => ({

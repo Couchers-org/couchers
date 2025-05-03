@@ -22,11 +22,10 @@ const HeaderRow = styled("div")(({ theme }) => ({
 const Subtitle = styled(Typography)(({ theme }) => ({
   fontWeight: "bold",
   fontSize: "1.25rem",
-  paddingBottom: theme.spacing(2),
+  paddingBottom: theme.spacing(1),
 }));
 
 const StyledTypography = styled(Typography)(({ theme }) => ({
-  paddingBlockStart: theme.spacing(1),
   paddingBlockEnd: theme.spacing(1),
 }));
 
@@ -46,10 +45,6 @@ const CommunitiesPage = () => {
       <StyledTypography variant="body1" paragraph>
         <Trans i18nKey="dashboard:communities_intro" />
       </StyledTypography>
-      <StyledTypography variant="body1" paragraph>
-        <Trans i18nKey="dashboard:communities_auto" />
-      </StyledTypography>
-
       <StyledTypography variant="body1" paragraph>
         <Trans i18nKey="dashboard:community_builder">
           {`Want to be an ambassador for your community and help it grow? Become a `}
@@ -71,7 +66,7 @@ const CommunitiesPage = () => {
       </StyledTypography>
 
       <StyledTypography variant="body1" paragraph>
-        <Trans i18nKey="dashboard:use_this_form">
+        <Trans i18nKey="dashboard:community_missing">
           {`Is your country or city missing? `}
           <MuiLink
             href={COMMUNITY_BUILDER_FORM_LINK}
