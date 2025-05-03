@@ -30,9 +30,9 @@
         "min_age": "Minimum age",
         "max_age": "Maximum age"
       },
-      "title": "Host filters",
       "last_active_field_label": "Last active",
       "hosting_status_field_label": "Hosting status",
+      "meetup_status_field_label": "Meetup status",
       "complete_profiles_label": "Complete profiles"
     },
     "accommodation_filters": {

@@ -10,6 +10,7 @@ import {
 } from "features/search/utils/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
+import { MeetupStatus } from "proto/api_pb";
 import { useMemo, useRef, useState } from "react";
 import { LngLatLike, MapProvider, MapRef } from "react-map-gl/maplibre";
 
@@ -31,6 +32,7 @@ export type FilterOptions = {
   hasReferences?: boolean;
   hasStrongVerification?: boolean;
   hostingStatus?: HostingStatusOptions[];
+  meetupStatus?: MeetupStatus[];
   numGuests?: number;
   lastActive?: number;
   lng?: number;

@@ -21,7 +21,7 @@ import { CloseIcon } from "components/Icons";
 import PlusMinusSelector from "components/PlusMinusSelector";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { HostingStatus, SleepingArrangement } from "proto/api_pb";
+import { HostingStatus, MeetupStatus, SleepingArrangement } from "proto/api_pb";
 import { theme } from "theme";
 
 import { FilterOptions } from "./SearchPage";
@@ -180,6 +180,17 @@ const FilterDialog = ({
     updateFilter({ hostingStatus: newHostingStatus });
   };
 
+  const handleMeetupStatusChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newMeetupStatus: Exclude<
+      MeetupStatus,
+      | MeetupStatus.MEETUP_STATUS_UNKNOWN
+      | MeetupStatus.MEETUP_STATUS_UNSPECIFIED
+    >[],
+  ) => {
+    updateFilter({ meetupStatus: newMeetupStatus });
+  };
+
   const handleNumberOfGuestsChange = (value: number | undefined) => {
     updateFilter({ numGuests: value });
   };
@@ -242,6 +253,82 @@ const FilterDialog = ({
             onClick={handleShowCompleteProfilesOnlyChange}
             customColor={theme.palette.primary.main}
           />
+        </FilterItemRow>
+        <FilterItemRow>
+          <Typography>
+            {t("search:form.host_filters.hosting_status_field_label")}
+          </Typography>
+          <ToggleButtonGroup
+            onChange={handleHostingStatusChange}
+            value={filters.hostingStatus}
+            aria-label={t(
+              "search:form.host_filters.hosting_status_field_label",
+            )}
+            size="small"
+            color="primary"
+            sx={{
+              borderRadius: 20,
+              marginRight: "-5px",
+            }}
+          >
+            <ToggleButton
+              value={HostingStatus.HOSTING_STATUS_CAN_HOST}
+              aria-label={t("global:hosting_status.can_host")}
+              sx={{ borderRadius: "20px 0 0 20px" }}
+            >
+              {t("global:hosting_status.can_host")}
+            </ToggleButton>
+            <ToggleButton
+              value={HostingStatus.HOSTING_STATUS_MAYBE}
+              aria-label={t("global:hosting_status.maybe")}
+            >
+              {t("global:hosting_status.maybe")}
+            </ToggleButton>
+            <ToggleButton
+              value={HostingStatus.HOSTING_STATUS_CANT_HOST}
+              aria-label={t("global:hosting_status.cant_host")}
+              sx={{ borderRadius: "0 20px 20px 0" }}
+            >
+              {t("global:hosting_status.cant_host")}
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </FilterItemRow>
+        <FilterItemRow>
+          <Typography>
+            {t("search:form.host_filters.meetup_status_field_label")}
+          </Typography>
+          <ToggleButtonGroup
+            onChange={handleMeetupStatusChange}
+            value={filters.meetupStatus}
+            aria-label={t("search:form.host_filters.meetup_status_field_label")}
+            size="small"
+            color="primary"
+            sx={{
+              borderRadius: 20,
+              marginRight: "-5px",
+            }}
+          >
+            <ToggleButton
+              value={MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP}
+              aria-label={t("global:meetup_status.does_not_want_to_meetup")}
+              sx={{ borderRadius: "20px 0 0 20px" }}
+            >
+              {t("global:meetup_status.does_not_want_to_meetup")}
+            </ToggleButton>
+            <ToggleButton
+              value={MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP}
+              aria-label={t("global:meetup_status.open_to_meetup")}
+            >
+              {t("global:meetup_status.open_to_meetup")}
+            </ToggleButton>
+            <ToggleButton
+              value={MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP}
+              aria-label={t("global:meetup_status.wants_to_meetup")}
+              sx={{ borderRadius: "0 20px 20px 0" }}
+            >
+              {t("global:meetup_status.wants_to_meetup")}
+            </ToggleButton>
+          </ToggleButtonGroup>
         </FilterItemRow>
         <FilterItemRow>
           <Typography>
@@ -398,83 +485,6 @@ const FilterDialog = ({
         </FilterItemRow>
         <Divider />
         <Typography variant="h3" sx={{ marginBottom: theme.spacing(2) }}>
-          {t("search:form.host_filters.title")}
-        </Typography>
-        <FilterItemRow>
-          <Typography>
-            {t("search:form.host_filters.hosting_status_field_label")}
-          </Typography>
-          <ToggleButtonGroup
-            onChange={handleHostingStatusChange}
-            value={filters.hostingStatus}
-            aria-label={t(
-              "search:form.host_filters.hosting_status_field_label",
-            )}
-            size="small"
-            color="primary"
-            sx={{
-              borderRadius: 20,
-              marginRight: "-5px",
-            }}
-          >
-            <ToggleButton
-              value={HostingStatus.HOSTING_STATUS_CAN_HOST}
-              aria-label={t("global:hosting_status.can_host")}
-              sx={{ borderRadius: "20px 0 0 20px" }}
-            >
-              {t("global:hosting_status.can_host")}
-            </ToggleButton>
-            <ToggleButton
-              value={HostingStatus.HOSTING_STATUS_MAYBE}
-              aria-label={t("global:hosting_status.maybe")}
-            >
-              {t("global:hosting_status.maybe")}
-            </ToggleButton>
-            <ToggleButton
-              value={HostingStatus.HOSTING_STATUS_CANT_HOST}
-              aria-label={t("global:hosting_status.cant_host")}
-              sx={{ borderRadius: "0 20px 20px 0" }}
-            >
-              {t("global:hosting_status.cant_host")}
-            </ToggleButton>
-          </ToggleButtonGroup>
-        </FilterItemRow>
-        <FilterItemRow>
-          <Typography>
-            {t("search:form.host_filters.age.field_label")}
-          </Typography>
-        </FilterItemRow>
-        <FilterItemRow>
-          <StyledSlider
-            getAriaLabel={(index) =>
-              index === 0
-                ? t("search:form.host_filters.age.min_age")
-                : t("search:form.host_filters.age.max_age")
-            }
-            value={[
-              filters.ageMin || DEFAULT_AGE_MIN,
-              filters.ageMax || DEFAULT_AGE_MAX,
-            ]}
-            onChange={handleAgeRangeChange}
-            valueLabelDisplay="auto"
-            slots={{ thumb: SliderThumbComponent }}
-            defaultValue={[DEFAULT_AGE_MIN, DEFAULT_AGE_MAX]}
-            min={DEFAULT_AGE_MIN}
-            max={DEFAULT_AGE_MAX}
-            marks={[
-              {
-                value: DEFAULT_AGE_MIN,
-                label: `${DEFAULT_AGE_MIN}`,
-              },
-              {
-                value: DEFAULT_AGE_MAX,
-                label: `${DEFAULT_AGE_MAX}`,
-              },
-            ]}
-          />
-        </FilterItemRow>
-        <Divider />
-        <Typography variant="h3" sx={{ marginBottom: theme.spacing(2) }}>
           {t("search:form.accommodation_filters.title")}
         </Typography>
         <FilterItemRow>
@@ -536,6 +546,40 @@ const FilterDialog = ({
               )}
             </ToggleButton>
           </ToggleButtonGroup>
+        </FilterItemRow>
+        <FilterItemRow>
+          <Typography>
+            {t("search:form.host_filters.age.field_label")}
+          </Typography>
+        </FilterItemRow>
+        <FilterItemRow>
+          <StyledSlider
+            getAriaLabel={(index) =>
+              index === 0
+                ? t("search:form.host_filters.age.min_age")
+                : t("search:form.host_filters.age.max_age")
+            }
+            value={[
+              filters.ageMin || DEFAULT_AGE_MIN,
+              filters.ageMax || DEFAULT_AGE_MAX,
+            ]}
+            onChange={handleAgeRangeChange}
+            valueLabelDisplay="auto"
+            slots={{ thumb: SliderThumbComponent }}
+            defaultValue={[DEFAULT_AGE_MIN, DEFAULT_AGE_MAX]}
+            min={DEFAULT_AGE_MIN}
+            max={DEFAULT_AGE_MAX}
+            marks={[
+              {
+                value: DEFAULT_AGE_MIN,
+                label: `${DEFAULT_AGE_MIN}`,
+              },
+              {
+                value: DEFAULT_AGE_MAX,
+                label: `${DEFAULT_AGE_MAX}`,
+              },
+            ]}
+          />
         </FilterItemRow>
       </FilterItemsContainer>
       <DialogActions sx={{ display: "flex", justifyContent: "space-between" }}>
