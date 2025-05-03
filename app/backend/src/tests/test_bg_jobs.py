@@ -33,6 +33,8 @@ from couchers.models import (
     Email,
     HostRequestStatus,
     LoginToken,
+    Message,
+    MessageType,
     PasswordResetToken,
     UserBadge,
 )
@@ -956,6 +958,8 @@ def test_send_host_request_reminders(db):
     user12, token12 = generate_user(email="user12@couchers.org.invalid", name="User 12")
     user13, token13 = generate_user(email="user13@couchers.org.invalid", name="User 13")
     user14, token14 = generate_user(email="user14@couchers.org.invalid", name="User 14")
+    user15, token15 = generate_user(email="user15@couchers.org.invalid", name="User 15")
+    user16, token16 = generate_user(email="user16@couchers.org.invalid", name="User 16")
 
     with session_scope() as session:
         # case 1: pending, future, interval elapsed => notify
@@ -1018,7 +1022,7 @@ def test_send_host_request_reminders(db):
             last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
         )
 
-        # case 6: non-pending status => no notify
+        # case 6: non-pending status => do not notify
         hr6 = create_host_request_2(
             session=session,
             surfer_user_id=user11.id,
@@ -1028,6 +1032,28 @@ def test_send_host_request_reminders(db):
             status=HostRequestStatus.accepted,
             host_sent_request_reminders=0,
             last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
+        )
+
+        # case 7: host already sent a message => do not notify
+        hr7 = create_host_request_2(
+            session=session,
+            surfer_user_id=user15.id,
+            host_user_id=user16.id,
+            from_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=1),
+            to_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=2),
+            status=HostRequestStatus.pending,
+            host_sent_request_reminders=0,
+            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
+        )
+
+        session.add(
+            Message(
+                time=now(),
+                conversation_id=hr7,
+                author_id=user16.id,
+                text="Looking forward to hosting you!",
+                message_type=MessageType.text,
+            )
         )
 
     send_host_request_reminders(empty_pb2.Empty())
@@ -1045,7 +1071,7 @@ def test_send_host_request_reminders(db):
         (
             "user2@couchers.org.invalid",
             "[TEST] You have a pending host request from User 1!",
-            ("Please accept or decline the request",),
+            ("Please respond to the request!",),
         )
     ]
 
