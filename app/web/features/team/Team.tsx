@@ -13,6 +13,8 @@ import { EmailIcon, GlobeIcon, LinkedInIcon, PinIcon } from "components/Icons";
 import IconText from "components/IconText";
 import PageTitle from "components/PageTitle";
 import StyledLink from "components/StyledLink";
+import { useTranslation } from "i18n";
+import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { volunteerRoute } from "routes";
 
@@ -31,11 +33,8 @@ const TeamMembedCardContent = styled(CardContent)(({ theme }) => ({
 }));
 
 const DetailDiv = styled("div")(({ theme }) => ({
-  marginTop: theme.spacing(1),
-  marginBottom: theme.spacing(1),
-  marginLeft: theme.spacing(2),
-  marginRight: theme.spacing(2),
-  flex: "1 0 auto",
+  padding: theme.spacing(1, 2),
+  flex: "1 1 0%",
 }));
 
 const StyledAvatar = styled(MuiAvatar)(({ theme }) => ({
@@ -44,22 +43,18 @@ const StyledAvatar = styled(MuiAvatar)(({ theme }) => ({
 }));
 
 export default function Team() {
+  const { t } = useTranslation([GLOBAL]);
+
   return (
     <>
       <HtmlMeta title="The Team" />
       <Container maxWidth="md">
-        <PageTitle>The Team</PageTitle>
-        <Typography paragraph>
-          We are all couch surfers and skilled professionals who want to build
-          an improved, safer and more inclusive platform that can support and
-          sustainably grow the couch surfing community and bring its values to
-          the world. If you feel the same way and want to contribute, then we'd
-          love to talk to you.
-        </Typography>
+        <PageTitle>{t("team.title")}</PageTitle>
+        <Typography paragraph>{t("team.description")}</Typography>
         <Typography paragraph>
           <Link href={volunteerRoute} passHref legacyBehavior>
             <Button variant="contained" color="secondary">
-              Join the team
+              {t("team.join_the_team")}
             </Button>
           </Link>
         </Typography>
@@ -122,18 +117,13 @@ export default function Team() {
       <SpacerDiv />
       <Container maxWidth="md">
         <Typography variant="h2" component="h2">
-          Have skills you want to contribute?
+          {t("team.have_skills_contribute")}
         </Typography>
-        <Typography paragraph>
-          Couchers.org is a community project, built by folks like you for the
-          benefit of the global couch surfing community. If you would like to be
-          a part of this great new project, or leave your feedback on our ideas,
-          click the button below and fill out the short form.
-        </Typography>
+        <Typography paragraph>{t("team.fill_form_description")}</Typography>
         <Typography paragraph>
           <Link href={volunteerRoute} passHref legacyBehavior>
             <Button variant="contained" color="secondary">
-              Join our team
+              {t("team.join_our_team")}
             </Button>
           </Link>
         </Typography>
