@@ -1,6 +1,4 @@
-# Architecture Overview
-
-## High-level components
+# High-level components
 
 ![Diagram showing the high-level overview](overview.png)
 
