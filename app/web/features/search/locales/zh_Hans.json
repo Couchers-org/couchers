@@ -21,7 +21,6 @@
     "by_location_filter_label": "按位置",
     "by_keyword_filter_label": "按关键词或名称",
     "host_filters": {
-      "title": "沙发主筛选",
       "last_active_field_label": "最后活跃",
       "hosting_status_field_label": "接待状态",
       "complete_profiles_label": "完整的资料"

@@ -32,7 +32,6 @@
     },
     "by_location_filter_label": "Nach Standort",
     "host_filters": {
-      "title": "Host Filter",
       "last_active_field_label": "Zuletzt aktiv",
       "hosting_status_field_label": "Hosting-Status",
       "complete_profiles_label": "Vollständige Profile",
