@@ -373,19 +373,22 @@ const FilterDialog = ({
         </FilterItemRow>
         <FilterItemRow>
           <Typography>
-            {t("search:form.general_filters.has_strong_verification")}{" "}
-            <Tooltip title={t("global:strong_verification.helper_text")}>
-              <InfoOutlined
-                sx={{
-                  fontSize: "16px",
-                  color: theme.palette.primary.main,
+            {t("search:form.general_filters.has_strong_verification")}
+            {!isMobile && (
+              <Tooltip title={t("global:strong_verification.helper_text")}>
+                <InfoOutlined
+                  sx={{
+                    fontSize: "16px",
+                    color: theme.palette.primary.main,
+                    marginLeft: theme.spacing(0.5),
 
-                  "$:hover": {
-                    cursor: "pointer",
-                  },
-                }}
-              />
-            </Tooltip>
+                    "$:hover": {
+                      cursor: "pointer",
+                    },
+                  }}
+                />
+              </Tooltip>
+            )}
           </Typography>
           <CustomColorSwitch
             checked={filters.hasStrongVerification || false}
