@@ -30,7 +30,7 @@
     "@mui/styles": "^5.16.7",
     "@mui/system": "^5.17.1",
     "@mui/utils": "^5.16.13",
-    "@mui/x-date-pickers": "^5.0.20",
+    "@mui/x-date-pickers": "^8.2.0",
     "@sentry/nextjs": "^8.47.0",
     "@sentry/react": "^8.51.0",
     "@stripe/stripe-js": "^7.2.0",
