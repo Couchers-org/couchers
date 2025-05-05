@@ -51,9 +51,13 @@ const StyledListItem = styled(ListItem)<ListItemProps>(({ theme }) => ({
   "&:hover": {
     background: "#3135390A",
   },
-  "&.selected": {
+  "& .selected": {
     fontWeight: "bold",
   },
+}));
+
+const StyledDivider = styled(Divider)(({ theme }) => ({
+  margin: theme.spacing(0, 1),
 }));
 
 const StyledListItemText = styled(ListItemText)(({ theme }) => ({
@@ -176,10 +180,15 @@ function BrowserColumn({
             <StyledLink
               href={routeToCommunity(parent.communityId, parent.slug)}
             >
-              <StyledListItemText primary={parent.name} />
+              <StyledListItemText
+                primary={parent.name}
+                sx={{
+                  color: (theme) => theme.palette.primary.main,
+                }}
+              />
             </StyledLink>
           </StyledListItem>
-          <Divider />
+          <StyledDivider />
         </>
       )}
       {communities.length === 0 ? (
