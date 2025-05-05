@@ -3,7 +3,7 @@ import MuiLink from "@mui/material/Link";
 import PageTitle from "components/PageTitle";
 import CommunityBrowser from "features/dashboard/CommunityBrowser";
 import { Trans, useTranslation } from "i18n";
-import { COMMUNITIES, DASHBOARD, GLOBAL } from "i18n/namespaces";
+import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import React from "react";
 
 const COMMUNITY_BUILDER_FORM_LINK =
@@ -30,13 +30,13 @@ const StyledTypography = styled(Typography)(({ theme }) => ({
 }));
 
 const CommunitiesPage = () => {
-  const { t } = useTranslation([COMMUNITIES, DASHBOARD, GLOBAL]);
+  const { t } = useTranslation([GLOBAL, DASHBOARD]);
 
   return (
     <>
       <div>
         <HeaderRow>
-          <PageTitle>{t("communities:communities_title")}</PageTitle>
+          <PageTitle>{t("nav.communities")}</PageTitle>
         </HeaderRow>
       </div>
       <Subtitle variant="h2">
