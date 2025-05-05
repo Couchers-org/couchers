@@ -1,4 +1,11 @@
-import { Divider, List, ListItem, ListItemText, styled } from "@mui/material";
+import {
+  Divider,
+  List,
+  ListItem,
+  ListItemProps,
+  ListItemText,
+  styled,
+} from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -38,7 +45,7 @@ const StyledLoader = styled("div")(({ theme }) => ({
   margin: theme.spacing("auto", 2),
 }));
 
-const StyledListItem = styled(ListItem)(({ theme }) => ({
+const StyledListItem = styled(ListItem)<ListItemProps>(({ theme }) => ({
   background: "transparent",
   border: "none",
   "&:hover": {
@@ -190,6 +197,7 @@ function BrowserColumn({
         communities.map((community) => (
           <StyledListItem
             key={community.communityId}
+            component="button"
             onClick={() => handleClick(community)}
             aria-selected={community.communityId === selected}
           >
