@@ -8,11 +8,11 @@
   },
   "last_active_options": {
     "any": "Any",
-    "last_day": "Last day",
     "last_week": "Last week",
-    "last_2_weeks": "Last 2 weeks",
     "last_month": "Last month",
-    "last_3_months": "Last 3 months"
+    "last_3_months": "Last 3 months",
+    "last_6_months": "Last 6 months",
+    "last_year": "Last year"
   },
   "form": {
     "location_field_label": "Near location",
