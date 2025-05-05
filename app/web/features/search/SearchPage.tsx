@@ -20,6 +20,11 @@ import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { getMapBounds } from "./utils/mapUtils";
 
+/**
+ * See map search architecture diagram and a description of the main concepts here:
+ * docs/architecture/frontend/map-search.md
+ */
+
 export type FilterOptions = {
   acceptsKids?: boolean;
   acceptsPets?: boolean;

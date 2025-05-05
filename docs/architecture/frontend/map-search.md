@@ -51,7 +51,7 @@ We use `useState`, but that is a bit too small for the job here.
 
 `useReducer` is a concept that came from Redux, and it's handy for managing more complex state logic where multiple values are related, or updates depend on the previous state. It also makes it easier to track how state changes over time through clearly defined action types. In the case of our map, we needed to track and update things like bbox, zoom, keyword, filters, pageNumber and uiOnly map values in one centralized place, and useReducer gave us that structure.
 
-`useReducer` holds all the business logic of a piece of your state, and also allows you to compute state values based on multiple other values. For example, we've computed values like `hasActiveFilters` by looking at every filter and whether they are all undefined, which is then used by the UI to conditionally adjust based on whether their are filters are not. This is a lot cleaner than checking all 10+ filters in the component.
+`useReducer` holds all the business logic of a piece of your state, and also allows you to compute state values based on multiple other values. For example, we've computed values like `hasActiveFilters` by looking at every filter and whether they are all undefined, which is then used by the UI to conditionally adjust based on whether there are filters are not. This is a lot cleaner than checking all 10+ filters in the component.
 
 We update the state by dispatching actions—plain objects that describe the change we want to make. This allows us to keep all state transitions predictable and centralized in the reducer function, making debugging and testing much easier.
 
