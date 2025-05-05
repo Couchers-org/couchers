@@ -4,6 +4,16 @@ Our map search is the core way our users find each other for meetups and to find
 
 This page serves as a guide to the map architecture and covers the major logic. If you just picked up your first map ticket on the front-end, this is a good place to start!
 
+* [Important terms](#important-terms)
+* [Frontend Map Search Architecture Diagram](#frontend-map-search-architecture-diagram)
+* [Major concepts](#major-concepts)
+    - [Separate UI-only state from API-shaped state](#separate-ui-only-state-from-api-shaped-state)
+    - [Storing map state in useReducer](#storing-map-state-in-usereducer)
+    - [Wrapping the map in useContext](#wrapping-the-map-in-usecontext)
+* [Common Developer Flows](#common-developer-flows)
+    - [How to Add a New Filter](#how-to-add-a-new-filter)
+
+
 ## Important terms
 
 - **bbox (bounding box)** is a rectangular area defined by geographic coordinates—usually [west, south, east, north]—used to represent the visible region on a map or to limit a spatial query.
@@ -24,7 +34,7 @@ Let's break down the major concepts of this architecture.
 - [useReducer - manages complex state logic by using a reducer function to handle state transitions based on dispatched actions, similar to how Redux works.](#storing-map-state-in-usereducer)
 - [useContext - allows you to access and share values between components without having to pass props manually deep through the component tree](#wrapping-the-map-in-usecontext)
 
-### Separate UI-only state from API response state
+### Separate UI-only state from API-shaped state
 
 Mostly we use [react-query](https://tanstack.com/query/latest) (a.k.a. Tanstack Query) for state management, which stores api responses as is in the browser cache. This generally works for us, as we mostly use the api response close to the format its returned in for the UI.
 
