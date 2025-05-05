@@ -26,7 +26,7 @@
     "by_keyword_filter_label": "By keyword or name",
     "host_filters": {
       "age": {
-        "field_label": "Age",
+        "field_label": "Host Age",
         "min_age": "Minimum age",
         "max_age": "Maximum age"
       },
