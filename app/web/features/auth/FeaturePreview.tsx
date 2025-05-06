@@ -15,11 +15,8 @@ const MarginWrapper = styled("div")(({ theme }) => ({
 export default function FeaturePreview() {
   const { t } = useTranslation(AUTH);
 
-  const {
-    data: accountInfo,
-    error: accountInfoError,
-    isLoading: isAccountInfoLoading,
-  } = useAccountInfo();
+  const { error: accountInfoError, isLoading: isAccountInfoLoading } =
+    useAccountInfo();
 
   return (
     <>
