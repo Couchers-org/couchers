@@ -51,7 +51,11 @@ export default function StartStrongVerificationButton() {
             </DialogContentText>
           )}
           <DialogContentText>
-            {t("auth:strong_verification.information_text1")}
+            <Trans i18nKey="auth:strong_verification.information_text1">
+              You will need a <strong>biometric passport</strong> (other types
+              of identification will not work) and an NFC-capable Apple iPhone
+              or Android phone.
+            </Trans>
           </DialogContentText>
           <DialogContentText>
             {t("auth:strong_verification.information_text2")}
