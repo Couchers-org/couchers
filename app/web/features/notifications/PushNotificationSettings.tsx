@@ -2,7 +2,7 @@ import { styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import { Trans, useTranslation } from "i18n";
-import { AUTH } from "i18n/namespaces";
+import { NOTIFICATIONS } from "i18n/namespaces";
 import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
 import {
@@ -26,7 +26,7 @@ const StyledTitleBox = styled("div")(({ theme }) => ({
 }));
 
 export default function PushNotificationSettings() {
-  const { t } = useTranslation(AUTH);
+  const { t } = useTranslation([NOTIFICATIONS]);
   const isNotificationSupported = typeof Notification !== "undefined";
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -187,11 +187,11 @@ export default function PushNotificationSettings() {
       )}
       <Typography variant="body1" sx={{ marginBottom: theme.spacing(2) }}>
         {isPushEnabled ? (
-          <Trans i18nKey="auth:notification_settings.push_notifications.enabled_message">
+          <Trans i18nKey="notifications:notification_settings.push_notifications.enabled_message">
             You currently have push notifications <strong>enabled</strong>.
           </Trans>
         ) : (
-          <Trans i18nKey="auth:notification_settings.push_notifications.disabled_message">
+          <Trans i18nKey="notifications:notification_settings.push_notifications.disabled_message">
             You currently have push notifications <strong>disabled</strong>.
           </Trans>
         )}

@@ -157,7 +157,7 @@ packaging==24.2
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-sqlalchemy
     #   pytest
-phonenumbers==8.13.55
+phonenumbers==9.0.4
     # via -r requirements.in
 platformdirs==4.3.6
     # via virtualenv
@@ -206,17 +206,17 @@ requests==2.32.3
     #   geoip2
     #   opentelemetry-exporter-otlp-proto-http
     #   stripe
-ruff==0.11.2
+ruff==0.11.7
     # via -r requirements.in
 s3transfer==0.11.1
     # via boto3
-sentry-sdk==2.25.0
+sentry-sdk==2.27.0
     # via -r requirements.in
 shapely==2.0.7
     # via -r requirements.in
 six==1.17.0
     # via python-dateutil
-sqlalchemy==2.0.38
+sqlalchemy==2.0.40
     # via
     #   -r requirements.in
     #   alembic
@@ -224,7 +224,7 @@ sqlalchemy==2.0.38
     #   sqlalchemy-utils
 sqlalchemy-utils==0.41.2
     # via -r requirements.in
-stripe==11.4.1
+stripe==12.0.1
     # via -r requirements.in
 typing-extensions==4.12.2
     # via

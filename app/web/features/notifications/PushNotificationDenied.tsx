@@ -1,7 +1,7 @@
 import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import { useTranslation } from "i18n";
-import { AUTH } from "i18n/namespaces";
+import { NOTIFICATIONS } from "i18n/namespaces";
 
 const StyledAlert = styled(Alert)(({ theme }) => ({
   marginBottom: theme.spacing(3),
@@ -9,7 +9,7 @@ const StyledAlert = styled(Alert)(({ theme }) => ({
 }));
 
 const PushNotificationDenied = () => {
-  const { t } = useTranslation(AUTH);
+  const { t } = useTranslation(NOTIFICATIONS);
   const userAgent = navigator.userAgent.toLowerCase();
 
   // @TODO - Add mobile browser and OS instructions per platform

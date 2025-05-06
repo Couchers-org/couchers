@@ -4,10 +4,9 @@ import {
   ListItemAvatar,
   ListItemText,
   Skeleton,
+  styled,
   Typography,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
-import classNames from "classnames";
 import Avatar from "components/Avatar";
 import TextBody from "components/TextBody";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -27,16 +26,16 @@ import { firstName } from "utils/names";
 
 import HostRequestStatusText from "./HostRequestStatusText";
 
-const useStyles = makeStyles((theme) => ({
-  hostStatusContainer: {
-    alignItems: "center",
-    display: "flex",
-  },
-  hostStatusIcon: {
+const StyledHostStatusContainer = styled("div")({
+  alignItems: "center",
+  display: "flex",
+});
+
+const StyledHostRequestStatusIcon = styled(HostRequestStatusIcon)(
+  ({ theme }) => ({
     marginInlineEnd: theme.spacing(1),
-  },
-  unread: { fontWeight: "bold" },
-}));
+  }),
+);
 
 export interface HostRequestListItemProps {
   hostRequest: HostRequest.AsObject;
@@ -48,7 +47,6 @@ export default function HostRequestListItem({
   className,
 }: HostRequestListItemProps) {
   const { t } = useTranslation(MESSAGES);
-  const classes = useStyles();
   const { authState } = useAuthContext();
   const isHost = authState.userId === hostRequest.hostUserId;
   const { data: currentUser } = useCurrentUser();
@@ -85,8 +83,13 @@ export default function HostRequestListItem({
         }`
     : "";
 
+  const isPast = dayjs(hostRequest?.toDate).isBefore(dayjs().format("L"));
+
   return (
-    <ListItem className={className}>
+    <ListItem
+      className={className}
+      sx={{ color: isPast ? "grey.500" : "text.primary" }}
+    >
       <ListItemAvatar>
         <Avatar user={otherUser} isProfileLink={false} />
       </ListItemAvatar>
@@ -99,29 +102,24 @@ export default function HostRequestListItem({
         }
         secondary={
           <>
-            <div className={classes.hostStatusContainer}>
-              <HostRequestStatusIcon
-                hostRequest={hostRequest}
-                className={classes.hostStatusIcon}
-              />
+            <StyledHostStatusContainer>
+              <StyledHostRequestStatusIcon hostRequest={hostRequest} />
               {isOtherUserLoading ? (
                 <Skeleton width={200} />
               ) : (
                 <HostRequestStatusText
                   isHost={isHost}
                   requestStatus={hostRequest.status}
+                  isPast={isPast}
                 />
               )}
-            </div>
+            </StyledHostStatusContainer>
             <Typography component="div" display="inline" variant="h3">
               {`${dayjs(hostRequest.fromDate).format("LL")} - ${dayjs(
                 hostRequest.toDate,
               ).format("LL")}`}
             </Typography>
-            <TextBody
-              noWrap
-              className={classNames({ [classes.unread]: isUnread })}
-            >
+            <TextBody noWrap sx={{ fontWeight: isUnread ? "bold" : "normal" }}>
               {isOtherUserLoading ? (
                 <Skeleton width={100} />
               ) : (

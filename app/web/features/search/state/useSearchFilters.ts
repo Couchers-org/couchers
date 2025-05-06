@@ -21,6 +21,11 @@ interface LocalSearchFilters {
   hasReferences: boolean;
   hasStrongVerification: boolean;
   hostingStatus: HostingStatus;
+  meetupStatus: Exclude<
+    HostingStatus,
+    | HostingStatus.HOSTING_STATUS_UNKNOWN
+    | HostingStatus.HOSTING_STATUS_UNSPECIFIED
+  >[];
   numGuests: number | undefined;
   sleepingArrangement: SleepingArrangement;
 }

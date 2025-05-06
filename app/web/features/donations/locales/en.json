@@ -16,7 +16,7 @@
       "success_message": "Thank you for donating to Couchers.org, we appreciate your support! You will receive an email shortly.",
       "warning_message": "The payment was cancelled."
     },
-    "helper_text": "You will be redirected to Stripe, our payment processor, to complete your donation."
+    "helper_text": "You will be redirected to Stripe, our payment processor, to complete your donation. To cancel or update an existing donation at any time, <2>click here to go to the donation portal</2>."
   },
   "donations_title": "Your donation is needed to grow the platform we need",
   "donations_title2": "Where your donation will go",
@@ -25,5 +25,10 @@
   "donations_info": "Your donation goes to <1>{{ legal_name }}</1>, a U.S. 501(c)(3) non-profit that operates the Couchers.org service and supports the project. Donations are tax exempt in the USA, our EIN is 87-1734577.",
   "benefactor_contact": "If you wish to contribute over $1000, please contact us at <1>{{email}}</1> for us to arrange a lower fee transfer.",
   "donations_recurrence_explainer": "A monthly donation helps us plan ahead and continue our operations on a stable basis.",
-  "donations_use_explainer": "See our financials for {{ year }}."
+  "donations_use_explainer": "See our financials for {{ year }}.",
+  "settings_fragment": {
+    "title": "Manage your donations",
+    "description": "Click the button below to update or cancel your recurring donation, or to view past invoices.",
+    "button_text": "Go to donations management portal"
+  }
 }

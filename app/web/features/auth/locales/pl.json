@@ -87,9 +87,6 @@
     "error_message": "Błąd podczas rezygnacji z subskrypcji: {{message}}"
   },
   "unhandled_sign_up_state": "Błąd: unhandled signup flow state.",
-  "notification_settings": {
-    "title": "Ustawienia powiadomień"
-  },
   "change_email_confirmation": {
     "success_message": "Udało się zmienić adres e-mail!",
     "change_in_progress": "Zmiana adresu e-mail jest w trakcie realizacji…",

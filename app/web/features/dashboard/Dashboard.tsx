@@ -45,6 +45,12 @@ export default function Dashboard() {
 
             <Alert severity="info" sx={{ marginBottom: theme.spacing(2) }}>
               <Typography variant="body1">
+                <b>New Release Alert!</b> {dashboardNews["2025-04-24"]}
+              </Typography>
+            </Alert>
+
+            <Alert severity="info" sx={{ marginBottom: theme.spacing(2) }}>
+              <Typography variant="body1">
                 <b>New Release Alert!</b> {dashboardNews["2025-04-16"]}
               </Typography>
             </Alert>

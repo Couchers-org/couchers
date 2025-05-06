@@ -30,6 +30,10 @@ const StyledTypography = styled(Typography, {
   fontWeight: 600,
   color: isNegative ? theme.palette.grey[600] : theme.palette.common.black,
   fontSize: "0.875rem",
+
+  [theme.breakpoints.down("md")]: {
+    fontSize: "0.75rem",
+  },
 }));
 
 const VerticalLine = styled("div")(({ theme }) => ({
