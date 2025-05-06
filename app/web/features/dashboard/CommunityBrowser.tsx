@@ -19,6 +19,7 @@ import { DASHBOARD } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
 import { useState } from "react";
 import { routeToCommunity } from "routes";
+import { theme } from "theme";
 
 const OuterWrapper = styled("div")(({ theme }) => ({
   display: "flex",
@@ -183,7 +184,7 @@ function BrowserColumn({
               <StyledListItemText
                 primary={parent.name}
                 sx={{
-                  color: (theme) => theme.palette.primary.main,
+                  color: theme.palette.primary.main,
                 }}
               />
             </StyledLink>
