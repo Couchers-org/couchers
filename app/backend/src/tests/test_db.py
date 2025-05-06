@@ -1,3 +1,4 @@
+import pytest
 import difflib
 import re
 import subprocess
@@ -17,7 +18,7 @@ from couchers.utils import (
     parse_date,
 )
 from tests.test_communities import create_1d_point, get_community_id, testing_communities  # noqa
-from tests.test_fixtures import create_schema_from_models, db, drop_all, testconfig  # noqa
+from tests.test_fixtures import create_schema_from_models, db, drop_all, testconfig, run_migration_test  # noqa
 
 
 def test_is_valid_user_id():
@@ -143,7 +144,11 @@ def test_sort_pg_dump_output():
 def strip_leading_whitespace(lines):
     return [s.lstrip() for s in lines]
 
-
+"""
+This test will only run succesfully if you have `pg_dump` installed and everything set up, which only happens if you run
+the test within the container
+"""
+@pytest.mark.skipif(not run_migration_test(), reason="Migration test disabled")
 def test_migrations(testconfig):
     """Compares the database schema built up from migrations, with the
     schema built by models.py. Both scenarios are started from an
