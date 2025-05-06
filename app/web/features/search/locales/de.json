@@ -2,9 +2,7 @@
   "last_active_options": {
     "last_3_months": "Letzten 3 Monate",
     "any": "Alle",
-    "last_day": "Letzter Tag",
     "last_week": "Letzte Woche",
-    "last_2_weeks": "Letzte 2 Wochen",
     "last_month": "Letzter Monat"
   },
   "filter_dialog": {
@@ -32,7 +30,6 @@
     },
     "by_location_filter_label": "Nach Standort",
     "host_filters": {
-      "title": "Host Filter",
       "last_active_field_label": "Zuletzt aktiv",
       "hosting_status_field_label": "Hosting-Status",
       "complete_profiles_label": "Vollständige Profile",

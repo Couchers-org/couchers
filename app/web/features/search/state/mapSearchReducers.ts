@@ -132,6 +132,7 @@ const initialState: MapSearchState = {
     hasReferences: undefined,
     hasStrongVerification: undefined,
     hostingStatusOptions: undefined,
+    meetupStatus: undefined,
     numGuests: undefined,
     sleepingArrangement: undefined,
     smokesAtHome: undefined,
@@ -300,6 +301,13 @@ const mapSearchReducer = (
         }
         if (key === "hostingStatus") {
           updatedFilters.hostingStatusOptions =
+            action.payload[key] && action.payload[key].length === 0
+              ? undefined
+              : action.payload[key];
+        }
+
+        if (key === "meetupStatus") {
+          updatedFilters.meetupStatus =
             action.payload[key] && action.payload[key].length === 0
               ? undefined
               : action.payload[key];

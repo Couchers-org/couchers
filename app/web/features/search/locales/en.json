@@ -8,11 +8,11 @@
   },
   "last_active_options": {
     "any": "Any",
-    "last_day": "Last day",
     "last_week": "Last week",
-    "last_2_weeks": "Last 2 weeks",
     "last_month": "Last month",
-    "last_3_months": "Last 3 months"
+    "last_3_months": "Last 3 months",
+    "last_6_months": "Last 6 months",
+    "last_year": "Last year"
   },
   "form": {
     "location_field_label": "Near location",
@@ -26,13 +26,13 @@
     "by_keyword_filter_label": "By keyword or name",
     "host_filters": {
       "age": {
-        "field_label": "Age",
+        "field_label": "Host Age",
         "min_age": "Minimum age",
         "max_age": "Maximum age"
       },
-      "title": "Host filters",
       "last_active_field_label": "Last active",
       "hosting_status_field_label": "Hosting status",
+      "meetup_status_field_label": "Meetup status",
       "complete_profiles_label": "Complete profiles"
     },
     "accommodation_filters": {
@@ -65,7 +65,7 @@
     "clear_filters": "Clear all filters"
   },
   "search_result": {
-    "no_user_result_message": "No users found.",
+    "no_user_result_message": "No users found. Try removing some filters to see more results.",
     "show_user_button_label": "Show {{name}} on the map",
     "missing_about_description": "{{name}} hasn't said anything about themselves yet",
     "people_found_message": "Showing {{numberOfTotal}} from {{totalItems}} people found"

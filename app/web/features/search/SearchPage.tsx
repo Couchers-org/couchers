@@ -10,6 +10,7 @@ import {
 } from "features/search/utils/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
+import { MeetupStatus } from "proto/api_pb";
 import { useMemo, useRef, useState } from "react";
 import { LngLatLike, MapProvider, MapRef } from "react-map-gl/maplibre";
 
@@ -19,6 +20,11 @@ import SearchControls from "./SearchControls";
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { getMapBounds } from "./utils/mapUtils";
+
+/**
+ * See map search architecture diagram and a description of the main concepts here:
+ * docs/architecture/frontend/map-search.md
+ */
 
 export type FilterOptions = {
   acceptsKids?: boolean;
@@ -31,6 +37,7 @@ export type FilterOptions = {
   hasReferences?: boolean;
   hasStrongVerification?: boolean;
   hostingStatus?: HostingStatusOptions[];
+  meetupStatus?: MeetupStatus[];
   numGuests?: number;
   lastActive?: number;
   lng?: number;

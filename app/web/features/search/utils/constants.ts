@@ -17,11 +17,11 @@ const truncateWithEllipsis = (str: string, maxLength = 40): string =>
 
 enum lastActiveOptions {
   LAST_ACTIVE_ANY = 0,
-  LAST_ACTIVE_LAST_DAY = 1,
   LAST_ACTIVE_LAST_WEEK = 7,
-  LAST_ACTIVE_LAST_2_WEEKS = 14,
   LAST_ACTIVE_LAST_MONTH = 31,
   LAST_ACTIVE_LAST_3_MONTHS = 93,
+  LAST_ACTIVE_LAST_SIX_MONTHS = 183,
+  LAST_ACTIVE_LAST_YEAR = 365,
 }
 
 const selectedUserZoom = 10;
