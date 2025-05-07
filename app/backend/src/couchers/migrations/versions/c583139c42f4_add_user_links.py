@@ -25,7 +25,7 @@ def upgrade():
         sa.Column("user2_id", sa.BigInteger(), nullable=False),
         sa.Column(
             "link_type",
-            sa.Enum("duplicate_account", "travel_buddies", "flat_mates", name="userlinktype"),
+            sa.Enum("duplicate_account", name="userlinktype"),
             nullable=False,
         ),
         sa.Column("created", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),

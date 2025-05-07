@@ -2671,8 +2671,6 @@ class AccountDeletionReason(Base):
 
 class UserLinkType(enum.Enum):
     duplicate_account = enum.auto()
-    travel_buddies = enum.auto()
-    flat_mates = enum.auto()
 
 
 class UserLink(Base):
