@@ -9,25 +9,25 @@ share_image: /app/web/public/img/blog/20210825_talkingtown.png
 ---
 Buckle up for our monthly development update! Read about the new features we have implemented and what has changed in April 2025.
 
-This has been added:
+**This has been added:**
 
-* A Notifications Feed so you don’t miss any important messages
-* A Donations Portal to easily manage and review your donations
-* Strong Verification as a security feature
-* Username link on the profile to easily share it
+* A **Notifications Feed** so you don’t miss any important messages
+* A **Donations Portal** to easily manage and review your donations
+* **Strong Verification** as a security feature
+* **Username link** on the profile to easily share it
 
-These things have changed:
+**These things have changed:**
 
-* Complete overhaul of the Map Search and improved filter options to find who you are looking for in a snap
-* New Roadmap design to easily see where couchers is headed and how far we’ve gotten already
-* Improved Event Time Picker, it doesn’t just look better, it’s also easier to use
-* Started the Blog Revamp to keep you better informed
+* Complete overhaul of the **Map Search** and improved filter options to find who you are looking for in a snap
+* New **Roadmap design** to easily see where couchers is headed and how far we’ve gotten already
+* Improved **Event Time Picker**, it doesn’t just look better, it’s also easier to use
+* Started the **Blog Revamp** to keep you better informed
 
 ## Development stats
 
-In April 2025 Couchers.org had:
+**In April 2025 Couchers.org had:**
 
-* 15 Developers contribute in
+* **15 Developers** contribute in
 * 209 Changes that changed
 * 283 Files with 6068 Additions and 3670 Deletions.
 
