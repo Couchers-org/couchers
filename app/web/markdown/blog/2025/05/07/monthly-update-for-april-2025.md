@@ -28,8 +28,8 @@ Buckle up for our monthly development update! Read about the new features we hav
 **In April 2025 Couchers.org had:**
 
 * **15 Developers** contribute in
-* 209 Changes that changed
-* 283 Files with 6068 Additions and 3670 Deletions.
+* **209 Changes** that changed
+* **283 Files** with **6068 Additions** and **3670 Deletions**.
 
 None of this would be possible without our volunteers working in all areas of the project. The development team would like to thank the rest of the contributors for making our work possible.
 
