@@ -584,17 +584,14 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
     def LinkUsersAsDuplicated(self, request, context, session):
         """Link two users together as duplicated accounts"""
-        # Get the first user
         user1 = session.execute(select(User).where_username_or_email_or_id(request.user1)).scalar_one_or_none()
         if not user1:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-        # Get the second user
         user2 = session.execute(select(User).where_username_or_email_or_id(request.user2)).scalar_one_or_none()
         if not user2:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-        # Ensure we're linking different users
         if user1.id == user2.id:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANNOT_LINK_SAME_USER)
 
@@ -602,7 +599,6 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if user1.id > user2.id:
             user1, user2 = user2, user1
 
-        # Create the link
         user_link = UserLink(
             user1_id=user1.id,
             user2_id=user2.id,
@@ -628,3 +624,33 @@ class Admin(admin_pb2_grpc.AdminServicer):
         session.commit()
 
         return empty_pb2.Empty()
+
+    def GetUserLinks(self, request, context, session):
+        """Get all links for a specific user to duplicated users"""
+        user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+        if not user:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
+        links = (
+            session.execute(
+                select(UserLink).where(
+                    UserLink.link_type == UserLinkType.duplicate_account,
+                    or_(UserLink.user1_id == user.id, UserLink.user2_id == user.id),
+                )
+            )
+            .scalars()
+            .all()
+        )
+
+        return admin_pb2.GetUserLinksRes(
+            links=[
+                admin_pb2.UserLink(
+                    link_id=link.id,
+                    user1_id=link.user1_id,
+                    user2_id=link.user2_id,
+                    link_type=link.link_type.name,
+                    created=Timestamp_from_datetime(link.created),
+                )
+                for link in links
+            ]
+        )

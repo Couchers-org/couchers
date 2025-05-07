@@ -74,6 +74,8 @@ service Admin {
   rpc LinkUsersAsDuplicated(LinkUsersDuplicatedReq) returns (LinkUsersDuplicatedRes) {}
 
   rpc RemoveUserLink(RemoveUserLinkReq) returns (google.protobuf.Empty) {}
+
+  rpc GetUserLinks(GetUserLinksReq) returns (GetUserLinksRes);
 }
 
 message UserDetails {
@@ -97,6 +99,8 @@ message UserDetails {
 
   int64 pending_mod_notes_count = 16;
   int64 acknowledged_mod_notes_count =17;
+
+  repeated UserLink links = 18;
 }
 
 message GetUserDetailsReq {
@@ -312,4 +316,20 @@ message LinkUsersDuplicatedRes {
 
 message RemoveUserLinkReq {
     int64 link_id = 1;
+}
+
+message GetUserLinksReq {
+    string user = 1;
+}
+
+message GetUserLinksRes {
+    repeated UserLink links = 1;
+}
+
+message UserLink {
+    int64 link_id = 1;
+    int64 user1_id = 2;
+    int64 user2_id = 3;
+    string link_type = 4;
+    google.protobuf.Timestamp created = 6;
 }
