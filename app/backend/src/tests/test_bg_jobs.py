@@ -958,8 +958,6 @@ def test_send_host_request_reminders(db):
     user12, token12 = generate_user(email="user12@couchers.org.invalid", name="User 12")
     user13, token13 = generate_user(email="user13@couchers.org.invalid", name="User 13")
     user14, token14 = generate_user(email="user14@couchers.org.invalid", name="User 14")
-    user15, token15 = generate_user(email="user15@couchers.org.invalid", name="User 15")
-    user16, token16 = generate_user(email="user16@couchers.org.invalid", name="User 16")
 
     with session_scope() as session:
         # case 1: pending, future, interval elapsed => notify
@@ -1037,8 +1035,8 @@ def test_send_host_request_reminders(db):
         # case 7: host already sent a message => do not notify
         hr7 = create_host_request_by_date(
             session=session,
-            surfer_user_id=user15.id,
-            host_user_id=user16.id,
+            surfer_user_id=user13.id,
+            host_user_id=user14.id,
             from_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=1),
             to_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=2),
             status=HostRequestStatus.pending,
@@ -1050,7 +1048,7 @@ def test_send_host_request_reminders(db):
             Message(
                 time=now(),
                 conversation_id=hr7,
-                author_id=user16.id,
+                author_id=user14.id,
                 text="Looking forward to hosting you!",
                 message_type=MessageType.text,
             )
