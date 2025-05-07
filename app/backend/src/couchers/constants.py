@@ -46,4 +46,4 @@ ACTIVENESS_PROBE_TIME_REMINDERS = [timedelta(days=0), timedelta(days=4, hours=8)
 ACTIVENESS_PROBE_EXPIRY_TIME = timedelta(days=14)
 
 HOST_REQUEST_MAX_REMINDERS = 1
-HOST_REQUEST_REMINDER_INTERVAL = timedelta(days=1)
+HOST_REQUEST_REMINDER_INTERVAL = timedelta(days=2)

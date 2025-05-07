@@ -89,7 +89,7 @@ def create_host_request(
     return host_request.conversation_id
 
 
-def create_host_request_2(
+def create_host_request_by_date(
     session,
     surfer_user_id,
     host_user_id,

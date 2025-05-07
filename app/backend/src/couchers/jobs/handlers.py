@@ -511,25 +511,24 @@ send_reference_reminders.SCHEDULE = timedelta(hours=1)
 
 def send_host_request_reminders(payload):
     with session_scope() as session:
-        host_sent_messages = (
-            select(func.count(Message.id))
+        host_has_sent_message = (
+            select(1)
             .where(
-                Message.conversation_id == HostRequest.conversation_id, Message.author_id == HostRequest.host_user_id
+                Message.conversation_id == HostRequest.conversation_id,
+                Message.author_id == HostRequest.host_user_id
             )
-            .scalar_subquery()
         )
 
         requests = session.execute(
-            select(HostRequest, host_sent_messages.label("host_sent_messages"))
+            select(HostRequest)
             .where(HostRequest.status == HostRequestStatus.pending)
             .where(HostRequest.host_sent_request_reminders < HOST_REQUEST_MAX_REMINDERS)
             .where(HostRequest.start_time > func.now())
             .where((now() - HostRequest.last_sent_request_reminder_time) >= HOST_REQUEST_REMINDER_INTERVAL)
-            .where(host_sent_messages == 0)
+            .where(~exists(host_has_sent_message))
         ).all()
-
-        for host_request in requests:
-            host_request = host_request[0]
+        
+        for (host_request,) in requests:
             host_request.host_sent_request_reminders += 1
             host_request.last_sent_request_reminder_time = now()
 
