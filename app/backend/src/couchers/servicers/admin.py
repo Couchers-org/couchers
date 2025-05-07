@@ -29,6 +29,8 @@ from couchers.models import (
     Reply,
     User,
     UserBadge,
+    UserLink,
+    UserLinkType,
 )
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict
@@ -578,3 +580,35 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort(grpc.StatusCode.NOT_FOUND, errors.OBJECT_NOT_FOUND)
         obj.content = request.new_content.strip()
         return empty_pb2.Empty()
+
+    def LinkUsersAsDuplicated(self, request, context, session):
+        """Link two users together as duplicated accounts"""
+        # Get the first user
+        user1 = session.execute(select(User).where_username_or_email_or_id(request.user1)).scalar_one_or_none()
+        if not user1:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
+        # Get the second user
+        user2 = session.execute(select(User).where_username_or_email_or_id(request.user2)).scalar_one_or_none()
+        if not user2:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
+        # Ensure we're linking different users
+        if user1.id == user2.id:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANNOT_LINK_SAME_USER)
+
+        # Order users by ID to maintain consistency
+        if user1.id > user2.id:
+            user1, user2 = user2, user1
+
+        # Create the link
+        user_link = UserLink(
+            user1_id=user1.id,
+            user2_id=user2.id,
+            link_type=UserLinkType.duplicate_account,
+        )
+
+        session.add(user_link)
+        session.commit()
+
+        return admin_pb2.LinkUsersDuplicatedRes(link_id=user_link.id)

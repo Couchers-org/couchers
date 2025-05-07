@@ -2667,3 +2667,34 @@ class AccountDeletionReason(Base):
     reason = Column(String, nullable=True)
 
     user = relationship("User")
+
+
+class UserLinkType(enum.Enum):
+    duplicate_account = enum.auto()
+    travel_buddies = enum.auto()
+    flat_mates = enum.auto()
+
+
+class UserLink(Base):
+    """
+    Links between users for various types
+    """
+
+    __tablename__ = "user_links"
+
+    id = Column(BigInteger, primary_key=True)
+    user1_id = Column(ForeignKey("users.id"), nullable=False)
+    user2_id = Column(ForeignKey("users.id"), nullable=False)
+    link_type = Column(Enum(UserLinkType), nullable=False)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    # Relationships
+    user1 = relationship("User", foreign_keys="UserLink.user1_id")
+    user2 = relationship("User", foreign_keys="UserLink.user2_id")
+
+    __table_args__ = (
+        # Prevent duplicate links between the same users
+        UniqueConstraint("user1_id", "user2_id", "link_type"),
+        # Ensure user1_id is always less than user2_id to prevent duplicate links
+        CheckConstraint("user1_id < user2_id", name="user_order_check"),
+    )

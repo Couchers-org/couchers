@@ -70,6 +70,8 @@ service Admin {
   rpc EditDiscussion(EditDiscussionReq) returns (google.protobuf.Empty) {}
 
   rpc EditReply(EditReplyReq) returns (google.protobuf.Empty) {}
+
+  rpc LinkUsersAsDuplicated(LinkUsersDuplicatedReq) returns (LinkUsersDuplicatedRes) {}
 }
 
 message UserDetails {
@@ -295,4 +297,13 @@ message EditDiscussionReq {
 message EditReplyReq {
   int64 reply_id = 1;
   string new_content = 2;
+}
+
+message LinkUsersDuplicatedReq {
+    string user1 = 1;
+    string user2 = 2;
+}
+
+message LinkUsersDuplicatedRes {
+    int64 link_id = 1;
 }
