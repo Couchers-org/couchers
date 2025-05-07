@@ -25,7 +25,8 @@ SMS_CODE_ATTEMPTS = 3
 SIGNUP_EMAIL_TOKEN_VALIDITY = timedelta(hours=48)
 
 DATETIME_MINUS_INFINITY = pytz.UTC.localize(datetime(1, 1, 1))
-DATETIME_INFINITY = pytz.UTC.localize(datetime(9876, 12, 31, hour=23, minute=59, second=59))
+DATETIME_INFINITY = pytz.UTC.localize(
+    datetime(9876, 12, 31, hour=23, minute=59, second=59))
 
 SERVER_THREADS = 128
 
@@ -41,6 +42,9 @@ PREFERRED_LANGUAGE_COOKIE_EXPIRY = timedelta(days=3650)
 # wait about 11 months before sending one out
 ACTIVENESS_PROBE_INACTIVITY_PERIOD = timedelta(days=333)
 # times at which to send notifications after inactivity (cumulative since start of probe)
-ACTIVENESS_PROBE_TIME_REMINDERS = [timedelta(days=0), timedelta(days=4, hours=8)]
+ACTIVENESS_PROBE_TIME_REMINDERS = [
+    timedelta(days=0), timedelta(days=4, hours=8)]
 # total time from initiation after which to expire the probe
 ACTIVENESS_PROBE_EXPIRY_TIME = timedelta(days=14)
+# 50 character minimum for hosting requests
+MIN_HOSTING_REQUEST_LENGTH = 50

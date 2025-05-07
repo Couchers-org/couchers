@@ -26,6 +26,7 @@ from couchers.utils import (
     parse_date,
     today_in_timezone,
 )
+from couchers.constants import MIN_HOSTING_REQUEST_LENGTH
 from proto import conversations_pb2, notification_data_pb2, requests_pb2, requests_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -117,8 +118,10 @@ def _possibly_observe_first_response_time(session, host_request, user_id, respon
     ).scalar_one_or_none()
 
     if number_messages_by_host == 0:
-        host_gender = session.execute(select(User.gender).where(User.id == host_request.host_user_id)).scalar_one()
-        surfer_gender = session.execute(select(User.gender).where(User.id == host_request.surfer_user_id)).scalar_one()
+        host_gender = session.execute(select(User.gender).where(
+            User.id == host_request.host_user_id)).scalar_one()
+        surfer_gender = session.execute(select(User.gender).where(
+            User.id == host_request.surfer_user_id)).scalar_one()
         host_request_first_response_histogram.labels(host_gender, surfer_gender, response_type).observe(
             (now() - host_request.conversation.created).total_seconds()
         )
@@ -126,16 +129,27 @@ def _possibly_observe_first_response_time(session, host_request, user_id, respon
 
 class Requests(requests_pb2_grpc.RequestsServicer):
     def CreateHostRequest(self, request, context, session):
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = session.execute(select(User).where(
+            User.id == context.user_id)).scalar_one()
         if not user.has_completed_profile:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.INCOMPLETE_PROFILE_SEND_REQUEST)
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION,
+                          errors.INCOMPLETE_PROFILE_SEND_REQUEST)
 
         if request.host_user_id == context.user_id:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REQUEST_SELF)
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                          errors.CANT_REQUEST_SELF)
+
+        # enforce minimum character requirement for request text
+        if len(request.text.strip()) < MIN_HOSTING_REQUEST_LENGTH:
+            context.abort(
+                grpc.StatusCode.INVALID_ARGUMENT,
+                "Your request is too short! Please write a more detailed, thoughtful request. Click here for help."
+            )
 
         # just to check host exists and is visible
         host = session.execute(
-            select(User).where_users_visible(context).where(User.id == request.host_user_id)
+            select(User).where_users_visible(context).where(
+                User.id == request.host_user_id)
         ).scalar_one_or_none()
         if not host:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
@@ -144,25 +158,30 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         to_date = parse_date(request.to_date)
 
         if not from_date or not to_date:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_DATE)
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                          errors.INVALID_DATE)
 
         today = today_in_timezone(host.timezone)
 
         # request starts from the past
         if from_date < today:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_BEFORE_TODAY)
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                          errors.DATE_FROM_BEFORE_TODAY)
 
         # from_date is not >= to_date
         if from_date >= to_date:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_AFTER_TO)
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                          errors.DATE_FROM_AFTER_TO)
 
         # No need to check today > to_date
 
         if from_date - today > timedelta(days=365):
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_AFTER_ONE_YEAR)
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                          errors.DATE_FROM_AFTER_ONE_YEAR)
 
         if to_date - from_date > timedelta(days=365):
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_TO_AFTER_ONE_YEAR)
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                          errors.DATE_TO_AFTER_ONE_YEAR)
 
         conversation = Conversation()
         session.add(conversation)
@@ -205,7 +224,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             topic_action="host_request:create",
             key=host_request.conversation_id,
             data=notification_data_pb2.HostRequestCreate(
-                host_request=host_request_to_pb(host_request, session, context),
+                host_request=host_request_to_pb(
+                    host_request, session, context),
                 surfer=user_model_to_pb(host_request.surfer, session, context),
                 text=request.text,
             ),
@@ -229,13 +249,15 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         ).scalar_one_or_none()
 
         if not host_request:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            context.abort(grpc.StatusCode.NOT_FOUND,
+                          errors.HOST_REQUEST_NOT_FOUND)
 
         return host_request_to_pb(host_request, session, context)
 
     def ListHostRequests(self, request, context, session):
         if request.only_sent and request.only_received:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_SENT_OR_RECEIVED)
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                          errors.HOST_REQUEST_SENT_OR_RECEIVED)
 
         pagination = request.number if request.number > 0 else DEFAULT_PAGINATION_LENGTH
         pagination = min(pagination, MAX_PAGE_SIZE)
@@ -256,12 +278,15 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         )
 
         if request.only_sent:
-            statement = statement.where(HostRequest.surfer_user_id == context.user_id)
+            statement = statement.where(
+                HostRequest.surfer_user_id == context.user_id)
         elif request.only_received:
-            statement = statement.where(HostRequest.host_user_id == context.user_id)
+            statement = statement.where(
+                HostRequest.host_user_id == context.user_id)
         else:
             statement = statement.where(
-                or_(HostRequest.host_user_id == context.user_id, HostRequest.surfer_user_id == context.user_id)
+                or_(HostRequest.host_user_id == context.user_id,
+                    HostRequest.surfer_user_id == context.user_id)
             )
 
         # TODO: I considered having the latest control message be the single source of truth for
@@ -298,7 +323,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             )
             for result in results[:pagination]
         ]
-        last_request_id = min(g.Message.id for g in results[:pagination]) if len(results) > pagination else 0  # TODO
+        last_request_id = min(g.Message.id for g in results[:pagination]) if len(
+            results) > pagination else 0  # TODO
         no_more = len(results) <= pagination
 
         return requests_pb2.ListHostRequestsRes(
@@ -307,10 +333,14 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def RespondHostRequest(self, request, context, session):
         def count_host_response(other_user_id, response_type):
-            user_gender = session.execute(select(User.gender).where(User.id == context.user_id)).scalar_one()
-            other_gender = session.execute(select(User.gender).where(User.id == other_user_id)).scalar_one()
-            host_request_responses_counter.labels(user_gender, other_gender, response_type).inc()
-            sent_messages_counter.labels(user_gender, "host request response").inc()
+            user_gender = session.execute(select(User.gender).where(
+                User.id == context.user_id)).scalar_one()
+            other_gender = session.execute(select(User.gender).where(
+                User.id == other_user_id)).scalar_one()
+            host_request_responses_counter.labels(
+                user_gender, other_gender, response_type).inc()
+            sent_messages_counter.labels(
+                user_gender, "host request response").inc()
 
         host_request = session.execute(
             select(HostRequest)
@@ -320,31 +350,38 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         ).scalar_one_or_none()
 
         if not host_request:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            context.abort(grpc.StatusCode.NOT_FOUND,
+                          errors.HOST_REQUEST_NOT_FOUND)
 
         if host_request.surfer_user_id != context.user_id and host_request.host_user_id != context.user_id:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            context.abort(grpc.StatusCode.NOT_FOUND,
+                          errors.HOST_REQUEST_NOT_FOUND)
 
         if request.status == conversations_pb2.HOST_REQUEST_STATUS_PENDING:
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
+            context.abort(grpc.StatusCode.PERMISSION_DENIED,
+                          errors.INVALID_HOST_REQUEST_STATUS)
 
         if host_request.end_time < now():
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_IN_PAST)
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                          errors.HOST_REQUEST_IN_PAST)
 
         control_message = Message()
 
         if request.status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED:
             # only host can accept
             if context.user_id != host_request.host_user_id:
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.NOT_THE_HOST)
+                context.abort(grpc.StatusCode.PERMISSION_DENIED,
+                              errors.NOT_THE_HOST)
             # can't accept a cancelled or confirmed request (only reject), or already accepted
             if (
                 host_request.status == HostRequestStatus.cancelled
                 or host_request.status == HostRequestStatus.confirmed
                 or host_request.status == HostRequestStatus.accepted
             ):
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
-            _possibly_observe_first_response_time(session, host_request, context.user_id, "accepted")
+                context.abort(grpc.StatusCode.PERMISSION_DENIED,
+                              errors.INVALID_HOST_REQUEST_STATUS)
+            _possibly_observe_first_response_time(
+                session, host_request, context.user_id, "accepted")
             control_message.host_request_status_target = HostRequestStatus.accepted
             host_request.status = HostRequestStatus.accepted
             session.flush()
@@ -355,7 +392,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 topic_action="host_request:accept",
                 key=host_request.conversation_id,
                 data=notification_data_pb2.HostRequestAccept(
-                    host_request=host_request_to_pb(host_request, session, context),
+                    host_request=host_request_to_pb(
+                        host_request, session, context),
                     host=user_model_to_pb(host_request.host, session, context),
                 ),
             )
@@ -365,11 +403,14 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if request.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED:
             # only host can reject
             if context.user_id != host_request.host_user_id:
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
+                context.abort(grpc.StatusCode.PERMISSION_DENIED,
+                              errors.INVALID_HOST_REQUEST_STATUS)
             # can't reject a cancelled or already rejected request
             if host_request.status == HostRequestStatus.cancelled or host_request.status == HostRequestStatus.rejected:
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
-            _possibly_observe_first_response_time(session, host_request, context.user_id, "rejected")
+                context.abort(grpc.StatusCode.PERMISSION_DENIED,
+                              errors.INVALID_HOST_REQUEST_STATUS)
+            _possibly_observe_first_response_time(
+                session, host_request, context.user_id, "rejected")
             control_message.host_request_status_target = HostRequestStatus.rejected
             host_request.status = HostRequestStatus.rejected
             session.flush()
@@ -380,7 +421,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 topic_action="host_request:reject",
                 key=host_request.conversation_id,
                 data=notification_data_pb2.HostRequestReject(
-                    host_request=host_request_to_pb(host_request, session, context),
+                    host_request=host_request_to_pb(
+                        host_request, session, context),
                     host=user_model_to_pb(host_request.host, session, context),
                 ),
             )
@@ -390,10 +432,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if request.status == conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED:
             # only surfer can confirm
             if context.user_id != host_request.surfer_user_id:
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
+                context.abort(grpc.StatusCode.PERMISSION_DENIED,
+                              errors.INVALID_HOST_REQUEST_STATUS)
             # can only confirm an accepted request
             if host_request.status != HostRequestStatus.accepted:
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
+                context.abort(grpc.StatusCode.PERMISSION_DENIED,
+                              errors.INVALID_HOST_REQUEST_STATUS)
             control_message.host_request_status_target = HostRequestStatus.confirmed
             host_request.status = HostRequestStatus.confirmed
             session.flush()
@@ -404,8 +448,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 topic_action="host_request:confirm",
                 key=host_request.conversation_id,
                 data=notification_data_pb2.HostRequestConfirm(
-                    host_request=host_request_to_pb(host_request, session, context),
-                    surfer=user_model_to_pb(host_request.surfer, session, context),
+                    host_request=host_request_to_pb(
+                        host_request, session, context),
+                    surfer=user_model_to_pb(
+                        host_request.surfer, session, context),
                 ),
             )
 
@@ -414,10 +460,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if request.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED:
             # only surfer can cancel
             if context.user_id != host_request.surfer_user_id:
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
+                context.abort(grpc.StatusCode.PERMISSION_DENIED,
+                              errors.INVALID_HOST_REQUEST_STATUS)
             # can't' cancel an already cancelled or rejected request
             if host_request.status == HostRequestStatus.rejected or host_request.status == HostRequestStatus.cancelled:
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
+                context.abort(grpc.StatusCode.PERMISSION_DENIED,
+                              errors.INVALID_HOST_REQUEST_STATUS)
             control_message.host_request_status_target = HostRequestStatus.cancelled
             host_request.status = HostRequestStatus.cancelled
             session.flush()
@@ -428,8 +476,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 topic_action="host_request:cancel",
                 key=host_request.conversation_id,
                 data=notification_data_pb2.HostRequestCancel(
-                    host_request=host_request_to_pb(host_request, session, context),
-                    surfer=user_model_to_pb(host_request.surfer, session, context),
+                    host_request=host_request_to_pb(
+                        host_request, session, context),
+                    surfer=user_model_to_pb(
+                        host_request.surfer, session, context),
                 ),
             )
 
@@ -462,14 +512,17 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def GetHostRequestMessages(self, request, context, session):
         host_request = session.execute(
-            select(HostRequest).where(HostRequest.conversation_id == request.host_request_id)
+            select(HostRequest).where(
+                HostRequest.conversation_id == request.host_request_id)
         ).scalar_one_or_none()
 
         if not host_request:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            context.abort(grpc.StatusCode.NOT_FOUND,
+                          errors.HOST_REQUEST_NOT_FOUND)
 
         if host_request.surfer_user_id != context.user_id and host_request.host_user_id != context.user_id:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            context.abort(grpc.StatusCode.NOT_FOUND,
+                          errors.HOST_REQUEST_NOT_FOUND)
 
         pagination = request.number if request.number > 0 else DEFAULT_PAGINATION_LENGTH
         pagination = min(pagination, MAX_PAGE_SIZE)
@@ -488,32 +541,40 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         no_more = len(messages) <= pagination
 
-        last_message_id = min(m.id if m else 1 for m in messages[:pagination]) if len(messages) > 0 else 0
+        last_message_id = min(m.id if m else 1 for m in messages[:pagination]) if len(
+            messages) > 0 else 0
 
         return requests_pb2.GetHostRequestMessagesRes(
             last_message_id=last_message_id,
             no_more=no_more,
-            messages=[message_to_pb(message) for message in messages[:pagination]],
+            messages=[message_to_pb(message)
+                      for message in messages[:pagination]],
         )
 
     def SendHostRequestMessage(self, request, context, session):
         if request.text == "":
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                          errors.INVALID_MESSAGE)
         host_request = session.execute(
-            select(HostRequest).where(HostRequest.conversation_id == request.host_request_id)
+            select(HostRequest).where(
+                HostRequest.conversation_id == request.host_request_id)
         ).scalar_one_or_none()
 
         if not host_request:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            context.abort(grpc.StatusCode.NOT_FOUND,
+                          errors.HOST_REQUEST_NOT_FOUND)
 
         if host_request.surfer_user_id != context.user_id and host_request.host_user_id != context.user_id:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            context.abort(grpc.StatusCode.NOT_FOUND,
+                          errors.HOST_REQUEST_NOT_FOUND)
 
         if host_request.status == HostRequestStatus.rejected or host_request.status == HostRequestStatus.cancelled:
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.HOST_REQUEST_CLOSED)
+            context.abort(grpc.StatusCode.PERMISSION_DENIED,
+                          errors.HOST_REQUEST_CLOSED)
 
         if host_request.host_user_id == context.user_id:
-            _possibly_observe_first_response_time(session, host_request, context.user_id, "message")
+            _possibly_observe_first_response_time(
+                session, host_request, context.user_id, "message")
 
         message = Message()
         message.conversation_id = host_request.conversation_id
@@ -532,8 +593,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 topic_action="host_request:message",
                 key=host_request.conversation_id,
                 data=notification_data_pb2.HostRequestMessage(
-                    host_request=host_request_to_pb(host_request, session, context),
-                    user=user_model_to_pb(host_request.surfer, session, context),
+                    host_request=host_request_to_pb(
+                        host_request, session, context),
+                    user=user_model_to_pb(
+                        host_request.surfer, session, context),
                     text=request.text,
                     am_host=True,
                 ),
@@ -548,7 +611,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 topic_action="host_request:message",
                 key=host_request.conversation_id,
                 data=notification_data_pb2.HostRequestMessage(
-                    host_request=host_request_to_pb(host_request, session, context),
+                    host_request=host_request_to_pb(
+                        host_request, session, context),
                     user=user_model_to_pb(host_request.host, session, context),
                     text=request.text,
                     am_host=False,
@@ -557,20 +621,24 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         session.commit()
 
-        user_gender = session.execute(select(User.gender).where(User.id == context.user_id)).scalar_one()
+        user_gender = session.execute(select(User.gender).where(
+            User.id == context.user_id)).scalar_one()
         sent_messages_counter.labels(user_gender, "host request").inc()
 
         return empty_pb2.Empty()
 
     def GetHostRequestUpdates(self, request, context, session):
         if request.only_sent and request.only_received:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_SENT_OR_RECEIVED)
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                          errors.HOST_REQUEST_SENT_OR_RECEIVED)
 
         if request.newest_message_id == 0:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                          errors.INVALID_MESSAGE)
 
         if not session.execute(select(Message).where(Message.id == request.newest_message_id)).scalar_one_or_none():
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                          errors.INVALID_MESSAGE)
 
         pagination = request.number if request.number > 0 else DEFAULT_PAGINATION_LENGTH
         pagination = min(pagination, MAX_PAGE_SIZE)
@@ -586,12 +654,15 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         )
 
         if request.only_sent:
-            statement = statement.where(HostRequest.surfer_user_id == context.user_id)
+            statement = statement.where(
+                HostRequest.surfer_user_id == context.user_id)
         elif request.only_received:
-            statement = statement.where(HostRequest.host_user_id == context.user_id)
+            statement = statement.where(
+                HostRequest.host_user_id == context.user_id)
         else:
             statement = statement.where(
-                or_(HostRequest.host_user_id == context.user_id, HostRequest.surfer_user_id == context.user_id)
+                or_(HostRequest.host_user_id == context.user_id,
+                    HostRequest.surfer_user_id == context.user_id)
             )
 
         statement = statement.order_by(Message.id.asc()).limit(pagination + 1)
@@ -599,7 +670,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         no_more = len(res) <= pagination
 
-        last_message_id = min(m.Message.id if m else 1 for m in res[:pagination]) if len(res) > 0 else 0  # TODO
+        last_message_id = min(m.Message.id if m else 1 for m in res[:pagination]) if len(
+            res) > 0 else 0  # TODO
 
         return requests_pb2.GetHostRequestUpdatesRes(
             no_more=no_more,
@@ -615,22 +687,27 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def MarkLastSeenHostRequest(self, request, context, session):
         host_request = session.execute(
-            select(HostRequest).where(HostRequest.conversation_id == request.host_request_id)
+            select(HostRequest).where(
+                HostRequest.conversation_id == request.host_request_id)
         ).scalar_one_or_none()
 
         if not host_request:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            context.abort(grpc.StatusCode.NOT_FOUND,
+                          errors.HOST_REQUEST_NOT_FOUND)
 
         if host_request.surfer_user_id != context.user_id and host_request.host_user_id != context.user_id:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            context.abort(grpc.StatusCode.NOT_FOUND,
+                          errors.HOST_REQUEST_NOT_FOUND)
 
         if host_request.surfer_user_id == context.user_id:
             if not host_request.surfer_last_seen_message_id <= request.last_seen_message_id:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNSEE_MESSAGES)
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION,
+                              errors.CANT_UNSEE_MESSAGES)
             host_request.surfer_last_seen_message_id = request.last_seen_message_id
         else:
             if not host_request.host_last_seen_message_id <= request.last_seen_message_id:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNSEE_MESSAGES)
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION,
+                              errors.CANT_UNSEE_MESSAGES)
             host_request.host_last_seen_message_id = request.last_seen_message_id
 
         session.commit()
