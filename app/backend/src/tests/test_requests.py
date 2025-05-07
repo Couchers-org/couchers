@@ -44,7 +44,6 @@ def test_create_request(db):
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.CANT_REQUEST_SELF
-
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
@@ -53,7 +52,6 @@ def test_create_request(db):
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert e.value.details() == errors.USER_NOT_FOUND
-
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
@@ -62,7 +60,6 @@ def test_create_request(db):
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.DATE_FROM_AFTER_TO
-
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
@@ -71,7 +68,6 @@ def test_create_request(db):
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.DATE_FROM_BEFORE_TODAY
-
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
@@ -80,7 +76,6 @@ def test_create_request(db):
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.DATE_FROM_AFTER_TO
-
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
@@ -90,22 +85,45 @@ def test_create_request(db):
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.INVALID_DATE
 
+        # minimum character test: should fail
+        too_short_text = "Hi, this is too short!"
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=user2.id,
+                    from_date=today_plus_2,
+                    to_date=today_plus_3,
+                    text=too_short_text,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert "too short" in e.value.details().lower()
+
+        # minimum character test: should pass
+        valid_text = "A" * 50
         res = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_text,
             )
         )
+        assert hasattr(res, "host_request_id")
+
         assert (
-            api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
+            api.ListHostRequests(
+                requests_pb2.ListHostRequestsReq(only_sent=True))
             .host_requests[0]
             .latest_message.text.text
-            == "Test request"
+            == valid_text
         )
-
     today_ = today()
     today_plus_one_year = today_ + timedelta(days=365)
-    today_plus_one_year_plus_2 = (today_plus_one_year + timedelta(days=2)).isoformat()
-    today_plus_one_year_plus_3 = (today_plus_one_year + timedelta(days=3)).isoformat()
+    today_plus_one_year_plus_2 = (
+        today_plus_one_year + timedelta(days=2)).isoformat()
+    today_plus_one_year_plus_3 = (
+        today_plus_one_year + timedelta(days=3)).isoformat()
     with pytest.raises(grpc.RpcError) as e:
         api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -117,7 +135,6 @@ def test_create_request(db):
         )
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
     assert e.value.details() == errors.DATE_FROM_AFTER_ONE_YEAR
-
     with pytest.raises(grpc.RpcError) as e:
         api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -170,15 +187,18 @@ def test_GetHostRequest(db):
         ).host_request_id
 
         with pytest.raises(grpc.RpcError) as e:
-            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=999))
+            api.GetHostRequest(
+                requests_pb2.GetHostRequestReq(host_request_id=999))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
 
         api.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
+            requests_pb2.SendHostRequestMessageReq(
+                host_request_id=host_request_id, text="Test message 1")
         )
 
-        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(
+            host_request_id=host_request_id))
         assert res.latest_message.text.text == "Test message 1"
 
 
@@ -201,12 +221,14 @@ def test_ListHostRequests(db):
             )
         ).host_request_id
 
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(only_sent=True))
         assert res.no_more
         assert len(res.host_requests) == 2
 
     with requests_session(token2) as api:
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(only_received=True))
         assert res.no_more
         assert len(res.host_requests) == 1
         assert res.host_requests[0].latest_message.text.text == "Test request 1"
@@ -218,7 +240,8 @@ def test_ListHostRequests(db):
         add_message(db, "Test request 1 message 2", user2.id, host_request_1)
         add_message(db, "Test request 1 message 3", user2.id, host_request_1)
 
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(only_received=True))
         assert res.host_requests[0].latest_message.text.text == "Test request 1 message 3"
 
         api.CreateHostRequest(
@@ -231,13 +254,15 @@ def test_ListHostRequests(db):
     add_message(db, "Test request 2 message 2", user3.id, host_request_2)
 
     with requests_session(token3) as api:
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(only_received=True))
         assert res.no_more
         assert len(res.host_requests) == 1
         assert res.host_requests[0].latest_message.text.text == "Test request 2 message 2"
 
     with requests_session(token1) as api:
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(only_received=True))
         assert len(res.host_requests) == 1
 
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq())
@@ -272,7 +297,8 @@ def test_ListHostRequests_pagination_regression(db):
         ).host_request_id
 
     with requests_session(token2) as api:
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(only_received=True))
         assert res.no_more
         assert len(res.host_requests) == 3
         assert res.host_requests[0].latest_message.text.text == "Test request 3"
@@ -303,7 +329,8 @@ def test_ListHostRequests_pagination_regression(db):
         )
 
     with requests_session(token2) as api:
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(only_received=True))
         assert res.no_more
         assert len(res.host_requests) == 3
         assert res.host_requests[0].latest_message.text.text == "Accepting host request 3"
@@ -311,18 +338,21 @@ def test_ListHostRequests_pagination_regression(db):
         assert res.host_requests[2].latest_message.text.text == "Accepting host request 2"
 
     with requests_session(token2) as api:
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True, number=1))
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(only_received=True, number=1))
         assert not res.no_more
         assert len(res.host_requests) == 1
         assert res.host_requests[0].latest_message.text.text == "Accepting host request 3"
         res = api.ListHostRequests(
-            requests_pb2.ListHostRequestsReq(only_received=True, number=1, last_request_id=res.last_request_id)
+            requests_pb2.ListHostRequestsReq(
+                only_received=True, number=1, last_request_id=res.last_request_id)
         )
         assert not res.no_more
         assert len(res.host_requests) == 1
         assert res.host_requests[0].latest_message.text.text == "Accepting host request 1"
         res = api.ListHostRequests(
-            requests_pb2.ListHostRequestsReq(only_received=True, number=1, last_request_id=res.last_request_id)
+            requests_pb2.ListHostRequestsReq(
+                only_received=True, number=1, last_request_id=res.last_request_id)
         )
         assert res.no_more
         assert len(res.host_requests) == 1
@@ -348,9 +378,11 @@ def test_ListHostRequests_active_filter(db):
         )
 
     with requests_session(token2) as api:
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(only_received=True))
         assert len(res.host_requests) == 1
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_active=True))
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(only_active=True))
         assert len(res.host_requests) == 0
 
 
@@ -424,9 +456,11 @@ def test_RespondHostRequests(db):
                 text="Test rejection message",
             )
         )
-        res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=request_id))
+        res = api.GetHostRequestMessages(
+            requests_pb2.GetHostRequestMessagesReq(host_request_id=request_id))
         assert res.messages[0].text.text == "Test rejection message"
-        assert res.messages[1].WhichOneof("content") == "host_request_status_changed"
+        assert res.messages[1].WhichOneof(
+            "content") == "host_request_status_changed"
         assert res.messages[1].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED
         # should be able to move from rejected -> accepted
         api.RespondHostRequest(
@@ -472,7 +506,8 @@ def test_RespondHostRequests(db):
     # at this point there should be 7 messages
     # 2 for creation, 2 for the status change with message, 3 for the other status changed
     with requests_session(token1) as api:
-        res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=request_id))
+        res = api.GetHostRequestMessages(
+            requests_pb2.GetHostRequestMessagesReq(host_request_id=request_id))
         assert len(res.messages) == 7
         assert res.messages[0].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
         assert res.messages[1].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
@@ -515,30 +550,35 @@ def test_get_host_request_messages(db):
         )
 
     with requests_session(token1) as api:
-        res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=conversation_id))
+        res = api.GetHostRequestMessages(
+            requests_pb2.GetHostRequestMessagesReq(host_request_id=conversation_id))
         # 9 including initial message
         assert len(res.messages) == 9
         assert res.no_more
 
         res = api.GetHostRequestMessages(
-            requests_pb2.GetHostRequestMessagesReq(host_request_id=conversation_id, number=3)
+            requests_pb2.GetHostRequestMessagesReq(
+                host_request_id=conversation_id, number=3)
         )
         assert not res.no_more
         assert len(res.messages) == 3
         assert res.messages[0].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED
-        assert res.messages[0].WhichOneof("content") == "host_request_status_changed"
+        assert res.messages[0].WhichOneof(
+            "content") == "host_request_status_changed"
         assert res.messages[1].text.text == "Test request 1 message 5"
         assert res.messages[2].text.text == "Test request 1 message 4"
 
         res = api.GetHostRequestMessages(
             requests_pb2.GetHostRequestMessagesReq(
-                host_request_id=conversation_id, last_message_id=res.messages[2].message_id, number=6
+                host_request_id=conversation_id, last_message_id=res.messages[
+                    2].message_id, number=6
             )
         )
         assert res.no_more
         assert len(res.messages) == 6
         assert res.messages[0].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
-        assert res.messages[0].WhichOneof("content") == "host_request_status_changed"
+        assert res.messages[0].WhichOneof(
+            "content") == "host_request_status_changed"
         assert res.messages[1].text.text == "Test request 1 message 3"
         assert res.messages[2].text.text == "Test request 1 message 2"
         assert res.messages[3].text.text == "Test request 1 message 1"
@@ -561,19 +601,23 @@ def test_SendHostRequestMessage(db):
 
         with pytest.raises(grpc.RpcError) as e:
             api.SendHostRequestMessage(
-                requests_pb2.SendHostRequestMessageReq(host_request_id=999, text="Test message 1")
+                requests_pb2.SendHostRequestMessageReq(
+                    host_request_id=999, text="Test message 1")
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
         with pytest.raises(grpc.RpcError) as e:
-            api.SendHostRequestMessage(requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text=""))
+            api.SendHostRequestMessage(requests_pb2.SendHostRequestMessageReq(
+                host_request_id=host_request_id, text=""))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.INVALID_MESSAGE
 
         api.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
+            requests_pb2.SendHostRequestMessageReq(
+                host_request_id=host_request_id, text="Test message 1")
         )
-        res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=host_request_id))
+        res = api.GetHostRequestMessages(
+            requests_pb2.GetHostRequestMessagesReq(host_request_id=host_request_id))
         assert res.messages[0].text.text == "Test message 1"
         assert res.messages[0].author_user_id == user1.id
 
@@ -581,16 +625,19 @@ def test_SendHostRequestMessage(db):
         # other user can't send
         with pytest.raises(grpc.RpcError) as e:
             api.SendHostRequestMessage(
-                requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 2")
+                requests_pb2.SendHostRequestMessageReq(
+                    host_request_id=host_request_id, text="Test message 2")
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
 
     with requests_session(token2) as api:
         api.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 2")
+            requests_pb2.SendHostRequestMessageReq(
+                host_request_id=host_request_id, text="Test message 2")
         )
-        res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=host_request_id))
+        res = api.GetHostRequestMessages(
+            requests_pb2.GetHostRequestMessagesReq(host_request_id=host_request_id))
         # including 2 for creation control message and message
         assert len(res.messages) == 4
         assert res.messages[0].text.text == "Test message 2"
@@ -604,7 +651,8 @@ def test_SendHostRequestMessage(db):
         )
         with pytest.raises(grpc.RpcError) as e:
             api.SendHostRequestMessage(
-                requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 3")
+                requests_pb2.SendHostRequestMessageReq(
+                    host_request_id=host_request_id, text="Test message 3")
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
         assert e.value.details() == errors.HOST_REQUEST_CLOSED
@@ -622,7 +670,8 @@ def test_SendHostRequestMessage(db):
             )
         )
         api.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 3")
+            requests_pb2.SendHostRequestMessageReq(
+                host_request_id=host_request_id, text="Test message 3")
         )
 
         api.RespondHostRequest(
@@ -632,7 +681,8 @@ def test_SendHostRequestMessage(db):
         )
         with pytest.raises(grpc.RpcError) as e:
             api.SendHostRequestMessage(
-                requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 3")
+                requests_pb2.SendHostRequestMessageReq(
+                    host_request_id=host_request_id, text="Test message 3")
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
         assert e.value.details() == errors.HOST_REQUEST_CLOSED
@@ -652,10 +702,12 @@ def test_get_updates(db):
         ).host_request_id
 
         api.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
+            requests_pb2.SendHostRequestMessageReq(
+                host_request_id=host_request_id, text="Test message 1")
         )
         api.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 2")
+            requests_pb2.SendHostRequestMessageReq(
+                host_request_id=host_request_id, text="Test message 2")
         )
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
@@ -671,7 +723,8 @@ def test_get_updates(db):
             )
         )
 
-        res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=host_request_id))
+        res = api.GetHostRequestMessages(
+            requests_pb2.GetHostRequestMessagesReq(host_request_id=host_request_id))
         assert len(res.messages) == 6
         assert res.messages[0].text.text == "Test message 3"
         assert res.messages[1].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
@@ -685,10 +738,12 @@ def test_get_updates(db):
         message_id_0 = res.messages[4].message_id
 
         with pytest.raises(grpc.RpcError) as e:
-            api.GetHostRequestUpdates(requests_pb2.GetHostRequestUpdatesReq(newest_message_id=0))
+            api.GetHostRequestUpdates(
+                requests_pb2.GetHostRequestUpdatesReq(newest_message_id=0))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
-        res = api.GetHostRequestUpdates(requests_pb2.GetHostRequestUpdatesReq(newest_message_id=message_id_1))
+        res = api.GetHostRequestUpdates(
+            requests_pb2.GetHostRequestUpdatesReq(newest_message_id=message_id_1))
         assert res.no_more
         assert len(res.updates) == 5
         assert res.updates[0].message.text.text == "Test message 2"
@@ -701,7 +756,8 @@ def test_get_updates(db):
         assert res.updates[3].status == conversations_pb2.HOST_REQUEST_STATUS_PENDING
         assert res.updates[4].message.text.text == "Test message 4"
 
-        res = api.GetHostRequestUpdates(requests_pb2.GetHostRequestUpdatesReq(newest_message_id=message_id_1, number=1))
+        res = api.GetHostRequestUpdates(requests_pb2.GetHostRequestUpdatesReq(
+            newest_message_id=message_id_1, number=1))
         assert not res.no_more
         assert len(res.updates) == 1
         assert res.updates[0].message.text.text == "Test message 2"
@@ -709,7 +765,8 @@ def test_get_updates(db):
 
     with requests_session(token3) as api:
         # other user can't access
-        res = api.GetHostRequestUpdates(requests_pb2.GetHostRequestUpdatesReq(newest_message_id=message_id_1))
+        res = api.GetHostRequestUpdates(
+            requests_pb2.GetHostRequestUpdatesReq(newest_message_id=message_id_1))
         assert len(res.updates) == 0
 
 
@@ -733,10 +790,12 @@ def test_mark_last_seen(db):
         ).host_request_id
 
         api.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
+            requests_pb2.SendHostRequestMessageReq(
+                host_request_id=host_request_id, text="Test message 1")
         )
         api.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 2")
+            requests_pb2.SendHostRequestMessageReq(
+                host_request_id=host_request_id, text="Test message 2")
         )
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
@@ -748,25 +807,31 @@ def test_mark_last_seen(db):
 
     # test Ping unseen host request count, should be automarked after sending
     with api_session(token1) as api:
-        assert api.Ping(api_pb2.PingReq()).unseen_received_host_request_count == 0
+        assert api.Ping(api_pb2.PingReq()
+                        ).unseen_received_host_request_count == 0
         assert api.Ping(api_pb2.PingReq()).unseen_sent_host_request_count == 0
 
     with api_session(token2) as api:
-        assert api.Ping(api_pb2.PingReq()).unseen_received_host_request_count == 2
+        assert api.Ping(api_pb2.PingReq()
+                        ).unseen_received_host_request_count == 2
         assert api.Ping(api_pb2.PingReq()).unseen_sent_host_request_count == 0
 
     with requests_session(token2) as api:
-        assert api.ListHostRequests(requests_pb2.ListHostRequestsReq()).host_requests[0].last_seen_message_id == 0
+        assert api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq()).host_requests[0].last_seen_message_id == 0
 
         api.MarkLastSeenHostRequest(
-            requests_pb2.MarkLastSeenHostRequestReq(host_request_id=host_request_id, last_seen_message_id=3)
+            requests_pb2.MarkLastSeenHostRequestReq(
+                host_request_id=host_request_id, last_seen_message_id=3)
         )
 
-        assert api.ListHostRequests(requests_pb2.ListHostRequestsReq()).host_requests[0].last_seen_message_id == 3
+        assert api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq()).host_requests[0].last_seen_message_id == 3
 
         with pytest.raises(grpc.RpcError) as e:
             api.MarkLastSeenHostRequest(
-                requests_pb2.MarkLastSeenHostRequestReq(host_request_id=host_request_id, last_seen_message_id=1)
+                requests_pb2.MarkLastSeenHostRequestReq(
+                    host_request_id=host_request_id, last_seen_message_id=1)
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == errors.CANT_UNSEE_MESSAGES
@@ -780,21 +845,25 @@ def test_mark_last_seen(db):
 
         # this should make id_2 all read
         api.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id_2, text="Test")
+            requests_pb2.SendHostRequestMessageReq(
+                host_request_id=host_request_id_2, text="Test")
         )
 
     with api_session(token2) as api:
-        assert api.Ping(api_pb2.PingReq()).unseen_received_host_request_count == 1
+        assert api.Ping(api_pb2.PingReq()
+                        ).unseen_received_host_request_count == 1
         assert api.Ping(api_pb2.PingReq()).unseen_sent_host_request_count == 0
 
     # make sure sent and received count for unseen notifications
     with requests_session(token1) as api:
         api.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id_3, text="Test message")
+            requests_pb2.SendHostRequestMessageReq(
+                host_request_id=host_request_id_3, text="Test message")
         )
 
     with api_session(token2) as api:
-        assert api.Ping(api_pb2.PingReq()).unseen_received_host_request_count == 1
+        assert api.Ping(api_pb2.PingReq()
+                        ).unseen_received_host_request_count == 1
         assert api.Ping(api_pb2.PingReq()).unseen_sent_host_request_count == 1
 
 
@@ -812,12 +881,14 @@ def test_response_rate(db):
     with requests_session(token1) as api:
         # deleted: not found
         with pytest.raises(grpc.RpcError) as e:
-            api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user3.id))
+            api.GetResponseRate(
+                requests_pb2.GetResponseRateReq(user_id=user3.id))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert e.value.details() == errors.USER_NOT_FOUND
 
         # no requests: insufficient
-        res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
+        res = api.GetResponseRate(
+            requests_pb2.GetResponseRateReq(user_id=user2.id))
         assert res.HasField("insufficient_data")
 
         # send a request and back date it by 36 hours
@@ -835,7 +906,8 @@ def test_response_rate(db):
             refresh_materialized_view(session, "user_response_rates")
 
         # still insufficient
-        res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
+        res = api.GetResponseRate(
+            requests_pb2.GetResponseRateReq(user_id=user2.id))
         assert res.HasField("insufficient_data")
 
         # send a request and back date it by 35 hours
@@ -853,7 +925,8 @@ def test_response_rate(db):
             refresh_materialized_view(session, "user_response_rates")
 
         # still insufficient
-        res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
+        res = api.GetResponseRate(
+            requests_pb2.GetResponseRateReq(user_id=user2.id))
         assert res.HasField("insufficient_data")
 
         # send a request and back date it by 34 hours
@@ -871,7 +944,8 @@ def test_response_rate(db):
             refresh_materialized_view(session, "user_response_rates")
 
         # now low
-        res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
+        res = api.GetResponseRate(
+            requests_pb2.GetResponseRateReq(user_id=user2.id))
         assert res.HasField("low")
 
     with requests_session(token2) as api:
@@ -889,7 +963,8 @@ def test_response_rate(db):
 
     with requests_session(token1) as api:
         # now some w p33 = 35h
-        res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
+        res = api.GetResponseRate(
+            requests_pb2.GetResponseRateReq(user_id=user2.id))
         assert res.HasField("some")
         assert res.some.response_time_p33.ToTimedelta() == timedelta(hours=35)
 
@@ -908,7 +983,8 @@ def test_response_rate(db):
 
     with requests_session(token1) as api:
         # now most w p33 = 34h, p66 = 35h
-        res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
+        res = api.GetResponseRate(
+            requests_pb2.GetResponseRateReq(user_id=user2.id))
         assert res.HasField("most")
         assert res.most.response_time_p33.ToTimedelta() == timedelta(hours=34)
         assert res.most.response_time_p66.ToTimedelta() == timedelta(hours=35)
@@ -928,7 +1004,8 @@ def test_response_rate(db):
 
     with requests_session(token1) as api:
         # now all w p33 = 34h, p66 = 35h
-        res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
+        res = api.GetResponseRate(
+            requests_pb2.GetResponseRateReq(user_id=user2.id))
         assert res.HasField("almost_all")
         assert res.almost_all.response_time_p33.ToTimedelta() == timedelta(hours=34)
         assert res.almost_all.response_time_p66.ToTimedelta() == timedelta(hours=35)
@@ -962,7 +1039,8 @@ def test_response_rate(db):
             refresh_materialized_view(session, "user_response_rates")
 
         # now some w p33 = 35h
-        res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
+        res = api.GetResponseRate(
+            requests_pb2.GetResponseRateReq(user_id=user2.id))
         assert res.HasField("some")
         assert res.some.response_time_p33.ToTimedelta() == timedelta(hours=35)
 
@@ -981,7 +1059,8 @@ def test_response_rate(db):
 
     with requests_session(token1) as api:
         # now most w p33 = 34h, p66 = 36h
-        res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
+        res = api.GetResponseRate(
+            requests_pb2.GetResponseRateReq(user_id=user2.id))
         assert res.HasField("most")
         assert res.most.response_time_p33.ToTimedelta() == timedelta(hours=34)
         assert res.most.response_time_p66.ToTimedelta() == timedelta(hours=36)
@@ -1001,7 +1080,8 @@ def test_response_rate(db):
 
     with requests_session(token1) as api:
         # now most w p33 = 4h, p66 = 35h
-        res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
+        res = api.GetResponseRate(
+            requests_pb2.GetResponseRateReq(user_id=user2.id))
         assert res.HasField("almost_all")
         assert res.almost_all.response_time_p33.ToTimedelta() == timedelta(hours=4)
         assert res.almost_all.response_time_p66.ToTimedelta() == timedelta(hours=35)
