@@ -7,7 +7,16 @@ from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, ContentReport, EventOccurrence, Node, Reference, UserLink, UserLinkType, UserSession
+from couchers.models import (
+    Cluster,
+    ContentReport,
+    EventOccurrence,
+    Node,
+    Reference,
+    UserLink,
+    UserLinkType,
+    UserSession,
+)
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now, parse_date, timedelta
 from proto import admin_pb2, events_pb2, references_pb2, reporting_pb2
@@ -34,6 +43,7 @@ def _(testconfig):
 
 def test_access_by_normal_user(db):
     normal_user, normal_token = generate_user()
+    other_user, _ = generate_user()
 
     with real_admin_session(normal_token) as api:
         # all requests to the admin servicer should break when done by a non-super_user
@@ -42,6 +52,12 @@ def test_access_by_normal_user(db):
                 admin_pb2.GetUserDetailsReq(
                     user=str(normal_user.id),
                 )
+            )
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.LinkUsersAsDuplicated(
+                admin_pb2.LinkUsersDuplicatedReq(user1=normal_user.username, user2=other_user.username)
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
@@ -729,83 +745,39 @@ def test_LinkUsersAsDuplicated(db):
 
     with real_admin_session(super_token) as api:
         # Test successful linking
-        res = api.LinkUsersAsDuplicated(
-            admin_pb2.LinkUsersDuplicatedReq(
-                user1=user1.username,
-                user2=user2.username
-            )
-        )
+        res = api.LinkUsersAsDuplicated(admin_pb2.LinkUsersDuplicatedReq(user1=user1.username, user2=user2.username))
         assert res.link_id > 0
 
         # Verify the link exists and is correct
         with session_scope() as session:
-            link = session.execute(
-                select(UserLink).where(UserLink.id == res.link_id)
-            ).scalar_one()
+            link = session.execute(select(UserLink).where(UserLink.id == res.link_id)).scalar_one()
             assert link.user1_id == min(user1.id, user2.id)
             assert link.user2_id == max(user1.id, user2.id)
             assert link.link_type == UserLinkType.duplicate_account
 
-        # Test duplicate link (should fail)
+        # Test link that already exists (should fail)
         with pytest.raises(grpc.RpcError) as e:
-            api.LinkUsersAsDuplicated(
-                admin_pb2.LinkUsersDuplicatedReq(
-                    user1=user1.username,
-                    user2=user2.username
-                )
-            )
+            api.LinkUsersAsDuplicated(admin_pb2.LinkUsersDuplicatedReq(user1=user1.username, user2=user2.username))
         assert e.value.code() == grpc.StatusCode.ALREADY_EXISTS
 
         # Test linking same user to self (should fail)
         with pytest.raises(grpc.RpcError) as e:
-            api.LinkUsersAsDuplicated(
-                admin_pb2.LinkUsersDuplicatedReq(
-                    user1=user1.username,
-                    user2=user1.username
-                )
-            )
+            api.LinkUsersAsDuplicated(admin_pb2.LinkUsersDuplicatedReq(user1=user1.username, user2=user1.username))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.CANNOT_LINK_SAME_USER
 
         # Test with non-existent user (should fail)
         with pytest.raises(grpc.RpcError) as e:
-            api.LinkUsersAsDuplicated(
-                admin_pb2.LinkUsersDuplicatedReq(
-                    user1=user1.username,
-                    user2="nonexistent_user"
-                )
-            )
+            api.LinkUsersAsDuplicated(admin_pb2.LinkUsersDuplicatedReq(user1=user1.username, user2="nonexistent_user"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert e.value.details() == errors.USER_NOT_FOUND
 
         # Test ordering is maintained (smaller ID is always user1)
-        res = api.LinkUsersAsDuplicated(
-            admin_pb2.LinkUsersDuplicatedReq(
-                user1=user3.username,
-                user2=user1.username
-            )
-        )
+        res = api.LinkUsersAsDuplicated(admin_pb2.LinkUsersDuplicatedReq(user1=user3.username, user2=user1.username))
         with session_scope() as session:
-            link = session.execute(
-                select(UserLink).where(UserLink.id == res.link_id)
-            ).scalar_one()
+            link = session.execute(select(UserLink).where(UserLink.id == res.link_id)).scalar_one()
             assert link.user1_id == min(user1.id, user3.id)
             assert link.user2_id == max(user1.id, user3.id)
 
-
-# def test_LinkUsersAsDuplicated_normal_user_access(db):
-#     """Test that normal users cannot access this admin endpoint"""
-#     normal_user, normal_token = generate_user()
-#     other_user, _ = generate_user()
-
-#     with real_admin_session(normal_token) as api:
-#         with pytest.raises(grpc.RpcError) as e:
-#             api.LinkUsersAsDuplicated(
-#                 admin_pb2.LinkUsersDuplicatedReq(
-#                     user1=normal_user.username,
-#                     user2=other_user.username
-#                 )
-#             )
-#         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
 # community invite feature tested in test_events.py

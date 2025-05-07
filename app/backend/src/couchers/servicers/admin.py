@@ -6,6 +6,7 @@ import grpc
 from geoalchemy2.shape import from_shape
 from google.protobuf import empty_pb2
 from shapely.geometry import shape
+from sqlalchemy import exc
 from sqlalchemy.sql import or_, select, update
 
 from couchers import errors, urls
@@ -608,7 +609,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
             link_type=UserLinkType.duplicate_account,
         )
 
-        session.add(user_link)
-        session.commit()
+        try:
+            session.add(user_link)
+            session.commit()
+        except exc.IntegrityError:
+            context.abort(grpc.StatusCode.ALREADY_EXISTS, errors.USER_LINK_ALREADY_EXISTS)
 
         return admin_pb2.LinkUsersDuplicatedRes(link_id=user_link.id)
