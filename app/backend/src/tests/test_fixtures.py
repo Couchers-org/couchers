@@ -41,6 +41,7 @@ from couchers.models import (
     Upload,
     User,
     UserBlock,
+    UserLink,
     UserSession,
 )
 from couchers.servicers.account import Account, Iris
@@ -410,6 +411,18 @@ def get_friend_relationship(user1, user2):
 
         session.expunge(friend_relationship)
         return friend_relationship
+
+
+def link_users(user1, user2, link_type):
+    with session_scope() as session:
+        user_link = UserLink(
+            user1_id=min(user1.id, user2.id),
+            user2_id=max(user1.id, user2.id),
+            link_type=link_type,
+        )
+        session.add(user_link)
+        session.commit()
+        return user_link.id
 
 
 class CookieMetadataPlugin(grpc.AuthMetadataPlugin):

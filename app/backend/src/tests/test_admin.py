@@ -27,6 +27,7 @@ from tests.test_fixtures import (  # noqa
     events_session,
     generate_user,
     get_user_id_and_token,
+    link_users,
     mock_notification_email,
     push_collector,
     real_admin_session,
@@ -778,6 +779,34 @@ def test_LinkUsersAsDuplicated(db):
             link = session.execute(select(UserLink).where(UserLink.id == res.link_id)).scalar_one()
             assert link.user1_id == min(user1.id, user3.id)
             assert link.user2_id == max(user1.id, user3.id)
+
+
+def test_RemoveUserLink(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        # Create a link first
+        link_id = link_users(user1, user2, UserLinkType.duplicate_account)
+
+        # Test successful removal
+        api.RemoveUserLink(admin_pb2.RemoveUserLinkReq(link_id=link_id))
+
+        # Verify link was deleted
+        with session_scope() as session:
+            link = session.execute(select(UserLink).where(UserLink.id == link_id)).scalar_one_or_none()
+            assert link is None
+
+        # Test removing non-existent link
+        with pytest.raises(grpc.RpcError) as e:
+            api.RemoveUserLink(
+                admin_pb2.RemoveUserLinkReq(
+                    link_id=99999  # Non-existent ID
+                )
+            )
+            assert e.value.code() == grpc.StatusCode.NOT_FOUND
+            assert e.value.details() == errors.USER_LINK_NOT_FOUND
 
 
 # community invite feature tested in test_events.py

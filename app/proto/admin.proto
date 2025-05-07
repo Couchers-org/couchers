@@ -72,6 +72,8 @@ service Admin {
   rpc EditReply(EditReplyReq) returns (google.protobuf.Empty) {}
 
   rpc LinkUsersAsDuplicated(LinkUsersDuplicatedReq) returns (LinkUsersDuplicatedRes) {}
+
+  rpc RemoveUserLink(RemoveUserLinkReq) returns (google.protobuf.Empty) {}
 }
 
 message UserDetails {
@@ -305,5 +307,9 @@ message LinkUsersDuplicatedReq {
 }
 
 message LinkUsersDuplicatedRes {
+    int64 link_id = 1;
+}
+
+message RemoveUserLinkReq {
     int64 link_id = 1;
 }

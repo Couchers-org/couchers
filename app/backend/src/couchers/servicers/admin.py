@@ -616,3 +616,15 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort(grpc.StatusCode.ALREADY_EXISTS, errors.USER_LINK_ALREADY_EXISTS)
 
         return admin_pb2.LinkUsersDuplicatedRes(link_id=user_link.id)
+
+    def RemoveUserLink(self, request, context, session):
+        """Remove a link between users using link_id"""
+        link = session.execute(select(UserLink).where(UserLink.id == request.link_id)).scalar_one_or_none()
+
+        if not link:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_LINK_NOT_FOUND)
+
+        session.delete(link)
+        session.commit()
+
+        return empty_pb2.Empty()
