@@ -1,6 +1,6 @@
 syntax = "proto3";
 import "google/protobuf/empty.proto";
-package org.couchers.api.references;
+package org.couchers.api.moderations;
 
 service Moderations {
   option (auth_level) = AUTH_LEVEL_ADMIN; // admin-only methods
