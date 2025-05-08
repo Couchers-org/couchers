@@ -27,6 +27,7 @@ from couchers.servicers.gis import GIS
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
+from couchers.servicers.moderations import Moderations
 from couchers.servicers.notifications import Notifications
 from couchers.servicers.pages import Pages
 from couchers.servicers.references import References
@@ -52,6 +53,7 @@ from proto import (
     iris_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
+    moderations_pb2_grpc,
     notifications_pb2_grpc,
     pages_pb2_grpc,
     references_pb2_grpc,
@@ -102,6 +104,8 @@ def create_main_server(port):
     search_pb2_grpc.add_SearchServicer_to_server(Search(), server)
     stripe_pb2_grpc.add_StripeServicer_to_server(Stripe(), server)
     threads_pb2_grpc.add_ThreadsServicer_to_server(Threads(), server)
+    moderations_pb2_grpc.add_ModerationsServicer_to_server(Moderations(), server)
+
     return server
 
 

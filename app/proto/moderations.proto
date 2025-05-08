@@ -1,0 +1,96 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+package org.couchers.api.references;
+
+service Moderations {
+  option (auth_level) = AUTH_LEVEL_ADMIN; // admin-only methods
+
+  rpc ListModerationEntries(ListModerationEntriesReq) returns (ListModerationEntriesRes);
+  rpc GetModerationEntry(GetModerationEntryReq) returns (GetModerationEntryRes);
+  rpc GetModerationEntryByObject(GetModerationEntryByObjectReq) returns (ModerationEntry);
+  rpc ApproveModeratedContent(ApproveModeratedContentReq) returns (google.protobuf.Empty);
+  rpc RejectModeratedContent(RejectModeratedContentReq) returns (google.protobuf.Empty);
+  rpc DeleteModeratedContent(DeleteModeratedContentReq) returns (google.protobuf.Empty);
+}
+
+enum ObjectType {
+  OBJECT_TYPE_UNSPECIFIED                     = 0;
+  OBJECT_TYPE_REFERENCE                       = 1;   // unsupported
+  OBJECT_TYPE_FRIEND_RELATIONSHIP             = 2;   // unsupported
+  OBJECT_TYPE_GROUP_CHAT                      = 3;   // unsupported
+  OBJECT_TYPE_MESSAGE                         = 4;   // unsupported
+  OBJECT_TYPE_HOST_REQUEST                    = 5;   // unsupported
+  OBJECT_TYPE_UPLOAD                          = 6;   // unsupported
+  OBJECT_TYPE_PAGE                            = 7;   // unsupported
+  OBJECT_TYPE_EVENT                           = 8;   // unsupported
+  OBJECT_TYPE_EVENT_OCCURRENCE                = 9;   // unsupported
+  OBJECT_TYPE_EVENT_COMMUNITY_INVITE_REQUEST  = 10;  // unsupported
+  OBJECT_TYPE_DISCUSSION                      = 11;  // unsupported
+  OBJECT_TYPE_COMMENT                         = 12;  // unsupported
+  OBJECT_TYPE_REPLY                           = 13;  // unsupported
+}
+
+enum ModerationVisibilityState {
+  MODERATION_VISIBILITY_STATE_UNSPECIFIED = 0; // default, unset state
+  MODERATION_VISIBILITY_STATE_VISIBLE     = 2; // approved and visible
+  MODERATION_VISIBILITY_STATE_HIDDEN      = 3; // hidden from public
+  MODERATION_VISIBILITY_STATE_DELETED     = 4; // deleted
+}
+
+enum ModerationReviewState {
+  MODERATION_REVIEW_STATE_UNSPECIFIED = 0;
+  MODERATION_REVIEW_STATE_MACHINE_PENDING = 1;
+  MODERATION_REVIEW_STATE_MACHINE_APPROVED = 2;
+  MODERATION_REVIEW_STATE_MACHINE_REJECTED = 3;
+  MODERATION_REVIEW_STATE_MOD_PENDING = 4;
+  MODERATION_REVIEW_STATE_MOD_APPROVED = 5;
+  MODERATION_REVIEW_STATE_MOD_REJECTED = 6;
+  MODERATION_REVIEW_STATE_MOD_DELETED = 7;
+}
+
+message ModerationEntry {
+  int64 id = 1;                   // unique moderation entry ID
+  int64 object_id = 2;            // ID of the moderated object
+  int64 author_id = 6;              // ID of the user who authored the content
+  ObjectType object_type = 3;     // type of the moderated object
+  ModerationReviewState review_state = 4;      // current moderation review state
+  ModerationVisibilityState visibility_state = 5; // who can see the object
+}
+
+message ListModerationEntriesReq {
+  repeated ObjectType object_types = 1;     // filter by object types
+  repeated ModerationReviewState review_states = 2;      // filter by moderation states
+  repeated ModerationVisibilityState visibility_states = 3; // NEW: filter by visibility states
+  int64 author_id = 4;                       // filter by reporting/moderating user
+}
+
+message ListModerationEntriesRes {
+  repeated ModerationEntry entries = 1;    // list of moderation entries
+}
+
+message GetModerationEntryReq {
+  int64 id = 1; // unique moderation entry ID
+}
+
+message GetModerationEntryRes {
+  ModerationEntry entry = 1;   // the requested moderation entry
+}
+
+message GetModerationEntryByObjectReq {
+  int64 object_id = 1;        // ID of the moderated object
+  ObjectType object_type = 2; // type of the moderated object
+}
+
+message ApproveModeratedContentReq {
+  int64 id = 1;          // ID of the moderation entry to approve
+}
+
+message RejectModeratedContentReq {
+  int64 id = 1;          // ID of the moderation entry to reject
+  string rejection_reason = 2; // optional reason for rejection
+}
+
+message DeleteModeratedContentReq {
+  int64 id = 1;          // ID of the moderation entry to delete
+  string deletion_reason = 2; // optional reason for deletion
+}

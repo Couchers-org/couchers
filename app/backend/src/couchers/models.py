@@ -88,6 +88,38 @@ class ParkingDetails(enum.Enum):
     paid_offsite = enum.auto()
 
 
+class ObjectType(enum.IntEnum):
+    reference = enum.auto()  # unsupported
+    friend_relationship = enum.auto()  # unsupported
+    group_chat = enum.auto()  # unsupported
+    message = enum.auto()  # unsupported
+    host_request = enum.auto()  # unsupported
+    upload = enum.auto()  # unsupported
+    page = enum.auto()  # unsupported
+    event = enum.auto()  # unsupported
+    event_occurrence = enum.auto()  # unsupported
+    event_community_invite_request = enum.auto()  # unsupported
+    discussion = enum.auto()  # unsupported
+    comment = enum.auto()  # unsupported
+    reply = enum.auto()  # unsupported
+
+
+class ModerationVisibilityState(enum.IntEnum):
+    visible = enum.auto()  # unsupported
+    hidden = enum.auto()  # unsupported
+    deleted = enum.auto()  # unsupported
+
+
+class ModerationReviewState(enum.IntEnum):
+    machine_pending = enum.auto()
+    machine_approved = enum.auto()
+    machine_rejected = enum.auto()
+    mod_pending = enum.auto()
+    mod_approved = enum.auto()
+    mod_rejected = enum.auto()
+    mod_deleted = enum.auto()
+
+
 class TimezoneArea(Base):
     __tablename__ = "timezone_areas"
     id = Column(BigInteger, primary_key=True)
@@ -2667,3 +2699,37 @@ class AccountDeletionReason(Base):
     reason = Column(String, nullable=True)
 
     user = relationship("User")
+
+
+class Moderation(Base):
+    __tablename__ = "moderation"
+
+    id = Column(BigInteger, primary_key=True)
+    object_id = Column(BigInteger, nullable=False)
+    object_type = Column(Enum(ObjectType), nullable=False)
+    author_id = Column(ForeignKey("users.id"), nullable=False)
+    review_state = Column(Enum(ModerationReviewState), nullable=False, default=ModerationReviewState.machine_pending)
+    visibility_state = Column(Enum(ModerationVisibilityState), nullable=False)
+    sent_to_machine_review = Column(Boolean, nullable=False, default=False)
+    sent_content_notification = Column(Boolean, nullable=False, default=False)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    __table_args__ = (Index("ix_moderation_object", "object_type"),)
+
+    author = relationship("User")
+    review_actions = relationship("ModerationReviewAction", back_populates="moderation", cascade="all, delete-orphan")
+
+
+class ModerationReviewAction(Base):
+    __tablename__ = "moderation_review_action"
+
+    id = Column(BigInteger, primary_key=True)
+    moderation_id = Column(BigInteger, ForeignKey("moderation.id", ondelete="CASCADE"), nullable=False, index=True)
+    moderator_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    review_time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    reason = Column(String, nullable=True)
+    from_state = Column(Enum(ModerationReviewState), nullable=False)
+    to_state = Column(Enum(ModerationReviewState), nullable=False)
+
+    moderation = relationship("Moderation", back_populates="review_actions", foreign_keys=[moderation_id])
+    moderator = relationship("User", foreign_keys=[moderator_id])
