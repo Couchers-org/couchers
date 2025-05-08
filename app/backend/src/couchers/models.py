@@ -2681,8 +2681,8 @@ class UserLink(Base):
     __tablename__ = "user_links"
 
     id = Column(BigInteger, primary_key=True)
-    user1_id = Column(ForeignKey("users.id"), nullable=False)
-    user2_id = Column(ForeignKey("users.id"), nullable=False)
+    user1_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    user2_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     link_type = Column(Enum(UserLinkType), nullable=False)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 

@@ -747,11 +747,11 @@ def test_LinkUsersAsDuplicated(db):
     with real_admin_session(super_token) as api:
         # Test successful linking
         res = api.LinkUsersAsDuplicated(admin_pb2.LinkUsersDuplicatedReq(user1=user1.username, user2=user2.username))
-        assert res.link_id > 0
+        assert res.user_link_id > 0
 
         # Verify the link exists and is correct
         with session_scope() as session:
-            link = session.execute(select(UserLink).where(UserLink.id == res.link_id)).scalar_one()
+            link = session.execute(select(UserLink).where(UserLink.id == res.user_link_id)).scalar_one()
             assert link.user1_id == min(user1.id, user2.id)
             assert link.user2_id == max(user1.id, user2.id)
             assert link.link_type == UserLinkType.duplicate_account
@@ -776,7 +776,7 @@ def test_LinkUsersAsDuplicated(db):
         # Test ordering is maintained (smaller ID is always user1)
         res = api.LinkUsersAsDuplicated(admin_pb2.LinkUsersDuplicatedReq(user1=user3.username, user2=user1.username))
         with session_scope() as session:
-            link = session.execute(select(UserLink).where(UserLink.id == res.link_id)).scalar_one()
+            link = session.execute(select(UserLink).where(UserLink.id == res.user_link_id)).scalar_one()
             assert link.user1_id == min(user1.id, user3.id)
             assert link.user2_id == max(user1.id, user3.id)
 
@@ -789,7 +789,7 @@ def test_RemoveUserLink(db):
     with real_admin_session(super_token) as api:
         link_id = link_users(user1, user2, UserLinkType.duplicate_account)
 
-        api.RemoveUserLink(admin_pb2.RemoveUserLinkReq(link_id=link_id))
+        api.RemoveUserLink(admin_pb2.RemoveUserLinkReq(user_link_id=link_id))
 
         # Verify link was deleted
         with session_scope() as session:
@@ -800,7 +800,7 @@ def test_RemoveUserLink(db):
         with pytest.raises(grpc.RpcError) as e:
             api.RemoveUserLink(
                 admin_pb2.RemoveUserLinkReq(
-                    link_id=99999  # Non-existent ID
+                    user_link_id=99999  # Non-existent ID
                 )
             )
             assert e.value.code() == grpc.StatusCode.NOT_FOUND
@@ -816,35 +816,35 @@ def test_GetUserLinks(db):
     user4, _ = generate_user()
     user_no_links, _ = generate_user()
 
-    link1_id = link_users(user1, user2, UserLinkType.duplicate_account)
-    link2_id = link_users(user3, user1, UserLinkType.duplicate_account)
-    link3_id = link_users(user3, user4, UserLinkType.duplicate_account)
+    link1_id = link_users(user1, user2, UserLinkType.duplicate_account.name)
+    link2_id = link_users(user3, user1, UserLinkType.duplicate_account.name)
+    link3_id = link_users(user3, user4, UserLinkType.duplicate_account.name)
 
     with real_admin_session(super_token) as api:
         # Test getting links for user1 (should have 2 duplicate links)
         res = api.GetUserLinks(admin_pb2.GetUserLinksReq(user=user1.username))
         assert len(res.links) == 2
 
-        links = {link.link_id: link for link in res.links}
+        links = {link.user_link_id: link for link in res.links}
 
         link1 = links[link1_id]
         assert link1.user1_id == min(user1.id, user2.id)
         assert link1.user2_id == max(user1.id, user2.id)
-        assert link1.link_type == UserLinkType.duplicate_account.name
+        assert link1.user_link_type == UserLinkType.duplicate_account.name
 
         link2 = links[link2_id]
         assert link2.user1_id == min(user1.id, user3.id)
         assert link2.user2_id == max(user1.id, user3.id)
-        assert link2.link_type == UserLinkType.duplicate_account.name
+        assert link2.user_link_type == UserLinkType.duplicate_account.name
 
         # Test getting links for user2 (should have 1 duplicate link)
         res = api.GetUserLinks(admin_pb2.GetUserLinksReq(user=user2.username))
         assert len(res.links) == 1
         link = res.links[0]
-        assert link.link_id == link1_id
+        assert link.user_link_id == link1_id
         assert link.user1_id == min(user1.id, user2.id)
         assert link.user2_id == max(user1.id, user2.id)
-        assert link.link_type == UserLinkType.duplicate_account.name
+        assert link.user_link_type == UserLinkType.duplicate_account.name
 
         # Test getting links for user with no links
         res = api.GetUserLinks(admin_pb2.GetUserLinksReq(user=user_no_links.username))

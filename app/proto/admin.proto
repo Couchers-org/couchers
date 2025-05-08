@@ -99,8 +99,6 @@ message UserDetails {
 
   int64 pending_mod_notes_count = 16;
   int64 acknowledged_mod_notes_count =17;
-
-  repeated UserLink links = 18;
 }
 
 message GetUserDetailsReq {
@@ -311,11 +309,11 @@ message LinkUsersDuplicatedReq {
 }
 
 message LinkUsersDuplicatedRes {
-    int64 link_id = 1;
+    int64 user_link_id = 1;
 }
 
 message RemoveUserLinkReq {
-    int64 link_id = 1;
+    int64 user_link_id = 1;
 }
 
 message GetUserLinksReq {
@@ -327,9 +325,9 @@ message GetUserLinksRes {
 }
 
 message UserLink {
-    int64 link_id = 1;
+    int64 user_link_id = 1;
     int64 user1_id = 2;
     int64 user2_id = 3;
-    string link_type = 4;
+    string user_link_type = 4;
     google.protobuf.Timestamp created = 6;
 }
