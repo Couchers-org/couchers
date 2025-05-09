@@ -11,17 +11,17 @@ Buckle up for our monthly development update! Read about the new features we hav
 
 **This has been added:**
 
-* A **Notifications Feed** so you don’t miss any important messages
-* A **Donations Portal** to easily manage and review your donations
-* **Strong Verification** as a security feature
-* **Username link** on the profile to easily share it
+* A **Notifications Feed** so you don’t miss any important messages (by [Nicole](https://couchers.org/user/unsettleddown))
+* A **Donations Portal** to easily manage and review your donations (by [Aapeli](https://couchers.org/user/aapeli))
+* **Strong Verification** has been released into account settings after testing in feature preview (by [Aapeli](https://couchers.org/user/aapeli))
+* **Username link** on the profile to easily share it (by [Pablo](https://couchers.org/user/pcolt86))
 
 **These things have changed:**
 
-* Complete overhaul of the **Map Search** and improved filter options to find who you are looking for in a snap
-* New **Roadmap design** to easily see where couchers is headed and how far we’ve gotten already
-* Improved **Event Time Picker**, it doesn’t just look better, it’s also easier to use
-* Started the **Blog Revamp** to keep you better informed
+* Complete overhaul of the **Map Search** and improved filter options to find who you are looking for in a snap (by [Nicole](https://couchers.org/user/unsettleddown))
+* New **Roadmap design** to easily see where couchers is headed and how far we’ve gotten already (by [Chris](https://couchers.org/user/chrisk))
+* Improved **Event Time Picker**, it doesn’t just look better, it’s also easier to use (by [Colleen](https://couchers.org/user/colleen))
+* Started the **Blog Revamp** to keep you better informed (by [Aapeli](https://couchers.org/user/aapeli), [Chris](https://couchers.org/user/chrisk), [Colleen](https://couchers.org/user/colleen))
 
 ## Development stats
 
@@ -39,15 +39,15 @@ We will keep these updates short and concise, you can find in depth information 
 
 Help us improve Couchers!
 
-Developers:
+**Developers:**
 
 Please join our team on [GitHub](https://github.com/Couchers-org) or just give us a star if you appreciate our work! All our code is open source and we need all the help we can get in building the best Couchsurfing platform.
 
-Bloggers and Volunteers:
+**Bloggers and Volunteers:**
 
 **[Sign up](https://couchers.org/volunteer)** and assist us in our endeavor.
 
-Donors:
+**Donors:**
 
 Your [donations](https://couchers.org/donate) are highly appreciated, see how we use them [here](https://couchers.org/blog/2025/04/20/couchers-inc-financials-2024).
 
