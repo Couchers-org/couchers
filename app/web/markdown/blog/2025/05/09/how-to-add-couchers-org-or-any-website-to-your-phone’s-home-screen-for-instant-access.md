@@ -18,7 +18,7 @@ At Couchers.org, we're all about making connections effortless and fun—whether
 
 No app? No problem! You can **add Couchers.org to your phone’s home screen** for instant access and push notifications in 4 simple steps—just like a native app! It’s super simple:
 
-**For Android Users:**
+**For Android Users** (Samsung Galaxy, Google Pixel, Nothing Phone, OnePlus, Xiaomi, etc.):
 
 1️⃣ Open your browser (Chrome works best) and go to [Couchers.org](https://www.couchers.org/) or another site you love.\
 2️⃣ Tap the **menu icon** (three dots in the top-right corner).\
@@ -27,7 +27,7 @@ No app? No problem! You can **add Couchers.org to your phone’s home screen** f
 
 Boom—now you’ve got a shortcut that opens the site instantly, just like an app!
 
-**For iPhone Users:**
+**For Apple iPhone Users:**
 
 1️⃣ Open Safari and visit [Couchers.org](https://www.couchers.org/).\
 2️⃣ Tap the **Share** button (the box with an arrow).\
