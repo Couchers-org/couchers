@@ -87,11 +87,11 @@ def _send_email_notification(session, user: User, notification: Notification):
         return
 
     if user.is_banned:
-        logger.error(f"Tried emailing {user}  based on template {rendered.email_template_name} but user is banned")
+        logger.info(f"Tried emailing {user} based on template {rendered.email_template_name} but user is banned")
         return
 
     if user.is_deleted and not rendered.allow_deleted:
-        logger.error(f"Tried emailing {user}  based on template {rendered.email_template_name} but user is deleted")
+        logger.info(f"Tried emailing {user} based on template {rendered.email_template_name} but user is deleted")
         return
 
     list_unsubscribe_header = None
