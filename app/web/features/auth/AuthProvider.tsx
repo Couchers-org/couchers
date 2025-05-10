@@ -8,6 +8,7 @@ import useStablePush from "utils/useStablePush";
 
 import { JAILED_ERROR_MESSAGE } from "./constants";
 import useAuthStore, { AuthStoreType } from "./useAuthStore";
+import { useRouter } from "next/router";
 
 export const AuthContext = React.createContext<null | AuthStoreType>(null);
 
@@ -22,6 +23,7 @@ function useAppContext<T>(context: Context<T | null>) {
 export default function AuthProvider({ children }: { children: ReactNode }) {
   const { t } = useTranslation(AUTH);
   const store = useAuthStore();
+  const router = useRouter();
 
   const push = useStablePush();
 
@@ -29,8 +31,15 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     setUnauthenticatedErrorHandler(async (e: RpcError) => {
       // the backend will return "Permission denied" if you're just jailed, and "Unauthorized" otherwise
       if (e.message === JAILED_ERROR_MESSAGE) {
+        const isJailRouteException = router.pathname.includes("delete-account");
+
         await store.authActions.updateJailStatus();
-        push(jailRoute);
+
+        if (!isJailRouteException) {
+          // if the user is jailed, redirect them to the jail route
+          store.authActions.authError(t("jailed_message"));
+          push(jailRoute);
+        }
       } else {
         // completely logged out
         await store.authActions.logout();
