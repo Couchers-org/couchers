@@ -16,6 +16,7 @@ import { AUTH } from "i18n/namespaces";
 import DeleteAccount from "./deletion/DeleteAccount";
 import ManageDonations from "./donations/ManageDonations";
 import LoginsLink from "./logins/LoginsLink";
+import ChangePhone from "./phone/ChangePhone";
 import useAccountInfo from "./useAccountInfo";
 import StrongVerification from "./verification/StrongVerification";
 
@@ -53,6 +54,9 @@ export default function Settings() {
           </TopMarginWrapper>
           <MarginWrapper>
             <StrongVerification accountInfo={accountInfo!} />
+          </MarginWrapper>
+          <MarginWrapper>
+            <ChangePhone accountInfo={accountInfo!} />
           </MarginWrapper>
           <MarginWrapper>
             <ChangeEmail email={accountInfo.email} />
