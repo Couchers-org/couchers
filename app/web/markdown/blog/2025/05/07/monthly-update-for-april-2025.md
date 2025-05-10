@@ -59,3 +59,7 @@ We would appreciate a [donation](https://couchers.org/donate) from you. Donation
 Host or join events in your city or while traveling, and help spread the word. Let’s grow this community together and reach our next milestone of 100,000 members!
 
 [Volunteers ](https://couchers-git-cms-generalroadmap-couchers-org.vercel.app/team)and [donations](https://couchers.org/blog/2025/04/20/couchers-inc-financials-2024) are what make Couchers.org possible!
+
+<a href="https://www.instagram.com/couchersorg/#" target="_blank"><img src="/img/blog/instagram_logo.svg" alt="IG" style="width:26px !important;" /></a> <a href="https://bsky.app/profile/couchers.bsky.social/" target="_blank"><img src="/img/blog/bluesky_logo.svg" alt="bsky" style="width:26px !important;" /></a>
+
+*Written by `Chris`[](https://couchers.org/user/chrisk). Published on 2025/05/10*
