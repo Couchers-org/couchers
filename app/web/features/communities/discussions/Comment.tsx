@@ -4,6 +4,8 @@ import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Markdown from "components/Markdown";
 import FlagButton from "features/FlagButton";
+import CopyOnClick from "features/mod/CopyOnClick";
+import ModVisibleComponent from "features/mod/ModVisibleComponent";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
@@ -136,6 +138,14 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
                 name: user?.name ?? t("communities:unknown_user"),
               })}
               {` • ${postedTime}`}
+              <ModVisibleComponent>
+                {" "}
+                •{" "}
+                <code>
+                  threadId:
+                  <CopyOnClick text={comment.threadId.toString()} />
+                </code>
+              </ModVisibleComponent>
             </Typography>
           )}
           {isUserLoading ? <Skeleton /> : <Markdown source={comment.content} />}
