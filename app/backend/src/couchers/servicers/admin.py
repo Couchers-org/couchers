@@ -9,10 +9,12 @@ from shapely.geometry import shape
 from sqlalchemy.sql import or_, select, update
 
 from couchers import errors, urls
+from couchers.crypto import urlsafe_secure_token
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
+    AccountDeletionToken,
     Comment,
     ContentReport,
     Discussion,
@@ -578,3 +580,14 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort(grpc.StatusCode.NOT_FOUND, errors.OBJECT_NOT_FOUND)
         obj.content = request.new_content.strip()
         return empty_pb2.Empty()
+
+    def CreateAccountDeletionLink(self, request, context, session):
+        user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+        if not user:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+        expiry_days = request.expiry_days or 7
+        token = AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
+        session.add(token)
+        return admin_pb2.CreateAccountDeletionLinkRes(
+            account_deletion_confirm_url=urls.delete_account_link(account_deletion_token=token.token)
+        )

@@ -70,6 +70,8 @@ service Admin {
   rpc EditDiscussion(EditDiscussionReq) returns (google.protobuf.Empty) {}
 
   rpc EditReply(EditReplyReq) returns (google.protobuf.Empty) {}
+
+  rpc CreateAccountDeletionLink(CreateAccountDeletionLinkReq) returns (CreateAccountDeletionLinkRes) {}
 }
 
 message UserDetails {
@@ -295,4 +297,14 @@ message EditDiscussionReq {
 message EditReplyReq {
   int64 reply_id = 1;
   string new_content = 2;
+}
+
+message CreateAccountDeletionLinkReq {
+  // username, email, or user id
+  string user = 1;
+  int64 expiry_days = 2;
+}
+
+message CreateAccountDeletionLinkRes {
+  string account_deletion_confirm_url = 1;
 }
