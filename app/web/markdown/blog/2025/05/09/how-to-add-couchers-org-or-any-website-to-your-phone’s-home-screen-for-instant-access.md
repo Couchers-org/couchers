@@ -20,7 +20,7 @@ We're still busy building the Couchers app for iOS and Android, but in the meant
 
 **For Android Users** (Samsung Galaxy, Google Pixel, Nothing Phone, OnePlus, Xiaomi, etc.):
 
-1️⃣ Open your browser (Chrome works best) and go to [Couchers.org](https://www.couchers.org/) or another site you love.\
+1️⃣ Open your browser and go to [Couchers.org](https://www.couchers.org/).\
 2️⃣ Tap the **menu icon** (three dots in the top-right corner).\
 3️⃣ Select **"Add to Home Screen."**\
 4️⃣ Give it a name and tap **"Add."**
