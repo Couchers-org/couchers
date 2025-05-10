@@ -12,11 +12,11 @@ share_image: /app/web/public/img/blog/20210825_talkingtown.png
 ---
 # Your Couchsurfing Experience, Anytime, Anywhere! 🌍✨
 
-At Couchers.org, we're all about making connections effortless and fun—whether you're at home or on the go. That’s why we’ve ensured that **every feature** works seamlessly on mobile, giving you the flexibility to explore, host, and engage wherever you are!
+At Couchers.org, we're all about making connections effortless and fun—whether you're at home or on the go. That’s why we’ve ensured that **every feature** works seamlessly on mobile, giving you the flexibility to explore, host, and connect with people wherever you are!
 
 ## 📲 Couchers.org at Your Fingertips
 
-No app? No problem! You can **add Couchers.org to your phone’s home screen** for instant access and push notifications in 4 simple steps—just like a native app! It’s super simple:
+We're still busy building the Couchers app for iOS and Android, but in the meantime you can **add Couchers.org to your phone’s home screen** for instant access and push notifications in 4 simple steps—just like an app! It’s super simple:
 
 **For Android Users** (Samsung Galaxy, Google Pixel, Nothing Phone, OnePlus, Xiaomi, etc.):
 
@@ -25,7 +25,7 @@ No app? No problem! You can **add Couchers.org to your phone’s home screen** f
 3️⃣ Select **"Add to Home Screen."**\
 4️⃣ Give it a name and tap **"Add."**
 
-Boom—now you’ve got a shortcut that opens the site instantly, just like an app!
+Boom! Now you’ve got a shortcut that opens Couchers instantly, just like an app!
 
 **For Apple iPhone Users:**
 
@@ -42,6 +42,6 @@ Whether you're responding to messages, browsing hosts, joining discussions or ev
 
 ## 🚀 P.S. We’re Building a Mobile App!
 
-To make things even better, we’re working on **developing official Android and iOS apps**—and we need talented developers to help bring them to life! If you or someone you know has mobile development experience and would like to help build something amazing together, check out our **[Volunteer Page](https://couchers.org/volunteer)**
+Don't worry, we’re also **building an official app for Android and iOS***—and we need talented developers to help with this effort! If you or someone you know has experience developing mobile apps, and would like to help build something amazing together, check out our **[Volunteer Page](https://couchers.org/volunteer)**
 
 Stay connected, stay inspired, and keep surfing the world—wherever you go! 💙
