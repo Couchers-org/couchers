@@ -1,6 +1,7 @@
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
+import { useRouter } from "next/router";
 import React, { Context, ReactNode, useContext, useEffect } from "react";
 import { jailRoute, loginRoute } from "routes";
 import { setUnauthenticatedErrorHandler } from "service/client";
@@ -8,7 +9,6 @@ import useStablePush from "utils/useStablePush";
 
 import { JAILED_ERROR_MESSAGE } from "./constants";
 import useAuthStore, { AuthStoreType } from "./useAuthStore";
-import { useRouter } from "next/router";
 
 export const AuthContext = React.createContext<null | AuthStoreType>(null);
 
@@ -37,7 +37,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
         if (!isJailRouteException) {
           // if the user is jailed, redirect them to the jail route
-          store.authActions.authError(t("jailed_message"));
           push(jailRoute);
         }
       } else {
@@ -51,7 +50,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       setUnauthenticatedErrorHandler(async () => {});
     };
-  }, [store.authActions, push, t]);
+  }, [store.authActions, push, t, router.pathname]);
 
   return <AuthContext.Provider value={store}>{children}</AuthContext.Provider>;
 }
