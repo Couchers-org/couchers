@@ -916,7 +916,7 @@ def testconfig():
 
 
 def run_migration_test():
-    return os.environ.get('RUN_MIGRATION_TEST', 'false').lower() == 'true'
+    return os.environ.get("RUN_MIGRATION_TEST", "false").lower() == "true"
 
 
 @pytest.fixture
