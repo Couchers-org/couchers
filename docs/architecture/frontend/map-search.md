@@ -1,6 +1,6 @@
 # Map Search Architecture
 
-Our map search is the core way our users find each other for meetups and to find hosts. Map search was recently re-architected by Nicole (@nabramow) in order to solve issues with scalability and address long-standing user feature requests and bugs.
+Our map search is the core way our users find each other for meetups and to find hosts. Map search was recently re-architected by Nicole ([@nabramow](https://github.com/nabramow)) in order to solve issues with scalability and address long-standing user feature requests and bugs.
 
 This page serves as a guide to the map architecture and covers the major logic. If you just picked up your first map ticket on the front-end, this is a good place to start!
 
