@@ -33,6 +33,9 @@ COPY --from=build /deps/timezone_areas.sql /app/resources/timezone_areas.sql
 ARG version
 ENV VERSION=$version
 
+ARG display_version
+ENV DISPLAY_VERSION=$display_version
+
 ARG commit_sha
 ENV COMMIT_SHA=$commit_sha
 

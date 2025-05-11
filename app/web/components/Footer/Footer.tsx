@@ -136,9 +136,7 @@ const VersionLink = styled(Link)(({ theme }) => ({
 export default function Footer() {
   const { t } = useTranslation(GLOBAL);
 
-  const version_text = process.env.NEXT_PUBLIC_COMMIT_SHA
-    ? process.env.NEXT_PUBLIC_COMMIT_SHA.substring(0, 8)
-    : "dev";
+  const version_text = process.env.NEXT_PUBLIC_DISPLAY_VERSION || "dev";
   const version_link = roadmapRoute;
   const updated_ago_text = process.env.NEXT_PUBLIC_COMMIT_TIMESTAMP
     ? timeAgoI18n({
