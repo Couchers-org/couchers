@@ -62,4 +62,4 @@ Host or join events in your city or while traveling, and help spread the word. L
 
 <a href="https://www.instagram.com/couchersorg/#" target="_blank"><img src="/img/blog/instagram_logo.svg" alt="IG" style="width:26px !important;" /></a> <a href="https://bsky.app/profile/couchers.bsky.social/" target="_blank"><img src="/img/blog/bluesky_logo.svg" alt="bsky" style="width:26px !important;" /></a>
 
-*Written by `Chris`[](https://couchers.org/user/chrisk). Published on 2025/05/10*
+*Written by [`Chris`](https://couchers.org/user/chrisk). Published on 2025/05/10*
