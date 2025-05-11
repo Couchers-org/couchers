@@ -18,7 +18,7 @@ At Couchers.org, we're all about making connections effortless and fun—whether
 
 We're still busy building the Couchers app for iOS and Android, but in the meantime you can **add Couchers.org to your phone’s home screen** for instant access and push notifications in 4 simple steps—just like an app! It’s super simple:
 
-**For Android Users:**
+### **For Android Users:**
 
 1️⃣ Open your browser and go to [Couchers.org](https://www.couchers.org/).\
 2️⃣ Tap the **menu icon** (three dots in the top-right corner).\
@@ -27,7 +27,7 @@ We're still busy building the Couchers app for iOS and Android, but in the meant
 
 Boom! Now you’ve got a shortcut that opens Couchers instantly, just like an app!
 
-**For Apple iPhone Users:**
+### **For Apple iPhone Users:**
 
 1️⃣ Open Safari and visit [Couchers.org](https://www.couchers.org/).\
 2️⃣ Tap the **Share** button (the box with an arrow).\
@@ -48,4 +48,4 @@ Stay connected, stay inspired, and keep surfing the world—wherever you go! �
 
 <a href="https://www.instagram.com/couchersorg/#" target="_blank"><img src="/img/blog/instagram_logo.svg" alt="IG" style="width:26px !important;" /></a> <a href="https://bsky.app/profile/couchers.bsky.social/" target="_blank"><img src="/img/blog/bluesky_logo.svg" alt="bsky" style="width:26px !important;" /></a>
 
-*Written by `Chris`[](https://couchers.org/user/chrisk). Published on 2025/05/10*
+*Written by [Chris](https://couchers.org/user/chrisk). Published on 2025/05/10*
