@@ -45,7 +45,7 @@ default:
     - docker:dind
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - export COUCHERS_VERSION=$(base_ver=$(cat app/version); if [ "$CI_COMMIT_BRANCH" == "$RELEASE_BRANCH" ]; then echo "${base_ver}.$(git rev-list --count "origin/$RELEASE_BRANCH")"; else echo "${base_ver}-$SLUG"; fi)
+    - export COUCHERS_VERSION=$(base_ver=$(cat app/version); if [ "$CI_COMMIT_BRANCH" == "devops/versioning" ]; then echo "${base_ver}.$(git rev-list --count "origin/devops/versioning")"; else echo "${base_ver}-$SLUG"; fi)
     - echo $COUCHERS_VERSION
 
 protos:
