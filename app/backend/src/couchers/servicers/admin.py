@@ -628,8 +628,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 admin_pb2.AccessStat(
                     ip_address=ip_address,
                     asn=str(asn[0]) if asn else None,
-                    asorg=asn[1] if asn else None,
-                    asnetwork=asn[2] if asn else None,
+                    asorg=str(asn[1]) if asn else None,
+                    asnetwork=str(asn[2]) if asn else None,
                     user_agent=user_agent,
                     operating_system=user_agent_data.os.family,
                     browser=user_agent_data.browser.family,
