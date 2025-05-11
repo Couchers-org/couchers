@@ -72,6 +72,8 @@ service Admin {
   rpc EditReply(EditReplyReq) returns (google.protobuf.Empty) {}
 
   rpc CreateAccountDeletionLink(CreateAccountDeletionLinkReq) returns (CreateAccountDeletionLinkRes) {}
+
+  rpc AccessStats(AccessStatsReq) returns (AccessStatsRes) {}
 }
 
 message UserDetails {
@@ -307,4 +309,31 @@ message CreateAccountDeletionLinkReq {
 
 message CreateAccountDeletionLinkRes {
   string account_deletion_confirm_url = 1;
+}
+
+message AccessStatsReq {
+  // username, email, or user id
+  string user = 1;
+  google.protobuf.Timestamp start_time = 2;
+  google.protobuf.Timestamp end_time = 3;
+}
+
+message AccessStat {
+  string ip_address = 1;
+  string asn = 2;
+  string asorg = 3;
+  string asnetwork = 4;
+  string user_agent = 5;
+  string operating_system = 6;
+  string browser = 7;
+  string device = 8;
+  string approximate_location = 9;
+  uint64 api_call_count = 10;
+  uint64 periods_count = 11;
+  google.protobuf.Timestamp first_seen = 12;
+  google.protobuf.Timestamp last_seen = 13;
+}
+
+message AccessStatsRes {
+  repeated AccessStat stats = 1;
 }
