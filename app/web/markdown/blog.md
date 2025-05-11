@@ -6,13 +6,13 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
-## [Couchers.org v0.9.9 Release Notes](/blog/2025/05/11/v0.9.9-release-notes)
+## [Couchers.org v0.9.9 Release Notes](/blog/2025/05/11/v0.9.9-release)
 
 2025/05/11 by Aapeli.
 
 Read about last major updates before v1!
 
-[Read more.](/blog/2025/05/11/v0.9.9-release-notes)
+[Read more.](/blog/2025/05/11/v0.9.9-release)
 
 ## [How to Add Couchers.org (or Any Website!) to Your Phone's Home Screen for Instant Access](/blog/2025/05/10/how-to-add-couchers-org-phone-home-screen)
 
