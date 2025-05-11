@@ -3,7 +3,7 @@ title: Прийом біженців і пошук притулку за доп�
 slug: hosting-refugees-and-finding-shelter-with-couchers-org-uk
 date: 2022/03/13
 author: Itsi
-share_image: /app/web/public/img/blog/20220313_ukraine_uk.jpg
+share_image: /img/blog/20220313_ukraine_uk.jpg
 ---
 
 [English](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-en) – [Polski](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-pl) – [Magyar](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-hu) – [Română](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-ro)
