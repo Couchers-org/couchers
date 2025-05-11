@@ -12,7 +12,7 @@ variables:
   # whether to build web since it's very slow
   BUILD_WEB: "true"
   PREVIEW_DOMAIN: preview.couchershq.org
-  GIT_DEPTH: 10
+  GIT_DEPTH: 0
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
   RELEASE_BRANCH: develop
@@ -43,10 +43,10 @@ default:
   image: docker
   services:
     - docker:dind
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - export COUCHERS_VERSION=$(base_ver=$(cat version); if [ "$CI_COMMIT_BRANCH" == "$RELEASE_BRANCH" ]; then echo "${base_ver}.$(git rev-list --count "origin/$RELEASE_BRANCH")"; else echo "${base_ver}-$SLUG"; fi)
-    - echo "COUCHERS_VERSION set to: $COUCHERS_VERSION"
+  before_script: |>
+    docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    export COUCHERS_VERSION=$(base_ver=$(cat version); if [ "$CI_COMMIT_BRANCH" == "$RELEASE_BRANCH" ]; then echo "${base_ver}.$(git rev-list --count "origin/$RELEASE_BRANCH")"; else echo "${base_ver}-$SLUG"; fi)
+    echo "COUCHERS_VERSION set to: $COUCHERS_VERSION"
 
 protos:
   needs: []
