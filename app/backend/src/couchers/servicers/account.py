@@ -632,6 +632,7 @@ class Account(account_pb2_grpc.AccountServicer):
             .values(expiry=func.now())
             .execution_options(synchronize_session=False)
         )
+        return empty_pb2.Empty()
 
     def SetProfilePublicVisibility(self, request, context, session):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
