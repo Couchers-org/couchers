@@ -1,9 +1,4 @@
-import {
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  Typography,
-} from "@material-ui/core";
+import { FormControlLabel, Radio, RadioGroup, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import { accountInfoQueryKey } from "features/queryKeys";
