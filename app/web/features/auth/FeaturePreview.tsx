@@ -16,8 +16,11 @@ const MarginWrapper = styled("div")(({ theme }) => ({
 export default function FeaturePreview() {
   const { t } = useTranslation(AUTH);
 
-  const { error: accountInfoError, isLoading: isAccountInfoLoading } =
-    useAccountInfo();
+  const {
+    data: accountInfo,
+    error: accountInfoError,
+    isLoading: isAccountInfoLoading,
+  } = useAccountInfo();
 
   return (
     <>
@@ -41,10 +44,7 @@ export default function FeaturePreview() {
             <PushNotificationSettings />
           </MarginWrapper>
           <MarginWrapper>
-            <ProfileVisibility
-              className={classes.section}
-              accountInfo={accountInfo!}
-            />
+            <ProfileVisibility accountInfo={accountInfo!} />
           </MarginWrapper>
         </>
       )}
