@@ -2,8 +2,8 @@ import {
   ListItemAvatar,
   ListItemText,
   Skeleton,
-  Typography,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import Avatar from "components/Avatar";
