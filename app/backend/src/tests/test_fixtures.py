@@ -915,6 +915,10 @@ def testconfig():
     config.update(prevconfig)
 
 
+def run_migration_test():
+    return os.environ.get("RUN_MIGRATION_TEST", "false").lower() == "true"
+
+
 @pytest.fixture
 def fast_passwords():
     # password hashing, by design, takes a lot of time, which slows down the tests. here we jump through some hoops to
