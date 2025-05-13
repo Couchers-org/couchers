@@ -45,6 +45,15 @@ export default function Dashboard() {
 
             <Alert severity="info" sx={{ marginBottom: theme.spacing(2) }}>
               <Typography variant="body1">
+                <b>New Blog Post!</b> Read it here:{" "}
+                <StyledLink href={dashboardNews["2025-05-12"].link}>
+                  {dashboardNews["2025-05-12"].title}
+                </StyledLink>
+              </Typography>
+            </Alert>
+
+            <Alert severity="info" sx={{ marginBottom: theme.spacing(2) }}>
+              <Typography variant="body1">
                 <b>New Release Alert!</b> {dashboardNews["2025-04-24"]}
               </Typography>
             </Alert>
@@ -55,14 +64,14 @@ export default function Dashboard() {
               </Typography>
             </Alert>
 
-            <Alert severity="info" sx={{ marginBottom: theme.spacing(2) }}>
+            {/* <Alert severity="info" sx={{ marginBottom: theme.spacing(2) }}>
               <Typography variant="body1">
                 <b>New Blog Post!</b> Read it here:{" "}
                 <StyledLink href={dashboardNews["2025-04-12"].link}>
                   {dashboardNews["2025-04-12"].title}
                 </StyledLink>
               </Typography>
-            </Alert>
+            </Alert> */}
 
             <Typography variant="h1" component="h2" paragraph>
               {t("dashboard:dashboard")}
