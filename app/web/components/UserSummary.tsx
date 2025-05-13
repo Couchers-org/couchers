@@ -3,6 +3,7 @@ import {
   ListItemText,
   Skeleton,
   Typography,
+  Tooltip,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import Avatar from "components/Avatar";
@@ -77,25 +78,40 @@ export default function UserSummary({
     },
   );
 
+  const nameValue = user
+    ? nameOnly
+      ? user.name
+      : `${user.name}, ${user.age}`
+    : "";
+
+  const cityValue = user?.city ?? "";
+  const displayName =
+    nameValue.length > 20 ? nameValue.slice(0, 20) + "..." : nameValue;
+
+  const displayCity =
+    cityValue.length > 45 ? cityValue.slice(0, 45) + "..." : cityValue;
+
   const title = (
-    <Typography
-      component={headlineComponentWithRef}
-      variant="h2"
-      noWrap={nameOnly}
-      sx={{ marginTop: "auto", fontSize: "1.2rem" }}
-    >
-      {!user ? (
-        <Skeleton
-          data-testid={USER_TITLE_SKELETON_TEST_ID}
-          sx={{ maxWidth: 300 }}
-        />
-      ) : (
-        <>
-          {nameOnly ? user.name : `${user.name}, ${user.age}`}
-          {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
-        </>
-      )}
-    </Typography>
+    <Tooltip title={nameValue} arrow placement="top">
+      <Typography
+        component={headlineComponentWithRef}
+        variant="h2"
+        noWrap={nameOnly}
+        sx={{ marginTop: "auto", fontSize: "1.2rem" }}
+      >
+        {!user ? (
+          <Skeleton
+            data-testid={USER_TITLE_SKELETON_TEST_ID}
+            sx={{ maxWidth: 300 }}
+          />
+        ) : (
+          <>
+            <span>{displayName}</span>
+            {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
+          </>
+        )}
+      </Typography>
+    </Tooltip>
   );
 
   return (
@@ -131,13 +147,15 @@ export default function UserSummary({
         secondary={
           <>
             {!nameOnly && (
-              <Typography
-                color="textSecondary"
-                variant="body1"
-                noWrap={nameOnly}
-              >
-                {!user ? <Skeleton /> : user.city}
-              </Typography>
+              <Tooltip title={cityValue} arrow placement="top">
+                <Typography
+                  color="textSecondary"
+                  variant="body1"
+                  noWrap={nameOnly}
+                >
+                  {!user ? <Skeleton /> : <span>{displayCity}</span>}
+                </Typography>
+              </Tooltip>
             )}
             {children}
           </>
