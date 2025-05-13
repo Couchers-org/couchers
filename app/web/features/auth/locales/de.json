@@ -266,7 +266,7 @@
     "subtitle": "Die starke Verifizierung ist eine zusätzliche Sicherheitsfunktion, die es dir ermöglicht, dein Geburtsdatum und Geschlecht mithilfe deines biometrischen Reisepasses zu überprüfen.",
     "begin_button": "Schließe die starke Verifizierung mit Iris-ID ab",
     "start_button": "Starke Verifizierung starten",
-    "information_text1": "Du benötigst einen biometrischen Reisepass und ein NFC-fähiges Apple iPhone oder Android-Smartphone.",
+    "information_text1": "Du benötigst einen <strong>biometrischen Reisepass</strong> (andere Ausweisdokumente funktionieren nicht) und ein NFC-fähiges Apple iPhone oder Android-Smartphone.",
     "complete_title": "Wir bearbeiten deinen starken Verifizierungsversuch",
     "complete_message1": "Dein Reisepass wird validiert. Du wirst innerhalb weniger Minuten eine E-Mail mit dem Ergebnis erhalten.",
     "information_text2": "Durch Klicken auf die Schaltfläche unten wirst du zur Website von Iris ID weitergeleitet, um den Passüberprüfungsprozess abzuschließen.",
