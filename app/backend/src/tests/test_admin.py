@@ -46,7 +46,6 @@ def _(testconfig):
 
 def test_access_by_normal_user(db):
     normal_user, normal_token = generate_user()
-    other_user, _ = generate_user()
 
     with real_admin_session(normal_token) as api:
         # all requests to the admin servicer should break when done by a non-super_user

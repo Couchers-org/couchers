@@ -2697,10 +2697,6 @@ class UserGroup(Base):
         """Check if user is in group"""
         return user.id in {u.id for u in self.users}
 
-    def has_user_id(self, user_id):
-        """Check if user id is in group"""
-        return user_id in {u.id for u in self.users}
-
 
 class UserGroupMember(Base):
     """

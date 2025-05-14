@@ -603,7 +603,9 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
             existing_user_group = user.get_group_duplicated()
 
+            # Check if user already belongs to a duplicate account group
             if existing_user_group:
+                # Abort if other user is already in a different duplicate account group
                 if user_group_duplicated and user_group_duplicated.id != existing_user_group.id:
                     context.abort(
                         grpc.StatusCode.FAILED_PRECONDITION,
@@ -611,11 +613,13 @@ class Admin(admin_pb2_grpc.AdminServicer):
                     )
                 user_group_duplicated = existing_user_group
 
+        # Create a new duplicate account group if no user already belongs to one
         if not user_group_duplicated:
             user_group_duplicated = UserGroup(group_type=UserGroupType.duplicate_account)
             session.add(user_group_duplicated)
             session.flush()
 
+        # Add users to the duplicate account group only if they are not already in it
         for user in users:
             if user not in user_group_duplicated.users:
                 user_group_duplicated.users.append(user)
@@ -624,7 +628,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
         return admin_pb2.GroupUsersDuplicatedRes(user_group_id=user_group_duplicated.id)
 
     def RemoveUserFromDuplicateGroup(self, request, context, session):
-        """Removes a user from its duplicate account group if they belong to one."""
+        """Removes a user from its duplicate account group if they belong to one.
+        Raise error if user is not in any duplicate account group."""
         user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
         if not user:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
@@ -648,6 +653,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not duplicate_group:
             return admin_pb2.GetDuplicatedFromUserRes(duplicated_usernames=[])
 
+        # Get all the duplicated users excluding the user itself
         duplicated_users_username = [user.username for user in duplicate_group.users if user.id != user_req.id]
         return admin_pb2.GetDuplicatedFromUserRes(duplicated_usernames=duplicated_users_username)
 
