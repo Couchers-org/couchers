@@ -581,7 +581,6 @@ class Admin(admin_pb2_grpc.AdminServicer):
         obj.content = request.new_content.strip()
         return empty_pb2.Empty()
 
-
     def GroupUsersAsDuplicated(self, request, context, session):
         """Mark multiple users as duplicated accounts.
         Users must belong to maximum one duplicate account group."""
@@ -603,8 +602,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 if user_group_duplicated and user_group_duplicated.id != existing_user_group.id:
                     context.abort(
                         grpc.StatusCode.FAILED_PRECONDITION,
-                        errors.USER_ALREADY_BELONGS_TO_DUPLICATE_GROUP
-,
+                        errors.USER_ALREADY_BELONGS_TO_DUPLICATE_GROUP,
                     )
                 user_group_duplicated = existing_user_group
 
@@ -619,7 +617,6 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
         session.commit()
         return admin_pb2.GroupUsersDuplicatedRes(user_group_id=user_group_duplicated.id)
-    
 
     def RemoveUserFromDuplicateGroup(self, request, context, session):
         """Removes a user from its duplicate account group if they belong to one."""
@@ -631,11 +628,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
         if not duplicate_group:
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_IN_ANY_DUPLICATE_GROUP)
-        
+
         duplicate_group.users.remove(user)
         session.commit()
         return empty_pb2.Empty()
-    
 
     def GetDuplicatedUsersFromUser(self, request, context, session):
         """Get all the duplicated users for a given user excluding itself."""

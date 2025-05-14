@@ -742,7 +742,7 @@ def test_GroupUsersAsDuplicated(db):
 
     with session_scope() as session:
         with real_admin_session(super_token) as api:
-        # Test successful grouping of users
+            # Test successful grouping of users
             res = api.GroupUsersAsDuplicated(
                 admin_pb2.GroupUsersDuplicatedReq(users=[user1.username, user2.username]),
             )
@@ -807,28 +807,22 @@ def test_RemoveUserFromDuplicateGroup(db):
 
     with real_admin_session(super_token) as api:
         # Test successful removal
-        api.RemoveUserFromDuplicateGroup(
-            admin_pb2.RemoveUserFromDuplicateGroupReq(user=user1.username)
-        )
+        api.RemoveUserFromDuplicateGroup(admin_pb2.RemoveUserFromDuplicateGroupReq(user=user1.username))
         with session_scope() as session:
             user_group = session.get(UserGroup, group_id)
             assert not user_group.has_user(user1)
             assert user_group.has_user(user2)
             assert user_group.has_user(user3)
-            
+
         # Test removing user that's not in any group (should raise error)
         with pytest.raises(grpc.RpcError) as e:
-            api.RemoveUserFromDuplicateGroup(
-                admin_pb2.RemoveUserFromDuplicateGroupReq(user=user1.username)
-            )
+            api.RemoveUserFromDuplicateGroup(admin_pb2.RemoveUserFromDuplicateGroupReq(user=user1.username))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert errors.USER_NOT_IN_ANY_DUPLICATE_GROUP == e.value.details()
-        
+
         # Test with non-existent user (should raise error)
         with pytest.raises(grpc.RpcError) as e:
-            api.RemoveUserFromDuplicateGroup(
-                admin_pb2.RemoveUserFromDuplicateGroupReq(user="nonexistent")
-            )
+            api.RemoveUserFromDuplicateGroup(admin_pb2.RemoveUserFromDuplicateGroupReq(user="nonexistent"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert errors.USER_NOT_FOUND == e.value.details()
 
@@ -843,32 +837,25 @@ def test_GetDuplicatedFromUser(db):
 
     with real_admin_session(super_token) as api:
         # Test getting duplicates
-        res = api.GetDuplicatedUsersFromUser(
-            admin_pb2.GetDuplicatedFromUserReq(user=user1.username)
-        )
+        res = api.GetDuplicatedUsersFromUser(admin_pb2.GetDuplicatedFromUserReq(user=user1.username))
         assert user1.username not in res.duplicated_usernames
         assert user2.username in res.duplicated_usernames
         assert user3.username in res.duplicated_usernames
 
-        res = api.GetDuplicatedUsersFromUser(
-            admin_pb2.GetDuplicatedFromUserReq(user=user2.username)
-        )
+        res = api.GetDuplicatedUsersFromUser(admin_pb2.GetDuplicatedFromUserReq(user=user2.username))
         assert user1.username in res.duplicated_usernames
         assert user2.username not in res.duplicated_usernames
         assert user3.username in res.duplicated_usernames
 
         # Test user not in any duplicate group
-        res = api.GetDuplicatedUsersFromUser(
-            admin_pb2.GetDuplicatedFromUserReq(user=user4.username)
-        )
+        res = api.GetDuplicatedUsersFromUser(admin_pb2.GetDuplicatedFromUserReq(user=user4.username))
         assert res.duplicated_usernames == []
 
         # Test with non-existent user
         with pytest.raises(grpc.RpcError) as e:
-            api.GetDuplicatedUsersFromUser(
-                admin_pb2.GetDuplicatedFromUserReq(user="nonexistent")
-            )
+            api.GetDuplicatedUsersFromUser(admin_pb2.GetDuplicatedFromUserReq(user="nonexistent"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert errors.USER_NOT_FOUND == e.value.details()
+
 
 # community invite feature tested in test_events.py

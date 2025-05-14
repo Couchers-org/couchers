@@ -428,13 +428,10 @@ class User(Base):
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
-    
+
     def get_group_duplicated(self):
         """Returns the duplicate account group if user belongs to one, otherwise returns None."""
-        return next(
-            (group for group in self.groups if group.group_type == UserGroupType.duplicate_account),
-            None
-        )
+        return next((group for group in self.groups if group.group_type == UserGroupType.duplicate_account), None)
 
 
 class UserBadge(Base):
@@ -2699,7 +2696,7 @@ class UserGroup(Base):
     def has_user(self, user):
         """Check if user is in group"""
         return user.id in {u.id for u in self.users}
-    
+
     def has_user_id(self, user_id):
         """Check if user id is in group"""
         return user_id in {u.id for u in self.users}
