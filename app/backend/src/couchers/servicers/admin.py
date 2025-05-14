@@ -585,7 +585,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort(grpc.StatusCode.NOT_FOUND, errors.OBJECT_NOT_FOUND)
         obj.content = request.new_content.strip()
         return empty_pb2.Empty()
-    
+
     def GroupUsersAsDuplicated(self, request, context, session):
         """Mark multiple users as duplicated accounts.
         Users must belong to maximum one duplicate account group."""
