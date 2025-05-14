@@ -1,4 +1,11 @@
-import { FormControlLabel, Radio, RadioGroup, Typography } from "@mui/material";
+import {
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  Radio,
+  RadioGroup,
+  Typography,
+} from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import { accountInfoQueryKey } from "features/queryKeys";
@@ -6,7 +13,6 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
-import { TFunction } from "i18next";
 import { GetAccountInfoRes, ProfilePublicVisibility } from "proto/account_pb";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -43,7 +49,7 @@ export default function ProfileVisibility({
     },
   });
 
-  const choices: [number, Parameters<TFunction<"auth", undefined>>[0]][] = [
+  const choices: [number, string][] = [
     [
       ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_NOTHING,
       "auth:profile_visibility.visiblility_options.nothing",
@@ -80,29 +86,35 @@ export default function ProfileVisibility({
       <form onSubmit={onSubmit}>
         <Controller
           control={control}
-          defaultValue={accountInfo.profilePublicVisibility}
           name="choice"
-          render={({ onChange, value }) => (
-            <RadioGroup
-              name="profileVisibility"
-              value={value}
-              onChange={(event) => onChange(Number(event.target.value))}
-            >
-              {choices.map(([setting, translationKey]) => (
-                <FormControlLabel
-                  key={setting}
-                  value={setting}
-                  control={<Radio />}
-                  label={
-                    <Trans
-                      t={t}
-                      i18nKey={translationKey}
-                      components={{ "1": <strong /> }}
-                    />
-                  }
-                />
-              ))}
-            </RadioGroup>
+          defaultValue={accountInfo.profilePublicVisibility}
+          render={({ field }) => (
+            <FormControl component="fieldset" sx={{ mb: 2, display: "block" }}>
+              <FormLabel component="legend">
+                {t("auth:profile_visibility.choose")}
+              </FormLabel>
+              <RadioGroup
+                {...field}
+                row
+                onChange={(event, newValue) => field.onChange(Number(newValue))}
+                sx={{ marginBlockStart: 1 }}
+              >
+                {choices.map(([setting, translationKey]) => (
+                  <FormControlLabel
+                    key={setting}
+                    value={setting}
+                    control={<Radio />}
+                    label={
+                      <Trans
+                        t={t}
+                        i18nKey={translationKey}
+                        components={{ "1": <strong /> }}
+                      />
+                    }
+                  />
+                ))}
+              </RadioGroup>
+            </FormControl>
           )}
         />
         <Button
