@@ -559,28 +559,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
         reference.is_deleted = True
         return empty_pb2.Empty()
-
-    def EditDiscussion(self, request, context, session):
-        discussion = session.execute(
-            select(Discussion).where(Discussion.id == request.discussion_id)
-        ).scalar_one_or_none()
-        if request.new_title:
-            discussion.title = request.new_title.strip()
-        if request.new_content:
-            discussion.content = request.new_content.strip()
-        return empty_pb2.Empty()
-
-    def EditReply(self, request, context, session):
-        database_id, depth = unpack_thread_id(request.reply_id)
-        if depth == 1:
-            obj = session.execute(select(Comment).where(Comment.id == database_id)).scalar_one_or_none()
-        elif depth == 2:
-            obj = session.execute(select(Reply).where(Reply.id == database_id)).scalar_one_or_none()
-        if not obj:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.OBJECT_NOT_FOUND)
-        obj.content = request.new_content.strip()
-        return empty_pb2.Empty()
-
+    
     def GroupUsersAsDuplicated(self, request, context, session):
         """Mark multiple users as duplicated accounts.
         Users must belong to maximum one duplicate account group."""
@@ -645,3 +624,24 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
         duplicated_users_username = [user.username for user in duplicate_group.users if user.id != user_req.id]
         return admin_pb2.GetDuplicatedFromUserRes(duplicated_usernames=duplicated_users_username)
+
+    def EditDiscussion(self, request, context, session):
+        discussion = session.execute(
+            select(Discussion).where(Discussion.id == request.discussion_id)
+        ).scalar_one_or_none()
+        if request.new_title:
+            discussion.title = request.new_title.strip()
+        if request.new_content:
+            discussion.content = request.new_content.strip()
+        return empty_pb2.Empty()
+
+    def EditReply(self, request, context, session):
+        database_id, depth = unpack_thread_id(request.reply_id)
+        if depth == 1:
+            obj = session.execute(select(Comment).where(Comment.id == database_id)).scalar_one_or_none()
+        elif depth == 2:
+            obj = session.execute(select(Reply).where(Reply.id == database_id)).scalar_one_or_none()
+        if not obj:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.OBJECT_NOT_FOUND)
+        obj.content = request.new_content.strip()
+        return empty_pb2.Empty()
