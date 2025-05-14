@@ -13,8 +13,8 @@ from couchers.models import (
     EventOccurrence,
     Node,
     Reference,
-    UserLink,
-    UserLinkType,
+    UserGroup,
+    UserGroupType,
     UserSession,
 )
 from couchers.sql import couchers_select as select
@@ -27,7 +27,7 @@ from tests.test_fixtures import (  # noqa
     events_session,
     generate_user,
     get_user_id_and_token,
-    link_users,
+    group_users_duplicated,
     mock_notification_email,
     push_collector,
     real_admin_session,
@@ -53,12 +53,6 @@ def test_access_by_normal_user(db):
                 admin_pb2.GetUserDetailsReq(
                     user=str(normal_user.id),
                 )
-            )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-
-        with pytest.raises(grpc.RpcError) as e:
-            api.LinkUsersAsDuplicated(
-                admin_pb2.LinkUsersDuplicatedReq(user1=normal_user.username, user2=other_user.username)
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
@@ -738,117 +732,143 @@ def test_DeleteReference(db):
         assert modified_reference.is_deleted
 
 
-def test_LinkUsersAsDuplicated(db):
-    super_user, super_token = generate_user(is_superuser=True)
-    user1, _ = generate_user()
-    user2, _ = generate_user()
-    user3, _ = generate_user()
-
-    with real_admin_session(super_token) as api:
-        # Test successful linking
-        res = api.LinkUsersAsDuplicated(admin_pb2.LinkUsersDuplicatedReq(user1=user1.username, user2=user2.username))
-        assert res.user_link_id > 0
-
-        # Verify the link exists and is correct
-        with session_scope() as session:
-            link = session.execute(select(UserLink).where(UserLink.id == res.user_link_id)).scalar_one()
-            assert link.user1_id == min(user1.id, user2.id)
-            assert link.user2_id == max(user1.id, user2.id)
-            assert link.link_type == UserLinkType.duplicate_account
-
-        # Test link that already exists (should fail)
-        with pytest.raises(grpc.RpcError) as e:
-            api.LinkUsersAsDuplicated(admin_pb2.LinkUsersDuplicatedReq(user1=user1.username, user2=user2.username))
-        assert e.value.code() == grpc.StatusCode.ALREADY_EXISTS
-
-        # Test linking same user to self (should fail)
-        with pytest.raises(grpc.RpcError) as e:
-            api.LinkUsersAsDuplicated(admin_pb2.LinkUsersDuplicatedReq(user1=user1.username, user2=user1.username))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.CANNOT_LINK_SAME_USER
-
-        # Test with non-existent user (should fail)
-        with pytest.raises(grpc.RpcError) as e:
-            api.LinkUsersAsDuplicated(admin_pb2.LinkUsersDuplicatedReq(user1=user1.username, user2="nonexistent_user"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
-
-        # Test ordering is maintained (smaller ID is always user1)
-        res = api.LinkUsersAsDuplicated(admin_pb2.LinkUsersDuplicatedReq(user1=user3.username, user2=user1.username))
-        with session_scope() as session:
-            link = session.execute(select(UserLink).where(UserLink.id == res.user_link_id)).scalar_one()
-            assert link.user1_id == min(user1.id, user3.id)
-            assert link.user2_id == max(user1.id, user3.id)
-
-
-def test_RemoveUserLink(db):
-    super_user, super_token = generate_user(is_superuser=True)
-    user1, _ = generate_user()
-    user2, _ = generate_user()
-
-    with real_admin_session(super_token) as api:
-        link_id = link_users(user1, user2, UserLinkType.duplicate_account)
-
-        api.RemoveUserLink(admin_pb2.RemoveUserLinkReq(user_link_id=link_id))
-
-        # Verify link was deleted
-        with session_scope() as session:
-            link = session.execute(select(UserLink).where(UserLink.id == link_id)).scalar_one_or_none()
-            assert link is None
-
-        # Test removing non-existent link
-        with pytest.raises(grpc.RpcError) as e:
-            api.RemoveUserLink(
-                admin_pb2.RemoveUserLinkReq(
-                    user_link_id=99999  # Non-existent ID
-                )
-            )
-            assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert e.value.details() == errors.USER_LINK_NOT_FOUND
-
-
-def test_GetUserLinks(db):
-    """Test getting user links with various scenarios"""
+def test_GroupUsersAsDuplicated(db):
     super_user, super_token = generate_user(is_superuser=True)
     user1, _ = generate_user()
     user2, _ = generate_user()
     user3, _ = generate_user()
     user4, _ = generate_user()
-    user_no_links, _ = generate_user()
+    user5, _ = generate_user()
 
-    link1_id = link_users(user1, user2, UserLinkType.duplicate_account.name)
-    link2_id = link_users(user3, user1, UserLinkType.duplicate_account.name)
-    link3_id = link_users(user3, user4, UserLinkType.duplicate_account.name)
+    with session_scope() as session:
+        with real_admin_session(super_token) as api:
+        # Test successful grouping of users
+            res = api.GroupUsersAsDuplicated(
+                admin_pb2.GroupUsersDuplicatedReq(users=[user1.username, user2.username]),
+            )
+            assert res.user_group_id > 0
+            with session_scope() as session:
+                user_group = session.get(UserGroup, res.user_group_id)
+                assert user_group is not None
+                assert user_group.group_type == UserGroupType.duplicate_account
+                # assert user1.id in [user.id for user in user_group.users]
+                assert user_group.has_user(user1)
+                # assert user2.id in [user.id for user in user_group.users]
+                assert user_group.has_user(user2)
+
+            # Test adding another user to existing group
+            res2 = api.GroupUsersAsDuplicated(
+                admin_pb2.GroupUsersDuplicatedReq(users=[user1.username, user3.username]),
+            )
+            assert res2.user_group_id == res.user_group_id
+            with session_scope() as session:
+                user_group = session.get(UserGroup, res.user_group_id)
+                assert user_group.group_type == UserGroupType.duplicate_account
+                # assert user3.id in [user.id for user in user_group.users]
+                assert user_group.has_user(user3)
+
+            # Test creating a separate group
+            res3 = api.GroupUsersAsDuplicated(
+                admin_pb2.GroupUsersDuplicatedReq(users=[user4.username, user5.username]),
+            )
+            assert res3.user_group_id != res.user_group_id
+
+            # Test error cases
+            with pytest.raises(grpc.RpcError) as e:
+                api.GroupUsersAsDuplicated(
+                    admin_pb2.GroupUsersDuplicatedReq(users=[user1.username]),
+                )
+            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+            assert errors.AT_LEAST_TWO_USERS_REQUIRED == e.value.details()
+
+            # Test trying to group users from different existing groups
+            with pytest.raises(grpc.RpcError) as e:
+                api.GroupUsersAsDuplicated(
+                    admin_pb2.GroupUsersDuplicatedReq(users=[user2.username, user4.username]),
+                )
+            assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+            assert errors.USER_ALREADY_BELONGS_TO_DUPLICATE_GROUP == e.value.details()
+
+            # Test with non-existent user
+            with pytest.raises(grpc.RpcError) as e:
+                api.GroupUsersAsDuplicated(
+                    admin_pb2.GroupUsersDuplicatedReq(users=[user1.username, "nonexistent"]),
+                )
+            assert e.value.code() == grpc.StatusCode.NOT_FOUND
+            assert errors.USER_NOT_FOUND == e.value.details()
+
+
+def test_RemoveUserFromDuplicateGroup(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+    group_id = group_users_duplicated([user1, user2, user3])
 
     with real_admin_session(super_token) as api:
-        # Test getting links for user1 (should have 2 duplicate links)
-        res = api.GetUserLinks(admin_pb2.GetUserLinksReq(user=user1.username))
-        assert len(res.links) == 2
+        # Test successful removal
+        api.RemoveUserFromDuplicateGroup(
+            admin_pb2.RemoveUserFromDuplicateGroupReq(user=user1.username)
+        )
+        with session_scope() as session:
+            user_group = session.get(UserGroup, group_id)
+            assert not user_group.has_user(user1)
+            assert user_group.has_user(user2)
+            assert user_group.has_user(user3)
+            
+        # Test removing user that's not in any group (should raise error)
+        with pytest.raises(grpc.RpcError) as e:
+            api.RemoveUserFromDuplicateGroup(
+                admin_pb2.RemoveUserFromDuplicateGroupReq(user=user1.username)
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert errors.USER_NOT_IN_ANY_DUPLICATE_GROUP == e.value.details()
+        
+        # Test with non-existent user (should raise error)
+        with pytest.raises(grpc.RpcError) as e:
+            api.RemoveUserFromDuplicateGroup(
+                admin_pb2.RemoveUserFromDuplicateGroupReq(user="nonexistent")
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert errors.USER_NOT_FOUND == e.value.details()
 
-        links = {link.user_link_id: link for link in res.links}
 
-        link1 = links[link1_id]
-        assert link1.user1_id == min(user1.id, user2.id)
-        assert link1.user2_id == max(user1.id, user2.id)
-        assert link1.user_link_type == UserLinkType.duplicate_account.name
+def test_GetDuplicatedFromUser(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+    user4, _ = generate_user()  # User not in any duplicate group
+    group_id = group_users_duplicated([user1, user2, user3])
 
-        link2 = links[link2_id]
-        assert link2.user1_id == min(user1.id, user3.id)
-        assert link2.user2_id == max(user1.id, user3.id)
-        assert link2.user_link_type == UserLinkType.duplicate_account.name
+    with real_admin_session(super_token) as api:
+        # Test getting duplicates
+        res = api.GetDuplicatedUsersFromUser(
+            admin_pb2.GetDuplicatedFromUserReq(user=user1.username)
+        )
+        assert user1.username not in res.duplicated_usernames
+        assert user2.username in res.duplicated_usernames
+        assert user3.username in res.duplicated_usernames
 
-        # Test getting links for user2 (should have 1 duplicate link)
-        res = api.GetUserLinks(admin_pb2.GetUserLinksReq(user=user2.username))
-        assert len(res.links) == 1
-        link = res.links[0]
-        assert link.user_link_id == link1_id
-        assert link.user1_id == min(user1.id, user2.id)
-        assert link.user2_id == max(user1.id, user2.id)
-        assert link.user_link_type == UserLinkType.duplicate_account.name
+        res = api.GetDuplicatedUsersFromUser(
+            admin_pb2.GetDuplicatedFromUserReq(user=user2.username)
+        )
+        assert user1.username in res.duplicated_usernames
+        assert user2.username not in res.duplicated_usernames
+        assert user3.username in res.duplicated_usernames
 
-        # Test getting links for user with no links
-        res = api.GetUserLinks(admin_pb2.GetUserLinksReq(user=user_no_links.username))
-        assert len(res.links) == 0
+        # Test user not in any duplicate group
+        res = api.GetDuplicatedUsersFromUser(
+            admin_pb2.GetDuplicatedFromUserReq(user=user4.username)
+        )
+        assert res.duplicated_usernames == []
 
+        # Test with non-existent user
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetDuplicatedUsersFromUser(
+                admin_pb2.GetDuplicatedFromUserReq(user="nonexistent")
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert errors.USER_NOT_FOUND == e.value.details()
 
 # community invite feature tested in test_events.py

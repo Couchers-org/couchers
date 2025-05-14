@@ -41,7 +41,8 @@ from couchers.models import (
     Upload,
     User,
     UserBlock,
-    UserLink,
+    UserGroup,
+    UserGroupType,
     UserSession,
 )
 from couchers.servicers.account import Account, Iris
@@ -413,16 +414,17 @@ def get_friend_relationship(user1, user2):
         return friend_relationship
 
 
-def link_users(user1, user2, link_type):
+def group_users_duplicated(users):
+    """Group users as duplicated accounts"""
     with session_scope() as session:
-        user_link = UserLink(
-            user1_id=min(user1.id, user2.id),
-            user2_id=max(user1.id, user2.id),
-            link_type=link_type,
-        )
-        session.add(user_link)
+        user_group_duplicated = UserGroup(group_type=UserGroupType.duplicate_account)
+        session.add(user_group_duplicated)
+        session.flush()
+        for user in users:
+            refreshed_user = session.get(User, user.id)
+            user_group_duplicated.users.append(refreshed_user)
         session.commit()
-        return user_link.id
+        return user_group_duplicated.id
 
 
 class CookieMetadataPlugin(grpc.AuthMetadataPlugin):

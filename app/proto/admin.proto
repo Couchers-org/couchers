@@ -71,11 +71,11 @@ service Admin {
 
   rpc EditReply(EditReplyReq) returns (google.protobuf.Empty) {}
 
-  rpc LinkUsersAsDuplicated(LinkUsersDuplicatedReq) returns (LinkUsersDuplicatedRes) {}
+  rpc GroupUsersAsDuplicated(GroupUsersDuplicatedReq) returns (GroupUsersDuplicatedRes) {}
 
-  rpc RemoveUserLink(RemoveUserLinkReq) returns (google.protobuf.Empty) {}
+  rpc RemoveUserFromDuplicateGroup(RemoveUserFromDuplicateGroupReq) returns (google.protobuf.Empty) {}
 
-  rpc GetUserLinks(GetUserLinksReq) returns (GetUserLinksRes);
+  rpc GetDuplicatedUsersFromUser(GetDuplicatedFromUserReq) returns (GetDuplicatedFromUserRes) {}
 }
 
 message UserDetails {
@@ -303,31 +303,25 @@ message EditReplyReq {
   string new_content = 2;
 }
 
-message LinkUsersDuplicatedReq {
-    string user1 = 1;
-    string user2 = 2;
+message GroupUsersDuplicatedReq {
+  // username, email, or user id
+  repeated string users = 1;
 }
 
-message LinkUsersDuplicatedRes {
-    int64 user_link_id = 1;
+message GroupUsersDuplicatedRes {
+  int64 user_group_id = 1;
 }
 
-message RemoveUserLinkReq {
-    int64 user_link_id = 1;
+message RemoveUserFromDuplicateGroupReq {
+  // username, email, or user id
+  string user = 1;
 }
 
-message GetUserLinksReq {
-    string user = 1;
+message GetDuplicatedFromUserReq {
+  // username, email, or user id
+  string user = 1;
 }
 
-message GetUserLinksRes {
-    repeated UserLink links = 1;
-}
-
-message UserLink {
-    int64 user_link_id = 1;
-    int64 user1_id = 2;
-    int64 user2_id = 3;
-    string user_link_type = 4;
-    google.protobuf.Timestamp created = 6;
+message GetDuplicatedFromUserRes {
+  repeated string duplicated_usernames = 1;
 }

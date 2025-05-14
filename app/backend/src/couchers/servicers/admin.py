@@ -29,8 +29,8 @@ from couchers.models import (
     Reply,
     User,
     UserBadge,
-    UserLink,
-    UserLinkType,
+    UserGroup,
+    UserGroupType,
 )
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict
@@ -581,83 +581,71 @@ class Admin(admin_pb2_grpc.AdminServicer):
         obj.content = request.new_content.strip()
         return empty_pb2.Empty()
 
-    def LinkUsersAsDuplicated(self, request, context, session):
-        """Link two users together as duplicated accounts"""
-        user1 = session.execute(select(User).where_username_or_email_or_id(request.user1)).scalar_one_or_none()
-        if not user1:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-        user2 = session.execute(select(User).where_username_or_email_or_id(request.user2)).scalar_one_or_none()
-        if not user2:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+    def GroupUsersAsDuplicated(self, request, context, session):
+        """Mark multiple users as duplicated accounts.
+        Users must belong to maximum one duplicate account group."""
+        req_users = request.users
+        if len(req_users) < 2:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.AT_LEAST_TWO_USERS_REQUIRED)
+        users = []
+        user_group_duplicated = None
 
-        if user1.id == user2.id:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANNOT_LINK_SAME_USER)
+        for req_user in req_users:
+            user = session.execute(select(User).where_username_or_email_or_id(req_user)).scalar_one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            users.append(user)
 
-        # Order users by ID to maintain consistency
-        if user1.id > user2.id:
-            user1, user2 = user2, user1
+            existing_user_group = user.get_group_duplicated()
 
-        # Check if the link already exists
-        existing_link = session.execute(
-            select(UserLink).where(
-                UserLink.user1_id == user1.id,
-                UserLink.user2_id == user2.id,
-                UserLink.link_type == UserLinkType.duplicate_account,
-            )
-        ).scalar_one_or_none()
+            if existing_user_group:
+                if user_group_duplicated and user_group_duplicated.id != existing_user_group.id:
+                    context.abort(
+                        grpc.StatusCode.FAILED_PRECONDITION,
+                        errors.USER_ALREADY_BELONGS_TO_DUPLICATE_GROUP
+,
+                    )
+                user_group_duplicated = existing_user_group
 
-        if existing_link:
-            context.abort(grpc.StatusCode.ALREADY_EXISTS, errors.USER_LINK_ALREADY_EXISTS)
+        if not user_group_duplicated:
+            user_group_duplicated = UserGroup(group_type=UserGroupType.duplicate_account)
+            session.add(user_group_duplicated)
+            session.flush()
 
-        user_link = UserLink(
-            user1_id=user1.id,
-            user2_id=user2.id,
-            link_type=UserLinkType.duplicate_account,
-        )
-        session.add(user_link)
+        for user in users:
+            if user not in user_group_duplicated.users:
+                user_group_duplicated.users.append(user)
+
         session.commit()
+        return admin_pb2.GroupUsersDuplicatedRes(user_group_id=user_group_duplicated.id)
+    
 
-        return admin_pb2.LinkUsersDuplicatedRes(user_link_id=user_link.id)
-
-    def RemoveUserLink(self, request, context, session):
-        """Remove a link between users using user_link_id"""
-        link = session.execute(select(UserLink).where(UserLink.id == request.user_link_id)).scalar_one_or_none()
-
-        if not link:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_LINK_NOT_FOUND)
-
-        session.delete(link)
-        session.commit()
-
-        return empty_pb2.Empty()
-
-    def GetUserLinks(self, request, context, session):
-        """Get all links for a specific user to duplicated users"""
+    def RemoveUserFromDuplicateGroup(self, request, context, session):
+        """Removes a user from its duplicate account group if they belong to one."""
         user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
         if not user:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-        links = (
-            session.execute(
-                select(UserLink).where(
-                    UserLink.link_type == UserLinkType.duplicate_account,
-                    or_(UserLink.user1_id == user.id, UserLink.user2_id == user.id),
-                )
-            )
-            .scalars()
-            .all()
-        )
+        duplicate_group = user.get_group_duplicated()
 
-        return admin_pb2.GetUserLinksRes(
-            links=[
-                admin_pb2.UserLink(
-                    user_link_id=link.id,
-                    user1_id=link.user1_id,
-                    user2_id=link.user2_id,
-                    user_link_type=link.link_type.name,
-                    created=Timestamp_from_datetime(link.created),
-                )
-                for link in links
-            ]
-        )
+        if not duplicate_group:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_IN_ANY_DUPLICATE_GROUP)
+        
+        duplicate_group.users.remove(user)
+        session.commit()
+        return empty_pb2.Empty()
+    
+
+    def GetDuplicatedUsersFromUser(self, request, context, session):
+        """Get all the duplicated users for a given user excluding itself."""
+        user_req = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+        if not user_req:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
+        duplicate_group = user_req.get_group_duplicated()
+        if not duplicate_group:
+            return admin_pb2.GetDuplicatedFromUserRes(duplicated_usernames=[])
+
+        duplicated_users_username = [user.username for user in duplicate_group.users if user.id != user_req.id]
+        return admin_pb2.GetDuplicatedFromUserRes(duplicated_usernames=duplicated_users_username)

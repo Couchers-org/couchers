@@ -297,6 +297,8 @@ class User(Base):
 
     age = column_property(func.date_part("year", func.age(birthdate)))
 
+    groups = relationship("UserGroup", secondary="user_group_members", back_populates="users")
+
     __table_args__ = (
         # Verified phone numbers should be unique
         Index(
@@ -426,6 +428,13 @@ class User(Base):
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
+    
+    def get_group_duplicated(self):
+        """Returns the duplicate account group if user belongs to one, otherwise returns None."""
+        return next(
+            (group for group in self.groups if group.group_type == UserGroupType.duplicate_account),
+            None
+        )
 
 
 class UserBadge(Base):
@@ -2669,30 +2678,39 @@ class AccountDeletionReason(Base):
     user = relationship("User")
 
 
-class UserLinkType(enum.Enum):
+class UserGroupType(enum.Enum):
     duplicate_account = enum.auto()
 
 
-class UserLink(Base):
+class UserGroup(Base):
     """
-    Links between users for various types
+    Represents a group of users grouped by a specific type
     """
 
-    __tablename__ = "user_links"
+    __tablename__ = "user_groups"
 
     id = Column(BigInteger, primary_key=True)
-    user1_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    user2_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    link_type = Column(Enum(UserLinkType), nullable=False)
+    group_type = Column(Enum(UserGroupType), nullable=False)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     # Relationships
-    user1 = relationship("User", foreign_keys="UserLink.user1_id")
-    user2 = relationship("User", foreign_keys="UserLink.user2_id")
+    users = relationship("User", secondary="user_group_members", back_populates="groups")
 
-    __table_args__ = (
-        # Prevent duplicate links between the same users
-        UniqueConstraint("user1_id", "user2_id", "link_type"),
-        # Ensure user1_id is always less than user2_id to prevent duplicate links
-        CheckConstraint("user1_id < user2_id", name="user_order_check"),
-    )
+    def has_user(self, user):
+        """Check if user is in group"""
+        return user.id in {u.id for u in self.users}
+    
+    def has_user_id(self, user_id):
+        """Check if user id is in group"""
+        return user_id in {u.id for u in self.users}
+
+
+class UserGroupMember(Base):
+    """
+    Association table for many-to-many relationship between users and groups
+    """
+
+    __tablename__ = "user_group_members"
+
+    user_id = Column(ForeignKey("users.id"), primary_key=True)
+    group_id = Column(ForeignKey("user_groups.id"), primary_key=True)
