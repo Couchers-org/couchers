@@ -1,6 +1,6 @@
 import IconButton from "components/IconButton";
 import { SettingsIcon } from "components/Icons";
-import useAccountInfo from "features/auth/useAccountInfo";
+import ModVisibleComponent from "features/mod/ModVisibleComponent";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
@@ -16,19 +16,16 @@ export default function AdminPanelUserButton({
 }: AdminPanelUserButtonProps) {
   const { t } = useTranslation(PROFILE);
   const router = useRouter();
-  const { data: accountInfo } = useAccountInfo();
 
   return (
-    <>
-      {accountInfo?.isSuperuser && (
-        <IconButton
-          aria-label={t("view_in_admin_console")}
-          onClick={() => router.push(adminPanelUserLink(username))}
-          color="primary"
-        >
-          <SettingsIcon />
-        </IconButton>
-      )}
-    </>
+    <ModVisibleComponent>
+      <IconButton
+        aria-label={t("view_in_admin_console")}
+        onClick={() => router.push(adminPanelUserLink(username))}
+        color="primary"
+      >
+        <SettingsIcon />
+      </IconButton>
+    </ModVisibleComponent>
   );
 }

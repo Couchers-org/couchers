@@ -4,7 +4,7 @@ slug: hosting-refugees-and-finding-shelter-with-couchers-org-en
 description: Host refugees or find shelter with Couchers.org
 date: 2022/03/13
 author: Itsi
-share_image: /app/web/public/img/blog/20220313_ukraine_en.jpg
+share_image: /img/blog/20220313_ukraine_en.jpg
 ---
 
 [Українська](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-uk) – [Polski](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-pl) – [Magyar](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-hu) – [Română](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-ro)

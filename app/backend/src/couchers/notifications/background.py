@@ -82,17 +82,17 @@ def _send_email_notification(session, user: User, notification: Notification):
     html_tmplt = (template_folder / "generated_html" / f"{rendered.email_template_name}.html").read_text()
     html = env.from_string(html_tmplt.replace("___UNSUB_SECTION___", html_unsub_section)).render(template_args)
 
-    if not rendered.is_critical:
-        if user.do_not_email:
-            logger.info(
-                f"Not emailing {user} based on template {rendered.email_template_name} due to emails turned off"
-            )
-            return
-        if not user.is_visible:
-            logger.error(
-                f"Tried emailing {user}  based on template {rendered.email_template_name} but user not visible"
-            )
-            return
+    if user.do_not_email and not rendered.is_critical:
+        logger.info(f"Not emailing {user} based on template {rendered.email_template_name} due to emails turned off")
+        return
+
+    if user.is_banned:
+        logger.info(f"Tried emailing {user} based on template {rendered.email_template_name} but user is banned")
+        return
+
+    if user.is_deleted and not rendered.allow_deleted:
+        logger.info(f"Tried emailing {user} based on template {rendered.email_template_name} but user is deleted")
+        return
 
     list_unsubscribe_header = None
     if rendered.email_list_unsubscribe_url:

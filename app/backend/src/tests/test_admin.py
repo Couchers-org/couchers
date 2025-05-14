@@ -8,6 +8,7 @@ from sqlalchemy.sql import func
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import (
+    AccountDeletionToken,
     Cluster,
     ContentReport,
     EventOccurrence,
@@ -19,9 +20,10 @@ from couchers.models import (
 )
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now, parse_date, timedelta
-from proto import admin_pb2, events_pb2, references_pb2, reporting_pb2
+from proto import admin_pb2, auth_pb2, events_pb2, references_pb2, reporting_pb2
 from tests.test_communities import create_community
 from tests.test_fixtures import (  # noqa
+    auth_api_session,
     db,
     email_fields,
     events_session,
@@ -856,6 +858,44 @@ def test_GetDuplicatedFromUser(db):
             api.GetDuplicatedUsersFromUser(admin_pb2.GetDuplicatedFromUserReq(user="nonexistent"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert errors.USER_NOT_FOUND == e.value.details()
+
+
+def test_admin_delete_account_url(db, push_collector):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    user, token = generate_user()
+    user_id = user.id
+
+    with real_admin_session(super_token) as admin_api:
+        url = admin_api.CreateAccountDeletionLink(
+            admin_pb2.CreateAccountDeletionLinkReq(user=user.username)
+        ).account_deletion_confirm_url
+
+    push_collector.assert_user_has_count(user_id, 0)
+
+    with session_scope() as session:
+        token_o = session.execute(select(AccountDeletionToken)).scalar_one()
+        token = token_o.token
+        assert token_o.user.id == user_id
+        assert url == f"http://localhost:3000/delete-account?token={token}"
+
+    with mock_notification_email() as mock:
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            auth_api.ConfirmDeleteAccount(
+                auth_pb2.ConfirmDeleteAccountReq(
+                    token=token,
+                )
+            )
+
+    push_collector.assert_user_push_matches_fields(
+        user_id,
+        ix=0,
+        title="Your Couchers.org account has been deleted",
+        body="You can still undo this by following the link we emailed to you within 7 days.",
+    )
+
+    mock.assert_called_once()
+    e = email_fields(mock)
 
 
 # community invite feature tested in test_events.py

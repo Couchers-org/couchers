@@ -32,6 +32,7 @@ CONFIG_OPTIONS = [
     ("OPENTELEMETRY_ENDPOINT", str, ""),
     # Path to a GeoLite2-City.mmdb file for geocoding IPs in user session info
     ("GEOLITE2_CITY_MMDB_FILE_LOCATION", str, ""),
+    ("GEOLITE2_ASN_MMDB_FILE_LOCATION", str, ""),
     # Whether to try adding dummy data
     ("ADD_DUMMY_DATA", bool),
     # Donations

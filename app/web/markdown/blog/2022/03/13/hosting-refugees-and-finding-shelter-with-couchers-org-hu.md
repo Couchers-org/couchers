@@ -3,7 +3,7 @@ title: Menekültek elszállásolása és menedék keresése a Couchers.orggal
 slug: hosting-refugees-and-finding-shelter-with-couchers-org-hu
 date: 2022/03/13
 author: Itsi
-share_image: /app/web/public/img/blog/20220313_ukraine_hu.jpg
+share_image: /img/blog/20220313_ukraine_hu.jpg
 ---
 
 [English](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-en) – [Українська](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-uk) – [Polski](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-pl) – [Română](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-ro)

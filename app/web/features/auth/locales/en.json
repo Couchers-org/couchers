@@ -191,7 +191,7 @@
   "feature_preview": {
     "title": "Feature Preview",
     "explanation": "This page allows you to try out features that are still in development before they are quite ready for use by everyone.",
-    "disclaimer": "Please keep in mind that these features are experimental. They may not work as intended and they may change rapidly as we develop them. Feel free to give feedback on our forum. Please report any bugs!",
+    "disclaimer": "Please keep in mind that these features are experimental. They may not work as intended and they may change rapidly as we develop them. Feel free to give feedback using the \"Report a problem\" button to report any bugs!",
     "no_previews": {
       "title": "No features currently in preview",
       "explanation": "There are currently no active features in preview, please check back later!"
@@ -220,7 +220,7 @@
     },
     "start_button": "Start Strong Verification",
     "begin_button": "Complete Strong Verification with Iris ID",
-    "information_text1": "You will need a biometric passport and an NFC-capable Apple iPhone or Android phone.",
+    "information_text1": "You will need a <strong>biometric passport</strong> (other types of identification will not work) and an NFC-capable Apple iPhone or Android phone.",
     "information_text2": "By clicking the button below, you will be taken to the Iris ID website to complete the passport verification process.",
     "information_text3": "You can read more about how we and Iris ID process and store your data in our <2>Terms of Service</2>. As per the Iris ID <5>Privacy policy</5>, they will delete your personal information within 24 hours. You can request that this Strong Verification data (except issuing country, expiry date, and the last three digits of the document number) be deleted from our servers at any time with the click of a button.",
     "complete_title": "We are processing your Strong Verification attempt",

@@ -6,13 +6,17 @@ import grpc
 from geoalchemy2.shape import from_shape
 from google.protobuf import empty_pb2
 from shapely.geometry import shape
-from sqlalchemy.sql import or_, select, update
+from sqlalchemy.sql import func, or_, select, update
+from user_agents import parse as user_agents_parse
 
 from couchers import errors, urls
+from couchers.crypto import urlsafe_secure_token
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.clusters import create_cluster, create_node
+from couchers.helpers.geoip import geoip_approximate_location, geoip_asn
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
+    AccountDeletionToken,
     Comment,
     ContentReport,
     Discussion,
@@ -28,6 +32,7 @@ from couchers.models import (
     Reference,
     Reply,
     User,
+    UserActivity,
     UserBadge,
     UserGroup,
     UserGroupType,
@@ -40,7 +45,7 @@ from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import get_users_to_notify_for_new_event
 from couchers.servicers.threads import unpack_thread_id
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date
+from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, to_aware_datetime
 from proto import admin_pb2, admin_pb2_grpc, notification_data_pb2
 from proto.internal import jobs_pb2
 
@@ -645,3 +650,63 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort(grpc.StatusCode.NOT_FOUND, errors.OBJECT_NOT_FOUND)
         obj.content = request.new_content.strip()
         return empty_pb2.Empty()
+
+    def CreateAccountDeletionLink(self, request, context, session):
+        user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+        if not user:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+        expiry_days = request.expiry_days or 7
+        token = AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
+        session.add(token)
+        return admin_pb2.CreateAccountDeletionLinkRes(
+            account_deletion_confirm_url=urls.delete_account_link(account_deletion_token=token.token)
+        )
+
+    def AccessStats(self, request, context, session):
+        user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+        if not user:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
+        start_time = to_aware_datetime(request.start_time) if request.start_time else now() - timedelta(days=90)
+        end_time = to_aware_datetime(request.end_time) if request.end_time else now()
+
+        user_activity = session.execute(
+            select(
+                UserActivity.ip_address,
+                UserActivity.user_agent,
+                func.sum(UserActivity.api_calls),
+                func.count(UserActivity.period),
+                func.min(UserActivity.period),
+                func.max(UserActivity.period),
+            )
+            .where(UserActivity.user_id == user.id)
+            .where(UserActivity.period >= start_time)
+            .where(UserActivity.period >= end_time)
+            .order_by(func.max(UserActivity.period).desc())
+            .group_by(UserActivity.ip_address, UserActivity.user_agent)
+        ).all()
+
+        out = admin_pb2.AccessStatsRes()
+
+        for ip_address, user_agent, api_call_count, periods_count, first_seen, last_seen in user_activity:
+            user_agent_data = user_agents_parse(user_agent or "")
+            asn = geoip_asn(ip_address)
+            out.stats.append(
+                admin_pb2.AccessStat(
+                    ip_address=ip_address,
+                    asn=str(asn[0]) if asn else None,
+                    asorg=str(asn[1]) if asn else None,
+                    asnetwork=str(asn[2]) if asn else None,
+                    user_agent=user_agent,
+                    operating_system=user_agent_data.os.family,
+                    browser=user_agent_data.browser.family,
+                    device=user_agent_data.device.family,
+                    approximate_location=geoip_approximate_location(ip_address) or "Unknown",
+                    api_call_count=api_call_count,
+                    periods_count=periods_count,
+                    first_seen=Timestamp_from_datetime(first_seen),
+                    last_seen=Timestamp_from_datetime(last_seen),
+                )
+            )
+
+        return out
