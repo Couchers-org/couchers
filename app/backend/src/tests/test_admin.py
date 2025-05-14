@@ -752,9 +752,7 @@ def test_GroupUsersAsDuplicated(db):
                 user_group = session.get(UserGroup, res.user_group_id)
                 assert user_group is not None
                 assert user_group.group_type == UserGroupType.duplicate_account
-                # assert user1.id in [user.id for user in user_group.users]
                 assert user_group.has_user(user1)
-                # assert user2.id in [user.id for user in user_group.users]
                 assert user_group.has_user(user2)
 
             # Test adding another user to existing group
@@ -765,7 +763,6 @@ def test_GroupUsersAsDuplicated(db):
             with session_scope() as session:
                 user_group = session.get(UserGroup, res.user_group_id)
                 assert user_group.group_type == UserGroupType.duplicate_account
-                # assert user3.id in [user.id for user in user_group.users]
                 assert user_group.has_user(user3)
 
             # Test creating a separate group
