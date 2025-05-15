@@ -49,7 +49,7 @@ export default function LeaveReferencePage({
   referenceType,
   userId,
   hostRequestId,
-  step = "appropriate",
+  step = "did-stay",
 }: {
   referenceType: string;
   userId: number;

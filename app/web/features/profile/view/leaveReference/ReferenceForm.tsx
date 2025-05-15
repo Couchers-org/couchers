@@ -10,6 +10,8 @@ import { useState } from "react";
 import { leaveReferenceBaseRoute, ReferenceStep } from "routes";
 import makeStyles from "utils/makeStyles";
 
+import DidStay from "./DidStay";
+
 export const useReferenceStyles = makeStyles((theme) => ({
   alert: {
     marginBottom: theme.spacing(3),
@@ -43,9 +45,11 @@ export const useReferenceStyles = makeStyles((theme) => ({
 }));
 
 export type ReferenceContextFormData = {
+  didStay: boolean | undefined;
   text: string;
   wasAppropriate: string;
   rating: number;
+  reasonDidntMeetup?: string;
 };
 
 export type ReferenceFormInputs = {
@@ -77,6 +81,7 @@ export default function ReferenceForm({
   const { t } = useTranslation([GLOBAL, PROFILE]);
 
   const [referenceData, setReferenceData] = useState<ReferenceContextFormData>({
+    didStay: undefined,
     text: "",
     wasAppropriate: "",
     rating: 0.33,
@@ -90,7 +95,10 @@ export default function ReferenceForm({
   };
 
   const isSkippedStep =
-    referenceData.wasAppropriate === "" && step !== "appropriate";
+    referenceData.wasAppropriate === "" &&
+    step !== "appropriate" &&
+    referenceData.didStay === undefined &&
+    step !== "did-stay";
   const redirectTo =
     referenceType === "friend"
       ? `${leaveReferenceBaseRoute}/${referenceType}/${userId}`
@@ -98,6 +106,13 @@ export default function ReferenceForm({
 
   return isSkippedStep ? (
     <Redirect to={redirectTo} />
+  ) : step === "did-stay" ? (
+    <DidStay
+      referenceData={referenceData}
+      setReferenceValues={setReferenceValues}
+      referenceType={referenceType}
+      hostRequestId={hostRequestId}
+    />
   ) : step === "appropriate" ? (
     <Appropriate
       referenceData={referenceData}

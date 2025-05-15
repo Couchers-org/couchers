@@ -45,7 +45,6 @@ export default function Appropriate({
   const {
     control,
     handleSubmit,
-
     formState: { errors },
   } = useForm<ReferenceContextFormData>({
     defaultValues: {

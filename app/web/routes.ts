@@ -100,6 +100,7 @@ export const referenceTypeRoute: Record<
   [ReferenceType.REFERENCE_TYPE_HOSTED]: "hosted",
 };
 export const referenceStepStrings = [
+  "did-stay",
   "appropriate",
   "rating",
   "reference",

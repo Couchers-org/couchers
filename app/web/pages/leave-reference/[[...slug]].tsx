@@ -1,7 +1,7 @@
 import { appGetLayout } from "components/AppRoute";
 import NotFoundPage from "features/NotFoundPage";
 import LeaveReferencePageComponent from "features/profile/view/leaveReference/LeaveReferencePage";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
+import { GLOBAL, NOTIFICATIONS, PROFILE } from "i18n/namespaces";
 import { translationStaticProps } from "i18n/server-side-translations";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
@@ -15,6 +15,7 @@ export const getStaticPaths: GetStaticPaths = () => ({
 export const getStaticProps: GetStaticProps = translationStaticProps([
   GLOBAL,
   PROFILE,
+  NOTIFICATIONS,
 ]);
 export default function LeaveReferencePage() {
   const router = useRouter();
@@ -41,6 +42,8 @@ export default function LeaveReferencePage() {
     step = slug?.[3];
   }
   const parsedStep = referenceStepStrings.find((s) => s === step);
+
+  console.log("parsedStep", parsedStep);
   const parsedHostRequestId = hostRequestId
     ? Number.parseInt(hostRequestId)
     : undefined;
