@@ -5,9 +5,10 @@ import pytest
 from sqlalchemy.sql import select
 
 from couchers import errors
+from couchers.constants import HOST_REQUEST_DAILY_BAN_QUOTA, HOST_REQUEST_DAILY_WARNING_QUOTA
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_view
-from couchers.models import Message, MessageType
+from couchers.models import Message, MessageType, User
 from couchers.templates.v2 import v2date
 from couchers.utils import now, today
 from proto import api_pb2, conversations_pb2, requests_pb2
@@ -145,6 +146,76 @@ def test_create_request_incomplete_profile(db):
             )
     assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
     assert e.value.details() == errors.INCOMPLETE_PROFILE_SEND_REQUEST
+
+
+def test_excessive_requests_are_reported(db):
+    """Test that excessive host requests are first reported in a warning email and finally lead to a user ban."""
+    user, token = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    with requests_session(token) as api:
+        # Test warning email
+        with mock_notification_email() as mock_email:
+            for _ in range(HOST_REQUEST_DAILY_WARNING_QUOTA - 1):
+                host_user, _ = generate_user()
+                _ = api.CreateHostRequest(
+                    requests_pb2.CreateHostRequestReq(
+                        host_user_id=host_user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                    )
+                )
+
+            assert mock_email.call_count == 0
+            host_user, _ = generate_user()
+            _ = api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=host_user.id,
+                    from_date=today_plus_2,
+                    to_date=today_plus_3,
+                    text="Excessive test request",
+                )
+            )
+            assert mock_email.call_count == 1
+            email = mock_email.mock_calls[0].kwargs["plain"]
+            assert email.startswith(
+                f"User {user.username} has sent {HOST_REQUEST_DAILY_WARNING_QUOTA} host requests in the past 24 hours."
+            )
+
+        # Test ban after exceeding HOST_REQUEST_DAILY_BAN_QUOTA
+        with mock_notification_email() as mock_email:
+            for _ in range(HOST_REQUEST_DAILY_BAN_QUOTA - HOST_REQUEST_DAILY_WARNING_QUOTA - 1):
+                host_user, _ = generate_user()
+                _ = api.CreateHostRequest(
+                    requests_pb2.CreateHostRequestReq(
+                        host_user_id=host_user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                    )
+                )
+
+            assert mock_email.call_count == 0
+            host_user, _ = generate_user()
+            with pytest.raises(grpc.RpcError) as exc_info:
+                _ = api.CreateHostRequest(
+                    requests_pb2.CreateHostRequestReq(
+                        host_user_id=host_user.id,
+                        from_date=today_plus_2,
+                        to_date=today_plus_3,
+                        text="Excessive test request",
+                    )
+                )
+            assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
+            assert (
+                exc_info.value.details()
+                == "Due to excessive host requests, the account has been suspended until further notice. The moderation team has been notified."
+            )
+            with session_scope() as session:
+                updated_user = session.get(User, user.id)
+                assert updated_user.is_banned
+
+            assert mock_email.call_count == 1
+            email = mock_email.mock_calls[0].kwargs["plain"]
+            assert email.startswith(
+                f"User {user.username} has sent {HOST_REQUEST_DAILY_BAN_QUOTA} host requests in the past 24 hours."
+            )
+            assert "The user has been banned subsequently." in email
 
 
 def add_message(db, text, author_id, conversation_id):

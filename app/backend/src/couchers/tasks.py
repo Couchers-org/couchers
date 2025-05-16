@@ -91,6 +91,22 @@ def maybe_send_reference_report_email(session, reference):
         )
 
 
+def send_host_request_spam_report_email(session, user, host_requests, threshold: int, time_interval_str: str):
+    """Send a report email if a user exceeds a threshold of host requests within a given time frame."""
+    logger.info("Sending host request spam report email")
+    email.enqueue_system_email(
+        session,
+        config["REPORTS_EMAIL_RECIPIENT"],
+        "host_request_spam_report",
+        template_args={
+            "user": user,
+            "host_requests": host_requests,
+            "threshold": threshold,
+            "time_interval_str": time_interval_str,
+        },
+    )
+
+
 def send_duplicate_strong_verification_email(session, old_attempt, new_attempt):
     logger.info("Sending duplicate SV email")
     email.enqueue_system_email(
