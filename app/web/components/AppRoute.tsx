@@ -24,7 +24,6 @@ const globalStyles = (
     styles={{
       "html, body": {
         margin: 0,
-        overflow: "hidden", // Prevents whole-page scrolling
       },
       "#__next": {
         height: "calc(var(--vh, 1vh) * 100)", // Use the dynamic --vh value from _app
@@ -39,7 +38,6 @@ const PageWrapper = styled(Box)({
   display: "flex",
   flexDirection: "column",
   flex: 1,
-  overflowY: "auto",
 });
 
 const ContentWrapper = styled(Container, {
