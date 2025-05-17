@@ -17,12 +17,16 @@ export type ReferenceContextFormData = {
   wasAppropriate: string;
   rating: number;
   reasonDidntMeetup?: string;
+  privateText?: string;
 };
 
 export type ReferenceFormInputs = {
   text: string;
   wasAppropriate: boolean;
   rating: number;
+  privateText?: string;
+  reasonDidntMeetup?: string;
+  didStay: boolean | undefined;
 };
 
 export interface ReferenceStepProps {

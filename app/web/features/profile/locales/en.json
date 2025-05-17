@@ -162,7 +162,10 @@
     "was_appropriate_required": "To help us keep our community safe, this question is required.",
     "next_step_label": "Next",
     "didnt_meetup_submit_success": "Thanks for letting us know! We won't ask you to write a reference!",
-    "go_to_dashboard": "Go to dashboard"
+    "go_to_dashboard": "Go to dashboard",
+    "private_text_header": "Private Feedback",
+    "private_text_explanation": "This feedback will not be shared with the other person, but will be used to help us improve our community.",
+    "private_text_placeholder": "Please let us know more. Did you feel safe with this person's behavior?"
   },
   "request_form": {
     "send_request": "Send {{name}} a request",

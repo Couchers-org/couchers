@@ -96,12 +96,17 @@ export async function writeHostRequestReference({
   text,
   wasAppropriate,
   rating,
+  privateText,
 }: WriteHostRequestReferenceInput) {
   const req = new WriteHostRequestReferenceReq();
   req.setHostRequestId(hostRequestId);
   req.setText(text);
   req.setWasAppropriate(wasAppropriate);
   req.setRating(rating);
+
+  if (privateText) {
+    req.setPrivateText(privateText);
+  }
 
   const res = await client.references.writeHostRequestReference(req);
   return res.toObject();

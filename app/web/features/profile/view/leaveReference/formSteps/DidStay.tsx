@@ -171,7 +171,7 @@ const DidStay = ({
           />
           <StyledButtonContainer>
             <Button type="submit" onClick={onSubmitDidNotStay}>
-              {t("profile:leave_reference.next_step_label")}
+              {t("profile:leave_reference.submit")}
             </Button>
           </StyledButtonContainer>
         </StyledReasonContainer>
