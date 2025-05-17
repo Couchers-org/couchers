@@ -6,7 +6,7 @@ import { Trans, useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import {
   baseRoute,
   leaveReferenceBaseRoute,
@@ -16,9 +16,19 @@ import {
 import { indicateDidntMeetup } from "service/references";
 
 import ReferenceStepHeader from "./ReferenceStepHeader";
-import { ReferenceContextFormData, ReferenceStepProps } from "../ReferenceForm";
+import { ReferenceStepProps } from "../ReferenceForm";
 import TextField from "components/TextField";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { theme } from "theme";
+
+interface IndicateDidntMeetupFormData {
+  didStay: boolean;
+  reasonDidntMeetup: string;
+}
+
+const StyledForm = styled("form")(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+}));
 
 const StyledTextBody = styled(TextBody)(({ theme }) => ({
   "& > .MuiInputBase-root": {
@@ -46,32 +56,31 @@ const StyledReasonContainer = styled("div")(({ theme }) => ({
 }));
 
 const DidStay = ({
-  referenceData,
-  setReferenceValues,
   referenceType,
   hostRequestId,
-}: ReferenceStepProps) => {
+}: Omit<ReferenceStepProps, "referenceData" | "setReferenceValues">) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
+  const isMobile = theme.breakpoints.down("md");
 
   const [didSubmitNotStay, setDidSubmitNotStay] = useState(false);
 
   const {
+    control,
     handleSubmit,
     formState: { errors },
     setValue,
-  } = useForm<ReferenceContextFormData>({ defaultValues: referenceData });
+    watch,
+  } = useForm<IndicateDidntMeetupFormData>();
+
+  const { didStay, reasonDidntMeetup } = watch();
 
   const onSubmitDidNotStay = handleSubmit(async (values) => {
-    if (
-      !referenceData.didStay &&
-      hostRequestId &&
-      referenceData.reasonDidntMeetup
-    ) {
+    if (!didStay && hostRequestId && reasonDidntMeetup) {
       await indicateDidntMeetup({
         hostRequestId,
-        reasonDidntMeetup: referenceData.reasonDidntMeetup,
+        reasonDidntMeetup,
       });
 
       setDidSubmitNotStay(true);
@@ -79,7 +88,7 @@ const DidStay = ({
   });
 
   const handleDidStay = () => {
-    setReferenceValues({ ...referenceData, didStay: true });
+    setValue("didStay", true);
 
     if (
       referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
@@ -92,10 +101,6 @@ const DidStay = ({
         `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${referenceStepStrings[1]}`,
       );
     }
-  };
-
-  const handleDidNotStay = () => {
-    setReferenceValues({ ...referenceData, didStay: false });
   };
 
   if (didSubmitNotStay) {
@@ -122,7 +127,7 @@ const DidStay = ({
   }
 
   return (
-    <>
+    <StyledForm onSubmit={onSubmitDidNotStay}>
       <ReferenceStepHeader
         name={user.name}
         referenceType={referenceType}
@@ -135,48 +140,63 @@ const DidStay = ({
         />
       </StyledTextBody>
       <StyledButtonContainer>
-        <Button
-          variant="outlined"
-          type="submit"
-          size="large"
-          sx={{ marginTop: 2, marginRight: 2 }}
-          onClick={handleDidNotStay}
-        >
-          {t("global:no")}
-        </Button>
-        <Button
-          variant="contained"
-          type="submit"
-          size="large"
-          sx={{ marginTop: 2 }}
-          onClick={handleDidStay}
-        >
-          {t("global:yes")}
-        </Button>
+        <Controller
+          control={control}
+          name="didStay"
+          render={({ field }) => (
+            <>
+              <Button
+                variant="outlined"
+                type="submit"
+                size="large"
+                sx={{ marginTop: 2, marginRight: 2 }}
+                onClick={() => field.onChange(false)}
+              >
+                {t("global:no")}
+              </Button>
+              <Button
+                variant="contained"
+                type="submit"
+                size="large"
+                sx={{ marginTop: 2 }}
+                onClick={handleDidStay}
+              >
+                {t("global:yes")}
+              </Button>
+            </>
+          )}
+        ></Controller>
       </StyledButtonContainer>
-      {referenceData.didStay === false && (
+      {didStay === false && (
         <StyledReasonContainer>
-          <TextField
-            id="reasonDidntMeetup"
+          <Controller
+            control={control}
             name="reasonDidntMeetup"
-            label={t("profile:leave_reference.reason_didnt_meetup")}
-            error={!!errors.reasonDidntMeetup}
-            helperText={errors.reasonDidntMeetup?.message}
-            onChange={(event) => {
-              setValue("reasonDidntMeetup", event.target.value);
-            }}
-            multiline
-            minRows={5}
-            sx={{ "& > .MuiInputBase-root": { width: "100%", marginTop: 1 } }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                id="reasonDidntMeetup"
+                label={t("profile:leave_reference.reason_didnt_meetup")}
+                error={!!errors.reasonDidntMeetup}
+                helperText={errors.reasonDidntMeetup?.message}
+                onChange={field.onChange}
+                value={field.value}
+                multiline
+                minRows={5}
+                sx={{
+                  "& > .MuiInputBase-root": { width: "100%", marginTop: 1 },
+                }}
+              />
+            )}
           />
           <StyledButtonContainer>
-            <Button type="submit" onClick={onSubmitDidNotStay}>
-              {t("profile:leave_reference.submit")}
+            <Button fullWidth={!isMobile} type="submit">
+              {t("global:submit")}
             </Button>
           </StyledButtonContainer>
         </StyledReasonContainer>
       )}
-    </>
+    </StyledForm>
   );
 };
 

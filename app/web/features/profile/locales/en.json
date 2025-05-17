@@ -165,6 +165,7 @@
     "go_to_dashboard": "Go to dashboard",
     "private_text_header": "Private Feedback",
     "private_text_explanation": "This feedback will not be shared with the other person, but will be used to help us improve our community.",
+    "private_text_summary": "Couchers.org Safety Team will get the following private feedback about this user:",
     "private_text_placeholder": "Please let us know more. Did you feel safe with this person's behavior?"
   },
   "request_form": {

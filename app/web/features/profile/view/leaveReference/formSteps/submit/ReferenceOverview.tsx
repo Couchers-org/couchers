@@ -93,6 +93,16 @@ export default function ReferenceOverview({
           </StyledTextBody>
         </li>
       </ul>
+      <StyledTypography variant="h3">
+        {t("profile:leave_reference.private_text_summary")}
+      </StyledTypography>
+      <StyledCard>
+        <CardContent>
+          <TextBody sx={{ whiteSpace: "pre-wrap" }}>
+            {referenceData.privateText}
+          </TextBody>
+        </CardContent>
+      </StyledCard>
       <StyledTextBody>
         <Trans t={t} i18nKey="profile:leave_reference.contact_text">
           If you have any questions or wish to provide additional information,

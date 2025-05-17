@@ -91,7 +91,7 @@ const PrivateTextContainer = styled("div")(({ theme }) => ({
   width: "100%",
 }));
 
-export default function Appropriate({
+export default function PrivateFeedback({
   referenceData,
   setReferenceValues,
   referenceType,

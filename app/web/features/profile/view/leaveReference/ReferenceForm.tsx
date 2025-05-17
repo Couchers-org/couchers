@@ -1,7 +1,5 @@
 import { Alert } from "@mui/material";
 import Redirect from "components/Redirect";
-import Appropriate from "features/profile/view/leaveReference/formSteps/Appropriate";
-import Rating from "features/profile/view/leaveReference/formSteps/Rating";
 import SubmitReference from "features/profile/view/leaveReference/formSteps/submit/SubmitReference";
 import Text from "features/profile/view/leaveReference/formSteps/Text";
 import { useTranslation } from "i18n";
@@ -10,6 +8,7 @@ import { useState } from "react";
 import { leaveReferenceBaseRoute, ReferenceStep } from "routes";
 
 import DidStay from "./formSteps/DidStay";
+import PrivateFeedback from "features/profile/view/leaveReference/formSteps/PrivateFeedback";
 
 export type ReferenceContextFormData = {
   didStay: boolean | undefined;
@@ -67,7 +66,7 @@ export default function ReferenceForm({
 
   const isSkippedStep =
     referenceData.wasAppropriate === "" &&
-    step !== "appropriate" &&
+    step !== "private-feedback" &&
     referenceData.didStay === undefined &&
     step !== "did-stay";
   const redirectTo =
@@ -78,21 +77,9 @@ export default function ReferenceForm({
   return isSkippedStep ? (
     <Redirect to={redirectTo} />
   ) : step === "did-stay" ? (
-    <DidStay
-      referenceData={referenceData}
-      setReferenceValues={setReferenceValues}
-      referenceType={referenceType}
-      hostRequestId={hostRequestId}
-    />
-  ) : step === "appropriate" ? (
-    <Appropriate
-      referenceData={referenceData}
-      setReferenceValues={setReferenceValues}
-      referenceType={referenceType}
-      hostRequestId={hostRequestId}
-    />
-  ) : step === "rating" ? (
-    <Rating
+    <DidStay referenceType={referenceType} hostRequestId={hostRequestId} />
+  ) : step === "private-feedback" ? (
+    <PrivateFeedback
       referenceData={referenceData}
       setReferenceValues={setReferenceValues}
       referenceType={referenceType}

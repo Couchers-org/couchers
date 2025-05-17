@@ -101,8 +101,7 @@ export const referenceTypeRoute: Record<
 };
 export const referenceStepStrings = [
   "did-stay",
-  "appropriate",
-  "rating",
+  "private-feedback",
   "reference",
   "submit",
 ] as const;
