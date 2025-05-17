@@ -1,4 +1,4 @@
-import { Typography, useMediaQuery, useTheme } from "@mui/material";
+import { styled, Typography, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import Markdown from "components/Markdown";
@@ -9,7 +9,6 @@ import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/
 import {
   ReferenceContextFormData,
   ReferenceStepProps,
-  useReferenceStyles,
 } from "features/profile/view/leaveReference/ReferenceForm";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
@@ -21,6 +20,41 @@ import {
   referenceStepStrings,
   referenceTypeRoute,
 } from "routes";
+import { theme } from "theme";
+
+const StyledForm = styled("form")(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+}));
+
+const StyledTextBody = styled(TextBody)(({ theme }) => ({
+  "& > .MuiInputBase-root": {
+    width: "100%",
+  },
+  marginTop: theme.spacing(1),
+  [theme.breakpoints.up("md")]: {
+    "& > .MuiInputBase-root": {
+      width: 400,
+    },
+  },
+}));
+
+const StyledRatingQuestionText = styled(Typography)(({ theme }) => ({
+  "& > .MuiInputBase-root": {
+    width: "100%",
+  },
+  marginTop: theme.spacing(1),
+  [theme.breakpoints.up("md")]: {
+    "& > .MuiInputBase-root": {
+      width: 400,
+    },
+  },
+}));
+
+const StyledButtonContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  paddingTop: theme.spacing(1),
+}));
 
 export default function Rating({
   referenceData,
@@ -31,13 +65,10 @@ export default function Rating({
   const { t } = useTranslation([PROFILE, GLOBAL]);
   const user = useProfileUser();
   const router = useRouter();
-  const classes = useReferenceStyles();
-  const theme = useTheme();
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
   const {
     control,
     handleSubmit,
-
     formState: { errors },
   } = useForm<ReferenceContextFormData>({
     defaultValues: {
@@ -61,23 +92,23 @@ export default function Rating({
   });
 
   return (
-    <form className={classes.form} onSubmit={onSubmit}>
+    <StyledForm onSubmit={onSubmit}>
       <ReferenceStepHeader name={user.name} referenceType={referenceType} />
       <Typography variant="h3">
         {t("profile:leave_reference.rating_how")}
       </Typography>
       <Markdown source={t("profile:leave_reference.rating_explanation")} />
-      <TextBody className={classes.text}>
+      <StyledTextBody>
         {t("profile:leave_reference.private_answer")}
-      </TextBody>
+      </StyledTextBody>
       {errors && errors.rating?.message && (
-        <Alert className={classes.alert} severity="error">
+        <Alert severity="error" sx={{ marginBottom: theme.spacing(3) }}>
           {errors.rating.message}
         </Alert>
       )}
-      <Typography variant="h3" className={classes.text}>
+      <StyledRatingQuestionText variant="h3">
         {t("profile:leave_reference.rating_question", { name: user.name })}
-      </Typography>
+      </StyledRatingQuestionText>
       <Controller
         control={control}
         defaultValue={referenceData.rating}
@@ -90,11 +121,11 @@ export default function Rating({
           />
         )}
       />
-      <div className={classes.buttonContainer}>
+      <StyledButtonContainer>
         <Button fullWidth={!isSmOrWider} type="submit">
           {t("profile:leave_reference.next_step_label")}
         </Button>
-      </div>
-    </form>
+      </StyledButtonContainer>
+    </StyledForm>
   );
 }

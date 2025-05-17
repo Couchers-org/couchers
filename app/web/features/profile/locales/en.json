@@ -160,7 +160,9 @@
     "text_explanation": "Leave a note for your fellow Coucher's Guestbook –– say thank you, or let others know if you enjoyed your time with them.",
     "thank_you_message": "We appreciate you taking the time to help us uphold our community values. Please look over your reference before submitting it.",
     "was_appropriate_required": "To help us keep our community safe, this question is required.",
-    "next_step_label": "Next"
+    "next_step_label": "Next",
+    "didnt_meetup_submit_success": "Thanks for letting us know! We won't ask you to write a reference!",
+    "go_to_dashboard": "Go to dashboard"
   },
   "request_form": {
     "send_request": "Send {{name}} a request",

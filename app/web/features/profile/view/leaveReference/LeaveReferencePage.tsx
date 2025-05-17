@@ -1,4 +1,4 @@
-import { useMediaQuery } from "@mui/material";
+import { styled, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
@@ -14,35 +14,33 @@ import React from "react";
 import { ReferenceStep, referenceTypeRoute } from "routes";
 import { ReferenceTypeStrings } from "service/references";
 import { theme } from "theme";
-import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles((theme) => ({
-  form: {
-    [theme.breakpoints.down("md")]: {
-      margin: 0,
-      width: "100%",
-    },
-    flexGrow: 1,
-    margin: theme.spacing(2),
-    padding: theme.spacing(2),
+const StyledRoot = styled("div")(({ theme }) => ({
+  padding: theme.spacing(1),
+  [theme.breakpoints.up("sm")]: {
+    display: "grid",
+    gridTemplateColumns: "2fr 3fr",
+    gap: theme.spacing(3),
+    margin: theme.spacing(0, 3),
+    padding: 0,
+    paddingTop: theme.spacing(3),
+    paddingBottom: theme.spacing(3),
   },
-  root: {
-    padding: theme.spacing(1),
-    [theme.breakpoints.up("sm")]: {
-      display: "grid",
-      gridTemplateColumns: "2fr 3fr",
-      gap: theme.spacing(3),
-      margin: theme.spacing(0, 3),
-      padding: 0,
-      paddingTop: theme.spacing(3),
-      paddingBottom: theme.spacing(3),
-    },
-    [theme.breakpoints.up("md")]: {
-      gridTemplateColumns: "2fr 4fr",
-      maxWidth: "61.5rem",
-      margin: "0 auto",
-    },
+  [theme.breakpoints.up("md")]: {
+    gridTemplateColumns: "2fr 4fr",
+    maxWidth: "61.5rem",
+    margin: "0 auto",
   },
+}));
+
+const StyledFormWrapper = styled("div")(({ theme }) => ({
+  [theme.breakpoints.down("md")]: {
+    margin: 0,
+    width: "100%",
+  },
+  flexGrow: 1,
+  margin: theme.spacing(2),
+  padding: theme.spacing(2),
 }));
 
 export default function LeaveReferencePage({
@@ -57,7 +55,6 @@ export default function LeaveReferencePage({
   step?: ReferenceStep;
 }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
-  const classes = useStyles();
   const isBelowMedium = useMediaQuery(theme.breakpoints.down("md"));
 
   const {
@@ -79,6 +76,16 @@ export default function LeaveReferencePage({
     );
   }
 
+  const isFriendReference =
+    referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND] &&
+    availableReferences?.canWriteFriendReference &&
+    user?.friends === User.FriendshipStatus.FRIENDS;
+  const isAvailableReference =
+    hostRequestId &&
+    availableReferences?.availableWriteReferencesList.find(
+      ({ hostRequestId: availableId }) => availableId === hostRequestId,
+    );
+
   return (
     <>
       {(userError || availableReferencesError) && (
@@ -88,35 +95,28 @@ export default function LeaveReferencePage({
       )}
       {(isUserLoading || isAvailableReferencesLoading) && <CenteredSpinner />}
       {availableReferences &&
-        user &&
-        ((referenceType ===
-          referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND] &&
-          availableReferences.canWriteFriendReference &&
-          user.friends === User.FriendshipStatus.FRIENDS) ||
-        (hostRequestId &&
-          availableReferences.availableWriteReferencesList.find(
-            ({ hostRequestId: availableId }) => availableId === hostRequestId,
-          )) ? (
-          <div className={classes.root}>
-            <ProfileUserProvider user={user}>
-              {!isBelowMedium && (
-                <UserOverview showHostAndMeetAvailability={false} />
-              )}
-              <div className={classes.form}>
-                <ReferenceForm
-                  hostRequestId={hostRequestId}
-                  referenceType={referenceType}
-                  userId={userId}
-                  step={step}
-                />
-              </div>
-            </ProfileUserProvider>
-          </div>
-        ) : (
-          <Alert severity="error">
-            {t("profile:leave_reference.reference_type_not_available")}
-          </Alert>
-        ))}
+      user &&
+      (isFriendReference || isAvailableReference) ? (
+        <StyledRoot>
+          <ProfileUserProvider user={user}>
+            {!isBelowMedium && (
+              <UserOverview showHostAndMeetAvailability={false} />
+            )}
+            <StyledFormWrapper>
+              <ReferenceForm
+                hostRequestId={hostRequestId}
+                referenceType={referenceType}
+                userId={userId}
+                step={step}
+              />
+            </StyledFormWrapper>
+          </ProfileUserProvider>
+        </StyledRoot>
+      ) : (
+        <Alert severity="error">
+          {t("profile:leave_reference.reference_type_not_available")}
+        </Alert>
+      )}
     </>
   );
 }

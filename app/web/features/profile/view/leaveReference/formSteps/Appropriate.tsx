@@ -4,9 +4,9 @@ import {
   FormControlLabel,
   Radio,
   RadioGroup,
+  styled,
   Typography,
   useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -17,7 +17,6 @@ import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/
 import {
   ReferenceContextFormData,
   ReferenceStepProps,
-  useReferenceStyles,
 } from "features/profile/view/leaveReference/ReferenceForm";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
@@ -29,6 +28,46 @@ import {
   referenceStepStrings,
   referenceTypeRoute,
 } from "routes";
+import { theme } from "theme";
+
+const StyledForm = styled("form")(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+}));
+
+const StyledTextBody = styled(TextBody)(({ theme }) => ({
+  "& > .MuiInputBase-root": {
+    width: "100%",
+  },
+  marginTop: theme.spacing(1),
+  [theme.breakpoints.up("md")]: {
+    "& > .MuiInputBase-root": {
+      width: 400,
+    },
+  },
+}));
+
+const StyledAppropriateQuestionText = styled(Typography)(({ theme }) => ({
+  "& > .MuiInputBase-root": {
+    width: "100%",
+  },
+  marginTop: theme.spacing(1),
+  [theme.breakpoints.up("md")]: {
+    "& > .MuiInputBase-root": {
+      width: 400,
+    },
+  },
+}));
+
+const StyledCard = styled(Card)(({ theme }) => ({
+  marginTop: theme.spacing(2),
+  marginBottom: theme.spacing(1),
+}));
+
+const StyledButtonContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  paddingTop: theme.spacing(1),
+}));
 
 export default function Appropriate({
   referenceData,
@@ -39,9 +78,8 @@ export default function Appropriate({
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
-  const theme = useTheme();
-  const classes = useReferenceStyles();
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
+
   const {
     control,
     handleSubmit,
@@ -68,28 +106,28 @@ export default function Appropriate({
   });
 
   return (
-    <form onSubmit={onSubmit} className={classes.form}>
+    <StyledForm onSubmit={onSubmit}>
       <ReferenceStepHeader name={user.name} referenceType={referenceType} />
-      <TextBody className={classes.text}>
+      <StyledTextBody>
         {t("profile:leave_reference.appropriate_explanation")}
-      </TextBody>
-      <Card className={classes.card}>
+      </StyledTextBody>
+      <StyledCard>
         <CardContent>
           <Typography variant="h3">
             {t("profile:leave_reference.appropriate_behavior")}
           </Typography>
           <Divider />
-          <TextBody className={classes.text}>
+          <StyledTextBody>
             {t("profile:leave_reference.safety_priority")}
-          </TextBody>
+          </StyledTextBody>
           {errors.wasAppropriate?.message && (
-            <Alert className={classes.alert} severity="error">
+            <Alert severity="error" sx={{ marginBottom: theme.spacing(3) }}>
               {errors.wasAppropriate.message}
             </Alert>
           )}
-          <Typography variant="h3" className={classes.text}>
+          <StyledAppropriateQuestionText variant="h3">
             {t("profile:leave_reference.appropriate_question")}
-          </Typography>
+          </StyledAppropriateQuestionText>
           <Controller
             render={({ field }) => (
               <RadioGroup {...field} aria-label="wasAppropriate">
@@ -111,16 +149,16 @@ export default function Appropriate({
               required: t("profile:leave_reference.was_appropriate_required"),
             }}
           />
-          <TextBody className={classes.text}>
+          <StyledTextBody>
             {t("profile:leave_reference.private_answer")}
-          </TextBody>
+          </StyledTextBody>
         </CardContent>
-      </Card>
-      <div className={classes.buttonContainer}>
+      </StyledCard>
+      <StyledButtonContainer>
         <Button fullWidth={!isSmOrWider} type="submit">
           {t("profile:leave_reference.next_step_label")}
         </Button>
-      </div>
-    </form>
+      </StyledButtonContainer>
+    </StyledForm>
   );
 }

@@ -2,6 +2,7 @@ import {
   Card,
   CardContent,
   Link,
+  styled,
   Typography,
   useMediaQuery,
 } from "@mui/material";
@@ -10,13 +11,39 @@ import TextBody from "components/TextBody";
 import UserSummary from "components/UserSummary";
 import { contactLink } from "features/profile/constants";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
-import {
-  ReferenceContextFormData,
-  useReferenceStyles,
-} from "features/profile/view/leaveReference/ReferenceForm";
+import { ReferenceContextFormData } from "features/profile/view/leaveReference/ReferenceForm";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { theme } from "theme";
+
+const StyledTextBody = styled(TextBody)(({ theme }) => ({
+  "& > .MuiInputBase-root": {
+    width: "100%",
+  },
+  marginTop: theme.spacing(1),
+  [theme.breakpoints.up("md")]: {
+    "& > .MuiInputBase-root": {
+      width: 400,
+    },
+  },
+}));
+
+const StyledTypography = styled(Typography)(({ theme }) => ({
+  "& > .MuiInputBase-root": {
+    width: "100%",
+  },
+  marginTop: theme.spacing(1),
+  [theme.breakpoints.up("md")]: {
+    "& > .MuiInputBase-root": {
+      width: 400,
+    },
+  },
+}));
+
+const StyledCard = styled(Card)(({ theme }) => ({
+  marginTop: theme.spacing(2),
+  marginBottom: theme.spacing(1),
+}));
 
 export default function ReferenceOverview({
   referenceData,
@@ -24,52 +51,49 @@ export default function ReferenceOverview({
   referenceData: ReferenceContextFormData;
 }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
-  const classes = useReferenceStyles();
   const user = useProfileUser();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
     <>
-      <TextBody className={classes.text}>
+      <StyledTextBody>
         {t("profile:leave_reference.thank_you_message")}
-      </TextBody>
+      </StyledTextBody>
       {isMobile && (
         <>
-          <TextBody className={classes.text}>
-            {t("profile:leave_reference.writing_for_text")}
-          </TextBody>
+          <TextBody>{t("profile:leave_reference.writing_for_text")}</TextBody>
           <UserSummary user={user} />
         </>
       )}
-      <Typography variant="h3" className={classes.text}>
+      <StyledTypography variant="h3">
         {t("profile:leave_reference.public_text_label")}
-      </Typography>
-      <Card className={classes.card}>
+      </StyledTypography>
+      <StyledCard>
         <CardContent>
-          <TextBody className={classes.referenceText}>
+          <TextBody sx={{ whiteSpace: "pre-wrap" }}>
             {referenceData.text}
           </TextBody>
         </CardContent>
-      </Card>
-      <Typography variant="h3" className={classes.text}>
+      </StyledCard>
+      <StyledTypography variant="h3">
         {t("profile:leave_reference.private_text_label")}
-      </Typography>
+      </StyledTypography>
       <ul>
         <li>
-          <TextBody className={classes.text}>
+          <StyledTextBody>
             {referenceData.wasAppropriate === "true"
               ? t("profile:leave_reference.coucher_was_appropriate")
               : t("profile:leave_reference.coucher_was_not_appropriate")}
-          </TextBody>
+          </StyledTextBody>
         </li>
         <li>
-          <TextBody className={classes.text}>
+          <StyledTextBody>
             {t("profile:leave_reference.rating_label")}
             <SliderLabel value={referenceData.rating} />
-          </TextBody>
+          </StyledTextBody>
         </li>
       </ul>
-      <TextBody className={classes.text}>
+      <StyledTextBody>
         <Trans t={t} i18nKey="profile:leave_reference.contact_text">
           If you have any questions or wish to provide additional information,
           please don't hesitate to
@@ -77,7 +101,7 @@ export default function ReferenceOverview({
             contact us here.
           </Link>
         </Trans>
-      </TextBody>
+      </StyledTextBody>
     </>
   );
 }

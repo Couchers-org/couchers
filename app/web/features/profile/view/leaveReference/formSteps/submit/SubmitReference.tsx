@@ -1,4 +1,4 @@
-import { useMediaQuery, useTheme } from "@mui/material";
+import { styled, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -14,10 +14,7 @@ import {
   useWriteHostReference,
 } from "features/profile/hooks/referencesHooks";
 import ReferenceOverview from "features/profile/view/leaveReference/formSteps/submit/ReferenceOverview";
-import {
-  ReferenceContextFormData,
-  useReferenceStyles,
-} from "features/profile/view/leaveReference/ReferenceForm";
+import { ReferenceContextFormData } from "features/profile/view/leaveReference/ReferenceForm";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
@@ -35,6 +32,7 @@ import {
   WriteFriendReferenceInput,
   WriteHostRequestReferenceInput,
 } from "service/references";
+import { theme } from "theme";
 
 import ReferenceStepHeader from "../ReferenceStepHeader";
 
@@ -44,6 +42,12 @@ export interface SubmitReferenceProps {
   hostRequestId?: number;
   userId: number;
 }
+
+const StyledButtonContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  paddingTop: theme.spacing(1),
+}));
 
 export default function SubmitReference({
   referenceData,
@@ -66,8 +70,6 @@ export default function SubmitReference({
     isLoading: isHostRequestReferenceLoading,
   } = useWriteHostReference(userId);
 
-  const theme = useTheme();
-  const classes = useReferenceStyles();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
@@ -152,11 +154,11 @@ export default function SubmitReference({
   return (
     <>
       {friendReferenceError ? (
-        <Alert className={classes.alert} severity="error">
+        <Alert severity="error" sx={{ marginBottom: theme.spacing(3) }}>
           {friendReferenceError.message}
         </Alert>
       ) : hostRequestReferenceError ? (
-        <Alert className={classes.alert} severity="error">
+        <Alert severity="error" sx={{ marginBottom: theme.spacing(3) }}>
           {hostRequestReferenceError.message}
         </Alert>
       ) : null}
@@ -164,7 +166,7 @@ export default function SubmitReference({
       <form onSubmit={handleSubmit(onSubmit)}>
         <ReferenceStepHeader isSubmitStep />
         <ReferenceOverview referenceData={referenceData} />
-        <div className={classes.buttonContainer}>
+        <StyledButtonContainer>
           <Button
             fullWidth={!isSmOrWider}
             type="submit"
@@ -172,7 +174,7 @@ export default function SubmitReference({
           >
             {t("global:submit")}
           </Button>
-        </div>
+        </StyledButtonContainer>
       </form>
       <Dialog
         aria-labelledby={hostRequestReferenceSuccessDialogId}

@@ -1,4 +1,4 @@
-import { styled } from "@mui/material";
+import { Alert, Box, styled } from "@mui/material";
 import Button from "components/Button";
 import TextBody from "components/TextBody";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
@@ -8,15 +8,17 @@ import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
 import { useForm } from "react-hook-form";
 import {
+  baseRoute,
   leaveReferenceBaseRoute,
   referenceStepStrings,
   referenceTypeRoute,
 } from "routes";
 import { indicateDidntMeetup } from "service/references";
 
-import ReferenceStepHeader from "./formSteps/ReferenceStepHeader";
-import { ReferenceContextFormData, ReferenceStepProps } from "./ReferenceForm";
+import ReferenceStepHeader from "./ReferenceStepHeader";
+import { ReferenceContextFormData, ReferenceStepProps } from "../ReferenceForm";
 import TextField from "components/TextField";
+import { useState } from "react";
 
 const StyledTextBody = styled(TextBody)(({ theme }) => ({
   "& > .MuiInputBase-root": {
@@ -53,14 +55,15 @@ const DidStay = ({
   const user = useProfileUser();
   const router = useRouter();
 
+  const [didSubmitNotStay, setDidSubmitNotStay] = useState(false);
+
   const {
-    control,
     handleSubmit,
     formState: { errors },
     setValue,
   } = useForm<ReferenceContextFormData>({ defaultValues: referenceData });
 
-  const onSubmit = handleSubmit(async (values) => {
+  const onSubmitDidNotStay = handleSubmit(async (values) => {
     if (
       !referenceData.didStay &&
       hostRequestId &&
@@ -70,19 +73,8 @@ const DidStay = ({
         hostRequestId,
         reasonDidntMeetup: referenceData.reasonDidntMeetup,
       });
-    } else {
-      if (
-        referenceType ===
-        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
-      ) {
-        router.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${referenceStepStrings[1]}`,
-        );
-      } else {
-        router.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${referenceStepStrings[1]}`,
-        );
-      }
+
+      setDidSubmitNotStay(true);
     }
   });
 
@@ -105,6 +97,29 @@ const DidStay = ({
   const handleDidNotStay = () => {
     setReferenceValues({ ...referenceData, didStay: false });
   };
+
+  if (didSubmitNotStay) {
+    return (
+      <Box
+        sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+      >
+        <Alert severity="success">
+          {t("profile:leave_reference.didnt_meetup_submit_success")}
+        </Alert>
+        <Button
+          variant="contained"
+          type="submit"
+          size="large"
+          sx={{ marginTop: 2 }}
+          onClick={() => {
+            router.push(`${baseRoute}`);
+          }}
+        >
+          {t("profile:leave_reference.go_to_dashboard")}
+        </Button>
+      </Box>
+    );
+  }
 
   return (
     <>
@@ -155,7 +170,7 @@ const DidStay = ({
             sx={{ "& > .MuiInputBase-root": { width: "100%", marginTop: 1 } }}
           />
           <StyledButtonContainer>
-            <Button type="submit" onClick={onSubmit}>
+            <Button type="submit" onClick={onSubmitDidNotStay}>
               {t("profile:leave_reference.next_step_label")}
             </Button>
           </StyledButtonContainer>

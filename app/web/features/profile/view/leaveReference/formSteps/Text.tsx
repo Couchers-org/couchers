@@ -1,4 +1,4 @@
-import { useMediaQuery, useTheme } from "@mui/material";
+import { styled, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import TextBody from "components/TextBody";
@@ -8,10 +8,9 @@ import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/
 import {
   ReferenceContextFormData,
   ReferenceStepProps,
-  useReferenceStyles,
 } from "features/profile/view/leaveReference/ReferenceForm";
 import { useTranslation } from "i18n";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
+import { PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
 import { Controller, useForm } from "react-hook-form";
@@ -20,6 +19,34 @@ import {
   referenceStepStrings,
   referenceTypeRoute,
 } from "routes";
+import { theme } from "theme";
+
+const StyledForm = styled("form")(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+}));
+
+const StyledTextBody = styled(TextBody)(({ theme }) => ({
+  "& > .MuiInputBase-root": {
+    width: "100%",
+  },
+  marginTop: theme.spacing(1),
+  [theme.breakpoints.up("md")]: {
+    "& > .MuiInputBase-root": {
+      width: 400,
+    },
+  },
+}));
+
+const StyledCard = styled("div")(({ theme }) => ({
+  marginTop: theme.spacing(2),
+  marginBottom: theme.spacing(1),
+}));
+
+const StyledButtonContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  paddingTop: theme.spacing(1),
+}));
 
 export default function Text({
   referenceData,
@@ -27,16 +54,13 @@ export default function Text({
   referenceType,
   hostRequestId,
 }: ReferenceStepProps) {
-  const { t } = useTranslation([GLOBAL, PROFILE]);
+  const { t } = useTranslation([PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
-  const classes = useReferenceStyles();
-  const theme = useTheme();
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
   const {
     control,
     handleSubmit,
-
     formState: { errors },
   } = useForm<ReferenceContextFormData>({
     defaultValues: {
@@ -60,20 +84,20 @@ export default function Text({
   });
 
   return (
-    <form className={classes.form} onSubmit={onSubmit}>
+    <StyledForm onSubmit={onSubmit}>
       <ReferenceStepHeader name={user.name} referenceType={referenceType} />
-      <TextBody className={classes.text}>
+      <StyledTextBody>
         {t("profile:leave_reference.text_explanation")}
-      </TextBody>
-      <TextBody className={classes.text}>
+      </StyledTextBody>
+      <StyledTextBody>
         {t("profile:leave_reference.public_answer")}
-      </TextBody>
+      </StyledTextBody>
       {errors.text?.message && (
-        <Alert className={classes.alert} severity="error">
+        <Alert severity="error" sx={{ marginBottom: theme.spacing(3) }}>
           {errors.text.message}
         </Alert>
       )}
-      <div className={classes.card}>
+      <StyledCard>
         <Controller
           render={({ field }) => (
             <TextField
@@ -91,12 +115,12 @@ export default function Text({
           control={control}
           rules={{ required: t("profile:leave_reference.required") }}
         />
-      </div>
-      <div className={classes.buttonContainer}>
+      </StyledCard>
+      <StyledButtonContainer>
         <Button fullWidth={!isSmOrWider} type="submit">
           {t("profile:leave_reference.next_step_label")}
         </Button>
-      </div>
-    </form>
+      </StyledButtonContainer>
+    </StyledForm>
   );
 }

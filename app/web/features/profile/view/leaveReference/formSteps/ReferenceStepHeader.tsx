@@ -18,6 +18,7 @@ export interface ReferenceStepHeaderProps {
 const StyledHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
+
 }));
 
 export default function ReferenceStepHeader({
