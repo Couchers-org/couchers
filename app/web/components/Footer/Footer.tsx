@@ -163,7 +163,6 @@ function BlueSkyIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-
 export default function Footer() {
   const { t } = useTranslation(GLOBAL);
 
@@ -224,22 +223,52 @@ export default function Footer() {
               </StyledButton>
             </Link>
             <StyledSocialIconsContainer>
-  <MuiLink href={githubURL} target="_blank" rel="noopener" aria-label="GitHub" color="inherit">
-    <GitHubIcon />
-  </MuiLink>
-  <MuiLink href={instagramURL} target="_blank" rel="noopener" aria-label="Instagram" color="inherit">
-    <InstagramIcon />
-  </MuiLink>
-  <MuiLink href={redditURL} target="_blank" rel="noopener" aria-label="Reddit" color="inherit">
-    <RedditIcon />
-  </MuiLink>
-  <MuiLink href="https://bsky.app/profile/couchers.bsky.social" target="_blank" rel="noopener" aria-label="BlueSky" color="inherit">
-      <BlueSkyIcon />
-    </MuiLink>
-  <MuiLink href={facebookURL} target="_blank" rel="noopener" aria-label="Facebook" color="inherit">
-    <FacebookIcon />
-  </MuiLink>
-</StyledSocialIconsContainer>
+              <MuiLink
+                href={githubURL}
+                target="_blank"
+                rel="noopener"
+                aria-label="GitHub"
+                color="inherit"
+              >
+                <GitHubIcon />
+              </MuiLink>
+              <MuiLink
+                href={instagramURL}
+                target="_blank"
+                rel="noopener"
+                aria-label="Instagram"
+                color="inherit"
+              >
+                <InstagramIcon />
+              </MuiLink>
+              <MuiLink
+                href={redditURL}
+                target="_blank"
+                rel="noopener"
+                aria-label="Reddit"
+                color="inherit"
+              >
+                <RedditIcon />
+              </MuiLink>
+              <MuiLink
+                href="https://bsky.app/profile/couchers.bsky.social"
+                target="_blank"
+                rel="noopener"
+                aria-label="BlueSky"
+                color="inherit"
+              >
+                <BlueSkyIcon />
+              </MuiLink>
+              <MuiLink
+                href={facebookURL}
+                target="_blank"
+                rel="noopener"
+                aria-label="Facebook"
+                color="inherit"
+              >
+                <FacebookIcon />
+              </MuiLink>
+            </StyledSocialIconsContainer>
           </StyledButtonContainer>
         </StyledUpperContainer>
       </StyledUpperOuterContainer>
