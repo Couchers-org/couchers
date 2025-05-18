@@ -20,7 +20,7 @@ from couchers.models import (
 )
 from couchers.notifications.notify import notify
 from couchers.sql import couchers_select as select
-from proto import api_pb2, auth_pb2, conversations_pb2, notification_data_pb2, notifications_pb2
+from proto import admin_pb2, api_pb2, auth_pb2, conversations_pb2, notification_data_pb2, notifications_pb2
 from proto.internal import unsubscribe_pb2
 from tests.test_fixtures import (  # noqa
     api_session,
@@ -33,6 +33,7 @@ from tests.test_fixtures import (  # noqa
     notifications_session,
     process_jobs,
     push_collector,
+    real_admin_session,
     session_scope,
     testconfig,
 )
@@ -459,3 +460,82 @@ def test_SendTestPushNotification(db, push_collector):
         title="Checking push notifications work!",
         body="If you see this, then it's working :)",
     )
+
+
+def test_SendBlogPostNotification(db, push_collector):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    user1, user1_token = generate_user()
+    # enabled email
+    user2, user2_token = generate_user()
+    # disabled push
+    user3, user3_token = generate_user()
+
+    topic_action = NotificationTopicAction.general__new_blog_post
+
+    with notifications_session(user2_token) as notifications:
+        notifications.SetNotificationSettings(
+            notifications_pb2.SetNotificationSettingsReq(
+                preferences=[
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=topic_action.topic,
+                        action=topic_action.action,
+                        delivery_method="email",
+                        enabled=True,
+                    )
+                ],
+            )
+        )
+
+    with notifications_session(user3_token) as notifications:
+        notifications.SetNotificationSettings(
+            notifications_pb2.SetNotificationSettingsReq(
+                preferences=[
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=topic_action.topic,
+                        action=topic_action.action,
+                        delivery_method="push",
+                        enabled=False,
+                    )
+                ],
+            )
+        )
+
+    with mock_notification_email() as mock:
+        with real_admin_session(super_token) as admin_api:
+            admin_api.SendBlogPostNotification(
+                admin_pb2.SendBlogPostNotificationReq(
+                    title="Couchers.org v0.9.9 Release Notes",
+                    blurb="Read about last major updates before v1!",
+                    url="https://couchers.org/blog/2025/05/11/v0.9.9-release",
+                )
+            )
+
+    process_jobs()
+
+    assert mock.call_count == 1
+    assert email_fields(mock).recipient == user2.email
+    assert "Couchers.org v0.9.9 Release Notes" in email_fields(mock).html
+    assert "Couchers.org v0.9.9 Release Notes" in email_fields(mock).plain
+    assert "Read about last major updates before v1!" in email_fields(mock).html
+    assert "Read about last major updates before v1!" in email_fields(mock).plain
+    assert "https://couchers.org/blog/2025/05/11/v0.9.9-release" in email_fields(mock).html
+    assert "https://couchers.org/blog/2025/05/11/v0.9.9-release" in email_fields(mock).plain
+
+    push_collector.assert_user_has_count(user1.id, 1)
+    push_collector.assert_user_push_matches_fields(
+        user1.id,
+        title="New blog post: Couchers.org v0.9.9 Release Notes",
+        body="Read about last major updates before v1!",
+        url="https://couchers.org/blog/2025/05/11/v0.9.9-release",
+    )
+
+    push_collector.assert_user_has_count(user2.id, 1)
+    push_collector.assert_user_push_matches_fields(
+        user2.id,
+        title="New blog post: Couchers.org v0.9.9 Release Notes",
+        body="Read about last major updates before v1!",
+        url="https://couchers.org/blog/2025/05/11/v0.9.9-release",
+    )
+
+    push_collector.assert_user_has_count(user3.id, 0)

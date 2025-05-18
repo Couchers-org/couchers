@@ -268,6 +268,18 @@ settings_layout = [
             ),
         ],
     ),
+    (
+        "Other Notifications",
+        [
+            (
+                "general",
+                "General",
+                [
+                    ("new_blog_post", "We publish a new blog post"),
+                ],
+            ),
+        ],
+    ),
 ]
 
 

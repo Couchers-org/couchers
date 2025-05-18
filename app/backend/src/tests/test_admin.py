@@ -761,3 +761,4 @@ def test_admin_delete_account_url(db, push_collector):
 
 
 # community invite feature tested in test_events.py
+# SendBlogPostNotification tested in test_notifications.py

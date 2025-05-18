@@ -2424,6 +2424,9 @@ class NotificationTopicAction(enum.Enum):
     verification__sv_fail = ("verification:sv_fail", dt_sec, False, nd.VerificationSVFail)
     verification__sv_success = ("verification:sv_success", dt_sec, False, empty_pb2.Empty)
 
+    # general announcements
+    general__new_blog_post = ("general:new_blog_post", [dt.push, dt.digest], True, nd.GeneralNewBlogPost)
+
 
 class NotificationPreference(Base):
     __tablename__ = "notification_preferences"
