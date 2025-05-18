@@ -6,7 +6,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from couchers.config import config
 from couchers.jobs.enqueue import queue_job
-from couchers.metrics import sent_emails_counter
+from couchers.metrics import emails_counter
 from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
@@ -77,4 +77,4 @@ def enqueue_system_email(session, recipient, template_name, template_args):
         source_data=template_name,
     )
 
-    sent_emails_counter.inc()
+    emails_counter.inc()
