@@ -25,7 +25,7 @@ def upgrade():
         sa.Column(
             "public_visibility",
             profilepublicvisibility,
-            server_default="limited",
+            server_default="map_only",
             nullable=False,
         ),
     )

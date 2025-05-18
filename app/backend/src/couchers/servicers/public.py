@@ -29,7 +29,7 @@ class Public(public_pb2_grpc.PublicServicer):
         )
 
         without_geom = (
-            select(User.randomized_geom)
+            select(None, User.randomized_geom)
             .where(User.is_visible)
             .where(User.randomized_geom != None)
             .where(User.public_visibility == ProfilePublicVisibility.map_only)
