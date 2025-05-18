@@ -664,6 +664,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
         return out
 
     def SendBlogPostNotification(self, request, context, session):
+        if len(request.title) > 50:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ADMIN_BLOG_TITLE_TOO_LONG)
+        if len(request.blurb) > 100:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ADMIN_BLOG_BLURB_TOO_LONG)
         queue_job(
             session,
             "generate_new_blog_post_notifications",
