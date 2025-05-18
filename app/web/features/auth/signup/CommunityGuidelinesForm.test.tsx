@@ -52,7 +52,7 @@ describe("community guidelines signup form", () => {
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,
-      needFeedback: true,
+      needFeedback: false,
       needVerifyEmail: true,
     });
     render(<CommunityGuidelinesForm />, { wrapper });

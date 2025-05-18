@@ -341,7 +341,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             return auth_pb2.SignupFlowRes(
                 flow_token=flow.flow_token,
                 need_account=not flow.account_is_filled,
-                need_feedback=not flow.filled_feedback,
+                need_feedback=False,
                 need_verify_email=not flow.email_verified,
                 need_accept_community_guidelines=flow.accepted_community_guidelines < GUIDELINES_VERSION,
             )
