@@ -68,8 +68,6 @@ export default function LeaveReferencePage({
     error: availableReferencesError,
   } = useListAvailableReferences(userId);
 
-  console.log("AVAILABLE REFERENCES", availableReferences);
-
   if (!(referenceType in ReferenceTypeStrings)) {
     return (
       <Alert severity="error">

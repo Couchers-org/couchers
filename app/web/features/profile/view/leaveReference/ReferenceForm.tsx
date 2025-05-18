@@ -62,16 +62,21 @@ export default function ReferenceForm({
   };
 
   const isDidStaySkipped =
-    referenceData.didStay === undefined && step !== "did-stay";
+    referenceData.didStay === undefined &&
+    step !== "did-stay" &&
+    referenceType !== "friend";
+
   const isPrivateFeedbackSkipped =
-    referenceData.wasAppropriate === "" && step !== "private-feedback";
+    referenceData.wasAppropriate === "" &&
+    step !== "private-feedback" &&
+    step !== "did-stay";
 
   const redirectTo =
     referenceType === "friend"
       ? `${leaveReferenceBaseRoute}/${referenceType}/${userId}`
       : `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`;
 
-  if (isDidStaySkipped || (isDidStaySkipped && isPrivateFeedbackSkipped)) {
+  if (isDidStaySkipped || isPrivateFeedbackSkipped) {
     return <Redirect to={redirectTo} />;
   }
 

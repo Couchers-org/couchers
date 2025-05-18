@@ -195,11 +195,7 @@ export default function PrivateFeedback({
             defaultValue={referenceData.rating}
             name="rating"
             render={({ field }) => (
-              <RatingsSlider
-                {...field}
-                onChange={field.onChange}
-                value={field.value}
-              />
+              <RatingsSlider onChange={field.onChange} value={field.value} />
             )}
           />
           <StyledTextBody>

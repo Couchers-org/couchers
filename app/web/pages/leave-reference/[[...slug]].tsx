@@ -38,11 +38,11 @@ export default function LeaveReferencePage() {
   let step: string | undefined = undefined;
   let hostRequestId = undefined;
   if (parsedReferenceType === "friend") {
-    step = referenceStepStrings[1];
+    step = slug?.[2] ? slug[2] : referenceStepStrings[1];
   } else {
     hostRequestId = slug?.[2];
     if (!hostRequestId) return <NotFoundPage />;
-    step = referenceStepStrings[0];
+    step = slug?.[3] ? slug[3] : referenceStepStrings[0];
   }
   const parsedStep = referenceStepStrings.find((s) => s === step);
 

@@ -163,7 +163,10 @@ const DidStay = ({
                 type="submit"
                 size="large"
                 sx={{ marginTop: 2 }}
-                onClick={handleDidStay}
+                onClick={() => {
+                  field.onChange(true);
+                  handleDidStay();
+                }}
               >
                 {t("global:yes")}
               </Button>
