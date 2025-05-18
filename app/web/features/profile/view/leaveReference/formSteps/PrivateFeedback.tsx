@@ -12,6 +12,7 @@ import {
 import Alert from "components/Alert";
 import Button from "components/Button";
 import Divider from "components/Divider";
+import Markdown from "components/Markdown";
 import RatingsSlider from "components/RatingsSlider/RatingsSlider";
 import TextBody from "components/TextBody";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
@@ -31,7 +32,6 @@ import {
   referenceTypeRoute,
 } from "routes";
 import { theme } from "theme";
-import Markdown from "components/Markdown";
 
 const StyledForm = styled("form")(({ theme }) => ({
   marginBottom: theme.spacing(2),

@@ -1,11 +1,13 @@
 import { Alert, Box, styled } from "@mui/material";
 import Button from "components/Button";
 import TextBody from "components/TextBody";
+import TextField from "components/TextField";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   baseRoute,
@@ -14,12 +16,10 @@ import {
   referenceTypeRoute,
 } from "routes";
 import { indicateDidntMeetup } from "service/references";
-
-import ReferenceStepHeader from "./ReferenceStepHeader";
-import { ReferenceStepProps } from "../ReferenceForm";
-import TextField from "components/TextField";
-import { useEffect, useState } from "react";
 import { theme } from "theme";
+
+import { ReferenceStepProps } from "../ReferenceForm";
+import ReferenceStepHeader from "./ReferenceStepHeader";
 
 interface IndicateDidntMeetupFormData {
   didStay: boolean;
@@ -56,9 +56,11 @@ const StyledReasonContainer = styled("div")(({ theme }) => ({
 }));
 
 const DidStay = ({
+  referenceData,
   referenceType,
   hostRequestId,
-}: Omit<ReferenceStepProps, "referenceData" | "setReferenceValues">) => {
+  setReferenceValues,
+}: ReferenceStepProps) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
@@ -76,18 +78,20 @@ const DidStay = ({
 
   const { didStay, reasonDidntMeetup } = watch();
 
-  const onSubmitDidNotStay = handleSubmit(async (values) => {
+  const onSubmitDidNotStay = handleSubmit(async () => {
     if (!didStay && hostRequestId && reasonDidntMeetup) {
       await indicateDidntMeetup({
         hostRequestId,
         reasonDidntMeetup,
       });
 
+      setReferenceValues({ ...referenceData, didStay: false });
       setDidSubmitNotStay(true);
     }
   });
 
   const handleDidStay = () => {
+    setReferenceValues({ ...referenceData, didStay: true });
     setValue("didStay", true);
 
     if (
@@ -190,7 +194,7 @@ const DidStay = ({
             )}
           />
           <StyledButtonContainer>
-            <Button fullWidth={!isMobile} type="submit">
+            <Button fullWidth={isMobile} type="submit">
               {t("global:submit")}
             </Button>
           </StyledButtonContainer>

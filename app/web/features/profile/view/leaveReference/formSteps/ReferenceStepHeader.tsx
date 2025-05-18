@@ -15,10 +15,10 @@ export interface ReferenceStepHeaderProps {
   isDidStayStep?: boolean;
 }
 
-const StyledHeader = styled("div")(({ theme }) => ({
+const StyledHeader = styled("div")({
   display: "flex",
   alignItems: "center",
-}));
+});
 
 export default function ReferenceStepHeader({
   name,
@@ -29,6 +29,40 @@ export default function ReferenceStepHeader({
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const router = useRouter();
 
+  const returnHeaderText = () => {
+    if (isSubmitStep) {
+      return t("profile:leave_reference.reference_submit_heading");
+    }
+
+    if (isDidStayStep) {
+      return referenceType ===
+        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
+        ? t("profile:leave_reference.reference_form_heading_did_stay_surfed", {
+            name,
+          })
+        : t("profile:leave_reference.reference_form_heading_did_stay_hosted", {
+            name,
+          });
+    }
+    if (
+      referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
+    ) {
+      return t("profile:leave_reference.reference_form_heading_friend", {
+        name,
+      });
+    }
+    if (
+      referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
+    ) {
+      return t("profile:leave_reference.reference_form_heading_surfed", {
+        name,
+      });
+    }
+    return t("profile:leave_reference.reference_form_heading_hosted", {
+      name,
+    });
+  };
+
   return (
     <StyledHeader>
       <HeaderButton
@@ -38,25 +72,7 @@ export default function ReferenceStepHeader({
         <BackIcon />
       </HeaderButton>
       <Typography variant="h2" sx={{ marginInlineStart: theme.spacing(2) }}>
-        {isSubmitStep
-          ? t("profile:leave_reference.reference_submit_heading")
-          : isDidStayStep
-            ? t("profile:leave_reference.reference_form_heading_did_stay", {
-                name,
-              })
-            : referenceType ===
-                referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
-              ? t("profile:leave_reference.reference_form_heading_friend", {
-                  name,
-                })
-              : referenceType ===
-                  referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
-                ? t("profile:leave_reference.reference_form_heading_surfed", {
-                    name,
-                  })
-                : t("profile:leave_reference.reference_form_heading_hosted", {
-                    name,
-                  })}
+        {returnHeaderText()}
       </Typography>
     </StyledHeader>
   );

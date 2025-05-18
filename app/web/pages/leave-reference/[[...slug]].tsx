@@ -27,22 +27,25 @@ export default function LeaveReferencePage() {
 
   if (!slug?.[0] || !slug?.[1]) return <NotFoundPage />;
   const referenceType = slug[0];
+
   const parsedReferenceType = referenceTypeRouteStrings.find(
     (valid) => referenceType === valid,
   );
+
   if (!parsedReferenceType) return <NotFoundPage />;
   const parsedUserId = Number.parseInt(slug[1]);
   if (isNaN(parsedUserId)) return <NotFoundPage />;
   let step: string | undefined = undefined;
   let hostRequestId = undefined;
   if (parsedReferenceType === "friend") {
-    step = slug?.[2];
+    step = referenceStepStrings[1];
   } else {
     hostRequestId = slug?.[2];
     if (!hostRequestId) return <NotFoundPage />;
-    step = slug?.[3];
+    step = referenceStepStrings[0];
   }
   const parsedStep = referenceStepStrings.find((s) => s === step);
+
   const parsedHostRequestId = hostRequestId
     ? Number.parseInt(hostRequestId)
     : undefined;

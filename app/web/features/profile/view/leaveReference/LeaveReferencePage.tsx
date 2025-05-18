@@ -68,6 +68,8 @@ export default function LeaveReferencePage({
     error: availableReferencesError,
   } = useListAvailableReferences(userId);
 
+  console.log("AVAILABLE REFERENCES", availableReferences);
+
   if (!(referenceType in ReferenceTypeStrings)) {
     return (
       <Alert severity="error">
@@ -75,16 +77,6 @@ export default function LeaveReferencePage({
       </Alert>
     );
   }
-
-  const isFriendReference =
-    referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND] &&
-    availableReferences?.canWriteFriendReference &&
-    user?.friends === User.FriendshipStatus.FRIENDS;
-  const isAvailableReference =
-    hostRequestId &&
-    availableReferences?.availableWriteReferencesList.find(
-      ({ hostRequestId: availableId }) => availableId === hostRequestId,
-    );
 
   return (
     <>
@@ -95,28 +87,35 @@ export default function LeaveReferencePage({
       )}
       {(isUserLoading || isAvailableReferencesLoading) && <CenteredSpinner />}
       {availableReferences &&
-      user &&
-      (isFriendReference || isAvailableReference) ? (
-        <StyledRoot>
-          <ProfileUserProvider user={user}>
-            {!isBelowMedium && (
-              <UserOverview showHostAndMeetAvailability={false} />
-            )}
-            <StyledFormWrapper>
-              <ReferenceForm
-                hostRequestId={hostRequestId}
-                referenceType={referenceType}
-                userId={userId}
-                step={step}
-              />
-            </StyledFormWrapper>
-          </ProfileUserProvider>
-        </StyledRoot>
-      ) : (
-        <Alert severity="error">
-          {t("profile:leave_reference.reference_type_not_available")}
-        </Alert>
-      )}
+        user &&
+        ((referenceType ===
+          referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND] &&
+          availableReferences.canWriteFriendReference &&
+          user.friends === User.FriendshipStatus.FRIENDS) ||
+        (hostRequestId &&
+          availableReferences.availableWriteReferencesList.find(
+            ({ hostRequestId: availableId }) => availableId === hostRequestId,
+          )) ? (
+          <StyledRoot>
+            <ProfileUserProvider user={user}>
+              {!isBelowMedium && (
+                <UserOverview showHostAndMeetAvailability={false} />
+              )}
+              <StyledFormWrapper>
+                <ReferenceForm
+                  hostRequestId={hostRequestId}
+                  referenceType={referenceType}
+                  userId={userId}
+                  step={step}
+                />
+              </StyledFormWrapper>
+            </ProfileUserProvider>
+          </StyledRoot>
+        ) : (
+          <Alert severity="error">
+            {t("profile:leave_reference.reference_type_not_available")}
+          </Alert>
+        ))}
     </>
   );
 }

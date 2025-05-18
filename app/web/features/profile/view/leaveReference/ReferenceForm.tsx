@@ -1,5 +1,6 @@
 import { Alert } from "@mui/material";
 import Redirect from "components/Redirect";
+import PrivateFeedback from "features/profile/view/leaveReference/formSteps/PrivateFeedback";
 import SubmitReference from "features/profile/view/leaveReference/formSteps/submit/SubmitReference";
 import Text from "features/profile/view/leaveReference/formSteps/Text";
 import { useTranslation } from "i18n";
@@ -8,14 +9,12 @@ import { useState } from "react";
 import { leaveReferenceBaseRoute, ReferenceStep } from "routes";
 
 import DidStay from "./formSteps/DidStay";
-import PrivateFeedback from "features/profile/view/leaveReference/formSteps/PrivateFeedback";
 
 export type ReferenceContextFormData = {
-  didStay: boolean | undefined;
+  didStay?: boolean;
   text: string;
   wasAppropriate: string;
   rating: number;
-  reasonDidntMeetup?: string;
   privateText?: string;
 };
 
@@ -24,8 +23,6 @@ export type ReferenceFormInputs = {
   wasAppropriate: boolean;
   rating: number;
   privateText?: string;
-  reasonDidntMeetup?: string;
-  didStay: boolean | undefined;
 };
 
 export interface ReferenceStepProps {
@@ -64,42 +61,62 @@ export default function ReferenceForm({
     }));
   };
 
-  const isSkippedStep =
-    referenceData.wasAppropriate === "" &&
-    step !== "private-feedback" &&
-    referenceData.didStay === undefined &&
-    step !== "did-stay";
+  const isDidStaySkipped =
+    referenceData.didStay === undefined && step !== "did-stay";
+  const isPrivateFeedbackSkipped =
+    referenceData.wasAppropriate === "" && step !== "private-feedback";
+
   const redirectTo =
     referenceType === "friend"
       ? `${leaveReferenceBaseRoute}/${referenceType}/${userId}`
       : `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`;
 
-  return isSkippedStep ? (
-    <Redirect to={redirectTo} />
-  ) : step === "did-stay" ? (
-    <DidStay referenceType={referenceType} hostRequestId={hostRequestId} />
-  ) : step === "private-feedback" ? (
-    <PrivateFeedback
-      referenceData={referenceData}
-      setReferenceValues={setReferenceValues}
-      referenceType={referenceType}
-      hostRequestId={hostRequestId}
-    />
-  ) : step === "reference" ? (
-    <Text
-      referenceData={referenceData}
-      setReferenceValues={setReferenceValues}
-      referenceType={referenceType}
-      hostRequestId={hostRequestId}
-    />
-  ) : step === "submit" ? (
-    <SubmitReference
-      referenceData={referenceData}
-      referenceType={referenceType}
-      hostRequestId={hostRequestId}
-      userId={userId}
-    />
-  ) : (
-    <Alert severity="error">{t("profile:leave_reference.invalid_step")}</Alert>
-  );
+  if (isDidStaySkipped || (isDidStaySkipped && isPrivateFeedbackSkipped)) {
+    return <Redirect to={redirectTo} />;
+  }
+
+  switch (step) {
+    case "did-stay":
+      return (
+        <DidStay
+          referenceData={referenceData}
+          setReferenceValues={setReferenceValues}
+          referenceType={referenceType}
+          hostRequestId={hostRequestId}
+        />
+      );
+    case "private-feedback":
+      return (
+        <PrivateFeedback
+          referenceData={referenceData}
+          setReferenceValues={setReferenceValues}
+          referenceType={referenceType}
+          hostRequestId={hostRequestId}
+        />
+      );
+    case "reference":
+      return (
+        <Text
+          referenceData={referenceData}
+          setReferenceValues={setReferenceValues}
+          referenceType={referenceType}
+          hostRequestId={hostRequestId}
+        />
+      );
+    case "submit":
+      return (
+        <SubmitReference
+          referenceData={referenceData}
+          referenceType={referenceType}
+          hostRequestId={hostRequestId}
+          userId={userId}
+        />
+      );
+    default:
+      return (
+        <Alert severity="error">
+          {t("profile:leave_reference.invalid_step")}
+        </Alert>
+      );
+  }
 }
