@@ -68,12 +68,19 @@ module.exports = {
     {
       source: "/community-builder-form",
       destination:
-        "https://docs.google.com/forms/d/e/1FAIpQLSeactITjrAUVjUg80gFIjxweK3-oPsgwoBmaAe0RJcjdL2xGw/viewform",
+        "https://forms.monday.com/forms/d7b6f1bd47a092e23b63f6ef9db1594b?r=use1",
+      permanent: false,
+    },
+    {
+      source: "/community-creation-form",
+      destination:
+        "https://forms.monday.com/forms/d7b6f1bd47a092e23b63f6ef9db1594b?r=use1",
       permanent: false,
     },
     {
       source: "/community-builder-chat",
-      destination: "https://calendly.com/couchers/community-builder-chat",
+      destination:
+        "https://forms.monday.com/forms/d7b6f1bd47a092e23b63f6ef9db1594b?r=use1",
       permanent: false,
     },
     {
@@ -89,12 +96,6 @@ module.exports = {
     {
       source: "/chat-translations",
       destination: "https://calendly.com/couchers/translation-chat",
-      permanent: false,
-    },
-    {
-      source: "/community-creation-form",
-      destination:
-        "https://docs.google.com/forms/d/e/1FAIpQLSdM4J8QxlTH8fF4HF_SNeA8hsuq-iz0Hx-qVF1VYVNcKpI2pQ/viewform",
       permanent: false,
     },
     { source: "/solutions", destination: "/plan", permanent: true },
