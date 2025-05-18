@@ -80,7 +80,7 @@ module.exports = {
     {
       source: "/community-builder-chat",
       destination:
-        "https://forms.monday.com/forms/d7b6f1bd47a092e23b63f6ef9db1594b?r=use1",
+        "https://forms.monday.com/forms/1e84199578bc028b282a88b9e325d646?r=use1",
       permanent: false,
     },
     {
