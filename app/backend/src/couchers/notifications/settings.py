@@ -275,7 +275,7 @@ settings_layout = [
                 "general",
                 "General",
                 [
-                    ("new_blog_post", "We publish a new blog post"),
+                    ("new_blog_post", "We published a new blog post"),
                 ],
             ),
         ],
