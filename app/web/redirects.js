@@ -68,7 +68,7 @@ module.exports = {
     {
       source: "/community-builder-form",
       destination:
-        "https://forms.monday.com/forms/d7b6f1bd47a092e23b63f6ef9db1594b?r=use1",
+        "https://docs.google.com/forms/d/e/1FAIpQLSeactITjrAUVjUg80gFIjxweK3-oPsgwoBmaAe0RJcjdL2xGw/viewform",
       permanent: false,
     },
     {
