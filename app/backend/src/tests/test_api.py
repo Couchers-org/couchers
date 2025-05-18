@@ -730,6 +730,19 @@ def test_friend_request_flow(db, push_collector):
         assert len(res.user_ids) == 1
         assert res.user_ids[0] == user2.id
 
+    with api_session(token1) as api:
+        # we can't unfriend if we aren't friends
+        with pytest.raises(grpc.RpcError) as e:
+            api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=user3.id))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.NOT_FRIENDS
+
+        # we can unfriend
+        res = api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=user2.id))
+
+        res = api.ListFriends(empty_pb2.Empty())
+        assert len(res.user_ids) == 0
+
 
 def test_cant_friend_request_twice(db):
     user1, token1 = generate_user()
