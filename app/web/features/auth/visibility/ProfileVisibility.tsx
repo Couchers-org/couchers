@@ -1,7 +1,6 @@
 import {
   FormControl,
   FormControlLabel,
-  FormLabel,
   Radio,
   RadioGroup,
   Typography,
@@ -90,9 +89,6 @@ export default function ProfileVisibility({
           defaultValue={accountInfo.profilePublicVisibility}
           render={({ field }) => (
             <FormControl component="fieldset" sx={{ mb: 2, display: "block" }}>
-              <FormLabel component="legend">
-                {t("auth:profile_visibility.choose")}
-              </FormLabel>
               <RadioGroup
                 {...field}
                 row
