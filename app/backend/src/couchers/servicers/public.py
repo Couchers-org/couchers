@@ -27,10 +27,11 @@ class Public(public_pb2_grpc.PublicServicer):
             .where(User.public_visibility != ProfilePublicVisibility.nothing)
             .where(User.public_visibility != ProfilePublicVisibility.map_only)
         )
+
         without_geom = (
-            select(None, User.geom)
+            select(User.randomized_geom)
             .where(User.is_visible)
-            .where(User.geom != None)
+            .where(User.randomized_geom != None)
             .where(User.public_visibility == ProfilePublicVisibility.map_only)
         )
         return _statement_to_geojson_response(session, union_all(with_geom, without_geom))

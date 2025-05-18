@@ -58,18 +58,18 @@ export default function ProfileVisibility({
       ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_MAP_ONLY,
       "auth:profile_visibility.visiblility_options.map_only",
     ],
-    [
-      ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_LIMITED,
-      "auth:profile_visibility.visiblility_options.limited",
-    ],
-    [
-      ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_MOST,
-      "auth:profile_visibility.visiblility_options.most",
-    ],
-    [
-      ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_FULL,
-      "auth:profile_visibility.visiblility_options.full_profile",
-    ],
+    // [
+    //   ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_LIMITED,
+    //   "auth:profile_visibility.visiblility_options.limited",
+    // ],
+    // [
+    //   ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_MOST,
+    //   "auth:profile_visibility.visiblility_options.most",
+    // ],
+    // [
+    //   ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_FULL,
+    //   "auth:profile_visibility.visiblility_options.full_profile",
+    // ],
   ];
 
   useEffect(() => {

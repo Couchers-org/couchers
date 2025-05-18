@@ -637,6 +637,7 @@ class Account(account_pb2_grpc.AccountServicer):
     def SetProfilePublicVisibility(self, request, context, session):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         user.public_visibility = profilepublicitysetting2sql[request.profile_public_visibility]
+        user.has_modified_public_visibility = True
         return empty_pb2.Empty()
 
 

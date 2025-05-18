@@ -4,7 +4,7 @@ Background job servicers
 
 import logging
 from datetime import date, timedelta
-from math import sqrt
+from math import cos, sin, sqrt
 
 import requests
 from google.protobuf import empty_pb2
@@ -18,7 +18,14 @@ from couchers.constants import (
     ACTIVENESS_PROBE_INACTIVITY_PERIOD,
     ACTIVENESS_PROBE_TIME_REMINDERS,
 )
-from couchers.crypto import asym_encrypt, b64decode, simple_decrypt
+from couchers.crypto import (
+    USER_LOCATION_RANDOMIZATION_NAME,
+    asym_encrypt,
+    b64decode,
+    get_secret,
+    simple_decrypt,
+    stable_secure_uniform,
+)
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
@@ -71,7 +78,7 @@ from couchers.servicers.threads import generate_reply_notifications
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
 from couchers.tasks import send_duplicate_strong_verification_email
-from couchers.utils import Timestamp_from_datetime, make_user_context, now
+from couchers.utils import Timestamp_from_datetime, create_coordinate, get_coordinates, make_user_context, now
 from proto import notification_data_pb2
 from proto.internal import jobs_pb2, verification_pb2
 
@@ -942,3 +949,36 @@ def send_activeness_probes(payload):
 
 send_activeness_probes.PAYLOAD = empty_pb2.Empty
 send_activeness_probes.SCHEDULE = timedelta(minutes=60)
+
+
+def update_randomized_locations(payload):
+    """
+    We generate for each user a randomized location as follows:
+    - Start from a strong random seed (based on the SECRET env var and our key derivation function)
+    - For each user, mix in the user_id for randomness
+    - Generate a radius from [0.02, 0.1] degrees (about 2-10km)
+    - Generate an angle from [0, 360]
+    - Randomized location is then a distance `radius` away at an angle `angle` from `geom`
+    """
+    with session_scope() as session:
+        users_to_update = (
+            session.execute(select(User).where(User.geom != None).where(User.randomized_geom == None)).scalars().all()
+        )
+        for user in users_to_update:
+            radius_u = stable_secure_uniform(
+                get_secret(USER_LOCATION_RANDOMIZATION_NAME), seed=bytes(f"{user.id}|radius", "ascii")
+            )
+            angle_u = stable_secure_uniform(
+                get_secret(USER_LOCATION_RANDOMIZATION_NAME), seed=bytes(f"{user.id}|angle", "ascii")
+            )
+            radius = 0.02 + 0.08 * radius_u
+            angle = 360 * angle_u
+            offset_lng = radius * cos(angle)
+            offset_lat = radius * sin(angle)
+            lat, lng = get_coordinates(user.geom)
+            user.randomized_geom = create_coordinate(lat=lat + offset_lat, lng=lng + offset_lng)
+            session.commit()
+
+
+update_randomized_locations.PAYLOAD = empty_pb2.Empty
+update_randomized_locations.SCHEDULE = timedelta(hours=1)

@@ -6,6 +6,7 @@ Create Date: 2024-07-13 17:08:33.761879
 
 """
 
+import geoalchemy2
 import sqlalchemy as sa
 from alembic import op
 
@@ -30,10 +31,19 @@ def upgrade():
     )
     op.add_column(
         "users",
-        sa.Column("needs_to_pick_public_visibility", sa.Boolean(), server_default=sa.text("false"), nullable=False),
+        sa.Column("has_modified_public_visibility", sa.Boolean(), server_default=sa.text("false"), nullable=False),
+    )
+    op.add_column(
+        "users",
+        sa.Column(
+            "randomized_geom",
+            geoalchemy2.types.Geometry(geometry_type="POINT", srid=4326, from_text="ST_GeomFromEWKT", name="geometry"),
+            nullable=True,
+        ),
     )
 
 
 def downgrade():
-    op.drop_column("users", "needs_to_pick_public_visibility")
+    op.drop_column("users", "has_modified_public_visibility")
     op.drop_column("users", "public_visibility")
+    op.drop_column("users", "randomized_geom")
