@@ -1,7 +1,7 @@
 """Add profile public visibility
 
 Revision ID: 8f056dd44a58
-Revises: a0d344cfb455
+Revises: 07ecff50fe93
 Create Date: 2024-07-13 17:08:33.761879
 
 """
@@ -12,7 +12,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "8f056dd44a58"
-down_revision = "a0d344cfb455"
+down_revision = "07ecff50fe93"
 branch_labels = None
 depends_on = None
 
