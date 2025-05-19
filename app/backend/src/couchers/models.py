@@ -140,11 +140,11 @@ class User(Base):
     ## location
     # point describing their location. EPSG4326 is the SRS (spatial ref system, = way to describe a point on earth) used
     # by GPS, it has the WGS84 geoid with lat/lon
-    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
-    # randomized coordinates within a radius of 0.05-0.1 degrees, equates to about 5-10 km
+    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
+    # randomized coordinates within a radius of 0.02-0.1 degrees, equates to about 2-10 km
     randomized_geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     # their display location (displayed to other users), in meters
-    geom_radius = Column(Float, nullable=True)
+    geom_radius = Column(Float, nullable=False)
     # the display address (text) shown on their profile
     city = Column(String, nullable=False)
     # "Grew up in" on profile
