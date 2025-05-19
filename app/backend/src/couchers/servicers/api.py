@@ -517,9 +517,6 @@ class API(api_pb2_grpc.APIServicer):
             else:
                 user.camping_ok = request.camping_ok.value
 
-        # save updates
-        session.commit()
-
         return empty_pb2.Empty()
 
     def ListFriends(self, request, context, session):
@@ -542,6 +539,27 @@ class API(api_pb2_grpc.APIServicer):
         return api_pb2.ListFriendsRes(
             user_ids=[rel.from_user.id if rel.from_user.id != context.user_id else rel.to_user.id for rel in rels],
         )
+
+    def RemoveFriend(self, request, context, session):
+        rel = session.execute(
+            select(FriendRelationship)
+            .where_users_column_visible(context, FriendRelationship.from_user_id)
+            .where_users_column_visible(context, FriendRelationship.to_user_id)
+            .where(
+                or_(
+                    FriendRelationship.from_user_id == request.user_id,
+                    FriendRelationship.to_user_id == request.user_id,
+                )
+            )
+            .where(FriendRelationship.status == FriendStatus.accepted)
+        ).scalar_one_or_none()
+
+        if not rel:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_FRIENDS)
+
+        session.delete(rel)
+
+        return empty_pb2.Empty()
 
     def ListMutualFriends(self, request, context, session):
         if context.user_id == request.user_id:
