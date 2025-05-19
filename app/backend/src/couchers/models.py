@@ -88,6 +88,19 @@ class ParkingDetails(enum.Enum):
     paid_offsite = enum.auto()
 
 
+class ProfilePublicVisibility(enum.Enum):
+    # no public info
+    nothing = enum.auto()
+    # only show on map, randomized, unclickable
+    map_only = enum.auto()
+    # name, gender, location, hosting/meetup status, badges, number of references, and signup time
+    limited = enum.auto()
+    # full about me except additional info (hide my home)
+    most = enum.auto()
+    # all but references
+    full = enum.auto()
+
+
 class TimezoneArea(Base):
     __tablename__ = "timezone_areas"
     id = Column(BigInteger, primary_key=True)
@@ -128,6 +141,8 @@ class User(Base):
     # point describing their location. EPSG4326 is the SRS (spatial ref system, = way to describe a point on earth) used
     # by GPS, it has the WGS84 geoid with lat/lon
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    # randomized coordinates within a radius of 0.05-0.1 degrees, equates to about 5-10 km
+    randomized_geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     # their display location (displayed to other users), in meters
     geom_radius = Column(Float, nullable=True)
     # the display address (text) shown on their profile
@@ -145,6 +160,9 @@ class User(Base):
 
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    public_visibility = Column(Enum(ProfilePublicVisibility), nullable=False, server_default="map_only")
+    has_modified_public_visibility = Column(Boolean, nullable=False, server_default=text("false"))
 
     # id of the last message that they received a notification about
     last_notified_message_id = Column(BigInteger, nullable=False, default=0)

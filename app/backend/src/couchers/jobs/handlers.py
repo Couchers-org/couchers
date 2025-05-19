@@ -4,8 +4,7 @@ Background job servicers
 
 import logging
 from datetime import date, timedelta
-from math import sqrt
-from types import SimpleNamespace
+from math import cos, pi, sin, sqrt
 
 import requests
 from google.protobuf import empty_pb2
@@ -19,7 +18,14 @@ from couchers.constants import (
     ACTIVENESS_PROBE_INACTIVITY_PERIOD,
     ACTIVENESS_PROBE_TIME_REMINDERS,
 )
-from couchers.crypto import asym_encrypt, b64decode, simple_decrypt
+from couchers.crypto import (
+    USER_LOCATION_RANDOMIZATION_NAME,
+    asym_encrypt,
+    b64decode,
+    get_secret,
+    simple_decrypt,
+    stable_secure_uniform,
+)
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
@@ -73,7 +79,7 @@ from couchers.servicers.threads import generate_reply_notifications
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
 from couchers.tasks import send_duplicate_strong_verification_email
-from couchers.utils import Timestamp_from_datetime, now
+from couchers.utils import Timestamp_from_datetime, create_coordinate, get_coordinates, make_user_context, now
 from proto import notification_data_pb2
 from proto.internal import jobs_pb2, verification_pb2
 
@@ -242,7 +248,7 @@ def send_message_notifications(payload):
                             author=user_model_to_pb(
                                 message.author,
                                 session,
-                                SimpleNamespace(user_id=user.id),
+                                make_user_context(user_id=user.id),
                             ),
                             message=format_title(message, group_chat, count_unseen),
                             text=message.text,
@@ -296,7 +302,7 @@ def send_request_notifications(payload):
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
             session.flush()
 
-            context = SimpleNamespace(user_id=user.id)
+            context = make_user_context(user_id=user.id)
             notify(
                 session,
                 user_id=user.id,
@@ -313,7 +319,7 @@ def send_request_notifications(payload):
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
             session.flush()
 
-            context = SimpleNamespace(user_id=user.id)
+            context = make_user_context(user_id=user.id)
             notify(
                 session,
                 user_id=user.id,
@@ -464,7 +470,7 @@ def send_reference_reminders(payload):
                 # checked in sql
                 assert user.is_visible
                 if not are_blocked(session, user.id, other_user.id):
-                    context = SimpleNamespace(user_id=user.id)
+                    context = make_user_context(user_id=user.id)
                     notify(
                         session,
                         user_id=user.id,
@@ -908,7 +914,7 @@ def send_activeness_probes(payload):
 
             for probe in probes:
                 probe.notifications_sent = probe_number_minus_1 + 1
-                context = SimpleNamespace(user_id=probe.user.id)
+                context = make_user_context(user_id=probe.user.id)
                 notify(
                     session,
                     user_id=probe.user.id,
@@ -945,3 +951,36 @@ def send_activeness_probes(payload):
 
 send_activeness_probes.PAYLOAD = empty_pb2.Empty
 send_activeness_probes.SCHEDULE = timedelta(minutes=60)
+
+
+def update_randomized_locations(payload):
+    """
+    We generate for each user a randomized location as follows:
+    - Start from a strong random seed (based on the SECRET env var and our key derivation function)
+    - For each user, mix in the user_id for randomness
+    - Generate a radius from [0.02, 0.1] degrees (about 2-10km)
+    - Generate an angle from [0, 360]
+    - Randomized location is then a distance `radius` away at an angle `angle` from `geom`
+    """
+    with session_scope() as session:
+        users_to_update = (
+            session.execute(select(User).where(User.geom != None).where(User.randomized_geom == None)).scalars().all()
+        )
+        for user in users_to_update:
+            radius_u = stable_secure_uniform(
+                get_secret(USER_LOCATION_RANDOMIZATION_NAME), seed=bytes(f"{user.id}|radius", "ascii")
+            )
+            angle_u = stable_secure_uniform(
+                get_secret(USER_LOCATION_RANDOMIZATION_NAME), seed=bytes(f"{user.id}|angle", "ascii")
+            )
+            radius = 0.02 + 0.08 * radius_u
+            angle_rad = 2 * pi * angle_u
+            offset_lng = radius * cos(angle_rad)
+            offset_lat = radius * sin(angle_rad)
+            lat, lng = get_coordinates(user.geom)
+            user.randomized_geom = create_coordinate(lat=lat + offset_lat, lng=lng + offset_lng)
+            session.commit()
+
+
+update_randomized_locations.PAYLOAD = empty_pb2.Empty
+update_randomized_locations.SCHEDULE = timedelta(hours=1)

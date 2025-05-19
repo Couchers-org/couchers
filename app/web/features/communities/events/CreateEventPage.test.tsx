@@ -45,6 +45,7 @@ const accountInfo = {
   hasDonated: false,
   isSuperuser: false,
   uiLanguagePreference: "",
+  profilePublicVisibility: 1,
 };
 
 describe("Create event page", () => {
@@ -406,6 +407,7 @@ describe("Create event page", () => {
       hasDonated: false,
       isSuperuser: false,
       uiLanguagePreference: "",
+      profilePublicVisibility: 1,
     });
 
     render(<CreateEventPage />, { wrapper });
