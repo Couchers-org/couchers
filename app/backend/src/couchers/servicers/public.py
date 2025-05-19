@@ -23,7 +23,6 @@ class Public(public_pb2_grpc.PublicServicer):
         with_geom = (
             select(User.username, User.geom)
             .where(User.is_visible)
-            .where(User.geom != None)
             .where(User.public_visibility != ProfilePublicVisibility.nothing)
             .where(User.public_visibility != ProfilePublicVisibility.map_only)
         )

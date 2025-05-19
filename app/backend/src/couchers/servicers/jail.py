@@ -67,6 +67,7 @@ class Jail(jail_pb2_grpc.JailServicer):
 
         user.city = request.city
         user.geom = create_coordinate(request.lat, request.lng)
+        user.randomized_geom = None
         user.geom_radius = request.radius
 
         session.commit()

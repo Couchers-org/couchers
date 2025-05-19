@@ -401,7 +401,7 @@ class User(Base):
 
     @hybrid_property
     def is_missing_location(self):
-        return (self.geom == None) | (self.geom_radius == None)
+        return False
 
     @hybrid_property
     def is_visible(self):
