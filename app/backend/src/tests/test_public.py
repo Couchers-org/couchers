@@ -53,17 +53,17 @@ def test_GetPublicMapLayer(db):
                 },
                 {
                     "type": "Feature",
-                    "geometry": {"type": "Point", "coordinates": [-74.016870573, 40.686290358]},
+                    "geometry": {"type": "Point", "coordinates": [-73.928380198, 40.729706144]},
                     "properties": {"username": None},
                 },
                 {
                     "type": "Feature",
-                    "geometry": {"type": "Point", "coordinates": [-73.975133917, 40.779585723]},
+                    "geometry": {"type": "Point", "coordinates": [-74.042643848, 40.706241098]},
                     "properties": {"username": None},
                 },
                 {
                     "type": "Feature",
-                    "geometry": {"type": "Point", "coordinates": [-73.94827905, 40.717398841]},
+                    "geometry": {"type": "Point", "coordinates": [-73.955417734, 40.691831306]},
                     "properties": {"username": None},
                 },
             ],

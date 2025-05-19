@@ -4,7 +4,7 @@ Background job servicers
 
 import logging
 from datetime import date, timedelta
-from math import cos, sin, sqrt
+from math import cos, pi, sin, sqrt
 
 import requests
 from google.protobuf import empty_pb2
@@ -972,9 +972,9 @@ def update_randomized_locations(payload):
                 get_secret(USER_LOCATION_RANDOMIZATION_NAME), seed=bytes(f"{user.id}|angle", "ascii")
             )
             radius = 0.02 + 0.08 * radius_u
-            angle = 360 * angle_u
-            offset_lng = radius * cos(angle)
-            offset_lat = radius * sin(angle)
+            angle_rad = 2 * pi * angle_u
+            offset_lng = radius * cos(angle_rad)
+            offset_lat = radius * sin(angle_rad)
             lat, lng = get_coordinates(user.geom)
             user.randomized_geom = create_coordinate(lat=lat + offset_lat, lng=lng + offset_lng)
             session.commit()
