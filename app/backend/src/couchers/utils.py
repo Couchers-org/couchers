@@ -7,7 +7,6 @@ from zoneinfo import ZoneInfo
 
 import pytz
 from geoalchemy2.shape import from_shape, to_shape
-from geoalchemy2.types import Geography, Geometry
 from google.protobuf.duration_pb2 import Duration
 from google.protobuf.timestamp_pb2 import Timestamp
 from shapely.geometry import Point, Polygon, shape
@@ -126,16 +125,52 @@ def today_in_timezone(tz):
 # When entering as EPSG4326, we also need it in (lng, lat)
 
 
+def wrap_coordinate(lat, lng):
+    """
+    Wraps (lat, lng) point in the EPSG4326 format
+    """
+
+    def __wrap_gen(deg, ct, adj):
+        if deg > ct:
+            deg -= adj
+        if deg < -ct:
+            deg += adj
+        return deg
+
+    def __wrap_flip(deg, ct, adj):
+        if deg > ct:
+            deg = -deg + adj
+        if deg < -ct:
+            deg = -deg - adj
+        return deg
+
+    def __wrap_rem(deg, ct=360):
+        if deg > ct:
+            deg = deg % ct
+        if deg < -ct:
+            deg = deg % -ct
+        return deg
+
+    if lng < -180 or lng > 180 or lat < -90 or lat > 90:
+        lng = __wrap_rem(lng)
+        lat = __wrap_rem(lat)
+        lng = __wrap_gen(lng, 180, 360)
+        lat = __wrap_flip(lat, 180, 180)
+        lat = __wrap_flip(lat, 90, 180)
+        if lng == -180:
+            lng = 180
+        if lng == -360:
+            lng = 0
+
+    return lat, lng
+
+
 def create_coordinate(lat, lng):
     """
     Creates a WKT point from a (lat, lng) tuple in EPSG4326 coordinate system (normal GPS-coordinates)
     """
-    wkb_point = from_shape(Point(lng, lat), srid=4326)
-
-    # Casting to Geography and back here to ensure coordinate wrapping
-    return cast(
-        cast(wkb_point, Geography(geometry_type="POINT", srid=4326)), Geometry(geometry_type="POINT", srid=4326)
-    )
+    lat, lng = wrap_coordinate(lat, lng)
+    return from_shape(Point(lng, lat), srid=4326)
 
 
 def create_polygon_lat_lng(points):
