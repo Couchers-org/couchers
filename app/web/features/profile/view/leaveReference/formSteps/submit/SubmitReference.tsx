@@ -23,7 +23,6 @@ import { ReferenceType } from "proto/references_pb";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
-  baseRoute,
   leaveReferenceBaseRoute,
   referenceStepStrings,
   referenceTypeRoute,
