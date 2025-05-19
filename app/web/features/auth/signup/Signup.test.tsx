@@ -234,7 +234,7 @@ describe("Signup", () => {
       );
       checkboxes.forEach(async (checkbox) => await user.click(checkbox));
       const button = await screen.findByRole("button", {
-        name: t("global:continue"),
+        name: t("global:submit"),
       });
 
       await waitFor(() => expect(button).not.toBeDisabled());
