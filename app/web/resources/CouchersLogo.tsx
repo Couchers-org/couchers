@@ -1,4 +1,4 @@
-import { Chip, styled, SvgIcon } from "@mui/material";
+import { styled, SvgIcon } from "@mui/material";
 import { useAuthContext } from "features/auth/AuthProvider";
 import Link from "next/link";
 
@@ -11,12 +11,6 @@ const Logo = styled(SvgIcon)(({ theme }) => ({
   fill: theme.palette.secondary.main,
   height: theme.typography.pxToRem(40),
   width: theme.typography.pxToRem(40),
-}));
-
-const Sticker = styled(Chip)(() => ({
-  fontSize: "0.65rem",
-  position: "absolute",
-  transform: `rotate(15deg) translate(1.25rem, -0.625rem)`,
 }));
 
 export interface CouchersLogoProps {
