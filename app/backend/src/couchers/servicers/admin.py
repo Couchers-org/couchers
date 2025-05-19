@@ -1,6 +1,7 @@
 import json
 import logging
 from datetime import timedelta
+from types import SimpleNamespace
 
 import grpc
 from geoalchemy2.shape import from_shape
@@ -11,6 +12,7 @@ from user_agents import parse as user_agents_parse
 
 from couchers import errors, urls
 from couchers.crypto import urlsafe_secure_token
+from couchers.db import session_scope
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.helpers.geoip import geoip_approximate_location, geoip_asn
@@ -100,6 +102,23 @@ def load_community_geom(geojson, context):
         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_MULTIPOLYGON)
 
     return geom
+
+
+def generate_new_blog_post_notifications(payload: jobs_pb2.GenerateNewBlogPostNotificationsPayload):
+    with session_scope() as session:
+        all_users = session.execute(select(User).where(User.is_visible)).scalars().all()
+        for user in all_users:
+            context = SimpleNamespace(user_id=user.id)
+            notify(
+                session,
+                user_id=user.id,
+                topic_action="general:new_blog_post",
+                data=notification_data_pb2.GeneralNewBlogPost(
+                    url=payload.url,
+                    title=payload.title,
+                    blurb=payload.blurb,
+                ),
+            )
 
 
 class Admin(admin_pb2_grpc.AdminServicer):
@@ -643,3 +662,19 @@ class Admin(admin_pb2_grpc.AdminServicer):
             )
 
         return out
+
+    def SendBlogPostNotification(self, request, context, session):
+        if len(request.title) > 50:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ADMIN_BLOG_TITLE_TOO_LONG)
+        if len(request.blurb) > 100:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ADMIN_BLOG_BLURB_TOO_LONG)
+        queue_job(
+            session,
+            "generate_new_blog_post_notifications",
+            payload=jobs_pb2.GenerateNewBlogPostNotificationsPayload(
+                url=request.url,
+                title=request.title,
+                blurb=request.blurb,
+            ),
+        )
+        return empty_pb2.Empty()

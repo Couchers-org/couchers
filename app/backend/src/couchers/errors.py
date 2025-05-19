@@ -2,6 +2,8 @@
 
 ACCOUNT_NOT_FOUND = "An account with that username or email was not found."
 ACCOUNT_SUSPENDED = "Your account is suspended."
+ADMIN_BLOG_BLURB_TOO_LONG = "The blog post blurb is too long."
+ADMIN_BLOG_TITLE_TOO_LONG = "The blog post title is too long."
 ADMIN_CANNOT_EDIT_BADGE = "Admins cannot edit that badge."
 ADMIN_NOTE_CANT_BE_EMPTY = "The admin note cannot be empty."
 ALREADY_ADMIN = "That user is already an admin."

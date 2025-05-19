@@ -57,6 +57,7 @@ from couchers.models import (
 from couchers.notifications.background import handle_email_digests, handle_notification, send_raw_push_notification
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict, get_static_badge_dict
+from couchers.servicers.admin import generate_new_blog_post_notifications
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import are_blocked
 from couchers.servicers.conversations import generate_message_notifications
@@ -100,6 +101,7 @@ generate_event_cancel_notifications.PAYLOAD = jobs_pb2.GenerateEventCancelNotifi
 
 generate_event_delete_notifications.PAYLOAD = jobs_pb2.GenerateEventDeleteNotificationsPayload
 
+generate_new_blog_post_notifications.PAYLOAD = jobs_pb2.GenerateNewBlogPostNotificationsPayload
 
 refresh_materialized_views.PAYLOAD = empty_pb2.Empty
 refresh_materialized_views.SCHEDULE = timedelta(minutes=5)

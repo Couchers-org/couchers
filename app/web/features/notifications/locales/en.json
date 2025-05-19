@@ -17,6 +17,7 @@
       "list_items": {
         "account_security": "Account security",
         "account_settings": "Account settings",
+        "other_notifications": "Other Notifications",
         "chat": "Messages",
         "event": "Events",
         "friend_request": "Friend requests",
@@ -38,6 +39,9 @@
         "chat": {
           "message": "Someone sends you a message",
           "missed_messages": "You miss messages in a chat"
+        },
+        "general": {
+          "new_blog_post": "A new blog post is published"
         },
         "reference": {
           "receive_hosted": "You receive a reference from someone who hosted you",

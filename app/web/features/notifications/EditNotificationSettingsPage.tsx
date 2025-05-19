@@ -15,7 +15,8 @@ export type NotificationType =
   | "reference"
   | "friend_request"
   | "host_request"
-  | "reply";
+  | "reply"
+  | "general";
 
 export interface GroupAction {
   action: string;
@@ -58,6 +59,19 @@ const StyledLoadingSpinner = styled(CircularProgress)({
   position: "absolute",
 });
 
+const getGroupKey = (
+  groupHeading: string,
+  subTopicAction: string,
+  topicName: string,
+) => {
+  if (groupHeading === "Account Security") return "account_security";
+  if (groupHeading === "Account Settings") return "account_settings";
+  if (groupHeading === "Other Notifications") return "other_notifications";
+  if (subTopicAction === "reply" || subTopicAction === "comment")
+    return "reply";
+  return topicName;
+};
+
 export default function EditNotificationSettingsPage() {
   const { t } = useTranslation(NOTIFICATIONS, {
     keyPrefix: "notification_settings.edit_preferences",
@@ -74,27 +88,20 @@ export default function EditNotificationSettingsPage() {
     const computedGroups = data?.groupsList.reduce<GroupsByType>(
       (acc, group) => {
         group.topicsList.forEach((topic) => {
-          if (topic && topic.itemsList) {
-            topic.itemsList.forEach((subTopic) => {
-              const key =
-                group.heading === "Account Security"
-                  ? "account_security"
-                  : group.heading === "Account Settings"
-                    ? "account_settings"
-                    : subTopic.action === "reply" ||
-                        subTopic.action === "comment"
-                      ? "reply"
-                      : topic.topic;
+          const items = topic?.itemsList;
+          if (!items) return;
 
-              if (!acc[key]) {
-                acc[key] = [];
-              }
+          items.forEach((subTopic) => {
+            if (!subTopic?.userEditable) return;
 
-              if (subTopic.userEditable) {
-                acc[key].push({ ...subTopic, topic: topic.topic });
-              }
-            });
-          }
+            const key = getGroupKey(
+              group.heading,
+              subTopic.action,
+              topic.topic,
+            );
+            acc[key] ||= [];
+            acc[key].push({ ...subTopic, topic: topic.topic });
+          });
         });
 
         return acc;
