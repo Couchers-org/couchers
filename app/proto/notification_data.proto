@@ -218,3 +218,9 @@ message ActivenessProbe {
   uint64 reminder_number = 1;
   google.protobuf.Timestamp deadline = 2;
 }
+
+message GeneralNewBlogPost {
+  string url = 1;
+  string title = 2;
+  string blurb = 3;
+}

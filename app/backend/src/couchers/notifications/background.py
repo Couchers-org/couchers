@@ -9,6 +9,7 @@ from couchers import urls
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.email import queue_email
+from couchers.metrics import push_notification_counter, push_notification_disabled_counter
 from couchers.models import (
     Notification,
     NotificationDelivery,
@@ -214,10 +215,12 @@ def send_raw_push_notification(payload: jobs_pb2.SendRawPushNotificationPayload)
         session.commit()
         if success:
             logger.debug(f"Successfully sent push to sub {sub.id} for user {sub.user}")
-        elif resp.status_code == 410:
+            push_notification_counter.inc()
+        elif resp.status_code == 404 or resp.status_code == 410:
             # gone
             logger.info(f"Push sub {sub.id} for user {sub.user} is gone! Disabling.")
             sub.disabled_at = func.now()
+            push_notification_disabled_counter.inc()
         else:
             raise Exception(f"Failed to deliver push to {sub.id}, code: {resp.status_code}. Response: {resp.text}")
 

@@ -194,6 +194,11 @@ export const howToMakeGreatProfileUrl =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1725919197-how-do-i-create-a-great-profile";
 export const helpCenterReportContentURL =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1715125657-how-do-i-report-someone-or-something-that-violates-the-community-guidelines-or-terms-of-use-to_u";
+export const helpCenterCommunityBuilderURL =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder";
 
 export const latestFinancialsURL =
   "/blog/2025/04/20/couchers-inc-financials-2024";
+
+export const communityCreationFormURL = (username?: string) =>
+  `https://forms.monday.com/forms/d7b6f1bd47a092e23b63f6ef9db1594b?r=use1&username=${username || ""}`;

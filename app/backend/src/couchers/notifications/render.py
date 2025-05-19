@@ -847,5 +847,22 @@ def render_notification(user, notification) -> RenderedNotification:
             push_icon=urls.icon_url(),
             push_url=urls.app_link(),
         )
+    elif notification.topic_action.display == "general:new_blog_post":
+        title = f"New blog post: {data.title}"
+        return RenderedNotification(
+            email_subject=title,
+            email_preview=data.blurb,
+            email_template_name="new_blog_post",
+            email_template_args={
+                "title": data.title,
+                "blurb": data.blurb,
+                "url": data.url,
+            },
+            email_topic_action_unsubscribe_text="new blog post alerts",
+            push_title=title,
+            push_body=data.blurb,
+            push_icon=urls.icon_url(),
+            push_url=data.url,
+        )
     else:
         raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")

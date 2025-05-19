@@ -1,15 +1,15 @@
 import { styled, Typography } from "@mui/material";
 import MuiLink from "@mui/material/Link";
 import PageTitle from "components/PageTitle";
+import useAccountInfo from "features/auth/useAccountInfo";
 import CommunityBrowser from "features/dashboard/CommunityBrowser";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import React from "react";
-
-const COMMUNITY_BUILDER_FORM_LINK =
-  "https://couchers.org/community-builder-form";
-const COMMUNITY_GUIDELINES_LINK =
-  "https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder";
+import {
+  communityCreationFormURL,
+  helpCenterCommunityBuilderURL,
+} from "routes";
 
 const HeaderRow = styled("div")(({ theme }) => ({
   display: "flex",
@@ -32,6 +32,8 @@ const StyledTypography = styled(Typography)(({ theme }) => ({
 const CommunitiesPage = () => {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
 
+  const { data: accountInfo } = useAccountInfo();
+
   return (
     <>
       <div>
@@ -49,7 +51,7 @@ const CommunitiesPage = () => {
         <Trans i18nKey="dashboard:community_builder">
           {`Want to be an ambassador for your community and help it grow? Become a `}
           <MuiLink
-            href={COMMUNITY_GUIDELINES_LINK}
+            href={helpCenterCommunityBuilderURL}
             target="_blank"
             rel="noreferrer noopener"
             underline="hover"
@@ -69,7 +71,7 @@ const CommunitiesPage = () => {
         <Trans i18nKey="dashboard:community_missing">
           {`Is your country or city missing? `}
           <MuiLink
-            href={COMMUNITY_BUILDER_FORM_LINK}
+            href={communityCreationFormURL(accountInfo?.username)}
             target="_blank"
             rel="noreferrer noopener"
             underline="hover"

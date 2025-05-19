@@ -51,6 +51,7 @@ export {
   default as QuestionIcon,
 } from "@mui/icons-material/MoreHorizOutlined";
 export { default as MuteIcon } from "@mui/icons-material/VolumeOffOutlined";
+export { default as NotificationsActiveIcon } from "@mui/icons-material/NotificationsActive";
 export { default as OpenInNewIcon } from "@mui/icons-material/OpenInNew";
 export { default as OverflowMenuIcon } from "@mui/icons-material/MoreVertOutlined";
 export { default as PenIcon } from "./PenIcon";
