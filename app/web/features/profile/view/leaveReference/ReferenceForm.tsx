@@ -9,6 +9,7 @@ import { useState } from "react";
 import { leaveReferenceBaseRoute, ReferenceStep } from "routes";
 
 import DidStay from "./formSteps/DidStay";
+import ThankYouReference from "./formSteps/submit/ThankYouReference";
 
 export type ReferenceContextFormData = {
   didStay?: boolean;
@@ -117,6 +118,8 @@ export default function ReferenceForm({
           userId={userId}
         />
       );
+    case "thank-you":
+      return <ThankYouReference />;
     default:
       return (
         <Alert severity="error">

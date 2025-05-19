@@ -1,4 +1,5 @@
 import {
+  Box,
   Card,
   CardContent,
   Link,
@@ -60,12 +61,14 @@ export default function ReferenceOverview({
         {t("profile:leave_reference.thank_you_message")}
       </StyledTextBody>
       {isMobile && (
-        <>
-          <TextBody>{t("profile:leave_reference.writing_for_text")}</TextBody>
+        <Box sx={{ margin: theme.spacing(2, 0) }}>
+          <TextBody sx={{ marginBottom: theme.spacing(2) }}>
+            {t("profile:leave_reference.writing_for_text")}
+          </TextBody>
           <UserSummary user={user} />
-        </>
+        </Box>
       )}
-      <StyledTypography variant="h3">
+      <StyledTypography variant="h3" sx={{ marginTop: theme.spacing(3) }}>
         {t("profile:leave_reference.public_text_label")}
       </StyledTypography>
       <StyledCard>
@@ -75,7 +78,7 @@ export default function ReferenceOverview({
           </TextBody>
         </CardContent>
       </StyledCard>
-      <StyledTypography variant="h3">
+      <StyledTypography variant="h3" sx={{ marginTop: theme.spacing(3) }}>
         {t("profile:leave_reference.private_text_label")}
       </StyledTypography>
       <ul>
@@ -87,13 +90,15 @@ export default function ReferenceOverview({
           </StyledTextBody>
         </li>
         <li>
-          <StyledTextBody>
-            {t("profile:leave_reference.rating_label")}
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Typography sx={{ paddingRight: theme.spacing(1) }}>
+              {t("profile:leave_reference.rating_label")}
+            </Typography>
             <SliderLabel value={referenceData.rating} />
-          </StyledTextBody>
+          </Box>
         </li>
       </ul>
-      <StyledTypography variant="h3">
+      <StyledTypography variant="h3" sx={{ marginTop: theme.spacing(3) }}>
         {t("profile:leave_reference.private_text_summary")}
       </StyledTypography>
       <StyledCard>

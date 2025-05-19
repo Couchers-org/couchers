@@ -24,6 +24,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   baseRoute,
+  leaveReferenceBaseRoute,
+  referenceStepStrings,
   referenceTypeRoute,
   routeToProfile,
   routeToUser,
@@ -142,8 +144,18 @@ export default function SubmitReference({
     }
   };
 
-  const redirectToHome = () => {
-    router.push(`${baseRoute}`);
+  const redirectToThankYouPage = () => {
+    if (
+      referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
+    ) {
+      router.push(
+        `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${referenceStepStrings[4]}`,
+      );
+    } else {
+      router.push(
+        `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}/${referenceStepStrings[4]}`,
+      );
+    }
   };
 
   const onSubmit =
@@ -179,7 +191,7 @@ export default function SubmitReference({
       <Dialog
         aria-labelledby={hostRequestReferenceSuccessDialogId}
         open={isOpen}
-        onClose={redirectToHome}
+        onClose={redirectToThankYouPage}
       >
         <DialogTitle id={hostRequestReferenceSuccessDialogId}>
           {t("profile:leave_reference.reference_success")}
@@ -190,7 +202,7 @@ export default function SubmitReference({
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={redirectToHome}>{t("global:ok")}</Button>
+          <Button onClick={redirectToThankYouPage}>{t("global:ok")}</Button>
         </DialogActions>
       </Dialog>
     </>

@@ -1,4 +1,4 @@
-import { Alert, Box, styled } from "@mui/material";
+import { Alert, Box, styled, useMediaQuery } from "@mui/material";
 import Button from "components/Button";
 import TextBody from "components/TextBody";
 import TextField from "components/TextField";
@@ -64,7 +64,7 @@ const DidStay = ({
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
-  const isMobile = theme.breakpoints.down("md");
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [didSubmitNotStay, setDidSubmitNotStay] = useState(false);
 

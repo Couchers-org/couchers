@@ -104,6 +104,7 @@ export const referenceStepStrings = [
   "private-feedback",
   "reference",
   "submit",
+  "thank-you",
 ] as const;
 export type ReferenceStep = (typeof referenceStepStrings)[number];
 
@@ -190,6 +191,8 @@ export const howToMakeGreatProfileUrl =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1725919197-how-do-i-create-a-great-profile";
 export const helpCenterReportContentURL =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1715125657-how-do-i-report-someone-or-something-that-violates-the-community-guidelines-or-terms-of-use-to_u";
+export const helpCenterPrivateFeedbackUrl =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1747589427-providing-private-feedback-when-leaving-a-reference";
 
 export const latestFinancialsURL =
   "/blog/2025/04/20/couchers-inc-financials-2024";

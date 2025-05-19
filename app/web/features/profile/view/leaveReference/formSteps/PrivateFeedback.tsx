@@ -12,8 +12,8 @@ import {
 import Alert from "components/Alert";
 import Button from "components/Button";
 import Divider from "components/Divider";
-import Markdown from "components/Markdown";
 import RatingsSlider from "components/RatingsSlider/RatingsSlider";
+import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
@@ -26,7 +26,9 @@ import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
 import { Controller, useForm } from "react-hook-form";
+import { Trans } from "react-i18next";
 import {
+  helpCenterPrivateFeedbackUrl,
   leaveReferenceBaseRoute,
   referenceStepStrings,
   referenceTypeRoute,
@@ -72,22 +74,10 @@ const StyledButtonContainer = styled("div")(({ theme }) => ({
   paddingTop: theme.spacing(1),
 }));
 
-const StyledRatingQuestionText = styled(Typography)(({ theme }) => ({
-  "& > .MuiInputBase-root": {
-    width: "100%",
-  },
-  marginTop: theme.spacing(2),
-  [theme.breakpoints.up("md")]: {
-    "& > .MuiInputBase-root": {
-      width: 400,
-    },
-  },
-}));
-
 const PrivateTextContainer = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
-  marginTop: theme.spacing(1),
+  marginTop: theme.spacing(3),
   width: "100%",
 }));
 
@@ -138,40 +128,32 @@ export default function PrivateFeedback({
       <StyledTextBody>
         {t("profile:leave_reference.appropriate_explanation")}
       </StyledTextBody>
+      <Alert severity="warning" sx={{ margin: theme.spacing(3, 0) }}>
+        {t("profile:leave_reference.private_answer")}
+      </Alert>
       <StyledCard>
         <CardContent>
-          <Typography variant="h3">
-            {t("profile:leave_reference.appropriate_behavior")}
-          </Typography>
+          <StyledAppropriateQuestionText variant="h3">
+            {t("profile:leave_reference.appropriate_question")}
+          </StyledAppropriateQuestionText>
           <Divider />
-          <StyledTextBody>
-            {t("profile:leave_reference.safety_priority")}
-          </StyledTextBody>
           {errors.wasAppropriate?.message && (
             <Alert severity="error" sx={{ marginBottom: theme.spacing(3) }}>
               {errors.wasAppropriate.message}
             </Alert>
           )}
-          {errors && errors.rating?.message && (
-            <Alert severity="error" sx={{ marginBottom: theme.spacing(3) }}>
-              {errors.rating.message}
-            </Alert>
-          )}
-          <StyledAppropriateQuestionText variant="h3">
-            {t("profile:leave_reference.appropriate_question")}
-          </StyledAppropriateQuestionText>
           <Controller
             render={({ field }) => (
               <RadioGroup {...field} aria-label="wasAppropriate">
                 <FormControlLabel
                   value="true"
                   control={<Radio />}
-                  label="Yes"
+                  label={t("profile:leave_reference.yes_safe")}
                 />
                 <FormControlLabel
                   value="false"
                   control={<Radio />}
-                  label="No"
+                  label={t("profile:leave_reference.no_not_safe")}
                 />
               </RadioGroup>
             )}
@@ -182,14 +164,16 @@ export default function PrivateFeedback({
             }}
           />
           <Typography variant="h3" sx={{ marginTop: 2 }}>
-            {t("profile:leave_reference.rating_how")}
+            {t("profile:leave_reference.rating_how", {
+              name: user.name,
+            })}
           </Typography>
           <Divider />
-          <Markdown source={t("profile:leave_reference.rating_explanation")} />
-          <StyledRatingQuestionText variant="h3">
-            {t("profile:leave_reference.rating_question", { name: user.name })}
-          </StyledRatingQuestionText>
-
+          {errors && errors.rating?.message && (
+            <Alert severity="error" sx={{ marginBottom: theme.spacing(3) }}>
+              {errors.rating.message}
+            </Alert>
+          )}
           <Controller
             control={control}
             defaultValue={referenceData.rating}
@@ -198,49 +182,79 @@ export default function PrivateFeedback({
               <RatingsSlider onChange={field.onChange} value={field.value} />
             )}
           />
-          <StyledTextBody>
-            {t("profile:leave_reference.private_answer")}
-          </StyledTextBody>
+          {errors.privateText?.message && (
+            <Alert severity="error" sx={{ marginBottom: theme.spacing(3) }}>
+              {errors.privateText.message}
+            </Alert>
+          )}
+          {(wasAppropriate === "false" || rating < 0.33) && (
+            <PrivateTextContainer>
+              <Typography variant="h3">
+                {t("profile:leave_reference.private_text_header")}
+              </Typography>
+              <Divider />
+              <Typography sx={{ fontWeight: 600 }}>
+                <Trans i18nKey="profile:leave_reference.private_text_explanation_1">
+                  You answered that{" "}
+                  <span style={{ color: theme.palette.error.dark }}>
+                    you felt unsafe
+                  </span>{" "}
+                  with this person's behavior.
+                </Trans>
+              </Typography>
+              <Typography sx={{ marginTop: theme.spacing(2) }}>
+                {t("profile:leave_reference.private_text_explanation_2")}
+              </Typography>
+              <Typography sx={{ marginTop: theme.spacing(2) }}>
+                <Trans i18nKey="profile:leave_reference.private_text_explanation_3">
+                  This will only be seen by our Safety Team and will stay
+                  private. The more details the better, but even a short
+                  explanation can help a lot. Read more{" "}
+                  <StyledLink
+                    href={helpCenterPrivateFeedbackUrl}
+                    sx={{ fontWeight: 600 }}
+                  >
+                    here
+                  </StyledLink>
+                  .
+                </Trans>
+              </Typography>
+              <Typography sx={{ marginTop: theme.spacing(2) }}>
+                {t("profile:leave_reference.private_text_explanation_4")}
+              </Typography>
+              <Typography variant="h3" sx={{ marginTop: theme.spacing(4) }}>
+                {t("profile:leave_reference.what_happened")}
+              </Typography>
+              <Controller
+                control={control}
+                defaultValue={referenceData.privateText}
+                name="privateText"
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    id="privateText"
+                    label={t(
+                      "profile:leave_reference.private_text_placeholder",
+                    )}
+                    error={!!errors.privateText}
+                    helperText={errors.privateText?.message}
+                    onChange={(event) => {
+                      field.onChange(event);
+                    }}
+                    multiline
+                    minRows={3}
+                    sx={{
+                      "& > .MuiInputBase-root": { width: "100%", marginTop: 1 },
+                      marginTop: 2,
+                    }}
+                  />
+                )}
+              />
+            </PrivateTextContainer>
+          )}
         </CardContent>
       </StyledCard>
-      {errors.privateText?.message && (
-        <Alert severity="error" sx={{ marginBottom: theme.spacing(3) }}>
-          {errors.privateText.message}
-        </Alert>
-      )}
-      {(wasAppropriate === "false" || rating < 0.33) && (
-        <PrivateTextContainer>
-          <Typography variant="h3">
-            {t("profile:leave_reference.private_text_header")}
-          </Typography>
-          <StyledTextBody>
-            {t("profile:leave_reference.private_text_explanation")}
-          </StyledTextBody>
-          <Controller
-            control={control}
-            defaultValue={referenceData.privateText}
-            name="privateText"
-            render={({ field }) => (
-              <TextField
-                {...field}
-                id="privateText"
-                label={t("profile:leave_reference.private_text_placeholder")}
-                error={!!errors.privateText}
-                helperText={errors.privateText?.message}
-                onChange={(event) => {
-                  field.onChange(event);
-                }}
-                multiline
-                minRows={3}
-                sx={{
-                  "& > .MuiInputBase-root": { width: "100%", marginTop: 1 },
-                  marginTop: 2,
-                }}
-              />
-            )}
-          />
-        </PrivateTextContainer>
-      )}
+
       <StyledButtonContainer>
         <Button fullWidth={!isSmOrWider} type="submit">
           {t("profile:leave_reference.next_step_label")}

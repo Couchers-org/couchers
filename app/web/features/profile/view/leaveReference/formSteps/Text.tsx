@@ -1,4 +1,4 @@
-import { styled, useMediaQuery } from "@mui/material";
+import { styled, Typography, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import TextBody from "components/TextBody";
@@ -89,9 +89,19 @@ export default function Text({
       <StyledTextBody>
         {t("profile:leave_reference.text_explanation")}
       </StyledTextBody>
-      <StyledTextBody>
-        {t("profile:leave_reference.public_answer")}
+      <StyledTextBody sx={{ marginTop: theme.spacing(2) }}>
+        {referenceType !==
+        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
+          ? t("profile:leave_reference.text_explanation_hosted_surfed", {
+              name: user.name,
+            })
+          : t("profile:leave_reference.public_answer")}
       </StyledTextBody>
+      <Typography variant="h3" sx={{ marginTop: theme.spacing(3) }}>
+        {t("profile:leave_reference.add_a_reference", {
+          name: user.name,
+        })}
+      </Typography>
       {errors.text?.message && (
         <Alert severity="error" sx={{ marginBottom: theme.spacing(3) }}>
           {errors.text.message}
@@ -103,6 +113,7 @@ export default function Text({
             <TextField
               {...field}
               className="multiline"
+              placeholder={t("profile:leave_reference.text_label")}
               fullWidth={true}
               multiline={true}
               minRows={15}
@@ -116,6 +127,9 @@ export default function Text({
           rules={{ required: t("profile:leave_reference.required") }}
         />
       </StyledCard>
+      <Typography sx={{ marginTop: theme.spacing(3) }}>
+        {t("profile:leave_reference.by_writing_thoughtful")}
+      </Typography>
       <StyledButtonContainer>
         <Button fullWidth={!isSmOrWider} type="submit">
           {t("profile:leave_reference.next_step_label")}
