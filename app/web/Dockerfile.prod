@@ -29,7 +29,7 @@ RUN cp .env.$environment env && \
     rm .env.* && \
     mv env .env.local
 
-RUN if [ "$environment" = "production" ]; then cp robots-prod.txt robots.txt; fi
+RUN if [ "$environment" = "production" ]; then cp public/robots-prod.txt public/robots.txt; fi
 
 RUN yarn build
 
