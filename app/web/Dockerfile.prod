@@ -29,6 +29,8 @@ RUN cp .env.$environment env && \
     rm .env.* && \
     mv env .env.local
 
+RUN if [ "$environment" = "production" ]; then cp robots-prod.txt robots.txt; fi
+
 RUN yarn build
 
 FROM node:20-slim AS runner
