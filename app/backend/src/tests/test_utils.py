@@ -4,7 +4,7 @@ from sqlalchemy.sql import func
 from couchers.db import session_scope
 from couchers.models import User
 from couchers.sql import couchers_select as select
-from couchers.utils import create_coordinate, dt_from_page_token, dt_to_page_token, get_coordinates, now
+from couchers.utils import dt_from_page_token, dt_to_page_token, now, wrap_coordinate
 from tests.test_fixtures import db, generate_user, testconfig  # noqa
 
 
@@ -38,7 +38,7 @@ def test_page_token_time_db(db):
         assert user.joined == roundtrip
 
 
-def test_create_coordinate():
+def test_wrap_coordinate():
     test_coords = [
         ((-95, -185), (-85, 175)),
         ((95, -180), (85, 180)),  # Weird interaction in PostGIS where lng
@@ -126,6 +126,5 @@ def test_create_coordinate():
 
     with session_scope() as session:
         for coords, coords_expected in test_coords:
-            coords_wrapped = get_coordinates(session.execute(select(create_coordinate(*coords))).scalar_one())
-
-            assert coords_wrapped == coords_expected
+            coords_wrapped = wrap_coordinate(*coords)
+            assert coords_expected == coords_wrapped

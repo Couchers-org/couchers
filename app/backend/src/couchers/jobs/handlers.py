@@ -10,7 +10,21 @@ import requests
 from google.protobuf import empty_pb2
 from sqlalchemy import Float, Integer
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, case, cast, delete, distinct, extract, func, literal, not_, or_, select, union_all
+from sqlalchemy.sql import (
+    and_,
+    case,
+    cast,
+    delete,
+    distinct,
+    extract,
+    func,
+    literal,
+    not_,
+    or_,
+    select,
+    union_all,
+    update,
+)
 
 from couchers.config import config
 from couchers.constants import (
@@ -962,24 +976,32 @@ def update_randomized_locations(payload):
     - Generate an angle from [0, 360]
     - Randomized location is then a distance `radius` away at an angle `angle` from `geom`
     """
+    randomization_secret = get_secret(USER_LOCATION_RANDOMIZATION_NAME)
+
+    def gen_randomized_coords(user_id, lat, lng):
+        radius_u = stable_secure_uniform(randomization_secret, seed=bytes(f"{user_id}|radius", "ascii"))
+        angle_u = stable_secure_uniform(randomization_secret, seed=bytes(f"{user_id}|angle", "ascii"))
+        radius = 0.02 + 0.08 * radius_u
+        angle_rad = 2 * pi * angle_u
+        offset_lng = radius * cos(angle_rad)
+        offset_lat = radius * sin(angle_rad)
+        return lat + offset_lat, lng + offset_lng
+
+    user_updates = []
+
     with session_scope() as session:
-        users_to_update = (
-            session.execute(select(User).where(User.geom != None).where(User.randomized_geom == None)).scalars().all()
-        )
-        for user in users_to_update:
-            radius_u = stable_secure_uniform(
-                get_secret(USER_LOCATION_RANDOMIZATION_NAME), seed=bytes(f"{user.id}|radius", "ascii")
+        users_to_update = session.execute(
+            select(User.id, User.geom).where(User.geom != None).where(User.randomized_geom == None)
+        ).all()
+
+        for user_id, geom in users_to_update:
+            lat, lng = get_coordinates(geom)
+            user_updates.append(
+                {"id": user_id, "randomized_geom": create_coordinate(*gen_randomized_coords(user_id, lat, lng))}
             )
-            angle_u = stable_secure_uniform(
-                get_secret(USER_LOCATION_RANDOMIZATION_NAME), seed=bytes(f"{user.id}|angle", "ascii")
-            )
-            radius = 0.02 + 0.08 * radius_u
-            angle_rad = 2 * pi * angle_u
-            offset_lng = radius * cos(angle_rad)
-            offset_lat = radius * sin(angle_rad)
-            lat, lng = get_coordinates(user.geom)
-            user.randomized_geom = create_coordinate(lat=lat + offset_lat, lng=lng + offset_lng)
-            session.commit()
+
+    with session_scope() as session:
+        session.execute(update(User), user_updates)
 
 
 update_randomized_locations.PAYLOAD = empty_pb2.Empty
