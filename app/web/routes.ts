@@ -196,5 +196,5 @@ export const helpCenterCommunityBuilderURL =
 export const latestFinancialsURL =
   "/blog/2025/04/20/couchers-inc-financials-2024";
 
-export const communityBuilderFormURL = (username?: string) =>
+export const communityCreationFormURL = (username?: string) =>
   `https://forms.monday.com/forms/d7b6f1bd47a092e23b63f6ef9db1594b?r=use1&username=${username || ""}`;

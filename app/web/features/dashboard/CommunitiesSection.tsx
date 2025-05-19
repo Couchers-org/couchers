@@ -1,12 +1,11 @@
 import { Link as MuiLink, Typography } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
 import StyledLink from "components/StyledLink";
+import useAccountInfo from "features/auth/useAccountInfo";
 import CommunitiesList from "features/dashboard/CommunitiesList";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
-
-const COMMUNITY_BUILDER_FORM_LINK =
-  "https://couchers.org/community-builder-form";
+import { communityCreationFormURL } from "routes";
 
 const useStyles = makeStyles((theme) => ({
   createCommunityText: {
@@ -20,6 +19,8 @@ const useStyles = makeStyles((theme) => ({
 export default function CommunitiesSection() {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
   const classes = useStyles();
+
+  const { data: accountInfo } = useAccountInfo();
 
   return (
     <>
@@ -49,7 +50,7 @@ export default function CommunitiesSection() {
         <Trans i18nKey="dashboard:your_communities_helper_text2">
           {`Don't see your community? `}
           <MuiLink
-            href={COMMUNITY_BUILDER_FORM_LINK}
+            href={communityCreationFormURL(accountInfo?.username)}
             target="_blank"
             rel="noreferrer noopener"
             underline="hover"
