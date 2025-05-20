@@ -97,7 +97,7 @@ def test_create_request(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert "too short" in e.value.details().lower()
+        assert "too short" in e.value.details()
 
         # minimum character test: should pass
         valid_text = "A" * 50
