@@ -19,8 +19,8 @@ import { getLangCookie } from "i18n/getLangCookie";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router"; // we'll use this to reload the components w/ changed languages
 import { useState } from "react";
-import { theme } from "theme";
 import { service } from "service";
+import { theme } from "theme";
 
 interface StyledMuiSelectProps {
   displayMode?: "round" | "rect";
