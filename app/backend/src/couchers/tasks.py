@@ -110,6 +110,25 @@ def send_host_request_spam_report_email(
     )
 
 
+def send_friend_request_spam_report_email(
+    session, user, friend_requests, threshold: int, time_interval_str: str, user_is_blocked: bool = False
+):
+    """Send a report email if a user exceeds a threshold of friend requests within a given time frame."""
+    logger.info("Sending host request spam report email")
+    email.enqueue_system_email(
+        session,
+        config["REPORTS_EMAIL_RECIPIENT"],
+        "friend_request_spam_report",
+        template_args={
+            "user": user,
+            "friend_requests": friend_requests,
+            "threshold": threshold,
+            "time_interval_str": time_interval_str,
+            "user_is_blocked": user_is_blocked,
+        },
+    )
+
+
 def send_duplicate_strong_verification_email(session, old_attempt, new_attempt):
     logger.info("Sending duplicate SV email")
     email.enqueue_system_email(

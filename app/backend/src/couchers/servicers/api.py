@@ -8,6 +8,7 @@ from sqlalchemy.sql import and_, delete, func, intersect, or_, union
 
 from couchers import errors, urls
 from couchers.config import config
+from couchers.constants import FRIEND_REQUEST_DAILY_BLOCKING_QUOTA, FRIEND_REQUEST_DAILY_WARNING_QUOTA
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
 from couchers.materialized_views import lite_users, user_response_rates
 from couchers.models import (
@@ -36,6 +37,7 @@ from couchers.resources import get_badge_dict, language_is_allowed, region_is_al
 from couchers.servicers.account import get_strong_verification_fields
 from couchers.sql import couchers_select as select
 from couchers.sql import is_valid_user_id, is_valid_username
+from couchers.tasks import send_friend_request_spam_report_email
 from couchers.utils import (
     Duration_from_timedelta,
     Timestamp_from_datetime,
@@ -136,6 +138,14 @@ fluency2api = {
     LanguageFluency.conversational: api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL,
     LanguageFluency.fluent: api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
 }
+
+
+def _get_user_friend_requests_in_past_time_interval(session, user_id, interval: timedelta) -> list[FriendRelationship]:
+    return session.execute(
+        select(FriendRelationship)
+        .where(FriendRelationship.from_user_id == user_id)
+        .where(FriendRelationship.time_sent >= now() - interval)
+    ).all()
 
 
 class API(api_pb2_grpc.APIServicer):
@@ -632,6 +642,38 @@ class API(api_pb2_grpc.APIServicer):
             is not None
         ):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.FRIENDS_ALREADY_OR_PENDING)
+
+            # Check if user has been sending friend requests excessively
+            count_friend_requests_last_24h = session.execute(
+                select(func.count())
+                .select_from(FriendRelationship)
+                .where(FriendRelationship.from_user_id == context.user_id)
+                .where(FriendRelationship.time_sent >= now() - timedelta(hours=24))
+            ).scalar_one()
+            if count_friend_requests_last_24h >= FRIEND_REQUEST_DAILY_BLOCKING_QUOTA - 1:
+                friend_requests = _get_user_friend_requests_in_past_time_interval(
+                    session=session, user_id=context.user_id, interval=timedelta(hours=24)
+                )
+                send_friend_request_spam_report_email(
+                    session=session,
+                    user=user,
+                    friend_requests=friend_requests,
+                    threshold=FRIEND_REQUEST_DAILY_BLOCKING_QUOTA,
+                    time_interval_str="24 hours",
+                    user_is_blocked=True,
+                )
+                context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.FRIEND_REQUEST_THRESHOLD)
+            if count_friend_requests_last_24h == FRIEND_REQUEST_DAILY_WARNING_QUOTA - 1:
+                friend_requests = _get_user_friend_requests_in_past_time_interval(
+                    session=session, user_id=context.user_id, interval=timedelta(hours=24)
+                )
+                send_friend_request_spam_report_email(
+                    session=session,
+                    user=user,
+                    friend_requests=friend_requests,
+                    threshold=FRIEND_REQUEST_DAILY_WARNING_QUOTA,
+                    time_interval_str="24 hours",
+                )
 
         # TODO: Race condition where we can create two friend reqs, needs db constraint! See comment in table
 

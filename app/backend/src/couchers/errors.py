@@ -62,6 +62,9 @@ EVENT_TOO_FAR_IN_FUTURE = "The event needs to start within the next year."
 EVENT_TOO_LONG = "Events cannot last longer than 7 days."
 EVENT_TRANSFER_PERMISSION_DENIED = "You're not allowed to transfer that event."
 FRIEND_REQUEST_NOT_FOUND = "Couldn't find that friend request."
+FRIEND_REQUEST_THRESHOLD = (
+    "You have sent a lot of friend requests today. To avoid spam, you can't send any more for today."
+)
 FRIENDS_ALREADY_OR_PENDING = "You are already friends with or have sent a friend request to that user."
 GROUP_NOT_FOUND = "Group not found."
 GROUP_OR_COMMUNITY_NOT_FOUND = "Group or community not found."

@@ -8,7 +8,7 @@ from couchers import errors
 from couchers.constants import HOST_REQUEST_DAILY_BLOCKING_QUOTA, HOST_REQUEST_DAILY_WARNING_QUOTA
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_view
-from couchers.models import Message, MessageType, User
+from couchers.models import Message, MessageType
 from couchers.templates.v2 import v2date
 from couchers.utils import now, today
 from proto import api_pb2, conversations_pb2, requests_pb2
@@ -149,7 +149,7 @@ def test_create_request_incomplete_profile(db):
 
 
 def test_excessive_requests_are_reported(db):
-    """Test that excessive host requests are first reported in a warning email and finally lead to a user ban."""
+    """Test that excessive host requests are first reported in a warning email and finally lead blocking of further requests."""
     user, token = generate_user()
     today_plus_2 = (today() + timedelta(days=2)).isoformat()
     today_plus_3 = (today() + timedelta(days=3)).isoformat()
@@ -202,13 +202,7 @@ def test_excessive_requests_are_reported(db):
                     )
                 )
             assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
-            assert (
-                exc_info.value.details()
-                == "You have sent a lot of host requests today. To avoid spam, you can't send any more for today."
-            )
-            with session_scope() as session:
-                updated_user = session.get(User, user.id)
-                assert updated_user.is_banned
+            assert exc_info.value.details() == errors.HOST_REQUEST_THRESHOLD
 
             assert mock_email.call_count == 1
             email = mock_email.mock_calls[0].kwargs["plain"]
