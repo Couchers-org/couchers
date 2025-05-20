@@ -30,6 +30,7 @@ const baseAccountInfo = {
   doNotEmail: false,
   hasDonated: false,
   uiLanguagePreference: "",
+  profilePublicVisibility: 1,
 };
 
 describe("AdminPanelUserButton", () => {

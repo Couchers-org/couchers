@@ -1,5 +1,4 @@
 import logging
-from types import SimpleNamespace
 
 import grpc
 
@@ -12,7 +11,7 @@ from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import are_blocked
 from couchers.servicers.threads import thread_to_pb
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime
+from couchers.utils import Timestamp_from_datetime, make_user_context
 from proto import discussions_pb2, discussions_pb2_grpc, notification_data_pb2
 from proto.internal import jobs_pb2
 
@@ -56,7 +55,7 @@ def generate_create_discussion_notifications(payload: jobs_pb2.GenerateCreateDis
         for user in list(cluster.members.where(User.is_visible)):
             if are_blocked(session, user.id, discussion.creator_user_id):
                 continue
-            context = SimpleNamespace(user_id=user.id)
+            context = make_user_context(user_id=user.id)
             notify(
                 session,
                 user_id=user.id,

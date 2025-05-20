@@ -88,7 +88,12 @@ export default function AppRoute({
       authActions.authError("Please log in.");
       router.push({ pathname: loginRoute, query: { from: location.pathname } });
     }
-    if (isAuthenticated && isJailed && router.pathname !== jailRoute) {
+    if (
+      isAuthenticated &&
+      isJailed &&
+      isPrivate &&
+      router.pathname !== jailRoute
+    ) {
       router.push(jailRoute);
     }
   }, [isAuthenticated, isJailed, isPrivate, authActions, router]);

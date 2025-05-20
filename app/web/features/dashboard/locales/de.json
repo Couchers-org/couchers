@@ -41,5 +41,11 @@
   "profile_mobile_summary_view": "Zu Profil gehen",
   "show_map": "Karte anzeigen",
   "hero_image_alt": "Heißluftballons in Kapadokien",
-  "hero_image_attribution": "Foto von <1>Mesut Kaya</1> auf <3>Unsplash</3>"
+  "hero_image_attribution": "Foto von <1>Mesut Kaya</1> auf <3>Unsplash</3>",
+  "all_communities_section": "Alle Communities",
+  "all_communities_intro": "Unten kannst du alle Community-Seiten durchsuchen, die bisher erstellt wurden. <strong>Klicken Sie auf einen Community-Namen, um die anderen Communities darin zu sehen.</strong>",
+  "community_missing": "Fehlt dein Land oder deine Stadt? Nutze <1>dieses Formular</1>, um die Community anzufragen!",
+  "communities_welcome_title": "Willkommen bei Communities",
+  "communities_intro": "Um Menschen auf der ganzen Welt dabei zu helfen, Veranstaltungen, Diskussionen und Treffen zu organisieren, haben wir Community-Seiten erstellt, die unten aufgeführt sind. <strong>Du wurdest basierend auf deinem Ort automatisch zu einigen Communities hinzugefügt, aber du kannst jeder Community beitreten!</strong> Deine Communities sind auf deinem Dashboard aufgeführt.",
+  "community_builder": "Möchtest du Botschafter für deine Community sein und ihr Wachstum unterstützen? Werde ein <1>Community Builder!</1>"
 }

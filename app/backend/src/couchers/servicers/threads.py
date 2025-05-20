@@ -1,5 +1,4 @@
 import logging
-from types import SimpleNamespace
 
 import grpc
 import sqlalchemy.exc
@@ -13,7 +12,7 @@ from couchers.notifications.notify import notify
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import are_blocked
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime
+from couchers.utils import Timestamp_from_datetime, make_user_context
 from proto import notification_data_pb2, threads_pb2, threads_pb2_grpc
 from proto.internal import jobs_pb2
 
@@ -90,7 +89,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                         continue
                     if user_id == comment.author_user_id:
                         continue
-                    context = SimpleNamespace(user_id=user_id)
+                    context = make_user_context(user_id=user_id)
                     notify(
                         session,
                         user_id=user_id,
@@ -115,7 +114,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                     if user_id == comment.author_user_id:
                         continue
 
-                    context = SimpleNamespace(user_id=user_id)
+                    context = make_user_context(user_id=user_id)
                     notify(
                         session,
                         user_id=user_id,
@@ -143,7 +142,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
             if parent_comment.author_user_id == reply.author_user_id:
                 return
 
-            context = SimpleNamespace(user_id=parent_comment.author_user_id)
+            context = make_user_context(user_id=parent_comment.author_user_id)
             reply = threads_pb2.Reply(
                 thread_id=payload.thread_id,
                 content=reply.content,

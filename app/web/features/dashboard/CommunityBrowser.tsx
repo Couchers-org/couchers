@@ -1,4 +1,11 @@
-import { Divider, List, ListItem, ListItemText } from "@mui/material";
+import {
+  Divider,
+  List,
+  ListItem,
+  ListItemProps,
+  ListItemText,
+  styled,
+} from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -10,36 +17,56 @@ import {
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { routeToCommunity } from "routes";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "flex-start",
-    "& > * + *": {
-      marginInlineStart: theme.spacing(2),
-    },
+const OuterWrapper = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "flex-start",
+  width: "100%",
+  "& > * + *": {
+    marginInlineStart: theme.spacing(2),
   },
-  list: {
-    minWidth: "10rem",
+  overflow: "hidden",
+}));
+
+const InnerWrapper = styled("div")(({ theme }) => ({
+  overflow: "auto",
+  maxHeight: "60vh",
+  display: "flex",
+}));
+
+const StyledList = styled(List)(({ theme }) => ({
+  minWidth: "10rem",
+}));
+
+const StyledLoader = styled("div")(({ theme }) => ({
+  margin: theme.spacing("auto", 2),
+}));
+
+const StyledListItem = styled(ListItem)<ListItemProps>(({ theme }) => ({
+  background: "transparent",
+  border: "none",
+  "&:hover": {
+    background: "#3135390A",
   },
-  loader: {
-    margin: theme.spacing("auto", 2),
-  },
-  selected: {
+  "& .selected": {
     fontWeight: "bold",
   },
-  emptyState: {
-    color: theme.palette.grey[600],
-  },
+}));
+
+const StyledDivider = styled(Divider)(({ theme }) => ({
+  margin: theme.spacing(0, 1),
+}));
+
+const StyledListItemText = styled(ListItemText)(({ theme }) => ({
+  color: theme.palette.text.primary,
 }));
 
 export default function CommunityBrowser() {
   const { t } = useTranslation([DASHBOARD]);
-  const classes = useStyles();
   const [selected, setSelected] = useState<Community.AsObject[]>([]);
 
   const globalCommunityQuery = useCommunity(1);
@@ -56,18 +83,6 @@ export default function CommunityBrowser() {
       hasMore?: boolean;
     }[]
   >([]);
-
-  const lastColumnRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    setTimeout(
-      () =>
-        lastColumnRef.current?.scrollIntoView({
-          behavior: "smooth",
-          inline: "end",
-        }),
-      50,
-    );
-  }, [selected]);
 
   const handleClick = (community: Community.AsObject, level: number) => {
     //if the last column is clicked
@@ -99,45 +114,49 @@ export default function CommunityBrowser() {
   };
 
   return (
-    <div className={classes.root}>
-      {cachedQueryResults.map((query, index) => (
-        <BrowserColumn
-          key={index}
-          parent={selected?.[index - 1] ?? globalCommunityQuery.data}
-          communities={query.data}
-          handleClick={(community) => handleClick(community, index)}
-          selected={selected[index]?.communityId}
-        />
-      ))}
-      {query.isLoading ? ( // div prevents overflow scrollbar from spinner
-        <div className={classes.loader}>
-          <CenteredSpinner />
-        </div>
-      ) : query.isSuccess && globalCommunityQuery.isSuccess ? (
-        <div ref={lastColumnRef}>
+    <OuterWrapper>
+      <InnerWrapper>
+        {cachedQueryResults.map((query, index) => (
           <BrowserColumn
-            parent={
-              selected?.[selected.length - 1] ?? globalCommunityQuery.data
-            }
-            communities={query.data.pages.flatMap(
-              (page) => page.communitiesList,
-            )}
-            handleClick={(community) => handleClick(community, selected.length)}
+            key={index}
+            parent={selected?.[index - 1] ?? globalCommunityQuery.data}
+            communities={query.data}
+            handleClick={(community) => handleClick(community, index)}
+            selected={selected[index]?.communityId}
           />
-          {query.hasNextPage && (
-            <Button
-              onClick={() => query.fetchNextPage()}
-              loading={query.isFetchingNextPage}
-              variant="outlined"
-            >
-              {t("dashboard:load_more")}
-            </Button>
-          )}
-        </div>
-      ) : (
-        <Alert severity="error">{query?.error?.message || ""}</Alert>
-      )}
-    </div>
+        ))}
+        {query.isLoading ? ( // div prevents overflow scrollbar from spinner
+          <StyledLoader>
+            <CenteredSpinner />
+          </StyledLoader>
+        ) : query.isSuccess && globalCommunityQuery.isSuccess ? (
+          <div>
+            <BrowserColumn
+              parent={
+                selected?.[selected.length - 1] ?? globalCommunityQuery.data
+              }
+              communities={query.data.pages.flatMap(
+                (page) => page.communitiesList,
+              )}
+              handleClick={(community) =>
+                handleClick(community, selected.length)
+              }
+            />
+            {query.hasNextPage && (
+              <Button
+                onClick={() => query.fetchNextPage()}
+                loading={query.isFetchingNextPage}
+                variant="outlined"
+              >
+                {t("dashboard:load_more")}
+              </Button>
+            )}
+          </div>
+        ) : (
+          <Alert severity="error">{query?.error?.message || ""}</Alert>
+        )}
+      </InnerWrapper>
+    </OuterWrapper>
   );
 }
 
@@ -153,61 +172,56 @@ function BrowserColumn({
   selected?: number;
 }) {
   const { t } = useTranslation([DASHBOARD]);
-  const classes = useStyles();
 
   return (
-    <List className={classes.list}>
+    <StyledList>
       {parent && (
         <>
-          <ListItem
-            component={StyledLink}
-            href={routeToCommunity(parent.communityId, parent.slug)}
-          >
-            {parent.name}
-          </ListItem>
-          <Divider />
+          <StyledListItem>
+            <StyledLink
+              href={routeToCommunity(parent.communityId, parent.slug)}
+            >
+              <StyledListItemText
+                primary={parent.name}
+                sx={{
+                  color: theme.palette.primary.main,
+                }}
+              />
+            </StyledLink>
+          </StyledListItem>
+          <StyledDivider />
         </>
       )}
       {communities.length === 0 ? (
-        <ListItem>
-          <ListItemText
+        <StyledListItem>
+          <StyledListItemText
             primaryTypographyProps={{
-              className: classes.emptyState,
+              className: "emptyState",
               variant: "body2",
             }}
           >
             {t("dashboard:no_sub_communities")}
-          </ListItemText>
-        </ListItem>
+          </StyledListItemText>
+        </StyledListItem>
       ) : (
         communities.map((community) => (
-          <ListItem
+          <StyledListItem
             key={community.communityId}
             component="button"
             onClick={() => handleClick(community)}
             aria-selected={community.communityId === selected}
-            sx={{
-              background: "transparent",
-              border: "none",
-
-              "&:hover": {
-                background: "#3135390A",
-              },
-            }}
           >
-            <ListItemText
+            <StyledListItemText
               primaryTypographyProps={{
                 className:
-                  community.communityId === selected
-                    ? classes.selected
-                    : undefined,
+                  community.communityId === selected ? "selected" : undefined,
               }}
             >
               {community.name}
-            </ListItemText>
-          </ListItem>
+            </StyledListItemText>
+          </StyledListItem>
         ))
       )}
-    </List>
+    </StyledList>
   );
 }

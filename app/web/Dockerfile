@@ -9,6 +9,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ARG version
 ENV NEXT_PUBLIC_VERSION=$version
 
+ARG display_version
+ENV NEXT_PUBLIC_DISPLAY_VERSION=$display_version
+
 ARG commit_sha
 ENV NEXT_PUBLIC_COMMIT_SHA=$commit_sha
 

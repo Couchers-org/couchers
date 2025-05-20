@@ -14,6 +14,8 @@ logger = logging.getLogger(__name__)
 class RenderedNotification:
     # whether the notification is critical and cannot be turned off
     is_critical: bool = False
+    # whether this email can be sent to someone who is deleted
+    allow_deleted: bool = False
     # email subject
     email_subject: str
     # shows up when listing emails in many clients
@@ -374,6 +376,7 @@ def render_notification(user, notification) -> RenderedNotification:
     elif notification.topic_action.display == "account_deletion:start":
         return RenderedNotification(
             is_critical=True,
+            allow_deleted=True,
             email_subject="Confirm your Couchers.org account deletion",
             email_preview="Please confirm that you want to delete your Couchers.org account.",
             email_template_name="account_deletion_start",
@@ -389,6 +392,7 @@ def render_notification(user, notification) -> RenderedNotification:
         title = "Your Couchers.org account has been deleted"
         return RenderedNotification(
             is_critical=True,
+            allow_deleted=True,
             email_subject=title,
             email_preview="We have deleted your Couchers.org account, to undo, follow the link in this email.",
             email_template_name="account_deletion_complete",
@@ -406,6 +410,7 @@ def render_notification(user, notification) -> RenderedNotification:
         subtitle = "We have recovered your Couchers.org account as per your request! Welcome back!"
         return RenderedNotification(
             is_critical=True,
+            allow_deleted=True,
             email_subject=title,
             email_preview=subtitle,
             email_template_name="account_deletion_recovered",
@@ -841,6 +846,23 @@ def render_notification(user, notification) -> RenderedNotification:
             push_body="Please log in to confirm your hosting status.",
             push_icon=urls.icon_url(),
             push_url=urls.app_link(),
+        )
+    elif notification.topic_action.display == "general:new_blog_post":
+        title = f"New blog post: {data.title}"
+        return RenderedNotification(
+            email_subject=title,
+            email_preview=data.blurb,
+            email_template_name="new_blog_post",
+            email_template_args={
+                "title": data.title,
+                "blurb": data.blurb,
+                "url": data.url,
+            },
+            email_topic_action_unsubscribe_text="new blog post alerts",
+            push_title=title,
+            push_body=data.blurb,
+            push_icon=urls.icon_url(),
+            push_url=data.url,
         )
     else:
         raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")

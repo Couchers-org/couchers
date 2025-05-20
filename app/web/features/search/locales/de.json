@@ -3,7 +3,9 @@
     "last_3_months": "Letzten 3 Monate",
     "any": "Alle",
     "last_week": "Letzte Woche",
-    "last_month": "Letzter Monat"
+    "last_month": "Letzter Monat",
+    "last_6_months": "Letzten 6 Monate",
+    "last_year": "Letztes Jahr"
   },
   "filter_dialog": {
     "mobile_title": "Suchen",
@@ -34,10 +36,11 @@
       "hosting_status_field_label": "Hosting-Status",
       "complete_profiles_label": "Vollständige Profile",
       "age": {
-        "field_label": "Alter",
+        "field_label": "Host Alter",
         "max_age": "Höchstalter",
         "min_age": "Mindestalter"
-      }
+      },
+      "meetup_status_field_label": "Treffen-Status"
     },
     "empty_profile_filters": {
       "title": "Leere Profile ausblenden"
@@ -60,7 +63,7 @@
     "clear_filters": "Alle Filter entfernen"
   },
   "search_result": {
-    "no_user_result_message": "Keine Benutzer gefunden.",
+    "no_user_result_message": "Keine Benutzer gefunden. Versuche, einige Filter zu entfernen, um mehr Ergebnisse zu sehen.",
     "show_user_button_label": "{{name}} auf der Karte anzeigen",
     "missing_about_description": "{{name}} hat noch nichts über sich gesagt",
     "people_found_message": "Es werden {{numberOfTotal}} von {{totalItems}} Personen angezeigt"

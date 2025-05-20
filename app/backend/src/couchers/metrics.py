@@ -294,6 +294,20 @@ sent_messages_counter = Counter(
 )
 
 
+push_notification_counter = Counter(
+    "couchers_push_notification_total",
+    "Number of push notifications sent",
+)
+push_notification_disabled_counter = Counter(
+    "couchers_push_notification_disabled_total",
+    "Number of push notifications that were disabled due to failure to send",
+)
+emails_counter = Counter(
+    "couchers_emails_total",
+    "Number of emails sent",
+)
+
+
 host_request_first_response_histogram = Histogram(
     "couchers_host_request_first_response_seconds",
     "Response time to host requests",
