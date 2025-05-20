@@ -3,6 +3,7 @@ import { Button, styled, Tooltip } from "@mui/material";
 import Avatar from "components/Avatar";
 import IconButton from "components/IconButton";
 import { MenuIcon } from "components/Icons";
+import LanguagePickerSelect from "components/LanguagePickerSelect";
 import Menu from "components/Menu";
 import NotificationBadge from "components/NotificationBadge";
 import NotificationsFeed from "features/notifications/NotificationsFeed/NotificationsFeed";
@@ -86,6 +87,11 @@ export default function LoggedInMenu({
 
   return (
     <>
+      <LanguagePickerSelect
+        defaultValue=""
+        value=""
+        onSelect={() => console.log("selected")}
+      />
       <ReportButtonContainer>
         <ReportButton />
       </ReportButtonContainer>
