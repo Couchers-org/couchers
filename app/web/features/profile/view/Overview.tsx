@@ -23,9 +23,13 @@ import { theme } from "theme";
 
 import { useProfileUser } from "../hooks/useProfileUser";
 import AdminPanelUserButton from "./AdminPanelUserButton";
+import ProfileReportFlagButton from "./ProfileReportFlagButton";
 
 const StyledModButtons = styled("div")(({ theme }) => ({
-  alignSelf: "center",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  width: "100%",
 }));
 
 const getEditTab = (tab: UserTab): EditUserTab | undefined => {
@@ -113,7 +117,7 @@ function DefaultActions({
       <FriendActions user={user} setMutationError={setMutationError} />
 
       <StyledModButtons>
-        <FlagButton
+        <ProfileReportFlagButton
           contentRef={`profile/${user.userId}`}
           authorUser={user.userId}
         />

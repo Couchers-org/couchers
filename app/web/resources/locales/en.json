@@ -70,8 +70,9 @@
     },
     "flag": {
       "button_aria_label": "Report content or a user",
+      "checkbox_label": "Send Report to Safety & Trust Team",
       "explainer": "Use this form to confidentially report a user or content. This information will be sent to our Safety & Trust team and reviewed as soon as possible. We may follow up with you or take action without follow-up.",
-      "title": "Report content or a user",
+      "title": "Report or Block",
       "reason_label": "Reason for reporting",
       "reason_helper": "Why are you reporting this content?",
       "reason_required": "Reason is required.",
