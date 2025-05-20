@@ -1039,4 +1039,68 @@ def test_GetAuthState(db):
         assert res.auth_res.jailed
 
 
+def test_signup_no_feedback_regression(db):
+    """
+    When we first remove the feedback form, the backned was saying it's not needed but was not completing the signup,
+    this regression test checks that.
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
+                account=auth_pb2.SignupAccount(
+                    username="frodo",
+                    password="a very insecure password",
+                    birthdate="1970-01-01",
+                    gender="Bot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    city="New York City",
+                    lat=40.7331,
+                    lng=-73.9778,
+                    radius=500,
+                    accept_tos=True,
+                ),
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+            )
+        )
+
+    flow_token = res.flow_token
+
+    assert res.flow_token
+    assert not res.HasField("auth_res")
+    assert not res.need_basic
+    assert not res.need_account
+    assert not res.need_feedback
+    assert res.need_verify_email
+
+    # read out the signup token directly from the database for now
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        assert flow.email_sent
+        assert not flow.email_verified
+        email_token = flow.email_token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+
+    assert not res.flow_token
+    assert res.HasField("auth_res")
+    assert res.auth_res.user_id
+    assert not res.auth_res.jailed
+    assert not res.need_basic
+    assert not res.need_account
+    assert not res.need_feedback
+    assert not res.need_verify_email
+
+    # make sure we got the right token in a cookie
+    with session_scope() as session:
+        token = (
+            session.execute(
+                select(UserSession).join(User, UserSession.user_id == User.id).where(User.username == "frodo")
+            ).scalar_one()
+        ).token
+    sesh, uid = get_session_cookie_tokens(metadata_interceptor)
+    assert sesh == token
+
+
 # tests for ConfirmChangeEmail within test_account.py tests for test_ChangeEmail_*
