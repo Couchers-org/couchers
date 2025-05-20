@@ -1,6 +1,8 @@
 import { Card, CardContent, Skeleton, styled, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import FlagButton from "features/FlagButton";
+import CopyOnClick from "features/mod/CopyOnClick";
+import ModVisibleComponent from "features/mod/ModVisibleComponent";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
@@ -107,6 +109,14 @@ export default function DiscussionCard({
                 <Skeleton sx={{ display: "inline-block", width: 80 }} />
               )}{" "}
               {postedTime && `• ${postedTime}`}
+              <ModVisibleComponent>
+                {" "}
+                •{" "}
+                <code>
+                  discussionId:
+                  <CopyOnClick text={discussion.discussionId.toString()} />
+                </code>
+              </ModVisibleComponent>
             </Typography>
             <Typography variant="h2" component="h3">
               {discussion.title}

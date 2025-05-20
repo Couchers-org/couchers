@@ -6,7 +6,6 @@ import { AUTH } from "i18n/namespaces";
 import { useTranslation } from "react-i18next";
 
 import PushNotificationSettings from "../notifications/PushNotificationSettings";
-import ChangePhone from "./phone/ChangePhone";
 import useAccountInfo from "./useAccountInfo";
 
 const MarginWrapper = styled("div")(({ theme }) => ({
@@ -16,11 +15,8 @@ const MarginWrapper = styled("div")(({ theme }) => ({
 export default function FeaturePreview() {
   const { t } = useTranslation(AUTH);
 
-  const {
-    data: accountInfo,
-    error: accountInfoError,
-    isLoading: isAccountInfoLoading,
-  } = useAccountInfo();
+  const { error: accountInfoError, isLoading: isAccountInfoLoading } =
+    useAccountInfo();
 
   return (
     <>
@@ -42,9 +38,6 @@ export default function FeaturePreview() {
         <>
           <MarginWrapper>
             <PushNotificationSettings />
-          </MarginWrapper>
-          <MarginWrapper>
-            <ChangePhone accountInfo={accountInfo!} />
           </MarginWrapper>
         </>
       )}

@@ -1,9 +1,8 @@
-import { styled, useMediaQuery } from "@mui/material";
+import { styled } from "@mui/material";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
 import { User } from "proto/api_pb";
 import { LngLatLike, MapRef } from "react-map-gl/maplibre";
-import { theme } from "theme";
 
 import MapSearchResultsList from "./MapSearchResultsList";
 import MapView from "./MapView";
@@ -24,6 +23,7 @@ interface MapSearchContentProps {
   onDrawerWidthChange: (width: number) => void;
   onLoadPreviousPage: () => void;
   onLoadNextPage: () => void;
+  onSetMapView: (view: MapViewOptions) => void;
   onZoomIn: (newZoom: number, center?: LngLatLike) => void;
   onZoomOut: (newZoom: number) => void;
   totalItems: number;
@@ -46,9 +46,16 @@ const SearchResultsContainer = styled("div", {
     height: "100%",
     width: isListOnlyView ? "100%" : `${drawerWidth}px`,
 
-    [theme.breakpoints.down("md")]: {
-      width: "100%",
-    },
+    ...(!isListOnlyView && {
+      [theme.breakpoints.down("md")]: {
+        position: "fixed",
+        width: "100%",
+        height: `calc(45% - 54px)`,
+        bottom: 0,
+        boxShadow: "0px -2px 4px rgba(0,0,0,0.1)",
+        zIndex: theme.zIndex.drawer + 1,
+      },
+    }),
   }),
 );
 
@@ -61,6 +68,11 @@ const MapContainer = styled("div", {
   position: "relative",
   display: "flex",
   alignItems: "center",
+
+  [theme.breakpoints.down("md")]: {
+    width: "100%",
+    height: `calc(55% - 18px)`,
+  },
 }));
 
 const MapSearchContent = ({
@@ -75,22 +87,23 @@ const MapSearchContent = ({
   onDrawerWidthChange,
   onLoadPreviousPage,
   onLoadNextPage,
+  onSetMapView,
   onZoomIn,
   onZoomOut,
   totalItems,
   users,
 }: MapSearchContentProps) => {
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
   const { setSelectedUserId } = useMapSearchActions();
   const { selectedUserId } = useMapSearchState();
 
   const handleUserCardClick = (userId: number) => {
-    if (
-      mapView === MapViews.LIST_ONLY ||
-      isMobile ||
-      userId === selectedUserId
-    ) {
+    if (mapView === MapViews.LIST_ONLY) {
+      return;
+    }
+
+    if (userId === selectedUserId) {
+      clearMapFeatureState(mapRef);
+      setSelectedUserId(undefined);
       return;
     }
 
@@ -121,12 +134,13 @@ const MapSearchContent = ({
           onDrawerWidthChange={onDrawerWidthChange}
           onLoadPreviousPage={onLoadPreviousPage}
           onLoadNextPage={onLoadNextPage}
+          onSetMapView={onSetMapView}
           onUserCardClick={handleUserCardClick}
           totalItems={totalItems}
           users={users}
         />
       </SearchResultsContainer>
-      {!isMobile && mapView !== MapViews.LIST_ONLY && (
+      {mapView !== MapViews.LIST_ONLY && (
         <MapContainer drawerWidth={drawerWidth}>
           <MapView
             isDrawerExpanded={drawerWidth > DEFAULT_DRAWER_WIDTH}

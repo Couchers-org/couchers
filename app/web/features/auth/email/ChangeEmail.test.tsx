@@ -30,6 +30,7 @@ const accountInfo = {
   hasDonated: false,
   isSuperuser: false,
   uiLanguagePreference: "",
+  profilePublicVisibility: 1,
 };
 
 describe("ChangeEmail", () => {

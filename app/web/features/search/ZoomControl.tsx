@@ -14,6 +14,11 @@ interface ZoomControlProps {
 }
 
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
+  [theme.breakpoints.down("md")]: {
+    width: 26,
+    height: 26,
+  },
+
   "&:hover": {
     borderRadius: 2,
   },

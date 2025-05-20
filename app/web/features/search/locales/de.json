@@ -2,15 +2,15 @@
   "last_active_options": {
     "last_3_months": "Letzten 3 Monate",
     "any": "Alle",
-    "last_day": "Letzter Tag",
     "last_week": "Letzte Woche",
-    "last_2_weeks": "Letzte 2 Wochen",
-    "last_month": "Letzter Monat"
+    "last_month": "Letzter Monat",
+    "last_6_months": "Letzten 6 Monate",
+    "last_year": "Letztes Jahr"
   },
   "filter_dialog": {
     "mobile_title": "Suchen",
     "desktop_title": "Filter",
-    "search_here_button": "In diesem Gebiet suchen"
+    "search_here_button": "In diesem Bereich suchen"
   },
   "form": {
     "missing_location_validation_error": "Gib einen Ort an, um diesen Filter zu verwenden",
@@ -32,15 +32,15 @@
     },
     "by_location_filter_label": "Nach Standort",
     "host_filters": {
-      "title": "Host Filter",
       "last_active_field_label": "Zuletzt aktiv",
       "hosting_status_field_label": "Hosting-Status",
       "complete_profiles_label": "Vollständige Profile",
       "age": {
-        "field_label": "Alter",
+        "field_label": "Host Alter",
         "max_age": "Höchstalter",
         "min_age": "Mindestalter"
-      }
+      },
+      "meetup_status_field_label": "Treffen-Status"
     },
     "empty_profile_filters": {
       "title": "Leere Profile ausblenden"
@@ -63,7 +63,7 @@
     "clear_filters": "Alle Filter entfernen"
   },
   "search_result": {
-    "no_user_result_message": "Keine Benutzer gefunden.",
+    "no_user_result_message": "Keine Benutzer gefunden. Versuche, einige Filter zu entfernen, um mehr Ergebnisse zu sehen.",
     "show_user_button_label": "{{name}} auf der Karte anzeigen",
     "missing_about_description": "{{name}} hat noch nichts über sich gesagt",
     "people_found_message": "Es werden {{numberOfTotal}} von {{totalItems}} Personen angezeigt"
@@ -78,6 +78,5 @@
   "location": "Standort",
   "keyword": "Stichwort",
   "search_this_area": "In diesem Gebiet suchen",
-  "zoom_in_to_select_user": "Zoom heran, um einen Benutzer auszuwählen",
-  "choose_search_criteria_mobile": "Gib einen Ort ein oder nutze einen Filter zum suchen. Bitte verwende die Desktop-Version, um die Kartensuche zu nutzen."
+  "zoom_in_to_select_user": "Zoom heran, um einen Benutzer auszuwählen"
 }

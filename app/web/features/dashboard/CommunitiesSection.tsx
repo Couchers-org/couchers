@@ -1,13 +1,11 @@
 import { Link as MuiLink, Typography } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
-import CommunitiesDialog from "features/dashboard/CommunitiesDialog";
+import StyledLink from "components/StyledLink";
+import useAccountInfo from "features/auth/useAccountInfo";
 import CommunitiesList from "features/dashboard/CommunitiesList";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
-import { useState } from "react";
-
-const COMMUNITY_BUILDER_FORM_LINK =
-  "https://couchers.org/community-builder-form";
+import { communityCreationFormURL } from "routes";
 
 const useStyles = makeStyles((theme) => ({
   createCommunityText: {
@@ -21,7 +19,8 @@ const useStyles = makeStyles((theme) => ({
 export default function CommunitiesSection() {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
   const classes = useStyles();
-  const [isCommunitiesDialogOpen, setIsCommunitiesDialogOpen] = useState(false);
+
+  const { data: accountInfo } = useAccountInfo();
 
   return (
     <>
@@ -31,25 +30,18 @@ export default function CommunitiesSection() {
       <Typography variant="body1" paragraph>
         <Trans i18nKey="dashboard:your_communities_helper_text">
           {`You have been added to all communities based on your location. Feel free to `}
-          <MuiLink
-            component="button"
+          <StyledLink
+            href="/communities"
             className={classes.browseCommunitiesLink}
-            onClick={() => {
-              setIsCommunitiesDialogOpen(true);
-            }}
             underline="hover"
           >
-            {/* @todo: revisit this UI. A button that opens a popup shouldn't look like a link */}
             browse communities
-          </MuiLink>
+          </StyledLink>
           {` in other locations as well.`}
         </Trans>
       </Typography>
       <CommunitiesList />
-      <CommunitiesDialog
-        isOpen={isCommunitiesDialogOpen}
-        onClose={() => setIsCommunitiesDialogOpen(false)}
-      />
+
       <Typography
         variant="body1"
         paragraph
@@ -58,7 +50,7 @@ export default function CommunitiesSection() {
         <Trans i18nKey="dashboard:your_communities_helper_text2">
           {`Don't see your community? `}
           <MuiLink
-            href={COMMUNITY_BUILDER_FORM_LINK}
+            href={communityCreationFormURL(accountInfo?.username)}
             target="_blank"
             rel="noreferrer noopener"
             underline="hover"

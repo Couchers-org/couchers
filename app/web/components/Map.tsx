@@ -1,5 +1,6 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 
+import { useMediaQuery } from "@mui/system";
 import { useMapSearchState } from "features/search/state/mapSearchContext";
 import {
   clusterCountLayer,
@@ -18,6 +19,7 @@ import {
   Source,
   ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
+import { theme } from "theme";
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -48,6 +50,7 @@ const Map = ({
   onZoomControlOutClick,
   pins,
 }: MapProps) => {
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const isZoomFromControlRef = useRef(false);
 
   const {
@@ -146,6 +149,7 @@ const Map = ({
         hash={hash}
         ref={mapRef}
         transformRequest={transformRequest}
+        {...(isMobile && { attributionControl: false })}
       >
         <Source
           id={SOURCE_CLUSTERED_USERS_ID}

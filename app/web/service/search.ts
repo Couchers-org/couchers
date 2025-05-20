@@ -10,7 +10,7 @@ import {
   StringValue,
   UInt32Value,
 } from "google-protobuf/google/protobuf/wrappers_pb";
-import { HostingStatus } from "proto/api_pb";
+import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import {
   EventSearchReq,
   EventSearchRes,
@@ -33,6 +33,7 @@ export interface UserSearchFilters {
   hasReferences?: boolean;
   hasStrongVerification?: boolean;
   hostingStatusOptions?: HostingStatus[];
+  meetupStatus?: MeetupStatus[];
   numGuests?: number;
   completeProfile?: boolean;
   pageNumber?: number;
@@ -56,6 +57,7 @@ export async function userSearch(
     hasReferences,
     hasStrongVerification,
     hostingStatusOptions,
+    meetupStatus,
     numGuests,
     completeProfile,
     selectedUserId,
@@ -121,6 +123,10 @@ export async function userSearch(
 
   if (hostingStatusOptions && hostingStatusOptions.length > 0) {
     req.setHostingStatusFilterList(hostingStatusOptions);
+  }
+
+  if (meetupStatus && meetupStatus.length > 0) {
+    req.setMeetupStatusFilterList(meetupStatus);
   }
 
   if (ageMin && ageMin !== DEFAULT_AGE_MIN) {

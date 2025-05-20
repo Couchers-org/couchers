@@ -125,6 +125,7 @@
     "badges": "Badges",
     "blog": "Blog",
     "community": "Community",
+    "communities": "Communities",
     "dashboard": "Dashboard",
     "donate": "Donate",
     "events": "Events",
@@ -184,5 +185,13 @@
     "non_profit_note": "Couchers.org is a project of Couchers, Inc. a U.S. 501(c)(3) non-profit, tax-exempt organization.",
     "copyright": "© 2025 Couchers, Inc.",
     "version_info": "Version <2>{{version}}</2>, last updated <5>{{updated_ago}}</5>."
+  },
+  "team": {
+    "title": "The Team",
+    "description": "We are all couch surfers and skilled professionals who want to build an improved, safer and more inclusive platform that can support and sustainably grow the couch surfing community and bring its values to the world. If you feel the same way and want to contribute, then we'd love to talk to you. ",
+    "join_the_team": "Join the team",
+    "join_our_team": "Join our team",
+    "have_skills_contribute": "Have skills you want to contribute?",
+    "fill_form_description": "Couchers.org is a community project, built by folks like you for the benefit of the global couch surfing community. If you would like to be a part of this great new project, or leave your feedback on our ideas, click the button below and fill out the short form."
   }
 }

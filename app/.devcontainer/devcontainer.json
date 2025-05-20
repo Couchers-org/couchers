@@ -19,16 +19,23 @@
 	// connected. This is typically a file mount in .devcontainer/docker-compose.yml
 	"workspaceFolder": "/workspace",
 
-	// Set *default* container specific settings.json values on container create.
-	"settings": {
-		"python.defaultInterpreterPath": "/workspace/venv/bin/python3.13",
-		"python.languageServer": "Jedi"
-	},
-
-	// Add the IDs of extensions you want installed when the container is created.
-	"extensions": [
-		"ms-python.python"
-	]
+	// Product specific properties
+	"customizations": {
+		// Configure properties specific to VS Code.
+        "vscode": {
+			// Adds default settings.json values into a container/machine specific settings file
+            "settings": {
+                // "python.defaultInterpreterPath": "/workspace/venv/bin/python3.13",
+                // "python.languageServer": "Jedi"
+            },
+			// An array of extension IDs that specify the extensions that should be installed inside the container when it is created
+			"extensions": [
+				"ms-python.python",
+				"ms-python.debugpy",
+				"ms-python.vscode-pylance"
+			]
+        }
+    }
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],

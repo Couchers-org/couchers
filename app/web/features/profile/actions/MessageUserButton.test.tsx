@@ -36,6 +36,7 @@ const accountInfo = {
   hasDonated: false,
   isSuperuser: false,
   uiLanguagePreference: "",
+  profilePublicVisibility: 1,
 };
 
 const incompleteAccountInfo = { ...accountInfo, profileComplete: false };

@@ -60,6 +60,7 @@ from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.notifications import Notifications
 from couchers.servicers.pages import Pages
+from couchers.servicers.public import Public
 from couchers.servicers.references import References
 from couchers.servicers.reporting import Reporting
 from couchers.servicers.requests import Requests
@@ -88,6 +89,7 @@ from proto import (
     media_pb2_grpc,
     notifications_pb2_grpc,
     pages_pb2_grpc,
+    public_pb2_grpc,
     references_pb2_grpc,
     reporting_pb2_grpc,
     requests_pb2_grpc,
@@ -562,6 +564,13 @@ def gis_session(token):
     yield gis_pb2_grpc.GISStub(channel)
 
 
+@contextmanager
+def public_session():
+    channel = fake_channel()
+    public_pb2_grpc.add_PublicServicer_to_server(Public(), channel)
+    yield public_pb2_grpc.PublicStub(channel)
+
+
 class FakeRpcError(grpc.RpcError):
     def __init__(self, code, details):
         self._code = code
@@ -913,6 +922,10 @@ def testconfig():
 
     config.clear()
     config.update(prevconfig)
+
+
+def run_migration_test():
+    return os.environ.get("RUN_MIGRATION_TEST", "false").lower() == "true"
 
 
 @pytest.fixture
