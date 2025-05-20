@@ -11,10 +11,9 @@ export function middleware(
   req: NextRequest & { cookies: CustomRequestCookies },
 ) {
   // session
-  const seshCookie = req.cookies.get("couchers-sesh")?.value || "banana";
-  console.log(seshCookie);
+  const seshCookie = req.cookies.get("couchers-sesh")?.value;
 
-  // language preferences
+  // language preference
   const langCookie =
     req.cookies.get("couchers-preferred-language")?.value || "en"; // default to English if not specified
   const locale = allLanguages.includes(langCookie) ? langCookie : "en"; // default ot English if language code not supported?
@@ -31,7 +30,6 @@ export function middleware(
     req.cookies.get("couchers-sesh")?.value &&
     req.cookies.get("couchers-preferred-language")?.value
   ) {
-    console.log("gonna try changing UI language");
     // if user is logged in, check for language pref
     // Skip if already has a locale prefix (e.g., /de, /en)
     const pathnameIsMissingLocale = allLanguages.every(
@@ -42,7 +40,6 @@ export function middleware(
     if (pathnameIsMissingLocale) {
       const newUrl = req.nextUrl.clone();
       newUrl.pathname = `/${locale}${pathname}`; // manually insert the locale
-      console.log("newUrl.pathname", newUrl.pathname);
       return NextResponse.rewrite(newUrl);
     }
     return NextResponse.next();
