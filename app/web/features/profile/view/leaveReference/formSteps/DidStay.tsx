@@ -1,5 +1,12 @@
 import { Alert, Box, styled, useMediaQuery } from "@mui/material";
 import Button from "components/Button";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from "components/Dialog";
+import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import TextField from "components/TextField";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
@@ -11,6 +18,7 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   baseRoute,
+  helpCenterReportContentURL,
   leaveReferenceBaseRoute,
   referenceStepStrings,
   referenceTypeRoute,
@@ -51,7 +59,7 @@ const StyledButtonContainer = styled("div")(({ theme }) => ({
 const StyledReasonContainer = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
-  marginTop: theme.spacing(1),
+  marginTop: theme.spacing(3),
   width: "100%",
 }));
 
@@ -67,6 +75,10 @@ const DidStay = ({
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [didSubmitNotStay, setDidSubmitNotStay] = useState(false);
+  const [
+    isDidNotStayConfirmationDialogOpen,
+    setIsDidNotStayConfirmationDialogOpen,
+  ] = useState(false);
 
   const {
     control,
@@ -90,7 +102,8 @@ const DidStay = ({
     }
   });
 
-  const handleDidStay = () => {
+  const handleDidStay = (event: React.MouseEvent) => {
+    event.preventDefault();
     setReferenceValues({ ...referenceData, didStay: true });
     setValue("didStay", true);
 
@@ -105,6 +118,21 @@ const DidStay = ({
         `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${referenceStepStrings[1]}`,
       );
     }
+  };
+
+  const handleDidNotStayClick = (event: React.MouseEvent) => {
+    event.preventDefault();
+    setReferenceValues({ ...referenceData, didStay: false });
+    setValue("didStay", false);
+  };
+
+  const handleOpenConfirmationDialog = (event: React.MouseEvent) => {
+    event.preventDefault();
+    setIsDidNotStayConfirmationDialogOpen(true);
+  };
+
+  const handleCloseConfirmationDialog = () => {
+    setIsDidNotStayConfirmationDialogOpen(false);
   };
 
   if (didSubmitNotStay) {
@@ -131,79 +159,123 @@ const DidStay = ({
   }
 
   return (
-    <StyledForm onSubmit={onSubmitDidNotStay}>
-      <ReferenceStepHeader
-        name={user.name}
-        referenceType={referenceType}
-        isDidStayStep
-      />
-      <StyledTextBody>
-        <Trans
-          i18nKey="profile:leave_reference.did_stay_explanation"
-          components={{ bold: <strong /> }}
+    <>
+      <StyledForm>
+        <ReferenceStepHeader
+          name={user.name}
+          referenceType={referenceType}
+          isDidStayStep
         />
-      </StyledTextBody>
-      <StyledButtonContainer>
-        <Controller
-          control={control}
-          name="didStay"
-          render={({ field }) => (
-            <>
-              <Button
-                variant="outlined"
-                type="submit"
-                size="large"
-                sx={{ marginTop: 2, marginRight: 2 }}
-                onClick={() => field.onChange(false)}
-              >
-                {t("global:no")}
-              </Button>
-              <Button
-                variant="contained"
-                type="submit"
-                size="large"
-                sx={{ marginTop: 2 }}
-                onClick={() => {
-                  field.onChange(true);
-                  handleDidStay();
-                }}
-              >
-                {t("global:yes")}
-              </Button>
-            </>
-          )}
-        ></Controller>
-      </StyledButtonContainer>
-      {didStay === false && (
-        <StyledReasonContainer>
-          <Controller
-            control={control}
-            name="reasonDidntMeetup"
-            render={({ field }) => (
-              <TextField
-                {...field}
-                id="reasonDidntMeetup"
-                label={t("profile:leave_reference.reason_didnt_meetup")}
-                error={!!errors.reasonDidntMeetup}
-                helperText={errors.reasonDidntMeetup?.message}
-                onChange={field.onChange}
-                value={field.value}
-                multiline
-                minRows={5}
-                sx={{
-                  "& > .MuiInputBase-root": { width: "100%", marginTop: 1 },
-                }}
-              />
-            )}
+        <StyledButtonContainer>
+          <Button
+            variant="outlined"
+            type="submit"
+            size="large"
+            sx={{ marginTop: 2, marginRight: 2 }}
+            onClick={handleDidNotStayClick}
+          >
+            {t("global:no")}
+          </Button>
+          <Button
+            variant="contained"
+            type="submit"
+            size="large"
+            sx={{ marginTop: 2 }}
+            onClick={handleDidStay}
+          >
+            {t("global:yes")}
+          </Button>
+        </StyledButtonContainer>
+        <StyledTextBody sx={{ marginTop: theme.spacing(3) }}>
+          <Trans
+            i18nKey="profile:leave_reference.did_stay_explanation"
+            components={{ bold: <strong /> }}
           />
-          <StyledButtonContainer>
-            <Button fullWidth={isMobile} type="submit">
-              {t("global:submit")}
-            </Button>
-          </StyledButtonContainer>
-        </StyledReasonContainer>
-      )}
-    </StyledForm>
+        </StyledTextBody>
+        {didStay === false && (
+          <StyledReasonContainer>
+            <Controller
+              control={control}
+              name="reasonDidntMeetup"
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  id="reasonDidntMeetup"
+                  label={t("profile:leave_reference.reason_didnt_meetup")}
+                  error={!!errors.reasonDidntMeetup}
+                  helperText={errors.reasonDidntMeetup?.message}
+                  onChange={field.onChange}
+                  value={field.value}
+                  multiline
+                  minRows={5}
+                  sx={{
+                    "& > .MuiInputBase-root": {
+                      width: "100%",
+                      marginTop: theme.spacing(1),
+                    },
+                  }}
+                />
+              )}
+            />
+            <StyledButtonContainer>
+              <Button
+                fullWidth={isMobile}
+                onClick={handleOpenConfirmationDialog}
+              >
+                {t("global:submit")}
+              </Button>
+            </StyledButtonContainer>
+          </StyledReasonContainer>
+        )}
+      </StyledForm>
+      <Dialog
+        aria-labelledby="did-stay--no-dialog-title"
+        open={isDidNotStayConfirmationDialogOpen}
+        onClose={handleCloseConfirmationDialog}
+      >
+        <DialogTitle id="did-stay--no-dialog-title">
+          {referenceType ===
+          referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED]
+            ? t("profile:leave_reference.did_stay_confirmation.title_hosted", {
+                name: user.name,
+              })
+            : t("profile:leave_reference.did_stay_confirmation.title_surfed", {
+                name: user.name,
+              })}
+        </DialogTitle>
+        <DialogContent>
+          <Trans
+            i18nKey={
+              referenceType ===
+              referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED]
+                ? "profile:leave_reference.did_stay_confirmation.message_hosted"
+                : "profile:leave_reference.did_stay_confirmation.message_surfed"
+            }
+            values={{ name: user.name }}
+            components={{
+              strong: <strong />,
+              2: <StyledLink href={helpCenterReportContentURL} target="#" />,
+              br: <br />,
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button variant="outlined" onClick={handleCloseConfirmationDialog}>
+            {t("global:cancel")}
+          </Button>
+          <Button variant="contained" onClick={onSubmitDidNotStay}>
+            {referenceType ===
+            referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED]
+              ? t(
+                  "profile:leave_reference.did_stay_confirmation.confirm_hosted",
+                )
+              : t(
+                  "profile:leave_reference.did_stay_confirmation.confirm_surfed",
+                )}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 

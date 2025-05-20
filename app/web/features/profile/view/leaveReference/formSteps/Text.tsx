@@ -1,6 +1,7 @@
 import { styled, Typography, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import TextField from "components/TextField";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
@@ -14,7 +15,9 @@ import { PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
 import { Controller, useForm } from "react-hook-form";
+import { Trans } from "react-i18next";
 import {
+  helpCenterHowToLeaveGoodReferenceUrl,
   leaveReferenceBaseRoute,
   referenceStepStrings,
   referenceTypeRoute,
@@ -128,7 +131,15 @@ export default function Text({
         />
       </StyledCard>
       <Typography sx={{ marginTop: theme.spacing(3) }}>
-        {t("profile:leave_reference.by_writing_thoughtful")}
+        <Trans i18nKey={t("profile:leave_reference.by_writing_thoughtful")}>
+          Not sure what to write? Read our guide{" "}
+          <StyledLink href={helpCenterHowToLeaveGoodReferenceUrl}>
+            here
+          </StyledLink>
+          . By writing honestly and in detail about your experience with this
+          person, you will directly help other members and contribute to safety
+          and trust in the Couchers community.
+        </Trans>
       </Typography>
       <StyledButtonContainer>
         <Button fullWidth={!isSmOrWider} type="submit">

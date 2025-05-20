@@ -2,7 +2,6 @@ import {
   Box,
   Card,
   CardContent,
-  Link,
   styled,
   Typography,
   useMediaQuery,
@@ -10,10 +9,9 @@ import {
 import SliderLabel from "components/RatingsSlider/SliderLabel";
 import TextBody from "components/TextBody";
 import UserSummary from "components/UserSummary";
-import { contactLink } from "features/profile/constants";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { ReferenceContextFormData } from "features/profile/view/leaveReference/ReferenceForm";
-import { Trans, useTranslation } from "i18n";
+import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { theme } from "theme";
 
@@ -69,7 +67,7 @@ export default function ReferenceOverview({
         </Box>
       )}
       <StyledTypography variant="h3" sx={{ marginTop: theme.spacing(3) }}>
-        {t("profile:leave_reference.public_text_label")}
+        {t("profile:leave_reference.public_text_label", { name: user.name })}
       </StyledTypography>
       <StyledCard>
         <CardContent>
@@ -110,15 +108,6 @@ export default function ReferenceOverview({
               </TextBody>
             </CardContent>
           </StyledCard>
-          <StyledTextBody>
-            <Trans t={t} i18nKey="profile:leave_reference.contact_text">
-              If you have any questions or wish to provide additional
-              information, please don't hesitate to
-              <Link href={contactLink} target="_blank" underline="hover">
-                contact us here.
-              </Link>
-            </Trans>
-          </StyledTextBody>
         </>
       )}
     </>

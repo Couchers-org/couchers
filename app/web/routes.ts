@@ -197,6 +197,8 @@ export const helpCenterReportContentURL =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1715125657-how-do-i-report-someone-or-something-that-violates-the-community-guidelines-or-terms-of-use-to_u";
 export const helpCenterPrivateFeedbackUrl =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1747589427-providing-private-feedback-when-leaving-a-reference";
+export const helpCenterHowToLeaveGoodReferenceUrl =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1717360836-how-to";
 export const helpCenterCommunityBuilderURL =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder";
 
