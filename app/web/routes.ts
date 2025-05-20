@@ -10,6 +10,10 @@ import SearchFilters, { parseSearchFiltersToQuery } from "utils/searchFilters";
 export const baseRoute = "/";
 
 export const githubURL = "https://github.com/Couchers-org/couchers";
+export const instagramURL = "https://www.instagram.com/couchersorg";
+export const redditURL = "https://www.reddit.com/r/couchers/";
+export const blueSkyURL = "https://bsky.app/profile/couchers.bsky.social";
+export const facebookURL = "https://www.facebook.com/Couchers.org";
 export const helpCenterURL = "https://help.couchers.org";
 export const githubUpdatesURL =
   "https://github.com/Couchers-org/couchers/commits/develop";
@@ -199,5 +203,5 @@ export const helpCenterCommunityBuilderURL =
 export const latestFinancialsURL =
   "/blog/2025/04/20/couchers-inc-financials-2024";
 
-export const communityBuilderFormURL = (username?: string) =>
+export const communityCreationFormURL = (username?: string) =>
   `https://forms.monday.com/forms/d7b6f1bd47a092e23b63f6ef9db1594b?r=use1&username=${username || ""}`;

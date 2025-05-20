@@ -66,7 +66,7 @@ def test_signup_incremental(db):
     assert not res.HasField("auth_res")
     assert not res.need_basic
     assert res.need_account
-    assert res.need_feedback
+    assert not res.need_feedback
     assert res.need_verify_email
     assert res.need_accept_community_guidelines
 
@@ -84,7 +84,7 @@ def test_signup_incremental(db):
     assert not res.HasField("auth_res")
     assert not res.need_basic
     assert res.need_account
-    assert res.need_feedback
+    assert not res.need_feedback
     assert res.need_verify_email
     assert res.need_accept_community_guidelines
 

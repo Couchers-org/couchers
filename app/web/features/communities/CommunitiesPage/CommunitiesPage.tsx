@@ -6,7 +6,10 @@ import CommunityBrowser from "features/dashboard/CommunityBrowser";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import React from "react";
-import { communityBuilderFormURL, helpCenterCommunityBuilderURL } from "routes";
+import {
+  communityCreationFormURL,
+  helpCenterCommunityBuilderURL,
+} from "routes";
 
 const HeaderRow = styled("div")(({ theme }) => ({
   display: "flex",
@@ -68,7 +71,7 @@ const CommunitiesPage = () => {
         <Trans i18nKey="dashboard:community_missing">
           {`Is your country or city missing? `}
           <MuiLink
-            href={communityBuilderFormURL(accountInfo?.username)}
+            href={communityCreationFormURL(accountInfo?.username)}
             target="_blank"
             rel="noreferrer noopener"
             underline="hover"
