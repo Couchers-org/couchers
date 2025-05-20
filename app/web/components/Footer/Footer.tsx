@@ -1,3 +1,7 @@
+import FacebookIcon from "@mui/icons-material/Facebook";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import RedditIcon from "@mui/icons-material/Reddit";
 import {
   Button,
   ButtonProps,
@@ -5,7 +9,7 @@ import {
   styled,
   Typography,
 } from "@mui/material";
-import { GithubIcon } from "components/Icons";
+import { BlueSkyIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
@@ -17,19 +21,21 @@ import {
   contactRoute,
   donationsRoute,
   eventsRoute,
+  facebookURL,
   faqRoute,
   foundationRoute,
   githubUpdatesURL,
   githubURL,
   helpCenterURL,
+  instagramURL,
   missionRoute,
   planRoute,
+  redditURL,
   roadmapRoute,
   teamRoute,
   tosRoute,
   volunteerRoute,
 } from "routes";
-import { theme } from "theme";
 import { timeAgoI18n } from "utils/timeAgo";
 
 const StyledFooter = styled("footer")({
@@ -117,6 +123,14 @@ const StyledButtonContainer = styled("div")({
   justifySelf: "flex-start",
 });
 
+const StyledSocialIconsContainer = styled("div")({
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "center",
+  gap: "12px",
+  marginTop: "16px",
+});
+
 const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
   minWidth: "8rem",
   textAlign: "center",
@@ -192,24 +206,53 @@ export default function Footer() {
                 {t("nav.volunteer")}
               </StyledButton>
             </Link>
-            <StyledButton
-              component="a"
-              href={githubURL}
-              variant="outlined"
-              color="primary"
-              sx={{
-                color: theme.palette.common.black,
-                borderColor: theme.palette.grey[300],
-
-                "&:hover": {
-                  borderColor: theme.palette.grey[300],
-                  backgroundColor: "#3135390A",
-                },
-              }}
-            >
-              <GithubIcon />
-              <span>{t("nav.github")}</span>
-            </StyledButton>
+            <StyledSocialIconsContainer>
+              <MuiLink
+                href={githubURL}
+                target="_blank"
+                rel="noopener"
+                aria-label="GitHub"
+                color="inherit"
+              >
+                <GitHubIcon />
+              </MuiLink>
+              <MuiLink
+                href={instagramURL}
+                target="_blank"
+                rel="noopener"
+                aria-label="Instagram"
+                color="inherit"
+              >
+                <InstagramIcon />
+              </MuiLink>
+              <MuiLink
+                href={redditURL}
+                target="_blank"
+                rel="noopener"
+                aria-label="Reddit"
+                color="inherit"
+              >
+                <RedditIcon />
+              </MuiLink>
+              <MuiLink
+                href="https://bsky.app/profile/couchers.bsky.social"
+                target="_blank"
+                rel="noopener"
+                aria-label="BlueSky"
+                color="inherit"
+              >
+                <BlueSkyIcon />
+              </MuiLink>
+              <MuiLink
+                href={facebookURL}
+                target="_blank"
+                rel="noopener"
+                aria-label="Facebook"
+                color="inherit"
+              >
+                <FacebookIcon />
+              </MuiLink>
+            </StyledSocialIconsContainer>
           </StyledButtonContainer>
         </StyledUpperContainer>
       </StyledUpperOuterContainer>

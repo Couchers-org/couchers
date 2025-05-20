@@ -163,7 +163,7 @@ describe("updateSignupState action", () => {
         flowToken: "dummy-token",
         needBasic: false,
         needAccount: true,
-        needFeedback: true,
+        needFeedback: false,
         needVerifyEmail: true,
         needAcceptCommunityGuidelines: true,
       }),

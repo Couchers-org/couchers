@@ -172,7 +172,7 @@ export default function CommunityGuidelines({
           onClick={submit}
           disabled={completed || !formState.isValid}
         >
-          {completed ? t("global:thanks") : t("global:continue")}
+          {completed ? t("global:thanks") : t("global:submit")}
         </StyledButton>
       </form>
     </>
