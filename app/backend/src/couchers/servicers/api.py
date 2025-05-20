@@ -547,8 +547,14 @@ class API(api_pb2_grpc.APIServicer):
             .where_users_column_visible(context, FriendRelationship.to_user_id)
             .where(
                 or_(
-                    FriendRelationship.from_user_id == request.user_id,
-                    FriendRelationship.to_user_id == request.user_id,
+                    and_(
+                        FriendRelationship.from_user_id == request.user_id,
+                        FriendRelationship.to_user_id == context.user_id,
+                    ),
+                    and_(
+                        FriendRelationship.from_user_id == context.user_id,
+                        FriendRelationship.to_user_id == request.user_id,
+                    ),
                 )
             )
             .where(FriendRelationship.status == FriendStatus.accepted)
