@@ -7,7 +7,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors
-from couchers.constants import HOST_REQUEST_DAILY_BAN_QUOTA, HOST_REQUEST_DAILY_WARNING_QUOTA
+from couchers.constants import HOST_REQUEST_DAILY_BLOCKING_QUOTA, HOST_REQUEST_DAILY_WARNING_QUOTA
 from couchers.materialized_views import user_response_rates
 from couchers.metrics import (
     account_age_on_host_request_create_histogram,
@@ -185,12 +185,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             .where(HostRequest.surfer_user_id == context.user_id)
             .where(Conversation.created >= now() - timedelta(hours=24))
         ).scalar_one()
-        if count_host_requests_last_24h > HOST_REQUEST_DAILY_BAN_QUOTA - 2:
-            logger.info(f"Banning user {user.username} for excessive host requests.")
-            user.is_banned = True
-            session.add(user)
-            session.commit()
-
+        if count_host_requests_last_24h >= HOST_REQUEST_DAILY_BLOCKING_QUOTA - 1:
             host_requests = _get_user_host_requests_in_past_time_interval(
                 session=session, user_id=context.user_id, interval=timedelta(hours=24)
             )
@@ -198,10 +193,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 session=session,
                 user=user,
                 host_requests=host_requests,
-                threshold=HOST_REQUEST_DAILY_BAN_QUOTA,
+                threshold=HOST_REQUEST_DAILY_BLOCKING_QUOTA,
                 time_interval_str="24 hours",
+                user_is_blocked=True,
             )
-            context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.HOST_REQUEST_SPAM_USER_BAN)
+            context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.HOST_REQUEST_THRESHOLD)
         if count_host_requests_last_24h == HOST_REQUEST_DAILY_WARNING_QUOTA - 1:
             host_requests = _get_user_host_requests_in_past_time_interval(
                 session=session, user_id=context.user_id, interval=timedelta(hours=24)

@@ -4,7 +4,7 @@ subject: "Possible host request spam by user {{ user.username }}"
 
 User {{ user.username }} has sent {{ threshold }} host requests in the past {{ time_interval_str }}.
 
-{% if user.is_banned %}**The user has been banned subsequently.**{% endif %}
+{% if user_is_blocked %}**The user has been blocked from sending further host requests for today.**{% endif %}
 
 **User info:**
 - Name: {{ user.name }}

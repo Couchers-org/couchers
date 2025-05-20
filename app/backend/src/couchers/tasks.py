@@ -91,7 +91,9 @@ def maybe_send_reference_report_email(session, reference):
         )
 
 
-def send_host_request_spam_report_email(session, user, host_requests, threshold: int, time_interval_str: str):
+def send_host_request_spam_report_email(
+    session, user, host_requests, threshold: int, time_interval_str: str, user_is_blocked: bool = False
+):
     """Send a report email if a user exceeds a threshold of host requests within a given time frame."""
     logger.info("Sending host request spam report email")
     email.enqueue_system_email(
@@ -103,6 +105,7 @@ def send_host_request_spam_report_email(session, user, host_requests, threshold:
             "host_requests": host_requests,
             "threshold": threshold,
             "time_interval_str": time_interval_str,
+            "user_is_blocked": user_is_blocked,
         },
     )
 

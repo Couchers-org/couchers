@@ -5,7 +5,7 @@ import pytest
 from sqlalchemy.sql import select
 
 from couchers import errors
-from couchers.constants import HOST_REQUEST_DAILY_BAN_QUOTA, HOST_REQUEST_DAILY_WARNING_QUOTA
+from couchers.constants import HOST_REQUEST_DAILY_BLOCKING_QUOTA, HOST_REQUEST_DAILY_WARNING_QUOTA
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_view
 from couchers.models import Message, MessageType, User
@@ -180,9 +180,9 @@ def test_excessive_requests_are_reported(db):
                 f"User {user.username} has sent {HOST_REQUEST_DAILY_WARNING_QUOTA} host requests in the past 24 hours."
             )
 
-        # Test ban after exceeding HOST_REQUEST_DAILY_BAN_QUOTA
+        # Test ban after exceeding HOST_REQUEST_DAILY_BLOCKING_QUOTA
         with mock_notification_email() as mock_email:
-            for _ in range(HOST_REQUEST_DAILY_BAN_QUOTA - HOST_REQUEST_DAILY_WARNING_QUOTA - 1):
+            for _ in range(HOST_REQUEST_DAILY_BLOCKING_QUOTA - HOST_REQUEST_DAILY_WARNING_QUOTA - 1):
                 host_user, _ = generate_user()
                 _ = api.CreateHostRequest(
                     requests_pb2.CreateHostRequestReq(
@@ -204,7 +204,7 @@ def test_excessive_requests_are_reported(db):
             assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
             assert (
                 exc_info.value.details()
-                == "Due to excessive host requests, the account has been suspended until further notice. The moderation team has been notified."
+                == "You have sent a lot of host requests today. To avoid spam, you can't send any more for today."
             )
             with session_scope() as session:
                 updated_user = session.get(User, user.id)
@@ -213,9 +213,9 @@ def test_excessive_requests_are_reported(db):
             assert mock_email.call_count == 1
             email = mock_email.mock_calls[0].kwargs["plain"]
             assert email.startswith(
-                f"User {user.username} has sent {HOST_REQUEST_DAILY_BAN_QUOTA} host requests in the past 24 hours."
+                f"User {user.username} has sent {HOST_REQUEST_DAILY_BLOCKING_QUOTA} host requests in the past 24 hours."
             )
-            assert "The user has been banned subsequently." in email
+            assert "The user has been blocked from sending further host requests for today." in email
 
 
 def add_message(db, text, author_id, conversation_id):
