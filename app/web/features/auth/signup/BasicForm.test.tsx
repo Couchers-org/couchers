@@ -21,7 +21,7 @@ const stateAfterStart = {
   needBasic: false,
   needAccount: false,
   needAcceptCommunityGuidelines: true,
-  needFeedback: false,
+  needFeedback: true,
   needVerifyEmail: true,
 };
 

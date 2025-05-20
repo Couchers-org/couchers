@@ -51,7 +51,7 @@ describe("AccountForm", () => {
       flowToken: "token",
       needBasic: false,
       needAccount: false,
-      needFeedback: false,
+      needFeedback: true,
       needAcceptCommunityGuidelines: true,
       needVerifyEmail: false,
     });
