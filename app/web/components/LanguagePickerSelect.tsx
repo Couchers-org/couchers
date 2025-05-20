@@ -19,8 +19,8 @@ import { getLangCookie } from "i18n/getLangCookie";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router"; // we'll use this to reload the components w/ changed languages
 import { useState } from "react";
-import { service } from "service";
 import { theme } from "theme";
+import { service } from "service";
 
 interface StyledMuiSelectProps {
   displayMode?: "round" | "rect";
@@ -63,7 +63,7 @@ export default function LanguagePickerSelect({
   const handleChange = async (event: SelectChangeEvent<unknown>) => {
     const newLang = event.target.value as string;
     setLanguage(newLang);
-    onSelect?.(newLang);
+    onSelect?.(newLang); // TODO: what does this correspond to?
 
     // Set the language cookie -- I think we'll want to make this change on the backend instead
     // make a gRPC request to Account servicer to ChangeLanguagePreference
