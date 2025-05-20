@@ -5,6 +5,7 @@ import pytest
 from google.protobuf import wrappers_pb2
 
 from couchers import errors
+from couchers.constants import CHAT_INITIATION_DAILY_BLOCKING_QUOTA, CHAT_INITIATION_DAILY_WARNING_QUOTA
 from couchers.db import session_scope
 from couchers.jobs.worker import process_job
 from couchers.models import (
@@ -26,6 +27,7 @@ from tests.test_fixtures import (  # noqa
     make_friends,
     make_user_block,
     make_user_invisible,
+    mock_notification_email,
     notifications_session,
     testconfig,
 )
@@ -638,6 +640,51 @@ def test_send_message(db):
         with pytest.raises(grpc.RpcError) as e:
             c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_excessive_chat_initiations_are_reported(db):
+    """Test that excessive chat initiations are first reported in a warning email and finally lead blocking of further contacting other users."""
+    user, token = generate_user()
+    with conversations_session(token) as c:
+        # Test warning email
+        with mock_notification_email() as mock_email:
+            for _ in range(CHAT_INITIATION_DAILY_WARNING_QUOTA - 1):
+                recipient_user, _ = generate_user()
+                make_friends(user, recipient_user)
+                _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
+
+            assert mock_email.call_count == 0
+            recipient_user, _ = generate_user()
+            make_friends(user, recipient_user)
+            _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
+
+            assert mock_email.call_count == 1
+            email = mock_email.mock_calls[0].kwargs["plain"]
+            assert email.startswith(
+                f"User {user.username} has initiated {CHAT_INITIATION_DAILY_WARNING_QUOTA} chats in the past 24 hours."
+            )
+
+        # Test ban after exceeding CHAT_INITIATION_DAILY_BLOCKING_QUOTA
+        with mock_notification_email() as mock_email:
+            for _ in range(CHAT_INITIATION_DAILY_BLOCKING_QUOTA - CHAT_INITIATION_DAILY_WARNING_QUOTA - 1):
+                recipient_user, _ = generate_user()
+                make_friends(user, recipient_user)
+                _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
+
+            assert mock_email.call_count == 0
+            recipient_user, _ = generate_user()
+            make_friends(user, recipient_user)
+            with pytest.raises(grpc.RpcError) as exc_info:
+                _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
+            assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
+            assert exc_info.value.details() == errors.CHAT_INITIATION_THRESHOLD
+
+            assert mock_email.call_count == 1
+            email = mock_email.mock_calls[0].kwargs["plain"]
+            assert email.startswith(
+                f"User {user.username} has initiated {CHAT_INITIATION_DAILY_BLOCKING_QUOTA} chats in the past 24 hours."
+            )
+            assert "The user has been blocked from initiating further chats for today." in email
 
 
 def test_leave_invite_to_group_chat(db):

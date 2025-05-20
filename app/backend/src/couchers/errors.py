@@ -32,6 +32,9 @@ CANT_UNSUB_TOPIC = "Sorry, you can't unsubscribe from that topic right now."
 CANT_WRITE_REFERENCE_FOR_REQUEST = "You can't write a reference for that host request, or it wasn't found."
 CANT_WRITE_REFERENCE_INDICATED_DIDNT_MEETUP = "You can't write a reference for that host request because you indicated that you didn't meet up."  # fmt: skip
 CHAT_NOT_FOUND = "Couldn't find that chat."
+CHAT_INITIATION_THRESHOLD = (
+    "You have messaged a lot of users today. To avoid spam, you can't contact any more users for today."
+)
 COMMUNITY_NOT_FOUND = "Community not found."
 CONTENT_REPORT_NOT_FOUND = "Content report not found."
 DATE_FROM_AFTER_ONE_YEAR = "The start date must be within one year from today."
