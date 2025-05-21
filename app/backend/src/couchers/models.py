@@ -926,7 +926,7 @@ class ContributorForm(Base):
 
         We currently send if expertise is listed, or if they list a way to help outside of a set list
         """
-        return (self.expertise != None) | (not set(self.contribute_ways).issubset({"community", "blog", "other"}))
+        return False
 
 
 class SignupFlow(Base):
@@ -970,7 +970,7 @@ class SignupFlow(Base):
 
     opt_out_of_newsletter = Column(Boolean, nullable=True)
 
-    ## Feedback
+    ## Feedback (now unused)
     filled_feedback = Column(Boolean, nullable=False, default=False)
     ideas = Column(String, nullable=True)
     features = Column(String, nullable=True)
@@ -999,12 +999,7 @@ class SignupFlow(Base):
 
     @hybrid_property
     def is_completed(self):
-        return (
-            self.email_verified
-            & self.account_is_filled
-            & self.filled_feedback
-            & (self.accepted_community_guidelines == GUIDELINES_VERSION)
-        )
+        return self.email_verified & self.account_is_filled & (self.accepted_community_guidelines == GUIDELINES_VERSION)
 
 
 class LoginToken(Base):
