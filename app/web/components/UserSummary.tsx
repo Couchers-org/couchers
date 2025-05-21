@@ -52,12 +52,6 @@ const StyledAvatar = styled(Avatar, {
   width: isSmallAvatar ? "3rem" : "4.5rem",
 }));
 
-const TitleWrapper = styled("div")(({ theme }) => ({
-  display: "flex",
-  justifyContent: "space-between",
-  width: "100%",
-}));
-
 export const USER_TITLE_SKELETON_TEST_ID = "user-title-skeleton";
 
 export interface UserSummaryProps {
@@ -67,7 +61,6 @@ export interface UserSummaryProps {
   headlineComponent?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   user?: LiteUser.AsObject;
   titleIsLink?: boolean;
-  menu: React.ReactNode;
 }
 
 export default function UserSummary({
@@ -77,7 +70,6 @@ export default function UserSummary({
   headlineComponent = "h2",
   user,
   titleIsLink = false,
-  menu,
 }: UserSummaryProps) {
   const headlineComponentWithRef = React.forwardRef(
     function HeadlineComponentWithRef(props, ref) {
@@ -86,27 +78,24 @@ export default function UserSummary({
   );
 
   const title = (
-    <TitleWrapper>
-      <Typography
-        component={headlineComponentWithRef}
-        variant="h2"
-        noWrap={nameOnly}
-        sx={{ marginTop: "auto", fontSize: "1.2rem" }}
-      >
-        {!user ? (
-          <Skeleton
-            data-testid={USER_TITLE_SKELETON_TEST_ID}
-            sx={{ maxWidth: 300 }}
-          />
-        ) : (
-          <>
-            {nameOnly ? user.name : `${user.name}, ${user.age}`}
-            {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
-          </>
-        )}
-      </Typography>
-      {menu}
-    </TitleWrapper>
+    <Typography
+      component={headlineComponentWithRef}
+      variant="h2"
+      noWrap={nameOnly}
+      sx={{ marginTop: "auto", fontSize: "1.2rem" }}
+    >
+      {!user ? (
+        <Skeleton
+          data-testid={USER_TITLE_SKELETON_TEST_ID}
+          sx={{ maxWidth: 300 }}
+        />
+      ) : (
+        <>
+          {nameOnly ? user.name : `${user.name}, ${user.age}`}
+          {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
+        </>
+      )}
+    </Typography>
   );
 
   return (
