@@ -1,4 +1,4 @@
-import { Typography, useTheme } from "@mui/material";
+import { Typography } from "@mui/material";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
@@ -10,7 +10,6 @@ import { useNewUsers } from "./hooks";
 
 export default function ModPage() {
   const { t } = useTranslation([GLOBAL, MOD, PROFILE]);
-  const theme = useTheme();
 
   const { userIds, error, hasNextPage, isFetchingNextPage, fetchNextPage } =
     useNewUsers();

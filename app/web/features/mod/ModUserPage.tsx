@@ -63,14 +63,13 @@ function BanDeleteBanner({
   );
 }
 
-export default function UserPage({
+export default function ModUserPage({
   username,
   tab = "about",
 }: {
   username: string;
   tab?: UserTab;
 }) {
-  const { t } = useTranslation(MOD);
   const router = useRouter();
 
   const { user, userDetails, isLoading, error } = useUserWithDetails(username);

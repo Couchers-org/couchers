@@ -1,4 +1,4 @@
-import { styled, Typography, useTheme } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import Divider from "components/Divider";
 import LabelAndText from "components/LabelAndText";
 import StyledLink from "components/StyledLink";
@@ -31,9 +31,8 @@ const WrappingPre = styled("pre")(({ theme }) => ({
   wordWrap: "break-word",
 }));
 
-export default function ModPanel({ user, userDetails }: ModPanelProps) {
+export default function ModPanel({ userDetails }: ModPanelProps) {
   const { t } = useTranslation([GLOBAL, MOD]);
-  const theme = useTheme();
   return (
     <StyledWrapper>
       <Typography variant="h1">{t("mod:panel.heading")}</Typography>

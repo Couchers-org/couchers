@@ -26,7 +26,6 @@ export const useNewUsers = () => {
     },
   );
   const userIds = query.data?.pages.flatMap((page) => page.userIdsList);
-  console.log(userIds);
   return { ...query, userIds };
 };
 
