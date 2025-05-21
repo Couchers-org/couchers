@@ -35,7 +35,7 @@ def get_preference(session, user_id: int, topic_action: NotificationTopicAction)
     return [dt for dt in NotificationDeliveryType if overrides.get(dt, dt in topic_action.defaults)]
 
 
-def get_notification_topic_actions_by_delivery_type(
+def get_topic_actions_by_delivery_type(
     session, user_id: int, delivery_type: NotificationDeliveryType
 ) -> set[NotificationTopicAction]:
     """

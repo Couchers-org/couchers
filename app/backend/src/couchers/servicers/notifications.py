@@ -20,7 +20,7 @@ from couchers.notifications.push_api import decode_key
 from couchers.notifications.render import render_notification
 from couchers.notifications.settings import (
     PreferenceNotUserEditableError,
-    get_notification_topic_actions_by_delivery_type,
+    get_topic_actions_by_delivery_type,
     get_user_setting_groups,
     set_preference,
 )
@@ -92,7 +92,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
                 .where(or_(request.only_unread == False, Notification.is_seen == False))
                 .where(
                     Notification.topic_action.in_(
-                        get_notification_topic_actions_by_delivery_type(session, user.id, NotificationDeliveryType.push)
+                        get_topic_actions_by_delivery_type(session, user.id, NotificationDeliveryType.push)
                     )
                 )
                 .order_by(Notification.id.desc())

@@ -19,7 +19,7 @@ from couchers.models import (
     User,
 )
 from couchers.notifications.notify import notify
-from couchers.notifications.settings import get_notification_topic_actions_by_delivery_type
+from couchers.notifications.settings import get_topic_actions_by_delivery_type
 from couchers.sql import couchers_select as select
 from proto import admin_pb2, api_pb2, auth_pb2, conversations_pb2, notification_data_pb2, notifications_pb2
 from proto.internal import unsubscribe_pb2
@@ -574,7 +574,7 @@ def test_get_topic_actions_by_delivery_type(db):
         )
 
     with session_scope() as session:
-        deliver = get_notification_topic_actions_by_delivery_type(session, user.id, NotificationDeliveryType.push)
+        deliver = get_topic_actions_by_delivery_type(session, user.id, NotificationDeliveryType.push)
         assert NotificationTopicAction.reference__receive_friend not in deliver
         assert NotificationTopicAction.host_request__accept in deliver
         assert NotificationTopicAction.event__create_any in deliver
