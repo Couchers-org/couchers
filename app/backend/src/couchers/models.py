@@ -40,7 +40,12 @@ from couchers.constants import (
     SMS_CODE_LIFETIME,
     TOS_VERSION,
 )
-from couchers.utils import date_in_timezone, get_coordinates, last_active_coarsen, now
+from couchers.utils import (
+    date_in_timezone,
+    get_coordinates,
+    last_active_coarsen,
+    now,
+)
 from proto import notification_data_pb2
 
 meta = MetaData(
@@ -140,11 +145,11 @@ class User(Base):
     ## location
     # point describing their location. EPSG4326 is the SRS (spatial ref system, = way to describe a point on earth) used
     # by GPS, it has the WGS84 geoid with lat/lon
-    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
-    # randomized coordinates within a radius of 0.05-0.1 degrees, equates to about 5-10 km
+    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
+    # randomized coordinates within a radius of 0.02-0.1 degrees, equates to about 2-10 km
     randomized_geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     # their display location (displayed to other users), in meters
-    geom_radius = Column(Float, nullable=True)
+    geom_radius = Column(Float, nullable=False)
     # the display address (text) shown on their profile
     city = Column(String, nullable=False)
     # "Grew up in" on profile
@@ -313,6 +318,9 @@ class User(Base):
 
     admin_note = Column(String, nullable=False, server_default=text("''"))
 
+    # whether mods have marked this user has having to update their location
+    needs_to_update_location = Column(Boolean, nullable=False, server_default=text("false"))
+
     age = column_property(func.date_part("year", func.age(birthdate)))
 
     __table_args__ = (
@@ -401,7 +409,7 @@ class User(Base):
 
     @hybrid_property
     def is_missing_location(self):
-        return (self.geom == None) | (self.geom_radius == None)
+        return self.needs_to_update_location
 
     @hybrid_property
     def is_visible(self):

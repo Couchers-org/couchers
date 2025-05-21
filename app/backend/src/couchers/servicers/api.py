@@ -279,6 +279,7 @@ class API(api_pb2_grpc.APIServicer):
             if request.lat.value == 0 and request.lng.value == 0:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
             user.geom = create_coordinate(request.lat.value, request.lng.value)
+            user.randomized_geom = None
 
         if request.HasField("radius"):
             user.geom_radius = request.radius.value
