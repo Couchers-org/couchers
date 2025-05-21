@@ -1,13 +1,13 @@
 Hi {{ user.name }},
 
-A new event was created {{ nearby_or_community_text_plain }}:
+{{ start_text }} {% if community.name %}in the {{ community.name }} community{% else %}nearby{% endif %}
 
 {{ event.title }}
 {{ time_display }}
 
 {% if event.online_information.link %}<a href="{{ event.online_information.link|v2url }}">Online</a>{% endif %}{% if event.offline_information.address|v2esc %}{{ event.offline_information.address }}{% endif %}
 
-Invited by {{ inviting_user.name }}
+Organized by {{ inviting_user.name }}
 
 
 {{ event.content|v2quote }}
