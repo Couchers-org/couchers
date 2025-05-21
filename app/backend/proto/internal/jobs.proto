@@ -71,3 +71,9 @@ message GenerateReplyNotificationsPayload {
 message GenerateCreateDiscussionNotificationsPayload {
   uint64 discussion_id = 1;
 }
+
+message GenerateNewBlogPostNotificationsPayload {
+  string url = 1;
+  string title = 2;
+  string blurb = 3;
+}

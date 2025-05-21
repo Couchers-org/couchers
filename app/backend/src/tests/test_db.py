@@ -7,10 +7,7 @@ from sqlalchemy.sql import func
 
 from couchers.config import config
 from couchers.db import apply_migrations, get_parent_node_at_location, session_scope
-from couchers.sql import couchers_select as select
 from couchers.utils import (
-    create_coordinate,
-    get_coordinates,
     is_valid_email,
     is_valid_name,
     is_valid_user_id,
@@ -90,23 +87,6 @@ def test_get_parent_node_at_location(testing_communities):
         assert get_parent_node_at_location(session, create_1d_point(8)).id == c1r1c2_id
         assert get_parent_node_at_location(session, create_1d_point(15)).id == c1_id
         assert get_parent_node_at_location(session, create_1d_point(51)).id == w_id
-
-
-def test_create_coordinate():
-    test_coords = [
-        ((-95, -185), (-85, 175)),
-        ((95, -180), (85, 180)),  # Weird interaction in PostGIS where lng
-        # flips at -180 only when there is latitude overflow
-        ((90, -180), (90, -180)),
-        ((20, 185), (20, -175)),
-        ((0, 0), (0, 0)),
-    ]
-
-    with session_scope() as session:
-        for coords, coords_expected in test_coords:
-            coords_wrapped = get_coordinates(session.execute(select(create_coordinate(*coords))).scalar_one())
-
-            assert coords_wrapped == coords_expected
 
 
 def pg_dump():

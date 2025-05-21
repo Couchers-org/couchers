@@ -731,6 +731,65 @@ def test_friend_request_flow(db, push_collector):
         assert len(res.user_ids) == 1
         assert res.user_ids[0] == user2.id
 
+    with api_session(token1) as api:
+        # we can't unfriend if we aren't friends
+        with pytest.raises(grpc.RpcError) as e:
+            api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=user3.id))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.NOT_FRIENDS
+
+        # we can unfriend
+        res = api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=user2.id))
+
+        res = api.ListFriends(empty_pb2.Empty())
+        assert len(res.user_ids) == 0
+
+
+def test_RemoveFriend_regression(db, push_collector):
+    user1, token1 = generate_user(complete_profile=True)
+    user2, token2 = generate_user(complete_profile=True)
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
+    user5, token5 = generate_user()
+    user6, token6 = generate_user()
+
+    with api_session(token4) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+
+    with api_session(token5) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+
+    with api_session(token1) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user3.id))
+
+        api.RespondFriendRequest(
+            api_pb2.RespondFriendRequestReq(
+                friend_request_id=api.ListFriendRequests(empty_pb2.Empty()).received[0].friend_request_id, accept=True
+            )
+        )
+
+    with api_session(token2) as api:
+        for fr in api.ListFriendRequests(empty_pb2.Empty()).received:
+            api.RespondFriendRequest(
+                api_pb2.RespondFriendRequestReq(friend_request_id=fr.friend_request_id, accept=True)
+            )
+
+    with api_session(token1) as api:
+        res = api.ListFriends(empty_pb2.Empty())
+        assert sorted(res.user_ids) == [2, 4]
+
+        api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=user2.id))
+
+        res = api.ListFriends(empty_pb2.Empty())
+        assert sorted(res.user_ids) == [4]
+
+        api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=user4.id))
+
+        res = api.ListFriends(empty_pb2.Empty())
+        assert not res.user_ids
+
 
 def test_cant_friend_request_twice(db):
     user1, token1 = generate_user()
