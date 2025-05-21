@@ -11,6 +11,7 @@ import * as groups from "./groups";
 import * as jail from "./jail";
 import * as notifications from "./notifications";
 import * as pages from "./pages";
+import * as publicApi from "./public";
 import * as references from "./references";
 import * as reporting from "./reporting";
 import * as requests from "./requests";
@@ -34,6 +35,7 @@ export const service = {
   jail,
   notifications,
   pages,
+  publicApi,
   references,
   reporting,
   requests,

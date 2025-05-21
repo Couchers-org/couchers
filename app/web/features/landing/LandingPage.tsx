@@ -18,6 +18,7 @@ import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";
 import mobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import BasicForm from "features/auth/signup/BasicForm";
+import useSignupInfo from "features/auth/useSignupInfo";
 import { AUTH, GLOBAL, LANDING } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -25,6 +26,8 @@ import { Trans, useTranslation } from "next-i18next";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
 import { theme } from "theme";
+import { timestamp2Date } from "utils/date";
+import { timeAgoI18n } from "utils/timeAgo";
 
 import {
   blogRoute,
@@ -193,6 +196,8 @@ export default function LandingPage() {
     });
   };
 
+  const { data: signupInfo } = useSignupInfo();
+
   return (
     <>
       <HtmlMeta />
@@ -266,8 +271,25 @@ export default function LandingPage() {
               {t("landing:signup_header")}
             </Typography>
             <Typography variant="body2" paragraph gutterBottom>
-              {t("landing:signup_description", { user_count: "50k" })}
+              {t("landing:signup_description", {
+                user_count: signupInfo?.userCount || "55k",
+              })}{" "}
+              {signupInfo &&
+                signupInfo.lastSignup &&
+                signupInfo.lastLocation && (
+                  <Trans i18nKey="auth:basic_sign_up_form.last_signup">
+                    Last signup{" "}
+                    <b>
+                      {timeAgoI18n({
+                        input: timestamp2Date(signupInfo.lastSignup),
+                        t: t,
+                      })}
+                    </b>{" "}
+                    from <b>{signupInfo.lastLocation}</b>.
+                  </Trans>
+                )}
             </Typography>
+
             {!flowState || !isMounted ? (
               <BasicForm
                 submitText={t("landing:create_an_account")}
