@@ -650,12 +650,10 @@ def test_excessive_chat_initiations_are_reported(db):
         with mock_notification_email() as mock_email:
             for _ in range(CHAT_INITIATION_DAILY_WARNING_QUOTA - 1):
                 recipient_user, _ = generate_user()
-                make_friends(user, recipient_user)
                 _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
 
             assert mock_email.call_count == 0
             recipient_user, _ = generate_user()
-            make_friends(user, recipient_user)
             _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
 
             assert mock_email.call_count == 1
@@ -668,12 +666,10 @@ def test_excessive_chat_initiations_are_reported(db):
         with mock_notification_email() as mock_email:
             for _ in range(CHAT_INITIATION_DAILY_BLOCKING_QUOTA - CHAT_INITIATION_DAILY_WARNING_QUOTA - 1):
                 recipient_user, _ = generate_user()
-                make_friends(user, recipient_user)
                 _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
 
             assert mock_email.call_count == 0
             recipient_user, _ = generate_user()
-            make_friends(user, recipient_user)
             with pytest.raises(grpc.RpcError) as exc_info:
                 _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
             assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
