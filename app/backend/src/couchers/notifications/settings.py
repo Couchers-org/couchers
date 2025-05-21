@@ -35,6 +35,22 @@ def get_preference(session, user_id: int, topic_action: NotificationTopicAction)
     return [dt for dt in NotificationDeliveryType if overrides.get(dt, dt in topic_action.defaults)]
 
 
+def get_topic_actions_by_delivery_type(
+    session, user_id: int, delivery_type: NotificationDeliveryType
+) -> set[NotificationTopicAction]:
+    """
+    Given push/email/digest, returns notifications that this user has enabled for that type.
+    """
+    overrides = dict(
+        session.execute(
+            select(NotificationPreference.topic_action, NotificationPreference.deliver)
+            .where(NotificationPreference.user_id == user_id)
+            .where(NotificationPreference.delivery_type == delivery_type)
+        ).all()
+    )
+    return {t for t in NotificationTopicAction if overrides.get(t, delivery_type in t.defaults)}
+
+
 def reset_preference(session, user_id, topic_action, delivery_type):
     current_pref = session.execute(
         select(NotificationPreference)
