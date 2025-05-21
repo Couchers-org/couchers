@@ -22,6 +22,7 @@ from couchers.models import (
     MeetupStatus,
     Message,
     Notification,
+    NotificationDeliveryType,
     ParkingDetails,
     Reference,
     RegionLived,
@@ -32,6 +33,7 @@ from couchers.models import (
     UserBadge,
 )
 from couchers.notifications.notify import notify
+from couchers.notifications.settings import get_topic_actions_by_delivery_type
 from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
 from couchers.servicers.account import get_strong_verification_fields
 from couchers.sql import couchers_select as select
@@ -190,6 +192,11 @@ class API(api_pb2_grpc.APIServicer):
             select(func.count(Notification.id))
             .where(Notification.user_id == context.user_id)
             .where(Notification.is_seen == False)
+            .where(
+                Notification.topic_action.in_(
+                    get_topic_actions_by_delivery_type(session, user.id, NotificationDeliveryType.push)
+                )
+            )
         ).scalar_one()
 
         return api_pb2.PingRes(
