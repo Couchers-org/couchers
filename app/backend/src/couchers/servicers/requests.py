@@ -648,9 +648,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         session.commit()
         return empty_pb2.Empty()
 
-    def ArchiveHostRequest(self, request, context, session):
+    def SetHostRequestArchiveStatus(self, request, context, session):
         host_request = session.execute(
-            select(HostRequest)
+            select(HostRequest) 
             .where_users_column_visible(context, HostRequest.surfer_user_id)
             .where_users_column_visible(context, HostRequest.host_user_id)
             .where(HostRequest.conversation_id == request.host_request_id)
