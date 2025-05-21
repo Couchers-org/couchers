@@ -64,7 +64,9 @@ export default function LocationSection({
         {t("auth:jail.location_section.title")}
       </Typography>
       <div className={className}>
-        <Alert severity="warning">{t("auth:jail.location_section.explanation")}</Alert>
+        <Alert severity="warning">
+          {t("auth:jail.location_section.explanation")}
+        </Alert>
         {error && <Alert severity="error">{error}</Alert>}
         <Controller
           name="location"
