@@ -19,6 +19,7 @@ from couchers.models import (
     User,
 )
 from couchers.notifications.notify import notify
+from couchers.notifications.settings import get_notification_topic_actions_by_delivery_type
 from couchers.sql import couchers_select as select
 from proto import admin_pb2, api_pb2, auth_pb2, conversations_pb2, notification_data_pb2, notifications_pb2
 from proto.internal import unsubscribe_pb2
@@ -539,3 +540,43 @@ def test_SendBlogPostNotification(db, push_collector):
     )
 
     push_collector.assert_user_has_count(user3.id, 0)
+
+
+def test_get_topic_actions_by_delivery_type(db):
+    user, token = generate_user()
+
+    # these are enabled by default
+    assert NotificationDeliveryType.push in NotificationTopicAction.reference__receive_friend.defaults
+    assert NotificationDeliveryType.push in NotificationTopicAction.host_request__accept.defaults
+
+    # these are disabled by default
+    assert NotificationDeliveryType.push not in NotificationTopicAction.event__create_any.defaults
+    assert NotificationDeliveryType.push not in NotificationTopicAction.discussion__create.defaults
+
+    with notifications_session(token) as notifications:
+        notifications.SetNotificationSettings(
+            notifications_pb2.SetNotificationSettingsReq(
+                preferences=[
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=NotificationTopicAction.reference__receive_friend.topic,
+                        action=NotificationTopicAction.reference__receive_friend.action,
+                        delivery_method="push",
+                        enabled=False,
+                    ),
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=NotificationTopicAction.event__create_any.topic,
+                        action=NotificationTopicAction.event__create_any.action,
+                        delivery_method="push",
+                        enabled=True,
+                    ),
+                ],
+            )
+        )
+
+    with session_scope() as session:
+        deliver = get_notification_topic_actions_by_delivery_type(session, user.id, NotificationDeliveryType.push)
+        assert NotificationTopicAction.reference__receive_friend not in deliver
+        assert NotificationTopicAction.host_request__accept in deliver
+        assert NotificationTopicAction.event__create_any in deliver
+        assert NotificationTopicAction.discussion__create not in deliver
+        assert NotificationTopicAction.account_deletion__start in deliver
