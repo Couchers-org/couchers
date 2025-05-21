@@ -20,6 +20,7 @@ import stringOrFirstString from "utils/stringOrFirstString";
 import { useAuthContext } from "../AuthProvider";
 import AccountForm from "./AccountForm";
 import BasicForm from "./BasicForm";
+import FeedbackForm from "./FeedbackForm";
 import ResendVerificationEmailForm from "./ResendVerificationEmailForm";
 
 const StyledAgreement = styled(Typography)<TypographyProps>(({ theme }) => ({
@@ -203,6 +204,15 @@ function CurrentForm() {
           {t("auth:community_guidelines_form.header")}
         </Typography>
         <CommunityGuidelinesForm />
+      </>
+    );
+  } else if (state.needFeedback) {
+    return (
+      <>
+        <Typography variant="h1" gutterBottom>
+          {t("auth:feedback_form.header")}
+        </Typography>
+        <FeedbackForm />
       </>
     );
   } else if (state.needVerifyEmail) {
