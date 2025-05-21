@@ -189,24 +189,11 @@ export default function PrivateFeedback({
           )}
           {(wasAppropriate === "false" || rating < 0.33) && (
             <PrivateTextContainer>
-              <Typography variant="h3">
-                {t("profile:leave_reference.private_text_header")}
-              </Typography>
-              <Divider />
-              <Typography sx={{ fontWeight: 600 }}>
-                <Trans i18nKey="profile:leave_reference.private_text_explanation_1">
-                  You answered that{" "}
-                  <span style={{ color: theme.palette.error.dark }}>
-                    you felt unsafe
-                  </span>{" "}
-                  with this person's behavior.
-                </Trans>
+              <Typography sx={{ marginTop: theme.spacing(2) }}>
+                {t("profile:leave_reference.private_text_explanation_1")}
               </Typography>
               <Typography sx={{ marginTop: theme.spacing(2) }}>
-                {t("profile:leave_reference.private_text_explanation_2")}
-              </Typography>
-              <Typography sx={{ marginTop: theme.spacing(2) }}>
-                <Trans i18nKey="profile:leave_reference.private_text_explanation_3">
+                <Trans i18nKey="profile:leave_reference.private_text_explanation_2">
                   This will only be seen by our Safety Team and will stay
                   private. The more details the better, but even a short
                   explanation can help a lot. Read more{" "}
@@ -220,7 +207,7 @@ export default function PrivateFeedback({
                 </Trans>
               </Typography>
               <Typography sx={{ marginTop: theme.spacing(2) }}>
-                {t("profile:leave_reference.private_text_explanation_4")}
+                {t("profile:leave_reference.private_text_explanation_3")}
               </Typography>
               <Typography variant="h3" sx={{ marginTop: theme.spacing(4) }}>
                 {t("profile:leave_reference.what_happened")}

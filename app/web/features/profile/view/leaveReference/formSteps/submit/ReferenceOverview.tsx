@@ -83,8 +83,8 @@ export default function ReferenceOverview({
         <li>
           <StyledTextBody>
             {referenceData.wasAppropriate === "true"
-              ? t("profile:leave_reference.coucher_was_appropriate")
-              : t("profile:leave_reference.coucher_was_not_appropriate")}
+              ? t("profile:leave_reference.yes_safe")
+              : t("profile:leave_reference.no_not_safe")}
           </StyledTextBody>
         </li>
         <li>

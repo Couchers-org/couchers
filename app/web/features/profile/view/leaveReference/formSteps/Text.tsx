@@ -131,15 +131,12 @@ export default function Text({
         />
       </StyledCard>
       <Typography sx={{ marginTop: theme.spacing(3) }}>
-        <Trans i18nKey={t("profile:leave_reference.by_writing_thoughtful")}>
-          Not sure what to write? Read our guide{" "}
-          <StyledLink href={helpCenterHowToLeaveGoodReferenceUrl}>
-            here
-          </StyledLink>
-          . By writing honestly and in detail about your experience with this
-          person, you will directly help other members and contribute to safety
-          and trust in the Couchers community.
-        </Trans>
+        <Trans
+          i18nKey="profile:leave_reference.by_writing_thoughtful"
+          components={{
+            1: <StyledLink href={helpCenterHowToLeaveGoodReferenceUrl} />,
+          }}
+        />
       </Typography>
       <StyledButtonContainer>
         <Button fullWidth={!isSmOrWider} type="submit">
