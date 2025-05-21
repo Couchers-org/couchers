@@ -33,9 +33,11 @@ def upgrade():
         nullable=False,
     )
     op.alter_column("users", "geom_radius", existing_type=sa.DOUBLE_PRECISION(precision=53), nullable=False)
+    op.add_column("users", sa.Column("needs_to_update_location", sa.Boolean(), server_default="false", nullable=False))
 
 
 def downgrade():
+    op.drop_column("users", "needs_to_update_location")
     op.alter_column("users", "geom_radius", existing_type=sa.DOUBLE_PRECISION(precision=53), nullable=True)
     op.alter_column(
         "users",

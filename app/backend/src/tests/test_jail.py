@@ -179,14 +179,28 @@ def test_TOS_increase(db, monkeypatch):
 
 
 def test_SetLocation(db):
-    # NOTE: not having a coordinate no longer makes you jailed
-    # make them have not added a location
-    user1, token1 = generate_user(geom=create_coordinate(0, 0), geom_radius=0)
+    # make them need to update location
+    user1, token1 = generate_user(geom=create_coordinate(0, 0), geom_radius=0, needs_to_update_location=True)
 
-    with real_jail_session(token1) as jail:
+
+def test_MarkUserNeedsLocationUpdate(db):
+    user, token = generate_user()
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_jail_session(token) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
         assert not res.jailed
-        assert not res.has_not_added_location
+        assert not res.needs_to_update_location
+        assert len(res.pending_mod_notes) == 0
+
+    with real_admin_session(super_token) as admin:
+        with mock_notification_email() as mock:
+            admin.MarkUserNeedsLocationUpdate(admin_pb2.MarkUserNeedsLocationUpdateReq(user=user.username))
+
+    with real_jail_session(token) as jail:
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert res.jailed
+        assert res.needs_to_update_location
 
         res = jail.SetLocation(
             jail_pb2.SetLocationReq(
@@ -198,11 +212,11 @@ def test_SetLocation(db):
         )
 
         assert not res.jailed
-        assert not res.has_not_added_location
+        assert not res.needs_to_update_location
 
         res = jail.JailInfo(empty_pb2.Empty())
         assert not res.jailed
-        assert not res.has_not_added_location
+        assert not res.needs_to_update_location
 
 
 def test_AcceptCommunityGuidelines(db):

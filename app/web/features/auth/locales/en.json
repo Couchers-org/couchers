@@ -133,7 +133,8 @@
       "description": "We've updated our Terms of Service. To continue, please read and accept the new <1></1>."
     },
     "location_section": {
-      "title": "Please add your location",
+      "title": "Please update your location",
+      "explanation": "It seems your coordinates were not right. Please update your location to continue.",
       "submit_button": {
         "active_text": "Save",
         "inactive_text": "Thanks!"

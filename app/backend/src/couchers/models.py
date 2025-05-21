@@ -318,6 +318,9 @@ class User(Base):
 
     admin_note = Column(String, nullable=False, server_default=text("''"))
 
+    # whether mods have marked this user has having to update their location
+    needs_to_update_location = Column(Boolean, nullable=False, server_default=text("false"))
+
     age = column_property(func.date_part("year", func.age(birthdate)))
 
     __table_args__ = (
@@ -406,7 +409,7 @@ class User(Base):
 
     @hybrid_property
     def is_missing_location(self):
-        return False
+        return self.needs_to_update_location
 
     @hybrid_property
     def is_visible(self):

@@ -80,7 +80,8 @@ def test_ping(db):
 
 
 def test_coords(db):
-    user1, token1 = generate_user(geom=create_coordinate(0, 0), geom_radius=2000)
+    # make them need to update location
+    user1, token1 = generate_user(geom=create_coordinate(1, 0), geom_radius=2000, needs_to_update_location=True)
     user2, token2 = generate_user()
 
     with api_session(token2) as api:
@@ -94,7 +95,7 @@ def test_coords(db):
     with api_session(token2) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert res.city == user1.city
-        assert res.lat == 0.0
+        assert res.lat == 1.0
         assert res.lng == 0.0
         assert res.radius == 2000.0
 
@@ -120,10 +121,9 @@ def test_coords(db):
         assert res.lng == 20.0
 
     with real_jail_session(token1) as jail:
-        # note not having location no longer jails you as it's not nullable
         res = jail.JailInfo(empty_pb2.Empty())
-        assert not res.jailed
-        assert not res.has_not_added_location
+        assert res.jailed
+        assert res.needs_to_update_location
 
         res = jail.SetLocation(
             jail_pb2.SetLocationReq(
@@ -135,11 +135,11 @@ def test_coords(db):
         )
 
         assert not res.jailed
-        assert not res.has_not_added_location
+        assert not res.needs_to_update_location
 
         res = jail.JailInfo(empty_pb2.Empty())
         assert not res.jailed
-        assert not res.has_not_added_location
+        assert not res.needs_to_update_location
 
     with api_session(token2) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
@@ -167,8 +167,8 @@ def test_get_user(db):
 
 
 def test_lite_coords(db):
-    # make them have not added a location
-    user1, token1 = generate_user(geom=create_coordinate(0, 0), geom_radius=0)
+    # make them need to update location
+    user1, token1 = generate_user(geom=create_coordinate(0, 0), geom_radius=0, needs_to_update_location=True)
     user2, token2 = generate_user()
 
     refresh_materialized_views_rapid(None)
@@ -213,8 +213,8 @@ def test_lite_coords(db):
 
     with real_jail_session(token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
-        assert not res.jailed
-        assert not res.has_not_added_location
+        assert res.jailed
+        assert res.needs_to_update_location
 
         res = jail.SetLocation(
             jail_pb2.SetLocationReq(
@@ -226,11 +226,11 @@ def test_lite_coords(db):
         )
 
         assert not res.jailed
-        assert not res.has_not_added_location
+        assert not res.needs_to_update_location
 
         res = jail.JailInfo(empty_pb2.Empty())
         assert not res.jailed
-        assert not res.has_not_added_location
+        assert not res.needs_to_update_location
 
     refresh_materialized_views_rapid(None)
 
