@@ -40,6 +40,9 @@ const signupFlowCommunityGuidelinesMock = service.auth
   .signupFlowCommunityGuidelines as MockedService<
   typeof service.auth.signupFlowCommunityGuidelines
 >;
+const signupFlowFeedbackMock = service.auth.signupFlowFeedback as MockedService<
+  typeof service.auth.signupFlowFeedback
+>;
 const signupFlowEmailTokenMock = service.auth
   .signupFlowEmailToken as MockedService<
   typeof service.auth.signupFlowEmailToken
@@ -102,7 +105,7 @@ describe("Signup", () => {
           needBasic: true,
           needAccount: true,
           needAcceptCommunityGuidelines: true,
-          needFeedback: false,
+          needFeedback: true,
           needVerifyEmail: false,
         }),
       );
@@ -111,7 +114,7 @@ describe("Signup", () => {
         needBasic: false,
         needAccount: true,
         needAcceptCommunityGuidelines: true,
-        needFeedback: false,
+        needFeedback: true,
         needVerifyEmail: false,
       });
 
@@ -142,7 +145,7 @@ describe("Signup", () => {
           needBasic: false,
           needAccount: true,
           needAcceptCommunityGuidelines: true,
-          needFeedback: false,
+          needFeedback: true,
           needVerifyEmail: false,
         }),
       );
@@ -151,7 +154,7 @@ describe("Signup", () => {
         needBasic: false,
         needAccount: false,
         needAcceptCommunityGuidelines: true,
-        needFeedback: false,
+        needFeedback: true,
         needVerifyEmail: false,
       });
       validateUsernameMock.mockResolvedValue(true);
@@ -204,7 +207,7 @@ describe("Signup", () => {
       expect(await screen.findByText("Guideline 1")).toBeVisible();
     });
 
-    it.only("guidelines -> success", async () => {
+    it.only("guidelines -> contributor form works", async () => {
       window.localStorage.setItem(
         "auth.flowState",
         JSON.stringify({
@@ -212,17 +215,16 @@ describe("Signup", () => {
           needBasic: false,
           needAccount: false,
           needAcceptCommunityGuidelines: true,
-          needFeedback: false,
+          needFeedback: true,
           needVerifyEmail: false,
         }),
       );
       signupFlowCommunityGuidelinesMock.mockResolvedValue({
         flowToken: "token",
-        authRes: { userId: 1, jailed: false },
         needBasic: false,
         needAccount: false,
         needAcceptCommunityGuidelines: false,
-        needFeedback: false,
+        needFeedback: true,
         needVerifyEmail: false,
       });
       render(<View />, { wrapper });
@@ -234,24 +236,57 @@ describe("Signup", () => {
       );
       checkboxes.forEach(async (checkbox) => await user.click(checkbox));
       const button = await screen.findByRole("button", {
-        name: t("global:submit"),
+        name: t("global:continue"),
       });
 
       await waitFor(() => expect(button).not.toBeDisabled());
 
       await user.click(button);
 
-      await waitFor(() => expect(mockRouter.pathname).toBe(dashboardRoute));
-
-      expect(TagManager.dataLayer).toHaveBeenCalledTimes(1);
-      expect(TagManager.dataLayer).toHaveBeenCalledWith({
-        dataLayer: {
-          event: "sign_up",
-          signupMethod: "email",
-          userId: expect.any(Number),
-          "gtm.elementUrl": expect.any(String),
-        },
+      await waitFor(() => {
+        expect(screen.getByText(QUESTIONS_OPTIONAL)).toBeVisible();
       });
+    });
+  });
+
+  it("contributor form -> success", async () => {
+    jest.spyOn(console, "warn").mockImplementation(undefined);
+    window.localStorage.setItem(
+      "auth.flowState",
+      JSON.stringify({
+        flowToken: "token",
+        needBasic: false,
+        needAccount: false,
+        needAcceptCommunityGuidelines: false,
+        needFeedback: true,
+        needVerifyEmail: false,
+      }),
+    );
+    signupFlowFeedbackMock.mockResolvedValue({
+      flowToken: "token",
+      authRes: { userId: 1, jailed: false },
+      needBasic: false,
+      needAccount: false,
+      needAcceptCommunityGuidelines: false,
+      needFeedback: false,
+      needVerifyEmail: false,
+    });
+
+    render(<View />, { wrapper });
+
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
+    await waitFor(() => expect(mockRouter.pathname).toBe(dashboardRoute));
+
+    expect(TagManager.dataLayer).toHaveBeenCalledTimes(1);
+    expect(TagManager.dataLayer).toHaveBeenCalledWith({
+      dataLayer: {
+        event: "sign_up",
+        signupMethod: "email",
+        userId: expect.any(String),
+        "gtm.elementUrl": expect.any(String),
+      },
     });
   });
 
@@ -260,7 +295,7 @@ describe("Signup", () => {
       needBasic: true,
       needAccount: true,
       needAcceptCommunityGuidelines: true,
-      needFeedback: false,
+      needFeedback: true,
       needVerifyEmail: true,
       flowToken: "token",
     };
@@ -275,7 +310,7 @@ describe("Signup", () => {
     const state: SignupFlowRes.AsObject = {
       needBasic: false,
       needAccount: true,
-      needFeedback: false,
+      needFeedback: true,
       needAcceptCommunityGuidelines: true,
       needVerifyEmail: true,
       flowToken: "token",
@@ -324,7 +359,7 @@ describe("Signup", () => {
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: true,
-      needFeedback: false,
+      needFeedback: true,
       needVerifyEmail: true,
       flowToken: "token",
     };
@@ -338,7 +373,7 @@ describe("Signup", () => {
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: true,
-      needFeedback: false,
+      needFeedback: true,
       needVerifyEmail: false,
       flowToken: "token",
     };
@@ -352,7 +387,7 @@ describe("Signup", () => {
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,
-      needFeedback: false,
+      needFeedback: true,
       needVerifyEmail: true,
       flowToken: "token",
     };
@@ -366,7 +401,7 @@ describe("Signup", () => {
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,
-      needFeedback: false,
+      needFeedback: true,
       needVerifyEmail: false,
       flowToken: "token",
     };
@@ -436,7 +471,7 @@ describe("Signup", () => {
         needBasic: false,
         needAccount: false,
         needAcceptCommunityGuidelines: false,
-        needFeedback: false,
+        needFeedback: true,
         needVerifyEmail: false,
       }),
     );
@@ -456,7 +491,7 @@ describe("Signup", () => {
       needBasic: false,
       needAccount: true,
       needAcceptCommunityGuidelines: true,
-      needFeedback: false,
+      needFeedback: true,
       needVerifyEmail: false,
       flowToken: "token",
     });
@@ -464,7 +499,7 @@ describe("Signup", () => {
       needBasic: false,
       needAccount: true,
       needAcceptCommunityGuidelines: true,
-      needFeedback: false,
+      needFeedback: true,
       needVerifyEmail: true,
       flowToken: "token",
     };
@@ -491,7 +526,7 @@ describe("Signup", () => {
       needBasic: false,
       needAccount: true,
       needAcceptCommunityGuidelines: true,
-      needFeedback: false,
+      needFeedback: true,
       needVerifyEmail: true,
       flowToken: "token",
     };

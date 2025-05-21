@@ -17,7 +17,7 @@ import i18n from "test/i18n";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
 import { addDefaultUser, MockedService } from "test/utils";
 
-import { sectionLabels } from "../constants";
+import { sectionLabels } from "./UserCard";
 import UserPage from "./UserPage";
 
 const { t } = i18n;
