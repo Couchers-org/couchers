@@ -80,8 +80,7 @@ def test_ping(db):
 
 
 def test_coords(db):
-    # make them have not added a location
-    user1, token1 = generate_user(geom=None, geom_radius=None)
+    user1, token1 = generate_user(geom=create_coordinate(0, 0), geom_radius=2000)
     user2, token2 = generate_user()
 
     with api_session(token2) as api:
@@ -97,7 +96,7 @@ def test_coords(db):
         assert res.city == user1.city
         assert res.lat == 0.0
         assert res.lng == 0.0
-        assert res.radius == 0.0
+        assert res.radius == 2000.0
 
     # Check coordinate wrapping
     user3, token3 = generate_user(geom=create_coordinate(40.0, -180.5))
@@ -121,9 +120,10 @@ def test_coords(db):
         assert res.lng == 20.0
 
     with real_jail_session(token1) as jail:
+        # note not having location no longer jails you as it's not nullable
         res = jail.JailInfo(empty_pb2.Empty())
-        assert res.jailed
-        assert res.has_not_added_location
+        assert not res.jailed
+        assert not res.has_not_added_location
 
         res = jail.SetLocation(
             jail_pb2.SetLocationReq(
@@ -168,7 +168,7 @@ def test_get_user(db):
 
 def test_lite_coords(db):
     # make them have not added a location
-    user1, token1 = generate_user(geom=None, geom_radius=None)
+    user1, token1 = generate_user(geom=create_coordinate(0, 0), geom_radius=0)
     user2, token2 = generate_user()
 
     refresh_materialized_views_rapid(None)
@@ -213,8 +213,8 @@ def test_lite_coords(db):
 
     with real_jail_session(token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
-        assert res.jailed
-        assert res.has_not_added_location
+        assert not res.jailed
+        assert not res.has_not_added_location
 
         res = jail.SetLocation(
             jail_pb2.SetLocationReq(

@@ -5,7 +5,7 @@ from google.protobuf import empty_pb2
 from couchers import errors, models
 from couchers.constants import TOS_VERSION
 from couchers.servicers import jail as servicers_jail
-from couchers.utils import to_aware_datetime
+from couchers.utils import create_coordinate, to_aware_datetime
 from proto import admin_pb2, api_pb2, jail_pb2
 from tests.test_fixtures import (  # noqa  # noqa
     db,
@@ -179,13 +179,14 @@ def test_TOS_increase(db, monkeypatch):
 
 
 def test_SetLocation(db):
+    # NOTE: not having a coordinate no longer makes you jailed
     # make them have not added a location
-    user1, token1 = generate_user(geom=None, geom_radius=None)
+    user1, token1 = generate_user(geom=create_coordinate(0, 0), geom_radius=0)
 
     with real_jail_session(token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
-        assert res.jailed
-        assert res.has_not_added_location
+        assert not res.jailed
+        assert not res.has_not_added_location
 
         res = jail.SetLocation(
             jail_pb2.SetLocationReq(
