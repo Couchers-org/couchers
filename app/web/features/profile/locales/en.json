@@ -144,7 +144,7 @@
       "confirm_surfed": "Confirm I didn't surf"
     },
     "did_stay_explanation": "Select 'No' if you didn't actually meet. You will not be able to write a public reference, but can optionally share <strong>private</strong> feedback with us about what happened. The other person won’t be informed, but can still leave a reference if they say you met.",
-    "host_request_reference_explanation": "Host request references are only made visible once both references have been written, or after 2 weeks. Hold tight!",
+    "host_request_reference_explanation": "Host request references are only made visible once both references have been written, or after 2 weeks.",
     "invalid_reference_type": "Invalid reference type",
     "invalid_step": "Invalid form step",
     "previous_step": "Previous step",
