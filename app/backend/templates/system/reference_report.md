@@ -26,7 +26,7 @@ Name: {{ reference.from_user.name }}
 Email: {{ reference.from_user.email }}
 Username: {{ reference.from_user.username }}
 User ID: {{ reference.from_user.id }}
-Private Text: {{ reference.from_user.private_text }}
+Private Text: {{ reference.private_text }}
 
 
 * User who the reference is about

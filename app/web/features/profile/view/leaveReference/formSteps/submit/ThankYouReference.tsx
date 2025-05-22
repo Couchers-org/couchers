@@ -17,7 +17,7 @@ const ThankYouReference = () => {
         {t("profile:leave_reference.thank_you_header")}
       </Typography>
       <Typography sx={{ marginTop: theme.spacing(3) }}>
-        {t("profile:leave_reference.thank_you_did_good_experience")}
+        {t("profile:leave_reference.thank_you_references_available")}
       </Typography>
       <Typography sx={{ marginTop: theme.spacing(3) }}>
         <Trans i18nKey="profile:leave_reference.thank_you_donation_prompt">
