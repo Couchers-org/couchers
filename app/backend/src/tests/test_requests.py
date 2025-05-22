@@ -711,14 +711,15 @@ def test_get_updates(db):
         # other user can't access
         res = api.GetHostRequestUpdates(requests_pb2.GetHostRequestUpdatesReq(newest_message_id=message_id_1))
         assert len(res.updates) == 0
-        
+
+
 def test_archive_host_request(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    
+
     today_plus_2 = (today() + timedelta(days=2)).isoformat()
     today_plus_3 = (today() + timedelta(days=3)).isoformat()
-    
+
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -738,15 +739,15 @@ def test_archive_host_request(db):
         assert len(res.host_requests) == 1
         assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_PENDING
         with pytest.raises(grpc.RpcError) as e:
-            api.ArchiveHostRequest(
-                requests_pb2.ArchiveHostRequestReq(host_request_id=host_request_id)
+            api.SetHostRequestArchiveStatus(
+                requests_pb2.SetHostRequestArchiveStatusReq(host_request_id=host_request_id)
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == errors.HOST_REQUEST_PENDING_ARCHIVE_ATTEMPT
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
         assert len(res.host_requests) == 1
-        
-    #happy path archiving host request
+
+    # happy path archiving host request
     with requests_session(token1) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
@@ -758,12 +759,10 @@ def test_archive_host_request(db):
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
         assert len(res.host_requests) == 1
         assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
-        api.ArchiveHostRequest(
-            requests_pb2.ArchiveHostRequestReq(host_request_id=host_request_id)
-        )
+        api.ArchiveHostRequest(requests_pb2.ArchiveHostRequestReq(host_request_id=host_request_id))
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
         assert len(res.host_requests) == 0
-        
+
 
 def test_mark_last_seen(db):
     user1, token1 = generate_user()
