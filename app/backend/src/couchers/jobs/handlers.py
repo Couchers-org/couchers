@@ -990,9 +990,7 @@ def update_randomized_locations(payload):
     user_updates = []
 
     with session_scope() as session:
-        users_to_update = session.execute(
-            select(User.id, User.geom).where(User.geom != None).where(User.randomized_geom == None)
-        ).all()
+        users_to_update = session.execute(select(User.id, User.geom).where(User.randomized_geom == None)).all()
 
         for user_id, geom in users_to_update:
             lat, lng = get_coordinates(geom)
