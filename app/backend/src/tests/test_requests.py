@@ -740,7 +740,7 @@ def test_archive_host_request(db):
         assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_PENDING
         with pytest.raises(grpc.RpcError) as e:
             api.SetHostRequestArchiveStatus(
-                requests_pb2.SetHostRequestArchiveStatusReq(host_request_id=host_request_id)
+                requests_pb2.SetHostRequestArchiveStatusReq(host_request_id=host_request_id, is_archived=True)
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == errors.HOST_REQUEST_PENDING_ARCHIVE_ATTEMPT
@@ -759,7 +759,9 @@ def test_archive_host_request(db):
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
         assert len(res.host_requests) == 1
         assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
-        api.ArchiveHostRequest(requests_pb2.ArchiveHostRequestReq(host_request_id=host_request_id))
+        api.SetHostRequestArchiveStatus(
+            requests_pb2.SetHostRequestArchiveStatusReq(host_request_id=host_request_id, is_archived=True)
+        )
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
         assert len(res.host_requests) == 0
 

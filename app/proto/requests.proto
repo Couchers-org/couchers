@@ -23,7 +23,7 @@ service Requests {
 
   // Archive a host request. This will remove it from the list of requests
 
-  rpc SetHostRequestArchiveStatus(SetHostRequestArchiveStatus) returns (SetHostRequestArchiveStatusRes);
+  rpc SetHostRequestArchiveStatus(SetHostRequestArchiveStatusReq) returns (SetHostRequestArchiveStatusRes);
 
 
   rpc ListHostRequests(ListHostRequestsReq) returns (ListHostRequestsRes);
@@ -84,7 +84,7 @@ message RespondHostRequestReq {
   string text = 3;
 }
 
-message SetHostRequestArchiveStatus {
+message SetHostRequestArchiveStatusReq {
   int64 host_request_id = 1;
   bool is_archived = 2;
 }

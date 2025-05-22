@@ -668,7 +668,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         else:
             host_request.is_host_archived = request.is_archived
 
-        return empty_pb2.Empty()
+        return requests_pb2.SetHostRequestArchiveStatusRes(
+            host_request_id=host_request.conversation_id,
+            is_archived=request.is_archived,
+        )
 
     def GetResponseRate(self, request, context, session):
         res = get_response_rate(request.user_id, session, context)
