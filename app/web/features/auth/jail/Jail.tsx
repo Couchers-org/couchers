@@ -81,7 +81,7 @@ export default function Jail() {
           <CommunityGuidelinesSection updateJailed={updateJailed} />
         </StyledContainer>
       )}
-      {jailInfo?.hasNotAddedLocation && (
+      {jailInfo?.needsToUpdateLocation && (
         <StyledContainer>
           <LocationSection updateJailed={updateJailed} />
         </StyledContainer>
