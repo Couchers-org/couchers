@@ -26,8 +26,8 @@ export default function Timezone({ className, timezone }: TimezoneProps) {
           }}
         >
           {`Your timezone is `}
-          <strong>{timezone}</strong>
-          {`. Based on this, your local time is approximately `}
+          <strong>{timezone}</strong>. Based on this, your local time is
+          approximately{` `}
           <strong>{dayjs().tz(timezone).format("LT")}</strong>
           {`.`}
         </Trans>

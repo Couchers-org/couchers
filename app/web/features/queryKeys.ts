@@ -4,12 +4,14 @@ import { ReferenceType } from "proto/references_pb";
 export const languagesKey = "languages";
 export const regionsKey = "regions";
 export const badgesKey = "badges";
+export const friendIdsKey = "friendIds";
 export const contributorFormInfoQueryKey = "contributorFormInfo";
 export const accountInfoQueryKey = "accountInfo";
 export const doNotEmailQueryKey = "doNotEmail";
 export const tosQueryKey = "tos";
 export const communityGuidelinesQueryKey = "communityGuidelines";
 export const notificationSettingsQueryKey = "notificationSettings";
+export const listNotificationsQueryKey = "listNotifications";
 
 export function userKey(userId?: number) {
   return userId === undefined ? "user" : ["user", userId];
@@ -20,10 +22,6 @@ export function liteUserKey(userId?: number) {
 }
 
 export const liteUsersKey = (ids: number[]) => ["liteUsers", ...ids];
-
-export function responseRateKey(userId: number) {
-  return ["responseRate", userId];
-}
 
 export const referencesGivenKey = (userId: number) => [
   "referencesGiven",

@@ -1,5 +1,5 @@
 import { styled } from "@mui/material";
-import Map from "components/Map";
+import Map from "components/OldMap";
 import { LngLat } from "maplibre-gl";
 import { Page } from "proto/pages_pb";
 import React from "react";

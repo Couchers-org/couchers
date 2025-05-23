@@ -1,19 +1,16 @@
-import { styled } from "@mui/material";
+import { Edit } from "@mui/icons-material";
+import { styled, Tooltip } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import MuiIconButton from "@mui/material/IconButton";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import {
-  CANCEL_UPLOAD,
-  CONFIRM_UPLOAD,
   COULDNT_READ_FILE,
   getAvatarLabel,
-  NO_VALID_FILE,
   SELECT_AN_IMAGE,
-  UPLOAD_PENDING_ERROR,
 } from "components/constants";
-import IconButton from "components/IconButton";
-import { CheckIcon, CrossIcon } from "components/Icons";
+import { useTranslation } from "i18n";
+import { PROFILE } from "i18n/namespaces";
 import Sentry from "platform/sentry";
 import React, { useRef, useState } from "react";
 import { Control, useController } from "react-hook-form";
@@ -31,6 +28,7 @@ interface ImageInputProps {
   initialPreviewSrc?: string;
   name: string;
   onSuccess?(data: ImageInputValues): Promise<void>;
+  onUploading?: (isUploading: boolean) => void; //new prop
 }
 
 interface AvatarInputProps extends ImageInputProps {
@@ -57,15 +55,6 @@ const FlexWrapper = styled("div")(({ theme }) => ({
   width: "100%",
 }));
 
-const ConfirmationButtonContainer = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-  "& > * + *": {
-    marginTop: theme.spacing(1),
-  },
-}));
-
 const StyledImage = styled("img", {
   shouldForwardProp: (prop) => prop !== "grow",
 })<{ grow: boolean | undefined }>(({ theme, grow }) => ({
@@ -80,6 +69,17 @@ const StyledImage = styled("img", {
     backgroundColor: theme.palette.action.hover,
   },
   ...(grow && { maxWidth: "100%", height: "auto" }),
+}));
+
+const EditIconButton = styled(MuiIconButton)(({ theme }) => ({
+  position: "absolute",
+  bottom: theme.spacing(1),
+  right: theme.spacing(1),
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: theme.shadows[1],
+  "&:hover": {
+    backgroundColor: theme.palette.grey[200],
+  },
 }));
 
 const StyledLabel = styled("label")(({ theme }) => ({
@@ -99,37 +99,38 @@ const StyledInput = styled("input")(({ theme }) => ({
 
 export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
   const { className, control, id, initialPreviewSrc, name } = props;
-  //this ref handles the case where the user uploads an image, selects another image,
-  //but then cancels - it should go to the previous image rather than the original
-  const confirmedUpload = useRef<ImageInputValues>();
+
+  const { t } = useTranslation([PROFILE]);
+
   const [imageUrl, setImageUrl] = useState(initialPreviewSrc);
-  const [file, setFile] = useState<File | null>(null);
   const [readerError, setReaderError] = useState("");
 
-  const mutation = useMutation<ImageInputValues, Error>(
-    () =>
-      file
-        ? service.api.uploadFile(file)
-        : Promise.reject(new Error(NO_VALID_FILE)),
+  const mutation = useMutation<ImageInputValues, Error, File>(
+    (file) => service.api.uploadFile(file),
     {
+      onMutate: () => {
+        props.onUploading?.(true); //notify form upload has started
+      },
       onSuccess: async (data: ImageInputValues) => {
         field.onChange(data.key);
         setImageUrl(
           props.type === "avatar" ? data.thumbnail_url : data.full_url,
         );
-        confirmedUpload.current = data;
-        setFile(null);
         await props.onSuccess?.(data);
+        props.onUploading?.(false); //notify form upload has finished
+      },
+      onError: () => {
+        props.onUploading?.(false); //notify form upload has failed
       },
     },
   );
-  const isConfirming = !mutation.isLoading && file !== null;
+
   const { field } = useController({
     name,
     control,
     defaultValue: "",
     rules: {
-      validate: () => !isConfirming || UPLOAD_PENDING_ERROR,
+      validate: () => !mutation.isLoading,
     },
   });
 
@@ -145,7 +146,7 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
         reader.readAsDataURL(file);
       });
       setImageUrl(base64);
-      setFile(file);
+      mutation.mutate(file);
     } catch (e) {
       Sentry.captureException(
         new Error((e as ProgressEvent<FileReader>).toString()),
@@ -163,16 +164,6 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const handleClick = () => {
     if (inputRef.current) inputRef.current.value = "";
-  };
-
-  const handleCancel = () => {
-    field.onChange(confirmedUpload.current?.key ?? "");
-    const imageUrl =
-      props.type === "avatar"
-        ? confirmedUpload.current?.thumbnail_url
-        : confirmedUpload.current?.full_url;
-    setImageUrl(imageUrl ?? initialPreviewSrc);
-    setFile(null);
   };
 
   return (
@@ -193,16 +184,28 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
         />
         <StyledLabel htmlFor={id} ref={field.ref}>
           {props.type === "avatar" ? (
-            <MuiIconButton component="span">
-              <Avatar
-                className={className}
-                src={imageUrl}
-                alt={getAvatarLabel(props.userName ?? "")}
-                sx={{ "& img": { objectFit: "cover" } }}
-              >
-                {props.userName?.split(/\s+/).map((name) => name[0])}
-              </Avatar>
-            </MuiIconButton>
+            <Tooltip title={t("profile:click_replace_image")} placement="top">
+              <MuiIconButton component="span" sx={{ position: "relative" }}>
+                <Avatar
+                  className={className}
+                  src={imageUrl}
+                  alt={getAvatarLabel(props.userName ?? "")}
+                  sx={{ "& img": { objectFit: "cover" } }}
+                >
+                  {props.userName?.split(/\s+/).map((name) => name[0])}
+                </Avatar>
+
+                <EditIconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.preventDefault(); // prevent triggering label click again
+                    inputRef.current?.click();
+                  }}
+                >
+                  <Edit fontSize="small" />
+                </EditIconButton>
+              </MuiIconButton>
+            </Tooltip>
           ) : (
             <StyledImage
               className={className}
@@ -216,24 +219,6 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
           )}
           {mutation.isLoading && <StyledCircularProgress />}
         </StyledLabel>
-        {isConfirming && (
-          <ConfirmationButtonContainer>
-            <IconButton
-              aria-label={CANCEL_UPLOAD}
-              onClick={handleCancel}
-              size="small"
-            >
-              <CrossIcon />
-            </IconButton>
-            <IconButton
-              aria-label={CONFIRM_UPLOAD}
-              onClick={() => mutation.mutate()}
-              size="small"
-            >
-              <CheckIcon />
-            </IconButton>
-          </ConfirmationButtonContainer>
-        )}
       </FlexWrapper>
     </StyledWrapper>
   );

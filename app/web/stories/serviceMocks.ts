@@ -2,7 +2,7 @@ import { service as originalService } from "service/index";
 import comments from "test/fixtures/comments.json";
 import groupChat from "test/fixtures/groupChat.json";
 import messages from "test/fixtures/messages.json";
-import notifications from "test/fixtures/notifications.json";
+import notificationSettings from "test/fixtures/notificationSettings.json";
 import users from "test/fixtures/users.json";
 
 const [user1, user2, user3, user4] = users;
@@ -41,7 +41,7 @@ export const mockedService = {
       }),
   },
   notifications: {
-    getNotificationSettings: () => Promise.resolve(notifications),
+    getNotificationSettings: () => Promise.resolve(notificationSettings),
   },
   resources: {
     getCommunityGuidelines: () =>

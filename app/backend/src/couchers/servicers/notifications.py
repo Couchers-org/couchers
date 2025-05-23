@@ -3,6 +3,7 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy.sql import or_
 
 from couchers import errors
 from couchers.config import config
@@ -17,7 +18,12 @@ from couchers.models import (
 from couchers.notifications.push import get_vapid_public_key, push_to_subscription, push_to_user
 from couchers.notifications.push_api import decode_key
 from couchers.notifications.render import render_notification
-from couchers.notifications.settings import PreferenceNotUserEditableError, get_user_setting_groups, set_preference
+from couchers.notifications.settings import (
+    PreferenceNotUserEditableError,
+    get_topic_actions_by_delivery_type,
+    get_user_setting_groups,
+    set_preference,
+)
 from couchers.notifications.utils import enum_from_topic_action
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime
@@ -39,6 +45,7 @@ def notification_to_pb(user, notification: Notification):
         body=rendered.push_body,
         icon=rendered.push_icon,
         url=rendered.push_url,
+        is_seen=notification.is_seen,
     )
 
 
@@ -82,6 +89,12 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
                 select(Notification)
                 .where(Notification.user_id == context.user_id)
                 .where(Notification.id <= next_notification_id)
+                .where(or_(request.only_unread == False, Notification.is_seen == False))
+                .where(
+                    Notification.topic_action.in_(
+                        get_topic_actions_by_delivery_type(session, user.id, NotificationDeliveryType.push)
+                    )
+                )
                 .order_by(Notification.id.desc())
                 .limit(page_size + 1)
             )
@@ -92,6 +105,30 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             notifications=[notification_to_pb(user, notification) for notification in notifications[:page_size]],
             next_page_token=str(notifications[-1].id) if len(notifications) > page_size else None,
         )
+
+    def MarkNotificationSeen(self, request, context, session):
+        notification = (
+            session.execute(
+                select(Notification)
+                .where(Notification.user_id == context.user_id)
+                .where(Notification.id == request.notification_id)
+            )
+            .scalars()
+            .one_or_none()
+        )
+        if not notification:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.NOTIFICATION_NOT_FOUND)
+        notification.is_seen = request.set_seen
+        return empty_pb2.Empty()
+
+    def MarkAllNotificationsSeen(self, request, context, session):
+        session.execute(
+            Notification.__table__.update()
+            .values(is_seen=True)
+            .where(Notification.user_id == context.user_id)
+            .where(Notification.id <= request.latest_notification_id)
+        )
+        return empty_pb2.Empty()
 
     def GetVapidPublicKey(self, request, context, session):
         if not config["PUSH_NOTIFICATIONS_ENABLED"]:

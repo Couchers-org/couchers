@@ -1,5 +1,5 @@
 build
-grpcio==1.38.0
+grpcio
 protobuf
 ruff
 twine

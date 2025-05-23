@@ -39,6 +39,8 @@ service API {
 
   rpc ListFriends(google.protobuf.Empty) returns (ListFriendsRes);
 
+  rpc RemoveFriend(RemoveFriendReq) returns (google.protobuf.Empty);
+
   rpc ListMutualFriends(ListMutualFriendsReq) returns (ListMutualFriendsRes) {
     // List mutual friends between requester and requested user
     // When called on self, returns empty list
@@ -97,6 +99,10 @@ message ListFriendsRes {
   repeated int64 user_ids = 1;
 }
 
+message RemoveFriendReq {
+  int64 user_id = 1;
+}
+
 message ListMutualFriendsReq {
   int64 user_id = 1;
 }
@@ -113,6 +119,8 @@ message PingRes {
   uint32 unseen_sent_host_request_count = 5;
   uint32 unseen_received_host_request_count = 6;
   uint32 pending_friend_request_count = 4;
+
+  uint32 unseen_notification_count = 7;
 }
 
 message MutualFriend {

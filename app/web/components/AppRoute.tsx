@@ -15,7 +15,7 @@ import Navigation from "./Navigation";
 interface AppRouteProps {
   isPrivate: boolean;
   noFooter?: boolean;
-  variant?: "standard" | "full-screen" | "full-width";
+  variant?: "standard" | "full-screen" | "full-width" | "no-overflow";
   children: ReactNode;
 }
 
@@ -23,12 +23,11 @@ const globalStyles = (
   <GlobalStyles
     styles={{
       "html, body": {
-        height: "100vh",
         margin: 0,
         overflow: "hidden", // Prevents whole-page scrolling
       },
       "#__next": {
-        height: "100vh",
+        height: "calc(var(--vh, 1vh) * 100)", // Use the dynamic --vh value from _app
         display: "flex",
         flexDirection: "column",
       },
@@ -52,6 +51,9 @@ const ContentWrapper = styled(Container, {
   display: "flex",
   flexDirection: "column",
   flex: 1,
+  ...(variant === "no-overflow" && {
+    overflow: "hidden",
+  }),
   ...(variant === "standard" && {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
@@ -86,7 +88,12 @@ export default function AppRoute({
       authActions.authError("Please log in.");
       router.push({ pathname: loginRoute, query: { from: location.pathname } });
     }
-    if (isAuthenticated && isJailed && router.pathname !== jailRoute) {
+    if (
+      isAuthenticated &&
+      isJailed &&
+      isPrivate &&
+      router.pathname !== jailRoute
+    ) {
       router.push(jailRoute);
     }
   }, [isAuthenticated, isJailed, isPrivate, authActions, router]);
@@ -108,7 +115,9 @@ export default function AppRoute({
               isNativeEmbed={isNativeEmbed}
               variant={variant}
               maxWidth={
-                variant === "full-screen" || variant === "full-width"
+                variant === "full-screen" ||
+                variant === "full-width" ||
+                variant === "no-overflow"
                   ? false
                   : "lg"
               }

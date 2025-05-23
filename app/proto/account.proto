@@ -89,6 +89,10 @@ service Account {
   rpc LogOutOtherSessions(LogOutOtherSessionsReq) returns (google.protobuf.Empty) {
     // Logs the user out of all other sessions except this one
   }
+
+  rpc SetProfilePublicVisibility(SetProfilePublicVisibilityReq) returns (google.protobuf.Empty) {
+    // Set what info is shown to logged-out users
+  }
 }
 
 message GetAccountInfoRes {
@@ -123,6 +127,8 @@ message GetAccountInfoRes {
   bool is_superuser = 15;
 
   string ui_language_preference = 16;
+
+  ProfilePublicVisibility profile_public_visibility = 17;
 }
 
 message ChangePasswordV2Req {
@@ -230,4 +236,17 @@ message LogOutSessionReq {
 
 message LogOutOtherSessionsReq {
   bool confirm = 1;
+}
+
+enum ProfilePublicVisibility {
+  PROFILE_PUBLIC_VISIBILITY_UNKNOWN = 0;
+  PROFILE_PUBLIC_VISIBILITY_NOTHING = 1;
+  PROFILE_PUBLIC_VISIBILITY_MAP_ONLY = 2;
+  PROFILE_PUBLIC_VISIBILITY_LIMITED = 3;
+  PROFILE_PUBLIC_VISIBILITY_MOST = 4;
+  PROFILE_PUBLIC_VISIBILITY_FULL = 5;
+}
+
+message SetProfilePublicVisibilityReq {
+  ProfilePublicVisibility profile_public_visibility = 1;
 }

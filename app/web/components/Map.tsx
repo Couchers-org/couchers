@@ -1,70 +1,117 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 
-import { styled, Typography } from "@mui/material";
-import { NO_MAP_SUPPORT } from "components/constants";
+import { useMediaQuery } from "@mui/system";
+import { useMapSearchState } from "features/search/state/mapSearchContext";
 import {
-  LngLat,
+  clusterCountLayer,
+  clusterLayer,
+  SOURCE_CLUSTERED_USERS_ID,
+  UNCLUSTERED_LAYER_ID,
+  unclusteredPointLayer,
+} from "features/search/utils/mapLayers";
+import ZoomControl from "features/search/ZoomControl";
+import { MapLayerMouseEvent, RequestParameters } from "maplibre-gl";
+import React, { useRef } from "react";
+import {
+  Layer,
   Map as MaplibreMap,
-  NavigationControl,
-  RequestParameters,
-} from "maplibre-gl";
-import { useEffect, useRef, useState } from "react";
+  MapRef,
+  Source,
+  ViewStateChangeEvent,
+} from "react-map-gl/maplibre";
+import { theme } from "theme";
 
-const URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-const StyledWrapper = styled("div")<{ grow?: boolean }>(({ grow }) => ({
-  position: "relative",
-  height: grow ? "100%" : "200px",
-  width: grow ? "100%" : "400px",
-}));
-
-const StyledMap = styled("div")({
-  position: "absolute",
-  bottom: 0,
-  top: 0,
-  width: "100%",
-  height: "100%", // Add this to ensure the child takes the parent's height
-});
-
-const StyledNoMapText = styled("div")({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: "100%",
-  height: "100%",
-});
-
-export interface MapProps {
-  initialCenter: LngLat | undefined;
-  initialZoom: number;
-  postMapInitialize?: (map: MaplibreMap) => void;
-  className?: string;
-  onUpdate?: (center: LngLat, zoom: number) => void;
+interface MapProps {
   grow?: boolean;
-  interactive?: boolean;
   hash?: boolean;
+  mapRef: React.RefObject<MapRef>;
+  onClick: (ev: MapLayerMouseEvent) => void;
+  onLoad: () => void;
+  onMapMove: () => void;
+  onZoomIn: (newZoom: number) => void;
+  onZoomOut: (newZoom: number) => void;
+  onZoomControlInClick: (newZoom: number) => void;
+  onZoomControlOutClick: (newZoom: number) => void;
+  pins: string | GeoJSON.FeatureCollection;
 }
 
-export default function Map({
-  initialCenter,
-  initialZoom,
+const Map = ({
   grow,
-  postMapInitialize,
-  onUpdate,
   hash,
-  interactive = true,
-  className,
-  ...otherProps
-}: MapProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [noMap, setNoMap] = useState(false);
+  mapRef,
+  onClick,
+  onLoad,
+  onMapMove,
+  onZoomIn,
+  onZoomOut,
+  onZoomControlInClick,
+  onZoomControlOutClick,
+  pins,
+}: MapProps) => {
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isZoomFromControlRef = useRef(false);
+
+  const {
+    uiOnly: { zoom },
+  } = useMapSearchState();
+
+  const handleMapLoad = () => {
+    if (mapRef.current) {
+      onLoad();
+    }
+  };
+
+  const handleMapClick = async (event: MapLayerMouseEvent) => {
+    onClick(event);
+  };
+
+  const handleDragEnd = () => {
+    onMapMove();
+  };
+
+  const handleMouseMove = (event: MapLayerMouseEvent) => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    // Query the features (pins) under the mouse pointer
+    const features = map.queryRenderedFeatures(event.point, {
+      layers: [UNCLUSTERED_LAYER_ID], // Make sure pins are in this layer
+    });
+
+    // If there are any pins under the mouse, change cursor to pointer
+    if (features.length > 0) {
+      map.getCanvas().style.cursor = "pointer";
+    }
+  };
+
+  const handleSetZoom = (viewState: ViewStateChangeEvent) => {
+    if (isZoomFromControlRef.current) {
+      isZoomFromControlRef.current = false; // reset the flag
+      return; // skip regular zoom logic since already handled
+    }
+
+    if (viewState.viewState.zoom === zoom) return;
+
+    const isZoomIn = viewState.viewState.zoom > zoom;
+    const isZoomOut = viewState.viewState.zoom < zoom;
+
+    if (isZoomIn) {
+      onZoomIn(viewState.viewState.zoom);
+    }
+
+    if (isZoomOut) {
+      onZoomOut(viewState.viewState.zoom);
+    }
+  };
 
   /*
-  Allows sending cookies (counted as sensitive "credentials") on cross-origin requests when we grab GeoJSON/other data from the API.
-  Those APIs will return an error if the session cookie is not set as these APIs are secure and not public.
-  */
+    Allows sending cookies (counted as sensitive "credentials") on cross-origin requests when we grab GeoJSON/other data from the API.
+    Those APIs will return an error if the session cookie is not set as these APIs are secure and not public.
+    */
   const transformRequest = (url: string): RequestParameters => {
-    if (url.startsWith(URL)) {
+    if (url.startsWith(API_BASE_URL)) {
       return {
         credentials: "include",
         url,
@@ -73,58 +120,62 @@ export default function Map({
     return { url };
   };
 
-  const mapRef = useRef<MaplibreMap>();
+  const handleZoomControlInClick = (newZoom: number) => {
+    isZoomFromControlRef.current = true;
+    onZoomControlInClick(newZoom);
+  };
 
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    // don't create a new map if it exists already
-    if (mapRef.current) return;
-
-    try {
-      const map = new MaplibreMap({
-        center: initialCenter,
-        container: containerRef.current,
-        hash: hash ? "loc" : false,
-        interactive: interactive,
-        style: "https://cdn.couchers.org/maps/couchers-basemap-style-v1.json",
-        transformRequest,
-        zoom: initialZoom,
-      });
-
-      mapRef.current = map;
-
-      if (interactive) {
-        map.addControl(new NavigationControl({ showCompass: false }));
-      }
-
-      if (onUpdate) {
-        map.on("moveend", () => onUpdate(map.getCenter(), map.getZoom()));
-      }
-
-      postMapInitialize?.(map);
-    } catch {
-      //probably no webgl
-      console.warn("Couldn't initialize maplibre gl");
-      setNoMap(true);
-    }
-
-    return () => {
-      mapRef.current?.remove();
-      mapRef.current = undefined;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const handleZoomControlOutClick = (newZoom: number) => {
+    isZoomFromControlRef.current = true;
+    onZoomControlOutClick(newZoom);
+  };
 
   return (
-    <StyledWrapper className={className} grow={grow} {...otherProps}>
-      <StyledMap ref={containerRef}>
-        {noMap && (
-          <StyledNoMapText>
-            <Typography variant="body1">{NO_MAP_SUPPORT}</Typography>
-          </StyledNoMapText>
-        )}
-      </StyledMap>
-    </StyledWrapper>
+    <>
+      <MaplibreMap
+        id="map"
+        style={{
+          height: grow ? "100%" : "200px",
+          width: grow ? "100%" : "400px",
+        }}
+        interactive={true}
+        mapStyle="https://cdn.couchers.org/maps/couchers-basemap-style-v1.json"
+        interactiveLayerIds={clusterLayer.id ? [clusterLayer.id] : []}
+        onClick={handleMapClick}
+        onLoad={handleMapLoad}
+        onDragEnd={handleDragEnd}
+        onMouseMove={handleMouseMove}
+        onZoomEnd={handleSetZoom}
+        hash={hash}
+        ref={mapRef}
+        transformRequest={transformRequest}
+        {...(isMobile && { attributionControl: false })}
+      >
+        <Source
+          id={SOURCE_CLUSTERED_USERS_ID}
+          cluster={true}
+          clusterMaxZoom={14}
+          clusterRadius={50}
+          data={pins}
+          promoteId="id"
+          type={"geojson"}
+        >
+          <Layer {...clusterLayer} />
+          <Layer {...clusterCountLayer} />
+          <Layer {...unclusteredPointLayer} />
+        </Source>
+        {/** WHY BUILD OUR OWN ZOOM CONTROL? The built in NavigationControl component from react-map-gl doesn't offer a
+         * click event, nor does the underlying map-libre. We need a click event to control the api queries for the pins
+         * and user cards on the map. */}
+        <ZoomControl
+          mapRef={mapRef}
+          onZoomIn={handleZoomControlInClick}
+          onZoomOut={handleZoomControlOutClick}
+          isZoomFromControlRef={isZoomFromControlRef}
+        />
+      </MaplibreMap>
+    </>
   );
-}
+};
+
+export default Map;

@@ -133,7 +133,6 @@
     "coucher_was_appropriate": "Yes, this person's behavior was appropriate.",
     "coucher_was_not_appropriate": "No, this person's behavior was not appropriate.",
     "contact_text": "If you have any questions or wish to provide additional information, please don't hesitate to <1>contact us here.</1>",
-    "host_request_reference_success_dialog": "host-request-reference-success-dialog",
     "host_request_reference_explanation": "Host request references are only made visible once both references have been written, or after 2 weeks. Hold tight!",
     "invalid_reference_type": "Invalid reference type",
     "invalid_step": "Invalid form step",
@@ -208,6 +207,8 @@
   "response_time_text_most": "Usually in {{p33}} to {{p66}}",
   "response_time_text_almost_all": "Usually in {{p33}} to {{p66}}",
   "unsaved_changes_warning": "You haven't saved your changes. Are you sure you want to leave the page?",
+  "image_uploading_warning": "Your profile image is still uploading. Are you sure you want to leave the page?",
+  "click_replace_image": "Click to replace image",
   "profile_tag_input": {
     "header_text": "Press 'Enter' to add\n<support_link>Email us</support_link> to add an entry",
     "remove_button_a11y_text": "Remove {{tag}}"
@@ -219,5 +220,12 @@
     "click_on_left": "Choose a badge on the left to learn more.",
     "no_people": "There are no people with that badge!",
     "not_found": "Badge not found"
-  }
+  },
+  "open_profile_new_tab": "Open profile in new tab",
+  "reference_amounts": {
+    "no_references": "No references",
+    "references_single": "reference",
+    "references_plural": "references"
+  },
+  "incomplete_profile_haiku": "Blank avatar stares,\nMystery behind silence—\nWho are you, stranger?"
 }

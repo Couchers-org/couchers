@@ -80,6 +80,8 @@ export default function EditProfileForm() {
   const [showIncompleteProfileDialog, setShowIncompleteProfileDialog] =
     useState(false);
 
+  const [isUploading, setIsUploading] = useState(false);
+
   const queryClient = useQueryClient();
   const {
     control,
@@ -112,9 +114,11 @@ export default function EditProfileForm() {
     aboutMeField === DEFAULT_ABOUT_ME_HEADINGS ? 0 : aboutMeField.length;
 
   useUnsavedChangesWarning({
-    isDirty,
-    isSubmitted,
-    warningMessage: t("profile:unsaved_changes_warning"),
+    isDirty: isDirty || isUploading,
+    isSubmitted: isSubmitted,
+    warningMessage: isUploading
+      ? t("profile:image_uploading_warning")
+      : t("profile:unsaved_changes_warning"),
   });
 
   const { regions, regionsLookup } = useRegions();
@@ -219,6 +223,7 @@ export default function EditProfileForm() {
               initialPreviewSrc={user.avatarUrl}
               userName={user.name}
               type="avatar"
+              onUploading={setIsUploading} //track upload state
               onSuccess={async (data) => {
                 await service.user.updateAvatar(data.key);
                 if (user) queryClient.invalidateQueries(userKey(user.userId));
@@ -525,7 +530,8 @@ export default function EditProfileForm() {
                 type="submit"
                 variant="contained"
                 color="primary"
-                loading={updateIsLoading}
+                loading={updateIsLoading || isUploading}
+                disabled={updateIsLoading || isUploading}
               >
                 {t("global:save")}
               </Button>

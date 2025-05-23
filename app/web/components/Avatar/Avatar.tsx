@@ -47,6 +47,7 @@ export interface AvatarProps {
   className?: string;
   isProfileLink?: boolean;
   style?: React.CSSProperties;
+  openInNewTab?: boolean;
 }
 
 export default function Avatar({
@@ -54,6 +55,7 @@ export default function Avatar({
   grow,
   className,
   isProfileLink = true,
+  openInNewTab = false,
   ...otherProps
 }: AvatarProps) {
   return (
@@ -68,6 +70,7 @@ export default function Avatar({
           <StyledLink
             href={routeToUser(user.username)}
             aria-label={getProfileLinkA11yLabel(user.name)}
+            target={openInNewTab ? "_blank" : undefined}
           >
             <StyledMuiAvatar alt={user.name} src={user.avatarUrl}>
               {user.name.split(/\s+/).map((name) => name[0])}

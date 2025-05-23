@@ -1,255 +1,200 @@
-import { Collapse, useMediaQuery, useTheme } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
-import { Coordinates } from "features/search/constants";
+import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
+import {
+  HostingStatusOptions,
+  MapViewOptions,
+  MapViews,
+  MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
+  SleepingArrangementOptions,
+} from "features/search/utils/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { LngLat, Map as MaplibreMap } from "maplibre-gl";
-import { HostingStatus, User } from "proto/api_pb";
-import { UserSearchRes } from "proto/search_pb";
-import { useEffect, useRef, useState } from "react";
-import {
-  QueryClient,
-  QueryClientProvider,
-  useInfiniteQuery,
-} from "react-query";
-import { service } from "service";
-import { GeocodeResult } from "utils/hooks";
+import { MeetupStatus } from "proto/api_pb";
+import { useMemo, useRef, useState } from "react";
+import { LngLatLike, MapProvider, MapRef } from "react-map-gl/maplibre";
 
-import FilterDialog from "./FilterDialog";
-import MapWrapper from "./MapWrapper";
-import SearchResultsList from "./SearchResultsList";
+import { useUserSearch } from "./hooks/useUserSearch";
+import MapSearchContent from "./MapSearchContent";
+import SearchControls from "./SearchControls";
+import { useMapSearchState } from "./state/mapSearchContext";
+import { useMapSearchActions } from "./state/useMapSearchActions";
+import { getMapBounds } from "./utils/mapUtils";
 
-export type TypeHostingStatusOptions = Exclude<
-  HostingStatus,
-  | HostingStatus.HOSTING_STATUS_UNKNOWN
-  | HostingStatus.HOSTING_STATUS_UNSPECIFIED
->[];
+/**
+ * See map search architecture diagram and a description of the main concepts here:
+ * docs/architecture/frontend/map-search.md
+ */
 
-const useStyles = makeStyles((theme) => ({
-  container: {
-    display: "flex",
-    alignContent: "stretch",
-    flexDirection: "column-reverse",
-    position: "fixed",
-    top: theme.shape.navPaddingXs,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    [theme.breakpoints.up("sm")]: {
-      top: theme.shape.navPaddingSmUp,
-    },
-    [theme.breakpoints.up("md")]: {
-      flexDirection: "row",
-    },
-  },
-  mapContainer: {
-    flexGrow: 1,
-    position: "relative",
-  },
-  mobileCollapse: {
-    flexShrink: 0,
-    overflowY: "hidden",
-  },
-  searchMobile: {
-    position: "absolute",
-    top: theme.spacing(1.5),
-    left: "auto",
-    right: 52,
-    display: "flex",
-    "& .MuiInputBase-root": {
-      backgroundColor: "rgba(255, 255, 255, 0.8)",
-    },
-  },
+export type FilterOptions = {
+  acceptsKids?: boolean;
+  acceptsPets?: boolean;
+  acceptsLastMinRequests?: boolean;
+  ageMin?: number | undefined;
+  ageMax?: number | undefined;
+  completeProfile?: boolean;
+  drinkingAllowed?: boolean | undefined;
+  hasReferences?: boolean;
+  hasStrongVerification?: boolean;
+  hostingStatus?: HostingStatusOptions[];
+  meetupStatus?: MeetupStatus[];
+  numGuests?: number;
+  lastActive?: number;
+  lng?: number;
+  lat?: number;
+  selectedUserId?: number;
+  sleepingArrangement?: SleepingArrangementOptions[];
+  smokesAtHome?: boolean | undefined;
+};
+
+const SearchPageContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  height: "100%",
 }));
 
 /**
  * Search page, creates the state, obtains the users, renders all its sub-components
  */
-export default function SearchPage({
-  locationName,
-  bbox,
-}: {
-  locationName: string;
-  bbox: Coordinates;
-}) {
+export default function SearchPage() {
   const { t } = useTranslation([GLOBAL, SEARCH]);
-  const queryClient = new QueryClient();
-  const classes = useStyles();
-  const theme = useTheme();
-  const map = useRef<MaplibreMap>();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const mapRef = useRef<MapRef | null>(null);
 
-  // State
-  const [wasSearchPerformed, setWasSearchPerformed] = useState(false);
-  const [locationResult, setLocationResult] = useState<GeocodeResult>({
-    bbox: bbox,
-    isRegion: false,
-    location: new LngLat(0, 0),
-    name: locationName,
-    simplifiedName: locationName,
-  });
-  const [queryName, setQueryName] = useState<string>("");
-  const [searchType, setSearchType] = useState<"location" | "keyword">(
-    "location",
-  );
-  const [lastActiveFilter, setLastActiveFilter] = useState(0);
-  const [hostingStatusFilter, setHostingStatusFilter] =
-    useState<TypeHostingStatusOptions>([]);
-  const [numberOfGuestFilter, setNumberOfGuestFilter] = useState<
-    number | undefined
-  >(undefined);
-  const [completeProfileFilter, setCompleteProfileFilter] = useState(false);
-  const [selectedResult, setSelectedResult] = useState<
-    Pick<User.AsObject, "userId" | "lng" | "lat"> | undefined
-  >();
+  const [drawerWidth, setDrawerWidth] = useState<number>(DEFAULT_DRAWER_WIDTH);
+  const [mapView, setMapView] = useState<MapViewOptions>(MapViews.MAP_AND_LIST);
 
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const mapSearchState = useMapSearchState();
+  const {
+    setPageNumber,
+    setMapQueryArea,
+    setMoveMapUIOnly,
+    setShowSearchThisAreaButton,
+    setSelectedUserId,
+  } = useMapSearchActions();
 
-  // Loads the list of users
-  const { data, error, isLoading, isFetching, hasNextPage } = useInfiniteQuery<
-    UserSearchRes.AsObject,
-    Error
-  >(
+  // useMemo to avoid unnecessary object reference changes - causing unnecessary rerenders
+  const searchParams = useMemo(
+    () => ({
+      ...mapSearchState.filters,
+      ...mapSearchState.search,
+      selectedUserId: mapSearchState.shouldSearchByUserId
+        ? mapSearchState.selectedUserId
+        : undefined,
+    }),
     [
-      "userSearch",
-      queryName,
-      locationResult?.name,
-      locationResult?.bbox,
-      lastActiveFilter,
-      hostingStatusFilter,
-      numberOfGuestFilter,
-      completeProfileFilter,
+      mapSearchState.filters,
+      mapSearchState.search,
+      mapSearchState.selectedUserId,
+      mapSearchState.shouldSearchByUserId,
     ],
-    ({ pageParam }) => {
-      return service.search.userSearch(
-        {
-          query: queryName,
-          bbox: locationResult.bbox,
-          lastActive: lastActiveFilter === 0 ? undefined : lastActiveFilter,
-          hostingStatusOptions:
-            hostingStatusFilter.length === 0 ? undefined : hostingStatusFilter,
-          numGuests: numberOfGuestFilter,
-          completeProfile:
-            completeProfileFilter === false ? undefined : completeProfileFilter,
-        },
-        pageParam,
-      );
-    },
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-    },
   );
 
-  // Relocate map everytime boundingbox changes
-  useEffect(() => {
-    map.current?.fitBounds(locationResult.bbox);
-  }, [locationResult?.bbox]);
+  const {
+    error,
+    fetchNextPage,
+    fetchPreviousPage,
+    isLoading,
+    hasNextPage,
+    hasPreviousPage,
+    numberOfTotal,
+    totalItems,
+    users,
+  } = useUserSearch(searchParams, mapSearchState);
 
-  /**
-   * Tracks whether a search was perform after the first render (always show all the users of the platform on the first render)
-   */
-  useEffect(() => {
-    if (!wasSearchPerformed) {
-      if (
-        lastActiveFilter !== 0 ||
-        hostingStatusFilter.length !== 0 ||
-        numberOfGuestFilter !== undefined ||
-        completeProfileFilter !== false ||
-        queryName !== "" ||
-        (locationResult.location.lng !== 0 && locationResult.location.lat !== 0)
-      ) {
-        setWasSearchPerformed(true);
-      }
+  const handleLoadPreviousPage = () => {
+    fetchPreviousPage();
+    setPageNumber(mapSearchState.pageNumber - 1);
+  };
+
+  const handleLoadNextPage = () => {
+    fetchNextPage();
+    setPageNumber(mapSearchState.pageNumber + 1);
+  };
+
+  const handleDrawerWidthChange = (width: number) => {
+    setDrawerWidth(width);
+  };
+
+  const handleSetMapView = (view: MapViewOptions) => {
+    setMapView(view);
+  };
+
+  const handleZoomIn = (
+    newZoom: number,
+    center?: LngLatLike,
+    isLocationSearch: boolean = false,
+  ) => {
+    const didCrossSearchThreshold =
+      newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
+      mapSearchState.uiOnly.zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
+
+    // If it's the first zoom within threshold, set the map bounds so the user pins load
+    if (
+      didCrossSearchThreshold &&
+      !isLocationSearch && // need to pass since it's zoomed before state is set
+      !mapSearchState.search.query // not keyword search bc already has filter then
+    ) {
+      const bbox = getMapBounds(mapRef);
+      setMapQueryArea(bbox, newZoom);
+    } else {
+      setMoveMapUIOnly({ zoom: newZoom });
     }
-  }, [
-    lastActiveFilter,
-    hostingStatusFilter,
-    numberOfGuestFilter,
-    completeProfileFilter,
-    wasSearchPerformed,
-    queryName,
-    locationResult.location.lng,
-    locationResult.location.lat,
-  ]);
 
-  const errorMessage = error?.message;
+    mapRef.current?.easeTo({
+      center,
+      zoom: newZoom,
+      duration: 2000,
+    });
+  };
+
+  const handleZoomOut = (newZoom: number) => {
+    const didZoomOutWithinThreshold = newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
+    const didZoomBelowThreshold = newZoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
+
+    setSelectedUserId(undefined);
+
+    if (didZoomBelowThreshold && !mapSearchState.search.query) {
+      setMapQueryArea(undefined, newZoom);
+    } else if (didZoomOutWithinThreshold) {
+      setShowSearchThisAreaButton(true);
+    }
+
+    mapRef.current?.easeTo({
+      zoom: newZoom,
+      duration: 2000,
+    });
+  };
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <HtmlMeta title={t("global:nav.map_search")} />
-      <div className={classes.container}>
-        {/* Desktop */}
-        {!isMobile && (
-          <SearchResultsList
-            searchType={searchType}
-            setSearchType={setSearchType}
-            locationResult={locationResult}
-            setLocationResult={setLocationResult}
-            queryName={queryName}
-            setQueryName={setQueryName}
-            results={data}
-            error={errorMessage}
-            hasNext={hasNextPage}
-            selectedResult={selectedResult}
-            setSelectedResult={setSelectedResult}
-            isLoading={isLoading || isFetching}
-          />
-        )}
-        {/* Mobile */}
-        {isMobile && (
-          <Collapse
-            in={wasSearchPerformed || !!selectedResult}
-            timeout={theme.transitions.duration.standard}
-            className={classes.mobileCollapse}
-          >
-            <SearchResultsList
-              searchType={searchType}
-              setSearchType={setSearchType}
-              locationResult={locationResult}
-              setLocationResult={setLocationResult}
-              queryName={queryName}
-              setQueryName={setQueryName}
-              results={data}
-              error={errorMessage}
-              hasNext={hasNextPage}
-              selectedResult={selectedResult}
-              setSelectedResult={setSelectedResult}
-              isLoading={isLoading || isFetching}
-            />
-          </Collapse>
-        )}
-        <FilterDialog
-          isOpen={isFiltersOpen}
-          queryName={queryName}
-          setQueryName={setQueryName}
-          onClose={() => setIsFiltersOpen(false)}
-          setLocationResult={setLocationResult}
-          lastActiveFilter={lastActiveFilter}
-          setLastActiveFilter={setLastActiveFilter}
-          hostingStatusFilter={hostingStatusFilter}
-          setHostingStatusFilter={setHostingStatusFilter}
-          completeProfileFilter={completeProfileFilter}
-          setCompleteProfileFilter={setCompleteProfileFilter}
-          numberOfGuestFilter={numberOfGuestFilter}
-          setNumberOfGuestFilter={setNumberOfGuestFilter}
+    <SearchPageContainer>
+      <MapProvider>
+        <HtmlMeta title={t("global:nav.map_search")} />
+        <SearchControls
+          drawerWidth={drawerWidth}
+          mapRef={mapRef}
+          mapView={mapView}
+          onSetMapView={handleSetMapView}
+          onZoomIn={handleZoomIn}
         />
-        <div className={classes.mapContainer}>
-          <MapWrapper
-            map={map}
-            results={data}
-            selectedResult={selectedResult}
-            locationResult={locationResult}
-            setIsFiltersOpen={setIsFiltersOpen}
-            setLocationResult={setLocationResult}
-            setSelectedResult={setSelectedResult}
-            isLoading={isLoading || isFetching}
-            setWasSearchPerformed={setWasSearchPerformed}
-            wasSearchPerformed={wasSearchPerformed}
-          />
-        </div>
-      </div>
-    </QueryClientProvider>
+        <MapSearchContent
+          error={error}
+          drawerWidth={drawerWidth}
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          isLoading={isLoading}
+          mapRef={mapRef}
+          mapView={mapView}
+          numberOfTotal={numberOfTotal}
+          onDrawerWidthChange={handleDrawerWidthChange}
+          onLoadPreviousPage={handleLoadPreviousPage}
+          onLoadNextPage={handleLoadNextPage}
+          onSetMapView={handleSetMapView}
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          totalItems={totalItems}
+          users={users}
+        />
+      </MapProvider>
+    </SearchPageContainer>
   );
 }

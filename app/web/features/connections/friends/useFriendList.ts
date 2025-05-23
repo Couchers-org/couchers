@@ -1,3 +1,4 @@
+import { friendIdsKey } from "features/queryKeys";
 import { useLiteUsersList } from "features/userQueries/useLiteUsers";
 import { useQuery } from "react-query";
 import { service } from "service";
@@ -9,7 +10,7 @@ function useFriendList() {
     data: friendIds,
     error: listFriendsError,
     isLoading,
-  } = useQuery<number[], Error>("friendIds", service.api.listFriends);
+  } = useQuery<number[], Error>(friendIdsKey, service.api.listFriends);
 
   if (listFriendsError) {
     errors.push(listFriendsError.message);

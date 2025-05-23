@@ -854,6 +854,7 @@ def test_mark_last_seen(db):
 def test_response_rate(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
+    user3, token3 = generate_user(delete_user=True)
 
     today_plus_2 = (today() + timedelta(days=2)).isoformat()
     today_plus_3 = (today() + timedelta(days=3)).isoformat()
@@ -862,6 +863,12 @@ def test_response_rate(db):
         refresh_materialized_view(session, "user_response_rates")
 
     with requests_session(token1) as api:
+        # deleted: not found
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user3.id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.USER_NOT_FOUND
+
         # no requests: insufficient
         res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
         assert res.HasField("insufficient_data")

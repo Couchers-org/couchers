@@ -52,7 +52,7 @@ message JailInfoRes {
   bool jailed = 1;
 
   bool has_not_accepted_tos = 2;
-  bool has_not_added_location = 3;
+  bool needs_to_update_location = 3;
   bool has_not_accepted_community_guidelines = 4;
 
   // mod notes

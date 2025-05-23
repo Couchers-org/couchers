@@ -6,6 +6,38 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Couchers.org v0.9.9 Release Notes](/blog/2025/05/11/v0.9.9-release)
+
+2025/05/11 by Aapeli.
+
+Read about last major updates before v1!
+
+[Read more.](/blog/2025/05/11/v0.9.9-release)
+
+## [How to Add Couchers.org (or Any Website!) to Your Phone's Home Screen for Instant Access](/blog/2025/05/10/how-to-add-couchers-org-phone-home-screen)
+
+2025/05/10 by Chris.
+
+Did you know you can turn any website into a quick-access icon on your phone's home screen—just like an app? No downloads required! Whether you want faster access to Couchers.org or another favorite site, this simple trick keeps everything just one tap away.
+
+[Read more.](/blog/2025/05/10/how-to-add-couchers-org-phone-home-screen)
+
+## [Couchers, Inc. financials for 2024](/blog/2025/04/20/couchers-inc-financials-2024)
+
+2025/04/20.
+
+Summary of the financials of Couchers, Inc. for 2024.
+
+[Read more.](/blog/2025/04/20/couchers-inc-financials-2024)
+
+## [50 000+ Couchers Milestone Reached](/blog/2025/04/12/50k-couchers-milestone-reached)
+
+2025/04/12.
+
+Couchers.org welcomes 50 000th member. Preparing for v1 launch, introducing exciting new features.
+
+[Read more.](/blog/2025/04/12/50k-couchers-milestone-reached)
+
 ## [Summer 2024 updates](/blog/2024/09/08/summer-2024-updates)
 
 2024/09/08.

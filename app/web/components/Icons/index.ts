@@ -3,6 +3,7 @@
 export { default as AccountSecurityIcon } from "@mui/icons-material/VerifiedUser";
 export { default as AccountSettingsIcon } from "@mui/icons-material/SettingsApplications";
 export { default as CommentIcon } from "@mui/icons-material/Comment";
+export { default as BlueSkyIcon } from "./BlueSkyIcon";
 export { default as CommunityIcon } from "./CommunityIcon";
 export { default as EventIcon } from "./EventIcon";
 export { default as NotificationNewIcon } from "./NotificationNewIcon";
@@ -51,6 +52,7 @@ export {
   default as QuestionIcon,
 } from "@mui/icons-material/MoreHorizOutlined";
 export { default as MuteIcon } from "@mui/icons-material/VolumeOffOutlined";
+export { default as NotificationsActiveIcon } from "@mui/icons-material/NotificationsActive";
 export { default as OpenInNewIcon } from "@mui/icons-material/OpenInNew";
 export { default as OverflowMenuIcon } from "@mui/icons-material/MoreVertOutlined";
 export { default as PenIcon } from "./PenIcon";
@@ -61,6 +63,7 @@ export { default as PinIcon } from "@mui/icons-material/LocationOn";
 export { default as ReminderIcon } from "@mui/icons-material/Notifications";
 export { default as SatisfiedIcon } from "@mui/icons-material/SentimentSatisfiedAltOutlined";
 export { default as SearchIcon } from "@mui/icons-material/SearchOutlined";
+export { default as SegmentIcon } from "@mui/icons-material/Segment";
 export { default as SettingsIcon } from "@mui/icons-material/SettingsOutlined";
 export { default as SinglePersonIcon } from "@mui/icons-material/Person";
 export { default as SlightlyDissatisfiedIcon } from "@mui/icons-material/SentimentDissatisfied";

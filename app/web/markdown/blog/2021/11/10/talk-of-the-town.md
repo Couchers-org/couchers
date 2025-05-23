@@ -126,4 +126,4 @@ _Written by Marlies. Published on 2021/11/10_
 
 _Marlies is a Global Health masters student from Australia, currently living, studying and working in Denmark. She has surfed in Europe, Latin America and Asia and is currently hosting in the reconverted church where she lives in Copenhagen._
 
-**Want to submit to our blog? [Sign up](/volunteer) and let us know.**
+**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

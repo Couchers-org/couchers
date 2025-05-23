@@ -10,6 +10,10 @@ import SearchFilters, { parseSearchFiltersToQuery } from "utils/searchFilters";
 export const baseRoute = "/";
 
 export const githubURL = "https://github.com/Couchers-org/couchers";
+export const instagramURL = "https://www.instagram.com/couchersorg";
+export const redditURL = "https://www.reddit.com/r/couchers/";
+export const blueSkyURL = "https://bsky.app/profile/couchers.bsky.social";
+export const facebookURL = "https://www.facebook.com/Couchers.org";
 export const helpCenterURL = "https://help.couchers.org";
 export const githubUpdatesURL =
   "https://github.com/Couchers-org/couchers/commits/develop";
@@ -108,6 +112,7 @@ export const referenceStepStrings = [
 export type ReferenceStep = (typeof referenceStepStrings)[number];
 
 export const eventsRoute = "/events";
+export const communitiesRoute = "/communities";
 export const logoutRoute = "/logout";
 export const connectionsRoute = "/connections";
 export const friendsRoute = `${connectionsRoute}/friends`;
@@ -189,3 +194,11 @@ export const howToMakeGreatProfileUrl =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1725919197-how-do-i-create-a-great-profile";
 export const helpCenterReportContentURL =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1715125657-how-do-i-report-someone-or-something-that-violates-the-community-guidelines-or-terms-of-use-to_u";
+export const helpCenterCommunityBuilderURL =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder";
+
+export const latestFinancialsURL =
+  "/blog/2025/04/20/couchers-inc-financials-2024";
+
+export const communityCreationFormURL = (username?: string) =>
+  `https://forms.monday.com/forms/d7b6f1bd47a092e23b63f6ef9db1594b?r=use1&username=${username || ""}`;

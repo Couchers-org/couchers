@@ -102,7 +102,7 @@ A general meeting can attract up to 20 people and take over 2 hours, which is a 
 
 ## Legal stuff
 
-The Couchers.org project is supported by Couchers, Inc. (worldwide) and the Couchers.org Foundation (Australia). These are non-profit organizations formed specifically to oversee the Couchers.org project, guard its assets, and give team members protection from legal issues. [Read more about the non-profit structure](/foundation).
+The Couchers.org project is supported by Couchers, Inc., a non-profit organization formed specifically to oversee the Couchers.org project, guard its assets, and give team members protection from legal issues. [Read more about the non-profit structure](/foundation).
 
 We ask you to sign a Contributor Assignment Agreement (CAA) to assign your work to Couchers, Inc. if you're contributing something that's for the sole use of Couchers.org. That's most things apart from source code. The purpose is to protect Couchers, Inc. and you from legal issues.
 

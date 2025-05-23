@@ -21,6 +21,8 @@ from couchers.models import (
     LanguageFluency,
     MeetupStatus,
     Message,
+    Notification,
+    NotificationDeliveryType,
     ParkingDetails,
     Reference,
     RegionLived,
@@ -31,6 +33,7 @@ from couchers.models import (
     UserBadge,
 )
 from couchers.notifications.notify import notify
+from couchers.notifications.settings import get_topic_actions_by_delivery_type
 from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
 from couchers.servicers.account import get_strong_verification_fields
 from couchers.sql import couchers_select as select
@@ -185,12 +188,24 @@ class API(api_pb2_grpc.APIServicer):
             .where(FriendRelationship.status == FriendStatus.pending)
         ).scalar_one()
 
+        unseen_notification_count = session.execute(
+            select(func.count(Notification.id))
+            .where(Notification.user_id == context.user_id)
+            .where(Notification.is_seen == False)
+            .where(
+                Notification.topic_action.in_(
+                    get_topic_actions_by_delivery_type(session, user.id, NotificationDeliveryType.push)
+                )
+            )
+        ).scalar_one()
+
         return api_pb2.PingRes(
             user=user_model_to_pb(user, session, context),
             unseen_message_count=unseen_message_count,
             unseen_sent_host_request_count=unseen_sent_host_request_count,
             unseen_received_host_request_count=unseen_received_host_request_count,
             pending_friend_request_count=pending_friend_request_count,
+            unseen_notification_count=unseen_notification_count,
         )
 
     def GetUser(self, request, context, session):
@@ -271,6 +286,7 @@ class API(api_pb2_grpc.APIServicer):
             if request.lat.value == 0 and request.lng.value == 0:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
             user.geom = create_coordinate(request.lat.value, request.lng.value)
+            user.randomized_geom = None
 
         if request.HasField("radius"):
             user.geom_radius = request.radius.value
@@ -509,9 +525,6 @@ class API(api_pb2_grpc.APIServicer):
             else:
                 user.camping_ok = request.camping_ok.value
 
-        # save updates
-        session.commit()
-
         return empty_pb2.Empty()
 
     def ListFriends(self, request, context, session):
@@ -534,6 +547,33 @@ class API(api_pb2_grpc.APIServicer):
         return api_pb2.ListFriendsRes(
             user_ids=[rel.from_user.id if rel.from_user.id != context.user_id else rel.to_user.id for rel in rels],
         )
+
+    def RemoveFriend(self, request, context, session):
+        rel = session.execute(
+            select(FriendRelationship)
+            .where_users_column_visible(context, FriendRelationship.from_user_id)
+            .where_users_column_visible(context, FriendRelationship.to_user_id)
+            .where(
+                or_(
+                    and_(
+                        FriendRelationship.from_user_id == request.user_id,
+                        FriendRelationship.to_user_id == context.user_id,
+                    ),
+                    and_(
+                        FriendRelationship.from_user_id == context.user_id,
+                        FriendRelationship.to_user_id == request.user_id,
+                    ),
+                )
+            )
+            .where(FriendRelationship.status == FriendStatus.accepted)
+        ).scalar_one_or_none()
+
+        if not rel:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_FRIENDS)
+
+        session.delete(rel)
+
+        return empty_pb2.Empty()
 
     def ListMutualFriends(self, request, context, session):
         if context.user_id == request.user_id:
@@ -793,19 +833,11 @@ class API(api_pb2_grpc.APIServicer):
         )
 
 
-def get_response_rate(user_id, session, context):
-    user_res = session.execute(
-        select(User.id, user_response_rates)
-        .outerjoin(user_response_rates, user_response_rates.c.user_id == User.id)
-        .where_users_visible(context)
-        .where(User.id == user_id)
-    ).one_or_none()
+def response_rate_to_pb(response_rates):
+    if not response_rates:
+        return {"insufficient_data": requests_pb2.ResponseRateInsufficientData()}
 
-    # if user doesn't exist, return None
-    if not user_res:
-        return None
-
-    user, _, n, response_rate, _, response_time_p33, response_time_p66 = user_res
+    _, n, response_rate, _, response_time_p33, response_time_p66 = response_rates
 
     # if n is None, the user is new or they have no requests
     if not n or n < 3:
@@ -840,6 +872,8 @@ def get_response_rate(user_id, session, context):
 
 
 def user_model_to_pb(db_user, session, context):
+    # note that this function should work also for banned/deleted users as it's called from Admin.GetUser
+    # note that this function is sometimes called by a logged out user, in which case context comes from make_logged_out_context
     num_references = session.execute(
         select(func.count())
         .select_from(Reference)
@@ -904,6 +938,10 @@ def user_model_to_pb(db_user, session, context):
         else:
             friends_status = api_pb2.User.FriendshipStatus.NOT_FRIENDS
 
+    response_rates = session.execute(
+        select(user_response_rates).where(user_response_rates.c.user_id == db_user.id)
+    ).one_or_none()
+
     verification_score = 0.0
     if db_user.phone_verification_verified:
         verification_score += 1.0 * db_user.phone_is_verified
@@ -949,7 +987,7 @@ def user_model_to_pb(db_user, session, context):
         avatar_thumbnail_url=db_user.avatar.thumbnail_url if db_user.avatar else None,
         badges=[badge.badge_id for badge in db_user.badges],
         **get_strong_verification_fields(session, db_user),
-        **get_response_rate(db_user.id, session, context),
+        **response_rate_to_pb(response_rates),
     )
 
     if db_user.max_guests is not None:

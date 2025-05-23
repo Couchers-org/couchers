@@ -7,7 +7,7 @@ import Landscape from "features/donations/resources/landscape.jpeg";
 import { DONATIONS, GLOBAL } from "i18n/namespaces";
 import { Trans, useTranslation } from "next-i18next";
 import CouchersLogo from "resources/CouchersLogo";
-import { foundationRoute } from "routes";
+import { foundationRoute, latestFinancialsURL } from "routes";
 
 import { BENEFACTOR_EMAIL } from "./constants";
 import DonationsBox from "./DonationsBox";
@@ -209,13 +209,29 @@ export default function Donations() {
           {t("donations:donations_title2")}
         </Typography>
 
-        <Markdown
+        <div
           className={classNames(
             classes.donationsText,
             classes.donationsLayoutSecondaryText,
           )}
-          source={t("donations:donations_text2")}
-        />
+        >
+          <Markdown
+            className={classNames(
+              classes.donationsText,
+              classes.donationsLayoutSecondaryText,
+            )}
+            source={t("donations:donations_text2")}
+          />
+          <Typography variant="body1">
+            <Link href={latestFinancialsURL} underline="hover">
+              <Trans
+                t={t}
+                i18nKey="donations:donations_use_explainer"
+                values={{ year: "2024" }}
+              />
+            </Link>
+          </Typography>
+        </div>
       </section>
     </>
   );

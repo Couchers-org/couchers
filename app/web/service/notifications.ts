@@ -1,6 +1,10 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {
   GetNotificationSettingsReq,
+  ListNotificationsReq,
+  MarkAllNotificationsSeenReq,
+  MarkNotificationSeenReq,
+  Notification,
   RegisterPushNotificationSubscriptionReq,
   SetNotificationSettingsReq,
   SingleNotificationPreference,
@@ -64,4 +68,52 @@ export async function registerPushNotificationSubscription(
 
 export async function sendTestPushNotification() {
   await client.notifications.sendTestPushNotification(new Empty());
+}
+
+export async function listNotifications({
+  onlyUnread = false,
+}: {
+  onlyUnread: boolean;
+}) {
+  const req = new ListNotificationsReq();
+
+  if (onlyUnread) {
+    req.setOnlyUnread(true);
+  }
+
+  const res = await client.notifications.listNotifications(req);
+  return res.toObject();
+}
+
+export async function markAllNotificationsSeen(
+  lastestNotificationId: Notification.AsObject["notificationId"],
+) {
+  const req = new MarkAllNotificationsSeenReq();
+
+  req.setLatestNotificationId(lastestNotificationId);
+
+  const res = await client.notifications.markAllNotificationsSeen(req);
+  return res.toObject();
+}
+
+export async function markNotificationSeen(
+  notificationId: Notification.AsObject["notificationId"],
+  setSeen: boolean = true,
+) {
+  const req = new MarkNotificationSeenReq();
+
+  if (!notificationId) {
+    throw new Error(
+      "Notification ID is required to mark notification as seen.",
+    );
+  }
+
+  if (setSeen) {
+    req.setSetSeen(setSeen);
+  }
+
+  req.setNotificationId(notificationId);
+
+  const res = await client.notifications.markNotificationSeen(req);
+  return res.toObject();
 }

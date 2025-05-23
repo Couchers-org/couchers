@@ -7,6 +7,7 @@ grpcio
 http_ece
 Jinja2
 luhn
+markdown-it-py
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-instrumentation-grpc
@@ -31,7 +32,7 @@ sentry-sdk
 Shapely
 sqlalchemy
 sqlalchemy-utils
-stripe<12.0
+stripe<13.0
 # we include this here (even though it's a dependency of user-agent), so that dependabot will remind to update it if needed
 ua-parser
 user-agents

@@ -133,7 +133,8 @@
       "description": "We've updated our Terms of Service. To continue, please read and accept the new <1></1>."
     },
     "location_section": {
-      "title": "Please add your location",
+      "title": "Please update your location",
+      "explanation": "It seems your coordinates were not right. Please update your location to continue.",
       "submit_button": {
         "active_text": "Save",
         "inactive_text": "Thanks!"
@@ -191,141 +192,10 @@
   "feature_preview": {
     "title": "Feature Preview",
     "explanation": "This page allows you to try out features that are still in development before they are quite ready for use by everyone.",
-    "disclaimer": "Please keep in mind that these features are experimental. They may not work as intended and they may change rapidly as we develop them. Feel free to give feedback on our forum. Please report any bugs!",
+    "disclaimer": "Please keep in mind that these features are experimental. They may not work as intended and they may change rapidly as we develop them. Feel free to give feedback using the \"Report a problem\" button to report any bugs!",
     "no_previews": {
       "title": "No features currently in preview",
       "explanation": "There are currently no active features in preview, please check back later!"
-    }
-  },
-  "notification_settings": {
-    "title": "Notification settings",
-    "edit_in_console": "You can change your notification settings <2>on this page</2>. We will soon move it here.",
-    "go_to_button": "Manage notification settings",
-    "edit_preferences": {
-      "title": "Notification Settings",
-      "description": "You may still receive important notifications about your account and content outside of your preferred notification settings.",
-      "list_heading": "Notifications you may receive",
-      "error_loading": "Error loading notification settings",
-      "list_items": {
-        "account_security": "Account security",
-        "account_settings": "Account settings",
-        "chat": "Messages",
-        "event": "Events",
-        "friend_request": "Friend requests",
-        "host_request": "Host requests",
-        "reference": "References",
-        "discussion": "Discussions",
-        "thread": "Threads"
-      },
-      "item_descriptions": {
-        "host_request": {
-          "create": "Someone sends you a host request",
-          "accept": "Someone accepts your host request",
-          "confirm": "Someone confirms their host request",
-          "reject": "Someone declines your host request",
-          "cancel": "Someone cancels their host request",
-          "message": "Someone sends a message in a host request",
-          "missed_messages": "You miss messages in a host request"
-        },
-        "chat": {
-          "message": "Someone sends you a message",
-          "missed_messages": "You miss messages in a chat"
-        },
-        "reference": {
-          "receive_hosted": "You receive a reference from someone who hosted you",
-          "receive_surfed": "You receive a reference from someone you hosted",
-          "receive_friend": "You received a reference from a friend",
-          "reminder_hosted": "Reminder to write a reference to someone you hosted",
-          "reminder_surfed": "Reminder to write a reference to someone you surfed with"
-        },
-        "friend_request": {
-          "create": "Someone sends you a friend request",
-          "accept": "Someone accepts your friend request"
-        },
-        "event": {
-          "create_approved": "An event that is approved by the moderators is created in your community",
-          "create_any": "A user creates any event in your community (not checked by an admin)",
-          "update": "An event you are attending is updated",
-          "cancel": "An event you are attending is cancelled",
-          "delete": "An event you are attending is deleted",
-          "invite_organizer": "Someone invites you to co-organize an event",
-          "comment":" A user comments on an event you are going to"
-        },
-        "onboarding": {
-          "reminder": "Reminder to complete your profile after signing up"
-        },
-        "badge": {
-          "add": "A badge is added to your account",
-          "remove": "A badge is removed from your account"
-        },
-        "donation": {
-          "received": "Your donation is received"
-        },
-        "password": {
-          "change": "Your password is changed"
-        },
-        "password_reset": {
-          "start": "Password reset is initiated",
-          "complete": "Password reset is completed"
-        },
-        "email_address": {
-          "change": "Email change is initiated",
-          "verify": "Your new email is verified"
-        },
-        "account_deletion": {
-          "start": "You initiate account deletion",
-          "complete": "Your account is deleted",
-          "recovered": "Your account is recovered (undeleted)"
-        },
-        "api_key": {
-          "create": "An API key is created for your account"
-        },
-        "phone_number": {
-          "change": "Your phone number is changed",
-          "verify": "Your phone number is verified"
-        },
-        "birthdate": {
-          "change": "Your birthdate is changed"
-        },
-        "gender": {
-          "change": "The gender displayed on your profile is changed"
-        },
-        "discussion": {
-          "create": "Someone creates a discussion in a community you are in",
-          "comment": "Someone comments on a discussion you are following"
-        },
-        "thread": {
-          "reply": "Someone responds to your comment"
-        }
-      }
-    },
-    "push_notifications": {
-      "title": "Push Notifications",
-      "description": "You can enable push notifications for Couchers.org on your device. We are working on expanding this feature.",
-      "allow_push": "Click the 'Allow' button in your browser popup to enable push notifications.",
-      "enabled_message": "You currently have push notifications <1>enabled</1>.",
-      "disabled_message": "You currently have push notifications <1>disabled</1>.",
-      "error_generic": "Error during subscription to push notifications",
-      "error_unsupported": "Push notifications or Service Workers are not supported in this browser.",
-      "permission_denied": {
-        "platform_settings_description": "Still having issues after enabling notifications in your browser? You may need to adjust your platform settings.",
-        "instructions": {
-          "chrome": "You've blocked notifications. Please enable notifications in your browser settings to continue. In Chrome, click on the padlock icon in the URL bar, then adjust the \"Notifications\" setting.",
-          "firefox": "You've blocked notifications. Please enable notifications in your browser settings to continue. In Firefox, go to Preferences > Privacy & Security > Permissions > Notifications, and modify the website's permission.",
-          "safari": "You've blocked notifications. Please enable notifications in your browser settings to continue. In Safari, go to Preferences > Websites > Notifications to modify permissions.",
-          "generic": "You've blocked notifications. Please enable notifications in your browser settings to continue.",
-          "macos": "In macOS, go to System Settings > Notifications, and modify the app's permission.",
-          "windows": "In Windows, go to Settings > System > Notifications & actions, and adjust the app or website's permission.",
-          "linux": {
-            "gnome": "In GNOME, go to Settings > Notifications to adjust the app's permission.",
-            "kde": "In KDE, go to System Settings > Notifications to modify permissions."
-          },
-          "mobile": {
-            "browser": "In your mobile browser settings, adjust the notifications permission for this website.",
-            "os": "In your mobile device notification settings, adjust the permissions to allow notifications."
-          }
-        }
-      }
     }
   },
   "active_logins": {
@@ -342,6 +212,7 @@
     "log_out_of_all_session": "Log out of all other sessions"
   },
   "strong_verification": {
+    "learn_more": "Learn about Strong Verification <a>here</a>.",
     "title": "Strong Verification",
     "subtitle": "Strong Verification is an additional safety feature that allows you to verify your date of birth and gender using your biometric passport.",
     "status": {
@@ -350,7 +221,7 @@
     },
     "start_button": "Start Strong Verification",
     "begin_button": "Complete Strong Verification with Iris ID",
-    "information_text1": "You will need a biometric passport and an NFC-capable Apple iPhone or Android phone.",
+    "information_text1": "You will need a <strong>biometric passport</strong> (other types of identification will not work) and an NFC-capable Apple iPhone or Android phone.",
     "information_text2": "By clicking the button below, you will be taken to the Iris ID website to complete the passport verification process.",
     "information_text3": "You can read more about how we and Iris ID process and store your data in our <2>Terms of Service</2>. As per the Iris ID <5>Privacy policy</5>, they will delete your personal information within 24 hours. You can request that this Strong Verification data (except issuing country, expiry date, and the last three digits of the document number) be deleted from our servers at any time with the click of a button.",
     "complete_title": "We are processing your Strong Verification attempt",
@@ -410,6 +281,17 @@
       "error_message": "Failed to recover account: {{message}}",
       "button_text": "Recover your account",
       "success": "Your account has been recovered, you can log back in. We're excited to have you back!"
+    }
+  },
+  "profile_visibility": {
+    "title": "Profile Visibility",
+    "choose": "Choose what information will be visible to logged-out users",
+    "visiblility_options": {
+      "nothing": "<1>Nothing</1>: hide me completely",
+      "map_only": "<1>Map only</1>: show a randomized, anonymous map pin with no other information",
+      "limited": "<1>Limited</1>: show my name, location, hosting/meetup status, badges, number of references, and how long I've been a Coucher",
+      "most": "<1>Most</1>: show full \"About me\" section except \"Additional information\"",
+      "full_profile": "<1>Full profile</1>: show my full profile (except references)"
     }
   }
 }

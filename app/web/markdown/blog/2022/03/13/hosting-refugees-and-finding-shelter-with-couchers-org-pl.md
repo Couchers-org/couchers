@@ -3,7 +3,7 @@ title: Przyjmowanie uchodźców i szukanie schronienia z Couchers.org
 slug: hosting-refugees-and-finding-shelter-with-couchers-org-pl
 date: 2022/03/13
 author: Itsi
-share_image: /app/web/public/img/blog/20220313_ukraine_pl.jpg
+share_image: /img/blog/20220313_ukraine_pl.jpg
 ---
 
 [English](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-en) – [Українська](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-uk) – [Magyar](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-hu) – [Română](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-ro)

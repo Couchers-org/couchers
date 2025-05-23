@@ -1,11 +1,16 @@
-import { Coordinates } from "features/search/constants";
+import {
+  Coordinates,
+  DEFAULT_AGE_MAX,
+  DEFAULT_AGE_MIN,
+  SleepingArrangementOptions,
+} from "features/search/utils/constants";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import {
   BoolValue,
   StringValue,
   UInt32Value,
 } from "google-protobuf/google/protobuf/wrappers_pb";
-import { HostingStatus } from "proto/api_pb";
+import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import {
   EventSearchReq,
   EventSearchRes,
@@ -16,27 +21,72 @@ import client from "service/client";
 import { GeocodeResult } from "utils/hooks";
 
 export interface UserSearchFilters {
+  acceptsKids?: boolean;
+  acceptsPets?: boolean;
+  acceptsLastMinRequests?: boolean;
+  ageMin?: number;
+  ageMax?: number;
+  drinkingAllowed?: boolean | undefined;
   query?: string;
   bbox?: Coordinates;
   lastActive?: number; //within x days
+  hasReferences?: boolean;
+  hasStrongVerification?: boolean;
   hostingStatusOptions?: HostingStatus[];
+  meetupStatus?: MeetupStatus[];
   numGuests?: number;
   completeProfile?: boolean;
+  pageNumber?: number;
+  pageSize?: number;
+  selectedUserId?: number;
+  sleepingArrangement?: SleepingArrangementOptions[];
+  smokesAtHome?: boolean | undefined;
 }
 
 export async function userSearch(
   {
+    acceptsKids,
+    acceptsLastMinRequests,
+    acceptsPets,
+    ageMin,
+    ageMax,
+    drinkingAllowed,
     query,
     bbox,
     lastActive,
+    hasReferences,
+    hasStrongVerification,
     hostingStatusOptions,
+    meetupStatus,
     numGuests,
     completeProfile,
+    selectedUserId,
+    sleepingArrangement,
+    smokesAtHome,
   }: UserSearchFilters,
   pageToken = "",
 ) {
   const req = new UserSearchReq();
-  req.setPageToken(pageToken);
+
+  if (pageToken) {
+    req.setPageToken(pageToken);
+  }
+
+  if (acceptsKids) {
+    req.setAcceptsKids(new BoolValue().setValue(acceptsKids));
+  }
+
+  if (acceptsLastMinRequests) {
+    req.setLastMinute(new BoolValue().setValue(acceptsLastMinRequests));
+  }
+
+  if (acceptsPets) {
+    req.setAcceptsPets(new BoolValue().setValue(acceptsPets));
+  }
+
+  if (drinkingAllowed !== undefined) {
+    req.setDrinkingAllowed(new BoolValue().setValue(drinkingAllowed));
+  }
 
   if (query) {
     req.setQuery(new StringValue().setValue(query));
@@ -63,12 +113,44 @@ export async function userSearch(
     req.setProfileCompleted(new BoolValue().setValue(completeProfile));
   }
 
-  if (hostingStatusOptions && hostingStatusOptions.length !== 0) {
+  if (hasReferences) {
+    req.setOnlyWithReferences(hasReferences);
+  }
+
+  if (hasStrongVerification) {
+    req.setOnlyWithStrongVerification(hasStrongVerification);
+  }
+
+  if (hostingStatusOptions && hostingStatusOptions.length > 0) {
     req.setHostingStatusFilterList(hostingStatusOptions);
+  }
+
+  if (meetupStatus && meetupStatus.length > 0) {
+    req.setMeetupStatusFilterList(meetupStatus);
+  }
+
+  if (ageMin && ageMin !== DEFAULT_AGE_MIN) {
+    req.setAgeMin(new UInt32Value().setValue(ageMin));
+  }
+
+  if (ageMax && ageMax !== DEFAULT_AGE_MAX) {
+    req.setAgeMax(new UInt32Value().setValue(ageMax));
   }
 
   if (numGuests) {
     req.setGuests(new UInt32Value().setValue(numGuests));
+  }
+
+  if (selectedUserId !== undefined) {
+    req.addExactlyUserIds(selectedUserId);
+  }
+
+  if (sleepingArrangement && sleepingArrangement.length > 0) {
+    req.setSleepingArrangementFilterList(sleepingArrangement);
+  }
+
+  if (smokesAtHome !== undefined) {
+    req.setSmokesAtHome(new BoolValue().setValue(smokesAtHome));
   }
 
   const response = await client.search.userSearch(req);

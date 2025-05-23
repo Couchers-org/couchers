@@ -40,7 +40,12 @@ from couchers.constants import (
     SMS_CODE_LIFETIME,
     TOS_VERSION,
 )
-from couchers.utils import date_in_timezone, get_coordinates, last_active_coarsen, now
+from couchers.utils import (
+    date_in_timezone,
+    get_coordinates,
+    last_active_coarsen,
+    now,
+)
 from proto import notification_data_pb2
 
 meta = MetaData(
@@ -88,6 +93,19 @@ class ParkingDetails(enum.Enum):
     paid_offsite = enum.auto()
 
 
+class ProfilePublicVisibility(enum.Enum):
+    # no public info
+    nothing = enum.auto()
+    # only show on map, randomized, unclickable
+    map_only = enum.auto()
+    # name, gender, location, hosting/meetup status, badges, number of references, and signup time
+    limited = enum.auto()
+    # full about me except additional info (hide my home)
+    most = enum.auto()
+    # all but references
+    full = enum.auto()
+
+
 class TimezoneArea(Base):
     __tablename__ = "timezone_areas"
     id = Column(BigInteger, primary_key=True)
@@ -127,9 +145,11 @@ class User(Base):
     ## location
     # point describing their location. EPSG4326 is the SRS (spatial ref system, = way to describe a point on earth) used
     # by GPS, it has the WGS84 geoid with lat/lon
-    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
+    # randomized coordinates within a radius of 0.02-0.1 degrees, equates to about 2-10 km
+    randomized_geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     # their display location (displayed to other users), in meters
-    geom_radius = Column(Float, nullable=True)
+    geom_radius = Column(Float, nullable=False)
     # the display address (text) shown on their profile
     city = Column(String, nullable=False)
     # "Grew up in" on profile
@@ -145,6 +165,9 @@ class User(Base):
 
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    public_visibility = Column(Enum(ProfilePublicVisibility), nullable=False, server_default="map_only")
+    has_modified_public_visibility = Column(Boolean, nullable=False, server_default=text("false"))
 
     # id of the last message that they received a notification about
     last_notified_message_id = Column(BigInteger, nullable=False, default=0)
@@ -295,6 +318,9 @@ class User(Base):
 
     admin_note = Column(String, nullable=False, server_default=text("''"))
 
+    # whether mods have marked this user has having to update their location
+    needs_to_update_location = Column(Boolean, nullable=False, server_default=text("false"))
+
     age = column_property(func.date_part("year", func.age(birthdate)))
 
     __table_args__ = (
@@ -383,7 +409,7 @@ class User(Base):
 
     @hybrid_property
     def is_missing_location(self):
-        return (self.geom == None) | (self.geom_radius == None)
+        return self.needs_to_update_location
 
     @hybrid_property
     def is_visible(self):
@@ -908,7 +934,7 @@ class ContributorForm(Base):
 
         We currently send if expertise is listed, or if they list a way to help outside of a set list
         """
-        return (self.expertise != None) | (not set(self.contribute_ways).issubset({"community", "blog", "other"}))
+        return False
 
 
 class SignupFlow(Base):
@@ -952,7 +978,7 @@ class SignupFlow(Base):
 
     opt_out_of_newsletter = Column(Boolean, nullable=True)
 
-    ## Feedback
+    ## Feedback (now unused)
     filled_feedback = Column(Boolean, nullable=False, default=False)
     ideas = Column(String, nullable=True)
     features = Column(String, nullable=True)
@@ -981,12 +1007,7 @@ class SignupFlow(Base):
 
     @hybrid_property
     def is_completed(self):
-        return (
-            self.email_verified
-            & self.account_is_filled
-            & self.filled_feedback
-            & (self.accepted_community_guidelines == GUIDELINES_VERSION)
-        )
+        return self.email_verified & self.account_is_filled & (self.accepted_community_guidelines == GUIDELINES_VERSION)
 
 
 class LoginToken(Base):
@@ -2426,6 +2447,9 @@ class NotificationTopicAction(enum.Enum):
     verification__sv_fail = ("verification:sv_fail", dt_sec, False, nd.VerificationSVFail)
     verification__sv_success = ("verification:sv_success", dt_sec, False, empty_pb2.Empty)
 
+    # general announcements
+    general__new_blog_post = ("general:new_blog_post", [dt.push, dt.digest], True, nd.GeneralNewBlogPost)
+
 
 class NotificationPreference(Base):
     __tablename__ = "notification_preferences"
@@ -2459,6 +2483,9 @@ class Notification(Base):
     key = Column(String, nullable=False)
 
     data = Column(Binary, nullable=False)
+
+    # whether the user has marked this notification as seen or not
+    is_seen = Column(Boolean, nullable=False, server_default=text("false"))
 
     user = relationship("User", foreign_keys="Notification.user_id")
 

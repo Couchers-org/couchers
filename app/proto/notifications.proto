@@ -16,6 +16,10 @@ service Notifications {
 
   rpc ListNotifications(ListNotificationsReq) returns (ListNotificationsRes);
 
+  rpc MarkNotificationSeen(MarkNotificationSeenReq) returns (google.protobuf.Empty);
+
+  rpc MarkAllNotificationsSeen(MarkAllNotificationsSeenReq) returns (google.protobuf.Empty);
+
   rpc GetVapidPublicKey(google.protobuf.Empty) returns (GetVapidPublicKeyRes);
 
   rpc RegisterPushNotificationSubscription(RegisterPushNotificationSubscriptionReq) returns (google.protobuf.Empty);
@@ -85,9 +89,13 @@ message Notification {
   string body = 7;
   string icon = 8;
   string url = 9;
+
+  bool is_seen = 10;
 }
 
 message ListNotificationsReq {
+  bool only_unread = 3;
+
   uint32 page_size = 1;
   string page_token = 2;
 }
@@ -96,6 +104,16 @@ message ListNotificationsRes {
   repeated Notification notifications = 1;
 
   string next_page_token = 2;
+}
+
+message MarkNotificationSeenReq {
+  int64 notification_id = 1;
+  bool set_seen = 2;
+}
+
+message MarkAllNotificationsSeenReq {
+  // mark all notifications up to and including this one as seen
+  int64 latest_notification_id = 1;
 }
 
 message GetVapidPublicKeyRes {

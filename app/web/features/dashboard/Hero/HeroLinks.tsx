@@ -1,18 +1,11 @@
-import {
-  Link as MuiLink,
-  StyledEngineProvider,
-  ThemeProvider,
-  Typography,
-} from "@mui/material";
+import { StyledEngineProvider, ThemeProvider, Typography } from "@mui/material";
 import classNames from "classnames";
 import StyledLink from "components/StyledLink";
 import { DASHBOARD } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
-import { useState } from "react";
 import { routeToEditProfile } from "routes";
 import makeStyles from "utils/makeStyles";
 
-import CommunitiesDialog from "../CommunitiesDialog";
 import useHeroBackgroundTheme from "./useHeroBackgroundTheme";
 
 const useStyles = makeStyles((theme) => ({
@@ -57,8 +50,6 @@ export default function HeroLinks() {
   // because this component is over an image background, we need to use a theme that overrides some styles
   const imageOverlayTheme = useHeroBackgroundTheme();
 
-  const [communitiesDialogOpen, setCommunitiesDialogOpen] = useState(false);
-
   return (
     <>
       <div className={classes.linksContainer}>
@@ -83,21 +74,16 @@ export default function HeroLinks() {
               {t("become_a_host")}
             </StyledLink>
 
-            <MuiLink
+            <StyledLink
               underline="none"
-              component="button"
+              href="/communities"
               className={classes.tabAppearance}
-              onClick={() => setCommunitiesDialogOpen(true)}
             >
               {t("browse_communities")}
-            </MuiLink>
+            </StyledLink>
           </ThemeProvider>
         </StyledEngineProvider>
       </div>
-      <CommunitiesDialog
-        isOpen={communitiesDialogOpen}
-        onClose={() => setCommunitiesDialogOpen(false)}
-      />
     </>
   );
 }

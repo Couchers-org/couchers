@@ -11,12 +11,13 @@ import makeStyles from "@mui/styles/makeStyles";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import StyledLink from "components/StyledLink";
 import {
   DONATIONSBOX_CURRENCY,
   DONATIONSBOX_VALUES,
 } from "features/donations/constants";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { DONATIONS } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useMemo, useRef, useState } from "react";
@@ -335,7 +336,7 @@ export default function DonationsBox() {
             </FormControl>
           )}
         />
-        <Typography variant="body2">
+        <Typography variant="body2" gutterBottom>
           {t("donations_recurrence_explainer")}
         </Typography>
 
@@ -484,7 +485,20 @@ export default function DonationsBox() {
         />
 
         <Typography variant="body2" paragraph>
-          {t("donations_box.helper_text")}
+          <Trans t={t} i18nKey="donations_box.helper_text">
+            You will be redirected to Stripe, our payment processor, to complete
+            your donation. To cancel or update an existing donation at any time,{" "}
+            <StyledLink
+              href="#"
+              onClick={async (e) => {
+                e.preventDefault();
+                router.push(await service.donations.getDonationPortalLink());
+              }}
+            >
+              click here to go to the donation portal
+            </StyledLink>
+            .{t("donations_box.helper_text")}
+          </Trans>
         </Typography>
 
         <div className={classes.donationsBoxRow}>

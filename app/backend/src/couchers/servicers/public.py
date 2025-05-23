@@ -1,0 +1,142 @@
+import logging
+
+import grpc
+from sqlalchemy.sql import func, union_all
+
+from couchers import errors
+from couchers.models import Cluster, Node, ProfilePublicVisibility, Reference, User
+from couchers.servicers.api import fluency2api, hostingstatus2api, meetupstatus2api, user_model_to_pb
+from couchers.servicers.gis import _statement_to_geojson_response
+from couchers.sql import couchers_select as select
+from couchers.utils import Timestamp_from_datetime, make_logged_out_context
+from proto import api_pb2, public_pb2, public_pb2_grpc
+
+logger = logging.getLogger(__name__)
+
+
+class Public(public_pb2_grpc.PublicServicer):
+    """
+    Public (logged out) APIs for getting public info
+    """
+
+    def GetPublicUsers(self, request, context, session):
+        with_geom = (
+            select(User.username, User.geom)
+            .where(User.is_visible)
+            .where(User.public_visibility != ProfilePublicVisibility.nothing)
+            .where(User.public_visibility != ProfilePublicVisibility.map_only)
+        )
+
+        without_geom = (
+            select(None, User.randomized_geom)
+            .where(User.is_visible)
+            .where(User.randomized_geom != None)
+            .where(User.public_visibility == ProfilePublicVisibility.map_only)
+        )
+        return _statement_to_geojson_response(session, union_all(with_geom, without_geom))
+
+    def GetPublicUser(self, request, context, session):
+        user = session.execute(
+            select(User)
+            .where(User.is_visible)
+            .where(User.username == request.user)
+            .where(
+                User.public_visibility.in_(
+                    [ProfilePublicVisibility.limited, ProfilePublicVisibility.most, ProfilePublicVisibility.full]
+                )
+            )
+        ).scalar_one_or_none()
+
+        if not user:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
+        if user.public_visibility == ProfilePublicVisibility.full:
+            return public_pb2.GetPublicUserRes(full_user=user_model_to_pb(user, session, make_logged_out_context()))
+
+        num_references = session.execute(
+            select(func.count())
+            .select_from(Reference)
+            .join(User, User.id == Reference.from_user_id)
+            .where(User.is_visible)
+            .where(Reference.to_user_id == user.id)
+        ).scalar_one()
+
+        if user.public_visibility == ProfilePublicVisibility.limited:
+            return public_pb2.GetPublicUserRes(
+                limited_user=public_pb2.LimitedUser(
+                    username=user.username,
+                    name=user.name,
+                    city=user.city,
+                    hometown=user.hometown,
+                    num_references=num_references,
+                    joined=Timestamp_from_datetime(user.display_joined),
+                    hosting_status=hostingstatus2api[user.hosting_status],
+                    meetup_status=meetupstatus2api[user.meetup_status],
+                    badges=[badge.badge_id for badge in user.badges],
+                )
+            )
+
+        if user.public_visibility == ProfilePublicVisibility.most:
+            return public_pb2.GetPublicUserRes(
+                most_user=public_pb2.MostUser(
+                    username=user.username,
+                    name=user.name,
+                    city=user.city,
+                    hometown=user.hometown,
+                    timezone=user.timezone,
+                    num_references=num_references,
+                    gender=user.gender,
+                    pronouns=user.pronouns,
+                    age=user.age,
+                    joined=Timestamp_from_datetime(user.display_joined),
+                    last_active=Timestamp_from_datetime(user.display_last_active),
+                    hosting_status=hostingstatus2api[user.hosting_status],
+                    meetup_status=meetupstatus2api[user.meetup_status],
+                    occupation=user.occupation,
+                    education=user.education,
+                    about_me=user.about_me,
+                    things_i_like=user.things_i_like,
+                    language_abilities=[
+                        api_pb2.LanguageAbility(code=ability.language_code, fluency=fluency2api[ability.fluency])
+                        for ability in user.language_abilities
+                    ],
+                    regions_visited=[region.code for region in user.regions_visited],
+                    regions_lived=[region.code for region in user.regions_lived],
+                    avatar_url=user.avatar.full_url if user.avatar else None,
+                    avatar_thumbnail_url=user.avatar.thumbnail_url if user.avatar else None,
+                    badges=[badge.badge_id for badge in user.badges],
+                )
+            )
+
+    def GetSignupPageInfo(self, request, context, session):
+        # last user who signed up
+        last_signup, geom = session.execute(
+            select(User.joined, User.geom).where(User.is_visible).order_by(User.id.desc())
+        ).first()
+
+        communities = (
+            session.execute(
+                select(Cluster.name)
+                .join(Node, Node.id == Cluster.parent_node_id)
+                .where(Cluster.is_official_cluster)
+                .where(func.ST_Contains(Node.geom, geom))
+                .order_by(Cluster.id.asc())
+            )
+            .scalars()
+            .all()
+        )
+
+        if len(communities) <= 1:
+            # either no community or just global community
+            last_location = "the World"
+        else:
+            # probably global, continent, region, city
+            last_location = f"{communities[-1]}, {communities[-2]}"
+
+        user_count = session.execute(select(func.count()).select_from(User).where(User.is_visible)).scalar_one()
+
+        return public_pb2.GetSignupPageInfoRes(
+            last_signup=Timestamp_from_datetime(last_signup.replace(second=0, microsecond=0)),
+            last_location=last_location,
+            user_count=user_count,
+        )
