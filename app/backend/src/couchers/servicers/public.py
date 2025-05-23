@@ -128,7 +128,10 @@ class Public(public_pb2_grpc.PublicServicer):
 
         if len(communities) <= 1:
             # either no community or just global community
-            last_location = "the World"
+            last_location = "The World"
+        elif len(communities) == 3:
+            # probably global, continent, region, so let's just return the region
+            last_location = communities[-1]
         else:
             # probably global, continent, region, city
             last_location = f"{communities[-1]}, {communities[-2]}"

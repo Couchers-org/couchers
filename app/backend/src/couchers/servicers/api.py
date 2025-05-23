@@ -3,7 +3,6 @@ from urllib.parse import urlencode
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, delete, func, intersect, or_, union
 
 from couchers import errors, urls
@@ -145,34 +144,38 @@ class API(api_pb2_grpc.APIServicer):
         # auth ought to make sure the user exists
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
-        # gets only the max message by self-joining messages which have a greater id
-        # if it doesn't have a greater id, it's the biggest
-        message_2 = aliased(Message)
-        unseen_sent_host_request_count = session.execute(
-            select(func.count())
-            .select_from(Message)
-            .join(HostRequest, Message.conversation_id == HostRequest.conversation_id)
-            .outerjoin(message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id))
+        sent_reqs_last_seen_message_ids = (
+            select(HostRequest.conversation_id, HostRequest.surfer_last_seen_message_id)
             .where(HostRequest.surfer_user_id == context.user_id)
             .where_users_column_visible(context, HostRequest.host_user_id)
-            .where(message_2.id == None)
-            .where(HostRequest.surfer_last_seen_message_id < Message.id)
+        ).subquery()
+
+        unseen_sent_host_request_count = session.execute(
+            select(func.count(Message.id))
+            .join(
+                sent_reqs_last_seen_message_ids,
+                sent_reqs_last_seen_message_ids.c.conversation_id == Message.conversation_id,
+            )
+            .where(sent_reqs_last_seen_message_ids.c.surfer_last_seen_message_id < Message.id)
         ).scalar_one()
 
-        unseen_received_host_request_count = session.execute(
-            select(func.count())
-            .select_from(Message)
-            .join(HostRequest, Message.conversation_id == HostRequest.conversation_id)
-            .outerjoin(message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id))
-            .where_users_column_visible(context, HostRequest.surfer_user_id)
+        received_reqs_last_seen_message_ids = (
+            select(HostRequest.conversation_id, HostRequest.host_last_seen_message_id)
             .where(HostRequest.host_user_id == context.user_id)
-            .where(message_2.id == None)
-            .where(HostRequest.host_last_seen_message_id < Message.id)
+            .where_users_column_visible(context, HostRequest.surfer_user_id)
+        ).subquery()
+
+        unseen_received_host_request_count = session.execute(
+            select(func.count(Message.id))
+            .join(
+                received_reqs_last_seen_message_ids,
+                received_reqs_last_seen_message_ids.c.conversation_id == Message.conversation_id,
+            )
+            .where(received_reqs_last_seen_message_ids.c.host_last_seen_message_id < Message.id)
         ).scalar_one()
 
         unseen_message_count = session.execute(
-            select(func.count())
-            .select_from(Message)
+            select(func.count(Message.id))
             .outerjoin(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
             .where(GroupChatSubscription.user_id == context.user_id)
             .where(Message.time >= GroupChatSubscription.joined)
@@ -181,15 +184,15 @@ class API(api_pb2_grpc.APIServicer):
         ).scalar_one()
 
         pending_friend_request_count = session.execute(
-            select(func.count())
-            .select_from(FriendRelationship)
+            select(func.count(FriendRelationship.id))
             .where(FriendRelationship.to_user_id == context.user_id)
             .where_users_column_visible(context, FriendRelationship.from_user_id)
             .where(FriendRelationship.status == FriendStatus.pending)
         ).scalar_one()
 
         unseen_notification_count = session.execute(
-            select(func.count(Notification.id))
+            select(func.count())
+            .select_from(Notification)
             .where(Notification.user_id == context.user_id)
             .where(Notification.is_seen == False)
             .where(
@@ -875,8 +878,7 @@ def user_model_to_pb(db_user, session, context):
     # note that this function should work also for banned/deleted users as it's called from Admin.GetUser
     # note that this function is sometimes called by a logged out user, in which case context comes from make_logged_out_context
     num_references = session.execute(
-        select(func.count())
-        .select_from(Reference)
+        select(func.count(Reference.id))
         .join(User, User.id == Reference.from_user_id)
         .where(User.is_visible)
         .where(Reference.to_user_id == db_user.id)
@@ -985,7 +987,9 @@ def user_model_to_pb(db_user, session, context):
         parking_details=parkingdetails2api[db_user.parking_details],
         avatar_url=db_user.avatar.full_url if db_user.avatar else None,
         avatar_thumbnail_url=db_user.avatar.thumbnail_url if db_user.avatar else None,
-        badges=[badge.badge_id for badge in db_user.badges],
+        badges=session.execute(select(UserBadge.id).where(UserBadge.user_id == db_user.id).order_by(UserBadge.id))
+        .scalars()
+        .all(),
         **get_strong_verification_fields(session, db_user),
         **response_rate_to_pb(response_rates),
     )
