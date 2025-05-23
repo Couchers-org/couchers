@@ -20,6 +20,12 @@ service Public {
   }
 
   rpc GetPublicUser(GetPublicUserReq) returns (GetPublicUserRes) {}
+
+  rpc GetSignupPageInfo(google.protobuf.Empty) returns (GetSignupPageInfoRes) {
+    option (google.api.http) = {
+      get : "/public/signup-page-info"
+    };
+  }
 }
 
 message GetPublicUserReq {
@@ -77,4 +83,11 @@ message GetPublicUserRes {
     MostUser most_user = 2;
     org.couchers.api.core.User full_user = 3;
   }
+}
+
+message GetSignupPageInfoRes {
+  google.protobuf.Timestamp last_signup = 1;
+  string last_location = 2;
+
+  uint64 user_count = 3;
 }
