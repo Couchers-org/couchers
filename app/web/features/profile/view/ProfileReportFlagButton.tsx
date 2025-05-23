@@ -61,9 +61,6 @@ export default function ProfileReportFlagButton({
   const { t } = useTranslation(GLOBAL);
 
   const [isOpen, setIsOpen] = useState(false);
-  const [requiredValueError, setRequiredValueError] = useState<string | null>(
-    null,
-  );
 
   const {
     control,
@@ -81,6 +78,11 @@ export default function ProfileReportFlagButton({
     defaultValues: {
       shouldBlock: false,
     },
+  });
+
+  const resportDescriptionField = useWatch({
+    control,
+    name: "description",
   });
 
   const shouldBlockField = useWatch({
@@ -113,15 +115,9 @@ export default function ProfileReportFlagButton({
     resetMutation();
     setBlockValue("shouldBlock", false);
     setIsOpen(false);
-    setRequiredValueError(null);
   };
 
   const onSubmit = handleSubmit((data) => {
-    if (data.description.length < 1 && !shouldBlockField) {
-      setRequiredValueError(t("report.flag.profile_reason_required"));
-      return;
-    }
-
     reportContent(data);
 
     if (shouldBlockField) {
@@ -164,9 +160,6 @@ export default function ProfileReportFlagButton({
         <form onSubmit={onSubmit}>
           <DialogContent>
             {error && <Alert severity="error">{error.message}</Alert>}
-            {requiredValueError && (
-              <Alert severity="error">{requiredValueError}</Alert>
-            )}
             <DialogContentText
               variant="body2"
               sx={{ paddingLeft: 1, paddingBottom: 0 }}
@@ -247,7 +240,9 @@ export default function ProfileReportFlagButton({
             >
               <FormControlLabel
                 control={<Checkbox {...blockRegister("shouldBlock")} />}
-                label={t("report.flag.block_user")}
+                label={t("report.flag.block_user", {
+                  username: profileUsername,
+                })}
               />
               <DialogContentText
                 variant="body2"
@@ -273,7 +268,12 @@ export default function ProfileReportFlagButton({
             >
               {t("cancel")}
             </Button>
-            <Button type="submit" loading={isLoading} onClick={onSubmit}>
+            <Button
+              disabled={!resportDescriptionField && !shouldBlockField}
+              type="submit"
+              loading={isLoading}
+              onClick={onSubmit}
+            >
               {t("submit")}
             </Button>
           </DialogActions>

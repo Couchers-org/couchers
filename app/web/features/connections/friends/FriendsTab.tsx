@@ -4,6 +4,7 @@ import makeStyles from "utils/makeStyles";
 import FriendList from "./FriendList";
 import FriendRequestsReceived from "./FriendRequestsReceived";
 import FriendRequestsSent from "./FriendRequestsSent";
+import BlockedUsers from "./BlockedUsers";
 
 export const useStyles = makeStyles(() => ({
   gridItem: {
@@ -24,8 +25,13 @@ function FriendsTab() {
       <Grid item xs={12} md={6} className={classes.gridItem}>
         <FriendList />
       </Grid>
-      <Grid item xs={12} md={6} className={classes.gridItem}>
-        <FriendRequestsSent />
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={6} className={classes.gridItem}>
+          <FriendRequestsSent />
+        </Grid>
+        <Grid item xs={12} md={6} className={classes.gridItem}>
+          <BlockedUsers />
+        </Grid>
       </Grid>
     </Grid>
   );

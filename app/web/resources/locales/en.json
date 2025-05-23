@@ -69,7 +69,7 @@
       "success_message": "Thank you for your report and making Couchers a better platform for everybody!"
     },
     "flag": {
-      "block_user": "Block this person",
+      "block_user": "Block {{username}}",
       "block_user_explainer": "Messages and requests from this person will be blocked, and your profile, events and comments will not be visible to this person.",
       "button_aria_label": "Report content or a user",
       "explainer": "Confidentially send a report to the Safety & Trust team.",
