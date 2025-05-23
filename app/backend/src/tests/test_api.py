@@ -80,8 +80,8 @@ def test_ping(db):
 
 
 def test_coords(db):
-    # make them have not added a location
-    user1, token1 = generate_user(geom=None, geom_radius=None)
+    # make them need to update location
+    user1, token1 = generate_user(geom=create_coordinate(1, 0), geom_radius=2000, needs_to_update_location=True)
     user2, token2 = generate_user()
 
     with api_session(token2) as api:
@@ -95,9 +95,9 @@ def test_coords(db):
     with api_session(token2) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert res.city == user1.city
-        assert res.lat == 0.0
+        assert res.lat == 1.0
         assert res.lng == 0.0
-        assert res.radius == 0.0
+        assert res.radius == 2000.0
 
     # Check coordinate wrapping
     user3, token3 = generate_user(geom=create_coordinate(40.0, -180.5))
@@ -123,7 +123,7 @@ def test_coords(db):
     with real_jail_session(token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
         assert res.jailed
-        assert res.has_not_added_location
+        assert res.needs_to_update_location
 
         res = jail.SetLocation(
             jail_pb2.SetLocationReq(
@@ -135,11 +135,11 @@ def test_coords(db):
         )
 
         assert not res.jailed
-        assert not res.has_not_added_location
+        assert not res.needs_to_update_location
 
         res = jail.JailInfo(empty_pb2.Empty())
         assert not res.jailed
-        assert not res.has_not_added_location
+        assert not res.needs_to_update_location
 
     with api_session(token2) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
@@ -167,8 +167,8 @@ def test_get_user(db):
 
 
 def test_lite_coords(db):
-    # make them have not added a location
-    user1, token1 = generate_user(geom=None, geom_radius=None)
+    # make them need to update location
+    user1, token1 = generate_user(geom=create_coordinate(0, 0), geom_radius=0, needs_to_update_location=True)
     user2, token2 = generate_user()
 
     refresh_materialized_views_rapid(None)
@@ -214,7 +214,7 @@ def test_lite_coords(db):
     with real_jail_session(token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
         assert res.jailed
-        assert res.has_not_added_location
+        assert res.needs_to_update_location
 
         res = jail.SetLocation(
             jail_pb2.SetLocationReq(
@@ -226,11 +226,11 @@ def test_lite_coords(db):
         )
 
         assert not res.jailed
-        assert not res.has_not_added_location
+        assert not res.needs_to_update_location
 
         res = jail.JailInfo(empty_pb2.Empty())
         assert not res.jailed
-        assert not res.has_not_added_location
+        assert not res.needs_to_update_location
 
     refresh_materialized_views_rapid(None)
 
@@ -742,6 +742,52 @@ def test_friend_request_flow(db, push_collector):
 
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 0
+
+
+def test_RemoveFriend_regression(db, push_collector):
+    user1, token1 = generate_user(complete_profile=True)
+    user2, token2 = generate_user(complete_profile=True)
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
+    user5, token5 = generate_user()
+    user6, token6 = generate_user()
+
+    with api_session(token4) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+
+    with api_session(token5) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+
+    with api_session(token1) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user3.id))
+
+        api.RespondFriendRequest(
+            api_pb2.RespondFriendRequestReq(
+                friend_request_id=api.ListFriendRequests(empty_pb2.Empty()).received[0].friend_request_id, accept=True
+            )
+        )
+
+    with api_session(token2) as api:
+        for fr in api.ListFriendRequests(empty_pb2.Empty()).received:
+            api.RespondFriendRequest(
+                api_pb2.RespondFriendRequestReq(friend_request_id=fr.friend_request_id, accept=True)
+            )
+
+    with api_session(token1) as api:
+        res = api.ListFriends(empty_pb2.Empty())
+        assert sorted(res.user_ids) == [2, 4]
+
+        api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=user2.id))
+
+        res = api.ListFriends(empty_pb2.Empty())
+        assert sorted(res.user_ids) == [4]
+
+        api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=user4.id))
+
+        res = api.ListFriends(empty_pb2.Empty())
+        assert not res.user_ids
 
 
 def test_cant_friend_request_twice(db):

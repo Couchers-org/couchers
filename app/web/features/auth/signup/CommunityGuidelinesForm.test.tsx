@@ -52,7 +52,7 @@ describe("community guidelines signup form", () => {
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,
-      needFeedback: true,
+      needFeedback: false,
       needVerifyEmail: true,
     });
     render(<CommunityGuidelinesForm />, { wrapper });
@@ -61,7 +61,7 @@ describe("community guidelines signup form", () => {
       t("auth:community_guidelines_form.guideline.checkbox_label"),
     );
     const button = await screen.findByRole("button", {
-      name: t("global:continue"),
+      name: t("global:submit"),
     });
     const user = userEvent.setup();
 
@@ -95,7 +95,7 @@ describe("community guidelines signup form", () => {
     );
     const user = userEvent.setup();
 
-    const button = screen.getByRole("button", { name: t("global:continue") });
+    const button = screen.getByRole("button", { name: t("global:submit") });
     checkboxes.forEach(async (checkbox) => {
       await user.click(checkbox);
     });

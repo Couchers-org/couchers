@@ -20,7 +20,7 @@
 </mj-section>
 <mj-section padding="10px 20px" text-align="left">
   <mj-column background-color="#eee" border-radius="10px" padding="10px 0px">
-    <mj-text>{{ reply.content|v2esc|v2multiline }}</mj-text>
+    <mj-text>{{ reply.content|v2markdown }}</mj-text>
   </mj-column>
 </mj-section>
 <mj-section padding="0px">
