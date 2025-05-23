@@ -53,7 +53,6 @@ export function PushNotificationBanner() {
             1: <Link href={settingsRoute} />,
           }}
         />
-        <Trans></Trans>
       </MuiAlert>
     )
   );
