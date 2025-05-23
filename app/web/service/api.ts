@@ -3,6 +3,7 @@ import {
   CancelFriendRequestReq,
   ListBadgeUsersReq,
   PingReq,
+  RemoveFriendReq,
   RespondFriendRequestReq,
   SendFriendRequestReq,
 } from "proto/api_pb";
@@ -33,6 +34,12 @@ export async function listFriendRequests() {
 
   const response = await client.api.listFriendRequests(req);
   return response.toObject();
+}
+
+export function removeFriend(friendId: number) {
+  const req = new RemoveFriendReq();
+  req.setUserId(friendId);
+  return client.api.removeFriend(req);
 }
 
 export function respondFriendRequest(friendRequestId: number, accept: boolean) {

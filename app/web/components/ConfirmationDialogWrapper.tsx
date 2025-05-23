@@ -41,10 +41,12 @@ export default function ConfirmationDialogWrapper({
           <DialogContentText>{message}</DialogContentText>
         </DialogContent>
         <DialogActions>
+          <Button variant="outlined" onClick={() => setIsOpen(false)}>
+            {t("cancel")}
+          </Button>
           <Button onClick={handleConfirm}>
             {confirmButtonLabel ? confirmButtonLabel : t("confirm")}
           </Button>
-          <Button onClick={() => setIsOpen(false)}>{t("cancel")}</Button>
         </DialogActions>
       </Dialog>
     </>
