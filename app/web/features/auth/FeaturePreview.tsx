@@ -5,7 +5,6 @@ import PageTitle from "components/PageTitle";
 import { AUTH } from "i18n/namespaces";
 import { useTranslation } from "react-i18next";
 
-import PushNotificationSettings from "../notifications/PushNotificationSettings";
 import useAccountInfo from "./useAccountInfo";
 
 const MarginWrapper = styled("div")(({ theme }) => ({
@@ -37,7 +36,12 @@ export default function FeaturePreview() {
       ) : (
         <>
           <MarginWrapper>
-            <PushNotificationSettings />
+            <Typography variant="h2">
+              {t("auth:feature_preview.no_previews.title")}
+            </Typography>
+            <Typography variant="body1">
+              {t("auth:feature_preview.no_previews.explanation")}
+            </Typography>
           </MarginWrapper>
         </>
       )}

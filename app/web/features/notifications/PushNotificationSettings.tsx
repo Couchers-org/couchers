@@ -12,7 +12,7 @@ import {
 import { theme } from "theme";
 import { arrayBufferToBase64 } from "utils/arrayBufferToBase64";
 
-import { getCurrentSubscription } from "./notificationUtils";
+import { checkPushEnabled, getCurrentSubscription } from "./notificationUtils";
 import PushNotificationDenied from "./PushNotificationDenied";
 
 const StyledAlert = styled(Alert)(({ theme }) => ({
@@ -35,32 +35,25 @@ export default function PushNotificationSettings() {
   const [shouldPromptAllow, setShouldPromptAllow] = useState<boolean>(false); // whether to show the user instructions to click 'Allow' in their browser
 
   useEffect(() => {
-    const checkPushEnabled = async () => {
-      if ("serviceWorker" in navigator && "PushManager" in window) {
-        const existingPushSubscription = await getCurrentSubscription();
-        setIsPushEnabled(
-          Notification.permission === "granted" &&
-            existingPushSubscription !== null,
-        );
-      } else {
+    const checkPushEnabledWrap = async () => {
+      try {
+        setIsPushEnabled(await checkPushEnabled());
+      } catch (e) {
         setErrorMessage(
           t("notification_settings.push_notifications.error_unsupported"),
         );
-        Sentry.captureException(
-          new Error("Push notifications or service workers not supported"),
-          {
-            tags: {
-              component: "PushNotificationPermission",
-              action: "onPermissionGranted",
-              userAgent: navigator.userAgent,
-            },
+        Sentry.captureException(e, {
+          tags: {
+            component: "PushNotificationPermission",
+            action: "onPermissionGranted",
+            userAgent: navigator.userAgent,
           },
-        );
+        });
       }
       setIsLoading(false);
     };
 
-    checkPushEnabled();
+    checkPushEnabledWrap();
   }, [t]);
 
   const onPermissionGranted = async () => {
