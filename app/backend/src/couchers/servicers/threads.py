@@ -80,7 +80,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
             ).scalar_one_or_none()
             if event:
                 # thread is an event thread
-                occurrence = event.occurrences.order_by(EventOccurrence.id.desc()).first()
+                occurrence = event.occurrences.order_by(EventOccurrence.id.desc().limit(1)).one()
                 subscribed_user_ids = [user.id for user in event.subscribers]
                 attending_user_ids = [user.user_id for user in occurrence.attendances]
 
@@ -159,7 +159,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
             ).scalar_one_or_none()
             if event:
                 # thread is an event thread
-                occurrence = event.occurrences.order_by(EventOccurrence.id.desc()).first()
+                occurrence = event.occurrences.order_by(EventOccurrence.id.desc().limit(1)).one()
                 notify(
                     session,
                     user_id=parent_comment.author_user_id,

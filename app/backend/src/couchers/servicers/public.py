@@ -111,8 +111,8 @@ class Public(public_pb2_grpc.PublicServicer):
     def GetSignupPageInfo(self, request, context, session):
         # last user who signed up
         last_signup, geom = session.execute(
-            select(User.joined, User.geom).where(User.is_visible).order_by(User.id.desc())
-        ).first()
+            select(User.joined, User.geom).where(User.is_visible).order_by(User.id.desc()).limit(1)
+        ).one_or_none()
 
         communities = (
             session.execute(
