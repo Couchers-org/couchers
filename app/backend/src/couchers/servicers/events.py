@@ -87,7 +87,8 @@ def event_to_pb(session, occurrence: EventOccurrence, context):
 
     next_occurrence = (
         event.occurrences.where(EventOccurrence.end_time >= now())
-        .order_by(EventOccurrence.end_time.asc().limit(1))
+        .order_by(EventOccurrence.end_time.asc())
+        .limit(1)
         .one_or_none()
     )
 
