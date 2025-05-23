@@ -3,7 +3,6 @@ import {
   FormControl,
   FormControlLabel,
   FormHelperText,
-  IconButton,
   InputLabel,
   Select,
   styled,
@@ -26,16 +25,17 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
+import { BlockInput, blockUser } from "service/blocking";
 import { ReportInput } from "service/reporting";
 import { theme } from "theme";
 
 export interface ProfileReportFlagButtonProps {
   contentRef: string;
   authorUser: string | number;
-  className?: string;
+  profileUsername: string;
 }
 
 const FlagButtonWrapper = styled("div")(({ theme }) => ({
@@ -56,10 +56,15 @@ const FlagButtonWrapper = styled("div")(({ theme }) => ({
 export default function ProfileReportFlagButton({
   contentRef,
   authorUser,
+  profileUsername,
 }: ProfileReportFlagButtonProps) {
   const { t } = useTranslation(GLOBAL);
 
   const [isOpen, setIsOpen] = useState(false);
+  const [requiredValueError, setRequiredValueError] = useState<string | null>(
+    null,
+  );
+
   const {
     control,
     handleSubmit,
@@ -67,6 +72,22 @@ export default function ProfileReportFlagButton({
     reset: resetForm,
     formState: { errors },
   } = useForm<ReportInput>();
+
+  const {
+    control: blockControl,
+    register: blockRegister,
+    setValue: setBlockValue,
+  } = useForm<BlockInput>({
+    defaultValues: {
+      shouldBlock: false,
+    },
+  });
+
+  const shouldBlockField = useWatch({
+    control: blockControl,
+    name: "shouldBlock",
+  });
+
   const {
     data: report,
     error,
@@ -90,11 +111,22 @@ export default function ProfileReportFlagButton({
     if (reason !== "button") return;
     resetForm();
     resetMutation();
+    setBlockValue("shouldBlock", false);
     setIsOpen(false);
+    setRequiredValueError(null);
   };
 
   const onSubmit = handleSubmit((data) => {
+    if (data.description.length < 1 && !shouldBlockField) {
+      setRequiredValueError(t("report.flag.profile_reason_required"));
+      return;
+    }
+
     reportContent(data);
+
+    if (shouldBlockField) {
+      blockUser({ username: profileUsername });
+    }
   });
 
   const handleFlagButtonClick = (event: { preventDefault: () => void }) => {
@@ -115,7 +147,7 @@ export default function ProfileReportFlagButton({
       >
         <FlagIcon sx={{ marginRight: theme.spacing(1) }} />
         <Typography sx={{ fontSize: ".875rem" }}>
-          {t("report.flag.title")}
+          {t("report.flag.profile_title")}
         </Typography>
       </FlagButtonWrapper>
       <Dialog
@@ -127,45 +159,50 @@ export default function ProfileReportFlagButton({
         }}
       >
         <DialogTitle id="content-reporter">
-          {t("report.flag.title")}
+          {t("report.flag.profile_title")}
         </DialogTitle>
         <form onSubmit={onSubmit}>
           <DialogContent>
             {error && <Alert severity="error">{error.message}</Alert>}
-            <DialogContentText>{t("report.flag.explainer")}</DialogContentText>
+            {requiredValueError && (
+              <Alert severity="error">{requiredValueError}</Alert>
+            )}
+            <DialogContentText
+              variant="body2"
+              sx={{ paddingLeft: 1, paddingBottom: 0 }}
+            >
+              <strong> {t("report.flag.explainer")}</strong>
+            </DialogContentText>
             <FormControl
               variant="outlined"
               fullWidth
               margin="normal"
+              size="small"
               sx={{
                 "& .MuiOutlinedInput-root": {
-                  borderRadius: theme.shape.borderRadius * 3,
+                  borderRadius: theme.shape.borderRadius * 1,
                 },
               }}
             >
-              <InputLabel htmlFor="content-report-reason">
+              <InputLabel id="content-report-reason">
                 {t("report.flag.reason_label")}
               </InputLabel>
               <Controller
                 control={control}
                 defaultValue={""}
-                rules={{
-                  validate: (v) => !!v || t("report.flag.reason_required"),
-                }}
                 name="reason"
                 render={({ field }) => (
                   <Select
                     {...field}
-                    variant="standard"
+                    variant="outlined"
                     native
                     value={field.value}
+                    labelId="content-report-reason"
                     label={t("report.flag.reason_label")}
                     id="content-report-reason"
                     onChange={field.onChange}
                     sx={{
-                      "& + &": {
-                        marginBlockStart: theme.spacing(2),
-                      },
+                      marginBottom: theme.spacing(2),
                     }}
                   >
                     {[
@@ -187,9 +224,11 @@ export default function ProfileReportFlagButton({
                   </Select>
                 )}
               />
-              <FormHelperText error={!!errors?.reason}>
-                {errors?.reason?.message || t("report.flag.reason_helper")}
-              </FormHelperText>
+              {errors?.reason && (
+                <FormHelperText error={!!errors?.reason}>
+                  {errors?.reason?.message}
+                </FormHelperText>
+              )}
             </FormControl>
             <TextField
               id="content-report-description"
@@ -200,17 +239,25 @@ export default function ProfileReportFlagButton({
               multiline
               minRows={4}
               maxRows={6}
-              sx={{
-                "& + &": {
-                  marginBlockStart: theme.spacing(2),
-                },
-              }}
             />
+            <FormControl
+              sx={{
+                marginTop: theme.spacing(2),
+              }}
+            >
+              <FormControlLabel
+                control={<Checkbox {...blockRegister("shouldBlock")} />}
+                label={t("report.flag.block_user")}
+              />
+              <DialogContentText
+                variant="body2"
+                sx={{ paddingTop: 0, paddingBottom: 0 }}
+              >
+                <strong>{t("report.flag.block_user_explainer")}</strong>
+              </DialogContentText>
+            </FormControl>
           </DialogContent>
           <DialogActions>
-            <Button type="submit" loading={isLoading} onClick={onSubmit}>
-              {t("submit")}
-            </Button>
             <Button
               onClick={() => handleClose({}, "button")}
               variant="outlined"
@@ -225,6 +272,9 @@ export default function ProfileReportFlagButton({
               }}
             >
               {t("cancel")}
+            </Button>
+            <Button type="submit" loading={isLoading} onClick={onSubmit}>
+              {t("submit")}
             </Button>
           </DialogActions>
         </form>
