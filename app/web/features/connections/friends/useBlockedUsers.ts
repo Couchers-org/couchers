@@ -1,3 +1,6 @@
+import { blockedUsernamesKey, liteUsersKey } from "features/queryKeys";
+import { RpcError } from "grpc-web";
+import { GetLiteUsersRes } from "proto/api_pb";
 import { GetBlockedUsersRes } from "proto/blocking_pb";
 import { useQuery } from "react-query";
 import { service } from "service";
@@ -9,48 +12,42 @@ const useBlockedUsers = () => {
     data,
     error: blockedUsernamesError,
     isLoading,
-  } = useQuery<GetBlockedUsersRes.AsObject, Error>(
-    "blockedUsernames",
+  } = useQuery<GetBlockedUsersRes.AsObject, RpcError>(
+    blockedUsernamesKey,
     service.blocking.getBlockedUsers,
   );
 
-  //@TODO add query keys liteUsersKey(uniqueIds) and add string keys to queryKeys file
-
   const {
-    data: blockedUsers,
+    data: blockedUsersData,
     isLoading: isBlockedUsersLoading,
     isError: isBlockedUsersError,
     error: blockedUsersError,
-  } = useQuery(
-    ["blockedUsers", data?.blockedUsernamesList],
-    
-    async () => {
-      if (!data?.blockedUsernamesList) return [];
-      const result = service.user.getLiteUsers(data?.blockedUsernamesList);
+  } = useQuery<GetLiteUsersRes.AsObject, RpcError>({
+    queryKey: liteUsersKey(data?.blockedUsernamesList || []),
+    queryFn: () => {
+      const result = service.user.getLiteUsers(
+        data?.blockedUsernamesList || [],
+      );
       return result;
     },
-    {
-      enabled: !!data?.blockedUsernamesList?.length,
-    },
-  );
+    enabled: (data?.blockedUsernamesList?.length ?? 0) > 0, // run only if there are valid userIds
+  });
 
   if (blockedUsernamesError) {
     errors.push(blockedUsernamesError.message);
   }
+
   if (blockedUsersError) {
     errors.push(blockedUsersError.message);
   }
   const error = errors.length > 0 ? errors.join(", ") : null;
   const isError = !!blockedUsernamesError || isBlockedUsersError;
 
-  if (isError) {
-    console.error("Error fetching blocked users:", error);
-  }
-
   return {
-    blockedUsers,
+    blockedUsers: blockedUsersData?.responsesList || [],
     isLoading: isLoading || isBlockedUsersLoading,
     error,
+    isError,
   };
 };
 

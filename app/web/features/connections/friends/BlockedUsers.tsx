@@ -2,25 +2,17 @@ import { useTranslation } from "i18n";
 import { CONNECTIONS } from "i18n/namespaces";
 
 import FriendTile from "./FriendTile";
-import { blockedUserIdsKey } from "features/queryKeys";
-import { useQuery } from "react-query";
-import { getBlockedUsers } from "service/blocking";
-import { GetBlockedUsersRes } from "proto/blocking_pb";
+import { useBlockedUsers } from "./useBlockedUsers";
+import FriendSummaryView from "./FriendSummaryView";
+import { LiteUser } from "proto/api_pb";
 
 function BlockedUsersList() {
-  const {
-    data: blockedUsernames,
-    error: blockedUserListError,
-    isLoading,
-  } = useQuery<GetBlockedUsersRes.AsObject["blockedUsernamesList"], Error>(
-    blockedUserIdsKey,
-    async () => {
-      return await getBlockedUsers();
-    },
-  );
   const { t } = useTranslation([CONNECTIONS]);
 
-console.log("Blocked Usernames:", blockedUsernames);
+  const { blockedUsers, error, isError, isLoading } = useBlockedUsers();
+
+  console.log("Blocked users:", blockedUsers);
+
   return (
     <>
       {/* {error && (
@@ -28,15 +20,15 @@ console.log("Blocked Usernames:", blockedUsernames);
           {error.message}
         </Alert>
       )} */}
-      <FriendTile
+      {/* <FriendTile
         title={t("connections:blocked_list_title")}
-        errorMessage={blockedUserListError?.message || null}
+        errorMessage={error || null}
         isLoading={isLoading}
-        hasData={!!blockedUsernames?.length}
+        hasData={!!blockedUsers.length}
         noDataMessage={t("connections:no_blocked_users")}
       >
-        {blockedUsernames && blockedUsernames.map((username) => username)}
-      </FriendTile>
+
+      </FriendTile> */}
     </>
   );
 }

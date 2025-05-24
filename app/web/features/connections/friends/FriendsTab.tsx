@@ -1,10 +1,10 @@
 import { Grid } from "@mui/material";
 import makeStyles from "utils/makeStyles";
 
+import BlockedUsers from "./BlockedUsers";
 import FriendList from "./FriendList";
 import FriendRequestsReceived from "./FriendRequestsReceived";
 import FriendRequestsSent from "./FriendRequestsSent";
-import BlockedUsers from "./BlockedUsers";
 
 export const useStyles = makeStyles(() => ({
   gridItem: {

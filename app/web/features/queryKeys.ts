@@ -5,6 +5,7 @@ export const languagesKey = "languages";
 export const regionsKey = "regions";
 export const badgesKey = "badges";
 export const blockedUserIdsKey = "blockedUserIds";
+export const blockedUsernamesKey = "blockedUsernames";
 export const friendIdsKey = "friendIds";
 export const contributorFormInfoQueryKey = "contributorFormInfo";
 export const accountInfoQueryKey = "accountInfo";
@@ -22,7 +23,7 @@ export function liteUserKey(userId?: number) {
   return userId === undefined ? "liteUser" : ["liteUser", userId];
 }
 
-export const liteUsersKey = (ids: number[]) => ["liteUsers", ...ids];
+export const liteUsersKey = (ids: number[] | string[]) => ["liteUsers", ...ids];
 
 export const referencesGivenKey = (userId: number) => [
   "referencesGiven",
