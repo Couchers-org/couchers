@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import HeaderButton from "components/HeaderButton";
 import { BackIcon } from "components/Icons";
 import { useTranslation } from "i18n";
@@ -6,58 +6,74 @@ import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
 import { referenceTypeRoute } from "routes";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 
 export interface ReferenceStepHeaderProps {
   name?: string;
   referenceType?: string;
   isSubmitStep?: boolean;
+  isDidStayStep?: boolean;
 }
 
-const useStyles = makeStyles((theme) => ({
-  header: {
-    alignItems: "center",
-    display: "flex",
-  },
-  title: {
-    marginInlineStart: theme.spacing(2),
-  },
-}));
+const StyledHeader = styled("div")({
+  display: "flex",
+  alignItems: "center",
+});
 
 export default function ReferenceStepHeader({
   name,
   referenceType,
   isSubmitStep = false,
+  isDidStayStep = false,
 }: ReferenceStepHeaderProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const router = useRouter();
-  const classes = useStyles();
+
+  const returnHeaderText = () => {
+    if (isSubmitStep) {
+      return t("profile:leave_reference.reference_submit_heading");
+    }
+
+    if (isDidStayStep) {
+      return referenceType ===
+        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
+        ? t("profile:leave_reference.reference_form_heading_did_stay_surfed", {
+            name,
+          })
+        : t("profile:leave_reference.reference_form_heading_did_stay_hosted", {
+            name,
+          });
+    }
+    if (
+      referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
+    ) {
+      return t("profile:leave_reference.reference_form_heading_friend", {
+        name,
+      });
+    }
+    if (
+      referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
+    ) {
+      return t("profile:leave_reference.reference_form_heading_surfed", {
+        name,
+      });
+    }
+    return t("profile:leave_reference.reference_form_heading_hosted", {
+      name,
+    });
+  };
 
   return (
-    <div className={classes.header}>
+    <StyledHeader>
       <HeaderButton
         onClick={() => router.back()}
         aria-label={t("profile:leave_reference.previous_step")}
       >
         <BackIcon />
       </HeaderButton>
-      <Typography variant="h2" className={classes.title}>
-        {isSubmitStep
-          ? t("profile:leave_reference.reference_submit_heading")
-          : referenceType ===
-              referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
-            ? t("profile:leave_reference.reference_form_heading_friend", {
-                name,
-              })
-            : referenceType ===
-                referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
-              ? t("profile:leave_reference.reference_form_heading_surfed", {
-                  name,
-                })
-              : t("profile:leave_reference.reference_form_heading_hosted", {
-                  name,
-                })}
+      <Typography variant="h2" sx={{ marginInlineStart: theme.spacing(2) }}>
+        {returnHeaderText()}
       </Typography>
-    </div>
+    </StyledHeader>
   );
 }
