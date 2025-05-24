@@ -876,16 +876,20 @@ def response_rate_to_pb(response_rates):
         }
 
 
-def user_model_to_pb(db_user, session, context):
-    # note that this function should work also for banned/deleted users as it's called from Admin.GetUser
-    # note that this function is sometimes called by a logged out user, in which case context comes from make_logged_out_context
+def get_num_references(session, user_id):
     num_references = session.execute(
         select(func.count(Reference.id))
         .join(User, User.id == Reference.from_user_id)
         .where(User.is_visible)
-        .where(Reference.to_user_id == db_user.id)
+        .where(Reference.to_user_id == user_id)
         .where(Reference.is_deleted == False)
     ).scalar_one()
+
+
+def user_model_to_pb(db_user, session, context):
+    # note that this function should work also for banned/deleted users as it's called from Admin.GetUser
+    # note that this function is sometimes called by a logged out user, in which case context comes from make_logged_out_context
+    num_references = get_num_references(session, db_user.id)
 
     # returns (lat, lng)
     # we put people without coords on null island
