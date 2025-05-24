@@ -1,22 +1,48 @@
 import {
+  Box,
   Card,
   CardContent,
-  Link,
+  styled,
   Typography,
   useMediaQuery,
 } from "@mui/material";
 import SliderLabel from "components/RatingsSlider/SliderLabel";
 import TextBody from "components/TextBody";
 import UserSummary from "components/UserSummary";
-import { contactLink } from "features/profile/constants";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
-import {
-  ReferenceContextFormData,
-  useReferenceStyles,
-} from "features/profile/view/leaveReference/ReferenceForm";
-import { Trans, useTranslation } from "i18n";
+import { ReferenceContextFormData } from "features/profile/view/leaveReference/ReferenceForm";
+import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { theme } from "theme";
+
+const StyledTextBody = styled(TextBody)(({ theme }) => ({
+  "& > .MuiInputBase-root": {
+    width: "100%",
+  },
+  marginTop: theme.spacing(1),
+  [theme.breakpoints.up("md")]: {
+    "& > .MuiInputBase-root": {
+      width: 400,
+    },
+  },
+}));
+
+const StyledTypography = styled(Typography)(({ theme }) => ({
+  "& > .MuiInputBase-root": {
+    width: "100%",
+  },
+  marginTop: theme.spacing(1),
+  [theme.breakpoints.up("md")]: {
+    "& > .MuiInputBase-root": {
+      width: 400,
+    },
+  },
+}));
+
+const StyledCard = styled(Card)(({ theme }) => ({
+  marginTop: theme.spacing(2),
+  marginBottom: theme.spacing(1),
+}));
 
 export default function ReferenceOverview({
   referenceData,
@@ -24,60 +50,66 @@ export default function ReferenceOverview({
   referenceData: ReferenceContextFormData;
 }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
-  const classes = useReferenceStyles();
   const user = useProfileUser();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
     <>
-      <TextBody className={classes.text}>
+      <StyledTextBody>
         {t("profile:leave_reference.thank_you_message")}
-      </TextBody>
+      </StyledTextBody>
       {isMobile && (
-        <>
-          <TextBody className={classes.text}>
+        <Box sx={{ margin: theme.spacing(2, 0) }}>
+          <TextBody sx={{ marginBottom: theme.spacing(2) }}>
             {t("profile:leave_reference.writing_for_text")}
           </TextBody>
           <UserSummary user={user} />
-        </>
+        </Box>
       )}
-      <Typography variant="h3" className={classes.text}>
-        {t("profile:leave_reference.public_text_label")}
-      </Typography>
-      <Card className={classes.card}>
+      <StyledTypography variant="h3" sx={{ marginTop: theme.spacing(3) }}>
+        {t("profile:leave_reference.public_text_label", { name: user.name })}
+      </StyledTypography>
+      <StyledCard>
         <CardContent>
-          <TextBody className={classes.referenceText}>
+          <TextBody sx={{ whiteSpace: "pre-wrap" }}>
             {referenceData.text}
           </TextBody>
         </CardContent>
-      </Card>
-      <Typography variant="h3" className={classes.text}>
+      </StyledCard>
+      <StyledTypography variant="h3" sx={{ marginTop: theme.spacing(3) }}>
         {t("profile:leave_reference.private_text_label")}
-      </Typography>
+      </StyledTypography>
       <ul>
         <li>
-          <TextBody className={classes.text}>
+          <StyledTextBody>
             {referenceData.wasAppropriate === "true"
-              ? t("profile:leave_reference.coucher_was_appropriate")
-              : t("profile:leave_reference.coucher_was_not_appropriate")}
-          </TextBody>
+              ? t("profile:leave_reference.yes_safe")
+              : t("profile:leave_reference.no_not_safe")}
+          </StyledTextBody>
         </li>
         <li>
-          <TextBody className={classes.text}>
-            {t("profile:leave_reference.rating_label")}
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Typography sx={{ paddingRight: theme.spacing(1) }}>
+              {t("profile:leave_reference.rating_label")}
+            </Typography>
             <SliderLabel value={referenceData.rating} />
-          </TextBody>
+          </Box>
         </li>
       </ul>
-      <TextBody className={classes.text}>
-        <Trans t={t} i18nKey="profile:leave_reference.contact_text">
-          If you have any questions or wish to provide additional information,
-          please don't hesitate to
-          <Link href={contactLink} target="_blank" underline="hover">
-            contact us here.
-          </Link>
-        </Trans>
-      </TextBody>
+      {referenceData.privateText && referenceData.privateText.length > 0 && (
+        <>
+          <StyledTypography variant="h3" sx={{ marginTop: theme.spacing(3) }}>
+            {t("profile:leave_reference.private_text_summary")}
+          </StyledTypography>
+          <StyledCard>
+            <CardContent>
+              <TextBody sx={{ whiteSpace: "pre-wrap" }}>
+                {referenceData.privateText}
+              </TextBody>
+            </CardContent>
+          </StyledCard>
+        </>
+      )}
     </>
   );
 }

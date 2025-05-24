@@ -161,12 +161,14 @@ def get_parent_node_at_location(session, shape):
     Shape can be any PostGIS geo object, e.g. output from create_coordinate
     """
 
-    # Fin the lowest Node (in the Node tree) that contains the shape. By construction of nodes, the area of a sub-node
+    # Find the lowest Node (in the Node tree) that contains the shape. By construction of nodes, the area of a sub-node
     # must always be less than its parent Node, so no need to actually traverse the tree!
     return (
-        session.execute(select(Node).where(func.ST_Contains(Node.geom, shape)).order_by(func.ST_Area(Node.geom)))
+        session.execute(
+            select(Node).where(func.ST_Contains(Node.geom, shape)).order_by(func.ST_Area(Node.geom)).limit(1)
+        )
         .scalars()
-        .first()
+        .one_or_none()
     )
 
 

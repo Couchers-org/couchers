@@ -86,7 +86,10 @@ def event_to_pb(session, occurrence: EventOccurrence, context):
     event = occurrence.event
 
     next_occurrence = (
-        event.occurrences.where(EventOccurrence.end_time >= now()).order_by(EventOccurrence.end_time.asc()).first()
+        event.occurrences.where(EventOccurrence.end_time >= now())
+        .order_by(EventOccurrence.end_time.asc())
+        .limit(1)
+        .one_or_none()
     )
 
     owner_community_id = None
@@ -524,9 +527,10 @@ class Events(events_pb2_grpc.EventsServicer):
                 select(EventOccurrence.id)
                 .where(EventOccurrence.event_id == event.id)
                 .where(EventOccurrence.during.op("&&")(during))
+                .limit(1)
             )
             .scalars()
-            .first()
+            .one_or_none()
             is not None
         ):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_OVERLAP)
@@ -631,9 +635,10 @@ class Events(events_pb2_grpc.EventsServicer):
                     .where(EventOccurrence.event_id == event.id)
                     .where(EventOccurrence.id != occurrence.id)
                     .where(EventOccurrence.during.op("&&")(during))
+                    .limit(1)
                 )
                 .scalars()
-                .first()
+                .one_or_none()
                 is not None
             ):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_OVERLAP)

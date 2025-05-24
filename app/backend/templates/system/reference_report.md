@@ -34,6 +34,8 @@ Email: {{ reference.to_user.email }}
 Username: {{ reference.to_user.username }}
 User ID: {{ reference.to_user.id }}
 
+* Private text
+{{ reference.private_text }}
 
 * Time
 {{ reference.time }}
