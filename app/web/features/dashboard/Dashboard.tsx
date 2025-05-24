@@ -64,15 +64,6 @@ export default function Dashboard() {
               </Typography>
             </Alert>
 
-            {/* <Alert severity="info" sx={{ marginBottom: theme.spacing(2) }}>
-              <Typography variant="body1">
-                <b>New Blog Post!</b> Read it here:{" "}
-                <StyledLink href={dashboardNews["2025-04-12"].link}>
-                  {dashboardNews["2025-04-12"].title}
-                </StyledLink>
-              </Typography>
-            </Alert> */}
-
             <Typography variant="h1" component="h2" paragraph>
               {t("dashboard:dashboard")}
             </Typography>
