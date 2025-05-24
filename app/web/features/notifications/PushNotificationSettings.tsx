@@ -7,9 +7,12 @@ import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
 import { theme } from "theme";
 
-import { checkPushEnabled, getCurrentSubscription } from "./notificationUtils";
 import PushNotificationDenied from "./PushNotificationDenied";
-import { onPushNotificationPermissionGranted } from "./utils/helpers";
+import {
+  checkPushEnabled,
+  turnPushNotificationsOff,
+  turnPushNotificationsOn,
+} from "./utils/helpers";
 
 const StyledAlert = styled(Alert)(({ theme }) => ({
   marginBottom: theme.spacing(3),
@@ -52,36 +55,20 @@ export default function PushNotificationSettings() {
     checkPushEnabledWrap();
   }, [t]);
 
-  const turnPushNotificationsOn = async () => {
-    if (Notification.permission !== "denied") {
-      setIsLoading(true);
-      setShouldPromptAllow(true);
-      const result = await Notification.requestPermission();
-      setShouldPromptAllow(false);
-
-      if (result === "granted") {
-        const result = await onPushNotificationPermissionGranted();
-
-        if (!result.success) {
-          setErrorMessage(result.errorMessage);
-        } else {
-          setIsPushEnabled(true);
-        }
-      } else {
-        setIsPushEnabled(false);
-      }
-      setIsLoading(false);
+  const turnPushNotificationsOnWrap = async () => {
+    setIsLoading(true);
+    const result = await turnPushNotificationsOn(setShouldPromptAllow);
+    if (!result.success) {
+      setErrorMessage(result.errorMessage);
     } else {
-      setIsPushEnabled(false);
+      setIsPushEnabled(true);
     }
+    setIsLoading(false);
   };
 
-  const turnPushNotificationsOff = async () => {
+  const turnPushNotificationsOffWrap = async () => {
     setIsLoading(true);
-    const existingPushSubscription = await getCurrentSubscription();
-
-    if (existingPushSubscription) {
-      await existingPushSubscription.unsubscribe();
+    if (await turnPushNotificationsOff()) {
       setIsPushEnabled(false);
     }
     setIsLoading(false);
@@ -96,7 +83,9 @@ export default function PushNotificationSettings() {
         <CustomColorSwitch
           checked={isPushEnabled}
           onClick={
-            isPushEnabled ? turnPushNotificationsOff : turnPushNotificationsOn
+            isPushEnabled
+              ? turnPushNotificationsOffWrap
+              : turnPushNotificationsOnWrap
           }
           customColor={theme.palette.primary.main}
           isLoading={isLoading}

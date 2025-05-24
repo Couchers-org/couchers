@@ -7,10 +7,9 @@ import React, { useEffect, useState } from "react";
 import { Trans } from "react-i18next";
 import { theme } from "theme";
 
-import { checkPushEnabled } from "./notificationUtils";
-import { onPushNotificationPermissionGranted } from "./utils/helpers";
+import { checkPushEnabled, turnPushNotificationsOn } from "./utils/helpers";
 
-const TIME_BETWEEN_NAGS_MS = 180 * 86400; // 180 days
+const TIME_BETWEEN_NAGS_MS = 180 * 86400 * 1_000; // 180 days
 
 const Wrapper = styled("div")({
   display: "flex",
@@ -56,21 +55,12 @@ export function PushNotificationBanner() {
     setBannerVisible(false);
   };
 
-  const turnPushNotificationsOn = async () => {
-    if (Notification.permission !== "denied") {
-      setShouldPromptAllow(true);
-      const result = await Notification.requestPermission();
-      setShouldPromptAllow(false);
-
-      if (result === "granted") {
-        const result = await onPushNotificationPermissionGranted();
-
-        if (!result.success) {
-          setErrorMessage(result.errorMessage);
-        } else {
-          setBannerVisible(false);
-        }
-      }
+  const turnPushNotificationsOnWrap = async () => {
+    const result = await turnPushNotificationsOn(setShouldPromptAllow);
+    if (!result.success) {
+      setErrorMessage(result.errorMessage);
+    } else {
+      setBannerVisible(false);
     }
   };
 
@@ -99,7 +89,7 @@ export function PushNotificationBanner() {
         <Button
           variant="outlined"
           sx={{ backgroundColor: theme.palette.common.white }}
-          onClick={turnPushNotificationsOn}
+          onClick={turnPushNotificationsOnWrap}
         >
           {t("global:push_notification_banner.confirm")}
         </Button>

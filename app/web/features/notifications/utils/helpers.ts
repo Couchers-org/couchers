@@ -1,12 +1,10 @@
-import i18next from "i18next";
+import { t } from "i18next";
 import Sentry from "platform/sentry";
 import {
   getVapidPublicKey,
   registerPushNotificationSubscription,
 } from "service/notifications";
 import { arrayBufferToBase64 } from "utils/arrayBufferToBase64";
-
-import { getCurrentSubscription } from "../notificationUtils";
 
 interface PushNotificationPermissionSuccessResponse {
   success: true;
@@ -21,7 +19,7 @@ type PushNotificationPermissionResponse =
   | PushNotificationPermissionSuccessResponse
   | PushNotificationPermissionErrorResponse;
 
-const onPushNotificationPermissionGranted =
+export const onPushNotificationPermissionGranted =
   async (): Promise<PushNotificationPermissionResponse> => {
     try {
       // Check if service workers and push notifications are supported
@@ -41,9 +39,7 @@ const onPushNotificationPermissionGranted =
           if (publicKey !== vapidPublicKey) {
             await existingPushSubscription.unsubscribe();
           } else {
-            return {
-              success: true,
-            };
+            return { success: true };
           }
         }
 
@@ -72,7 +68,7 @@ const onPushNotificationPermissionGranted =
         );
         return {
           success: false,
-          errorMessage: i18next.t(
+          errorMessage: t(
             "notifications:notification_settings.push_notifications.error_unsupported",
           ),
         };
@@ -88,11 +84,65 @@ const onPushNotificationPermissionGranted =
       });
       return {
         success: false,
-        errorMessage: i18next.t(
+        errorMessage: t(
           "notifications:notification_settings.push_notifications.error_generic",
         ),
       };
     }
   };
 
-export { onPushNotificationPermissionGranted };
+export const getCurrentSubscription = async () => {
+  let registration = await navigator.serviceWorker.getRegistration();
+
+  if (!registration) {
+    registration = await navigator.serviceWorker.register(
+      "/service-worker.js",
+      {
+        scope: "/",
+      },
+    );
+  }
+
+  return registration?.pushManager.getSubscription();
+};
+
+export const checkPushEnabled = async () => {
+  if ("serviceWorker" in navigator && "PushManager" in window) {
+    const existingPushSubscription = await getCurrentSubscription();
+    return (
+      Notification.permission === "granted" && existingPushSubscription !== null
+    );
+  } else {
+    throw new Error("Push notifications or service workers not supported");
+  }
+};
+
+export const turnPushNotificationsOn = async (
+  setShouldPromptAllow: (on: boolean) => void,
+): Promise<PushNotificationPermissionResponse> => {
+  if (Notification.permission !== "denied") {
+    setShouldPromptAllow(true);
+    const result = await Notification.requestPermission();
+    setShouldPromptAllow(false);
+
+    if (result === "granted") {
+      return await onPushNotificationPermissionGranted();
+    }
+  }
+  return {
+    success: false,
+    errorMessage: t(
+      "notifications:notification_settings.push_notifications.error_not_granted",
+    ),
+  };
+};
+
+export const turnPushNotificationsOff = async () => {
+  const existingPushSubscription = await getCurrentSubscription();
+
+  if (existingPushSubscription) {
+    await existingPushSubscription.unsubscribe();
+    return true;
+  }
+  return false;
+};
