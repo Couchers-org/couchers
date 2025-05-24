@@ -29,9 +29,15 @@ function renderLeaveFriendReferencePage(
   userId: number,
   step?: ReferenceStep,
 ) {
-  mockRouter.setCurrentUrl(
-    `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${step}`,
-  );
+  if (step) {
+    mockRouter.setCurrentUrl(
+      `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${step}`,
+    );
+  } else {
+    mockRouter.setCurrentUrl(
+      `${leaveReferenceBaseRoute}/${referenceType}/${userId}`,
+    );
+  }
 
   render(
     <LeaveReferencePage
@@ -51,9 +57,15 @@ function renderLeaveRequestReferencePage(
   hostRequestId: number,
   step?: ReferenceStep,
 ) {
-  mockRouter.setCurrentUrl(
-    `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}/${step}`,
-  );
+  if (step) {
+    mockRouter.setCurrentUrl(
+      `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}/${step}`,
+    );
+  } else {
+    mockRouter.setCurrentUrl(
+      `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`,
+    );
+  }
 
   render(
     <LeaveReferencePage
@@ -110,12 +122,9 @@ describe("LeaveReferencePage", () => {
         expect(screen.queryByRole("alert")).not.toBeInTheDocument();
       });
 
-      it("displays the form", async () => {
-        expect(
-          await screen.findByRole("heading", {
-            name: "You met with Friendly Cow",
-          }),
-        ).toBeInTheDocument();
+      it("should redirect to base friend route to get first friend step", async () => {
+        // if friend, it should skip the "did-stay" step
+        expect(mockRouter.pathname).toBe(`${leaveReferenceBaseRoute}/friend/5`);
       });
     });
 
@@ -165,10 +174,8 @@ describe("LeaveReferencePage", () => {
 
       it("displays the form", async () => {
         expect(
-          await screen.findByRole("heading", {
-            name: "You hosted Friendly Cow",
-          }),
-        ).toBeInTheDocument();
+          await screen.findByText("Did you host Friendly Cow?"),
+        ).toBeVisible();
       });
     });
 

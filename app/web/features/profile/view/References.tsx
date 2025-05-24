@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Button from "components/Button";
 import { AddIcon } from "components/Icons";
@@ -13,58 +13,45 @@ import { User } from "proto/api_pb";
 import { ReferenceType } from "proto/references_pb";
 import React, { useState } from "react";
 import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 
 import ReferencesGivenList from "./ReferencesGivenList";
 import ReferencesReceivedList from "./ReferencesReceivedList";
-
-const useStyles = makeStyles((theme) => ({
-  button: {
-    display: "block",
-    flexShrink: 0,
-    marginInlineStart: theme.spacing(1),
-    marginBottom: theme.spacing(1),
-    marginTop: theme.spacing(1),
-  },
-  buttonContainer: {
-    "& > button": {
-      marginInline: theme.spacing(2),
-    },
-    display: "flex",
-    width: "100%",
-    justifyContent: "flex-end",
-    marginInlineEnd: theme.spacing(2),
-    marginTop: theme.spacing(1),
-  },
-  referencesContainer: {
-    display: "flex",
-    flexFlow: "row wrap",
-  },
-  header: {
-    marginTop: 0,
-  },
-  headerParentContainer: {
-    width: "100%",
-  },
-  headerContainer: {
-    alignItems: "center",
-    display: "flex",
-    justifyContent: "space-between",
-    paddingBlockStart: theme.spacing(2),
-    width: "100%",
-  },
-  referenceTypeSelect: {
-    paddingInlineStart: theme.spacing(1),
-  },
-}));
 
 export type ReferenceTypeState = keyof ReturnType<
   typeof referencesFilterLabels
 >;
 
+const StyledReferencesContainer = styled("div")({
+  display: "flex",
+  flexFlow: "row wrap",
+});
+
+const StyledHeaderParentContainer = styled("div")(({ theme }) => ({
+  width: "100%",
+}));
+
+const StyledHeaderContainer = styled("div")(({ theme }) => ({
+  alignItems: "center",
+  display: "flex",
+  justifyContent: "space-between",
+  paddingBlockStart: theme.spacing(2),
+  width: "100%",
+}));
+
+const StyledButtonContainer = styled("div")(({ theme }) => ({
+  "& > button": {
+    marginInline: theme.spacing(2),
+  },
+  display: "flex",
+  width: "100%",
+  justifyContent: "flex-end",
+  marginInlineEnd: theme.spacing(2),
+  marginTop: theme.spacing(1),
+}));
+
 export default function References() {
   const { t } = useTranslation([GLOBAL, PROFILE]);
-  const classes = useStyles();
   const [referenceType, setReferenceType] = useState<ReferenceTypeState>("all");
   const { userId, friends } = useProfileUser();
   const { data: availableReferences } = useListAvailableReferences(userId);
@@ -74,21 +61,21 @@ export default function References() {
   };
 
   return (
-    <div className={classes.referencesContainer}>
-      <div className={classes.headerParentContainer}>
-        <div className={classes.headerContainer}>
-          <Typography className={classes.header} variant="h1">
+    <StyledReferencesContainer>
+      <StyledHeaderParentContainer>
+        <StyledHeaderContainer>
+          <Typography variant="h1" sx={{ marginTop: 0 }}>
             {t("profile:heading.references")}
           </Typography>
           <Select
             variant="standard"
-            classes={{ select: classes.referenceTypeSelect }}
             displayEmpty
             inputProps={{
               "aria-label": t("profile:references_filter_a11y_label"),
             }}
             onChange={handleChange}
             value={referenceType}
+            sx={{ paddingInlineStart: theme.spacing(1) }}
           >
             {Object.entries(referencesFilterLabels(t)).map(([key, label]) => {
               const value =
@@ -100,10 +87,10 @@ export default function References() {
               );
             })}
           </Select>
-        </div>
+        </StyledHeaderContainer>
         {availableReferences?.canWriteFriendReference &&
           friends === User.FriendshipStatus.FRIENDS && (
-            <div className={classes.buttonContainer}>
+            <StyledButtonContainer>
               <Link
                 href={{
                   pathname: `${leaveReferenceBaseRoute}/${
@@ -117,14 +104,14 @@ export default function References() {
                   {t("profile:write_reference")}
                 </Button>
               </Link>
-            </div>
+            </StyledButtonContainer>
           )}
-      </div>
+      </StyledHeaderParentContainer>
       {referenceType !== "given" ? (
         <ReferencesReceivedList referenceType={referenceType} />
       ) : (
         <ReferencesGivenList />
       )}
-    </div>
+    </StyledReferencesContainer>
   );
 }

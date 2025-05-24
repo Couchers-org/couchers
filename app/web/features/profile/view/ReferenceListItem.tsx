@@ -1,4 +1,4 @@
-import { ListItem } from "@mui/material";
+import { ListItem, styled } from "@mui/material";
 import Pill from "components/Pill";
 import TextBody from "components/TextBody";
 import UserSummary from "components/UserSummary";
@@ -8,38 +8,6 @@ import { useTranslation } from "next-i18next";
 import { LiteUser } from "proto/api_pb";
 import { Reference } from "proto/references_pb";
 import { monthFormatter, timestamp2Date } from "utils/date";
-import makeStyles from "utils/makeStyles";
-
-const useStyles = makeStyles((theme) => ({
-  badgesContainer: {
-    "& > * + *": {
-      marginBlockStart: theme.spacing(2),
-    },
-    display: "flex",
-    flexDirection: "column",
-    marginInlineEnd: theme.spacing(2),
-    minWidth: theme.spacing(9),
-  },
-  listItem: {
-    "& > * + *": {
-      marginBlockStart: theme.spacing(2),
-    },
-    alignItems: "flex-start",
-    borderBlockEnd: `${theme.typography.pxToRem(1)} solid ${
-      theme.palette.grey[300]
-    }`,
-    flexDirection: "column",
-  },
-  referenceBodyContainer: {
-    display: "flex",
-    width: "100%",
-  },
-  referenceText: {
-    whiteSpace: "pre-wrap",
-    width: "100%",
-    overflow: "hidden",
-  },
-}));
 
 export const REFERENCE_LIST_ITEM_TEST_ID = "reference-list-item";
 
@@ -48,6 +16,32 @@ interface ReferenceListItemProps {
   user: LiteUser.AsObject;
   reference: Reference.AsObject;
 }
+
+const StyledBadgesContainer = styled("div")(({ theme }) => ({
+  "& > * + *": {
+    marginBlockStart: theme.spacing(2),
+  },
+  display: "flex",
+  flexDirection: "column",
+  marginInlineEnd: theme.spacing(2),
+  minWidth: theme.spacing(9),
+}));
+
+const StyledListItem = styled(ListItem)(({ theme }) => ({
+  "& > * + *": {
+    marginBlockStart: theme.spacing(2),
+  },
+  alignItems: "flex-start",
+  borderBlockEnd: `${theme.typography.pxToRem(1)} solid ${
+    theme.palette.grey[300]
+  }`,
+  flexDirection: "column",
+}));
+
+const StyledReferencesBodyContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  width: "100%",
+}));
 
 export default function ReferenceListItem({
   isReceived,
@@ -58,16 +52,12 @@ export default function ReferenceListItem({
     t,
     i18n: { language: locale },
   } = useTranslation([GLOBAL, COMMUNITIES]);
-  const classes = useStyles();
 
   return (
-    <ListItem
-      className={classes.listItem}
-      data-testid={REFERENCE_LIST_ITEM_TEST_ID}
-    >
+    <StyledListItem data-testid={REFERENCE_LIST_ITEM_TEST_ID}>
       <UserSummary user={user} />
-      <div className={classes.referenceBodyContainer}>
-        <div className={classes.badgesContainer}>
+      <StyledReferencesBodyContainer>
+        <StyledBadgesContainer>
           {isReceived && (
             <Pill variant="rounded">
               {referenceBadgeLabel(t)[reference.referenceType]}
@@ -80,9 +70,9 @@ export default function ReferenceListItem({
               )}
             </Pill>
           )}
-        </div>
-        <TextBody className={classes.referenceText}>{reference.text}</TextBody>
-      </div>
-    </ListItem>
+        </StyledBadgesContainer>
+        <TextBody sx={{ whiteSpace: "pre-wrap" }}>{reference.text}</TextBody>
+      </StyledReferencesBodyContainer>
+    </StyledListItem>
   );
 }

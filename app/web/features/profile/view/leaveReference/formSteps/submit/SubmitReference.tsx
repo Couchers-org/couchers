@@ -1,40 +1,27 @@
-import { useMediaQuery, useTheme } from "@mui/material";
+import { styled, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from "components/Dialog";
-import { hostRequestReferenceSuccessDialogId } from "features/profile/constants";
 import {
   useWriteFriendReference,
   useWriteHostReference,
 } from "features/profile/hooks/referencesHooks";
 import ReferenceOverview from "features/profile/view/leaveReference/formSteps/submit/ReferenceOverview";
-import {
-  ReferenceContextFormData,
-  useReferenceStyles,
-} from "features/profile/view/leaveReference/ReferenceForm";
-import { useLiteUser } from "features/userQueries/useLiteUsers";
+import { ReferenceContextFormData } from "features/profile/view/leaveReference/ReferenceForm";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
-  baseRoute,
+  leaveReferenceBaseRoute,
+  referenceStepStrings,
   referenceTypeRoute,
-  routeToProfile,
-  routeToUser,
 } from "routes";
 import {
   WriteFriendReferenceInput,
   WriteHostRequestReferenceInput,
 } from "service/references";
+import { theme } from "theme";
 
 import ReferenceStepHeader from "../ReferenceStepHeader";
 
@@ -44,6 +31,12 @@ export interface SubmitReferenceProps {
   hostRequestId?: number;
   userId: number;
 }
+
+const StyledButtonContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  paddingTop: theme.spacing(1),
+}));
 
 export default function SubmitReference({
   referenceData,
@@ -66,14 +59,10 @@ export default function SubmitReference({
     isLoading: isHostRequestReferenceLoading,
   } = useWriteHostReference(userId);
 
-  const theme = useTheme();
-  const classes = useReferenceStyles();
   const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
   const { handleSubmit } = useForm<ReferenceContextFormData>();
 
-  const userQuery = useLiteUser(userId);
   const onFriendReferenceSubmit = () => {
     const formData: WriteFriendReferenceInput =
       referenceData.wasAppropriate === "true"
@@ -97,11 +86,7 @@ export default function SubmitReference({
       },
       {
         onSuccess: () => {
-          if (userQuery.data) {
-            router.push(routeToUser(userQuery.data.username, "references"));
-          } else {
-            router.push(routeToProfile("references"));
-          }
+          redirectToThankYouPage();
         },
       },
     );
@@ -117,12 +102,14 @@ export default function SubmitReference({
               wasAppropriate: true,
               text: referenceData.text,
               rating: referenceData.rating,
+              privateText: referenceData.privateText,
             }
           : {
               hostRequestId: hostRequestId,
               wasAppropriate: false,
               text: referenceData.text,
               rating: referenceData.rating,
+              privateText: referenceData.privateText,
             };
 
       resetHostRequestReferenceWriting();
@@ -132,7 +119,7 @@ export default function SubmitReference({
         },
         {
           onSuccess: () => {
-            setIsOpen(true);
+            redirectToThankYouPage();
           },
         },
       );
@@ -140,8 +127,18 @@ export default function SubmitReference({
     }
   };
 
-  const redirectToHome = () => {
-    router.push(`${baseRoute}`);
+  const redirectToThankYouPage = () => {
+    if (
+      referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
+    ) {
+      router.push(
+        `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${referenceStepStrings[4]}`,
+      );
+    } else {
+      router.push(
+        `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}/${referenceStepStrings[4]}`,
+      );
+    }
   };
 
   const onSubmit =
@@ -152,11 +149,11 @@ export default function SubmitReference({
   return (
     <>
       {friendReferenceError ? (
-        <Alert className={classes.alert} severity="error">
+        <Alert severity="error" sx={{ marginBottom: theme.spacing(3) }}>
           {friendReferenceError.message}
         </Alert>
       ) : hostRequestReferenceError ? (
-        <Alert className={classes.alert} severity="error">
+        <Alert severity="error" sx={{ marginBottom: theme.spacing(3) }}>
           {hostRequestReferenceError.message}
         </Alert>
       ) : null}
@@ -164,7 +161,7 @@ export default function SubmitReference({
       <form onSubmit={handleSubmit(onSubmit)}>
         <ReferenceStepHeader isSubmitStep />
         <ReferenceOverview referenceData={referenceData} />
-        <div className={classes.buttonContainer}>
+        <StyledButtonContainer>
           <Button
             fullWidth={!isSmOrWider}
             type="submit"
@@ -172,25 +169,8 @@ export default function SubmitReference({
           >
             {t("global:submit")}
           </Button>
-        </div>
+        </StyledButtonContainer>
       </form>
-      <Dialog
-        aria-labelledby={hostRequestReferenceSuccessDialogId}
-        open={isOpen}
-        onClose={redirectToHome}
-      >
-        <DialogTitle id={hostRequestReferenceSuccessDialogId}>
-          {t("profile:leave_reference.reference_success")}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            {t("profile:leave_reference.host_request_reference_explanation")}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={redirectToHome}>{t("global:ok")}</Button>
-        </DialogActions>
-      </Dialog>
     </>
   );
 }
