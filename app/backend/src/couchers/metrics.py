@@ -1,6 +1,7 @@
 import threading
 from datetime import timedelta
 
+from opentelemetry import trace
 from prometheus_client import (
     CONTENT_TYPE_LATEST,
     CollectorRegistry,
@@ -12,11 +13,13 @@ from prometheus_client import (
     multiprocess,
 )
 from prometheus_client.registry import CollectorRegistry
-from sqlalchemy.sql import func
+from sqlalchemy.sql import distinct, func
 
 from couchers.db import session_scope
 from couchers.models import BackgroundJob, EventOccurrenceAttendee, HostingStatus, HostRequest, Message, Reference, User
 from couchers.sql import couchers_select as select
+
+trace = trace.get_tracer(__name__)
 
 registry = CollectorRegistry()
 multiprocess.MultiProcessCollector(registry)
@@ -66,8 +69,9 @@ def _make_gauge_from_query(name, description, statement):
     """
 
     def f():
-        with session_scope() as session:
-            return session.execute(statement).scalar_one()
+        with trace.start_as_current_span(f"metric.{name}"):
+            with session_scope() as session:
+                return session.execute(statement).scalar_one()
 
     gauge = Gauge(name, description, multiprocess_mode="mostrecent")
     _set_hacky_gauges_funcs.append((gauge, f))
@@ -139,28 +143,16 @@ completed_profile_gauge = _make_gauge_from_query(
 sent_message_gauge = _make_gauge_from_query(
     "couchers_users_sent_message",
     "Total number of users who have sent a message",
-    (
-        select(func.count()).select_from(
-            select(User.id)
-            .where(User.is_visible)
-            .join(Message, Message.author_id == User.id)
-            .group_by(User.id)
-            .subquery()
-        )
-    ),
+    (select(func.count(distinct(Message.author_id))).join(User, User.id == Message.author_id).where(User.is_visible)),
 )
 
 sent_request_gauge = _make_gauge_from_query(
     "couchers_users_sent_request",
     "Total number of users who have sent a host request",
     (
-        select(func.count()).select_from(
-            select(User.id)
-            .where(User.is_visible)
-            .join(HostRequest, HostRequest.surfer_user_id == User.id)
-            .group_by(User.id)
-            .subquery()
-        )
+        select(func.count(distinct(HostRequest.surfer_user_id)))
+        .join(User, User.id == HostRequest.surfer_user_id)
+        .where(User.is_visible)
     ),
 )
 
@@ -168,13 +160,9 @@ has_reference_gauge = _make_gauge_from_query(
     "couchers_users_has_reference",
     "Total number of users who have a reference",
     (
-        select(func.count()).select_from(
-            select(User.id)
-            .where(User.is_visible)
-            .join(Reference, Reference.to_user_id == User.id)
-            .group_by(User.id)
-            .subquery()
-        )
+        select(func.count(distinct(Reference.to_user_id)))
+        .join(User, User.id == Reference.to_user_id)
+        .where(User.is_visible)
     ),
 )
 
@@ -182,13 +170,9 @@ rsvpd_to_event_gauge = _make_gauge_from_query(
     "couchers_users_rsvpd_to_event",
     "Total number of users who have RSVPd to an event",
     (
-        select(func.count()).select_from(
-            select(User.id)
-            .where(User.is_visible)
-            .join(EventOccurrenceAttendee, EventOccurrenceAttendee.user_id == User.id)
-            .group_by(User.id)
-            .subquery()
-        )
+        select(func.count(distinct(EventOccurrenceAttendee.user_id)))
+        .join(User, User.id == EventOccurrenceAttendee.user_id)
+        .where(User.is_visible)
     ),
 )
 
