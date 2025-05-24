@@ -24,7 +24,7 @@ export function PushNotificationBanner() {
   const [lastDismissedEpoch, setLastDismissedEpoch] = usePersistedState<
     number | null
   >("notification_banner.dismissed", null);
-  const [bannerVisible, setBannerVisible] = useState<boolean>(false);
+  const [bannerVisible, setBannerVisible] = useState<boolean>(true);
   const [shouldPromptAllow, setShouldPromptAllow] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -58,7 +58,7 @@ export function PushNotificationBanner() {
   const turnPushNotificationsOnWrap = async () => {
     const result = await turnPushNotificationsOn(setShouldPromptAllow);
     if (!result.success) {
-      setErrorMessage(result.errorMessage);
+      setErrorMessage(t(result.errorMessage));
     } else {
       setBannerVisible(false);
     }

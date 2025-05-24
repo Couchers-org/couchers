@@ -1,4 +1,3 @@
-import { t } from "i18next";
 import Sentry from "platform/sentry";
 import {
   getVapidPublicKey,
@@ -68,9 +67,8 @@ export const onPushNotificationPermissionGranted =
         );
         return {
           success: false,
-          errorMessage: t(
+          errorMessage:
             "notifications:notification_settings.push_notifications.error_unsupported",
-          ),
         };
       }
     } catch (error) {
@@ -82,11 +80,11 @@ export const onPushNotificationPermissionGranted =
           action: "onPermissionGranted",
         },
       });
+
       return {
         success: false,
-        errorMessage: t(
+        errorMessage:
           "notifications:notification_settings.push_notifications.error_generic",
-        ),
       };
     }
   };
@@ -131,9 +129,8 @@ export const turnPushNotificationsOn = async (
   }
   return {
     success: false,
-    errorMessage: t(
+    errorMessage:
       "notifications:notification_settings.push_notifications.error_not_granted",
-    ),
   };
 };
 
