@@ -1,6 +1,5 @@
 import logging
 from datetime import timedelta
-from types import SimpleNamespace
 
 import grpc
 from google.protobuf import empty_pb2
@@ -35,6 +34,7 @@ from couchers.utils import (
     Timestamp_from_datetime,
     create_coordinate,
     dt_from_millis,
+    make_user_context,
     millis_from_dt,
     now,
     to_aware_datetime,
@@ -86,7 +86,10 @@ def event_to_pb(session, occurrence: EventOccurrence, context):
     event = occurrence.event
 
     next_occurrence = (
-        event.occurrences.where(EventOccurrence.end_time >= now()).order_by(EventOccurrence.end_time.asc()).first()
+        event.occurrences.where(EventOccurrence.end_time >= now())
+        .order_by(EventOccurrence.end_time.asc())
+        .limit(1)
+        .one_or_none()
     )
 
     owner_community_id = None
@@ -265,7 +268,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
         for user in users:
             if are_blocked(session, user.id, creator.id):
                 continue
-            context = SimpleNamespace(user_id=user.id)
+            context = make_user_context(user_id=user.id)
             notify(
                 session,
                 user_id=user.id,
@@ -292,7 +295,7 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
         for user_id in set(subscribed_user_ids + attending_user_ids):
             if are_blocked(session, user_id, updating_user.id):
                 continue
-            context = SimpleNamespace(user_id=user_id)
+            context = make_user_context(user_id=user_id)
             notify(
                 session,
                 user_id=user_id,
@@ -320,7 +323,7 @@ def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNot
         for user_id in set(subscribed_user_ids + attending_user_ids):
             if are_blocked(session, user_id, cancelling_user.id):
                 continue
-            context = SimpleNamespace(user_id=user_id)
+            context = make_user_context(user_id=user_id)
             notify(
                 session,
                 user_id=user_id,
@@ -343,7 +346,7 @@ def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNot
         attending_user_ids = [user.user_id for user in occurrence.attendances]
 
         for user_id in set(subscribed_user_ids + attending_user_ids):
-            context = SimpleNamespace(user_id=user_id)
+            context = make_user_context(user_id=user_id)
             notify(
                 session,
                 user_id=user_id,
@@ -524,9 +527,10 @@ class Events(events_pb2_grpc.EventsServicer):
                 select(EventOccurrence.id)
                 .where(EventOccurrence.event_id == event.id)
                 .where(EventOccurrence.during.op("&&")(during))
+                .limit(1)
             )
             .scalars()
-            .first()
+            .one_or_none()
             is not None
         ):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_OVERLAP)
@@ -631,9 +635,10 @@ class Events(events_pb2_grpc.EventsServicer):
                     .where(EventOccurrence.event_id == event.id)
                     .where(EventOccurrence.id != occurrence.id)
                     .where(EventOccurrence.during.op("&&")(during))
+                    .limit(1)
                 )
                 .scalars()
-                .first()
+                .one_or_none()
                 is not None
             ):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_OVERLAP)
@@ -1118,7 +1123,7 @@ class Events(events_pb2_grpc.EventsServicer):
         )
         session.flush()
 
-        other_user_context = SimpleNamespace(user_id=request.user_id)
+        other_user_context = make_user_context(user_id=request.user_id)
 
         notify(
             session,

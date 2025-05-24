@@ -100,7 +100,7 @@
     }
   },
   "feature_preview": {
-    "disclaimer": "Lembre-se que estas funcionalidades são experimentais. Elas podem não funcionar como o esperado ou mudar rapidamente à medida que as desenvolvemos. Fique à vontade para deixar seu feedback no nosso fórum e, por favor, reporte quaisquer problemas!",
+    "disclaimer": "Lembre-se que estas funcionalidades são experimentais. Elas podem não funcionar como o esperado ou mudar rapidamente à medida que as desenvolvemos. Fique à vontade para deixar seu feedback usando o botão \"Reportar um problema\" para reportar quaisquer problemas!",
     "title": "Pré-visualização da funcionalidade",
     "no_previews": {
       "title": "Sem funcionalidades para pré-visualização no momento",
@@ -131,6 +131,13 @@
       "description": "Os moderadores enviaram a seguinte mensagem para você. Leia com atenção e confirme que você a leu e entendeu antes de continuar.",
       "note_title": "Mensagem dos moderadores recebida às {{time}}:",
       "acknowledge": "Confirmar mensagem"
+    },
+    "activeness_probe": {
+      "still_hosting": "Eu ainda quero hospedar!",
+      "not_hosting": "Eu não quero mais hospedar.",
+      "note": "Vamos atualizar seu perfil para atender essa escolha!",
+      "title": "Você ainda quer hospedar surfers?",
+      "description": "Notamos que já faz um tempo que você não faz login, e queremos verificar se você ainda quer hospedar surfers."
     }
   },
   "account_settings_page": {
@@ -252,7 +259,7 @@
   "strong_verification": {
     "begin_button": "Concluir Autenticação Forte com Iris ID",
     "delete_information": "Você pode excluir seus dados de Autenticação Forte (exceto país expedidor, data de validade e últimos três dígitos do número do documento) dos nossos servidores a qualquer momento.",
-    "information_text1": "Você precisará de um passaporte biométrico e um dispositivo Apple iPhone ou Android compatível com NFC.",
+    "information_text1": "Você precisará de um <strong>passaporte biométrico</strong> (outros tipos de identidade não funcionarão) e um dispositivo Apple iPhone ou Android compatível com NFC.",
     "information_text3": "Você pode ler mais sobre como nós e o Iris ID processamos e armazenamos seus dados nos nossos <2>Termos de Serviço</2>. Segundo a <5>Política de Privacidade</5> do Iris ID, eles excluirão suas informações pessoais em até 24 horas. Você pode solicitar que os dados dessa Autenticação Forte (exceto país expedidor, data validade e os últimos três dígitos do número do documento) sejam excluídos de nossos servidores a qualquer momento com um clique.",
     "title": "Autenticação Forte",
     "subtitle": "A Autenticação Forte é uma funcionalidade de segurança adicional que permite que você verifique sua data de nascimento e sexo usando seu passaporte biométrico.",
@@ -269,7 +276,8 @@
     "delete_information_text2": "Se excluir seus dados, você não poderá usar o mesmo passaporte para Autenticação Forte novamente.",
     "delete_my_data_button": "Excluir meus dados",
     "delete_button": "Excluir meus dados da Autenticação Forte",
-    "delete_success": "Os dados do seu passaporte foram excluídos."
+    "delete_success": "Os dados do seu passaporte foram excluídos.",
+    "learn_more": "Saiba mais sobre Autenticação Multifator <a>aqui</a>."
   },
   "sign_up_resend_verification_email_help": "Não recebeu o e-mail? Clique <2>aqui para reenviar o link de verificação</2>.",
   "sign_up_resend_verification_done": "Pronto! Enviamos outro e-mail.",

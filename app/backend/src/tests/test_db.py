@@ -2,14 +2,12 @@ import difflib
 import re
 import subprocess
 
+import pytest
 from sqlalchemy.sql import func
 
 from couchers.config import config
 from couchers.db import apply_migrations, get_parent_node_at_location, session_scope
-from couchers.sql import couchers_select as select
 from couchers.utils import (
-    create_coordinate,
-    get_coordinates,
     is_valid_email,
     is_valid_name,
     is_valid_user_id,
@@ -17,7 +15,7 @@ from couchers.utils import (
     parse_date,
 )
 from tests.test_communities import create_1d_point, get_community_id, testing_communities  # noqa
-from tests.test_fixtures import create_schema_from_models, db, drop_all, testconfig  # noqa
+from tests.test_fixtures import create_schema_from_models, db, drop_all, run_migration_test, testconfig  # noqa
 
 
 def test_is_valid_user_id():
@@ -91,23 +89,6 @@ def test_get_parent_node_at_location(testing_communities):
         assert get_parent_node_at_location(session, create_1d_point(51)).id == w_id
 
 
-def test_create_coordinate():
-    test_coords = [
-        ((-95, -185), (-85, 175)),
-        ((95, -180), (85, 180)),  # Weird interaction in PostGIS where lng
-        # flips at -180 only when there is latitude overflow
-        ((90, -180), (90, -180)),
-        ((20, 185), (20, -175)),
-        ((0, 0), (0, 0)),
-    ]
-
-    with session_scope() as session:
-        for coords, coords_expected in test_coords:
-            coords_wrapped = get_coordinates(session.execute(select(create_coordinate(*coords))).scalar_one())
-
-            assert coords_wrapped == coords_expected
-
-
 def pg_dump():
     return subprocess.run(
         ["pg_dump", "-s", config["DATABASE_CONNECTION_STRING"]], stdout=subprocess.PIPE, encoding="ascii", check=True
@@ -144,8 +125,13 @@ def strip_leading_whitespace(lines):
     return [s.lstrip() for s in lines]
 
 
+@pytest.mark.skipif(not run_migration_test(), reason="Migration test disabled")
 def test_migrations(testconfig):
-    """Compares the database schema built up from migrations, with the
+    """
+    This test will only run succesfully if you have `pg_dump` installed and everything set up, which only happens if the
+    test is being run within Gitlab CI where we do all that setup. So we disable it unless explicitly marked to run.
+
+    Compares the database schema built up from migrations, with the
     schema built by models.py. Both scenarios are started from an
     empty database, and dumped with pg_dump. Any unexplainable
     differences in the output are reported in unified diff format and

@@ -40,6 +40,8 @@ service Admin {
 
   rpc SendModNote(SendModNoteReq) returns (UserDetails) {}
 
+  rpc MarkUserNeedsLocationUpdate(MarkUserNeedsLocationUpdateReq) returns (UserDetails) {}
+
   rpc DeleteUser(DeleteUserReq) returns (UserDetails) {}
 
   rpc RecoverDeletedUser(RecoverDeletedUserReq) returns (UserDetails) {}
@@ -74,6 +76,8 @@ service Admin {
   rpc CreateAccountDeletionLink(CreateAccountDeletionLinkReq) returns (CreateAccountDeletionLinkRes) {}
 
   rpc AccessStats(AccessStatsReq) returns (AccessStatsRes) {}
+
+  rpc SendBlogPostNotification(SendBlogPostNotificationReq) returns (google.protobuf.Empty) {}
 }
 
 message UserDetails {
@@ -188,6 +192,11 @@ message SendModNoteReq {
   string internal_id = 3;
   // whether to not notify the user about the note: simply show it to them the next time they log on
   bool do_not_notify = 4;
+}
+
+message MarkUserNeedsLocationUpdateReq {
+  // username, email, or user id
+  string user = 1;
 }
 
 message DeleteUserReq {
@@ -336,4 +345,10 @@ message AccessStat {
 
 message AccessStatsRes {
   repeated AccessStat stats = 1;
+}
+
+message SendBlogPostNotificationReq {
+  string url = 1;
+  string title = 2;
+  string blurb = 3;
 }

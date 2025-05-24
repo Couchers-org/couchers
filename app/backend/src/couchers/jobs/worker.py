@@ -62,10 +62,11 @@ def process_job():
                     select(BackgroundJob)
                     .where(BackgroundJob.ready_for_retry)
                     .order_by(BackgroundJob.priority.desc(), BackgroundJob.next_attempt_after.asc())
+                    .limit(1)
                     .with_for_update(skip_locked=True)
                 )
                 .scalars()
-                .first()
+                .one_or_none()
             )
         except sqlalchemy.exc.OperationalError:
             background_jobs_serialization_errors_counter.inc()
