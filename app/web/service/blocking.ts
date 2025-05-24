@@ -1,7 +1,7 @@
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { BlockUserReq } from "proto/blocking_pb";
 
 import client from "./client";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 
 export interface BlockInput {
   shouldBlock: boolean;
@@ -12,7 +12,7 @@ export async function getBlockedUsers() {
 
   const response = await client.blocking.getBlockedUsers(req);
 
-  return response.toObject().blockedUsernamesList;
+  return response.toObject();
 }
 
 export async function blockUser({ username }: { username: string }) {

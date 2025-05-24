@@ -119,9 +119,10 @@ export async function getLiteUser(user: string) {
 
 /** Returns LiteUsers by ids
  */
-export async function getLiteUsers(userIds: number[]) {
+export async function getLiteUsers(userIdsOrUsernames: number[] | string[]) {
   const req = new GetLiteUsersReq();
-  req.setUsersList(userIds.map(String));
+  req.setUsersList(userIdsOrUsernames.map(String));
+
 
   const response = await client.api.getLiteUsers(req);
 

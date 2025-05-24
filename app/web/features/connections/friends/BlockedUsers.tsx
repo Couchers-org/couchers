@@ -20,6 +20,7 @@ function BlockedUsersList() {
   );
   const { t } = useTranslation([CONNECTIONS]);
 
+console.log("Blocked Usernames:", blockedUsernames);
   return (
     <>
       {/* {error && (

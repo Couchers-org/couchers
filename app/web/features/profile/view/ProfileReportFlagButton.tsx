@@ -24,9 +24,11 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useMutation } from "react-query";
+import { dashboardRoute } from "routes";
 import { service } from "service";
 import { BlockInput, blockUser } from "service/blocking";
 import { ReportInput } from "service/reporting";
@@ -59,6 +61,7 @@ export default function ProfileReportFlagButton({
   profileUsername,
 }: ProfileReportFlagButtonProps) {
   const { t } = useTranslation(GLOBAL);
+  const router = useRouter();
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -122,6 +125,7 @@ export default function ProfileReportFlagButton({
 
     if (shouldBlockField) {
       blockUser({ username: profileUsername });
+      router.push(dashboardRoute)
     }
   });
 
