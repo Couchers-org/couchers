@@ -989,7 +989,7 @@ def user_model_to_pb(db_user, session, context):
         parking_details=parkingdetails2api[db_user.parking_details],
         avatar_url=db_user.avatar.full_url if db_user.avatar else None,
         avatar_thumbnail_url=db_user.avatar.thumbnail_url if db_user.avatar else None,
-        badges=session.execute(select(UserBadge.id).where(UserBadge.user_id == db_user.id).order_by(UserBadge.id))
+        badges=session.execute(select(UserBadge.badge_id).where(UserBadge.user_id == db_user.id).order_by(UserBadge.id))
         .scalars()
         .all(),
         **get_strong_verification_fields(session, db_user),
