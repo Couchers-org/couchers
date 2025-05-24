@@ -24,7 +24,7 @@ export function PushNotificationBanner() {
   const [lastDismissedEpoch, setLastDismissedEpoch] = usePersistedState<
     number | null
   >("notification_banner.dismissed", null);
-  const [bannerVisible, setBannerVisible] = useState<boolean>(true);
+  const [bannerVisible, setBannerVisible] = useState<boolean>(false);
   const [shouldPromptAllow, setShouldPromptAllow] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
