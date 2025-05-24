@@ -1,21 +1,33 @@
-import { Alert as MuiAlert } from "@mui/material";
+import { Alert, Button, styled } from "@mui/material";
 import { useAuthContext } from "features/auth/AuthProvider";
-import Link from "next/link";
+import { useTranslation } from "i18n";
+import { NOTIFICATIONS } from "i18n/namespaces";
 import { usePersistedState } from "platform/usePersistedState";
 import React, { useEffect, useState } from "react";
 import { Trans } from "react-i18next";
-import { settingsRoute } from "routes";
+import { theme } from "theme";
 
 import { checkPushEnabled } from "./notificationUtils";
+import { onPushNotificationPermissionGranted } from "./utils/helpers";
 
 const TIME_BETWEEN_NAGS_MS = 180 * 86400; // 180 days
 
+const Wrapper = styled("div")({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  width: "100%",
+});
+
 export function PushNotificationBanner() {
+  const { t } = useTranslation([NOTIFICATIONS]);
   // the epoch value of the last time this banner was dismissed
   const [lastDismissedEpoch, setLastDismissedEpoch] = usePersistedState<
     number | null
   >("notification_banner.dismissed", null);
   const [bannerVisible, setBannerVisible] = useState<boolean>(false);
+  const [shouldPromptAllow, setShouldPromptAllow] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const {
     authState: { authenticated },
@@ -37,23 +49,61 @@ export function PushNotificationBanner() {
     };
 
     checkPush();
-  }, [authenticated]);
+  }, [authenticated, lastDismissedEpoch]);
 
   const dismiss = () => {
     setLastDismissedEpoch(new Date().getTime());
     setBannerVisible(false);
   };
 
-  return (
-    bannerVisible && (
-      <MuiAlert severity="info" onClose={dismiss}>
-        <Trans
-          i18nKey="global:push_notification_banner.message"
-          components={{
-            1: <Link href={settingsRoute} />,
-          }}
-        />
-      </MuiAlert>
-    )
+  const turnPushNotificationsOn = async () => {
+    if (Notification.permission !== "denied") {
+      setShouldPromptAllow(true);
+      const result = await Notification.requestPermission();
+      setShouldPromptAllow(false);
+
+      if (result === "granted") {
+        const result = await onPushNotificationPermissionGranted();
+
+        if (!result.success) {
+          setErrorMessage(result.errorMessage);
+        } else {
+          setBannerVisible(false);
+        }
+      }
+    }
+  };
+
+  if (!bannerVisible) return null;
+
+  if (errorMessage) {
+    return (
+      <Alert severity="error" onClose={dismiss}>
+        {errorMessage}
+      </Alert>
+    );
+  }
+
+  return shouldPromptAllow ? (
+    <Alert severity="info" onClose={dismiss}>
+      {t("notification_settings.push_notifications.allow_push")}
+    </Alert>
+  ) : (
+    <Alert
+      severity="info"
+      onClose={dismiss}
+      sx={{ alignItems: "center", ".MuiAlert-message": { width: "100%" } }}
+    >
+      <Wrapper>
+        <Trans i18nKey="global:push_notification_banner.message" />
+        <Button
+          variant="outlined"
+          sx={{ backgroundColor: theme.palette.common.white }}
+          onClick={turnPushNotificationsOn}
+        >
+          {t("global:push_notification_banner.confirm")}
+        </Button>
+      </Wrapper>
+    </Alert>
   );
 }

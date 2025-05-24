@@ -5,15 +5,11 @@ import { Trans, useTranslation } from "i18n";
 import { NOTIFICATIONS } from "i18n/namespaces";
 import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
-import {
-  getVapidPublicKey,
-  registerPushNotificationSubscription,
-} from "service/notifications";
 import { theme } from "theme";
-import { arrayBufferToBase64 } from "utils/arrayBufferToBase64";
 
 import { checkPushEnabled, getCurrentSubscription } from "./notificationUtils";
 import PushNotificationDenied from "./PushNotificationDenied";
+import { onPushNotificationPermissionGranted } from "./utils/helpers";
 
 const StyledAlert = styled(Alert)(({ theme }) => ({
   marginBottom: theme.spacing(3),
@@ -56,69 +52,6 @@ export default function PushNotificationSettings() {
     checkPushEnabledWrap();
   }, [t]);
 
-  const onPermissionGranted = async () => {
-    try {
-      // Check if service workers and push notifications are supported
-      if ("serviceWorker" in navigator && "PushManager" in window) {
-        const existingPushSubscription = await getCurrentSubscription();
-        const p256dhKey = existingPushSubscription?.getKey("p256dh");
-        const { vapidPublicKey } = await getVapidPublicKey();
-
-        if (existingPushSubscription && p256dhKey) {
-          const publicKey = arrayBufferToBase64(p256dhKey);
-
-          /**
-           * The purpose of this check is to ensure that the push subscription is correctly authenticated with the server’s VAPID key.
-           * If the client’s p256dh key no longer matches the server’s vapidPublicKey, then the subscription is unsubscribed and needs
-           * to be re-registered to ensure the security and validity of the Web Push connection.
-           */
-          if (publicKey !== vapidPublicKey) {
-            await existingPushSubscription.unsubscribe();
-          } else {
-            return;
-          }
-        }
-
-        const registration = await navigator.serviceWorker.getRegistration();
-
-        // Subscribe to push notifications via the PushManager
-        const subscription: PushSubscription =
-          await registration!.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: vapidPublicKey,
-          });
-
-        await registerPushNotificationSubscription(subscription);
-      } else {
-        setErrorMessage(
-          t("notification_settings.push_notifications.error_unsupported"),
-        );
-        Sentry.captureException(
-          new Error("Push notifications or service workers not supported"),
-          {
-            tags: {
-              component: "PushNotificationPermission",
-              action: "onPermissionGranted",
-              userAgent: navigator.userAgent,
-            },
-          },
-        );
-      }
-    } catch (error) {
-      console.error("Error subscribing to push notifications", error);
-      setErrorMessage(
-        t("notification_settings.push_notifications.error_generic"),
-      );
-
-      Sentry.captureException(error, {
-        tags: {
-          component: "PushNotificationPermission",
-          action: "onPermissionGranted",
-        },
-      });
-    }
-  };
-
   const turnPushNotificationsOn = async () => {
     if (Notification.permission !== "denied") {
       setIsLoading(true);
@@ -127,8 +60,13 @@ export default function PushNotificationSettings() {
       setShouldPromptAllow(false);
 
       if (result === "granted") {
-        await onPermissionGranted();
-        setIsPushEnabled(true);
+        const result = await onPushNotificationPermissionGranted();
+
+        if (!result.success) {
+          setErrorMessage(result.errorMessage);
+        } else {
+          setIsPushEnabled(true);
+        }
       } else {
         setIsPushEnabled(false);
       }
