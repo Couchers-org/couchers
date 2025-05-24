@@ -745,7 +745,7 @@ def test_multiple_delete_tokens(db):
 
     with session_scope() as session:
         assert session.execute(select(func.count()).select_from(AccountDeletionToken)).scalar_one() == 3
-        token = session.execute(select(AccountDeletionToken)).scalars().first().token
+        token = session.execute(select(AccountDeletionToken).limit(1)).scalars().one_or_none().token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.ConfirmDeleteAccount(

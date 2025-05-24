@@ -285,7 +285,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             .where(Message.time >= GroupChatSubscription.joined)
             .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
             .order_by(Message.id.desc())
-        ).first()
+            .limit(1)
+        ).one_or_none()
 
         if not result:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
@@ -331,7 +332,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             .where(Message.time >= GroupChatSubscription.joined)
             .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
             .order_by(Message.id.desc())
-        ).first()
+            .limit(1)
+        ).one_or_none()
 
         if not result:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)

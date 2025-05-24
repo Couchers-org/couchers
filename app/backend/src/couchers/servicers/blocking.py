@@ -19,7 +19,7 @@ def are_blocked(session, user1_id, user2_id):
         .where(UserBlock.blocking_user_id == user2_id)
         .where(UserBlock.blocked_user_id == user1_id)
     )
-    return session.execute(select(union(blocked_users, blocking_users).subquery())).first() is not None
+    return session.execute(select(union(blocked_users, blocking_users).subquery()).limit(1)).one_or_none() is not None
 
 
 class Blocking(blocking_pb2_grpc.BlockingServicer):
