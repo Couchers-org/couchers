@@ -3,7 +3,7 @@ from urllib.parse import urlencode
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import and_, delete, func, intersect, or_, union
+from sqlalchemy.sql import and_, delete, distinct, func, intersect, or_, union
 
 from couchers import errors, urls
 from couchers.config import config
@@ -151,12 +151,13 @@ class API(api_pb2_grpc.APIServicer):
         ).subquery()
 
         unseen_sent_host_request_count = session.execute(
-            select(func.count(Message.id))
+            select(func.count(distinct(sent_reqs_last_seen_message_ids.c.conversation_id)))
             .join(
-                sent_reqs_last_seen_message_ids,
-                sent_reqs_last_seen_message_ids.c.conversation_id == Message.conversation_id,
+                Message,
+                Message.conversation_id == sent_reqs_last_seen_message_ids.c.conversation_id,
             )
             .where(sent_reqs_last_seen_message_ids.c.surfer_last_seen_message_id < Message.id)
+            .where(Message.id != None)
         ).scalar_one()
 
         received_reqs_last_seen_message_ids = (
@@ -166,12 +167,13 @@ class API(api_pb2_grpc.APIServicer):
         ).subquery()
 
         unseen_received_host_request_count = session.execute(
-            select(func.count(Message.id))
+            select(func.count(distinct(received_reqs_last_seen_message_ids.c.conversation_id)))
             .join(
-                received_reqs_last_seen_message_ids,
-                received_reqs_last_seen_message_ids.c.conversation_id == Message.conversation_id,
+                Message,
+                Message.conversation_id == received_reqs_last_seen_message_ids.c.conversation_id,
             )
             .where(received_reqs_last_seen_message_ids.c.host_last_seen_message_id < Message.id)
+            .where(Message.id != None)
         ).scalar_one()
 
         unseen_message_count = session.execute(
