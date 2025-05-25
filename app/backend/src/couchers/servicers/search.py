@@ -605,23 +605,11 @@ class Search(search_pb2_grpc.SearchServicer):
 
     def UserSearchV2(self, request, context, session):
         user_ids_to_return, next_page_token, total_items = _user_search_inner(request, context, session)
-        # print("user_ids_to_return")
-        # print(user_ids_to_return)
 
-        # print(session.execute(select(lite_users).where(lite_users.c.id.in_(user_ids_to_return))).all())
         lite_users_by_id = {
             lite_user.id: lite_user
             for lite_user in session.execute(select(lite_users).where(lite_users.c.id.in_(user_ids_to_return))).all()
         }
-        # print("lite_users_by_id")
-        # print(lite_users_by_id.keys())
-        # print(lite_users_by_id)
-
-        print(
-            session.execute(
-                select(user_response_rates).where(user_response_rates.c.user_id.in_(user_ids_to_return))
-            ).all()
-        )
 
         response_rates_by_id = {
             resp_rate.user_id: resp_rate
@@ -629,9 +617,6 @@ class Search(search_pb2_grpc.SearchServicer):
                 select(user_response_rates).where(user_response_rates.c.user_id.in_(user_ids_to_return))
             ).all()
         }
-        print("response_rates_by_id")
-        print(response_rates_by_id.keys())
-        print(response_rates_by_id)
 
         db_user_data_by_id = {
             user_id: (about_me, gender, last_active, hosting_status, meetup_status)
@@ -641,9 +626,8 @@ class Search(search_pb2_grpc.SearchServicer):
                 ).where(User.id.in_(user_ids_to_return))
             ).all()
         }
-        print("db_user_data_by_id")
-        print(db_user_data_by_id.keys())
-        print(db_user_data_by_id)
+
+        ref_counts_by_user_id = get_num_references(session, user_ids_to_return)
 
         def _user_to_search_user(user_id):
             lite_user = lite_users_by_id[user_id]
@@ -660,7 +644,7 @@ class Search(search_pb2_grpc.SearchServicer):
                 lat=lat,
                 lng=lng,
                 profile_snippet=about_me,
-                num_references=get_num_references(session, lite_user.id),
+                num_references=ref_counts_by_user_id.get(lite_user.id, 0),
                 gender=gender,
                 age=int(lite_user.age),
                 last_active=Timestamp_from_datetime(last_active_coarsen(last_active)),
