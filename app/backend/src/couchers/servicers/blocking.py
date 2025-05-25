@@ -2,7 +2,7 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import union
 
-from couchers import errors
+from couchers import errors, urls
 from couchers.models import Upload, User, UserBlock
 from couchers.sql import couchers_select as select
 from proto import blocking_pb2, blocking_pb2_grpc
@@ -85,7 +85,7 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
                 blocking_pb2.BlockedUser(
                     username=blocked_user.username,
                     name=blocked_user.name,
-                    avatar_thumbnail_url=Upload(filename=blocked_user.filename).thumbnail_url
+                    avatar_thumbnail_url=urls.media_url(filename=blocked_user.filename, size="thumbnail")
                     if blocked_user.filename
                     else None,
                 )
