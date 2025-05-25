@@ -349,7 +349,7 @@ def _user_search_inner(request, context, session):
     user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
     # Base statement with visibility filter
-    statement = select(User.id).where_users_visible(context)
+    statement = select(User.id, User.recommendation_score).where_users_visible(context)
 
     # If exactly_user_ids is present, only filter by those IDs and ignore all other filters
     # This is a bit of a hacky feature to help with the frontend map implementation
@@ -528,10 +528,12 @@ def _user_search_inner(request, context, session):
         .order_by(User.recommendation_score.desc())
         .limit(page_size + 1)
     )
-    users = session.execute(statement).scalars().all()
-
-    next_page_token = encrypt_page_token(str(users[-1].recommendation_score)) if len(users) > page_size else None
-
+    res = session.execute(statement).all()
+    if res:
+        users, rec_scores = zip(*res)
+    else:
+        users = []
+    next_page_token = encrypt_page_token(str(rec_scores[-1])) if len(users) > page_size else None
     return users[:page_size], next_page_token, total_items
 
 

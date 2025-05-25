@@ -744,3 +744,37 @@ def test_event_search_filter_subscription_attendance_organizing_my_communities(s
 
         res = api.EventSearch(search_pb2.EventSearchReq(subscribed=True, attending=True))
         assert {event.title for event in res.events} == {"Subscribed event", "Attending event", "Organized event"}
+
+
+def test_regression_search_multiple_pages(db):
+    """
+    There was a bug when there are multiple pages of results
+    """
+    user, token = generate_user()
+    user_ids = [user.id]
+    for _ in range(10):
+        other_user, _ = generate_user()
+        user_ids.append(other_user.id)
+
+    refresh_materialized_views_rapid(None)
+    refresh_materialized_views(None)
+
+    with search_session(token) as api:
+        res = api.UserSearchV2(search_pb2.UserSearchReq(page_size=5))
+        assert [result.user_id for result in res.results] == user_ids[:5]
+        assert res.next_page_token
+
+
+def test_regression_search_no_results(db):
+    """
+    There was a bug when there were no results
+    """
+    # put us far away
+    user, token = generate_user()
+
+    refresh_materialized_views_rapid(None)
+    refresh_materialized_views(None)
+
+    with search_session(token) as api:
+        res = api.UserSearchV2(search_pb2.UserSearchReq(only_with_references=True))
+        assert len(res.results) == 0
