@@ -43,7 +43,7 @@ export interface UserSearchFilters {
   smokesAtHome?: boolean | undefined;
 }
 
-export async function userSearch(
+function constructUserSearchReq(
   {
     acceptsKids,
     acceptsLastMinRequests,
@@ -153,7 +153,18 @@ export async function userSearch(
     req.setSmokesAtHome(new BoolValue().setValue(smokesAtHome));
   }
 
+  return req;
+}
+
+export async function userSearch(filters: UserSearchFilters, pageToken = "") {
+  const req = constructUserSearchReq(filters, pageToken);
   const response = await client.search.userSearch(req);
+  return response.toObject();
+}
+
+export async function userSearchV2(filters: UserSearchFilters, pageToken = "") {
+  const req = constructUserSearchReq(filters, pageToken);
+  const response = await client.search.userSearchV2(req);
   return response.toObject();
 }
 

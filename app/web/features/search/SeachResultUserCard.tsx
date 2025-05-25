@@ -8,7 +8,7 @@ import { ResponseRateText } from "features/profile/view/userLabels";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { TFunction } from "i18next";
-import { User } from "proto/api_pb";
+import { SearchUser } from "proto/search_pb";
 import LinesEllipsis from "react-lines-ellipsis";
 import { routeToUser } from "routes";
 import { theme } from "theme";
@@ -22,7 +22,7 @@ import { aboutText, truncateWithEllipsis } from "./utils/constants";
 interface SearchResultUserCardProps {
   isHighlighted?: boolean;
   onUserCardClick: (userId: number) => void;
-  user: User.AsObject;
+  user: SearchUser.AsObject;
 }
 
 const StyledCard = styled("div", {
@@ -121,11 +121,11 @@ const HaikuContainer = styled("div")(({ theme }) => ({
 }));
 
 const generateAboutText = (
-  user: User.AsObject,
+  user: SearchUser.AsObject,
   t: TFunction,
   isMobile: boolean,
 ) => {
-  const missingAbout = user.aboutMe.length === 0;
+  const missingAbout = user.profileSnippet.length === 0;
   const hasPhoto = user.avatarUrl.length > 0;
 
   if (missingAbout && !hasPhoto) {
