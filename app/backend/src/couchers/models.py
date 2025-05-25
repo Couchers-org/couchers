@@ -885,6 +885,16 @@ class FriendRelationship(Base):
     from_user = relationship("User", backref="friends_from", foreign_keys="FriendRelationship.from_user_id")
     to_user = relationship("User", backref="friends_to", foreign_keys="FriendRelationship.to_user_id")
 
+    __table_args__ = (
+        # Ping looks up pending friend reqs, this speeds that up
+        Index(
+            "ix_friend_relationships_status_to_from",
+            status,
+            to_user_id,
+            from_user_id,
+        ),
+    )
+
 
 class ContributeOption(enum.Enum):
     yes = enum.auto()
@@ -2494,6 +2504,20 @@ class Notification(Base):
         Index(
             "ix_notifications_created",
             created,
+        ),
+        # Fast lookup for unseen notification count
+        Index(
+            "ix_notifications_unseen",
+            user_id,
+            topic_action,
+            postgresql_where=(is_seen == False),
+        ),
+        # Fast lookup for latest notifications
+        Index(
+            "ix_notifications_latest",
+            user_id,
+            id.desc(),
+            topic_action,
         ),
     )
 

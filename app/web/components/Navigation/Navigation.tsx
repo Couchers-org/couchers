@@ -15,6 +15,7 @@ import { CloseIcon, MenuIcon } from "components/Icons";
 import { MenuItem } from "components/Menu";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
+import { PushNotificationBanner } from "features/notifications/PushNotificationBanner";
 import useNotifications from "features/useNotifications";
 import { GLOBAL } from "i18n/namespaces";
 import { TFunction } from "i18next";
@@ -504,6 +505,7 @@ export default function Navigation() {
         </StyledMenuContainer>
       </StyledToolbar>
       <GlobalMessage />
+      <PushNotificationBanner />
     </StyledAppBar>
   );
 }
