@@ -154,13 +154,15 @@ lite_users = create_materialized_view_with_different_ddl(
     [
         Index("uq_lite_users_id", lite_users_selectable_create.c.id, unique=True),
         Index(
-            "uq_lite_users_id_visible",
+            "ix_lite_users_id_visible",
             lite_users_selectable_create.c.id,
+            postgresql_using="hash",
             postgresql_where=lite_users_selectable_create.c.is_visible,
         ),
         Index(
-            "uq_lite_users_username_visible",
+            "ix_lite_users_username_visible",
             lite_users_selectable_create.c.username,
+            postgresql_using="hash",
             postgresql_where=lite_users_selectable_create.c.is_visible,
         ),
     ],
