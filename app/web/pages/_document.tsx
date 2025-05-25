@@ -16,6 +16,10 @@ export default class MyDocument extends Document {
             rel="stylesheet"
             href="https://cdn.couchers.org/fonts/ubuntu/ubuntu.css"
           />
+          <link
+            rel="stylesheet"
+            href="https://cdn.couchers.org/fonts/wordmark/wordmark.css"
+          />
         </Head>
         <body>
           <Main />

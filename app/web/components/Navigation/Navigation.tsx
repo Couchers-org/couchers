@@ -268,7 +268,7 @@ const StyledDrawer = styled(Drawer)(({ theme }) => ({
 const StyledDrawerTitle = styled("div")(({ theme }) => ({
   alignSelf: "center",
   fontSize: "1.5rem",
-  fontWeight: "bold",
+  fontWeight: 400,
   paddingLeft: theme.spacing(1),
   color: theme.palette.secondary.main,
   fontFamily: "'Mansalva', cursive",
