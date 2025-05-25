@@ -51,6 +51,8 @@ def upgrade():
         postgresql_where=sa.text("NOT is_banned AND NOT is_deleted"),
     )
     op.execute("""
+        DROP INDEX ix_users_geom_active;
+        CREATE INDEX ix_users_geom_active ON users USING gist (geom, id, username) WHERE ((NOT is_banned) AND (NOT is_deleted));
         DROP INDEX uq_lite_users_id_visible;
         DROP INDEX uq_lite_users_username_visible;
         CREATE INDEX ix_lite_users_id_visible ON lite_users USING hash (id) WHERE is_visible;
@@ -85,4 +87,6 @@ def downgrade():
         DROP INDEX ix_lite_users_username_visible;
         CREATE INDEX uq_lite_users_id_visible ON lite_users(id) WHERE is_visible;
         CREATE INDEX uq_lite_users_username_visible ON lite_users(username) WHERE is_visible;
+        DROP INDEX ix_users_geom_active;
+        CREATE INDEX ix_users_geom_active ON public.users USING btree (geom, id, username) WHERE ((NOT is_banned) AND (NOT is_deleted) AND (geom IS NOT NULL));
     """)

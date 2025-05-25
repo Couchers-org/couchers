@@ -342,6 +342,7 @@ class User(Base):
             geom,
             id,
             username,
+            postgresql_using="gist",
             postgresql_where=and_(not_(is_banned), not_(is_deleted)),
         ),
         Index(
