@@ -109,7 +109,6 @@ const HaikuContainer = styled("div")(({ theme }) => ({
   flexDirection: "column",
   justifyContent: "center", // vertical centering
   alignItems: "center",
-  fontFamily: "Georgia, serif",
   fontStyle: "italic",
   whiteSpace: "pre-line",
   lineHeight: 1.8,
