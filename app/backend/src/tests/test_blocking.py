@@ -91,12 +91,23 @@ def test_GetBlockedUsers(db):
     with blocking_session(token1) as user_blocks:
         # Check no blocked users to start
         blocked_user_list = user_blocks.GetBlockedUsers(empty_pb2.Empty())
-        assert len(blocked_user_list.blocked_usernames) == 0
+        assert len(blocked_user_list.blocked_users) == 0
 
         make_user_block(user1, user2)
         make_user_block(user1, user3)
         blocked_user_list = user_blocks.GetBlockedUsers(empty_pb2.Empty())
-        assert len(blocked_user_list.blocked_usernames) == 2
+        assert len(blocked_user_list.blocked_users) == 2
+
+        blocked_usernames = [user.username for user in blocked_user_list.blocked_users]
+        blocked_names = [user.name for user in blocked_user_list.blocked_users]
+        blocked_avatar_urls = [user.avatar_thumbnail_url for user in blocked_user_list.blocked_users]
+
+        assert user2.username in blocked_usernames
+        assert user3.username in blocked_usernames
+        assert user2.name in blocked_names
+        assert user3.name in blocked_names
+        assert user2.avatar.thumbnail_url in blocked_avatar_urls
+        assert user3.avatar.thumbnail_url in blocked_avatar_urls
 
 
 def test_relationships_userblock_dot_user(db):
@@ -111,3 +122,7 @@ def test_relationships_userblock_dot_user(db):
         ).scalar_one_or_none()
         assert block.blocking_user.username == user1.username
         assert block.blocked_user.username == user2.username
+        assert block.blocking_user.name == user1.name
+        assert block.blocked_user.name == user2.name
+        assert block.blocking_user.avatar.thumbnail_url == user1.avatar.thumbnail_url
+        assert block.blocked_user.avatar.thumbnail_url == user2.avatar.thumbnail_url
