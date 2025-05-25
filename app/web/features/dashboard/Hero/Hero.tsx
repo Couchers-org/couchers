@@ -42,9 +42,18 @@ export default function Hero() {
         // echo "data:image/png;base64,$(cat 5.png | base64 -w 0)"
         placeHolderSrc="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAADCAIAAADUVFKvAAAAO0lEQVQI1wEwAM//AZqxot4B/d78+d38/N/8+wRIDRH9AQHu+vnD1NQQHhsBUWNNFQ0N+/n39fT3/Q8PwSsbXi/QOgYAAAAASUVORK5CYII="
         imageWidths={[
-          { width: 1024, fileName: "/img/hero/1024.jpeg" },
-          { width: 2048, fileName: "/img/hero/2048.jpeg" },
-          { width: 4096, fileName: "/img/hero/4096.jpeg" },
+          {
+            width: 1024,
+            fileName: "https://cdn.couchers.org/img/hero/1024.jpeg",
+          },
+          {
+            width: 2048,
+            fileName: "https://cdn.couchers.org/img/hero/2048.jpeg",
+          },
+          {
+            width: 4096,
+            fileName: "https://cdn.couchers.org/img/hero/4096.jpeg",
+          },
         ]}
       />
     </StyledOuterContainer>
