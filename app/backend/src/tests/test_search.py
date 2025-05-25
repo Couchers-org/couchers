@@ -751,7 +751,7 @@ def test_regression_search_multiple_pages(db):
     There was a bug when there are multiple pages of results
     """
     user, token = generate_user()
-    user_ids = []
+    user_ids = [user.id]
     for _ in range(10):
         other_user, _ = generate_user()
         user_ids.append(other_user.id)
@@ -762,7 +762,7 @@ def test_regression_search_multiple_pages(db):
     with search_session(token) as api:
         res = api.UserSearchV2(search_pb2.UserSearchReq(page_size=5))
         assert [result.user_id for result in res.results] == user_ids[:5]
-        assert res.page_token
+        assert res.next_page_token
 
 
 def test_regression_search_no_results(db):
