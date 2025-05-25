@@ -2,7 +2,7 @@
 const { i18n } = require("./next-i18next.config"); // eslint-disable-line
 const { redirects } = require("./redirects"); // eslint-disable-line
 
-module.exports = {
+const nextConfig = {
   assetPrefix: process.env.ASSET_PREFIX,
   reactStrictMode: true,
   eslint: {
@@ -89,6 +89,12 @@ module.exports = {
 // Injected content via Sentry wizard below
 
 const { withSentryConfig } = require("@sentry/nextjs");
+
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+});
+
+module.exports = withBundleAnalyzer(nextConfig);
 
 module.exports = withSentryConfig(module.exports, {
   // For all available options, see:

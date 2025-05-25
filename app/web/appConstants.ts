@@ -1,5 +1,3 @@
-import { LngLat } from "maplibre-gl";
-
 export const eventImagePlaceholderUrl = "/img/eventImagePlaceholder.svg";
 
 export const userLocationMaxRadius = 2000;
