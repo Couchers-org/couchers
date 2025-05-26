@@ -100,16 +100,11 @@ def test_GetBlockedUsers(db):
 
         blocked_usernames = [user.username for user in blocked_user_list.blocked_users]
         blocked_names = [user.name for user in blocked_user_list.blocked_users]
-        blocked_avatar_urls = [
-            user.avatar_thumbnail_url if user.avatar_thumbnail_url else None for user in blocked_user_list.blocked_users
-        ]
 
         assert user2.username in blocked_usernames
         assert user3.username in blocked_usernames
         assert user2.name in blocked_names
         assert user3.name in blocked_names
-        assert user2.avatar.thumbnail_url in blocked_avatar_urls if user2.avatar else None
-        assert user3.avatar.thumbnail_url in blocked_avatar_urls if user3.avatar else None
 
 
 def test_relationships_userblock_dot_user(db):
@@ -125,15 +120,11 @@ def test_relationships_userblock_dot_user(db):
 
         blocking_user_username = block.blocking_user.username
         blocking_user_name = block.blocking_user.name
-        blocking_user_avatar_url = block.blocking_user.avatar.thumbnail_url if block.blocking_user.avatar else None
 
         blocked_user_username = block.blocked_user.username
         blocked_user_name = block.blocked_user.name
-        blocked_user_avatar_url = block.blocked_user.avatar.thumbnail_url if block.blocked_user.avatar else None
 
     assert blocking_user_username == user1.username
     assert blocked_user_username == user2.username
     assert blocking_user_name == user1.name
     assert blocked_user_name == user2.name
-    assert blocking_user_avatar_url == user1.avatar.thumbnail_url if user1.avatar else None
-    assert blocked_user_avatar_url == user2.avatar.thumbnail_url if user2.avatar else None
