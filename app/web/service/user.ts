@@ -123,7 +123,6 @@ export async function getLiteUsers(userIdsOrUsernames: number[] | string[]) {
   const req = new GetLiteUsersReq();
   req.setUsersList(userIdsOrUsernames.map(String));
 
-
   const response = await client.api.getLiteUsers(req);
 
   return response.toObject();

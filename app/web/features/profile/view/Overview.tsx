@@ -4,7 +4,6 @@ import Button from "components/Button";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAccountInfo from "features/auth/useAccountInfo";
-import FlagButton from "features/FlagButton";
 import FriendActions from "features/profile/actions/FriendActions";
 import MessageUserButton from "features/profile/actions/MessageUserButton";
 import UserOverview from "features/profile/view/UserOverview";

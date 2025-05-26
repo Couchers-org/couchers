@@ -9,6 +9,7 @@ import Avatar from "components/Avatar";
 import { OpenInNewIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import { LiteUser } from "proto/api_pb";
+import { BlockedUser } from "proto/blocking_pb";
 import React from "react";
 import { routeToUser } from "routes";
 
@@ -59,7 +60,7 @@ export interface UserSummaryProps {
   smallAvatar?: boolean;
   nameOnly?: boolean;
   headlineComponent?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
-  user?: LiteUser.AsObject;
+  user?: LiteUser.AsObject | BlockedUser.AsObject;
   titleIsLink?: boolean;
 }
 
@@ -82,7 +83,10 @@ export default function UserSummary({
       component={headlineComponentWithRef}
       variant="h2"
       noWrap={nameOnly}
-      sx={{ marginTop: "auto", fontSize: "1.2rem" }}
+      sx={{
+        marginTop: "auto",
+        fontSize: "1.2rem",
+      }}
     >
       {!user ? (
         <Skeleton
@@ -91,8 +95,12 @@ export default function UserSummary({
         />
       ) : (
         <>
-          {nameOnly ? user.name : `${user.name}, ${user.age}`}
-          {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
+          {nameOnly
+            ? user.name
+            : `${user.name}${"age" in user ? `, ${user.age}` : ""}`}
+          {"hasStrongVerification" in user && user.hasStrongVerification ? (
+            <StrongVerificationBadge />
+          ) : null}
         </>
       )}
     </Typography>
@@ -136,7 +144,7 @@ export default function UserSummary({
                 variant="body1"
                 noWrap={nameOnly}
               >
-                {!user ? <Skeleton /> : user.city}
+                {!user ? <Skeleton /> : "city" in user ? user.city : null}
               </Typography>
             )}
             {children}

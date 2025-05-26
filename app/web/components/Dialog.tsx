@@ -53,7 +53,12 @@ export function DialogContent(props: Omit<DialogContentProps, "className">) {
 }
 
 export function DialogContentText(props: DialogContentTextProps) {
-  return <MuiDialogContentText {...props} sx={{ padding: theme.spacing(2), ...props.sx }} />;
+  return (
+    <MuiDialogContentText
+      {...props}
+      sx={{ padding: theme.spacing(2), ...props.sx }}
+    />
+  );
 }
 
 interface DialogTitleProps extends Omit<MuiDialogTitleProps, "className"> {

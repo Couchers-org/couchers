@@ -34,7 +34,7 @@ import { BlockInput, blockUser } from "service/blocking";
 import { ReportInput } from "service/reporting";
 import { theme } from "theme";
 
-export interface ProfileReportFlagButtonProps {
+interface ProfileReportFlagButtonProps {
   contentRef: string;
   authorUser: string | number;
   profileUsername: string;
@@ -125,7 +125,7 @@ export default function ProfileReportFlagButton({
 
     if (shouldBlockField) {
       blockUser({ username: profileUsername });
-      router.push(dashboardRoute)
+      router.push(dashboardRoute);
     }
   });
 

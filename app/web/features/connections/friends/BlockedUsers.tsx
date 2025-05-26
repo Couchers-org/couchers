@@ -1,34 +1,35 @@
+import { blockedUsersKey } from "features/queryKeys";
+import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { CONNECTIONS } from "i18n/namespaces";
+import { BlockedUser, GetBlockedUsersRes } from "proto/blocking_pb";
+import { useQuery } from "react-query";
+import { service } from "service";
 
-import FriendTile from "./FriendTile";
-import { useBlockedUsers } from "./useBlockedUsers";
 import FriendSummaryView from "./FriendSummaryView";
-import { LiteUser } from "proto/api_pb";
+import FriendTile from "./FriendTile";
 
 function BlockedUsersList() {
   const { t } = useTranslation([CONNECTIONS]);
 
-  const { blockedUsers, error, isError, isLoading } = useBlockedUsers();
-
-  console.log("Blocked users:", blockedUsers);
+  const { data, error, isLoading } = useQuery<
+    GetBlockedUsersRes.AsObject,
+    RpcError
+  >(blockedUsersKey, service.blocking.getBlockedUsers);
 
   return (
     <>
-      {/* {error && (
-        <Alert severity="error" sx={{ marginBottom: theme.spacing(2) }}>
-          {error.message}
-        </Alert>
-      )} */}
-      {/* <FriendTile
+      <FriendTile
         title={t("connections:blocked_list_title")}
-        errorMessage={error || null}
+        errorMessage={error?.message || null}
         isLoading={isLoading}
-        hasData={!!blockedUsers.length}
+        hasData={!!data?.blockedUsersList.length}
         noDataMessage={t("connections:no_blocked_users")}
       >
-
-      </FriendTile> */}
+        {data?.blockedUsersList.map((user: BlockedUser.AsObject) => (
+          <FriendSummaryView key={user.username} friend={user} />
+        ))}
+      </FriendTile>
     </>
   );
 }
