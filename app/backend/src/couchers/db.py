@@ -161,28 +161,25 @@ def get_parent_node_at_location(session, shape):
     Shape can be any PostGIS geo object, e.g. output from create_coordinate
     """
 
-    # Fin the lowest Node (in the Node tree) that contains the shape. By construction of nodes, the area of a sub-node
+    # Find the lowest Node (in the Node tree) that contains the shape. By construction of nodes, the area of a sub-node
     # must always be less than its parent Node, so no need to actually traverse the tree!
     return (
-        session.execute(select(Node).where(func.ST_Contains(Node.geom, shape)).order_by(func.ST_Area(Node.geom)))
+        session.execute(
+            select(Node).where(func.ST_Contains(Node.geom, shape)).order_by(func.ST_Area(Node.geom)).limit(1)
+        )
         .scalars()
-        .first()
+        .one_or_none()
     )
 
 
-def get_node_parents_recursively(session, node_id):
-    """
-    Gets the upwards hierarchy of parents, ordered by level, for a given node
-
-    Returns SQLAlchemy rows of (node_id, parent_node_id, level, cluster)
-    """
+def _get_node_parents_recursive_cte_subquery(session, node_id):
     parents = (
         select(Node.id, Node.parent_node_id, literal(0).label("level"))
         .where(Node.id == node_id)
         .cte("parents", recursive=True)
     )
 
-    subquery = select(
+    return select(
         parents.union(
             select(Node.id, Node.parent_node_id, (parents.c.level + 1).label("level")).join(
                 parents, Node.id == parents.c.parent_node_id
@@ -190,6 +187,9 @@ def get_node_parents_recursively(session, node_id):
         )
     ).subquery()
 
+
+def get_node_parents_recursively(session, node_id):
+    subquery = _get_node_parents_recursive_cte_subquery(session, node_id)
     return session.execute(
         select(subquery, Cluster)
         .join(Cluster, Cluster.parent_node_id == subquery.c.id)
@@ -199,15 +199,40 @@ def get_node_parents_recursively(session, node_id):
 
 
 def _can_moderate_any_cluster(session, user_id, cluster_ids):
-    return (
-        session.execute(
-            select(func.count())
-            .select_from(ClusterSubscription)
-            .where(ClusterSubscription.role == ClusterRole.admin)
-            .where(ClusterSubscription.user_id == user_id)
-            .where(ClusterSubscription.cluster_id.in_(cluster_ids))
-        ).scalar_one()
-        > 0
+    return session.execute(
+        select(
+            (
+                select(True)
+                .select_from(ClusterSubscription)
+                .where(ClusterSubscription.role == ClusterRole.admin)
+                .where(ClusterSubscription.user_id == user_id)
+                .where(ClusterSubscription.cluster_id.in_(cluster_ids))
+            ).exists()
+        )
+    ).scalar_one()
+
+
+def can_moderate_node(session, user_id, node_id):
+    """
+    Returns True if the user_id can moderate the given node (i.e., if they are admin of any community that is a parent of the node)
+    """
+    subquery = _get_node_parents_recursive_cte_subquery(session, node_id)
+    return session.execute(
+        select(
+            (
+                select(True)
+                .select_from(ClusterSubscription)
+                .where(ClusterSubscription.role == ClusterRole.admin)
+                .where(ClusterSubscription.user_id == user_id)
+                .join(Cluster, Cluster.id == ClusterSubscription.cluster_id)
+                .where(Cluster.is_official_cluster)
+                .where(Cluster.parent_node_id == subquery.c.id)
+            ).exists()
+        )
+    ).scalar_one()
+
+    return _can_moderate_any_cluster(
+        session, user_id, [cluster.id for _, _, _, cluster in get_node_parents_recursively(session, node_id)]
     )
 
 
@@ -215,25 +240,19 @@ def can_moderate_at(session, user_id, shape):
     """
     Returns True if the user_id can moderate a given geo-shape (i.e., if the shape is contained in any Node that the user is an admin of)
     """
-    cluster_ids = [
-        cluster_id
-        for (cluster_id,) in session.execute(
-            select(Cluster.id)
-            .join(Node, Node.id == Cluster.parent_node_id)
-            .where(Cluster.is_official_cluster)
-            .where(func.ST_Contains(Node.geom, shape))
-        ).all()
-    ]
-    return _can_moderate_any_cluster(session, user_id, cluster_ids)
-
-
-def can_moderate_node(session, user_id, node_id):
-    """
-    Returns True if the user_id can moderate the given node (i.e., if they are admin of any community that is a parent of the node)
-    """
-    return _can_moderate_any_cluster(
-        session, user_id, [cluster.id for _, _, _, cluster in get_node_parents_recursively(session, node_id)]
-    )
+    return session.execute(
+        select(
+            (
+                select(True)
+                .select_from(ClusterSubscription)
+                .where(ClusterSubscription.role == ClusterRole.admin)
+                .where(ClusterSubscription.user_id == user_id)
+                .join(Cluster, Cluster.id == ClusterSubscription.cluster_id)
+                .join(Node, and_(Cluster.is_official_cluster, Node.id == Cluster.parent_node_id))
+                .where(func.ST_Contains(Node.geom, shape))
+            ).exists()
+        )
+    ).scalar_one()
 
 
 def timezone_at_coordinate(session, geom):

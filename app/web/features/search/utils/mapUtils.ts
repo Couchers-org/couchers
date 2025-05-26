@@ -1,5 +1,5 @@
 import { FeatureCollection } from "geojson";
-import { User } from "proto/api_pb";
+import { SearchUser } from "proto/search_pb";
 import { MapRef } from "react-map-gl/maplibre";
 
 import userPin from "../resources/userPin.png";
@@ -7,7 +7,7 @@ import { MapSearchState } from "../state/mapSearchReducers";
 import { Coordinates } from "./constants";
 import { SOURCE_CLUSTERED_USERS_ID } from "./mapLayers";
 
-const usersToGeoJSON = (pins: User.AsObject[]): FeatureCollection => ({
+const usersToGeoJSON = (pins: SearchUser.AsObject[]): FeatureCollection => ({
   type: "FeatureCollection",
   features: pins.map((pin) => ({
     type: "Feature",
@@ -17,8 +17,7 @@ const usersToGeoJSON = (pins: User.AsObject[]): FeatureCollection => ({
     },
     properties: {
       id: pin.userId,
-      hasCompletedProfile:
-        pin.avatarUrl && pin.aboutMe && pin.aboutMe.length >= 150,
+      hasCompletedProfile: pin.hasCompletedProfile,
     },
   })),
 });

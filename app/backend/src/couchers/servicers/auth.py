@@ -296,19 +296,22 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             session.add(user)
 
-            form = ContributorForm(
-                user=user,
-                ideas=flow.ideas or None,
-                features=flow.features or None,
-                experience=flow.experience or None,
-                contribute=flow.contribute or None,
-                contribute_ways=flow.contribute_ways,
-                expertise=flow.expertise or None,
-            )
+            if flow.filled_feedback:
+                form = ContributorForm(
+                    user=user,
+                    ideas=flow.ideas or None,
+                    features=flow.features or None,
+                    experience=flow.experience or None,
+                    contribute=flow.contribute or None,
+                    contribute_ways=flow.contribute_ways,
+                    expertise=flow.expertise or None,
+                )
 
-            session.add(form)
+                session.add(form)
 
-            user.filled_contributor_form = form.is_filled
+                user.filled_contributor_form = form.is_filled
+
+                maybe_send_contributor_form_email(session, form)
 
             signup_duration_s = (now() - flow.created).total_seconds()
 
@@ -316,11 +319,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
             session.commit()
 
             enforce_community_memberships_for_user(session, user)
-
-            if form.is_filled:
-                user.filled_contributor_form = True
-
-            maybe_send_contributor_form_email(session, form)
 
             # sends onboarding email
             notify(
@@ -341,7 +339,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             return auth_pb2.SignupFlowRes(
                 flow_token=flow.flow_token,
                 need_account=not flow.account_is_filled,
-                need_feedback=not flow.filled_feedback,
+                need_feedback=False,
                 need_verify_email=not flow.email_verified,
                 need_accept_community_guidelines=flow.accepted_community_guidelines < GUIDELINES_VERSION,
             )

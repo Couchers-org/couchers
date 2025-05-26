@@ -10,6 +10,7 @@ from zoneinfo import ZoneInfo
 
 import phonenumbers
 from jinja2 import Environment, FileSystemLoader
+from markdown_it import MarkdownIt
 
 from couchers import urls
 from couchers.config import config
@@ -22,6 +23,8 @@ template_folder = Path(__file__).parent / ".." / ".." / ".." / "templates" / "v2
 
 loader = FileSystemLoader(template_folder)
 env = Environment(loader=loader, trim_blocks=True)
+
+md = MarkdownIt("zero", {"typographer": True}).enable(["smartquotes", "heading", "hr", "list", "link", "emphasis"])
 
 
 def v2esc(value):
@@ -69,9 +72,13 @@ def v2avatar(user):
 
 def v2quote(value):
     """
-    Multiline quote
+    Multiline quote, use in place of markdown in plaintext emails
     """
     return "\n> ".join([""] + value.splitlines())
+
+
+def v2markdown(value):
+    return md.render(value)
 
 
 def add_filters(env):
@@ -85,6 +92,7 @@ def add_filters(env):
     env.filters["v2timestamp"] = v2timestamp
     env.filters["v2avatar"] = v2avatar
     env.filters["v2quote"] = v2quote
+    env.filters["v2markdown"] = v2markdown
 
 
 add_filters(env)

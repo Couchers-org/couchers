@@ -1,6 +1,5 @@
 import logging
 from datetime import timedelta
-from types import SimpleNamespace
 
 import grpc
 from google.protobuf import empty_pb2
@@ -16,7 +15,7 @@ from couchers.notifications.notify import notify
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import are_blocked
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime, now
+from couchers.utils import Timestamp_from_datetime, make_user_context, now
 from proto import conversations_pb2, conversations_pb2_grpc, notification_data_pb2
 from proto.internal import jobs_pb2
 
@@ -169,7 +168,7 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
                     author=user_model_to_pb(
                         message.author,
                         session,
-                        SimpleNamespace(user_id=subscription.user_id),
+                        make_user_context(user_id=subscription.user_id),
                     ),
                     message=msg,
                     text=message.text,
@@ -286,7 +285,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             .where(Message.time >= GroupChatSubscription.joined)
             .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
             .order_by(Message.id.desc())
-        ).first()
+            .limit(1)
+        ).one_or_none()
 
         if not result:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
@@ -332,7 +332,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             .where(Message.time >= GroupChatSubscription.joined)
             .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
             .order_by(Message.id.desc())
-        ).first()
+            .limit(1)
+        ).one_or_none()
 
         if not result:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)

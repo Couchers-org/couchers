@@ -25,7 +25,9 @@ from dummy_data import add_dummy_data
 
 check_config()
 
-logging.basicConfig(format="[%(process)5d:%(thread)20d] %(asctime)s: %(name)s: %(message)s", level=logging.INFO)
+logging.basicConfig(
+    format="[%(process)5d:%(thread)20d] %(asctime)s: %(name)s:%(lineno)d: %(message)s", level=logging.INFO
+)
 logger = logging.getLogger(__name__)
 
 if config["SENTRY_ENABLED"]:

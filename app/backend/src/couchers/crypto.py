@@ -31,7 +31,7 @@ def b64decode_unpadded(data: bytes) -> str:
     return b64decode(data + b"===="[len(data) % 4 :])
 
 
-def urlsafe_random_bytes(length=32) -> str:
+def _urlsafe_random_b64(length=32) -> str:
     return b64encode(random_bytes(length))
 
 
@@ -39,7 +39,7 @@ def urlsafe_secure_token():
     """
     A cryptographically secure random token that can be put in a URL
     """
-    return urlsafe_random_bytes(32)
+    return _urlsafe_random_b64(32)
 
 
 def cookiesafe_secure_token():
@@ -109,6 +109,17 @@ def verify_token(a: str, b: str):
     return secrets.compare_digest(a, b)
 
 
+def stable_secure_uniform(key: bytes, seed: bytes):
+    random_bytes = generate_hash_signature(message=seed, key=key)
+    assert len(random_bytes) > 7
+    # taken from cpython
+    rr = random_bytes[:7]
+    # Number of bits in a float
+    BPF = 53
+    RECIP_BPF = 2**-BPF
+    return (int.from_bytes(rr) >> 3) * RECIP_BPF
+
+
 @functools.lru_cache
 def get_secret(name: str):
     """
@@ -120,6 +131,7 @@ def get_secret(name: str):
 UNSUBSCRIBE_KEY_NAME = "unsubscribe"
 EMAIL_SOURCE_DATA_KEY_NAME = "email-source-data"
 PAGE_TOKEN_KEY_NAME = "pagination"
+USER_LOCATION_RANDOMIZATION_NAME = "user-location-randomization-v1"
 
 
 # AEAD: Authenticated Encryption with Associated Data

@@ -11,6 +11,7 @@ from user_agents import parse as user_agents_parse
 
 from couchers import errors, urls
 from couchers.crypto import urlsafe_secure_token
+from couchers.db import session_scope
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.helpers.geoip import geoip_approximate_location, geoip_asn
@@ -45,7 +46,7 @@ from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import get_users_to_notify_for_new_event
 from couchers.servicers.threads import unpack_thread_id
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, to_aware_datetime
+from couchers.utils import Timestamp_from_datetime, date_to_api, make_user_context, now, parse_date, to_aware_datetime
 from proto import admin_pb2, admin_pb2_grpc, notification_data_pb2
 from proto.internal import jobs_pb2
 
@@ -102,6 +103,23 @@ def load_community_geom(geojson, context):
         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_MULTIPOLYGON)
 
     return geom
+
+
+def generate_new_blog_post_notifications(payload: jobs_pb2.GenerateNewBlogPostNotificationsPayload):
+    with session_scope() as session:
+        all_users = session.execute(select(User).where(User.is_visible)).scalars().all()
+        for user in all_users:
+            context = make_user_context(user_id=user.id)
+            notify(
+                session,
+                user_id=user.id,
+                topic_action="general:new_blog_post",
+                data=notification_data_pb2.GeneralNewBlogPost(
+                    url=payload.url,
+                    title=payload.title,
+                    blurb=payload.blurb,
+                ),
+            )
 
 
 class Admin(admin_pb2_grpc.AdminServicer):
@@ -270,6 +288,13 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 topic_action="modnote:create",
             )
 
+        return _user_to_details(session, user)
+
+    def MarkUserNeedsLocationUpdate(self, request, context, session):
+        user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+        if not user:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+        user.needs_to_update_location = True
         return _user_to_details(session, user)
 
     def DeleteUser(self, request, context, session):
@@ -716,3 +741,19 @@ class Admin(admin_pb2_grpc.AdminServicer):
             )
 
         return out
+
+    def SendBlogPostNotification(self, request, context, session):
+        if len(request.title) > 50:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ADMIN_BLOG_TITLE_TOO_LONG)
+        if len(request.blurb) > 100:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ADMIN_BLOG_BLURB_TOO_LONG)
+        queue_job(
+            session,
+            "generate_new_blog_post_notifications",
+            payload=jobs_pb2.GenerateNewBlogPostNotificationsPayload(
+                url=request.url,
+                title=request.title,
+                blurb=request.blurb,
+            ),
+        )
+        return empty_pb2.Empty()

@@ -10,14 +10,6 @@ import { ReferenceType } from "proto/references_pb";
 
 export const referencesQueryStaleTime = 10 * 60 * 1000;
 export const contactLink = "mailto:support@couchers.org";
-export const hostRequestReferenceSuccessDialogId =
-  "hostRequestReferneceSuccessDialog";
-
-export const sectionLabels = (t: TFunction) => ({
-  about: t("profile:heading.about_me"),
-  home: t("profile:heading.home"),
-  references: t("profile:heading.references"),
-});
 
 export const referencesFilterLabels = (t: TFunction) => ({
   [ReferenceType.REFERENCE_TYPE_FRIEND]: t(

@@ -1,0 +1,33 @@
+{
+  "nav": {
+    "account_settings": "Kontoeinstellungen",
+    "badges": "Abzeichen",
+    "blog": "Blog",
+    "community": "Gemeinschaft",
+    "communities": "Gemeinschaften",
+    "dashboard": "Übersicht",
+    "donate": "Spenden",
+    "events": "Veranstaltungen",
+    "faq": "FAQ",
+    "feature_preview": "Funktionsvorschau",
+    "forum": "Forum",
+    "github": "GitHub",
+    "help_center": "Hilfezentrum",
+    "roadmap_updates": "Roadmap & Updates",
+    "help": "Hilfe",
+    "log_out": "Abmelden",
+    "map_search": "Suche",
+    "mission": "Mission und Werte",
+    "messages": "Nachrichten",
+    "notifications": "Benachrichtigungen",
+    "our_plan": "Unser Plan",
+    "our_team": "Unser Team",
+    "profile": "Profil",
+    "show_all_events": "Alle Veranstaltungen anzeigen",
+    "the_team": "Das Team",
+    "volunteer": "Freiwillige",
+    "legal_more": "Rechtliches & Mehr",
+    "contact_us": "Kontaktieren Sie uns",
+    "built_with": "Open Source"
+  }
+}

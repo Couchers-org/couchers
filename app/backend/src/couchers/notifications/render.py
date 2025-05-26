@@ -467,8 +467,17 @@ def render_notification(user, notification) -> RenderedNotification:
         time_display = f"{v2timestamp(event.start_time, user)} - {v2timestamp(event.end_time, user)}"
         event_link = urls.event_link(occurrence_id=event.event_id, slug=event.slug)
         if notification.action in ["create_approved", "create_any"]:
+            # create_approved = invitation, approved by mods
+            # create_any = new event created by anyone (no need for approval) -- off by default
             body = f"{time_display}\n"
-            body += f"Invited by {data.inviting_user.name}\n\n"
+            if notification.action == "create_approved":
+                subject = f'{data.inviting_user.name} invited you to "{event.title}"'
+                start_text = "You've been invited to a new event"
+                body += f"Invited by {data.inviting_user.name}\n\n"
+            elif notification.action == "create_any":
+                subject = f'{data.inviting_user.name} created an event called "{event.title}"'
+                start_text = "A new event was created"
+                body += f"Created by {data.inviting_user.name}\n\n"
             body += event.content
             community_link = (
                 urls.community_link(node_id=data.in_community.community_id, slug=data.in_community.slug)
@@ -476,27 +485,25 @@ def render_notification(user, notification) -> RenderedNotification:
                 else None
             )
             return RenderedNotification(
-                email_subject=f'{data.inviting_user.name} invited you to "{event.title}"',
-                email_preview="You've been invited to a new event on Couchers.org!",
+                email_subject=subject,
+                email_preview=f"{start_text} on Couchers.org!",
                 email_template_name="event_create",
                 email_template_args={
                     "inviting_user": data.inviting_user,
                     "time_display": time_display,
+                    "start_text": start_text,
                     "nearby": "nearby" if data.nearby else None,
                     "community": data.in_community if data.in_community else None,
                     "community_link": community_link,
-                    "nearby_or_community_text_plain": (
-                        "nearby" if data.nearby else f"in the {data.in_community.name} community"
-                    ),
                     "event": event,
                     "view_link": event_link,
                 },
                 email_topic_action_unsubscribe_text=(
                     "new events by community members"
                     if notification.action == "create_any"
-                    else "new events approved by moderators"
+                    else "invitations to events (approved by moderators)"
                 ),
-                push_title=f'{data.inviting_user.name} invited you to "{event.title}"',
+                push_title=subject,
                 push_body=body,
                 push_icon=v2avatar(data.inviting_user),
                 push_url=event_link,
@@ -846,6 +853,23 @@ def render_notification(user, notification) -> RenderedNotification:
             push_body="Please log in to confirm your hosting status.",
             push_icon=urls.icon_url(),
             push_url=urls.app_link(),
+        )
+    elif notification.topic_action.display == "general:new_blog_post":
+        title = f"New blog post: {data.title}"
+        return RenderedNotification(
+            email_subject=title,
+            email_preview=data.blurb,
+            email_template_name="new_blog_post",
+            email_template_args={
+                "title": data.title,
+                "blurb": data.blurb,
+                "url": data.url,
+            },
+            email_topic_action_unsubscribe_text="new blog post alerts",
+            push_title=title,
+            push_body=data.blurb,
+            push_icon=urls.icon_url(),
+            push_url=data.url,
         )
     else:
         raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")

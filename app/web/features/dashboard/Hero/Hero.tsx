@@ -1,14 +1,13 @@
 import { Container, styled } from "@mui/material";
 import { DASHBOARD } from "i18n/namespaces";
-import Image from "next/image";
 import { useTranslation } from "next-i18next";
 
 import HeroButton from "./HeroButton";
+import HeroImage from "./HeroImage";
 import HeroImageAttribution from "./HeroImageAttribution";
 import HeroLinks from "./HeroLinks";
 import HeroSearch from "./HeroSearch";
 // Photo by Mesut Kaya on Unsplash - https://unsplash.com/photos/eOcyhe5-9sQ
-import heroImage from "./mesut-kaya-eOcyhe5-9sQ-unsplash.jpeg";
 
 const StyledContainer = styled(Container)(({ theme }) => ({
   zIndex: 1,
@@ -37,16 +36,25 @@ export default function Hero() {
         <HeroButton />
       </StyledContainer>
       <HeroImageAttribution />
-      <Image
-        src={heroImage}
-        placeholder="blur"
+      <HeroImage
         alt={t("hero_image_alt")}
-        fill
-        sizes="100vw"
-        style={{
-          objectFit: "cover",
-          objectPosition: "50% 50%",
-        }}
+        // export as tiny PNG (a few px by a few px), then
+        // echo "data:image/png;base64,$(cat 5.png | base64 -w 0)"
+        placeHolderSrc="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAADCAIAAADUVFKvAAAAO0lEQVQI1wEwAM//AZqxot4B/d78+d38/N/8+wRIDRH9AQHu+vnD1NQQHhsBUWNNFQ0N+/n39fT3/Q8PwSsbXi/QOgYAAAAASUVORK5CYII="
+        imageWidths={[
+          {
+            width: 1024,
+            fileName: "https://cdn.couchers.org/img/hero/1024.jpeg",
+          },
+          {
+            width: 2048,
+            fileName: "https://cdn.couchers.org/img/hero/2048.jpeg",
+          },
+          {
+            width: 4096,
+            fileName: "https://cdn.couchers.org/img/hero/4096.jpeg",
+          },
+        ]}
       />
     </StyledOuterContainer>
   );

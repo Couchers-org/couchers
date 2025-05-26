@@ -136,7 +136,7 @@
     "title": "Kontoeinstellungen"
   },
   "feature_preview": {
-    "disclaimer": "Bitte beachte, dass diese Features experimentell sind. Sie funktionieren vielleicht nicht wie vorgesehen und können sich während der Entwicklung noch stark ändern. Bitte gib uns Feedback dazu in unserem Forum und melde Bugs!",
+    "disclaimer": "Bitte beachte, dass diese Features experimentell sind. Sie funktionieren vielleicht nicht wie vorgesehen und können sich während der Entwicklung noch stark ändern. Gib uns gerne Feedback dazu, indem du die Schaltfläche \"Problem melden\" verwendest um Bugs zu melden!",
     "no_previews": {
       "explanation": "Es gibt derzeit keine aktiven Features zur Vorschau, bitte schau zu einem späteren Zeitpunkt wieder vorbei!",
       "title": "Keine Features derzeit in der Vorschau"

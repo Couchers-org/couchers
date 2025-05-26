@@ -4,6 +4,7 @@ import { ReferenceType } from "proto/references_pb";
 export const languagesKey = "languages";
 export const regionsKey = "regions";
 export const badgesKey = "badges";
+export const friendIdsKey = "friendIds";
 export const contributorFormInfoQueryKey = "contributorFormInfo";
 export const accountInfoQueryKey = "accountInfo";
 export const doNotEmailQueryKey = "doNotEmail";
