@@ -11,6 +11,7 @@ import "communities.proto";
 import "events.proto";
 import "groups.proto";
 import "pages.proto";
+import "requests.proto";
 
 service Search {
   option (auth_level) = AUTH_LEVEL_SECURE;
@@ -21,6 +22,11 @@ service Search {
 
   rpc UserSearch(UserSearchReq) returns (UserSearchRes) {
     // Search for users in particular with extra filters, e.g. hosts
+  }
+
+  rpc UserSearchV2(UserSearchReq) returns (UserSearchV2Res) {
+    // Search for users in particular with extra filters, e.g. hosts
+    // only returns used fields
   }
 
   rpc EventSearch(EventSearchReq) returns (EventSearchRes) {
@@ -160,6 +166,53 @@ message UserSearchRes {
   // sorted with highest rank first
   // this will only contain users
   repeated Result results = 1;
+
+  string next_page_token = 2;
+  uint32 total_items = 3;
+}
+
+message SearchUser {
+  int64 user_id = 1;
+  string username = 2;
+  string name = 3;
+  string city = 4;
+
+  bool has_completed_profile = 5;
+
+  double lat = 6;
+  double lng = 7;
+
+  string profile_snippet = 8; // plain text
+
+  uint32 num_references = 9;
+  string gender = 10;
+  uint32 age = 11;
+  google.protobuf.Timestamp last_active = 12; // not exact
+  org.couchers.api.core.HostingStatus hosting_status = 13;
+  org.couchers.api.core.MeetupStatus meetup_status = 14;
+
+  string avatar_url = 15;
+  string avatar_thumbnail_url = 16;
+
+  bool has_strong_verification = 17;
+  // Response rate is number of requests responded to (accepted/rejected/sent message) divided by total number of
+  // received requests.
+  oneof response_rate {
+    // received <3 requests
+    org.couchers.api.requests.ResponseRateInsufficientData insufficient_data = 18;
+    // response rate <= 33%
+    org.couchers.api.requests.ResponseRateLow low = 19;
+    // response rate > 33%, but <= 66%
+    org.couchers.api.requests.ResponseRateSome some = 20;
+    // response rate > 66%, but <= 90%
+    org.couchers.api.requests.ResponseRateMost most = 21;
+    // response rate > 90%
+    org.couchers.api.requests.ResponseRateAlmostAll almost_all = 22;
+  }
+}
+
+message UserSearchV2Res {
+  repeated SearchUser results = 1;
 
   string next_page_token = 2;
   uint32 total_items = 3;

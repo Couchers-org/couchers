@@ -1,15 +1,16 @@
 import { TFunction } from "i18n";
-import { HostingStatus, SleepingArrangement, User } from "proto/api_pb";
+import { HostingStatus, SleepingArrangement } from "proto/api_pb";
+import { SearchUser } from "proto/search_pb";
 import { firstName } from "utils/names";
 
-const aboutText = (user: User.AsObject, t: TFunction) => {
-  const missingAbout = user.aboutMe.length === 0;
+const aboutText = (user: SearchUser.AsObject, t: TFunction) => {
+  const missingAbout = user.profileSnippet.length === 0;
 
   return missingAbout
     ? t("search:search_result.missing_about_description", {
         name: firstName(user?.name),
       })
-    : user.aboutMe;
+    : user.profileSnippet;
 };
 
 const truncateWithEllipsis = (str: string, maxLength = 40): string =>

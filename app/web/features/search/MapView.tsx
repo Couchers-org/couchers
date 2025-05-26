@@ -4,7 +4,7 @@ import Map, { API_BASE_URL } from "components/Map";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { GeoJSONSource, LngLatLike, MapLayerMouseEvent } from "maplibre-gl";
-import { User } from "proto/api_pb";
+import { SearchUser } from "proto/search_pb";
 import { useCallback, useMemo } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 
@@ -29,7 +29,7 @@ interface MapViewProps {
   mapRef: React.RefObject<MapRef>;
   onZoomIn: (newZoom: number, center?: LngLatLike) => void;
   onZoomOut: (newZoom: number) => void;
-  users: User.AsObject[] | undefined;
+  users: SearchUser.AsObject[] | undefined;
 }
 
 const MapLoadingContainer = styled("div")(({ theme }) => ({
@@ -64,7 +64,7 @@ const SearchThisAreaButton = styled(Button, {
   },
 }));
 
-const DEFAULT_USERS: User.AsObject[] = [];
+const DEFAULT_USERS: SearchUser.AsObject[] = [];
 
 const MapView = ({
   isDrawerExpanded,
