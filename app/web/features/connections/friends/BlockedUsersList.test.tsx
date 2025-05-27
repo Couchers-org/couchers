@@ -15,7 +15,7 @@ const getBlockedUsersMock = service.blocking
   typeof service.blocking.getBlockedUsers
 >;
 
-describe("BlockedUsers", () => {
+describe("BlockedUsersList", () => {
   it("shows a loading indicator when blocked users are loading", async () => {
     render(<BlockedUsersList refetchFriends={jest.fn()} />, { wrapper });
 
@@ -28,7 +28,7 @@ describe("BlockedUsers", () => {
     render(<BlockedUsersList refetchFriends={jest.fn()} />, { wrapper });
 
     const blockedUserItems = await screen.findAllByTestId("friend-item");
-    expect(blockedUserItems.length).toBeGreaterThan(0);
+    expect(blockedUserItems).toHaveLength(3);
   });
 
   it("renders the empty state message if the current user has no blocked users", async () => {
@@ -57,7 +57,7 @@ describe("BlockedUsers", () => {
     ).toBeVisible();
   });
 
-  it("calls refetchFriends and removes blocked user from list when unblocked", async () => {
+  it("calls refetchFriends and requeries getBlockedUsers when unblocked", async () => {
     getBlockedUsersMock.mockImplementation(getBlockedUsers);
 
     const refetchFriendsMock = jest.fn();
