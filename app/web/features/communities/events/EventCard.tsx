@@ -38,15 +38,10 @@ const CardWrapper = styled("div", {
   position: "relative",
 });
 
-const StyledCardMedia = styled(CardMedia, {
-  shouldForwardProp: (prop) => prop !== "eventImageSrc",
-})<{ eventImageSrc: string }>(({ theme, eventImageSrc }) => ({
+const StyledCardMedia = styled(CardMedia)(({ theme }) => ({
   padding: theme.spacing(1),
   backgroundColor: theme.palette.grey[200],
   height: 80,
-  backgroundImage: `url(${eventImageSrc})`,
-  backgroundSize:
-    eventImageSrc === eventImagePlaceholderUrl ? "contain" : "cover",
   backgroundRepeat: "no-repeat",
   backgroundPosition: "center",
   [theme.breakpoints.up("sm")]: {
@@ -126,7 +121,14 @@ export default function EventCard({ event, className }: EventCardProps) {
       >
         <Link href={routeToEvent(event.eventId, event.slug)}>
           <StyledCardMedia
-            eventImageSrc={event.photoUrl || eventImagePlaceholderUrl}
+            style={{
+              backgroundImage: `url(${event.photoUrl || eventImagePlaceholderUrl})`,
+              backgroundSize:
+                (event.photoUrl || eventImagePlaceholderUrl) ===
+                eventImagePlaceholderUrl
+                  ? "contain"
+                  : "cover",
+            }}
           >
             {event.onlineInformation && (
               <Chip
