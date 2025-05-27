@@ -73,11 +73,9 @@ service Admin {
 
   rpc EditReply(EditReplyReq) returns (google.protobuf.Empty) {}
 
-  rpc GroupUsersAsDuplicated(GroupUsersDuplicatedReq) returns (GroupUsersDuplicatedRes) {}
+  rpc AddUsersToModerationUserList(AddUsersToModerationUserListReq) returns (AddUsersToModerationUserListRes) {}
 
-  rpc RemoveUserFromDuplicateGroup(RemoveUserFromDuplicateGroupReq) returns (google.protobuf.Empty) {}
-
-  rpc GetDuplicatedUsersFromUser(GetDuplicatedFromUserReq) returns (GetDuplicatedFromUserRes) {}
+  rpc RemoveUserFromModerationUserList(RemoveUserFromModerationUserListReq) returns (google.protobuf.Empty) {}
 
   rpc CreateAccountDeletionLink(CreateAccountDeletionLinkReq) returns (CreateAccountDeletionLinkRes) {}
 
@@ -316,27 +314,20 @@ message EditReplyReq {
   string new_content = 2;
 }
 
-message GroupUsersDuplicatedReq {
+message AddUsersToModerationUserListReq {
   // username, email, or user id
   repeated string users = 1;
+  int64 moderation_list_id = 2;
 }
 
-message GroupUsersDuplicatedRes {
-  int64 user_group_id = 1;
+message AddUsersToModerationUserListRes {
+  int64 moderation_list_id = 1;
 }
 
-message RemoveUserFromDuplicateGroupReq {
+message RemoveUserFromModerationUserListReq {
   // username, email, or user id
   string user = 1;
-}
-
-message GetDuplicatedFromUserReq {
-  // username, email, or user id
-  string user = 1;
-}
-
-message GetDuplicatedFromUserRes {
-  repeated string duplicated_usernames = 1;
+  int64 moderation_list_id = 2;
 }
 
 message CreateAccountDeletionLinkReq {

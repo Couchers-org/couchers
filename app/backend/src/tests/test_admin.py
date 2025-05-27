@@ -12,10 +12,9 @@ from couchers.models import (
     Cluster,
     ContentReport,
     EventOccurrence,
+    ModerationUserList,
     Node,
     Reference,
-    UserGroup,
-    UserGroupType,
     UserSession,
 )
 from couchers.sql import couchers_select as select
@@ -23,13 +22,13 @@ from couchers.utils import Timestamp_from_datetime, now, parse_date, timedelta
 from proto import admin_pb2, auth_pb2, events_pb2, references_pb2, reporting_pb2
 from tests.test_communities import create_community
 from tests.test_fixtures import (  # noqa
+    add_users_to_new_moderation_list,
     auth_api_session,
     db,
     email_fields,
     events_session,
     generate_user,
     get_user_id_and_token,
-    group_users_duplicated,
     mock_notification_email,
     push_collector,
     real_admin_session,
@@ -733,127 +732,111 @@ def test_DeleteReference(db):
         assert modified_reference.is_deleted
 
 
-def test_GroupUsersAsDuplicated(db):
+def test_AddUsersToModerationUserList(db):
     super_user, super_token = generate_user(is_superuser=True)
     user1, _ = generate_user()
     user2, _ = generate_user()
     user3, _ = generate_user()
     user4, _ = generate_user()
     user5, _ = generate_user()
+    moderation_list_id = add_users_to_new_moderation_list([user1, user2, user3])
 
     with session_scope() as session:
         with real_admin_session(super_token) as api:
-            # Test successful grouping of users
-            res = api.GroupUsersAsDuplicated(
-                admin_pb2.GroupUsersDuplicatedReq(users=[user1.username, user2.username]),
-            )
-            assert res.user_group_id > 0
-            with session_scope() as session:
-                user_group = session.get(UserGroup, res.user_group_id)
-                assert user_group is not None
-                assert user_group.group_type == UserGroupType.duplicate_account
-                assert user_group.has_user(user1)
-                assert user_group.has_user(user2)
-
-            # Test adding another user to existing group
-            res2 = api.GroupUsersAsDuplicated(
-                admin_pb2.GroupUsersDuplicatedReq(users=[user1.username, user3.username]),
-            )
-            assert res2.user_group_id == res.user_group_id
-            with session_scope() as session:
-                user_group = session.get(UserGroup, res.user_group_id)
-                assert user_group.group_type == UserGroupType.duplicate_account
-                assert user_group.has_user(user3)
-
-            # Test creating a separate group
-            res3 = api.GroupUsersAsDuplicated(
-                admin_pb2.GroupUsersDuplicatedReq(users=[user4.username, user5.username]),
-            )
-            assert res3.user_group_id != res.user_group_id
-
-            # Test error cases
+            # Test adding users to a non-existent moderation list (should raise an error)
             with pytest.raises(grpc.RpcError) as e:
-                api.GroupUsersAsDuplicated(
-                    admin_pb2.GroupUsersDuplicatedReq(users=[user1.username]),
+                api.AddUsersToModerationUserList(
+                    admin_pb2.AddUsersToModerationUserListReq(
+                        users=[user1.username, user2.username], moderation_list_id=999
+                    ),
                 )
-            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-            assert errors.AT_LEAST_TWO_USERS_REQUIRED == e.value.details()
+            assert e.value.code() == grpc.StatusCode.NOT_FOUND
+            assert errors.MODERATION_USER_LIST_NOT_FOUND == e.value.details()
 
-            # Test trying to group users from different existing groups
+            # Test with non-existent user (should raise an error)
             with pytest.raises(grpc.RpcError) as e:
-                api.GroupUsersAsDuplicated(
-                    admin_pb2.GroupUsersDuplicatedReq(users=[user2.username, user4.username]),
-                )
-            assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert errors.USER_ALREADY_BELONGS_TO_DUPLICATE_GROUP == e.value.details()
-
-            # Test with non-existent user
-            with pytest.raises(grpc.RpcError) as e:
-                api.GroupUsersAsDuplicated(
-                    admin_pb2.GroupUsersDuplicatedReq(users=[user1.username, "nonexistent"]),
+                api.AddUsersToModerationUserList(
+                    admin_pb2.AddUsersToModerationUserListReq(users=[user1.username, "nonexistent"]),
                 )
             assert e.value.code() == grpc.StatusCode.NOT_FOUND
             assert errors.USER_NOT_FOUND == e.value.details()
 
+            # Test successful addition of users to moderation list
+            res = api.AddUsersToModerationUserList(
+                admin_pb2.AddUsersToModerationUserListReq(
+                    users=[user1.username, user2.username], moderation_list_id=moderation_list_id
+                ),
+            )
+            assert res.moderation_list_id > 0
+            with session_scope() as session:
+                moderation_user_list = session.get(ModerationUserList, res.moderation_list_id)
+                assert moderation_user_list is not None
+                assert user1.id in [user.id for user in moderation_user_list.users]
+                assert user2.id in [user.id for user in moderation_user_list.users]
 
-def test_RemoveUserFromDuplicateGroup(db):
+            # Test adding other users to existing moderation list
+            res2 = api.AddUsersToModerationUserList(
+                admin_pb2.AddUsersToModerationUserListReq(
+                    users=[user4.username, user5.username], moderation_list_id=moderation_list_id
+                ),
+            )
+            assert res2.moderation_list_id == res.moderation_list_id
+            with session_scope() as session:
+                moderation_user_list = session.get(ModerationUserList, res.moderation_list_id)
+                assert user3.id in [user.id for user in moderation_user_list.users]
+
+            # Test creating a separate moderation list
+            res3 = api.AddUsersToModerationUserList(
+                admin_pb2.AddUsersToModerationUserListReq(users=[user1.username, user2.username]),
+            )
+            assert res3.moderation_list_id != res.moderation_list_id
+
+
+def test_RemoveUserFromModerationUserList(db):
     super_user, super_token = generate_user(is_superuser=True)
     user1, _ = generate_user()
     user2, _ = generate_user()
     user3, _ = generate_user()
-    group_id = group_users_duplicated([user1, user2, user3])
+    moderation_list_id = add_users_to_new_moderation_list([user1, user2])
 
     with real_admin_session(super_token) as api:
-        # Test successful removal
-        api.RemoveUserFromDuplicateGroup(admin_pb2.RemoveUserFromDuplicateGroupReq(user=user1.username))
-        with session_scope() as session:
-            user_group = session.get(UserGroup, group_id)
-            assert not user_group.has_user(user1)
-            assert user_group.has_user(user2)
-            assert user_group.has_user(user3)
-
-        # Test removing user that's not in any group (should raise error)
-        with pytest.raises(grpc.RpcError) as e:
-            api.RemoveUserFromDuplicateGroup(admin_pb2.RemoveUserFromDuplicateGroupReq(user=user1.username))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert errors.USER_NOT_IN_ANY_DUPLICATE_GROUP == e.value.details()
-
         # Test with non-existent user (should raise error)
         with pytest.raises(grpc.RpcError) as e:
-            api.RemoveUserFromDuplicateGroup(admin_pb2.RemoveUserFromDuplicateGroupReq(user="nonexistent"))
+            api.RemoveUserFromModerationUserList(admin_pb2.RemoveUserFromModerationUserListReq(user="nonexistent"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert errors.USER_NOT_FOUND == e.value.details()
 
-
-def test_GetDuplicatedFromUser(db):
-    super_user, super_token = generate_user(is_superuser=True)
-    user1, _ = generate_user()
-    user2, _ = generate_user()
-    user3, _ = generate_user()
-    user4, _ = generate_user()  # User not in any duplicate group
-    group_id = group_users_duplicated([user1, user2, user3])
-
-    with real_admin_session(super_token) as api:
-        # Test getting duplicates
-        res = api.GetDuplicatedUsersFromUser(admin_pb2.GetDuplicatedFromUserReq(user=user1.username))
-        assert user1.username not in res.duplicated_usernames
-        assert user2.username in res.duplicated_usernames
-        assert user3.username in res.duplicated_usernames
-
-        res = api.GetDuplicatedUsersFromUser(admin_pb2.GetDuplicatedFromUserReq(user=user2.username))
-        assert user1.username in res.duplicated_usernames
-        assert user2.username not in res.duplicated_usernames
-        assert user3.username in res.duplicated_usernames
-
-        # Test user not in any duplicate group
-        res = api.GetDuplicatedUsersFromUser(admin_pb2.GetDuplicatedFromUserReq(user=user4.username))
-        assert res.duplicated_usernames == []
-
-        # Test with non-existent user
+        # Test without providing moderation list id (should raise error)
         with pytest.raises(grpc.RpcError) as e:
-            api.GetDuplicatedUsersFromUser(admin_pb2.GetDuplicatedFromUserReq(user="nonexistent"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert errors.USER_NOT_FOUND == e.value.details()
+            api.RemoveUserFromModerationUserList(admin_pb2.RemoveUserFromModerationUserListReq(user=user2.username))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert errors.MISSING_MODERATION_USER_LIST_ID == e.value.details()
+
+        # Test removing user that's not in the provided moderation list (should raise error)
+        with pytest.raises(grpc.RpcError) as e:
+            api.RemoveUserFromModerationUserList(
+                admin_pb2.RemoveUserFromModerationUserListReq(
+                    user=user3.username, moderation_list_id=moderation_list_id
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert errors.USER_NOT_IN_THE_MODERATION_USER_LIST == e.value.details()
+
+        # Test successful removal
+        api.RemoveUserFromModerationUserList(
+            admin_pb2.RemoveUserFromModerationUserListReq(user=user1.username, moderation_list_id=moderation_list_id)
+        )
+        with session_scope() as session:
+            moderation_user_list = session.get(ModerationUserList, moderation_list_id)
+            assert user1.id not in [user.id for user in moderation_user_list.users]
+            assert user2.id in [user.id for user in moderation_user_list.users]
+
+        # Test removing all users from moderation list should also delete the moderation list
+        api.RemoveUserFromModerationUserList(
+            admin_pb2.RemoveUserFromModerationUserListReq(user=user2.username, moderation_list_id=moderation_list_id)
+        )
+        with session_scope() as session:
+            assert session.get(ModerationUserList, moderation_list_id) is None
 
 
 def test_admin_delete_account_url(db, push_collector):

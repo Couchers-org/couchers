@@ -28,6 +28,7 @@ from couchers.models import (
     GroupChatSubscription,
     HostRequest,
     Message,
+    ModerationUserList,
     ModNote,
     Node,
     Reference,
@@ -35,8 +36,6 @@ from couchers.models import (
     User,
     UserActivity,
     UserBadge,
-    UserGroup,
-    UserGroupType,
 )
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict
@@ -611,14 +610,11 @@ class Admin(admin_pb2_grpc.AdminServicer):
         obj.content = request.new_content.strip()
         return empty_pb2.Empty()
 
-    def GroupUsersAsDuplicated(self, request, context, session):
-        """Mark multiple users as duplicated accounts.
-        Users must belong to maximum one duplicate account group."""
+    def AddUsersToModerationUserList(self, request, context, session):
+        """Add multiple users to a moderation user list. If no moderation list is provided, a new one is created.
+        Id of the moderation list is returned."""
         req_users = request.users
-        if len(req_users) < 2:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.AT_LEAST_TWO_USERS_REQUIRED)
         users = []
-        user_group_duplicated = None
 
         for req_user in req_users:
             user = session.execute(select(User).where_username_or_email_or_id(req_user)).scalar_one_or_none()
@@ -626,61 +622,43 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             users.append(user)
 
-            existing_user_group = user.get_group_duplicated()
-
-            # Check if user already belongs to a duplicate account group
-            if existing_user_group:
-                # Abort if other user is already in a different duplicate account group
-                if user_group_duplicated and user_group_duplicated.id != existing_user_group.id:
-                    context.abort(
-                        grpc.StatusCode.FAILED_PRECONDITION,
-                        errors.USER_ALREADY_BELONGS_TO_DUPLICATE_GROUP,
-                    )
-                user_group_duplicated = existing_user_group
-
-        # Create a new duplicate account group if no user already belongs to one
-        if not user_group_duplicated:
-            user_group_duplicated = UserGroup(group_type=UserGroupType.duplicate_account)
-            session.add(user_group_duplicated)
+        # Create a new moderation user list if no one is provided
+        if not request.moderation_list_id:
+            moderation_user_list = ModerationUserList()
+            session.add(moderation_user_list)
             session.flush()
+        else:
+            moderation_user_list = session.get(ModerationUserList, request.moderation_list_id)
+            if not moderation_user_list:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.MODERATION_USER_LIST_NOT_FOUND)
 
-        # Add users to the duplicate account group only if they are not already in it
+        # Add users to the moderation list only if not already in it
         for user in users:
-            if user not in user_group_duplicated.users:
-                user_group_duplicated.users.append(user)
+            if user not in moderation_user_list.users:
+                moderation_user_list.users.append(user)
 
-        session.commit()
-        return admin_pb2.GroupUsersDuplicatedRes(user_group_id=user_group_duplicated.id)
+        return admin_pb2.AddUsersToModerationUserListRes(moderation_list_id=moderation_user_list.id)
 
-    def RemoveUserFromDuplicateGroup(self, request, context, session):
-        """Removes a user from its duplicate account group if they belong to one.
-        Raise error if user is not in any duplicate account group."""
+    def RemoveUserFromModerationUserList(self, request, context, session):
+        """Removes a user from a provided moderation user list."""
         user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
         if not user:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+        if not request.moderation_list_id:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_MODERATION_USER_LIST_ID)
 
-        duplicate_group = user.get_group_duplicated()
+        moderation_user_list = session.get(ModerationUserList, request.moderation_list_id)
+        if not moderation_user_list:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.MODERATION_USER_LIST_NOT_FOUND)
+        if user not in moderation_user_list.users:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_IN_THE_MODERATION_USER_LIST)
 
-        if not duplicate_group:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_IN_ANY_DUPLICATE_GROUP)
+        moderation_user_list.users.remove(user)
 
-        duplicate_group.users.remove(user)
-        session.commit()
+        if len(moderation_user_list.users) == 0:
+            session.delete(moderation_user_list)
+
         return empty_pb2.Empty()
-
-    def GetDuplicatedUsersFromUser(self, request, context, session):
-        """Get all the duplicated users for a given user excluding itself."""
-        user_req = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
-        if not user_req:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
-
-        duplicate_group = user_req.get_group_duplicated()
-        if not duplicate_group:
-            return admin_pb2.GetDuplicatedFromUserRes(duplicated_usernames=[])
-
-        # Get all the duplicated users excluding the user itself
-        duplicated_users_username = [user.username for user in duplicate_group.users if user.id != user_req.id]
-        return admin_pb2.GetDuplicatedFromUserRes(duplicated_usernames=duplicated_users_username)
 
     def CreateAccountDeletionLink(self, request, context, session):
         user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()

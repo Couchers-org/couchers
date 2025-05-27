@@ -323,7 +323,9 @@ class User(Base):
 
     age = column_property(func.date_part("year", func.age(birthdate)))
 
-    groups = relationship("UserGroup", secondary="user_group_members", back_populates="users")
+    moderation_user_lists = relationship(
+        "ModerationUserList", secondary="moderation_user_list_members", back_populates="users"
+    )
 
     __table_args__ = (
         # Verified phone numbers should be unique
@@ -467,10 +469,6 @@ class User(Base):
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
-
-    def get_group_duplicated(self):
-        """Returns the duplicate account group if user belongs to one, otherwise returns None."""
-        return next((group for group in self.groups if group.group_type == UserGroupType.duplicate_account), None)
 
 
 class UserBadge(Base):
@@ -2764,35 +2762,28 @@ class AccountDeletionReason(Base):
     user = relationship("User")
 
 
-class UserGroupType(enum.Enum):
-    duplicate_account = enum.auto()
-
-
-class UserGroup(Base):
+class ModerationUserList(Base):
     """
-    Represents a group of users grouped by a specific type
+    Represents a list of users listed together by a moderator
     """
 
-    __tablename__ = "user_groups"
+    __tablename__ = "moderation_user_lists"
 
     id = Column(BigInteger, primary_key=True)
-    group_type = Column(Enum(UserGroupType), nullable=False)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     # Relationships
-    users = relationship("User", secondary="user_group_members", back_populates="groups")
-
-    def has_user(self, user):
-        """Check if user is in group"""
-        return user.id in {u.id for u in self.users}
+    users = relationship("User", secondary="moderation_user_list_members", back_populates="moderation_user_lists")
 
 
-class UserGroupMember(Base):
+class ModerationUserListMember(Base):
     """
-    Association table for many-to-many relationship between users and groups
+    Association table for many-to-many relationship between users and moderation_user_lists
     """
 
-    __tablename__ = "user_group_members"
+    __tablename__ = "moderation_user_list_members"
 
     user_id = Column(ForeignKey("users.id"), primary_key=True)
-    group_id = Column(ForeignKey("user_groups.id"), primary_key=True)
+    moderation_list_id = Column(ForeignKey("moderation_user_lists.id"), primary_key=True)
+
+    __table_args__ = (UniqueConstraint("user_id", "moderation_list_id"),)

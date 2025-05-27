@@ -32,6 +32,7 @@ from couchers.models import (
     LanguageAbility,
     LanguageFluency,
     MeetupStatus,
+    ModerationUserList,
     PassportSex,
     Region,
     RegionLived,
@@ -41,8 +42,6 @@ from couchers.models import (
     Upload,
     User,
     UserBlock,
-    UserGroup,
-    UserGroupType,
     UserSession,
 )
 from couchers.servicers.account import Account, Iris
@@ -416,17 +415,16 @@ def get_friend_relationship(user1, user2):
         return friend_relationship
 
 
-def group_users_duplicated(users):
+def add_users_to_new_moderation_list(users):
     """Group users as duplicated accounts"""
     with session_scope() as session:
-        user_group_duplicated = UserGroup(group_type=UserGroupType.duplicate_account)
-        session.add(user_group_duplicated)
+        moderation_user_list = ModerationUserList()
+        session.add(moderation_user_list)
         session.flush()
         for user in users:
             refreshed_user = session.get(User, user.id)
-            user_group_duplicated.users.append(refreshed_user)
-        session.commit()
-        return user_group_duplicated.id
+            moderation_user_list.users.append(refreshed_user)
+        return moderation_user_list.id
 
 
 class CookieMetadataPlugin(grpc.AuthMetadataPlugin):
