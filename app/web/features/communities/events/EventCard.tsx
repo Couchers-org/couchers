@@ -32,6 +32,10 @@ const StyledCard = styled(Card, {
   }),
 }));
 
+const CardWrapper = styled("div")({
+  position: "relative",
+});
+
 const StyledCardMedia = styled(CardMedia, {
   shouldForwardProp: (prop) => prop !== "eventImageSrc",
 })<{ eventImageSrc: string }>(({ theme, eventImageSrc }) => ({
@@ -112,69 +116,71 @@ export default function EventCard({ event, className }: EventCardProps) {
   )}`;
 
   return (
-    <StyledCard
-      className={className}
-      isCancelled={event.isCancelled}
-      data-testid={EVENT_CARD_TEST_ID}
-    >
-      <Link href={routeToEvent(event.eventId, event.slug)}>
-        <StyledCardMedia
-          eventImageSrc={event.photoUrl || eventImagePlaceholderUrl}
-        >
-          {event.onlineInformation && (
-            <Chip
-              size="medium"
-              label={t("communities:online")}
-              sx={{ borderRadius: 1, fontWeight: "bold" }}
-            />
-          )}
-        </StyledCardMedia>
-
-        <CardContent>
-          <EventTime
-            variant="body2"
-            color="textSecondary"
-            gutterBottom
-            title={formattedEventDates}
+    <CardWrapper>
+      <StyledCard
+        className={className}
+        isCancelled={event.isCancelled}
+        data-testid={EVENT_CARD_TEST_ID}
+      >
+        <Link href={routeToEvent(event.eventId, event.slug)}>
+          <StyledCardMedia
+            eventImageSrc={event.photoUrl || eventImagePlaceholderUrl}
           >
-            {formattedEventDates}
-          </EventTime>
+            {event.onlineInformation && (
+              <Chip
+                size="medium"
+                label={t("communities:online")}
+                sx={{ borderRadius: 1, fontWeight: "bold" }}
+              />
+            )}
+          </StyledCardMedia>
 
-          <Title variant="h3" gutterBottom>
-            {event.title}
-          </Title>
+          <CardContent>
+            <EventTime
+              variant="body2"
+              color="textSecondary"
+              gutterBottom
+              title={formattedEventDates}
+            >
+              {formattedEventDates}
+            </EventTime>
 
-          <Typography noWrap variant="body2" gutterBottom>
-            {event.offlineInformation
-              ? event.offlineInformation.address
-              : t("communities:virtual_event_location_placeholder")}
-          </Typography>
+            <Title variant="h3" gutterBottom>
+              {event.title}
+            </Title>
 
-          {event.isCancelled && (
-            <CancelledChip label={t("communities:cancelled")} />
-          )}
-
-          <Divider spacing={1} />
-
-          <div>
-            <Content variant="body1" paragraph>
-              {strippedContent}
-            </Content>
-
-            <Typography variant="body2" color="textSecondary">
-              {t("communities:attendees_count", {
-                count: event.goingCount + event.maybeCount,
-              })}
+            <Typography noWrap variant="body2" gutterBottom>
+              {event.offlineInformation
+                ? event.offlineInformation.address
+                : t("communities:virtual_event_location_placeholder")}
             </Typography>
-          </div>
-        </CardContent>
-      </Link>
-      <FlagButtonWrapper>
-        <FlagButton
-          contentRef={`event/${event.eventId}`}
-          authorUser={event.creatorUserId}
-        />
-      </FlagButtonWrapper>
-    </StyledCard>
+
+            {event.isCancelled && (
+              <CancelledChip label={t("communities:cancelled")} />
+            )}
+
+            <Divider spacing={1} />
+
+            <div>
+              <Content variant="body1" paragraph>
+                {strippedContent}
+              </Content>
+
+              <Typography variant="body2" color="textSecondary">
+                {t("communities:attendees_count", {
+                  count: event.goingCount + event.maybeCount,
+                })}
+              </Typography>
+            </div>
+          </CardContent>
+        </Link>
+        <FlagButtonWrapper>
+          <FlagButton
+            contentRef={`event/${event.eventId}`}
+            authorUser={event.creatorUserId}
+          />
+        </FlagButtonWrapper>
+      </StyledCard>
+    </CardWrapper>
   );
 }
