@@ -2,8 +2,8 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import union
 
-from couchers import errors
-from couchers.models import User, UserBlock
+from couchers import errors, urls
+from couchers.models import Upload, User, UserBlock
 from couchers.sql import couchers_select as select
 from proto import blocking_pb2, blocking_pb2_grpc
 
@@ -72,17 +72,23 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
         return empty_pb2.Empty()
 
     def GetBlockedUsers(self, request, context, session):
-        blocked_users = (
-            session.execute(
-                select(User)
-                .join(UserBlock, UserBlock.blocked_user_id == User.id)
-                .where(User.is_visible)
-                .where(UserBlock.blocking_user_id == context.user_id)
-            )
-            .scalars()
-            .all()
-        )
+        blocked_users = session.execute(
+            select(User.username, User.name, Upload.filename)
+            .join(UserBlock, UserBlock.blocked_user_id == User.id)
+            .outerjoin(Upload, Upload.key == User.avatar_key)
+            .where(User.is_visible)
+            .where(UserBlock.blocking_user_id == context.user_id)
+        ).all()
 
         return blocking_pb2.GetBlockedUsersRes(
-            blocked_usernames=[blocked_user.username for blocked_user in blocked_users],
+            blocked_users=[
+                blocking_pb2.BlockedUser(
+                    username=blocked_user.username,
+                    name=blocked_user.name,
+                    avatar_thumbnail_url=urls.media_url(filename=blocked_user.filename, size="thumbnail")
+                    if blocked_user.filename
+                    else None,
+                )
+                for blocked_user in blocked_users
+            ]
         )
