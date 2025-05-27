@@ -44,7 +44,14 @@ function useLiteUsers(ids: (number | undefined)[] | undefined) {
 function useLiteUsersList(ids: (number | undefined)[] | undefined) {
   const liteUsersMap = useLiteUsers(ids);
   const usersList = ids?.map((id) => liteUsersMap.data?.get(id));
-  return { ...liteUsersMap, usersById: liteUsersMap.data, data: usersList };
+  const filteredUsersList = usersList?.filter(
+    (user): user is LiteUser.AsObject => !!user,
+  );
+  return {
+    ...liteUsersMap,
+    usersById: liteUsersMap.data,
+    data: filteredUsersList,
+  };
 }
 
 // React Query typically retains the last successful data until the next successful fetch

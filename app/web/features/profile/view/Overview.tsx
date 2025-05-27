@@ -119,7 +119,7 @@ function DefaultActions({
         <ProfileReportFlagButton
           contentRef={`profile/${user.userId}`}
           authorUser={user.userId}
-          profileUsername={user.username}
+          profileUser={user}
         />
         <AdminPanelUserButton username={user.username} />
       </StyledModButtons>

@@ -1,6 +1,12 @@
 {
   "add_friend": "Add friend",
   "blocked_list_title": "Blocked users",
+  "block_user": "Block user",
+  "block_user_confirmation_dialog": {
+    "title": "Are you sure you want to block {{name}}?",
+    "message": "This will prevent you both from seeing each others profiles. You will not be able to send requests or messages.",
+    "confirm": "Block"
+  },
   "my_connections": "My connections",
   "friends": "Friends",
   "friend_list_title": "Your friends",
@@ -16,5 +22,11 @@
     "title": "Remove friend",
     "message": "Are you sure you want to remove {{name}}? This action cannot be undone.",
     "confirm": "Remove"
+  },
+  "unblock_user": "Unblock user",
+  "unblock_user_confirmation_dialog": {
+    "title": "Are you sure you want to unblock {{name}}?",
+    "message": "Unblocking will allow them to see your profile and send you requests. If you were previously friends, they will go back into your friends list.",
+    "confirm": "Unblock"
   }
 }

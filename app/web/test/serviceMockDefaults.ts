@@ -49,7 +49,7 @@ export async function getLiteUser(userId: string): Promise<LiteUser.AsObject> {
 }
 
 export async function getLiteUsers(
-  ids: number[],
+  ids: number[] | string[],
 ): Promise<GetLiteUsersRes.AsObject> {
   return {
     responsesList: ids.map((id) => ({

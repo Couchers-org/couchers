@@ -20,24 +20,26 @@ import {
 import { FlagIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import TextField from "components/TextField";
+import { useBlockUser } from "features/connections/friends/hooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/navigation";
+import { User } from "proto/api_pb";
 import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useMutation } from "react-query";
 import { dashboardRoute } from "routes";
 import { service } from "service";
-import { BlockInput, blockUser } from "service/blocking";
+import { BlockInput } from "service/blocking";
 import { ReportInput } from "service/reporting";
 import { theme } from "theme";
 
 interface ProfileReportFlagButtonProps {
   contentRef: string;
   authorUser: string | number;
-  profileUsername: string;
+  profileUser: User.AsObject;
 }
 
 const FlagButtonWrapper = styled("div")(({ theme }) => ({
@@ -58,7 +60,7 @@ const FlagButtonWrapper = styled("div")(({ theme }) => ({
 export default function ProfileReportFlagButton({
   contentRef,
   authorUser,
-  profileUsername,
+  profileUser,
 }: ProfileReportFlagButtonProps) {
   const { t } = useTranslation(GLOBAL);
   const router = useRouter();
@@ -109,6 +111,8 @@ export default function ProfileReportFlagButton({
     },
   );
 
+  const { blockUserMutation, error: blockUserError } = useBlockUser();
+
   const handleClose = (
     event: unknown,
     reason: "backdropClick" | "escapeKeyDown" | "button",
@@ -124,7 +128,7 @@ export default function ProfileReportFlagButton({
     reportContent(data);
 
     if (shouldBlockField) {
-      blockUser({ username: profileUsername });
+      blockUserMutation(profileUser);
       router.push(dashboardRoute);
     }
   });
@@ -140,6 +144,9 @@ export default function ProfileReportFlagButton({
         <Snackbar severity="success">
           {t("report.content.success_message")}
         </Snackbar>
+      )}
+      {blockUserError && (
+        <Snackbar severity="error">{blockUserError.message}</Snackbar>
       )}
       <FlagButtonWrapper
         aria-label={t("report.flag.button_aria_label")}
@@ -245,7 +252,7 @@ export default function ProfileReportFlagButton({
               <FormControlLabel
                 control={<Checkbox {...blockRegister("shouldBlock")} />}
                 label={t("report.flag.block_user", {
-                  username: profileUsername,
+                  username: profileUser.username,
                 })}
               />
               <DialogContentText

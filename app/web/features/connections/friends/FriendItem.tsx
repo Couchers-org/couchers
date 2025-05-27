@@ -1,24 +1,15 @@
-import { PersonRemove } from "@mui/icons-material";
+import { Block, PersonRemove } from "@mui/icons-material";
 import { MenuItem, Typography } from "@mui/material";
-import Button from "components/Button";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from "components/Dialog";
 import EllipsisMenu from "components/EllipsisMenu";
-import { friendIdsKey } from "features/queryKeys";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useTranslation } from "i18n";
 import { CONNECTIONS, GLOBAL } from "i18n/namespaces";
 import { LiteUser } from "proto/api_pb";
 import { useState } from "react";
-import { useMutation, useQueryClient } from "react-query";
-import { removeFriend } from "service/api";
 import { theme } from "theme";
 
+import ConnectionActionDialog from "./ConnectionActionDialog";
 import FriendSummaryView from "./FriendSummaryView";
+import { useBlockUser, useRemoveFriend } from "./hooks";
 
 interface FriendItemProps {
   friend: LiteUser.AsObject;
@@ -26,52 +17,31 @@ interface FriendItemProps {
 }
 
 const FriendItem = ({ friend, onError }: FriendItemProps) => {
-  const queryClient = useQueryClient();
   const { t } = useTranslation([GLOBAL, CONNECTIONS]);
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [openDialog, setOpenDialog] = useState<
+    "remove-friend" | "block-user" | null
+  >(null);
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
     null,
   );
 
   const isMenuOpen = Boolean(menuAnchorEl);
 
-  const { mutate: removeFriendMutate, isLoading: isRemoving } = useMutation<
-    Empty,
-    Error,
-    { friendId: number },
-    { previousFriendIds?: number[] }
-  >(({ friendId }) => removeFriend(friendId), {
-    onMutate: async ({ friendId }) => {
-      onError(null);
-      await queryClient.cancelQueries(friendIdsKey);
+  const { blockUserMutation, isLoading: isBlocking } = useBlockUser();
 
-      const previousFriendIds =
-        queryClient.getQueryData<number[]>(friendIdsKey);
-      const newFriendIds = previousFriendIds?.filter((id) => id !== friendId);
+  const { removeFriendMutation, isLoading: isRemoving } = useRemoveFriend();
 
-      if (newFriendIds) {
-        queryClient.setQueryData<number[]>(friendIdsKey, newFriendIds);
-      }
-
-      return { previousFriendIds };
-    },
-    onError: (err, _, context) => {
-      onError(err);
-      if (context?.previousFriendIds) {
-        queryClient.setQueryData(friendIdsKey, context.previousFriendIds);
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(friendIdsKey);
-    },
-  });
-
-  const handleRemoveFriend = (userId: number) => {
+  const removeFriend = (userId: number) => {
     if (userId !== undefined) {
-      removeFriendMutate({ friendId: userId });
+      removeFriendMutation({ friendId: userId, onError });
       handleDialogClose();
     }
+  };
+
+  const handleBlockUser = () => {
+    handleMenuClose();
+    setOpenDialog("block-user");
   };
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>): void => {
@@ -82,13 +52,23 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
     setMenuAnchorEl(null);
   };
 
-  const handleDialogOpen = () => {
+  const handleRemoveFriend = () => {
     handleMenuClose();
-    setIsDialogOpen(true);
+    setOpenDialog("remove-friend");
   };
 
   const handleDialogClose = () => {
-    setIsDialogOpen(false);
+    setOpenDialog(null);
+  };
+
+  const handleConfirmBlockUser = () => {
+    blockUserMutation(friend);
+    setOpenDialog(null);
+  };
+
+  const handleConfirmRemoveFriend = () => {
+    removeFriend(friend.userId);
+    setOpenDialog(null);
   };
 
   return (
@@ -100,7 +80,7 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
         onMenuOpen={handleMenuOpen}
         onMenuClose={handleMenuClose}
       >
-        <MenuItem onClick={handleDialogOpen} data-testid="remove-friend">
+        <MenuItem onClick={handleRemoveFriend} data-testid="remove-friend">
           <PersonRemove fontSize="small" />
           <Typography
             variant="body2"
@@ -109,33 +89,53 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
             {t("connections:remove_friend")}
           </Typography>
         </MenuItem>
-      </EllipsisMenu>
-      <Dialog
-        aria-labelledby="friend-item--confirmation-dialog"
-        open={isDialogOpen}
-        onClose={handleDialogClose}
-      >
-        <DialogTitle id="friend-item--confirmation-dialog">
-          {t("connections:remove_friend_confirmation_dialog.title")}
-        </DialogTitle>
-        <DialogContent>
-          {t("connections:remove_friend_confirmation_dialog.message", {
-            name: friend?.name,
-          })}
-        </DialogContent>
-        <DialogActions>
-          <Button variant="outlined" onClick={handleDialogClose}>
-            {t("global:cancel")}
-          </Button>
-          <Button
-            variant="contained"
-            loading={isRemoving}
-            onClick={() => handleRemoveFriend(friend.userId)}
+        <MenuItem onClick={handleBlockUser} data-testid="remove-friend">
+          <Block fontSize="small" />
+          <Typography
+            variant="body2"
+            sx={{ marginLeft: theme.spacing(1), fontWeight: 500 }}
           >
-            {t("connections:remove_friend_confirmation_dialog.confirm")}
-          </Button>
-        </DialogActions>
-      </Dialog>
+            {t("connections:block_user")}
+          </Typography>
+        </MenuItem>
+      </EllipsisMenu>
+      {openDialog === "remove-friend" && (
+        <ConnectionActionDialog
+          dialogConfirm={t(
+            "connections:remove_friend_confirmation_dialog.confirm",
+          )}
+          dialogId="friend-item--confirmation-dialog"
+          dialogMessage={t(
+            "connections:remove_friend_confirmation_dialog.message",
+          )}
+          dialogTitle={t(
+            "connections:remove_friend_confirmation_dialog.title",
+            { name: friend.name },
+          )}
+          isLoading={isRemoving}
+          onConfirm={handleConfirmRemoveFriend}
+          isOpen={openDialog === "remove-friend"}
+          onClose={handleDialogClose}
+        />
+      )}
+      {openDialog === "block-user" && (
+        <ConnectionActionDialog
+          dialogConfirm={t(
+            "connections:block_user_confirmation_dialog.confirm",
+          )}
+          dialogId="block-user--confirmation-dialog"
+          dialogMessage={t(
+            "connections:block_user_confirmation_dialog.message",
+          )}
+          dialogTitle={t("connections:block_user_confirmation_dialog.title", {
+            name: friend.name,
+          })}
+          isLoading={isBlocking}
+          onConfirm={handleConfirmBlockUser}
+          isOpen={openDialog === "block-user"}
+          onClose={handleDialogClose}
+        />
+      )}
     </FriendSummaryView>
   );
 };
