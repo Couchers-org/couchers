@@ -1,4 +1,5 @@
 import { GetLiteUsersRes, LiteUser, User } from "proto/api_pb";
+import { GetBlockedUsersRes } from "proto/blocking_pb";
 import { ListAdminsRes } from "proto/communities_pb";
 import { HostRequestStatus } from "proto/conversations_pb";
 import { ListEventAttendeesRes, ListEventOrganizersRes } from "proto/events_pb";
@@ -57,6 +58,28 @@ export async function getLiteUsers(
       user: liteUserMap[id.toString()],
       notFound: false,
     })),
+  };
+}
+
+export async function getBlockedUsers(): Promise<GetBlockedUsersRes.AsObject> {
+  return {
+    blockedUsersList: [
+      {
+        username: liteUser1.username,
+        name: liteUser1.name,
+        avatarThumbnailUrl: liteUser1.avatarThumbnailUrl,
+      },
+      {
+        username: liteUser2.username,
+        name: liteUser2.name,
+        avatarThumbnailUrl: liteUser2.avatarThumbnailUrl,
+      },
+      {
+        username: liteUser3.username,
+        name: liteUser3.name,
+        avatarThumbnailUrl: liteUser3.avatarThumbnailUrl,
+      },
+    ],
   };
 }
 

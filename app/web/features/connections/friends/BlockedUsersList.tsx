@@ -54,6 +54,8 @@ function BlockedUsersList({ refetchFriends }: { refetchFriends: () => void }) {
   }: {
     username: string;
   }) => {
+    console.log("Unblocking user:", username);
+
     if (username !== undefined) {
       await unblockUserMutation({ username });
       refetchFriends();

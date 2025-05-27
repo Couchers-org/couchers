@@ -1,6 +1,6 @@
 import { Grid, styled } from "@mui/material";
 
-import BlockedUsers from "./BlockedUsers";
+import BlockedUsersList from "./BlockedUsersList";
 import FriendList from "./FriendList";
 import FriendRequestsReceived from "./FriendRequestsReceived";
 import FriendRequestsSent from "./FriendRequestsSent";
@@ -28,7 +28,7 @@ function FriendsTab() {
           <FriendRequestsSent />
         </StyledGrid>
         <StyledGrid item xs={12} md={6}>
-          <BlockedUsers refetchFriends={refetchFriends} />
+          <BlockedUsersList refetchFriends={refetchFriends} />
         </StyledGrid>
       </Grid>
     </Grid>

@@ -72,7 +72,7 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
   };
 
   return (
-    <FriendSummaryView key={friend.userId} friend={friend}>
+    <FriendSummaryView friend={friend}>
       <EllipsisMenu
         idName="friend-item"
         isMenuOpen={isMenuOpen}
