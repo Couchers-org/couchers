@@ -771,8 +771,8 @@ def test_AddUsersToModerationUserList(db):
             with session_scope() as session:
                 moderation_user_list = session.get(ModerationUserList, res.moderation_list_id)
                 assert moderation_user_list is not None
-                assert user1.id in [user.id for user in moderation_user_list.users]
-                assert user2.id in [user.id for user in moderation_user_list.users]
+                assert user1.id in {user.id for user in moderation_user_list.users}
+                assert user2.id in {user.id for user in moderation_user_list.users}
 
             # Test adding other users to existing moderation list
             res2 = api.AddUsersToModerationUserList(
@@ -783,7 +783,7 @@ def test_AddUsersToModerationUserList(db):
             assert res2.moderation_list_id == res.moderation_list_id
             with session_scope() as session:
                 moderation_user_list = session.get(ModerationUserList, res.moderation_list_id)
-                assert user3.id in [user.id for user in moderation_user_list.users]
+                assert user3.id in {user.id for user in moderation_user_list.users}
 
             # Test creating a separate moderation list
             res3 = api.AddUsersToModerationUserList(
@@ -828,8 +828,8 @@ def test_RemoveUserFromModerationUserList(db):
         )
         with session_scope() as session:
             moderation_user_list = session.get(ModerationUserList, moderation_list_id)
-            assert user1.id not in [user.id for user in moderation_user_list.users]
-            assert user2.id in [user.id for user in moderation_user_list.users]
+            assert user1.id not in {user.id for user in moderation_user_list.users}
+            assert user2.id in {user.id for user in moderation_user_list.users}
 
         # Test removing all users from moderation list should also delete the moderation list
         api.RemoveUserFromModerationUserList(
