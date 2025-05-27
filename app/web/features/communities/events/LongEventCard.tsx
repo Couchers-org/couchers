@@ -6,6 +6,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Pill from "components/Pill";
 import FlagButton from "features/FlagButton";
@@ -14,7 +15,6 @@ import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { routeToEvent } from "routes";
-import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 
@@ -129,6 +129,7 @@ const LongEventCard = ({
   userId?: number | null | undefined;
 }) => {
   const { t } = useTranslation([COMMUNITIES]);
+  const theme = useTheme();
 
   const startTime = dayjs(timestamp2Date(event.startTime!)).format("llll");
   const isCreatedByMe = event.creatorUserId === userId;
@@ -168,8 +169,10 @@ const LongEventCard = ({
                 )}
                 {isCancelled && (
                   <Pill
-                    backgroundColor={theme.palette.error.main}
-                    color={theme.palette.common.white}
+                    sx={{
+                      backgroundColor: theme.palette.error.main,
+                      color: theme.palette.common.white,
+                    }}
                     variant="rounded"
                   >
                     {t("communities:cancelled")}

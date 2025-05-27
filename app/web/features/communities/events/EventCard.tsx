@@ -32,7 +32,9 @@ const StyledCard = styled(Card, {
   }),
 }));
 
-const CardWrapper = styled("div")({
+const CardWrapper = styled("div", {
+  shouldForwardProp: (prop) => prop !== "isCancelled",
+})({
   position: "relative",
 });
 
