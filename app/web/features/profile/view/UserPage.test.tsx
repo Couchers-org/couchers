@@ -12,6 +12,7 @@ import { User } from "proto/api_pb";
 import React from "react";
 import { routeToUser } from "routes";
 import { service } from "service";
+import mockUsers from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
@@ -29,6 +30,10 @@ const getUserMock = service.user.getUser as MockedService<
 >;
 const reportContentMock = service.reporting.reportContent as MockedService<
   typeof service.reporting.reportContent
+>;
+
+const blockUserMock = service.blocking.blockUser as MockedService<
+  typeof service.blocking.blockUser
 >;
 
 const getLanguagesMock = service.resources.getLanguages as jest.MockedFunction<
@@ -139,16 +144,16 @@ describe("User page", () => {
       beforeEach(async () => {
         const user = userEvent.setup();
         await user.click(
-          await screen.findByRole("button", {
-            name: t("global:report.flag.button_aria_label"),
-          }),
+          await screen.findByLabelText(
+            t("global:report.flag.profile_button_aria_label"),
+          ),
         );
       });
 
       it("opens the report user dialog", async () => {
         expect(
           await screen.findByRole("heading", {
-            name: t("global:report.flag.title"),
+            name: t("global:report.flag.profile_title"),
           }),
         ).toBeVisible();
       });
@@ -162,7 +167,7 @@ describe("User page", () => {
 
         await waitForElementToBeRemoved(
           screen.getByRole("heading", {
-            name: t("global:report.flag.title"),
+            name: t("global:report.flag.profile_title"),
           }),
         );
         expect(screen.queryByRole("presentation")).not.toBeInTheDocument();
@@ -199,17 +204,13 @@ describe("User page", () => {
         });
       });
 
-      it("does not submit the user report if the required fields are not filled in", async () => {
-        const user = userEvent.setup();
-
-        await user.click(
-          screen.getByRole("button", { name: t("global:submit") }),
-        );
-
+      it("has disabled submit button if the required fields are not filled in", async () => {
         expect(
-          await screen.findByText(t("global:report.flag.reason_required")),
-        ).toBeVisible();
+          screen.getByRole("button", { name: t("global:submit") }),
+        ).toBeDisabled();
+
         expect(reportContentMock).not.toHaveBeenCalled();
+        expect(blockUserMock).not.toHaveBeenCalled();
       });
 
       it("shows an error alert if the report user request failed to submit", async () => {
@@ -234,6 +235,32 @@ describe("User page", () => {
 
         const errorAlert = await screen.findByRole("alert");
         expect(within(errorAlert).getByText("API error")).toBeVisible();
+      });
+
+      it("blocks the user if the 'Block user' checkbox is checked", async () => {
+        const user = userEvent.setup();
+
+        const blockCheckbox = await screen.findByTestId("block-user-check");
+
+        const emptyCheckBox = screen.getByTestId("CheckBoxOutlineBlankIcon");
+
+        expect(emptyCheckBox).toBeVisible();
+
+        await user.click(blockCheckbox);
+
+        const checkedCheckBox = await screen.getByTestId("CheckBoxIcon");
+
+        expect(emptyCheckBox).not.toBeVisible();
+        expect(checkedCheckBox).toBeVisible();
+
+        await user.click(
+          screen.getByRole("button", { name: t("global:submit") }),
+        );
+
+        expect(blockUserMock).toHaveBeenCalledTimes(1);
+        expect(blockUserMock).toHaveBeenCalledWith({
+          username: mockUsers[1].username,
+        });
       });
     });
   });

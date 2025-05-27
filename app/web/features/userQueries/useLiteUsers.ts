@@ -43,14 +43,14 @@ function useLiteUsers(ids: (number | undefined)[] | undefined) {
 // Like above, but returns users in a list of the same size in same order
 function useLiteUsersList(ids: (number | undefined)[] | undefined) {
   const liteUsersMap = useLiteUsers(ids);
-  const usersList = ids?.map((id) => liteUsersMap.data?.get(id));
-  const filteredUsersList = usersList?.filter(
-    (user): user is LiteUser.AsObject => !!user,
-  );
+  const usersList = ids
+    ?.map((id) => liteUsersMap.data?.get(id))
+    .filter((user): user is LiteUser.AsObject => !!user); // Type guard to remove undefined
+
   return {
     ...liteUsersMap,
     usersById: liteUsersMap.data,
-    data: filteredUsersList,
+    data: usersList,
   };
 }
 

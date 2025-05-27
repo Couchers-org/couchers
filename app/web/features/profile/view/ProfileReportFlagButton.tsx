@@ -25,7 +25,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import { User } from "proto/api_pb";
 import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -85,7 +85,7 @@ export default function ProfileReportFlagButton({
     },
   });
 
-  const resportDescriptionField = useWatch({
+  const reportDescriptionField = useWatch({
     control,
     name: "description",
   });
@@ -149,7 +149,7 @@ export default function ProfileReportFlagButton({
         <Snackbar severity="error">{blockUserError.message}</Snackbar>
       )}
       <FlagButtonWrapper
-        aria-label={t("report.flag.button_aria_label")}
+        aria-label={t("report.flag.profile_button_aria_label")}
         onClick={handleFlagButtonClick}
       >
         <FlagIcon sx={{ marginRight: theme.spacing(1) }} />
@@ -188,7 +188,7 @@ export default function ProfileReportFlagButton({
                 },
               }}
             >
-              <InputLabel id="content-report-reason">
+              <InputLabel htmlFor="content-report-reason">
                 {t("report.flag.reason_label")}
               </InputLabel>
               <Controller
@@ -201,7 +201,6 @@ export default function ProfileReportFlagButton({
                     variant="outlined"
                     native
                     value={field.value}
-                    labelId="content-report-reason"
                     label={t("report.flag.reason_label")}
                     id="content-report-reason"
                     onChange={field.onChange}
@@ -250,7 +249,12 @@ export default function ProfileReportFlagButton({
               }}
             >
               <FormControlLabel
-                control={<Checkbox {...blockRegister("shouldBlock")} />}
+                control={
+                  <Checkbox
+                    {...blockRegister("shouldBlock")}
+                    data-testid="block-user-check"
+                  />
+                }
                 label={t("report.flag.block_user", {
                   username: profileUser.username,
                 })}
@@ -280,7 +284,7 @@ export default function ProfileReportFlagButton({
               {t("cancel")}
             </Button>
             <Button
-              disabled={!resportDescriptionField && !shouldBlockField}
+              disabled={!reportDescriptionField && !shouldBlockField}
               type="submit"
               loading={isLoading}
               onClick={onSubmit}
