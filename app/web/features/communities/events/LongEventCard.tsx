@@ -2,11 +2,11 @@ import {
   Card,
   CardContent,
   CardMedia,
+  CardMediaProps,
   styled,
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Pill from "components/Pill";
 import FlagButton from "features/FlagButton";
@@ -99,12 +99,16 @@ const ImageWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-const StyledCardMedia = styled(CardMedia)(({ theme }) => ({
+const StyledCardMedia = styled((props: CardMediaProps) => (
+  <CardMedia {...props} />
+))(({ theme }) => ({
   height: "100%",
   width: "100%",
-  backgroundSize: "cover",
-  backgroundPosition: "center",
-  backgroundRepeat: "no-repeat",
+  objectFit: "cover",
+  [theme.breakpoints.down("sm")]: {
+    width: "100%",
+    height: theme.spacing(25),
+  },
 }));
 
 const FlagWrapper = styled("div")(({ theme }) => ({
@@ -121,6 +125,11 @@ const FlagWrapper = styled("div")(({ theme }) => ({
   zIndex: 10,
 }));
 
+const CancelledPill = styled(Pill)(({ theme }) => ({
+  backgroundColor: theme.palette.error.main,
+  color: theme.palette.common.white,
+}));
+
 const LongEventCard = ({
   event,
   userId,
@@ -129,7 +138,6 @@ const LongEventCard = ({
   userId?: number | null | undefined;
 }) => {
   const { t } = useTranslation([COMMUNITIES]);
-  const theme = useTheme();
 
   const startTime = dayjs(timestamp2Date(event.startTime!)).format("llll");
   const isCreatedByMe = event.creatorUserId === userId;
@@ -168,15 +176,9 @@ const LongEventCard = ({
                   <Pill variant="rounded">{t("communities:online")}</Pill>
                 )}
                 {isCancelled && (
-                  <Pill
-                    sx={{
-                      backgroundColor: theme.palette.error.main,
-                      color: theme.palette.common.white,
-                    }}
-                    variant="rounded"
-                  >
+                  <CancelledPill variant="rounded">
                     {t("communities:cancelled")}
-                  </Pill>
+                  </CancelledPill>
                 )}
               </Tags>
             </Row>
