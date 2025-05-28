@@ -6,6 +6,7 @@ import { BlockedUser } from "proto/blocking_pb";
 interface FriendSummaryViewProps {
   children?: React.ReactNode;
   friend?: LiteUser.AsObject | BlockedUser.AsObject;
+  isProfileLink?: boolean;
 }
 
 export const FRIEND_ITEM_TEST_ID = "friend-item";
@@ -16,11 +17,19 @@ const StyledFriendItem = styled("div")(({ theme }) => ({
   padding: `0 ${theme.spacing(1)}`,
 }));
 
-function FriendSummaryView({ children, friend }: FriendSummaryViewProps) {
+function FriendSummaryView({
+  children,
+  friend,
+  isProfileLink,
+}: FriendSummaryViewProps) {
   return friend ? (
     <>
       <StyledFriendItem data-testid={FRIEND_ITEM_TEST_ID}>
-        <UserSummary headlineComponent="h3" user={friend} />
+        <UserSummary
+          headlineComponent="h3"
+          user={friend}
+          isProfileLink={isProfileLink}
+        />
         {children}
       </StyledFriendItem>
     </>

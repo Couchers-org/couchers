@@ -57,7 +57,7 @@ describe("BlockedUsersList", () => {
     ).toBeVisible();
   });
 
-  it("calls refetchFriends and requeries getBlockedUsers when unblocked", async () => {
+  it("calls refetchFriends to requery friends when unblocked", async () => {
     getBlockedUsersMock.mockImplementation(getBlockedUsers);
 
     const refetchFriendsMock = jest.fn();
@@ -94,7 +94,7 @@ describe("BlockedUsersList", () => {
 
     await user.click(confirmButton);
 
-    expect(refetchFriendsMock).toHaveBeenCalled();
-    expect(getBlockedUsersMock).toHaveBeenCalledTimes(2);
+    expect(refetchFriendsMock).toHaveBeenCalledTimes(1);
+    expect(getBlockedUsersMock).toHaveBeenCalledTimes(1);
   });
 });

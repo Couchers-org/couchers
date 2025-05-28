@@ -54,13 +54,9 @@ function BlockedUsersList({ refetchFriends }: { refetchFriends: () => void }) {
   }: {
     username: string;
   }) => {
-    console.log("Unblocking user:", username);
-
-    if (username !== undefined) {
-      await unblockUserMutation({ username });
-      refetchFriends();
-      handleDialogClose();
-    }
+    await unblockUserMutation({ username });
+    refetchFriends();
+    handleDialogClose();
   };
 
   return (
@@ -73,7 +69,11 @@ function BlockedUsersList({ refetchFriends }: { refetchFriends: () => void }) {
         noDataMessage={t("connections:no_blocked_users")}
       >
         {data?.blockedUsersList.map((user: BlockedUser.AsObject) => (
-          <FriendSummaryView key={user.username} friend={user}>
+          <FriendSummaryView
+            key={user.username}
+            friend={user}
+            isProfileLink={false}
+          >
             <EllipsisMenu
               idName="blocked-user-item"
               isMenuOpen={isMenuOpen}

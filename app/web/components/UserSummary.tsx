@@ -62,6 +62,7 @@ export interface UserSummaryProps {
   headlineComponent?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   user?: LiteUser.AsObject | BlockedUser.AsObject;
   titleIsLink?: boolean;
+  isProfileLink?: boolean;
 }
 
 export default function UserSummary({
@@ -71,6 +72,7 @@ export default function UserSummary({
   headlineComponent = "h2",
   user,
   titleIsLink = false,
+  isProfileLink = true,
 }: UserSummaryProps) {
   const headlineComponentWithRef = React.forwardRef(
     function HeadlineComponentWithRef(props, ref) {
@@ -114,7 +116,7 @@ export default function UserSummary({
         ) : (
           <StyledAvatar
             user={user}
-            isProfileLink={true}
+            isProfileLink={isProfileLink}
             isSmallAvatar={smallAvatar}
           />
         )}
