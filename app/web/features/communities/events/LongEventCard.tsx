@@ -2,7 +2,6 @@ import {
   Card,
   CardContent,
   CardMedia,
-  CardMediaProps,
   styled,
   Tooltip,
   Typography,
@@ -99,18 +98,6 @@ const ImageWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-const StyledCardMedia = styled((props: CardMediaProps) => (
-  <CardMedia {...props} />
-))(({ theme }) => ({
-  height: "100%",
-  width: "100%",
-  objectFit: "cover",
-  [theme.breakpoints.down("sm")]: {
-    width: "100%",
-    height: theme.spacing(25),
-  },
-}));
-
 const FlagWrapper = styled("div")(({ theme }) => ({
   position: "absolute",
   bottom: 8,
@@ -123,6 +110,9 @@ const FlagWrapper = styled("div")(({ theme }) => ({
   justifyContent: "center",
   cursor: "pointer",
   zIndex: 10,
+  "& svg": {
+    fontSize: 18,
+  },
 }));
 
 const CancelledPill = styled(Pill)(({ theme }) => ({
@@ -149,9 +139,18 @@ const LongEventCard = ({
       <Link href={routeToEvent(event.eventId, event.slug)} passHref>
         <CardLayout>
           <ImageWrapper>
-            <StyledCardMedia
+            <CardMedia
+              component="img"
               image={event.photoUrl || eventImagePlaceholderUrl}
               title={event.title}
+              sx={(theme) => ({
+                height: "100%",
+                width: "100%",
+                objectFit: "cover",
+                [theme.breakpoints.down("sm")]: {
+                  height: theme.spacing(25),
+                },
+              })}
             />
             <FlagWrapper>
               <FlagButton

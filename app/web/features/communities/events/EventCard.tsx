@@ -38,20 +38,6 @@ const CardWrapper = styled("div", {
   position: "relative",
 });
 
-const StyledCardMedia = styled(CardMedia)(({ theme }) => ({
-  padding: theme.spacing(1),
-  backgroundColor: theme.palette.grey[200],
-  height: 80,
-  backgroundRepeat: "no-repeat",
-  backgroundPosition: "center",
-  [theme.breakpoints.up("sm")]: {
-    height: 100,
-  },
-  [theme.breakpoints.up("md")]: {
-    height: 120,
-  },
-}));
-
 const Title = styled(Typography)(({ theme }) => ({
   display: "-webkit-box",
   WebkitBoxOrient: "vertical",
@@ -112,6 +98,8 @@ export default function EventCard({ event, className }: EventCardProps) {
     endTime.isSame(startTime, "day") ? "LT" : "llll",
   )}`;
 
+  const eventImageSrc = event.photoUrl || eventImagePlaceholderUrl;
+
   return (
     <CardWrapper>
       <StyledCard
@@ -120,14 +108,19 @@ export default function EventCard({ event, className }: EventCardProps) {
         data-testid={EVENT_CARD_TEST_ID}
       >
         <Link href={routeToEvent(event.eventId, event.slug)}>
-          <StyledCardMedia
-            style={{
-              backgroundImage: `url(${event.photoUrl || eventImagePlaceholderUrl})`,
+          <CardMedia
+            component="div"
+            sx={{
+              padding: 1,
+              backgroundColor: (theme) => theme.palette.grey[200],
+              height: { xs: 80, sm: 100, md: 120 },
+              backgroundImage: `url(${eventImageSrc})`,
               backgroundSize:
-                (event.photoUrl || eventImagePlaceholderUrl) ===
-                eventImagePlaceholderUrl
+                eventImageSrc === eventImagePlaceholderUrl
                   ? "contain"
                   : "cover",
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
             }}
           >
             {event.onlineInformation && (
@@ -137,8 +130,7 @@ export default function EventCard({ event, className }: EventCardProps) {
                 sx={{ borderRadius: 1, fontWeight: "bold" }}
               />
             )}
-          </StyledCardMedia>
-
+          </CardMedia>
           <CardContent>
             <EventTime
               variant="body2"
