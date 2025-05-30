@@ -1,189 +1,117 @@
-import { Pagination } from "@mui/material";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { useTranslation } from "i18n";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { service } from "service";
 import mockEvents from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
+import { getMyEvents } from "test/serviceMockDefaults";
 
-import { useListMyEvents } from "./hooks";
 import MyEventsList from "./MyEventsList";
 
-jest.mock("i18n", () => ({
-  useTranslation: jest.fn(),
-}));
+const { t } = i18n;
 
-jest.mock("../events/hooks", () => ({
-  useListMyEvents: jest.fn(),
-}));
-
-jest.mock("@mui/material", () => ({
-  ...jest.requireActual("@mui/material"),
-  Pagination: jest.fn(),
-}));
+const mockListMyEvents = service.events.listMyEvents as jest.MockedFunction<
+  typeof service.events.listMyEvents
+>;
 
 describe("MyEventsList", () => {
-  const mockUseTranslation = useTranslation as jest.Mock;
-  const mockUseListMyEvents = useListMyEvents as jest.Mock;
-  const mockPagination = Pagination as jest.Mock;
-
-  beforeEach(() => {
-    mockUseTranslation.mockReturnValue({
-      t: (key: string) => key,
-    });
-  });
+  const creatorUserId = 4;
 
   afterEach(() => {
     jest.resetAllMocks();
   });
 
   it("Renders loading state", () => {
-    mockUseListMyEvents.mockReturnValue({
-      data: null,
-      error: null,
-      isLoading: true,
-    });
-
     render(<MyEventsList />, { wrapper });
 
     expect(screen.getByRole("progressbar")).toBeInTheDocument();
   });
 
-  it("Renders error state", () => {
-    mockUseListMyEvents.mockReturnValue({
-      data: null,
-      error: { message: "Error loading events" },
-      isLoading: false,
-    });
+  it("Renders error state", async () => {
+    mockListMyEvents.mockRejectedValue(new Error("Error loading events"));
 
     render(<MyEventsList />, { wrapper });
 
-    expect(screen.getByText("Error loading events")).toBeInTheDocument();
+    expect(await screen.findByText("Error loading events")).toBeInTheDocument();
   });
 
-  it("Renders empty state when no events", () => {
-    mockUseListMyEvents.mockReturnValue({
-      data: { eventsList: [], totalItems: 0 },
-      error: null,
-      isLoading: false,
+  it("Renders empty state when no events", async () => {
+    mockListMyEvents.mockResolvedValue({
+      eventsList: [],
+      totalItems: 0,
+      nextPageToken: "",
     });
 
     render(<MyEventsList />, { wrapper });
 
     expect(
-      screen.getByText("communities:events_empty_state"),
+      await screen.findByText(t("communities:events_empty_state")),
     ).toBeInTheDocument();
   });
 
-  it("Renders events list when events are available", () => {
-    mockUseListMyEvents.mockReturnValue({
-      data: {
-        eventsList: mockEvents.filter((event) => !event.isCancelled),
-        totalItems: 3,
-      },
-      error: null,
-      isLoading: false,
-    });
-
-    mockPagination.mockImplementation(({ onChange }) => (
-      <button onClick={() => onChange({}, 1)}>Change Page</button>
-    ));
+  it("Renders events list when events are available", async () => {
+    mockListMyEvents.mockResolvedValue(getMyEvents(creatorUserId));
 
     render(<MyEventsList />, { wrapper });
 
-    expect(screen.getByText("Planting Season Meetup")).toBeInTheDocument();
+    expect(await screen.findByText(mockEvents[2].title)).toBeVisible();
+    expect(await screen.findByText(mockEvents[3].title)).toBeVisible();
 
-    // check that EventItem component appears 3 times
-    expect(screen.getAllByTestId("event-item")).toHaveLength(3);
+    expect(screen.getAllByTestId("event-item")).toHaveLength(2);
   });
 
   it("Can toggle past events filter", async () => {
-    mockUseListMyEvents.mockReturnValue({
-      data: { eventsList: mockEvents, totalItems: 0 },
-      error: null,
-      isLoading: false,
-    });
-
-    mockPagination.mockImplementation(({ onChange }) => (
-      <button onClick={() => onChange({}, 1)}>Change Page</button>
-    ));
+    mockListMyEvents.mockResolvedValue(getMyEvents(creatorUserId));
 
     render(<MyEventsList />, { wrapper });
 
-    const pastFilter = screen.getByText("communities:past");
+    const pastFilter = await screen.findByText(t("communities:past"));
     expect(pastFilter).toBeInTheDocument();
 
-    fireEvent.click(pastFilter);
+    const user = userEvent.setup();
 
-    await waitFor(() =>
-      expect(mockUseListMyEvents).toHaveBeenCalledWith(
-        expect.objectContaining({ pastEvents: true }),
-      ),
+    await user.click(pastFilter);
+
+    expect(mockListMyEvents).toHaveBeenCalledWith(
+      expect.objectContaining({ pastEvents: true }),
     );
   });
 
   it("Can toggle show cancelled filter", async () => {
-    mockUseListMyEvents.mockReturnValue({
-      data: { eventsList: mockEvents, totalItems: 0 },
-      error: null,
-      isLoading: false,
-    });
-
-    mockPagination.mockImplementation(({ onChange }) => (
-      <button onClick={() => onChange({}, 1)}>Change Page</button>
-    ));
+    mockListMyEvents.mockResolvedValue(getMyEvents(creatorUserId));
 
     render(<MyEventsList />, { wrapper });
 
-    const cancelledFilter = screen.getByText(
-      "communities:show_cancelled_events",
+    const cancelledFilter = await screen.findByText(
+      t("communities:show_cancelled_events"),
     );
     expect(cancelledFilter).toBeInTheDocument();
 
-    fireEvent.click(cancelledFilter);
+    const user = userEvent.setup();
 
-    await waitFor(() =>
-      expect(mockUseListMyEvents).toHaveBeenCalledWith(
-        expect.objectContaining({ showCancelled: true }),
-      ),
+    await user.click(cancelledFilter);
+
+    expect(mockListMyEvents).toHaveBeenCalledWith(
+      expect.objectContaining({ showCancelled: true }),
     );
   });
 
   it("Handles pagination", async () => {
-    mockUseListMyEvents.mockReturnValue({
-      data: {
-        eventsList: [
-          ...mockEvents,
-          ...mockEvents.map((event) => ({
-            ...event,
-            eventId: event.eventId + 4,
-          })),
-          ...mockEvents.map((event) => ({
-            ...event,
-            eventId: event.eventId + 8,
-          })),
-          ...mockEvents.map((event) => ({
-            ...event,
-            eventId: event.eventId + 16,
-          })),
-        ],
-        totalItems: 12,
-      },
-      error: null,
-      isLoading: false,
+    mockListMyEvents.mockResolvedValue({
+      eventsList: mockEvents,
+      totalItems: 25,
+      nextPageToken: "2",
     });
-
-    mockPagination.mockImplementation(({ onChange }) => (
-      <button onClick={() => onChange({}, 2)}>Change Page</button>
-    ));
 
     render(<MyEventsList />, { wrapper });
 
-    const paginationButton = screen.getByText("Change Page");
-    fireEvent.click(paginationButton);
+    const paginationButton = await screen.findByLabelText("Go to next page");
 
-    await waitFor(() =>
-      expect(mockUseListMyEvents).toHaveBeenCalledWith(
-        expect.objectContaining({ pageNumber: 2 }),
-      ),
+    const user = userEvent.setup();
+    await user.click(paginationButton);
+
+    expect(mockListMyEvents).toHaveBeenCalledWith(
+      expect.objectContaining({ pageNumber: 2 }),
     );
   });
 });
