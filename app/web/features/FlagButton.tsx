@@ -49,7 +49,7 @@ export default function FlagButton({
     reset: resetForm,
     formState: { errors },
   } = useForm<ReportInput>();
-  
+
   const {
     data: report,
     error,
@@ -77,7 +77,7 @@ export default function FlagButton({
   };
 
   const onSubmit = handleSubmit((data) => {
-    console.log("REPORT CONTENT RAN")
+    console.log("REPORT CONTENT RAN");
     reportContent(data);
   });
 
