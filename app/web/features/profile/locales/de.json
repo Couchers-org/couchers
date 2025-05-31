@@ -125,15 +125,11 @@
   "report_reason": "Grund",
   "report_user": "Diesen Benutzer melden",
   "leave_reference": {
-    "appropriate_behavior": "Angemessenes Verhalten",
     "appropriate_question": "Hast du dich durch das Verhalten dieser Person sicher gefühlt?",
-    "coucher_was_appropriate": "Ja, das Verhalten dieser Person war angemessen.",
-    "coucher_was_not_appropriate": "Nein, das Verhalten dieser Person war nicht angemessen.",
     "rating_label": "Deine Erfahrung gab dir das Gefühl ",
     "reference_form_heading_surfed": "Du hast mit {{name}} gesurft",
     "writing_for_text": "Du verfasst eine Referenz für die folgende Person:",
     "reference_submit_heading": "Vielen Dank, dass du eine Referenz hinterlassen hast!",
-    "reference_success": "Die Referenz wurde erfolgreich geschrieben!",
     "required": "Dieser Schritt ist erforderlich.",
     "thank_you_message": "Wir schätzen es, dass du dir die Zeit nimmst, uns dabei zu helfen, unsere Community-Werte aufrechtzuerhalten. Bitte schau dir deine Referenz an, bevor du sie einreichst.",
     "was_appropriate_required": "Um die Sicherheit unserer Community zu gewährleisten, ist diese Frage erforderlich.",
@@ -141,9 +137,6 @@
     "reference_type_not_available": "Dieser Referenztyp ist für diesen Benutzer nicht verfügbar.",
     "text_explanation": "Hinterlasse eine Nachricht für das Gästebuch deines Coucher-Kollegen – sag Danke oder lass andere wissen, ob du die Zeit mit ihnen genossen hast.",
     "appropriate_explanation": "Großartig –– Wir hoffen, du hattest eine tolle Zeit! Um die Sicherheit unserer Community zu gewährleisten, möchten wir dich nach deiner Interaktion mit deinen Coucher-Kollegen fragen.",
-    "safety_priority": "Deine Sicherheit ist unsere Priorität. Es ist wichtig, dass du dich im Umgang mit anderen innerhalb der Couchers-Community wohl fühlst. Teile uns mit, wie du dich über das Verhalten dieser Person gefühlt hast.",
-    "contact_text": "Wenn du Fragen hast oder zusätzliche Informationen bereitstellen möchtest, zögere bitte nicht, <1>hier mit uns Kontakt aufzunehmen.</1>",
-    "host_request_reference_explanation": "Host-Referenzen werden erst sichtbar, wenn beide Referenzen geschrieben wurden, oder nach 2 Wochen. Bitte bewahre noch etwas Geduld!",
     "invalid_reference_type": "Ungültiger Referenztyp",
     "invalid_step": "Ungültiger Formularschritt",
     "previous_step": "Vorheriger Schritt",
@@ -152,10 +145,8 @@
     "public_answer": "Dies wird öffentlich im Abschnitt „Referenzen“ ihres Profils angezeigt.",
     "public_text_label": "Du hinterlässt die folgende Referenz im Gästebuch deines Coucher-Kollegen:",
     "reference_form_heading_friend": "Du hast dich mit {{name}} getroffen",
-    "rating_explanation": "- **Negativ:** Du hast die Gesellschaft dieser Person nicht genossen.\n- **Neutral:** Du hattest keine starken Gefühle für diese Person. Ihr Ansehen in der Community wird dadurch nicht beeinträchtigt.\n- **Positiv:** Du hattest eine tolle Zeit mit dieser Person. Dadurch wird ihr Ansehen in der Community verbessert.\n- **Fantastisch:** Diese Person hat alle deine Erwartungen übertroffen und ist eine Bereicherung für die Couchers-Community.",
     "reference_form_heading_hosted": "Du hast {{name}} gehosted",
-    "rating_how": "Wie soll ich meine Erfahrung bewerten?",
-    "rating_question": "Wie würdest du deine allgemeine Erfahrung mit {{name}} bewerten?"
+    "rating_how": "Wie soll ich meine Erfahrung bewerten?"
   },
   "request_form": {
     "send_request": "Sende {{name}} eine Anfrage",

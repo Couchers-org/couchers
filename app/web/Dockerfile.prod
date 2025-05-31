@@ -29,7 +29,11 @@ RUN cp .env.$environment env && \
     rm .env.* && \
     mv env .env.local
 
+RUN if [ "$environment" = "production" ]; then cp public/robots-prod.txt public/robots.txt; fi
+
 RUN yarn build
+
+RUN yarn injectsourcemaps
 
 FROM node:20-slim AS runner
 

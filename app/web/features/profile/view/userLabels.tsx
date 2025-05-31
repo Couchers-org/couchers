@@ -47,7 +47,14 @@ export const ReferencesLastActiveLabels = ({ user }: Props) => {
   );
 };
 
-export const ResponseRateText = ({ user }: { user: User.AsObject }) => {
+export const ResponseRateText = ({
+  user,
+}: {
+  user: Pick<
+    User.AsObject,
+    "insufficientData" | "low" | "some" | "most" | "almostAll"
+  >;
+}) => {
   const { t } = useTranslation([PROFILE]);
 
   let rateText = undefined;

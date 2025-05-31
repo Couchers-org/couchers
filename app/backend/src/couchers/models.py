@@ -26,7 +26,7 @@ from sqlalchemy.dialects.postgresql import INET, TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, deferred, relationship
-from sqlalchemy.sql import and_, func, text
+from sqlalchemy.sql import and_, func, not_, text
 from sqlalchemy.sql import select as sa_select
 
 from couchers import urls
@@ -40,7 +40,12 @@ from couchers.constants import (
     SMS_CODE_LIFETIME,
     TOS_VERSION,
 )
-from couchers.utils import date_in_timezone, get_coordinates, last_active_coarsen, now
+from couchers.utils import (
+    date_in_timezone,
+    get_coordinates,
+    last_active_coarsen,
+    now,
+)
 from proto import notification_data_pb2
 
 meta = MetaData(
@@ -140,11 +145,11 @@ class User(Base):
     ## location
     # point describing their location. EPSG4326 is the SRS (spatial ref system, = way to describe a point on earth) used
     # by GPS, it has the WGS84 geoid with lat/lon
-    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
-    # randomized coordinates within a radius of 0.05-0.1 degrees, equates to about 5-10 km
+    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
+    # randomized coordinates within a radius of 0.02-0.1 degrees, equates to about 2-10 km
     randomized_geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     # their display location (displayed to other users), in meters
-    geom_radius = Column(Float, nullable=True)
+    geom_radius = Column(Float, nullable=False)
     # the display address (text) shown on their profile
     city = Column(String, nullable=False)
     # "Grew up in" on profile
@@ -313,6 +318,9 @@ class User(Base):
 
     admin_note = Column(String, nullable=False, server_default=text("''"))
 
+    # whether mods have marked this user has having to update their location
+    needs_to_update_location = Column(Boolean, nullable=False, server_default=text("false"))
+
     age = column_property(func.date_part("year", func.age(birthdate)))
 
     __table_args__ = (
@@ -326,7 +334,7 @@ class User(Base):
         Index(
             "ix_users_active",
             id,
-            postgresql_where=~is_banned & ~is_deleted,
+            postgresql_where=and_(not_(is_banned), not_(is_deleted)),
         ),
         # create index on users(geom, id, username) where not is_banned and not is_deleted and geom is not null;
         Index(
@@ -334,7 +342,20 @@ class User(Base):
             geom,
             id,
             username,
-            postgresql_where=~is_banned & ~is_deleted & (geom != None),
+            postgresql_using="gist",
+            postgresql_where=and_(not_(is_banned), not_(is_deleted)),
+        ),
+        Index(
+            "ix_users_by_id",
+            id,
+            postgresql_using="hash",
+            postgresql_where=and_(not_(is_banned), not_(is_deleted)),
+        ),
+        Index(
+            "ix_users_by_username",
+            username,
+            postgresql_using="hash",
+            postgresql_where=and_(not_(is_banned), not_(is_deleted)),
         ),
         # There are two possible states for new_email_token, new_email_token_created, and new_email_token_expiry
         CheckConstraint(
@@ -401,7 +422,7 @@ class User(Base):
 
     @hybrid_property
     def is_missing_location(self):
-        return (self.geom == None) | (self.geom_radius == None)
+        return self.needs_to_update_location
 
     @hybrid_property
     def is_visible(self):
@@ -877,6 +898,16 @@ class FriendRelationship(Base):
     from_user = relationship("User", backref="friends_from", foreign_keys="FriendRelationship.from_user_id")
     to_user = relationship("User", backref="friends_to", foreign_keys="FriendRelationship.to_user_id")
 
+    __table_args__ = (
+        # Ping looks up pending friend reqs, this speeds that up
+        Index(
+            "ix_friend_relationships_status_to_from",
+            status,
+            to_user_id,
+            from_user_id,
+        ),
+    )
+
 
 class ContributeOption(enum.Enum):
     yes = enum.auto()
@@ -926,7 +957,7 @@ class ContributorForm(Base):
 
         We currently send if expertise is listed, or if they list a way to help outside of a set list
         """
-        return (self.expertise != None) | (not set(self.contribute_ways).issubset({"community", "blog", "other"}))
+        return False
 
 
 class SignupFlow(Base):
@@ -970,7 +1001,7 @@ class SignupFlow(Base):
 
     opt_out_of_newsletter = Column(Boolean, nullable=True)
 
-    ## Feedback
+    ## Feedback (now unused)
     filled_feedback = Column(Boolean, nullable=False, default=False)
     ideas = Column(String, nullable=True)
     features = Column(String, nullable=True)
@@ -999,12 +1030,7 @@ class SignupFlow(Base):
 
     @hybrid_property
     def is_completed(self):
-        return (
-            self.email_verified
-            & self.account_is_filled
-            & self.filled_feedback
-            & (self.accepted_community_guidelines == GUIDELINES_VERSION)
-        )
+        return self.email_verified & self.account_is_filled & (self.accepted_community_guidelines == GUIDELINES_VERSION)
 
 
 class LoginToken(Base):
@@ -1172,6 +1198,14 @@ class UserSession(Base):
             & (self.deleted == None)
             & (self.long_lived | (func.now() - self.last_seen < text("interval '168 hours'")))
         )
+
+    __table_args__ = (
+        Index(
+            "ix_sessions_by_token",
+            "token",
+            postgresql_using="hash",
+        ),
+    )
 
 
 class Conversation(Base):
@@ -1760,7 +1794,6 @@ class ClusterSubscription(Base):
     """
 
     __tablename__ = "cluster_subscriptions"
-    __table_args__ = (UniqueConstraint("user_id", "cluster_id"),)
 
     id = Column(BigInteger, primary_key=True)
 
@@ -1770,6 +1803,22 @@ class ClusterSubscription(Base):
 
     user = relationship("User", backref="cluster_subscriptions")
     cluster = relationship("Cluster", backref="cluster_subscriptions")
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "cluster_id"),
+        Index(
+            "ix_cluster_subscriptions_members",
+            cluster_id,
+            user_id,
+        ),
+        # For fast lookup of nodes this user is an admin of
+        Index(
+            "ix_cluster_subscriptions_admins",
+            user_id,
+            cluster_id,
+            postgresql_where=(role == ClusterRole.admin),
+        ),
+    )
 
 
 class ClusterPageAssociation(Base):
@@ -2490,6 +2539,20 @@ class Notification(Base):
             "ix_notifications_created",
             created,
         ),
+        # Fast lookup for unseen notification count
+        Index(
+            "ix_notifications_unseen",
+            user_id,
+            topic_action,
+            postgresql_where=(is_seen == False),
+        ),
+        # Fast lookup for latest notifications
+        Index(
+            "ix_notifications_latest",
+            user_id,
+            id.desc(),
+            topic_action,
+        ),
     )
 
     @property
@@ -2615,7 +2678,6 @@ class UserBlock(Base):
     """
 
     __tablename__ = "user_blocks"
-    __table_args__ = (UniqueConstraint("blocking_user_id", "blocked_user_id"),)
 
     id = Column(BigInteger, primary_key=True)
 
@@ -2625,6 +2687,12 @@ class UserBlock(Base):
 
     blocking_user = relationship("User", foreign_keys="UserBlock.blocking_user_id")
     blocked_user = relationship("User", foreign_keys="UserBlock.blocked_user_id")
+
+    __table_args__ = (
+        UniqueConstraint("blocking_user_id", "blocked_user_id"),
+        Index("ix_user_blocks_blocking_user_id", blocking_user_id, blocked_user_id),
+        Index("ix_user_blocks_blocked_user_id", blocked_user_id, blocking_user_id),
+    )
 
 
 class APICall(Base):

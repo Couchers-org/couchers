@@ -1,7 +1,7 @@
 import { appGetLayout } from "components/AppRoute";
 import NotFoundPage from "features/NotFoundPage";
 import LeaveReferencePageComponent from "features/profile/view/leaveReference/LeaveReferencePage";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
+import { GLOBAL, NOTIFICATIONS, PROFILE } from "i18n/namespaces";
 import { translationStaticProps } from "i18n/server-side-translations";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
@@ -15,6 +15,7 @@ export const getStaticPaths: GetStaticPaths = () => ({
 export const getStaticProps: GetStaticProps = translationStaticProps([
   GLOBAL,
   PROFILE,
+  NOTIFICATIONS,
 ]);
 export default function LeaveReferencePage() {
   const router = useRouter();
@@ -23,24 +24,28 @@ export default function LeaveReferencePage() {
   // leave-reference/friend/:userId/:step?
   // leave-reference/surfed|hosted/:userId/:hostRequestId/:step?
   const slug = router.query.slug;
+
   if (!slug?.[0] || !slug?.[1]) return <NotFoundPage />;
   const referenceType = slug[0];
+
   const parsedReferenceType = referenceTypeRouteStrings.find(
     (valid) => referenceType === valid,
   );
+
   if (!parsedReferenceType) return <NotFoundPage />;
   const parsedUserId = Number.parseInt(slug[1]);
   if (isNaN(parsedUserId)) return <NotFoundPage />;
   let step: string | undefined = undefined;
   let hostRequestId = undefined;
   if (parsedReferenceType === "friend") {
-    step = slug?.[2];
+    step = slug?.[2] ? slug[2] : referenceStepStrings[1];
   } else {
     hostRequestId = slug?.[2];
     if (!hostRequestId) return <NotFoundPage />;
-    step = slug?.[3];
+    step = slug?.[3] ? slug[3] : referenceStepStrings[0];
   }
   const parsedStep = referenceStepStrings.find((s) => s === step);
+
   const parsedHostRequestId = hostRequestId
     ? Number.parseInt(hostRequestId)
     : undefined;

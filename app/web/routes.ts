@@ -10,6 +10,10 @@ import SearchFilters, { parseSearchFiltersToQuery } from "utils/searchFilters";
 export const baseRoute = "/";
 
 export const githubURL = "https://github.com/Couchers-org/couchers";
+export const instagramURL = "https://www.instagram.com/couchersorg";
+export const redditURL = "https://www.reddit.com/r/couchers/";
+export const blueSkyURL = "https://bsky.app/profile/couchers.bsky.social";
+export const facebookURL = "https://www.facebook.com/Couchers.org";
 export const helpCenterURL = "https://help.couchers.org";
 export const githubUpdatesURL =
   "https://github.com/Couchers-org/couchers/commits/develop";
@@ -100,10 +104,11 @@ export const referenceTypeRoute: Record<
   [ReferenceType.REFERENCE_TYPE_HOSTED]: "hosted",
 };
 export const referenceStepStrings = [
-  "appropriate",
-  "rating",
+  "did-stay",
+  "private-feedback",
   "reference",
   "submit",
+  "thank-you",
 ] as const;
 export type ReferenceStep = (typeof referenceStepStrings)[number];
 
@@ -190,6 +195,10 @@ export const howToMakeGreatProfileUrl =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1725919197-how-do-i-create-a-great-profile";
 export const helpCenterReportContentURL =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1715125657-how-do-i-report-someone-or-something-that-violates-the-community-guidelines-or-terms-of-use-to_u";
+export const helpCenterPrivateFeedbackUrl =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1747589427-providing-private-feedback-when-leaving-a-reference";
+export const helpCenterHowToLeaveGoodReferenceUrl =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1717360836-how-to";
 export const helpCenterCommunityBuilderURL =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder";
 

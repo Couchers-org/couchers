@@ -193,5 +193,9 @@
     "join_our_team": "Join our team",
     "have_skills_contribute": "Have skills you want to contribute?",
     "fill_form_description": "Couchers.org is a community project, built by folks like you for the benefit of the global couch surfing community. If you would like to be a part of this great new project, or leave your feedback on our ideas, click the button below and fill out the short form."
+  },
+  "push_notification_banner": {
+    "message": "Don't miss requests, responses or messages; can we send you push notifications?",
+    "confirm": "Yes, please!"
   }
 }
