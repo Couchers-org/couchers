@@ -1,5 +1,6 @@
-import { Divider, styled, Typography, TypographyProps } from "@mui/material";
+import { Divider, styled, Typography, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
+import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Redirect from "components/Redirect";
@@ -8,6 +9,7 @@ import mobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useIsNativeEmbed } from "platform/nativeLink";
 import Sentry from "platform/sentry";
@@ -15,6 +17,7 @@ import { useEffect, useState } from "react";
 import { dashboardRoute, loginRoute, signupRoute, tosRoute } from "routes";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
+import { theme } from "theme";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 import { useAuthContext } from "../AuthProvider";
@@ -22,44 +25,12 @@ import AccountForm from "./AccountForm";
 import BasicForm from "./BasicForm";
 import ResendVerificationEmailForm from "./ResendVerificationEmailForm";
 
-const StyledAgreement = styled(Typography)<TypographyProps>(({ theme }) => ({
-  textAlign: "center",
-  [theme.breakpoints.up("md")]: {
-    marginTop: theme.spacing(3),
-    textAlign: "left",
-  },
-}));
-
-const StyledScrollingContent = styled("div")(({ theme }) => ({
-  position: "relative",
-  zIndex: 2,
-  justifyContent: "center",
-  display: "flex",
-  flexDirection: "column",
-  padding: theme.spacing(1, 4),
-  paddingBottom: 0,
-
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(1, 2),
-  },
-}));
+interface SignupProps {
+  scrollToMore: () => void;
+}
 
 const StyledMobileEmbed = styled("div")(({ theme }) => ({
   margin: theme.spacing(3),
-}));
-
-const StyledIntroduction = styled("div")(({ theme }) => ({
-  flexShrink: 0,
-  color: theme.palette.common.white,
-  flexDirection: "column",
-  display: "flex",
-  textAlign: "left",
-  width: "45%",
-  maxWidth: theme.breakpoints.values.lg / 2,
-  marginInlineEnd: "10%",
-  [theme.breakpoints.down("md")]: {
-    display: "none",
-  },
 }));
 
 const StyledBackground = styled("div")(({ theme }) => ({
@@ -72,89 +43,62 @@ const StyledBackground = styled("div")(({ theme }) => ({
   backgroundRepeat: "no-repeat",
   backgroundSize: "cover",
   width: "100%",
-  height: `calc(100vh - ${theme.shape.navPaddingXs})`,
-  position: "fixed",
-  left: 0,
-  right: 0,
-  top: theme.shape.navPaddingXs,
-  bottom: 0,
-  zIndex: 1,
-
-  [theme.breakpoints.up("sm")]: {
-    height: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
-    top: theme.shape.navPaddingSmUp,
-  },
+  height: "100%",
 
   [theme.breakpoints.down("md")]: {
-    padding: theme.spacing(1, 2),
-    position: "absolute",
-    background: `linear-gradient(rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 1)), url("${mobileAuthBg.src}")`,
+    padding: theme.spacing(2, 1),
+    justifyContent: "center",
   },
 }));
 
 const StyledContent = styled("div")(({ theme }) => ({
   width: "100%",
+  marginTop: theme.spacing(2),
+  justifyContent: "center",
   marginBottom: theme.spacing(2),
   [theme.breakpoints.up("md")]: {
     display: "flex",
     flexDirection: "row",
-    height: "100%",
-    justifyContent: "flex-end",
-    alignItems: "center",
+    justifyContent: "space-evenly",
     width: "100%",
   },
 }));
 
-const StyledTitle = styled(Typography)<TypographyProps>(({ theme }) => ({
-  [theme.breakpoints.up("md")]: {
-    fontSize: "2rem",
-    lineHeight: "1.15",
-    textAlign: "left",
-  },
-}));
-
-const StyledSubtitle = styled(Typography)<TypographyProps>(({ theme }) => ({
-  [theme.breakpoints.up("md")]: {
-    display: "inline-block",
-    marginTop: theme.spacing(4),
-    position: "relative",
-  },
-}));
-
-const StyledFormWrapper = styled("div")(({ theme }) => ({
+const StyledIntroduction = styled("div")(({ theme }) => ({
   flexShrink: 0,
-  backgroundColor: "#fff",
-  borderRadius: theme.shape.borderRadius,
-  flexGrow: 1,
-  alignSelf: "flex-start",
-  marginTop: theme.spacing(10),
-  marginBottom: theme.spacing(4),
+  color: theme.palette.common.white,
+  flexDirection: "column",
+  display: "flex",
+  textAlign: "left",
+  width: "50%",
+  maxWidth: theme.breakpoints.values.xl / 2,
+  marginInlineEnd: "10%",
+  marginTop: theme.spacing(12),
+  gap: theme.spacing(2),
+}));
 
-  [theme.breakpoints.up("md")]: {
-    alignSelf: "flex-end",
-    width: "45%",
-    padding: theme.spacing(5, 8),
-  },
-
+const StyledIntroductionText = styled("div")(({ theme }) => ({
   [theme.breakpoints.down("md")]: {
-    width: "100%",
-    padding: theme.spacing(5, 8),
-    margin: theme.spacing(2, "auto"),
-  },
-
-  [theme.breakpoints.down("sm")]: {
-    width: "100%",
-    padding: theme.spacing(3, 4),
-    margin: theme.spacing(0),
+    display: "none",
   },
 }));
 
 const StyledDivider = styled(Divider)(({ theme }) => ({
   borderTop: `5px solid ${theme.palette.primary.main}`,
   boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
-  left: theme.spacing(1),
   position: "absolute",
   width: "100%",
+}));
+
+const StyledFormWrapper = styled("div")(({ theme }) => ({
+  backgroundColor: "#FFFAFA",
+  borderRadius: theme.shape.borderRadius,
+  padding: theme.spacing(2),
+
+  [theme.breakpoints.up("md")]: {
+    maxWidth: "50%",
+    marginTop: theme.spacing(2),
+  },
 }));
 
 function CurrentForm() {
@@ -164,33 +108,33 @@ function CurrentForm() {
   if (!state || state.needBasic) {
     return (
       <>
-        <Typography variant="h1" gutterBottom>
-          {t("auth:basic_sign_up_form.header")}
+        <Typography variant="h2" gutterBottom>
+          {t("landing:signup_header")}
         </Typography>
-        {!state && (
-          <Typography gutterBottom>
-            <Trans i18nKey="auth:basic_sign_up_form.existing_user_prompt">
-              Already have an account?{" "}
-              <StyledLink href={loginRoute}>Log in</StyledLink>
-            </Trans>
-          </Typography>
-        )}
-        <BasicForm />
-        <StyledAgreement variant="body1">
+        <Typography gutterBottom sx={{ marginBottom: 2 }}>
+          {t("landing:signup_description", { user_count: "55k+" })}
+        </Typography>
+        <BasicForm submitText="Create Account" />
+        <Typography variant="caption">
           <Trans i18nKey="auth:basic_sign_up_form.sign_up_agreement_explainer">
             By continuing, you agree to our{" "}
-            <StyledLink href={tosRoute} target="_blank">
+            <StyledLink
+              href={tosRoute}
+              target="_blank"
+              variant="caption"
+              sx={{ fontWeight: 700 }}
+            >
               Terms of Service
             </StyledLink>
             , including our cookie, email, and data handling policies.
           </Trans>
-        </StyledAgreement>
+        </Typography>
       </>
     );
   } else if (state.needAccount) {
     return (
       <>
-        <Typography variant="h1" gutterBottom>
+        <Typography variant="h2" gutterBottom>
           {t("auth:account_form.header")}
         </Typography>
         <AccountForm />
@@ -199,7 +143,7 @@ function CurrentForm() {
   } else if (state.needAcceptCommunityGuidelines) {
     return (
       <>
-        <Typography variant="h1" gutterBottom>
+        <Typography variant="h2" gutterBottom>
           {t("auth:community_guidelines_form.header")}
         </Typography>
         <CommunityGuidelinesForm />
@@ -208,7 +152,7 @@ function CurrentForm() {
   } else if (state.needVerifyEmail) {
     return (
       <>
-        <Typography variant="h1" gutterBottom>
+        <Typography variant="h2" gutterBottom>
           {t("auth:sign_up_need_verification_title")}
         </Typography>
         <ResendVerificationEmailForm />
@@ -217,7 +161,7 @@ function CurrentForm() {
   } else if (state.authRes) {
     return (
       <>
-        <Typography variant="h1" gutterBottom>
+        <Typography variant="h2" gutterBottom>
           {t("auth:sign_up_completed_title")}
         </Typography>
         <Typography variant="body1">
@@ -230,14 +174,19 @@ function CurrentForm() {
   }
 }
 
-export default function Signup() {
+export default function Signup({ scrollToMore }: SignupProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
+  const router = useRouter();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   const { authState, authActions } = useAuthContext();
   const authenticated = authState.authenticated;
   const error = authState.error;
+  const flowState = authState.flowState;
+
+  const [isMounted] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const router = useRouter();
   const urlToken = stringOrFirstString(router.query.token);
 
   const isNativeEmbed = useIsNativeEmbed();
@@ -296,33 +245,71 @@ export default function Signup() {
       <HtmlMeta title={t("global:sign_up")} />
       <StyledBackground>
         <StyledContent>
-          <StyledIntroduction>
-            <StyledTitle variant="h1" component="span">
-              {t("auth:introduction_title")}
-            </StyledTitle>
-            <StyledSubtitle variant="h2" component="span">
-              {t("auth:introduction_subtitle")}
-              <StyledDivider />
-            </StyledSubtitle>
-          </StyledIntroduction>
-          <div
-            style={{
-              //this div is to match the flex layout on the login page
-              width: "45%",
-            }}
-          ></div>
+          {!isMobile && (
+            <StyledIntroduction>
+              <StyledIntroductionText>
+                <Typography variant="h1">
+                  {t("landing:introduction_title")}
+                </Typography>
+                <Typography
+                  variant="h2"
+                  component="span"
+                  sx={{
+                    display: "inline-block",
+                    marginTop: theme.spacing(3),
+                    position: "relative",
+                    fontWeight: 400,
+                  }}
+                >
+                  {t("landing:introduction_subtitle")}
+                </Typography>
+                <Typography
+                  variant="h3"
+                  component="span"
+                  sx={{
+                    display: "inline-block",
+                    position: "relative",
+                    fontWeight: 400,
+                    marginTop: theme.spacing(1),
+                  }}
+                >
+                  {t("landing:introduction_subtitle2")}
+                  <StyledDivider />
+                </Typography>
+              </StyledIntroductionText>
+              <Button
+                onClick={scrollToMore}
+                size="large"
+                sx={{ marginTop: 6, width: theme.spacing(20) }}
+              >
+                {t("global:read_more")}
+              </Button>
+            </StyledIntroduction>
+          )}
+          <StyledFormWrapper>
+            {!flowState || !isMounted ? (
+              <CurrentForm />
+            ) : (
+              <Link href={signupRoute} passHref legacyBehavior>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  sx={{ margin: theme.spacing(4, 0) }}
+                >
+                  {t("landing:signup_continue")}
+                </Button>
+              </Link>
+            )}
+
+            <Typography variant="body1" sx={{ marginTop: theme.spacing(2) }}>
+              <Trans i18nKey="auth:basic_sign_up_form.existing_user_prompt">
+                Already have an account?{" "}
+                <StyledLink href={loginRoute}>Log in</StyledLink>
+              </Trans>
+            </Typography>
+          </StyledFormWrapper>
         </StyledContent>
       </StyledBackground>
-      <StyledScrollingContent>
-        <StyledFormWrapper>
-          {error && (
-            <Alert severity="error" sx={{ width: "100%" }}>
-              {error}
-            </Alert>
-          )}
-          {loading ? <CenteredSpinner /> : <CurrentForm />}
-        </StyledFormWrapper>
-      </StyledScrollingContent>
     </>
   );
 }

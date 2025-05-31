@@ -1,8 +1,9 @@
 {
-    "introduction_title": "The new alternative to Couchsurfing™",
-    "introduction_subtitle": "Free forever. Community‑led. Non‑profit. Modern.",
-    "signup_header": "Sign up for Couchers.org today",
-    "signup_description": "Join {{ user_count }} couch surfers on the fastest growing couch surfing platform.",
-    "create_an_account": "Create an account",
-    "signup_continue": "Finish signing up"
+  "introduction_title": "Show up a stranger, leave a friend",
+  "introduction_subtitle": "A community for connection—at home or on the road.",
+  "introduction_subtitle2": "Free forever. Community-led. Non-profit. Thoughtfully built.",
+  "signup_header": "Sign up for Couchers.org today",
+  "signup_description": "Travel, host, and connect with {{ user_count }} members",
+  "create_an_account": "Create an account",
+  "signup_continue": "Finish signing up"
 }
