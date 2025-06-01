@@ -52,7 +52,7 @@ const StyledIntroduction = styled("div")(({ theme }) => ({
   flexDirection: "column",
   display: "flex",
   textAlign: "left",
-  width: "58%",
+  width: "55%",
   maxWidth: theme.breakpoints.values.xl / 2,
   marginInlineEnd: "10%",
   marginTop: theme.spacing(12),
@@ -85,7 +85,7 @@ const StyledFormWrapper = styled("div")(({ theme }) => ({
   width: "100%",
 
   [theme.breakpoints.up("md")]: {
-    width: "42%",
+    width: "45%",
     marginTop: theme.spacing(2),
   },
 }));
