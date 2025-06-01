@@ -1,11 +1,11 @@
-import { Divider, styled, Typography, useMediaQuery } from "@mui/material";
+import { KeyboardDoubleArrowDown } from "@mui/icons-material";
+import { Box, Divider, styled, Typography, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Redirect from "components/Redirect";
 import StyledLink from "components/StyledLink";
-import mobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
@@ -33,34 +33,16 @@ const StyledMobileEmbed = styled("div")(({ theme }) => ({
   margin: theme.spacing(3),
 }));
 
-const StyledBackground = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  padding: theme.spacing(1, 4),
-  paddingBottom: 0,
-  background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("${mobileAuthBg.src}")`,
-  backgroundPosition: "top center",
-  backgroundRepeat: "no-repeat",
-  backgroundSize: "cover",
-  width: "100%",
-  height: "100%",
-
-  [theme.breakpoints.down("md")]: {
-    padding: theme.spacing(2, 1),
-    justifyContent: "center",
-  },
-}));
-
 const StyledContent = styled("div")(({ theme }) => ({
   width: "100%",
   marginTop: theme.spacing(2),
   justifyContent: "center",
   marginBottom: theme.spacing(2),
+
   [theme.breakpoints.up("md")]: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-evenly",
-    width: "100%",
   },
 }));
 
@@ -70,21 +52,27 @@ const StyledIntroduction = styled("div")(({ theme }) => ({
   flexDirection: "column",
   display: "flex",
   textAlign: "left",
-  width: "50%",
+  width: "58%",
   maxWidth: theme.breakpoints.values.xl / 2,
   marginInlineEnd: "10%",
   marginTop: theme.spacing(12),
   gap: theme.spacing(2),
+
+  [theme.breakpoints.down("md")]: {
+    width: "100%",
+    marginTop: theme.spacing(2),
+  },
 }));
 
 const StyledIntroductionText = styled("div")(({ theme }) => ({
   [theme.breakpoints.down("md")]: {
-    display: "none",
+    width: "100%",
+    marginBottom: theme.spacing(2),
   },
 }));
 
 const StyledDivider = styled(Divider)(({ theme }) => ({
-  borderTop: `5px solid ${theme.palette.primary.main}`,
+  borderTop: `4px solid ${theme.palette.primary.main}`,
   boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
   position: "absolute",
   width: "100%",
@@ -94,9 +82,10 @@ const StyledFormWrapper = styled("div")(({ theme }) => ({
   backgroundColor: "#FFFAFA",
   borderRadius: theme.shape.borderRadius,
   padding: theme.spacing(2),
+  width: "100%",
 
   [theme.breakpoints.up("md")]: {
-    maxWidth: "50%",
+    width: "42%",
     marginTop: theme.spacing(2),
   },
 }));
@@ -243,14 +232,22 @@ export default function Signup({ scrollToMore }: SignupProps) {
     <>
       {authenticated && <Redirect to={dashboardRoute} />}
       <HtmlMeta title={t("global:sign_up")} />
-      <StyledBackground>
-        <StyledContent>
-          {!isMobile && (
-            <StyledIntroduction>
-              <StyledIntroductionText>
-                <Typography variant="h1">
-                  {t("landing:introduction_title")}
-                </Typography>
+      <StyledContent>
+        <StyledIntroduction>
+          <StyledIntroductionText>
+            <Typography
+              variant="h1"
+              sx={{
+                [theme.breakpoints.down("md")]: {
+                  width: "100%",
+                  textAlign: "center",
+                },
+              }}
+            >
+              {t("landing:introduction_title")}
+            </Typography>
+            {!isMobile && (
+              <>
                 <Typography
                   variant="h2"
                   component="span"
@@ -270,46 +267,63 @@ export default function Signup({ scrollToMore }: SignupProps) {
                     display: "inline-block",
                     position: "relative",
                     fontWeight: 400,
-                    marginTop: theme.spacing(1),
+                    marginTop: theme.spacing(3),
                   }}
                 >
                   {t("landing:introduction_subtitle2")}
                   <StyledDivider />
                 </Typography>
-              </StyledIntroductionText>
-              <Button
-                onClick={scrollToMore}
-                size="large"
-                sx={{ marginTop: 6, width: theme.spacing(20) }}
-              >
-                {t("global:read_more")}
-              </Button>
-            </StyledIntroduction>
-          )}
-          <StyledFormWrapper>
-            {!flowState || !isMounted ? (
-              <CurrentForm />
-            ) : (
-              <Link href={signupRoute} passHref legacyBehavior>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  sx={{ margin: theme.spacing(4, 0) }}
-                >
-                  {t("landing:signup_continue")}
-                </Button>
-              </Link>
+              </>
             )}
+          </StyledIntroductionText>
+          {!isMobile && (
+            <Button
+              onClick={scrollToMore}
+              size="large"
+              color="secondary"
+              sx={{ marginTop: 2, width: theme.spacing(20) }}
+            >
+              {t("global:read_more")}
+            </Button>
+          )}
+        </StyledIntroduction>
+        <StyledFormWrapper>
+          {!flowState || !isMounted ? (
+            <CurrentForm />
+          ) : (
+            <Link href={signupRoute} passHref legacyBehavior>
+              <Button
+                variant="contained"
+                color="secondary"
+                sx={{ margin: theme.spacing(4, 0) }}
+              >
+                {t("landing:signup_continue")}
+              </Button>
+            </Link>
+          )}
 
-            <Typography variant="body1" sx={{ marginTop: theme.spacing(2) }}>
-              <Trans i18nKey="auth:basic_sign_up_form.existing_user_prompt">
-                Already have an account?{" "}
-                <StyledLink href={loginRoute}>Log in</StyledLink>
-              </Trans>
-            </Typography>
-          </StyledFormWrapper>
-        </StyledContent>
-      </StyledBackground>
+          <Typography variant="body1" sx={{ marginTop: theme.spacing(2) }}>
+            <Trans i18nKey="auth:basic_sign_up_form.existing_user_prompt">
+              Already have an account?{" "}
+              <StyledLink href={loginRoute}>Log in</StyledLink>
+            </Trans>
+          </Typography>
+        </StyledFormWrapper>
+        {isMobile && (
+          <Box
+            fontSize="large"
+            onClick={scrollToMore}
+            sx={{
+              color: theme.palette.common.white,
+              display: "flex",
+              justifyContent: "center",
+              marginTop: theme.spacing(4),
+            }}
+          >
+            <KeyboardDoubleArrowDown />
+          </Box>
+        )}
+      </StyledContent>
     </>
   );
 }

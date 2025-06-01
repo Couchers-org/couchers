@@ -9,19 +9,18 @@ import { useQueryClient } from "react-query";
 const StyledSection = styled("section")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
-  padding: theme.spacing(3),
+  padding: theme.spacing(2, 16),
   paddingBottom: 0,
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(1, 2),
-  },
   background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("${mobileAuthBg.src}")`,
   backgroundPosition: "top center",
   backgroundRepeat: "no-repeat",
   backgroundSize: "cover",
   width: "100%",
   height: `calc(100vh - ${theme.shape.navPaddingXs})`,
-  [theme.breakpoints.up("sm")]: {
-    height: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
+
+  [theme.breakpoints.down("md")]: {
+    padding: theme.spacing(1, 2),
+    justifyContent: "center",
   },
 }));
 
@@ -59,7 +58,7 @@ export default function LandingPage() {
         <Signup scrollToMore={scrollToMore} />
       </StyledSection>
       <StyledSpacer />
-      <Container component="section" maxWidth="md">
+      <Container component="section" maxWidth="md" ref={moreContentRef}>
         First section Here
       </Container>
       <StyledSpacer />
