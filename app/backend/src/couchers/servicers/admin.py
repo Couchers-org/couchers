@@ -599,6 +599,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
         discussion = session.execute(
             select(Discussion).where(Discussion.id == request.discussion_id)
         ).scalar_one_or_none()
+        if not discussion:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.DISCUSSION_NOT_FOUND)
         if request.new_title:
             discussion.title = request.new_title.strip()
         if request.new_content:
