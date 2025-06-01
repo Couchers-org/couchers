@@ -1,4 +1,4 @@
-FROM node:20-bullseye AS builder
+FROM node:24-bullseye AS builder
 
 ARG environment=development
 WORKDIR /app
@@ -35,7 +35,7 @@ RUN yarn build
 
 RUN yarn injectsourcemaps
 
-FROM node:20-slim AS runner
+FROM node:24-slim AS runner
 
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED 1
