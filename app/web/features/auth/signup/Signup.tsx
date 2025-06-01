@@ -265,6 +265,7 @@ export default function Signup({ scrollToMore }: SignupProps) {
             >
               {t("landing:introduction_title")}
             </Typography>
+             {/** TODO(NA): Bold the word couch surfing */}
             {!isMobile && (
               <>
                 <Typography
