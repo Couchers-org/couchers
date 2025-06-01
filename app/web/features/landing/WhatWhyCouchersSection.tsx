@@ -17,8 +17,6 @@ const WhatWhyCouchersSection = () => {
       <Typography variant="h2">{t("what_couchsurfing_title")}</Typography>
       <Typography variant="body1" paragraph sx={{ marginTop: 2 }}>
         {t("what_couchsurfing_description")}
-        <br />
-        {t("sign_up_ready")}
       </Typography>
       <Typography
         variant="body1"
