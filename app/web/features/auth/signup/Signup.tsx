@@ -6,6 +6,7 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Redirect from "components/Redirect";
 import StyledLink from "components/StyledLink";
+import mobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
@@ -26,8 +27,26 @@ import BasicForm from "./BasicForm";
 import ResendVerificationEmailForm from "./ResendVerificationEmailForm";
 
 interface SignupProps {
-  scrollToMore: () => void;
+  scrollToMore?: () => void;
 }
+
+const StyledSection = styled("section")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  padding: theme.spacing(2, 16),
+  paddingBottom: 0,
+  background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("${mobileAuthBg.src}")`,
+  backgroundPosition: "top center",
+  backgroundRepeat: "no-repeat",
+  backgroundSize: "cover",
+  width: "100%",
+  height: `calc(100vh - ${theme.shape.navPaddingXs})`,
+
+  [theme.breakpoints.down("md")]: {
+    padding: theme.spacing(1, 2),
+    justifyContent: "center",
+  },
+}));
 
 const StyledMobileEmbed = styled("div")(({ theme }) => ({
   margin: theme.spacing(3),
@@ -229,7 +248,7 @@ export default function Signup({ scrollToMore }: SignupProps) {
   }
 
   return (
-    <>
+    <StyledSection>
       {authenticated && <Redirect to={dashboardRoute} />}
       <HtmlMeta title={t("global:sign_up")} />
       <StyledContent>
@@ -276,7 +295,7 @@ export default function Signup({ scrollToMore }: SignupProps) {
               </>
             )}
           </StyledIntroductionText>
-          {!isMobile && (
+          {!isMobile && scrollToMore && (
             <Button
               onClick={scrollToMore}
               size="large"
@@ -309,7 +328,7 @@ export default function Signup({ scrollToMore }: SignupProps) {
             </Trans>
           </Typography>
         </StyledFormWrapper>
-        {isMobile && (
+        {isMobile && scrollToMore && (
           <Box
             fontSize="large"
             onClick={scrollToMore}
@@ -324,6 +343,6 @@ export default function Signup({ scrollToMore }: SignupProps) {
           </Box>
         )}
       </StyledContent>
-    </>
+    </StyledSection>
   );
 }
