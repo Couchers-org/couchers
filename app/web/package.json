@@ -65,7 +65,7 @@
     "sharp": "^0.34.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.27.1",
+    "@babel/core": "^7.27.4",
     "@next/bundle-analyzer": "^15.4.0-canary.51",
     "@sentry/cli": "^2.45.0",
     "@testing-library/dom": "^10.4.0",
