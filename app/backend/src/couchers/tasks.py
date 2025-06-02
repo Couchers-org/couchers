@@ -93,7 +93,7 @@ def maybe_send_reference_report_email(session, reference):
         )
 
 
-def send_rate_limit_violation_report_email(session, rate_limit_violation: RateLimitViolation, threshold: int):
+def send_rate_limit_violation_report_email(session, rate_limit_violation: RateLimitViolation, events, threshold: int):
     """Send a report email to the moderation team if a user exceeds a rate limit within a given time frame."""
     logger.info(
         f"Sending rate limit moderation email for user '{rate_limit_violation.user_id}' ({rate_limit_violation.action})"
@@ -109,6 +109,7 @@ def send_rate_limit_violation_report_email(session, rate_limit_violation: RateLi
             "threshold": threshold,
             "time_interval_str": RATE_LIMIT_INTERVAL_STRING,
             "hard_limit": rate_limit_violation.hard_limit,
+            "events": events,
         },
     )
 

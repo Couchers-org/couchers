@@ -14,3 +14,14 @@ User {{ user.username }} has sent {{ threshold }} {{ action.value }}s in the pas
 - User ID: {{ user.id }}
 - Joined: {{ user.joined }}
 - City: {{ user.city }}
+
+**{{ action.value }}s:**
+
+|{% for key in events[0].keys() %} {{key}} |{% endfor %}
+
+|{% for _ in events[0].keys() %}---|{% endfor %}
+
+{% for entry in events %}
+|{% for value in entry.values() %} {{value}} |{% endfor %}
+
+{% endfor %}
