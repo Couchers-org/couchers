@@ -1,10 +1,11 @@
-import { Divider, styled, Typography, TypographyProps } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
 import mobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
+import CouchersIntroduction from "features/landing/CouchersIntroduction";
 import { Trans, useTranslation } from "i18n";
-import { AUTH, GLOBAL } from "i18n/namespaces";
+import { AUTH, GLOBAL, LANDING } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { dashboardRoute, signupRoute } from "routes";
@@ -13,100 +14,52 @@ import stringOrFirstString from "utils/stringOrFirstString";
 import { useAuthContext } from "../AuthProvider";
 import LoginForm from "./LoginForm";
 
-const StyledIntroduction = styled("div")(({ theme }) => ({
-  flexShrink: 0,
-  color: theme.palette.common.white,
-  flexDirection: "column",
-  display: "flex",
-  textAlign: "left",
-  width: "45%",
-  maxWidth: theme.breakpoints.values.lg / 2,
-  marginInlineEnd: "10%",
-  [theme.breakpoints.down("md")]: {
-    display: "none",
-  },
-}));
-
 const StyledBackground = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
-  padding: theme.spacing(1, 4),
+  padding: theme.spacing(2, 16),
   paddingBottom: 0,
   background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("${mobileAuthBg.src}")`,
   backgroundPosition: "top center",
   backgroundRepeat: "no-repeat",
   backgroundSize: "cover",
   width: "100%",
-  height: `calc(100vh - ${theme.shape.navPaddingXs})`,
+  height: "100%",
 
   [theme.breakpoints.down("sm")]: {
     padding: theme.spacing(1, 2),
-  },
-
-  [theme.breakpoints.up("sm")]: {
-    height: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
   },
 }));
 
 const StyledContent = styled("div")(({ theme }) => ({
   width: "100%",
+  marginTop: theme.spacing(2),
+  justifyContent: "center",
   marginBottom: theme.spacing(2),
+  flexDirection: "column",
+
   [theme.breakpoints.up("md")]: {
     display: "flex",
     flexDirection: "row",
-    height: "100%",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    width: "100%",
-  },
-}));
-
-const StyledTitle = styled(Typography)<TypographyProps>(({ theme }) => ({
-  [theme.breakpoints.up("md")]: {
-    fontSize: "2rem",
-    lineHeight: "1.15",
-    textAlign: "left",
-  },
-}));
-
-const StyledSubtitle = styled(Typography)<TypographyProps>(({ theme }) => ({
-  [theme.breakpoints.up("md")]: {
-    display: "inline-block",
-    marginTop: theme.spacing(4),
-    position: "relative",
+    justifyContent: "space-evenly",
   },
 }));
 
 const StyledFormWrapper = styled("div")(({ theme }) => ({
-  flexShrink: 0,
-  backgroundColor: "#fff",
+  backgroundColor: "#FFFAFA",
   borderRadius: theme.shape.borderRadius,
+  padding: theme.spacing(2),
+  width: "100%",
+  maxWidth: "400px",
+
   [theme.breakpoints.up("md")]: {
     width: "45%",
-    padding: theme.spacing(5, 8),
+    marginTop: theme.spacing(2),
   },
-  [theme.breakpoints.down("md")]: {
-    width: "80%",
-    padding: theme.spacing(5, 8),
-    margin: theme.spacing(2, "auto"),
-  },
-  [theme.breakpoints.down("sm")]: {
-    width: "100%",
-    padding: theme.spacing(3, 4),
-    margin: theme.spacing(0),
-  },
-}));
-
-const StyledDivider = styled(Divider)(({ theme }) => ({
-  borderTop: `5px solid ${theme.palette.primary.main}`,
-  boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
-  left: theme.spacing(1),
-  position: "absolute",
-  width: "100%",
 }));
 
 export default function Login() {
-  const { t } = useTranslation([AUTH, GLOBAL]);
+  const { t } = useTranslation([AUTH, GLOBAL, LANDING]);
   const { authState } = useAuthContext();
   const authenticated = authState.authenticated;
   const error = authState.error;
@@ -126,15 +79,7 @@ export default function Login() {
       <HtmlMeta title={t("auth:login_page.title")} />
       <StyledBackground>
         <StyledContent>
-          <StyledIntroduction>
-            <StyledTitle variant="h1" component="span">
-              {t("auth:introduction_title")}
-            </StyledTitle>
-            <StyledSubtitle variant="h2" component="span">
-              {t("auth:introduction_subtitle")}
-              <StyledDivider />
-            </StyledSubtitle>
-          </StyledIntroduction>
+          <CouchersIntroduction />
           <StyledFormWrapper>
             <Typography variant="h1" gutterBottom>
               {t("auth:login_page.header")}

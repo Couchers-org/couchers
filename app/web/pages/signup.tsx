@@ -16,7 +16,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
 });
 
 export default function SignupPage() {
-  return <Signup />;
+  return <Signup isFullscreen />;
 }
 
 SignupPage.getLayout = appGetLayout({

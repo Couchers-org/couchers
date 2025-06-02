@@ -130,8 +130,9 @@ export default function LoginForm() {
           onClick={onSubmit}
           type="submit"
           variant="contained"
+          fullWidth
         >
-          {t("global:continue")}
+          {t("global:login")}
         </StyledButton>
       </StyledForm>
     </>

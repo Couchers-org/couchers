@@ -1,13 +1,14 @@
 import { KeyboardDoubleArrowDown } from "@mui/icons-material";
-import { Box, Divider, styled, Typography, useMediaQuery } from "@mui/material";
+import { Box, styled, Typography, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Redirect from "components/Redirect";
 import StyledLink from "components/StyledLink";
-import mobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
+import mobileAuthBg from "features/auth/resources/mobile-auth-bg-dark.jpg";
 import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
+import CouchersIntroduction from "features/landing/CouchersIntroduction";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
@@ -40,7 +41,7 @@ const StyledSection = styled("section")(({ theme }) => ({
   backgroundRepeat: "no-repeat",
   backgroundSize: "cover",
   width: "100%",
-  height: `calc(100vh - ${theme.shape.navPaddingXs})`,
+  height: "100%",
 
   [theme.breakpoints.down("md")]: {
     padding: theme.spacing(1, 2),
@@ -57,6 +58,7 @@ const StyledContent = styled("div")(({ theme }) => ({
   marginTop: theme.spacing(2),
   justifyContent: "center",
   marginBottom: theme.spacing(2),
+  flexDirection: "column",
 
   [theme.breakpoints.up("md")]: {
     display: "flex",
@@ -65,43 +67,12 @@ const StyledContent = styled("div")(({ theme }) => ({
   },
 }));
 
-const StyledIntroduction = styled("div")(({ theme }) => ({
-  flexShrink: 0,
-  color: theme.palette.common.white,
-  flexDirection: "column",
-  display: "flex",
-  textAlign: "left",
-  width: "55%",
-  maxWidth: theme.breakpoints.values.xl / 2,
-  marginInlineEnd: "10%",
-  marginTop: theme.spacing(12),
-  gap: theme.spacing(2),
-
-  [theme.breakpoints.down("md")]: {
-    width: "100%",
-    marginTop: theme.spacing(2),
-  },
-}));
-
-const StyledIntroductionText = styled("div")(({ theme }) => ({
-  [theme.breakpoints.down("md")]: {
-    width: "100%",
-    marginBottom: theme.spacing(2),
-  },
-}));
-
-const StyledDivider = styled(Divider)(({ theme }) => ({
-  borderTop: `4px solid ${theme.palette.primary.main}`,
-  boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
-  position: "absolute",
-  width: "100%",
-}));
-
 const StyledFormWrapper = styled("div")(({ theme }) => ({
   backgroundColor: "#FFFAFA",
   borderRadius: theme.shape.borderRadius,
   padding: theme.spacing(2),
   width: "100%",
+  maxWidth: "400px",
 
   [theme.breakpoints.up("md")]: {
     width: "45%",
@@ -248,102 +219,50 @@ export default function Signup({ scrollToMore }: SignupProps) {
   }
 
   return (
-    <StyledSection>
+    <>
       {authenticated && <Redirect to={dashboardRoute} />}
       <HtmlMeta title={t("global:sign_up")} />
-      <StyledContent>
-        <StyledIntroduction>
-          <StyledIntroductionText>
-            <Typography
-              variant="h1"
+      <StyledSection>
+        <StyledContent>
+          <CouchersIntroduction scrollToMore={scrollToMore} />
+          <StyledFormWrapper>
+            {!flowState || !isMounted ? (
+              <CurrentForm />
+            ) : (
+              <Link href={signupRoute} passHref legacyBehavior>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  sx={{ margin: theme.spacing(4, 0) }}
+                >
+                  {t("landing:signup_continue")}
+                </Button>
+              </Link>
+            )}
+
+            <Typography variant="body1" sx={{ marginTop: theme.spacing(2) }}>
+              <Trans i18nKey="auth:basic_sign_up_form.existing_user_prompt">
+                Already have an account?{" "}
+                <StyledLink href={loginRoute}>Log in</StyledLink>
+              </Trans>
+            </Typography>
+          </StyledFormWrapper>
+          {isMobile && scrollToMore && (
+            <Box
+              fontSize="large"
+              onClick={scrollToMore}
               sx={{
-                [theme.breakpoints.down("md")]: {
-                  width: "100%",
-                  textAlign: "center",
-                },
+                color: theme.palette.common.white,
+                display: "flex",
+                justifyContent: "center",
+                marginTop: theme.spacing(4),
               }}
             >
-              {t("landing:introduction_title")}
-            </Typography>
-             {/** TODO(NA): Bold the word couch surfing */}
-            {!isMobile && (
-              <>
-                <Typography
-                  variant="h2"
-                  component="span"
-                  sx={{
-                    display: "inline-block",
-                    marginTop: theme.spacing(3),
-                    position: "relative",
-                    fontWeight: 400,
-                  }}
-                >
-                  {t("landing:introduction_subtitle")}
-                </Typography>
-                <Typography
-                  variant="h3"
-                  component="span"
-                  sx={{
-                    display: "inline-block",
-                    position: "relative",
-                    fontWeight: 400,
-                    marginTop: theme.spacing(3),
-                  }}
-                >
-                  {t("landing:introduction_subtitle2")}
-                  <StyledDivider />
-                </Typography>
-              </>
-            )}
-          </StyledIntroductionText>
-          {!isMobile && scrollToMore && (
-            <Button
-              onClick={scrollToMore}
-              size="large"
-              color="secondary"
-              sx={{ marginTop: 2, width: theme.spacing(20) }}
-            >
-              {t("global:read_more")}
-            </Button>
+              <KeyboardDoubleArrowDown />
+            </Box>
           )}
-        </StyledIntroduction>
-        <StyledFormWrapper>
-          {!flowState || !isMounted ? (
-            <CurrentForm />
-          ) : (
-            <Link href={signupRoute} passHref legacyBehavior>
-              <Button
-                variant="contained"
-                color="secondary"
-                sx={{ margin: theme.spacing(4, 0) }}
-              >
-                {t("landing:signup_continue")}
-              </Button>
-            </Link>
-          )}
-
-          <Typography variant="body1" sx={{ marginTop: theme.spacing(2) }}>
-            <Trans i18nKey="auth:basic_sign_up_form.existing_user_prompt">
-              Already have an account?{" "}
-              <StyledLink href={loginRoute}>Log in</StyledLink>
-            </Trans>
-          </Typography>
-        </StyledFormWrapper>
-        {isMobile && scrollToMore && (
-          <Box
-            fontSize="large"
-            onClick={scrollToMore}
-            sx={{
-              color: theme.palette.common.white,
-              display: "flex",
-              justifyContent: "center",
-              marginTop: theme.spacing(4),
-            }}
-          >
-            <KeyboardDoubleArrowDown />
-          </Box>
-        )}
-      </StyledContent>
-    </StyledSection>
+        </StyledContent>
+      </StyledSection>
+    </>
   );
 }
