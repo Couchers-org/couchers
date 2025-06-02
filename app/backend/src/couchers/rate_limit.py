@@ -1,5 +1,4 @@
 import logging
-from datetime import timedelta
 from typing import TYPE_CHECKING
 
 from sqlalchemy import func, select
@@ -117,17 +116,17 @@ def has_reached_friend_request_limit(session: "Session", user_id: int) -> bool:
     """
     Check if the user has reached the friend request limit. Notify the moderation team in a separate background job if so.
     """
-    count_friend_requests_last_24h = session.execute(
+    count_friend_requests_last_interval = session.execute(
         select(func.count())
         .select_from(FriendRelationship)
         .where(FriendRelationship.from_user_id == user_id)
-        .where(FriendRelationship.time_sent >= now() - timedelta(hours=24))
+        .where(FriendRelationship.time_sent >= now() - RATE_LIMIT_INTERVAL)
     ).scalar_one()
     return _has_reached_rate_limit(
         session=session,
         user_id=user_id,
         action=RateLimitAction.friend_request,
-        count_last_interval=count_friend_requests_last_24h,
+        count_last_interval=count_friend_requests_last_interval,
     )
 
 
@@ -135,16 +134,16 @@ def has_reached_chat_initiation_limit(session: "Session", user_id: int) -> bool:
     """
     Check if the user has reached the chat initiation limit. Notify the moderation team in a separate background job if so.
     """
-    count_initiated_chats_last_24h = session.execute(
+    count_initiated_chats_last_interval = session.execute(
         select(func.count())
         .select_from(GroupChat)
         .join(Conversation, GroupChat.conversation_id == Conversation.id)
         .where(GroupChat.creator_id == user_id)
-        .where(Conversation.created >= now() - timedelta(hours=24))
+        .where(Conversation.created >= now() - RATE_LIMIT_INTERVAL)
     ).scalar_one()
     return _has_reached_rate_limit(
         session=session,
         user_id=user_id,
         action=RateLimitAction.chat_initiation,
-        count_last_interval=count_initiated_chats_last_24h,
+        count_last_interval=count_initiated_chats_last_interval,
     )
