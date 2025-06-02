@@ -141,6 +141,7 @@ def test_reference_report_email(db):
             text="This person was not nice to me.",
             rating=0.3,
             was_appropriate=False,
+            private_text="This is some private text for support",
         )
 
         with mock_notification_email() as mock:
@@ -159,6 +160,7 @@ def test_reference_report_email(db):
         assert reference.to_user.email in e.plain
         assert reference.text in e.plain
         assert "friend" in e.plain.lower()
+        assert reference.private_text in e.plain
 
 
 def test_email_patching_fails(db):

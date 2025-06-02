@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 def _get_jail_info(session, user):
     res = jail_pb2.JailInfoRes(
         has_not_accepted_tos=user.jailed_missing_tos,
-        has_not_added_location=user.is_missing_location,
+        needs_to_update_location=user.is_missing_location,
         has_not_accepted_community_guidelines=user.jailed_missing_community_guidelines,
         has_pending_mod_notes=user.jailed_pending_mod_notes,
         pending_mod_notes=[mod_note_to_pb(note) for note in user.mod_notes.where(ModNote.is_pending)],
@@ -55,7 +55,6 @@ class Jail(jail_pb2_grpc.JailServicer):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNACCEPT_TOS)
 
         user.accepted_tos = TOS_VERSION
-        session.commit()
 
         return _get_jail_info(session, user)
 
@@ -67,9 +66,9 @@ class Jail(jail_pb2_grpc.JailServicer):
 
         user.city = request.city
         user.geom = create_coordinate(request.lat, request.lng)
+        user.randomized_geom = None
         user.geom_radius = request.radius
-
-        session.commit()
+        user.needs_to_update_location = False
 
         return _get_jail_info(session, user)
 
@@ -80,7 +79,6 @@ class Jail(jail_pb2_grpc.JailServicer):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNACCEPT_COMMUNITY_GUIDELINES)
 
         user.accepted_community_guidelines = GUIDELINES_VERSION
-        session.commit()
 
         return _get_jail_info(session, user)
 
@@ -101,7 +99,6 @@ class Jail(jail_pb2_grpc.JailServicer):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.MOD_NOTE_NEED_TO_ACKNOWELDGE)
 
         note.acknowledged = now()
-        session.flush()
 
         return _get_jail_info(session, user)
 
@@ -125,6 +122,5 @@ class Jail(jail_pb2_grpc.JailServicer):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.PROBE_RESPONSE_INVALID)
 
         probe.responded = now()
-        session.flush()
 
         return _get_jail_info(session, user)

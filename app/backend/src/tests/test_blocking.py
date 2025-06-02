@@ -91,12 +91,20 @@ def test_GetBlockedUsers(db):
     with blocking_session(token1) as user_blocks:
         # Check no blocked users to start
         blocked_user_list = user_blocks.GetBlockedUsers(empty_pb2.Empty())
-        assert len(blocked_user_list.blocked_usernames) == 0
+        assert len(blocked_user_list.blocked_users) == 0
 
         make_user_block(user1, user2)
         make_user_block(user1, user3)
         blocked_user_list = user_blocks.GetBlockedUsers(empty_pb2.Empty())
-        assert len(blocked_user_list.blocked_usernames) == 2
+        assert len(blocked_user_list.blocked_users) == 2
+
+        blocked_usernames = [user.username for user in blocked_user_list.blocked_users]
+        blocked_names = [user.name for user in blocked_user_list.blocked_users]
+
+        assert user2.username in blocked_usernames
+        assert user3.username in blocked_usernames
+        assert user2.name in blocked_names
+        assert user3.name in blocked_names
 
 
 def test_relationships_userblock_dot_user(db):
@@ -109,5 +117,14 @@ def test_relationships_userblock_dot_user(db):
         block = session.execute(
             select(UserBlock).where((UserBlock.blocking_user_id == user1.id) & (UserBlock.blocked_user_id == user2.id))
         ).scalar_one_or_none()
-        assert block.blocking_user.username == user1.username
-        assert block.blocked_user.username == user2.username
+
+        blocking_user_username = block.blocking_user.username
+        blocking_user_name = block.blocking_user.name
+
+        blocked_user_username = block.blocked_user.username
+        blocked_user_name = block.blocked_user.name
+
+    assert blocking_user_username == user1.username
+    assert blocked_user_username == user2.username
+    assert blocking_user_name == user1.name
+    assert blocked_user_name == user2.name

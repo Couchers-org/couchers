@@ -1,5 +1,6 @@
 import logging
 
+from sqlalchemy import insert
 from sqlalchemy.sql import func
 
 from couchers import email, urls
@@ -207,24 +208,26 @@ def enforce_community_memberships():
             existing_users = select(ClusterSubscription.user_id).where(
                 ClusterSubscription.cluster == node.official_cluster
             )
-            users_needing_adding = (
+            node_geom = select(Node.geom).where(Node.id == node.id)
+            user_ids_needing_adding = (
                 session.execute(
-                    select(User)
+                    select(User.id)
                     .where(User.is_visible)
-                    .where(func.ST_Contains(node.geom, User.geom))
+                    .where(func.ST_Contains(node_geom, User.geom))
                     .where(~User.id.in_(existing_users))
                 )
                 .scalars()
                 .all()
             )
-            for user in users_needing_adding:
-                node.official_cluster.cluster_subscriptions.append(
-                    ClusterSubscription(
-                        user=user,
-                        role=ClusterRole.member,
-                    )
+            if user_ids_needing_adding:
+                session.execute(
+                    insert(ClusterSubscription),
+                    [
+                        {"user_id": user_id, "cluster_id": node.official_cluster.id, "role": ClusterRole.member}
+                        for user_id in user_ids_needing_adding
+                    ],
                 )
-            session.commit()
+                session.commit()
 
 
 def enforce_community_memberships_for_user(session, user):

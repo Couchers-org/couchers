@@ -5,15 +5,14 @@ import { Trans, useTranslation } from "i18n";
 import { NOTIFICATIONS } from "i18n/namespaces";
 import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
-import {
-  getVapidPublicKey,
-  registerPushNotificationSubscription,
-} from "service/notifications";
 import { theme } from "theme";
-import { arrayBufferToBase64 } from "utils/arrayBufferToBase64";
 
-import { getCurrentSubscription } from "./notificationUtils";
 import PushNotificationDenied from "./PushNotificationDenied";
+import {
+  checkPushEnabled,
+  turnPushNotificationsOff,
+  turnPushNotificationsOn,
+} from "./utils/helpers";
 
 const StyledAlert = styled(Alert)(({ theme }) => ({
   marginBottom: theme.spacing(3),
@@ -35,122 +34,41 @@ export default function PushNotificationSettings() {
   const [shouldPromptAllow, setShouldPromptAllow] = useState<boolean>(false); // whether to show the user instructions to click 'Allow' in their browser
 
   useEffect(() => {
-    const checkPushEnabled = async () => {
-      if ("serviceWorker" in navigator && "PushManager" in window) {
-        const existingPushSubscription = await getCurrentSubscription();
-        setIsPushEnabled(
-          Notification.permission === "granted" &&
-            existingPushSubscription !== null,
-        );
-      } else {
+    const checkPushEnabledWrap = async () => {
+      try {
+        setIsPushEnabled(await checkPushEnabled());
+      } catch (e) {
         setErrorMessage(
           t("notification_settings.push_notifications.error_unsupported"),
         );
-        Sentry.captureException(
-          new Error("Push notifications or service workers not supported"),
-          {
-            tags: {
-              component: "PushNotificationPermission",
-              action: "onPermissionGranted",
-              userAgent: navigator.userAgent,
-            },
+        Sentry.captureException(e, {
+          tags: {
+            component: "PushNotificationPermission",
+            action: "onPermissionGranted",
+            userAgent: navigator.userAgent,
           },
-        );
+        });
       }
       setIsLoading(false);
     };
 
-    checkPushEnabled();
+    checkPushEnabledWrap();
   }, [t]);
 
-  const onPermissionGranted = async () => {
-    try {
-      // Check if service workers and push notifications are supported
-      if ("serviceWorker" in navigator && "PushManager" in window) {
-        const existingPushSubscription = await getCurrentSubscription();
-        const p256dhKey = existingPushSubscription?.getKey("p256dh");
-        const { vapidPublicKey } = await getVapidPublicKey();
-
-        if (existingPushSubscription && p256dhKey) {
-          const publicKey = arrayBufferToBase64(p256dhKey);
-
-          /**
-           * The purpose of this check is to ensure that the push subscription is correctly authenticated with the server’s VAPID key.
-           * If the client’s p256dh key no longer matches the server’s vapidPublicKey, then the subscription is unsubscribed and needs
-           * to be re-registered to ensure the security and validity of the Web Push connection.
-           */
-          if (publicKey !== vapidPublicKey) {
-            await existingPushSubscription.unsubscribe();
-          } else {
-            return;
-          }
-        }
-
-        const registration = await navigator.serviceWorker.getRegistration();
-
-        // Subscribe to push notifications via the PushManager
-        const subscription: PushSubscription =
-          await registration!.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: vapidPublicKey,
-          });
-
-        await registerPushNotificationSubscription(subscription);
-      } else {
-        setErrorMessage(
-          t("notification_settings.push_notifications.error_unsupported"),
-        );
-        Sentry.captureException(
-          new Error("Push notifications or service workers not supported"),
-          {
-            tags: {
-              component: "PushNotificationPermission",
-              action: "onPermissionGranted",
-              userAgent: navigator.userAgent,
-            },
-          },
-        );
-      }
-    } catch (error) {
-      console.error("Error subscribing to push notifications", error);
-      setErrorMessage(
-        t("notification_settings.push_notifications.error_generic"),
-      );
-
-      Sentry.captureException(error, {
-        tags: {
-          component: "PushNotificationPermission",
-          action: "onPermissionGranted",
-        },
-      });
-    }
-  };
-
-  const turnPushNotificationsOn = async () => {
-    if (Notification.permission !== "denied") {
-      setIsLoading(true);
-      setShouldPromptAllow(true);
-      const result = await Notification.requestPermission();
-      setShouldPromptAllow(false);
-
-      if (result === "granted") {
-        await onPermissionGranted();
-        setIsPushEnabled(true);
-      } else {
-        setIsPushEnabled(false);
-      }
-      setIsLoading(false);
-    } else {
-      setIsPushEnabled(false);
-    }
-  };
-
-  const turnPushNotificationsOff = async () => {
+  const turnPushNotificationsOnWrap = async () => {
     setIsLoading(true);
-    const existingPushSubscription = await getCurrentSubscription();
+    const result = await turnPushNotificationsOn(setShouldPromptAllow);
+    if (!result.success) {
+      setErrorMessage(result.errorMessage);
+    } else {
+      setIsPushEnabled(true);
+    }
+    setIsLoading(false);
+  };
 
-    if (existingPushSubscription) {
-      await existingPushSubscription.unsubscribe();
+  const turnPushNotificationsOffWrap = async () => {
+    setIsLoading(true);
+    if (await turnPushNotificationsOff()) {
       setIsPushEnabled(false);
     }
     setIsLoading(false);
@@ -165,7 +83,9 @@ export default function PushNotificationSettings() {
         <CustomColorSwitch
           checked={isPushEnabled}
           onClick={
-            isPushEnabled ? turnPushNotificationsOff : turnPushNotificationsOn
+            isPushEnabled
+              ? turnPushNotificationsOffWrap
+              : turnPushNotificationsOnWrap
           }
           customColor={theme.palette.primary.main}
           isLoading={isLoading}

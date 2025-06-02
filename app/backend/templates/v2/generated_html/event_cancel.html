@@ -58,9 +58,9 @@
     </style>
     <![endif]-->
   <!--[if !mso]><!-->
-  <link href="https://couchers.org/static/fonts/ubuntu/ubuntu.css" rel="stylesheet" type="text/css">
+  <link href="https://cdn.couchers.org/fonts/ubuntu/ubuntu.css" rel="stylesheet" type="text/css">
   <style type="text/css">
-    @import url(https://couchers.org/static/fonts/ubuntu/ubuntu.css);
+    @import url(https://cdn.couchers.org/fonts/ubuntu/ubuntu.css);
 
   </style>
   <!--<![endif]-->
@@ -241,7 +241,7 @@
                                     <tbody>
                                       <tr>
                                         <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                          <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">{{ event.content|v2esc|v2multiline }}</div>
+                                          <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">{{ event.content|v2markdown }}</div>
                                         </td>
                                       </tr>
                                     </tbody>

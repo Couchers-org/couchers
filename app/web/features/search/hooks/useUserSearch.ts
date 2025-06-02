@@ -1,6 +1,5 @@
 import { RpcError } from "grpc-web";
-import { User } from "proto/api_pb";
-import { UserSearchRes } from "proto/search_pb";
+import { UserSearchV2Res } from "proto/search_pb";
 import { useInfiniteQuery } from "react-query";
 import { service } from "service";
 
@@ -39,9 +38,9 @@ export function useUserSearch(
     isFetching,
     fetchNextPage,
     fetchPreviousPage,
-  } = useInfiniteQuery<UserSearchRes.AsObject, RpcError>(
+  } = useInfiniteQuery<UserSearchV2Res.AsObject, RpcError>(
     ["userSearch", searchParams],
-    ({ pageParam }) => service.search.userSearch(searchParams, pageParam),
+    ({ pageParam }) => service.search.userSearchV2(searchParams, pageParam),
     {
       enabled: meetsSearchCriteria,
       keepPreviousData: meetsSearchCriteria,
@@ -52,9 +51,7 @@ export function useUserSearch(
   // React-query will keep the previously fetched data in the cache, so return undefined if we don't meet the search criteria
   const users = !meetsSearchCriteria
     ? undefined
-    : data?.pages[mapSearchState.pageNumber - 1]?.resultsList
-        ?.map((result) => result?.user)
-        .filter((user): user is User.AsObject => Boolean(user)) || [];
+    : data?.pages[mapSearchState.pageNumber - 1]?.resultsList || [];
 
   /** We don't have a previousPageToken on the backend, so for now we deterine
    *  if we have a previous page by checking if the current page is greater than 0

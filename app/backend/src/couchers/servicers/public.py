@@ -4,7 +4,7 @@ import grpc
 from sqlalchemy.sql import func, union_all
 
 from couchers import errors
-from couchers.models import ProfilePublicVisibility, Reference, User
+from couchers.models import Cluster, Node, ProfilePublicVisibility, Reference, User
 from couchers.servicers.api import fluency2api, hostingstatus2api, meetupstatus2api, user_model_to_pb
 from couchers.servicers.gis import _statement_to_geojson_response
 from couchers.sql import couchers_select as select
@@ -23,7 +23,6 @@ class Public(public_pb2_grpc.PublicServicer):
         with_geom = (
             select(User.username, User.geom)
             .where(User.is_visible)
-            .where(User.geom != None)
             .where(User.public_visibility != ProfilePublicVisibility.nothing)
             .where(User.public_visibility != ProfilePublicVisibility.map_only)
         )
@@ -108,3 +107,39 @@ class Public(public_pb2_grpc.PublicServicer):
                     badges=[badge.badge_id for badge in user.badges],
                 )
             )
+
+    def GetSignupPageInfo(self, request, context, session):
+        # last user who signed up
+        last_signup, geom = session.execute(
+            select(User.joined, User.geom).where(User.is_visible).order_by(User.id.desc()).limit(1)
+        ).one_or_none()
+
+        communities = (
+            session.execute(
+                select(Cluster.name)
+                .join(Node, Node.id == Cluster.parent_node_id)
+                .where(Cluster.is_official_cluster)
+                .where(func.ST_Contains(Node.geom, geom))
+                .order_by(Cluster.id.asc())
+            )
+            .scalars()
+            .all()
+        )
+
+        if len(communities) <= 1:
+            # either no community or just global community
+            last_location = "The World"
+        elif len(communities) == 3:
+            # probably global, continent, region, so let's just return the region
+            last_location = communities[-1]
+        else:
+            # probably global, continent, region, city
+            last_location = f"{communities[-1]}, {communities[-2]}"
+
+        user_count = session.execute(select(func.count()).select_from(User).where(User.is_visible)).scalar_one()
+
+        return public_pb2.GetSignupPageInfoRes(
+            last_signup=Timestamp_from_datetime(last_signup.replace(second=0, microsecond=0)),
+            last_location=last_location,
+            user_count=user_count,
+        )

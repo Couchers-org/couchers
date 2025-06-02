@@ -1,10 +1,13 @@
 import type { ReferenceTypeState } from "features/profile/view/References";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {
   AvailableWriteReferencesReq,
+  HostRequestIndicateDidntMeetupReq,
   ListReferencesReq,
   WriteFriendReferenceReq,
   WriteHostRequestReferenceReq,
 } from "proto/references_pb";
+import { HostRequest } from "proto/requests_pb";
 
 import client from "./client";
 
@@ -29,6 +32,7 @@ interface WriteReferenceBaseInput {
   text: string;
   wasAppropriate: boolean;
   rating: number;
+  privateText?: string;
 }
 
 export interface WriteHostRequestReferenceInput
@@ -92,12 +96,17 @@ export async function writeHostRequestReference({
   text,
   wasAppropriate,
   rating,
+  privateText,
 }: WriteHostRequestReferenceInput) {
   const req = new WriteHostRequestReferenceReq();
   req.setHostRequestId(hostRequestId);
   req.setText(text);
   req.setWasAppropriate(wasAppropriate);
   req.setRating(rating);
+
+  if (privateText) {
+    req.setPrivateText(privateText);
+  }
 
   const res = await client.references.writeHostRequestReference(req);
   return res.toObject();
@@ -116,5 +125,24 @@ export async function writeFriendRequestReference({
   req.setRating(rating);
 
   const res = await client.references.writeFriendReference(req);
+  return res.toObject();
+}
+
+export async function listPendingReferencesToWrite() {
+  const res = await client.references.listPendingReferencesToWrite(new Empty());
+  return res.toObject();
+}
+
+export async function indicateDidntMeetup({
+  hostRequestId,
+  reasonDidntMeetup,
+}: {
+  hostRequestId: HostRequest.AsObject["hostRequestId"];
+  reasonDidntMeetup: string;
+}) {
+  const req = new HostRequestIndicateDidntMeetupReq();
+  req.setHostRequestId(hostRequestId);
+  req.setReasonDidntMeetup(reasonDidntMeetup);
+  const res = await client.references.hostRequestIndicateDidntMeetup(req);
   return res.toObject();
 }

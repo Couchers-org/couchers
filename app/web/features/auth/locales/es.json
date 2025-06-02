@@ -206,5 +206,15 @@
     "phone_not_verified_description": "Te hemos enviado un código a <2>{{phone}}</2>. Para verificar tu teléfono, introduce el código a continuación:",
     "remove_phone_description": "Tu número de teléfono actual es <2>{{phone}}</2>. Puedes eliminar tú número de teléfono abajo."
   },
-  "unhandled_sign_up_state": "Error: unhandled signup flow state."
+  "unhandled_sign_up_state": "Error: unhandled signup flow state.",
+  "do_not_email": {
+    "title": "No quiero recibir correos electrónicos",
+    "status": {
+      "no_emails_enabled_message": "Los correos electrónicos están actualmente <1>desactivados</1> en tu cuenta.",
+      "no_emails_disabled_message": "Los correos electrónicos están actualmente <1>activados</1> en tu cuenta."
+    },
+    "action_button": {
+      "no_emails_enable_text": "No quiero recibir correos electrónicos"
+    }
+  }
 }
