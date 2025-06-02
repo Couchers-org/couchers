@@ -5,7 +5,7 @@ from sqlalchemy.sql import func
 
 from couchers import email, urls
 from couchers.config import config
-from couchers.constants import SIGNUP_EMAIL_TOKEN_VALIDITY
+from couchers.constants import RATE_LIMIT_INTERVAL_STRING, SIGNUP_EMAIL_TOKEN_VALIDITY
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.models import (
@@ -14,6 +14,7 @@ from couchers.models import (
     ClusterSubscription,
     EventCommunityInviteRequest,
     Node,
+    RateLimitViolation,
     User,
 )
 from couchers.sql import couchers_select as select
@@ -92,59 +93,22 @@ def maybe_send_reference_report_email(session, reference):
         )
 
 
-def send_host_request_spam_report_email(
-    session, user, host_requests, threshold: int, time_interval_str: str, user_is_blocked: bool = False
-):
-    """Send a report email if a user exceeds a threshold of host requests within a given time frame."""
-    logger.info("Sending host request spam report email")
-    email.enqueue_system_email(
-        session,
-        config["REPORTS_EMAIL_RECIPIENT"],
-        "host_request_spam_report",
-        template_args={
-            "user": user,
-            "host_requests": host_requests,
-            "threshold": threshold,
-            "time_interval_str": time_interval_str,
-            "user_is_blocked": user_is_blocked,
-        },
+def send_rate_limit_violation_report_email(session, rate_limit_violation: RateLimitViolation, threshold: int):
+    """Send a report email to the moderation team if a user exceeds a rate limit within a given time frame."""
+    logger.info(
+        f"Sending rate limit moderation email for user '{rate_limit_violation.user_id}' ({rate_limit_violation.action})"
     )
-
-
-def send_friend_request_spam_report_email(
-    session, user, friend_requests, threshold: int, time_interval_str: str, user_is_blocked: bool = False
-):
-    """Send a report email if a user exceeds a threshold of friend requests within a given time frame."""
-    logger.info("Sending host request spam report email")
+    user = session.get(User, rate_limit_violation.user_id)
     email.enqueue_system_email(
         session,
         config["REPORTS_EMAIL_RECIPIENT"],
-        "friend_request_spam_report",
+        "rate_limit_violation_report",
         template_args={
             "user": user,
-            "friend_requests": friend_requests,
+            "action": rate_limit_violation.action,
             "threshold": threshold,
-            "time_interval_str": time_interval_str,
-            "user_is_blocked": user_is_blocked,
-        },
-    )
-
-
-def send_chat_initiation_spam_report_email(
-    session, user, initiated_chats, threshold: int, time_interval_str: str, user_is_blocked: bool = False
-):
-    """Send a report email if a user exceeds a threshold of chat initiations within a given time frame."""
-    logger.info("Sending host request spam report email")
-    email.enqueue_system_email(
-        session,
-        config["REPORTS_EMAIL_RECIPIENT"],
-        "chat_initiation_spam_report",
-        template_args={
-            "user": user,
-            "initiated_chats": initiated_chats,
-            "threshold": threshold,
-            "time_interval_str": time_interval_str,
-            "user_is_blocked": user_is_blocked,
+            "time_interval_str": RATE_LIMIT_INTERVAL_STRING,
+            "hard_limit": rate_limit_violation.hard_limit,
         },
     )
 

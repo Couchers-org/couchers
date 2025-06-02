@@ -2756,3 +2756,21 @@ class AccountDeletionReason(Base):
     reason = Column(String, nullable=True)
 
     user = relationship("User")
+
+
+class RateLimitAction(enum.Enum):
+    host_request = "host request"
+    friend_request = "friend request"
+    chat_initiation = "chat initiation"
+
+
+class RateLimitViolation(Base):
+    __tablename__ = "rate_limit_violations"
+
+    id = Column(BigInteger, primary_key=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+    action = Column(Enum(RateLimitAction), nullable=False)
+    hard_limit = Column(Boolean, nullable=False)
+
+    user = relationship("User")

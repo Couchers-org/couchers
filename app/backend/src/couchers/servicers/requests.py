@@ -7,7 +7,6 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors
-from couchers.constants import HOST_REQUEST_DAILY_BLOCKING_QUOTA, HOST_REQUEST_DAILY_WARNING_QUOTA
 from couchers.materialized_views import user_response_rates
 from couchers.metrics import (
     account_age_on_host_request_create_histogram,
@@ -18,9 +17,9 @@ from couchers.metrics import (
 )
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
 from couchers.notifications.notify import notify
+from couchers.rate_limit import has_reached_host_request_limit
 from couchers.servicers.api import response_rate_to_pb, user_model_to_pb
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_host_request_spam_report_email
 from couchers.utils import (
     Timestamp_from_datetime,
     date_to_api,
@@ -126,17 +125,6 @@ def _possibly_observe_first_response_time(session, host_request, user_id, respon
         )
 
 
-def _get_user_host_requests_in_past_time_interval(
-    session, user_id, interval: timedelta
-) -> list[tuple[HostRequest, Conversation]]:
-    return session.execute(
-        select(HostRequest, Conversation)
-        .join(Conversation, HostRequest.conversation_id == Conversation.id)
-        .where(HostRequest.surfer_user_id == user_id)
-        .where(Conversation.created >= now() - interval)
-    ).all()
-
-
 class Requests(requests_pb2_grpc.RequestsServicer):
     def CreateHostRequest(self, request, context, session):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
@@ -178,37 +166,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_TO_AFTER_ONE_YEAR)
 
         # Check if user has been sending host requests excessively
-        count_host_requests_last_24h = session.execute(
-            select(func.count())
-            .select_from(HostRequest)
-            .join(Conversation, HostRequest.conversation_id == Conversation.id)
-            .where(HostRequest.surfer_user_id == context.user_id)
-            .where(Conversation.created >= now() - timedelta(hours=24))
-        ).scalar_one()
-        if count_host_requests_last_24h >= HOST_REQUEST_DAILY_BLOCKING_QUOTA - 1:
-            host_requests = _get_user_host_requests_in_past_time_interval(
-                session=session, user_id=context.user_id, interval=timedelta(hours=24)
-            )
-            send_host_request_spam_report_email(
-                session=session,
-                user=user,
-                host_requests=host_requests,
-                threshold=HOST_REQUEST_DAILY_BLOCKING_QUOTA,
-                time_interval_str="24 hours",
-                user_is_blocked=True,
-            )
-            context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.HOST_REQUEST_THRESHOLD)
-        if count_host_requests_last_24h == HOST_REQUEST_DAILY_WARNING_QUOTA - 1:
-            host_requests = _get_user_host_requests_in_past_time_interval(
-                session=session, user_id=context.user_id, interval=timedelta(hours=24)
-            )
-            send_host_request_spam_report_email(
-                session=session,
-                user=user,
-                host_requests=host_requests,
-                threshold=HOST_REQUEST_DAILY_WARNING_QUOTA,
-                time_interval_str="24 hours",
-            )
+        if has_reached_host_request_limit(session=session, user_id=context.user_id):
+            context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.HOST_REQUEST_RATE_LIMIT)
 
         conversation = Conversation()
         session.add(conversation)

@@ -7,8 +7,6 @@ from sqlalchemy.sql import func, not_, or_, select
 
 from couchers import errors
 from couchers.constants import (
-    CHAT_INITIATION_DAILY_BLOCKING_QUOTA,
-    CHAT_INITIATION_DAILY_WARNING_QUOTA,
     DATETIME_INFINITY,
     DATETIME_MINUS_INFINITY,
 )
@@ -17,10 +15,10 @@ from couchers.jobs.enqueue import queue_job
 from couchers.metrics import sent_messages_counter
 from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
 from couchers.notifications.notify import notify
+from couchers.rate_limit import has_reached_chat_initiation_limit
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import are_blocked
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_chat_initiation_spam_report_email
 from couchers.utils import Timestamp_from_datetime, make_user_context, now
 from proto import conversations_pb2, conversations_pb2_grpc, notification_data_pb2
 from proto.internal import jobs_pb2
@@ -223,17 +221,6 @@ def _mute_info(subscription):
         muted=muted,
         muted_until=Timestamp_from_datetime(muted_until) if muted_until else None,
     )
-
-
-def _get_user_initiated_chats_in_past_time_interval(
-    session, user_id, interval: timedelta
-) -> list[tuple[GroupChat, Conversation]]:
-    return session.execute(
-        select(GroupChat, Conversation)
-        .join(Conversation, GroupChat.conversation_id == Conversation.id)
-        .where(GroupChat.creator_id == user_id)
-        .where(Conversation.created >= now() - interval)
-    ).all()
 
 
 class Conversations(conversations_pb2_grpc.ConversationsServicer):
@@ -548,37 +535,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_HAVE_DM)
 
         # Check if user has been initiating chats excessively
-        count_initiated_chats_last_24h = session.execute(
-            select(func.count())
-            .select_from(GroupChat)
-            .join(Conversation, GroupChat.conversation_id == Conversation.id)
-            .where(GroupChat.creator_id == context.user_id)
-            .where(Conversation.created >= now() - timedelta(hours=24))
-        ).scalar_one()
-        if count_initiated_chats_last_24h >= CHAT_INITIATION_DAILY_BLOCKING_QUOTA - 1:
-            initiated_chats = _get_user_initiated_chats_in_past_time_interval(
-                session=session, user_id=context.user_id, interval=timedelta(hours=24)
-            )
-            send_chat_initiation_spam_report_email(
-                session=session,
-                user=user,
-                initiated_chats=initiated_chats,
-                threshold=CHAT_INITIATION_DAILY_BLOCKING_QUOTA,
-                time_interval_str="24 hours",
-                user_is_blocked=True,
-            )
-            context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.CHAT_INITIATION_THRESHOLD)
-        if count_initiated_chats_last_24h == CHAT_INITIATION_DAILY_WARNING_QUOTA - 1:
-            initiated_chats = _get_user_initiated_chats_in_past_time_interval(
-                session=session, user_id=context.user_id, interval=timedelta(hours=24)
-            )
-            send_chat_initiation_spam_report_email(
-                session=session,
-                user=user,
-                initiated_chats=initiated_chats,
-                threshold=CHAT_INITIATION_DAILY_WARNING_QUOTA,
-                time_interval_str="24 hours",
-            )
+        if has_reached_chat_initiation_limit(session=session, user_id=context.user_id):
+            context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.CHAT_INITIATION_RATE_LIMIT)
 
         conversation = Conversation()
         session.add(conversation)

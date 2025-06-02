@@ -5,7 +5,7 @@ import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers import errors
-from couchers.constants import FRIEND_REQUEST_DAILY_BLOCKING_QUOTA, FRIEND_REQUEST_DAILY_WARNING_QUOTA
+from couchers.constants import FRIEND_REQUEST_HARD_LIMIT, FRIEND_REQUEST_WARNING_LIMIT, RATE_LIMIT_INTERVAL_STRING
 from couchers.db import session_scope
 from couchers.jobs.handlers import update_badges
 from couchers.materialized_views import refresh_materialized_views_rapid
@@ -844,7 +844,7 @@ def test_excessive_friend_requests_are_reported(db):
     with api_session(token) as api:
         # Test warning email
         with mock_notification_email() as mock_email:
-            for _ in range(FRIEND_REQUEST_DAILY_WARNING_QUOTA - 1):
+            for _ in range(FRIEND_REQUEST_WARNING_LIMIT):
                 friend_user, _ = generate_user()
                 _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
 
@@ -855,12 +855,12 @@ def test_excessive_friend_requests_are_reported(db):
             assert mock_email.call_count == 1
             email = mock_email.mock_calls[0].kwargs["plain"]
             assert email.startswith(
-                f"User {user.username} has sent {FRIEND_REQUEST_DAILY_WARNING_QUOTA} friend requests in the past 24 hours."
+                f"User {user.username} has sent {FRIEND_REQUEST_WARNING_LIMIT} friend requests in the past {RATE_LIMIT_INTERVAL_STRING}."
             )
 
-        # Test ban after exceeding FRIEND_REQUEST_DAILY_BLOCKING_QUOTA
+        # Test ban after exceeding FRIEND_REQUEST_HARD_LIMIT
         with mock_notification_email() as mock_email:
-            for _ in range(FRIEND_REQUEST_DAILY_BLOCKING_QUOTA - FRIEND_REQUEST_DAILY_WARNING_QUOTA - 1):
+            for _ in range(FRIEND_REQUEST_HARD_LIMIT - FRIEND_REQUEST_WARNING_LIMIT - 1):
                 friend_user, _ = generate_user()
                 _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
 
@@ -869,14 +869,14 @@ def test_excessive_friend_requests_are_reported(db):
             with pytest.raises(grpc.RpcError) as exc_info:
                 _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
             assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
-            assert exc_info.value.details() == errors.FRIEND_REQUEST_THRESHOLD
+            assert exc_info.value.details() == errors.FRIEND_REQUEST_RATE_LIMIT
 
             assert mock_email.call_count == 1
             email = mock_email.mock_calls[0].kwargs["plain"]
             assert email.startswith(
-                f"User {user.username} has sent {FRIEND_REQUEST_DAILY_BLOCKING_QUOTA} friend requests in the past 24 hours."
+                f"User {user.username} has sent {FRIEND_REQUEST_HARD_LIMIT} friend requests in the past {RATE_LIMIT_INTERVAL_STRING}."
             )
-            assert "The user has been blocked from sending further friend requests for today." in email
+            assert "The user has been blocked from sending further friend requests for now." in email
 
 
 def test_ListFriends(db):
