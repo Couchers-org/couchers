@@ -4,5 +4,21 @@
     "signup_header": "Sign up for Couchers.org today",
     "signup_description": "Join {{ user_count }} couch surfers on the fastest growing couch surfing platform.",
     "create_an_account": "Create an account",
-    "signup_continue": "Finish signing up"
+    "signup_continue": "Finish signing up",
+    "couchers_mission_title": "Couchers mission",
+    "want_to_help": "Want to help us grow?",
+    "want_to_help_description": "Join as a volunteer or chip in with a donation - every bit helps keep Couchers.org running and improving.",
+    "want_to_help_roadmap": "For more details on our progress check our",
+    "non_profit_structure_title": "Non-profit structure",
+    "non_profit_structure_description": "Couchers.org is built as a non-profit to keep our mission aligned with our community - not inverstors. .....",
+    "community_first_title": "Community-first framework",
+    "community_first_description": "Fill in some text here...",
+    "member_accountability_title": "Member accountability",
+    "member_accountability_description": "Fill in some text here...",
+    "improved_review_system_title": "Improved review system",
+    "improved_review_system_description": "Fill in some text here...",
+    "better_host_matching_title": "Better host matching",
+    "better_host_matching_description": "Fill in some text here...",
+    "built_it_right_title": "Built it right",
+    "built_it_right_description": "Fill in some text here..."
 }
