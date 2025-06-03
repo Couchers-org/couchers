@@ -133,16 +133,20 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
             reply = session.execute(select(Reply).where(Reply.id == database_id)).scalar_one()
             # the comment we're replying to
             parent_comment = session.execute(select(Comment).where(Comment.id == reply.comment_id)).scalar_one()
+            thread_replies_author_user_ids = (
+                session.execute(select(Reply.author_user_id).where(Reply.comment_id == parent_comment.id))
+                .scalars()
+                .all()
+            )
+            thread_user_ids = set(thread_replies_author_user_ids) | {parent_comment.author_user_id}
 
             author_user = session.execute(select(User).where(User.id == reply.author_user_id)).scalar_one()
 
-            if are_blocked(session, parent_comment.author_user_id, reply.author_user_id):
-                return
+            user_ids_to_notify = set(thread_user_ids) - {reply.author_user_id}
+            user_ids_to_notify = {
+                user_id for user_id in user_ids_to_notify if not are_blocked(session, user_id, reply.author_user_id)
+            }
 
-            if parent_comment.author_user_id == reply.author_user_id:
-                return
-
-            context = make_user_context(user_id=parent_comment.author_user_id)
             reply = threads_pb2.Reply(
                 thread_id=payload.thread_id,
                 content=reply.content,
@@ -160,30 +164,34 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
             if event:
                 # thread is an event thread
                 occurrence = event.occurrences.order_by(EventOccurrence.id.desc()).limit(1).one()
-                notify(
-                    session,
-                    user_id=parent_comment.author_user_id,
-                    topic_action="thread:reply",
-                    key=occurrence.id,
-                    data=notification_data_pb2.ThreadReply(
-                        reply=reply,
-                        event=event_to_pb(session, occurrence, context),
-                        author=user_model_to_pb(author_user, session, context),
-                    ),
-                )
+                for user_id in user_ids_to_notify:
+                    context = make_user_context(user_id=user_id)
+                    notify(
+                        session,
+                        user_id=user_id,
+                        topic_action="thread:reply",
+                        key=occurrence.id,
+                        data=notification_data_pb2.ThreadReply(
+                            reply=reply,
+                            event=event_to_pb(session, occurrence, context),
+                            author=user_model_to_pb(author_user, session, context),
+                        ),
+                    )
             elif discussion:
                 # community discussion thread
-                notify(
-                    session,
-                    user_id=parent_comment.author_user_id,
-                    topic_action="thread:reply",
-                    key=discussion.id,
-                    data=notification_data_pb2.ThreadReply(
-                        reply=reply,
-                        discussion=discussion_to_pb(session, discussion, context),
-                        author=user_model_to_pb(author_user, session, context),
-                    ),
-                )
+                for user_id in user_ids_to_notify:
+                    context = make_user_context(user_id=user_id)
+                    notify(
+                        session,
+                        user_id=user_id,
+                        topic_action="thread:reply",
+                        key=discussion.id,
+                        data=notification_data_pb2.ThreadReply(
+                            reply=reply,
+                            discussion=discussion_to_pb(session, discussion, context),
+                            author=user_model_to_pb(author_user, session, context),
+                        ),
+                    )
             else:
                 raise NotImplementedError("I can only do event and discussion threads for now")
         else:
