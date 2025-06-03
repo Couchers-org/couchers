@@ -761,7 +761,7 @@ def test_archive_host_request(db):
         api.SetHostRequestArchiveStatus(
             requests_pb2.SetHostRequestArchiveStatusReq(host_request_id=host_request_id, is_archived=True)
         )
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReqre(is_archived=True))
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(is_archived=True))
         assert len(res.host_requests) == 1
 
 
