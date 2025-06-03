@@ -531,7 +531,7 @@ def test_get_host_request_messages(db):
 
         res = api.GetHostRequestMessages(
             requests_pb2.GetHostRequestMessagesReq(
-                host_request_id=conversation_id, last_message_id=res.messages[2].message_id, number=6
+                host_request_id=conversation_id, last_message_id=res.messages[2]ListHostRequestsReq.message_id, number=6
             )
         )
         assert res.no_more
@@ -761,7 +761,7 @@ def test_archive_host_request(db):
         api.SetHostRequestArchiveStatus(
             requests_pb2.SetHostRequestArchiveStatusReq(host_request_id=host_request_id, is_archived=True)
         )
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(is_archived=True))
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_archived=True))
         assert len(res.host_requests) == 1
 
 
