@@ -4,7 +4,7 @@
   "block_user": "Block user",
   "block_user_confirmation_dialog": {
     "title": "Are you sure you want to block {{name}}?",
-    "message": "This will prevent you both from seeing each others profiles. You will not be able to send requests or messages.",
+    "message": "Messages and requests from this person will be blocked, and your profile, events and comments will not be visible to this person. They will not be informed that you blocked them.",
     "confirm": "Block"
   },
   "my_connections": "My connections",
@@ -26,7 +26,7 @@
   "unblock_user": "Unblock user",
   "unblock_user_confirmation_dialog": {
     "title": "Are you sure you want to unblock {{name}}?",
-    "message": "Unblocking will allow them to see your profile and send you requests. If you were previously friends, they will go back into your friends list.",
+    "message": "Unblocking will allow them to see your profile and send you requests. If you were previously friends, they will go back into your friends list. They will not be notified.",
     "confirm": "Unblock"
   }
 }
