@@ -70,7 +70,7 @@
     },
     "flag": {
       "block_user": "Block {{username}}",
-      "block_user_explainer": "Messages and requests from this person will be blocked, and your profile, events and comments will not be visible to this person.",
+      "block_user_explainer": "Messages and requests from this person will be blocked, and your profile, events and comments will not be visible to this person. They will not be informed that you blocked them.",
       "button_aria_label": "Report content or a user",
       "profile_button_aria_label": "Report content or block a user",
       "explainer": "Confidentially send a report to the Safety & Trust team.",
