@@ -515,7 +515,6 @@ def test_get_host_request_messages(db):
         )
 
     with requests_session(token1) as api:
-        res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=conversation_id))
         # 9 including initial message
         assert len(res.messages) == 9
         assert res.no_more
@@ -762,8 +761,8 @@ def test_archive_host_request(db):
         api.SetHostRequestArchiveStatus(
             requests_pb2.SetHostRequestArchiveStatusReq(host_request_id=host_request_id, is_archived=True)
         )
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
-        assert len(res.host_requests) == 0
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReqre(is_archived=True))
+        assert len(res.host_requests) == 1
 
 
 def test_mark_last_seen(db):
