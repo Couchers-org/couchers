@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import mockRouter from "next-router-mock";
 import { service } from "service";
-import client from "service/client";
 import testNotifications from "test/fixtures/notifications.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import { listNotifications } from "test/serviceMockDefaults";
@@ -12,10 +12,9 @@ import NotificationItem from "./NotificationItem";
 
 jest.mock("service/client");
 
-const markNotificationSeenMock = client.notifications
-  .markNotificationSeen as jest.Mock<
-  ReturnType<typeof client.notifications.markNotificationSeen>,
-  Parameters<typeof client.notifications.markNotificationSeen>
+const markNotificationIsSeenMock = service.notifications
+  .markNotificationSeen as MockedService<
+  typeof service.notifications.markNotificationSeen
 >;
 
 const listNotificationsMock = service.notifications
@@ -27,11 +26,11 @@ const { wrapper } = getHookWrapperWithClient();
 
 describe("NotificationItem", () => {
   const mockOnClose = jest.fn();
-  const mockOnTouchedNotificationChange = jest.fn();
+  const onMarkIsSeenMock = jest.fn();
 
   beforeEach(() => {
     listNotificationsMock.mockImplementation(listNotifications);
-    markNotificationSeenMock.mockResolvedValue(new Empty());
+    markNotificationIsSeenMock.mockResolvedValue(new Empty());
 
     // Mocking XMLHttpRequest for Jest - this is the call for the avatar image
     global.XMLHttpRequest = jest.fn(() => ({
@@ -55,7 +54,7 @@ describe("NotificationItem", () => {
       <NotificationItem
         notification={testNotifications.notificationsList[0]}
         onClose={mockOnClose}
-        onTouchedNotificationChange={mockOnTouchedNotificationChange}
+        onMarkIsSeen={onMarkIsSeenMock}
       />,
       { wrapper },
     );
@@ -66,26 +65,76 @@ describe("NotificationItem", () => {
 
     await user.hover(notificationItem);
 
-    const markUnreadMenuButton = await screen.findByTestId(
+    const markUnreadMenuButtons = await screen.findAllByTestId(
       "mark-unread-menu-button",
     );
 
-    await user.click(markUnreadMenuButton);
+    await user.click(markUnreadMenuButtons[0]);
 
-    const markUnreadMenuItem = await screen.findByTestId(
+    const markUnreadMenuItems = await screen.findAllByTestId(
       "mark-unread-menu-item",
     );
 
-    await user.click(markUnreadMenuItem);
+    await user.click(markUnreadMenuItems[0]);
 
-    const callArg = markNotificationSeenMock.mock.calls[0][0];
-
-    expect(callArg.toObject()).toMatchObject({
+    expect(onMarkIsSeenMock).toHaveBeenCalledWith({
       notificationId: testNotifications.notificationsList[0].notificationId,
+      isSeen: false,
+    });
+  });
 
-      setSeen: false,
+  it("marks a single notification as seen when clicked", async () => {
+    render(
+      <NotificationItem
+        notification={testNotifications.notificationsList[1]}
+        onClose={mockOnClose}
+        onMarkIsSeen={onMarkIsSeenMock}
+      />,
+      { wrapper },
+    );
+
+    const notificationItem = await screen.findByTestId("notification-item");
+
+    const user = userEvent.setup();
+
+    await user.click(notificationItem);
+
+    expect(onMarkIsSeenMock).toHaveBeenCalledWith({
+      notificationId: testNotifications.notificationsList[1].notificationId,
+      isSeen: true,
+    });
+  });
+
+  it("calls onClose and routes to the notificationUrl when clicked", async () => {
+    mockRouter.setCurrentUrl("/");
+
+    render(
+      <NotificationItem
+        notification={testNotifications.notificationsList[0]}
+        onClose={mockOnClose}
+        onMarkIsSeen={onMarkIsSeenMock}
+      />,
+      { wrapper },
+    );
+
+    const notificationItem = await screen.findByTestId("notification-item");
+
+    const user = userEvent.setup();
+
+    await user.click(notificationItem);
+
+    expect(mockOnClose).toHaveBeenCalled();
+    expect(onMarkIsSeenMock).toHaveBeenCalledWith({
+      notificationId: testNotifications.notificationsList[0].notificationId,
+      isSeen: true,
     });
 
-    expect(mockOnTouchedNotificationChange).toHaveBeenCalled();
+    // gets the part of the URL after the domain
+    const expectedPath = testNotifications.notificationsList[0].url.replace(
+      /^https?:\/\/[^/]+|\/$/g,
+      "",
+    );
+
+    expect(mockRouter.pathname).toBe(expectedPath);
   });
 });
