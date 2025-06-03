@@ -40,6 +40,23 @@ const CouchersMission = () => {
           flex: { md: 1 },
           minWidth: 0,
           cursor: "pointer",
+          position: "relative",
+          "&::after": {
+            content: '""',
+            position: "absolute",
+            bottom: "-10px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: 0,
+            height: 0,
+            borderLeft: "10px solid transparent",
+            borderRight: "10px solid transparent",
+            borderTop: `10px solid ${selectedItem === itemName ? theme.palette.primary.main : theme.palette.primary.light}`,
+            display: selectedItem === itemName ? "block" : "none",
+            [theme.breakpoints.down("md")]: {
+              display: "none",
+            },
+          },
         }}
       >
         <Box display="flex" flexDirection="column" width="100%">
@@ -57,7 +74,6 @@ const CouchersMission = () => {
       <Fade timeout={2000} in={inView}>
         <Grid
           container
-          gap={2}
           ref={ref}
           sx={{
             marginTop: 2,
@@ -89,6 +105,7 @@ const CouchersMission = () => {
               item
               display="flex"
               sx={{
+                marginTop: 1,
                 backgroundColor: theme.palette.grey[200],
                 padding: 2,
                 borderRadius: 2,
