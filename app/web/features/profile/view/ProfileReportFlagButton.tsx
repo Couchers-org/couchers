@@ -125,7 +125,9 @@ export default function ProfileReportFlagButton({
   };
 
   const onSubmit = handleSubmit((data) => {
-    reportContent(data);
+    if (data.reason !== "" || data.description !== "") {
+      reportContent(data);
+    }
 
     if (shouldBlockField) {
       blockUserMutation(profileUser);

@@ -49,12 +49,8 @@ function BlockedUsersList({ refetchFriends }: { refetchFriends: () => void }) {
     setIsDialogOpen(false);
   };
 
-  const handleUnblockUserConfirm = async ({
-    username,
-  }: {
-    username: string;
-  }) => {
-    await unblockUserMutation({ username });
+  const handleUnblockUserConfirm = ({ username }: { username: string }) => {
+    unblockUserMutation({ username });
     refetchFriends();
     handleDialogClose();
   };

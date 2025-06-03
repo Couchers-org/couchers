@@ -1,4 +1,4 @@
-import { blockedUsersKey, friendIdsKey, username2Id } from "features/queryKeys";
+import { blockedUsersKey, friendIdsKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import Sentry from "platform/sentry";
@@ -80,7 +80,6 @@ const useBlockUser = () => {
       onMutate: async ({ avatarThumbnailUrl, name, username, userId }) => {
         await queryClient.cancelQueries(blockedUsersKey);
         await queryClient.cancelQueries(friendIdsKey);
-        await queryClient.cancelQueries([username2Id, username]);
 
         const currentBlockedUsers =
           queryClient.getQueryData<GetBlockedUsersRes.AsObject>(blockedUsersKey)
@@ -108,7 +107,6 @@ const useBlockUser = () => {
         );
 
         queryClient.setQueryData(friendIdsKey, updatedFriendIds);
-        queryClient.invalidateQueries([username2Id, username]);
 
         return { previousBlockedUsers: currentBlockedUsers };
       },
