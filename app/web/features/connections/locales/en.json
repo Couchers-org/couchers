@@ -4,7 +4,7 @@
   "block_user": "Block user",
   "block_user_confirmation_dialog": {
     "title": "Are you sure you want to block {{name}}?",
-    "message": "This will prevent you both from seeing each others profiles. You will not be able to send requests or messages.",
+    "message": "Messages and requests from this person will be blocked, and your profile, events and comments will not be visible to this person. They will not be informed that you blocked them.",
     "confirm": "Block"
   },
   "my_connections": "My connections",
