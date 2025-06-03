@@ -19,9 +19,12 @@ import { useState } from "react";
 import { useQuery } from "react-query";
 import { notificationSettingsRoute } from "routes";
 import { service } from "service";
-import { markAllNotificationsSeen } from "service/notifications";
 import { theme } from "theme";
 
+import {
+  useMarkAllNotificationsSeen,
+  useMarkSingleNotificationIsSeen,
+} from "../utils/helpers";
 import NotificationItem from "./NotificationItem";
 
 interface NotificationsFeedProps {
@@ -72,16 +75,27 @@ const NotificationsFeed = ({
 
   const isInternalMenuOpen = Boolean(internalMenuAnchorEl);
 
-  const { data, error, isRefetching, isLoading, refetch } = useQuery<
+  const { data, error, isRefetching, isLoading } = useQuery<
     ListNotificationsRes.AsObject,
     RpcError
   >({
-    queryKey: [listNotificationsQueryKey, notificationsFilter],
+    queryKey: listNotificationsQueryKey,
     queryFn: () =>
       service.notifications.listNotifications({
         onlyUnread: notificationsFilter === "unread",
       }),
   });
+
+  const {
+    error: markAllNotificationsSeenError,
+    markAllNotificationsSeenMutation,
+    isLoading: isMarkingAllSeen,
+  } = useMarkAllNotificationsSeen();
+
+  const {
+    error: markSingleNotificationIsSeenError,
+    markSingleNotificationIsSeenMutation,
+  } = useMarkSingleNotificationIsSeen();
 
   const handleNotificationSettingsClick = () => {
     router.push(notificationSettingsRoute);
@@ -93,19 +107,13 @@ const NotificationsFeed = ({
   ) => {
     event.stopPropagation();
 
-    try {
-      const lastestNotificationId =
-        data?.notificationsList?.[0]?.notificationId;
+    const latestNotificationId = data?.notificationsList?.[0]?.notificationId;
 
-      if (!lastestNotificationId) return;
+    if (!latestNotificationId) return;
 
-      setInternalMenuAnchorEl(null);
+    setInternalMenuAnchorEl(null);
 
-      await markAllNotificationsSeen(lastestNotificationId);
-      refetch();
-    } catch (e) {
-      console.error("Error marking all notifications as seen", e);
-    }
+    markAllNotificationsSeenMutation({ latestNotificationId });
   };
 
   const handleInternalMenuOpen = (
@@ -268,7 +276,7 @@ const NotificationsFeed = ({
         </StyledPills>
       </TopContentWrapper>
       <NotificationsListWrapper>
-        {isLoading && !isRefetching ? (
+        {(isLoading || isMarkingAllSeen) && !isRefetching ? (
           <CenteredSpinner />
         ) : (
           <>
@@ -277,6 +285,12 @@ const NotificationsFeed = ({
                 {t("notifications:error_loading")}
               </Alert>
             )}
+            {markAllNotificationsSeenError ||
+              (markSingleNotificationIsSeenError && (
+                <Alert severity="error" sx={{ marginBottom: theme.spacing(2) }}>
+                  {t("notifications:error_updating_notifications")}
+                </Alert>
+              ))}
 
             {(data?.notificationsList ?? []).length > 0 ? (
               data?.notificationsList.map((notification) => (
@@ -284,7 +298,7 @@ const NotificationsFeed = ({
                   key={notification.notificationId}
                   notification={notification}
                   onClose={onClose}
-                  onTouchedNotificationChange={refetch}
+                  onMarkIsSeen={markSingleNotificationIsSeenMutation}
                 />
               ))
             ) : (

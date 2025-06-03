@@ -2,6 +2,7 @@
   "all": "All",
   "unread": "Unread",
   "error_loading": "Error loading notifications",
+  "error_updating_notifications": "Error updating notifications",
   "mark_unread": "Mark unread",
   "mark_all_read": "Mark all as read",
   "no_new_notifications": "No new notifications",
