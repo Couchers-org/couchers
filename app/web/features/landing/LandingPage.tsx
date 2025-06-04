@@ -1,9 +1,10 @@
 import { Container, styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import { useAuthContext } from "features/auth/AuthProvider";
-import Signup from "features/auth/signup/Signup";
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "react-query";
+
+import HeroSection from "./HeroSection";
 
 const StyledSpacer = styled("div")(({ theme }) => ({
   height: theme.spacing(4),
@@ -35,7 +36,7 @@ export default function LandingPage() {
   return (
     <>
       <HtmlMeta />
-      <Signup scrollToMore={scrollToMore} />
+      <HeroSection scrollToMore={scrollToMore} />
       <StyledSpacer />
       <Container component="section" maxWidth="md" ref={moreContentRef}>
         First section Here

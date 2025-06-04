@@ -4,7 +4,6 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
-import Redirect from "components/Redirect";
 import StyledLink from "components/StyledLink";
 import mobileAuthBg from "features/auth/resources/mobile-auth-bg-dark.jpg";
 import CouchersIntroduction from "features/landing/CouchersIntroduction";
@@ -15,16 +14,16 @@ import { useRouter } from "next/router";
 import { useIsNativeEmbed } from "platform/nativeLink";
 import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
-import { dashboardRoute, loginRoute, signupRoute } from "routes";
+import { loginRoute, signupRoute } from "routes";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
 import { theme } from "theme";
 import stringOrFirstString from "utils/stringOrFirstString";
 
-import { useAuthContext } from "../AuthProvider";
-import SignupFormContent from "./SignupFormContent";
+import { useAuthContext } from "../auth/AuthProvider";
+import SignupFormContent from "../auth/signup/SignupFormContent";
 
-interface SignupProps {
+interface HeroSectionProps {
   scrollToMore?: () => void;
 }
 
@@ -77,7 +76,7 @@ const StyledFormWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function Signup({ scrollToMore }: SignupProps) {
+export default function HeroSection({ scrollToMore }: HeroSectionProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -143,15 +142,16 @@ export default function Signup({ scrollToMore }: SignupProps) {
 
   return (
     <>
-      {authenticated && <Redirect to={dashboardRoute} />}
+      {/* {authenticated && <Redirect to={dashboardRoute} />} */}
       <HtmlMeta title={t("global:sign_up")} />
       <StyledSection>
         <StyledContent>
           <CouchersIntroduction scrollToMore={scrollToMore} />
           <StyledFormWrapper>
-            {!flowState ? (
-              <SignupFormContent />
-            ) : (
+            {authenticated && <Typography>You are logged in</Typography>}
+            {!flowState && !authenticated && <SignupFormContent />}
+
+            {flowState && !authenticated && (
               <Link href={signupRoute} passHref legacyBehavior>
                 <Button
                   variant="contained"
