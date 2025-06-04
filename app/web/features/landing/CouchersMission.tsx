@@ -139,7 +139,7 @@ const CouchersMission = () => {
           width: "100%",
         }}
       >
-        <Fade timeout={1000} in={inView}>
+        <Fade timeout={2000} in={inView}>
           <Grid
             container
             gap={2}
@@ -168,7 +168,7 @@ const CouchersMission = () => {
             {missionBubble("built_it_right", "built_it_right_title")}
           </Grid>
         </Fade>
-        <Fade key={selectedItem} timeout={500} in={true}>
+        <Fade key={selectedItem} timeout={1000} in={true}>
           <Grid
             container
             sx={{
