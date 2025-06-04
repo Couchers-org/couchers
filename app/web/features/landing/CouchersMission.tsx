@@ -4,9 +4,14 @@ import { StyledButton } from "features/auth/useAuthStyles";
 import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import Link from "next/link";
-import { Fragment,useState } from "react";
+import { Fragment, useState } from "react";
 import { useInView } from "react-intersection-observer";
-import { donationsRoute, missionRoute, roadmapRoute, volunteerRoute } from "routes";
+import {
+  donationsRoute,
+  missionRoute,
+  roadmapRoute,
+  volunteerRoute,
+} from "routes";
 import { theme } from "theme";
 
 const StyledSpacer = styled("div")(({ theme }) => ({
@@ -29,16 +34,10 @@ const TranslationKeys: Record<string, string[]> = {
     "empty_line",
     "non_profit_structure_description_line5",
   ],
-  community_first: [
-    "community_first_description",
-  ],
-  member_accountability: [
-    "member_accountability_description",
-  ],
-  improved_review_system: [
-    "improved_review_system_description",
-  ],
-}
+  community_first: ["community_first_description"],
+  member_accountability: ["member_accountability_description"],
+  improved_review_system: ["improved_review_system_description"],
+};
 
 const CouchersMission = () => {
   const { t } = useTranslation([LANDING, GLOBAL]);
@@ -53,9 +52,14 @@ const CouchersMission = () => {
         md={2}
         display="flex"
         alignItems="center"
-        onClick={() => {setSelectedItem(itemName);}}
+        onClick={() => {
+          setSelectedItem(itemName);
+        }}
         sx={{
-          backgroundColor: selectedItem === itemName ? theme.palette.primary.main : theme.palette.primary.light,
+          backgroundColor:
+            selectedItem === itemName
+              ? theme.palette.primary.main
+              : theme.palette.primary.light,
           padding: 2,
           borderRadius: 2,
           flex: { md: 1 },
@@ -86,20 +90,19 @@ const CouchersMission = () => {
           </Typography>
         </Box>
       </Grid>
-    )
-  }
-  
+    );
+  };
+
   const missionDescription = (selectedItem: string) => {
     return (
-      <Box 
-        display="flex" flexDirection="column" width="100%">
+      <Box display="flex" flexDirection="column" width="100%">
         <Typography align="justify" variant="body2">
           {(TranslationKeys[selectedItem] || []).map((element, index) => {
-            let content
+            let content;
             switch (element) {
               case "empty_line":
-                content = <br />
-                break
+                content = <br />;
+                break;
               case "non_profit_structure_description_line5":
                 content = (
                   <Fragment>
@@ -108,84 +111,95 @@ const CouchersMission = () => {
                       {t("read_here")}
                     </StyledLink>
                   </Fragment>
-                )
-                break
+                );
+                break;
               default:
                 content = t(element);
             }
-            return <Fragment key={index}>
+            return (
+              <Fragment key={index}>
                 {content}
-                {(index < TranslationKeys[selectedItem].length - 1) && <br />}
+                {index < TranslationKeys[selectedItem].length - 1 && <br />}
               </Fragment>
+            );
           })}
         </Typography>
       </Box>
-    )
-  }
+    );
+  };
 
   return (
     <>
       <Typography variant="h2">{t("couchers_mission_title")}</Typography>
-        <Grid
-          container
-          ref={ref}
-          sx={{
-            marginTop: 2,
-            width: "100%",
-          }}
-        >
-          <Fade timeout={2000} in={inView}>
+      <Grid
+        container
+        ref={ref}
+        sx={{
+          marginTop: 2,
+          width: "100%",
+        }}
+      >
+        <Fade timeout={1000} in={inView}>
+          <Grid
+            container
+            gap={2}
+            sx={{
+              width: "100%",
+              flexWrap: { xs: "wrap", md: "nowrap" },
+            }}
+          >
+            {missionBubble(
+              "non_profit_structure",
+              "non_profit_structure_title",
+            )}
+            {missionBubble("community_first", "community_first_title")}
+            {missionBubble(
+              "member_accountability",
+              "member_accountability_title",
+            )}
+            {missionBubble(
+              "improved_review_system",
+              "improved_review_system_title",
+            )}
+            {missionBubble(
+              "better_host_matching",
+              "better_host_matching_title",
+            )}
+            {missionBubble("built_it_right", "built_it_right_title")}
+          </Grid>
+        </Fade>
+        <Fade key={selectedItem} timeout={500} in={true}>
+          <Grid
+            container
+            sx={{
+              width: "100%",
+            }}
+          >
             <Grid
-              container
-              gap={2}
+              item
+              display="flex"
               sx={{
-                width: "100%",
-                flexWrap: { xs: "wrap", md: "nowrap" }
+                marginTop: 1,
+                backgroundColor: theme.palette.grey[200],
+                padding: 2,
+                borderRadius: 2,
+                flex: { md: 1 },
+                minWidth: 0,
               }}
             >
-              {missionBubble("non_profit_structure", "non_profit_structure_title")}
-              {missionBubble("community_first", "community_first_title")}
-              {missionBubble("member_accountability", "member_accountability_title")}
-              {missionBubble("improved_review_system", "improved_review_system_title")}
-              {missionBubble("better_host_matching", "better_host_matching_title")}
-              {missionBubble("built_it_right", "built_it_right_title")}
+              {missionDescription(selectedItem)}
             </Grid>
-          </Fade>
-          <Fade key={selectedItem} timeout={2000} in={true}>  
-            <Grid
-              container
-              sx={{
-                width: "100%",
-              }}
-            >
-              <Grid
-                item
-                display="flex"
-                sx={{
-                  marginTop: 1,
-                  backgroundColor: theme.palette.grey[200],
-                  padding: 2,
-                  borderRadius: 2,
-                  flex: { md: 1 },
-                  minWidth: 0,
-                }}
-              >
-                {missionDescription(selectedItem)}
-              </Grid>
-            </Grid>
-          </Fade>
-        </Grid>
+          </Grid>
+        </Fade>
+      </Grid>
       <StyledSpacer />
       <Typography variant="h6" gutterBottom>
         {t("want_to_help")}
       </Typography>
-      <Typography variant="body1">
-        {t("want_to_help_description")}
-      </Typography>
+      <Typography variant="body1">{t("want_to_help_description")}</Typography>
       <br />
       <Typography variant="body1">
-        {t("want_to_help_roadmap")}
-        {" "}
+        {t("want_to_help_roadmap")}{" "}
         <StyledLink href={roadmapRoute}>
           {t("global:nav.roadmap_updates")}
         </StyledLink>
