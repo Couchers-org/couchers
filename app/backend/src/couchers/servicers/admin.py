@@ -302,6 +302,13 @@ class Admin(admin_pb2_grpc.AdminServicer):
         user.is_deleted = True
         return _user_to_details(session, user)
 
+    def RecoverDeletedUser(self, request, context, session):
+        user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+        if not user:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+        user.is_deleted = False
+        return _user_to_details(session, user)
+
     def CreateApiKey(self, request, context, session):
         user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
         if not user:
@@ -592,6 +599,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
         discussion = session.execute(
             select(Discussion).where(Discussion.id == request.discussion_id)
         ).scalar_one_or_none()
+        if not discussion:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.DISCUSSION_NOT_FOUND)
         if request.new_title:
             discussion.title = request.new_title.strip()
         if request.new_content:

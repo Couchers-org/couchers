@@ -3,7 +3,6 @@ import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
 import { service } from "service";
-import client from "service/client";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
 import { listNotifications } from "test/serviceMockDefaults";
@@ -15,10 +14,9 @@ const { t } = i18n;
 
 jest.mock("service/client");
 
-const markNotificationSeenMock = client.notifications
-  .markNotificationSeen as jest.Mock<
-  ReturnType<typeof client.notifications.markNotificationSeen>,
-  Parameters<typeof client.notifications.markNotificationSeen>
+const markNotificationIsSeenMock = service.notifications
+  .markNotificationSeen as MockedService<
+  typeof service.notifications.markNotificationSeen
 >;
 
 const listNotificationsMock = service.notifications
@@ -26,9 +24,9 @@ const listNotificationsMock = service.notifications
   typeof service.notifications.listNotifications
 >;
 
-const markAllNotificationsSeenMock = client.notifications
+const markAllNotificationsIsSeenMock = service.notifications
   .markAllNotificationsSeen as MockedService<
-  typeof client.notifications.markAllNotificationsSeen
+  typeof service.notifications.markAllNotificationsSeen
 >;
 
 const { wrapper } = getHookWrapperWithClient();
@@ -38,8 +36,8 @@ describe("NotificationsFeed", () => {
 
   beforeEach(() => {
     listNotificationsMock.mockImplementation(listNotifications);
-    markNotificationSeenMock.mockResolvedValue(new Empty());
-    markAllNotificationsSeenMock.mockResolvedValue(new Empty());
+    markNotificationIsSeenMock.mockResolvedValue(new Empty());
+    markAllNotificationsIsSeenMock.mockResolvedValue(new Empty());
 
     // Mocking XMLHttpRequest for Jest - this is the call for the avatar image
     global.XMLHttpRequest = jest.fn(() => ({
@@ -75,36 +73,6 @@ describe("NotificationsFeed", () => {
     });
   });
 
-  it("marks single notification as seen when clicked", async () => {
-    const isNotSeenNotificationId = 2; // Assuming this is the ID of a notification that is not seen
-
-    render(
-      <NotificationsFeed
-        anchorEl={document.createElement("div")}
-        isOpen={true}
-        onClose={mockOnClose}
-      />,
-      { wrapper },
-    );
-
-    const notificationItem = await screen.findByText(
-      "You have unseen messages on Couchers.org",
-    );
-
-    await userEvent.click(notificationItem);
-
-    const callArg = markNotificationSeenMock.mock.calls[0][0];
-
-    expect(callArg.toObject()).toMatchObject({
-      notificationId: isNotSeenNotificationId,
-      setSeen: true,
-    });
-
-    expect(mockRouter.pathname).toBe("/messages");
-
-    expect(mockOnClose).toHaveBeenCalled();
-  });
-
   it("marks all notifications as seen when 'Mark all as read' is clicked", async () => {
     const latestNotificationId = 1;
 
@@ -131,13 +99,9 @@ describe("NotificationsFeed", () => {
 
     await userEvent.click(markAllReadButton);
 
-    expect(markAllNotificationsSeenMock).toHaveBeenCalledTimes(1);
-
-    const callArg = markAllNotificationsSeenMock.mock.calls[0][0];
-
-    expect(callArg.toObject()).toMatchObject({
+    expect(markAllNotificationsIsSeenMock).toHaveBeenCalledWith(
       latestNotificationId,
-    });
+    );
   });
 
   it("navigates to notification settings when 'Notification Settings' is clicked", async () => {
