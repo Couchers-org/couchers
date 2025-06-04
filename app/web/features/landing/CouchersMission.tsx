@@ -1,13 +1,13 @@
-import { Box, Button, ButtonProps, Fade, Grid, styled, Typography } from "@mui/material";
-import Link from "next/link";
+import { Box, Fade, Grid, styled, Typography } from "@mui/material";
 import StyledLink from "components/StyledLink";
 import { StyledButton } from "features/auth/useAuthStyles";
 import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
+import Link from "next/link";
+import { useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { donationsRoute, roadmapRoute, volunteerRoute } from "routes";
 import { theme } from "theme";
-import { useState } from "react";
 
 const StyledSpacer = styled("div")(({ theme }) => ({
   height: theme.spacing(5),
@@ -29,7 +29,7 @@ const CouchersMission = () => {
     return (
       <Grid
         item
-        xs={4}
+        xs={3.7}
         md={2}
         display="flex"
         onClick={() => {setSelectedItem(itemName);}}
@@ -44,7 +44,7 @@ const CouchersMission = () => {
           "&::after": {
             content: '""',
             position: "absolute",
-            bottom: "-10px",
+            bottom: "-8px",
             left: "50%",
             transform: "translateX(-50%)",
             width: 0,
@@ -85,7 +85,7 @@ const CouchersMission = () => {
             gap={2}
             sx={{
               width: "100%",
-              flexWrap: { xs: "wrap", md: "nowrap" },
+              flexWrap: { xs: "wrap", md: "nowrap" }
             }}
           >
             {renderGridItem("non_profit_structure", "non_profit_structure_title")}
