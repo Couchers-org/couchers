@@ -126,7 +126,6 @@ const CouchersMission = () => {
   return (
     <>
       <Typography variant="h2">{t("couchers_mission_title")}</Typography>
-      <Fade timeout={2000} in={inView}>
         <Grid
           container
           ref={ref}
@@ -135,45 +134,47 @@ const CouchersMission = () => {
             width: "100%",
           }}
         >
-          <Grid
-            container
-            gap={2}
-            sx={{
-              width: "100%",
-              flexWrap: { xs: "wrap", md: "nowrap" }
-            }}
-          >
-            {missionBubble("non_profit_structure", "non_profit_structure_title")}
-            {missionBubble("community_first", "community_first_title")}
-            {missionBubble("member_accountability", "member_accountability_title")}
-            {missionBubble("improved_review_system", "improved_review_system_title")}
-            {missionBubble("better_host_matching", "better_host_matching_title")}
-            {missionBubble("built_it_right", "built_it_right_title")}
-          </Grid>
-          <Grid
-            container
-            sx={{
-              width: "100%",
-            }}
-          >
+          <Fade timeout={2000} in={inView}>
             <Grid
-              item
-              display="flex"
+              container
+              gap={2}
               sx={{
-                marginTop: 1,
-                backgroundColor: theme.palette.grey[200],
-                padding: 2,
-                borderRadius: 2,
-                flex: { md: 1 },
-                minWidth: 0,
+                width: "100%",
+                flexWrap: { xs: "wrap", md: "nowrap" }
               }}
             >
-              {missionDescription(selectedItem)}
+              {missionBubble("non_profit_structure", "non_profit_structure_title")}
+              {missionBubble("community_first", "community_first_title")}
+              {missionBubble("member_accountability", "member_accountability_title")}
+              {missionBubble("improved_review_system", "improved_review_system_title")}
+              {missionBubble("better_host_matching", "better_host_matching_title")}
+              {missionBubble("built_it_right", "built_it_right_title")}
             </Grid>
-          </Grid>
-
+          </Fade>
+          <Fade key={selectedItem} timeout={2000} in={true}>  
+            <Grid
+              container
+              sx={{
+                width: "100%",
+              }}
+            >
+              <Grid
+                item
+                display="flex"
+                sx={{
+                  marginTop: 1,
+                  backgroundColor: theme.palette.grey[200],
+                  padding: 2,
+                  borderRadius: 2,
+                  flex: { md: 1 },
+                  minWidth: 0,
+                }}
+              >
+                {missionDescription(selectedItem)}
+              </Grid>
+            </Grid>
+          </Fade>
         </Grid>
-      </Fade>
       <StyledSpacer />
       <Typography variant="h6" gutterBottom>
         {t("want_to_help")}
