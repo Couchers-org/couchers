@@ -1,8 +1,18 @@
 {
-    "introduction_title": "The new alternative to Couchsurfing™",
-    "introduction_subtitle": "Free forever. Community‑led. Non‑profit. Modern.",
-    "signup_header": "Sign up for Couchers.org today",
-    "signup_description": "Join {{ user_count }} couch surfers on the fastest growing couch surfing platform.",
-    "create_an_account": "Create an account",
-    "signup_continue": "Finish signing up"
+  "introduction_title": "The new alternative to Couchsurfing™",
+  "introduction_subtitle": "Free forever. Community‑led. Non‑profit. Modern.",
+  "signup_header": "Sign up for Couchers.org today",
+  "signup_description": "Join {{ user_count }} couch surfers on the fastest growing couch surfing platform.",
+  "create_an_account": "Create an account",
+  "signup_continue": "Finish signing up",
+  "what_couchsurfing_title": "What is couch surfing?",
+  "what_couchsurfing_description": "Couchers.org is an open, community-led platform built by travelers, for travelers - not investors. We're a non-profit organization committed to keeping travel human, accessible, and genuine. Whether you're hosting visitors from around the world or looking for a place to stay on your next adventure, or build a local community where travellers from all the world can take part, Couchers.org helps you connect safely and meaningfully.",
+  "sign_up_ready": "Sign up and you are ready to go!",
+  "why_couchers_title": "Why Couchers.org?",
+  "community_first": "Community First",
+  "community_first_description": "We believe travel is about real connections. As a non-profit, we're guided by our members - not profits or outside investors. Your voice matters here.",
+  "safer_stronger": "Safer, Stronger Connections",
+  "safer_stronger_description": "We've reimagined trust and safety with a new approach to references, verification, and accountability, so you can focus on meeting great people.",
+  "built_by_travelers": "Built by Travelers, for Travelers",
+  "built_by_travelers_description": "With a team of over 40 volunteers - travelers, hosts, and developers - we're building a platform that's stable, modern, and made for how people actually travel today."
 }
