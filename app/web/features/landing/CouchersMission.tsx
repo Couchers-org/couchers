@@ -37,6 +37,8 @@ const TranslationKeys: Record<string, string[]> = {
   community_first: ["community_first_description"],
   member_accountability: ["member_accountability_description"],
   improved_review_system: ["improved_review_system_description"],
+  better_host_matching: ["better_host_matching_description"],
+  built_it_right: ["built_it_right_description"],
 };
 
 const CouchersMission = () => {
