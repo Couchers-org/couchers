@@ -4,6 +4,7 @@ package org.couchers.admin;
 
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
 
 import "annotations.proto";
 import "api.proto";
@@ -17,6 +18,8 @@ service Admin {
   rpc GetUser(GetUserReq) returns (org.couchers.api.core.User) {
     // Get info about a particular user, ignores the fact that they may be banned/deleted
   }
+
+  rpc SearchUsers(SearchUsersReq) returns (SearchUsersRes) {}
 
   rpc ChangeUserGender(ChangeUserGenderReq) returns (UserDetails) {}
 
@@ -110,6 +113,36 @@ message GetUserDetailsReq {
 
 message GetUserReq {
   string user = 1;
+}
+
+message SearchUsersReq {
+  string username = 3;
+  string email = 4;
+  string name = 5;
+  string admin_note = 6;
+  string city = 7;
+  int64 min_user_id = 8;
+  int64 max_user_id = 9;
+  string min_birthdate = 10; // in YYYY-MM-DD format
+  string max_birthdate = 11; // in YYYY-MM-DD format
+  string min_joined_date = 12; // in YYYY-MM-DD format
+  string max_joined_date = 13; // in YYYY-MM-DD format
+  string min_last_active_date = 14; // in YYYY-MM-DD format
+  string max_last_active_date = 15; // in YYYY-MM-DD format
+  repeated string genders = 16;
+  repeated string language_codes = 17;
+  google.protobuf.BoolValue is_deleted = 18;
+  google.protobuf.BoolValue is_banned = 19;
+  google.protobuf.BoolValue has_avatar = 20;
+
+  uint32 page_size = 1;
+  string page_token = 2;
+}
+
+message SearchUsersRes {
+  repeated UserDetails users = 1;
+
+  string next_page_token = 2;
 }
 
 message ChangeUserGenderReq {
