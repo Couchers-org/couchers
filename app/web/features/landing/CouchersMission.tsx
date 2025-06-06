@@ -1,10 +1,10 @@
 import { Box, Fade, Grid, styled, Typography } from "@mui/material";
 import StyledLink from "components/StyledLink";
 import { StyledButton } from "features/auth/useAuthStyles";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import Link from "next/link";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { useInView } from "react-intersection-observer";
 import {
   donationsRoute,
@@ -24,29 +24,12 @@ const StyledButtonContainer = styled("div")({
   gap: "24px",
 });
 
-const TranslationKeys: Record<string, string[]> = {
-  non_profit_structure: [
-    "non_profit_structure_description_line1",
-    "non_profit_structure_description_line2",
-    "empty_line",
-    "non_profit_structure_description_line3",
-    "non_profit_structure_description_line4",
-    "empty_line",
-    "non_profit_structure_description_line5",
-  ],
-  community_first: ["community_first_description"],
-  member_accountability: ["member_accountability_description"],
-  improved_review_system: ["improved_review_system_description"],
-  better_host_matching: ["better_host_matching_description"],
-  built_it_right: ["built_it_right_description"],
-};
-
 const CouchersMission = () => {
   const { t } = useTranslation([LANDING, GLOBAL]);
   const { ref, inView } = useInView({ triggerOnce: true });
   const [selectedItem, setSelectedItem] = useState("non_profit_structure");
 
-  const missionBubble = (itemName: string, itemTitle: string) => {
+  const missionBubble = (itemName: string) => {
     return (
       <Grid
         item
@@ -88,7 +71,7 @@ const CouchersMission = () => {
       >
         <Box display="flex" flexDirection="column" width="100%">
           <Typography variant="h6" align="center" gutterBottom>
-            {t(itemTitle)}
+            {t(`${LANDING}:${itemName}_title`)}
           </Typography>
         </Box>
       </Grid>
@@ -96,38 +79,37 @@ const CouchersMission = () => {
   };
 
   const missionDescription = (selectedItem: string) => {
+    const localeKey = `${LANDING}:${selectedItem}_description`;
     return (
       <Box display="flex" flexDirection="column" width="100%">
         <Typography align="justify" variant="body2">
-          {(TranslationKeys[selectedItem] || []).map((element, index) => {
-            let content;
-            switch (element) {
-              case "empty_line":
-                content = <br />;
-                break;
-              case "non_profit_structure_description_line5":
-                content = (
-                  <Fragment>
-                    {t("non_profit_structure_description_line5")}
-                    <StyledLink href={missionRoute}>
-                      {t("read_here")}
-                    </StyledLink>
-                  </Fragment>
-                );
-                break;
-              default:
-                content = t(element);
-            }
-            return (
-              <Fragment key={index}>
-                {content}
-                {index < TranslationKeys[selectedItem].length - 1 && <br />}
-              </Fragment>
-            );
-          })}
+          {descriptionContent(localeKey)}
         </Typography>
       </Box>
     );
+  };
+
+  const descriptionContent = (localeKey: string) => {
+    switch (localeKey) {
+      case `${LANDING}:non_profit_structure_description`:
+        return (
+          <Trans i18nKey={localeKey}>
+            Couchers.org is built as a non-profit to keep our mission aligned
+            with our community - not investors. <br />
+            Unlike Couchsurfing™, which became a for-profit and compromised its
+            values, we're committed to staying community-first, forever. <br />
+            We've put strong legal, community, and technical safeguards in place
+            to prevent future sell-outs. Our open-source code, distributed
+            volunteer model, and non-profit legal structure ensure transparency
+            and long-term accountability. <br />
+            Founded by donations, not profit, Couchers.org is here to serve
+            travelers - not monetize them. Want to know more?
+            <StyledLink href={missionRoute}>Read here</StyledLink>
+          </Trans>
+        );
+      default:
+        return t(localeKey);
+    }
   };
 
   return (
@@ -150,24 +132,12 @@ const CouchersMission = () => {
               flexWrap: { xs: "wrap", md: "nowrap" },
             }}
           >
-            {missionBubble(
-              "non_profit_structure",
-              "non_profit_structure_title",
-            )}
-            {missionBubble("community_first", "community_first_title")}
-            {missionBubble(
-              "member_accountability",
-              "member_accountability_title",
-            )}
-            {missionBubble(
-              "improved_review_system",
-              "improved_review_system_title",
-            )}
-            {missionBubble(
-              "better_host_matching",
-              "better_host_matching_title",
-            )}
-            {missionBubble("built_it_right", "built_it_right_title")}
+            {missionBubble("non_profit_structure")}
+            {missionBubble("community_first")}
+            {missionBubble("member_accountability")}
+            {missionBubble("improved_review_system")}
+            {missionBubble("better_host_matching")}
+            {missionBubble("built_it_right")}
           </Grid>
         </Fade>
         <Fade key={selectedItem} timeout={1000} in={true}>

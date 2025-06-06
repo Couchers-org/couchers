@@ -1,43 +1,39 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useTranslation } from "i18n";
-import { useInView } from "react-intersection-observer";
+import { LANDING } from "i18n/namespaces";
 
 import CouchersMission from "./CouchersMission";
 
-jest.mock("i18n");
-jest.mock("react-intersection-observer");
+jest.mock("i18n", () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+  Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
+}));
+jest.mock("react-intersection-observer", () => ({
+  useInView: () => ({ ref: jest.fn(), inView: true }),
+}));
 
 const missions = [
-  "non_profit_structure",
-  "community_first",
-  "member_accountability",
-  "improved_review_system",
-  "better_host_matching",
-  "built_it_right",
+  `${LANDING}:non_profit_structure`,
+  `${LANDING}:community_first`,
+  `${LANDING}:member_accountability`,
+  `${LANDING}:improved_review_system`,
+  `${LANDING}:better_host_matching`,
+  `${LANDING}:built_it_right`,
 ];
 
 describe("CouchersMission", () => {
-  beforeEach(() => {
-    (useInView as jest.Mock).mockReturnValue({ ref: jest.fn(), inView: true });
-    (useTranslation as jest.Mock).mockReturnValue({
-      t: (key: string) => key,
-    });
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
   test.each(missions)(
     "renders the component correctly with bubble mission clicked: %s",
     async (mission) => {
       render(<CouchersMission />);
       const missionBubble = screen.getByText(`${mission}_title`);
       expect(missionBubble).toBeInTheDocument();
-      
+
       await userEvent.click(missionBubble);
-      expect(screen.getByText(new RegExp(`${mission}_description`))).toBeInTheDocument();
-    }
+      const missionDescription = screen.getByText(`${mission}_description`);
+      expect(missionDescription).toBeInTheDocument();
+    },
   );
 });
