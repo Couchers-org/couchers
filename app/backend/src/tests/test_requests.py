@@ -686,7 +686,7 @@ def test_get_updates(db):
         assert res.updates[3].message.WhichOneof(
             "content") == "chat_created"
         assert res.updates[3].status == conversations_pb2.HOST_REQUEST_STATUS_PENDING
-        assert res.updates[4].message.text.text == "Test message 4"
+        assert res.updates[4].message.text.text == TEST_HOST_REQUEST_LONG_TEXT
         res = api.GetHostRequestUpdates(requests_pb2.GetHostRequestUpdatesReq(
             newest_message_id=message_id_1, number=1))
         assert not res.no_more
