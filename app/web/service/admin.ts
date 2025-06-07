@@ -11,7 +11,9 @@ import client from "./client";
 
 export async function getUser(user: string): Promise<User.AsObject> {
   const req = new GetUserReq();
-  req.setUser(user || "");
+  if (user) {
+    req.setUser(user);
+  }
   return (await client.admin.getUser(req)).toObject();
 }
 
@@ -19,7 +21,9 @@ export async function getUserDetails(
   user: string,
 ): Promise<UserDetails.AsObject> {
   const req = new GetUserDetailsReq();
-  req.setUser(user || "");
+  if (user) {
+    req.setUser(user);
+  }
   return (await client.admin.getUserDetails(req)).toObject();
 }
 

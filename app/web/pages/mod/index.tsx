@@ -19,4 +19,4 @@ export default function ModPage() {
   return <ModPageComponent />;
 }
 
-ModPage.getLayout = appGetLayout();
+ModPage.getLayout = appGetLayout({ isModOnly: true });

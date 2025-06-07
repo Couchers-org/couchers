@@ -47,4 +47,4 @@ export default function UserPage() {
   return <UserPageComponent username={username} tab={parsedTab} />;
 }
 
-UserPage.getLayout = appGetLayout();
+UserPage.getLayout = appGetLayout({ isModOnly: true });
