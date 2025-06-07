@@ -41,7 +41,7 @@ def test_bugs(db):
                 "body": (
                     "Subject: subject\nDescription:\ndescription\n\nResults:\nresults\n\nBackend version: "
                     + config["VERSION"]
-                    + "\nFrontend version: frontend_version\nUser Agent: user_agent\nPage: page\nUser: <not logged in>"
+                    + "\nFrontend version: frontend_version\nUser Agent: user_agent\nScreen resolution: 1920x1080\nPage: page\nUser: <not logged in>"
                 ),
                 "labels": ["bug tool", "bug: triage needed"],
             }
@@ -66,6 +66,7 @@ def test_bugs(db):
                         results="results",
                         frontend_version="frontend_version",
                         user_agent="user_agent",
+                        screen_resolution=bugs_pb2.ScreenResolution(width=1920, height=1080),
                         page="page",
                     )
                 )
@@ -87,7 +88,7 @@ def test_bugs_with_user(db):
                 "body": (
                     "Subject: subject\nDescription:\ndescription\n\nResults:\nresults\n\nBackend version: "
                     + config["VERSION"]
-                    + "\nFrontend version: frontend_version\nUser Agent: user_agent\nPage: page\nUser: [@testing_user](http://localhost:3000/user/testing_user) (1)"
+                    + "\nFrontend version: frontend_version\nUser Agent: user_agent\nScreen resolution: 390x844\nPage: page\nUser: [@testing_user](http://localhost:3000/user/testing_user) (1)"
                 ),
                 "labels": ["bug tool", "bug: triage needed"],
             }
@@ -112,6 +113,7 @@ def test_bugs_with_user(db):
                         results="results",
                         frontend_version="frontend_version",
                         user_agent="user_agent",
+                        screen_resolution=bugs_pb2.ScreenResolution(width=390, height=844),
                         page="page",
                     )
                 )
