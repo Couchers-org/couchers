@@ -151,12 +151,13 @@
       "description": "Wir haben unsere Nutzunsbedingen geändert. Um Fortzufahren, lies und akzeptiere bitte die neuen <1></1>."
     },
     "location_section": {
-      "title": "Bitte füge deinen Wohnort hinzu",
+      "title": "Bitte aktualisiere deinen Wohnort",
       "submit_button": {
         "active_text": "Speichern",
         "inactive_text": "Danke!"
       },
-      "resubmit_button_text": "Erneut absenden"
+      "resubmit_button_text": "Erneut absenden",
+      "explanation": "Es scheint, dass deine Koordinaten nicht korrekt waren. Bitte aktualisiere deinen Ort, um fortzufahren."
     },
     "mod_note_section": {
       "title": "Du hast eine Nachricht von den Moderatoren erhalten",
@@ -281,5 +282,16 @@
   },
   "sign_up_resend_verification_email_help": "Du hast keine E-Mail erhalten? Klick <2>hier, um den Bestätigungslink erneut zu senden</2>.",
   "sign_up_resend_verification_done": "Erledigt! Wir haben dir eine weitere E-Mail gesendet.",
-  "sign_up_need_verification_title": "Fast geschafft, noch eine letzte Sache!"
+  "sign_up_need_verification_title": "Fast geschafft, noch eine letzte Sache!",
+  "profile_visibility": {
+    "title": "Profil-Sichtbarkeit",
+    "choose": "Wähle aus, welche Informationen für abgemeldete Nutzer sichtbar sind",
+    "visiblility_options": {
+      "nothing": "<1>Nichts</1>: verstecke mich vollständig",
+      "map_only": "<1>Nur Karte</1>: Zeige einen zufällig platzierten, anonymen Karten-Pin ohne weitere Informationen",
+      "limited": "<1>Limitiert</1>: zeige meinen Namen, Ort, Hosting-/Meetup-Status, Abzeichen, Anzahl der Referenzen und wie lange ich schon Coucher bin",
+      "full_profile": "<1>Volles Profil</1>: mein vollständiges Profil anzeigen (außer Referenzen)",
+      "most": "<1>Das Meiste</1>: Zeige den vollständigen Abschnitt „Über mich“ außer „Zusätzliche Informationen“"
+    }
+  }
 }
