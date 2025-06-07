@@ -366,39 +366,40 @@ def test_RespondHostRequests(db):
     user3, token3 = generate_user()
     today_plus_2 = (today() + timedelta(days=2)).isoformat()
     today_plus_3 = (today() + timedelta(days=3)).isoformat()
-    with requests_session(token1) as api:
-        request_id = api.CreateHostRequest(
+    with requests_session(token1) as api_surfer:
+        request_id = api_surfer.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=TEST_HOST_REQUEST_LONG_TEXT
             )
         ).host_request_id
-    with pytest.raises(grpc.RpcError) as e:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
-            )
-        )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
-    with requests_session(token1) as api:
+    with requests_session(token3) as api_random:
         with pytest.raises(grpc.RpcError) as e:
-            api.RespondHostRequest(
+            api_random.RespondHostRequest(
+                requests_pb2.RespondHostRequestReq(
+                    host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+    with requests_session(token1) as api_surfer:
+        with pytest.raises(grpc.RpcError) as e:
+            api_surfer.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
                     host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
         assert e.value.details() == errors.NOT_THE_HOST
-    with requests_session(token2) as api:
+    with requests_session(token2) as api_host:
         with pytest.raises(grpc.RpcError) as e:
-            api.RespondHostRequest(
+            api_host.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
                     host_request_id=9999, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         with pytest.raises(grpc.RpcError) as e:
-            api.RespondHostRequest(
+            api_host.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
                     host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
                 )
@@ -406,60 +407,60 @@ def test_RespondHostRequests(db):
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
         assert e.value.details() == errors.INVALID_HOST_REQUEST_STATUS
         with pytest.raises(grpc.RpcError) as e:
-            api.RespondHostRequest(
+            api_host.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
                     host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
         assert e.value.details() == errors.INVALID_HOST_REQUEST_STATUS
-        api.RespondHostRequest(
+        api_host.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=request_id,
                 status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
                 text="Test rejection message",
             )
         )
-        res = api.GetHostRequestMessages(
+        res = api_host.GetHostRequestMessages(
             requests_pb2.GetHostRequestMessagesReq(host_request_id=request_id))
         assert res.messages[0].text.text == "Test rejection message"
         assert res.messages[1].WhichOneof(
             "content") == "host_request_status_changed"
         assert res.messages[1].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED
-        api.RespondHostRequest(
+        api_host.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
             )
         )
-    with requests_session(token1) as api:
+    with requests_session(token1) as api_surfer:
         with pytest.raises(grpc.RpcError) as e:
-            api.RespondHostRequest(
+            api_surfer.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
                     host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_PENDING
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
         assert e.value.details() == errors.INVALID_HOST_REQUEST_STATUS
-        api.RespondHostRequest(
+        api_surfer.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
             )
         )
-        api.RespondHostRequest(
+        api_surfer.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
             )
         )
         with pytest.raises(grpc.RpcError) as e:
-            api.RespondHostRequest(
+            api_surfer.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
                     host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
         assert e.value.details() == errors.INVALID_HOST_REQUEST_STATUS
-    with requests_session(token1) as api:
-        res = api.GetHostRequestMessages(
+    with requests_session(token1) as api_surfer:
+        res = api_surfer.GetHostRequestMessages(
             requests_pb2.GetHostRequestMessagesReq(host_request_id=request_id))
         assert len(res.messages) == 7
         assert res.messages[0].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
@@ -477,7 +478,7 @@ def test_get_host_request_messages(db):
     with requests_session(token1) as api:
         res = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=TEST_HOST_REQUEST_LONG_TEXT
             )
         )
         conversation_id = res.host_request_id
@@ -529,7 +530,7 @@ def test_get_host_request_messages(db):
         assert res.messages[1].text.text == "Test request 1 message 3"
         assert res.messages[2].text.text == "Test request 1 message 2"
         assert res.messages[3].text.text == "Test request 1 message 1"
-        assert res.messages[4].text.text == "Test request 1"
+        assert res.messages[4].text.text == TEST_HOST_REQUEST_LONG_TEXT
         assert res.messages[5].WhichOneof("content") == "chat_created"
 
 
@@ -542,7 +543,7 @@ def test_SendHostRequestMessage(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=TEST_HOST_REQUEST_LONG_TEXT
             )
         ).host_request_id
         with pytest.raises(grpc.RpcError) as e:
@@ -619,8 +620,8 @@ def test_SendHostRequestMessage(db):
                 requests_pb2.SendHostRequestMessageReq(
                     host_request_id=host_request_id, text="Test message 3")
             )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == errors.HOST_REQUEST_CLOSED
+            assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+            assert e.value.details() == errors.HOST_REQUEST_CLOSED
 
 
 def test_get_updates(db):
@@ -632,7 +633,7 @@ def test_get_updates(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 0"
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=TEST_HOST_REQUEST_LONG_TEXT
             )
         ).host_request_id
         api.SendHostRequestMessage(
@@ -652,7 +653,7 @@ def test_get_updates(db):
         )
         api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 4"
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=TEST_HOST_REQUEST_LONG_TEXT
             )
         )
         res = api.GetHostRequestMessages(
@@ -662,7 +663,7 @@ def test_get_updates(db):
         assert res.messages[1].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
         assert res.messages[2].text.text == "Test message 2"
         assert res.messages[3].text.text == "Test message 1"
-        assert res.messages[4].text.text == "Test message 0"
+        assert res.messages[4].text.text == TEST_HOST_REQUEST_LONG_TEXT
         message_id_3 = res.messages[0].message_id
         message_id_cancel = res.messages[1].message_id
         message_id_2 = res.messages[2].message_id
@@ -707,12 +708,12 @@ def test_mark_last_seen(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 0"
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=TEST_HOST_REQUEST_LONG_TEXT
             )
         ).host_request_id
         host_request_id_2 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 0a"
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=TEST_HOST_REQUEST_LONG_TEXT
             )
         ).host_request_id
         api.SendHostRequestMessage(
@@ -754,11 +755,11 @@ def test_mark_last_seen(db):
                 requests_pb2.MarkLastSeenHostRequestReq(
                     host_request_id=host_request_id, last_seen_message_id=1)
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_UNSEE_MESSAGES
+            assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+            assert e.value.details() == errors.CANT_UNSEE_MESSAGES
         host_request_id_3 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user1.id, from_date=today_plus_2, to_date=today_plus_3, text="Another test request"
+                host_user_id=user1.id, from_date=today_plus_2, to_date=today_plus_3, text=TEST_HOST_REQUEST_LONG_TEXT
             )
         ).host_request_id
         api.SendHostRequestMessage(
@@ -801,7 +802,7 @@ def test_response_rate(db):
         assert res.HasField("insufficient_data")
         host_request_1 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=TEST_HOST_REQUEST_LONG_TEXT
             )
         ).host_request_id
         with session_scope() as session:
@@ -816,7 +817,7 @@ def test_response_rate(db):
         assert res.HasField("insufficient_data")
         host_request_2 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=TEST_HOST_REQUEST_LONG_TEXT
             )
         ).host_request_id
         with session_scope() as session:
@@ -831,7 +832,7 @@ def test_response_rate(db):
         assert res.HasField("insufficient_data")
         host_request_3 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=TEST_HOST_REQUEST_LONG_TEXT
             )
         ).host_request_id
         with session_scope() as session:
@@ -893,7 +894,7 @@ def test_response_rate(db):
         assert res.almost_all.response_time_p66.ToTimedelta() == timedelta(hours=35)
         host_request_4 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=TEST_HOST_REQUEST_LONG_TEXT
             )
         ).host_request_id
         with session_scope() as session:
@@ -905,7 +906,7 @@ def test_response_rate(db):
             refresh_materialized_view(session, "user_response_rates")
         host_request_5 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=TEST_HOST_REQUEST_LONG_TEXT
             )
         ).host_request_id
         with session_scope() as session:
@@ -965,7 +966,7 @@ def test_request_notifications(db, push_collector):
                     host_user_id=host.id,
                     from_date=today_plus_2,
                     to_date=today_plus_3,
-                    text="can i stay plz",
+                    text=TEST_HOST_REQUEST_LONG_TEXT,
                 )
             ).host_request_id
     mock.assert_called_once()
