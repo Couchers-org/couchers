@@ -11,8 +11,8 @@ export async function reportBug({
   const req = new ReportBugReq();
 
   const screenResolution = new ScreenResolution();
-  screenResolution.setWidth(window.screen.width);
-  screenResolution.setHeight(window.screen.height);
+  screenResolution.setWidth(window.innerWidth);
+  screenResolution.setHeight(window.innerHeight);
 
   req.setSubject(subject);
   req.setDescription(description);
