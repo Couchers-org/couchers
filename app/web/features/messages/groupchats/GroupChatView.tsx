@@ -158,7 +158,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
   );
 
   const title = groupChat
-    ? groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId)
+    ? groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId, t)
     : undefined;
 
   const hasError = groupChatError || messagesError || sendMutation.error;

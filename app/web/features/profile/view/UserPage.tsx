@@ -3,21 +3,15 @@ import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Snackbar from "components/Snackbar";
-import NotFoundPage from "features/NotFoundPage";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import NewHostRequest from "features/profile/view/NewHostRequest";
 import Overview from "features/profile/view/Overview";
-import { blockedUsersKey } from "features/queryKeys";
 import useUserByUsername from "features/userQueries/useUserByUsername";
-import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { GetBlockedUsersRes } from "proto/blocking_pb";
 import { useLayoutEffect, useState } from "react";
-import { useQuery } from "react-query";
 import { routeToUser, UserTab } from "routes";
-import { service } from "service";
 
 import UserCard from "./UserCard";
 
@@ -51,15 +45,6 @@ export default function UserPage({
   const { t } = useTranslation(PROFILE);
   const router = useRouter();
 
-  const { data, isLoading: blockedUsersIsLoading } = useQuery<
-    GetBlockedUsersRes.AsObject,
-    RpcError
-  >(blockedUsersKey, service.blocking.getBlockedUsers);
-
-  const isBlocked = data?.blockedUsersList.some(
-    (blockedUser) => blockedUser.username === username,
-  );
-
   const { data: user, isLoading, error } = useUserByUsername(username, true);
 
   const [isRequesting, setIsRequesting] = useState(false);
@@ -72,10 +57,6 @@ export default function UserPage({
     }
   }, [isRequesting]);
 
-  if (isBlocked) {
-    return <NotFoundPage />;
-  }
-
   return (
     <>
       <HtmlMeta title={user?.name} />
@@ -83,7 +64,7 @@ export default function UserPage({
         <Snackbar severity="success">{t("request_form.success")}</Snackbar>
       )}
       {error && <Alert severity="error">{error}</Alert>}
-      {isLoading || blockedUsersIsLoading ? (
+      {isLoading ? (
         <CenteredSpinner />
       ) : user ? (
         <ProfileUserProvider user={user}>

@@ -1,4 +1,4 @@
-import { blockedUsersKey, friendIdsKey } from "features/queryKeys";
+import { blockedUsersKey, friendIdsKey, userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import Sentry from "platform/sentry";
@@ -109,6 +109,11 @@ const useBlockUser = () => {
         queryClient.setQueryData(friendIdsKey, updatedFriendIds);
 
         return { previousBlockedUsers: currentBlockedUsers };
+      },
+      onSuccess: (_res, { userId }) => {
+        if (userId) {
+          queryClient.removeQueries(userKey(userId));
+        }
       },
       onError: (
         err,

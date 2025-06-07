@@ -149,5 +149,6 @@
     "title_for_surfer": "Request to {{user}} - {{status}}",
     "request_duration": "{{count}} night",
     "request_duration_plural": "{{count}} nights"
-  }
+  },
+  "unknown_user": "Unknown user"
 }
