@@ -6,7 +6,7 @@ import About from "features/profile/view/About";
 import Home from "features/profile/view/Home";
 import References from "features/profile/view/References";
 import { useTranslation } from "i18n";
-import { PROFILE } from "i18n/namespaces";
+import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { TFunction } from "i18next";
 import { User } from "proto/api_pb";
 import { ReactNode } from "react";
@@ -27,6 +27,7 @@ export const sectionLabels = (t: TFunction, user?: User.AsObject) => ({
       <StyledNumReferences>{user?.numReferences}</StyledNumReferences>
     </Box>
   ),
+  mod: t("global:mod"),
 });
 
 const StyledDetailsCard = styled(Card)(({ theme }) => ({
@@ -56,12 +57,14 @@ export default function UserCard({
   top,
   onTabChange,
   tab,
+  modPanel,
 }: {
   top?: ReactNode;
   onTabChange: (tab: UserTab) => void;
   tab: UserTab;
+  modPanel?: ReactNode;
 }) {
-  const { t } = useTranslation([PROFILE]);
+  const { t } = useTranslation([PROFILE, GLOBAL]);
   const user = useProfileUser();
 
   return (
@@ -76,6 +79,7 @@ export default function UserCard({
         <TabPanel value="about" sx={{ padding: 0 }}>
           <About user={user} />
         </TabPanel>
+        {modPanel}
         <TabPanel value="home">
           <Home user={user}></Home>
         </TabPanel>

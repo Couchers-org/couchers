@@ -17,7 +17,7 @@ import UserCard from "./UserCard";
 
 const REQUEST_ID = "request";
 
-const StyledProfileRoot = styled("div")(({ theme }) => ({
+export const StyledProfileRoot = styled("div")(({ theme }) => ({
   padding: theme.spacing(1),
   [theme.breakpoints.up("sm")]: {
     display: "grid",

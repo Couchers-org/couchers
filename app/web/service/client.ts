@@ -1,5 +1,6 @@
 import { Request, RpcError, StatusCode } from "grpc-web";
 import { AccountPromiseClient } from "proto/account_grpc_web_pb";
+import { AdminPromiseClient } from "proto/admin_grpc_web_pb";
 import { APIPromiseClient } from "proto/api_grpc_web_pb";
 import { AuthPromiseClient } from "proto/auth_grpc_web_pb";
 import { BugsPromiseClient } from "proto/bugs_grpc_web_pb";
@@ -79,6 +80,7 @@ const opts = {
 
 const client = {
   account: new AccountPromiseClient(URL, null, opts),
+  admin: new AdminPromiseClient(URL, null, opts),
   api: new APIPromiseClient(URL, null, opts),
   auth: new AuthPromiseClient(URL, null, opts),
   bugs: new BugsPromiseClient(URL, null, opts),
@@ -105,6 +107,7 @@ if (!IS_PROD && typeof window !== "undefined") {
 
   grpcWebTools([
     client.account,
+    client.admin,
     client.api,
     client.auth,
     client.bugs,

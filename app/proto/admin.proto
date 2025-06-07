@@ -103,7 +103,7 @@ message UserDetails {
   string admin_note = 13;
 
   int64 pending_mod_notes_count = 16;
-  int64 acknowledged_mod_notes_count =17;
+  int64 acknowledged_mod_notes_count = 17;
 }
 
 message GetUserDetailsReq {
