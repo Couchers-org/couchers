@@ -19,7 +19,7 @@ const CenteredContainer = styled("div")(({ theme }) => ({
   width: "100%",
 
   boxShadow: "0px 4px 6px -1px rgba(0,0,0,0.2)", // bottom shadow only
-  zIndex: theme.zIndex.drawer + 1,
+  zIndex: 1,
 }));
 
 const SearchTypeRadioGroup = ({
