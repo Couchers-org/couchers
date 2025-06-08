@@ -104,6 +104,10 @@ export default function AppRoute({
 
     const couchersPreferredLanguage = getLangCookie();
 
+    console.log("COUCHERS PREFERRED LANGUAGE", couchersPreferredLanguage);
+    console.log("ALL COOKIES", document.cookie);
+    console.log("CURRENT LOCALE", locale);
+
     if (
       couchersPreferredLanguage &&
       !redirected &&
