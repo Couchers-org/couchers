@@ -18,7 +18,12 @@ from couchers.models import (
 from couchers.notifications.push import get_vapid_public_key, push_to_subscription, push_to_user
 from couchers.notifications.push_api import decode_key
 from couchers.notifications.render import render_notification
-from couchers.notifications.settings import PreferenceNotUserEditableError, get_user_setting_groups, set_preference
+from couchers.notifications.settings import (
+    PreferenceNotUserEditableError,
+    get_topic_actions_by_delivery_type,
+    get_user_setting_groups,
+    set_preference,
+)
 from couchers.notifications.utils import enum_from_topic_action
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime
@@ -85,6 +90,11 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
                 .where(Notification.user_id == context.user_id)
                 .where(Notification.id <= next_notification_id)
                 .where(or_(request.only_unread == False, Notification.is_seen == False))
+                .where(
+                    Notification.topic_action.in_(
+                        get_topic_actions_by_delivery_type(session, user.id, NotificationDeliveryType.push)
+                    )
+                )
                 .order_by(Notification.id.desc())
                 .limit(page_size + 1)
             )

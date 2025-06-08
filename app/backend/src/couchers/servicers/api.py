@@ -3,8 +3,7 @@ from urllib.parse import urlencode
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, delete, func, intersect, or_, union
+from sqlalchemy.sql import and_, delete, distinct, func, intersect, or_, union
 
 from couchers import errors, urls
 from couchers.config import config
@@ -22,6 +21,7 @@ from couchers.models import (
     MeetupStatus,
     Message,
     Notification,
+    NotificationDeliveryType,
     ParkingDetails,
     Reference,
     RegionLived,
@@ -32,6 +32,7 @@ from couchers.models import (
     UserBadge,
 )
 from couchers.notifications.notify import notify
+from couchers.notifications.settings import get_topic_actions_by_delivery_type
 from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
 from couchers.servicers.account import get_strong_verification_fields
 from couchers.sql import couchers_select as select
@@ -143,34 +144,40 @@ class API(api_pb2_grpc.APIServicer):
         # auth ought to make sure the user exists
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
-        # gets only the max message by self-joining messages which have a greater id
-        # if it doesn't have a greater id, it's the biggest
-        message_2 = aliased(Message)
-        unseen_sent_host_request_count = session.execute(
-            select(func.count())
-            .select_from(Message)
-            .join(HostRequest, Message.conversation_id == HostRequest.conversation_id)
-            .outerjoin(message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id))
+        sent_reqs_last_seen_message_ids = (
+            select(HostRequest.conversation_id, HostRequest.surfer_last_seen_message_id)
             .where(HostRequest.surfer_user_id == context.user_id)
             .where_users_column_visible(context, HostRequest.host_user_id)
-            .where(message_2.id == None)
-            .where(HostRequest.surfer_last_seen_message_id < Message.id)
+        ).subquery()
+
+        unseen_sent_host_request_count = session.execute(
+            select(func.count(distinct(sent_reqs_last_seen_message_ids.c.conversation_id)))
+            .join(
+                Message,
+                Message.conversation_id == sent_reqs_last_seen_message_ids.c.conversation_id,
+            )
+            .where(sent_reqs_last_seen_message_ids.c.surfer_last_seen_message_id < Message.id)
+            .where(Message.id != None)
         ).scalar_one()
 
-        unseen_received_host_request_count = session.execute(
-            select(func.count())
-            .select_from(Message)
-            .join(HostRequest, Message.conversation_id == HostRequest.conversation_id)
-            .outerjoin(message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id))
-            .where_users_column_visible(context, HostRequest.surfer_user_id)
+        received_reqs_last_seen_message_ids = (
+            select(HostRequest.conversation_id, HostRequest.host_last_seen_message_id)
             .where(HostRequest.host_user_id == context.user_id)
-            .where(message_2.id == None)
-            .where(HostRequest.host_last_seen_message_id < Message.id)
+            .where_users_column_visible(context, HostRequest.surfer_user_id)
+        ).subquery()
+
+        unseen_received_host_request_count = session.execute(
+            select(func.count(distinct(received_reqs_last_seen_message_ids.c.conversation_id)))
+            .join(
+                Message,
+                Message.conversation_id == received_reqs_last_seen_message_ids.c.conversation_id,
+            )
+            .where(received_reqs_last_seen_message_ids.c.host_last_seen_message_id < Message.id)
+            .where(Message.id != None)
         ).scalar_one()
 
         unseen_message_count = session.execute(
-            select(func.count())
-            .select_from(Message)
+            select(func.count(Message.id))
             .outerjoin(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
             .where(GroupChatSubscription.user_id == context.user_id)
             .where(Message.time >= GroupChatSubscription.joined)
@@ -179,17 +186,22 @@ class API(api_pb2_grpc.APIServicer):
         ).scalar_one()
 
         pending_friend_request_count = session.execute(
-            select(func.count())
-            .select_from(FriendRelationship)
+            select(func.count(FriendRelationship.id))
             .where(FriendRelationship.to_user_id == context.user_id)
             .where_users_column_visible(context, FriendRelationship.from_user_id)
             .where(FriendRelationship.status == FriendStatus.pending)
         ).scalar_one()
 
         unseen_notification_count = session.execute(
-            select(func.count(Notification.id))
+            select(func.count())
+            .select_from(Notification)
             .where(Notification.user_id == context.user_id)
             .where(Notification.is_seen == False)
+            .where(
+                Notification.topic_action.in_(
+                    get_topic_actions_by_delivery_type(session, user.id, NotificationDeliveryType.push)
+                )
+            )
         ).scalar_one()
 
         return api_pb2.PingRes(
@@ -279,6 +291,7 @@ class API(api_pb2_grpc.APIServicer):
             if request.lat.value == 0 and request.lng.value == 0:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
             user.geom = create_coordinate(request.lat.value, request.lng.value)
+            user.randomized_geom = None
 
         if request.HasField("radius"):
             user.geom_radius = request.radius.value
@@ -547,8 +560,14 @@ class API(api_pb2_grpc.APIServicer):
             .where_users_column_visible(context, FriendRelationship.to_user_id)
             .where(
                 or_(
-                    FriendRelationship.from_user_id == request.user_id,
-                    FriendRelationship.to_user_id == request.user_id,
+                    and_(
+                        FriendRelationship.from_user_id == request.user_id,
+                        FriendRelationship.to_user_id == context.user_id,
+                    ),
+                    and_(
+                        FriendRelationship.from_user_id == context.user_id,
+                        FriendRelationship.to_user_id == request.user_id,
+                    ),
                 )
             )
             .where(FriendRelationship.status == FriendStatus.accepted)
@@ -857,17 +876,23 @@ def response_rate_to_pb(response_rates):
         }
 
 
+def get_num_references(session, user_ids):
+    return dict(
+        session.execute(
+            select(Reference.to_user_id, func.count(Reference.id))
+            .where(Reference.to_user_id.in_(user_ids))
+            .where(Reference.is_deleted == False)
+            .join(User, User.id == Reference.from_user_id)
+            .where(User.is_visible)
+            .group_by(Reference.to_user_id)
+        ).all()
+    )
+
+
 def user_model_to_pb(db_user, session, context):
     # note that this function should work also for banned/deleted users as it's called from Admin.GetUser
     # note that this function is sometimes called by a logged out user, in which case context comes from make_logged_out_context
-    num_references = session.execute(
-        select(func.count())
-        .select_from(Reference)
-        .join(User, User.id == Reference.from_user_id)
-        .where(User.is_visible)
-        .where(Reference.to_user_id == db_user.id)
-        .where(Reference.is_deleted == False)
-    ).scalar_one()
+    num_references = get_num_references(session, [db_user.id]).get(db_user.id, 0)
 
     # returns (lat, lng)
     # we put people without coords on null island
@@ -971,7 +996,9 @@ def user_model_to_pb(db_user, session, context):
         parking_details=parkingdetails2api[db_user.parking_details],
         avatar_url=db_user.avatar.full_url if db_user.avatar else None,
         avatar_thumbnail_url=db_user.avatar.thumbnail_url if db_user.avatar else None,
-        badges=[badge.badge_id for badge in db_user.badges],
+        badges=session.execute(select(UserBadge.badge_id).where(UserBadge.user_id == db_user.id).order_by(UserBadge.id))
+        .scalars()
+        .all(),
         **get_strong_verification_fields(session, db_user),
         **response_rate_to_pb(response_rates),
     )

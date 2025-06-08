@@ -10,6 +10,7 @@ import Section from "features/auth/section/Section";
 import Timezone from "features/auth/timezone/Timezone";
 import Username from "features/auth/username/Username";
 import NotificationSettings from "features/notifications/NotificationSettings";
+import PushNotificationSettings from "features/notifications/PushNotificationSettings";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 
@@ -50,8 +51,11 @@ export default function Settings() {
       ) : accountInfo ? (
         <>
           <TopMarginWrapper>
-            <NotificationSettings />
+            <PushNotificationSettings />
           </TopMarginWrapper>
+          <MarginWrapper>
+            <NotificationSettings />
+          </MarginWrapper>
           <MarginWrapper>
             <StrongVerification accountInfo={accountInfo!} />
           </MarginWrapper>

@@ -15,7 +15,6 @@ import { useRouter } from "next/router";
 import { Notification } from "proto/notifications_pb";
 import { useState } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
-import { markNotificationSeen } from "service/notifications";
 import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import { timeAgoI18n } from "utils/timeAgo";
@@ -25,7 +24,10 @@ import { mapNotificationFeedTypeToIcon } from "../utils/constants";
 interface NotificationItemProps {
   notification: Notification.AsObject;
   onClose: () => void;
-  onTouchedNotificationChange: () => void;
+  onMarkIsSeen: (args: {
+    notificationId: Notification.AsObject["notificationId"];
+    isSeen: boolean;
+  }) => void;
 }
 
 const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
@@ -70,7 +72,7 @@ const BottomRightIconWrapper = styled(Box)(({ theme }) => ({
 const NotificationItem = ({
   notification,
   onClose,
-  onTouchedNotificationChange,
+  onMarkIsSeen,
 }: NotificationItemProps) => {
   const { t } = useTranslation([GLOBAL]);
   const router = useRouter();
@@ -83,8 +85,11 @@ const NotificationItem = ({
 
   const userName = notification.title.split(" ")[0];
 
-  const handleMenuItemClick = async () => {
-    await markNotificationSeen(notification.notificationId);
+  const handleMenuItemClick = () => {
+    onMarkIsSeen({
+      notificationId: notification.notificationId,
+      isSeen: true,
+    });
     router.push(notification.url);
     onClose();
   };
@@ -103,13 +108,13 @@ const NotificationItem = ({
     setMarkUnseedMenuAnchorEl(null);
   };
 
-  const handleMarkItemUnread = async (
-    event: React.MouseEvent<HTMLLIElement>,
-  ) => {
+  const handleMarkItemUnread = (event: React.MouseEvent<HTMLLIElement>) => {
     event.stopPropagation();
     setMarkUnseedMenuAnchorEl(null);
-    await markNotificationSeen(notification.notificationId, false);
-    onTouchedNotificationChange();
+    onMarkIsSeen({
+      notificationId: notification.notificationId,
+      isSeen: false,
+    });
   };
 
   return (

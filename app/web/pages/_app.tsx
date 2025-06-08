@@ -1,5 +1,4 @@
 import "intersection-observer";
-import "fonts";
 
 import {
   CssBaseline,
