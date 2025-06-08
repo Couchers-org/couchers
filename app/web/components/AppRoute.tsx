@@ -72,7 +72,7 @@ export default function AppRoute({
   variant = "standard",
 }: AppRouteProps) {
   const router = useRouter();
-  const { pathname, query } = router;
+  const { pathname } = router;
   const { authState, authActions } = useAuthContext();
   const isAuthenticated = authState.authenticated;
   const isJailed = authState.jailed;
@@ -93,23 +93,6 @@ export default function AppRoute({
       router.push(jailRoute);
     }
   }, [isAuthenticated, isJailed, isPrivate, authActions, router, pathname]);
-
-  useEffect(() => {
-    if (query["lang-changed"]) {
-      // Create a new query object without 'lang-changed'
-      const { ["lang-changed"]: _, ...cleanQuery } = query;
-
-      // Replace the URL without the 'lang-changed' query param
-      router.replace(
-        {
-          pathname,
-          query: cleanQuery,
-        },
-        undefined,
-        { shallow: true },
-      );
-    }
-  }, [query, pathname, router]);
 
   return (
     <ErrorBoundary>

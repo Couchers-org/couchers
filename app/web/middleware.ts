@@ -10,37 +10,19 @@ export function middleware(
 ) {
   const { pathname, locale } = req.nextUrl;
 
-  // Cookies are undefined on localhost - needs to be https to work
   const couchersSesh = req.cookies.get("couchers-sesh")?.value;
   const nextLocale = req.cookies.get("NEXT_LOCALE")?.value || "en";
   const langChanged = req.nextUrl.searchParams.has("lang-changed");
 
-  const isApiRoute = pathname.startsWith("/api");
-  const isStaticAsset = pathname.startsWith("/_next");
-
-  console.log("NEXT_LOCALE:", nextLocale);
-  console.log(
-    "LOCALE:",
-    locale,
-    "nextLocale !== locale",
-    nextLocale !== locale,
-  );
-  console.log("LANG CHANGED:", langChanged);
-  // 1. Skip redirect if user just changed locale via picker
-  if (langChanged) {
+  // --- 1. User just changed language manually -> honor cookie and redirect ---
+  if (langChanged && nextLocale !== locale) {
     const url = req.nextUrl.clone();
+    url.locale = nextLocale;
     url.searchParams.delete("lang-changed");
     return NextResponse.redirect(url);
   }
 
-  // 2. Redirect to preferred locale if it differs from the current URL
-  if (nextLocale && nextLocale !== locale && !isApiRoute && !isStaticAsset) {
-    const url = req.nextUrl.clone();
-    url.locale = nextLocale;
-    return NextResponse.redirect(url);
-  }
-
-  // 3. Redirect / to /dashboard if logged in
+  // --- 2. Redirect / to /dashboard if logged in ---
   if (couchersSesh && pathname === "/") {
     const url = req.nextUrl.clone();
     url.pathname = "/dashboard";
@@ -52,5 +34,5 @@ export function middleware(
 
 // Add matcher to apply the middleware to the root path
 export const config = {
-  matcher: ["/", "/dashboard"], // Only apply to these paths
+  matcher: ["/"], // Only apply to these paths
 };
