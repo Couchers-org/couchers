@@ -97,16 +97,12 @@ export default function AppRoute({
   }, [isAuthenticated, isJailed, isPrivate, authActions, router, pathname]);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || !isMounted) return;
 
     // Only run this redirect once
     let redirected = false;
 
     const couchersPreferredLanguage = getLangCookie();
-
-    console.log("COUCHERS PREFERRED LANGUAGE", couchersPreferredLanguage);
-    console.log("ALL COOKIES", document.cookie);
-    console.log("CURRENT LOCALE", locale);
 
     if (
       couchersPreferredLanguage &&
@@ -124,7 +120,7 @@ export default function AppRoute({
         { locale: couchersPreferredLanguage },
       );
     }
-  }, [asPath, isAuthenticated, locale, pathname, query, router]);
+  }, [asPath, isAuthenticated, isMounted, locale, pathname, query, router]);
 
   return (
     <ErrorBoundary>
