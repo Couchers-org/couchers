@@ -23,6 +23,7 @@ export default function AdminPanelUserButton({
         aria-label={t("view_in_admin_console")}
         onClick={() => router.push(adminPanelUserLink(username))}
         color="primary"
+        size="large"
       >
         <SettingsIcon />
       </IconButton>

@@ -44,6 +44,7 @@ export const loginsSettingsRoute = `${settingsRoute}/logins`;
 // profile
 export const userTabs = [
   "about",
+  "mod",
   "home",
   "references",
   "favorites",
@@ -179,6 +180,11 @@ export const routeToBadge = (id: string) => `${badgesRoute}/${id}`;
 export const strongVerificationURL = `${process.env.NEXT_PUBLIC_CONSOLE_BASE_URL}/strong-verification`;
 export function adminPanelUserLink(username: string) {
   return `${process.env.NEXT_PUBLIC_CONSOLE_BASE_URL}/admin/user/${username}`;
+}
+
+//mod
+export function routeToModUser(username: string, tab?: UserTab) {
+  return `/mod/user/${username}${tab ? `/${tab}` : ""}`;
 }
 
 export const howToRespondRequestGuideUrl =
