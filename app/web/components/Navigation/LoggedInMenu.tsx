@@ -87,11 +87,7 @@ export default function LoggedInMenu({
 
   return (
     <>
-      <LanguagePickerSelect
-        defaultValue=""
-        value=""
-        onSelect={() => console.log("selected")}
-      />
+      <LanguagePickerSelect />
       <ReportButtonContainer>
         <ReportButton />
       </ReportButtonContainer>

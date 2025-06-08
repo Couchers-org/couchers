@@ -1,49 +1,50 @@
-import { NextRequest, NextResponse } from "next/server";
 import { allLanguages } from "i18n/allLanguages";
+import { NextRequest, NextResponse } from "next/server";
 
 interface CustomRequestCookies {
   "couchers-sesh"?: string;
-  // add couchers-preferred-language?
   "couchers-preferred-language"?: string;
 }
 
 export function middleware(
   req: NextRequest & { cookies: CustomRequestCookies },
 ) {
-  // session
-  const seshCookie = req.cookies.get("couchers-sesh")?.value;
+  // Cookies are undefined on localhost - needs to be https to work
+  const couchersSesh = req.cookies.get("couchers-sesh")?.value;
+  const couchersPreferredLanguage = req.cookies.get(
+    "couchers-preferred-language",
+  )?.value;
+  const currentLocale = req.nextUrl.locale;
 
-  // language preference
-  const langCookie =
-    req.cookies.get("couchers-preferred-language")?.value || "en"; // default to English if not specified
-  const locale = allLanguages.includes(langCookie) ? langCookie : "en"; // default ot English if language code not supported?
-  const pathname = req.nextUrl.pathname;
-
-  // Redirect to dashboard (and set language) if user is logged in and visits the root path
-  // if (req.cookies.get("couchers-sesh")?.value && req.nextUrl.pathname === "/") {
-  //   const url = req.nextUrl.clone();
-  //   url.pathname = "/dashboard";
-  //   return NextResponse.rewrite(url);
-  // }
-
+  // Only run logic if user is logged in and has a preferred language cookie
   if (
-    req.cookies.get("couchers-sesh")?.value &&
-    req.cookies.get("couchers-preferred-language")?.value
+    couchersSesh &&
+    couchersPreferredLanguage &&
+    couchersPreferredLanguage !== currentLocale
   ) {
-    // if user is logged in, check for language pref
-    // Skip if already has a locale prefix (e.g., /de, /en)
-    const pathnameIsMissingLocale = allLanguages.every(
-      (lang) => !pathname.startsWith(`/${lang}`),
-    );
+    // Check if the preferred language is valid
+    if (!allLanguages.includes(couchersPreferredLanguage)) {
+      console.error(
+        `Invalid preferred language cookie: ${couchersPreferredLanguage}. `,
+      );
 
-    // construct a url so the locale(?) matches the language preference
-    if (pathnameIsMissingLocale) {
-      const newUrl = req.nextUrl.clone();
-      newUrl.pathname = `/${locale}${pathname}`; // manually insert the locale
-      return NextResponse.rewrite(newUrl);
+      return NextResponse.next();
     }
-    return NextResponse.next();
+
+    const url = req.nextUrl.clone();
+    url.locale = couchersPreferredLanguage;
+
+    return NextResponse.redirect(url);
   }
+
+  // Example: redirect / to /dashboard if logged in
+  if (couchersSesh && req.nextUrl.pathname === "/") {
+    const url = req.nextUrl.clone();
+    url.pathname = "/dashboard";
+    return NextResponse.rewrite(url);
+  }
+
+  return NextResponse.next();
 }
 
 // Add matcher to apply the middleware to the root path
