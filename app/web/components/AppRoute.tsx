@@ -5,6 +5,8 @@ import CookieBanner from "components/CookieBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import Footer from "components/Footer";
 import { useAuthContext } from "features/auth/AuthProvider";
+import { allLanguages } from "i18n/allLanguages";
+import { getLangCookie } from "i18n/getLangCookie";
 import { useRouter } from "next/router";
 import { useIsNativeEmbed } from "platform/nativeLink";
 import { ReactNode, useEffect, useState } from "react";
@@ -72,6 +74,7 @@ export default function AppRoute({
   variant = "standard",
 }: AppRouteProps) {
   const router = useRouter();
+  const { asPath, locale, pathname, query } = router;
   const { authState, authActions } = useAuthContext();
   const isAuthenticated = authState.authenticated;
   const isJailed = authState.jailed;
@@ -88,15 +91,36 @@ export default function AppRoute({
       authActions.authError("Please log in.");
       router.push({ pathname: loginRoute, query: { from: location.pathname } });
     }
-    if (
-      isAuthenticated &&
-      isJailed &&
-      isPrivate &&
-      router.pathname !== jailRoute
-    ) {
+    if (isAuthenticated && isJailed && isPrivate && pathname !== jailRoute) {
       router.push(jailRoute);
     }
-  }, [isAuthenticated, isJailed, isPrivate, authActions, router]);
+  }, [isAuthenticated, isJailed, isPrivate, authActions, router, pathname]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    // Only run this redirect once
+    let redirected = false;
+
+    const couchersPreferredLanguage = getLangCookie();
+
+    if (
+      couchersPreferredLanguage &&
+      !redirected &&
+      couchersPreferredLanguage !== locale &&
+      allLanguages.includes(couchersPreferredLanguage)
+    ) {
+      redirected = true;
+      router.push(
+        {
+          pathname,
+          query,
+        },
+        asPath,
+        { locale: couchersPreferredLanguage },
+      );
+    }
+  }, [asPath, isAuthenticated, locale, pathname, query, router]);
 
   return (
     <ErrorBoundary>
