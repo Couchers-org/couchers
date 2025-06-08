@@ -133,19 +133,23 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
             reply = session.execute(select(Reply).where(Reply.id == database_id)).scalar_one()
             # the comment we're replying to
             parent_comment = session.execute(select(Comment).where(Comment.id == reply.comment_id)).scalar_one()
+            context = make_user_context(user_id=reply.author_user_id)
             thread_replies_author_user_ids = (
-                session.execute(select(Reply.author_user_id).where(Reply.comment_id == parent_comment.id))
+                session.execute(
+                    select(Reply.author_user_id)
+                    .where_users_column_visible(context, Reply.author_user_id)
+                    .where(Reply.comment_id == parent_comment.id)
+                )
                 .scalars()
                 .all()
             )
-            thread_user_ids = set(thread_replies_author_user_ids) | {parent_comment.author_user_id}
+            thread_user_ids = set(thread_replies_author_user_ids)
+            if not are_blocked(session, parent_comment.author_user_id, reply.author_user_id):
+                thread_user_ids.add(parent_comment.author_user_id)
 
             author_user = session.execute(select(User).where(User.id == reply.author_user_id)).scalar_one()
 
             user_ids_to_notify = set(thread_user_ids) - {reply.author_user_id}
-            user_ids_to_notify = {
-                user_id for user_id in user_ids_to_notify if not are_blocked(session, user_id, reply.author_user_id)
-            }
 
             reply = threads_pb2.Reply(
                 thread_id=payload.thread_id,
