@@ -9,6 +9,13 @@ interface CustomRequestCookies {
 export function middleware(
   req: NextRequest & { cookies: CustomRequestCookies },
 ) {
+  //getAll cookies
+  console.log(
+    "Middleware running fo route:",
+    req.nextUrl.pathname,
+    "COOKIES:",
+    req.cookies.getAll(),
+  );
   // Cookies are undefined on localhost - needs to be https to work
   const couchersSesh = req.cookies.get("couchers-sesh")?.value;
   const couchersPreferredLanguage = req.cookies.get(
