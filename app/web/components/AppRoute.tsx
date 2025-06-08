@@ -5,8 +5,6 @@ import CookieBanner from "components/CookieBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import Footer from "components/Footer";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { allLanguages } from "i18n/allLanguages";
-import { getLangCookie } from "i18n/getLangCookie";
 import { useRouter } from "next/router";
 import { useIsNativeEmbed } from "platform/nativeLink";
 import { ReactNode, useEffect, useState } from "react";
@@ -74,7 +72,7 @@ export default function AppRoute({
   variant = "standard",
 }: AppRouteProps) {
   const router = useRouter();
-  const { asPath, locale, pathname, query } = router;
+  const { pathname, query } = router;
   const { authState, authActions } = useAuthContext();
   const isAuthenticated = authState.authenticated;
   const isJailed = authState.jailed;
@@ -97,30 +95,21 @@ export default function AppRoute({
   }, [isAuthenticated, isJailed, isPrivate, authActions, router, pathname]);
 
   useEffect(() => {
-    if (!isAuthenticated || !isMounted) return;
+    if (query["lang-changed"]) {
+      // Create a new query object without 'lang-changed'
+      const { ["lang-changed"]: _, ...cleanQuery } = query;
 
-    // Only run this redirect once
-    let redirected = false;
-
-    const couchersPreferredLanguage = getLangCookie();
-
-    if (
-      couchersPreferredLanguage &&
-      !redirected &&
-      couchersPreferredLanguage !== locale &&
-      allLanguages.includes(couchersPreferredLanguage)
-    ) {
-      redirected = true;
-      router.push(
+      // Replace the URL without the 'lang-changed' query param
+      router.replace(
         {
           pathname,
-          query,
+          query: cleanQuery,
         },
-        asPath,
-        { locale: couchersPreferredLanguage },
+        undefined,
+        { shallow: true },
       );
     }
-  }, [asPath, isAuthenticated, isMounted, locale, pathname, query, router]);
+  }, [query, pathname, router]);
 
   return (
     <ErrorBoundary>

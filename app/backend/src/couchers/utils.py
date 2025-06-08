@@ -257,7 +257,7 @@ def create_session_cookies(token, user_id, expiry) -> list[str]:
 def create_lang_cookie(lang):
     return [
         _create_tasty_cookie(
-            "couchers-preferred-language", lang, expiry=(now() + PREFERRED_LANGUAGE_COOKIE_EXPIRY), httponly=False
+            "NEXT_LOCALE", lang, expiry=(now() + PREFERRED_LANGUAGE_COOKIE_EXPIRY), httponly=False
         )
     ]
 
@@ -302,7 +302,7 @@ def parse_ui_lang_cookie(headers):
         return None
 
     # else parse the cookie & return its value
-    cookie = http.cookies.SimpleCookie(headers["cookie"]).get("couchers-preferred-language")
+    cookie = http.cookies.SimpleCookie(headers["cookie"]).get("NEXT_LOCALE")
 
     if not cookie:
         return None

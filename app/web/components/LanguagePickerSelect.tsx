@@ -12,6 +12,7 @@ import {
   styled,
   useMediaQuery,
 } from "@mui/material";
+import { useAuthContext } from "features/auth/AuthProvider";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -49,6 +50,8 @@ export default function LanguagePickerSelect({
 }: LanguagePickerSelectProps) {
   const router = useRouter();
   const { asPath, locale, pathname, query } = router;
+  const { authState } = useAuthContext();
+  const isAuthenticated = authState.authenticated;
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t } = useTranslation([GLOBAL]);
@@ -62,10 +65,18 @@ export default function LanguagePickerSelect({
   const handleChange = async (event: SelectChangeEvent<unknown>) => {
     const newLocale = event.target.value as string;
 
-    await changeLanguageMutation(newLocale);
+    if (!isAuthenticated) {
+      // set NEXT_LOCALE cookie for unauthenticated users since backend cannot handle unauthenticated language changes
+      document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000`; // 1 year expiration
+    } else {
+      await changeLanguageMutation(newLocale);
+    }
 
-    // change just the locale and maintain all other route information including href's query
-    router.push({ pathname, query }, asPath, { locale: newLocale });
+    // Add 'lang-changed=true' to the query params so middleware knows this was a user-initiated language switch
+    const newQuery = { ...query, "lang-changed": "true" };
+
+    // Push new route with updated locale and query params, keep the current asPath for display
+    router.push({ pathname, query: newQuery }, asPath, { locale: newLocale });
   };
 
   const renderFlag = (flagCode: string) => (
