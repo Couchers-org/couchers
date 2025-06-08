@@ -224,8 +224,13 @@ def _create_tasty_cookie(name: str, value, expiry: datetime, httponly: bool):
     cookie.set(name, str(value), str(value))
     # tell the browser when to stop sending the cookie
     cookie["expires"] = http_date(expiry)
-    # restrict to our domain, note if there's no domain, it won't include subdomains
-    cookie["domain"] = config["COOKIE_DOMAIN"]
+    # Set the cookie domain explicitly if configured.
+    # - If COOKIE_DOMAIN is set (e.g., "couchers.org"), the cookie is sent to that domain and its subdomains.
+    # - If COOKIE_DOMAIN is unset or blank, the cookie defaults to the host that set it (e.g., "localhost" during dev),
+    # which avoids browser rejections (since "localhost" is not a valid cookie domain).
+    # - Limiting the domain to the root domain (e.g., "couchers.org") ensures cookies are shared across subdomains when necessary.
+    if config["COOKIE_DOMAIN"]:
+        cookie["domain"] = config["COOKIE_DOMAIN"]
     # path so that it's accessible for all API requests, otherwise defaults to something like /org.couchers.auth/
     cookie["path"] = "/"
     if config["DEV"]:
