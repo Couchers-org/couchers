@@ -49,7 +49,7 @@ export default function LanguagePickerSelect({
   displayMode = "round",
 }: LanguagePickerSelectProps) {
   const router = useRouter();
-  const { asPath, locale, pathname, query } = router;
+  const { asPath, locale, pathname } = router;
   const { authState } = useAuthContext();
   const isAuthenticated = authState.authenticated;
 
@@ -65,18 +65,12 @@ export default function LanguagePickerSelect({
   const handleChange = async (event: SelectChangeEvent<unknown>) => {
     const newLocale = event.target.value as string;
 
-    if (!isAuthenticated) {
-      // set NEXT_LOCALE cookie for unauthenticated users since backend cannot handle unauthenticated language changes
-      document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000`; // 1 year expiration
-    } else {
+    if (isAuthenticated) {
       await changeLanguageMutation(newLocale);
     }
 
-    // Add 'lang-changed=true' to the query params so middleware knows this was a user-initiated language switch
-    const newQuery = { ...query, "lang-changed": "true" };
-
-    // Push new route with updated locale and query params, keep the current asPath for display
-    router.push({ pathname, query: newQuery }, asPath, { locale: newLocale });
+    // Push new route with updated locale, keep the current asPath for display
+    router.push({ pathname }, asPath, { locale: newLocale });
   };
 
   const renderFlag = (flagCode: string) => (

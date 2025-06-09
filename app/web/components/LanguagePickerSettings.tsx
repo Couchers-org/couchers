@@ -1,8 +1,8 @@
 import { Link, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
-import { getLangCookie } from "i18n/getLangCookie";
 import { GLOBAL } from "i18n/namespaces";
+import { useRouter } from "next/router";
 
 import LanguagePickerSelect from "./LanguagePickerSelect";
 
@@ -16,7 +16,8 @@ export default function LanguagePickerSettings({
   className,
 }: ChangeLanguageProps) {
   const { t } = useTranslation([GLOBAL]);
-  const couchersPreferredLanguage = getLangCookie();
+  const router = useRouter();
+  const { locale } = router;
 
   return (
     <div className={className}>
@@ -26,7 +27,7 @@ export default function LanguagePickerSettings({
       <>
         <Typography variant="body1">
           {`${t("global:language_preference.current_preferred_language")}`}
-          <strong>{LANGUAGE_MAP[couchersPreferredLanguage]?.name}</strong>
+          <strong>{LANGUAGE_MAP[locale || "en"]?.name}</strong>
         </Typography>
         <Typography variant="body1" paragraph>
           <Link

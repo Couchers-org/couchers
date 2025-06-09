@@ -5,6 +5,8 @@ import CookieBanner from "components/CookieBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import Footer from "components/Footer";
 import { useAuthContext } from "features/auth/AuthProvider";
+import { allLanguages } from "i18n/allLanguages";
+import { getLangCookie } from "i18n/getLangCookie";
 import { useRouter } from "next/router";
 import { useIsNativeEmbed } from "platform/nativeLink";
 import { ReactNode, useEffect, useState } from "react";
@@ -72,7 +74,7 @@ export default function AppRoute({
   variant = "standard",
 }: AppRouteProps) {
   const router = useRouter();
-  const { pathname } = router;
+  const { asPath, locale, pathname, query } = router;
   const { authState, authActions } = useAuthContext();
   const isAuthenticated = authState.authenticated;
   const isJailed = authState.jailed;
@@ -93,6 +95,32 @@ export default function AppRoute({
       router.push(jailRoute);
     }
   }, [isAuthenticated, isJailed, isPrivate, authActions, router, pathname]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    // Only run this redirect once
+    let redirected = false;
+
+    const nextLocale = getLangCookie();
+
+    if (
+      nextLocale &&
+      !redirected &&
+      nextLocale !== locale &&
+      allLanguages.includes(nextLocale)
+    ) {
+      redirected = true;
+      router.push(
+        {
+          pathname,
+          query,
+        },
+        asPath,
+        { locale: nextLocale },
+      );
+    }
+  }, [asPath, isAuthenticated, locale, pathname, query, router]);
 
   return (
     <ErrorBoundary>
