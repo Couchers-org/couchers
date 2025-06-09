@@ -63,8 +63,7 @@ def add_dummy_users():
                 hashed_password=hash_password(f"{user['name']}'s password"),
                 name=user["name"],
                 city=user["location"]["city"],
-                geom=create_coordinate(
-                    user["location"]["lat"], user["location"]["lng"]),
+                geom=create_coordinate(user["location"]["lat"], user["location"]["lng"]),
                 geom_radius=user["location"]["radius"],
                 community_standing=user["community_standing"],
                 birthdate=date(
@@ -93,11 +92,9 @@ def add_dummy_users():
                     )
                 )
             for region in user["regions_visited"]:
-                session.add(RegionVisited(
-                    user_id=new_user.id, region_code=region))
+                session.add(RegionVisited(user_id=new_user.id, region_code=region))
             for region in user["regions_lived"]:
-                session.add(RegionLived(
-                    user_id=new_user.id, region_code=region))
+                session.add(RegionLived(user_id=new_user.id, region_code=region))
 
             class _DummyContext:
                 def invocation_metadata(self):
@@ -116,18 +113,15 @@ def add_dummy_users():
                 logger.info(f"API key for {new_user.username}: {token}")
 
             if user.get("make_session", False):
-                token, _ = create_session(
-                    _DummyContext(), session, new_user, long_lived=False, set_cookie=False)
+                token, _ = create_session(_DummyContext(), session, new_user, long_lived=False, set_cookie=False)
                 logger.info(f"Session cookie for {new_user.username}: {token}")
 
         session.commit()
 
         for username1, username2 in data["friendships"]:
             friend_relationship = FriendRelationship(
-                from_user_id=session.execute(select(User).where(
-                    User.username == username1)).scalar_one().id,
-                to_user_id=session.execute(select(User).where(
-                    User.username == username2)).scalar_one().id,
+                from_user_id=session.execute(select(User).where(User.username == username1)).scalar_one().id,
+                to_user_id=session.execute(select(User).where(User.username == username2)).scalar_one().id,
                 status=FriendStatus.accepted,
             )
             session.add(friend_relationship)
@@ -141,10 +135,8 @@ def add_dummy_users():
                 else (ReferenceType.surfed if reference["type"] == "surfed" else ReferenceType.friend)
             )
             new_reference = Reference(
-                from_user_id=session.execute(select(User).where(
-                    User.username == reference["from"])).scalar_one().id,
-                to_user_id=session.execute(select(User).where(
-                    User.username == reference["to"])).scalar_one().id,
+                from_user_id=session.execute(select(User).where(User.username == reference["from"])).scalar_one().id,
+                to_user_id=session.execute(select(User).where(User.username == reference["to"])).scalar_one().id,
                 reference_type=reference_type,
                 text=reference["text"],
                 rating=reference["rating"],
@@ -164,16 +156,14 @@ def add_dummy_users():
             chat = GroupChat(
                 conversation=conversation,
                 title=group_chat["title"],
-                creator_id=session.execute(select(User).where(
-                    User.username == creator)).scalar_one().id,
+                creator_id=session.execute(select(User).where(User.username == creator)).scalar_one().id,
                 is_dm=group_chat["is_dm"],
             )
             session.add(chat)
 
             for participant in group_chat["participants"]:
                 subscription = GroupChatSubscription(
-                    user_id=session.execute(select(User).where(
-                        User.username == participant["username"]))
+                    user_id=session.execute(select(User).where(User.username == participant["username"]))
                     .scalar_one()
                     .id,
                     group_chat=chat,
@@ -187,8 +177,7 @@ def add_dummy_users():
                     Message(
                         message_type=MessageType.text,
                         conversation=chat.conversation,
-                        author_id=session.execute(select(User).where(
-                            User.username == message["author"]))
+                        author_id=session.execute(select(User).where(User.username == message["author"]))
                         .scalar_one()
                         .id,
                         time=parser.isoparse(message["time"]),
@@ -219,17 +208,14 @@ def add_dummy_communities():
                 # pick the first feature
                 geom = geojson_to_geom(geojson["features"][0]["geometry"])
                 if "geom_simplify" in community:
-                    geom = func.ST_Simplify(
-                        geom, community["geom_simplify"], True)
+                    geom = func.ST_Simplify(geom, community["geom_simplify"], True)
             else:
                 ValueError("No geom or osm_id specified for node")
 
             name = community["name"]
 
-            admins = session.execute(select(User).where(
-                User.username.in_(community["admins"]))).scalars().all()
-            members = session.execute(select(User).where(
-                User.username.in_(community["members"]))).scalars().all()
+            admins = session.execute(select(User).where(User.username.in_(community["admins"]))).scalars().all()
+            members = session.execute(select(User).where(User.username.in_(community["members"]))).scalars().all()
 
             parent_name = community["parent"]
 
@@ -295,10 +281,8 @@ def add_dummy_communities():
         for group in data["groups"]:
             name = group["name"]
 
-            admins = session.execute(select(User).where(
-                User.username.in_(group["admins"]))).scalars().all()
-            members = session.execute(select(User).where(
-                User.username.in_(group["members"]))).scalars().all()
+            admins = session.execute(select(User).where(User.username.in_(group["admins"]))).scalars().all()
+            members = session.execute(select(User).where(User.username.in_(group["members"]))).scalars().all()
 
             parent_node = session.execute(
                 select(Node)
@@ -351,10 +335,8 @@ def add_dummy_communities():
                 )
 
         for place in data["places"]:
-            owner_cluster = session.execute(select(Cluster).where(
-                Cluster.name == place["owner"])).scalar_one()
-            creator = session.execute(select(User).where(
-                User.username == place["creator"])).scalar_one()
+            owner_cluster = session.execute(select(Cluster).where(Cluster.name == place["owner"])).scalar_one()
+            creator = session.execute(select(User).where(User.username == place["creator"])).scalar_one()
 
             page = Page(
                 parent_node=owner_cluster.parent_node,
@@ -372,17 +354,14 @@ def add_dummy_communities():
                 title=place["title"],
                 content=place["content"],
                 address=place["address"],
-                geom=create_coordinate(
-                    place["coordinate"][1], place["coordinate"][0]),
+                geom=create_coordinate(place["coordinate"][1], place["coordinate"][0]),
             )
 
             session.add(page_version)
 
         for guide in data["guides"]:
-            owner_cluster = session.execute(select(Cluster).where(
-                Cluster.name == guide["owner"])).scalar_one()
-            creator = session.execute(select(User).where(
-                User.username == guide["creator"])).scalar_one()
+            owner_cluster = session.execute(select(Cluster).where(Cluster.name == guide["owner"])).scalar_one()
+            creator = session.execute(select(User).where(User.username == guide["creator"])).scalar_one()
 
             page = Page(
                 parent_node=owner_cluster.parent_node,
@@ -400,8 +379,7 @@ def add_dummy_communities():
                 title=guide["title"],
                 content=guide["content"],
                 geom=(
-                    create_coordinate(
-                        guide["coordinate"][1], guide["coordinate"][0]) if "coordinate" in guide else None
+                    create_coordinate(guide["coordinate"][1], guide["coordinate"][0]) if "coordinate" in guide else None
                 ),
             )
 
