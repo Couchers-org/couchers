@@ -51,6 +51,7 @@ services:
       - backend_media
       - backend_envoy
       - backend_jaeger
+    dns_search: ""
   media:
     image: registry.gitlab.com/couchers/couchers/media
     restart: always
@@ -64,6 +65,7 @@ services:
     networks:
       - backend_media
       - media_nginx
+    dns_search: ""
   envoy:
     image: registry.gitlab.com/couchers/couchers/proxy
     restart: always
@@ -74,6 +76,7 @@ services:
       - backend_envoy
       - envoy_nginx
       - envoy_prometheus
+    dns_search: ""
   nginx:
     image: registry.gitlab.com/couchers/couchers/nginx
     restart: always
@@ -89,6 +92,7 @@ services:
       - media_nginx
       - envoy_nginx
       - web_nginx
+    dns_search: ""
   # generates prometheus metrics for the database
   pgprom:
     image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
