@@ -33,7 +33,8 @@ const CouchersMission = () => {
     return (
       <Grid
         item
-        xs={3.7}
+        xs={5.7}
+        sm={3.7}
         md={2}
         display="flex"
         alignItems="center"
@@ -125,6 +126,7 @@ const CouchersMission = () => {
       >
         <Fade timeout={2000} in={inView}>
           <Grid
+            item
             container
             gap={2}
             sx={{
@@ -142,6 +144,7 @@ const CouchersMission = () => {
         </Fade>
         <Fade key={selectedItem} timeout={1000} in={true}>
           <Grid
+            item
             container
             sx={{
               width: "100%",
