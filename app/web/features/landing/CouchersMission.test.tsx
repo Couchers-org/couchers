@@ -16,7 +16,7 @@ jest.mock("react-intersection-observer", () => ({
 
 const missions = [
   `${LANDING}:non_profit_structure`,
-  `${LANDING}:community_first`,
+  `${LANDING}:community_first_framework`,
   `${LANDING}:member_accountability`,
   `${LANDING}:improved_review_system`,
   `${LANDING}:better_host_matching`,
