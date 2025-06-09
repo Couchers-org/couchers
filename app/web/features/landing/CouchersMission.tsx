@@ -82,11 +82,9 @@ const CouchersMission = () => {
   const missionDescription = (selectedItem: string) => {
     const localeKey = `${LANDING}:${selectedItem}_description`;
     return (
-      <Box display="flex" flexDirection="column" width="100%">
-        <Typography align="justify" variant="body2">
-          {descriptionContent(localeKey)}
-        </Typography>
-      </Box>
+      <Typography align="justify" variant="body2">
+        {descriptionContent(localeKey)}
+      </Typography>
     );
   };
 
@@ -121,7 +119,6 @@ const CouchersMission = () => {
         ref={ref}
         sx={{
           marginTop: 2,
-          width: "100%",
         }}
       >
         <Fade timeout={2000} in={inView}>
@@ -129,13 +126,10 @@ const CouchersMission = () => {
             item
             container
             gap={2}
-            sx={{
-              width: "100%",
-              flexWrap: { xs: "wrap", md: "nowrap" },
-            }}
+            justifyContent={"center"}
           >
             {missionBubble("non_profit_structure")}
-            {missionBubble("community_first")}
+            {missionBubble("community_first_framework")}
             {missionBubble("member_accountability")}
             {missionBubble("improved_review_system")}
             {missionBubble("better_host_matching")}
@@ -145,25 +139,15 @@ const CouchersMission = () => {
         <Fade key={selectedItem} timeout={1000} in={true}>
           <Grid
             item
-            container
             sx={{
+              marginTop: 1,
+              backgroundColor: theme.palette.grey[200],
+              padding: 2,
+              borderRadius: 2,
               width: "100%",
             }}
           >
-            <Grid
-              item
-              display="flex"
-              sx={{
-                marginTop: 1,
-                backgroundColor: theme.palette.grey[200],
-                padding: 2,
-                borderRadius: 2,
-                flex: { md: 1 },
-                minWidth: 0,
-              }}
-            >
-              {missionDescription(selectedItem)}
-            </Grid>
+            {missionDescription(selectedItem)}
           </Grid>
         </Fade>
       </Grid>
