@@ -531,7 +531,9 @@ def test_get_host_request_messages(db):
 
         res = api.GetHostRequestMessages(
             requests_pb2.GetHostRequestMessagesReq(
-                host_request_id=conversation_id, last_message_id=res.messages[2]ListHostRequestsReq.message_id, number=6
+                host_request_id=conversation_id,
+                last_message_id=res.messages[2].ListHostRequestsReq.message_id,
+                number=6,
             )
         )
         assert res.no_more
