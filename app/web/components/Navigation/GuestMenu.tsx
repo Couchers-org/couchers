@@ -1,4 +1,10 @@
-import { Divider, IconButton, popoverClasses, styled } from "@mui/material";
+import {
+  Divider,
+  IconButton,
+  popoverClasses,
+  styled,
+  useMediaQuery,
+} from "@mui/material";
 import { MenuIcon, SinglePersonIcon } from "components/Icons";
 import LanguagePickerSelect from "components/LanguagePickerSelect";
 import Menu, { MenuItem } from "components/Menu";
@@ -36,10 +42,11 @@ export default function GuestMenu({
 }) {
   const menuRef = React.useRef<HTMLButtonElement>(null);
   const { t } = useTranslation(GLOBAL);
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
     <>
-      <LanguagePickerSelect />
+      {!isMobile && <LanguagePickerSelect />}
       <StyledIconButton
         aria-controls="navigation-menu"
         aria-haspopup="true"
