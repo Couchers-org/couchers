@@ -122,12 +122,7 @@ const CouchersMission = () => {
         }}
       >
         <Fade timeout={2000} in={inView}>
-          <Grid
-            item
-            container
-            gap={2}
-            justifyContent={"center"}
-          >
+          <Grid item container gap={2} justifyContent={"center"}>
             {missionBubble("non_profit_structure")}
             {missionBubble("community_first_framework")}
             {missionBubble("member_accountability")}
