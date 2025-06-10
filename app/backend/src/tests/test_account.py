@@ -555,7 +555,7 @@ def test_ChangeLanguagePreference(db, fast_passwords):
 
         # the value of "set-cookie" will be the full cookie string, pull the key value from the string
         key_val = metadata["set-cookie"].split(";")[0]
-        assert key_val == "couchers-preferred-language=zh", f"expected 'couchers-preferred-language=zh', got {key_val}"
+        assert key_val == "NEXT_LOCALE=zh", f"expected 'NEXT_LOCALE=zh', got {key_val}"
 
         # the changed language preference should also be sent to the backend
         res = account.GetAccountInfo(empty_pb2.Empty())
