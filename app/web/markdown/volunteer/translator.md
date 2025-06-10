@@ -32,7 +32,7 @@ Couchers.org is seeking native speakers to help us translate our website into:
 
 ### Duties
 
-- Our translations our done online via [Weblate](https://translate.couchershq.org/)
+- Our translations are done online via [Weblate](https://translate.couchershq.org/)
 - You can translate as much or as little as you want, you will see a list of sentences and phrases there to translate.
 - We communicate via Slack. There is a Slack channel for translation if you need to ask questions or get support!
 
