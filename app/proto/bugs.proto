@@ -41,6 +41,11 @@ message VersionInfo {
   string version = 1;
 }
 
+message ScreenResolution {
+  int32 width = 1;
+  int32 height = 2;
+}
+
 message ReportBugReq {
   string subject = 1;
   string description = 2;
@@ -49,6 +54,8 @@ message ReportBugReq {
   string frontend_version = 5;
   string user_agent = 6;
   string page = 7;
+
+  ScreenResolution screen_resolution = 8;
 }
 
 message ReportBugRes {

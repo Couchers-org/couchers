@@ -59,7 +59,7 @@ const ZoomControl = ({
         backgroundColor: "white",
         borderRadius: 2,
         boxShadow: 3,
-        zIndex: 2,
+        zIndex: 1,
       }}
       ref={isZoomFromControlRef}
     >

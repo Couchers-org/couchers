@@ -11,7 +11,7 @@
       "notificationId": 1,
       "title": "Keanu Reeves wants to be your friend",
       "topic": "friend_request",
-      "url": "https://locathost:3000/connections/friends/"
+      "url": "https://localhost:3000/connections/friends/"
     },
     {
       "action": "missed_messages",
