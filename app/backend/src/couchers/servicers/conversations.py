@@ -573,14 +573,26 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         if request.text == "":
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
 
-        subscription = session.execute(
-            select(GroupChatSubscription)
+        result = session.execute(
+            select(GroupChatSubscription, GroupChat)
+            .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
             .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
             .where(GroupChatSubscription.user_id == context.user_id)
             .where(GroupChatSubscription.left == None)
-        ).scalar_one_or_none()
-        if not subscription:
+        ).one_or_none()
+        if not result:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
+
+        subscription, group_chat = result
+        if group_chat.is_dm:
+            user_id = session.execute(
+                select(GroupChatSubscription.user_id)
+                .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .where(GroupChatSubscription.user_id != context.user_id)
+                .where(GroupChatSubscription.left == None)
+            ).scalar_one_or_none()
+            if user_id and are_blocked(session, context.user_id, user_id):
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_MESSAGE_IN_DM)
 
         _add_message_to_subscription(session, subscription, message_type=MessageType.text, text=request.text)
 
