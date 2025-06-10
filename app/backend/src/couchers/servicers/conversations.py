@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import func, not_, or_, select
+from sqlalchemy.sql import func, not_, or_
 
 from couchers import errors
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
@@ -136,13 +136,12 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
             logger.info(f"Not a text message, not notifying. message_id = {payload.message_id}")
             return []
 
-        subscriptions = (
+        context = make_user_context(user_id=message.author_id)
+        subscription_user_ids = (
             session.execute(
-                select(GroupChatSubscription)
-                .join(User, User.id == GroupChatSubscription.user_id)
+                select(GroupChatSubscription.user_id)
+                .where_users_column_visible(context=context, column=GroupChatSubscription.user_id)
                 .where(GroupChatSubscription.group_chat_id == message.conversation_id)
-                .where(User.is_visible)
-                .where(User.id != message.author_id)
                 .where(GroupChatSubscription.joined <= message.time)
                 .where(or_(GroupChatSubscription.left == None, GroupChatSubscription.left >= message.time))
                 .where(not_(GroupChatSubscription.is_muted))
@@ -156,19 +155,18 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
         else:
             msg = f"{message.author.name} sent a message in {group_chat.title}"
 
-        for subscription in subscriptions:
-            if are_blocked(session, subscription.user_id, message.author.id):
-                continue
+        user_ids_to_notify = set(subscription_user_ids) - {message.author_id}
+        for user_id in user_ids_to_notify:
             notify(
                 session,
-                user_id=subscription.user_id,
+                user_id=user_id,
                 topic_action="chat:message",
                 key=message.conversation_id,
                 data=notification_data_pb2.ChatMessage(
                     author=user_model_to_pb(
                         message.author,
                         session,
-                        make_user_context(user_id=subscription.user_id),
+                        make_user_context(user_id=user_id),
                     ),
                     message=msg,
                     text=message.text,
