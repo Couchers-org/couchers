@@ -264,7 +264,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 or_(
                     and_(
                         HostRequest.surfer_user_id == context.user_id,
-                        HostRequest.is_surfer_archived == request.only_archived,
+                        HostRequest.is_user_archived == request.only_archived,
                     ),
                     and_(
                         HostRequest.host_user_id == context.user_id,
