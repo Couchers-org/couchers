@@ -165,7 +165,7 @@ export default function LanguagePickerSelect({
         {displayMode === "round" ? (
           <StyledSelect
             id="language-select"
-            value={locale}
+            value={locale || ""}
             displayMode={displayMode}
             onChange={handleChange}
             // Use renderValue to display the selected language in collapsed state
