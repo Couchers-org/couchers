@@ -1232,11 +1232,14 @@ def test_GetDirectMessage(db):
         # can create DM with user 3
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user3.id]))
         assert res.is_dm
+        assert res.can_message
         gcid = res.group_chat_id
 
-        # DM with 3 should exist
+        # DM with 3 should exist, but can't message after being blocked
+        make_user_block(user3, user2)
         res = c.GetDirectMessage(conversations_pb2.GetDirectMessageReq(user_id=user3.id))
         assert res.group_chat_id == gcid
+        assert not res.can_message
 
 
 def test_total_unseen(db):

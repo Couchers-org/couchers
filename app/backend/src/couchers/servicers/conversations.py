@@ -119,6 +119,24 @@ def _get_visible_admins_for_subscription(subscription):
         ]
 
 
+def _user_can_message(session, context, group_chat: GroupChat) -> bool:
+    """
+    User can message in a group chat they are part of if a chat participant exists that:
+    - Is not deleted/banned
+    - Has not been blocked by the user or is blocking the user
+    - Has not left the chat
+    """
+    return session.execute(
+        func.exists(
+            select(GroupChatSubscription)
+            .where_users_column_visible(context=context, column=GroupChatSubscription.user_id)
+            .where(GroupChatSubscription.user_id != context.user_id)
+            .where(GroupChatSubscription.group_chat_id == group_chat.id)
+            .where(GroupChatSubscription.left == None)
+        )
+    ).scalar_one()
+
+
 def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotificationsPayload):
     """
     Background job to generate notifications for a message sent to a group chat
@@ -264,6 +282,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
                     latest_message=_message_to_pb(result.Message) if result.Message else None,
                     mute_info=_mute_info(result.GroupChatSubscription),
+                    can_message=_user_can_message(session, context, result.GroupChat),
                 )
                 for result in results[:page_size]
             ],
@@ -301,6 +320,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
             latest_message=_message_to_pb(result.Message) if result.Message else None,
             mute_info=_mute_info(result.GroupChatSubscription),
+            can_message=_user_can_message(session, context, result.GroupChat),
         )
 
     def GetDirectMessage(self, request, context, session):
@@ -348,6 +368,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
             latest_message=_message_to_pb(result.Message) if result.Message else None,
             mute_info=_mute_info(result.GroupChatSubscription),
+            can_message=_user_can_message(session, context, result.GroupChat),
         )
 
     def GetUpdates(self, request, context, session):
@@ -567,6 +588,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             is_dm=group_chat.is_dm,
             created=Timestamp_from_datetime(group_chat.conversation.created),
             mute_info=_mute_info(your_subscription),
+            can_message=True,
         )
 
     def SendMessage(self, request, context, session):
