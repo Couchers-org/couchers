@@ -8,14 +8,18 @@ from couchers.sql import couchers_select as select
 from proto import blocking_pb2, blocking_pb2_grpc
 
 
-def are_blocked(session, user1_id, user2_id):
+def is_not_visible(session, user1_id, user2_id):
     blocked_users = (
         select(UserBlock.blocked_user_id)
+        .join(User, User.id == UserBlock.blocked_user_id)
+        .where(User.is_visible)
         .where(UserBlock.blocking_user_id == user1_id)
         .where(UserBlock.blocked_user_id == user2_id)
     )
     blocking_users = (
         select(UserBlock.blocking_user_id)
+        .join(User, User.id == UserBlock.blocking_user_id)
+        .where(User.is_visible)
         .where(UserBlock.blocking_user_id == user2_id)
         .where(UserBlock.blocked_user_id == user1_id)
     )

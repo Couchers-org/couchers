@@ -13,7 +13,7 @@ from couchers.metrics import sent_messages_counter
 from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
 from couchers.notifications.notify import notify
 from couchers.servicers.api import user_model_to_pb
-from couchers.servicers.blocking import are_blocked
+from couchers.servicers.blocking import is_not_visible
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, make_user_context, now
 from proto import conversations_pb2, conversations_pb2_grpc, notification_data_pb2
@@ -591,7 +591,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .where(GroupChatSubscription.user_id != context.user_id)
                 .where(GroupChatSubscription.left == None)
             ).scalar_one_or_none()
-            if user_id and are_blocked(session, context.user_id, user_id):
+            if user_id and is_not_visible(session, context.user_id, user_id):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_MESSAGE_IN_DM)
 
         _add_message_to_subscription(session, subscription, message_type=MessageType.text, text=request.text)

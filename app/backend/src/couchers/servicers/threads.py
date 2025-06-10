@@ -10,7 +10,7 @@ from couchers.jobs.enqueue import queue_job
 from couchers.models import Comment, Discussion, Event, EventOccurrence, Reply, Thread, User
 from couchers.notifications.notify import notify
 from couchers.servicers.api import user_model_to_pb
-from couchers.servicers.blocking import are_blocked
+from couchers.servicers.blocking import is_not_visible
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, make_user_context
 from proto import notification_data_pb2, threads_pb2, threads_pb2_grpc
@@ -85,7 +85,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                 attending_user_ids = [user.user_id for user in occurrence.attendances]
 
                 for user_id in set(subscribed_user_ids + attending_user_ids):
-                    if are_blocked(session, user_id, comment.author_user_id):
+                    if is_not_visible(session, user_id, comment.author_user_id):
                         continue
                     if user_id == comment.author_user_id:
                         continue
@@ -109,7 +109,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                     raise NotImplementedError("Shouldn't have discussions under groups, only communities")
 
                 for user_id in [discussion.creator_user_id]:
-                    if are_blocked(session, user_id, comment.author_user_id):
+                    if is_not_visible(session, user_id, comment.author_user_id):
                         continue
                     if user_id == comment.author_user_id:
                         continue
@@ -136,7 +136,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
 
             author_user = session.execute(select(User).where(User.id == reply.author_user_id)).scalar_one()
 
-            if are_blocked(session, parent_comment.author_user_id, reply.author_user_id):
+            if is_not_visible(session, parent_comment.author_user_id, reply.author_user_id):
                 return
 
             if parent_comment.author_user_id == reply.author_user_id:
