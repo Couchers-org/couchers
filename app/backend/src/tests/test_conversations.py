@@ -643,7 +643,7 @@ def test_send_message(db):
     with conversations_session(token1) as c:
         with pytest.raises(grpc.RpcError) as e:
             c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Message after block"))
-        assert e.value.details() == errors.CANT_MESSAGE_IN_DM
+        assert e.value.details() == errors.CANT_MESSAGE_IN_CHAT
 
 
 def test_leave_invite_to_group_chat(db):

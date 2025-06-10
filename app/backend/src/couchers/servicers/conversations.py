@@ -13,7 +13,6 @@ from couchers.metrics import sent_messages_counter
 from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
 from couchers.notifications.notify import notify
 from couchers.servicers.api import user_model_to_pb
-from couchers.servicers.blocking import is_not_visible
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, make_user_context, now
 from proto import conversations_pb2, conversations_pb2_grpc, notification_data_pb2
@@ -131,7 +130,7 @@ def _user_can_message(session, context, group_chat: GroupChat) -> bool:
             select(GroupChatSubscription)
             .where_users_column_visible(context=context, column=GroupChatSubscription.user_id)
             .where(GroupChatSubscription.user_id != context.user_id)
-            .where(GroupChatSubscription.group_chat_id == group_chat.id)
+            .where(GroupChatSubscription.group_chat_id == group_chat.conversation_id)
             .where(GroupChatSubscription.left == None)
         )
     ).scalar_one()
@@ -606,15 +605,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
 
         subscription, group_chat = result
-        if group_chat.is_dm:
-            user_id = session.execute(
-                select(GroupChatSubscription.user_id)
-                .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                .where(GroupChatSubscription.user_id != context.user_id)
-                .where(GroupChatSubscription.left == None)
-            ).scalar_one_or_none()
-            if user_id and is_not_visible(session, context.user_id, user_id):
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_MESSAGE_IN_DM)
+        if _user_can_message(session, context, group_chat) is False:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_MESSAGE_IN_CHAT)
 
         _add_message_to_subscription(session, subscription, message_type=MessageType.text, text=request.text)
 
