@@ -45,7 +45,7 @@
     "i18next": "^23.0.0",
     "intersection-observer": "^0.12.2",
     "luhn": "^2.4.1",
-    "maplibre-gl": "^5.5.0",
+    "maplibre-gl": "^5.6.0",
     "markdown-it": "^14.1.0",
     "next": "^14.2.23",
     "next-i18next": "^14.0.0",
@@ -62,7 +62,7 @@
     "react-query": "^3.39.3",
     "react-simple-maps": "^3.0.0",
     "seamless-scroll-polyfill": "^2.1.8",
-    "sharp": "^0.34.0"
+    "sharp": "^0.34.2"
   },
   "devDependencies": {
     "@babel/core": "^7.27.4",
