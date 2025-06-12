@@ -68,7 +68,6 @@ FRIENDS_ALREADY_OR_PENDING = "You are already friends with or have sent a friend
 GROUP_NOT_FOUND = "Group not found."
 GROUP_OR_COMMUNITY_NOT_FOUND = "Group or community not found."
 HOST_REQUEST_CLOSED = "This host request is closed, use a normal message instead."
-HOST_REQUEST_PENDING_ARCHIVE_ATTEMPT = "You can't archive a host request that is pending."
 HOST_REQUEST_IN_PAST = "This host request is in the past."
 HOST_REQUEST_NOT_FOUND = "Couldn't find that host request."
 HOST_REQUEST_SENT_OR_RECEIVED = "Can't only list sent and also only received requests."

@@ -734,20 +734,6 @@ def test_archive_host_request(db):
         api.SendHostRequestMessage(
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 2")
         )
-    # negative testing archiving pending host request
-    with requests_session(token2) as api:
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
-        assert len(res.host_requests) == 1
-        assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_PENDING
-        with pytest.raises(grpc.RpcError) as e:
-            api.SetHostRequestArchiveStatus(
-                requests_pb2.SetHostRequestArchiveStatusReq(host_request_id=host_request_id, is_archived=True)
-            )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.HOST_REQUEST_PENDING_ARCHIVE_ATTEMPT
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
-        assert len(res.host_requests) == 1
-
     # happy path archiving host request
     with requests_session(token1) as api:
         api.RespondHostRequest(

@@ -652,17 +652,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
     def SetHostRequestArchiveStatus(self, request, context, session):
         host_request = session.execute(
             select(HostRequest)
-            .where_users_column_visible(context, HostRequest.surfer_user_id)
-            .where_users_column_visible(context, HostRequest.host_user_id)
             .where(HostRequest.conversation_id == request.host_request_id)
             .where(or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id))
         ).scalar_one_or_none()
 
         if not host_request:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
-
-        if host_request.status == HostRequestStatus.pending:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.HOST_REQUEST_PENDING_ARCHIVE_ATTEMPT)
 
         if context.user_id == host_request.surfer_user_id:
             host_request.is_surfer_archived = request.is_archived
