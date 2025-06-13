@@ -49,56 +49,68 @@ def _parents_to_pb(session, node_id):
     ]
 
 
-def community_to_pb(session, node: Node, context):
-    can_moderate = can_moderate_node(session, context.user_id, node.id)
+def communities_to_pb(session, nodes: list[Node], context):
+    can_moderates = [can_moderate_node(session, context.user_id, node.id) for node in nodes]
 
-    member_count = (
+    official_clusters = [node.official_cluster for node in nodes]
+    official_cluster_ids = [cluster.id for cluster in official_clusters]
+
+    member_counts = dict(
         session.execute(
-            select(cluster_subscription_counts.c.count).where(
-                cluster_subscription_counts.c.cluster_id == node.official_cluster.id
+            select(cluster_subscription_counts.c.cluster_id, cluster_subscription_counts.c.count).where(
+                cluster_subscription_counts.c.cluster_id.in_(official_cluster_ids)
             )
-        ).scalar_one_or_none()
-        or 1
+        ).all()
     )
-    is_member = (
+    cluster_memberships = set(
         session.execute(
-            select(ClusterSubscription)
+            select(ClusterSubscription.cluster_id)
             .where(ClusterSubscription.user_id == context.user_id)
-            .where(ClusterSubscription.cluster_id == node.official_cluster.id)
-        ).scalar_one_or_none()
-        is not None
+            .where(ClusterSubscription.cluster_id.in_(official_cluster_ids))
+        )
+        .scalars()
+        .all()
     )
 
-    admin_count = (
+    admin_counts = dict(
         session.execute(
-            select(cluster_admin_counts.c.count).where(cluster_admin_counts.c.cluster_id == node.official_cluster.id)
-        ).scalar_one_or_none()
-        or 1
+            select(cluster_admin_counts.c.cluster_id, cluster_admin_counts.c.count).where(
+                cluster_admin_counts.c.cluster_id.in_(official_cluster_ids)
+            )
+        ).all()
     )
-    is_admin = (
+    cluster_adminships = set(
         session.execute(
-            select(ClusterSubscription)
+            select(ClusterSubscription.cluster_id)
             .where(ClusterSubscription.user_id == context.user_id)
-            .where(ClusterSubscription.cluster_id == node.official_cluster.id)
+            .where(ClusterSubscription.cluster_id.in_(official_cluster_ids))
             .where(ClusterSubscription.role == ClusterRole.admin)
-        ).scalar_one_or_none()
-        is not None
+        )
+        .scalars()
+        .all()
     )
 
-    return communities_pb2.Community(
-        community_id=node.id,
-        name=node.official_cluster.name,
-        slug=node.official_cluster.slug,
-        description=node.official_cluster.description,
-        created=Timestamp_from_datetime(node.created),
-        parents=_parents_to_pb(session, node.id),
-        member=is_member,
-        admin=is_admin,
-        member_count=member_count,
-        admin_count=admin_count,
-        main_page=page_to_pb(session, node.official_cluster.main_page, context),
-        can_moderate=can_moderate,
-    )
+    return [
+        communities_pb2.Community(
+            community_id=node.id,
+            name=official_cluster.name,
+            slug=official_cluster.slug,
+            description=official_cluster.description,
+            created=Timestamp_from_datetime(node.created),
+            parents=_parents_to_pb(session, node.id),
+            member=official_cluster.id in cluster_memberships,
+            admin=official_cluster.id in cluster_adminships,
+            member_count=member_counts.get(official_cluster.id, 1),
+            admin_count=admin_counts.get(official_cluster.id, 1),
+            main_page=page_to_pb(session, official_cluster.main_page, context),
+            can_moderate=can_moderate,
+        )
+        for node, official_cluster, can_moderate in zip(nodes, official_clusters, can_moderates)
+    ]
+
+
+def community_to_pb(session, node: Node, context):
+    return communities_to_pb(session, [node], context)[0]
 
 
 class Communities(communities_pb2_grpc.CommunitiesServicer):
@@ -126,7 +138,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             .all()
         )
         return communities_pb2.ListCommunitiesRes(
-            communities=[community_to_pb(session, node, context) for node in nodes[:page_size]],
+            communities=communities_to_pb(session, nodes[:page_size], context),
             next_page_token=encrypt_page_token(str(offset + page_size)) if len(nodes) > page_size else None,
         )
 
@@ -422,6 +434,6 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         )
 
         return communities_pb2.ListUserCommunitiesRes(
-            communities=[community_to_pb(session, node, context) for node in nodes[:page_size]],
+            communities=communities_to_pb(session, nodes[:page_size], context),
             next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
         )

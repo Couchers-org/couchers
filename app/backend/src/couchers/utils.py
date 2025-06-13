@@ -2,11 +2,11 @@ import http.cookies
 import re
 from datetime import date, datetime, timedelta
 from email.utils import formatdate
+from types import SimpleNamespace
 from zoneinfo import ZoneInfo
 
 import pytz
 from geoalchemy2.shape import from_shape, to_shape
-from geoalchemy2.types import Geography, Geometry
 from google.protobuf.duration_pb2 import Duration
 from google.protobuf.timestamp_pb2 import Timestamp
 from shapely.geometry import Point, Polygon, shape
@@ -125,16 +125,52 @@ def today_in_timezone(tz):
 # When entering as EPSG4326, we also need it in (lng, lat)
 
 
+def wrap_coordinate(lat, lng):
+    """
+    Wraps (lat, lng) point in the EPSG4326 format
+    """
+
+    def __wrap_gen(deg, ct, adj):
+        if deg > ct:
+            deg -= adj
+        if deg < -ct:
+            deg += adj
+        return deg
+
+    def __wrap_flip(deg, ct, adj):
+        if deg > ct:
+            deg = -deg + adj
+        if deg < -ct:
+            deg = -deg - adj
+        return deg
+
+    def __wrap_rem(deg, ct=360):
+        if deg > ct:
+            deg = deg % ct
+        if deg < -ct:
+            deg = deg % -ct
+        return deg
+
+    if lng < -180 or lng > 180 or lat < -90 or lat > 90:
+        lng = __wrap_rem(lng)
+        lat = __wrap_rem(lat)
+        lng = __wrap_gen(lng, 180, 360)
+        lat = __wrap_flip(lat, 180, 180)
+        lat = __wrap_flip(lat, 90, 180)
+        if lng == -180:
+            lng = 180
+        if lng == -360:
+            lng = 0
+
+    return lat, lng
+
+
 def create_coordinate(lat, lng):
     """
     Creates a WKT point from a (lat, lng) tuple in EPSG4326 coordinate system (normal GPS-coordinates)
     """
-    wkb_point = from_shape(Point(lng, lat), srid=4326)
-
-    # Casting to Geography and back here to ensure coordinate wrapping
-    return cast(
-        cast(wkb_point, Geography(geometry_type="POINT", srid=4326)), Geometry(geometry_type="POINT", srid=4326)
-    )
+    lat, lng = wrap_coordinate(lat, lng)
+    return from_shape(Point(lng, lat), srid=4326)
 
 
 def create_polygon_lat_lng(points):
@@ -220,9 +256,7 @@ def create_session_cookies(token, user_id, expiry) -> list[str]:
 
 def create_lang_cookie(lang):
     return [
-        _create_tasty_cookie(
-            "couchers-preferred-language", lang, expiry=(now() + PREFERRED_LANGUAGE_COOKIE_EXPIRY), httponly=False
-        )
+        _create_tasty_cookie("NEXT_LOCALE", lang, expiry=(now() + PREFERRED_LANGUAGE_COOKIE_EXPIRY), httponly=False)
     ]
 
 
@@ -266,7 +300,7 @@ def parse_ui_lang_cookie(headers):
         return None
 
     # else parse the cookie & return its value
-    cookie = http.cookies.SimpleCookie(headers["cookie"]).get("couchers-preferred-language")
+    cookie = http.cookies.SimpleCookie(headers["cookie"]).get("NEXT_LOCALE")
 
     if not cookie:
         return None
@@ -355,3 +389,11 @@ def last_active_coarsen(dt):
 
 def get_tz_as_text(tz_name):
     return datetime.now(tz=ZoneInfo(tz_name)).strftime("%Z/UTC%z")
+
+
+def make_user_context(user_id):
+    return SimpleNamespace(user_id=user_id)
+
+
+def make_logged_out_context():
+    return SimpleNamespace(user_id=0)

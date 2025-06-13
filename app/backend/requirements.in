@@ -7,6 +7,7 @@ grpcio
 http_ece
 Jinja2
 luhn
+markdown-it-py
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-instrumentation-grpc

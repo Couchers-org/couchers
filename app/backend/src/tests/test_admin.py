@@ -315,6 +315,16 @@ def test_DeleteUser(db):
     assert not res.banned
     assert res.deleted
 
+    with real_admin_session(super_token) as api:
+        res = api.RecoverDeletedUser(admin_pb2.RecoverDeletedUserReq(user=normal_user.username))
+    assert res.user_id == normal_user.id
+    assert res.username == normal_user.username
+    assert res.email == normal_user.email
+    assert res.gender == normal_user.gender
+    assert parse_date(res.birthdate) == normal_user.birthdate
+    assert not res.banned
+    assert not res.deleted
+
 
 def test_CreateApiKey(db, push_collector):
     with session_scope() as session:
@@ -761,3 +771,5 @@ def test_admin_delete_account_url(db, push_collector):
 
 
 # community invite feature tested in test_events.py
+# SendBlogPostNotification tested in test_notifications.py
+# MarkUserNeedsLocationUpdate tested in test_jail.py

@@ -11,7 +11,7 @@ import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
-import { User } from "proto/api_pb";
+import { SearchUser } from "proto/search_pb";
 import { theme } from "theme";
 
 import SearchResultUserCard from "./SeachResultUserCard";
@@ -27,7 +27,7 @@ interface SearchResultListContentProps {
   showAlert: boolean;
   showTopSpace?: boolean;
   totalItems: number | undefined;
-  users: User.AsObject[] | undefined;
+  users: SearchUser.AsObject[] | undefined;
 }
 
 const ListContentWrapper = styled(Box, {

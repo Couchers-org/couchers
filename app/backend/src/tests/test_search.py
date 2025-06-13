@@ -4,6 +4,7 @@ import pytest
 from google.protobuf import wrappers_pb2
 
 from couchers.db import session_scope
+from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
 from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, LanguageFluency, MeetupStatus
 from couchers.utils import Timestamp_from_datetime, create_coordinate, millis_from_dt, now
 from proto import api_pb2, communities_pb2, events_pb2, search_pb2
@@ -53,8 +54,15 @@ def test_Search(testing_communities):
 def test_UserSearch(testing_communities):
     """Test that UserSearch returns all users if no filter is set."""
     user, token = generate_user()
+
+    refresh_materialized_views_rapid(None)
+    refresh_materialized_views(None)
+
     with search_session(token) as api:
         res = api.UserSearch(search_pb2.UserSearchReq())
+        assert len(res.results) > 0
+        assert res.total_items == len(res.results)
+        res = api.UserSearchV2(search_pb2.UserSearchReq())
         assert len(res.results) > 0
         assert res.total_items == len(res.results)
 
@@ -77,6 +85,9 @@ def test_regression_search_in_area(db):
     # outside
     user5, token5 = generate_user(geom=create_coordinate(10, 10), geom_radius=100)
 
+    refresh_materialized_views_rapid(None)
+    refresh_materialized_views(None)
+
     with search_session(token5) as api:
         res = api.UserSearch(
             search_pb2.UserSearchReq(
@@ -88,6 +99,17 @@ def test_regression_search_in_area(db):
             )
         )
         assert [result.user.user_id for result in res.results] == [user3.id, user4.id]
+
+        res = api.UserSearchV2(
+            search_pb2.UserSearchReq(
+                search_in_area=search_pb2.Area(
+                    lat=0,
+                    lng=0,
+                    radius=100000,
+                )
+            )
+        )
+        assert [result.user_id for result in res.results] == [user3.id, user4.id]
 
 
 def test_user_search_in_rectangle(db):
@@ -110,6 +132,9 @@ def test_user_search_in_rectangle(db):
     # outside
     user7, token7 = generate_user(geom=create_coordinate(10, 10), geom_radius=100)
 
+    refresh_materialized_views_rapid(None)
+    refresh_materialized_views(None)
+
     with search_session(token5) as api:
         res = api.UserSearch(
             search_pb2.UserSearchReq(
@@ -123,6 +148,18 @@ def test_user_search_in_rectangle(db):
         )
         assert [result.user.user_id for result in res.results] == [user3.id, user4.id]
 
+        res = api.UserSearchV2(
+            search_pb2.UserSearchReq(
+                search_in_rectangle=search_pb2.RectArea(
+                    lat_min=0,
+                    lat_max=2,
+                    lng_min=0,
+                    lng_max=1,
+                )
+            )
+        )
+        assert [result.user_id for result in res.results] == [user3.id, user4.id]
+
 
 def test_user_filter_complete_profile(db):
     """
@@ -132,13 +169,22 @@ def test_user_filter_complete_profile(db):
 
     user_incomplete_profile, token7 = generate_user(complete_profile=False)
 
+    refresh_materialized_views_rapid(None)
+    refresh_materialized_views(None)
+
     with search_session(token7) as api:
         res = api.UserSearch(search_pb2.UserSearchReq(profile_completed=wrappers_pb2.BoolValue(value=False)))
         assert user_incomplete_profile.id in [result.user.user_id for result in res.results]
 
+        res = api.UserSearchV2(search_pb2.UserSearchReq(profile_completed=wrappers_pb2.BoolValue(value=False)))
+        assert user_incomplete_profile.id in [result.user_id for result in res.results]
+
     with search_session(token6) as api:
         res = api.UserSearch(search_pb2.UserSearchReq(profile_completed=wrappers_pb2.BoolValue(value=True)))
         assert [result.user.user_id for result in res.results] == [user_complete_profile.id]
+
+        res = api.UserSearchV2(search_pb2.UserSearchReq(profile_completed=wrappers_pb2.BoolValue(value=True)))
+        assert [result.user_id for result in res.results] == [user_complete_profile.id]
 
 
 def test_user_filter_meetup_status(db):
@@ -149,15 +195,26 @@ def test_user_filter_meetup_status(db):
 
     user_does_not_want_to_meet, token9 = generate_user(meetup_status=MeetupStatus.does_not_want_to_meetup)
 
+    refresh_materialized_views_rapid(None)
+    refresh_materialized_views(None)
+
     with search_session(token8) as api:
         res = api.UserSearch(search_pb2.UserSearchReq(meetup_status_filter=[api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP]))
         assert user_wants_to_meetup.id in [result.user.user_id for result in res.results]
+
+        res = api.UserSearchV2(search_pb2.UserSearchReq(meetup_status_filter=[api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP]))
+        assert user_wants_to_meetup.id in [result.user_id for result in res.results]
 
     with search_session(token9) as api:
         res = api.UserSearch(
             search_pb2.UserSearchReq(meetup_status_filter=[api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP])
         )
         assert [result.user.user_id for result in res.results] == [user_does_not_want_to_meet.id]
+
+        res = api.UserSearchV2(
+            search_pb2.UserSearchReq(meetup_status_filter=[api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP])
+        )
+        assert [result.user_id for result in res.results] == [user_does_not_want_to_meet.id]
 
 
 def test_user_filter_language(db):
@@ -185,6 +242,9 @@ def test_user_filter_language(db):
             LanguageAbility(user_id=user_with_german_fluent.id, language_code="deu", fluency=LanguageFluency.fluent)
         )
 
+    refresh_materialized_views_rapid(None)
+    refresh_materialized_views(None)
+
     with search_session(token11) as api:
         res = api.UserSearch(
             search_pb2.UserSearchReq(
@@ -198,6 +258,18 @@ def test_user_filter_language(db):
         )
         assert [result.user.user_id for result in res.results] == [user_with_german_fluent.id]
 
+        res = api.UserSearchV2(
+            search_pb2.UserSearchReq(
+                language_ability_filter=[
+                    api_pb2.LanguageAbility(
+                        code="deu",
+                        fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
+                    )
+                ]
+            )
+        )
+        assert [result.user_id for result in res.results] == [user_with_german_fluent.id]
+
         res = api.UserSearch(
             search_pb2.UserSearchReq(
                 language_ability_filter=[
@@ -210,6 +282,18 @@ def test_user_filter_language(db):
         )
         assert [result.user.user_id for result in res.results] == [user_with_japanese_conversational.id]
 
+        res = api.UserSearchV2(
+            search_pb2.UserSearchReq(
+                language_ability_filter=[
+                    api_pb2.LanguageAbility(
+                        code="jpn",
+                        fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL,
+                    )
+                ]
+            )
+        )
+        assert [result.user_id for result in res.results] == [user_with_japanese_conversational.id]
+
 
 def test_user_filter_strong_verification(db):
     user1, token1 = generate_user()
@@ -218,12 +302,21 @@ def test_user_filter_strong_verification(db):
     user4, _ = generate_user(strong_verification=True)
     user5, _ = generate_user(strong_verification=True)
 
+    refresh_materialized_views_rapid(None)
+    refresh_materialized_views(None)
+
     with search_session(token1) as api:
         res = api.UserSearch(search_pb2.UserSearchReq(only_with_strong_verification=False))
         assert [result.user.user_id for result in res.results] == [user1.id, user2.id, user3.id, user4.id, user5.id]
 
+        res = api.UserSearchV2(search_pb2.UserSearchReq(only_with_strong_verification=False))
+        assert [result.user_id for result in res.results] == [user1.id, user2.id, user3.id, user4.id, user5.id]
+
         res = api.UserSearch(search_pb2.UserSearchReq(only_with_strong_verification=True))
         assert [result.user.user_id for result in res.results] == [user2.id, user4.id, user5.id]
+
+        res = api.UserSearchV2(search_pb2.UserSearchReq(only_with_strong_verification=True))
+        assert [result.user_id for result in res.results] == [user2.id, user4.id, user5.id]
 
 
 def test_regression_search_only_with_references(db):
@@ -231,6 +324,9 @@ def test_regression_search_only_with_references(db):
     user2, _ = generate_user()
     user3, _ = generate_user()
     user4, _ = generate_user(delete_user=True)
+
+    refresh_materialized_views_rapid(None)
+    refresh_materialized_views(None)
 
     with session_scope() as session:
         # user 2 has references
@@ -245,8 +341,14 @@ def test_regression_search_only_with_references(db):
         res = api.UserSearch(search_pb2.UserSearchReq(only_with_references=False))
         assert [result.user.user_id for result in res.results] == [user1.id, user2.id, user3.id]
 
+        res = api.UserSearchV2(search_pb2.UserSearchReq(only_with_references=False))
+        assert [result.user_id for result in res.results] == [user1.id, user2.id, user3.id]
+
         res = api.UserSearch(search_pb2.UserSearchReq(only_with_references=True))
         assert [result.user.user_id for result in res.results] == [user2.id]
+
+        res = api.UserSearchV2(search_pb2.UserSearchReq(only_with_references=True))
+        assert [result.user_id for result in res.results] == [user2.id]
 
 
 def test_user_search_exactly_user_ids(db):
@@ -260,10 +362,16 @@ def test_user_search_exactly_user_ids(db):
     user4, _ = generate_user(meetup_status=MeetupStatus.wants_to_meetup)
     user5, _ = generate_user(delete_user=True)  # Deleted user
 
+    refresh_materialized_views_rapid(None)
+    refresh_materialized_views(None)
+
     with search_session(token1) as api:
         # Test that exactly_user_ids returns only the specified users
         res = api.UserSearch(search_pb2.UserSearchReq(exactly_user_ids=[user2.id, user3.id, user4.id]))
         assert sorted([result.user.user_id for result in res.results]) == sorted([user2.id, user3.id, user4.id])
+
+        res = api.UserSearchV2(search_pb2.UserSearchReq(exactly_user_ids=[user2.id, user3.id, user4.id]))
+        assert sorted([result.user_id for result in res.results]) == sorted([user2.id, user3.id, user4.id])
 
         # Test that exactly_user_ids ignores other filters
         res = api.UserSearch(
@@ -274,13 +382,27 @@ def test_user_search_exactly_user_ids(db):
         )
         assert sorted([result.user.user_id for result in res.results]) == sorted([user2.id, user3.id, user4.id])
 
+        res = api.UserSearchV2(
+            search_pb2.UserSearchReq(
+                exactly_user_ids=[user2.id, user3.id, user4.id],
+                only_with_strong_verification=True,  # This would normally filter out user3 and user4
+            )
+        )
+        assert sorted([result.user_id for result in res.results]) == sorted([user2.id, user3.id, user4.id])
+
         # Test with non-existent user IDs (should be ignored)
         res = api.UserSearch(search_pb2.UserSearchReq(exactly_user_ids=[user1.id, 99999]))
         assert [result.user.user_id for result in res.results] == [user1.id]
 
+        res = api.UserSearchV2(search_pb2.UserSearchReq(exactly_user_ids=[user1.id, 99999]))
+        assert [result.user_id for result in res.results] == [user1.id]
+
         # Test with deleted user ID (should be ignored due to visibility filter)
         res = api.UserSearch(search_pb2.UserSearchReq(exactly_user_ids=[user1.id, user5.id]))
         assert [result.user.user_id for result in res.results] == [user1.id]
+
+        res = api.UserSearchV2(search_pb2.UserSearchReq(exactly_user_ids=[user1.id, user5.id]))
+        assert [result.user_id for result in res.results] == [user1.id]
 
 
 @pytest.fixture
@@ -622,3 +744,37 @@ def test_event_search_filter_subscription_attendance_organizing_my_communities(s
 
         res = api.EventSearch(search_pb2.EventSearchReq(subscribed=True, attending=True))
         assert {event.title for event in res.events} == {"Subscribed event", "Attending event", "Organized event"}
+
+
+def test_regression_search_multiple_pages(db):
+    """
+    There was a bug when there are multiple pages of results
+    """
+    user, token = generate_user()
+    user_ids = [user.id]
+    for _ in range(10):
+        other_user, _ = generate_user()
+        user_ids.append(other_user.id)
+
+    refresh_materialized_views_rapid(None)
+    refresh_materialized_views(None)
+
+    with search_session(token) as api:
+        res = api.UserSearchV2(search_pb2.UserSearchReq(page_size=5))
+        assert [result.user_id for result in res.results] == user_ids[:5]
+        assert res.next_page_token
+
+
+def test_regression_search_no_results(db):
+    """
+    There was a bug when there were no results
+    """
+    # put us far away
+    user, token = generate_user()
+
+    refresh_materialized_views_rapid(None)
+    refresh_materialized_views(None)
+
+    with search_session(token) as api:
+        res = api.UserSearchV2(search_pb2.UserSearchReq(only_with_references=True))
+        assert len(res.results) == 0

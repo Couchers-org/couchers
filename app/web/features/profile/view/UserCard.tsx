@@ -1,59 +1,92 @@
 import { TabPanel } from "@mui/lab";
-import { Card } from "@mui/material";
+import { Box, Card, styled } from "@mui/material";
 import TabBar from "components/TabBar";
-import { sectionLabels } from "features/profile/constants";
+import useAccountInfo from "features/auth/useAccountInfo";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import About from "features/profile/view/About";
 import Home from "features/profile/view/Home";
 import References from "features/profile/view/References";
 import { useTranslation } from "i18n";
-import { PROFILE } from "i18n/namespaces";
+import { GLOBAL, PROFILE } from "i18n/namespaces";
+import { TFunction } from "i18next";
+import { GetAccountInfoRes } from "proto/account_pb";
+import { User } from "proto/api_pb";
 import { ReactNode } from "react";
 import { UserTab } from "routes";
-import makeStyles from "utils/makeStyles";
 
 import UserTabContext from "./UserTabContext";
 
 const REQUEST_ID = "request";
 
-const useStyles = makeStyles((theme) => ({
-  detailsCard: {
-    [theme.breakpoints.down("md")]: {
-      margin: 0,
-      width: "100%",
-    },
-    flexGrow: 1,
-    padding: theme.spacing(2),
+export const sectionLabels = (
+  t: TFunction,
+  user?: User.AsObject,
+  isSuperuser?: GetAccountInfoRes.AsObject["isSuperuser"],
+) => {
+  return {
+    about: t("profile:heading.about_me"),
+    home: t("profile:heading.home"),
+    references: (
+      <Box display="flex" alignItems="center" gap={1}>
+        {t("profile:heading.references")}
+        <StyledNumReferences>{user?.numReferences}</StyledNumReferences>
+      </Box>
+    ),
+    ...(isSuperuser ? { mod: t("global:mod") } : {}),
+  };
+};
+
+const StyledDetailsCard = styled(Card)(({ theme }) => ({
+  [theme.breakpoints.down("md")]: {
+    margin: 0,
+    width: "100%",
   },
-  tabPanel: {
-    padding: 0,
-  },
+  flexGrow: 1,
+  padding: theme.spacing(2),
+}));
+
+const StyledNumReferences = styled("div")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  backgroundColor: theme.palette.primary.main,
+  color: theme.palette.common.white,
+  fontWeight: "bold",
+  fontSize: "0.65rem",
+  width: "15px",
+  height: "15px",
+  borderRadius: "50%",
+  padding: theme.spacing(1),
 }));
 
 export default function UserCard({
   top,
   onTabChange,
   tab,
+  modPanel,
 }: {
   top?: ReactNode;
   onTabChange: (tab: UserTab) => void;
   tab: UserTab;
+  modPanel?: ReactNode;
 }) {
-  const { t } = useTranslation([PROFILE]);
-  const classes = useStyles();
+  const { t } = useTranslation([PROFILE, GLOBAL]);
   const user = useProfileUser();
+  const { data: accountInfo } = useAccountInfo();
+
   return (
-    <Card className={classes.detailsCard} id={REQUEST_ID}>
+    <StyledDetailsCard id={REQUEST_ID}>
       <UserTabContext tab={tab}>
         <TabBar
           setValue={onTabChange}
-          labels={sectionLabels(t)}
+          labels={sectionLabels(t, user, accountInfo?.isSuperuser)}
           ariaLabel={t("profile:section_tabs_a11y_label")}
         />
         {top || null}
-        <TabPanel classes={{ root: classes.tabPanel }} value="about">
+        <TabPanel value="about" sx={{ padding: 0 }}>
           <About user={user} />
         </TabPanel>
+        {modPanel}
         <TabPanel value="home">
           <Home user={user}></Home>
         </TabPanel>
@@ -61,6 +94,6 @@ export default function UserCard({
           <References />
         </TabPanel>
       </UserTabContext>
-    </Card>
+    </StyledDetailsCard>
   );
 }

@@ -42,7 +42,7 @@ const StyledSkeleton = styled(Skeleton)(() => ({
 
 export interface AvatarProps {
   children?: React.ReactNode;
-  user?: LiteUser.AsObject;
+  user?: Pick<LiteUser.AsObject, "username" | "name" | "avatarThumbnailUrl">;
   grow?: boolean;
   className?: string;
   isProfileLink?: boolean;
@@ -72,12 +72,12 @@ export default function Avatar({
             aria-label={getProfileLinkA11yLabel(user.name)}
             target={openInNewTab ? "_blank" : undefined}
           >
-            <StyledMuiAvatar alt={user.name} src={user.avatarUrl}>
+            <StyledMuiAvatar alt={user.name} src={user.avatarThumbnailUrl}>
               {user.name.split(/\s+/).map((name) => name[0])}
             </StyledMuiAvatar>
           </StyledLink>
         ) : (
-          <StyledMuiAvatar alt={user.name} src={user.avatarUrl}>
+          <StyledMuiAvatar alt={user.name} src={user.avatarThumbnailUrl}>
             {user.name.split(/\s+/).map((name) => name[0])}
           </StyledMuiAvatar>
         )

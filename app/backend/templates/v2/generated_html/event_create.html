@@ -58,9 +58,9 @@
     </style>
     <![endif]-->
   <!--[if !mso]><!-->
-  <link href="https://couchers.org/static/fonts/ubuntu/ubuntu.css" rel="stylesheet" type="text/css">
+  <link href="https://cdn.couchers.org/fonts/ubuntu/ubuntu.css" rel="stylesheet" type="text/css">
   <style type="text/css">
-    @import url(https://couchers.org/static/fonts/ubuntu/ubuntu.css);
+    @import url(https://cdn.couchers.org/fonts/ubuntu/ubuntu.css);
 
   </style>
   <!--<![endif]-->
@@ -172,7 +172,7 @@
                               </tr>
                               <tr>
                                 <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">A new event was created {% if community.name %}in the <a href="{{ community_link|v2url }}" style="color: #00a398;">{{ community.name|v2esc }}</a> community{% else %}nearby{% endif %}:</div>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">{{ start_text|v2esc }} {% if community.name %}in the <a href="{{ community_link|v2url }}" style="color: #00a398;">{{ community.name|v2esc }}</a> community{% else %}nearby{% endif %}:</div>
                                 </td>
                               </tr>
                               <tr>
@@ -210,7 +210,7 @@
                                         <img width="80px" style="border-radius: 80px" src="{{ inviting_user|v2avatar }}">
                                       </td>
                                       <td>
-                                        <b>Invited by {{ inviting_user.name|v2esc }}</b>, {{ inviting_user.age|v2esc }}<br>{{ inviting_user.city|v2esc }}
+                                        <b>Organized by {{ inviting_user.name|v2esc }}</b>, {{ inviting_user.age|v2esc }}<br>{{ inviting_user.city|v2esc }}
                                       </td>
                                     </tr>
                                   </table>
@@ -241,7 +241,7 @@
                                     <tbody>
                                       <tr>
                                         <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                          <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">{{ event.content|v2esc|v2multiline }}</div>
+                                          <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">{{ event.content|v2markdown }}</div>
                                         </td>
                                       </tr>
                                     </tbody>

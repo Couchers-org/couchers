@@ -4,14 +4,27 @@ Background job servicers
 
 import logging
 from datetime import date, timedelta
-from math import sqrt
-from types import SimpleNamespace
+from math import cos, pi, sin, sqrt
 
 import requests
 from google.protobuf import empty_pb2
 from sqlalchemy import Float, Integer
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, case, cast, delete, distinct, extract, func, literal, not_, or_, select, union_all
+from sqlalchemy.sql import (
+    and_,
+    case,
+    cast,
+    delete,
+    distinct,
+    extract,
+    func,
+    literal,
+    not_,
+    or_,
+    select,
+    union_all,
+    update,
+)
 
 from couchers.config import config
 from couchers.constants import (
@@ -19,7 +32,14 @@ from couchers.constants import (
     ACTIVENESS_PROBE_INACTIVITY_PERIOD,
     ACTIVENESS_PROBE_TIME_REMINDERS,
 )
-from couchers.crypto import asym_encrypt, b64decode, simple_decrypt
+from couchers.crypto import (
+    USER_LOCATION_RANDOMIZATION_NAME,
+    asym_encrypt,
+    b64decode,
+    get_secret,
+    simple_decrypt,
+    stable_secure_uniform,
+)
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
@@ -57,6 +77,7 @@ from couchers.models import (
 from couchers.notifications.background import handle_email_digests, handle_notification, send_raw_push_notification
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict, get_static_badge_dict
+from couchers.servicers.admin import generate_new_blog_post_notifications
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import are_blocked
 from couchers.servicers.conversations import generate_message_notifications
@@ -72,7 +93,7 @@ from couchers.servicers.threads import generate_reply_notifications
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
 from couchers.tasks import send_duplicate_strong_verification_email
-from couchers.utils import Timestamp_from_datetime, now
+from couchers.utils import Timestamp_from_datetime, create_coordinate, get_coordinates, make_user_context, now
 from proto import notification_data_pb2
 from proto.internal import jobs_pb2, verification_pb2
 
@@ -100,6 +121,7 @@ generate_event_cancel_notifications.PAYLOAD = jobs_pb2.GenerateEventCancelNotifi
 
 generate_event_delete_notifications.PAYLOAD = jobs_pb2.GenerateEventDeleteNotificationsPayload
 
+generate_new_blog_post_notifications.PAYLOAD = jobs_pb2.GenerateNewBlogPostNotificationsPayload
 
 refresh_materialized_views.PAYLOAD = empty_pb2.Empty
 refresh_materialized_views.SCHEDULE = timedelta(minutes=5)
@@ -240,7 +262,7 @@ def send_message_notifications(payload):
                             author=user_model_to_pb(
                                 message.author,
                                 session,
-                                SimpleNamespace(user_id=user.id),
+                                make_user_context(user_id=user.id),
                             ),
                             message=format_title(message, group_chat, count_unseen),
                             text=message.text,
@@ -294,7 +316,7 @@ def send_request_notifications(payload):
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
             session.flush()
 
-            context = SimpleNamespace(user_id=user.id)
+            context = make_user_context(user_id=user.id)
             notify(
                 session,
                 user_id=user.id,
@@ -311,7 +333,7 @@ def send_request_notifications(payload):
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
             session.flush()
 
-            context = SimpleNamespace(user_id=user.id)
+            context = make_user_context(user_id=user.id)
             notify(
                 session,
                 user_id=user.id,
@@ -462,7 +484,7 @@ def send_reference_reminders(payload):
                 # checked in sql
                 assert user.is_visible
                 if not are_blocked(session, user.id, other_user.id):
-                    context = SimpleNamespace(user_id=user.id)
+                    context = make_user_context(user_id=user.id)
                     notify(
                         session,
                         user_id=user.id,
@@ -906,7 +928,7 @@ def send_activeness_probes(payload):
 
             for probe in probes:
                 probe.notifications_sent = probe_number_minus_1 + 1
-                context = SimpleNamespace(user_id=probe.user.id)
+                context = make_user_context(user_id=probe.user.id)
                 notify(
                     session,
                     user_id=probe.user.id,
@@ -943,3 +965,42 @@ def send_activeness_probes(payload):
 
 send_activeness_probes.PAYLOAD = empty_pb2.Empty
 send_activeness_probes.SCHEDULE = timedelta(minutes=60)
+
+
+def update_randomized_locations(payload):
+    """
+    We generate for each user a randomized location as follows:
+    - Start from a strong random seed (based on the SECRET env var and our key derivation function)
+    - For each user, mix in the user_id for randomness
+    - Generate a radius from [0.02, 0.1] degrees (about 2-10km)
+    - Generate an angle from [0, 360]
+    - Randomized location is then a distance `radius` away at an angle `angle` from `geom`
+    """
+    randomization_secret = get_secret(USER_LOCATION_RANDOMIZATION_NAME)
+
+    def gen_randomized_coords(user_id, lat, lng):
+        radius_u = stable_secure_uniform(randomization_secret, seed=bytes(f"{user_id}|radius", "ascii"))
+        angle_u = stable_secure_uniform(randomization_secret, seed=bytes(f"{user_id}|angle", "ascii"))
+        radius = 0.02 + 0.08 * radius_u
+        angle_rad = 2 * pi * angle_u
+        offset_lng = radius * cos(angle_rad)
+        offset_lat = radius * sin(angle_rad)
+        return lat + offset_lat, lng + offset_lng
+
+    user_updates = []
+
+    with session_scope() as session:
+        users_to_update = session.execute(select(User.id, User.geom).where(User.randomized_geom == None)).all()
+
+        for user_id, geom in users_to_update:
+            lat, lng = get_coordinates(geom)
+            user_updates.append(
+                {"id": user_id, "randomized_geom": create_coordinate(*gen_randomized_coords(user_id, lat, lng))}
+            )
+
+    with session_scope() as session:
+        session.execute(update(User), user_updates)
+
+
+update_randomized_locations.PAYLOAD = empty_pb2.Empty
+update_randomized_locations.SCHEDULE = timedelta(hours=1)

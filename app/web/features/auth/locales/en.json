@@ -133,7 +133,8 @@
       "description": "We've updated our Terms of Service. To continue, please read and accept the new <1></1>."
     },
     "location_section": {
-      "title": "Please add your location",
+      "title": "Please update your location",
+      "explanation": "It seems your coordinates were not right. Please update your location to continue.",
       "submit_button": {
         "active_text": "Save",
         "inactive_text": "Thanks!"
@@ -191,7 +192,7 @@
   "feature_preview": {
     "title": "Feature Preview",
     "explanation": "This page allows you to try out features that are still in development before they are quite ready for use by everyone.",
-    "disclaimer": "Please keep in mind that these features are experimental. They may not work as intended and they may change rapidly as we develop them. Feel free to give feedback on our forum. Please report any bugs!",
+    "disclaimer": "Please keep in mind that these features are experimental. They may not work as intended and they may change rapidly as we develop them. Feel free to give feedback using the \"Report a problem\" button to report any bugs!",
     "no_previews": {
       "title": "No features currently in preview",
       "explanation": "There are currently no active features in preview, please check back later!"
@@ -280,6 +281,17 @@
       "error_message": "Failed to recover account: {{message}}",
       "button_text": "Recover your account",
       "success": "Your account has been recovered, you can log back in. We're excited to have you back!"
+    }
+  },
+  "profile_visibility": {
+    "title": "Profile Visibility",
+    "choose": "Choose what information will be visible to logged-out users",
+    "visiblility_options": {
+      "nothing": "<1>Nothing</1>: hide me completely",
+      "map_only": "<1>Map only</1>: show a randomized, anonymous map pin with no other information",
+      "limited": "<1>Limited</1>: show my name, location, hosting/meetup status, badges, number of references, and how long I've been a Coucher",
+      "most": "<1>Most</1>: show full \"About me\" section except \"Additional information\"",
+      "full_profile": "<1>Full profile</1>: show my full profile (except references)"
     }
   }
 }

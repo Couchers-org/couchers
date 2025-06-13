@@ -8,12 +8,17 @@ export default class MyDocument extends Document {
     return (
       <Html lang={this.props.locale ?? "en"}>
         <Head>
+          <link rel="preconnect" href="https://cdn.couchers.org" />
           <meta name="theme-color" content={theme.palette.primary.main} />
           <link rel="manifest" href="/manifest.json" />
           <link rel="apple-touch-icon" href="/logo512.png" />
           <link
             rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap"
+            href="https://cdn.couchers.org/fonts/ubuntu/ubuntu.css"
+          />
+          <link
+            rel="stylesheet"
+            href="https://cdn.couchers.org/fonts/wordmark/wordmark.css"
           />
         </Head>
         <body>

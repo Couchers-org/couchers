@@ -555,7 +555,7 @@ def test_ChangeLanguagePreference(db, fast_passwords):
 
         # the value of "set-cookie" will be the full cookie string, pull the key value from the string
         key_val = metadata["set-cookie"].split(";")[0]
-        assert key_val == "couchers-preferred-language=zh", f"expected 'couchers-preferred-language=zh', got {key_val}"
+        assert key_val == "NEXT_LOCALE=zh", f"expected 'NEXT_LOCALE=zh', got {key_val}"
 
         # the changed language preference should also be sent to the backend
         res = account.GetAccountInfo(empty_pb2.Empty())
@@ -745,7 +745,7 @@ def test_multiple_delete_tokens(db):
 
     with session_scope() as session:
         assert session.execute(select(func.count()).select_from(AccountDeletionToken)).scalar_one() == 3
-        token = session.execute(select(AccountDeletionToken)).scalars().first().token
+        token = session.execute(select(AccountDeletionToken).limit(1)).scalars().one_or_none().token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.ConfirmDeleteAccount(

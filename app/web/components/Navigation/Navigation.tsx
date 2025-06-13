@@ -15,6 +15,7 @@ import { CloseIcon, MenuIcon } from "components/Icons";
 import { MenuItem } from "components/Menu";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
+import { PushNotificationBanner } from "features/notifications/PushNotificationBanner";
 import useNotifications from "features/useNotifications";
 import { GLOBAL } from "i18n/namespaces";
 import { TFunction } from "i18next";
@@ -267,10 +268,10 @@ const StyledDrawer = styled(Drawer)(({ theme }) => ({
 const StyledDrawerTitle = styled("div")(({ theme }) => ({
   alignSelf: "center",
   fontSize: "1.5rem",
-  fontWeight: "bold",
+  fontWeight: 400,
   paddingLeft: theme.spacing(1),
   color: theme.palette.secondary.main,
-  fontFamily: "'Mansalva', cursive",
+  fontFamily: "Mansalva, cursive",
   marginInlineStart: theme.spacing(1.5),
 }));
 
@@ -504,6 +505,7 @@ export default function Navigation() {
         </StyledMenuContainer>
       </StyledToolbar>
       <GlobalMessage />
+      <PushNotificationBanner />
     </StyledAppBar>
   );
 }
