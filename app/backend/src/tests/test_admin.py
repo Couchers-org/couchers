@@ -784,6 +784,11 @@ def test_AddUsersToModerationUserList(db):
                 assert user1.id in {user.id for user in moderation_user_list.users}
                 assert user2.id in {user.id for user in moderation_user_list.users}
 
+            # Test list endpoint returns same moderation list
+            listRes = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user1.username))
+            assert len(listRes.moderation_list_ids) == 1
+            assert listRes.moderation_list_ids[0] == res.moderation_list_id
+
             # Test adding other users to existing moderation list
             res2 = api.AddUsersToModerationUserList(
                 admin_pb2.AddUsersToModerationUserListReq(
@@ -794,6 +799,11 @@ def test_AddUsersToModerationUserList(db):
             with session_scope() as session:
                 moderation_user_list = session.get(ModerationUserList, res.moderation_list_id)
                 assert user3.id in {user.id for user in moderation_user_list.users}
+
+            # Test list user moderation lists endpoint returns the right moderation list
+            listRes2 = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user5.username))
+            assert len(listRes2.moderation_list_ids) == 1
+            assert listRes2.moderation_list_ids[0] == res.moderation_list_id
 
             # Test creating a separate moderation list
             res3 = api.AddUsersToModerationUserList(
@@ -840,6 +850,12 @@ def test_RemoveUserFromModerationUserList(db):
             moderation_user_list = session.get(ModerationUserList, moderation_list_id)
             assert user1.id not in {user.id for user in moderation_user_list.users}
             assert user2.id in {user.id for user in moderation_user_list.users}
+        
+        # Test list user moderation lists endpoint returns right number of moderation lists
+            listRes = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user1.username))
+            assert len(listRes.moderation_list_ids) == 0
+            listRes2 = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user2.username))
+            assert len(listRes2.moderation_list_ids) == 1
 
         # Test removing all users from moderation list should also delete the moderation list
         api.RemoveUserFromModerationUserList(

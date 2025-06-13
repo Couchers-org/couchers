@@ -708,6 +708,15 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
         return admin_pb2.AddUsersToModerationUserListRes(moderation_list_id=moderation_user_list.id)
 
+    def ListModerationUserLists(self, request, context, session):
+        """Lists all moderation user lists for a user."""
+        user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+        if not user:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
+        moderation_lists_ids = [ml.id for ml in user.moderation_user_lists]
+        return admin_pb2.ListModerationUserListsRes(moderation_list_ids=moderation_lists_ids)
+
     def RemoveUserFromModerationUserList(self, request, context, session):
         """Removes a user from a provided moderation user list."""
         user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()

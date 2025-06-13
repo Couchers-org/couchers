@@ -80,6 +80,8 @@ service Admin {
 
   rpc RemoveUserFromModerationUserList(RemoveUserFromModerationUserListReq) returns (google.protobuf.Empty) {}
 
+  rpc ListModerationUserLists(ListModerationUserListsReq) returns (ListModerationUserListsRes) {}
+
   rpc CreateAccountDeletionLink(CreateAccountDeletionLinkReq) returns (CreateAccountDeletionLinkRes) {}
 
   rpc AccessStats(AccessStatsReq) returns (AccessStatsRes) {}
@@ -351,6 +353,15 @@ message AddUsersToModerationUserListReq {
   // username, email, or user id
   repeated string users = 1;
   int64 moderation_list_id = 2;
+}
+
+message ListModerationUserListsReq {
+  // username, email, or user id
+  string user = 1;
+}
+
+message ListModerationUserListsRes {
+  repeated int64 moderation_list_ids = 1;
 }
 
 message AddUsersToModerationUserListRes {
