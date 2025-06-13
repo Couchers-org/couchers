@@ -77,7 +77,9 @@
     "birthday": {
       "field_label": "生日",
       "required_error": "输入您的生日",
-      "validation_error": "生日得是过去存在的一天。"
+      "validation_error": "生日得是过去存在的一天。",
+      "too_young_error": "您必须年满18岁才能使用Couchers",
+      "not_real_date_error": "请输入真实的出生日期"
     },
     "hosting_status": {
       "any": "任意",
@@ -131,18 +133,26 @@
       "description": "我们更新了服务条款。请阅读并接受新的<1></1>以继续。"
     },
     "location_section": {
-      "title": "请添加您的位置",
+      "title": "请更新您的位置",
       "submit_button": {
         "active_text": "保存",
         "inactive_text": "谢谢！"
       },
-      "resubmit_button_text": "重新提交"
+      "resubmit_button_text": "重新提交",
+      "explanation": "您的坐标似乎不正确。请更新您的位置以继续。"
     },
     "mod_note_section": {
       "title": "您已收到来自管理员的通知",
       "description": "管理员向您发送了以下通知。请仔细阅读并确认您已阅读并理解该通知，然后再继续。",
       "note_title": "收到管理员通知于 {{time}}：",
       "acknowledge": "确认已阅读"
+    },
+    "activeness_probe": {
+      "title": "你现在还愿意接待沙发客吗？",
+      "description": "我们注意到您有一段时间没有登录了，想确认您是否仍然愿意接待旅行者。",
+      "still_hosting": "我还是想接待！",
+      "not_hosting": "我不能再接待了。",
+      "note": "我们会根据您的选择更新您的资料！"
     }
   },
   "logged_out_message": "您已登出。",
@@ -182,7 +192,7 @@
   "feature_preview": {
     "title": "功能预览",
     "explanation": "此页面允许您尝试尚在开发中的功能，这些功能尚未完全准备好供所有人使用。",
-    "disclaimer": "请注意，这些功能是实验性的。它们可能无法按预期工作，并且可能会随着我们的开发快速变化。欢迎在我们的论坛上提供反馈。如有任何错误，请向我们报告！",
+    "disclaimer": "请注意，这些功能目前处于实验阶段。它们可能无法按预期工作，并且在我们开发过程中可能会迅速发生变化。欢迎使用“报告问题”按钮反馈任何错误！",
     "no_previews": {
       "title": "暂无预览功能",
       "explanation": "目前暂无活动的预览功能，请稍后再来查看！"
@@ -207,7 +217,8 @@
     "status": {
       "enabled_message": "您当前已完成<1>强验证</1>。",
       "disabled_message": "您当前未完成<1>强验证</1>。"
-    }
+    },
+    "learn_more": "了解强验证，点击<a>此处</a>。"
   },
   "unsubscribe": {
     "title": "退订",
