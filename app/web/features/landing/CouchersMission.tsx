@@ -24,6 +24,42 @@ const StyledButtonContainer = styled("div")({
   gap: "24px",
 });
 
+interface StyledGridBubbleProps extends React.ComponentProps<typeof Grid> {
+  selected?: boolean;
+}
+
+const StyledGridBubble = styled(Grid, {
+  shouldForwardProp: (prop) => prop !== "selected",
+})<StyledGridBubbleProps>(({ theme, selected }) => ({
+  color: selected ? theme.palette.common.white : theme.palette.text.primary,
+  backgroundColor: selected
+    ? theme.palette.primary.main
+    : theme.palette.primary.light,
+  padding: theme.spacing(2),
+  borderRadius: theme.spacing(1),
+  display: "flex",
+  alignItems: "center",
+  minWidth: 0,
+  cursor: "pointer",
+  position: "relative",
+  "&::after": {
+    content: '""',
+    position: "absolute",
+    bottom: "-15px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    width: 0,
+    height: 0,
+    borderLeft: "20px solid transparent",
+    borderRight: "20px solid transparent",
+    borderTop: `20px solid ${selected ? theme.palette.primary.main : theme.palette.primary.light}`,
+    display: selected ? "block" : "none",
+    [theme.breakpoints.down("md")]: {
+      display: "none",
+    },
+  },
+}));
+
 const CouchersMission = () => {
   const { t } = useTranslation([LANDING, GLOBAL]);
   const { ref, inView } = useInView({ triggerOnce: true });
@@ -31,43 +67,14 @@ const CouchersMission = () => {
 
   const missionBubble = (itemName: string) => {
     return (
-      <Grid
+      <StyledGridBubble
         item
         xs={5.7}
-        sm={3.7}
-        md={2}
-        display="flex"
-        alignItems="center"
+        sm={3.8}
+        md={1.8}
+        selected={selectedItem === itemName}
         onClick={() => {
           setSelectedItem(itemName);
-        }}
-        sx={{
-          backgroundColor:
-            selectedItem === itemName
-              ? theme.palette.primary.main
-              : theme.palette.primary.light,
-          padding: 2,
-          borderRadius: 2,
-          flex: { md: 1 },
-          minWidth: 0,
-          cursor: "pointer",
-          position: "relative",
-          "&::after": {
-            content: '""',
-            position: "absolute",
-            bottom: "-8px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: 0,
-            height: 0,
-            borderLeft: "10px solid transparent",
-            borderRight: "10px solid transparent",
-            borderTop: `10px solid ${selectedItem === itemName ? theme.palette.primary.main : theme.palette.primary.light}`,
-            display: selectedItem === itemName ? "block" : "none",
-            [theme.breakpoints.down("md")]: {
-              display: "none",
-            },
-          },
         }}
       >
         <Box display="flex" flexDirection="column" width="100%">
@@ -75,14 +82,14 @@ const CouchersMission = () => {
             {t(`${LANDING}:${itemName}_title`)}
           </Typography>
         </Box>
-      </Grid>
+      </StyledGridBubble>
     );
   };
 
   const missionDescription = (selectedItem: string) => {
     const localeKey = `${LANDING}:${selectedItem}_description`;
     return (
-      <Typography align="justify" variant="body2">
+      <Typography align="justify" variant="body1">
         {descriptionContent(localeKey)}
       </Typography>
     );
@@ -96,11 +103,12 @@ const CouchersMission = () => {
             Couchers.org is built as a non-profit to keep our mission aligned
             with our community - not investors. <br />
             Unlike Couchsurfing™, which became a for-profit and compromised its
-            values, we're committed to staying community-first, forever. <br />
+            values, we're committed to staying community-first, forever. <br />{" "}
+            <br />
             We've put strong legal, community, and technical safeguards in place
             to prevent future sell-outs. Our open-source code, distributed
             volunteer model, and non-profit legal structure ensure transparency
-            and long-term accountability. <br />
+            and long-term accountability. <br /> <br />
             Founded by donations, not profit, Couchers.org is here to serve
             travelers - not monetize them. Want to know more?
             <StyledLink href={missionRoute}>Read here</StyledLink>
@@ -135,7 +143,7 @@ const CouchersMission = () => {
           <Grid
             item
             sx={{
-              marginTop: 1,
+              marginTop: 2,
               backgroundColor: theme.palette.grey[200],
               padding: 2,
               borderRadius: 2,
@@ -159,13 +167,13 @@ const CouchersMission = () => {
         </StyledLink>
       </Typography>
       <StyledButtonContainer>
-        <Link href={volunteerRoute} passHref legacyBehavior>
-          <StyledButton component="a" variant="contained" color="secondary">
+        <Link href={volunteerRoute}>
+          <StyledButton variant="contained" color="secondary">
             {t("global:nav.volunteer")}
           </StyledButton>
         </Link>
-        <Link href={donationsRoute} passHref legacyBehavior>
-          <StyledButton component="a" variant="contained">
+        <Link href={donationsRoute}>
+          <StyledButton variant="contained">
             {t("global:nav.donate")}
           </StyledButton>
         </Link>
