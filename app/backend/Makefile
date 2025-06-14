@@ -1,5 +1,5 @@
 # Makefile for the backend of the application
-# Run 'make [commands]' in app/backend to execute the specified command
+# Run 'make [command]' in app/backend to execute the specified command
 format:
 	ruff check --select I --fix . && ruff check . --fix && ruff format .
 # Run backend tests with optional file argument
