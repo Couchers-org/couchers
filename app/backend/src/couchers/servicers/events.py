@@ -674,17 +674,20 @@ class Events(events_pb2_grpc.EventsServicer):
         session.flush()
 
         if notify_updated:
-            logger.info(f"Fields {','.join(notify_updated)} updated in event {event.id=}, notifying")
+            if request.should_notify:
+                logger.info(f"Fields {','.join(notify_updated)} updated in event {event.id=}, notifying")
 
-            queue_job(
-                session,
-                "generate_event_update_notifications",
-                payload=jobs_pb2.GenerateEventUpdateNotificationsPayload(
-                    updating_user_id=user.id,
-                    occurrence_id=occurrence.id,
-                    updated_items=notify_updated,
-                ),
-            )
+                queue_job(
+                    session,
+                    "generate_event_update_notifications",
+                    payload=jobs_pb2.GenerateEventUpdateNotificationsPayload(
+                        updating_user_id=user.id,
+                        occurrence_id=occurrence.id,
+                        updated_items=notify_updated,
+                    ),
+                )
+            else:
+                logger.info(f"Fields {','.join(notify_updated)} updated in event {event.id=}, but skipping notifications")
 
         # since we have synchronize_session=False, we have to refresh the object
         session.refresh(occurrence)
