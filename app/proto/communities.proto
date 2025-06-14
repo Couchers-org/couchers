@@ -182,13 +182,13 @@ message ListMembersReq {
   int64 community_id = 1;
 
   uint32 page_size = 2;
-  string page_token = 3;
+  uint32 page_number = 4;
 }
 
 message ListMembersRes {
   repeated int64 member_user_ids = 1;
 
-  string next_page_token = 2;
+  uint32 total_items = 3;
 }
 
 message ListNearbyUsersReq {
