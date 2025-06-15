@@ -43,9 +43,7 @@ export default function LandingPage() {
         <WhatWhyCouchersSection />
       </Container>
       <StyledSpacer />
-      <Container component="section" maxWidth="lg">
-        <CouchersMission />
-      </Container>
+      <Container component="section" maxWidth="lg"></Container>
       <StyledSpacer />
       <Container component="section" maxWidth="lg">
         Third section here
@@ -56,7 +54,7 @@ export default function LandingPage() {
       </Container>
       <StyledSpacer />
       <Container component="section" maxWidth="lg">
-        Fifth section here
+        <CouchersMission />
       </Container>
     </>
   );
