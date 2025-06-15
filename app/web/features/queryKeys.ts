@@ -17,6 +17,13 @@ export function userKey(userId?: number) {
   return userId === undefined ? "user" : ["user", userId];
 }
 
+export function modUserKey(user?: string) {
+  return user === undefined ? "modUser" : ["modUser", user];
+}
+export function modUserDetailsKey(user?: string) {
+  return user === undefined ? "modUserDetails" : ["modUserDetails", user];
+}
+
 export function liteUserKey(userId?: number) {
   return userId === undefined ? "liteUser" : ["liteUser", userId];
 }
@@ -161,3 +168,6 @@ export const badgeUsersKey = ({ badgeId }: BadgeUsersInput) => [
   "badgeUsers",
   badgeId,
 ];
+
+// mod
+export const newUsersListKey = "newUsersList";

@@ -52,6 +52,7 @@ Want to help but don't see anything listed for you? [Fill out this form](/volunt
 #### Operations
 
 - [Volunteer Coordinator](/volunteer/volunteer-coordinator)
+- [Translator](/volunteer/translator)
 
 #### Design
 
