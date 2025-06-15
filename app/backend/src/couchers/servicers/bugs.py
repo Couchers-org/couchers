@@ -43,6 +43,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             f"Backend version: {self._version()}\n"
             f"Frontend version: {request.frontend_version}\n"
             f"User Agent: {request.user_agent}\n"
+            f"Screen resolution: {request.screen_resolution.width}x{request.screen_resolution.height}\n"
             f"Page: {request.page}\n"
             f"User: {user_details}"
         )

@@ -1,0 +1,29 @@
+{
+  "title": "Mod tools",
+  "banned": "Banned",
+  "deleted": "Deleted",
+  "do_not_email": "Do not email",
+  "list_users": {
+    "heading": "New users list",
+    "none_found": "No users found",
+    "load_more": "Load more"
+  },
+  "actions": {
+    "ban": "Ban user",
+    "open_in_console": "Open in console"
+  },
+  "panel": {
+    "heading": "Mod Stuff",
+    "username": "Username",
+    "user_id": "User ID",
+    "email": "Email",
+    "birthdate": "Birthdate",
+    "has_strong_verification": "Has strong verification",
+    "birthdate_verification_status": "Birthdate verification",
+    "gender_verification_status": "Gender verification",
+    "has_passport_sex_gender_exception": "Passport sex/gender exc.?",
+    "pending_mod_notes_count": "Pending mod notes",
+    "acknowledged_mod_notes_count": "Acknowledged mod notes",
+    "admin_note": "Admin note"
+  }
+}

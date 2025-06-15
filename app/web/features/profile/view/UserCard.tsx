@@ -1,13 +1,15 @@
 import { TabPanel } from "@mui/lab";
-import { Box, Card, styled, Typography } from "@mui/material";
+import { Box, Card, styled } from "@mui/material";
 import TabBar from "components/TabBar";
+import useAccountInfo from "features/auth/useAccountInfo";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import About from "features/profile/view/About";
 import Home from "features/profile/view/Home";
 import References from "features/profile/view/References";
 import { useTranslation } from "i18n";
-import { PROFILE } from "i18n/namespaces";
+import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { TFunction } from "i18next";
+import { GetAccountInfoRes } from "proto/account_pb";
 import { User } from "proto/api_pb";
 import { ReactNode } from "react";
 import { UserTab } from "routes";
@@ -16,18 +18,23 @@ import UserTabContext from "./UserTabContext";
 
 const REQUEST_ID = "request";
 
-export const sectionLabels = (t: TFunction, user?: User.AsObject) => ({
-  about: t("profile:heading.about_me"),
-  home: t("profile:heading.home"),
-  references: (
-    <Box display="flex" alignItems="center" gap={1}>
-      <Typography component="span">
+export const sectionLabels = (
+  t: TFunction,
+  user?: User.AsObject,
+  isSuperuser?: GetAccountInfoRes.AsObject["isSuperuser"],
+) => {
+  return {
+    about: t("profile:heading.about_me"),
+    home: t("profile:heading.home"),
+    references: (
+      <Box display="flex" alignItems="center" gap={1}>
         {t("profile:heading.references")}
-      </Typography>
-      <StyledNumReferences>{user?.numReferences}</StyledNumReferences>
-    </Box>
-  ),
-});
+        <StyledNumReferences>{user?.numReferences}</StyledNumReferences>
+      </Box>
+    ),
+    ...(isSuperuser ? { mod: t("global:mod") } : {}),
+  };
+};
 
 const StyledDetailsCard = styled(Card)(({ theme }) => ({
   [theme.breakpoints.down("md")]: {
@@ -56,26 +63,30 @@ export default function UserCard({
   top,
   onTabChange,
   tab,
+  modPanel,
 }: {
   top?: ReactNode;
   onTabChange: (tab: UserTab) => void;
   tab: UserTab;
+  modPanel?: ReactNode;
 }) {
-  const { t } = useTranslation([PROFILE]);
+  const { t } = useTranslation([PROFILE, GLOBAL]);
   const user = useProfileUser();
+  const { data: accountInfo } = useAccountInfo();
 
   return (
     <StyledDetailsCard id={REQUEST_ID}>
       <UserTabContext tab={tab}>
         <TabBar
           setValue={onTabChange}
-          labels={sectionLabels(t, user)}
+          labels={sectionLabels(t, user, accountInfo?.isSuperuser)}
           ariaLabel={t("profile:section_tabs_a11y_label")}
         />
         {top || null}
         <TabPanel value="about" sx={{ padding: 0 }}>
           <About user={user} />
         </TabPanel>
+        {modPanel}
         <TabPanel value="home">
           <Home user={user}></Home>
         </TabPanel>
