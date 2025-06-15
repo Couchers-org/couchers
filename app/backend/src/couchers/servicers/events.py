@@ -687,7 +687,9 @@ class Events(events_pb2_grpc.EventsServicer):
                     ),
                 )
             else:
-                logger.info(f"Fields {','.join(notify_updated)} updated in event {event.id=}, but skipping notifications")
+                logger.info(
+                    f"Fields {','.join(notify_updated)} updated in event {event.id=}, but skipping notifications"
+                )
 
         # since we have synchronize_session=False, we have to refresh the object
         session.refresh(occurrence)
