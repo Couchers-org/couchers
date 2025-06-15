@@ -14,12 +14,12 @@ jest.mock("react-intersection-observer", () => ({
 }));
 
 const missions = [
-  `landing:tile_1`,
-  `landing:tile_2`,
-  `landing:tile_3`,
-  `landing:tile_4`,
-  `landing:tile_5`,
-  `landing:tile_6`,
+  `landing:nonprofit`,
+  `landing:free_forever`,
+  `landing:authentic`,
+  `landing:community_led`,
+  `landing:open_source`,
+  `landing:non_transactional`,
 ];
 
 describe("CouchersMission", () => {
