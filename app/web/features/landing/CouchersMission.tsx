@@ -1,17 +1,12 @@
 import { Box, Fade, Grid, styled, Typography } from "@mui/material";
 import StyledLink from "components/StyledLink";
 import { StyledButton } from "features/auth/useAuthStyles";
-import { Trans, useTranslation } from "i18n";
+import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import Link from "next/link";
 import { useState } from "react";
 import { useInView } from "react-intersection-observer";
-import {
-  donationsRoute,
-  missionRoute,
-  roadmapRoute,
-  volunteerRoute,
-} from "routes";
+import { donationsRoute, roadmapRoute, volunteerRoute } from "routes";
 import { theme } from "theme";
 
 const StyledSpacer = styled("div")(({ theme }) => ({
@@ -63,7 +58,7 @@ const StyledGridBubble = styled(Grid, {
 const CouchersMission = () => {
   const { t } = useTranslation([LANDING, GLOBAL]);
   const { ref, inView } = useInView({ triggerOnce: true });
-  const [selectedItem, setSelectedItem] = useState("non_profit_structure");
+  const [selectedItem, setSelectedItem] = useState("tile_1");
 
   const missionBubble = (itemName: string) => {
     return (
@@ -79,44 +74,11 @@ const CouchersMission = () => {
       >
         <Box display="flex" flexDirection="column" width="100%">
           <Typography variant="h6" align="center" gutterBottom>
-            {t(`${LANDING}:${itemName}_title`)}
+            {t(`landing:${itemName}_title`)}
           </Typography>
         </Box>
       </StyledGridBubble>
     );
-  };
-
-  const missionDescription = (selectedItem: string) => {
-    const localeKey = `${LANDING}:${selectedItem}_description`;
-    return (
-      <Typography align="justify" variant="body1">
-        {descriptionContent(localeKey)}
-      </Typography>
-    );
-  };
-
-  const descriptionContent = (localeKey: string) => {
-    switch (localeKey) {
-      case `${LANDING}:non_profit_structure_description`:
-        return (
-          <Trans i18nKey={localeKey}>
-            Couchers.org is built as a non-profit to keep our mission aligned
-            with our community - not investors. <br />
-            Unlike Couchsurfing™, which became a for-profit and compromised its
-            values, we're committed to staying community-first, forever. <br />{" "}
-            <br />
-            We've put strong legal, community, and technical safeguards in place
-            to prevent future sell-outs. Our open-source code, distributed
-            volunteer model, and non-profit legal structure ensure transparency
-            and long-term accountability. <br /> <br />
-            Founded by donations, not profit, Couchers.org is here to serve
-            travelers - not monetize them. Want to know more?
-            <StyledLink href={missionRoute}>Read here</StyledLink>
-          </Trans>
-        );
-      default:
-        return t(localeKey);
-    }
   };
 
   return (
@@ -131,12 +93,12 @@ const CouchersMission = () => {
       >
         <Fade timeout={2000} in={inView}>
           <Grid item container gap={2} justifyContent={"center"}>
-            {missionBubble("non_profit_structure")}
-            {missionBubble("community_first_framework")}
-            {missionBubble("member_accountability")}
-            {missionBubble("improved_review_system")}
-            {missionBubble("better_host_matching")}
-            {missionBubble("built_it_right")}
+            {missionBubble("tile_1")}
+            {missionBubble("tile_2")}
+            {missionBubble("tile_3")}
+            {missionBubble("tile_4")}
+            {missionBubble("tile_5")}
+            {missionBubble("tile_6")}
           </Grid>
         </Fade>
         <Fade key={selectedItem} timeout={1000} in={true}>
@@ -150,7 +112,12 @@ const CouchersMission = () => {
               width: "100%",
             }}
           >
-            {missionDescription(selectedItem)}
+            <Typography variant="body1" gutterBottom>
+              {t(`landing:${selectedItem}_description`)}
+            </Typography>
+            <Typography variant="body2">
+              <b>Why?</b> {t(`landing:${selectedItem}_why`)}
+            </Typography>
           </Grid>
         </Fade>
       </Grid>
