@@ -1,5 +1,5 @@
 import { KeyboardDoubleArrowDown } from "@mui/icons-material";
-import { Box, styled,  useMediaQuery } from "@mui/material";
+import { Box, styled, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
@@ -23,35 +23,20 @@ interface HeroSectionProps {
   scrollToMore?: () => void;
 }
 
-const StyledSection = styled("section")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  padding: theme.spacing(0, 16),
-  paddingBottom: 0,
-  width: "100%",
-  height: "100%",
-
-  [theme.breakpoints.down("md")]: {
-    padding: theme.spacing(0, 2),
-    justifyContent: "center",
-  },
-}));
-
-const StyledMobileEmbed = styled("div")(({ theme }) => ({
-  margin: theme.spacing(3),
-}));
-
 const StyledContent = styled("div")(({ theme }) => ({
   width: "100%",
-  justifyContent: "center",
+  justifyContent: "space-between",
   marginBottom: theme.spacing(2),
   flexDirection: "column",
 
   [theme.breakpoints.up("md")]: {
     display: "flex",
     flexDirection: "row",
-    justifyContent: "space-evenly",
   },
+}));
+
+const StyledMobileEmbed = styled("div")(({ theme }) => ({
+  margin: theme.spacing(3),
 }));
 
 const StyledMapWrapper = styled("div")(({ theme }) => ({
@@ -60,7 +45,7 @@ const StyledMapWrapper = styled("div")(({ theme }) => ({
   maxWidth: "400px",
 
   [theme.breakpoints.up("md")]: {
-    width: "45%",
+    width: "55%",
     marginTop: theme.spacing(2),
   },
 }));
@@ -130,26 +115,24 @@ export default function HeroSection({ scrollToMore }: HeroSectionProps) {
   return (
     <>
       <HtmlMeta title={t("global:join_us")} />
-      <StyledSection>
-        <StyledContent>
-          <CouchersIntroduction scrollToMore={scrollToMore} />
-          <StyledMapWrapper>Map animation goes here</StyledMapWrapper>
-          {isMobile && scrollToMore && (
-            <Box
-              fontSize="large"
-              onClick={scrollToMore}
-              sx={{
-                color: theme.palette.common.black,
-                display: "flex",
-                justifyContent: "center",
-                marginTop: theme.spacing(4),
-              }}
-            >
-              <KeyboardDoubleArrowDown />
-            </Box>
-          )}
-        </StyledContent>
-      </StyledSection>
+      <StyledContent>
+        <CouchersIntroduction scrollToMore={scrollToMore} />
+        <StyledMapWrapper>Map animation goes here</StyledMapWrapper>
+        {isMobile && scrollToMore && (
+          <Box
+            fontSize="large"
+            onClick={scrollToMore}
+            sx={{
+              color: theme.palette.common.black,
+              display: "flex",
+              justifyContent: "center",
+              marginTop: theme.spacing(4),
+            }}
+          >
+            <KeyboardDoubleArrowDown />
+          </Box>
+        )}
+      </StyledContent>
     </>
   );
 }

@@ -37,25 +37,27 @@ export default function LandingPage() {
   return (
     <>
       <HtmlMeta />
-      <HeroSection scrollToMore={scrollToMore} />
+      <Container component="section" maxWidth="xl">
+        <HeroSection scrollToMore={scrollToMore} />
+      </Container>
       <StyledSpacer />
-      <Container component="section" maxWidth="lg" ref={moreContentRef}>
+      {/* <Container component="section" maxWidth="xl" ref={moreContentRef}>
+        social proof section goes here
+      </Container> */}
+      <StyledSpacer />
+      <Container component="section" maxWidth="xl">
         <WhatWhyCouchersSection />
       </Container>
       <StyledSpacer />
-      <Container component="section" maxWidth="lg">
-        Second section here
-      </Container>
-      <StyledSpacer />
-      <Container component="section" maxWidth="lg">
+      <Container component="section" maxWidth="xl">
         Third section here
       </Container>
       <StyledSpacer />
-      <Container component="section" maxWidth="lg">
+      <Container component="section" maxWidth="xl">
         Fourth section here
       </Container>
       <StyledSpacer />
-      <Container component="section" maxWidth="lg">
+      <Container component="section" maxWidth="xl">
         Fifth section here
       </Container>
     </>

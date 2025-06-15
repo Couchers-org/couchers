@@ -1,4 +1,4 @@
-import { Loyalty, People } from "@mui/icons-material";
+import { Diversity3, Loyalty } from "@mui/icons-material";
 import { Box, Fade, Grid, Typography } from "@mui/material";
 import { VerifiedUser } from "components/Icons";
 import { useTranslation } from "i18n";
@@ -12,19 +12,28 @@ const WhatWhyCouchersSection = () => {
 
   return (
     <>
-      {/* <Typography variant="h2">{t("what_couchsurfing_title")}</Typography>
-      <Typography variant="body1" paragraph sx={{ marginTop: 2 }}>
-        {t("what_couchsurfing_description")}
-      </Typography>
-      <Typography
-        variant="body1"
-        paragraph
-        sx={{ fontWeight: "bold", marginTop: 2 }}
+      <Box
+        sx={{
+          textAlign: "center",
+          marginTop: 4,
+          backgroundColor: theme.palette.grey[50],
+          padding: 4,
+        }}
       >
-        {t("sign_up_ready")}
+        <Typography variant="h2" sx={{ fontSize: "2.5rem !important" }}>
+          {t("what_couchsurfing_title")}
+        </Typography>
+        <Typography paragraph sx={{ marginTop: 2 }}>
+          {t("what_couchsurfing_description_1")}
+        </Typography>
+        <Typography paragraph>
+          {t("what_couchsurfing_description_2")}
+        </Typography>
+      </Box>
+      {/* <StyledSpacer /> */}
+      <Typography variant="h2" sx={{ fontSize: "2.5rem !important" }}>
+        {t("why_couchers_title")}
       </Typography>
-      <StyledSpacer /> */}
-      <Typography variant="h2" sx={{fontSize: "2.5rem !important"}}>{t("why_couchers_title")}</Typography>
       <Fade timeout={2000} in={inView}>
         <Grid
           container
@@ -43,7 +52,7 @@ const WhatWhyCouchersSection = () => {
             display="flex"
             sx={{
               backgroundColor: theme.palette.grey[50],
-              padding: 2,
+              padding: 4,
               borderRadius: 2,
               flex: { md: 1 },
               minWidth: 0,
@@ -56,7 +65,7 @@ const WhatWhyCouchersSection = () => {
               width="100%"
               alignItems={"center"}
             >
-              <People color="primary" sx={{ fontSize: "40px" }} />
+              <Diversity3 color="primary" sx={{ fontSize: "40px" }} />
               <Typography variant="h3" gutterBottom>
                 {t("community_first")}
               </Typography>
@@ -75,7 +84,7 @@ const WhatWhyCouchersSection = () => {
             display="flex"
             sx={{
               backgroundColor: theme.palette.grey[50],
-              padding: 2,
+              padding: 4,
               borderRadius: 2,
               flex: { md: 1 },
               minWidth: 0,
@@ -106,7 +115,7 @@ const WhatWhyCouchersSection = () => {
             display="flex"
             sx={{
               backgroundColor: theme.palette.grey[50],
-              padding: 2,
+              padding: 4,
               borderRadius: 2,
               flex: { md: 1 },
               minWidth: 0,

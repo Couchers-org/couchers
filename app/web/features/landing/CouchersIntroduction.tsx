@@ -12,9 +12,7 @@ const StyledIntroduction = styled("div")(({ theme }) => ({
   flexDirection: "column",
   display: "flex",
   textAlign: "left",
-  width: "55%",
-  maxWidth: theme.breakpoints.values.xl / 2,
-  marginInlineEnd: "10%",
+  width: "45%",
   marginTop: theme.spacing(14),
 
   [theme.breakpoints.down("md")]: {

@@ -30,7 +30,7 @@ const StyledNextLink = styled(Link, {
 const StyledTypography = styled(Typography)(({ theme }) => ({
   alignSelf: "center",
   marginTop: 0,
-  fontWeight: 300
+  fontWeight: 400,
 }));
 
 export default function NavButton({
