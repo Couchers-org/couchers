@@ -1,20 +1,16 @@
 import { KeyboardDoubleArrowDown } from "@mui/icons-material";
-import { Box, styled, Typography, useMediaQuery } from "@mui/material";
+import { Box, styled,  useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
-import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
-import StyledLink from "components/StyledLink";
-import mobileAuthBg from "features/auth/resources/mobile-auth-bg-dark.jpg";
 import CouchersIntroduction from "features/landing/CouchersIntroduction";
-import { Trans, useTranslation } from "i18n";
+import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useIsNativeEmbed } from "platform/nativeLink";
 import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
-import { loginRoute, signupRoute } from "routes";
+import { signupRoute } from "routes";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
 import { theme } from "theme";
@@ -30,17 +26,13 @@ interface HeroSectionProps {
 const StyledSection = styled("section")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
-  padding: theme.spacing(2, 16),
+  padding: theme.spacing(0, 16),
   paddingBottom: 0,
-  background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("${mobileAuthBg.src}")`,
-  backgroundPosition: "top center",
-  backgroundRepeat: "no-repeat",
-  backgroundSize: "cover",
   width: "100%",
   height: "100%",
 
   [theme.breakpoints.down("md")]: {
-    padding: theme.spacing(1, 2),
+    padding: theme.spacing(0, 2),
     justifyContent: "center",
   },
 }));
@@ -51,7 +43,6 @@ const StyledMobileEmbed = styled("div")(({ theme }) => ({
 
 const StyledContent = styled("div")(({ theme }) => ({
   width: "100%",
-  marginTop: theme.spacing(2),
   justifyContent: "center",
   marginBottom: theme.spacing(2),
   flexDirection: "column",
@@ -63,9 +54,7 @@ const StyledContent = styled("div")(({ theme }) => ({
   },
 }));
 
-const StyledFormWrapper = styled("div")(({ theme }) => ({
-  backgroundColor: "#FFFAFA",
-  borderRadius: theme.shape.borderRadius,
+const StyledMapWrapper = styled("div")(({ theme }) => ({
   padding: theme.spacing(2),
   width: "100%",
   maxWidth: "400px",
@@ -82,9 +71,7 @@ export default function HeroSection({ scrollToMore }: HeroSectionProps) {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { authState, authActions } = useAuthContext();
-  const authenticated = authState.authenticated;
   const error = authState.error;
-  const flowState = authState.flowState;
 
   const [loading, setLoading] = useState(false);
 
@@ -142,40 +129,17 @@ export default function HeroSection({ scrollToMore }: HeroSectionProps) {
 
   return (
     <>
-      {/* {authenticated && <Redirect to={dashboardRoute} />} */}
-      <HtmlMeta title={t("global:sign_up")} />
+      <HtmlMeta title={t("global:join_us")} />
       <StyledSection>
         <StyledContent>
           <CouchersIntroduction scrollToMore={scrollToMore} />
-          <StyledFormWrapper>
-            {authenticated && <Typography>You are logged in</Typography>}
-            {!flowState && !authenticated && <SignupFormContent />}
-
-            {flowState && !authenticated && (
-              <Link href={signupRoute} passHref legacyBehavior>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  sx={{ margin: theme.spacing(4, 0) }}
-                >
-                  {t("landing:signup_continue")}
-                </Button>
-              </Link>
-            )}
-
-            <Typography variant="body1" sx={{ marginTop: theme.spacing(2) }}>
-              <Trans i18nKey="auth:basic_sign_up_form.existing_user_prompt">
-                Already have an account?{" "}
-                <StyledLink href={loginRoute}>Log in</StyledLink>
-              </Trans>
-            </Typography>
-          </StyledFormWrapper>
+          <StyledMapWrapper>Map animation goes here</StyledMapWrapper>
           {isMobile && scrollToMore && (
             <Box
               fontSize="large"
               onClick={scrollToMore}
               sx={{
-                color: theme.palette.common.white,
+                color: theme.palette.common.black,
                 display: "flex",
                 justifyContent: "center",
                 marginTop: theme.spacing(4),

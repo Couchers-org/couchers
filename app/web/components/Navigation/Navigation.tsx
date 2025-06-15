@@ -1,6 +1,7 @@
 import {
   AppBar,
   Badge,
+  Box,
   Drawer,
   IconButton,
   List,
@@ -10,6 +11,7 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
+import Button from "components/Button";
 import { GlobalMessage } from "components/GlobalMessage";
 import { CloseIcon, MenuIcon } from "components/Icons";
 import { MenuItem } from "components/Menu";
@@ -20,6 +22,7 @@ import useNotifications from "features/useNotifications";
 import { GLOBAL } from "i18n/namespaces";
 import { TFunction } from "i18next";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import React, { useEffect, useState } from "react";
 import CouchersLogo from "resources/CouchersLogo";
@@ -46,7 +49,6 @@ import {
 } from "routes";
 import { theme } from "theme";
 
-import GuestMenu from "./GuestMenu";
 import LoggedInMenu from "./LoggedInMenu";
 import NavButton from "./NavButton";
 
@@ -138,16 +140,8 @@ const loggedOutNavMenu = (
     route: planRoute,
   },
   {
-    name: t("nav.faq"),
-    route: faqRoute,
-  },
-  {
     name: t("nav.mission"),
     route: missionRoute,
-  },
-  {
-    name: t("nav.the_team"),
-    route: teamRoute,
   },
 ];
 
@@ -239,7 +233,9 @@ const drawerWidth = 240;
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   bottom: "auto",
   top: 0,
-  boxShadow: "0 0 4px rgba(0, 0, 0, 0.25)",
+  boxShadow: "none",
+  backgroundColor: theme.palette.common.white,
+  // boxShadow: "0 0 4px rgba(0, 0, 0, 0.25)",
   paddingRight: theme.spacing(2),
   [theme.breakpoints.up("md")]: {
     paddingRight: 0,
@@ -310,13 +306,15 @@ const StyledMenuItemLink = styled("a")(({ theme }) => ({
 }));
 
 export default function Navigation() {
-  const [open, setOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const { data: pingData } = useNotifications();
-  const { authState } = useAuthContext();
+  const router = useRouter();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [isMounted, setIsMounted] = useState(false);
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [open, setOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const { data: pingData } = useNotifications();
+  const { authState } = useAuthContext();
 
   useEffect(() => setIsMounted(true), []);
 
@@ -500,7 +498,24 @@ export default function Navigation() {
               {loggedMenuItems}
             </LoggedInMenu>
           ) : (
-            <GuestMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+            <Box>
+              <Button
+                variant="outlined"
+                size="large"
+                sx={{ fontSize: "1.3rem" }}
+                onClick={() => router.push(loginRoute)}
+              >
+                {t("login")}
+              </Button>
+              <Button
+                variant="contained"
+                size="large"
+                sx={{ marginLeft: 2, fontSize: "1.3rem" }}
+                onClick={() => router.push(signupRoute)}
+              >
+                {t("join_us")}
+              </Button>
+            </Box>
           )}
         </StyledMenuContainer>
       </StyledToolbar>

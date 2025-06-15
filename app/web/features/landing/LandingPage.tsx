@@ -39,23 +39,23 @@ export default function LandingPage() {
       <HtmlMeta />
       <HeroSection scrollToMore={scrollToMore} />
       <StyledSpacer />
-      <Container component="section" maxWidth="md" ref={moreContentRef}>
+      <Container component="section" maxWidth="lg" ref={moreContentRef}>
         <WhatWhyCouchersSection />
       </Container>
       <StyledSpacer />
-      <Container component="section" maxWidth="md">
+      <Container component="section" maxWidth="lg">
         Second section here
       </Container>
       <StyledSpacer />
-      <Container component="section" maxWidth="md">
+      <Container component="section" maxWidth="lg">
         Third section here
       </Container>
       <StyledSpacer />
-      <Container component="section" maxWidth="md">
+      <Container component="section" maxWidth="lg">
         Fourth section here
       </Container>
       <StyledSpacer />
-      <Container component="section" maxWidth="md">
+      <Container component="section" maxWidth="lg">
         Fifth section here
       </Container>
     </>

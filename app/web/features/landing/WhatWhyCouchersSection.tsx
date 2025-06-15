@@ -1,12 +1,10 @@
-import { Box, Fade, Grid, styled, Typography } from "@mui/material";
+import { Loyalty, People } from "@mui/icons-material";
+import { Box, Fade, Grid, Typography } from "@mui/material";
+import { VerifiedUser } from "components/Icons";
 import { useTranslation } from "i18n";
 import { LANDING } from "i18n/namespaces";
 import { useInView } from "react-intersection-observer";
 import { theme } from "theme";
-
-const StyledSpacer = styled("div")(({ theme }) => ({
-  height: theme.spacing(5),
-}));
 
 const WhatWhyCouchersSection = () => {
   const { t } = useTranslation([LANDING]);
@@ -14,7 +12,7 @@ const WhatWhyCouchersSection = () => {
 
   return (
     <>
-      <Typography variant="h2">{t("what_couchsurfing_title")}</Typography>
+      {/* <Typography variant="h2">{t("what_couchsurfing_title")}</Typography>
       <Typography variant="body1" paragraph sx={{ marginTop: 2 }}>
         {t("what_couchsurfing_description")}
       </Typography>
@@ -25,15 +23,15 @@ const WhatWhyCouchersSection = () => {
       >
         {t("sign_up_ready")}
       </Typography>
-      <StyledSpacer />
-      <Typography variant="h2">{t("why_couchers_title")}</Typography>
+      <StyledSpacer /> */}
+      <Typography variant="h2" sx={{fontSize: "2.5rem !important"}}>{t("why_couchers_title")}</Typography>
       <Fade timeout={2000} in={inView}>
         <Grid
           container
           gap={2}
           ref={ref}
           sx={{
-            marginTop: 2,
+            marginTop: 4,
             width: "100%",
             flexWrap: { xs: "wrap", md: "nowrap" },
           }}
@@ -44,7 +42,7 @@ const WhatWhyCouchersSection = () => {
             md={4}
             display="flex"
             sx={{
-              backgroundColor: theme.palette.grey[200],
+              backgroundColor: theme.palette.grey[50],
               padding: 2,
               borderRadius: 2,
               flex: { md: 1 },
@@ -52,11 +50,20 @@ const WhatWhyCouchersSection = () => {
               marginLeft: { xs: 0, md: 2 },
             }}
           >
-            <Box display="flex" flexDirection="column" width="100%">
-              <Typography variant="h6" gutterBottom>
+            <Box
+              display="flex"
+              flexDirection="column"
+              width="100%"
+              alignItems={"center"}
+            >
+              <People color="primary" sx={{ fontSize: "40px" }} />
+              <Typography variant="h3" gutterBottom>
                 {t("community_first")}
               </Typography>
-              <Typography variant="body2">
+              <Typography
+                fontWeight={200}
+                sx={{ marginTop: 1, textAlign: "center" }}
+              >
                 {t("community_first_description")}
               </Typography>
             </Box>
@@ -67,18 +74,27 @@ const WhatWhyCouchersSection = () => {
             md={4}
             display="flex"
             sx={{
-              backgroundColor: theme.palette.grey[200],
+              backgroundColor: theme.palette.grey[50],
               padding: 2,
               borderRadius: 2,
               flex: { md: 1 },
               minWidth: 0,
             }}
           >
-            <Box display="flex" flexDirection="column" width="100%">
-              <Typography variant="h6" gutterBottom>
+            <Box
+              display="flex"
+              flexDirection="column"
+              width="100%"
+              alignItems="center"
+            >
+              <VerifiedUser color="primary" sx={{ fontSize: "40px" }} />
+              <Typography variant="h3" gutterBottom>
                 {t("safer_stronger")}
               </Typography>
-              <Typography variant="body2">
+              <Typography
+                fontWeight={200}
+                sx={{ marginTop: 1, textAlign: "center" }}
+              >
                 {t("safer_stronger_description")}
               </Typography>
             </Box>
@@ -89,7 +105,7 @@ const WhatWhyCouchersSection = () => {
             md={4}
             display="flex"
             sx={{
-              backgroundColor: theme.palette.grey[200],
+              backgroundColor: theme.palette.grey[50],
               padding: 2,
               borderRadius: 2,
               flex: { md: 1 },
@@ -97,11 +113,20 @@ const WhatWhyCouchersSection = () => {
               marginRight: { xs: 0, md: 2 },
             }}
           >
-            <Box display="flex" flexDirection="column" width="100%">
-              <Typography variant="h6" gutterBottom>
+            <Box
+              display="flex"
+              flexDirection="column"
+              width="100%"
+              alignItems="center"
+            >
+              <Loyalty color="primary" sx={{ fontSize: "40px" }} />
+              <Typography variant="h3" gutterBottom>
                 {t("built_by_travelers")}
               </Typography>
-              <Typography variant="body2">
+              <Typography
+                fontWeight={200}
+                sx={{ marginTop: 1, textAlign: "center" }}
+              >
                 {t("built_by_travelers_description")}
               </Typography>
             </Box>

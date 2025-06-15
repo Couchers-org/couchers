@@ -149,37 +149,37 @@ const themeOptions: ThemeOptions = {
     },
     fontFamily: "Ubuntu, sans-serif",
     h1: {
-      fontSize: "1.25rem", //20px
+      fontSize: "1.5rem",
       fontWeight: "bold",
       [breakpoints.up("md")]: {
-        fontSize: "1.5rem", //24px
+        fontSize: "2rem",
       },
     },
     h1Large: {
-      fontSize: "1.5rem", //24px
+      fontSize: "3.8rem",
       [breakpoints.up("md")]: {
-        fontSize: "75rem", //28px
+        fontSize: "7.5rem",
       },
     },
     h2: {
-      fontSize: "1rem", //16px
+      fontSize: "1.2rem", //16px
       fontWeight: "bold",
       [breakpoints.up("md")]: {
-        fontSize: "1.25rem", //20px
+        fontSize: "1.4rem", //20px
       },
     },
     h3: {
-      fontSize: "0.875rem", //14px
+      fontSize: "1rem",
       fontWeight: "bold",
       [breakpoints.up("md")]: {
-        fontSize: "1rem", //16px
+        fontSize: "1.2rem",
       },
     },
     h4: {
-      fontSize: "0.75rem", //12px
+      fontSize: "0.825rem",
       fontWeight: "bold",
       [breakpoints.up("md")]: {
-        fontSize: "0.875rem", //14px
+        fontSize: "1rem",
       },
     },
     h5: {

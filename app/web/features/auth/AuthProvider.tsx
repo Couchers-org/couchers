@@ -43,7 +43,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         // completely logged out
         await store.authActions.logout();
         store.authActions.authError(t("logged_out_message"));
-        push(loginRoute);
+        // push(loginRoute);
       }
     });
 

@@ -198,7 +198,7 @@ describe("Signup", () => {
       );
 
       await user.click(
-        screen.getByRole("button", { name: t("global:sign_up") }),
+        screen.getByRole("button", { name: t("global:join_us") }),
       );
 
       expect(await screen.findByText("Guideline 1")).toBeVisible();

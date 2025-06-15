@@ -2,7 +2,6 @@ import { styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
-import mobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import CouchersIntroduction from "features/landing/CouchersIntroduction";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL, LANDING } from "i18n/namespaces";
@@ -19,7 +18,6 @@ const StyledBackground = styled("div")(({ theme }) => ({
   flexDirection: "column",
   padding: theme.spacing(2, 16),
   paddingBottom: 0,
-  background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("${mobileAuthBg.src}")`,
   backgroundPosition: "top center",
   backgroundRepeat: "no-repeat",
   backgroundSize: "cover",

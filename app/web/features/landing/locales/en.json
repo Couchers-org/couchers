@@ -1,7 +1,7 @@
 {
   "introduction_title": "Meet as strangers, leave as friends.",
-  "introduction_subtitle": "Couchers.org is a community and platform built to facilitate genuine interaction between travelers and locals, centered around <bold>couch surfing</bold>—free, non-transactional homestays and meetups. Our global community is based on meaningful and inclusive cultural exchange while prioritizing trust and safety.",
-  "introduction_subtitle2": "Free forever. Community-led. Non-profit. Modern.",
+  "introduction_subtitle": "A global community for meaningful, non-transactional stays and meetups—built on trust, cultural exchange, and genuine connection.",
+  "introduction_subtitle2": "Free forever. Community-led. Non-profit.",
   "signup_header": "Sign up for Couchers.org today",
   "signup_description": "Travel, host, and connect with {{ user_count }} members",
   "create_an_account": "Create an account",
@@ -9,11 +9,11 @@
   "what_couchsurfing_title": "What is couch surfing?",
   "what_couchsurfing_description": "Couchers.org is an open, community-led platform built by travelers, for travelers - not investors. We're a non-profit organization committed to keeping travel human, accessible, and genuine. Whether you're hosting visitors from around the world or looking for a place to stay on your next adventure, or build a local community where travellers from all the world can take part, Couchers.org helps you connect safely and meaningfully.",
   "sign_up_ready": "Sign up and you are ready to go!",
-  "why_couchers_title": "Why Couchers.org?",
+  "why_couchers_title": "Why travelers choose Couchers.org",
   "community_first": "Community First",
   "community_first_description": "We believe travel is about real connections. As a non-profit, we're guided by our members - not profits or outside investors. Your voice matters here.",
   "safer_stronger": "Safer, Stronger Connections",
   "safer_stronger_description": "We've reimagined trust and safety with a new approach to references, verification, and accountability, so you can focus on meeting great people.",
   "built_by_travelers": "Built by Travelers, for Travelers",
-  "built_by_travelers_description": "With a team of over 40 volunteers - travelers, hosts, and developers - we're building a platform that's stable, modern, and made for how people actually travel today."
+  "built_by_travelers_description": "With a team of over 20 volunteers - travelers, hosts, and developers - we're building a platform that's stable, modern, and made for how people actually travel today."
 }
