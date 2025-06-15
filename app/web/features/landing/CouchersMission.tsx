@@ -58,7 +58,7 @@ const StyledGridBubble = styled(Grid, {
 const CouchersMission = () => {
   const { t } = useTranslation([LANDING, GLOBAL]);
   const { ref, inView } = useInView({ triggerOnce: true });
-  const [selectedItem, setSelectedItem] = useState("tile_1");
+  const [selectedItem, setSelectedItem] = useState("nonprofit");
 
   const missionBubble = (itemName: string) => {
     return (
@@ -72,8 +72,21 @@ const CouchersMission = () => {
           setSelectedItem(itemName);
         }}
       >
-        <Box display="flex" flexDirection="column" width="100%">
-          <Typography variant="h6" align="center" gutterBottom>
+        <Box
+          display="flex"
+          flexDirection="column"
+          width="100%"
+          sx={{ padding: theme.spacing(2, 0) }}
+        >
+          <Typography
+            align="center"
+            gutterBottom
+            sx={{
+              color: theme.palette.common.white,
+              fontSize: "1.2rem",
+              fontWeight: 500,
+            }}
+          >
             {t(`landing:${itemName}_title`)}
           </Typography>
         </Box>
@@ -93,12 +106,12 @@ const CouchersMission = () => {
       >
         <Fade timeout={2000} in={inView}>
           <Grid item container gap={2} justifyContent={"center"}>
-            {missionBubble("tile_1")}
-            {missionBubble("tile_2")}
-            {missionBubble("tile_3")}
-            {missionBubble("tile_4")}
-            {missionBubble("tile_5")}
-            {missionBubble("tile_6")}
+            {missionBubble("nonprofit")}
+            {missionBubble("free_forever")}
+            {missionBubble("authentic")}
+            {missionBubble("community_led")}
+            {missionBubble("open_source")}
+            {missionBubble("non_transactional")}
           </Grid>
         </Fade>
         <Fade key={selectedItem} timeout={1000} in={true}>
@@ -106,17 +119,17 @@ const CouchersMission = () => {
             item
             sx={{
               marginTop: 2,
-              backgroundColor: theme.palette.grey[200],
-              padding: 2,
+              backgroundColor: theme.palette.grey[50],
+              padding: 5,
               borderRadius: 2,
               width: "100%",
             }}
           >
-            <Typography variant="body1" gutterBottom>
+            <Typography gutterBottom>
               {t(`landing:${selectedItem}_description`)}
             </Typography>
-            <Typography variant="body2">
-              <b>Why?</b> {t(`landing:${selectedItem}_why`)}
+            <Typography>
+              <b>{t("landing:why")}</b> {t(`landing:${selectedItem}_why`)}
             </Typography>
           </Grid>
         </Fade>
