@@ -4,6 +4,7 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "react-query";
 
+import CouchersMission from "./CouchersMission";
 import WhatWhyCouchersSection from "./WhatWhyCouchersSection";
 
 const StyledSpacer = styled("div")(({ theme }) => ({
@@ -43,7 +44,7 @@ export default function LandingPage() {
       </Container>
       <StyledSpacer />
       <Container component="section" maxWidth="md">
-        Second section here
+        <CouchersMission />
       </Container>
       <StyledSpacer />
       <Container component="section" maxWidth="md">
