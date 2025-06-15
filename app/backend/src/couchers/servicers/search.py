@@ -5,6 +5,7 @@ See //docs/search.md for overview.
 from datetime import timedelta
 
 import grpc
+from google.protobuf import empty_pb2
 from sqlalchemy.sql import and_, func, or_
 
 from couchers import urls
@@ -817,3 +818,9 @@ class Search(search_pb2_grpc.SearchServicer):
             next_page_token=(str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None),
             total_items=total_items,
         )
+
+    def GeolocationSearchInfo(self, request, context, session):
+        return empty_pb2.Empty()
+
+    def GeolocationClickInfo(self, request, context, session):
+        return empty_pb2.Empty()
