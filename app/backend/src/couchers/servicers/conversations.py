@@ -120,11 +120,13 @@ def _get_visible_admins_for_subscription(subscription):
 
 def _user_can_message(session, context, group_chat: GroupChat) -> bool:
     """
-    User can message in a group chat they are part of if a chat participant exists that:
+    User can message in a group chat they are part of if it's not a DM, or if a chat participant exists that:
     - Is not deleted/banned
     - Has not been blocked by the user or is blocking the user
     - Has not left the chat
     """
+    if not group_chat.is_dm:
+        return True
     return session.execute(
         func.exists(
             select(GroupChatSubscription)
@@ -154,11 +156,12 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
             return []
 
         context = make_user_context(user_id=message.author_id)
-        subscription_user_ids = (
+        user_ids_to_notify = (
             session.execute(
                 select(GroupChatSubscription.user_id)
                 .where_users_column_visible(context=context, column=GroupChatSubscription.user_id)
                 .where(GroupChatSubscription.group_chat_id == message.conversation_id)
+                .where(GroupChatSubscription.user_id != message.author_id)
                 .where(GroupChatSubscription.joined <= message.time)
                 .where(or_(GroupChatSubscription.left == None, GroupChatSubscription.left >= message.time))
                 .where(not_(GroupChatSubscription.is_muted))
@@ -172,7 +175,6 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
         else:
             msg = f"{message.author.name} sent a message in {group_chat.title}"
 
-        user_ids_to_notify = set(subscription_user_ids) - {message.author_id}
         for user_id in user_ids_to_notify:
             notify(
                 session,
