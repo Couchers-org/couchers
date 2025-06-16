@@ -9,13 +9,14 @@ from couchers import errors
 from couchers.constants import (
     DATETIME_INFINITY,
     DATETIME_MINUS_INFINITY,
+    RateLimitAction,
 )
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import sent_messages_counter
 from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
 from couchers.notifications.notify import notify
-from couchers.rate_limit import has_reached_chat_initiation_limit
+from couchers.rate_limit import process_rate_limits_and_check_abort
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import are_blocked
 from couchers.sql import couchers_select as select
@@ -535,7 +536,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_HAVE_DM)
 
         # Check if user has been initiating chats excessively
-        if has_reached_chat_initiation_limit(session=session, user_id=context.user_id):
+        if process_rate_limits_and_check_abort(
+            session=session, user_id=context.user_id, action=RateLimitAction.chat_initiation
+        ):
             context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.CHAT_INITIATION_RATE_LIMIT)
 
         conversation = Conversation()

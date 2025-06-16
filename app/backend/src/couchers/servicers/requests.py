@@ -7,6 +7,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors
+from couchers.constants import RateLimitAction
 from couchers.materialized_views import user_response_rates
 from couchers.metrics import (
     account_age_on_host_request_create_histogram,
@@ -17,7 +18,7 @@ from couchers.metrics import (
 )
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
 from couchers.notifications.notify import notify
-from couchers.rate_limit import has_reached_host_request_limit
+from couchers.rate_limit import process_rate_limits_and_check_abort
 from couchers.servicers.api import response_rate_to_pb, user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import (
@@ -166,7 +167,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_TO_AFTER_ONE_YEAR)
 
         # Check if user has been sending host requests excessively
-        if has_reached_host_request_limit(session=session, user_id=context.user_id):
+        if process_rate_limits_and_check_abort(
+            session=session, user_id=context.user_id, action=RateLimitAction.host_request
+        ):
             context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.HOST_REQUEST_RATE_LIMIT)
 
         conversation = Conversation()

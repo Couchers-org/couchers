@@ -39,6 +39,7 @@ from couchers.constants import (
     PHONE_VERIFICATION_LIFETIME,
     SMS_CODE_LIFETIME,
     TOS_VERSION,
+    RateLimitAction,
 )
 from couchers.utils import (
     date_in_timezone,
@@ -2756,12 +2757,6 @@ class AccountDeletionReason(Base):
     reason = Column(String, nullable=True)
 
     user = relationship("User")
-
-
-class RateLimitAction(enum.Enum):
-    host_request = "host request"
-    friend_request = "friend request"
-    chat_initiation = "chat initiation"
 
 
 class RateLimitViolation(Base):

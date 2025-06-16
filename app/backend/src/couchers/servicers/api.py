@@ -7,6 +7,7 @@ from sqlalchemy.sql import and_, delete, distinct, func, intersect, or_, union
 
 from couchers import errors, urls
 from couchers.config import config
+from couchers.constants import RateLimitAction
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
 from couchers.materialized_views import lite_users, user_response_rates
 from couchers.models import (
@@ -33,7 +34,7 @@ from couchers.models import (
 )
 from couchers.notifications.notify import notify
 from couchers.notifications.settings import get_topic_actions_by_delivery_type
-from couchers.rate_limit import has_reached_friend_request_limit
+from couchers.rate_limit import process_rate_limits_and_check_abort
 from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
 from couchers.servicers.account import get_strong_verification_fields
 from couchers.sql import couchers_select as select
@@ -672,7 +673,9 @@ class API(api_pb2_grpc.APIServicer):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.FRIENDS_ALREADY_OR_PENDING)
 
         # Check if user has been sending friend requests excessively
-        if has_reached_friend_request_limit(session=session, user_id=context.user_id):
+        if process_rate_limits_and_check_abort(
+            session=session, user_id=context.user_id, action=RateLimitAction.friend_request
+        ):
             context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.FRIEND_REQUEST_RATE_LIMIT)
 
         # TODO: Race condition where we can create two friend reqs, needs db constraint! See comment in table
