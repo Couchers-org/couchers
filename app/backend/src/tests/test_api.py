@@ -5,7 +5,7 @@ import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers import errors
-from couchers.constants import FRIEND_REQUEST_HARD_LIMIT, FRIEND_REQUEST_WARNING_LIMIT, RATE_LIMIT_INTERVAL_STRING
+from couchers.constants import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL_STRING, RateLimitAction
 from couchers.db import session_scope
 from couchers.jobs.handlers import update_badges
 from couchers.materialized_views import refresh_materialized_views_rapid
@@ -841,10 +841,11 @@ def test_cant_friend_request_already_friends(db):
 def test_excessive_friend_requests_are_reported(db):
     """Test that excessive friend requests are first reported in a warning email and finally lead blocking of further requests."""
     user, token = generate_user()
+    rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.friend_request]
     with api_session(token) as api:
         # Test warning email
         with mock_notification_email() as mock_email:
-            for _ in range(FRIEND_REQUEST_WARNING_LIMIT):
+            for _ in range(rate_limit_definition.warning_limit):
                 friend_user, _ = generate_user()
                 _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
 
@@ -855,12 +856,12 @@ def test_excessive_friend_requests_are_reported(db):
             assert mock_email.call_count == 1
             email = mock_email.mock_calls[0].kwargs["plain"]
             assert email.startswith(
-                f"User {user.username} has sent {FRIEND_REQUEST_WARNING_LIMIT} friend requests in the past {RATE_LIMIT_INTERVAL_STRING}."
+                f"User {user.username} has sent {rate_limit_definition.warning_limit} friend requests in the past {RATE_LIMIT_INTERVAL_STRING}."
             )
 
         # Test ban after exceeding FRIEND_REQUEST_HARD_LIMIT
         with mock_notification_email() as mock_email:
-            for _ in range(FRIEND_REQUEST_HARD_LIMIT - FRIEND_REQUEST_WARNING_LIMIT - 1):
+            for _ in range(rate_limit_definition.hard_limit - rate_limit_definition.warning_limit - 1):
                 friend_user, _ = generate_user()
                 _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
 
@@ -874,7 +875,7 @@ def test_excessive_friend_requests_are_reported(db):
             assert mock_email.call_count == 1
             email = mock_email.mock_calls[0].kwargs["plain"]
             assert email.startswith(
-                f"User {user.username} has sent {FRIEND_REQUEST_HARD_LIMIT} friend requests in the past {RATE_LIMIT_INTERVAL_STRING}."
+                f"User {user.username} has sent {rate_limit_definition.hard_limit} friend requests in the past {RATE_LIMIT_INTERVAL_STRING}."
             )
             assert "The user has been blocked from sending further friend requests for now." in email
 

@@ -5,7 +5,7 @@ import pytest
 from sqlalchemy.sql import select
 
 from couchers import errors
-from couchers.constants import HOST_REQUEST_HARD_LIMIT, HOST_REQUEST_WARNING_LIMIT, RATE_LIMIT_INTERVAL_STRING
+from couchers.constants import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL_STRING, RateLimitAction
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_view
 from couchers.models import Message, MessageType
@@ -153,10 +153,11 @@ def test_excessive_requests_are_reported(db):
     user, token = generate_user()
     today_plus_2 = (today() + timedelta(days=2)).isoformat()
     today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.host_request]
     with requests_session(token) as api:
         # Test warning email
         with mock_notification_email() as mock_email:
-            for _ in range(HOST_REQUEST_WARNING_LIMIT):
+            for _ in range(rate_limit_definition.warning_limit):
                 host_user, _ = generate_user()
                 _ = api.CreateHostRequest(
                     requests_pb2.CreateHostRequestReq(
@@ -177,12 +178,12 @@ def test_excessive_requests_are_reported(db):
             assert mock_email.call_count == 1
             email = mock_email.mock_calls[0].kwargs["plain"]
             assert email.startswith(
-                f"User {user.username} has sent {HOST_REQUEST_WARNING_LIMIT} host requests in the past {RATE_LIMIT_INTERVAL_STRING}."
+                f"User {user.username} has sent {rate_limit_definition.warning_limit} host requests in the past {RATE_LIMIT_INTERVAL_STRING}."
             )
 
         # Test ban after exceeding HOST_REQUEST_HARD_LIMIT
         with mock_notification_email() as mock_email:
-            for _ in range(HOST_REQUEST_HARD_LIMIT - HOST_REQUEST_WARNING_LIMIT - 1):
+            for _ in range(rate_limit_definition.hard_limit - rate_limit_definition.warning_limit - 1):
                 host_user, _ = generate_user()
                 _ = api.CreateHostRequest(
                     requests_pb2.CreateHostRequestReq(
@@ -207,7 +208,7 @@ def test_excessive_requests_are_reported(db):
             assert mock_email.call_count == 1
             email = mock_email.mock_calls[0].kwargs["plain"]
             assert email.startswith(
-                f"User {user.username} has sent {HOST_REQUEST_HARD_LIMIT} host requests in the past {RATE_LIMIT_INTERVAL_STRING}."
+                f"User {user.username} has sent {rate_limit_definition.hard_limit} host requests in the past {RATE_LIMIT_INTERVAL_STRING}."
             )
             assert "The user has been blocked from sending further host requests for now." in email
 

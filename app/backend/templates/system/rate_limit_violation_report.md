@@ -15,13 +15,29 @@ User {{ user.username }} has sent {{ threshold }} {{ action.value }}s in the pas
 - Joined: {{ user.joined }}
 - City: {{ user.city }}
 
-**{{ action.value }}s:**
+**host requests (past {{ time_interval_str }}):**
 
-|{% for key in events[0].keys() %} {{key}} |{% endfor %}
+| created | host id | host username | host city |
+|---|---|---|---|
+{% for entry in events["host_requests"] %}
+|{% for value in entry.values() %} {{value}} |{% endfor %}
 
-|{% for _ in events[0].keys() %}---|{% endfor %}
+{% endfor %}
 
-{% for entry in events %}
+**friend requests (past {{ time_interval_str }}):**
+
+| time sent | to user (ID) | to user (username) | status |
+|---|---|---|---|
+{% for entry in events["friend_requests"] %}
+|{% for value in entry.values() %} {{value}} |{% endfor %}
+
+{% endfor %}
+
+**chat initiations (past {{ time_interval_str }}):**
+
+| id | created | title | is_dm | participants |
+|---|---|---|---|---|
+{% for entry in events["chat_initiations"] %}
 |{% for value in entry.values() %} {{value}} |{% endfor %}
 
 {% endfor %}

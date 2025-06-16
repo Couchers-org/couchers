@@ -12,6 +12,7 @@ from couchers.models import (
     Conversation,
     FriendRelationship,
     GroupChat,
+    GroupChatSubscription,
     HostRequest,
     RateLimitViolation,
     User,
@@ -66,27 +67,33 @@ def _get_user_friend_requests_in_past_time_interval(session, user_id) -> list[di
 def _get_user_initiated_chats_in_past_time_interval(session, user_id) -> list[dict]:
     return (
         session.execute(
-            select(Conversation.created, GroupChat.is_dm)
+            select(
+                Conversation.id,
+                Conversation.created,
+                GroupChat.title,
+                GroupChat.is_dm,
+                func.array_agg(User.username).label("participants"),
+            )
             .join(Conversation, GroupChat.conversation_id == Conversation.id)
+            .join(GroupChatSubscription, Conversation.id == GroupChatSubscription.group_chat_id)
+            .join(User, GroupChatSubscription.user_id == User.id)
             .where(GroupChat.creator_id == user_id)
             .where(Conversation.created >= now() - RATE_LIMIT_INTERVAL)
+            .where(GroupChatSubscription.left == None)
+            .group_by(Conversation.id, Conversation.created, GroupChat.title, GroupChat.is_dm)
         )
         .mappings()
         .all()
     )
 
 
-def _get_user_events_in_past_time_interval(session, user_id: int, action: RateLimitAction) -> list[dict]:
-    """Get all events for the user in the last rate limit interval for the mod email."""
-    match action:
-        case RateLimitAction.host_request:
-            return _get_user_host_requests_in_past_time_interval(session, user_id)
-        case RateLimitAction.friend_request:
-            return _get_user_friend_requests_in_past_time_interval(session, user_id)
-        case RateLimitAction.chat_initiation:
-            return _get_user_initiated_chats_in_past_time_interval(session, user_id)
-        case _:
-            raise ValueError(f"Unknown rate limit action: {action}")
+def _get_user_events_in_past_time_interval(session, user_id: int) -> dict[str, list[dict]]:
+    """Get all relevant events for the user in the last rate limit interval for the mod email."""
+    return {
+        "host_requests": _get_user_host_requests_in_past_time_interval(session, user_id),
+        "friend_requests": _get_user_friend_requests_in_past_time_interval(session, user_id),
+        "chat_initiations": _get_user_initiated_chats_in_past_time_interval(session, user_id),
+    }
 
 
 def _save_rate_limit_violation(
@@ -166,7 +173,7 @@ def process_rate_limits_and_check_abort(session: "Session", user_id: int, action
                 rate_limit_violation = _save_rate_limit_violation(
                     session=session, user_id=user_id, action=action, hard_limit=is_hard_limit
                 )
-                events = _get_user_events_in_past_time_interval(session=session, user_id=user_id, action=action)
+                events = _get_user_events_in_past_time_interval(session=session, user_id=user_id)
                 send_rate_limit_violation_report_email(
                     session=session, rate_limit_violation=rate_limit_violation, threshold=limit, events=events
                 )
