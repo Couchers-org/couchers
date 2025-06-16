@@ -661,7 +661,7 @@ def render_notification(user, notification) -> RenderedNotification:
         body += data.reply.content
         return RenderedNotification(
             email_subject=f'{data.author.name} replied in "{title}"',
-            email_preview="Someone replied on your comment.",
+            email_preview="Someone replied in a comment thread you have participated in.",
             email_template_name="comment_reply",
             email_template_args={
                 "author": data.author,
