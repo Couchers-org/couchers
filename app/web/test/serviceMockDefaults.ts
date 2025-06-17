@@ -87,6 +87,7 @@ export async function listGroupChats() {
         title: "groupchattitle",
         // created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
         unseenMessageCount: 0,
+        canMessage: true,
       },
     ],
     noMore: true,
@@ -108,6 +109,7 @@ export async function listHostRequests() {
       status: HostRequestStatus.HOST_REQUEST_STATUS_PENDING,
       toDate: "2020/12/06",
       hostUserId: 2,
+      canMessage: true,
     },
   ];
 }
