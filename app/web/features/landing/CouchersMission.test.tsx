@@ -1,6 +1,5 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { LANDING } from "i18n/namespaces";
 
 import CouchersMission from "./CouchersMission";
 
@@ -15,12 +14,12 @@ jest.mock("react-intersection-observer", () => ({
 }));
 
 const missions = [
-  `${LANDING}:non_profit_structure`,
-  `${LANDING}:community_first_framework`,
-  `${LANDING}:member_accountability`,
-  `${LANDING}:improved_review_system`,
-  `${LANDING}:better_host_matching`,
-  `${LANDING}:built_it_right`,
+  `landing:nonprofit`,
+  `landing:free_forever`,
+  `landing:authentic`,
+  `landing:community_led`,
+  `landing:open_source`,
+  `landing:non_transactional`,
 ];
 
 describe("CouchersMission", () => {
