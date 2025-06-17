@@ -156,6 +156,7 @@ def test_discussion_notifications_regression(db, push_collector):
     generate_user()
     user, token = generate_user()
     user2, token2 = generate_user()
+    user3, token3 = generate_user()
     generate_user()
     generate_user()
 
@@ -187,14 +188,27 @@ def test_discussion_notifications_regression(db, push_collector):
         thread_id = res.thread.thread_id
 
     with threads_session(token2) as api:
-        reply_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=thread_id, content="hi")).thread_id
+        comment_thread_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=thread_id, content="comment")).thread_id
+
+    with threads_session(token3) as api:
+        api.PostReply(threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply to comment"))
 
     with threads_session(token) as api:
-        api.PostReply(threads_pb2.PostReplyReq(thread_id=reply_id, content="what a silly comment"))
+        api.PostReply(threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply to reply to comment"))
 
     process_jobs()
 
+    # User2 should get 2 notifications about 2 replies to their comment, User3 should get 1 notification about 1 reply
+    push_collector.assert_user_has_count(user2_id, 2)
+    for i in range(2):
+        push_collector.assert_user_push_matches_fields(
+            user2_id,
+            ix=i,
+            title="dummy title",
+            topic_action="thread:reply",
+        )
     push_collector.assert_user_has_single_matching(
-        user2_id,
+        user3.id,
         title="dummy title",
+        topic_action="thread:reply",
     )

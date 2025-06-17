@@ -6,7 +6,7 @@ import grpc
 from geoalchemy2.shape import from_shape
 from google.protobuf import empty_pb2
 from shapely.geometry import shape
-from sqlalchemy.sql import func, or_, select, update
+from sqlalchemy.sql import and_, func, or_, select, update
 from user_agents import parse as user_agents_parse
 
 from couchers import errors, urls
@@ -27,6 +27,7 @@ from couchers.models import (
     GroupChat,
     GroupChatSubscription,
     HostRequest,
+    LanguageAbility,
     Message,
     ModNote,
     Node,
@@ -132,6 +133,65 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
         return user_model_to_pb(user, session, context)
+
+    def SearchUsers(self, request, context, session):
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+        next_user_id = int(request.page_token) if request.page_token else 0
+        statement = select(User)
+        if request.username:
+            statement = statement.where(User.username.ilike(request.username))
+        if request.email:
+            statement = statement.where(User.email.ilike(request.email))
+        if request.name:
+            statement = statement.where(User.name.ilike(request.name))
+        if request.admin_note:
+            statement = statement.where(User.admin_note.ilike(request.admin_note))
+        if request.city:
+            statement = statement.where(User.city.ilike(request.city))
+        if request.min_user_id:
+            statement = statement.where(User.id >= request.min_user_id)
+        if request.max_user_id:
+            statement = statement.where(User.id <= request.max_user_id)
+        if request.min_birthdate:
+            statement = statement.where(User.birthdate >= parse_date(request.min_birthdate))
+        if request.max_birthdate:
+            statement = statement.where(User.birthdate <= parse_date(request.max_birthdate))
+        if request.genders:
+            statement = statement.where(User.gender.in_(request.genders))
+        if request.min_joined_date:
+            statement = statement.where(User.joined >= parse_date(request.min_joined_date))
+        if request.max_joined_date:
+            statement = statement.where(User.joined <= parse_date(request.max_joined_date))
+        if request.min_last_active_date:
+            statement = statement.where(User.last_active >= parse_date(request.min_last_active_date))
+        if request.max_last_active_date:
+            statement = statement.where(User.last_active <= parse_date(request.max_last_active_date))
+        if request.genders:
+            statement = statement.where(User.gender.in_(request.genders))
+        if request.language_codes:
+            statement = statement.join(
+                LanguageAbility,
+                and_(LanguageAbility.user_id == User.id, LanguageAbility.language_code.in_(request.language_codes)),
+            )
+        if request.HasField("is_deleted"):
+            statement = statement.where(User.is_deleted == request.is_deleted.value)
+        if request.HasField("is_banned"):
+            statement = statement.where(User.is_banned == request.is_banned.value)
+        if request.HasField("has_avatar"):
+            if request.has_avatar.value:
+                statement = statement.where(User.avatar_key != None)
+            else:
+                statement = statement.where(User.avatar_key == None)
+        users = (
+            session.execute(statement.where(User.id >= next_user_id).order_by(User.id).limit(page_size + 1))
+            .scalars()
+            .all()
+        )
+        logger.info(users)
+        return admin_pb2.SearchUsersRes(
+            users=[_user_to_details(session, user) for user in users[:page_size]],
+            next_page_token=str(users[-1].id) if len(users) > page_size else None,
+        )
 
     def ChangeUserGender(self, request, context, session):
         user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
@@ -300,6 +360,13 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
         user.is_deleted = True
+        return _user_to_details(session, user)
+
+    def RecoverDeletedUser(self, request, context, session):
+        user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+        if not user:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+        user.is_deleted = False
         return _user_to_details(session, user)
 
     def CreateApiKey(self, request, context, session):
@@ -552,10 +619,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
         user_ids = (
             session.execute(
                 select(User.id)
-                .where(User.id >= next_user_id)
+                .where(or_(User.id <= next_user_id, next_user_id == 0))
                 .where(User.joined >= start_date)
                 .where(User.joined <= end_date)
-                .order_by(User.joined.desc())
+                .order_by(User.id.desc())
                 .limit(page_size + 1)
             )
             .scalars()
@@ -592,6 +659,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
         discussion = session.execute(
             select(Discussion).where(Discussion.id == request.discussion_id)
         ).scalar_one_or_none()
+        if not discussion:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.DISCUSSION_NOT_FOUND)
         if request.new_title:
             discussion.title = request.new_title.strip()
         if request.new_content:

@@ -350,6 +350,8 @@ def _user_search_inner(request, context, session):
 
     # Base statement with visibility filter
     statement = select(User.id, User.recommendation_score).where_users_visible(context)
+    # make sure that only users who are in lite_users show up
+    statement = statement.join(lite_users, lite_users.c.id == User.id)
 
     # If exactly_user_ids is present, only filter by those IDs and ignore all other filters
     # This is a bit of a hacky feature to help with the frontend map implementation
