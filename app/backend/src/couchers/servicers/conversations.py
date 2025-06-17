@@ -120,7 +120,7 @@ def _get_visible_admins_for_subscription(subscription):
 
 def _user_can_message(session, context, group_chat: GroupChat) -> bool:
     """
-    User can message in a group chat they are part of, either if it's not a DM, or if the other chat participant
+    If it is a true group chat (not a DM), user can always message. For a DM, user can message if the other participant
     - Is not deleted/banned
     - Has not been blocked by the user or is blocking the user
     - Has not left the chat
@@ -607,7 +607,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
 
         subscription, group_chat = result
-        if _user_can_message(session, context, group_chat) is False:
+        if not _user_can_message(session, context, group_chat):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_MESSAGE_IN_CHAT)
 
         _add_message_to_subscription(session, subscription, message_type=MessageType.text, text=request.text)
