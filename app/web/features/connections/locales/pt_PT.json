@@ -8,5 +8,11 @@
   "no_friends": "Nenhum amigo disponível",
   "no_friend_requests": "Sem pedidos de amizade pendentes",
   "no_friend_requests_sent": "Sem pedidos de amizade pendentes",
-  "pending": "Pendentes"
+  "pending": "Pendentes",
+  "remove_friend": "Remover amigo(a)",
+  "remove_friend_confirmation_dialog": {
+    "title": "Remover amigo(a)",
+    "message": "Tem a certeza de que pretende remover {{name}}? Esta ação não pode ser anulada.",
+    "confirm": "Remover"
+  }
 }
