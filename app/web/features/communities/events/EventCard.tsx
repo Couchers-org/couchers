@@ -107,7 +107,6 @@ export default function EventCard({ event, className }: EventCardProps) {
         <CardMedia
           component="div"
           sx={{
-            position: "absolute",
             padding: 1,
             backgroundColor: (theme) => theme.palette.grey[200],
             height: { xs: 80, sm: 100, md: 120 },

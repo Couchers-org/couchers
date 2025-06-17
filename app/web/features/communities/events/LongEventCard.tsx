@@ -128,7 +128,7 @@ const LongEventCard = ({
           image={event.photoUrl || eventImagePlaceholderUrl}
           title={event.title}
           sx={(theme) => ({
-            height: "100%",
+            height: theme.spacing(20),
             width: "25%",
             objectFit: "cover",
             [theme.breakpoints.down("sm")]: {
