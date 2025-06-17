@@ -120,7 +120,7 @@ def _get_visible_admins_for_subscription(subscription):
 
 def _user_can_message(session, context, group_chat: GroupChat) -> bool:
     """
-    User can message in a group chat they are part of if it's not a DM, or if a chat participant exists that:
+    User can message in a group chat they are part of, either if it's not a DM, or if the other chat participant
     - Is not deleted/banned
     - Has not been blocked by the user or is blocking the user
     - Has not left the chat
