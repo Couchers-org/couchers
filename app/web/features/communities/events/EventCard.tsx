@@ -32,12 +32,6 @@ const StyledCard = styled(Card, {
   }),
 }));
 
-const CardWrapper = styled("div", {
-  shouldForwardProp: (prop) => prop !== "isCancelled",
-})({
-  position: "relative",
-});
-
 const Title = styled(Typography)(({ theme }) => ({
   display: "-webkit-box",
   WebkitBoxOrient: "vertical",
@@ -75,6 +69,9 @@ const FlagButtonWrapper = styled("div")({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
+  "& svg": {
+    fontSize: 16,
+  },
 });
 
 export const EVENT_CARD_TEST_ID = "event-card";
@@ -101,82 +98,79 @@ export default function EventCard({ event, className }: EventCardProps) {
   const eventImageSrc = event.photoUrl || eventImagePlaceholderUrl;
 
   return (
-    <CardWrapper>
-      <StyledCard
-        className={className}
-        isCancelled={event.isCancelled}
-        data-testid={EVENT_CARD_TEST_ID}
-      >
-        <Link href={routeToEvent(event.eventId, event.slug)}>
-          <CardMedia
-            component="div"
-            sx={{
-              padding: 1,
-              backgroundColor: (theme) => theme.palette.grey[200],
-              height: { xs: 80, sm: 100, md: 120 },
-              backgroundImage: `url(${eventImageSrc})`,
-              backgroundSize:
-                eventImageSrc === eventImagePlaceholderUrl
-                  ? "contain"
-                  : "cover",
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "center",
-            }}
+    <StyledCard
+      className={className}
+      isCancelled={event.isCancelled}
+      data-testid={EVENT_CARD_TEST_ID}
+    >
+      <Link href={routeToEvent(event.eventId, event.slug)}>
+        <CardMedia
+          component="div"
+          sx={{
+            position: "absolute",
+            padding: 1,
+            backgroundColor: (theme) => theme.palette.grey[200],
+            height: { xs: 80, sm: 100, md: 120 },
+            backgroundImage: `url(${eventImageSrc})`,
+            backgroundSize:
+              eventImageSrc === eventImagePlaceholderUrl ? "contain" : "cover",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+          }}
+        >
+          {event.onlineInformation && (
+            <Chip
+              size="medium"
+              label={t("communities:online")}
+              sx={{ borderRadius: 1, fontWeight: "bold" }}
+            />
+          )}
+        </CardMedia>
+        <CardContent>
+          <EventTime
+            variant="body2"
+            color="textSecondary"
+            gutterBottom
+            title={formattedEventDates}
           >
-            {event.onlineInformation && (
-              <Chip
-                size="medium"
-                label={t("communities:online")}
-                sx={{ borderRadius: 1, fontWeight: "bold" }}
-              />
-            )}
-          </CardMedia>
-          <CardContent>
-            <EventTime
-              variant="body2"
-              color="textSecondary"
-              gutterBottom
-              title={formattedEventDates}
-            >
-              {formattedEventDates}
-            </EventTime>
+            {formattedEventDates}
+          </EventTime>
 
-            <Title variant="h3" gutterBottom>
-              {event.title}
-            </Title>
+          <Title variant="h3" gutterBottom>
+            {event.title}
+          </Title>
 
-            <Typography noWrap variant="body2" gutterBottom>
-              {event.offlineInformation
-                ? event.offlineInformation.address
-                : t("communities:virtual_event_location_placeholder")}
+          <Typography noWrap variant="body2" gutterBottom>
+            {event.offlineInformation
+              ? event.offlineInformation.address
+              : t("communities:virtual_event_location_placeholder")}
+          </Typography>
+
+          {event.isCancelled && (
+            <CancelledChip label={t("communities:cancelled")} />
+          )}
+
+          <Divider spacing={1} />
+
+          <div>
+            <Content variant="body1" paragraph>
+              {strippedContent}
+            </Content>
+
+            <Typography variant="body2" color="textSecondary">
+              {t("communities:attendees_count", {
+                count: event.goingCount + event.maybeCount,
+              })}
             </Typography>
-
-            {event.isCancelled && (
-              <CancelledChip label={t("communities:cancelled")} />
-            )}
-
-            <Divider spacing={1} />
-
-            <div>
-              <Content variant="body1" paragraph>
-                {strippedContent}
-              </Content>
-
-              <Typography variant="body2" color="textSecondary">
-                {t("communities:attendees_count", {
-                  count: event.goingCount + event.maybeCount,
-                })}
-              </Typography>
-            </div>
-          </CardContent>
-        </Link>
-        <FlagButtonWrapper>
-          <FlagButton
-            contentRef={`event/${event.eventId}`}
-            authorUser={event.creatorUserId}
-          />
-        </FlagButtonWrapper>
-      </StyledCard>
-    </CardWrapper>
+          </div>
+        </CardContent>
+      </Link>
+      <FlagButtonWrapper>
+        <FlagButton
+          contentRef={`event/${event.eventId}`}
+          authorUser={event.creatorUserId}
+        />
+      </FlagButtonWrapper>
+    </StyledCard>
   );
 }

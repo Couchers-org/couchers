@@ -29,13 +29,15 @@ const StyledCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-const CardLayout = styled("div")(({ theme }) => ({
+const StyledLink = styled(Link)(({ theme }) => ({
   display: "flex",
   width: "100%",
   height: theme.spacing(20),
+  textDecoration: "none",
+  color: "inherit",
   [theme.breakpoints.down("sm")]: {
-    height: "auto",
     flexDirection: "column",
+    height: "auto",
   },
 }));
 
@@ -88,30 +90,14 @@ const Attendees = styled("div")(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-const ImageWrapper = styled("div")(({ theme }) => ({
-  position: "relative",
-  height: theme.spacing(20),
-  width: "25%",
-  [theme.breakpoints.down("sm")]: {
-    width: "100%",
-    height: theme.spacing(25),
-  },
-}));
-
 const FlagWrapper = styled("div")(({ theme }) => ({
-  position: "absolute",
-  bottom: 8,
-  left: 8,
-  backgroundColor: theme.palette.common.white,
-  borderRadius: "50%",
-  padding: 4,
   display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
+  alignItems: "flex-end",
   cursor: "pointer",
-  zIndex: 10,
+  marginLeft: theme.spacing(1),
+  marginBottom: theme.spacing(1),
   "& svg": {
-    fontSize: 18,
+    fontSize: 16,
   },
 }));
 
@@ -136,68 +122,63 @@ const LongEventCard = ({
 
   return (
     <StyledCard data-testid="event-item">
-      <Link href={routeToEvent(event.eventId, event.slug)} passHref>
-        <CardLayout>
-          <ImageWrapper>
-            <CardMedia
-              component="img"
-              image={event.photoUrl || eventImagePlaceholderUrl}
-              title={event.title}
-              sx={(theme) => ({
-                height: "100%",
-                width: "100%",
-                objectFit: "cover",
-                [theme.breakpoints.down("sm")]: {
-                  height: theme.spacing(25),
-                },
+      <StyledLink href={routeToEvent(event.eventId, event.slug)}>
+        <CardMedia
+          component="img"
+          image={event.photoUrl || eventImagePlaceholderUrl}
+          title={event.title}
+          sx={(theme) => ({
+            height: "100%",
+            width: "25%",
+            objectFit: "cover",
+            [theme.breakpoints.down("sm")]: {
+              width: "100%",
+              height: theme.spacing(25),
+            },
+          })}
+        />
+        <FlagWrapper>
+          <FlagButton
+            contentRef={`event/${event.eventId}`}
+            authorUser={event.creatorUserId}
+          />
+        </FlagWrapper>
+
+        <StyledCardContent>
+          <Row>
+            <Tooltip title={event.title}>
+              <Title variant="h3">{event.title}</Title>
+            </Tooltip>
+            <Tags>
+              {isCreatedByMe && (
+                <Pill variant="rounded">{t("communities:created_by_me")}</Pill>
+              )}
+              {isOnline && (
+                <Pill variant="rounded">{t("communities:online")}</Pill>
+              )}
+              {isCancelled && (
+                <CancelledPill variant="rounded">
+                  {t("communities:cancelled")}
+                </CancelledPill>
+              )}
+            </Tags>
+          </Row>
+
+          <Row>
+            <EventInfo>
+              {event.offlineInformation
+                ? event.offlineInformation.address
+                : t("communities:virtual_event_location_placeholder")}
+              <div>{startTime}</div>
+            </EventInfo>
+            <Attendees>
+              {t("communities:attendees_count", {
+                count: event.goingCount + event.maybeCount,
               })}
-            />
-            <FlagWrapper>
-              <FlagButton
-                contentRef={`event/${event.eventId}`}
-                authorUser={event.creatorUserId}
-              />
-            </FlagWrapper>
-          </ImageWrapper>
-
-          <StyledCardContent>
-            <Row>
-              <Tooltip title={event.title}>
-                <Title variant="h3">{event.title}</Title>
-              </Tooltip>
-              <Tags>
-                {isCreatedByMe && (
-                  <Pill variant="rounded">
-                    {t("communities:created_by_me")}
-                  </Pill>
-                )}
-                {isOnline && (
-                  <Pill variant="rounded">{t("communities:online")}</Pill>
-                )}
-                {isCancelled && (
-                  <CancelledPill variant="rounded">
-                    {t("communities:cancelled")}
-                  </CancelledPill>
-                )}
-              </Tags>
-            </Row>
-
-            <Row>
-              <EventInfo>
-                {event.offlineInformation
-                  ? event.offlineInformation.address
-                  : t("communities:virtual_event_location_placeholder")}
-                <div>{startTime}</div>
-              </EventInfo>
-              <Attendees>
-                {t("communities:attendees_count", {
-                  count: event.goingCount + event.maybeCount,
-                })}
-              </Attendees>
-            </Row>
-          </StyledCardContent>
-        </CardLayout>
-      </Link>
+            </Attendees>
+          </Row>
+        </StyledCardContent>
+      </StyledLink>
     </StyledCard>
   );
 };

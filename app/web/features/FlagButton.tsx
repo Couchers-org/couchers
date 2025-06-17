@@ -77,7 +77,6 @@ export default function FlagButton({
   };
 
   const onSubmit = handleSubmit((data) => {
-    console.log("REPORT CONTENT RAN");
     reportContent(data);
   });
 
