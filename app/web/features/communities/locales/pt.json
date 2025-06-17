@@ -1,6 +1,7 @@
 {
-  "attendees_count": "{{count}} participante",
-  "attendees_count_plural": "{{count}} participantes",
+  "attendees_count_0": "{{count}} participante",
+  "attendees_count_1": "{{count}} participantes",
+  "attendees_count_2": "{{count}} participantes",
   "by_creator": "Por {{name}}",
   "comments": "Comentários",
   "comments_count": "Comentários | {{count}}",
