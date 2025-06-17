@@ -1,33 +1,202 @@
 {
-  "nav": {
-    "account_settings": "Kontoeinstellungen",
-    "badges": "Abzeichen",
-    "blog": "Blog",
-    "community": "Gemeinschaft",
-    "communities": "Gemeinschaften",
-    "dashboard": "Übersicht",
-    "donate": "Spenden",
-    "events": "Veranstaltungen",
-    "faq": "FAQ",
-    "feature_preview": "Funktionsvorschau",
-    "forum": "Forum",
-    "github": "GitHub",
-    "help_center": "Hilfezentrum",
-    "roadmap_updates": "Roadmap & Updates",
-    "help": "Hilfe",
-    "log_out": "Abmelden",
-    "map_search": "Suche",
-    "mission": "Mission und Werte",
-    "messages": "Nachrichten",
-    "notifications": "Benachrichtigungen",
-    "our_plan": "Unser Plan",
-    "our_team": "Unser Team",
-    "profile": "Profil",
-    "show_all_events": "Alle Veranstaltungen anzeigen",
-    "the_team": "Das Team",
-    "volunteer": "Freiwillige",
-    "legal_more": "Rechtliches & Mehr",
-    "contact_us": "Kontaktieren Sie uns",
-    "built_with": "Open Source"
-  }
+    "nav": {
+        "account_settings": "Kontoeinstellungen",
+        "badges": "Abzeichen",
+        "blog": "Blog",
+        "community": "Gemeinschaft",
+        "communities": "Gemeinschaften",
+        "dashboard": "Übersicht",
+        "donate": "Spenden",
+        "events": "Veranstaltungen",
+        "faq": "FAQ",
+        "feature_preview": "Funktionsvorschau",
+        "forum": "Forum",
+        "github": "GitHub",
+        "help_center": "Hilfezentrum",
+        "roadmap_updates": "Roadmap & Updates",
+        "help": "Hilfe",
+        "log_out": "Abmelden",
+        "map_search": "Suche",
+        "mission": "Mission und Werte",
+        "messages": "Nachrichten",
+        "notifications": "Benachrichtigungen",
+        "our_plan": "Unser Plan",
+        "our_team": "Unser Team",
+        "profile": "Profil",
+        "show_all_events": "Alle Veranstaltungen anzeigen",
+        "the_team": "Das Team",
+        "volunteer": "Freiwillige",
+        "legal_more": "Rechtliches & Mehr",
+        "contact_us": "Kontaktieren Sie uns",
+        "built_with": "Open Source",
+        "about": "Über"
+    },
+    "footer": {
+        "copyright": "© 2025 Couchers, Inc.",
+        "non_profit_note": "Couchers.org ist ein Projekt von Couchers, Inc., einer in den USA als 501(c)(3) anerkannten gemeinnützigen, steuerbefreiten Organisation.",
+        "version_info": "Version <2>{{version}}</2>, zuletzt aktualisiert <5>{{updated_ago}}</5>."
+    },
+    "team": {
+        "title": "Das Team",
+        "join_the_team": "Dem Team beitreten",
+        "join_our_team": "Werde Teil unseres Teams",
+        "have_skills_contribute": "Hast du Fähigkeiten, mit denen du beitragen möchtest?",
+        "fill_form_description": "Couchers.org ist ein Community-Projekt, das von Leuten wie dir zum Nutzen der globalen Couchsurfer-Community aufgebaut wurde. Wenn du Teil dieses großartigen neuen Projekts werden oder uns dein Feedback zu unseren Ideen geben möchtest, klicke auf den untenstehenden Button und fülle das kurze Formular aus.",
+        "description": "Wir sind alle Couchsurfer und erfahrene Fachleute, die eine verbesserte, sicherere und inklusivere Plattform aufbauen möchten, die die Couchsurfer-Community unterstützen und nachhaltig wachsen lassen kann, um ihre Werte in die Welt zu tragen. Wenn du genauso fühlst und beitragen möchtest, würden wir uns freuen, mit dir ins Gespräch zu kommen. "
+    },
+    "push_notification_banner": {
+        "message": "Verpasse keine Anfragen, Antworten oder Nachrichten; dürfen wir dir Push-Benachrichtigungen senden?",
+        "confirm": "Ja, bitte!"
+    },
+    "retract": "Zurückziehen",
+    "couchers": "Couchers.org",
+    "legal_name": "Couchers, Inc.",
+    "login": "Einloggen",
+    "sign_up": "Registrieren",
+    "title": "Titel",
+    "continue": "Fortsetzen",
+    "verification_score": "Überprüfungswert",
+    "verification_score_description": "Berechnet anhand von Empfehlungen anderer Nutzer",
+    "edit": "Bearbeiten",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "submit": "Absenden",
+    "load_more": "Mehr laden",
+    "read_more": "Mehr erfahren",
+    "next": "Weiter",
+    "mod": "Moderation",
+    "hosting_status": {
+        "any": "Alle",
+        "can_host": "Kann hosten",
+        "maybe": "Kann vielleicht hosten",
+        "cant_host": "Kann nicht hosten",
+        "unspecified_info": "Unbekannt"
+    },
+    "language_preference": {
+        "current_preferred_language": "Deine Sprachauswahl ist derzeit ",
+        "form_title": "Sprache",
+        "help_translate": "Hilf dabei couchers in deine Sprache zu übersetzen.",
+        "select_language": "Sprache auswählen",
+        "success_message": "Deine Änderung wurde gespeichert."
+    },
+    "meetup_status": {
+        "wants_to_meetup": "Möchte sich treffen",
+        "open_to_meetup": "Bereit, sich zu treffen",
+        "does_not_want_to_meetup": "Kann sich nicht treffen",
+        "unspecified_info": "Unbekannt"
+    },
+    "report": {
+        "label": "Ein Problem melden",
+        "bug": {
+            "title_label": "Report Titel",
+            "title_helper": "Kurze Beschreibung des Fehlers",
+            "problem_label": "Was hast du getan, um den Fehler auszulösen?",
+            "problem_helper": "Kurze Beschreibung des Problems und wie es reproduziert werden kann",
+            "expect_label": "Was ist passiert? Was hätte passieren sollen?",
+            "expect_helper": "Kurze Beschreibung, was du stattdessen erwartest hast",
+            "button_label": "Ein technisches Problem melden",
+            "warning_message": "Bitte beachte, dass diese Informationen sowie diagnostische Daten, einschließlich der Seite, auf der du dich befindest, des von dir verwendeten Browsers und deines Benutzernamens, in einer öffentlichen Fehlerliste gespeichert werden.",
+            "success_message": "Vielen Dank, dass du diesen Fehler gemeldet und Couchers verbessert hast! Ein Bericht wurde an die Entwickler gesendet. Die Fehler-ID ist "
+        },
+        "content": {
+            "button_label": "Unangemessene Inhalte oder Verhaltensweisen melden",
+            "success_message": "Vielen Dank für deinen Bericht und dafür, dass du Couchers zu einer besseren Plattform für alle machst!",
+            "dialog_message": "Wir arbeiten an robusten Melde- und Moderationstools. In der Zwischenzeit sende uns bitte eine E-Mail an die unten angegebene Adresse. Gib Details wie den betreffenden Nutzer, was unangemessen war und wo du es gesehen hast, an."
+        },
+        "flag": {
+            "button_aria_label": "Inhalt oder einen Nutzer melden",
+            "explainer": "Verwende dieses Formular, um einen Nutzer oder Inhalte vertraulich zu melden. Diese Informationen werden an unser Sicherheits- und Vertrauensteam weitergeleitet und so schnell wie möglich überprüft. Wir werden uns möglicherweise bei dir melden oder Maßnahmen ohne weitere Rückmeldung ergreifen.",
+            "title": "Inhalt oder einen Nutzer melden",
+            "reason_label": "Grund für die Meldung",
+            "reason_helper": "Warum meldest du diesen Inhalt?",
+            "reason_required": "Ein Grund ist erforderlich.",
+            "description_label": "Beschreibung",
+            "description_helper": "Bitte teile uns kurz mit, warum du dies meldest.",
+            "reason": {
+                "spam": "Spam",
+                "dating": "Dating / Flirting",
+                "commercial": "Kommerzieller Inhalt",
+                "harassment": "Belästigung",
+                "fake": "Fake Account / irreführende Informationen",
+                "freeloading": "Freeloader",
+                "guidelines_breach": "Verstoß gegen die Community-Richtlinien",
+                "other": "Etwas anderes",
+                "external": "Vorfall außerhalb der Plattform (z. B. Surfen/Hosting/Event)"
+            },
+            "success": "Vielen Dank für deinen Bericht und dafür, dass du Couchers zu einer besseren Plattform für alle machst!"
+        },
+        "title": "Ein Problem melden"
+    },
+    "previous": "Vorherige",
+    "not_found_text_2": "Willst du einfach nur <1>zum Dashboard gehen?</1>",
+    "not_found_alt": "404 Fehler: Ressource nicht gefunden",
+    "change_time": "Zeit ändern",
+    "html_meta": {
+        "title_suffix": " | Couchers.org Beta",
+        "default_title": "Couchers.org Beta",
+        "default_description": "Die neue Alternative zu Couchsurfing™. Für immer kostenlos. Community-geführt. Gemeinnützig. Modern."
+    },
+    "error": {
+        "fatal_message": "Das hätte nicht passieren sollen. Bitte kontaktiere uns und teile uns mit, was du gerade gemacht hast, damit wir diesen Fehler in Zukunft verhindern können.",
+        "unknown": "Unbekannter Fehler",
+        "fallback": {
+            "title": "Hoppla... das ist ein unbekannter Fehler",
+            "refresh_page_button_label": "Seite neu laden",
+            "home_page_link_label": "Zur Startseite gehen",
+            "subtitle": "Bitte verwende die Schaltfläche „Problem melden“ und teile uns mit, was du gerade gemacht hast, damit wir diesen Fehler in Zukunft verhindern können."
+        }
+    },
+    "components": {
+        "datepicker": {
+            "change_date": "Datum ändern"
+        },
+        "edit_location_map": {
+            "search_location_label": "Nach Ort suchen",
+            "display_location_label": "Ort anzeigen"
+        }
+    },
+    "reply": "Antwort",
+    "yes": "Ja",
+    "no": "Nein",
+    "ok": "OK",
+    "relative_time": {
+        "one_minute_ago": "vor 1 Minute",
+        "less_than_one_hour_ago": "Vor weniger als einer Stunde",
+        "one_hour_ago": "Vor 1 Stunde",
+        "x_hours_ago": "vor {{date}} Stunden",
+        "one_day_ago": "Vor 1 Tag",
+        "x_days_ago": "vor {{date}} Tagen",
+        "one_week_ago": "Vor 1 Woche",
+        "x_weeks_ago": "Vor {{date}} Wochen",
+        "one_month_ago": "Vor 1 Monat",
+        "one_year_ago": "Vor 1 Jahr",
+        "x_years_ago": "Vor {{date}} Jahren",
+        "x_minutes_ago": "vor {{date}} Minuten",
+        "x_months_ago": "vor {{date}} Monaten",
+        "less_than_a_minute_ago": "vor weniger als 1 Minute"
+    },
+    "location_autocomplete": {
+        "more_specific": "Bitte wähle einen genaueren Ort aus",
+        "search_location_button": "Ort suchen",
+        "select_location_hint": "Drücke die Eingabetaste oder klicke auf das Suchsymbol und wähle dann einen Ort aus der Liste aus",
+        "search_location_hint": "Drücke die Eingabetaste oder klicke auf das Suchsymbol, um einen Ort auszuwählen"
+    },
+    "close": "Schließen",
+    "expand": "Erweitern",
+    "update": "aktualisieren",
+    "create": "Erstellen",
+    "terms_of_service": "Nutzungsbedingungen",
+    "required": "Erforderlich",
+    "accept": "Annehmen",
+    "community_standing": "Community Status",
+    "community_standing_description": "Berechnet aus verschiedenen Faktoren wie Referenzen und Community-Engagement.",
+    "send": "Senden",
+    "confirm": "Bestätigen",
+    "cookie_message": "Wir verwenden Cookies, um sicherzustellen, dass wir dir die bestmögliche Erfahrung auf unserer Website bieten. Wenn du diese Seite weiterhin nutzt, gehen wir davon aus, dass du damit einverstanden bist. Weitere Informationen findest du in unseren <1>Nutzungsbedingungen</1>.",
+    "not_found_text_1": "Wir konnten die von dir angeforderte URL oder Ressource nicht finden",
+    "contribute_title": "Melde dich an, um beizutragen",
+    "strong_verification": {
+        "helper_text": "Die Identität des Mitglieds wurde mit einem biometrischen Reisepass verifiziert"
+    },
+    "thanks": "Danke!"
 }

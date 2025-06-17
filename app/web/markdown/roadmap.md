@@ -37,7 +37,7 @@ hide_title: true
       <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Blog It Like You Mean It</td>
     </tr>
     <tr>
-      <td rowspan="17" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">New Features</td>
+      <td rowspan="18" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">New Features</td>
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Push Notifications</td>
     </tr>
     <tr>
@@ -82,7 +82,7 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="1"</td>
-	  <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Feedback Option: "Did Not Stay"</td>
+      <td colspan="4" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Feedback Option: "Did Not Stay"</td>
     </tr>
     <tr >
       <td colspan="1"</td>
@@ -91,6 +91,10 @@ hide_title: true
     <tr >
       <td colspan="1"</td>
 	  <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Event Co-organizers</td>
+    </tr>
+    <tr >
+      <td colspan="1"</td>
+      <td colspan="4" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Remove Friend</td>
     </tr>
     <tr >
       <td colspan="2"</td>
@@ -134,7 +138,7 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="1"</td>
-      <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Reference System Update</td>
+      <td colspan="4" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Reference System Update</td>
     </tr>
     <tr >
       <td colspan="2"</td>
@@ -167,7 +171,7 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="1"</td>
-      <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Regular Posts on Social Media Accounts</td>
+      <td colspan="4" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Regular Posts on Social Media Accounts</td>
     </tr>
     <tr >
       <td colspan="1"</td>
