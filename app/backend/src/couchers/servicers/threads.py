@@ -10,7 +10,7 @@ from couchers.jobs.enqueue import queue_job
 from couchers.models import Comment, Discussion, Event, EventOccurrence, Reply, Thread, User
 from couchers.notifications.notify import notify
 from couchers.servicers.api import user_model_to_pb
-from couchers.servicers.blocking import are_blocked
+from couchers.servicers.blocking import is_not_visible
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, make_user_context
 from proto import notification_data_pb2, threads_pb2, threads_pb2_grpc
@@ -85,7 +85,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                 attending_user_ids = [user.user_id for user in occurrence.attendances]
 
                 for user_id in set(subscribed_user_ids + attending_user_ids):
-                    if are_blocked(session, user_id, comment.author_user_id):
+                    if is_not_visible(session, user_id, comment.author_user_id):
                         continue
                     if user_id == comment.author_user_id:
                         continue
@@ -109,7 +109,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                     raise NotImplementedError("Shouldn't have discussions under groups, only communities")
 
                 for user_id in [discussion.creator_user_id]:
-                    if are_blocked(session, user_id, comment.author_user_id):
+                    if is_not_visible(session, user_id, comment.author_user_id):
                         continue
                     if user_id == comment.author_user_id:
                         continue
@@ -133,16 +133,24 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
             reply = session.execute(select(Reply).where(Reply.id == database_id)).scalar_one()
             # the comment we're replying to
             parent_comment = session.execute(select(Comment).where(Comment.id == reply.comment_id)).scalar_one()
+            context = make_user_context(user_id=reply.author_user_id)
+            thread_replies_author_user_ids = (
+                session.execute(
+                    select(Reply.author_user_id)
+                    .where_users_column_visible(context, Reply.author_user_id)
+                    .where(Reply.comment_id == parent_comment.id)
+                )
+                .scalars()
+                .all()
+            )
+            thread_user_ids = set(thread_replies_author_user_ids)
+            if not is_not_visible(session, parent_comment.author_user_id, reply.author_user_id):
+                thread_user_ids.add(parent_comment.author_user_id)
 
             author_user = session.execute(select(User).where(User.id == reply.author_user_id)).scalar_one()
 
-            if are_blocked(session, parent_comment.author_user_id, reply.author_user_id):
-                return
+            user_ids_to_notify = set(thread_user_ids) - {reply.author_user_id}
 
-            if parent_comment.author_user_id == reply.author_user_id:
-                return
-
-            context = make_user_context(user_id=parent_comment.author_user_id)
             reply = threads_pb2.Reply(
                 thread_id=payload.thread_id,
                 content=reply.content,
@@ -160,30 +168,34 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
             if event:
                 # thread is an event thread
                 occurrence = event.occurrences.order_by(EventOccurrence.id.desc()).limit(1).one()
-                notify(
-                    session,
-                    user_id=parent_comment.author_user_id,
-                    topic_action="thread:reply",
-                    key=occurrence.id,
-                    data=notification_data_pb2.ThreadReply(
-                        reply=reply,
-                        event=event_to_pb(session, occurrence, context),
-                        author=user_model_to_pb(author_user, session, context),
-                    ),
-                )
+                for user_id in user_ids_to_notify:
+                    context = make_user_context(user_id=user_id)
+                    notify(
+                        session,
+                        user_id=user_id,
+                        topic_action="thread:reply",
+                        key=occurrence.id,
+                        data=notification_data_pb2.ThreadReply(
+                            reply=reply,
+                            event=event_to_pb(session, occurrence, context),
+                            author=user_model_to_pb(author_user, session, context),
+                        ),
+                    )
             elif discussion:
                 # community discussion thread
-                notify(
-                    session,
-                    user_id=parent_comment.author_user_id,
-                    topic_action="thread:reply",
-                    key=discussion.id,
-                    data=notification_data_pb2.ThreadReply(
-                        reply=reply,
-                        discussion=discussion_to_pb(session, discussion, context),
-                        author=user_model_to_pb(author_user, session, context),
-                    ),
-                )
+                for user_id in user_ids_to_notify:
+                    context = make_user_context(user_id=user_id)
+                    notify(
+                        session,
+                        user_id=user_id,
+                        topic_action="thread:reply",
+                        key=discussion.id,
+                        data=notification_data_pb2.ThreadReply(
+                            reply=reply,
+                            discussion=discussion_to_pb(session, discussion, context),
+                            author=user_model_to_pb(author_user, session, context),
+                        ),
+                    )
             else:
                 raise NotImplementedError("I can only do event and discussion threads for now")
         else:

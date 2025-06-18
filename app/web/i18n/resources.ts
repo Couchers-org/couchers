@@ -5,6 +5,7 @@ import dashboard from "features/dashboard/locales/en.json";
 import donations from "features/donations/locales/en.json";
 import landing from "features/landing/locales/en.json";
 import messages from "features/messages/locales/en.json";
+import mod from "features/mod/locales/en.json";
 import notifications from "features/notifications/locales/en.json";
 import profile from "features/profile/locales/en.json";
 import search from "features/search/locales/en.json";
@@ -18,6 +19,7 @@ const resources = {
   donations,
   landing,
   messages,
+  mod,
   notifications,
   profile,
   search,
