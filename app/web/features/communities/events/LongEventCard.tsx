@@ -127,15 +127,11 @@ const LongEventCard = ({
           component="img"
           image={event.photoUrl || eventImagePlaceholderUrl}
           title={event.title}
-          sx={(theme) => ({
-            height: theme.spacing(20),
+          sx={{
+            height: "100%",
             width: "25%",
-            objectFit: "cover",
-            [theme.breakpoints.down("sm")]: {
-              width: "100%",
-              height: theme.spacing(25),
-            },
-          })}
+            objectFit: "fill",
+          }}
         />
         <FlagWrapper>
           <FlagButton
