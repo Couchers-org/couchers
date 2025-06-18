@@ -79,7 +79,7 @@ from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.admin import generate_new_blog_post_notifications
 from couchers.servicers.api import user_model_to_pb
-from couchers.servicers.blocking import are_blocked
+from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.conversations import generate_message_notifications
 from couchers.servicers.discussions import generate_create_discussion_notifications
 from couchers.servicers.events import (
@@ -483,7 +483,7 @@ def send_reference_reminders(payload):
             for surfed, host_request, user, other_user in reference_reminders:
                 # checked in sql
                 assert user.is_visible
-                if not are_blocked(session, user.id, other_user.id):
+                if not is_not_visible(session, user.id, other_user.id):
                     context = make_user_context(user_id=user.id)
                     notify(
                         session,
