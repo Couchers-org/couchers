@@ -88,7 +88,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
     service.search.geolocationClickInfo({
       context: autocompleteContext,
       formattedResultJson: JSON.stringify(options),
-      searchChoiceJson: JSON.stringify(newValue),
+      searchChoiceJson: JSON.stringify(value),
     });
   };
 
