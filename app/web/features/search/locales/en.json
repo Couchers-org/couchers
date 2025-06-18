@@ -40,9 +40,18 @@
       "guests_field_label": "Number of guests",
       "sleeping_arrangement_label": "Sleeping arrangement",
       "sleeping_arrangement_filters": {
-        "shared_room": "Shared room (e.g. shared bedroom with own sleeping surface)",
-        "private": "Private space (e.g. own room or similar)",
-        "common": "Common room (e.g. couch in living room)"
+        "shared_room": {
+    "label": "Shared room",
+    "description": "e.g. shared bedroom with own sleeping surface"
+  },
+  "private": {
+    "label": "Private space",
+    "description": "e.g. own room or similar"
+  },
+  "common": {
+    "label": "Common room",
+    "description": "e.g. couch in living room"
+  }
       }
     },
     "empty_profile_filters": {

@@ -519,34 +519,70 @@ const FilterDialog = ({
             <ToggleButton
               value={SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON}
               aria-label={t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.common",
+                "search:form.accommodation_filters.sleeping_arrangement_filters.common.label",
               )}
-              sx={{ borderRadius: "20px 0 0 20px" }}
+              sx={{
+                borderRadius: "20px 0 0 20px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
             >
-              {t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.common",
-              )}
+              <Typography variant="body2">
+                {t(
+                  "search:form.accommodation_filters.sleeping_arrangement_filters.common.label",
+                )}
+              </Typography>
+              <Typography variant="caption">
+                {t(
+                  "search:form.accommodation_filters.sleeping_arrangement_filters.common.description",
+                )}
+              </Typography>
             </ToggleButton>
             <ToggleButton
               value={SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE}
               aria-label={t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.private",
+                "search:form.accommodation_filters.sleeping_arrangement_filters.private.label",
               )}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
             >
-              {t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.private",
-              )}
+              <Typography variant="body2">
+                {t(
+                  "search:form.accommodation_filters.sleeping_arrangement_filters.private.label",
+                )}
+              </Typography>
+              <Typography variant="caption">
+                {t(
+                  "search:form.accommodation_filters.sleeping_arrangement_filters.private.description",
+                )}
+              </Typography>
             </ToggleButton>
             <ToggleButton
               value={SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM}
               aria-label={t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.shared_room",
+                "search:form.accommodation_filters.sleeping_arrangement_filters.shared_room.label",
               )}
-              sx={{ borderRadius: "0 20px 20px 0" }}
+              sx={{
+                borderRadius: "0 20px 20px 0",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
             >
-              {t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.shared_room",
-              )}
+              <Typography variant="body2">
+                {t(
+                  "search:form.accommodation_filters.sleeping_arrangement_filters.shared_room.label",
+                )}
+              </Typography>
+              <Typography variant="caption">
+                {t(
+                  "search:form.accommodation_filters.sleeping_arrangement_filters.shared_room.description",
+                )}
+              </Typography>
             </ToggleButton>
           </ToggleButtonGroup>
         </FilterItemRow>
