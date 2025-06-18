@@ -13,6 +13,7 @@ const DONATIONS = "donations";
 const GLOBAL = "global";
 const LANDING = "landing";
 const MESSAGES = "messages";
+const MOD = "mod";
 const NOTIFICATIONS = "notifications";
 const PROFILE = "profile";
 const SEARCH = "search";
@@ -26,6 +27,7 @@ const NAMESPACES = [
   GLOBAL,
   LANDING,
   MESSAGES,
+  MOD,
   NOTIFICATIONS,
   PROFILE,
   SEARCH,
@@ -40,6 +42,7 @@ module.exports = {
   GLOBAL,
   LANDING,
   MESSAGES,
+  MOD,
   NOTIFICATIONS,
   PROFILE,
   SEARCH,

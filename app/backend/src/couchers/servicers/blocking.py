@@ -1,6 +1,6 @@
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import union
+from sqlalchemy.sql import not_, or_, union
 
 from couchers import errors, urls
 from couchers.models import Upload, User, UserBlock
@@ -8,7 +8,10 @@ from couchers.sql import couchers_select as select
 from proto import blocking_pb2, blocking_pb2_grpc
 
 
-def are_blocked(session, user1_id, user2_id):
+def is_not_visible(session, user1_id, user2_id) -> bool:
+    """
+    Check if users are not visible to each other (due to block or because either account is deleted/banned).
+    """
     blocked_users = (
         select(UserBlock.blocked_user_id)
         .where(UserBlock.blocking_user_id == user1_id)
@@ -19,7 +22,11 @@ def are_blocked(session, user1_id, user2_id):
         .where(UserBlock.blocking_user_id == user2_id)
         .where(UserBlock.blocked_user_id == user1_id)
     )
-    return session.execute(select(union(blocked_users, blocking_users).subquery()).limit(1)).one_or_none() is not None
+    hidden_users = select(User.id).where(or_(User.id == user1_id, User.id == user2_id)).where(not_(User.is_visible))
+    return (
+        session.execute(select(union(blocked_users, blocking_users, hidden_users).subquery()).limit(1)).one_or_none()
+        is not None
+    )
 
 
 class Blocking(blocking_pb2_grpc.BlockingServicer):

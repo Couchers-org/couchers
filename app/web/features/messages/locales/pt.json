@@ -23,14 +23,15 @@
     "cancelled": "Cancelado",
     "confirmed": "Confirmado",
     "pending": "Pendente",
-    "rejected": "Rejeitado"
+    "rejected": "Recusado",
+    "past": "Passado"
   },
-  "request_closed_message": "Este pedido de hospedagem está fechado ou passado. Para continuar a conversar, envie uma mensagem normal à outra pessoa.",
+  "request_closed_message": "Este pedido de hospedagem está fechado. Para continuar a conversar, envie uma mensagem normal à outra pessoa.",
   "write_reference_button_text": "Escreva uma Referência",
   "close_request_dialog_title": "Já terminou de enviar mensagens?",
-  "close_request_dialog_host": "Por favor, certifique-se de que terminou de conversar antes de rejeitar o pedido.",
+  "close_request_dialog_host": "Por favor, certifique-se de que terminou de conversar antes de recusar o pedido.",
   "close_request_dialog_surfer": "Por favor, certifique-se que terminou de conversar antes de cancelar o pedido.",
-  "close_request_button_text": "Rejeitar",
+  "close_request_button_text": "Recusar",
   "confirm_request_button_text": "Confirmar",
   "chat_view": {
     "invalid_id_error": "ID de conversa inválido.",
@@ -124,25 +125,30 @@
       "accepted": "Você aceitou este pedido",
       "cancelled": "Você cancelou este pedido",
       "confirmed": "Você confirmou este pedido",
-      "rejected": "Você rejeitou este pedido"
+      "rejected": "Você recusou esta solicitação"
     },
     "surfer_status": {
       "accepted": "O seu pedido foi aceite",
       "confirmed": "O seu pedido foi confirmado",
-      "rejected": "O seu pedido foi rejeitado",
+      "rejected": "Sua solicitação foi recusada",
       "cancelled": "O seu pedido foi cancelado"
-    }
+    },
+    "expired": "Esta solicitação expirou"
   },
   "host_request_view": {
     "error_message": "ID de pedido de hospedagem inválido",
     "back_button_a11y_label": "Voltar",
     "title_for_host": "Pedido de {{user}} - {{status}}",
     "title_for_surfer": "Pedido a {{user}} - {{status}}",
-    "request_duration": "{{count}} noite",
-    "request_duration_plural": "{{count}} noites"
+    "request_duration_0": "{{count}} noite",
+    "request_duration_1": "{{count}} noites",
+    "request_duration_2": "{{count}} noites"
   },
   "mark_all_read_button_text": "Marcar todos como lidos",
   "members_dialog": {
     "title": "Participantes da conversa"
-  }
+  },
+  "host_pending_request_help_text": "<0>Coisas a considerar</0> antes de responder.",
+  "surfer_declined_request_help_text": "<0>Leia nosso guia</0> sobre como escrever um pedido que será aceito.",
+  "past_request_help_text": "Esta solicitação está no passado, você ainda pode enviar mensagens, mas não pode modificá-la de outra forma."
 }
