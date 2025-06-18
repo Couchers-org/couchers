@@ -523,14 +523,18 @@ def send_host_request_reminders(payload):
             Message.conversation_id == HostRequest.conversation_id, Message.author_id == HostRequest.host_user_id
         )
 
-        requests = session.execute(
-            select(HostRequest)
-            .where(HostRequest.status == HostRequestStatus.pending)
-            .where(HostRequest.host_sent_request_reminders < HOST_REQUEST_MAX_REMINDERS)
-            .where(HostRequest.start_time > func.now())
-            .where((func.now() - HostRequest.last_sent_request_reminder_time) >= HOST_REQUEST_REMINDER_INTERVAL)
-            .where(~exists(host_has_sent_message))
-        ).scalars().all()
+        requests = (
+            session.execute(
+                select(HostRequest)
+                .where(HostRequest.status == HostRequestStatus.pending)
+                .where(HostRequest.host_sent_request_reminders < HOST_REQUEST_MAX_REMINDERS)
+                .where(HostRequest.start_time > func.now())
+                .where((func.now() - HostRequest.last_sent_request_reminder_time) >= HOST_REQUEST_REMINDER_INTERVAL)
+                .where(~exists(host_has_sent_message))
+            )
+            .scalars()
+            .all()
+        )
 
         for host_request in requests:
             host_request.host_sent_request_reminders += 1
@@ -547,7 +551,7 @@ def send_host_request_reminders(payload):
                     surfer=user_model_to_pb(host_request.surfer, session, context),
                 ),
             )
-        
+
         session.commit()
 
 

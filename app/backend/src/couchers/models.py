@@ -1482,7 +1482,7 @@ class HostRequest(Base):
     surfer_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
     host_sent_request_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
     last_sent_request_reminder_time = Column(DateTime, nullable=False, server_default=func.now())
-    
+
     # reason why the host/surfer marked that they didn't meet up
     # if null then they haven't marked it such
     host_reason_didnt_meetup = Column(String, nullable=True)
@@ -1511,16 +1511,10 @@ class HostRequest(Base):
             status,
             host_sent_request_reminders,
             last_sent_request_reminder_time,
-            start_time
+            start_time,
         ),
-        Index(
-            "ix_host_requests_start_time",
-            start_time
-        ),
-        Index(
-            "ix_host_requests_last_reminder_time",
-            last_sent_request_reminder_time
-        ),
+        Index("ix_host_requests_start_time", start_time),
+        Index("ix_host_requests_last_reminder_time", last_sent_request_reminder_time),
     )
 
     @hybrid_property
