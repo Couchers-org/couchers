@@ -16,5 +16,8 @@
   "safer_stronger": "Safer, Stronger Connections",
   "safer_stronger_description": "We've reimagined trust and safety with a new approach to references, verification, and accountability, so you can focus on meeting great people.",
   "built_by_travelers": "Built by Travelers, for Travelers",
-  "built_by_travelers_description": "With a team of over 20 volunteers - travelers, hosts, and developers - we're building a platform that's stable, modern, and made for how people actually travel today."
+  "built_by_travelers_description": "With a team of over 20 volunteers - travelers, hosts, and developers - we're building a platform that's stable, modern, and made for how people actually travel today.",
+  "num_users": "{{numUsers}}+ users",
+  "num_countries": "{{numCountries}}+ countries",
+  "last_signup": "Last signup {{timeAgo}} from {{location}}"
 }
