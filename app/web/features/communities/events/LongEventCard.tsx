@@ -2,88 +2,108 @@ import {
   Card,
   CardContent,
   CardMedia,
-  Theme,
+  styled,
   Tooltip,
   Typography,
 } from "@mui/material";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Pill from "components/Pill";
+import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { routeToEvent } from "routes";
-import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
-import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles((theme: Theme) => ({
-  root: {
-    margin: 0,
-    "&:not(:first-child)": {
-      margin: theme.spacing(2, 0),
-    },
-    border: `1px solid ${theme.palette.grey[300]}`,
-    borderRadius: theme.spacing(1),
+const StyledCard = styled(Card)(({ theme }) => ({
+  margin: 0,
+  "&:not(:first-of-type)": {
+    margin: theme.spacing(2, 0),
+  },
+  border: `1px solid ${theme.palette.grey[300]}`,
+  borderRadius: theme.spacing(1),
+  "&:hover": {
+    backgroundColor: theme.palette.grey[50],
+  },
+}));
 
-    "&:hover": {
-      backgroundColor: theme.palette.grey[50],
-    },
+const StyledLink = styled(Link)(({ theme }) => ({
+  display: "flex",
+  width: "100%",
+  height: theme.spacing(20),
+  textDecoration: "none",
+  color: "inherit",
+  [theme.breakpoints.down("sm")]: {
+    flexDirection: "column",
+    height: "auto",
   },
-  attendees: {
-    display: "flex",
-    alignItems: "flex-end",
-    justifyContent: "flex-end",
-    minWidth: theme.spacing(10),
-    fontSize: ".85rem",
-    color: theme.palette.text.secondary,
-  },
-  card: {
-    display: "flex",
+}));
+
+const StyledCardContent = styled(CardContent)(({ theme }) => ({
+  width: "75%",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  [theme.breakpoints.down("sm")]: {
     width: "100%",
-    height: theme.spacing(20),
-    [theme.breakpoints.down("sm")]: {
-      height: "auto",
-    },
   },
-  cardMedia: {
-    height: "100%",
-    width: "25%",
-    objectFit: "fill",
+}));
+
+const Row = styled("div")({
+  display: "flex",
+  justifyContent: "space-between",
+});
+
+const Title = styled(Typography)(({ theme }) => ({
+  display: "-webkit-box",
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: "vertical",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  maxHeight: "3em",
+  lineHeight: "1.5em",
+  paddingRight: theme.spacing(2),
+}));
+
+const Tags = styled("div")(({ theme }) => ({
+  minWidth: theme.spacing(15),
+  [theme.breakpoints.down("sm")]: {
+    minWidth: theme.spacing(10),
   },
-  cardContent: {
-    width: "75%",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
+}));
+
+const EventInfo = styled("div")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "flex-end",
+  flexDirection: "column",
+  fontSize: ".85rem",
+}));
+
+const Attendees = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "flex-end",
+  justifyContent: "flex-end",
+  minWidth: theme.spacing(10),
+  fontSize: ".85rem",
+  color: theme.palette.text.secondary,
+}));
+
+const FlagWrapper = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "flex-end",
+  cursor: "pointer",
+  marginLeft: theme.spacing(1),
+  marginBottom: theme.spacing(1),
+  "& svg": {
+    fontSize: 16,
   },
-  eventInfo: {
-    display: "flex",
-    justifyContent: "flex-end",
-    flexDirection: "column",
-    fontSize: ".85rem",
-  },
-  row: {
-    display: "flex",
-    justifyContent: "space-between",
-  },
-  tags: {
-    minWidth: theme.spacing(15),
-    [theme.breakpoints.down("sm")]: {
-      minWidth: theme.spacing(10),
-    },
-  },
-  title: {
-    display: "-webkit-box",
-    lineClamp: 2,
-    boxOrient: "vertical",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    maxHeight: "3em" /* Approximate height for 2 lines of text */,
-    lineHeight: "1.5em",
-    paddingRight: theme.spacing(2),
-  },
+}));
+
+const CancelledPill = styled(Pill)(({ theme }) => ({
+  backgroundColor: theme.palette.error.main,
+  color: theme.palette.common.white,
 }));
 
 const LongEventCard = ({
@@ -93,9 +113,6 @@ const LongEventCard = ({
   event: Event.AsObject;
   userId?: number | null | undefined;
 }) => {
-  const classes = useStyles({
-    eventImageSrc: event.photoUrl || eventImagePlaceholderUrl,
-  });
   const { t } = useTranslation([COMMUNITIES]);
 
   const startTime = dayjs(timestamp2Date(event.startTime!)).format("llll");
@@ -104,24 +121,31 @@ const LongEventCard = ({
   const isCancelled = event.isCancelled;
 
   return (
-    <Card className={classes.root} data-testid="event-item">
-      <Link
-        href={routeToEvent(event.eventId, event.slug)}
-        className={classes.card}
-      >
+    <StyledCard data-testid="event-item">
+      <StyledLink href={routeToEvent(event.eventId, event.slug)}>
         <CardMedia
-          className={classes.cardMedia}
           component="img"
           image={event.photoUrl || eventImagePlaceholderUrl}
+          title={event.title}
+          sx={{
+            height: "100%",
+            width: "25%",
+            objectFit: "fill",
+          }}
         />
-        <CardContent className={classes.cardContent}>
-          <div className={classes.row}>
+        <FlagWrapper>
+          <FlagButton
+            contentRef={`event/${event.eventId}`}
+            authorUser={event.creatorUserId}
+          />
+        </FlagWrapper>
+
+        <StyledCardContent>
+          <Row>
             <Tooltip title={event.title}>
-              <Typography variant="h3" className={classes.title}>
-                {event.title}
-              </Typography>
+              <Title variant="h3">{event.title}</Title>
             </Tooltip>
-            <div className={classes.tags}>
+            <Tags>
               {isCreatedByMe && (
                 <Pill variant="rounded">{t("communities:created_by_me")}</Pill>
               )}
@@ -129,33 +153,29 @@ const LongEventCard = ({
                 <Pill variant="rounded">{t("communities:online")}</Pill>
               )}
               {isCancelled && (
-                <Pill
-                  backgroundColor={theme.palette.error.main}
-                  color={theme.palette.common.white}
-                  variant="rounded"
-                >
+                <CancelledPill variant="rounded">
                   {t("communities:cancelled")}
-                </Pill>
+                </CancelledPill>
               )}
-            </div>
-          </div>
-          <div className={classes.row}>
-            <div className={classes.eventInfo}>
+            </Tags>
+          </Row>
+
+          <Row>
+            <EventInfo>
               {event.offlineInformation
                 ? event.offlineInformation.address
                 : t("communities:virtual_event_location_placeholder")}
-
               <div>{startTime}</div>
-            </div>
-            <div className={classes.attendees}>
+            </EventInfo>
+            <Attendees>
               {t("communities:attendees_count", {
                 count: event.goingCount + event.maybeCount,
               })}
-            </div>
-          </div>
-        </CardContent>
-      </Link>
-    </Card>
+            </Attendees>
+          </Row>
+        </StyledCardContent>
+      </StyledLink>
+    </StyledCard>
   );
 };
 
