@@ -88,10 +88,10 @@ export default function LoggedInMenu({
 
   return (
     <>
-      {!isMobile && <LanguagePickerSelect />}
       <ReportButtonContainer>
         <ReportButton />
       </ReportButtonContainer>
+      {!isMobile && <LanguagePickerSelect />}
       <Tooltip title={t("global:nav.notifications")}>
         <NotificationMenuItemWrapper>
           <NotificationBadge count={notificationCount}>

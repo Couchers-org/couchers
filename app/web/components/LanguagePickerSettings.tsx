@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 
 import LanguagePickerSelect from "./LanguagePickerSelect";
 
-const VOLUNTEER_PAGE_LINK = "https://couchers.org/volunteer";
+const VOLUNTEER_PAGE_LINK = "https://couchers.org/volunteer/translator";
 
 interface ChangeLanguageProps {
   className?: string;

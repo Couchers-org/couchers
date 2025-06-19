@@ -296,7 +296,6 @@ const StyledMenuContainer = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
-  "& > *": { marginInlineStart: theme.spacing(2) },
 }));
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
