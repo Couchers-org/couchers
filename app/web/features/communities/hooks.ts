@@ -161,15 +161,18 @@ export const useListMembers = ({
   communityId?: number;
   pageSize?: number;
 }) =>
-  useQuery<ListMembersRes.AsObject, RpcError>(
+  useInfiniteQuery<ListMembersRes.AsObject, RpcError>(
     [communityMembersKey(communityId!), pageSize],
-    () =>
+    ({ pageParam }) =>
       service.communities.listMembers({
         communityId: communityId!,
         pageSize,
+        pageToken: pageParam,
       }),
     {
+      keepPreviousData: true,
       enabled: !!communityId,
+      getNextPageParam: (lastPage) => lastPage.nextPageToken,
     },
   );
 

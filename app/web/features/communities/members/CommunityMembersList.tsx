@@ -1,4 +1,5 @@
-import { Pagination, styled } from "@mui/material";
+import { Pagination, styled, Typography } from "@mui/material";
+import { Box } from "@mui/system";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { PersonIcon } from "components/Icons";
@@ -21,34 +22,47 @@ const PaginationWrapper = styled("div")(({ theme }) => ({
 
 export default function CommunityMembersList({
   communityId,
+  memberCount,
 }: {
   communityId: Community.AsObject["communityId"];
+  memberCount?: Community.AsObject["memberCount"];
 }) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const PAGE_SIZE = 20;
 
   const [pageNumber, setPageNumber] = useState(1);
 
-  const { data, isLoading, error } = useListMembers({
+  const { data, isFetching, isLoading, error, fetchNextPage } = useListMembers({
     communityId,
     pageSize: PAGE_SIZE,
   });
 
-  const memberUserIdsList = data?.memberUserIdsList ?? [];
+  const memberUserIdsList = data?.pages
+    ? data.pages[pageNumber - 1]?.memberUserIdsList
+    : [];
+  const numPages = Math.ceil((memberCount ?? 0) / PAGE_SIZE);
 
   const handlePageNumberChange = (
     event: React.ChangeEvent<unknown>,
     value: number,
   ) => {
+    if (value > pageNumber) {
+      fetchNextPage();
+    }
+
     setPageNumber(value);
   };
 
   return (
     <>
-      <SectionTitle icon={<PersonIcon />} variant="h2">
-        {t("communities:members_title")}
-      </SectionTitle>
-
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        <SectionTitle icon={<PersonIcon />} variant="h2">
+          {t("communities:members_title")}
+        </SectionTitle>
+        <Typography variant="body2" sx={{ margin: 2 }}>
+          {memberCount} {t("communities:total_members")}
+        </Typography>
+      </Box>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
         <CenteredSpinner />
@@ -59,6 +73,7 @@ export default function CommunityMembersList({
             endChildren={
               <PaginationWrapper>
                 <Pagination
+                  count={numPages}
                   page={pageNumber}
                   color="primary"
                   onChange={handlePageNumberChange}
@@ -70,7 +85,10 @@ export default function CommunityMembersList({
           />
         </>
       ) : (
-        !error && <TextBody>{t("communities:members_empty_state")}</TextBody>
+        !error &&
+        !isFetching && (
+          <TextBody>{t("communities:members_empty_state")}</TextBody>
+        )
       )}
     </>
   );
