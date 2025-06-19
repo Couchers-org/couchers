@@ -3,9 +3,11 @@ import HtmlMeta from "components/HtmlMeta";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "react-query";
+import { theme } from "theme";
 
 import HeroSection from "./HeroSection";
-import WhatWhyCouchersSection from "./WhatWhyCouchersSection";
+import SocialProof from "./SocialProof";
+import WhyCouchersSection from "./WhyCouchersSection";
 
 const StyledSpacer = styled("div")(({ theme }) => ({
   height: theme.spacing(4),
@@ -37,27 +39,33 @@ export default function LandingPage() {
   return (
     <>
       <HtmlMeta />
-      <Container component="section" maxWidth="xl">
+      <Container component="section" maxWidth="lg">
         <HeroSection scrollToMore={scrollToMore} />
       </Container>
       <StyledSpacer />
-      {/* <Container component="section" maxWidth="xl" ref={moreContentRef}>
-        social proof section goes here
-      </Container> */}
-      <StyledSpacer />
-      <Container component="section" maxWidth="xl">
-        <WhatWhyCouchersSection />
+      <Container
+        component="section"
+        disableGutters
+        maxWidth={false}
+        ref={moreContentRef}
+        sx={{ width: "100%", backgroundColor: theme.palette.grey[50] }}
+      >
+        <SocialProof />
       </Container>
       <StyledSpacer />
-      <Container component="section" maxWidth="xl">
+      <Container component="section" maxWidth="lg">
+        <WhyCouchersSection />
+      </Container>
+      <StyledSpacer />
+      <Container component="section" maxWidth="lg">
         Third section here
       </Container>
       <StyledSpacer />
-      <Container component="section" maxWidth="xl">
+      <Container component="section" maxWidth="lg">
         Fourth section here
       </Container>
       <StyledSpacer />
-      <Container component="section" maxWidth="xl">
+      <Container component="section" maxWidth="lg">
         Fifth section here
       </Container>
     </>

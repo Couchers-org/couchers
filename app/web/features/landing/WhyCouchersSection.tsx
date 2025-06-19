@@ -6,31 +6,12 @@ import { LANDING } from "i18n/namespaces";
 import { useInView } from "react-intersection-observer";
 import { theme } from "theme";
 
-const WhatWhyCouchersSection = () => {
+const WhyCouchersSection = () => {
   const { t } = useTranslation([LANDING]);
   const { ref, inView } = useInView({ triggerOnce: true });
 
   return (
     <>
-      <Box
-        sx={{
-          textAlign: "center",
-          marginTop: 4,
-          backgroundColor: theme.palette.grey[50],
-          padding: 4,
-        }}
-      >
-        <Typography variant="h2" sx={{ fontSize: "2.5rem !important" }}>
-          {t("what_couchsurfing_title")}
-        </Typography>
-        <Typography paragraph sx={{ marginTop: 2 }}>
-          {t("what_couchsurfing_description_1")}
-        </Typography>
-        <Typography paragraph>
-          {t("what_couchsurfing_description_2")}
-        </Typography>
-      </Box>
-      {/* <StyledSpacer /> */}
       <Typography variant="h2" sx={{ fontSize: "2.5rem !important" }}>
         {t("why_couchers_title")}
       </Typography>
@@ -146,4 +127,4 @@ const WhatWhyCouchersSection = () => {
   );
 };
 
-export default WhatWhyCouchersSection;
+export default WhyCouchersSection;
