@@ -7,7 +7,9 @@ import {
   AvailableWriteReferencesRes,
   ReferenceType,
 } from "proto/references_pb";
+import { EventSearchRes } from "proto/search_pb";
 import comments from "test/fixtures/comments.json";
+import events from "test/fixtures/events.json";
 import liteUsers from "test/fixtures/liteUsers.json";
 import messages from "test/fixtures/messages.json";
 import notifications from "test/fixtures/notifications.json";
@@ -87,6 +89,7 @@ export async function listGroupChats() {
         title: "groupchattitle",
         // created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
         unseenMessageCount: 0,
+        canMessage: true,
       },
     ],
     noMore: true,
@@ -108,6 +111,7 @@ export async function listHostRequests() {
       status: HostRequestStatus.HOST_REQUEST_STATUS_PENDING,
       toDate: "2020/12/06",
       hostUserId: 2,
+      canMessage: true,
     },
   ];
 }
@@ -241,4 +245,24 @@ export async function getEventAttendees(): Promise<ListEventAttendeesRes.AsObjec
 
 export async function listNotifications(): Promise<ListNotificationsRes.AsObject> {
   return notifications;
+}
+
+export async function getEvents(): Promise<EventSearchRes.AsObject> {
+  return {
+    eventsList: events,
+    totalItems: events.length,
+    nextPageToken: "",
+  };
+}
+
+export async function getMyEvents(
+  creatorUserId?: number,
+): Promise<EventSearchRes.AsObject> {
+  return {
+    eventsList: !creatorUserId
+      ? events
+      : events.filter((event) => event.creatorUserId === creatorUserId),
+    totalItems: events.length,
+    nextPageToken: "",
+  };
 }

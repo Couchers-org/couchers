@@ -8,7 +8,7 @@ from couchers.jobs.enqueue import queue_job
 from couchers.models import Cluster, Discussion, Thread, User
 from couchers.notifications.notify import notify
 from couchers.servicers.api import user_model_to_pb
-from couchers.servicers.blocking import are_blocked
+from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.threads import thread_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, make_user_context
@@ -53,7 +53,7 @@ def generate_create_discussion_notifications(payload: jobs_pb2.GenerateCreateDis
             raise NotImplementedError("Shouldn't have discussions under groups, only communities")
 
         for user in list(cluster.members.where(User.is_visible)):
-            if are_blocked(session, user.id, discussion.creator_user_id):
+            if is_not_visible(session, user.id, discussion.creator_user_id):
                 continue
             context = make_user_context(user_id=user.id)
             notify(
