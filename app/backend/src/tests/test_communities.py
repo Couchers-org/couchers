@@ -669,7 +669,6 @@ class TestCommunities:
                 user2_id,
                 user1_id,
             ]
-            assert res.total_items == 8
 
             res = api.ListMembers(
                 communities_pb2.ListMembersReq(
@@ -677,17 +676,6 @@ class TestCommunities:
                 )
             )
             assert res.member_user_ids == [user5_id, user4_id, user2_id]
-            assert res.total_items == 3
-
-            res = api.ListMembers(
-                communities_pb2.ListMembersReq(
-                    community_id=w_id,
-                    page_size=3,
-                    page_number=2,
-                )
-            )
-            assert res.member_user_ids == [user5_id, user4_id, user3_id]
-            assert res.total_items == 8
 
     @staticmethod
     def test_ListNearbyUsers(testing_communities):

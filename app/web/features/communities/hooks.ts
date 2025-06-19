@@ -156,19 +156,16 @@ export const useListAdmins = (communityId: number, type: QueryType) => {
 
 export const useListMembers = ({
   communityId,
-  pageNumber,
   pageSize,
 }: {
   communityId?: number;
-  pageNumber?: number;
   pageSize?: number;
 }) =>
   useQuery<ListMembersRes.AsObject, RpcError>(
-    [communityMembersKey(communityId!), pageNumber, pageSize],
+    [communityMembersKey(communityId!), pageSize],
     () =>
       service.communities.listMembers({
         communityId: communityId!,
-        pageNumber,
         pageSize,
       }),
     {

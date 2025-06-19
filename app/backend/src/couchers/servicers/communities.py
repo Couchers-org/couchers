@@ -244,21 +244,11 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
     def ListMembers(self, request, context, session):
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        page_number = request.page_number or 1
-        offset = (page_number - 1) * page_size
+        next_member_id = int(request.page_token) if request.page_token else 0
 
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
-
         if not node:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
-
-        total_items = session.execute(
-            select(func.count(User.id))
-            .select_from(User)
-            .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
-            .where_users_visible(context)
-            .where(ClusterSubscription.cluster_id == node.official_cluster.id)
-        ).scalar_one()
 
         members = (
             session.execute(
@@ -266,17 +256,17 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
                 .where_users_visible(context)
                 .where(ClusterSubscription.cluster_id == node.official_cluster.id)
+                .where(User.id >= next_member_id)
                 .order_by(User.id.desc())  # Show the most recent members first, given ids increment
-                .offset(offset)
-                .limit(page_size)
+                .limit(page_size + 1)
             )
             .scalars()
             .all()
         )
 
         return communities_pb2.ListMembersRes(
-            member_user_ids=[member.id for member in members],
-            total_items=total_items,
+            member_user_ids=[member.id for member in members[:page_size]],
+            next_page_token=str(members[-1].id) if len(members) > page_size else None,
         )
 
     def ListNearbyUsers(self, request, context, session):

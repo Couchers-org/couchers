@@ -32,11 +32,9 @@ export default function CommunityMembersList({
   const { data, isLoading, error } = useListMembers({
     communityId,
     pageSize: PAGE_SIZE,
-    pageNumber,
   });
 
   const memberUserIdsList = data?.memberUserIdsList ?? [];
-  const numPages = Math.ceil((data?.totalItems ?? 0) / PAGE_SIZE) ?? 1;
 
   const handlePageNumberChange = (
     event: React.ChangeEvent<unknown>,
@@ -61,7 +59,6 @@ export default function CommunityMembersList({
             endChildren={
               <PaginationWrapper>
                 <Pagination
-                  count={numPages}
                   page={pageNumber}
                   color="primary"
                   onChange={handlePageNumberChange}
