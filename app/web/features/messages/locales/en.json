@@ -20,6 +20,7 @@
     }
   },
   "chat_view": {
+    "cannot_message_text": "You cannot send messages in this chat",
     "invalid_id_error": "Invalid chat ID.",
     "no_messages_state_text": "No messages",
     "back_button": {

@@ -18,6 +18,7 @@ const useUnblockUser = () => {
   >(({ username }) => service.blocking.unblockUser({ username }), {
     onMutate: async ({ username }) => {
       await queryClient.cancelQueries(blockedUsersKey);
+      await queryClient.removeQueries(["liteUsers"]);
 
       const previousBlockedUsers =
         queryClient.getQueryData<GetBlockedUsersRes.AsObject>(blockedUsersKey)
@@ -80,6 +81,7 @@ const useBlockUser = () => {
       onMutate: async ({ avatarThumbnailUrl, name, username, userId }) => {
         await queryClient.cancelQueries(blockedUsersKey);
         await queryClient.cancelQueries(friendIdsKey);
+        await queryClient.removeQueries(["liteUsers"]);
 
         const currentBlockedUsers =
           queryClient.getQueryData<GetBlockedUsersRes.AsObject>(blockedUsersKey)
