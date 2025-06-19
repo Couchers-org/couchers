@@ -42,15 +42,15 @@
       "sleeping_arrangement_filters": {
         "shared_room": {
     "label": "Shared room",
-    "description": "e.g. shared bedroom with own sleeping surface"
+    "description": " - e.g. shared bedroom with own sleeping surface"
   },
   "private": {
     "label": "Private space",
-    "description": "e.g. own room or similar"
+    "description": " - e.g. own room or similar"
   },
   "common": {
     "label": "Common room",
-    "description": "e.g. couch in living room"
+    "description": " - e.g. couch in living room"
   }
       }
     },
