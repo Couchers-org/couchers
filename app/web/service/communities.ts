@@ -58,7 +58,6 @@ export async function listAdmins(communityId: number, pageToken?: string) {
 
 export async function listMembers({
   communityId,
-  pageNumber,
   pageSize,
 }: {
   communityId: number;
@@ -67,9 +66,7 @@ export async function listMembers({
 }) {
   const req = new ListMembersReq();
   req.setCommunityId(communityId);
-  if (pageNumber) {
-    req.setPageNumber(pageNumber);
-  }
+
   if (pageSize) {
     req.setPageSize(pageSize);
   }
