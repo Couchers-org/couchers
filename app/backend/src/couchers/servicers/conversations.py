@@ -618,6 +618,73 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         ).inc()
 
         return empty_pb2.Empty()
+    
+    def SendDirectMessage(self, request, context, session):
+       
+        if request.text == "":
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
+
+        user_id = context.user_id
+        recipient_id = request.recipient_user_id
+
+        # Look for an existing direct message (DM) chat between the two users
+        dm_chat_ids = (
+            select(GroupChatSubscription.group_chat_id)
+            .where(GroupChatSubscription.user_id.in_([user_id, recipient_id]))
+            .group_by(GroupChatSubscription.group_chat_id)
+            .having(func.count(GroupChatSubscription.user_id) == 2)
+        )
+
+        chat = session.execute(
+            select(GroupChat)
+            .where(GroupChat.is_dm == True)
+            .where(GroupChat.conversation_id.in_(dm_chat_ids))
+        ).scalars().first()
+
+        if not chat:
+            # Create a new conversation (conversation_id is needed for group_chat)
+            conversation = Conversation()
+            session.add(conversation)
+            session.flush()
+
+            # Create a new GroupChat for this conversation
+            chat = GroupChat(
+                conversation_id=conversation.id,
+                creator_id=user_id,
+                is_dm=True,
+                only_admins_invite=False,
+            )
+            session.add(chat)
+            session.flush()
+
+            # Add both users as participants to the chat
+            for uid in [user_id, recipient_id]:
+                session.add(
+                    GroupChatSubscription(
+                        user_id=uid,
+                        group_chat_id=chat.conversation_id,
+                        role=GroupChatRole.participant,
+                    )
+                )
+            session.flush()
+
+
+            # Retrieve the sender's active subscription to the chat
+        subscription = session.execute(
+            select(GroupChatSubscription)
+            .where(GroupChatSubscription.group_chat_id == chat.conversation_id)
+            .where(GroupChatSubscription.user_id == user_id)
+            .where(GroupChatSubscription.left == None)
+        ).scalar_one()
+
+
+            # Add the message to the conversation
+        _add_message_to_subscription(session, subscription, message_type=MessageType.text, text=request.text)
+
+        user_gender = session.execute(select(User.gender).where(User.id == user_id)).scalar_one()
+        sent_messages_counter.labels(user_gender, "direct message").inc()
+        
+        return conversations_pb2.SendDirectMessageRes(group_chat_id=chat.conversation_id)
 
     def EditGroupChat(self, request, context, session):
         subscription = session.execute(
