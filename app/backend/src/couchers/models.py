@@ -1502,19 +1502,14 @@ class HostRequest(Base):
             "ix_host_requests_surfer_didnt_meetup",
             surfer_reason_didnt_meetup != None,
         ),
-        Index(
-            "ix_host_pending_requests",
-            status == HostRequestStatus.pending,
-        ),
+        # Used for figuring out who needs a reminder to respond
         Index(
             "ix_host_requests_status_reminder_counts",
             status,
             host_sent_request_reminders,
             last_sent_request_reminder_time,
-            start_time,
+            from_date,
         ),
-        Index("ix_host_requests_start_time", start_time),
-        Index("ix_host_requests_last_reminder_time", last_sent_request_reminder_time),
     )
 
     @hybrid_property

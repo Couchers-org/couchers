@@ -5,7 +5,6 @@ Background job servicers
 import logging
 from datetime import date, timedelta
 from math import cos, pi, sin, sqrt
-from types import SimpleNamespace
 
 import requests
 from google.protobuf import empty_pb2
@@ -540,23 +539,22 @@ def send_host_request_reminders(payload):
             host_request.host_sent_request_reminders += 1
             host_request.last_sent_request_reminder_time = now()
 
-            context = SimpleNamespace(user_id=host_request.host.id)
+            context = make_user_context(user_id=host_request.host_user_id)
             notify(
                 session,
-                user_id=host_request.host.id,
+                user_id=host_request.host_user_id,
                 topic_action="host_request:reminder",
                 data=notification_data_pb2.HostRequestReminder(
                     host_request=host_request_to_pb(host_request, session, context),
-                    host=user_model_to_pb(host_request.host, session, context),
                     surfer=user_model_to_pb(host_request.surfer, session, context),
                 ),
             )
 
-        session.commit()
+            session.commit()
 
 
 send_host_request_reminders.PAYLOAD = empty_pb2.Empty
-send_host_request_reminders.SCHEDULE = HOST_REQUEST_REMINDER_INTERVAL
+send_host_request_reminders.SCHEDULE = timedelta(minutes=15)
 
 
 def add_users_to_email_list(payload):

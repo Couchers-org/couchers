@@ -26,16 +26,6 @@ def upgrade():
         "host_requests",
         sa.Column("last_sent_request_reminder_time", sa.DateTime(), server_default=sa.text("now()"), nullable=False),
     )
-    op.create_index("ix_host_pending_requests", "host_requests", [sa.text("(status = 'pending')")], unique=False)
-    op.create_index(
-        "ix_host_requests_last_reminder_time", "host_requests", ["last_sent_request_reminder_time"], unique=False
-    )
-    op.create_index(
-        "ix_host_requests_start_time",
-        "host_requests",
-        [sa.text("timezone('Etc/UTC', CAST(from_date AS TIMESTAMP WITHOUT TIME ZONE))")],
-        unique=False,
-    )
     op.create_index(
         "ix_host_requests_status_reminder_counts",
         "host_requests",
@@ -43,7 +33,7 @@ def upgrade():
             "status",
             "host_sent_request_reminders",
             "last_sent_request_reminder_time",
-            sa.text("timezone('Etc/UTC', CAST(from_date AS TIMESTAMP WITHOUT TIME ZONE))"),
+            "from_date",
         ],
         unique=False,
     )

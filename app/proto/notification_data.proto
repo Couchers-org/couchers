@@ -52,8 +52,7 @@ message HostRequestMissedMessages {
 
 message HostRequestReminder {
   org.couchers.api.requests.HostRequest host_request = 1;
-  org.couchers.api.core.User host = 2;
-  org.couchers.api.core.User surfer = 3;
+  org.couchers.api.core.User surfer = 2;
 }
 
 message BadgeAdd {
