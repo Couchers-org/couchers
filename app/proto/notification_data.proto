@@ -50,6 +50,11 @@ message HostRequestMissedMessages {
   bool am_host = 3;
 }
 
+message HostRequestReminder {
+  org.couchers.api.requests.HostRequest host_request = 1;
+  org.couchers.api.core.User surfer = 2;
+}
+
 message BadgeAdd {
   string badge_id = 1;
   string badge_name = 2;

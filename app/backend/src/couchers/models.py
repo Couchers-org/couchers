@@ -1480,6 +1480,8 @@ class HostRequest(Base):
     # number of reference reminders sent out
     host_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
     surfer_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
+    host_sent_request_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
+    last_sent_request_reminder_time = Column(DateTime, nullable=False, server_default=func.now())
 
     # reason why the host/surfer marked that they didn't meet up
     # if null then they haven't marked it such
@@ -1499,6 +1501,14 @@ class HostRequest(Base):
         Index(
             "ix_host_requests_surfer_didnt_meetup",
             surfer_reason_didnt_meetup != None,
+        ),
+        # Used for figuring out who needs a reminder to respond
+        Index(
+            "ix_host_requests_status_reminder_counts",
+            status,
+            host_sent_request_reminders,
+            last_sent_request_reminder_time,
+            from_date,
         ),
     )
 
@@ -2418,6 +2428,7 @@ class NotificationTopicAction(enum.Enum):
     host_request__cancel = ("host_request:cancel", dt_all, True, nd.HostRequestCancel)
     host_request__message = ("host_request:message", [dt.push, dt.digest], True, nd.HostRequestMessage)
     host_request__missed_messages = ("host_request:missed_messages", [dt.email], True, nd.HostRequestMissedMessages)
+    host_request__reminder = ("host_request:reminder", dt_all, True, nd.HostRequestReminder)
 
     activeness__probe = ("activeness:probe", dt_sec, False, nd.ActivenessProbe)
 
