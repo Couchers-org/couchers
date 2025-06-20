@@ -102,7 +102,7 @@ export default function UserSummary({
           />
         ) : (
           <>
-            <span>{displayName}</span>
+            {nameOnly ? nameValue : `${nameValue}, ${user.age}`}
             {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
           </>
         )}
