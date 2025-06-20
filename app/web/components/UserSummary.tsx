@@ -149,7 +149,7 @@ export default function UserSummary({
                   variant="body1"
                   noWrap={nameOnly}
                 >
-                  {!user ? <Skeleton /> : <span>{displayCity}</span>}
+                  {!user ? <Skeleton /> : cityValue}
                 </Typography>
               </Tooltip>
             )}
