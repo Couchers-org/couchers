@@ -218,6 +218,46 @@ def _add_message_to_subscription(session, subscription, **kwargs):
     return message
 
 
+def _create_group_chat(session, user_id, recipient_ids):
+    conversation = Conversation()
+    session.add(conversation)
+    session.flush()
+
+    chat = GroupChat(
+        conversation_id=conversation.id,
+        creator_id=user_id,
+        is_dm=True,
+        only_admins_invite=False,
+    )
+    session.add(chat)
+    session.flush()
+
+    chat_members_ids = [user_id] + recipient_ids
+
+    for uid in chat_members_ids:
+        session.add(
+            GroupChatSubscription(
+                user_id=uid,
+                group_chat_id=chat.conversation_id,
+                role=GroupChatRole.participant,
+            )
+        )
+    session.flush()
+
+    return chat
+
+
+def _get_direct_message_subscription(session, user_id, conversation_id):
+    subscription = session.execute(
+        select(GroupChatSubscription)
+        .where(GroupChatSubscription.group_chat_id == conversation_id)
+        .where(GroupChatSubscription.user_id == user_id)
+        .where(GroupChatSubscription.left == None)
+    ).scalar_one_or_none()
+
+    return subscription
+
+
 def _unseen_message_count(session, subscription_id):
     return session.execute(
         select(func.count())
@@ -634,48 +674,15 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             .having(func.count(GroupChatSubscription.user_id) == 2)
         )
 
-        chat = (
-            session.execute(
-                select(GroupChat).where(GroupChat.is_dm == True).where(GroupChat.conversation_id.in_(dm_chat_ids))
-            )
-            .scalars()
-            .first()
-        )
+        chat = session.execute(
+            select(GroupChat).where(GroupChat.is_dm == True).where(GroupChat.conversation_id.in_(dm_chat_ids)).limit(1)
+        ).scalar_one_or_none()
 
         if not chat:
-            # Create a new conversation (conversation_id is needed for group_chat)
-            conversation = Conversation()
-            session.add(conversation)
-            session.flush()
+            chat = _create_group_chat(session, user_id, [recipient_id])
 
-            # Create a new GroupChat for this conversation
-            chat = GroupChat(
-                conversation_id=conversation.id,
-                creator_id=user_id,
-                is_dm=True,
-                only_admins_invite=False,
-            )
-            session.add(chat)
-            session.flush()
-
-            # Add both users as participants to the chat
-            for uid in [user_id, recipient_id]:
-                session.add(
-                    GroupChatSubscription(
-                        user_id=uid,
-                        group_chat_id=chat.conversation_id,
-                        role=GroupChatRole.participant,
-                    )
-                )
-            session.flush()
-
-            # Retrieve the sender's active subscription to the chat
-        subscription = session.execute(
-            select(GroupChatSubscription)
-            .where(GroupChatSubscription.group_chat_id == chat.conversation_id)
-            .where(GroupChatSubscription.user_id == user_id)
-            .where(GroupChatSubscription.left == None)
-        ).scalar_one()
+        # Retrieve the sender's active subscription to the chat
+        subscription = _get_direct_message_subscription(session, user_id, chat.conversation_id)
 
         # Add the message to the conversation
         _add_message_to_subscription(session, subscription, message_type=MessageType.text, text=request.text)
