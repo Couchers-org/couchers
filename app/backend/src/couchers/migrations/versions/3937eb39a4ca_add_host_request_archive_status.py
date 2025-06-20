@@ -1,7 +1,7 @@
 """Add host request archive status
 
 Revision ID: 3937eb39a4ca
-Revises: cd456767d2f7
+Revises: 18d100ed2803
 Create Date: 2025-06-19 21:51:25.999122
 
 """
