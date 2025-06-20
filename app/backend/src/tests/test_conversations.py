@@ -657,26 +657,14 @@ def test_send_direct_message(db):
 
     with conversations_session(token1) as c1:
         # Send a DM from user1 to user2
-        res = c1.SendDirectMessage(
-            conversations_pb2.SendDirectMessageReq(
-                recipient_user_id=user2.id,
-                text=message1
-            )
-        )
+        res = c1.SendDirectMessage(conversations_pb2.SendDirectMessageReq(recipient_user_id=user2.id, text=message1))
 
-        c1.SendDirectMessage(
-            conversations_pb2.SendDirectMessageReq(
-                recipient_user_id=user2.id,
-                text=message2
-            )
-        )
+        c1.SendDirectMessage(conversations_pb2.SendDirectMessageReq(recipient_user_id=user2.id, text=message2))
 
     with conversations_session(token2) as c2:
         # Fetch the chat by ID returned from SendDirectMessage
-        chat = c2.GetGroupChat(
-            conversations_pb2.GetGroupChatReq(group_chat_id=res.group_chat_id)
-        )
-        
+        chat = c2.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=res.group_chat_id))
+
         assert chat.is_dm
         group_chat_id = chat.group_chat_id
 
