@@ -551,17 +551,16 @@ def test_ChangeLanguagePreference(db, fast_passwords):
         res, call = account.ChangeLanguagePreference.with_call(request)
 
         # cookies are sent via initial metadata, so we check for it there
-        metadata = dict(call.initial_metadata())
-
-        assert "set-cookie" in metadata, "expected 'set-cookie' in initial metadata"
-
-        # the value of "set-cookie" will be the full cookie string, pull the key value from the string
-        key_val = metadata["set-cookie"].split(";")[0]
-        assert key_val == "NEXT_LOCALE=zh", f"expected 'NEXT_LOCALE=zh', got {key_val}"
-
-        # the changed language preference should also be sent to the backend
-        res = account.GetAccountInfo(empty_pb2.Empty())
-        assert res.ui_language_preference == "zh"
+        for key, val in call.initial_metadata():
+            if key == "set-cookie":
+                # the value of "set-cookie" will be the full cookie string, pull the key value from the string
+                key_val = val.split(";")[0]
+                if key_val == "NEXT_LOCALE=zh":
+                    # the changed language preference should also be sent to the backend
+                    res = account.GetAccountInfo(empty_pb2.Empty())
+                    assert res.ui_language_preference == "zh"
+                    return
+        raise Exception("Didn't find right cookie")
 
 
 def test_contributor_form(db):

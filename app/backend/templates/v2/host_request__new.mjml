@@ -1,0 +1,48 @@
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
+    <mj-text><b>{{ message|v2esc }}</b> at {{ time|v2time(user) }}.</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ view_link|v2url }}">
+      <b>View host request</b>
+    </mj-button>
+  </mj-column>
+  <mj-column>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ quick_decline_link|v2url }}">
+      <b>Quick Decline (no login needed)</b>
+    </mj-button>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text><i>Please respond to this request, even a quick decline is better than no response!</i></mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px" text-align="left">
+  <mj-column>
+    <mj-table>
+      <tr>
+        <td style="width: 100px;">
+          <img width="80px" style="border-radius: 80px" src="{{ other|v2avatar }}" />
+        </td>
+        <td>
+          <b>{{ other.name|v2esc }}</b>, {{ other.age|v2esc }}<br />{{ other.city|v2esc }}
+          <br />From <b>{{ host_request.from_date|v2date(user) }}</b> to <b>{{ host_request.to_date|v2date(user) }}</b>.
+        </td>
+      </tr>
+    </mj-table>
+  </mj-column>
+</mj-section>
+<mj-section padding="10px 20px" text-align="left">
+  <mj-column background-color="#eee" border-radius="10px" padding="10px 0px">
+    <mj-text>{{ text|v2esc|v2multiline }}</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text><b>Do not reply to this email.</b> Use one of the buttons above, or log in to your account to reply to this request.</mj-text>
+  </mj-column>
+</mj-section>

@@ -10,6 +10,7 @@ from sqlalchemy.sql import and_, func, or_, select, update
 from user_agents import parse as user_agents_parse
 
 from couchers import errors, urls
+from couchers.context import make_background_user_context
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.helpers.badges import user_add_badge, user_remove_badge
@@ -47,7 +48,7 @@ from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import get_users_to_notify_for_new_event
 from couchers.servicers.threads import unpack_thread_id
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime, date_to_api, make_user_context, now, parse_date, to_aware_datetime
+from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, to_aware_datetime
 from proto import admin_pb2, admin_pb2_grpc, notification_data_pb2
 from proto.internal import jobs_pb2
 
@@ -110,7 +111,7 @@ def generate_new_blog_post_notifications(payload: jobs_pb2.GenerateNewBlogPostNo
     with session_scope() as session:
         all_users = session.execute(select(User).where(User.is_visible)).scalars().all()
         for user in all_users:
-            context = make_user_context(user_id=user.id)
+            context = make_background_user_context(user_id=user.id)
             notify(
                 session,
                 user_id=user.id,

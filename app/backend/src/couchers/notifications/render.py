@@ -2,7 +2,7 @@ import logging
 from dataclasses import dataclass
 
 from couchers import urls
-from couchers.notifications.unsubscribe import generate_unsub_topic_action
+from couchers.notifications.quick_links import generate_unsub_topic_action
 from couchers.templates.v2 import v2avatar, v2date, v2esc, v2phone, v2timestamp
 from couchers.utils import now, to_aware_datetime
 from proto import notification_data_pb2

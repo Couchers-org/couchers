@@ -7,6 +7,7 @@ from sqlalchemy.sql import func, not_, or_
 
 from couchers import errors
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
+from couchers.context import make_background_user_context
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import sent_messages_counter
@@ -24,7 +25,7 @@ from couchers.notifications.notify import notify
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.servicers.api import user_model_to_pb
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime, make_user_context, now
+from couchers.utils import Timestamp_from_datetime, now
 from proto import conversations_pb2, conversations_pb2_grpc, notification_data_pb2
 from proto.internal import jobs_pb2
 
@@ -165,7 +166,7 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
             logger.info(f"Not a text message, not notifying. message_id = {payload.message_id}")
             return []
 
-        context = make_user_context(user_id=message.author_id)
+        context = make_background_user_context(user_id=message.author_id)
         user_ids_to_notify = (
             session.execute(
                 select(GroupChatSubscription.user_id)
@@ -195,7 +196,7 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
                     author=user_model_to_pb(
                         message.author,
                         session,
-                        make_user_context(user_id=user_id),
+                        make_background_user_context(user_id=user_id),
                     ),
                     message=msg,
                     text=message.text,

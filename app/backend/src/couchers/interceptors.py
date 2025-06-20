@@ -12,6 +12,7 @@ from opentelemetry import trace
 from sqlalchemy.sql import and_, func
 
 from couchers import errors
+from couchers.context import make_interactive_user_context
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import observe_in_servicer_duration_histogram
@@ -105,9 +106,13 @@ def unauthenticated_handler(message="Unauthorized", status_code=grpc.StatusCode.
     return abort_handler(message, status_code)
 
 
-class AuthValidatorInterceptor(grpc.ServerInterceptor):
+class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
     """
-    Extracts a session token from a cookie, and authenticates a user with that.
+    1. Does auth: extracts a session token from a cookie, and authenticates a user with that.
+
+    2. Makes sure cookies are in sync.
+
+    3. Injects a session to get a database transaction.
 
     Sets context.user_id and context.token if authenticated, otherwise
     terminates the call with an UNAUTHENTICATED error code.
@@ -184,62 +189,33 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
                 return unauthenticated_handler("Permission denied")
 
         handler = continuation(handler_call_details)
-        user_aware_function = handler.unary_unary
+        prev_function = handler.unary_unary
 
-        def user_unaware_function(req, context):
-            context.user_id = user_id
-            context.token = (token, token_expiry)
-            context.is_api_key = is_api_key
-            context.ui_language_preference = ui_language_preference
-            return user_aware_function(req, context)
+        def function_without_couchers_stuff(req, context):
+            couchers_context = make_interactive_user_context(
+                grpc_context=context,
+                user_id=user_id,
+                token=token,
+                ui_language_preference=ui_language_preference,
+            )
+            with session_scope() as session:
+                res = prev_function(req, couchers_context, session)
 
-        return grpc.unary_unary_rpc_method_handler(
-            user_unaware_function,
-            request_deserializer=handler.request_deserializer,
-            response_serializer=handler.response_serializer,
-        )
-
-
-class CookieInterceptor(grpc.ServerInterceptor):
-    """
-    Syncs up the couchers-sesh and couchers-user-id cookies & sets lang cookie
-    """
-
-    def intercept_service(self, continuation, handler_call_details):
-        headers = dict(handler_call_details.invocation_metadata)
-        cookie_user_id = parse_user_id_cookie(headers)
-        cookie_ui_lang = parse_ui_lang_cookie(headers)
-
-        handler = continuation(handler_call_details)
-        user_aware_function = handler.unary_unary
-
-        def user_unaware_function(req, context):
-            res = user_aware_function(req, context)
-
-            if context.user_id and not context.is_api_key:
+            if user_id and not is_api_key:
                 cookies = []
 
                 # check the two cookies are in sync & that language preference cookie is correct
-                token, expiry = context.token
-                if cookie_user_id != str(context.user_id):
-                    cookies.extend(
-                        [("set-cookie", cookie) for cookie in create_session_cookies(token, context.user_id, expiry)]
-                    )
-                if context.ui_language_preference and context.ui_language_preference != cookie_ui_lang:
-                    cookies.extend(
-                        [("set-cookie", cookie) for cookie in create_lang_cookie(context.ui_language_preference)]
-                    )
+                if parse_user_id_cookie(headers) != str(user_id):
+                    couchers_context.set_cookies(create_session_cookies(token, user_id, token_expiry))
+                if ui_language_preference and ui_language_preference != parse_ui_lang_cookie(headers):
+                    couchers_context.set_cookies(create_lang_cookie(ui_language_preference))
 
-                if cookies:
-                    try:
-                        context.send_initial_metadata(cookies)
-                    except ValueError as e:
-                        logger.info("Tried to send initial metadata but wasn't allowed to")
+                couchers_context._send_cookies()
 
             return res
 
         return grpc.unary_unary_rpc_method_handler(
-            user_unaware_function,
+            function_without_couchers_stuff,
             request_deserializer=handler.request_deserializer,
             response_serializer=handler.response_serializer,
         )
@@ -302,27 +278,6 @@ class OTelInterceptor(grpc.ServerInterceptor):
 
         return grpc.unary_unary_rpc_method_handler(
             tracing_function,
-            request_deserializer=handler.request_deserializer,
-            response_serializer=handler.response_serializer,
-        )
-
-
-class SessionInterceptor(grpc.ServerInterceptor):
-    """
-    Adds a session from session_scope() as the last argument. This needs to be the last interceptor since it changes the
-    function signature by adding another argument.
-    """
-
-    def intercept_service(self, continuation, handler_call_details):
-        handler = continuation(handler_call_details)
-        prev_func = handler.unary_unary
-
-        def function_without_session(request, context):
-            with session_scope() as session:
-                return prev_func(request, context, session)
-
-        return grpc.unary_unary_rpc_method_handler(
-            function_without_session,
             request_deserializer=handler.request_deserializer,
             response_serializer=handler.response_serializer,
         )
@@ -443,6 +398,27 @@ class TracingInterceptor(grpc.ServerInterceptor):
 
         return grpc.unary_unary_rpc_method_handler(
             tracing_function,
+            request_deserializer=handler.request_deserializer,
+            response_serializer=handler.response_serializer,
+        )
+
+
+class SessionInterceptor(grpc.ServerInterceptor):
+    """
+    Adds a session from session_scope() as the last argument. This needs to be the last interceptor since it changes the
+    function signature by adding another argument.
+    """
+
+    def intercept_service(self, continuation, handler_call_details):
+        handler = continuation(handler_call_details)
+        prev_func = handler.unary_unary
+
+        def function_without_session(request, context):
+            with session_scope() as session:
+                return prev_func(request, context, session)
+
+        return grpc.unary_unary_rpc_method_handler(
+            function_without_session,
             request_deserializer=handler.request_deserializer,
             response_serializer=handler.response_serializer,
         )
