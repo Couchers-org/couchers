@@ -78,11 +78,7 @@ export default function UserSummary({
     },
   );
 
-  const nameValue = user
-    ? nameOnly
-      ? user.name
-      : `${user.name}, ${user.age}`
-    : "";
+  const nameValue = user.name.length > 20 ? user.name.slice(0, 20) + "..." : user.name;
 
   const cityValue = user?.city ?? "";
   const displayName =
