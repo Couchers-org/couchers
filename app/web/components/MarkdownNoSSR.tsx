@@ -1,6 +1,6 @@
 import "@toast-ui/editor/dist/toastui-editor-viewer.css";
 
-import { styled } from "@mui/styles";
+import { styled } from "@mui/material";
 import ToastUIEditorViewer from "@toast-ui/editor/dist/toastui-editor-viewer";
 import { increaseMarkdownHeaderLevel } from "components/Markdown";
 import { useEffect, useRef } from "react";

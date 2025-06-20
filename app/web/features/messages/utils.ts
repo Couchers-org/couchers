@@ -68,6 +68,7 @@ export function groupChatTitleText(
   groupChat: GroupChat.AsObject,
   groupChatMembersQuery: ReturnType<typeof useLiteUsers>,
   currentUserId: number,
+  t: TFunction<"messages", undefined>,
 ) {
   return groupChat.title
     ? groupChat.title
@@ -75,7 +76,12 @@ export function groupChatTitleText(
       ? "Chat"
       : Array.from(groupChatMembersQuery.data?.values() ?? [])
           .filter((user) => user?.userId !== currentUserId)
-          .map((user) => firstName(user?.name))
+          .map((user) => {
+            const firstNameUser = firstName(user?.name);
+            return firstNameUser === ""
+              ? t("messages:unknown_user")
+              : firstNameUser;
+          })
           .join(", ");
 }
 

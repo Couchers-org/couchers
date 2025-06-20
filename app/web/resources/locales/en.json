@@ -70,14 +70,19 @@
       "success_message": "Thank you for your report and making Couchers a better platform for everybody!"
     },
     "flag": {
+      "block_user": "Block {{username}}",
+      "block_user_explainer": "Messages and requests from this person will be blocked, and your profile, events and comments will not be visible to this person. They will not be informed that you blocked them.",
       "button_aria_label": "Report content or a user",
-      "explainer": "Use this form to confidentially report a user or content. This information will be sent to our Safety & Trust team and reviewed as soon as possible. We may follow up with you or take action without follow-up.",
+      "profile_button_aria_label": "Report content or block a user",
+      "explainer": "Confidentially send a report to the Safety & Trust team.",
       "title": "Report content or a user",
+      "profile_title": "Report or Block",
       "reason_label": "Reason for reporting",
       "reason_helper": "Why are you reporting this content?",
       "reason_required": "Reason is required.",
-      "description_label": "Description",
-      "description_helper": "Please tell us briefly why you are reporting this.",
+      "profile_reason_required": "Please fill out description or block",
+      "description_label": "Describe the issue",
+      "description_helper": "Please tell us why you are reporting this person.",
       "success": "Thank you for your report and making Couchers a better platform for everybody!",
       "reason": {
         "spam": "Spam",

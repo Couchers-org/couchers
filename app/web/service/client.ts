@@ -3,6 +3,7 @@ import { AccountPromiseClient } from "proto/account_grpc_web_pb";
 import { AdminPromiseClient } from "proto/admin_grpc_web_pb";
 import { APIPromiseClient } from "proto/api_grpc_web_pb";
 import { AuthPromiseClient } from "proto/auth_grpc_web_pb";
+import { BlockingPromiseClient } from "proto/blocking_grpc_web_pb";
 import { BugsPromiseClient } from "proto/bugs_grpc_web_pb";
 import { CommunitiesPromiseClient } from "proto/communities_grpc_web_pb";
 import { ConversationsPromiseClient } from "proto/conversations_grpc_web_pb";
@@ -83,6 +84,7 @@ const client = {
   admin: new AdminPromiseClient(URL, null, opts),
   api: new APIPromiseClient(URL, null, opts),
   auth: new AuthPromiseClient(URL, null, opts),
+  blocking: new BlockingPromiseClient(URL, null, opts),
   bugs: new BugsPromiseClient(URL, null, opts),
   communities: new CommunitiesPromiseClient(URL, null, opts),
   conversations: new ConversationsPromiseClient(URL, null, opts),
@@ -110,6 +112,7 @@ if (!IS_PROD && typeof window !== "undefined") {
     client.admin,
     client.api,
     client.auth,
+    client.blocking,
     client.bugs,
     client.communities,
     client.conversations,

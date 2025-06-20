@@ -28,6 +28,8 @@ describe("when the listFriends query is loading", () => {
       errors: [],
       isError: false,
       isLoading: true,
+      friendIds: undefined,
+      refetchFriends: expect.any(Function),
     });
     expect(getLiteUsersMock).not.toHaveBeenCalled();
   });
@@ -46,6 +48,7 @@ describe("when the listFriends query succeeds", () => {
       errors: [],
       isError: false,
       isLoading: false,
+      refetchFriends: expect.any(Function),
     });
   });
 
