@@ -33,6 +33,8 @@ RUN if [ "$environment" = "production" ]; then cp public/robots-prod.txt public/
 
 RUN yarn build
 
+RUN yarn injectsourcemaps
+
 FROM node:20-slim AS runner
 
 WORKDIR /app

@@ -1,7 +1,7 @@
 import { styled } from "@mui/material";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
-import { User } from "proto/api_pb";
+import { SearchUser } from "proto/search_pb";
 import { LngLatLike, MapRef } from "react-map-gl/maplibre";
 
 import MapSearchResultsList from "./MapSearchResultsList";
@@ -27,7 +27,7 @@ interface MapSearchContentProps {
   onZoomIn: (newZoom: number, center?: LngLatLike) => void;
   onZoomOut: (newZoom: number) => void;
   totalItems: number;
-  users: User.AsObject[] | undefined;
+  users: SearchUser.AsObject[] | undefined;
 }
 
 const Wrapper = styled("div")({
@@ -53,7 +53,7 @@ const SearchResultsContainer = styled("div", {
         height: `calc(45% - 54px)`,
         bottom: 0,
         boxShadow: "0px -2px 4px rgba(0,0,0,0.1)",
-        zIndex: theme.zIndex.drawer + 1,
+        zIndex: 1,
       },
     }),
   }),

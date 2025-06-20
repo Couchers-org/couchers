@@ -2,7 +2,7 @@ import { styled, useMediaQuery } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import ResizeableDrawer from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
-import { User } from "proto/api_pb";
+import { SearchUser } from "proto/search_pb";
 import { theme } from "theme";
 
 import PreviousNextPagination from "./PreviousNextPagination";
@@ -24,7 +24,7 @@ interface MapSearchResultsListProps {
   onSetMapView: (view: MapViews) => void;
   onUserCardClick: (userId: number) => void;
   totalItems?: number;
-  users: User.AsObject[] | undefined;
+  users: SearchUser.AsObject[] | undefined;
 }
 
 const DrawerContainer = styled("div")(({ theme }) => ({

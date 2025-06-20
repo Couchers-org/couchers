@@ -26,6 +26,12 @@ message UnblockUserReq {
   string username = 1;
 }
 
+message BlockedUser {
+    string username = 1;
+    string name = 2;
+    string avatar_thumbnail_url = 3;
+}
+
 message GetBlockedUsersRes {
-  repeated string blocked_usernames = 1;
+  repeated BlockedUser blocked_users = 1;
 }

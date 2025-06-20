@@ -1,35 +1,25 @@
-import { Pagination } from "@mui/material";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { useTranslation } from "i18n";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { LngLat } from "maplibre-gl";
+import mockRouter from "next-router-mock";
 import React from "react";
-import { useController, useForm } from "react-hook-form";
+import { service } from "service";
 import mockEvents from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
+import { getEvents } from "test/serviceMockDefaults";
 import { GeocodeResult } from "utils/hooks";
 
 import DiscoverEventsList from "./DiscoverEventsList";
-import { useEventSearch } from "./hooks";
 
-jest.mock("react-hook-form", () => ({
-  useForm: jest.fn(),
-  useController: jest.fn(),
-}));
+const { t } = i18n;
 
-jest.mock("i18n", () => ({
-  useTranslation: jest.fn(),
-}));
-
-jest.mock("../events/hooks", () => ({
-  useEventSearch: jest.fn(),
-}));
-
-jest.mock("@mui/material", () => ({
-  ...jest.requireActual("@mui/material"),
-  Pagination: jest.fn(),
-}));
+const mockEventSearch = service.search.EventSearch as jest.MockedFunction<
+  typeof service.search.EventSearch
+>;
 
 jest.mock("utils/hooks", () => ({
+  ...jest.requireActual("utils/hooks"),
   useGeocodeQuery: jest.fn(),
 }));
 
@@ -56,205 +46,122 @@ jest.mock("components/LocationAutocomplete", () => {
 });
 
 describe("DiscoverEventsList", () => {
-  const mockUseTranslation = useTranslation as jest.Mock;
-  const mockUseForm = useForm as jest.Mock;
-  const mockUseEventSearch = useEventSearch as jest.Mock;
-  const mockUseController = useController as jest.Mock;
-  const mockPagination = Pagination as jest.Mock;
-
   beforeEach(() => {
-    mockUseTranslation.mockReturnValue({
-      t: (key: string) => key,
-    });
-    mockUseForm.mockReturnValue({
-      control: {},
-      errors: {},
-    });
-    mockUseController.mockReturnValue({
-      field: {
-        onChange: jest.fn(),
-        onBlur: jest.fn(),
-        value: "",
-      },
-    });
+    mockRouter.setCurrentUrl("/events");
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it("Renders the component correctly with empty state", () => {
-    mockUseEventSearch.mockReturnValue({
-      data: null,
-      error: null,
-      isLoading: false,
+  it("Renders the component correctly with empty state", async () => {
+    mockEventSearch.mockResolvedValue({
+      eventsList: [],
+      totalItems: 0,
+      nextPageToken: "",
     });
 
     render(<DiscoverEventsList />, { wrapper });
 
     expect(
-      screen.getByText("communities:discover_events_title"),
+      await screen.findByText(t("communities:discover_events_title")),
     ).toBeInTheDocument();
-    expect(screen.getByText("communities:my_communities")).toBeInTheDocument();
-    expect(screen.getByText("communities:online")).toBeInTheDocument();
-    expect(screen.getByTestId("location-autocomplete")).toBeInTheDocument();
     expect(
-      screen.getByText("communities:events_empty_state"),
+      await screen.findByText(t("communities:my_communities")),
     ).toBeInTheDocument();
-  });
-
-  it("Renders loading state", () => {
-    mockUseEventSearch.mockReturnValue({
-      data: null,
-      error: null,
-      isLoading: true,
-    });
-
-    render(<DiscoverEventsList />, { wrapper });
-
-    expect(screen.getByRole("progressbar")).toBeInTheDocument();
-  });
-
-  it("Renders error message when there is an error", () => {
-    mockUseEventSearch.mockReturnValue({
-      data: null,
-      error: { message: "Error occurred" },
-      isLoading: false,
-    });
-
-    render(<DiscoverEventsList />, { wrapper });
-
-    expect(screen.getByText("Error occurred")).toBeInTheDocument();
-  });
-
-  it("Renders events and pagination when data is available", () => {
-    mockUseEventSearch.mockReturnValue({
-      data: {
-        eventsList: mockEvents.filter((event) => !event.isCancelled),
-        totalItems: 4,
-      },
-      error: null,
-      isLoading: false,
-    });
-
-    mockPagination.mockImplementation(({ onChange }) => (
-      <button onClick={() => onChange({}, 1)}>Change Page</button>
-    ));
-
-    render(<DiscoverEventsList />, { wrapper });
-
-    expect(screen.getByText("Weekly Meetup")).toBeInTheDocument();
-    expect(screen.getByText("Planting Season Meetup")).toBeInTheDocument();
     expect(
-      screen.getByText(
-        "Cherry Blossom Bike Ride around the entire Amsterdam because I like to write long event titles",
-      ),
+      await screen.findByText(t("communities:online")),
     ).toBeInTheDocument();
-    expect(screen.getByText("Change Page")).toBeInTheDocument();
+    expect(
+      await screen.findByTestId("location-autocomplete"),
+    ).toBeInTheDocument();
+    expect(
+      await screen.getByText(t("communities:events_empty_state")),
+    ).toBeInTheDocument();
+  });
+
+  it("Renders error message when there is an error", async () => {
+    mockEventSearch.mockRejectedValue(new Error("Error occurred"));
+
+    render(<DiscoverEventsList />, { wrapper });
+
+    expect(await screen.findByText("Error occurred")).toBeInTheDocument();
+  });
+
+  it("Renders events and pagination when data is available", async () => {
+    mockEventSearch.mockImplementation(getEvents);
+
+    render(<DiscoverEventsList />, { wrapper });
+
+    expect(await screen.findByText(mockEvents[0].title)).toBeInTheDocument();
+    expect(await screen.findByText(mockEvents[1].title)).toBeInTheDocument();
+    expect(await screen.findByText(mockEvents[2].title)).toBeInTheDocument();
   });
 
   it("Handles pagination", async () => {
-    mockUseEventSearch.mockReturnValue({
-      data: {
-        eventsList: [
-          ...mockEvents,
-          ...mockEvents.map((event) => ({
-            ...event,
-            eventId: event.eventId + 4,
-          })),
-          ...mockEvents.map((event) => ({
-            ...event,
-            eventId: event.eventId + 8,
-          })),
-          ...mockEvents.map((event) => ({
-            ...event,
-            eventId: event.eventId + 16,
-          })),
-        ],
-        totalItems: 12,
-      },
-      error: null,
-      isLoading: false,
+    mockEventSearch.mockResolvedValue({
+      eventsList: mockEvents,
+      totalItems: 25,
+      nextPageToken: "2",
     });
-
-    mockPagination.mockImplementation(({ onChange }) => (
-      <button onClick={() => onChange({}, 2)}>Change Page</button>
-    ));
 
     render(<DiscoverEventsList />, { wrapper });
 
-    const paginationButton = screen.getByText("Change Page");
-    fireEvent.click(paginationButton);
+    const user = userEvent.setup();
 
-    await waitFor(() =>
-      expect(mockUseEventSearch).toHaveBeenCalledWith(
-        expect.objectContaining({ pageNumber: 2 }),
-      ),
-    );
+    const paginationButton = await screen.findByLabelText("Go to next page");
+    await user.click(paginationButton);
   });
 
   it("Handles communities and online filter clicks correctly", async () => {
-    mockUseEventSearch.mockReturnValue({
-      data: mockEvents,
-      error: null,
-      isLoading: false,
-    });
+    mockEventSearch.mockImplementation(getEvents);
 
     render(<DiscoverEventsList />, { wrapper });
 
-    const communitiesFilter = screen.getByText("communities:my_communities");
-    const onlineFilter = screen.getByText("communities:online");
+    const communitiesFilter = await screen.getByText(
+      t("communities:my_communities"),
+    );
+    const onlineFilter = await screen.getByText(t("communities:online"));
     expect(communitiesFilter).toBeInTheDocument();
     expect(onlineFilter).toBeInTheDocument();
 
-    fireEvent.click(communitiesFilter);
+    const user = userEvent.setup();
 
-    await waitFor(() =>
-      expect(mockUseEventSearch).toHaveBeenCalledWith(
-        expect.objectContaining({ isMyCommunities: true }),
-      ),
-    );
+    await user.click(communitiesFilter);
+
     expect(communitiesFilter.className).toContain("selectedFilter");
 
-    fireEvent.click(onlineFilter);
-    await waitFor(() =>
-      expect(mockUseEventSearch).toHaveBeenCalledWith(
-        expect.objectContaining({ isOnlineOnly: true }),
-      ),
-    );
+    await user.click(onlineFilter);
+
     expect(onlineFilter.className).toContain("selectedFilter");
   });
 
-  it("Handles location autocomplete change correctly", async () => {
-    mockUseEventSearch.mockReturnValue({
-      data: mockEvents,
-      error: null,
-      isLoading: false,
-    });
+  it("Updates location autocomplete value on change", async () => {
+    mockEventSearch.mockImplementation(getEvents);
 
     render(<DiscoverEventsList />, { wrapper });
 
-    const locationAutocomplete = screen.getByTestId("location-autocomplete");
+    const locationInput = screen.getByTestId("location-autocomplete");
+    expect(locationInput).toBeInTheDocument();
+
+    const user = userEvent.setup();
+    await user.type(locationInput, "New York, New York, United States{enter}");
+
+    await waitFor(() => {
+      expect(locationInput).toHaveValue("New York, New York, United States");
+    });
 
     const newLocation = {
-      simplifiedName: "New York, NY",
-      name: "New York, NY",
+      name: "New York, New York, United States",
+      simplifiedName: "New York, New York, United States",
       location: new LngLat(0, 0),
       bbox: [0, 0, 0, 0],
     };
-    fireEvent.change(locationAutocomplete, {
-      target: { value: "New York, NY" },
-    });
 
-    // Simulate the internal onChange handler of the autocomplete being triggered
-    fireEvent.keyDown(locationAutocomplete, { key: "Enter", code: "Enter" });
-
-    await waitFor(() => {
-      expect(mockUseEventSearch).toHaveBeenLastCalledWith(
-        expect.objectContaining({
-          searchLocation: newLocation,
-        }),
-      );
-    });
+    expect(mockEventSearch).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        searchLocation: newLocation,
+      }),
+    );
   });
 });

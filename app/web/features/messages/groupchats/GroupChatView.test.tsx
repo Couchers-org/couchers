@@ -61,6 +61,7 @@ const baseGroupChatMockResponse = {
     muted: false,
     mutedUntil: undefined,
   },
+  canMessage: true,
 };
 
 const markLastSeenGroupChatMock = service.conversations

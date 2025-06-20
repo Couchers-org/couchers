@@ -177,7 +177,7 @@ export interface UpdateOfflineEventInput
 export type UpdateEventInput = (
   | UpdateOnlineEventInput
   | UpdateOfflineEventInput
-) & { eventId: number };
+) & { eventId: number; shouldNotify: boolean };
 
 export async function updateEvent(input: UpdateEventInput) {
   const req = new UpdateEventReq();
@@ -211,6 +211,10 @@ export async function updateEvent(input: UpdateEventInput) {
     offlineEventInfo.setLat(input.lat);
     offlineEventInfo.setLng(input.lng);
     req.setOfflineInformation(offlineEventInfo);
+  }
+
+  if (input.shouldNotify) {
+    req.setShouldNotify(input.shouldNotify);
   }
 
   const res = await client.events.updateEvent(req);

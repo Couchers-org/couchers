@@ -49,6 +49,7 @@ export default function FlagButton({
     reset: resetForm,
     formState: { errors },
   } = useForm<ReportInput>();
+
   const {
     data: report,
     error,
@@ -81,6 +82,7 @@ export default function FlagButton({
 
   const handleFlagButtonClick = (event: { preventDefault: () => void }) => {
     event.preventDefault();
+    setIsOpen(true);
   };
 
   return (
@@ -90,17 +92,15 @@ export default function FlagButton({
           {t("report.content.success_message")}
         </Snackbar>
       )}
-      <div onClick={handleFlagButtonClick}>
-        <IconButton
-          aria-label={t("report.flag.button_aria_label")}
-          className={className}
-          onClick={() => setIsOpen(true)}
-          color="primary"
-          size="large"
-        >
-          <FlagIcon />
-        </IconButton>
-      </div>
+      <IconButton
+        aria-label={t("report.flag.button_aria_label")}
+        className={className}
+        onClick={handleFlagButtonClick}
+        color="primary"
+        size="large"
+      >
+        <FlagIcon />
+      </IconButton>
       <Dialog
         aria-labelledby="content-reporter"
         open={isOpen}

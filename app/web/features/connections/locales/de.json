@@ -8,5 +8,11 @@
   "no_friends": "Keine Freunde vorhanden",
   "no_friend_requests": "Keine ausstehenden Freundschaftsanfragen",
   "no_friend_requests_sent": "Keine ausstehenden Freundschaftsanfragen",
-  "pending": "Ausstehend"
+  "pending": "Ausstehend",
+  "remove_friend": "Freund entfernen",
+  "remove_friend_confirmation_dialog": {
+    "message": "Bist du sicher, dass du {{name}} entfernen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "title": "Freund entfernen",
+    "confirm": "Entfernen"
+  }
 }

@@ -95,7 +95,9 @@ export async function getCurrentUser(): Promise<User.AsObject> {
  */
 export async function getUser(user: string): Promise<User.AsObject> {
   const userReq = new GetUserReq();
-  userReq.setUser(user || "");
+  if (user) {
+    userReq.setUser(user);
+  }
 
   const response = await client.api.getUser(userReq);
 
@@ -110,7 +112,9 @@ export async function getUser(user: string): Promise<User.AsObject> {
  */
 export async function getLiteUser(user: string) {
   const userReq = new GetLiteUserReq();
-  userReq.setUser(user || "");
+  if (user) {
+    userReq.setUser(user);
+  }
 
   const response = await client.api.getLiteUser(userReq);
 

@@ -1,4 +1,8 @@
+import { listNotificationsQueryKey } from "features/queryKeys";
 import Sentry from "platform/sentry";
+import { ListNotificationsRes } from "proto/notifications_pb";
+import { useMutation, useQueryClient } from "react-query";
+import { service } from "service";
 import {
   getVapidPublicKey,
   registerPushNotificationSubscription,
@@ -142,4 +146,111 @@ export const turnPushNotificationsOff = async () => {
     return true;
   }
   return false;
+};
+
+export const useMarkAllNotificationsSeen = () => {
+  const queryClient = useQueryClient();
+
+  const { error, mutate, isLoading } = useMutation({
+    mutationFn: async ({
+      latestNotificationId,
+    }: {
+      latestNotificationId: number;
+    }) =>
+      await service.notifications.markAllNotificationsSeen(
+        latestNotificationId,
+      ),
+    onMutate: () => {
+      queryClient.cancelQueries(listNotificationsQueryKey);
+
+      const previousData =
+        queryClient.getQueryData<ListNotificationsRes.AsObject>(
+          listNotificationsQueryKey,
+        );
+
+      const newData: ListNotificationsRes.AsObject = {
+        ...previousData,
+        notificationsList: previousData?.notificationsList
+          ? previousData.notificationsList.map((notification) => ({
+              ...notification,
+              isSeen: true,
+            }))
+          : [],
+        nextPageToken: previousData?.nextPageToken ?? "",
+      };
+
+      if (previousData) {
+        queryClient.setQueryData<ListNotificationsRes.AsObject>(
+          listNotificationsQueryKey,
+          newData,
+        );
+      }
+
+      return { previousData };
+    },
+    onError: (error) => {
+      Sentry.captureException(error, {
+        tags: {
+          component: "useMarkAllNotificationsSeen",
+          action: "onMutate",
+        },
+      });
+    },
+  });
+
+  return { error, markAllNotificationsSeenMutation: mutate, isLoading };
+};
+
+export const useMarkSingleNotificationIsSeen = () => {
+  const queryClient = useQueryClient();
+
+  const { error, mutate, isLoading } = useMutation({
+    mutationFn: async ({
+      notificationId,
+      isSeen,
+    }: {
+      notificationId: number;
+      isSeen: boolean;
+    }) =>
+      await service.notifications.markNotificationSeen(notificationId, isSeen),
+    onMutate: ({ notificationId, isSeen }) => {
+      queryClient.cancelQueries(listNotificationsQueryKey);
+
+      const previousData =
+        queryClient.getQueryData<ListNotificationsRes.AsObject>(
+          listNotificationsQueryKey,
+        );
+
+      const newData: ListNotificationsRes.AsObject = {
+        ...previousData,
+        notificationsList: previousData?.notificationsList
+          ? previousData.notificationsList.map((notification) =>
+              notification.notificationId === notificationId
+                ? { ...notification, isSeen: isSeen }
+                : notification,
+            )
+          : [],
+        nextPageToken: previousData?.nextPageToken ?? "",
+      };
+
+      if (previousData) {
+        queryClient.setQueryData<ListNotificationsRes.AsObject>(
+          listNotificationsQueryKey,
+          newData,
+        );
+      }
+
+      return { previousData };
+    },
+    onError: (error) => {
+      Sentry.captureException(error, {
+        tags: {
+          component: "useMarkSingleNotificationSeen",
+          action: "onMutate",
+        },
+      });
+    },
+  });
+
+  return { error, markSingleNotificationIsSeenMutation: mutate, isLoading };
 };

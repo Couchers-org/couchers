@@ -8,7 +8,7 @@ from sqlalchemy.sql.expression import update
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import EventOccurrence
+from couchers.models import BackgroundJob, EventOccurrence
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
 from proto import admin_pb2, events_pb2, threads_pb2
@@ -2362,3 +2362,62 @@ def test_community_invite_requests(db):
             api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == errors.EVENT_COMMUNITY_INVITE_ALREADY_APPROVED
+
+
+def test_update_event_should_notify_queues_job():
+    user, token = generate_user()
+    start = now()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+
+    # create an event
+    with events_session(token) as api:
+        create_res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="https://couchers.org/meet/",
+                    lat=1.0,
+                    lng=2.0,
+                ),
+                start_time=Timestamp_from_datetime(start + timedelta(hours=3)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=6)),
+                timezone="UTC",
+            )
+        )
+
+        event_id = create_res.event_id
+
+    # measure initial background job queue length
+    with session_scope() as session:
+        jobs = session.query(BackgroundJob).all()
+        job_length_before_update = len(jobs)
+
+    # update with should_notify=False, expect no change in background job queue
+    api.UpdateEvent(
+        events_pb2.UpdateEventReq(
+            event_id=event_id,
+            start_time=Timestamp_from_datetime(start + timedelta(hours=4)),
+            should_notify=False,
+        )
+    )
+
+    with session_scope() as session:
+        jobs = session.query(BackgroundJob).all()
+        assert len(jobs) == job_length_before_update
+
+    # update with should_notify=True, expect one new background job added
+    api.UpdateEvent(
+        events_pb2.UpdateEventReq(
+            event_id=event_id,
+            start_time=Timestamp_from_datetime(start + timedelta(hours=4)),
+            should_notify=True,
+        )
+    )
+
+    with session_scope() as session:
+        jobs = session.query(BackgroundJob).all()
+        assert len(jobs) == job_length_before_update + 1

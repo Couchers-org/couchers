@@ -6,7 +6,7 @@ If you wish to help translate our app, please begin by creating an account on We
 
 ## Finding messages that require translations
 
-1. Once you have created and signed in to your Weblate account, Go to the [Couchers project](https://hosted.weblate.org/projects/couchers/).
+1. Once you have created and signed in to your Weblate account, Go to the [Couchers project](https://translate.couchershq.org/).
 
 2. You should be shown a page with the list of our app's "component" that may need translating. Begin by clicking on any component that has a red bar, which indicates certain messages are missing a translation (i.e. where we need your help).
 
