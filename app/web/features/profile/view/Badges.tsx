@@ -1,4 +1,4 @@
-import { styled } from "@mui/styles";
+import { styled } from "@mui/material";
 import Badge from "features/badges/Badge";
 import { useBadges } from "features/badges/hooks";
 import { User } from "proto/api_pb";

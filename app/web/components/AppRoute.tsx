@@ -72,6 +72,7 @@ export default function AppRoute({
   variant = "standard",
 }: AppRouteProps) {
   const router = useRouter();
+  const { pathname } = router;
   const { authState, authActions } = useAuthContext();
   const isAuthenticated = authState.authenticated;
   const isJailed = authState.jailed;
@@ -88,15 +89,10 @@ export default function AppRoute({
       authActions.authError("Please log in.");
       router.push({ pathname: loginRoute, query: { from: location.pathname } });
     }
-    if (
-      isAuthenticated &&
-      isJailed &&
-      isPrivate &&
-      router.pathname !== jailRoute
-    ) {
+    if (isAuthenticated && isJailed && isPrivate && pathname !== jailRoute) {
       router.push(jailRoute);
     }
-  }, [isAuthenticated, isJailed, isPrivate, authActions, router]);
+  }, [isAuthenticated, isJailed, isPrivate, authActions, router, pathname]);
 
   return (
     <ErrorBoundary>

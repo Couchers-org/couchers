@@ -1,0 +1,120 @@
+import { People } from "@mui/icons-material";
+import { MenuItem, Typography } from "@mui/material";
+import EllipsisMenu from "components/EllipsisMenu";
+import { blockedUsersKey } from "features/queryKeys";
+import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { CONNECTIONS } from "i18n/namespaces";
+import { BlockedUser, GetBlockedUsersRes } from "proto/blocking_pb";
+import { useState } from "react";
+import { useQuery } from "react-query";
+import { service } from "service";
+import { theme } from "theme";
+
+import ConnectionActionDialog from "./ConnectionActionDialog";
+import FriendSummaryView from "./FriendSummaryView";
+import FriendTile from "./FriendTile";
+import { useUnblockUser } from "./hooks";
+
+function BlockedUsersList({ refetchFriends }: { refetchFriends: () => void }) {
+  const { t } = useTranslation([CONNECTIONS]);
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
+    null,
+  );
+  const isMenuOpen = Boolean(menuAnchorEl);
+
+  const { data, error, isLoading } = useQuery<
+    GetBlockedUsersRes.AsObject,
+    RpcError
+  >(blockedUsersKey, service.blocking.getBlockedUsers);
+
+  const { unblockUserMutation, isUnblocking } = useUnblockUser();
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+  };
+
+  const handleDialogOpen = () => {
+    setIsDialogOpen(true);
+    handleMenuClose();
+  };
+
+  const handleDialogClose = () => {
+    setIsDialogOpen(false);
+  };
+
+  const handleUnblockUserConfirm = ({ username }: { username: string }) => {
+    unblockUserMutation({ username });
+    refetchFriends();
+    handleDialogClose();
+  };
+
+  return (
+    <>
+      <FriendTile
+        title={t("connections:blocked_list_title")}
+        errorMessage={error?.message || null}
+        isLoading={isLoading}
+        hasData={!!data?.blockedUsersList.length}
+        noDataMessage={t("connections:no_blocked_users")}
+      >
+        {data?.blockedUsersList.map((user: BlockedUser.AsObject) => (
+          <FriendSummaryView
+            key={user.username}
+            friend={user}
+            isProfileLink={false}
+          >
+            <EllipsisMenu
+              idName="blocked-user-item"
+              isMenuOpen={isMenuOpen}
+              menuAnchorEl={menuAnchorEl}
+              onMenuOpen={handleMenuOpen}
+              onMenuClose={handleMenuClose}
+            >
+              <MenuItem onClick={handleDialogOpen} data-testid="unblock-user">
+                <People fontSize="small" />
+                <Typography
+                  variant="body2"
+                  sx={{ marginLeft: theme.spacing(1), fontWeight: 500 }}
+                >
+                  {t("connections:unblock_user")}
+                </Typography>
+              </MenuItem>
+            </EllipsisMenu>
+            <ConnectionActionDialog
+              isOpen={isDialogOpen}
+              onClose={handleDialogClose}
+              dialogConfirm={t(
+                "connections:unblock_user_confirmation_dialog.confirm",
+              )}
+              dialogId="unblock-user--confirmation-dialog"
+              dialogMessage={t(
+                "connections:unblock_user_confirmation_dialog.message",
+              )}
+              dialogTitle={t(
+                "connections:unblock_user_confirmation_dialog.title",
+                {
+                  name: user.name,
+                },
+              )}
+              isLoading={isUnblocking}
+              onConfirm={() =>
+                handleUnblockUserConfirm({
+                  username: user.username,
+                })
+              }
+            />
+          </FriendSummaryView>
+        ))}
+      </FriendTile>
+    </>
+  );
+}
+
+export default BlockedUsersList;

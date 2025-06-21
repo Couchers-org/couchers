@@ -2,6 +2,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import {
   ChangeEmailV2Req,
+  ChangeLanguagePreferenceReq,
   ChangePasswordV2Req,
   ChangePhoneReq,
   DeleteAccountReq,
@@ -59,6 +60,15 @@ export function changeEmail(newEmail: string, currentPassword: string) {
   req.setPassword(currentPassword);
 
   return client.account.changeEmailV2(req);
+}
+
+export function changeLanguage(newLanguage: string) {
+  // make a ChangeLanguage request
+  const req = new ChangeLanguagePreferenceReq();
+  // set the new request language to newLanguage
+  req.setUiLanguagePreference(newLanguage);
+  // return the response
+  return client.account.changeLanguagePreference(req);
 }
 
 export async function confirmChangeEmail(resetToken: string) {

@@ -10,6 +10,7 @@ function useFriendList() {
     data: friendIds,
     error: listFriendsError,
     isLoading,
+    refetch: refetchFriends,
   } = useQuery<number[], Error>(friendIdsKey, service.api.listFriends);
 
   if (listFriendsError) {
@@ -33,6 +34,7 @@ function useFriendList() {
     errors: errors,
     isError: !!listFriendsError || isLiteUserError,
     isLoading: isLoading || isLiteUsersLoading,
+    refetchFriends,
   };
 }
 

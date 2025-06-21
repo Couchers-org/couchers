@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { GlobalMessage } from "components/GlobalMessage";
 import { CloseIcon, MenuIcon } from "components/Icons";
+import LanguagePickerSelect from "components/LanguagePickerSelect";
 import { MenuItem } from "components/Menu";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -295,7 +296,6 @@ const StyledMenuContainer = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
-  "& > *": { marginInlineStart: theme.spacing(2) },
 }));
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
@@ -358,6 +358,16 @@ export default function Navigation() {
             </ListItem>
           ),
         )}
+        <ListItem
+          sx={{
+            display: "flex",
+            flex: "1",
+            maxWidth: "10.5rem",
+            padding: theme.spacing(1, 4),
+          }}
+        >
+          <LanguagePickerSelect />
+        </ListItem>
       </List>
     </div>
   );

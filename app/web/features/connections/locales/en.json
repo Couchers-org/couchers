@@ -1,10 +1,18 @@
 {
   "add_friend": "Add friend",
+  "blocked_list_title": "Blocked users",
+  "block_user": "Block user",
+  "block_user_confirmation_dialog": {
+    "title": "Are you sure you want to block {{name}}?",
+    "message": "Messages and requests from this person will be blocked, and your profile, events and comments will not be visible to this person. They will not be informed that you blocked them.",
+    "confirm": "Block"
+  },
   "my_connections": "My connections",
   "friends": "Friends",
   "friend_list_title": "Your friends",
   "friend_requests": "Friend requests",
   "friend_requests_sent": "Friend requests you sent",
+  "no_blocked_users": "No blocked users",
   "no_friends": "No friends available",
   "no_friend_requests": "No pending friend requests",
   "no_friend_requests_sent": "No pending friend requests",
@@ -14,5 +22,11 @@
     "title": "Remove friend",
     "message": "Are you sure you want to remove {{name}}? This action cannot be undone.",
     "confirm": "Remove"
+  },
+  "unblock_user": "Unblock user",
+  "unblock_user_confirmation_dialog": {
+    "title": "Are you sure you want to unblock {{name}}?",
+    "message": "Unblocking will allow them to see your profile and send you requests. If you were previously friends, they will go back into your friends list. They will not be notified.",
+    "confirm": "Unblock"
   }
 }
