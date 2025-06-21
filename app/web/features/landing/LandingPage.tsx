@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { useQueryClient } from "react-query";
 import { theme } from "theme";
 
+import CouchersMission from "./CouchersMission";
 import HeroSection from "./HeroSection";
 import SocialProof from "./SocialProof";
 import WhyCouchersSection from "./WhyCouchersSection";
@@ -66,7 +67,7 @@ export default function LandingPage() {
       </Container>
       <StyledSpacer />
       <Container component="section" maxWidth="lg">
-        Fifth section here
+        <CouchersMission />
       </Container>
     </>
   );

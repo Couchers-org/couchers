@@ -2,6 +2,7 @@ import * as account from "./account";
 import * as admin from "./admin";
 import * as api from "./api";
 import * as auth from "./auth";
+import * as blocking from "./blocking";
 import * as bugs from "./bugs";
 import * as communities from "./communities";
 import * as conversations from "./conversations";
@@ -28,6 +29,7 @@ export const service = {
   api,
   auth,
   bugs,
+  blocking,
   communities,
   conversations,
   discussions,

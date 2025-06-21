@@ -1,23 +1,14 @@
-import { Link as MuiLink, Typography, useMediaQuery } from "@mui/material";
-import Button from "components/Button";
+import { Link, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
-import { getLangCookie } from "i18n/getLangCookie";
 import { GLOBAL } from "i18n/namespaces";
-import { useForm } from "react-hook-form";
-import { theme } from "theme";
+import { useRouter } from "next/router";
 
-import useChangeDetailsFormStyles from "../features/auth/useChangeDetailsFormStyles";
 import LanguagePickerSelect from "./LanguagePickerSelect";
 
-const VOLUNTEER_PAGE_LINK = "https://couchers.org/volunteer";
-
-interface ChangeLanguageFormData {
-  newLanguage: string;
-}
+const VOLUNTEER_PAGE_LINK = "https://couchers.org/volunteer/translator";
 
 interface ChangeLanguageProps {
-  // language: string;
   className?: string;
 }
 
@@ -25,15 +16,8 @@ export default function LanguagePickerSettings({
   className,
 }: ChangeLanguageProps) {
   const { t } = useTranslation([GLOBAL]);
-  const formClasses = useChangeDetailsFormStyles();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
-  const { handleSubmit, reset: resetForm } = useForm<ChangeLanguageFormData>();
-  const onSubmit = handleSubmit(() => {
-    // TODO: send request to update cookie on backend w/ newLanguage code
-    // TODO: uses i18n.changeLanguage to update UI language
-    resetForm();
-  });
+  const router = useRouter();
+  const { locale } = router;
 
   return (
     <div className={className}>
@@ -43,24 +27,19 @@ export default function LanguagePickerSettings({
       <>
         <Typography variant="body1">
           {`${t("global:language_preference.current_preferred_language")}`}
-          <strong>{LANGUAGE_MAP[getLangCookie()].name}</strong>
+          <strong>{LANGUAGE_MAP[locale || "en"]?.name}</strong>
         </Typography>
         <Typography variant="body1" paragraph>
-          <MuiLink
+          <Link
             href={VOLUNTEER_PAGE_LINK}
             target="_blank"
             rel="noreferrer noopener"
             underline="hover"
           >
             <strong>{t("global:language_preference.help_translate")}</strong>
-          </MuiLink>
+          </Link>
         </Typography>
-        <form className={formClasses.form} onSubmit={onSubmit}>
-          <LanguagePickerSelect displayMode="rect" />
-          <Button fullWidth={isMobile} type="submit">
-            {t("global:submit")}
-          </Button>
-        </form>
+        <LanguagePickerSelect displayMode="rect" />
       </>
     </div>
   );

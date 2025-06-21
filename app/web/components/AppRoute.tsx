@@ -72,6 +72,7 @@ export default function AppRoute({
   variant = "standard",
 }: AppRouteProps) {
   const router = useRouter();
+  const { pathname } = router;
   const { authState, authActions } = useAuthContext();
   const isAuthenticated = authState.authenticated;
   const isJailed = authState.jailed;
@@ -84,15 +85,10 @@ export default function AppRoute({
   useEffect(() => setIsMounted(true), []);
 
   useEffect(() => {
-    if (
-      isAuthenticated &&
-      isJailed &&
-      isPrivate &&
-      router.pathname !== jailRoute
-    ) {
+    if (isAuthenticated && isJailed && isPrivate && pathname !== jailRoute) {
       router.push(jailRoute);
     }
-  }, [isAuthenticated, isJailed, isPrivate, authActions, router]);
+  }, [isAuthenticated, isJailed, isPrivate, authActions, router, pathname]);
 
   return (
     <ErrorBoundary>
