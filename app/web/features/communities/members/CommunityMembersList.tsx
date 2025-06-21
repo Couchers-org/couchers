@@ -1,7 +1,8 @@
-import { Pagination, styled, Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import CursorPagination from "components/CursorPagination";
 import { PersonIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import UsersList from "components/UsersList";
@@ -28,29 +29,27 @@ export default function CommunityMembersList({
   memberCount?: Community.AsObject["memberCount"];
 }) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
-  const PAGE_SIZE = 20;
+  const PAGE_SIZE = 2;
 
   const [pageNumber, setPageNumber] = useState(1);
 
-  const { data, isFetching, isLoading, error, fetchNextPage } = useListMembers({
-    communityId,
-    pageSize: PAGE_SIZE,
-  });
+  const { data, isFetching, isLoading, error, hasNextPage, fetchNextPage } =
+    useListMembers({
+      communityId,
+      pageSize: PAGE_SIZE,
+    });
 
-  const memberUserIdsList = data?.pages
-    ? data.pages[pageNumber - 1]?.memberUserIdsList
-    : [];
-  const numPages = Math.ceil((memberCount ?? 0) / PAGE_SIZE);
+  // @TODO Nicole WIP - the final page is going missing with userID 1
+  const memberUserIdsList =
+    data?.pages && data.pages[pageNumber - 1]?.memberUserIdsList;
 
-  const handlePageNumberChange = (
-    event: React.ChangeEvent<unknown>,
-    value: number,
-  ) => {
-    if (value > pageNumber) {
-      fetchNextPage();
-    }
+  const handelPreviousPageClick = () => {
+    setPageNumber(pageNumber - 1);
+  };
 
-    setPageNumber(value);
+  const handleNextPageClick = () => {
+    fetchNextPage();
+    setPageNumber(pageNumber + 1);
   };
 
   return (
@@ -66,29 +65,27 @@ export default function CommunityMembersList({
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
         <CenteredSpinner />
-      ) : memberUserIdsList?.length > 0 ? (
+      ) : (
         <>
           <UsersList
             userIds={memberUserIdsList}
             endChildren={
               <PaginationWrapper>
-                <Pagination
-                  count={numPages}
-                  page={pageNumber}
-                  color="primary"
-                  onChange={handlePageNumberChange}
-                  size="large"
+                <CursorPagination
+                  hasNextPage={hasNextPage}
+                  onNext={handleNextPageClick}
+                  hasPreviousPage={pageNumber > 1}
+                  onPrevious={handelPreviousPageClick}
+                  isLoading={isLoading}
                 />
               </PaginationWrapper>
             }
             titleIsLink
           />
         </>
-      ) : (
-        !error &&
-        !isFetching && (
-          <TextBody>{t("communities:members_empty_state")}</TextBody>
-        )
+      )}
+      {!error && !isFetching && (
+        <TextBody>{t("communities:members_empty_state")}</TextBody>
       )}
     </>
   );

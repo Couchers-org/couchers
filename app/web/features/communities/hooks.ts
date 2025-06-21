@@ -172,7 +172,8 @@ export const useListMembers = ({
     {
       keepPreviousData: true,
       enabled: !!communityId,
-      getNextPageParam: (lastPage) => lastPage.nextPageToken,
+      getNextPageParam: (lastPage) =>
+        lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
     },
   );
 
