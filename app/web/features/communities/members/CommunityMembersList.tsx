@@ -29,19 +29,16 @@ export default function CommunityMembersList({
   memberCount?: Community.AsObject["memberCount"];
 }) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
-  const PAGE_SIZE = 2;
+  const PAGE_SIZE = 20;
 
   const [pageNumber, setPageNumber] = useState(1);
 
-  const { data, isFetching, isLoading, error, hasNextPage, fetchNextPage } =
-    useListMembers({
-      communityId,
-      pageSize: PAGE_SIZE,
-    });
+  const { data, isFetching, isLoading, error, fetchNextPage } = useListMembers({
+    communityId,
+    pageSize: PAGE_SIZE,
+  });
 
-  // @TODO Nicole WIP - the final page is going missing with userID 1
-  const memberUserIdsList =
-    data?.pages && data.pages[pageNumber - 1]?.memberUserIdsList;
+  const currentPage = data?.pages && data.pages[pageNumber - 1];
 
   const handelPreviousPageClick = () => {
     setPageNumber(pageNumber - 1);
@@ -63,28 +60,25 @@ export default function CommunityMembersList({
         </Typography>
       </Box>
       {error && <Alert severity="error">{error.message}</Alert>}
-      {isLoading ? (
-        <CenteredSpinner />
-      ) : (
-        <>
-          <UsersList
-            userIds={memberUserIdsList}
-            endChildren={
-              <PaginationWrapper>
-                <CursorPagination
-                  hasNextPage={hasNextPage}
-                  onNext={handleNextPageClick}
-                  hasPreviousPage={pageNumber > 1}
-                  onPrevious={handelPreviousPageClick}
-                  isLoading={isLoading}
-                />
-              </PaginationWrapper>
-            }
-            titleIsLink
-          />
-        </>
+      {isLoading && <CenteredSpinner />}
+      {data?.pages && data?.pages.length > 0 && (
+        <UsersList
+          userIds={currentPage?.memberUserIdsList}
+          endChildren={
+            <PaginationWrapper>
+              <CursorPagination
+                hasNextPage={currentPage?.nextPageToken !== ""}
+                onNext={handleNextPageClick}
+                hasPreviousPage={pageNumber > 1}
+                onPrevious={handelPreviousPageClick}
+                isLoading={isLoading}
+              />
+            </PaginationWrapper>
+          }
+          titleIsLink
+        />
       )}
-      {!error && !isFetching && (
+      {!error && !isFetching && data?.pages.length === 0 && (
         <TextBody>{t("communities:members_empty_state")}</TextBody>
       )}
     </>
