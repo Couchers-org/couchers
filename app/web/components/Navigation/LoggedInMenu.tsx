@@ -1,8 +1,9 @@
 import { NotificationsOutlined } from "@mui/icons-material";
-import { Button, styled, Tooltip } from "@mui/material";
+import { Button, styled, Tooltip, useMediaQuery } from "@mui/material";
 import Avatar from "components/Avatar";
 import IconButton from "components/IconButton";
 import { MenuIcon } from "components/Icons";
+import LanguagePickerSelect from "components/LanguagePickerSelect";
 import Menu from "components/Menu";
 import NotificationBadge from "components/NotificationBadge";
 import NotificationsFeed from "features/notifications/NotificationsFeed/NotificationsFeed";
@@ -69,6 +70,7 @@ export default function LoggedInMenu({
   const menuRef = React.useRef<HTMLButtonElement>(null);
   const { data: user } = useCurrentUser();
   const { t } = useTranslation([GLOBAL]);
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [notificationsAnchorEl, setNotificationsAnchorEl] =
     useState<HTMLButtonElement | null>(null);
@@ -89,6 +91,7 @@ export default function LoggedInMenu({
       <ReportButtonContainer>
         <ReportButton />
       </ReportButtonContainer>
+      {!isMobile && <LanguagePickerSelect />}
       <Tooltip title={t("global:nav.notifications")}>
         <NotificationMenuItemWrapper>
           <NotificationBadge count={notificationCount}>

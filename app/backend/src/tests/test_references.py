@@ -89,6 +89,53 @@ def create_host_request(
     return host_request.conversation_id
 
 
+def create_host_request_by_date(
+    session,
+    surfer_user_id,
+    host_user_id,
+    from_date,
+    to_date,
+    status,
+    host_sent_request_reminders,
+    last_sent_request_reminder_time,
+):
+    conversation = Conversation()
+    session.add(conversation)
+    session.flush()
+
+    session.add(
+        Message(
+            time=from_date + timedelta(seconds=1),
+            conversation_id=conversation.id,
+            author_id=surfer_user_id,
+            message_type=MessageType.chat_created,
+        )
+    )
+
+    message = Message(
+        time=from_date + timedelta(seconds=2),
+        conversation_id=conversation.id,
+        author_id=surfer_user_id,
+        text="Hi, I'm requesting to be hosted.",
+        message_type=MessageType.text,
+    )
+
+    host_request = HostRequest(
+        conversation_id=conversation.id,
+        surfer_user_id=surfer_user_id,
+        host_user_id=host_user_id,
+        from_date=from_date,
+        to_date=to_date,
+        status=status,
+        host_sent_request_reminders=host_sent_request_reminders,
+        last_sent_request_reminder_time=last_sent_request_reminder_time,
+    )
+
+    session.add(host_request)
+    session.commit()
+    return host_request.conversation_id
+
+
 def create_host_reference(session, from_user_id, to_user_id, reference_age, *, surfing=True, host_request_id=None):
     if host_request_id:
         actual_host_request_id = host_request_id

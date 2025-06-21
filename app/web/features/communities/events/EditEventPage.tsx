@@ -69,6 +69,7 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
           data.dirtyFields.endTime || data.dirtyFields.endDate
             ? finalEndDate
             : undefined,
+        shouldNotify: true,
       };
 
       if (data.isOnline) {

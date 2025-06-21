@@ -1,31 +1,35 @@
-import { Grid } from "@mui/material";
-import makeStyles from "utils/makeStyles";
+import { Grid, styled } from "@mui/material";
 
+import BlockedUsersList from "./BlockedUsersList";
 import FriendList from "./FriendList";
 import FriendRequestsReceived from "./FriendRequestsReceived";
 import FriendRequestsSent from "./FriendRequestsSent";
+import useFriendList from "./useFriendList";
 
-export const useStyles = makeStyles(() => ({
-  gridItem: {
-    "& > div": {
-      height: "100%",
-    },
+const StyledGrid = styled(Grid)({
+  "& > div": {
+    height: "100%",
   },
-}));
+});
 
 function FriendsTab() {
-  const classes = useStyles();
+  const { errors, isLoading, data: friends, refetchFriends } = useFriendList();
 
   return (
     <Grid container gap={2}>
-      <Grid item xs={12} md={6} className={classes.gridItem}>
+      <StyledGrid item xs={12} md={6}>
         <FriendRequestsReceived />
-      </Grid>
-      <Grid item xs={12} md={6} className={classes.gridItem}>
-        <FriendList />
-      </Grid>
-      <Grid item xs={12} md={6} className={classes.gridItem}>
-        <FriendRequestsSent />
+      </StyledGrid>
+      <StyledGrid item xs={12} md={6}>
+        <FriendList errors={errors} friends={friends} isLoading={isLoading} />
+      </StyledGrid>
+      <Grid container spacing={2}>
+        <StyledGrid item xs={12} md={6}>
+          <FriendRequestsSent />
+        </StyledGrid>
+        <StyledGrid item xs={12} md={6}>
+          <BlockedUsersList refetchFriends={refetchFriends} />
+        </StyledGrid>
       </Grid>
     </Grid>
   );
