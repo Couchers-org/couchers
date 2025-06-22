@@ -3,11 +3,10 @@ import HtmlMeta from "components/HtmlMeta";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "react-query";
-import { theme } from "theme";
 
 import CouchersMission from "./CouchersMission";
 import HeroSection from "./HeroSection";
-import WhyCouchersSection from "./WhyCouchersSection";
+import WhatWhyCouchersSection from "./WhatWhyCouchersSection";
 
 const StyledSpacer = styled("div")(({ theme }) => ({
   height: theme.spacing(4),
@@ -50,7 +49,7 @@ export default function LandingPage() {
       ></Container>
       <StyledSpacer />
       <Container component="section" maxWidth="lg">
-        <WhyCouchersSection />
+        <WhatWhyCouchersSection />
       </Container>
       <StyledSpacer />
       <Container component="section" maxWidth="lg">
