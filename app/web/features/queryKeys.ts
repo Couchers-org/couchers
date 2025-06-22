@@ -9,7 +9,6 @@ export const blockedUsersKey = "blockedUsers";
 export const friendIdsKey = "friendIds";
 export const contributorFormInfoQueryKey = "contributorFormInfo";
 export const accountInfoQueryKey = "accountInfo";
-export const signupInfoQueryKey = "signupInfo";
 export const doNotEmailQueryKey = "doNotEmail";
 export const tosQueryKey = "tos";
 export const communityGuidelinesQueryKey = "communityGuidelines";

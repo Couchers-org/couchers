@@ -7,7 +7,6 @@ import { theme } from "theme";
 
 import CouchersMission from "./CouchersMission";
 import HeroSection from "./HeroSection";
-import SocialProof from "./SocialProof";
 import WhyCouchersSection from "./WhyCouchersSection";
 
 const StyledSpacer = styled("div")(({ theme }) => ({
@@ -46,13 +45,9 @@ export default function LandingPage() {
       <StyledSpacer />
       <Container
         component="section"
-        disableGutters
-        maxWidth={false}
+        maxWidth="lg"
         ref={moreContentRef}
-        sx={{ width: "100%", backgroundColor: theme.palette.grey[50] }}
-      >
-        <SocialProof />
-      </Container>
+      ></Container>
       <StyledSpacer />
       <Container component="section" maxWidth="lg">
         <WhyCouchersSection />

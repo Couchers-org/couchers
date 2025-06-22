@@ -3,7 +3,7 @@ import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import React, { Context, ReactNode, useContext, useEffect } from "react";
-import { jailRoute, loginRoute } from "routes";
+import { jailRoute } from "routes";
 import { setUnauthenticatedErrorHandler } from "service/client";
 import useStablePush from "utils/useStablePush";
 
