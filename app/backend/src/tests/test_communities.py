@@ -660,14 +660,14 @@ class TestCommunities:
                 )
             )
             assert res.member_user_ids == [
-                user1_id,
-                user2_id,
-                user3_id,
-                user4_id,
-                user5_id,
-                user6_id,
-                user7_id,
                 user8_id,
+                user7_id,
+                user6_id,
+                user5_id,
+                user4_id,
+                user3_id,
+                user2_id,
+                user1_id,
             ]
 
             res = api.ListMembers(
@@ -675,7 +675,7 @@ class TestCommunities:
                     community_id=c1r1c2_id,
                 )
             )
-            assert res.member_user_ids == [user2_id, user4_id, user5_id]
+            assert res.member_user_ids == [user5_id, user4_id, user2_id]
 
     @staticmethod
     def test_ListNearbyUsers(testing_communities):
