@@ -1,31 +1,15 @@
-import { Box, Fade, Grid, styled, Typography } from "@mui/material";
+import { Box, Fade, Grid, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { LANDING } from "i18n/namespaces";
 import { useInView } from "react-intersection-observer";
 import { theme } from "theme";
 
-const StyledSpacer = styled("div")(({ theme }) => ({
-  height: theme.spacing(5),
-}));
-
-const WhatWhyCouchersSection = () => {
+const WhyCouchersSection = () => {
   const { t } = useTranslation([LANDING]);
   const { ref, inView } = useInView({ triggerOnce: true });
 
   return (
     <>
-      <Typography variant="h2">{t("what_couchsurfing_title")}</Typography>
-      <Typography variant="body1" paragraph sx={{ marginTop: 2 }}>
-        {t("what_couchsurfing_description")}
-      </Typography>
-      <Typography
-        variant="body1"
-        paragraph
-        sx={{ fontWeight: "bold", marginTop: 2 }}
-      >
-        {t("sign_up_ready")}
-      </Typography>
-      <StyledSpacer />
       <Typography variant="h2">{t("why_couchers_title")}</Typography>
       <Fade timeout={2000} in={inView}>
         <Grid
@@ -112,4 +96,4 @@ const WhatWhyCouchersSection = () => {
   );
 };
 
-export default WhatWhyCouchersSection;
+export default WhyCouchersSection;
