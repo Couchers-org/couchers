@@ -1,4 +1,11 @@
-import { Box, Fade, Grid, styled, Typography } from "@mui/material";
+import {
+  Box,
+  Fade,
+  Grid,
+  styled,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useState } from "react";
@@ -43,6 +50,7 @@ const StyledGridBubble = styled(Grid, {
 
 const CouchersMission = () => {
   const { t } = useTranslation([LANDING, GLOBAL]);
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { ref, inView } = useInView({ triggerOnce: true });
   const [selectedItem, setSelectedItem] = useState("nonprofit");
 
@@ -84,7 +92,10 @@ const CouchersMission = () => {
     <>
       <Typography
         variant="h2"
-        sx={{ fontSize: "2.5rem !important", marginBottom: 4 }}
+        sx={{
+          fontSize: isMobile ? "2rem !important" : "2.5rem !important",
+          marginBottom: 4,
+        }}
       >
         {t("couchers_mission_title")}
       </Typography>

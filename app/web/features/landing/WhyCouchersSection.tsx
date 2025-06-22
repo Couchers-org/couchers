@@ -1,5 +1,5 @@
 import { Diversity3, Loyalty } from "@mui/icons-material";
-import { Box, Fade, Grid, Typography } from "@mui/material";
+import { Box, Fade, Grid, Typography, useMediaQuery } from "@mui/material";
 import { VerifiedUser } from "components/Icons";
 import { useTranslation } from "i18n";
 import { LANDING } from "i18n/namespaces";
@@ -8,11 +8,15 @@ import { theme } from "theme";
 
 const WhyCouchersSection = () => {
   const { t } = useTranslation([LANDING]);
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { ref, inView } = useInView({ triggerOnce: true });
 
   return (
     <>
-      <Typography variant="h2" sx={{ fontSize: "2.5rem !important" }}>
+      <Typography
+        variant="h2"
+        sx={{ fontSize: isMobile ? "2rem !important" : "2.5rem !important" }}
+      >
         {t("why_couchers_title")}
       </Typography>
       <Fade timeout={2000} in={inView}>
@@ -46,8 +50,15 @@ const WhyCouchersSection = () => {
               width="100%"
               alignItems={"center"}
             >
-              <Diversity3 color="primary" sx={{ fontSize: "40px" }} />
-              <Typography variant="h3" gutterBottom>
+              <Diversity3
+                color="primary"
+                sx={{ fontSize: "40px", marginBottom: 2 }}
+              />
+              <Typography
+                variant="h3"
+                gutterBottom
+                sx={{ fontSize: "1.2rem !important" }}
+              >
                 {t("community_first")}
               </Typography>
               <Typography
@@ -77,8 +88,15 @@ const WhyCouchersSection = () => {
               width="100%"
               alignItems="center"
             >
-              <VerifiedUser color="primary" sx={{ fontSize: "40px" }} />
-              <Typography variant="h3" gutterBottom>
+              <VerifiedUser
+                color="primary"
+                sx={{ fontSize: "40px", marginBottom: 2 }}
+              />
+              <Typography
+                variant="h3"
+                gutterBottom
+                sx={{ fontSize: "1.2rem !important", textAlign: "center" }}
+              >
                 {t("safer_stronger")}
               </Typography>
               <Typography
@@ -109,8 +127,15 @@ const WhyCouchersSection = () => {
               width="100%"
               alignItems="center"
             >
-              <Loyalty color="primary" sx={{ fontSize: "40px" }} />
-              <Typography variant="h3" gutterBottom>
+              <Loyalty
+                color="primary"
+                sx={{ fontSize: "40px", marginBottom: 2 }}
+              />
+              <Typography
+                variant="h3"
+                gutterBottom
+                sx={{ fontSize: "1.2rem !important", textAlign: "center" }}
+              >
                 {t("built_by_travelers")}
               </Typography>
               <Typography
