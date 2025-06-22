@@ -1,5 +1,5 @@
 import { Create, Favorite, Language } from "@mui/icons-material";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useMediaQuery } from "@mui/material";
 import Divider from "components/Divider";
 import useSignupInfo from "features/auth/useSignupInfo";
 import { useTranslation } from "i18n";
@@ -10,6 +10,7 @@ import { timeAgoI18n } from "utils/timeAgo";
 
 const SocialProof = () => {
   const { t } = useTranslation([GLOBAL, LANDING]);
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { data: signupInfo, isLoading } = useSignupInfo();
 
@@ -17,7 +18,7 @@ const SocialProof = () => {
     <Box
       sx={{
         textAlign: "center",
-        padding: theme.spacing(6, 20),
+        padding: isMobile ? theme.spacing(4, 2) : theme.spacing(6, 20),
         width: "100%",
       }}
     >
@@ -35,11 +36,17 @@ const SocialProof = () => {
       />
       <Box
         display="flex"
+        flexDirection={isMobile ? "column" : "row"}
         alignItems="center"
         justifyContent="space-between"
         sx={{ marginTop: 4, width: "100%" }}
+        gap={isMobile ? 2 : 0}
       >
-        <Box display="flex" alignItems="center" minWidth={theme.spacing(25)}>
+        <Box
+          display="flex"
+          alignItems="center"
+          minWidth={isMobile ? undefined : theme.spacing(25)}
+        >
           <Favorite
             sx={{
               marginRight: 1,
@@ -53,7 +60,11 @@ const SocialProof = () => {
             })}
           </Typography>
         </Box>
-        <Box display="flex" alignItems="center" minWidth={theme.spacing(30)}>
+        <Box
+          display="flex"
+          alignItems="center"
+          minWidth={isMobile ? undefined : theme.spacing(30)}
+        >
           <Language
             sx={{
               marginRight: 1,
@@ -65,7 +76,11 @@ const SocialProof = () => {
             {t("landing:num_countries", { numCountries: 180 })}
           </Typography>
         </Box>
-        <Box display="flex" alignItems="center" maxWidth={theme.spacing(60)}>
+        <Box
+          display="flex"
+          alignItems="center"
+          maxWidth={isMobile ? undefined : theme.spacing(60)}
+        >
           <Create
             sx={{
               marginRight: 1,
