@@ -58,7 +58,7 @@ All python code should live in the `couchers` namespace (i.e. a folder within th
 
 We adhere to [PEP8](https://www.python.org/dev/peps/pep-0008/), but it's automatically done with the [ruff](https://docs.astral.sh/ruff/) formatter, which also sorts imports. Additionally, we use the ruff linter to perform a static code check.
 
-`ruff` is installed automatically if you install the requirements on your computer (or you can install it with `pip install ruff`, e.g. if you work with Docker). Run `ruff check --select I --fix . && ruff check . && ruff format .` in the `//app/backend` folder before you commit (or before asking for review) so that it picks up the config in `pyproject.toml`.
+`ruff` is installed automatically if you install the requirements on your computer (or you can install it with `pip install ruff`, e.g. if you work with Docker). Run `make format` in the `//app/backend` folder before you commit (or before asking for review) so that it picks up the config in `pyproject.toml`.
 
 You can run `ruff` linting and autoformatting automatically before each commit via `pre-commit` (It comes with the dependencies, or you can install it via `pip install pre-commit`). For this you have to once run `pre-commit install`. If you don't want to run the pre-commit hook, you can skip commit hooks with the `--no-verify` flag: `git commit --no-verify -m "commit message"`.
 
