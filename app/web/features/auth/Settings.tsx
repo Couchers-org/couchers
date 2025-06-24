@@ -2,6 +2,7 @@ import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
+import LanguagePickerSettings from "components/LanguagePickerSettings";
 import PageTitle from "components/PageTitle";
 import ChangeEmail from "features/auth/email/ChangeEmail";
 import DoNotEmail from "features/auth/email/DoNotEmail";
@@ -79,6 +80,9 @@ export default function Settings() {
           </MarginWrapper>
           <MarginWrapper>
             <Timezone timezone={accountInfo.timezone} />
+          </MarginWrapper>
+          <MarginWrapper>
+            <LanguagePickerSettings />
           </MarginWrapper>
           <MarginWrapper>
             <DoNotEmail />

@@ -108,6 +108,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
 
   return (
     <Autocomplete
+      data-testid="location-autocomplete"
       className={className}
       id={id}
       ref={ref}

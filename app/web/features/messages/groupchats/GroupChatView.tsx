@@ -75,6 +75,11 @@ const StyledFooter = styled("div")(({ theme }) => ({
   },
 }));
 
+const StyledCannotMessageText = styled("div")(({ theme }) => ({
+  padding: theme.spacing(2),
+  textAlign: "center",
+}));
+
 export default function GroupChatView({ chatId }: { chatId: number }) {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
 
@@ -158,7 +163,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
   );
 
   const title = groupChat
-    ? groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId)
+    ? groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId, t)
     : undefined;
 
   const hasError = groupChatError || messagesError || sendMutation.error;
@@ -200,11 +205,17 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
             isError={!!messagesError}
           />
           <StyledFooter>
-            <GroupChatSendField
-              sendMutation={sendMutation}
-              chatId={chatId}
-              currentUserId={currentUserId}
-            />
+            {groupChat?.canMessage ? (
+              <GroupChatSendField
+                sendMutation={sendMutation}
+                chatId={chatId}
+                currentUserId={currentUserId}
+              />
+            ) : (
+              <StyledCannotMessageText>
+                {t("messages:chat_view.cannot_message_text")}
+              </StyledCannotMessageText>
+            )}
           </StyledFooter>
         </StyledPageWrapper>
       )}

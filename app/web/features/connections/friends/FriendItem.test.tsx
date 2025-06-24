@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { removeFriend } from "service/api";
+import { service } from "service";
 import liteUsers from "test/fixtures/liteUsers.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
@@ -9,9 +9,9 @@ import FriendItem from "./FriendItem";
 
 const { t } = i18n;
 
-jest.mock("service/api", () => ({
-  removeFriend: jest.fn(),
-}));
+const removeFriendMock = service.api.removeFriend as jest.MockedFunction<
+  typeof service.api.removeFriend
+>;
 
 describe("FriendItem", () => {
   it("calls removeFriend when the remove button is clicked", async () => {
@@ -23,11 +23,12 @@ describe("FriendItem", () => {
 
     user.click(screen.getByTestId("friend-item-more-options"));
 
-    const removeMenuItem = await screen.findByTestId("remove-friend");
+    const removeMenuItems = await screen.findAllByTestId("remove-friend");
+    const removeMenuItem = removeMenuItems[0];
 
     expect(removeMenuItem).toBeVisible();
 
-    user.click(removeMenuItem);
+    await user.click(removeMenuItem);
 
     expect(
       await screen.findByRole("dialog", {
@@ -41,6 +42,6 @@ describe("FriendItem", () => {
       }),
     );
 
-    expect(removeFriend).toHaveBeenCalledWith(1);
+    expect(removeFriendMock).toHaveBeenCalledWith(1);
   });
 });

@@ -1,5 +1,12 @@
-import { Divider, IconButton, popoverClasses, styled } from "@mui/material";
+import {
+  Divider,
+  IconButton,
+  popoverClasses,
+  styled,
+  useMediaQuery,
+} from "@mui/material";
 import { MenuIcon, SinglePersonIcon } from "components/Icons";
+import LanguagePickerSelect from "components/LanguagePickerSelect";
 import Menu, { MenuItem } from "components/Menu";
 import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
@@ -18,6 +25,7 @@ const StyledIconButton = styled(IconButton)({
   borderRadius: 999,
   backgroundColor: theme.palette.grey[200],
   padding: theme.spacing(1),
+  marginLeft: theme.spacing(1),
   transition: `${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
   "&:hover": {
     opacity: 0.8,
@@ -34,9 +42,11 @@ export default function GuestMenu({
 }) {
   const menuRef = React.useRef<HTMLButtonElement>(null);
   const { t } = useTranslation(GLOBAL);
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
     <>
+      {!isMobile && <LanguagePickerSelect />}
       <StyledIconButton
         aria-controls="navigation-menu"
         aria-haspopup="true"

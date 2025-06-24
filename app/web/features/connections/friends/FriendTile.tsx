@@ -1,33 +1,9 @@
-import { Card, CircularProgress, Typography } from "@mui/material";
-import { CSSProperties } from "@mui/styles";
+import { Card, CircularProgress, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import TextBody from "components/TextBody";
 import React from "react";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 
-const useStyles = makeStyles((theme) => ({
-  circularProgress: {
-    display: "block",
-    margin: `0 auto ${theme.spacing(1)}`,
-  },
-  container: {
-    margin: theme.spacing(2),
-    "& > *": {
-      marginBottom: theme.spacing(2),
-    },
-  },
-  errorAlert: {
-    borderRadius: 0,
-  },
-  header: {
-    fontWeight: theme.typography.fontWeightBold,
-    marginBottom: theme.spacing(2),
-    marginLeft: theme.spacing(1),
-  } as CSSProperties,
-  noFriendItemText: {
-    marginLeft: theme.spacing(1),
-  },
-}));
 interface FriendTileProps {
   children: React.ReactNode;
   errorMessage: string | null;
@@ -37,6 +13,19 @@ interface FriendTileProps {
   title: string;
 }
 
+const StyledContainer = styled("div")(({ theme }) => ({
+  margin: theme.spacing(2),
+  "& > *": {
+    marginBottom: theme.spacing(2),
+  },
+}));
+
+const StyledHeader = styled(Typography)(({ theme }) => ({
+  fontWeight: theme.typography.fontWeightBold,
+  marginBottom: theme.spacing(2),
+  marginLeft: theme.spacing(1),
+}));
+
 function FriendTile({
   children,
   errorMessage,
@@ -45,29 +34,27 @@ function FriendTile({
   noDataMessage,
   title,
 }: FriendTileProps) {
-  const classes = useStyles();
-
   return (
     <Card>
-      <div className={classes.container}>
-        <Typography className={classes.header} variant="h2">
-          {title}
-        </Typography>
+      <StyledContainer>
+        <StyledHeader variant="h2">{title}</StyledHeader>
         {errorMessage ? (
-          <Alert className={classes.errorAlert} severity="error">
+          <Alert severity="error" sx={{ borderRadius: 0 }}>
             {errorMessage}
           </Alert>
         ) : null}
         {isLoading ? (
-          <CircularProgress className={classes.circularProgress} />
+          <CircularProgress
+            sx={{ display: "block", margin: `0 auto ${theme.spacing(1)}` }}
+          />
         ) : hasData ? (
           children
         ) : (
-          <TextBody className={classes.noFriendItemText}>
+          <TextBody sx={{ marginLeft: theme.spacing(1) }}>
             {noDataMessage}
           </TextBody>
         )}
-      </div>
+      </StyledContainer>
     </Card>
   );
 }

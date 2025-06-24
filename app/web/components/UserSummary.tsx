@@ -10,6 +10,7 @@ import Avatar from "components/Avatar";
 import { OpenInNewIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import { LiteUser } from "proto/api_pb";
+import { BlockedUser } from "proto/blocking_pb";
 import React from "react";
 import { routeToUser } from "routes";
 
@@ -60,8 +61,9 @@ export interface UserSummaryProps {
   smallAvatar?: boolean;
   nameOnly?: boolean;
   headlineComponent?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
-  user?: LiteUser.AsObject;
+  user?: LiteUser.AsObject | BlockedUser.AsObject;
   titleIsLink?: boolean;
+  isProfileLink?: boolean;
 }
 
 export default function UserSummary({
@@ -71,6 +73,7 @@ export default function UserSummary({
   headlineComponent = "h2",
   user,
   titleIsLink = false,
+  isProfileLink = true,
 }: UserSummaryProps) {
   const headlineComponentWithRef = React.forwardRef(
     function HeadlineComponentWithRef(props, ref) {
@@ -113,6 +116,7 @@ export default function UserSummary({
         )}
       </Typography>
     </Tooltip>
+
   );
 
   return (
@@ -123,7 +127,7 @@ export default function UserSummary({
         ) : (
           <StyledAvatar
             user={user}
-            isProfileLink={true}
+            isProfileLink={isProfileLink}
             isSmallAvatar={smallAvatar}
           />
         )}

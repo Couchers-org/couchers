@@ -16,6 +16,7 @@ from sqlalchemy.sql import (
     cast,
     delete,
     distinct,
+    exists,
     extract,
     func,
     literal,
@@ -31,6 +32,8 @@ from couchers.constants import (
     ACTIVENESS_PROBE_EXPIRY_TIME,
     ACTIVENESS_PROBE_INACTIVITY_PERIOD,
     ACTIVENESS_PROBE_TIME_REMINDERS,
+    HOST_REQUEST_MAX_REMINDERS,
+    HOST_REQUEST_REMINDER_INTERVAL,
 )
 from couchers.crypto import (
     USER_LOCATION_RANDOMIZATION_NAME,
@@ -61,6 +64,7 @@ from couchers.models import (
     GroupChatSubscription,
     HostingStatus,
     HostRequest,
+    HostRequestStatus,
     Invoice,
     LoginToken,
     MeetupStatus,
@@ -79,7 +83,7 @@ from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.admin import generate_new_blog_post_notifications
 from couchers.servicers.api import user_model_to_pb
-from couchers.servicers.blocking import are_blocked
+from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.conversations import generate_message_notifications
 from couchers.servicers.discussions import generate_create_discussion_notifications
 from couchers.servicers.events import (
@@ -93,7 +97,13 @@ from couchers.servicers.threads import generate_reply_notifications
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
 from couchers.tasks import send_duplicate_strong_verification_email
-from couchers.utils import Timestamp_from_datetime, create_coordinate, get_coordinates, make_user_context, now
+from couchers.utils import (
+    Timestamp_from_datetime,
+    create_coordinate,
+    get_coordinates,
+    make_user_context,
+    now,
+)
 from proto import notification_data_pb2
 from proto.internal import jobs_pb2, verification_pb2
 
@@ -483,7 +493,7 @@ def send_reference_reminders(payload):
             for surfed, host_request, user, other_user in reference_reminders:
                 # checked in sql
                 assert user.is_visible
-                if not are_blocked(session, user.id, other_user.id):
+                if not is_not_visible(session, user.id, other_user.id):
                     context = make_user_context(user_id=user.id)
                     notify(
                         session,
@@ -504,6 +514,47 @@ def send_reference_reminders(payload):
 
 send_reference_reminders.PAYLOAD = empty_pb2.Empty
 send_reference_reminders.SCHEDULE = timedelta(hours=1)
+
+
+def send_host_request_reminders(payload):
+    with session_scope() as session:
+        host_has_sent_message = select(1).where(
+            Message.conversation_id == HostRequest.conversation_id, Message.author_id == HostRequest.host_user_id
+        )
+
+        requests = (
+            session.execute(
+                select(HostRequest)
+                .where(HostRequest.status == HostRequestStatus.pending)
+                .where(HostRequest.host_sent_request_reminders < HOST_REQUEST_MAX_REMINDERS)
+                .where(HostRequest.start_time > func.now())
+                .where((func.now() - HostRequest.last_sent_request_reminder_time) >= HOST_REQUEST_REMINDER_INTERVAL)
+                .where(~exists(host_has_sent_message))
+            )
+            .scalars()
+            .all()
+        )
+
+        for host_request in requests:
+            host_request.host_sent_request_reminders += 1
+            host_request.last_sent_request_reminder_time = now()
+
+            context = make_user_context(user_id=host_request.host_user_id)
+            notify(
+                session,
+                user_id=host_request.host_user_id,
+                topic_action="host_request:reminder",
+                data=notification_data_pb2.HostRequestReminder(
+                    host_request=host_request_to_pb(host_request, session, context),
+                    surfer=user_model_to_pb(host_request.surfer, session, context),
+                ),
+            )
+
+            session.commit()
+
+
+send_host_request_reminders.PAYLOAD = empty_pb2.Empty
+send_host_request_reminders.SCHEDULE = timedelta(minutes=15)
 
 
 def add_users_to_email_list(payload):

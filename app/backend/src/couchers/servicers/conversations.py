@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import func, not_, or_, select
+from sqlalchemy.sql import func, not_, or_
 
 from couchers import errors
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
@@ -13,7 +13,6 @@ from couchers.metrics import sent_messages_counter
 from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
 from couchers.notifications.notify import notify
 from couchers.servicers.api import user_model_to_pb
-from couchers.servicers.blocking import are_blocked
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, make_user_context, now
 from proto import conversations_pb2, conversations_pb2_grpc, notification_data_pb2
@@ -119,6 +118,26 @@ def _get_visible_admins_for_subscription(subscription):
         ]
 
 
+def _user_can_message(session, context, group_chat: GroupChat) -> bool:
+    """
+    If it is a true group chat (not a DM), user can always message. For a DM, user can message if the other participant
+    - Is not deleted/banned
+    - Has not been blocked by the user or is blocking the user
+    - Has not left the chat
+    """
+    if not group_chat.is_dm:
+        return True
+    return session.execute(
+        func.exists(
+            select(GroupChatSubscription)
+            .where_users_column_visible(context=context, column=GroupChatSubscription.user_id)
+            .where(GroupChatSubscription.user_id != context.user_id)
+            .where(GroupChatSubscription.group_chat_id == group_chat.conversation_id)
+            .where(GroupChatSubscription.left == None)
+        )
+    ).scalar_one()
+
+
 def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotificationsPayload):
     """
     Background job to generate notifications for a message sent to a group chat
@@ -136,13 +155,13 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
             logger.info(f"Not a text message, not notifying. message_id = {payload.message_id}")
             return []
 
-        subscriptions = (
+        context = make_user_context(user_id=message.author_id)
+        user_ids_to_notify = (
             session.execute(
-                select(GroupChatSubscription)
-                .join(User, User.id == GroupChatSubscription.user_id)
+                select(GroupChatSubscription.user_id)
+                .where_users_column_visible(context=context, column=GroupChatSubscription.user_id)
                 .where(GroupChatSubscription.group_chat_id == message.conversation_id)
-                .where(User.is_visible)
-                .where(User.id != message.author_id)
+                .where(GroupChatSubscription.user_id != message.author_id)
                 .where(GroupChatSubscription.joined <= message.time)
                 .where(or_(GroupChatSubscription.left == None, GroupChatSubscription.left >= message.time))
                 .where(not_(GroupChatSubscription.is_muted))
@@ -156,19 +175,17 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
         else:
             msg = f"{message.author.name} sent a message in {group_chat.title}"
 
-        for subscription in subscriptions:
-            if are_blocked(session, subscription.user_id, message.author.id):
-                continue
+        for user_id in user_ids_to_notify:
             notify(
                 session,
-                user_id=subscription.user_id,
+                user_id=user_id,
                 topic_action="chat:message",
                 key=message.conversation_id,
                 data=notification_data_pb2.ChatMessage(
                     author=user_model_to_pb(
                         message.author,
                         session,
-                        make_user_context(user_id=subscription.user_id),
+                        make_user_context(user_id=user_id),
                     ),
                     message=msg,
                     text=message.text,
@@ -266,6 +283,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
                     latest_message=_message_to_pb(result.Message) if result.Message else None,
                     mute_info=_mute_info(result.GroupChatSubscription),
+                    can_message=_user_can_message(session, context, result.GroupChat),
                 )
                 for result in results[:page_size]
             ],
@@ -303,6 +321,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
             latest_message=_message_to_pb(result.Message) if result.Message else None,
             mute_info=_mute_info(result.GroupChatSubscription),
+            can_message=_user_can_message(session, context, result.GroupChat),
         )
 
     def GetDirectMessage(self, request, context, session):
@@ -350,6 +369,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
             latest_message=_message_to_pb(result.Message) if result.Message else None,
             mute_info=_mute_info(result.GroupChatSubscription),
+            can_message=_user_can_message(session, context, result.GroupChat),
         )
 
     def GetUpdates(self, request, context, session):
@@ -569,20 +589,26 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             is_dm=group_chat.is_dm,
             created=Timestamp_from_datetime(group_chat.conversation.created),
             mute_info=_mute_info(your_subscription),
+            can_message=True,
         )
 
     def SendMessage(self, request, context, session):
         if request.text == "":
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
 
-        subscription = session.execute(
-            select(GroupChatSubscription)
+        result = session.execute(
+            select(GroupChatSubscription, GroupChat)
+            .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
             .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
             .where(GroupChatSubscription.user_id == context.user_id)
             .where(GroupChatSubscription.left == None)
-        ).scalar_one_or_none()
-        if not subscription:
+        ).one_or_none()
+        if not result:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
+
+        subscription, group_chat = result
+        if not _user_can_message(session, context, group_chat):
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_MESSAGE_IN_CHAT)
 
         _add_message_to_subscription(session, subscription, message_type=MessageType.text, text=request.text)
 
