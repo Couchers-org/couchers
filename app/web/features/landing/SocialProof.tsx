@@ -56,7 +56,7 @@ const SocialProof = () => {
           />
           <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
             {t("landing:num_users", {
-              numUsers: signupInfo?.userCount || 56000,
+              numUsers: signupInfo?.userCount || "56k",
             })}
           </Typography>
         </Box>
