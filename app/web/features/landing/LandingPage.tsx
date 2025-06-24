@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import { useQueryClient } from "react-query";
 
 import CouchersMission from "./CouchersMission";
-import WhatWhyCouchersSection from "./WhatWhyCouchersSection";
+import WhyCouchersSection from "./WhyCouchersSection";
 
 const StyledSpacer = styled("div")(({ theme }) => ({
   height: theme.spacing(4),
@@ -40,7 +40,7 @@ export default function LandingPage() {
       Signup section here
       <StyledSpacer />
       <Container component="section" maxWidth="lg" ref={moreContentRef}>
-        <WhatWhyCouchersSection />
+        <WhyCouchersSection />
       </Container>
       <StyledSpacer />
       <Container component="section" maxWidth="lg"></Container>
