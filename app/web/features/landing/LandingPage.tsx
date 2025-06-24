@@ -34,10 +34,15 @@ export default function LandingPage() {
         component="section"
         disableGutters
         maxWidth={false}
-        sx={{ width: "100%", backgroundColor: theme.palette.grey[50] }}
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          backgroundColor: theme.palette.grey[50],
+        }}
       >
         <SocialProof />
       </Container>
+      <StyledSpacer />
       <Container component="section" maxWidth="lg">
         <WhyCouchersSection />
       </Container>

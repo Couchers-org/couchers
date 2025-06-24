@@ -17,10 +17,10 @@ const SocialProof = () => {
   return (
     <Box
       sx={{
-        textAlign: "center",
-        padding: isMobile ? theme.spacing(4, 2) : theme.spacing(6, 20),
+        padding: isMobile ? theme.spacing(4) : theme.spacing(6, 0),
         width: "100%",
       }}
+      maxWidth="lg"
     >
       <Typography variant="h2" sx={{ fontSize: "3rem !important" }}>
         {t("landing:what_couchsurfing_title")}
@@ -54,7 +54,7 @@ const SocialProof = () => {
               color: theme.palette.primary.main,
             }}
           />
-          <Typography sx={{ fontSize: "1.5rem" }}>
+          <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
             {t("landing:num_users", {
               numUsers: signupInfo?.userCount || 56000,
             })}
@@ -72,7 +72,7 @@ const SocialProof = () => {
               color: theme.palette.primary.main,
             }}
           />
-          <Typography sx={{ fontSize: "1.5rem" }}>
+          <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
             {t("landing:num_countries", { numCountries: 180 })}
           </Typography>
         </Box>
@@ -92,7 +92,13 @@ const SocialProof = () => {
             signupInfo &&
             signupInfo.lastSignup &&
             signupInfo.lastLocation && (
-              <Typography sx={{ fontSize: "1.5rem" }}>
+              <Typography
+                sx={{
+                  fontSize: "1.5rem",
+                  fontWeight: 500,
+                  textAlign: "center",
+                }}
+              >
                 {t("landing:last_signup", {
                   timeAgo: timeAgoI18n({
                     input: timestamp2Date(signupInfo.lastSignup),
