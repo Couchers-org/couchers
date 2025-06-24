@@ -79,10 +79,18 @@ export default function UserSummary({
   );
 
   const nameValue =
-    user.name.length > 20 ? user.name.slice(0, 20) + "..." : user.name;
+    user && user.name
+      ? user.name.length > 20
+        ? user.name.slice(0, 20) + "..."
+        : user.name
+      : "";
 
   const cityValue =
-    user.city.length > 45 ? user.city.slice(0, 45) + "..." : user.city;
+    user && user.city
+      ? user.city.length > 45
+        ? user.city.slice(0, 45) + "..."
+        : user.city
+      : "";
 
   const title = (
     <Tooltip title={nameValue} arrow placement="top">
