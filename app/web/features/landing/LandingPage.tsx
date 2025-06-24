@@ -1,10 +1,11 @@
 import { Container, styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { useQueryClient } from "react-query";
 
 import CouchersMission from "./CouchersMission";
+import MapSection from "./MapSection";
 import WhyCouchersSection from "./WhyCouchersSection";
 
 const StyledSpacer = styled("div")(({ theme }) => ({
@@ -50,7 +51,7 @@ export default function LandingPage() {
       </Container>
       <StyledSpacer />
       <Container component="section" maxWidth="lg">
-        Fourth section here
+        <MapSection />
       </Container>
       <StyledSpacer />
       <Container component="section" maxWidth="lg">
