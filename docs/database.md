@@ -34,7 +34,7 @@ cd backend
 DATABASE_CONNECTION_STRING="postgresql://postgres:203d805f4b62c0a1b2f1f6b82d4583dfe563ec1619b83ce22ee414e8376a25e7@localhost:6545/postgres" PYTHONPATH=src alembic revision --autogenerate -m "Modify the database"
 
 # now format the migration
-ruff check --select I --fix . && ruff check . --fix && ruff format .
+make format
 
 # important: look through the migration and make sure it makes sense
 

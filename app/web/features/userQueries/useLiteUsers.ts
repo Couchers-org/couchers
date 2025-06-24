@@ -43,8 +43,15 @@ function useLiteUsers(ids: (number | undefined)[] | undefined) {
 // Like above, but returns users in a list of the same size in same order
 function useLiteUsersList(ids: (number | undefined)[] | undefined) {
   const liteUsersMap = useLiteUsers(ids);
-  const usersList = ids?.map((id) => liteUsersMap.data?.get(id));
-  return { ...liteUsersMap, usersById: liteUsersMap.data, data: usersList };
+  const usersList = ids
+    ?.map((id) => liteUsersMap.data?.get(id))
+    .filter((user): user is LiteUser.AsObject => !!user); // Type guard to remove undefined
+
+  return {
+    ...liteUsersMap,
+    usersById: liteUsersMap.data,
+    data: usersList,
+  };
 }
 
 // React Query typically retains the last successful data until the next successful fetch

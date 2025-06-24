@@ -26,7 +26,7 @@ from couchers.models import (
 )
 from couchers.notifications.notify import notify
 from couchers.servicers.api import user_model_to_pb
-from couchers.servicers.blocking import are_blocked
+from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.threads import thread_to_pb
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_event_community_invite_request_email
@@ -266,7 +266,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
             return
 
         for user in users:
-            if are_blocked(session, user.id, creator.id):
+            if is_not_visible(session, user.id, creator.id):
                 continue
             context = make_user_context(user_id=user.id)
             notify(
@@ -293,7 +293,7 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
         attending_user_ids = [user.user_id for user in occurrence.attendances]
 
         for user_id in set(subscribed_user_ids + attending_user_ids):
-            if are_blocked(session, user_id, updating_user.id):
+            if is_not_visible(session, user_id, updating_user.id):
                 continue
             context = make_user_context(user_id=user_id)
             notify(
@@ -321,7 +321,7 @@ def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNot
         attending_user_ids = [user.user_id for user in occurrence.attendances]
 
         for user_id in set(subscribed_user_ids + attending_user_ids):
-            if are_blocked(session, user_id, cancelling_user.id):
+            if is_not_visible(session, user_id, cancelling_user.id):
                 continue
             context = make_user_context(user_id=user_id)
             notify(
@@ -674,17 +674,22 @@ class Events(events_pb2_grpc.EventsServicer):
         session.flush()
 
         if notify_updated:
-            logger.info(f"Fields {','.join(notify_updated)} updated in event {event.id=}, notifying")
+            if request.should_notify:
+                logger.info(f"Fields {','.join(notify_updated)} updated in event {event.id=}, notifying")
 
-            queue_job(
-                session,
-                "generate_event_update_notifications",
-                payload=jobs_pb2.GenerateEventUpdateNotificationsPayload(
-                    updating_user_id=user.id,
-                    occurrence_id=occurrence.id,
-                    updated_items=notify_updated,
-                ),
-            )
+                queue_job(
+                    session,
+                    "generate_event_update_notifications",
+                    payload=jobs_pb2.GenerateEventUpdateNotificationsPayload(
+                        updating_user_id=user.id,
+                        occurrence_id=occurrence.id,
+                        updated_items=notify_updated,
+                    ),
+                )
+            else:
+                logger.info(
+                    f"Fields {','.join(notify_updated)} updated in event {event.id=}, but skipping notifications"
+                )
 
         # since we have synchronize_session=False, we have to refresh the object
         session.refresh(occurrence)

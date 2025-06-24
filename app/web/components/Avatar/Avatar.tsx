@@ -1,4 +1,4 @@
-import { Avatar as MuiAvatar, Skeleton, styled } from "@mui/material";
+import { Avatar as MuiAvatar, styled } from "@mui/material";
 import Link from "next/link";
 import { LiteUser } from "proto/api_pb";
 import React from "react";
@@ -23,15 +23,6 @@ const StyledLink = styled(Link)(({ theme }) => ({
 }));
 
 const StyledMuiAvatar = styled(MuiAvatar)(() => ({
-  height: "100%",
-  position: "absolute",
-  top: 0,
-  width: "100%",
-  maxWidth: "18rem",
-  maxHeight: "18rem",
-}));
-
-const StyledSkeleton = styled(Skeleton)(() => ({
   height: "100%",
   position: "absolute",
   top: 0,
@@ -84,7 +75,7 @@ export default function Avatar({
       ) : otherProps.children ? (
         <StyledMuiAvatar>{otherProps.children}</StyledMuiAvatar>
       ) : (
-        <StyledSkeleton variant="circular" />
+        <StyledMuiAvatar />
       )}
     </StyledWrapper>
   );

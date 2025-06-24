@@ -104,7 +104,10 @@ export default function CommunityPage({
             ) : tab === "events" ? (
               <CommunityEventsList community={community} />
             ) : tab === "members" ? (
-              <CommunityMembersList communityId={community.communityId} />
+              <CommunityMembersList
+                communityId={community.communityId}
+                memberCount={community.memberCount}
+              />
             ) : null}
           </>
         );

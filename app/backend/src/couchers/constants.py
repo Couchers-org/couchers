@@ -44,3 +44,6 @@ ACTIVENESS_PROBE_INACTIVITY_PERIOD = timedelta(days=333)
 ACTIVENESS_PROBE_TIME_REMINDERS = [timedelta(days=0), timedelta(days=4, hours=8)]
 # total time from initiation after which to expire the probe
 ACTIVENESS_PROBE_EXPIRY_TIME = timedelta(days=14)
+
+HOST_REQUEST_MAX_REMINDERS = 1
+HOST_REQUEST_REMINDER_INTERVAL = timedelta(days=2)

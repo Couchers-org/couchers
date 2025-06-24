@@ -581,8 +581,8 @@ def test_get_host_request_messages(db):
         )
 
     with requests_session(token1) as api:
-        res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=conversation_id))
         # 9 including initial message
+        res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=conversation_id))
         assert len(res.messages) == 9
         assert res.no_more
 
@@ -598,7 +598,9 @@ def test_get_host_request_messages(db):
 
         res = api.GetHostRequestMessages(
             requests_pb2.GetHostRequestMessagesReq(
-                host_request_id=conversation_id, last_message_id=res.messages[2].message_id, number=6
+                host_request_id=conversation_id,
+                last_message_id=res.messages[2].message_id,
+                number=6,
             )
         )
         assert res.no_more
@@ -777,6 +779,45 @@ def test_get_updates(db):
         # other user can't access
         res = api.GetHostRequestUpdates(requests_pb2.GetHostRequestUpdatesReq(newest_message_id=message_id_1))
         assert len(res.updates) == 0
+
+
+def test_archive_host_request(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    with requests_session(token1) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 0"
+            )
+        ).host_request_id
+
+        api.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
+        )
+        api.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 2")
+        )
+    # happy path archiving host request
+    with requests_session(token1) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
+                text="Test message 3",
+            )
+        )
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
+        assert len(res.host_requests) == 1
+        assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+        api.SetHostRequestArchiveStatus(
+            requests_pb2.SetHostRequestArchiveStatusReq(host_request_id=host_request_id, is_archived=True)
+        )
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_archived=True))
+        assert len(res.host_requests) == 1
 
 
 def test_mark_last_seen(db):

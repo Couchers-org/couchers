@@ -1,4 +1,4 @@
-import { styled } from "@mui/styles";
+import { styled } from "@mui/material";
 import CommunityGuidelines from "features/auth/CommunityGuidelines";
 import React from "react";
 import { service } from "service";
