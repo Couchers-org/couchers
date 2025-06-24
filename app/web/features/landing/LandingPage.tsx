@@ -1,7 +1,7 @@
 import { Container, styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useQueryClient } from "react-query";
 import { theme } from "theme";
 
@@ -25,17 +25,6 @@ export default function LandingPage() {
     }
   }, [queryClient, authState.authenticated]);
 
-  const moreContentRef = useRef<HTMLHeadingElement>(null);
-
-  // const scrollToMore = () => {
-  //   setTimeout(() => {
-  //     moreContentRef.current?.scrollIntoView({
-  //       behavior: "smooth",
-  //       block: "center",
-  //     });
-  //   }, 100);
-  // };
-
   return (
     <>
       <HtmlMeta />
@@ -45,12 +34,10 @@ export default function LandingPage() {
         component="section"
         disableGutters
         maxWidth={false}
-        ref={moreContentRef}
         sx={{ width: "100%", backgroundColor: theme.palette.grey[50] }}
       >
         <SocialProof />
       </Container>
-      <StyledSpacer />
       <Container component="section" maxWidth="lg">
         <WhyCouchersSection />
       </Container>

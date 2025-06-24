@@ -154,11 +154,23 @@ export const useListAdmins = (communityId: number, type: QueryType) => {
   return { ...query, adminIds };
 };
 
-export const useListMembers = (communityId?: number) =>
+export const useListMembers = ({
+  communityId,
+  pageSize,
+}: {
+  communityId?: number;
+  pageSize?: number;
+}) =>
   useInfiniteQuery<ListMembersRes.AsObject, RpcError>(
-    communityMembersKey(communityId!),
-    ({ pageParam }) => service.communities.listMembers(communityId!, pageParam),
+    [communityMembersKey(communityId!), pageSize],
+    ({ pageParam }) =>
+      service.communities.listMembers({
+        communityId: communityId!,
+        pageSize,
+        pageToken: pageParam,
+      }),
     {
+      keepPreviousData: true,
       enabled: !!communityId,
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,

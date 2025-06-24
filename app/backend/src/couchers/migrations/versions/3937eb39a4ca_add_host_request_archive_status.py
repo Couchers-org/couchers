@@ -17,8 +17,12 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column("host_requests", sa.Column("is_host_archived", sa.Boolean(), nullable=False))
-    op.add_column("host_requests", sa.Column("is_surfer_archived", sa.Boolean(), nullable=False))
+    op.add_column(
+        "host_requests", sa.Column("is_host_archived", sa.Boolean(), server_default=sa.text("false"), nullable=False)
+    )
+    op.add_column(
+        "host_requests", sa.Column("is_surfer_archived", sa.Boolean(), server_default=sa.text("false"), nullable=False)
+    )
 
 
 def downgrade():
