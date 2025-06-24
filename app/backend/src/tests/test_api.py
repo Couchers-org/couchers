@@ -5,11 +5,11 @@ import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers import errors
-from couchers.constants import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL_STRING, RateLimitAction
 from couchers.db import session_scope
 from couchers.jobs.handlers import update_badges
 from couchers.materialized_views import refresh_materialized_views_rapid
-from couchers.models import FriendRelationship, FriendStatus
+from couchers.models import FriendRelationship, FriendStatus, RateLimitAction
+from couchers.rate_limits.constants import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL_STRING
 from couchers.resources import get_badge_dict
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, to_aware_datetime

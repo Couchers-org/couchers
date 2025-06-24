@@ -28,7 +28,7 @@ def upgrade():
             sa.Enum("host_request", "friend_request", "chat_initiation", name="ratelimitaction"),
             nullable=False,
         ),
-        sa.Column("hard_limit", sa.Boolean(), nullable=False),
+        sa.Column("is_hard_limit", sa.Boolean(), nullable=False),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], name=op.f("fk_rate_limit_violations_user_id_users")),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_rate_limit_violations")),
     )

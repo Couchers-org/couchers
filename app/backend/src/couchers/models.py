@@ -39,7 +39,6 @@ from couchers.constants import (
     PHONE_VERIFICATION_LIFETIME,
     SMS_CODE_LIFETIME,
     TOS_VERSION,
-    RateLimitAction,
 )
 from couchers.utils import (
     date_in_timezone,
@@ -2759,6 +2758,14 @@ class AccountDeletionReason(Base):
     user = relationship("User")
 
 
+class RateLimitAction(enum.Enum):
+    """Possible user actions which can be rate limited."""
+
+    host_request = "host request"
+    friend_request = "friend request"
+    chat_initiation = "chat initiation"
+
+
 class RateLimitViolation(Base):
     __tablename__ = "rate_limit_violations"
 
@@ -2766,6 +2773,11 @@ class RateLimitViolation(Base):
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     user_id = Column(ForeignKey("users.id"), nullable=False)
     action = Column(Enum(RateLimitAction), nullable=False)
-    hard_limit = Column(Boolean, nullable=False)
+    is_hard_limit = Column(Boolean, nullable=False)
 
     user = relationship("User")
+
+    __table_args__ = (
+        # Fast lookup for rate limits in interval
+        Index("ix_rate_limits_by_user", user_id, action, is_hard_limit, created),
+    )

@@ -5,10 +5,10 @@ import pytest
 from sqlalchemy.sql import select
 
 from couchers import errors
-from couchers.constants import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL_STRING, RateLimitAction
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_view
-from couchers.models import Message, MessageType
+from couchers.models import Message, MessageType, RateLimitAction
+from couchers.rate_limits.constants import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL_STRING
 from couchers.templates.v2 import v2date
 from couchers.utils import now, today
 from proto import api_pb2, conversations_pb2, requests_pb2

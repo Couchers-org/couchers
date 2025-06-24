@@ -9,14 +9,22 @@ from couchers import errors
 from couchers.constants import (
     DATETIME_INFINITY,
     DATETIME_MINUS_INFINITY,
-    RateLimitAction,
 )
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import sent_messages_counter
-from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
+from couchers.models import (
+    Conversation,
+    GroupChat,
+    GroupChatRole,
+    GroupChatSubscription,
+    Message,
+    MessageType,
+    RateLimitAction,
+    User,
+)
 from couchers.notifications.notify import notify
-from couchers.rate_limit import process_rate_limits_and_check_abort
+from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import are_blocked
 from couchers.sql import couchers_select as select

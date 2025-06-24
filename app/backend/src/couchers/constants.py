@@ -1,6 +1,4 @@
-from dataclasses import dataclass
 from datetime import datetime, timedelta
-from enum import Enum
 
 import pytz
 
@@ -46,27 +44,3 @@ ACTIVENESS_PROBE_INACTIVITY_PERIOD = timedelta(days=333)
 ACTIVENESS_PROBE_TIME_REMINDERS = [timedelta(days=0), timedelta(days=4, hours=8)]
 # total time from initiation after which to expire the probe
 ACTIVENESS_PROBE_EXPIRY_TIME = timedelta(days=14)
-
-
-class RateLimitAction(Enum):
-    """Possible user actions which can be rate limited."""
-
-    host_request = "host request"
-    friend_request = "friend request"
-    chat_initiation = "chat initiation"
-
-
-@dataclass
-class RateLimit:
-    warning_limit: int
-    hard_limit: int
-
-
-# request rate limits
-RATE_LIMIT_INTERVAL = timedelta(hours=24)
-RATE_LIMIT_INTERVAL_STRING = "24 hours"
-RATE_LIMIT_DEFINITIONS = {
-    RateLimitAction.host_request: RateLimit(warning_limit=20, hard_limit=80),
-    RateLimitAction.friend_request: RateLimit(warning_limit=10, hard_limit=40),
-    RateLimitAction.chat_initiation: RateLimit(warning_limit=15, hard_limit=150),
-}

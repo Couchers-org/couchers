@@ -5,7 +5,7 @@ from sqlalchemy.sql import func
 
 from couchers import email, urls
 from couchers.config import config
-from couchers.constants import RATE_LIMIT_INTERVAL_STRING, SIGNUP_EMAIL_TOKEN_VALIDITY
+from couchers.constants import SIGNUP_EMAIL_TOKEN_VALIDITY
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.models import (
@@ -17,6 +17,7 @@ from couchers.models import (
     RateLimitViolation,
     User,
 )
+from couchers.rate_limits.constants import RATE_LIMIT_INTERVAL_STRING
 from couchers.sql import couchers_select as select
 from couchers.templates.v2 import send_simple_pretty_email
 from couchers.utils import now
@@ -108,7 +109,7 @@ def send_rate_limit_violation_report_email(session, rate_limit_violation: RateLi
             "action": rate_limit_violation.action,
             "threshold": threshold,
             "time_interval_str": RATE_LIMIT_INTERVAL_STRING,
-            "hard_limit": rate_limit_violation.hard_limit,
+            "is_hard_limit": rate_limit_violation.is_hard_limit,
             "events": events,
         },
     )

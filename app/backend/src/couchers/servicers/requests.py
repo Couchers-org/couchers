@@ -7,7 +7,6 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors
-from couchers.constants import RateLimitAction
 from couchers.materialized_views import user_response_rates
 from couchers.metrics import (
     account_age_on_host_request_create_histogram,
@@ -16,9 +15,9 @@ from couchers.metrics import (
     host_requests_sent_counter,
     sent_messages_counter,
 )
-from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
+from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, RateLimitAction, User
 from couchers.notifications.notify import notify
-from couchers.rate_limit import process_rate_limits_and_check_abort
+from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.servicers.api import response_rate_to_pb, user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import (
