@@ -1,23 +1,16 @@
-import { Box, Fade, Grid, styled, Typography } from "@mui/material";
-import StyledLink from "components/StyledLink";
-import { StyledButton } from "features/auth/useAuthStyles";
+import {
+  Box,
+  Fade,
+  Grid,
+  styled,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
-import Link from "next/link";
 import { useState } from "react";
 import { useInView } from "react-intersection-observer";
-import { donationsRoute, roadmapRoute, volunteerRoute } from "routes";
 import { theme } from "theme";
-
-const StyledSpacer = styled("div")(({ theme }) => ({
-  height: theme.spacing(5),
-}));
-
-const StyledButtonContainer = styled("div")({
-  display: "flex",
-  flexDirection: "row",
-  gap: "24px",
-});
 
 interface StyledGridBubbleProps extends React.ComponentProps<typeof Grid> {
   selected?: boolean;
@@ -57,6 +50,7 @@ const StyledGridBubble = styled(Grid, {
 
 const CouchersMission = () => {
   const { t } = useTranslation([LANDING, GLOBAL]);
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { ref, inView } = useInView({ triggerOnce: true });
   const [selectedItem, setSelectedItem] = useState("nonprofit");
 
@@ -96,7 +90,15 @@ const CouchersMission = () => {
 
   return (
     <>
-      <Typography variant="h2">{t("couchers_mission_title")}</Typography>
+      <Typography
+        variant="h2"
+        sx={{
+          fontSize: isMobile ? "2rem !important" : "2.5rem !important",
+          marginBottom: 4,
+        }}
+      >
+        {t("couchers_mission_title")}
+      </Typography>
       <Grid
         container
         ref={ref}
@@ -105,7 +107,7 @@ const CouchersMission = () => {
         }}
       >
         <Fade timeout={2000} in={inView}>
-          <Grid item container gap={2} justifyContent={"center"}>
+          <Grid item container gap={2} justifyContent="center">
             {missionBubble("nonprofit")}
             {missionBubble("free_forever")}
             {missionBubble("authentic")}
@@ -128,36 +130,12 @@ const CouchersMission = () => {
             <Typography gutterBottom>
               {t(`landing:${selectedItem}_description`)}
             </Typography>
-            <Typography>
+            <Typography sx={{ marginTop: 2 }}>
               <b>{t("landing:why")}</b> {t(`landing:${selectedItem}_why`)}
             </Typography>
           </Grid>
         </Fade>
       </Grid>
-      <StyledSpacer />
-      <Typography variant="h6" gutterBottom>
-        {t("want_to_help")}
-      </Typography>
-      <Typography variant="body1">{t("want_to_help_description")}</Typography>
-      <br />
-      <Typography variant="body1">
-        {t("want_to_help_roadmap")}{" "}
-        <StyledLink href={roadmapRoute}>
-          {t("global:nav.roadmap_updates")}
-        </StyledLink>
-      </Typography>
-      <StyledButtonContainer>
-        <Link href={volunteerRoute}>
-          <StyledButton variant="contained" color="secondary">
-            {t("global:nav.volunteer")}
-          </StyledButton>
-        </Link>
-        <Link href={donationsRoute}>
-          <StyledButton variant="contained">
-            {t("global:nav.donate")}
-          </StyledButton>
-        </Link>
-      </StyledButtonContainer>
     </>
   );
 };
