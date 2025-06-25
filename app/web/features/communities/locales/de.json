@@ -119,7 +119,7 @@
   "community_image_input_alt": "Community Bild Input",
   "places_empty_state": "Noch keine Orte zum Anzeigen.",
   "no_moderators": "Aktuell gibt es hier keine Community Builder.",
-  "unknown_user": "Unbekannter Benutzer",
+  "unknown_user": "Unbekannte Person",
   "end_date_error": "Das Enddatum des Events muss nach dem Startdatum liegen.",
   "upload_helper_text": "Klick hier, um ein Bild hochzuladen",
   "past": "Vergangene",
@@ -131,5 +131,6 @@
   "fill_out_comment": "Du musst erst etwas schreiben!",
   "members_empty_state": "Zurzeit keine Mitglieder.",
   "members_label": "Mitglieder",
-  "members_title": "Community-Mitglieder"
+  "members_title": "Community-Mitglieder",
+  "total_members": "Mitglieder"
 }
