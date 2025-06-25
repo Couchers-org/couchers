@@ -1,6 +1,6 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 
-import { styled } from "@mui/material";
+import { styled, useMediaQuery } from "@mui/material";
 import {
   clusterCountLayer,
   clusterLayer,
@@ -9,21 +9,30 @@ import {
 } from "features/search/utils/mapLayers";
 import React from "react";
 import { Layer, Map as MaplibreMap, Source } from "react-map-gl/maplibre";
+import { theme } from "theme";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const MapWrapper = styled("div")(({ theme }) => ({
   height: 600,
-  width: theme.breakpoints.values.lg,
+  width: "100%",
   position: "relative",
+  borderRadius: theme.shape.borderRadius,
+  overflow: "hidden",
 }));
 
 const StaticMap = () => {
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  const initialViewState = isMobile
+    ? { zoom: 0, latitude: 10, longitude: 48 }
+    : { zoom: 0.75, latitude: 0, longitude: 0 };
+
   return (
     <MapWrapper>
       <MaplibreMap
         id="map"
-        initialViewState={{ zoom: 0.75 }}
+        initialViewState={initialViewState}
         minZoom={0}
         maxZoom={7}
         style={{

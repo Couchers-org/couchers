@@ -1,5 +1,4 @@
 import { Typography, useMediaQuery } from "@mui/material";
-import { styled } from "@mui/styles";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { useTranslation } from "i18n";
 import { LANDING } from "i18n/namespaces";
@@ -10,13 +9,6 @@ const StaticMap = dynamic(() => import("components/StaticMap"), {
   loading: () => <CenteredSpinner />,
   ssr: false,
 });
-
-const StyledMapWrapper = styled("div")(({ theme }) => ({
-  height: "100%",
-  width: "100%",
-  borderRadius: theme.shape.borderRadius,
-  overflow: "hidden",
-}));
 
 const MapSection = () => {
   const { t } = useTranslation([LANDING]);
@@ -33,9 +25,7 @@ const MapSection = () => {
       >
         {t("map_section_title")}
       </Typography>
-      <StyledMapWrapper>
-        <StaticMap />
-      </StyledMapWrapper>
+      <StaticMap />
     </>
   );
 };
