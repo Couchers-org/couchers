@@ -6,6 +6,7 @@ import { useQueryClient } from "react-query";
 import { theme } from "theme";
 
 import CouchersMission from "./CouchersMission";
+import MapSection from "./MapSection";
 import SocialProof from "./SocialProof";
 import WhyCouchersSection from "./WhyCouchersSection";
 
@@ -52,7 +53,7 @@ export default function LandingPage() {
       </Container>
       <StyledSpacer />
       <Container component="section" maxWidth="lg">
-        Fourth section here
+        <MapSection />
       </Container>
       <StyledSpacer />
       <Container component="section" maxWidth="lg">

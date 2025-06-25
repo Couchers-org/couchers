@@ -36,6 +36,7 @@
   "non_transactional_description": "People do not pay each other in money or in kind to participate in activities or the community. By surfing, you are not obligated to host in the future.",
   "non_transactional_why": "It is fundamentally incompatible with having genuine interactions. It is healthy to only give or only receive and we should learn to be more comfortable with it.",
   "why": "Why?",
+  "map_section_title": "Explore our community around the world",
   "num_users": "{{numUsers}}+ users",
   "num_countries": "{{numCountries}}+ countries",
   "last_signup": "Last signup {{timeAgo}} from {{location}}"
