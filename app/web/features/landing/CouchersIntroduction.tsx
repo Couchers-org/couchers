@@ -39,13 +39,15 @@ const CouchersIntroduction = () => {
       <StyledIntroductionText>
         <Typography
           lineHeight={1.1}
-          variant="h1"
           fontWeight={400}
           sx={{
+            fontSize: "3.5rem",
+
             [theme.breakpoints.down("md")]: {
               width: "100%",
               textAlign: "center",
               marginTop: theme.spacing(6),
+              fontSize: "2rem",
             },
           }}
         >

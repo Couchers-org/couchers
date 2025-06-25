@@ -12,7 +12,15 @@ const WhyCouchersSection = () => {
 
   return (
     <>
-      <Typography variant="h2" sx={{ textAlign: "center" }}>
+      <Typography
+        sx={{
+          fontSize: "3rem",
+          textAlign: "center",
+          fontWeight: "bold",
+
+          [theme.breakpoints.down("md")]: { fontSize: "1.8rem" },
+        }}
+      >
         {t("why_couchers_title")}
       </Typography>
       <Fade timeout={2000} in={inView}>

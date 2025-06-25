@@ -3,6 +3,7 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { useTranslation } from "i18n";
 import { LANDING } from "i18n/namespaces";
 import dynamic from "next/dynamic";
+import { theme } from "theme";
 
 const StaticMap = dynamic(() => import("components/StaticMap"), {
   loading: () => <CenteredSpinner />,
@@ -15,10 +16,13 @@ const MapSection = () => {
   return (
     <>
       <Typography
-        variant="h2"
         sx={{
-          marginBottom: 4,
+          fontSize: "3rem",
           textAlign: "center",
+          fontWeight: "bold",
+          marginBottom: 4,
+
+          [theme.breakpoints.down("md")]: { fontSize: "1.8rem" },
         }}
       >
         {t("map_section_title")}

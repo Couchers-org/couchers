@@ -83,10 +83,15 @@ const CouchersMission = () => {
   return (
     <>
       <Typography
-        variant="h2"
         sx={{
-          marginBottom: 4,
+          fontSize: "3rem",
+          fontWeight: "bold",
           textAlign: "center",
+          marginBottom: 4,
+
+          [theme.breakpoints.down("md")]: {
+            fontSize: "1.8rem",
+          },
         }}
       >
         {t("couchers_mission_title")}

@@ -31,6 +31,10 @@ const StyledTypography = styled(Typography)(({ theme }) => ({
   alignSelf: "center",
   marginTop: 0,
   fontWeight: 400,
+
+  [theme.breakpoints.up("md")]: {
+    fontSize: "1.2rem",
+  },
 }));
 
 export default function NavButton({

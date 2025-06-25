@@ -22,7 +22,16 @@ const SocialProof = () => {
       }}
       maxWidth="lg"
     >
-      <Typography variant="h2">
+      <Typography
+        sx={{
+          fontSize: "3rem",
+          fontWeight: "bold",
+
+          [theme.breakpoints.down("md")]: {
+            fontSize: "1.8rem",
+          },
+        }}
+      >
         {t("landing:what_couchsurfing_title")}
       </Typography>
       <Typography paragraph sx={{ marginTop: 2, fontSize: "1.2rem" }}>
