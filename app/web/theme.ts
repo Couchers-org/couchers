@@ -3,15 +3,6 @@ import { createTheme, Theme } from "@mui/material";
 import { ThemeOptions } from "@mui/material/styles";
 import { createBreakpoints } from "@mui/system";
 
-declare module "@mui/material/styles/createTypography" {
-  interface TypographyOptions {
-    h1Large: TypographyStyleOptions;
-  }
-  interface Typography {
-    h1Large: TypographyStyleOptions;
-  }
-}
-
 const breakpoints = createBreakpoints({});
 const spacing = (factor: number) => `${0.5 * factor}rem`;
 const borderRadius = 4;
@@ -149,44 +140,37 @@ const themeOptions: ThemeOptions = {
     },
     fontFamily: "Ubuntu, sans-serif",
     h1: {
-      fontSize: "1.5rem",
-      fontWeight: "bold",
+      fontSize: "2rem",
       [breakpoints.up("md")]: {
-        fontSize: "2rem",
-      },
-    },
-    h1Large: {
-      fontSize: "3.8rem",
-      [breakpoints.up("md")]: {
-        fontSize: "7.5rem",
+        fontSize: "3.5rem",
       },
     },
     h2: {
-      fontSize: "1.2rem", //16px
+      fontSize: "1.8rem",
       fontWeight: "bold",
       [breakpoints.up("md")]: {
-        fontSize: "1.4rem", //20px
+        fontSize: "3rem",
       },
     },
     h3: {
-      fontSize: "1rem",
+      fontSize: "1.2rem",
       fontWeight: "bold",
       [breakpoints.up("md")]: {
-        fontSize: "1.2rem",
+        fontSize: "2rem",
       },
     },
     h4: {
       fontSize: "0.825rem",
       fontWeight: "bold",
       [breakpoints.up("md")]: {
-        fontSize: "1rem",
+        fontSize: "1.2rem",
       },
     },
     h5: {
-      fontSize: "0.75rem", //12px
+      fontSize: "0.75rem",
       fontWeight: "bold",
       [breakpoints.up("md")]: {
-        fontSize: "0.875rem", //14px
+        fontSize: "0.875rem",
       },
     },
     h6: {

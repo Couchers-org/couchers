@@ -5,7 +5,6 @@ import TextField from "components/TextField";
 const StyledForm = styled("form")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
-  marginBottom: theme.spacing(2),
   width: "100%",
   [theme.breakpoints.up("md")]: {
     alignItems: "flex-start",

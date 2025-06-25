@@ -1,5 +1,4 @@
-import { KeyboardDoubleArrowDown } from "@mui/icons-material";
-import { Box, styled, useMediaQuery } from "@mui/material";
+import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
@@ -13,21 +12,18 @@ import { useEffect, useState } from "react";
 import { signupRoute } from "routes";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
-import { theme } from "theme";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 import { useAuthContext } from "../auth/AuthProvider";
 import SignupFormContent from "../auth/signup/SignupFormContent";
 
-interface HeroSectionProps {
-  scrollToMore?: () => void;
-}
-
 const StyledContent = styled("div")(({ theme }) => ({
   width: "100%",
   justifyContent: "space-between",
+  alignItems: "center",
   marginBottom: theme.spacing(2),
   flexDirection: "column",
+  padding: theme.spacing(10, 4),
 
   [theme.breakpoints.up("md")]: {
     display: "flex",
@@ -50,10 +46,9 @@ const StyledMapWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function HeroSection({ scrollToMore }: HeroSectionProps) {
+export default function HeroSection() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const router = useRouter();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { authState, authActions } = useAuthContext();
   const error = authState.error;
@@ -116,22 +111,8 @@ export default function HeroSection({ scrollToMore }: HeroSectionProps) {
     <>
       <HtmlMeta title={t("global:join_us")} />
       <StyledContent>
-        <CouchersIntroduction scrollToMore={scrollToMore} />
+        <CouchersIntroduction />
         <StyledMapWrapper>Map animation goes here</StyledMapWrapper>
-        {isMobile && scrollToMore && (
-          <Box
-            fontSize="large"
-            onClick={scrollToMore}
-            sx={{
-              color: theme.palette.common.black,
-              display: "flex",
-              justifyContent: "center",
-              marginTop: theme.spacing(4),
-            }}
-          >
-            <KeyboardDoubleArrowDown />
-          </Box>
-        )}
       </StyledContent>
     </>
   );

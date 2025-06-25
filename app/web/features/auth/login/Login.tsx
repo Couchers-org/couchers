@@ -13,42 +13,28 @@ import stringOrFirstString from "utils/stringOrFirstString";
 import { useAuthContext } from "../AuthProvider";
 import LoginForm from "./LoginForm";
 
-const StyledBackground = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  padding: theme.spacing(2, 16),
-  paddingBottom: 0,
-  backgroundPosition: "top center",
-  backgroundRepeat: "no-repeat",
-  backgroundSize: "cover",
-  width: "100%",
-  height: "100%",
-
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(1, 2),
-  },
-}));
-
 const StyledContent = styled("div")(({ theme }) => ({
   width: "100%",
-  marginTop: theme.spacing(2),
+  height: "100%",
   justifyContent: "center",
-  marginBottom: theme.spacing(2),
   flexDirection: "column",
+  padding: theme.spacing(0, 2),
 
   [theme.breakpoints.up("md")]: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-evenly",
+    alignItems: "center",
   },
 }));
 
 const StyledFormWrapper = styled("div")(({ theme }) => ({
-  backgroundColor: "#FFFAFA",
+  backgroundColor: theme.palette.grey[50],
   borderRadius: theme.shape.borderRadius,
   padding: theme.spacing(2),
   width: "100%",
   maxWidth: "400px",
+  border: `1px solid ${theme.palette.divider}`,
 
   [theme.breakpoints.up("md")]: {
     width: "45%",
@@ -75,28 +61,29 @@ export default function Login() {
   return (
     <>
       <HtmlMeta title={t("auth:login_page.title")} />
-      <StyledBackground>
-        <StyledContent>
-          <CouchersIntroduction />
-          <StyledFormWrapper>
-            <Typography variant="h1" gutterBottom>
-              {t("auth:login_page.header")}
-            </Typography>
-            {error && (
-              <Alert severity="error" sx={{ width: "100%" }}>
-                {error}
-              </Alert>
-            )}
-            <LoginForm />
-            <Typography variant="body1">
-              <Trans t={t} i18nKey="auth:login_page.no_account_prompt">
-                No account yet?{" "}
-                <StyledLink href={signupRoute}>Sign up</StyledLink>
-              </Trans>
-            </Typography>
-          </StyledFormWrapper>
-        </StyledContent>
-      </StyledBackground>
+      <StyledContent>
+        <CouchersIntroduction />
+        <StyledFormWrapper>
+          <Typography
+            gutterBottom
+            sx={{ fontSize: "1.4rem", fontWeight: "bold" }}
+          >
+            {t("auth:login_page.header")}
+          </Typography>
+          {error && (
+            <Alert severity="error" sx={{ width: "100%" }}>
+              {error}
+            </Alert>
+          )}
+          <LoginForm />
+          <Typography sx={{ marginTop: 2 }}>
+            <Trans t={t} i18nKey="auth:login_page.no_account_prompt">
+              No account yet?{" "}
+              <StyledLink href={signupRoute}>Sign up</StyledLink>
+            </Trans>
+          </Typography>
+        </StyledFormWrapper>
+      </StyledContent>
     </>
   );
 }

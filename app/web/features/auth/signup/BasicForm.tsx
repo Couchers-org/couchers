@@ -117,7 +117,7 @@ export default function BasicForm({
           })}
           fullWidth
           name="email"
-          placeholder="jane@doe.com"
+          placeholder="jane@couchers.org"
           variant="outlined"
           helperText={errors?.email?.message ?? " "}
           error={!!errors?.email?.message}

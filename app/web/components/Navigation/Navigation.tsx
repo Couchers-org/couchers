@@ -28,6 +28,7 @@ import { useTranslation } from "next-i18next";
 import React, { useEffect, useState } from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
+  baseRoute,
   blogRoute,
   communitiesRoute,
   dashboardRoute,
@@ -511,7 +512,7 @@ export default function Navigation() {
             <Box>
               <Button
                 variant="outlined"
-                size="large"
+                size={isMobile ? "medium" : "large"}
                 sx={{ fontSize: "1.3rem" }}
                 onClick={() => router.push(loginRoute)}
               >
@@ -519,7 +520,7 @@ export default function Navigation() {
               </Button>
               <Button
                 variant="contained"
-                size="large"
+                size={isMobile ? "medium" : "large"}
                 sx={{ marginLeft: 2, fontSize: "1.3rem" }}
                 onClick={() => router.push(signupRoute)}
               >

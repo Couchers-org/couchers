@@ -1,12 +1,10 @@
-import { KeyboardDoubleArrowDown } from "@mui/icons-material";
-import { Box, styled, Typography, useMediaQuery } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Redirect from "components/Redirect";
 import StyledLink from "components/StyledLink";
-import mobileAuthBg from "features/auth/resources/mobile-auth-bg-dark.jpg";
 import CouchersIntroduction from "features/landing/CouchersIntroduction";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
@@ -24,19 +22,11 @@ import stringOrFirstString from "utils/stringOrFirstString";
 import { useAuthContext } from "../AuthProvider";
 import SignupFormContent from "./SignupFormContent";
 
-interface SignupProps {
-  scrollToMore?: () => void;
-}
-
 const StyledSection = styled("section")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
-  padding: theme.spacing(2, 16),
+  padding: theme.spacing(2),
   paddingBottom: 0,
-  background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("${mobileAuthBg.src}")`,
-  backgroundPosition: "top center",
-  backgroundRepeat: "no-repeat",
-  backgroundSize: "cover",
   width: "100%",
   height: "100%",
 
@@ -52,7 +42,7 @@ const StyledMobileEmbed = styled("div")(({ theme }) => ({
 
 const StyledContent = styled("div")(({ theme }) => ({
   width: "100%",
-  marginTop: theme.spacing(2),
+  alignItems: "center",
   justifyContent: "center",
   marginBottom: theme.spacing(2),
   flexDirection: "column",
@@ -65,11 +55,12 @@ const StyledContent = styled("div")(({ theme }) => ({
 }));
 
 const StyledFormWrapper = styled("div")(({ theme }) => ({
-  backgroundColor: "#FFFAFA",
+  backgroundColor: theme.palette.grey[50],
   borderRadius: theme.shape.borderRadius,
   padding: theme.spacing(2),
   width: "100%",
   maxWidth: "400px",
+  border: `1px solid ${theme.palette.divider}`,
 
   [theme.breakpoints.up("md")]: {
     width: "45%",
@@ -77,10 +68,9 @@ const StyledFormWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function Signup({ scrollToMore }: SignupProps) {
+export default function Signup() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const router = useRouter();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { authState, authActions } = useAuthContext();
   const authenticated = authState.authenticated;
@@ -147,7 +137,7 @@ export default function Signup({ scrollToMore }: SignupProps) {
       <HtmlMeta title={t("global:sign_up")} />
       <StyledSection>
         <StyledContent>
-          <CouchersIntroduction scrollToMore={scrollToMore} />
+          <CouchersIntroduction />
           <StyledFormWrapper>
             {!flowState ? (
               <SignupFormContent />
@@ -163,27 +153,13 @@ export default function Signup({ scrollToMore }: SignupProps) {
               </Link>
             )}
 
-            <Typography variant="body1" sx={{ marginTop: theme.spacing(2) }}>
+            <Typography sx={{ marginTop: theme.spacing(2) }}>
               <Trans i18nKey="auth:basic_sign_up_form.existing_user_prompt">
                 Already have an account?{" "}
                 <StyledLink href={loginRoute}>Log in</StyledLink>
               </Trans>
             </Typography>
           </StyledFormWrapper>
-          {isMobile && scrollToMore && (
-            <Box
-              fontSize="large"
-              onClick={scrollToMore}
-              sx={{
-                color: theme.palette.common.white,
-                display: "flex",
-                justifyContent: "center",
-                marginTop: theme.spacing(4),
-              }}
-            >
-              <KeyboardDoubleArrowDown />
-            </Box>
-          )}
         </StyledContent>
       </StyledSection>
     </>

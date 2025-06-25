@@ -5,6 +5,7 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { tosRoute } from "routes";
 
 import { useAuthContext } from "../AuthProvider";
+import useSignupInfo from "../useSignupInfo";
 import AccountForm from "./AccountForm";
 import BasicForm from "./BasicForm";
 import CommunityGuidelinesForm from "./CommunityGuidelinesForm";
@@ -14,14 +15,22 @@ export default function SignupFormContent() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authState } = useAuthContext();
   const state = authState.flowState;
+
+  const { data: signupInfo } = useSignupInfo();
+
   if (!state || state.needBasic) {
     return (
       <>
-        <Typography variant="h2" gutterBottom>
+        <Typography
+          gutterBottom
+          sx={{ fontSize: "1.4rem", fontWeight: "bold" }}
+        >
           {t("landing:signup_header")}
         </Typography>
         <Typography gutterBottom sx={{ marginBottom: 2 }}>
-          {t("landing:signup_description", { user_count: "55k+" })}
+          {t("landing:signup_description", {
+            user_count: signupInfo?.userCount || "56k",
+          })}
         </Typography>
         <BasicForm submitText={t("global:create_account")} />
         <Typography variant="caption">

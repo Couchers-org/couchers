@@ -1,6 +1,6 @@
 import { styled, SvgIcon } from "@mui/material";
-import { useAuthContext } from "features/auth/AuthProvider";
 import Link from "next/link";
+import { baseRoute } from "routes";
 
 const Root = styled("a")(({ theme }) => ({
   display: "flex",
@@ -18,13 +18,8 @@ export interface CouchersLogoProps {
 }
 
 export default function CouchersLogo({ className }: CouchersLogoProps) {
-  const { authState } = useAuthContext();
-
   return (
-    <Link
-      href={authState.authenticated ? "/dashboard" : "/login"}
-      legacyBehavior
-    >
+    <Link href={baseRoute}>
       <Root>
         <Logo
           className={className}

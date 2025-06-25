@@ -36,7 +36,7 @@ const StyledTypography = styled(Typography)(({ theme }) => ({
 export default function NavButton({
   route,
   label,
-  labelVariant = "h3",
+  labelVariant = "h4",
   notificationCount,
 }: NavButtonProps) {
   const router = useRouter();

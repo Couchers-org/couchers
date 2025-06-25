@@ -1,9 +1,8 @@
-import { Typography, useMediaQuery } from "@mui/material";
+import { Typography } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { useTranslation } from "i18n";
 import { LANDING } from "i18n/namespaces";
 import dynamic from "next/dynamic";
-import { theme } from "theme";
 
 const StaticMap = dynamic(() => import("components/StaticMap"), {
   loading: () => <CenteredSpinner />,
@@ -12,15 +11,14 @@ const StaticMap = dynamic(() => import("components/StaticMap"), {
 
 const MapSection = () => {
   const { t } = useTranslation([LANDING]);
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
     <>
       <Typography
         variant="h2"
         sx={{
-          fontSize: isMobile ? "2rem !important" : "2.5rem !important",
           marginBottom: 4,
+          textAlign: "center",
         }}
       >
         {t("map_section_title")}

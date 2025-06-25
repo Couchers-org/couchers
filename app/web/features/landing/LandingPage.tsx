@@ -1,7 +1,7 @@
 import { Container, styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useQueryClient } from "react-query";
 import { theme } from "theme";
 
@@ -17,7 +17,6 @@ const StyledSpacer = styled("div")(({ theme }) => ({
 
 export default function LandingPage() {
   const { authState } = useAuthContext();
-  const moreContentRef = useRef<HTMLDivElement>(null);
 
   // This makes sure anything didn't get cleared up in the query cache in the Logout
   // component definitely gets cleared here when redirected to the landing page
@@ -28,19 +27,12 @@ export default function LandingPage() {
     }
   }, [queryClient, authState.authenticated]);
 
-  const scrollToMore = () => {
-    setTimeout(() => {
-      moreContentRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-    }, 100);
-  };
-
   return (
     <>
       <HtmlMeta />
-      <HeroSection scrollToMore={scrollToMore} />
+      <Container component="section" maxWidth="lg">
+        <HeroSection />
+      </Container>
       <StyledSpacer />
       <Container
         component="section"
