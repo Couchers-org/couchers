@@ -28,7 +28,6 @@ import { useTranslation } from "next-i18next";
 import React, { useEffect, useState } from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
-  baseRoute,
   blogRoute,
   communitiesRoute,
   dashboardRoute,
