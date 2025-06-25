@@ -23,25 +23,21 @@ export function filenameToSlug(filename: string) {
     .split("/");
 }
 
+// From Next.js documentation:
+// https://nextjs.org/docs/pages/guides/internationalization#how-does-this-work-with-static-generation
 export function getAllMarkdownPathsWithLocales(): {
   params: { slug: string[] };
   locale: string;
 }[] {
   const baseSlugs = getAllMarkdownFiles().map(filenameToSlug);
 
-  // console.log("Base slugs:", baseSlugs);
-
-  // Combine each slug with all languages
   const paths = [];
 
   for (const lang of allLanguages) {
     for (const slug of baseSlugs) {
-      // console.log("Combining language", lang, "with slug", slug);
       paths.push({ params: { slug }, locale: lang });
     }
   }
-
-  // console.log("Localized slugs:", localizedSlugs);
 
   return paths;
 }
