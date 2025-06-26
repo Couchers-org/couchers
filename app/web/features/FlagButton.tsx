@@ -54,13 +54,12 @@ export default function FlagButton({
     [t],
   );
 
-  // Reset description errors when reason changes
+  // Reset errors when reason changes
   useEffect(() => {
     if (!requiredReasons.includes(reason)) {
-      // Clear the error for description if it's no longer required
       resetForm(
-        { description: "" }, // keep other fields as is
-        { keepValues: true, keepErrors: false, keepDirty: true },
+        { description: "", reason: "" },
+        { keepValues: true, keepErrors: false, keepDirty: false },
       );
     }
   }, [reason, requiredReasons, resetForm]);
