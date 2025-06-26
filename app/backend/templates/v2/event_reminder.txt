@@ -1,0 +1,11 @@
+Hi {{ user.name }},
+
+This is a reminder for the upcoming event:
+
+{{ event_title }}
+Starts at {{ start_time }} UTC
+
+Don’t forget to join on time!
+
+Best,  
+The Couchers.org team

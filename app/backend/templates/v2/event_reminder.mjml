@@ -1,0 +1,32 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text font-size="16px" font-family="Helvetica">
+          Hi {{ user.name }},
+        </mj-text>
+
+        <mj-text font-size="16px" font-family="Helvetica">
+          This is a reminder for the upcoming event:
+        </mj-text>
+
+        <mj-text font-size="18px" font-family="Helvetica" font-weight="bold">
+          {{ event_title }}
+        </mj-text>
+
+        <mj-text font-size="16px" font-family="Helvetica">
+          Starts at {{ start_time }} UTC
+        </mj-text>
+
+        <mj-text font-size="16px" font-family="Helvetica">
+          Don’t forget to join on time!
+        </mj-text>
+
+        <mj-text font-size="16px" font-family="Helvetica">
+          Best,<br/>
+          The Couchers.org team
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

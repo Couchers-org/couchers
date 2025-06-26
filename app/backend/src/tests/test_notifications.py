@@ -1,10 +1,11 @@
 import json
 import re
+from datetime import datetime, timezone
 from urllib.parse import parse_qs, urlparse
 
 import grpc
 import pytest
-from google.protobuf import empty_pb2
+from google.protobuf import empty_pb2, timestamp_pb2
 
 from couchers import errors
 from couchers.crypto import b64decode
@@ -21,7 +22,7 @@ from couchers.models import (
 from couchers.notifications.notify import notify
 from couchers.notifications.settings import get_topic_actions_by_delivery_type
 from couchers.sql import couchers_select as select
-from proto import admin_pb2, api_pb2, auth_pb2, conversations_pb2, notification_data_pb2, notifications_pb2
+from proto import admin_pb2, api_pb2, auth_pb2, conversations_pb2, events_pb2, notification_data_pb2, notifications_pb2
 from proto.internal import unsubscribe_pb2
 from tests.test_fixtures import (  # noqa
     api_session,
@@ -580,3 +581,37 @@ def test_get_topic_actions_by_delivery_type(db):
         assert NotificationTopicAction.event__create_any in deliver
         assert NotificationTopicAction.discussion__create not in deliver
         assert NotificationTopicAction.account_deletion__start in deliver
+
+
+def test_event_reminder_email_sent(db):
+    user, token = generate_user()
+    title = "Board Game Night"
+    start_event_time = timestamp_pb2.Timestamp(seconds=1751690400)
+    start_event_time_string = datetime.fromtimestamp(start_event_time.seconds, tz=timezone.utc).strftime(
+        "%Y-%m-%d %H:%M UTC"
+    )
+
+    with mock_notification_email() as mock:
+        with session_scope() as session:
+            notify(
+                session,
+                user_id=user.id,
+                topic_action="event:reminder",
+                data=notification_data_pb2.EventReminder(
+                    start_time=start_event_time_string,
+                    event=events_pb2.Event(
+                        event_id=1,
+                        slug="board-game-night",
+                        title=title,
+                        start_time=start_event_time,
+                    ),
+                ),
+            )
+
+    assert mock.call_count == 1
+
+    assert email_fields(mock).recipient == user.email
+    assert title in email_fields(mock).html
+    assert title in email_fields(mock).plain
+    assert start_event_time_string in email_fields(mock).html
+    assert start_event_time_string in email_fields(mock).plain

@@ -1,0 +1,23 @@
+"""Add event__reminder to NotificationTopicAction
+
+Revision ID: 14585a4e1868
+Revises: 3937eb39a4ca
+Create Date: 2025-06-24 19:57:59.799511
+
+"""
+
+from alembic import op
+
+# revision identifiers, used by Alembic.
+revision = "14585a4e1868"
+down_revision = "3937eb39a4ca"
+branch_labels = None
+depends_on = None
+
+
+def upgrade():
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE IF NOT EXISTS 'event__reminder'")
+
+
+def downgrade():
+    pass

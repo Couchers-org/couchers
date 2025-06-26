@@ -8,6 +8,7 @@ from math import cos, pi, sin, sqrt
 
 import requests
 from google.protobuf import empty_pb2
+from google.protobuf.timestamp_pb2 import Timestamp
 from sqlalchemy import Float, Integer
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import (
@@ -60,6 +61,8 @@ from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
+    EventOccurrence,
+    EventOccurrenceAttendee,
     GroupChat,
     GroupChatSubscription,
     HostingStatus,
@@ -104,7 +107,7 @@ from couchers.utils import (
     make_user_context,
     now,
 )
-from proto import notification_data_pb2
+from proto import events_pb2, notification_data_pb2
 from proto.internal import jobs_pb2, verification_pb2
 
 logger = logging.getLogger(__name__)
@@ -1055,3 +1058,61 @@ def update_randomized_locations(payload):
 
 update_randomized_locations.PAYLOAD = empty_pb2.Empty
 update_randomized_locations.SCHEDULE = timedelta(hours=1)
+
+
+def send_event_reminders(payload: empty_pb2.Empty):
+    """
+    Sends reminders for events that are 24 hours away to users who marked themselves as attending.
+    """
+    logger.info("Sending event reminder emails")
+
+    with session_scope() as session:
+        now_time = now()
+        lower_bound = now_time + timedelta(hours=23.5)
+        upper_bound = now_time + timedelta(hours=24.5)
+
+        occurrences = (
+            session.execute(
+                select(EventOccurrence)
+                .where(EventOccurrence.start_time >= lower_bound)
+                .where(EventOccurrence.start_time <= upper_bound)
+            )
+            .scalars()
+            .all()
+        )
+
+        attendees = []
+        for occurrence in occurrences:
+            attendees = (
+                session.execute(
+                    select(User)
+                    .join(EventOccurrenceAttendee, EventOccurrenceAttendee.user_id == User.id)
+                    .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
+                    .where(EventOccurrenceAttendee.attendee_status == "going")
+                )
+                .scalars()
+                .all()
+            )
+
+            for user in attendees:
+                context = make_user_context(user_id=user.id)
+
+                notify(
+                    session,
+                    user_id=user.id,
+                    topic_action="event:reminder",
+                    data=notification_data_pb2.EventReminder(
+                        occurrence_id=occurrence.id,
+                        start_time=occurrence.start_time.isoformat(),
+                        event=events_pb2.Event(
+                            event_id=occurrence.id,
+                            slug=occurrence.event.slug,
+                            title=occurrence.event.title,
+                            start_time=Timestamp(seconds=int(occurrence.start_time.timestamp())),
+                        ),
+                    ),
+                )
+
+
+send_event_reminders.PAYLOAD = empty_pb2.Empty
+send_event_reminders.SCHEDULE = timedelta(hours=1)

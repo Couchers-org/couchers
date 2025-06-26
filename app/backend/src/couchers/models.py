@@ -2462,6 +2462,7 @@ class NotificationTopicAction(enum.Enum):
     event__cancel = ("event:cancel", dt_all, True, nd.EventCancel)
     event__delete = ("event:delete", dt_all, True, nd.EventDelete)
     event__invite_organizer = ("event:invite_organizer", dt_all, True, nd.EventInviteOrganizer)
+    event__reminder = ("event:reminder", dt_all, True, nd.EventReminder)
     # toplevel comment on an event
     event__comment = ("event:comment", dt_all, True, nd.EventComment)
 
