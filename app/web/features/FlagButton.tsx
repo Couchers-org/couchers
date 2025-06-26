@@ -93,6 +93,9 @@ export default function FlagButton({
 
   const onSubmit = handleSubmit((data) => {
     reportContent(data);
+    resetForm();
+    resetMutation();
+    setIsOpen(false);
   });
 
   const handleFlagButtonClick = (event: { preventDefault: () => void }) => {
