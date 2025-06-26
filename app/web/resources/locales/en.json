@@ -80,9 +80,10 @@
       "reason_label": "Reason for reporting",
       "reason_helper": "Why are you reporting this content?",
       "reason_required": "Reason is required.",
+      "description_required": "Description is required.",
       "profile_reason_required": "Please fill out description or block",
       "description_label": "Describe the issue",
-      "description_helper": "Please tell us why you are reporting this person.",
+      "description_helper": "Please tell us why you are reporting this.",
       "success": "Thank you for your report and making Couchers a better platform for everybody!",
       "reason": {
         "dating": "Flirting / dating app behavior or similar",

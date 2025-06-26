@@ -1,10 +1,4 @@
-import {
-  FormControl,
-  FormHelperText,
-  IconButton,
-  InputLabel,
-  Select,
-} from "@mui/material";
+import { FormControl, IconButton, InputLabel, Select } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -21,7 +15,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
@@ -45,10 +39,31 @@ export default function FlagButton({
   const {
     control,
     handleSubmit,
-    register,
     reset: resetForm,
     formState: { errors },
+    watch,
   } = useForm<ReportInput>();
+
+  const reason = watch("reason");
+  const requiredReasons = useMemo(
+    () => [
+      t("report.flag.reason.other"),
+      t("report.flag.reason.safety"),
+      t("report.flag.reason.guidelines_breach"),
+    ],
+    [t],
+  );
+
+  // Reset description errors when reason changes
+  useEffect(() => {
+    if (!requiredReasons.includes(reason)) {
+      // Clear the error for description if it's no longer required
+      resetForm(
+        { description: "" }, // keep other fields as is
+        { keepValues: true, keepErrors: false, keepDirty: true },
+      );
+    }
+  }, [reason, requiredReasons, resetForm]);
 
   const {
     data: report,
@@ -139,12 +154,10 @@ export default function FlagButton({
                 render={({ field }) => (
                   <Select
                     {...field}
-                    variant="standard"
+                    variant="outlined"
                     native
-                    value={field.value}
                     label={t("report.flag.reason_label")}
                     id="content-report-reason"
-                    onChange={field.onChange}
                     sx={{
                       "& + &": {
                         marginBlockStart: theme.spacing(2),
@@ -170,25 +183,44 @@ export default function FlagButton({
                   </Select>
                 )}
               />
-              <FormHelperText error={!!errors?.reason}>
-                {errors?.reason?.message || t("report.flag.reason_helper")}
-              </FormHelperText>
+              <Controller
+                control={control}
+                defaultValue={""}
+                name="description"
+                rules={{
+                  validate: (value) => {
+                    // Only require description if reason is in requiredReasons
+                    if (requiredReasons.includes(reason)) {
+                      return !!value || t("report.flag.description_required");
+                    }
+                    return true;
+                  },
+                }}
+                render={({ field }) => (
+                  <TextField
+                    id="content-report-description"
+                    {...field}
+                    error={!!errors?.description?.message}
+                    helperText={
+                      !errors?.description?.message
+                        ? t("report.flag.description_helper")
+                        : undefined
+                    }
+                    label={t("report.flag.description_label")}
+                    fullWidth
+                    multiline
+                    minRows={4}
+                    maxRows={6}
+                    sx={{
+                      marginTop: theme.spacing(2),
+                      "& + &": {
+                        marginBlockStart: theme.spacing(2),
+                      },
+                    }}
+                  />
+                )}
+              />
             </FormControl>
-            <TextField
-              id="content-report-description"
-              {...register("description")}
-              label={t("report.flag.description_label")}
-              helperText={t("report.flag.description_helper")}
-              fullWidth
-              multiline
-              minRows={4}
-              maxRows={6}
-              sx={{
-                "& + &": {
-                  marginBlockStart: theme.spacing(2),
-                },
-              }}
-            />
           </DialogContent>
           <DialogActions>
             <Button type="submit" loading={isLoading} onClick={onSubmit}>
