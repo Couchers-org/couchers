@@ -92,7 +92,39 @@ export default function FlagButton({
   };
 
   const onSubmit = handleSubmit((data) => {
-    reportContent(data);
+    // Use English version to send to backend
+    const reasonMap: Record<string, string> = {
+      [t("report.flag.reason.dating")]: t("report.flag.reason.dating", {
+        lng: "en",
+      }),
+      [t("report.flag.reason.sexualized")]: t("report.flag.reason.sexualized", {
+        lng: "en",
+      }),
+      [t("report.flag.reason.safety")]: t("report.flag.reason.safety", {
+        lng: "en",
+      }),
+      [t("report.flag.reason.scam")]: t("report.flag.reason.scam", {
+        lng: "en",
+      }),
+      [t("report.flag.reason.spam")]: t("report.flag.reason.spam", {
+        lng: "en",
+      }),
+      [t("report.flag.reason.external")]: t("report.flag.reason.external", {
+        lng: "en",
+      }),
+      [t("report.flag.reason.harassment")]: t("report.flag.reason.harassment", {
+        lng: "en",
+      }),
+      [t("report.flag.reason.guidelines_breach")]: t(
+        "report.flag.reason.guidelines_breach",
+        { lng: "en" },
+      ),
+      [t("report.flag.reason.other")]: t("report.flag.reason.other", {
+        lng: "eng",
+      }),
+    };
+
+    reportContent({ ...data, reason: reasonMap[data.reason] });
     resetForm();
     resetMutation();
     setIsOpen(false);
@@ -179,7 +211,7 @@ export default function FlagButton({
                       t("report.flag.reason.guidelines_breach"),
                       t("report.flag.reason.other"),
                     ].map((option) => (
-                      <option value={option} key={option}>
+                      <option value={t(option, { lng: "en" })} key={option}>
                         {option}
                       </option>
                     ))}
