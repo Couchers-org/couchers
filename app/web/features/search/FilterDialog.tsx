@@ -552,7 +552,22 @@ const FilterDialog = ({
           </ToggleButtonGroup>
         </FilterItemRow>
         <FilterItemRow>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 0.5,
+              width: "100%",
+              alignItems: {
+                xs: "center",
+                sm: "flex-end",
+              },
+              textAlign: {
+                xs: "center",
+                sm: "right",
+              },
+            }}
+          >
             <Typography variant="caption">
               {t(
                 "search:form.accommodation_filters.sleeping_arrangement_filters.common.label",
