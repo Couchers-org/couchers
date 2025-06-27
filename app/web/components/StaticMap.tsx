@@ -4,11 +4,17 @@ import { styled, useMediaQuery } from "@mui/material";
 import {
   clusterCountLayer,
   clusterLayer,
-  SOURCE_CLUSTERED_USERS_ID,
   unclusteredPointLayer,
+  USERS_SOURCE_ID,
 } from "features/search/utils/mapLayers";
-import React from "react";
-import { Layer, Map as MaplibreMap, Source } from "react-map-gl/maplibre";
+import { loadMapUserPins } from "features/search/utils/mapUtils";
+import React, { useRef } from "react";
+import {
+  Layer,
+  Map as MaplibreMap,
+  MapRef,
+  Source,
+} from "react-map-gl/maplibre";
 import { theme } from "theme";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -22,6 +28,14 @@ const MapWrapper = styled("div")(({ theme }) => ({
 }));
 
 const StaticMap = () => {
+  const mapRef = useRef<MapRef | null>(null);
+
+  const onLoad = () => {
+    if (mapRef.current) {
+      loadMapUserPins(mapRef);
+    }
+  };
+
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const initialViewState = isMobile
@@ -41,10 +55,12 @@ const StaticMap = () => {
         }}
         mapStyle="https://cdn.couchers.org/maps/couchers-basemap-style-v1.json"
         interactiveLayerIds={clusterLayer.id ? [clusterLayer.id] : []}
-        hash={true}
+        hash={false}
+        ref={mapRef}
+        onLoad={onLoad}
       >
         <Source
-          id={SOURCE_CLUSTERED_USERS_ID}
+          id={USERS_SOURCE_ID}
           cluster={true}
           clusterRadius={50}
           data={API_BASE_URL + "/geojson/public-users"}

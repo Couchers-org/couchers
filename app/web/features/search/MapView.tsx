@@ -11,10 +11,7 @@ import { MapRef } from "react-map-gl/maplibre";
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./utils/constants";
-import {
-  SOURCE_CLUSTERED_USERS_ID,
-  UNCLUSTERED_LAYER_ID,
-} from "./utils/mapLayers";
+import { UNCLUSTERED_LAYER_ID, USERS_SOURCE_ID } from "./utils/mapLayers";
 import {
   clearMapFeatureState,
   getMapBounds,
@@ -124,7 +121,7 @@ const MapView = ({
 
       if (isCluster) {
         const source = mapRef.current?.getSource(
-          SOURCE_CLUSTERED_USERS_ID,
+          USERS_SOURCE_ID,
         ) as GeoJSONSource;
 
         let newZoom = await source.getClusterExpansionZoom(
