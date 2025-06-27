@@ -1,14 +1,11 @@
-import { styled, Typography } from "@mui/material";
+import { Container, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
-import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Redirect from "components/Redirect";
 import StyledLink from "components/StyledLink";
-import CouchersIntroduction from "features/landing/CouchersIntroduction";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useIsNativeEmbed } from "platform/nativeLink";
 import Sentry from "platform/sentry";
@@ -22,36 +19,8 @@ import stringOrFirstString from "utils/stringOrFirstString";
 import { useAuthContext } from "../AuthProvider";
 import SignupFormContent from "./SignupFormContent";
 
-const StyledSection = styled("section")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  padding: theme.spacing(2),
-  paddingBottom: 0,
-  width: "100%",
-  height: "100%",
-
-  [theme.breakpoints.down("md")]: {
-    padding: theme.spacing(1, 2),
-    justifyContent: "center",
-  },
-}));
-
 const StyledMobileEmbed = styled("div")(({ theme }) => ({
   margin: theme.spacing(3),
-}));
-
-const StyledContent = styled("div")(({ theme }) => ({
-  width: "100%",
-  alignItems: "center",
-  justifyContent: "center",
-  marginBottom: theme.spacing(2),
-  flexDirection: "column",
-
-  [theme.breakpoints.up("md")]: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-  },
 }));
 
 const StyledFormWrapper = styled("div")(({ theme }) => ({
@@ -59,13 +28,8 @@ const StyledFormWrapper = styled("div")(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
   padding: theme.spacing(2),
   width: "100%",
-  maxWidth: "400px",
+  maxWidth: "600px",
   border: `1px solid ${theme.palette.divider}`,
-
-  [theme.breakpoints.up("md")]: {
-    width: "45%",
-    marginTop: theme.spacing(2),
-  },
 }));
 
 export default function Signup() {
@@ -75,7 +39,6 @@ export default function Signup() {
   const { authState, authActions } = useAuthContext();
   const authenticated = authState.authenticated;
   const error = authState.error;
-  const flowState = authState.flowState;
 
   const [loading, setLoading] = useState(false);
 
@@ -135,33 +98,48 @@ export default function Signup() {
     <>
       {authenticated && <Redirect to={dashboardRoute} />}
       <HtmlMeta title={t("global:sign_up")} />
-      <StyledSection>
-        <StyledContent>
-          <CouchersIntroduction />
-          <StyledFormWrapper>
-            {!flowState ? (
-              <SignupFormContent />
-            ) : (
-              <Link href={signupRoute} passHref legacyBehavior>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  sx={{ margin: theme.spacing(4, 0) }}
-                >
-                  {t("landing:signup_continue")}
-                </Button>
-              </Link>
-            )}
+      <Container
+        component="section"
+        maxWidth="lg"
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: theme.spacing(2),
+        }}
+      >
+        <Typography
+          lineHeight={1.1}
+          fontWeight={400}
+          sx={{
+            fontSize: "3.5rem",
+            marginBottom: theme.spacing(4),
 
-            <Typography sx={{ marginTop: theme.spacing(2) }}>
-              <Trans i18nKey="auth:basic_sign_up_form.existing_user_prompt">
-                Already have an account?{" "}
-                <StyledLink href={loginRoute}>Log in</StyledLink>
-              </Trans>
-            </Typography>
-          </StyledFormWrapper>
-        </StyledContent>
-      </StyledSection>
+            [theme.breakpoints.down("md")]: {
+              width: "100%",
+              fontSize: "2rem",
+              textAlign: "center",
+            },
+          }}
+        >
+          {t("landing:introduction_title")}
+        </Typography>
+        <StyledFormWrapper>
+          {error && (
+            <Alert severity="error" sx={{ width: "100%" }}>
+              {error}
+            </Alert>
+          )}
+          {loading ? <CenteredSpinner /> : <SignupFormContent />}
+          <Typography sx={{ marginTop: theme.spacing(2) }}>
+            <Trans i18nKey="auth:basic_sign_up_form.existing_user_prompt">
+              Already have an account?{" "}
+              <StyledLink href={loginRoute}>Log in</StyledLink>
+            </Trans>
+          </Typography>
+        </StyledFormWrapper>
+      </Container>
     </>
   );
 }

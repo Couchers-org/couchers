@@ -36,9 +36,7 @@ describe("Login", () => {
       ),
       "wrongpwd",
     );
-    await user.click(
-      screen.getByRole("button", { name: t("global:continue") }),
-    );
+    await user.click(screen.getByRole("button", { name: t("global:login") }));
 
     await assertErrorAlert(errorMessage);
   });
@@ -64,9 +62,7 @@ describe("Login", () => {
       ),
       "wrongpwd",
     );
-    await user.click(
-      screen.getByRole("button", { name: t("global:continue") }),
-    );
+    await user.click(screen.getByRole("button", { name: t("global:login") }));
 
     await assertErrorAlert(t("global:error.fatal_message"));
   });

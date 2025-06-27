@@ -1,6 +1,5 @@
 import { render, renderHook, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { QUESTIONS_OPTIONAL } from "components/ContributorForm/constants";
 import { EditLocationMapProps } from "components/EditLocationMap";
 import useAuthStore from "features/auth/useAuthStore";
 import { hostingStatusLabels } from "features/profile/constants";
@@ -204,7 +203,7 @@ describe("Signup", () => {
       expect(await screen.findByText("Guideline 1")).toBeVisible();
     });
 
-    it.only("guidelines -> success", async () => {
+    it("guidelines -> success", async () => {
       window.localStorage.setItem(
         "auth.flowState",
         JSON.stringify({
@@ -347,34 +346,6 @@ describe("Signup", () => {
     expect(await screen.findByText("Guideline 1")).toBeVisible();
   });
 
-  it("displays the feedback form when feedback and email are pending", async () => {
-    const state: SignupFlowRes.AsObject = {
-      needBasic: false,
-      needAccount: false,
-      needAcceptCommunityGuidelines: false,
-      needFeedback: false,
-      needVerifyEmail: true,
-      flowToken: "token",
-    };
-    window.localStorage.setItem("auth.flowState", JSON.stringify(state));
-    render(<View />, { wrapper });
-    expect(screen.getByText(QUESTIONS_OPTIONAL)).toBeVisible();
-  });
-
-  it("displays the feedback form when only feedback is pending", async () => {
-    const state: SignupFlowRes.AsObject = {
-      needBasic: false,
-      needAccount: false,
-      needAcceptCommunityGuidelines: false,
-      needFeedback: false,
-      needVerifyEmail: false,
-      flowToken: "token",
-    };
-    window.localStorage.setItem("auth.flowState", JSON.stringify(state));
-    render(<View />, { wrapper });
-    expect(screen.getByText(QUESTIONS_OPTIONAL)).toBeVisible();
-  });
-
   it("displays the verify email message when email is pending", async () => {
     const state: SignupFlowRes.AsObject = {
       needBasic: false,
@@ -418,37 +389,6 @@ describe("Signup", () => {
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
     mockConsoleError();
     await expect(async () => render(<View />, { wrapper })).rejects.toThrow();
-  });
-
-  it("displays an error when present", async () => {
-    const signupFlowFeedbackMock = service.auth
-      .signupFlowFeedback as MockedService<
-      typeof service.auth.signupFlowFeedback
-    >;
-    signupFlowFeedbackMock.mockRejectedValue({
-      code: StatusCode.PERMISSION_DENIED,
-      message: "Permission denied",
-    });
-    window.localStorage.setItem(
-      "auth.flowState",
-      JSON.stringify({
-        flowToken: "token",
-        needBasic: false,
-        needAccount: false,
-        needAcceptCommunityGuidelines: false,
-        needFeedback: false,
-        needVerifyEmail: false,
-      }),
-    );
-    render(<View />, { wrapper });
-
-    const user = userEvent.setup();
-
-    await user.click(
-      await screen.findByRole("button", { name: t("global:submit") }),
-    );
-    mockConsoleError();
-    await assertErrorAlert("Permission denied");
   });
 
   it("sets the email flow state correctly when given a url token", async () => {
