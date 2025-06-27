@@ -88,7 +88,7 @@ export default function LoginForm() {
           fullWidth
           variant="outlined"
           autoComplete="email"
-          placeholder="jane@couchers.org"
+          placeholder="you@couchers.org"
         />
         <StyledInputLabel htmlFor="password">
           {t("auth:login_page.form.password_field_label")}

@@ -16,15 +16,15 @@ import LoginForm from "./LoginForm";
 const StyledContent = styled("div")(({ theme }) => ({
   width: "100%",
   height: "100%",
-  justifyContent: "center",
-  flexDirection: "column",
   padding: theme.spacing(0, 2),
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "space-evenly",
+  alignItems: "center",
 
-  [theme.breakpoints.up("md")]: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-    alignItems: "center",
+  [theme.breakpoints.down("md")]: {
+    justifyContent: "center",
+    flexDirection: "column",
   },
 }));
 
@@ -32,13 +32,14 @@ const StyledFormWrapper = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.grey[50],
   borderRadius: theme.shape.borderRadius,
   padding: theme.spacing(2),
-  width: "100%",
   maxWidth: "400px",
   border: `1px solid ${theme.palette.divider}`,
+  width: "45%",
+  marginTop: theme.spacing(2),
 
-  [theme.breakpoints.up("md")]: {
-    width: "45%",
-    marginTop: theme.spacing(2),
+  [theme.breakpoints.down("md")]: {
+    width: "100%",
+    maxWidth: "100%",
   },
 }));
 

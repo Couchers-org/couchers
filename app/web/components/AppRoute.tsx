@@ -8,7 +8,7 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import { useRouter } from "next/router";
 import { useIsNativeEmbed } from "platform/nativeLink";
 import { ReactNode, useEffect, useRef, useState } from "react";
-import { jailRoute } from "routes";
+import { jailRoute, loginRoute } from "routes";
 
 import Navigation from "./Navigation";
 
@@ -86,6 +86,10 @@ export default function AppRoute({
   useEffect(() => setIsMounted(true), []);
 
   useEffect(() => {
+    if (!isAuthenticated && isPrivate) {
+      authActions.authError("Please log in.");
+      router.push({ pathname: loginRoute, query: { from: location.pathname } });
+    }
     if (isAuthenticated && isJailed && isPrivate && pathname !== jailRoute) {
       router.push(jailRoute);
     }

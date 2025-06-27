@@ -25,6 +25,10 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   marginBottom: theme.spacing(2),
   marginTop: 0,
   width: "100%",
+
+  "& .MuiInputBase-input": {
+    backgroundColor: theme.palette.common.white,
+  },
 }));
 
 const StyledButton = styled(Button)(({ theme }) => ({

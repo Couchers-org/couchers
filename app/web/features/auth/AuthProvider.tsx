@@ -3,7 +3,7 @@ import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import React, { Context, ReactNode, useContext, useEffect } from "react";
-import { jailRoute } from "routes";
+import { jailRoute, loginRoute } from "routes";
 import { setUnauthenticatedErrorHandler } from "service/client";
 import useStablePush from "utils/useStablePush";
 
@@ -43,7 +43,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         // completely logged out
         await store.authActions.logout();
         store.authActions.authError(t("logged_out_message"));
-        // push(loginRoute);
+        push(loginRoute);
       }
     });
 

@@ -33,7 +33,6 @@ import {
   dashboardRoute,
   donationsRoute,
   eventsRoute,
-  faqRoute,
   featurePreviewRoute,
   helpCenterURL,
   loginRoute,
@@ -45,7 +44,6 @@ import {
   searchRoute,
   settingsRoute,
   signupRoute,
-  teamRoute,
   volunteerRoute,
 } from "routes";
 import { theme } from "theme";
@@ -150,14 +148,6 @@ const loggedOutDrawerMenu = (
   t: TFunction<"global", undefined>,
 ): Array<MenuItemProps> => [
   {
-    name: t("login"),
-    route: loginRoute,
-  },
-  {
-    name: t("sign_up"),
-    route: signupRoute,
-  },
-  {
     name: t("nav.about"),
     route: "/",
   },
@@ -170,16 +160,8 @@ const loggedOutDrawerMenu = (
     route: planRoute,
   },
   {
-    name: t("nav.faq"),
-    route: faqRoute,
-  },
-  {
     name: t("nav.mission"),
     route: missionRoute,
-  },
-  {
-    name: t("nav.the_team"),
-    route: teamRoute,
   },
 ];
 
