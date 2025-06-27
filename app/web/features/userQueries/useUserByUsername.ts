@@ -1,5 +1,5 @@
 import { reactQueryRetries } from "appConstants";
-import { userKey } from "features/queryKeys";
+import { userKey, username2Id } from "features/queryKeys";
 import {
   username2IdStaleTime,
   userStaleTime,
@@ -29,7 +29,7 @@ export default function useUserByUsername(
         username: user.username,
       };
     },
-    queryKey: ["username2Id", username],
+    queryKey: [username2Id, username],
     retry: (failureCount, error) => {
       //don't retry if the user isn't found
       return (

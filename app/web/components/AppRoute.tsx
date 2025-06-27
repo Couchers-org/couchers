@@ -7,7 +7,7 @@ import Footer from "components/Footer";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useRouter } from "next/router";
 import { useIsNativeEmbed } from "platform/nativeLink";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { jailRoute, loginRoute } from "routes";
 
 import Navigation from "./Navigation";
@@ -72,6 +72,8 @@ export default function AppRoute({
   variant = "standard",
 }: AppRouteProps) {
   const router = useRouter();
+  const pageWrapperRef = useRef<HTMLDivElement>(null);
+  const { pathname } = router;
   const { authState, authActions } = useAuthContext();
   const isAuthenticated = authState.authenticated;
   const isJailed = authState.jailed;
@@ -88,15 +90,16 @@ export default function AppRoute({
       authActions.authError("Please log in.");
       router.push({ pathname: loginRoute, query: { from: location.pathname } });
     }
-    if (
-      isAuthenticated &&
-      isJailed &&
-      isPrivate &&
-      router.pathname !== jailRoute
-    ) {
+    if (isAuthenticated && isJailed && isPrivate && pathname !== jailRoute) {
       router.push(jailRoute);
     }
-  }, [isAuthenticated, isJailed, isPrivate, authActions, router]);
+  }, [isAuthenticated, isJailed, isPrivate, authActions, router, pathname]);
+
+  useEffect(() => {
+    if (pageWrapperRef.current) {
+      pageWrapperRef.current.scrollTo(0, 0);
+    }
+  }, [router.asPath]); // scroll to top on route change
 
   return (
     <ErrorBoundary>
@@ -109,7 +112,7 @@ export default function AppRoute({
           {/* Temporary container injected for marketing to test dynamic "announcements".
            * Find a better spot to componentise this code once plan is more finalised with this */}
           <div id="announcements"></div>
-          <PageWrapper>
+          <PageWrapper ref={pageWrapperRef}>
             <ContentWrapper
               disableGutters
               isNativeEmbed={isNativeEmbed}

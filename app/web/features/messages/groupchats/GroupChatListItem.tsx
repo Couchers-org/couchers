@@ -64,6 +64,7 @@ export default function GroupChatListItem({
     groupChat,
     groupChatMembersQuery,
     currentUserId,
+    t,
   );
   //text is the control message text or message text
   let text = "";

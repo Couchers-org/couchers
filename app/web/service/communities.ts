@@ -56,13 +56,28 @@ export async function listAdmins(communityId: number, pageToken?: string) {
   return response.toObject();
 }
 
-export async function listMembers(communityId: number, pageToken?: string) {
+export async function listMembers({
+  communityId,
+  pageSize,
+  pageToken,
+}: {
+  communityId: number;
+  pageSize?: number;
+  pageToken?: string;
+}) {
   const req = new ListMembersReq();
   req.setCommunityId(communityId);
+
+  if (pageSize) {
+    req.setPageSize(pageSize);
+  }
+
   if (pageToken) {
     req.setPageToken(pageToken);
   }
+
   const response = await client.communities.listMembers(req);
+
   return response.toObject();
 }
 

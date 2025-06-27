@@ -4,7 +4,6 @@ import Button from "components/Button";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAccountInfo from "features/auth/useAccountInfo";
-import FlagButton from "features/FlagButton";
 import FriendActions from "features/profile/actions/FriendActions";
 import MessageUserButton from "features/profile/actions/MessageUserButton";
 import UserOverview from "features/profile/view/UserOverview";
@@ -23,9 +22,13 @@ import { theme } from "theme";
 
 import { useProfileUser } from "../hooks/useProfileUser";
 import AdminPanelUserButton from "./AdminPanelUserButton";
+import ProfileReportFlagButton from "./ProfileReportFlagButton";
 
 const StyledModButtons = styled("div")(({ theme }) => ({
-  alignSelf: "center",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  width: "100%",
 }));
 
 const getEditTab = (tab: UserTab): EditUserTab | undefined => {
@@ -113,9 +116,10 @@ function DefaultActions({
       <FriendActions user={user} setMutationError={setMutationError} />
 
       <StyledModButtons>
-        <FlagButton
+        <ProfileReportFlagButton
           contentRef={`profile/${user.userId}`}
           authorUser={user.userId}
+          profileUser={user}
         />
         <AdminPanelUserButton username={user.username} />
       </StyledModButtons>

@@ -1,5 +1,4 @@
-import { FormControlLabel } from "@mui/material";
-import { styled } from "@mui/styles";
+import { FormControlLabel, styled } from "@mui/material";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";
