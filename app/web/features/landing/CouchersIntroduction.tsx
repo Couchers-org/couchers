@@ -14,14 +14,7 @@ const StyledIntroduction = styled("div")(({ theme }) => ({
 
   [theme.breakpoints.down("md")]: {
     width: "100%",
-    marginTop: 0,
-  },
-}));
-
-const StyledIntroductionText = styled("div")(({ theme }) => ({
-  [theme.breakpoints.down("md")]: {
-    width: "100%",
-    marginBottom: theme.spacing(2),
+    alignItems: "center",
     textAlign: "center",
   },
 }));
@@ -36,65 +29,62 @@ const CouchersIntroduction = () => {
 
   return (
     <StyledIntroduction>
-      <StyledIntroductionText>
-        <Typography
-          lineHeight={1.1}
-          fontWeight={400}
-          sx={{
-            fontSize: "3.5rem",
+      <Typography
+        lineHeight={1.1}
+        fontWeight={400}
+        sx={{
+          fontSize: "3.5rem",
 
-            [theme.breakpoints.down("md")]: {
-              width: "100%",
-              textAlign: "center",
-              marginTop: theme.spacing(6),
-              fontSize: "2rem",
-            },
+          [theme.breakpoints.down("md")]: {
+            width: "100%",
+            marginBottom: theme.spacing(2),
+            fontSize: "2rem",
+          },
+        }}
+      >
+        {t("landing:introduction_title")}
+      </Typography>
+      <>
+        <Typography
+          sx={{
+            marginTop: theme.spacing(3),
+            marginBottom: theme.spacing(2),
+            position: "relative",
+            fontWeight: 400,
+            fontSize: "1.3rem",
           }}
         >
-          {t("landing:introduction_title")}
+          <Trans
+            i18nKey="landing:introduction_subtitle"
+            components={{
+              bold: <strong style={{ fontWeight: 700 }} />,
+            }}
+          />
         </Typography>
-        <>
-          <Typography
+        <Typography
+          sx={{
+            fontWeight: 500,
+            fontStyle: "italic",
+            fontSize: "1.2rem",
+          }}
+        >
+          {t("landing:introduction_subtitle2")}
+        </Typography>
+        {router.pathname === "/" && (
+          <Button
+            onClick={routeToSignupPage}
+            size="large"
+            color="primary"
             sx={{
-              marginTop: theme.spacing(3),
-              marginBottom: theme.spacing(2),
-              position: "relative",
-              fontWeight: 400,
+              marginTop: 2,
+              width: theme.spacing(20),
               fontSize: "1.3rem",
             }}
           >
-            <Trans
-              i18nKey="landing:introduction_subtitle"
-              components={{
-                bold: <strong style={{ fontWeight: 700 }} />,
-              }}
-            />
-          </Typography>
-          <Typography
-            sx={{
-              fontWeight: 500,
-              fontStyle: "italic",
-              fontSize: "1.2rem",
-            }}
-          >
-            {t("landing:introduction_subtitle2")}
-          </Typography>
-          {router.pathname === "/" && (
-            <Button
-              onClick={routeToSignupPage}
-              size="large"
-              color="primary"
-              sx={{
-                marginTop: 2,
-                width: theme.spacing(20),
-                fontSize: "1.3rem",
-              }}
-            >
-              {t("global:join_us")}
-            </Button>
-          )}
-        </>
-      </StyledIntroductionText>
+            {t("global:join_us")}
+          </Button>
+        )}
+      </>
     </StyledIntroduction>
   );
 };

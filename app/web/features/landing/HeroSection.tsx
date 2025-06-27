@@ -5,6 +5,7 @@ import HtmlMeta from "components/HtmlMeta";
 import CouchersIntroduction from "features/landing/CouchersIntroduction";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
+import Lottie from "lottie-react";
 import { useRouter } from "next/router";
 import { useIsNativeEmbed } from "platform/nativeLink";
 import Sentry from "platform/sentry";
@@ -16,18 +17,19 @@ import stringOrFirstString from "utils/stringOrFirstString";
 
 import { useAuthContext } from "../auth/AuthProvider";
 import SignupFormContent from "../auth/signup/SignupFormContent";
+import mapAnimation from "./map-animation.json";
 
 const StyledContent = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
   width: "100%",
   justifyContent: "space-between",
   alignItems: "center",
   marginBottom: theme.spacing(2),
-  flexDirection: "column",
-  padding: theme.spacing(10, 4),
 
-  [theme.breakpoints.up("md")]: {
-    display: "flex",
-    flexDirection: "row",
+  [theme.breakpoints.down("md")]: {
+    flexDirection: "column",
+    padding: theme.spacing(8, 0, 0, 0),
   },
 }));
 
@@ -37,11 +39,10 @@ const StyledMobileEmbed = styled("div")(({ theme }) => ({
 
 const StyledMapWrapper = styled("div")(({ theme }) => ({
   padding: theme.spacing(2),
-  width: "100%",
-  maxWidth: "400px",
+  width: "55%",
 
-  [theme.breakpoints.up("md")]: {
-    width: "55%",
+  [theme.breakpoints.down("md")]: {
+    width: "100%",
     marginTop: theme.spacing(2),
   },
 }));
@@ -112,7 +113,9 @@ export default function HeroSection() {
       <HtmlMeta title={t("global:join_us")} />
       <StyledContent>
         <CouchersIntroduction />
-        <StyledMapWrapper>Map animation goes here</StyledMapWrapper>
+        <StyledMapWrapper>
+          <Lottie animationData={mapAnimation} loop={true} />
+        </StyledMapWrapper>
       </StyledContent>
     </>
   );
