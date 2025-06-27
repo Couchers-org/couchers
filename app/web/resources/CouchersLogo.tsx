@@ -22,9 +22,13 @@ const TextLogo = styled(SvgIcon)(({ theme }) => ({
 
 export interface CouchersLogoProps {
   className?: string;
+  showIcon?: boolean;
 }
 
-export default function CouchersLogo({ className }: CouchersLogoProps) {
+export default function CouchersLogo({
+  className,
+  showIcon,
+}: CouchersLogoProps) {
   const { authState } = useAuthContext();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -34,7 +38,7 @@ export default function CouchersLogo({ className }: CouchersLogoProps) {
       legacyBehavior
     >
       <Root>
-        {isMobile ? (
+        {isMobile || showIcon ? (
           <IconLogo
             className={className}
             xmlns="http://www.w3.org/2000/svg"

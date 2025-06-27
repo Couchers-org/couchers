@@ -130,7 +130,7 @@ export default function Donations() {
       <HtmlMeta title={t("donations:donate")} />
       <div className={classes.donationsWrapper}>
         <div className={classes.donationsLogoHeader}>
-          <CouchersLogo className={classes.donationsLogo} />
+          <CouchersLogo className={classes.donationsLogo} showIcon />
           <div className={classes.donationsLogoText}>
             <Typography variant="h2">
               {t("donations:donations_banner.title")}
