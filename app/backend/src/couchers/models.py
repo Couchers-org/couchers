@@ -4,6 +4,7 @@ from geoalchemy2.types import Geometry
 from google.protobuf import empty_pb2
 from sqlalchemy import (
     ARRAY,
+    JSON,
     BigInteger,
     Boolean,
     CheckConstraint,
@@ -2769,3 +2770,20 @@ class AccountDeletionReason(Base):
     reason = Column(String, nullable=True)
 
     user = relationship("User")
+
+
+class AntiBotLog(Base):
+    __tablename__ = "antibot_logs"
+
+    id = Column(BigInteger, primary_key=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    user_id = Column(ForeignKey("users.id"), nullable=True)
+
+    ip_address = Column(String, nullable=True)
+    user_agent = Column(String, nullable=True)
+
+    action = Column(String, nullable=False)
+    token = Column(String, nullable=False)
+
+    score = Column(Float, nullable=False)
+    provider_data = Column(JSON, nullable=False)

@@ -93,6 +93,10 @@ service Auth {
   rpc Unsubscribe(UnsubscribeReq) returns (UnsubscribeRes) {
     // Handle an unsubscribe action from an email
   }
+
+  rpc AntiBot(AntiBotReq) returns (AntiBotRes) {
+    // Send google recaptcha info asynchronously
+  }
 }
 
 message SignupFlowReq {
@@ -238,3 +242,10 @@ message UnsubscribeRes {
   // returned only on success, otherwise errors out the RPC
   string response = 1;
 }
+
+message AntiBotReq {
+  string token = 1;
+  string action = 2;
+}
+
+message AntiBotRes {}
