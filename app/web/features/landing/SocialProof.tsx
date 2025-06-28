@@ -14,6 +14,11 @@ const SocialProof = () => {
 
   const { data: signupInfo, isLoading } = useSignupInfo();
 
+  console.log("SIGNUP INFO SocialProof.tsx:", {
+    signupInfo,
+    isLoading,
+  });
+
   return (
     <Box
       sx={{
