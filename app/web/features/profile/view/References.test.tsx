@@ -58,10 +58,12 @@ describe("References", () => {
     getLiteUsersMock.mockImplementation(getLiteUsers);
     getReferencesReceivedMock.mockResolvedValue({
       nextPageToken: "",
+      hasPendingReferences: false,
       referencesList: [friendReference, guestReference1, guestReference2],
     });
     getReferencesGivenMock.mockResolvedValue({
       nextPageToken: "",
+      hasPendingReferences: false,
       referencesList: [givenReference],
     });
     getAvailableReferencesMock.mockResolvedValue({
@@ -108,6 +110,7 @@ describe("References", () => {
   it("shows the no references message by default if the user doesn't have any", async () => {
     getReferencesReceivedMock.mockResolvedValue({
       nextPageToken: "",
+      hasPendingReferences: false,
       referencesList: [],
     });
 
@@ -138,6 +141,7 @@ describe("References", () => {
     it("only shows references from friends", async () => {
       getReferencesReceivedMock.mockResolvedValue({
         nextPageToken: "",
+        hasPendingReferences: false,
         referencesList: [friendReference],
       });
 
@@ -172,6 +176,7 @@ describe("References", () => {
       const referencesList = [guestReference1, guestReference2];
       getReferencesReceivedMock.mockResolvedValue({
         nextPageToken: "",
+        hasPendingReferences: false,
         referencesList,
       });
 
@@ -209,6 +214,7 @@ describe("References", () => {
     it("only shows references from hosts", async () => {
       getReferencesReceivedMock.mockResolvedValue({
         nextPageToken: "",
+        hasPendingReferences: false,
         referencesList: [hostReference],
       });
 
@@ -242,6 +248,7 @@ describe("References", () => {
     it("shows references given to others", async () => {
       getReferencesGivenMock.mockResolvedValue({
         nextPageToken: "",
+        hasPendingReferences: false,
         referencesList: [givenReference],
       });
 
@@ -271,10 +278,12 @@ describe("References", () => {
       getReferencesReceivedMock
         .mockResolvedValueOnce({
           nextPageToken: "2",
+          hasPendingReferences: false,
           referencesList: [friendReference],
         })
         .mockResolvedValueOnce({
           nextPageToken: "",
+          hasPendingReferences: false,
           referencesList: [guestReference1],
         });
       renderReferences();
@@ -309,14 +318,17 @@ describe("References", () => {
         getReferencesReceivedMock
           .mockResolvedValueOnce({
             nextPageToken: "2",
+            hasPendingReferences: false,
             referencesList: [friendReference],
           })
           .mockResolvedValueOnce({
             nextPageToken: "2",
+            hasPendingReferences: false,
             referencesList: [friendReference],
           })
           .mockResolvedValueOnce({
             nextPageToken: "",
+            hasPendingReferences: false,
             referencesList: [
               { ...friendReference, referenceId: 2, text: "Cat is great!" },
             ],
@@ -396,6 +408,7 @@ describe("References", () => {
         .mockRejectedValue(new Error("Connection error"))
         .mockResolvedValueOnce({
           nextPageToken: "2",
+          hasPendingReferences: false,
           referencesList: [friendReference],
         });
       renderReferences();

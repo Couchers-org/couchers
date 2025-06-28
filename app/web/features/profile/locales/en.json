@@ -246,6 +246,8 @@
   "references_filter_a11y_label": "Show references: ",
   "see_more_references": "See more references",
   "write_reference": "Write Reference",
+  "write_friend_reference": "Write Friend Reference",
+  "some_refs_hidden": "Some references are hidden and not public yet.",
   "last_active_false": "Unknown",
   "languages_fluent_false": "Not given",
   "regions_empty_state": "None",

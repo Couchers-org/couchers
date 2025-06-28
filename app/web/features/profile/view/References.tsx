@@ -96,7 +96,7 @@ export default function References() {
                 startIcon={<AddIcon />}
                 href={`${leaveReferenceBaseRoute}/${referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]}/${userId}`}
               >
-                {t("profile:write_reference")}
+                {t("profile:write_friend_reference")}
               </Button>
             </StyledButtonContainer>
           )}

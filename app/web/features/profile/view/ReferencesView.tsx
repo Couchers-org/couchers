@@ -50,6 +50,8 @@ export default function ReferencesView({
 }: ReferencesViewProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
 
+  const showPendingRefsNote = !!referencesRes?.pages?.[0]?.hasPendingReferences;
+
   return (
     <>
       {referencesError && (
@@ -59,6 +61,9 @@ export default function ReferencesView({
         <CenteredSpinner />
       ) : hasAtLeastOnePage(referencesRes, "referencesList") ? (
         <>
+          {showPendingRefsNote && (
+            <Alert severity="info">{t("profile:some_refs_hidden")}</Alert>
+          )}
           <ReferenceList
             isReceived={isReceived}
             referencePages={referencesRes.pages}
