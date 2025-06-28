@@ -93,7 +93,7 @@ export default function BasicForm({
           })}
           fullWidth
           name="name"
-          placeholder="Name"
+          placeholder={t("auth:basic_form.name.field_label")}
           variant="outlined"
           inputRef={(el: HTMLInputElement | null) => {
             if (!nameInputRef.current) el?.focus();
@@ -117,7 +117,7 @@ export default function BasicForm({
           })}
           fullWidth
           name="email"
-          placeholder="jane@couchers.org"
+          placeholder="you@couchers.org"
           variant="outlined"
           helperText={errors?.email?.message ?? " "}
           error={!!errors?.email?.message}

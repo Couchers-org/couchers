@@ -10,6 +10,7 @@ import { useRouter } from "next/router";
 import { useIsNativeEmbed } from "platform/nativeLink";
 import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
+import CouchersTextLogo from "resources/CouchersTextLogo";
 import { dashboardRoute, loginRoute, signupRoute } from "routes";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
@@ -30,6 +31,7 @@ const StyledFormWrapper = styled("div")(({ theme }) => ({
   width: "100%",
   maxWidth: "600px",
   border: `1px solid ${theme.palette.divider}`,
+  marginTop: theme.spacing(2),
 }));
 
 export default function Signup() {
@@ -107,24 +109,10 @@ export default function Signup() {
           alignItems: "center",
           justifyContent: "center",
           padding: theme.spacing(2),
+          height: "100%",
         }}
       >
-        <Typography
-          lineHeight={1.1}
-          fontWeight={400}
-          sx={{
-            fontSize: "3.5rem",
-            marginBottom: theme.spacing(4),
-
-            [theme.breakpoints.down("md")]: {
-              width: "100%",
-              fontSize: "2rem",
-              textAlign: "center",
-            },
-          }}
-        >
-          {t("landing:introduction_title")}
-        </Typography>
+        <CouchersTextLogo />
         <StyledFormWrapper>
           {error && (
             <Alert severity="error" sx={{ width: "100%" }}>

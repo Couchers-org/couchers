@@ -2,11 +2,11 @@ import { alpha, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
-import CouchersIntroduction from "features/landing/CouchersIntroduction";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL, LANDING } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import CouchersTextLogo from "resources/CouchersTextLogo";
 import { dashboardRoute, signupRoute } from "routes";
 import stringOrFirstString from "utils/stringOrFirstString";
 
@@ -18,29 +18,19 @@ const StyledContent = styled("div")(({ theme }) => ({
   height: "100%",
   padding: theme.spacing(0, 2),
   display: "flex",
-  flexDirection: "row",
-  justifyContent: "space-evenly",
+  flexDirection: "column",
+  justifyContent: "center",
   alignItems: "center",
-
-  [theme.breakpoints.down("md")]: {
-    justifyContent: "center",
-    flexDirection: "column",
-  },
 }));
 
 const StyledFormWrapper = styled("div")(({ theme }) => ({
   backgroundColor: alpha(theme.palette.primary.light, 0.1),
   borderRadius: theme.shape.borderRadius,
   padding: theme.spacing(2),
-  maxWidth: "400px",
+  width: "100%",
+  maxWidth: "600px",
   border: `1px solid ${theme.palette.divider}`,
-  width: "45%",
   marginTop: theme.spacing(2),
-
-  [theme.breakpoints.down("md")]: {
-    width: "100%",
-    maxWidth: "100%",
-  },
 }));
 
 export default function Login() {
@@ -63,7 +53,7 @@ export default function Login() {
     <>
       <HtmlMeta title={t("auth:login_page.title")} />
       <StyledContent>
-        <CouchersIntroduction />
+        <CouchersTextLogo />
         <StyledFormWrapper>
           <Typography
             gutterBottom

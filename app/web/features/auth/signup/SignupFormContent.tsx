@@ -1,8 +1,8 @@
-import { Typography } from "@mui/material";
+import { Link, Typography } from "@mui/material";
 import StyledLink from "components/StyledLink";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
-import { tosRoute } from "routes";
+import { baseRoute, tosRoute } from "routes";
 
 import { useAuthContext } from "../AuthProvider";
 import useSignupInfo from "../useSignupInfo";
@@ -28,9 +28,19 @@ export default function SignupFormContent() {
           {t("landing:signup_header")}
         </Typography>
         <Typography gutterBottom sx={{ marginBottom: 2 }}>
-          {t("landing:signup_description", {
-            user_count: signupInfo?.userCount || "56k",
-          })}
+          <Trans
+            i18nKey="landing:signup_description"
+            values={{ user_count: signupInfo?.userCount || "56k" }}
+            components={{
+              2: <Link href={baseRoute} underline="hover" />,
+            }}
+          >
+            Travel, host, and connect with{" "}
+            {{ user_count: signupInfo?.userCount || "56k" }} members.{" "}
+            <StyledLink href={baseRoute}>
+              Learn more about Couchers.org
+            </StyledLink>
+          </Trans>
         </Typography>
         <BasicForm submitText={t("global:create_account")} />
         <Typography variant="caption">

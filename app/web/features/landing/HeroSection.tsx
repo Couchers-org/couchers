@@ -2,10 +2,10 @@ import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
+import MapAnimation from "components/MapAnimation";
 import CouchersIntroduction from "features/landing/CouchersIntroduction";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
-import Lottie from "lottie-react";
 import { useRouter } from "next/router";
 import { useIsNativeEmbed } from "platform/nativeLink";
 import Sentry from "platform/sentry";
@@ -17,7 +17,6 @@ import stringOrFirstString from "utils/stringOrFirstString";
 
 import { useAuthContext } from "../auth/AuthProvider";
 import SignupFormContent from "../auth/signup/SignupFormContent";
-import mapAnimation from "./map-animation.json";
 
 const StyledContent = styled("div")(({ theme }) => ({
   display: "flex",
@@ -38,7 +37,7 @@ const StyledMobileEmbed = styled("div")(({ theme }) => ({
 }));
 
 const StyledMapWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(2),
+  padding: theme.spacing(0, 2),
   width: "55%",
 
   [theme.breakpoints.down("md")]: {
@@ -50,15 +49,12 @@ const StyledMapWrapper = styled("div")(({ theme }) => ({
 export default function HeroSection() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const router = useRouter();
-
   const { authState, authActions } = useAuthContext();
   const error = authState.error;
+  const urlToken = stringOrFirstString(router.query.token);
+  const isNativeEmbed = useIsNativeEmbed();
 
   const [loading, setLoading] = useState(false);
-
-  const urlToken = stringOrFirstString(router.query.token);
-
-  const isNativeEmbed = useIsNativeEmbed();
 
   useEffect(() => {
     authActions.clearError();
@@ -114,7 +110,7 @@ export default function HeroSection() {
       <StyledContent>
         <CouchersIntroduction />
         <StyledMapWrapper>
-          <Lottie animationData={mapAnimation} loop={true} />
+          <MapAnimation />
         </StyledMapWrapper>
       </StyledContent>
     </>
