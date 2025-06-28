@@ -81,7 +81,7 @@ const opts = {
 };
 
 const publicOpts = {
-  unaryInterceptors: [authInterceptor, timeoutInterceptor],
+  unaryInterceptors: [timeoutInterceptor], //<-- No auth for public API
   withCredentials: false, // <-- No cookies for public API
 };
 
