@@ -11,7 +11,7 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Select from "components/Select";
 import {
   parkingDetailsLabels,
-  sleepingArrangementLabels,
+  sleepingArrangementLabelsShort,
   smokingLocationLabels,
 } from "features/profile/constants";
 import useUpdateHostingPreferences from "features/profile/hooks/useUpdateHostingPreferences";
@@ -236,7 +236,7 @@ export default function HostingPreferenceForm() {
             control={control}
             defaultValue={
               user.sleepingArrangement ||
-              SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN
+              SleepingArrangement.SLEEPING_ARRANGEMENT_UNSPECIFIED
             }
             name="sleepingArrangement"
             render={({ field }) => (
@@ -248,21 +248,18 @@ export default function HostingPreferenceForm() {
                   className={classes.field}
                   value={field.value}
                   options={[
-                    SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN,
                     SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE,
                     SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON,
                     SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM,
                   ]}
-                  optionLabelMap={sleepingArrangementLabels(t)}
+                  optionLabelMap={sleepingArrangementLabelsShort(t)}
                 />
                 <Typography
                   variant="caption"
                   component="div"
                   style={{ whiteSpace: "pre-line", marginTop: 8 }}
                 >
-                  {`${t("profile:sleeping_arrangement.private_description")}
-${t("profile:sleeping_arrangement.common_description")}
-${t("profile:sleeping_arrangement.shared_room_description")}`}
+                  {`${t("profile:sleeping_arrangement.private")}\n${t("profile:sleeping_arrangement.common")}\n${t("profile:sleeping_arrangement.shared_room")}`}
                 </Typography>
               </>
             )}
