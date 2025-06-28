@@ -93,7 +93,7 @@ export default function BasicForm({
           })}
           fullWidth
           name="name"
-          placeholder="Jane Doe"
+          placeholder="Name"
           variant="outlined"
           inputRef={(el: HTMLInputElement | null) => {
             if (!nameInputRef.current) el?.focus();

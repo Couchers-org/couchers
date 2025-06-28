@@ -1,4 +1,4 @@
-import { styled, Typography } from "@mui/material";
+import { alpha, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
@@ -29,7 +29,7 @@ const StyledContent = styled("div")(({ theme }) => ({
 }));
 
 const StyledFormWrapper = styled("div")(({ theme }) => ({
-  backgroundColor: theme.palette.grey[50],
+  backgroundColor: alpha(theme.palette.primary.light, 0.1),
   borderRadius: theme.shape.borderRadius,
   padding: theme.spacing(2),
   maxWidth: "400px",
