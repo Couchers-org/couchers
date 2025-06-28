@@ -12,9 +12,7 @@ const SocialProof = () => {
   const { t } = useTranslation([GLOBAL, LANDING]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const { data: signupInfo, error, isLoading } = useSignupInfo();
-
-  console.log("**useSignupInfo**", { signupInfo, error, isLoading });
+  const { data: signupInfo, isLoading } = useSignupInfo();
 
   return (
     <Box
@@ -83,9 +81,22 @@ const SocialProof = () => {
               color: theme.palette.primary.main,
             }}
           />
-          <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
-            {t("landing:num_countries", { numCountries: 180 })}
-          </Typography>
+          {isLoading ? (
+            <Box sx={{ width: 120 }}>
+              <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
+                <Box
+                  component="span"
+                  sx={{ display: "inline-block", width: "100%" }}
+                >
+                  <Skeleton variant="text" width="100%" height={36} />
+                </Box>
+              </Typography>
+            </Box>
+          ) : (
+            <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
+              {t("landing:num_countries", { numCountries: 180 })}
+            </Typography>
+          )}
         </Box>
         <Box
           display="flex"
