@@ -6,6 +6,7 @@ import { useQueryClient } from "react-query";
 import { theme } from "theme";
 
 import CouchersMission from "./CouchersMission";
+import HeroSection from "./HeroSection";
 import MapSection from "./MapSection";
 import SocialProof from "./SocialProof";
 import WhyCouchersSection from "./WhyCouchersSection";
@@ -29,7 +30,9 @@ export default function LandingPage() {
   return (
     <>
       <HtmlMeta />
-      Signup section here
+      <Container component="section" maxWidth="lg">
+        <HeroSection />
+      </Container>
       <StyledSpacer />
       <Container
         component="section"
@@ -46,10 +49,6 @@ export default function LandingPage() {
       <StyledSpacer />
       <Container component="section" maxWidth="lg">
         <WhyCouchersSection />
-      </Container>
-      <StyledSpacer />
-      <Container component="section" maxWidth="lg">
-        Third section here
       </Container>
       <StyledSpacer />
       <Container component="section" maxWidth="lg">

@@ -1,11 +1,13 @@
 {
   "close": "Close",
+  "create_account": "Create Account",
   "expand": "Expand",
   "retract": "Retract",
   "couchers": "Couchers.org",
   "legal_name": "Couchers, Inc.",
   "login": "Log in",
   "sign_up": "Sign up",
+  "join_us": "Join us",
   "title": "title",
   "update": "update",
   "create": "Create",

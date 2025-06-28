@@ -1,112 +1,40 @@
-import { Divider, styled, Typography, TypographyProps } from "@mui/material";
+import { alpha, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
-import mobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import { Trans, useTranslation } from "i18n";
-import { AUTH, GLOBAL } from "i18n/namespaces";
+import { AUTH, GLOBAL, LANDING } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import CouchersTextLogo from "resources/CouchersTextLogo";
 import { dashboardRoute, signupRoute } from "routes";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 import { useAuthContext } from "../AuthProvider";
 import LoginForm from "./LoginForm";
 
-const StyledIntroduction = styled("div")(({ theme }) => ({
-  flexShrink: 0,
-  color: theme.palette.common.white,
-  flexDirection: "column",
-  display: "flex",
-  textAlign: "left",
-  width: "45%",
-  maxWidth: theme.breakpoints.values.lg / 2,
-  marginInlineEnd: "10%",
-  [theme.breakpoints.down("md")]: {
-    display: "none",
-  },
-}));
-
-const StyledBackground = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  padding: theme.spacing(1, 4),
-  paddingBottom: 0,
-  background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("${mobileAuthBg.src}")`,
-  backgroundPosition: "top center",
-  backgroundRepeat: "no-repeat",
-  backgroundSize: "cover",
-  width: "100%",
-  height: `calc(100vh - ${theme.shape.navPaddingXs})`,
-
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(1, 2),
-  },
-
-  [theme.breakpoints.up("sm")]: {
-    height: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
-  },
-}));
-
 const StyledContent = styled("div")(({ theme }) => ({
   width: "100%",
-  marginBottom: theme.spacing(2),
-  [theme.breakpoints.up("md")]: {
-    display: "flex",
-    flexDirection: "row",
-    height: "100%",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    width: "100%",
-  },
-}));
-
-const StyledTitle = styled(Typography)<TypographyProps>(({ theme }) => ({
-  [theme.breakpoints.up("md")]: {
-    fontSize: "2rem",
-    lineHeight: "1.15",
-    textAlign: "left",
-  },
-}));
-
-const StyledSubtitle = styled(Typography)<TypographyProps>(({ theme }) => ({
-  [theme.breakpoints.up("md")]: {
-    display: "inline-block",
-    marginTop: theme.spacing(4),
-    position: "relative",
-  },
+  height: "100%",
+  padding: theme.spacing(0, 2),
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "center",
 }));
 
 const StyledFormWrapper = styled("div")(({ theme }) => ({
-  flexShrink: 0,
-  backgroundColor: "#fff",
+  backgroundColor: alpha(theme.palette.primary.light, 0.1),
   borderRadius: theme.shape.borderRadius,
-  [theme.breakpoints.up("md")]: {
-    width: "45%",
-    padding: theme.spacing(5, 8),
-  },
-  [theme.breakpoints.down("md")]: {
-    width: "80%",
-    padding: theme.spacing(5, 8),
-    margin: theme.spacing(2, "auto"),
-  },
-  [theme.breakpoints.down("sm")]: {
-    width: "100%",
-    padding: theme.spacing(3, 4),
-    margin: theme.spacing(0),
-  },
-}));
-
-const StyledDivider = styled(Divider)(({ theme }) => ({
-  borderTop: `5px solid ${theme.palette.primary.main}`,
-  boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
-  left: theme.spacing(1),
-  position: "absolute",
+  padding: theme.spacing(2),
   width: "100%",
+  maxWidth: "600px",
+  border: `1px solid ${theme.palette.divider}`,
+  marginTop: theme.spacing(2),
 }));
 
 export default function Login() {
-  const { t } = useTranslation([AUTH, GLOBAL]);
+  const { t } = useTranslation([AUTH, GLOBAL, LANDING]);
   const { authState } = useAuthContext();
   const authenticated = authState.authenticated;
   const error = authState.error;
@@ -124,36 +52,29 @@ export default function Login() {
   return (
     <>
       <HtmlMeta title={t("auth:login_page.title")} />
-      <StyledBackground>
-        <StyledContent>
-          <StyledIntroduction>
-            <StyledTitle variant="h1" component="span">
-              {t("auth:introduction_title")}
-            </StyledTitle>
-            <StyledSubtitle variant="h2" component="span">
-              {t("auth:introduction_subtitle")}
-              <StyledDivider />
-            </StyledSubtitle>
-          </StyledIntroduction>
-          <StyledFormWrapper>
-            <Typography variant="h1" gutterBottom>
-              {t("auth:login_page.header")}
-            </Typography>
-            {error && (
-              <Alert severity="error" sx={{ width: "100%" }}>
-                {error}
-              </Alert>
-            )}
-            <LoginForm />
-            <Typography variant="body1">
-              <Trans t={t} i18nKey="auth:login_page.no_account_prompt">
-                No account yet?{" "}
-                <StyledLink href={signupRoute}>Sign up</StyledLink>
-              </Trans>
-            </Typography>
-          </StyledFormWrapper>
-        </StyledContent>
-      </StyledBackground>
+      <StyledContent>
+        <CouchersTextLogo />
+        <StyledFormWrapper>
+          <Typography
+            gutterBottom
+            sx={{ fontSize: "1.4rem", fontWeight: "bold" }}
+          >
+            {t("auth:login_page.header")}
+          </Typography>
+          {error && (
+            <Alert severity="error" sx={{ width: "100%" }}>
+              {error}
+            </Alert>
+          )}
+          <LoginForm />
+          <Typography sx={{ marginTop: 2 }}>
+            <Trans t={t} i18nKey="auth:login_page.no_account_prompt">
+              No account yet?{" "}
+              <StyledLink href={signupRoute}>Sign up</StyledLink>
+            </Trans>
+          </Typography>
+        </StyledFormWrapper>
+      </StyledContent>
     </>
   );
 }
