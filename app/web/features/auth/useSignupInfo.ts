@@ -5,10 +5,19 @@ import { useQuery } from "react-query";
 import { service } from "service";
 
 export default function useSignupInfo() {
-  const signupInfoQuery = useQuery<GetSignupPageInfoRes.AsObject, RpcError>(
-    signupInfoQueryKey,
-    service.publicApi.getSignupPageInfo,
+  const { data, error, isLoading } = useQuery<
+    GetSignupPageInfoRes.AsObject,
+    RpcError
+  >(signupInfoQueryKey, service.publicApi.getSignupPageInfo);
+
+  console.log(
+    "USE SIGNUP INFO DATA:",
+    data,
+    "ERROR:",
+    error,
+    "LOADING:",
+    isLoading,
   );
 
-  return signupInfoQuery;
+  return data;
 }

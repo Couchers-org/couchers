@@ -4,5 +4,6 @@ import client from "./client";
 
 export async function getSignupPageInfo() {
   const res = await client.public.getSignupPageInfo(new Empty());
+  console.log("GET SIGNUPPAGEINFO RESPONSE public.ts:", res);
   return res.toObject();
 }
