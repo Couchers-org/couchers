@@ -19,7 +19,7 @@
   "block_user": "Blockieren",
   "block_user_confirmation_dialog": {
     "title": "Willst du {{name}} wirklich blockieren?",
-    "message": "Nachrichten und Anfragen von dieser Person werden blockiert, und dein Profil, deine Veranstaltungen und Kommentare sind für diese Person nicht sichtbar. Die Person wird nicht darüber informiert, dass du sie blockiert hast.",
+    "message": "Nachrichten und Anfragen von dieser Person werden blockiert, und dein Profil, deine Events und Kommentare sind für diese Person nicht sichtbar. Die Person wird nicht darüber informiert, dass du sie blockiert hast.",
     "confirm": "Blockieren"
   },
   "no_blocked_users": "Keine blockierten Personen",
