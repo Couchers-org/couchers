@@ -2,6 +2,7 @@ import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
+import { doAntibot } from "features/antibot/antibot";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAccountInfo from "features/auth/useAccountInfo";
 import FriendActions from "features/profile/actions/FriendActions";
@@ -89,6 +90,7 @@ function DefaultActions({
     useAccountInfo();
 
   const requestButton = () => {
+    doAntibot("host_request");
     if (!accountInfo?.profileComplete) {
       setShowCantRequestDialog(true);
     } else {
