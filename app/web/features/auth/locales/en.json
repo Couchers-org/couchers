@@ -101,7 +101,7 @@
   },
   "basic_form": {
     "name": {
-      "field_label": "Your name",
+      "field_label": "Name",
       "empty_error": "Please enter your name",
       "required_error": "This field can't be empty."
     },

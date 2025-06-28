@@ -1,8 +1,9 @@
 {
-  "introduction_title": "The new alternative to Couchsurfing™",
-  "introduction_subtitle": "Free forever. Community‑led. Non‑profit. Modern.",
+  "introduction_title": "Meet as strangers, leave as friends.",
+  "introduction_subtitle": "Share your world, discover theirs. Authentic local experiences, built on trust and genuine connection—not transactions.",
+  "introduction_subtitle2": "Free forever. Community-led. Non-profit.",
   "signup_header": "Sign up for Couchers.org today",
-  "signup_description": "Travel, host, and connect with {{ user_count }} members",
+  "signup_description": "Travel, host, and connect with {{ user_count }} members. <2>Learn more about Couchers.org</2>.",
   "create_an_account": "Create an account",
   "signup_continue": "Finish signing up",
   "what_couchsurfing_title": "Couchers.org - a different way to travel",
@@ -39,5 +40,6 @@
   "map_section_title": "Explore our community around the world",
   "num_users": "{{numUsers}}+ users",
   "num_countries": "{{numCountries}}+ countries",
-  "last_signup": "Last signup {{timeAgo}} from {{location}}"
+  "last_signup": "Last signup {{timeAgo}} from {{location}}",
+  "animation_error": "Error loading animation"
 }

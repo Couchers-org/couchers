@@ -165,7 +165,7 @@ export default function Footer() {
       <StyledUpperOuterContainer>
         <StyledUpperContainer>
           <div>
-            <Typography variant="h3" component="h2">
+            <Typography variant="h4" component="h4">
               {t("nav.about")}
             </Typography>
             <FooterLink href={planRoute}>{t("nav.our_plan")}</FooterLink>
@@ -177,7 +177,7 @@ export default function Footer() {
             </FooterLink>
           </div>
           <div>
-            <Typography variant="h3" component="h2">
+            <Typography variant="h4" component="h4">
               {t("nav.community")}
             </Typography>
             <FooterLink href={blogRoute}>{t("nav.blog")}</FooterLink>
@@ -187,7 +187,7 @@ export default function Footer() {
             </FooterLink>
           </div>
           <div>
-            <Typography variant="h3" component="h2">
+            <Typography variant="h4" component="h4">
               {t("nav.legal_more")}
             </Typography>
             <FooterLink href={tosRoute}>{t("terms_of_service")}</FooterLink>

@@ -18,10 +18,9 @@ const StyledNextLink = styled(Link, {
   isNotification: boolean;
   isSelected: boolean;
 }>(({ theme, isNotification, isSelected }) => ({
-  color: theme.palette.text.secondary,
+  color: theme.palette.text.primary,
   display: "flex",
   flex: "1",
-  fontSize: "2rem",
   maxWidth: "10.5rem",
   padding: theme.spacing(1, 1.5),
   ...(isNotification && { marginRight: "0.8rem" }),
@@ -31,12 +30,17 @@ const StyledNextLink = styled(Link, {
 const StyledTypography = styled(Typography)(({ theme }) => ({
   alignSelf: "center",
   marginTop: 0,
+  fontWeight: 400,
+
+  [theme.breakpoints.up("md")]: {
+    fontSize: "1.2rem",
+  },
 }));
 
 export default function NavButton({
   route,
   label,
-  labelVariant = "h3",
+  labelVariant = "h4",
   notificationCount,
 }: NavButtonProps) {
   const router = useRouter();

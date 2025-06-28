@@ -1,5 +1,5 @@
 import { Diversity3, Loyalty } from "@mui/icons-material";
-import { Box, Fade, Grid, Typography, useMediaQuery } from "@mui/material";
+import { Box, Fade, Grid, Typography } from "@mui/material";
 import { VerifiedUser } from "components/Icons";
 import { useTranslation } from "i18n";
 import { LANDING } from "i18n/namespaces";
@@ -8,14 +8,18 @@ import { theme } from "theme";
 
 const WhyCouchersSection = () => {
   const { t } = useTranslation([LANDING]);
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { ref, inView } = useInView({ triggerOnce: true });
 
   return (
     <>
       <Typography
-        variant="h2"
-        sx={{ fontSize: isMobile ? "2rem !important" : "2.5rem !important" }}
+        sx={{
+          fontSize: "3rem",
+          textAlign: "center",
+          fontWeight: "bold",
+
+          [theme.breakpoints.down("md")]: { fontSize: "1.8rem" },
+        }}
       >
         {t("why_couchers_title")}
       </Typography>
@@ -48,23 +52,20 @@ const WhyCouchersSection = () => {
               display="flex"
               flexDirection="column"
               width="100%"
-              alignItems={"center"}
+              alignItems="center"
+              sx={{ textAlign: "center" }}
             >
               <Diversity3
                 color="primary"
                 sx={{ fontSize: "40px", marginBottom: 2 }}
               />
               <Typography
-                variant="h3"
                 gutterBottom
-                sx={{ fontSize: "1.2rem !important" }}
+                sx={{ fontSize: "1.4rem", fontWeight: "bold" }}
               >
                 {t("community_first")}
               </Typography>
-              <Typography
-                fontWeight={200}
-                sx={{ marginTop: 1, textAlign: "center" }}
-              >
+              <Typography sx={{ marginTop: 1 }}>
                 {t("community_first_description")}
               </Typography>
             </Box>
@@ -87,22 +88,19 @@ const WhyCouchersSection = () => {
               flexDirection="column"
               width="100%"
               alignItems="center"
+              sx={{ textAlign: "center" }}
             >
               <VerifiedUser
                 color="primary"
                 sx={{ fontSize: "40px", marginBottom: 2 }}
               />
               <Typography
-                variant="h3"
                 gutterBottom
-                sx={{ fontSize: "1.2rem !important", textAlign: "center" }}
+                sx={{ fontSize: "1.4rem", fontWeight: "bold" }}
               >
                 {t("safer_stronger")}
               </Typography>
-              <Typography
-                fontWeight={200}
-                sx={{ marginTop: 1, textAlign: "center" }}
-              >
+              <Typography sx={{ marginTop: 1 }}>
                 {t("safer_stronger_description")}
               </Typography>
             </Box>
@@ -126,22 +124,19 @@ const WhyCouchersSection = () => {
               flexDirection="column"
               width="100%"
               alignItems="center"
+              sx={{ textAlign: "center" }}
             >
               <Loyalty
                 color="primary"
                 sx={{ fontSize: "40px", marginBottom: 2 }}
               />
               <Typography
-                variant="h3"
                 gutterBottom
-                sx={{ fontSize: "1.2rem !important", textAlign: "center" }}
+                sx={{ fontSize: "1.4rem", fontWeight: "bold" }}
               >
                 {t("built_by_travelers")}
               </Typography>
-              <Typography
-                fontWeight={200}
-                sx={{ marginTop: 1, textAlign: "center" }}
-              >
+              <Typography sx={{ marginTop: 1 }}>
                 {t("built_by_travelers_description")}
               </Typography>
             </Box>

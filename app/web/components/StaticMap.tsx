@@ -23,7 +23,7 @@ const MapWrapper = styled("div")(({ theme }) => ({
   height: 600,
   width: "100%",
   position: "relative",
-  borderRadius: theme.shape.borderRadius,
+  borderRadius: "10px",
   overflow: "hidden",
 }));
 
