@@ -12,9 +12,16 @@ const SocialProof = () => {
   const { t } = useTranslation([GLOBAL, LANDING]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const { data: signupInfo, isLoading } = useSignupInfo();
+  const { data: signupInfo, error, isLoading } = useSignupInfo();
 
-  console.log("GET SIGNUPPAGEINFO RESPONSE SocialProof.tsx:", signupInfo);
+  console.log(
+    "GET SIGNUPPAGEINFO RESPONSE SocialProof.tsx:",
+    signupInfo,
+    "isLoading:",
+    isLoading,
+    "error:",
+    error,
+  );
 
   return (
     <Box
@@ -65,24 +72,24 @@ const SocialProof = () => {
               color: theme.palette.primary.main,
             }}
           />
-            {isLoading ? (
+          {isLoading ? (
             <Box sx={{ width: 120 }}>
               <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
-              <Box
-                component="span"
-                sx={{ display: "inline-block", width: "100%" }}
-              >
-                <Skeleton variant="text" width="100%" height={36} />
-              </Box>
+                <Box
+                  component="span"
+                  sx={{ display: "inline-block", width: "100%" }}
+                >
+                  <Skeleton variant="text" width="100%" height={36} />
+                </Box>
               </Typography>
             </Box>
-            ) : (
+          ) : (
             <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
               {t("landing:num_users", {
-              numUsers: signupInfo?.userCount || "56k",
+                numUsers: signupInfo?.userCount || "56k",
               })}
             </Typography>
-            )}
+          )}
         </Box>
         <Box
           display="flex"
