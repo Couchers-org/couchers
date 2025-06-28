@@ -12,7 +12,9 @@ const SocialProof = () => {
   const { t } = useTranslation([GLOBAL, LANDING]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const { data: signupInfo, isLoading } = useSignupInfo();
+  const { data: signupInfo, error, isLoading } = useSignupInfo();
+
+  console.log("**useSignupInfo**", { signupInfo, error, isLoading });
 
   return (
     <Box
