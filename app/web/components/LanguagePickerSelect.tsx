@@ -76,7 +76,7 @@ export default function LanguagePickerSelect({
   const renderFlag = (flagCode: string) => (
     <img
       alt={`${flagCode} flag`}
-      src={`http://purecatamphetamine.github.io/country-flag-icons/3x2/${flagCode}.svg`}
+      src={`https://cdn.couchers.org/img/language-icons/${flagCode}.svg`}
       style={{ width: 25 }}
     />
   );
