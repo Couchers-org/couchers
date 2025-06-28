@@ -14,6 +14,8 @@ const SocialProof = () => {
 
   const { data: signupInfo, isLoading } = useSignupInfo();
 
+  console.log("GET SIGNUPPAGEINFO RESPONSE SocialProof.tsx:", signupInfo);
+
   return (
     <Box
       sx={{
@@ -63,11 +65,24 @@ const SocialProof = () => {
               color: theme.palette.primary.main,
             }}
           />
-          <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
-            {t("landing:num_users", {
+            {isLoading ? (
+            <Box sx={{ width: 120 }}>
+              <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
+              <Box
+                component="span"
+                sx={{ display: "inline-block", width: "100%" }}
+              >
+                <Skeleton variant="text" width="100%" height={36} />
+              </Box>
+              </Typography>
+            </Box>
+            ) : (
+            <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
+              {t("landing:num_users", {
               numUsers: signupInfo?.userCount || "56k",
-            })}
-          </Typography>
+              })}
+            </Typography>
+            )}
         </Box>
         <Box
           display="flex"
@@ -81,22 +96,9 @@ const SocialProof = () => {
               color: theme.palette.primary.main,
             }}
           />
-          {isLoading ? (
-            <Box sx={{ width: 120 }}>
-              <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
-                <Box
-                  component="span"
-                  sx={{ display: "inline-block", width: "100%" }}
-                >
-                  <Skeleton variant="text" width="100%" height={36} />
-                </Box>
-              </Typography>
-            </Box>
-          ) : (
-            <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
-              {t("landing:num_countries", { numCountries: 180 })}
-            </Typography>
-          )}
+          <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
+            {t("landing:num_countries", { numCountries: 180 })}
+          </Typography>
         </Box>
         <Box
           display="flex"
