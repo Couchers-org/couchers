@@ -253,27 +253,33 @@ def test_ListPagination(db):
         # written by user1
         res = api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user1.id, page_size=2))
         assert [ref.reference_id for ref in res.references] == [ref8c, ref7b]
+        assert not res.has_pending_references
 
         res = api.ListReferences(
             references_pb2.ListReferencesReq(from_user_id=user1.id, page_token=res.next_page_token, page_size=2)
         )
         assert [ref.reference_id for ref in res.references] == [ref5b, ref4b]
+        assert not res.has_pending_references
 
         res = api.ListReferences(
             references_pb2.ListReferencesReq(from_user_id=user1.id, page_token=res.next_page_token, page_size=2)
         )
         assert [ref.reference_id for ref in res.references] == [ref2b]
         assert not res.next_page_token
+        assert not res.has_pending_references
 
         # received by user1
         res = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user1.id, page_size=5))
         assert [ref.reference_id for ref in res.references] == [ref8b, ref9, ref8, ref7, ref6]
+        # ref6hidden is hidden because user1 didn't write ref to user6 yet
+        assert res.has_pending_references
 
         res = api.ListReferences(
             references_pb2.ListReferencesReq(to_user_id=user1.id, page_token=res.next_page_token, page_size=5)
         )
         assert [ref.reference_id for ref in res.references] == [ref5, ref4, ref3, ref2]
         assert not res.next_page_token
+        assert not res.has_pending_references
 
         # same thing but with filters
         res = api.ListReferences(
@@ -288,6 +294,8 @@ def test_ListPagination(db):
             )
         )
         assert [ref.reference_id for ref in res.references] == [ref8b, ref9, ref8, ref7, ref6]
+        # ref6hidden is hidden because user1 didn't write ref to user6 yet
+        assert res.has_pending_references
 
         res = api.ListReferences(
             references_pb2.ListReferencesReq(
@@ -303,6 +311,7 @@ def test_ListPagination(db):
         )
         assert [ref.reference_id for ref in res.references] == [ref5, ref4, ref3, ref2]
         assert not res.next_page_token
+        assert not res.has_pending_references
 
         # received hosting references
         res = api.ListReferences(
@@ -311,6 +320,8 @@ def test_ListPagination(db):
             )
         )
         assert [ref.reference_id for ref in res.references] == [ref8b, ref9, ref8]
+        # ref6hidden is hidden because user1 didn't write ref to user6 yet
+        assert res.has_pending_references
 
         res = api.ListReferences(
             references_pb2.ListReferencesReq(
@@ -322,6 +333,7 @@ def test_ListPagination(db):
         )
         assert [ref.reference_id for ref in res.references] == [ref5, ref3]
         assert not res.next_page_token
+        assert not res.has_pending_references
 
         # written friend references
         res = api.ListReferences(
@@ -331,6 +343,7 @@ def test_ListPagination(db):
         )
         assert [ref.reference_id for ref in res.references] == [ref7b, ref4b]
         assert not res.next_page_token
+        assert not res.has_pending_references
 
         # written surfing references
         res = api.ListReferences(
@@ -340,6 +353,7 @@ def test_ListPagination(db):
         )
         assert [ref.reference_id for ref in res.references] == [ref8c, ref5b]
         assert not res.next_page_token
+        assert not res.has_pending_references
 
     with references_session(token7) as api:
         # need to set at least one of from or to user
@@ -355,11 +369,13 @@ def test_ListPagination(db):
         res = api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user1.id, to_user_id=user2.id))
         assert [ref.reference_id for ref in res.references] == [ref2b]
         assert not res.next_page_token
+        assert not res.has_pending_references
 
         # from user5 to user1
         res = api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user5.id, to_user_id=user1.id))
         assert [ref.reference_id for ref in res.references] == [ref5]
         assert not res.next_page_token
+        assert not res.has_pending_references
 
 
 def test_ListReference_banned_deleted_users(db):

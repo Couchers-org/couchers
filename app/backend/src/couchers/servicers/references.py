@@ -8,7 +8,7 @@
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, func, literal, or_, union_all
+from sqlalchemy.sql import and_, func, literal, not_, or_, union_all
 
 from couchers import errors
 from couchers.context import make_background_user_context
@@ -201,23 +201,37 @@ class References(references_pb2_grpc.ReferencesServicer):
             sub = sub.where(Reference.from_user_id == request.to_user_id)
 
         sub = sub.subquery()
-        statement = (
-            statement.outerjoin(sub, sub.c.host_request_id == Reference.host_request_id)
-            .outerjoin(HostRequest, HostRequest.conversation_id == Reference.host_request_id)
-            .where(
-                or_(
-                    Reference.reference_type == ReferenceType.friend,
-                    sub.c.sub_id != None,
-                    HostRequest.end_time_to_write_reference < func.now(),
-                )
+        statement = statement.outerjoin(sub, sub.c.host_request_id == Reference.host_request_id).outerjoin(
+            HostRequest, HostRequest.conversation_id == Reference.host_request_id
+        )
+        actual_refs = statement.where(
+            or_(
+                Reference.reference_type == ReferenceType.friend,
+                sub.c.sub_id != None,
+                HostRequest.end_time_to_write_reference < func.now(),
             )
         )
 
-        statement = statement.order_by(Reference.id.desc()).limit(page_size + 1)
-        references = session.execute(statement).scalars().all()
+        references = session.execute(actual_refs.order_by(Reference.id.desc()).limit(page_size + 1)).scalars().all()
+
+        has_pending_references = session.execute(
+            func.exists(
+                statement.where(
+                    Reference.reference_type != ReferenceType.friend,
+                ).where(
+                    not_(
+                        or_(
+                            sub.c.sub_id != None,
+                            HostRequest.end_time_to_write_reference < func.now(),
+                        )
+                    )
+                )
+            )
+        ).scalar_one()
 
         return references_pb2.ListReferencesRes(
             references=[reference_to_pb(reference, context) for reference in references[:page_size]],
+            has_pending_references=has_pending_references,
             next_page_token=str(references[-1].id) if len(references) > page_size else None,
         )
 

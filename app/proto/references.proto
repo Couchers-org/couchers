@@ -73,6 +73,10 @@ message ListReferencesReq {
 message ListReferencesRes {
   repeated Reference references = 1;
 
+  // this response is hiding some references that are not visible yet
+  // it is appropriate to show an info text like "Some references are hidden, pending another party writing their reference."
+  bool has_pending_references = 3;
+
   string next_page_token = 2;
 }
 
