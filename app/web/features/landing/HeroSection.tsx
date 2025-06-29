@@ -1,52 +1,60 @@
-import { alpha, Container, styled, Typography } from "@mui/material";
+import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
-import Redirect from "components/Redirect";
-import StyledLink from "components/StyledLink";
-import { Trans, useTranslation } from "i18n";
+import MapAnimation from "components/MapAnimation";
+import CouchersIntroduction from "features/landing/CouchersIntroduction";
+import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useIsNativeEmbed } from "platform/nativeLink";
 import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
-import CouchersTextLogo from "resources/CouchersTextLogo";
-import { dashboardRoute, loginRoute, signupRoute } from "routes";
+import { signupRoute } from "routes";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
-import { theme } from "theme";
 import stringOrFirstString from "utils/stringOrFirstString";
 
-import { useAuthContext } from "../AuthProvider";
-import SignupFormContent from "./SignupFormContent";
+import { useAuthContext } from "../auth/AuthProvider";
+import SignupFormContent from "../auth/signup/SignupFormContent";
+
+const StyledContent = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  width: "100%",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: theme.spacing(2),
+
+  [theme.breakpoints.down("md")]: {
+    flexDirection: "column",
+    padding: theme.spacing(8, 0, 0, 0),
+  },
+}));
 
 const StyledMobileEmbed = styled("div")(({ theme }) => ({
   margin: theme.spacing(3),
 }));
 
-const StyledFormWrapper = styled("div")(({ theme }) => ({
-  backgroundColor: alpha(theme.palette.primary.light, 0.1),
-  borderRadius: theme.shape.borderRadius,
-  padding: theme.spacing(2),
-  width: "100%",
-  maxWidth: "600px",
-  border: `1px solid ${theme.palette.divider}`,
-  marginTop: theme.spacing(2),
+const StyledMapWrapper = styled("div")(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  width: "55%",
+
+  [theme.breakpoints.down("md")]: {
+    width: "100%",
+    marginTop: theme.spacing(2),
+  },
 }));
 
-export default function Signup() {
+export default function HeroSection() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const router = useRouter();
-
   const { authState, authActions } = useAuthContext();
-  const authenticated = authState.authenticated;
   const error = authState.error;
+  const urlToken = stringOrFirstString(router.query.token);
+  const isNativeEmbed = useIsNativeEmbed();
 
   const [loading, setLoading] = useState(false);
-
-  const urlToken = stringOrFirstString(router.query.token);
-
-  const isNativeEmbed = useIsNativeEmbed();
 
   useEffect(() => {
     authActions.clearError();
@@ -98,36 +106,13 @@ export default function Signup() {
 
   return (
     <>
-      {authenticated && <Redirect to={dashboardRoute} />}
-      <HtmlMeta title={t("global:sign_up")} />
-      <Container
-        component="section"
-        maxWidth="lg"
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: theme.spacing(2),
-          height: "100%",
-        }}
-      >
-        <CouchersTextLogo />
-        <StyledFormWrapper>
-          {error && (
-            <Alert severity="error" sx={{ width: "100%" }}>
-              {error}
-            </Alert>
-          )}
-          {loading ? <CenteredSpinner /> : <SignupFormContent />}
-          <Typography sx={{ marginTop: theme.spacing(2) }}>
-            <Trans i18nKey="auth:basic_sign_up_form.existing_user_prompt">
-              Already have an account?{" "}
-              <StyledLink href={loginRoute}>Log in</StyledLink>
-            </Trans>
-          </Typography>
-        </StyledFormWrapper>
-      </Container>
+      <HtmlMeta title={t("global:join_us")} />
+      <StyledContent>
+        <CouchersIntroduction />
+        <StyledMapWrapper>
+          <MapAnimation />
+        </StyledMapWrapper>
+      </StyledContent>
     </>
   );
 }

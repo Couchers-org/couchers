@@ -2,7 +2,6 @@ import Alert from "components/Alert";
 import { useAuthContext } from "features/auth/AuthProvider";
 import {
   StyledButton,
-  StyledForm,
   StyledInputLabel,
   StyledTextField,
 } from "features/auth/useAuthStyles";
@@ -79,7 +78,7 @@ export default function BasicForm({
       {mutation.error && (
         <Alert severity="error">{mutation.error.message || ""}</Alert>
       )}
-      <StyledForm onSubmit={onSubmit}>
+      <form onSubmit={onSubmit}>
         <StyledInputLabel htmlFor="name">
           {t("auth:basic_form.name.field_label")}
         </StyledInputLabel>
@@ -94,7 +93,8 @@ export default function BasicForm({
           })}
           fullWidth
           name="name"
-          variant="standard"
+          placeholder={t("auth:basic_form.name.field_label")}
+          variant="outlined"
           inputRef={(el: HTMLInputElement | null) => {
             if (!nameInputRef.current) el?.focus();
             if (el) nameInputRef.current = el;
@@ -117,7 +117,8 @@ export default function BasicForm({
           })}
           fullWidth
           name="email"
-          variant="standard"
+          placeholder="you@couchers.org"
+          variant="outlined"
           helperText={errors?.email?.message ?? " "}
           error={!!errors?.email?.message}
           autoComplete="email"
@@ -130,7 +131,7 @@ export default function BasicForm({
         >
           {submitText || t("global:continue")}
         </StyledButton>
-      </StyledForm>
+      </form>
     </>
   );
 }

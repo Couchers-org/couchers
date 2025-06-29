@@ -86,8 +86,9 @@ export default function LoginForm() {
           id="username"
           {...register("username", { required: true })}
           fullWidth
-          variant="standard"
-          autoComplete="username"
+          variant="outlined"
+          autoComplete="email"
+          placeholder="you@couchers.org"
         />
         <StyledInputLabel htmlFor="password">
           {t("auth:login_page.form.password_field_label")}
@@ -98,8 +99,9 @@ export default function LoginForm() {
           fullWidth
           name="password"
           type="password"
-          variant="standard"
+          variant="outlined"
           autoComplete="current-password"
+          placeholder="*********"
         />
         <StyledLoginOptions>
           <Controller
@@ -129,8 +131,9 @@ export default function LoginForm() {
           onClick={onSubmit}
           type="submit"
           variant="contained"
+          fullWidth
         >
-          {t("global:continue")}
+          {t("global:login")}
         </StyledButton>
       </StyledForm>
     </>

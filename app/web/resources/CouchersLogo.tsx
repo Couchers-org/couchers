@@ -1,6 +1,6 @@
-import { Chip, styled, SvgIcon } from "@mui/material";
-import { useAuthContext } from "features/auth/AuthProvider";
+import { styled, SvgIcon } from "@mui/material";
 import Link from "next/link";
+import { baseRoute } from "routes";
 
 const Root = styled("a")(({ theme }) => ({
   display: "flex",
@@ -13,28 +13,13 @@ const Logo = styled(SvgIcon)(({ theme }) => ({
   width: theme.typography.pxToRem(40),
 }));
 
-const Sticker = styled(Chip)(() => ({
-  fontSize: "0.65rem",
-  position: "absolute",
-  transform: `rotate(15deg) translate(1.25rem, -0.625rem)`,
-}));
-
 export interface CouchersLogoProps {
   className?: string;
-  includeEmbellishments?: boolean;
 }
 
-export default function CouchersLogo({
-  className,
-  includeEmbellishments,
-}: CouchersLogoProps) {
-  const { authState } = useAuthContext();
-
+export default function CouchersLogo({ className }: CouchersLogoProps) {
   return (
-    <Link
-      href={authState.authenticated ? "/dashboard" : "/login"}
-      legacyBehavior
-    >
+    <Link href={baseRoute}>
       <Root>
         <Logo
           className={className}
@@ -47,9 +32,6 @@ export default function CouchersLogo({
             <path d="M316.56,214.44a295.36,295.36,0,0,1-15.79-49.62c-3.91-17.63-.21-36.19,10.43-52.28,11.12-16.81,28.37-28.48,47.34-32a81,81,0,0,1,14.75-1.37h0c2.47,0,4.89.13,7.28.36a3.9,3.9,0,0,0,4.28-4.15A81.33,81.33,0,0,0,303.75,0H126A81.32,81.32,0,0,0,44.93,75.52a3.91,3.91,0,0,0,4.36,4.14,76,76,0,0,1,8.5-.5h0c35.59,0,64.65,23.52,72.33,58.53,2.53,11.51,1.83,25.08-2,38.21-8.71,30.23-31,79-46.31,110.24a3.85,3.85,0,0,0,2.6,5.48A50,50,0,0,0,95,292.74H334.8a50.22,50.22,0,0,0,10.84-1.19,3.88,3.88,0,0,0,2.64-5.39q-1.71-3.78-3.4-7.5C334.91,256.65,325.48,235.86,316.56,214.44Zm-33.89-20.38a9.8,9.8,0,0,1-.87,3.49c-2.67,5.58-7.55,10.43-12.36,14.58C253.31,226,234,232.26,212,234.12c-16,0-33-.56-48.62-8.18a30.06,30.06,0,0,1-11.85-11.48c-2.81-4.83.77-9,6.51-8.16,10.35,1.51,20.56,4.22,30.94,5.39,30.43,3.43,57.64-4.29,81.29-24.22l.1-.07C275.44,183.27,283.2,187.56,282.67,194.06Z" />
           </g>
         </Logo>
-        {includeEmbellishments && (
-          <Sticker color="primary" size="small" label="Beta" />
-        )}
       </Root>
     </Link>
   );
