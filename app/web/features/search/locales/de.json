@@ -19,7 +19,7 @@
       "title": "Unterkunftsfilter",
       "sleeping_arrangement_label": "Schlafmöglichkeiten",
       "sleeping_arrangement_filters": {
-        "shared_room": "Gemeinsames Zimmer",
+        "shared_room": "Geteiltes Zimmer",
         "private": "Eigenes Zimmer",
         "common": "Gemeinschaftsraum"
       }
@@ -30,7 +30,7 @@
       "field_label": "Name, Stichwort oder Nutzername",
       "search_this_keyword_a11y_label": "Dieses Stichwort suchen"
     },
-    "by_location_filter_label": "Nach Standort",
+    "by_location_filter_label": "Nach Ort",
     "host_filters": {
       "last_active_field_label": "Zuletzt aktiv",
       "hosting_status_field_label": "Hosting-Status",
@@ -75,7 +75,7 @@
     "list": "Liste",
     "map_and_list": "Karte & Liste"
   },
-  "location": "Standort",
+  "location": "Ort",
   "keyword": "Stichwort",
   "search_this_area": "In diesem Gebiet suchen",
   "zoom_in_to_select_user": "Zoom heran, um einen Benutzer auszuwählen"

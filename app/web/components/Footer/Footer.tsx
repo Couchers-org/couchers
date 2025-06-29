@@ -263,6 +263,17 @@ export default function Footer() {
               {t("footer.non_profit_note")}
             </Link>
           </Typography>
+          <Typography variant="body2" sx={{ fontSize: ".6em" }}>
+            This site is protected by reCAPTCHA and the Google{" "}
+            <Link href="https://policies.google.com/privacy">
+              Privacy Policy
+            </Link>{" "}
+            and{" "}
+            <Link href="https://policies.google.com/terms">
+              Terms of Service
+            </Link>{" "}
+            apply.
+          </Typography>
         </StyledMiddleContainer>
       </StyledMiddleOuterContainer>
       <StyledLowerOuterContainer>
