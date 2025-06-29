@@ -68,8 +68,6 @@ export default function CommunityGuidelines({
     queryFn: () => service.resources.getCommunityGuidelines(),
   });
 
-  console.log("CommunityGuidelines data", data);
-
   const { control, handleSubmit, formState } = useForm({
     mode: "onChange",
   });
