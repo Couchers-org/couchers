@@ -83,6 +83,7 @@ const opts = {
 const publicOpts = {
   unaryInterceptors: [timeoutInterceptor], //<-- No auth for public API
   withCredentials: false, // <-- No cookies for public API
+  transport: "fetch", // Use fetch transport for public API
 };
 
 const client = {
