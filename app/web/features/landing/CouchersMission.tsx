@@ -63,11 +63,7 @@ const CouchersMission = () => {
           setSelectedItem(itemName);
         }}
       >
-        <Box
-          display="flex"
-          flexDirection="column"
-          width="100%"
-        >
+        <Box display="flex" flexDirection="column" width="100%">
           <Typography
             align="center"
             gutterBottom
