@@ -8,7 +8,7 @@ from sqlalchemy.sql import delete, func
 
 from couchers import errors
 from couchers.config import config
-from couchers.constants import GUIDELINES_VERSION, TOS_VERSION, UNDELETE_DAYS
+from couchers.constants import ANTIBOT_FREQ, GUIDELINES_VERSION, TOS_VERSION, UNDELETE_DAYS
 from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
 from couchers.metrics import (
     account_deletion_completions_counter,
@@ -616,8 +616,17 @@ class Auth(auth_pb2_grpc.AuthServicer):
         recaptchas_assessed_counter.labels(log.action).inc()
         recaptcha_score_histogram.labels(log.action).observe(log.score)
 
+        if context.user_id:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            user.last_antibot = now()
+
         return auth_pb2.AntiBotRes()
 
     def AntiBotPolicy(self, request, context, session):
-        if not config["RECAPTHCA_ENABLED"]:
-            return auth_pb2.AntiBotPolicyRes(should_antibot=False)
+        if config["RECAPTHCA_ENABLED"]:
+            if context.user_id:
+                user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+                if now() - user.last_antibot > ANTIBOT_FREQ:
+                    return auth_pb2.AntiBotPolicyRes(should_antibot=True)
+
+        return auth_pb2.AntiBotPolicyRes(should_antibot=False)
