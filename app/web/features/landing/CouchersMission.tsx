@@ -67,7 +67,6 @@ const CouchersMission = () => {
           display="flex"
           flexDirection="column"
           width="100%"
-          // sx={{ padding: theme.spacing(2, 0) }}
         >
           <Typography
             align="center"
