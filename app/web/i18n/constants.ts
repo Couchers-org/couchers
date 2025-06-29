@@ -94,6 +94,6 @@ export const LANGUAGE_MAP: LanguageMap = {
   },
   "zh-TW": {
     name: "Chinese (Taiwan)",
-    flagIconCode: "CN",
+    flagIconCode: "TW",
   },
 };
