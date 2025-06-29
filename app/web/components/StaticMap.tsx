@@ -13,6 +13,7 @@ import {
   Layer,
   Map as MaplibreMap,
   MapRef,
+  NavigationControl,
   Source,
 } from "react-map-gl/maplibre";
 import { theme } from "theme";
@@ -25,6 +26,10 @@ const MapWrapper = styled("div")(({ theme }) => ({
   position: "relative",
   borderRadius: "10px",
   overflow: "hidden",
+
+  [theme.breakpoints.down("md")]: {
+    height: 400,
+  },
 }));
 
 const StaticMap = () => {
@@ -58,6 +63,7 @@ const StaticMap = () => {
         hash={false}
         ref={mapRef}
         onLoad={onLoad}
+        scrollZoom={false}
       >
         <Source
           id={USERS_SOURCE_ID}
@@ -71,6 +77,7 @@ const StaticMap = () => {
           <Layer {...clusterCountLayer} />
           <Layer {...unclusteredPointLayer} />
         </Source>
+        <NavigationControl position="top-right" showCompass={false} />
       </MaplibreMap>
     </MapWrapper>
   );

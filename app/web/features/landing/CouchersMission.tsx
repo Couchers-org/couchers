@@ -16,13 +16,18 @@ const StyledGridBubble = styled(Grid, {
   backgroundColor: selected
     ? theme.palette.primary.main
     : theme.palette.primary.light,
-  padding: theme.spacing(2),
+  padding: theme.spacing(1),
   borderRadius: theme.spacing(1),
   display: "flex",
   alignItems: "center",
-  minWidth: 0,
+  height: theme.spacing(14),
   cursor: "pointer",
   position: "relative",
+
+  [theme.breakpoints.down("md")]: {
+    height: theme.spacing(9),
+  },
+
   "&::after": {
     content: '""',
     position: "absolute",
@@ -58,12 +63,7 @@ const CouchersMission = () => {
           setSelectedItem(itemName);
         }}
       >
-        <Box
-          display="flex"
-          flexDirection="column"
-          width="100%"
-          sx={{ padding: theme.spacing(2, 0) }}
-        >
+        <Box display="flex" flexDirection="column" width="100%">
           <Typography
             align="center"
             gutterBottom
