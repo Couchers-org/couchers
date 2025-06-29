@@ -165,7 +165,7 @@ export default function Footer() {
       <StyledUpperOuterContainer>
         <StyledUpperContainer>
           <div>
-            <Typography variant="h3" component="h2">
+            <Typography variant="h4" component="h4">
               {t("nav.about")}
             </Typography>
             <FooterLink href={planRoute}>{t("nav.our_plan")}</FooterLink>
@@ -177,7 +177,7 @@ export default function Footer() {
             </FooterLink>
           </div>
           <div>
-            <Typography variant="h3" component="h2">
+            <Typography variant="h4" component="h4">
               {t("nav.community")}
             </Typography>
             <FooterLink href={blogRoute}>{t("nav.blog")}</FooterLink>
@@ -187,7 +187,7 @@ export default function Footer() {
             </FooterLink>
           </div>
           <div>
-            <Typography variant="h3" component="h2">
+            <Typography variant="h4" component="h4">
               {t("nav.legal_more")}
             </Typography>
             <FooterLink href={tosRoute}>{t("terms_of_service")}</FooterLink>
@@ -262,6 +262,17 @@ export default function Footer() {
             <Link href={foundationRoute} passHref>
               {t("footer.non_profit_note")}
             </Link>
+          </Typography>
+          <Typography variant="body2" sx={{ fontSize: ".6em" }}>
+            This site is protected by reCAPTCHA and the Google{" "}
+            <Link href="https://policies.google.com/privacy">
+              Privacy Policy
+            </Link>{" "}
+            and{" "}
+            <Link href="https://policies.google.com/terms">
+              Terms of Service
+            </Link>{" "}
+            apply.
           </Typography>
         </StyledMiddleContainer>
       </StyledMiddleOuterContainer>
