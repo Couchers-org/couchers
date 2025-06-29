@@ -80,12 +80,6 @@ const opts = {
   /// TODO: streaming interceptor for auth https://grpc.io/blog/grpc-web-interceptor/
 };
 
-const publicOpts = {
-  unaryInterceptors: [timeoutInterceptor], //<-- No auth for public API
-  withCredentials: true, // <-- No cookies for public API
-  transport: "fetch", // Use fetch transport for public API
-};
-
 const client = {
   account: new AccountPromiseClient(URL, null, opts),
   admin: new AdminPromiseClient(URL, null, opts),
@@ -102,7 +96,7 @@ const client = {
   jail: new JailPromiseClient(URL, null, opts),
   notifications: new NotificationsPromiseClient(URL, null, opts),
   pages: new PagesPromiseClient(URL, null, opts),
-  public: new PublicPromiseClient(URL, null, publicOpts),
+  public: new PublicPromiseClient(URL, null, opts),
   references: new ReferencesPromiseClient(URL, null, opts),
   reporting: new ReportingPromiseClient(URL, null, opts),
   requests: new RequestsPromiseClient(URL, null, opts),
