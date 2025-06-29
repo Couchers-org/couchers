@@ -97,6 +97,8 @@ service Auth {
   rpc AntiBot(AntiBotReq) returns (AntiBotRes) {
     // Send google recaptcha info asynchronously
   }
+
+  rpc AntiBotPolicy(AntiBotPolicyReq) returns (AntiBotPolicyRes) {}
 }
 
 message SignupFlowReq {
@@ -249,3 +251,9 @@ message AntiBotReq {
 }
 
 message AntiBotRes {}
+
+message AntiBotPolicyReq {}
+
+message AntiBotPolicyRes {
+  bool should_antibot = 1;
+}

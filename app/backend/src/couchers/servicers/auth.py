@@ -16,6 +16,8 @@ from couchers.metrics import (
     logins_counter,
     password_reset_completions_counter,
     password_reset_initiations_counter,
+    recaptcha_score_histogram,
+    recaptchas_assessed_counter,
     signup_completions_counter,
     signup_initiations_counter,
     signup_time_histogram,
@@ -573,7 +575,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
     def AntiBot(self, request, context, session):
         if not config["RECAPTHCA_ENABLED"]:
-            return
+            return auth_pb2.AntiBotRes()
 
         headers = dict(context.invocation_metadata())
 
@@ -609,4 +611,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         session.add(log)
 
+        session.flush()
+
+        recaptchas_assessed_counter.labels(log.action).inc()
+        recaptcha_score_histogram.labels(log.action).observe(log.score)
+
         return auth_pb2.AntiBotRes()
+
+    def AntiBotPolicy(self, request, context, session):
+        if not config["RECAPTHCA_ENABLED"]:
+            return auth_pb2.AntiBotPolicyRes(should_antibot=False)
