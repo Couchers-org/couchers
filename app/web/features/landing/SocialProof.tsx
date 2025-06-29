@@ -1,13 +1,9 @@
 import { Create, Favorite, Language } from "@mui/icons-material";
 import { Box, Skeleton, Typography, useMediaQuery } from "@mui/material";
 import Divider from "components/Divider";
-import { signupInfoQueryKey } from "features/queryKeys";
-import { RpcError } from "grpc-web";
+import useSignupInfo from "features/auth/useSignupInfo";
 import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
-import { GetSignupPageInfoRes } from "proto/public_pb";
-import { useQuery } from "react-query";
-import { service } from "service";
 import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import { timeAgoI18n } from "utils/timeAgo";
@@ -16,20 +12,7 @@ const SocialProof = () => {
   const { t } = useTranslation([GLOBAL, LANDING]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const {
-    data: signupInfo,
-    error,
-    isLoading,
-  } = useQuery<GetSignupPageInfoRes.AsObject, RpcError>({
-    queryKey: signupInfoQueryKey,
-    queryFn: service.publicApi.getSignupPageInfo,
-  });
-
-  console.log("SIGNUP INFO SocialProof.tsx:", {
-    signupInfo,
-    isLoading,
-    error,
-  });
+  const { data: signupInfo, isLoading } = useSignupInfo();
 
   return (
     <Box
