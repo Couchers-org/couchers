@@ -638,11 +638,33 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         return empty_pb2.Empty()
 
     def SendDirectMessage(self, request, context, session):
-        if request.text == "":
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
 
         user_id = context.user_id
+        user = session.execute(select(User).where(User.id == user_id)).scalar_one()
+
         recipient_id = request.recipient_user_id
+
+        if not user.has_completed_profile:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.INCOMPLETE_PROFILE_SEND_MESSAGE)
+
+        if not recipient_id:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_RECIPIENTS)
+
+        recipient_user_id = session.execute(
+            select(User.id)
+            .where_users_visible(context)
+            .where(User.id == recipient_id)
+        ).scalar_one_or_none()
+
+        if not recipient_user_id:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_NOT_FOUND)
+
+        if user_id == recipient_id:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_ADD_SELF)
+
+        if request.text == "":
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
+    
 
         # Look for an existing direct message (DM) chat between the two users
         dm_chat_ids = (

@@ -647,8 +647,8 @@ def test_send_message(db):
 
 
 def test_send_direct_message(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    user1, token1 = generate_user(complete_profile=True)
+    user2, token2 = generate_user(complete_profile=True)
 
     make_friends(user1, user2)
 
