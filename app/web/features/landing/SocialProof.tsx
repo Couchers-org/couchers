@@ -1,5 +1,5 @@
 import { Create, Favorite, Language } from "@mui/icons-material";
-import { Box, Typography, useMediaQuery } from "@mui/material";
+import { Box, Skeleton, Typography, useMediaQuery } from "@mui/material";
 import Divider from "components/Divider";
 import useSignupInfo from "features/auth/useSignupInfo";
 import { useTranslation } from "i18n";
@@ -63,11 +63,24 @@ const SocialProof = () => {
               color: theme.palette.primary.main,
             }}
           />
-          <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
-            {t("landing:num_users", {
-              numUsers: signupInfo?.userCount || "56k",
-            })}
-          </Typography>
+          {isLoading ? (
+            <Box sx={{ width: 120 }}>
+              <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
+                <Box
+                  component="span"
+                  sx={{ display: "inline-block", width: "100%" }}
+                >
+                  <Skeleton variant="text" width="100%" height={36} />
+                </Box>
+              </Typography>
+            </Box>
+          ) : (
+            <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
+              {t("landing:num_users", {
+                numUsers: signupInfo?.userCount || "56k",
+              })}
+            </Typography>
+          )}
         </Box>
         <Box
           display="flex"
@@ -97,7 +110,18 @@ const SocialProof = () => {
               color: theme.palette.primary.main,
             }}
           />
-          {!isLoading &&
+          {isLoading ? (
+            <Box sx={{ width: 220 }}>
+              <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
+                <Box
+                  component="span"
+                  sx={{ display: "inline-block", width: "100%" }}
+                >
+                  <Skeleton variant="text" width="100%" height={36} />
+                </Box>
+              </Typography>
+            </Box>
+          ) : (
             signupInfo &&
             signupInfo.lastSignup &&
             signupInfo.lastLocation && (
@@ -115,7 +139,8 @@ const SocialProof = () => {
                   location: signupInfo.lastLocation,
                 })}
               </Typography>
-            )}
+            )
+          )}
         </Box>
       </Box>
     </Box>
