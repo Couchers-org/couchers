@@ -68,6 +68,8 @@ export default function CommunityGuidelines({
     queryFn: () => service.resources.getCommunityGuidelines(),
   });
 
+  console.log("CommunityGuidelines data", data);
+
   const { control, handleSubmit, formState } = useForm({
     mode: "onChange",
   });
@@ -115,17 +117,22 @@ export default function CommunityGuidelines({
         {error && <Alert severity="error">{error}</Alert>}
 
         <StyledGrid>
-          {data.communityGuidelinesList.map(
-            ({ title, guideline, iconSvg }, index) => (
+          {data.communityGuidelinesList.map(({ title, iconSvg }, index) => {
+            const translationKey = title.toLowerCase().replace(/\s+/g, "_");
+            return (
               <React.Fragment key={index}>
                 <StyledAvatar
                   src={`data:image/svg+xml,${encodeURIComponent(iconSvg)}`}
                 />
                 <div>
                   <Typography variant="h3" color="primary">
-                    {title}
+                    {t(
+                      `auth:community_guidelines_form.${translationKey}.title`,
+                    )}
                   </Typography>
-                  <Typography variant="body1">{guideline}</Typography>
+                  {t(
+                    `auth:community_guidelines_form.${translationKey}.description`,
+                  )}
                   <Controller
                     control={control}
                     name={`ok${index}`}
@@ -164,8 +171,8 @@ export default function CommunityGuidelines({
                   />
                 </div>
               </React.Fragment>
-            ),
-          )}
+            );
+          })}
         </StyledGrid>
 
         <StyledButton

@@ -117,6 +117,22 @@
   },
   "community_guidelines_form": {
     "header": "Community Guidelines",
+    "be_kind_to_one_another": {
+      "title": "Be kind to one another",
+      "description": "Couchers.org is an inclusive community where people of all cultures and backgrounds come together. Treat everyone with mutual respect and dignity."
+    },
+    "this_is_not_a_dating_app": {
+      "title": "This is not a dating app",
+      "description": "Couchers.org is NOT for dating or hooking up. Harassment or using the platform for the purpose of dating or hooking up will result in a ban."
+    },
+    "be_safe_and_sensible": {
+      "title": "Be safe and sensible",
+      "description": "Read profiles, references, and resources. Report any inappropriate content or behavior."
+    },
+    "keep_money_out_of_it": {
+      "title": "Keep money out of it",
+      "description": "Keep things non-transactional. Don't exchange mone…earning, experiences, and getting to know people."
+    },
     "guideline": {
       "checkbox_label": "Okay, got it",
       "required_error": "All checkboxes are required"
