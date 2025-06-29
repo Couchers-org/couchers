@@ -559,11 +559,11 @@ const FilterDialog = ({
               gap: 0.5,
               width: "100%",
               alignItems: {
-                xs: "center",
+                xs: "flex-end",
                 sm: "flex-end",
               },
               textAlign: {
-                xs: "center",
+                xs: "right",
                 sm: "right",
               },
             }}
