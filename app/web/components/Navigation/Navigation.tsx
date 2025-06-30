@@ -482,7 +482,15 @@ export default function Navigation() {
               {loggedMenuItems}
             </LoggedInMenu>
           ) : (
-            <Box>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                width: "100%",
+                gap: 2,
+              }}
+            >
+              {!isMobile && <LanguagePickerSelect />}
               <Button
                 variant="outlined"
                 size={isMobile ? "medium" : "large"}
@@ -494,7 +502,7 @@ export default function Navigation() {
               <Button
                 variant="contained"
                 size={isMobile ? "medium" : "large"}
-                sx={{ marginLeft: 2, fontSize: "1.3rem" }}
+                sx={{ fontSize: "1.3rem" }}
                 onClick={() => router.push(signupRoute)}
               >
                 {t("join_us")}
