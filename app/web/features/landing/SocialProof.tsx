@@ -143,8 +143,7 @@ const SocialProof = () => {
             </Box>
           ) : (
             signupInfo &&
-            signupInfo.lastSignup &&
-            signupInfo.lastLocation && (
+            signupInfo.lastSignup && (
               <Typography
                 sx={{
                   fontSize: "1.5rem",
@@ -156,7 +155,6 @@ const SocialProof = () => {
                     input: signupInfo.lastSignup,
                     t: t,
                   }),
-                  location: signupInfo.lastLocation,
                 })}
               </Typography>
             )

@@ -10,11 +10,11 @@
   "what_couchsurfing_description": "Couchers.org is a community and platform built to facilitate genuine interaction between travelers and locals, centered around couch surfing—free, non-transactional homestays and meetups while prioritizing trust and safety.",
   "sign_up_ready": "Sign up and you are ready to go!",
   "why_couchers_title": "Why Couchers.org?",
-  "community_first": "Community First",
+  "community_first": "Community first",
   "community_first_description": "We believe travel is about real connections. We're guided by members—not investors. Your voice matters.",
-  "safer_stronger": "Safer, Stronger Connections",
+  "safer_stronger": "Safer, stronger connections",
   "safer_stronger_description": "We've reimagined trust and safety with better references, verification, and accountability—so you can connect without second-guessing.",
-  "built_by_travelers": "Built by Travelers, for Travelers",
+  "built_by_travelers": "Built by travelers, for travelers",
   "built_by_travelers_description": "With a team of dedicated volunteers who host, explore, and build, we're creating a stable, modern platform shaped by real experiences—not profit.",
   "couchers_mission_title": "What we stand for",
   "nonprofit_title": "Non-profit",
@@ -39,6 +39,6 @@
   "map_section_title": "Explore our community around the world",
   "num_users": "{{numUsers}} members",
   "num_countries": "{{numCountries}}+ countries",
-  "last_signup": "Last signup {{timeAgo}} from {{location}}",
+  "last_signup": "Last signup {{timeAgo}}",
   "animation_error": "Error loading animation"
 }
