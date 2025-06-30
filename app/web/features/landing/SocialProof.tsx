@@ -156,7 +156,7 @@ const SocialProof = () => {
               >
                 {t("landing:last_signup", {
                   timeAgo: timeAgoI18n({
-                    input: signupInfo.lastSignup as Date,
+                    input: signupInfo.lastSignup,
                     t: t,
                   }),
                   location: signupInfo.lastLocation,
