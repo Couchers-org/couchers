@@ -69,7 +69,7 @@ const CouchersMission = () => {
             align="center"
             gutterBottom
             sx={{
-              color: theme.palette.common.white,
+              color: theme.palette.common.black,
               fontSize: "1.2rem",
               fontWeight: 500,
             }}
