@@ -3,10 +3,11 @@ import StyledLink from "components/StyledLink";
 import AntibotNote from "features/antibot/AntibotNote";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
+import { GetSignupPageInfoRes } from "proto/public_pb";
+import { useEffect, useState } from "react";
 import { baseRoute, tosRoute } from "routes";
 
 import { useAuthContext } from "../AuthProvider";
-import useSignupInfo from "../useSignupInfo";
 import AccountForm from "./AccountForm";
 import BasicForm from "./BasicForm";
 import CommunityGuidelinesForm from "./CommunityGuidelinesForm";
@@ -17,7 +18,28 @@ export default function SignupFormContent() {
   const { authState } = useAuthContext();
   const state = authState.flowState;
 
-  const { data: signupInfo } = useSignupInfo();
+  const [signupInfo, setSignupInfo] =
+    useState<GetSignupPageInfoRes.AsObject | null>(null);
+
+  useEffect(() => {
+    const fetchSignupInfo = async () => {
+      try {
+        const response = await fetch(
+          "https://couchers.org/api/public/signup-page-info",
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch signup info");
+        }
+        const data = await response.json();
+        setSignupInfo(data);
+      } catch (error) {
+        console.error("Error fetching signup info:", error);
+      }
+    };
+
+    fetchSignupInfo();
+  }, []);
 
   if (!state || state.needBasic) {
     return (
