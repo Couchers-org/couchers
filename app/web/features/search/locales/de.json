@@ -17,12 +17,7 @@
     "accommodation_filters": {
       "guests_field_label": "Anzahl der Gäste",
       "title": "Unterkunftsfilter",
-      "sleeping_arrangement_label": "Schlafmöglichkeiten",
-      "sleeping_arrangement_filters": {
-        "shared_room": "Geteiltes Zimmer",
-        "private": "Eigenes Zimmer",
-        "common": "Gemeinschaftsraum"
-      }
+      "sleeping_arrangement_label": "Schlafmöglichkeiten"
     },
     "location_field_label": "In der Nähe von",
     "keywords": {

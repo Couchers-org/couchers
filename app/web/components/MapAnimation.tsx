@@ -12,7 +12,6 @@ const Wrapper = styled("div")({
   justifyContent: "center",
   alignItems: "center",
   position: "relative",
-
   width: "100%",
   height: "100%",
 });
@@ -69,13 +68,16 @@ export default function MapAnimation() {
           <Lottie
             animationData={animationData}
             loop={true}
-            height="600px"
-            width="600px"
+            height="500px"
+            width="500px"
           />
           <Attribution variant="caption">Map data ©2025 Google</Attribution>
         </>
       ) : (
-        <Skeleton variant="rectangular" width="100%" height="100%" />
+        <Skeleton
+          variant="rectangular"
+          sx={{ width: "500px", height: "500px", borderRadius: "10px" }}
+        />
       )}
     </Wrapper>
   );
