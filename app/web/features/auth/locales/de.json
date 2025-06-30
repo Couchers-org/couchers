@@ -61,7 +61,7 @@
     "name": {
       "empty_error": "Bitte gib deinen Namen an",
       "required_error": "Dieses Feld darf nicht leer sein.",
-      "field_label": "Dein Name"
+      "field_label": "Name"
     },
     "email": {
       "field_label": "E-Mail-Adresse",
