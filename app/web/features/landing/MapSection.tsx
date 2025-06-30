@@ -18,7 +18,6 @@ const MapSection = () => {
       <Typography
         sx={{
           fontSize: "3rem",
-          textAlign: "center",
           fontWeight: "bold",
           marginBottom: 4,
 

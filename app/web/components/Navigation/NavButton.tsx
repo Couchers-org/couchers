@@ -30,7 +30,7 @@ const StyledNextLink = styled(Link, {
 const StyledTypography = styled(Typography)(({ theme }) => ({
   alignSelf: "center",
   marginTop: 0,
-  fontWeight: 400,
+  fontWeight: 500,
 
   [theme.breakpoints.up("md")]: {
     fontSize: "1.2rem",

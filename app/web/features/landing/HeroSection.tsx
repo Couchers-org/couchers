@@ -25,6 +25,7 @@ const StyledContent = styled("div")(({ theme }) => ({
   justifyContent: "space-between",
   alignItems: "center",
   marginBottom: theme.spacing(2),
+  padding: theme.spacing(4, 0),
 
   [theme.breakpoints.down("md")]: {
     flexDirection: "column",
@@ -39,10 +40,12 @@ const StyledMobileEmbed = styled("div")(({ theme }) => ({
 const StyledMapWrapper = styled("div")(({ theme }) => ({
   padding: theme.spacing(0, 2),
   width: "55%",
+  paddingLeft: theme.spacing(8),
 
   [theme.breakpoints.down("md")]: {
     width: "100%",
     marginTop: theme.spacing(2),
+    paddingLeft: 0,
   },
 }));
 

@@ -25,7 +25,8 @@ const StyledGridBubble = styled(Grid, {
   position: "relative",
 
   [theme.breakpoints.down("md")]: {
-    height: theme.spacing(9),
+    height: theme.spacing(12),
+    minWidth: theme.spacing(22),
   },
 
   "&::after": {
@@ -68,7 +69,7 @@ const CouchersMission = () => {
             align="center"
             gutterBottom
             sx={{
-              color: theme.palette.common.white,
+              color: theme.palette.common.black,
               fontSize: "1.2rem",
               fontWeight: 500,
             }}
@@ -86,7 +87,6 @@ const CouchersMission = () => {
         sx={{
           fontSize: "3rem",
           fontWeight: "bold",
-          textAlign: "center",
           marginBottom: 4,
 
           [theme.breakpoints.down("md")]: {
@@ -105,14 +105,25 @@ const CouchersMission = () => {
         }}
       >
         <Fade timeout={2000} in={inView}>
-          <Grid item container gap={2} justifyContent="center">
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              justifyContent: { xs: "flex-start", md: "center" },
+              overflowX: { xs: "auto", md: "visible" },
+              flexWrap: { xs: "nowrap", md: "wrap" },
+              paddingX: { xs: 1, md: 0 },
+              WebkitOverflowScrolling: "touch",
+              width: "100%",
+            }}
+          >
             {missionBubble("nonprofit")}
             {missionBubble("free_forever")}
             {missionBubble("authentic")}
             {missionBubble("community_led")}
             {missionBubble("open_source")}
             {missionBubble("non_transactional")}
-          </Grid>
+          </Box>
         </Fade>
         <Fade key={selectedItem} timeout={1000} in={true}>
           <Grid

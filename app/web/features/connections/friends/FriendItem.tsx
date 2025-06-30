@@ -107,11 +107,9 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
           dialogId="friend-item--confirmation-dialog"
           dialogMessage={t(
             "connections:remove_friend_confirmation_dialog.message",
-          )}
-          dialogTitle={t(
-            "connections:remove_friend_confirmation_dialog.title",
             { name: friend.name },
           )}
+          dialogTitle={t("connections:remove_friend_confirmation_dialog.title")}
           isLoading={isRemoving}
           onConfirm={handleConfirmRemoveFriend}
           isOpen={openDialog === "remove-friend"}
