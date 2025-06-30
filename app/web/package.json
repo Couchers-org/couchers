@@ -32,7 +32,7 @@
     "@mui/x-date-pickers": "^5.0.20",
     "@sentry/nextjs": "^8.47.0",
     "@sentry/react": "^8.51.0",
-    "@stripe/stripe-js": "^7.3.1",
+    "@stripe/stripe-js": "^7.4.0",
     "@toast-ui/editor": "^3.2.2",
     "classnames": "^2.5.1",
     "country-flag-icons": "^1.5.19",
@@ -67,7 +67,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.27.4",
-    "@next/bundle-analyzer": "^15.4.0-canary.51",
+    "@next/bundle-analyzer": "^15.4.0-canary.103",
     "@sentry/cli": "^2.46.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
