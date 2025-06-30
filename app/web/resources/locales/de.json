@@ -203,5 +203,6 @@
     "strong_verification": {
         "helper_text": "Die Identität des Mitglieds wurde mit einem biometrischen Reisepass verifiziert"
     },
-    "thanks": "Danke!"
+    "thanks": "Danke!",
+    "create_account": "Account Erstellen"
 }

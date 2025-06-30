@@ -105,9 +105,12 @@
     "yes": "Yes"
   },
   "sleeping_arrangement": {
-    "private": "Private space",
-    "common": "Common area",
-    "shared_room": "Shared room"
+    "private_short": "Private space",
+    "common_short": "Common room",
+    "shared_room_short": "Shared room",
+    "private": "Private space (e.g. own room or similar)",
+    "common": "Common room (e.g. couch in living room)",
+    "shared_room": "Shared room (e.g. shared bedroom with own sleeping surface)"
   },
   "parking_details": {
     "free_onsite": "Free onsite parking",
