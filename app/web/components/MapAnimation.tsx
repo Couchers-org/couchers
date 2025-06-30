@@ -1,4 +1,4 @@
-import { Skeleton, styled } from "@mui/material";
+import { Skeleton, styled, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { LANDING } from "i18n/namespaces";
 import Lottie from "lottie-react";
@@ -17,17 +17,13 @@ const Wrapper = styled("div")({
   height: "100%",
 });
 
-const Attribution = styled("div")({
+const Attribution = styled(Typography)({
   position: "absolute",
   bottom: 8,
   right: 10,
   background: "rgba(255,255,255,0.8)",
   padding: "2px 8px",
   borderRadius: 4,
-  fontFamily: "Inter, sans-serif",
-  fontWeight: 400,
-  fontSize: "10px",
-  letterSpacing: 0,
   pointerEvents: "none",
   zIndex: 2,
 });
@@ -76,7 +72,7 @@ export default function MapAnimation() {
             height="600px"
             width="600px"
           />
-          <Attribution>Map data ©2025 Google</Attribution>
+          <Attribution variant="caption">Map data ©2025 Google</Attribution>
         </>
       ) : (
         <Skeleton variant="rectangular" width="100%" height="100%" />
