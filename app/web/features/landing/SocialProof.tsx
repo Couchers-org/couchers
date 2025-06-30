@@ -20,8 +20,6 @@ const SocialProof = () => {
   const [signupInfo, setSignupInfo] = useState<SignupInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  console.log("SIGNUP INFO", signupInfo);
-
   useEffect(() => {
     const fetchSignupInfo = async () => {
       try {
