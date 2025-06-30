@@ -1,6 +1,7 @@
 import { FormControlLabel, styled } from "@mui/material";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import StyledLink from "components/StyledLink";
+import { doAntibot } from "features/antibot/antibot";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
@@ -56,6 +57,7 @@ export default function LoginForm() {
     }) => {
       setLoading(true);
       authActions.clearError();
+      doAntibot("login");
       try {
         authActions.passwordLogin({
           username: lowercaseAndTrimField(data.username),

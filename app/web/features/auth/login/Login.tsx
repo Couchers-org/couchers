@@ -2,6 +2,7 @@ import { alpha, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
+import AntibotNote from "features/antibot/AntibotNote";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL, LANDING } from "i18n/namespaces";
 import { useRouter } from "next/router";
@@ -72,6 +73,10 @@ export default function Login() {
               No account yet?{" "}
               <StyledLink href={signupRoute}>Sign up</StyledLink>
             </Trans>
+          </Typography>
+          <Typography variant="caption">
+            {" "}
+            <AntibotNote />
           </Typography>
         </StyledFormWrapper>
       </StyledContent>

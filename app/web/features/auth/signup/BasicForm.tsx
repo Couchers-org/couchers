@@ -1,4 +1,5 @@
 import Alert from "components/Alert";
+import { doAntibot } from "features/antibot/antibot";
 import { useAuthContext } from "features/auth/AuthProvider";
 import {
   StyledButton,
@@ -53,6 +54,7 @@ export default function BasicForm({
         sanitizedName,
         sanitizedEmail,
       );
+      doAntibot("signup");
       return authActions.updateSignupState(state);
     },
     {
