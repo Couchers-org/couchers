@@ -292,6 +292,19 @@ emails_counter = Counter(
 )
 
 
+recaptchas_assessed_counter = Counter(
+    "couchers_recaptchas_assessed_total",
+    "Number of times a recaptcha assessment is created",
+    labelnames=["action"],
+)
+
+recaptcha_score_histogram = Histogram(
+    "couchers_recaptcha_score",
+    "Score of recaptcha assessments",
+    labelnames=["action"],
+    buckets=tuple(x / 20 for x in range(0, 21)),
+)
+
 host_request_first_response_histogram = Histogram(
     "couchers_host_request_first_response_seconds",
     "Response time to host requests",

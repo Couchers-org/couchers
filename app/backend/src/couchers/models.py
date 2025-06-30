@@ -322,6 +322,8 @@ class User(Base):
     # whether mods have marked this user has having to update their location
     needs_to_update_location = Column(Boolean, nullable=False, server_default=text("false"))
 
+    last_antibot = Column(DateTime(timezone=True), nullable=False, server_default=text("to_timestamp(0)"))
+
     age = column_property(func.date_part("year", func.age(birthdate)))
 
     __table_args__ = (

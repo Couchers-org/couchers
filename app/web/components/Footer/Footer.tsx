@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { BlueSkyIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
+import AntibotNote from "features/antibot/AntibotNote";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
@@ -264,15 +265,7 @@ export default function Footer() {
             </Link>
           </Typography>
           <Typography variant="body2" sx={{ fontSize: ".6em" }}>
-            This site is protected by reCAPTCHA and the Google{" "}
-            <Link href="https://policies.google.com/privacy">
-              Privacy Policy
-            </Link>{" "}
-            and{" "}
-            <Link href="https://policies.google.com/terms">
-              Terms of Service
-            </Link>{" "}
-            apply.
+            <AntibotNote />
           </Typography>
         </StyledMiddleContainer>
       </StyledMiddleOuterContainer>
