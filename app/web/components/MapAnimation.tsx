@@ -4,7 +4,6 @@ import { LANDING } from "i18n/namespaces";
 import Lottie from "lottie-react";
 import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
-import { theme } from "theme";
 
 import Alert from "./Alert";
 
@@ -12,13 +11,25 @@ const Wrapper = styled("div")({
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  width: "600px",
-  height: "600px",
+  position: "relative",
 
-  [theme.breakpoints.down("md")]: {
-    width: "100%",
-    height: "100%",
-  },
+  width: "100%",
+  height: "100%",
+});
+
+const Attribution = styled("div")({
+  position: "absolute",
+  bottom: 8,
+  right: 10,
+  background: "rgba(255,255,255,0.8)",
+  padding: "2px 8px",
+  borderRadius: 4,
+  fontFamily: "Inter, sans-serif",
+  fontWeight: 400,
+  fontSize: "10px",
+  letterSpacing: 0,
+  pointerEvents: "none",
+  zIndex: 2,
 });
 
 export default function MapAnimation() {
@@ -58,7 +69,15 @@ export default function MapAnimation() {
   return (
     <Wrapper>
       {animationData ? (
-        <Lottie animationData={animationData} loop={true} />
+        <>
+          <Lottie
+            animationData={animationData}
+            loop={true}
+            height="600px"
+            width="600px"
+          />
+          <Attribution>Map data ©2025 Google</Attribution>
+        </>
       ) : (
         <Skeleton variant="rectangular" width="100%" height="100%" />
       )}

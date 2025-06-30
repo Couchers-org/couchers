@@ -127,10 +127,6 @@ const loggedOutNavMenu = (
   t: TFunction<"global", undefined>,
 ): Array<MenuItemProps> => [
   {
-    name: t("nav.about"),
-    route: "/#",
-  },
-  {
     name: t("nav.blog"),
     route: blogRoute,
   },
@@ -147,10 +143,6 @@ const loggedOutNavMenu = (
 const loggedOutDrawerMenu = (
   t: TFunction<"global", undefined>,
 ): Array<MenuItemProps> => [
-  {
-    name: t("nav.about"),
-    route: "/",
-  },
   {
     name: t("nav.blog"),
     route: blogRoute,

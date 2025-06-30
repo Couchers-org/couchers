@@ -15,7 +15,6 @@ const WhyCouchersSection = () => {
       <Typography
         sx={{
           fontSize: "3rem",
-          textAlign: "center",
           fontWeight: "bold",
 
           [theme.breakpoints.down("md")]: { fontSize: "1.8rem" },
@@ -41,23 +40,17 @@ const WhyCouchersSection = () => {
             display="flex"
             sx={{
               backgroundColor: theme.palette.grey[50],
-              padding: 4,
+              padding: 3,
               borderRadius: 2,
               flex: { md: 1 },
               minWidth: 0,
               marginLeft: { xs: 0, md: 2 },
             }}
           >
-            <Box
-              display="flex"
-              flexDirection="column"
-              width="100%"
-              alignItems="center"
-              sx={{ textAlign: "center" }}
-            >
+            <Box display="flex" flexDirection="column" width="100%">
               <Diversity3
                 color="primary"
-                sx={{ fontSize: "40px", marginBottom: 2 }}
+                sx={{ fontSize: "40px", marginBottom: 1 }}
               />
               <Typography
                 gutterBottom
@@ -77,22 +70,16 @@ const WhyCouchersSection = () => {
             display="flex"
             sx={{
               backgroundColor: theme.palette.grey[50],
-              padding: 4,
+              padding: 3,
               borderRadius: 2,
               flex: { md: 1 },
               minWidth: 0,
             }}
           >
-            <Box
-              display="flex"
-              flexDirection="column"
-              width="100%"
-              alignItems="center"
-              sx={{ textAlign: "center" }}
-            >
+            <Box display="flex" flexDirection="column" width="100%">
               <VerifiedUser
                 color="primary"
-                sx={{ fontSize: "40px", marginBottom: 2 }}
+                sx={{ fontSize: "40px", marginBottom: 1 }}
               />
               <Typography
                 gutterBottom
@@ -112,23 +99,17 @@ const WhyCouchersSection = () => {
             display="flex"
             sx={{
               backgroundColor: theme.palette.grey[50],
-              padding: 4,
+              padding: 3,
               borderRadius: 2,
               flex: { md: 1 },
               minWidth: 0,
               marginRight: { xs: 0, md: 2 },
             }}
           >
-            <Box
-              display="flex"
-              flexDirection="column"
-              width="100%"
-              alignItems="center"
-              sx={{ textAlign: "center" }}
-            >
+            <Box display="flex" flexDirection="column" width="100%">
               <Loyalty
                 color="primary"
-                sx={{ fontSize: "40px", marginBottom: 2 }}
+                sx={{ fontSize: "40px", marginBottom: 1 }}
               />
               <Typography
                 gutterBottom

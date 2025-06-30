@@ -6,6 +6,8 @@ const Logo = styled(SvgIcon)(({ theme }) => ({
   fill: theme.palette.secondary.main,
   height: theme.typography.pxToRem(40),
   width: theme.typography.pxToRem(40),
+  display: "flex",
+  position: "relative",
 }));
 
 export interface CouchersLogoProps {
@@ -14,7 +16,7 @@ export interface CouchersLogoProps {
 
 export default function CouchersLogo({ className }: CouchersLogoProps) {
   return (
-    <Link href={baseRoute} passHref>
+    <Link href={baseRoute}>
       <Logo
         className={className}
         xmlns="http://www.w3.org/2000/svg"

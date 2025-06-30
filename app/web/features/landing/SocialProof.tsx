@@ -1,4 +1,4 @@
-import { Create, Favorite, Language } from "@mui/icons-material";
+import { Favorite, Language, Star } from "@mui/icons-material";
 import { Box, Skeleton, Typography, useMediaQuery } from "@mui/material";
 import Divider from "components/Divider";
 import useSignupInfo from "features/auth/useSignupInfo";
@@ -34,11 +34,15 @@ const SocialProof = () => {
       >
         {t("landing:what_couchsurfing_title")}
       </Typography>
-      <Typography paragraph sx={{ marginTop: 2, fontSize: "1.2rem" }}>
-        {t("landing:what_couchsurfing_description_1")}
-      </Typography>
-      <Typography paragraph sx={{ fontSize: "1.2rem" }}>
-        {t("landing:what_couchsurfing_description_2")}
+      <Typography
+        paragraph
+        sx={{
+          marginTop: 2,
+          fontSize: "1.2rem",
+          padding: isMobile ? undefined : theme.spacing(0, 20),
+        }}
+      >
+        {t("landing:what_couchsurfing_description")}
       </Typography>
       <Divider
         sx={{ backgroundColor: theme.palette.common.black, marginTop: 4 }}
@@ -47,7 +51,7 @@ const SocialProof = () => {
         display="flex"
         flexDirection={isMobile ? "column" : "row"}
         alignItems="center"
-        justifyContent="space-between"
+        justifyContent="center"
         sx={{ marginTop: 4, width: "100%" }}
         gap={isMobile ? 2 : 0}
       >
@@ -103,7 +107,7 @@ const SocialProof = () => {
           alignItems="center"
           maxWidth={isMobile ? undefined : theme.spacing(60)}
         >
-          <Create
+          <Star
             sx={{
               marginRight: 1,
               fontSize: "30px",
