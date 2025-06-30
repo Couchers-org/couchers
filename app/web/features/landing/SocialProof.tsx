@@ -122,7 +122,7 @@ const SocialProof = () => {
             {t("landing:num_countries", { numCountries: 180 })}
           </Typography>
         </Box>
-        <Box display="flex" alignItems="center">
+        <Box display="flex" alignItems={isMobile ? "flex-start" : "center"}>
           <Star
             sx={{
               marginRight: 1,
@@ -149,7 +149,6 @@ const SocialProof = () => {
                 sx={{
                   fontSize: "1.5rem",
                   fontWeight: 500,
-                  textAlign: "left",
                 }}
               >
                 {t("landing:last_signup", {

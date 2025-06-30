@@ -60,9 +60,7 @@ export default function SignupFormContent() {
           >
             Travel, host, and connect with{" "}
             {{ user_count: signupInfo?.userCount || "56k" }} members.{" "}
-            <StyledLink href={baseRoute}>
-              Learn more about Couchers.org
-            </StyledLink>
+            <StyledLink href={baseRoute}>Learn more about us</StyledLink>.
           </Trans>
         </Typography>
         <BasicForm submitText={t("global:create_account")} />

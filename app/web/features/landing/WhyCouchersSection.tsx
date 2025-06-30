@@ -1,10 +1,13 @@
 import { Diversity3, Loyalty } from "@mui/icons-material";
-import { Box, Fade, Grid, Typography } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import { VerifiedUser } from "components/Icons";
 import { useTranslation } from "i18n";
 import { LANDING } from "i18n/namespaces";
+import dynamic from "next/dynamic";
 import { useInView } from "react-intersection-observer";
 import { theme } from "theme";
+
+const ClientFade = dynamic(() => import("@mui/material/Fade"), { ssr: false });
 
 const WhyCouchersSection = () => {
   const { t } = useTranslation([LANDING]);
@@ -22,7 +25,7 @@ const WhyCouchersSection = () => {
       >
         {t("why_couchers_title")}
       </Typography>
-      <Fade timeout={2000} in={inView}>
+      <ClientFade timeout={2000} in={inView}>
         <Grid
           container
           gap={2}
@@ -123,7 +126,7 @@ const WhyCouchersSection = () => {
             </Box>
           </Grid>
         </Grid>
-      </Fade>
+      </ClientFade>
     </>
   );
 };

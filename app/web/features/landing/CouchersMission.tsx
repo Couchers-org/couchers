@@ -1,6 +1,7 @@
-import { Box, Fade, Grid, styled, Typography } from "@mui/material";
+import { Box, Grid, styled, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { theme } from "theme";
@@ -8,6 +9,8 @@ import { theme } from "theme";
 interface StyledGridBubbleProps extends React.ComponentProps<typeof Grid> {
   selected?: boolean;
 }
+
+const ClientFade = dynamic(() => import("@mui/material/Fade"), { ssr: false });
 
 const StyledGridBubble = styled(Grid, {
   shouldForwardProp: (prop) => prop !== "selected",
@@ -104,7 +107,7 @@ const CouchersMission = () => {
           marginBottom: 4,
         }}
       >
-        <Fade timeout={2000} in={inView}>
+        <ClientFade timeout={2000} in={inView}>
           <Box
             sx={{
               display: "flex",
@@ -124,8 +127,8 @@ const CouchersMission = () => {
             {missionBubble("open_source")}
             {missionBubble("non_transactional")}
           </Box>
-        </Fade>
-        <Fade key={selectedItem} timeout={1000} in={true}>
+        </ClientFade>
+        <ClientFade key={selectedItem} timeout={1000} in={true}>
           <Grid
             item
             sx={{
@@ -143,7 +146,7 @@ const CouchersMission = () => {
               <b>{t("landing:why")}</b> {t(`landing:${selectedItem}_why`)}
             </Typography>
           </Grid>
-        </Fade>
+        </ClientFade>
       </Grid>
     </>
   );
