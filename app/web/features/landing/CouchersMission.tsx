@@ -9,15 +9,12 @@ import {
 } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
-import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { theme } from "theme";
 
 interface StyledBubbleProps extends React.ComponentProps<typeof Box> {
   selected?: boolean;
 }
-
-const ClientFade = dynamic(() => import("@mui/material/Fade"), { ssr: false });
 
 const StyledBubble = styled(Box, {
   shouldForwardProp: (prop) => prop !== "selected",
@@ -175,7 +172,8 @@ const CouchersMission = () => {
             display: "flex",
             gap: 2,
             justifyContent: { xs: "flex-start", md: "center" },
-            overflowX: { xs: "auto", md: "auto" },
+            overflowX: { xs: "auto", md: "visible" },
+            overflowY: "hidden",
             flexWrap: { xs: "nowrap", md: "wrap" },
             WebkitOverflowScrolling: "touch",
             width: "100%",
@@ -210,25 +208,23 @@ const CouchersMission = () => {
           </IconButton>
         )}
       </Box>
-      <ClientFade key={selectedItem} timeout={1000} in={true}>
-        <Grid
-          item
-          sx={{
-            marginTop: 2,
-            backgroundColor: theme.palette.grey[50],
-            padding: 5,
-            borderRadius: 2,
-            width: "100%",
-          }}
-        >
-          <Typography gutterBottom>
-            {t(`landing:${selectedItem}_description`)}
-          </Typography>
-          <Typography sx={{ marginTop: 2 }}>
-            <b>{t("landing:why")}</b> {t(`landing:${selectedItem}_why`)}
-          </Typography>
-        </Grid>
-      </ClientFade>
+      <Grid
+        item
+        sx={{
+          marginTop: 2,
+          backgroundColor: theme.palette.grey[50],
+          padding: 5,
+          borderRadius: 2,
+          width: "100%",
+        }}
+      >
+        <Typography gutterBottom>
+          {t(`landing:${selectedItem}_description`)}
+        </Typography>
+        <Typography sx={{ marginTop: 2 }}>
+          <b>{t("landing:why")}</b> {t(`landing:${selectedItem}_why`)}
+        </Typography>
+      </Grid>
     </>
   );
 };
