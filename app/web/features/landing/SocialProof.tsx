@@ -52,11 +52,11 @@ const SocialProof = () => {
     >
       <Typography
         sx={{
-          fontSize: "3rem",
+          fontSize: "4rem",
           fontWeight: "bold",
 
           [theme.breakpoints.down("md")]: {
-            fontSize: "1.8rem",
+            fontSize: "2rem",
           },
         }}
       >
@@ -81,7 +81,7 @@ const SocialProof = () => {
         alignItems="center"
         justifyContent="center"
         sx={{ marginTop: 4, width: "100%" }}
-        gap={2}
+        gap={3}
       >
         <Box display="flex" alignItems="center">
           <Favorite
