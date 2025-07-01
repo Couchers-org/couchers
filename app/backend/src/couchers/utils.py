@@ -12,7 +12,7 @@ from google.protobuf.timestamp_pb2 import Timestamp
 from shapely.geometry import Point, Polygon, shape
 from sqlalchemy.sql import cast, func
 from sqlalchemy.types import DateTime
-
+import phonenumbers
 from couchers.config import config
 from couchers.constants import EMAIL_REGEX, PREFERRED_LANGUAGE_COOKIE_EXPIRY
 from couchers.crypto import decrypt_page_token, encrypt_page_token
@@ -401,13 +401,26 @@ def make_logged_out_context():
 def redact_phone_number(phone_number: str | None) -> str:
     if not phone_number:
         return ""
+    try:
+        parsed_number = phonenumbers.parse(phone_number, None) 
+        if not phonenumbers.is_valid_number(parsed_number) or parsed_number.country_code is None:
+            cleaned_number = "".join(filter(str.isdigit, phone_number))
+            if len(cleaned_number) <= 3:
+                return cleaned_number
+            return "*" * (len(cleaned_number) - 3) + cleaned_number[-3:]
 
-    cleaned_number = "".join(filter(str.isdigit, phone_number))
+        country_code = str(parsed_number.country_code)
+        national_number = str(parsed_number.national_number)
 
-    if len(cleaned_number) <= 4:
-        return cleaned_number
-    
-    redacted_part = "*" * (len(cleaned_number) - 4)
-    last_four_digits = cleaned_number[-4:]
+        if len(national_number) <= 3:
+            redacted_national_part = national_number
+        else:
+            redacted_national_part = "*" * (len(national_number) - 3) + national_number[-3:]
 
-    return redacted_part + last_four_digits
+        return f"+{country_code}{redacted_national_part}"
+
+    except phonenumbers.NumberParseException:
+        cleaned_number = "".join(filter(str.isdigit, phone_number))
+        if len(cleaned_number) <= 3:
+            return cleaned_number
+        return "*" * (len(cleaned_number) - 3) + cleaned_number[-3:]

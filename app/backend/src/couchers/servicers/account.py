@@ -177,13 +177,22 @@ def abort_on_invalid_password(password, context):
 
 
 class Account(account_pb2_grpc.AccountServicer):
-    def GetAccountInfo(self, request, context, session):
+     def GetAccountInfo(self, request, context, session):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
+        phone_to_send = None 
+
+        if user.phone: 
+            if user.phone_is_verified:
+
+                phone_to_send = redact_phone_number(user.phone)
+            elif not user.phone_code_expired:
+                phone_to_send = user.phone
+           
         return account_pb2.GetAccountInfoRes(
             username=user.username,
             email=user.email,
-            phone=redact_phone_number(user.phone) if (user.phone_is_verified or not user.phone_code_expired) else None,
+            phone=phone_to_send,
             has_donated=user.has_donated,
             phone_verified=user.phone_is_verified,
             profile_complete=user.has_completed_profile,
