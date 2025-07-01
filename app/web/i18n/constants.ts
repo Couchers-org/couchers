@@ -68,12 +68,4 @@ export const LANGUAGE_MAP: LanguageMap = {
     name: "Russian",
     flagIconCode: "RU",
   },
-  "zh-Hans": {
-    name: "Chinese (Simplified)",
-    flagIconCode: "CN",
-  },
-  "zh-Hant": {
-    name: "Chinese (Traditional)",
-    flagIconCode: "CN",
-  },
 };
