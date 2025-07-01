@@ -16,14 +16,6 @@ export const LANGUAGE_MAP: LanguageMap = {
     name: "English",
     flagIconCode: "GB",
   },
-  es: {
-    name: "Spanish (Spain)",
-    flagIconCode: "ES",
-  },
-  "es-419": {
-    name: "Spanish",
-    flagIconCode: "MX",
-  },
   it: {
     name: "Italian",
     flagIconCode: "IT",
