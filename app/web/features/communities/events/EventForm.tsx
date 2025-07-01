@@ -71,6 +71,7 @@ interface BaseEventData {
   startTime: Dayjs;
   endTime: Dayjs;
   isOnline: boolean;
+  shouldNotify: boolean;
   eventImage?: string;
   parentCommunityId?: number;
   link?: string;
