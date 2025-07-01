@@ -57,7 +57,9 @@ from couchers.utils import (
     dt_to_page_token,
     is_valid_email,
     now,
+    redact_phone_number,
     to_aware_datetime,
+
 )
 from proto import account_pb2, account_pb2_grpc, api_pb2, auth_pb2, iris_pb2_grpc, notification_data_pb2
 from proto.google.api import httpbody_pb2
@@ -181,7 +183,7 @@ class Account(account_pb2_grpc.AccountServicer):
         return account_pb2.GetAccountInfoRes(
             username=user.username,
             email=user.email,
-            phone=user.phone if (user.phone_is_verified or not user.phone_code_expired) else None,
+            phone=redact_phone_number(user.phone) if (user.phone_is_verified or not user.phone_code_expired) else None,
             has_donated=user.has_donated,
             phone_verified=user.phone_is_verified,
             profile_complete=user.has_completed_profile,

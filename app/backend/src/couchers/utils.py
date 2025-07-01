@@ -397,3 +397,17 @@ def make_user_context(user_id):
 
 def make_logged_out_context():
     return SimpleNamespace(user_id=0)
+
+def redact_phone_number(phone_number: str | None) -> str:
+    if not phone_number:
+        return ""
+
+    cleaned_number = "".join(filter(str.isdigit, phone_number))
+
+    if len(cleaned_number) <= 4:
+        return cleaned_number
+    
+    redacted_part = "*" * (len(cleaned_number) - 4)
+    last_four_digits = cleaned_number[-4:]
+
+    return redacted_part + last_four_digits
