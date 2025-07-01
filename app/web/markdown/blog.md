@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [A new chapter: Couchers is officially out of Beta!](/blog/2025/07/01/releasing-couchers-v1)
+
+2025/07/01 by Aapeli.
+
+We are out of Beta and in v1: we're releasing a new strategy around safe & active community instead of bashing our competitors, a fancy redesigned landing page, and a bunch of new features to make core couch surfing functionality better!
+
+[Read more.](/blog/2025/07/01/releasing-couchers-v1)
+
 ## [Couchers.org v0.9.9 Release Notes](/blog/2025/05/11/v0.9.9-release)
 
 2025/05/11 by Aapeli.
