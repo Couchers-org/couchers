@@ -173,7 +173,6 @@ const CouchersMission = () => {
             gap: 2,
             justifyContent: { xs: "flex-start", md: "center" },
             overflowX: { xs: "auto", md: "visible" },
-            overflowY: "hidden",
             flexWrap: { xs: "nowrap", md: "wrap" },
             WebkitOverflowScrolling: "touch",
             width: "100%",
