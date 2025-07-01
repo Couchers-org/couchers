@@ -179,9 +179,9 @@ message ReferenceReminder {
 }
 
 message EventReminder {
-  int64 occurrence_id = 1;
-  string start_time = 2;
-  org.couchers.api.events.Event event = 3;
+  org.couchers.api.events.Event event = 1;
+  org.couchers.api.core.User user = 2;
+  google.protobuf.Timestamp start_time = 3;
 }
 
 enum SVFailReason {

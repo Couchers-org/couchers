@@ -1,11 +1,11 @@
 Hi {{ user.name }},
 
-This is a reminder for the upcoming event:
+This is a reminder that the upcoming event is happening soon:
 
-{{ event_title }}
-Starts at {{ start_time }} UTC
+{{ event.title }}
+Starts at {{ start_time }} local time
 
-Don’t forget to join on time!
+Don’t forget to attend!
 
 Best,  
 The Couchers.org team

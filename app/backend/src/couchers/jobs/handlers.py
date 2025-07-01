@@ -8,7 +8,6 @@ from math import cos, pi, sin, sqrt
 
 import requests
 from google.protobuf import empty_pb2
-from google.protobuf.timestamp_pb2 import Timestamp
 from sqlalchemy import Float, Integer
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import (
@@ -90,6 +89,7 @@ from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.conversations import generate_message_notifications
 from couchers.servicers.discussions import generate_create_discussion_notifications
 from couchers.servicers.events import (
+    event_to_pb,
     generate_event_cancel_notifications,
     generate_event_create_notifications,
     generate_event_delete_notifications,
@@ -107,7 +107,7 @@ from couchers.utils import (
     make_user_context,
     now,
 )
-from proto import events_pb2, notification_data_pb2
+from proto import notification_data_pb2
 from proto.internal import jobs_pb2, verification_pb2
 
 logger = logging.getLogger(__name__)
@@ -1068,8 +1068,8 @@ def send_event_reminders(payload: empty_pb2.Empty):
 
     with session_scope() as session:
         now_time = now()
-        lower_bound = now_time + timedelta(hours=23.5)
-        upper_bound = now_time + timedelta(hours=24.5)
+        lower_bound = now_time + timedelta(hours=1.5)
+        upper_bound = now_time + timedelta(hours=22.5)
 
         occurrences = (
             session.execute(
@@ -1081,20 +1081,16 @@ def send_event_reminders(payload: empty_pb2.Empty):
             .all()
         )
 
-        attendees = []
         for occurrence in occurrences:
-            attendees = (
-                session.execute(
-                    select(User)
-                    .join(EventOccurrenceAttendee, EventOccurrenceAttendee.user_id == User.id)
-                    .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
-                    .where(EventOccurrenceAttendee.attendee_status == "going")
-                )
-                .scalars()
-                .all()
-            )
+            results = session.execute(
+                select(User, EventOccurrenceAttendee)
+                .join(EventOccurrenceAttendee, EventOccurrenceAttendee.user_id == User.id)
+                .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
+                .where(EventOccurrenceAttendee.attendee_status.in_(["going", "maybe"]))
+                .where(EventOccurrenceAttendee.reminder_sent == False)
+            ).all()
 
-            for user in attendees:
+            for user, attendee in results:
                 context = make_user_context(user_id=user.id)
 
                 notify(
@@ -1102,16 +1098,15 @@ def send_event_reminders(payload: empty_pb2.Empty):
                     user_id=user.id,
                     topic_action="event:reminder",
                     data=notification_data_pb2.EventReminder(
-                        occurrence_id=occurrence.id,
-                        start_time=occurrence.start_time.isoformat(),
-                        event=events_pb2.Event(
-                            event_id=occurrence.id,
-                            slug=occurrence.event.slug,
-                            title=occurrence.event.title,
-                            start_time=Timestamp(seconds=int(occurrence.start_time.timestamp())),
-                        ),
+                        event=event_to_pb(session, occurrence, context),
+                        user=user_model_to_pb(user, session, context),
+                        start_time=occurrence.start_time,
                     ),
                 )
+
+                attendee.reminder_sent = True
+
+    session.flush()
 
 
 send_event_reminders.PAYLOAD = empty_pb2.Empty

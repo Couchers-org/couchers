@@ -7,19 +7,19 @@
         </mj-text>
 
         <mj-text font-size="16px" font-family="Helvetica">
-          This is a reminder for the upcoming event:
+          This is a reminder that the upcoming event is happening soon:
         </mj-text>
 
         <mj-text font-size="18px" font-family="Helvetica" font-weight="bold">
-          {{ event_title }}
+          {{ event.title }}
         </mj-text>
 
         <mj-text font-size="16px" font-family="Helvetica">
-          Starts at {{ start_time }} UTC
+          Starts at {{ start_time }} local time
         </mj-text>
 
         <mj-text font-size="16px" font-family="Helvetica">
-          Don’t forget to join on time!
+          Don’t forget to attend!
         </mj-text>
 
         <mj-text font-size="16px" font-family="Helvetica">

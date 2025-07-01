@@ -2162,6 +2162,8 @@ class EventOccurrenceAttendee(Base):
     user = relationship("User")
     occurrence = relationship("EventOccurrence", backref=backref("attendances", lazy="dynamic"))
 
+    reminder_sent = Column(Boolean, nullable=False, default=False)
+
 
 class EventCommunityInviteRequest(Base):
     """
