@@ -212,7 +212,7 @@ requests==2.32.4
     #   geoip2
     #   opentelemetry-exporter-otlp-proto-http
     #   stripe
-ruff==0.11.7
+ruff==0.12.1
     # via -r requirements.in
 s3transfer==0.13.0
     # via boto3
