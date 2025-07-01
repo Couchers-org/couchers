@@ -13,8 +13,6 @@ const allLanguages = [
   "pt",
   "pt-BR",
   "ru",
-  "zh-Hans",
-  "zh-Hant",
 ];
 
 module.exports = { allLanguages };
