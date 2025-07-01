@@ -16,8 +16,4 @@ export const LANGUAGE_MAP: LanguageMap = {
     name: "English",
     flagIconCode: "GB",
   },
-  it: {
-    name: "Italian",
-    flagIconCode: "IT",
-  },
 };
