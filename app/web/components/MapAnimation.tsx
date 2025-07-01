@@ -71,7 +71,7 @@ export default function MapAnimation() {
             height="500px"
             width="500px"
           />
-          <Attribution variant="caption">Map data ©2025 Google</Attribution>
+          <Attribution variant="caption">Map data © 2025 Google</Attribution>
         </>
       ) : (
         <Skeleton
