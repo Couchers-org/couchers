@@ -1,5 +1,6 @@
 import Button from "components/Button";
 import { PersonAddIcon } from "components/Icons";
+import { doAntibot } from "features/antibot/antibot";
 import { userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { CONNECTIONS } from "i18n/namespaces";
@@ -29,6 +30,7 @@ export default function AddFriendButton({
   >(({ userId }) => service.api.sendFriendRequest(userId), {
     onMutate: async ({ setMutationError }) => {
       setMutationError("");
+      doAntibot("friend_request");
 
       await queryClient.cancelQueries(userKey(userId));
 

@@ -83,8 +83,8 @@
   "not_found_alt": "404 Error: Resource Not Found",
   "change_time": "Change time",
   "html_meta": {
-    "title_suffix": " | Couchers.org Beta",
-    "default_title": "Couchers.org Beta",
+    "title_suffix": " | Couchers.org",
+    "default_title": "Couchers.org",
     "default_description": "The new alternative to Couchsurfing™. Free forever. Community-led. Non-profit. Modern."
   },
   "error": {

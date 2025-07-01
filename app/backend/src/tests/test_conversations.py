@@ -649,6 +649,39 @@ def test_send_message(db):
         assert e.value.details() == errors.CANT_MESSAGE_IN_CHAT
 
 
+def test_send_direct_message(db):
+    user1, token1 = generate_user(complete_profile=True)
+    user2, token2 = generate_user(complete_profile=True)
+
+    make_friends(user1, user2)
+
+    message1 = "Hello, user2!"
+    message2 = "One more message."
+
+    with conversations_session(token1) as c1:
+        # Send a DM from user1 to user2
+        res = c1.SendDirectMessage(conversations_pb2.SendDirectMessageReq(recipient_user_id=user2.id, text=message1))
+
+        c1.SendDirectMessage(conversations_pb2.SendDirectMessageReq(recipient_user_id=user2.id, text=message2))
+
+    with conversations_session(token2) as c2:
+        # Fetch the chat by ID returned from SendDirectMessage
+        chat = c2.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=res.group_chat_id))
+
+        assert chat.is_dm
+        group_chat_id = chat.group_chat_id
+
+        # Verify that the messages was received
+        messages = c2.GetGroupChatMessages(
+            conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id)
+        ).messages
+
+        assert len(messages) == 2
+        assert messages[0].text.text == message2
+        assert messages[1].text.text == message1
+        assert messages[0].author_user_id == user1.id
+
+
 def test_excessive_chat_initiations_are_reported(db):
     """Test that excessive chat initiations are first reported in a warning email and finally lead blocking of further contacting other users."""
     user, token = generate_user()

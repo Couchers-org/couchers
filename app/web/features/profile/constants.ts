@@ -99,6 +99,21 @@ export const sleepingArrangementLabels = (t: TFunction) => ({
   ),
 });
 
+export const sleepingArrangementLabelsShort = (t: TFunction) => ({
+  [SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE]: t(
+    "profile:sleeping_arrangement.private_short",
+  ),
+  [SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON]: t(
+    "profile:sleeping_arrangement.common_short",
+  ),
+  [SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM]: t(
+    "profile:sleeping_arrangement.shared_room_short",
+  ),
+  [SleepingArrangement.SLEEPING_ARRANGEMENT_UNSPECIFIED]: t(
+    "profile:unspecified_info",
+  ),
+});
+
 export const parkingDetailsLabels = (t: TFunction) => ({
   [ParkingDetails.PARKING_DETAILS_FREE_ONSITE]: t(
     "profile:parking_details.free_onsite",

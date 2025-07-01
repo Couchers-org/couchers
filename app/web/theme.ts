@@ -3,15 +3,6 @@ import { createTheme, Theme } from "@mui/material";
 import { ThemeOptions } from "@mui/material/styles";
 import { createBreakpoints } from "@mui/system";
 
-declare module "@mui/material/styles/createTypography" {
-  interface TypographyOptions {
-    h1Large: TypographyStyleOptions;
-  }
-  interface Typography {
-    h1Large: TypographyStyleOptions;
-  }
-}
-
 const breakpoints = createBreakpoints({});
 const spacing = (factor: number) => `${0.5 * factor}rem`;
 const borderRadius = 4;
@@ -153,12 +144,6 @@ const themeOptions: ThemeOptions = {
       fontWeight: "bold",
       [breakpoints.up("md")]: {
         fontSize: "1.5rem", //24px
-      },
-    },
-    h1Large: {
-      fontSize: "1.5rem", //24px
-      [breakpoints.up("md")]: {
-        fontSize: "75rem", //28px
       },
     },
     h2: {

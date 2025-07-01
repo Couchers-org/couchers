@@ -94,6 +94,9 @@ static_resources:
                   value: Kilroy was here.
                 append_action: OVERWRITE_IF_EXISTS_OR_ADD
           http_filters:
+          - name: envoy.filters.http.cors
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.cors.v3.Cors
           - name: envoy.filters.http.compressor
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.compressor.v3.Compressor
@@ -134,9 +137,6 @@ static_resources:
                 always_print_primitive_fields: true
                 always_print_enums_as_ints: false
                 preserve_proto_field_names: false
-          - name: envoy.filters.http.cors
-            typed_config:
-              "@type": type.googleapis.com/envoy.extensions.filters.http.cors.v3.Cors
           - name: envoy.filters.http.router
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
