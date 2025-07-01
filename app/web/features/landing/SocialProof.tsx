@@ -105,7 +105,9 @@ const SocialProof = () => {
           ) : (
             <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
               {t("landing:num_users", {
-                numUsers: signupInfo?.userCount || "56k+",
+                numUsers: signupInfo?.userCount
+                  ? Number(signupInfo.userCount).toLocaleString()
+                  : "56k+",
               })}
             </Typography>
           )}

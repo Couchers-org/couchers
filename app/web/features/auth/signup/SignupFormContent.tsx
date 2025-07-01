@@ -53,7 +53,11 @@ export default function SignupFormContent() {
         <Typography gutterBottom sx={{ marginBottom: 2 }}>
           <Trans
             i18nKey="landing:signup_description"
-            values={{ user_count: signupInfo?.userCount || "56k" }}
+            values={{
+              user_count: signupInfo?.userCount
+                ? Number(signupInfo.userCount).toLocaleString()
+                : "56k+",
+            }}
             components={{
               2: <Link href={baseRoute} underline="hover" />,
             }}
