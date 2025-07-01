@@ -1,3 +1,3 @@
-const allLanguages = ["de", "en", "fr", "fr-CA", "it", "ja"];
+const allLanguages = ["de", "en", "it"];
 
 module.exports = { allLanguages };
