@@ -68,16 +68,15 @@ We also updated our policies and now forbid [nudism](https://help.couchers.org/h
 
 ### New community pages and public roadmap
 
-(WIP)
+![Screenshot of our public roadmap](/img/blog/20250701_roadmap.png)
+
+[Colleen](https://couchers.org/user/colleen) has built a brand new [communities page](https://couchers.org/communities) which lets you peruse the communities on the platform quickly and easily.
+
+To help communicate what we are doing and when, [Chris](https://couchers.org/user/chrisk) has spearheaded an effort to produce and maintain [a public roadmap](https://couchers.org/roadmap). This is a great resource to learn about what we're working on and what to look forward to!
 
 ### Activeness probes
 
-(WIP)
-
-In the next few weeks we'll be activating our *activeness probes*: a functionality to help 
-
-* Activeness probes by [Aapeli](https://couchers.org/user/aapeli), with assistance from [Nicole](https://couchers.org/user/unsettleddown) [[#5666](https://github.com/Couchers-org/couchers/pull/5666)]
-
+[Aapeli](https://couchers.org/user/aapeli) with assistance from [Nicole](https://couchers.org/user/unsettleddown), built out an *activeness probe* system: if you have set your status to hosting but haven't logged in in many months, we will occasionally send you a notification to ask if you are still interested in hosting. This helps us get a better idea of whether you would respond to a prospective surfer coming into town. In the next few weeks we'll be gradually rolling out this new functionality. We hope it helps reduce the number of well-thought out requests sent by surfers to hosts that never read their notification in the first place.
 
 ## Our new CouchOps team
 
@@ -85,6 +84,9 @@ In order to execute on our new strategy and marketing plans including this huge 
 
 That team currently consists of (in alphabetical order) [Aapeli](https://couchers.org/user/aapeli), [Bruna](https://couchers.org/user/bruna), [Charlotte](https://couchers.org/user/karottensaft1), [Chris](https://couchers.org/user/chrisk), [Colleen](https://couchers.org/user/colleen), [Jesse](https://couchers.org/user/jesse), [Marta](https://couchers.org/user/marta), [Mindy](https://couchers.org/user/mindelyn), and [Nicole](https://couchers.org/user/unsettleddown).
 
+## Our Engineering team
+
+We'd also like to say thanks to the engineering team, this year we've had the following wonderful people in our meetings planning and working on the platform: [Aapeli](https://couchers.org/user/aapeli), [Nicole](https://couchers.org/user/unsettleddown), [Chris](https://couchers.org/user/chrisk), [Jesse](https://couchers.org/user/jesse), [Colleen](https://couchers.org/user/colleen), [Laura](https://couchers.org/user/ellebee), [Pablo](https://couchers.org/user/pcolt86), [Shirley](https://couchers.org/user/shirley26), [Rafael](https://couchers.org/user/rafael_ferreira), [Yannic](https://couchers.org/user/spreeni), [Krishna](https://couchers.org/user/krishnag0902), [Caroline](https://couchers.org/user/haoud), [Gracee](https://couchers.org/user/graceegal), Kelvin, Lee, Alena, [Andrei](https://couchers.org/user/andrei_k), [Gabx](https://couchers.org/user/putmyname), Kiki, Navi, Shane, Chalen, [David](https://couchers.org/user/bakeiro), [Ivan](https://couchers.org/user/ivanmen), Jacob, James, [Justyna](https://couchers.org/user/justyna), Kirti and [Rishi](https://couchers.org/user/notatourist).
 
 ## Our rehauled branding & marketing strategy
 
@@ -98,10 +100,16 @@ In the coming months we are going to work on updating our messaging across the b
 
 ## Coming up next
 
+Over the next weeks the volunteer teams and Board will be working together to define our concrete priorities and roadmap for the rest of the year. We have brainstormed many ideas and have a rough path forward, but will work on refining it further. We will certainly concentrate a large part of our efforts on building a native mobile app, as well as allocating engineering resources to help our CouchOps team with their marketing and social media efforts.
+
+We have plans to build infrastructure to better measure the impact of what we do, taking a more metric-driven approach to features. The community is still at a size where it's hard to make strong statements about the impact of individual changes, but we believe that getting better visibility into what the experience is like for users is key.
+
+## Thanks to everyone!
+
 (WIP)
 
-The volunteer teams and Board will be working together over the next few weeks to ...
+## How to help out
 
-We have plans to build infrastructure to better measure the impact of the work we do, taking a more metric-driven 
+(WIP)
 
-This launch is by no means the end 
+FOLLOW US ON INSTAGRAM & SOCIAL MEDIA
