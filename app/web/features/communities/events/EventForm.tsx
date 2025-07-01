@@ -247,6 +247,17 @@ export default function EventForm({
               {t("communities:virtual_events_subtext")}
             </Typography>
           </div>
+
+        <FormControlLabel
+          control={
+            <Checkbox
+              {...register("shouldNotify")}
+              defaultChecked={false}
+              name="shouldNotify"
+            />
+          }
+          label={t("communities:notify_attendees", "Notify event attendees")}
+        />
         </div>
         <div className={classes.eventDetailsContainer}>
           <Typography id="content-label" variant="h3" component="p">
@@ -261,6 +272,8 @@ export default function EventForm({
             required={t("communities:event_details_required")}
           />
         </div>
+
+
         {children({ isMutationLoading })}
       </form>
     </div>
