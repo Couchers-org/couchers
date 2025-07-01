@@ -28,14 +28,6 @@ export const LANGUAGE_MAP: LanguageMap = {
     name: "Spanish",
     flagIconCode: "MX",
   },
-  fr: {
-    name: "French (France)",
-    flagIconCode: "FR",
-  },
-  "fr-CA": {
-    name: "French (Canada)",
-    flagIconCode: "CA",
-  },
   hi: {
     name: "Hindi",
     flagIconCode: "IN",
