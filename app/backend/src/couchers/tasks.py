@@ -17,7 +17,7 @@ from couchers.models import (
     RateLimitViolation,
     User,
 )
-from couchers.rate_limits.constants import RATE_LIMIT_INTERVAL_STRING
+from couchers.rate_limits.definitions import RATE_LIMIT_INTERVAL_STRING
 from couchers.sql import couchers_select as select
 from couchers.templates.v2 import send_simple_pretty_email
 from couchers.utils import now

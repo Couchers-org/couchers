@@ -16,7 +16,7 @@ from couchers.models import (
     NotificationTopicAction,
     RateLimitAction,
 )
-from couchers.rate_limits.constants import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL_STRING
+from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL_STRING
 from couchers.sql import couchers_select as select
 from couchers.utils import Duration_from_timedelta, now, to_aware_datetime
 from proto import api_pb2, conversations_pb2, notification_data_pb2, notifications_pb2

@@ -15,29 +15,21 @@ User {{ user.username }} has sent {{ threshold }} {{ action.value }}s in the pas
 - Joined: {{ user.joined }}
 - City: {{ user.city }}
 
-**host requests (past {{ time_interval_str }}):**
+{% for action, entries in events.items() -%}
+**{{ action.value }}s (past {{ time_interval_str }}):**
 
-| created | host id | host username | host city |
-|---|---|---|---|
-{% for entry in events["host_requests"] %}
-|{% for value in entry.values() %} {{value}} |{% endfor %}
+{% if entries %}
+|{% for key in entries[0].keys() %} {{ key }} |{% endfor %}
 
-{% endfor %}
+|{% for _ in entries[0].keys() %} --- |{% endfor %}
 
-**friend requests (past {{ time_interval_str }}):**
-
-| time sent | to user (ID) | to user (username) | status |
-|---|---|---|---|
-{% for entry in events["friend_requests"] %}
-|{% for value in entry.values() %} {{value}} |{% endfor %}
+{% for entry in entries %}
+|{% for value in entry.values() %} {{ value }} |{% endfor %}
 
 {% endfor %}
 
-**chat initiations (past {{ time_interval_str }}):**
+{% else %}
+No {{ action.value }}s found in the past {{ time_interval_str }}.
 
-| id | created | title | is_dm | participants |
-|---|---|---|---|---|
-{% for entry in events["chat_initiations"] %}
-|{% for value in entry.values() %} {{value}} |{% endfor %}
-
-{% endfor %}
+{% endif %}
+{%- endfor %}

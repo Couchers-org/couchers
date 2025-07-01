@@ -1,4 +1,4 @@
-from couchers.rate_limits.constants import RATE_LIMIT_INTERVAL_STRING
+from couchers.rate_limits.definitions import RATE_LIMIT_INTERVAL_STRING
 
 # CAUTION! Changing these messages may break clients.
 
