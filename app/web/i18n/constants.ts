@@ -8,10 +8,6 @@ interface LanguageMap {
 }
 
 export const LANGUAGE_MAP: LanguageMap = {
-  cs: {
-    name: "Czech",
-    flagIconCode: "CZ",
-  },
   de: {
     name: "German",
     flagIconCode: "DE",

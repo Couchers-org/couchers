@@ -1,5 +1,4 @@
 const allLanguages = [
-  "cs",
   "de",
   "en",
   "es",
