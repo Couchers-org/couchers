@@ -32,10 +32,6 @@ export const LANGUAGE_MAP: LanguageMap = {
     name: "Japanese",
     flagIconCode: "JP",
   },
-  "nb-NO": {
-    name: "Norwegian (Bokmål)",
-    flagIconCode: "NO",
-  },
   pl: {
     name: "Polish",
     flagIconCode: "PL",
