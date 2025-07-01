@@ -638,7 +638,6 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         return empty_pb2.Empty()
 
     def SendDirectMessage(self, request, context, session):
-
         user_id = context.user_id
         user = session.execute(select(User).where(User.id == user_id)).scalar_one()
 
@@ -651,9 +650,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_RECIPIENTS)
 
         recipient_user_id = session.execute(
-            select(User.id)
-            .where_users_visible(context)
-            .where(User.id == recipient_id)
+            select(User.id).where_users_visible(context).where(User.id == recipient_id)
         ).scalar_one_or_none()
 
         if not recipient_user_id:
@@ -664,7 +661,6 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
         if request.text == "":
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
-    
 
         # Look for an existing direct message (DM) chat between the two users
         dm_chat_ids = (
