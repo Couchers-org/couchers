@@ -1,0 +1,18 @@
+TO REMOVE (from the translations page on the homepage and also manual inspection of the website):
+
+Chinese simplified Han Script
+Chinese traditional Han Script
+Czech
+French
+French (Canada)
+Hindi
+Italian
+Japanese
+Japanese (Kansai)
+Norwegian Bokmal
+Polish
+Portuguese [non-Brazil]
+Portuguese (Portugal)
+Russian
+Spanish
+Spanish (Latin America)
