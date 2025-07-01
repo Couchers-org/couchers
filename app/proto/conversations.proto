@@ -72,6 +72,10 @@ service Conversations {
     // Send a message to a group chat
   }
 
+  rpc SendDirectMessage(SendDirectMessageReq) returns (SendDirectMessageRes) {
+    // Sends a direct message by either creating or using an existing DM chat
+  }
+
   rpc LeaveGroupChat(LeaveGroupChatReq) returns (google.protobuf.Empty) {
     // Leave a group chat
   }
@@ -255,6 +259,15 @@ message RemoveGroupChatAdminReq {
 message SendMessageReq {
   uint64 group_chat_id = 1;
   string text = 2;
+}
+
+message SendDirectMessageReq {
+  uint64 recipient_user_id = 1;
+  string text = 2;
+}
+
+message SendDirectMessageRes {
+  uint64 group_chat_id = 1;
 }
 
 message LeaveGroupChatReq {
