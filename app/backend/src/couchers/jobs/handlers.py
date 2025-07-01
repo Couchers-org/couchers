@@ -1068,8 +1068,8 @@ def send_event_reminders(payload: empty_pb2.Empty):
 
     with session_scope() as session:
         now_time = now()
-        lower_bound = now_time + timedelta(hours=1.5)
-        upper_bound = now_time + timedelta(hours=22.5)
+        lower_bound = now_time + timedelta(hours=11.5)
+        upper_bound = now_time + timedelta(hours=12.5)
 
         occurrences = (
             session.execute(
