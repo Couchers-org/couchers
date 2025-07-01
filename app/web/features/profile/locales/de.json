@@ -29,7 +29,7 @@
     "map_section": "Reisekarte"
   },
   "actions": {
-    "message_label": "Nachricht",
+    "message_label": "Chatten",
     "accept_friend_label": "Annehmen",
     "decline_friend_label": "Ablehnen",
     "request": "Anfragen",

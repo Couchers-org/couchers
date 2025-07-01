@@ -244,23 +244,22 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
     def ListMembers(self, request, context, session):
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        next_member_id = int(request.page_token) if request.page_token else 0
+        next_member_id = int(request.page_token) if request.page_token else None
+
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
-        members = (
-            session.execute(
-                select(User)
-                .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
-                .where_users_visible(context)
-                .where(ClusterSubscription.cluster_id == node.official_cluster.id)
-                .where(User.id >= next_member_id)
-                .order_by(User.id)
-                .limit(page_size + 1)
-            )
-            .scalars()
-            .all()
+
+        query = (
+            select(User)
+            .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
+            .where_users_visible(context)
+            .where(ClusterSubscription.cluster_id == node.official_cluster.id)
         )
+        if next_member_id is not None:
+            query = query.where(User.id <= next_member_id)
+        members = session.execute(query.order_by(User.id.desc()).limit(page_size + 1)).scalars().all()
+
         return communities_pb2.ListMembersRes(
             member_user_ids=[member.id for member in members[:page_size]],
             next_page_token=str(members[-1].id) if len(members) > page_size else None,

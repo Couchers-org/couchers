@@ -55,7 +55,7 @@ const Select = forwardRef(function Select<
       <InputLabel htmlFor={id}>{label}</InputLabel>
       <MuiSelect
         inputRef={ref}
-        variant="standard"
+        variant={variant}
         native={native}
         label={label}
         onChange={onChange}

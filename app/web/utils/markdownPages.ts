@@ -1,4 +1,5 @@
 import { glob } from "glob";
+import { allLanguages } from "i18n/allLanguages";
 
 export function getAllMarkdownFiles(): Array<string> {
   return glob.sync("markdown/**/*.md");
@@ -22,6 +23,21 @@ export function filenameToSlug(filename: string) {
     .split("/");
 }
 
-export function getAllMarkdownSlugs(): Array<Array<string>> {
-  return getAllMarkdownFiles().map(filenameToSlug);
+// From Next.js documentation:
+// https://nextjs.org/docs/pages/guides/internationalization#how-does-this-work-with-static-generation
+export function getAllMarkdownPathsWithLocales(): {
+  params: { slug: string[] };
+  locale: string;
+}[] {
+  const baseSlugs = getAllMarkdownFiles().map(filenameToSlug);
+
+  const paths = [];
+
+  for (const lang of allLanguages) {
+    for (const slug of baseSlugs) {
+      paths.push({ params: { slug }, locale: lang });
+    }
+  }
+
+  return paths;
 }
