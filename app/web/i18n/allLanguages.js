@@ -7,8 +7,6 @@ const allLanguages = [
   "fr-CA",
   "it",
   "ja",
-  "pt",
-  "pt-BR",
   "ru",
 ];
 
