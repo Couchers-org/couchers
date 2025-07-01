@@ -15,10 +15,10 @@ const WhyCouchersSection = () => {
     <>
       <Typography
         sx={{
-          fontSize: "3rem",
+          fontSize: "4rem",
           fontWeight: "bold",
 
-          [theme.breakpoints.down("md")]: { fontSize: "1.8rem" },
+          [theme.breakpoints.down("md")]: { fontSize: "2rem" },
         }}
       >
         {t("why_couchers_title")}
@@ -27,7 +27,7 @@ const WhyCouchersSection = () => {
         container
         gap={2}
         sx={{
-          marginTop: 4,
+          padding: theme.spacing(3, 0),
           width: "100%",
           flexWrap: { xs: "wrap", md: "nowrap" },
         }}
@@ -40,7 +40,7 @@ const WhyCouchersSection = () => {
           sx={{
             backgroundColor: theme.palette.grey[50],
             padding: 3,
-            borderRadius: 2,
+            borderRadius: theme.shape.borderRadius,
             flex: { md: 1 },
             minWidth: 0,
             marginLeft: { xs: 0, md: 2 },
@@ -70,7 +70,7 @@ const WhyCouchersSection = () => {
           sx={{
             backgroundColor: theme.palette.grey[50],
             padding: 3,
-            borderRadius: 2,
+            borderRadius: theme.shape.borderRadius,
             flex: { md: 1 },
             minWidth: 0,
           }}
@@ -99,7 +99,7 @@ const WhyCouchersSection = () => {
           sx={{
             backgroundColor: theme.palette.grey[50],
             padding: 3,
-            borderRadius: 2,
+            borderRadius: theme.shape.borderRadius,
             flex: { md: 1 },
             minWidth: 0,
             marginRight: { xs: 0, md: 2 },

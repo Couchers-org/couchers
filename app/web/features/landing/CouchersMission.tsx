@@ -22,9 +22,9 @@ const StyledBubble = styled(Box, {
   color: selected ? theme.palette.common.white : theme.palette.text.primary,
   backgroundColor: selected
     ? theme.palette.primary.main
-    : theme.palette.primary.light,
+    : theme.palette.grey[50],
   padding: theme.spacing(1),
-  borderRadius: theme.spacing(1),
+  borderRadius: theme.shape.borderRadius,
   display: "flex",
   alignItems: "center",
   height: theme.spacing(14),
@@ -125,12 +125,11 @@ const CouchersMission = () => {
     <>
       <Typography
         sx={{
-          fontSize: "3rem",
+          fontSize: "4rem",
           fontWeight: "bold",
-          marginBottom: 4,
 
           [theme.breakpoints.down("md")]: {
-            fontSize: "1.8rem",
+            fontSize: "2rem",
           },
         }}
       >
@@ -140,8 +139,7 @@ const CouchersMission = () => {
         sx={{
           position: "relative",
           width: "100%",
-          marginTop: 2,
-          marginBottom: 4,
+          padding: theme.spacing(3, 0),
         }}
       >
         {canScrollLeft && (
@@ -213,7 +211,7 @@ const CouchersMission = () => {
           marginTop: 2,
           backgroundColor: theme.palette.grey[50],
           padding: 5,
-          borderRadius: 2,
+          borderRadius: theme.shape.borderRadius,
           width: "100%",
         }}
       >
