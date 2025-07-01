@@ -183,7 +183,7 @@ export default function MarkdownPage({
           ))}
         </StyledBreadcrumbs>
         {!frontmatter.hide_title && (
-          <StyledTitle component="h1">{frontmatter.title}</StyledTitle>
+          <StyledTitle>{frontmatter.title}</StyledTitle>
         )}
         {subtitle && (
           <Typography component="h2">
