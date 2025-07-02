@@ -88,7 +88,7 @@
   },
   "reset_password_form": {
     "success_message": "Überprüfe deine E-Mail-Adresse, für einen Link, um das Passwort zurückzusetzen!",
-    "enter_email": "Gib deinen Benutzernamen/deine E-Mail-Adresse ein"
+    "enter_email": "Benutzernamen/E-Mail-Adresse eingeben"
   },
   "login_page": {
     "title": "Einloggen",
