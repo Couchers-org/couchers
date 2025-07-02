@@ -10,7 +10,7 @@ If you'd like to contribute to the blog, please [sign up](/volunteer) and let us
 
 2025/07/01 by Aapeli.
 
-We are out of Beta and in v1: we're releasing a new strategy around safe & active community instead of bashing our competitors, a fancy redesigned landing page, and a bunch of new features to make core couch surfing functionality better!
+We are out of Beta and into version 1: learn what this means, our new strategy around safe & active community instead of bashing our competitors, a fancy redesigned landing page, and a bunch of new features to make core couch surfing functionality better!
 
 [Read more.](/blog/2025/07/01/releasing-couchers-v1)
 
