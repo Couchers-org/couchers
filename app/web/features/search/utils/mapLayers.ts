@@ -4,7 +4,7 @@ import { theme } from "theme";
 const CLUSTER_LAYER_ID = "clusters";
 const UNCLUSTERED_LAYER_ID = "unclustered-points";
 const CLUSTER_COUNT_LAYER_ID = "clusters-count";
-const SOURCE_CLUSTERED_USERS_ID = "clustered-users";
+const USERS_SOURCE_ID = "users-source";
 
 const clusterLayer: LayerProps = {
   filter: ["has", "point_count"],
@@ -22,7 +22,7 @@ const clusterLayer: LayerProps = {
     ],
     "circle-radius": ["step", ["get", "point_count"], 20, 100, 30, 750, 40],
   },
-  source: SOURCE_CLUSTERED_USERS_ID,
+  source: USERS_SOURCE_ID,
   type: "circle",
 };
 
@@ -45,7 +45,7 @@ const clusterCountLayer: LayerProps = {
       theme.palette.getContrastText(theme.palette.primary.dark),
     ],
   },
-  source: SOURCE_CLUSTERED_USERS_ID,
+  source: USERS_SOURCE_ID,
   type: "symbol",
 };
 
@@ -77,7 +77,7 @@ const unclusteredPointLayer: LayerProps = {
     ],
     "icon-halo-blur": 2,
   },
-  source: SOURCE_CLUSTERED_USERS_ID,
+  source: USERS_SOURCE_ID,
   type: "symbol",
 };
 
@@ -86,7 +86,7 @@ export {
   CLUSTER_LAYER_ID,
   clusterCountLayer,
   clusterLayer,
-  SOURCE_CLUSTERED_USERS_ID,
   UNCLUSTERED_LAYER_ID,
   unclusteredPointLayer,
+  USERS_SOURCE_ID,
 };

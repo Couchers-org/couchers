@@ -1,6 +1,7 @@
 import { BoolValue } from "google-protobuf/google/protobuf/wrappers_pb";
 import { HostingStatus } from "proto/api_pb";
 import {
+  AntiBotReq,
   ConfirmDeleteAccountReq,
   ContributorForm as ContributorFormPb,
   RecoverAccountReq,
@@ -148,4 +149,11 @@ export async function recoverAccount(token: string) {
   const req = new RecoverAccountReq();
   req.setToken(token);
   await client.auth.recoverAccount(req);
+}
+
+export async function antibot(token: string, action: string) {
+  const req = new AntiBotReq();
+  req.setToken(token);
+  req.setAction(action);
+  return await client.auth.antiBot(req);
 }

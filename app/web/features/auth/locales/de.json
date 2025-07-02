@@ -44,7 +44,7 @@
     },
     "opt_in_newsletter": "Abonnieren unseren gelegentlichen Newsletter über Community-Updates."
   },
-  "sign_up_completed_prompt": "Wir haben eine E-Mail-Adresse mit einem Bestätigungslink an deine E-Mail-Adresse gesendet. Bitte klicke auf den Link, um deinen Account zu aktivieren.",
+  "sign_up_completed_prompt": "Wir haben eine E-Mail mit einem Bestätigungslink an deine E-Mail-Adresse gesendet. Bitte klicke auf den Link, um deinen Account zu aktivieren.",
   "change_email_form": {
     "title": "E-Mail-Adresse ändern",
     "current_email_message": "Deine aktuelle E-Mail-Adresse lautet <2>{{email}}</2>.",
@@ -61,7 +61,7 @@
     "name": {
       "empty_error": "Bitte gib deinen Namen an",
       "required_error": "Dieses Feld darf nicht leer sein.",
-      "field_label": "Dein Name"
+      "field_label": "Name"
     },
     "email": {
       "field_label": "E-Mail-Adresse",
@@ -111,8 +111,8 @@
   "sign_up_confirmed_prompt": "Du hast alles erledigt! Falls du nicht weitergeleitet wirst, versuche dich einzuloggen.",
   "login_prompt": "Klicke hier, um dich einzuloggen",
   "about_us": "Über uns",
-  "introduction_subtitle": "Für immer kostenlos. Von der Community geleitet. Gemeinnützig. Modern.",
-  "introduction_title": "Schließ dich uns an und unterstütze uns dabei, die neue Couchsurfing™ Alternative zu werden",
+  "introduction_subtitle": "Für immer kostenlos. Gemeinschaftsgeführt. Gemeinnützig. Modern.",
+  "introduction_title": "Tritt uns bei und unterstütze uns darin, die neue Alternative zu Couchsurfing™ zu etablieren",
   "reset_password": "Passwort zurücksetzen",
   "account_settings_page": {
     "birth_date_section": {
@@ -136,10 +136,10 @@
     "title": "Kontoeinstellungen"
   },
   "feature_preview": {
-    "disclaimer": "Bitte beachte, dass diese Features experimentell sind. Sie funktionieren vielleicht nicht wie vorgesehen und können sich während der Entwicklung noch stark ändern. Gib uns gerne Feedback dazu, indem du die Schaltfläche \"Problem melden\" verwendest um Bugs zu melden!",
+    "disclaimer": "Bitte beachte, dass diese Features experimentell sind. Sie funktionieren vielleicht nicht wie vorgesehen und können sich während der Entwicklung noch stark ändern. Gib uns gerne Feedback dazu, indem du die Schaltfläche \"Ein Problem melden\" verwendest um Bugs zu melden!",
     "no_previews": {
       "explanation": "Es gibt derzeit keine aktiven Features zur Vorschau, bitte schau zu einem späteren Zeitpunkt wieder vorbei!",
-      "title": "Keine Features derzeit in der Vorschau"
+      "title": "Momentan gibt es keine Features in der Vorschau"
     },
     "title": "Feature-Vorschau",
     "explanation": "Diese Seite ermöglicht es dir Features auszuprobieren, die in Entwicklung und noch nicht für den allgemeinen Nutzen bereit sind."
@@ -280,7 +280,7 @@
     "delete_success": "Deine Reisepassdaten wurden gelöscht.",
     "learn_more": "Erfahre mehr über Starke Verifizierung <a>hier</a>."
   },
-  "sign_up_resend_verification_email_help": "Du hast keine E-Mail erhalten? Klick <2>hier, um den Bestätigungslink erneut zu senden</2>.",
+  "sign_up_resend_verification_email_help": "Keine E-Mail erhalten? Klick <2>hier, um den Bestätigungslink erneut zu senden</2>.",
   "sign_up_resend_verification_done": "Erledigt! Wir haben dir eine weitere E-Mail gesendet.",
   "sign_up_need_verification_title": "Fast geschafft, noch eine letzte Sache!",
   "profile_visibility": {

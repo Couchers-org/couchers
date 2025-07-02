@@ -1,3 +1,4 @@
+import { InputProps } from "@mui/material";
 import TextField from "@mui/material/TextField";
 import { DatePicker, PickersDay } from "@mui/x-date-pickers";
 import { useTranslation } from "i18n";
@@ -29,6 +30,8 @@ interface DatepickerProps {
   openTo?: "year" | "month" | "day";
   onPostChange?(date: Dayjs | null): void;
   testId?: string;
+  variant?: "standard" | "outlined" | "filled";
+  inputProps?: InputProps;
 }
 
 const Datepicker = ({
@@ -46,6 +49,8 @@ const Datepicker = ({
   openTo = "day",
   onPostChange,
   testId,
+  variant = "standard",
+  inputProps = {},
 }: DatepickerProps) => {
   const { t } = useTranslation();
   return (
@@ -98,10 +103,11 @@ const Datepicker = ({
               }}
               InputProps={{
                 ...props.InputProps,
+                ...inputProps,
                 className,
                 "aria-label": t("components.datepicker.change_date"),
               }}
-              variant="standard"
+              variant={variant}
             />
           )}
         />

@@ -32,6 +32,7 @@ import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
+import { theme } from "theme";
 import {
   lowercaseAndTrimField,
   usernameValidationPattern,
@@ -78,12 +79,20 @@ const StyledSelect = styled(Select)(({ theme }) => ({
   marginBottom: theme.spacing(2),
   marginTop: 0,
   width: "100%",
+
+  "& .MuiInputBase-root": {
+    backgroundColor: theme.palette.common.white,
+  },
 }));
 
 const StyledDatepicker = styled(Datepicker)(({ theme }) => ({
   marginBottom: theme.spacing(2),
   marginTop: 0,
   width: "100%",
+
+  "& .MuiInputBase-input": {
+    backgroundColor: theme.palette.common.white,
+  },
 }));
 
 const StyledFormControl = styled(FormControl)(({ theme }) => ({
@@ -205,7 +214,7 @@ export default function AccountForm() {
               );
             },
           })}
-          variant="standard"
+          variant="outlined"
           fullWidth
           inputRef={(el: HTMLInputElement | null) => {
             if (!usernameInputRef.current) el?.focus();
@@ -226,7 +235,7 @@ export default function AccountForm() {
               validatePassword(password) ||
               t("auth:account_form.password.validation_error"),
           })}
-          variant="standard"
+          variant="outlined"
           type="password"
           fullWidth
           helperText={errors?.password?.message ?? " "}
@@ -241,6 +250,7 @@ export default function AccountForm() {
           error={!!errors?.birthdate?.message}
           helperText={errors?.birthdate?.message}
           id="birthdate"
+          variant="outlined"
           rules={{
             required: t("auth:account_form.birthday.required_error"),
             validate: (stringBirthDate: string) => {
@@ -268,6 +278,7 @@ export default function AccountForm() {
           openTo="year"
           name="birthdate"
           onPostChange={handleBirthdateChange}
+          inputProps={{ sx: { backgroundColor: theme.palette.common.white } }}
         />
         <StyledInputLabel htmlFor="location">
           {t("auth:location.field_label")}
@@ -298,6 +309,12 @@ export default function AccountForm() {
                 });
               }
             }}
+            sx={{
+              "& .MuiInputBase-root": {
+                backgroundColor: theme.palette.common.white,
+              },
+            }}
+            variant="outlined"
           />
         )}
       />
@@ -305,7 +322,7 @@ export default function AccountForm() {
         <StyledInputLabel htmlFor="hosting-status">
           {t("auth:account_form.hosting_status.field_label")}
         </StyledInputLabel>
-        <StyledFormControl variant="standard">
+        <StyledFormControl variant="outlined">
           {errors?.hostingStatus?.message && (
             <FormHelperText error>
               {errors.hostingStatus.message}
@@ -318,6 +335,7 @@ export default function AccountForm() {
             render={({ field }) => (
               <StyledSelect
                 {...field}
+                variant="outlined"
                 onChange={(event) => {
                   field.onChange(
                     Number.parseInt(event.target.value as string) || "",

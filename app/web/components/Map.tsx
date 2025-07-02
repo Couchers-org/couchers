@@ -5,9 +5,9 @@ import { useMapSearchState } from "features/search/state/mapSearchContext";
 import {
   clusterCountLayer,
   clusterLayer,
-  SOURCE_CLUSTERED_USERS_ID,
   UNCLUSTERED_LAYER_ID,
   unclusteredPointLayer,
+  USERS_SOURCE_ID,
 } from "features/search/utils/mapLayers";
 import ZoomControl from "features/search/ZoomControl";
 import { MapLayerMouseEvent, RequestParameters } from "maplibre-gl";
@@ -152,7 +152,7 @@ const Map = ({
         {...(isMobile && { attributionControl: false })}
       >
         <Source
-          id={SOURCE_CLUSTERED_USERS_ID}
+          id={USERS_SOURCE_ID}
           cluster={true}
           clusterMaxZoom={14}
           clusterRadius={50}
