@@ -33,7 +33,11 @@ const StyledMuiAvatar = styled(MuiAvatar)(() => ({
 
 export interface AvatarProps {
   children?: React.ReactNode;
-  user?: Pick<LiteUser.AsObject, "username" | "name" | "avatarThumbnailUrl">;
+  user?: Pick<
+    LiteUser.AsObject,
+    "username" | "name" | "avatarUrl" | "avatarThumbnailUrl"
+  >;
+  highRes?: boolean;
   grow?: boolean;
   className?: string;
   isProfileLink?: boolean;
@@ -43,6 +47,7 @@ export interface AvatarProps {
 
 export default function Avatar({
   user,
+  highRes,
   grow,
   className,
   isProfileLink = true,
@@ -63,12 +68,18 @@ export default function Avatar({
             aria-label={getProfileLinkA11yLabel(user.name)}
             target={openInNewTab ? "_blank" : undefined}
           >
-            <StyledMuiAvatar alt={user.name} src={user.avatarThumbnailUrl}>
+            <StyledMuiAvatar
+              alt={user.name}
+              src={!!highRes ? user.avatarUrl : user.avatarThumbnailUrl}
+            >
               {user.name.split(/\s+/).map((name) => name[0])}
             </StyledMuiAvatar>
           </StyledLink>
         ) : (
-          <StyledMuiAvatar alt={user.name} src={user.avatarThumbnailUrl}>
+          <StyledMuiAvatar
+            alt={user.name}
+            src={!!highRes ? user.avatarUrl : user.avatarThumbnailUrl}
+          >
             {user.name.split(/\s+/).map((name) => name[0])}
           </StyledMuiAvatar>
         )
