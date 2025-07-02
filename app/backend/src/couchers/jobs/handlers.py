@@ -5,6 +5,7 @@ Background job servicers
 import logging
 from datetime import date, timedelta
 from math import cos, pi, sin, sqrt
+from random import sample
 
 import requests
 from google.protobuf import empty_pb2
@@ -958,6 +959,20 @@ def send_activeness_probes(payload):
                 .scalars()
                 .all()
             )
+
+            total_users = session.execute(select(func.count()).select_from(User).where(User.is_visible)).scalar_one()
+            probes_today = session.execute(
+                select(func.count())
+                .select_from(ActivenessProbe)
+                .where(func.now() - ActivenessProbe.probe_initiated < timedelta(hours=24))
+            ).scalar_one()
+
+            # send probes to max 2% of users per day
+            max_probes_per_day = 0.02 * total_users
+            max_probe_size = int(max(min(max_probes_per_day - probes_today, max_probes_per_day / 24), 1))
+
+            if len(new_probe_user_ids) > max_probe_size:
+                new_probe_user_ids = sample(new_probe_user_ids, max_probe_size)
 
             for user_id in new_probe_user_ids:
                 session.add(ActivenessProbe(user_id=user_id))
