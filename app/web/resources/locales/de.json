@@ -148,7 +148,7 @@
             "title": "Hoppla... das ist ein unbekannter Fehler",
             "refresh_page_button_label": "Seite neu laden",
             "home_page_link_label": "Zur Startseite gehen",
-            "subtitle": "Bitte verwende die Schaltfläche „Problem melden“ und teile uns mit, was du gerade gemacht hast, damit wir diesen Fehler in Zukunft verhindern können."
+            "subtitle": "Bitte verwende die Schaltfläche „Ein Problem melden“ und teile uns mit, was du gerade gemacht hast, damit wir diesen Fehler in Zukunft verhindern können."
         }
     },
     "components": {
@@ -203,5 +203,7 @@
     "strong_verification": {
         "helper_text": "Die Identität des Mitglieds wurde mit einem biometrischen Reisepass verifiziert"
     },
-    "thanks": "Danke!"
+    "thanks": "Danke!",
+    "create_account": "Account Erstellen",
+    "join_us": "Mitmachen"
 }

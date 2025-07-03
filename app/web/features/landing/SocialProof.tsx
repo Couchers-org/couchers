@@ -1,18 +1,46 @@
-import { Create, Favorite, Language } from "@mui/icons-material";
+import { Favorite, Language, Star } from "@mui/icons-material";
 import { Box, Skeleton, Typography, useMediaQuery } from "@mui/material";
 import Divider from "components/Divider";
-import useSignupInfo from "features/auth/useSignupInfo";
 import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
+import { useEffect, useState } from "react";
 import { theme } from "theme";
-import { timestamp2Date } from "utils/date";
 import { timeAgoI18n } from "utils/timeAgo";
+
+export interface SignupInfo {
+  userCount: string;
+  lastSignup: string | Date;
+  lastLocation: string;
+}
 
 const SocialProof = () => {
   const { t } = useTranslation([GLOBAL, LANDING]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const { data: signupInfo, isLoading } = useSignupInfo();
+  const [signupInfo, setSignupInfo] = useState<SignupInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSignupInfo = async () => {
+      try {
+        const response = await fetch(
+          "https://couchers.org/api/public/signup-page-info",
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch signup info");
+        }
+        const data = await response.json();
+        setSignupInfo(data);
+      } catch (error) {
+        console.error("Error fetching signup info:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSignupInfo();
+  }, []);
 
   return (
     <Box
@@ -24,21 +52,25 @@ const SocialProof = () => {
     >
       <Typography
         sx={{
-          fontSize: "3rem",
+          fontSize: "4rem",
           fontWeight: "bold",
 
           [theme.breakpoints.down("md")]: {
-            fontSize: "1.8rem",
+            fontSize: "2rem",
           },
         }}
       >
         {t("landing:what_couchsurfing_title")}
       </Typography>
-      <Typography paragraph sx={{ marginTop: 2, fontSize: "1.2rem" }}>
-        {t("landing:what_couchsurfing_description_1")}
-      </Typography>
-      <Typography paragraph sx={{ fontSize: "1.2rem" }}>
-        {t("landing:what_couchsurfing_description_2")}
+      <Typography
+        paragraph
+        sx={{
+          marginTop: 2,
+          fontSize: "1.2rem",
+          padding: isMobile ? undefined : theme.spacing(0, 20),
+        }}
+      >
+        {t("landing:what_couchsurfing_description")}
       </Typography>
       <Divider
         sx={{ backgroundColor: theme.palette.common.black, marginTop: 4 }}
@@ -47,15 +79,11 @@ const SocialProof = () => {
         display="flex"
         flexDirection={isMobile ? "column" : "row"}
         alignItems="center"
-        justifyContent="space-between"
+        justifyContent="center"
         sx={{ marginTop: 4, width: "100%" }}
-        gap={isMobile ? 2 : 0}
+        gap={3}
       >
-        <Box
-          display="flex"
-          alignItems="center"
-          minWidth={isMobile ? undefined : theme.spacing(25)}
-        >
+        <Box display="flex" alignItems="center">
           <Favorite
             sx={{
               marginRight: 1,
@@ -77,16 +105,14 @@ const SocialProof = () => {
           ) : (
             <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
               {t("landing:num_users", {
-                numUsers: signupInfo?.userCount || "56k",
+                numUsers: signupInfo?.userCount
+                  ? Number(signupInfo.userCount).toLocaleString()
+                  : "56k+",
               })}
             </Typography>
           )}
         </Box>
-        <Box
-          display="flex"
-          alignItems="center"
-          minWidth={isMobile ? undefined : theme.spacing(30)}
-        >
+        <Box display="flex" alignItems="center">
           <Language
             sx={{
               marginRight: 1,
@@ -98,12 +124,8 @@ const SocialProof = () => {
             {t("landing:num_countries", { numCountries: 180 })}
           </Typography>
         </Box>
-        <Box
-          display="flex"
-          alignItems="center"
-          maxWidth={isMobile ? undefined : theme.spacing(60)}
-        >
-          <Create
+        <Box display="flex" alignItems={isMobile ? "flex-start" : "center"}>
+          <Star
             sx={{
               marginRight: 1,
               fontSize: "30px",
@@ -123,8 +145,7 @@ const SocialProof = () => {
             </Box>
           ) : (
             signupInfo &&
-            signupInfo.lastSignup &&
-            signupInfo.lastLocation && (
+            signupInfo.lastSignup && (
               <Typography
                 sx={{
                   fontSize: "1.5rem",
@@ -133,10 +154,9 @@ const SocialProof = () => {
               >
                 {t("landing:last_signup", {
                   timeAgo: timeAgoI18n({
-                    input: timestamp2Date(signupInfo.lastSignup),
+                    input: signupInfo.lastSignup,
                     t: t,
                   }),
-                  location: signupInfo.lastLocation,
                 })}
               </Typography>
             )

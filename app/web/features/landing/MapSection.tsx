@@ -17,12 +17,10 @@ const MapSection = () => {
     <>
       <Typography
         sx={{
-          fontSize: "3rem",
-          textAlign: "center",
+          fontSize: "4rem",
           fontWeight: "bold",
-          marginBottom: 4,
-
-          [theme.breakpoints.down("md")]: { fontSize: "1.8rem" },
+          textAlign: "center",
+          [theme.breakpoints.down("md")]: { fontSize: "2rem" },
         }}
       >
         {t("map_section_title")}

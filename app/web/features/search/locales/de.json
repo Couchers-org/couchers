@@ -19,9 +19,18 @@
       "title": "Unterkunftsfilter",
       "sleeping_arrangement_label": "Schlafmöglichkeiten",
       "sleeping_arrangement_filters": {
-        "shared_room": "Geteiltes Zimmer",
-        "private": "Eigenes Zimmer",
-        "common": "Gemeinschaftsraum"
+        "shared_room": {
+          "label": "Geteiltes Zimmer",
+          "description": " - z.B. geteiltes Zimmer mit eigener Schlaffläche"
+        },
+        "common": {
+          "description": " - z.B. Couch im Wohnzimmer",
+          "label": "Gemeinschaftsraum"
+        },
+        "private": {
+          "label": "Privater Bereich",
+          "description": " - z.B. eigenes Zimmer o. Ä."
+        }
       }
     },
     "location_field_label": "In der Nähe von",

@@ -1,5 +1,6 @@
-import { styled } from "@mui/material";
+import { styled, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
+import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import MapAnimation from "components/MapAnimation";
@@ -13,6 +14,7 @@ import { useEffect, useState } from "react";
 import { signupRoute } from "routes";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
+import { theme } from "theme";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 import { useAuthContext } from "../auth/AuthProvider";
@@ -25,10 +27,10 @@ const StyledContent = styled("div")(({ theme }) => ({
   justifyContent: "space-between",
   alignItems: "center",
   marginBottom: theme.spacing(2),
+  padding: theme.spacing(4, 0),
 
   [theme.breakpoints.down("md")]: {
     flexDirection: "column",
-    padding: theme.spacing(8, 0, 0, 0),
   },
 }));
 
@@ -37,12 +39,13 @@ const StyledMobileEmbed = styled("div")(({ theme }) => ({
 }));
 
 const StyledMapWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, 2),
   width: "55%",
+  paddingLeft: theme.spacing(8),
 
   [theme.breakpoints.down("md")]: {
     width: "100%",
-    marginTop: theme.spacing(2),
+    marginTop: theme.spacing(4),
+    paddingLeft: 0,
   },
 }));
 
@@ -53,6 +56,7 @@ export default function HeroSection() {
   const error = authState.error;
   const urlToken = stringOrFirstString(router.query.token);
   const isNativeEmbed = useIsNativeEmbed();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [loading, setLoading] = useState(false);
 
@@ -104,6 +108,10 @@ export default function HeroSection() {
     );
   }
 
+  const routeToSignupPage = () => {
+    router.push(signupRoute);
+  };
+
   return (
     <>
       <HtmlMeta title={t("global:join_us")} />
@@ -112,6 +120,20 @@ export default function HeroSection() {
         <StyledMapWrapper>
           <MapAnimation />
         </StyledMapWrapper>
+        {router.pathname === "/" && isMobile && (
+          <Button
+            onClick={routeToSignupPage}
+            size="large"
+            color="primary"
+            sx={{
+              marginTop: 4,
+              width: theme.spacing(20),
+              fontSize: "1.3rem",
+            }}
+          >
+            {t("global:join_us")}
+          </Button>
+        )}
       </StyledContent>
     </>
   );

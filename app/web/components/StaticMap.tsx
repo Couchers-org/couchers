@@ -21,14 +21,15 @@ import { theme } from "theme";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const MapWrapper = styled("div")(({ theme }) => ({
-  height: 600,
+  height: 500,
   width: "100%",
   position: "relative",
-  borderRadius: "10px",
+  borderRadius: theme.shape.borderRadius,
   overflow: "hidden",
+  margin: theme.spacing(3, 0),
 
   [theme.breakpoints.down("md")]: {
-    height: 400,
+    height: 350,
   },
 }));
 
@@ -64,6 +65,7 @@ const StaticMap = () => {
         ref={mapRef}
         onLoad={onLoad}
         scrollZoom={false}
+        {...(isMobile && { attributionControl: false })}
       >
         <Source
           id={USERS_SOURCE_ID}
