@@ -174,7 +174,7 @@ describe("User page", () => {
       });
 
       it("reports the user successfully", async () => {
-        const reason = "Dating / Flirting";
+        const reason = "Sexualized content or behavior";
         const description = "I feel very uncomfortable around this creepy dog";
 
         const user = userEvent.setup();
@@ -216,7 +216,7 @@ describe("User page", () => {
       it("shows an error alert if the report user request failed to submit", async () => {
         jest.spyOn(console, "error").mockReturnValue(undefined);
         reportContentMock.mockRejectedValue(new Error("API error"));
-        const reason = "Dating / Flirting";
+        const reason = "Sexualized content or behavior";
         const description = " ";
 
         const user = userEvent.setup();

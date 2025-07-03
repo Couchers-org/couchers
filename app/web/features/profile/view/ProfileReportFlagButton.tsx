@@ -212,13 +212,13 @@ export default function ProfileReportFlagButton({
                   >
                     {[
                       "",
-                      t("report.flag.reason.spam"),
                       t("report.flag.reason.dating"),
+                      t("report.flag.reason.sexualized"),
+                      t("report.flag.reason.safety"),
+                      t("report.flag.reason.scam"),
+                      t("report.flag.reason.spam"),
                       t("report.flag.reason.external"),
-                      t("report.flag.reason.commercial"),
                       t("report.flag.reason.harassment"),
-                      t("report.flag.reason.fake"),
-                      t("report.flag.reason.freeloading"),
                       t("report.flag.reason.guidelines_breach"),
                       t("report.flag.reason.other"),
                     ].map((option) => (
