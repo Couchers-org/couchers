@@ -20,7 +20,7 @@ export default function HostRequestStatusIcon({
 
   if (s === HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED) {
     icon = <CheckIcon fontSize="inherit" />;
-    color = "green";
+    color = "gray";
   } else if (s === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED) {
     icon = <CrossIcon fontSize="inherit" />;
     color = "red";
