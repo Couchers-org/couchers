@@ -10,6 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import { BlueSkyIcon } from "components/Icons";
+import ReportButton from "components/Navigation/ReportButton";
 import StyledLink from "components/StyledLink";
 import AntibotNote from "features/antibot/AntibotNote";
 import { Trans, useTranslation } from "i18n";
@@ -195,6 +196,7 @@ export default function Footer() {
             <FooterLink href={foundationRoute}>{t("legal_name")}</FooterLink>
             <FooterLink href={builtWithRoute}>{t("nav.built_with")}</FooterLink>
             <FooterLink href={contactRoute}>{t("nav.contact_us")}</FooterLink>
+            <ReportButton isMenuLink />
           </div>
           <StyledButtonContainer>
             <Link href={donationsRoute} passHref legacyBehavior>

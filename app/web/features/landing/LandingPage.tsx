@@ -12,7 +12,7 @@ import SocialProof from "./SocialProof";
 import WhyCouchersSection from "./WhyCouchersSection";
 
 const StyledSpacer = styled("div")(({ theme }) => ({
-  height: theme.spacing(4),
+  height: "3.5rem",
 }));
 
 export default function LandingPage() {

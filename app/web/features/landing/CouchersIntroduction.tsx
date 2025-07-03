@@ -1,4 +1,4 @@
-import { styled, Typography } from "@mui/material";
+import { styled, Typography, useMediaQuery } from "@mui/material";
 import Button from "components/Button";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
@@ -22,6 +22,7 @@ const StyledIntroduction = styled("div")(({ theme }) => ({
 const CouchersIntroduction = () => {
   const { t } = useTranslation([GLOBAL, LANDING]);
   const router = useRouter();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const routeToSignupPage = () => {
     router.push(signupRoute);
@@ -69,7 +70,7 @@ const CouchersIntroduction = () => {
         >
           {t("landing:introduction_subtitle2")}
         </Typography>
-        {router.pathname === "/" && (
+        {router.pathname === "/" && !isMobile && (
           <Button
             onClick={routeToSignupPage}
             size="large"

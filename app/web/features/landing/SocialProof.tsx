@@ -52,11 +52,11 @@ const SocialProof = () => {
     >
       <Typography
         sx={{
-          fontSize: "3rem",
+          fontSize: "4rem",
           fontWeight: "bold",
 
           [theme.breakpoints.down("md")]: {
-            fontSize: "1.8rem",
+            fontSize: "2rem",
           },
         }}
       >
@@ -81,7 +81,7 @@ const SocialProof = () => {
         alignItems="center"
         justifyContent="center"
         sx={{ marginTop: 4, width: "100%" }}
-        gap={2}
+        gap={3}
       >
         <Box display="flex" alignItems="center">
           <Favorite
@@ -105,7 +105,9 @@ const SocialProof = () => {
           ) : (
             <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
               {t("landing:num_users", {
-                numUsers: signupInfo?.userCount || "56k+",
+                numUsers: signupInfo?.userCount
+                  ? Number(signupInfo.userCount).toLocaleString()
+                  : "56k+",
               })}
             </Typography>
           )}
@@ -122,7 +124,7 @@ const SocialProof = () => {
             {t("landing:num_countries", { numCountries: 180 })}
           </Typography>
         </Box>
-        <Box display="flex" alignItems="center">
+        <Box display="flex" alignItems={isMobile ? "flex-start" : "center"}>
           <Star
             sx={{
               marginRight: 1,
@@ -143,13 +145,11 @@ const SocialProof = () => {
             </Box>
           ) : (
             signupInfo &&
-            signupInfo.lastSignup &&
-            signupInfo.lastLocation && (
+            signupInfo.lastSignup && (
               <Typography
                 sx={{
                   fontSize: "1.5rem",
                   fontWeight: 500,
-                  textAlign: "left",
                 }}
               >
                 {t("landing:last_signup", {
@@ -157,7 +157,6 @@ const SocialProof = () => {
                     input: signupInfo.lastSignup,
                     t: t,
                   }),
-                  location: signupInfo.lastLocation,
                 })}
               </Typography>
             )
