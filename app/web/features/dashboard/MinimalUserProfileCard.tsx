@@ -31,7 +31,7 @@ export default function MinimalUserProfileCard({
   const classes = useStyles();
   return (
     <Card className={classes.container}>
-      <Avatar user={user} />
+      <Avatar user={user} highRes />
       <div className={classes.textFieldsContainer}>
         <div>
           <Typography noWrap align="right">
