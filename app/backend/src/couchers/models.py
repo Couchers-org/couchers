@@ -2789,3 +2789,28 @@ class AntiBotLog(Base):
 
     score = Column(Float, nullable=False)
     provider_data = Column(JSON, nullable=False)
+
+
+class RateLimitAction(enum.Enum):
+    """Possible user actions which can be rate limited."""
+
+    host_request = "host request"
+    friend_request = "friend request"
+    chat_initiation = "chat initiation"
+
+
+class RateLimitViolation(Base):
+    __tablename__ = "rate_limit_violations"
+
+    id = Column(BigInteger, primary_key=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+    action = Column(Enum(RateLimitAction), nullable=False)
+    is_hard_limit = Column(Boolean, nullable=False)
+
+    user = relationship("User")
+
+    __table_args__ = (
+        # Fast lookup for rate limits in interval
+        Index("ix_rate_limits_by_user", user_id, action, is_hard_limit, created),
+    )

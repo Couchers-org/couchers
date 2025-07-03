@@ -7,7 +7,8 @@ from sqlalchemy.sql import select
 from couchers import errors
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_view
-from couchers.models import Message, MessageType
+from couchers.models import Message, MessageType, RateLimitAction
+from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL_STRING
 from couchers.templates.v2 import v2date
 from couchers.utils import now, today
 from proto import api_pb2, conversations_pb2, requests_pb2
@@ -145,6 +146,71 @@ def test_create_request_incomplete_profile(db):
             )
     assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
     assert e.value.details() == errors.INCOMPLETE_PROFILE_SEND_REQUEST
+
+
+def test_excessive_requests_are_reported(db):
+    """Test that excessive host requests are first reported in a warning email and finally lead blocking of further requests."""
+    user, token = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.host_request]
+    with requests_session(token) as api:
+        # Test warning email
+        with mock_notification_email() as mock_email:
+            for _ in range(rate_limit_definition.warning_limit):
+                host_user, _ = generate_user()
+                _ = api.CreateHostRequest(
+                    requests_pb2.CreateHostRequestReq(
+                        host_user_id=host_user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                    )
+                )
+
+            assert mock_email.call_count == 0
+            host_user, _ = generate_user()
+            _ = api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=host_user.id,
+                    from_date=today_plus_2,
+                    to_date=today_plus_3,
+                    text="Excessive test request",
+                )
+            )
+            assert mock_email.call_count == 1
+            email = mock_email.mock_calls[0].kwargs["plain"]
+            assert email.startswith(
+                f"User {user.username} has sent {rate_limit_definition.warning_limit} host requests in the past {RATE_LIMIT_INTERVAL_STRING}."
+            )
+
+        # Test ban after exceeding HOST_REQUEST_HARD_LIMIT
+        with mock_notification_email() as mock_email:
+            for _ in range(rate_limit_definition.hard_limit - rate_limit_definition.warning_limit - 1):
+                host_user, _ = generate_user()
+                _ = api.CreateHostRequest(
+                    requests_pb2.CreateHostRequestReq(
+                        host_user_id=host_user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                    )
+                )
+
+            assert mock_email.call_count == 0
+            host_user, _ = generate_user()
+            with pytest.raises(grpc.RpcError) as exc_info:
+                _ = api.CreateHostRequest(
+                    requests_pb2.CreateHostRequestReq(
+                        host_user_id=host_user.id,
+                        from_date=today_plus_2,
+                        to_date=today_plus_3,
+                        text="Excessive test request",
+                    )
+                )
+            assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
+            assert exc_info.value.details() == errors.HOST_REQUEST_RATE_LIMIT
+
+            assert mock_email.call_count == 1
+            email = mock_email.mock_calls[0].kwargs["plain"]
+            assert email.startswith(
+                f"User {user.username} has sent {rate_limit_definition.hard_limit} host requests in the past {RATE_LIMIT_INTERVAL_STRING}."
+            )
+            assert "The user has been blocked from sending further host requests for now." in email
 
 
 def add_message(db, text, author_id, conversation_id):
