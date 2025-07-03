@@ -29,7 +29,7 @@ export default function HostRequestStatusIcon({
     color = "gray";
   } else if (s === HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED) {
     icon = <CrossIcon fontSize="inherit" />;
-    color = "red";
+    color = "gray";
   } else if (s === HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED) {
     icon = <CheckIcon fontSize="inherit" />;
     color = "green";
