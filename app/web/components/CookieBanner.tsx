@@ -14,10 +14,11 @@ const StyledWrapper = styled("div")(({ theme }) => ({
   zIndex: theme.zIndex.snackbar,
   left: theme.spacing(0),
   right: theme.spacing(0),
-  transform: "translateY(-100%)",
   backgroundColor: theme.palette.primary.contrastText,
-  top: "100vh",
+  bottom: 0,
   padding: theme.spacing(2, 4),
+  boxShadow: `0 -1px 4px ${theme.palette.primary.dark}33`,
+
   "& .content": {
     width: "75%",
     margin: "0 auto",
@@ -52,7 +53,7 @@ export default function CookieBanner() {
         <CloseIcon />
       </StyledCloseButton>
       <div className="content">
-        <Typography variant="body1">
+        <Typography variant="body2">
           <Trans t={t} i18nKey="cookie_message">
             We use cookies to ensure that we give you the best experience on our
             website. If you continue to use this site, we will assume that you
