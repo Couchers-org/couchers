@@ -230,7 +230,7 @@ sqlalchemy==2.0.40
     #   sqlalchemy-utils
 sqlalchemy-utils==0.41.2
     # via -r requirements.in
-stripe==12.0.1
+stripe==12.3.0
     # via -r requirements.in
 typing-extensions==4.12.2
     # via
