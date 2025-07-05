@@ -32,6 +32,9 @@ npx expo start
 
 This will start the expo server. You now need to run the Couchers-specific expo dev app on your phone and connect to this server.
 
+
+https://docs.expo.dev/get-started/set-up-your-environment/
+
 ## Building a dev client
 
 For these you need the `eas` cli program:
