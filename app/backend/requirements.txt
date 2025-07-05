@@ -14,9 +14,9 @@ alembic==1.16.2
     # via -r requirements.in
 attrs==24.3.0
     # via aiohttp
-boto3==1.39.0
+boto3==1.39.3
     # via -r requirements.in
-botocore==1.39.0
+botocore==1.39.3
     # via
     #   boto3
     #   s3transfer
