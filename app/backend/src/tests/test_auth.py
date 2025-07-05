@@ -1103,4 +1103,37 @@ def test_signup_no_feedback_regression(db):
     assert sesh == token
 
 
+def test_banned_username(db):
+    testing_email = f"{random_hex(12)}@couchers.org.invalid"
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="Tester", email=testing_email))
+        )
+
+    flow_token = reply.flow_token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        # Banned username
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    account=auth_pb2.SignupAccount(
+                        username="thecouchersadminaccount",
+                        password="a very insecure password",
+                        city="Minas Tirith",
+                        birthdate="1980-12-31",
+                        gender="Robot",
+                        hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                        lat=1,
+                        lng=1,
+                        radius=100,
+                        accept_tos=True,
+                    ),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.USERNAME_NOT_AVAILABLE
+
+
 # tests for ConfirmChangeEmail within test_account.py tests for test_ChangeEmail_*

@@ -8,7 +8,7 @@ from sqlalchemy.sql import delete, func
 
 from couchers import errors
 from couchers.config import config
-from couchers.constants import ANTIBOT_FREQ, GUIDELINES_VERSION, TOS_VERSION, UNDELETE_DAYS
+from couchers.constants import ANTIBOT_FREQ, BANNED_USERNAME_PHRASES, GUIDELINES_VERSION, TOS_VERSION, UNDELETE_DAYS
 from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
 from couchers.metrics import (
     account_deletion_completions_counter,
@@ -136,6 +136,9 @@ def _username_available(session, username):
     logger.debug(f"Checking if {username=} is valid")
     if not is_valid_username(username):
         return False
+    for phrase in BANNED_USERNAME_PHRASES:
+        if phrase.lower() in username.lower():
+            return False
     # check for existing user with that username
     user_exists = session.execute(select(User).where(User.username == username)).scalar_one_or_none() is not None
     # check for started signup with that username
