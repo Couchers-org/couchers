@@ -32,6 +32,7 @@ from couchers.constants import (
     ACTIVENESS_PROBE_EXPIRY_TIME,
     ACTIVENESS_PROBE_INACTIVITY_PERIOD,
     ACTIVENESS_PROBE_TIME_REMINDERS,
+    EVENT_REMINDER_TIMEDELTA,
     HOST_REQUEST_MAX_REMINDERS,
     HOST_REQUEST_REMINDER_INTERVAL,
 )
@@ -1067,15 +1068,11 @@ def send_event_reminders(payload: empty_pb2.Empty):
     logger.info("Sending event reminder emails")
 
     with session_scope() as session:
-        now_time = now()
-        lower_bound = now_time + timedelta(hours=11.5)
-        upper_bound = now_time + timedelta(hours=12.5)
-
         occurrences = (
             session.execute(
                 select(EventOccurrence)
-                .where(EventOccurrence.start_time >= lower_bound)
-                .where(EventOccurrence.start_time <= upper_bound)
+                .where(EventOccurrence.start_time <= now() + EVENT_REMINDER_TIMEDELTA)
+                .where(EventOccurrence.start_time >= now())
             )
             .scalars()
             .all()
@@ -1086,7 +1083,6 @@ def send_event_reminders(payload: empty_pb2.Empty):
                 select(User, EventOccurrenceAttendee)
                 .join(EventOccurrenceAttendee, EventOccurrenceAttendee.user_id == User.id)
                 .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
-                .where(EventOccurrenceAttendee.attendee_status.in_(["going", "maybe"]))
                 .where(EventOccurrenceAttendee.reminder_sent == False)
             ).all()
 
@@ -1100,13 +1096,11 @@ def send_event_reminders(payload: empty_pb2.Empty):
                     data=notification_data_pb2.EventReminder(
                         event=event_to_pb(session, occurrence, context),
                         user=user_model_to_pb(user, session, context),
-                        start_time=occurrence.start_time,
                     ),
                 )
 
                 attendee.reminder_sent = True
-
-    session.flush()
+                session.commit()
 
 
 send_event_reminders.PAYLOAD = empty_pb2.Empty

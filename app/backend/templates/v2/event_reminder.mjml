@@ -15,7 +15,7 @@
         </mj-text>
 
         <mj-text font-size="16px" font-family="Helvetica">
-          Starts at {{ start_time }} local time
+          Starts at {{ start_time|v2timestamp(user) }} local time
         </mj-text>
 
         <mj-text font-size="16px" font-family="Helvetica">

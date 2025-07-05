@@ -3,7 +3,7 @@ Hi {{ user.name }},
 This is a reminder that the upcoming event is happening soon:
 
 {{ event.title }}
-Starts at {{ start_time }} local time
+Starts at {{ start_time|v2timestamp(user) }} local time
 
 Don’t forget to attend!
 

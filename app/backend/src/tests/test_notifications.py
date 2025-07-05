@@ -20,8 +20,10 @@ from couchers.models import (
 )
 from couchers.notifications.notify import notify
 from couchers.notifications.settings import get_topic_actions_by_delivery_type
+from couchers.servicers.api import user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.templates.v2 import v2timestamp
+from couchers.utils import make_user_context
 from proto import admin_pb2, api_pb2, auth_pb2, conversations_pb2, events_pb2, notification_data_pb2, notifications_pb2
 from proto.internal import unsubscribe_pb2
 from tests.test_fixtures import (  # noqa
@@ -591,6 +593,8 @@ def test_event_reminder_email_sent(db):
 
     with mock_notification_email() as mock:
         with session_scope() as session:
+            user_in_session = session.get(User, user.id)
+
             notify(
                 session,
                 user_id=user.id,
@@ -600,17 +604,13 @@ def test_event_reminder_email_sent(db):
                         event_id=1,
                         slug="board-game-night",
                         title=title,
+                        start_time=start_event_time,
                     ),
-                    start_time=start_event_time,
+                    user=user_model_to_pb(user_in_session, session, make_user_context(user.id)),
                 ),
             )
 
-    print("start_event_time", start_event_time)
-    print("expected_time_str", expected_time_str)
-    print(email_fields(mock).plain)
-
     assert mock.call_count == 1
-
     assert email_fields(mock).recipient == user.email
     assert title in email_fields(mock).html
     assert title in email_fields(mock).plain
