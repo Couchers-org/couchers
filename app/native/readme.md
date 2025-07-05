@@ -13,13 +13,15 @@ Now run:
 ```sh
 # Check out the repo and navigate to app/native
 git clone https://github.com/Couchers-org/couchers.git
-cd couchers/app/native
+cd couchers
+
+# generate protos
+cd app
+docker run --rm -w /app -v $(pwd):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
 
 # Set up node
+cd native
 nvm install
-
-# Download & extract the latest protos
-wget -qO- https://develop--protos.preview.couchershq.org/ts.tar.gz | tar xz
 
 # install deps
 npm i
