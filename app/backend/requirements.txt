@@ -166,7 +166,9 @@ phonenumbers==9.0.4
 platformdirs==4.3.6
     # via virtualenv
 pluggy==1.5.0
-    # via pytest
+    # via
+    #   pytest
+    #   pytest-cov
 pre-commit==4.2.0
     # via -r requirements.in
 prometheus-client==0.22.0
@@ -194,7 +196,7 @@ pytest==8.4.1
     # via
     #   -r requirements.in
     #   pytest-cov
-pytest-cov==6.1.1
+pytest-cov==6.2.1
     # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via
