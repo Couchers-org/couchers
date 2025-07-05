@@ -63,7 +63,7 @@ googleapis-common-protos==1.66.0
     #   opentelemetry-exporter-otlp-proto-http
 greenlet==3.1.1
     # via sqlalchemy
-grpcio==1.69.0
+grpcio==1.73.1
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
