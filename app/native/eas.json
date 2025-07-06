@@ -5,13 +5,7 @@
   },
   "build": {
     "production": {
-      "autoIncrement": true,
-      "android": {
-        "image": "latest"
-      },
-      "ios": {
-        "image": "macos-sequoia-15.3-xcode-16.2"
-      }
+      "autoIncrement": true
     },
     "simulator": {
       "developmentClient": true,
