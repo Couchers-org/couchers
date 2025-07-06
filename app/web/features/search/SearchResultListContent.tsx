@@ -98,7 +98,7 @@ const SearchResultListContent = ({
 
   const { selectedUserId, filters } = useMapSearchState();
 
-  const shouldShowSuggestion = 
+  const shouldShowSuggestion =
     !showAlert &&
     totalItems !== undefined &&
     totalItems < 5 &&
