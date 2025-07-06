@@ -1,5 +1,5 @@
 module.exports = {
-  "name": "Couchers.org",
+  "name": process.env.COUCHERS_VARIANT === "prod" ? "Couchers.org" : "Couchers.org Dev Client",
   "slug": "couchers",
   "version": "1.0.1",
   "orientation": "portrait",
