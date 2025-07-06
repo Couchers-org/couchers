@@ -361,8 +361,8 @@ def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNot
 class Events(events_pb2_grpc.EventsServicer):
     def CreateEvent(self, request, context, session):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-        # if not user.has_completed_profile:
-        #     context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.INCOMPLETE_PROFILE_CREATE_EVENT)
+        if not user.has_completed_profile:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.INCOMPLETE_PROFILE_CREATE_EVENT)
         if not request.title:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_TITLE)
         if not request.content:
@@ -409,11 +409,11 @@ class Events(events_pb2_grpc.EventsServicer):
         if not parent_node:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.COMMUNITY_NOT_FOUND)
 
-        # if (
-        #     request.photo_key
-        #     and not session.execute(select(Upload).where(Upload.key == request.photo_key)).scalar_one_or_none()
-        # ):
-        #     context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PHOTO_NOT_FOUND)
+        if (
+            request.photo_key
+            and not session.execute(select(Upload).where(Upload.key == request.photo_key)).scalar_one_or_none()
+        ):
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PHOTO_NOT_FOUND)
 
         event = Event(
             title=request.title,
