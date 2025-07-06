@@ -25,6 +25,7 @@
     "@react-navigation/drawer": "^7.1.1",
     "@react-navigation/native": "^7.0.14",
     "@sentry/react-native": "~6.10.0",
+    "dayjs": "^1.11.13",
     "expo": "^52.0.0",
     "expo-constants": "~17.0.8",
     "expo-dev-client": "~5.0.20",
