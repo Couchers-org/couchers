@@ -9,6 +9,9 @@ import {
   styled,
   Typography,
   useMediaQuery,
+  Button,
+  Card,
+  CardContent,
 } from "@mui/material";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
@@ -32,6 +35,7 @@ interface SearchResultListContentProps {
   showTopSpace?: boolean;
   totalItems: number | undefined;
   users: SearchUser.AsObject[] | undefined;
+  onIncludeEmptyProfiles?: () => void;
 }
 
 const ListContentWrapper = styled(Box, {
@@ -91,6 +95,7 @@ const SearchResultListContent = ({
   showTopSpace = false,
   totalItems,
   users,
+  onIncludeEmptyProfiles,
 }: SearchResultListContentProps) => {
   const { t } = useTranslation([SEARCH]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));

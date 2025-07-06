@@ -28,6 +28,7 @@ interface MapSearchContentProps {
   onZoomOut: (newZoom: number) => void;
   totalItems: number;
   users: SearchUser.AsObject[] | undefined;
+  onIncludeEmptyProfiles?: () => void;
 }
 
 const Wrapper = styled("div")({
@@ -92,6 +93,7 @@ const MapSearchContent = ({
   onZoomOut,
   totalItems,
   users,
+  onIncludeEmptyProfiles,
 }: MapSearchContentProps) => {
   const { setSelectedUserId } = useMapSearchActions();
   const { selectedUserId } = useMapSearchState();
@@ -138,6 +140,7 @@ const MapSearchContent = ({
           onUserCardClick={handleUserCardClick}
           totalItems={totalItems}
           users={users}
+          onIncludeEmptyProfiles={onIncludeEmptyProfiles}
         />
       </SearchResultsContainer>
       {mapView !== MapViews.LIST_ONLY && (

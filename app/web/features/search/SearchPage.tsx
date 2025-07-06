@@ -70,6 +70,7 @@ export default function SearchPage() {
     setMoveMapUIOnly,
     setShowSearchThisAreaButton,
     setSelectedUserId,
+    setSearchFilters,
   } = useMapSearchActions();
 
   // useMemo to avoid unnecessary object reference changes - causing unnecessary rerenders
@@ -200,6 +201,7 @@ export default function SearchPage() {
           onZoomOut={handleZoomOut}
           totalItems={totalItems}
           users={users}
+          onIncludeEmptyProfiles={handleIncludeEmptyProfiles}
         />
       </MapProvider>
     </SearchPageContainer>
