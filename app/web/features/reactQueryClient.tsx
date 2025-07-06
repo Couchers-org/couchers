@@ -1,13 +1,13 @@
-import { reactQueryRetries } from "appConstants";
-import { useEffect } from "react";
 import {
   QueryClient,
   QueryClientProvider,
   UseQueryOptions,
   UseQueryResult,
-} from "react-query";
+} from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { reactQueryRetries } from "appConstants";
+import { useEffect } from "react";
 import { createWebStoragePersistor } from "react-query/createWebStoragePersistor-experimental";
-import { ReactQueryDevtools } from "react-query/devtools";
 import { persistQueryClient } from "react-query/persistQueryClient-experimental";
 
 export const queryClient = new QueryClient({

@@ -33,6 +33,8 @@
     "@sentry/nextjs": "^8.47.0",
     "@sentry/react": "^8.51.0",
     "@stripe/stripe-js": "^7.4.0",
+    "@tanstack/react-query": "^4.0.0",
+    "@tanstack/react-query-devtools": "^4.0.0",
     "@toast-ui/editor": "^3.2.2",
     "classnames": "^2.5.1",
     "country-flag-icons": "^1.5.19",
@@ -60,7 +62,6 @@
     "react-lines-ellipsis": "^0.15.0",
     "react-map-gl": "^8.0.4",
     "react-phone-number-input": "^3.4.12",
-    "react-query": "^3.39.3",
     "react-simple-maps": "^3.0.0",
     "seamless-scroll-polyfill": "^2.1.8",
     "sharp": "^0.34.2"

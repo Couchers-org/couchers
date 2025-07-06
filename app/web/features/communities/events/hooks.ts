@@ -1,3 +1,4 @@
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import {
   eventAttendeesKey,
   eventKey,
@@ -15,7 +16,6 @@ import {
   ListMyEventsRes,
 } from "proto/events_pb";
 import { EventSearchRes } from "proto/search_pb";
-import { useInfiniteQuery, useQuery } from "react-query";
 import { service } from "service";
 import type { ListAllEventsInput, ListMyEventsInput } from "service/events";
 import { GeocodeResult } from "utils/hooks";

@@ -8,6 +8,7 @@ import {
   styled,
   Typography,
 } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -29,7 +30,6 @@ import { useRouter } from "next/router";
 import { User } from "proto/api_pb";
 import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { useMutation } from "react-query";
 import { dashboardRoute } from "routes";
 import { service } from "service";
 import { BlockInput } from "service/blocking";

@@ -1,4 +1,12 @@
 import {
+  useInfiniteQuery,
+  UseInfiniteQueryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+  UseQueryOptions,
+} from "@tanstack/react-query";
+import {
   communityAdminsKey,
   communityDiscussionsKey,
   communityEventsKey,
@@ -29,14 +37,6 @@ import {
 import { Discussion } from "proto/discussions_pb";
 import { GetThreadRes } from "proto/threads_pb";
 import { useEffect } from "react";
-import {
-  useInfiniteQuery,
-  UseInfiniteQueryOptions,
-  useMutation,
-  useQuery,
-  useQueryClient,
-  UseQueryOptions,
-} from "react-query";
 import { routeToCommunity } from "routes";
 import { service } from "service";
 

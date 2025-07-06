@@ -1,4 +1,5 @@
 import { List } from "@mui/material";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -13,7 +14,6 @@ import Link from "next/link";
 import { GroupChat } from "proto/conversations_pb";
 import { ListHostRequestsRes } from "proto/requests_pb";
 import * as React from "react";
-import { useInfiniteQuery } from "react-query";
 import { routeToHostRequest } from "routes";
 import { service } from "service";
 

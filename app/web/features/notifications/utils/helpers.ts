@@ -1,7 +1,7 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { listNotificationsQueryKey } from "features/queryKeys";
 import Sentry from "platform/sentry";
 import { ListNotificationsRes } from "proto/notifications_pb";
-import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 import {
   getVapidPublicKey,

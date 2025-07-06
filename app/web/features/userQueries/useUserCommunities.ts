@@ -1,7 +1,7 @@
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { userCommunitiesKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { ListUserCommunitiesRes } from "proto/communities_pb";
-import { useInfiniteQuery } from "react-query";
 import { service } from "service";
 
 export default function useUserCommunities() {

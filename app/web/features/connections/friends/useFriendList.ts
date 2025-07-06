@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query";
 import { friendIdsKey } from "features/queryKeys";
 import { useLiteUsersList } from "features/userQueries/useLiteUsers";
-import { useQuery } from "react-query";
 import { service } from "service";
 
 function useFriendList() {

@@ -1,4 +1,10 @@
 import { Skeleton, styled, useMediaQuery } from "@mui/material";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import Alert from "components/Alert";
 import HeaderButton from "components/HeaderButton";
 import { BackIcon } from "components/Icons";
@@ -25,12 +31,6 @@ import {
   HostRequest,
   RespondHostRequestReq,
 } from "proto/requests_pb";
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "react-query";
 import { service } from "service";
 import { theme } from "theme";
 import { firstName } from "utils/names";

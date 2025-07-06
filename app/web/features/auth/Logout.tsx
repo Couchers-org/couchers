@@ -1,9 +1,9 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { useMutation, useQueryClient } from "react-query";
 import { baseRoute } from "routes";
 
 import { useAuthContext } from "./AuthProvider";

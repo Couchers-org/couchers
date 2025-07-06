@@ -1,8 +1,8 @@
+import { useQuery } from "@tanstack/react-query";
 import { reactQueryRetries } from "appConstants";
 import { liteUserKey, liteUsersKey } from "features/queryKeys";
 import { RpcError, StatusCode } from "grpc-web";
 import { GetLiteUsersRes, LiteUser } from "proto/api_pb";
-import { useQuery } from "react-query";
 import { service } from "service";
 
 import { userStaleTime } from "./constants";

@@ -8,6 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
+import { useMutation } from "@tanstack/react-query";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -22,7 +23,6 @@ import { DONATIONS } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 import { service } from "service";
 
 const useStyles = makeStyles((theme) => ({

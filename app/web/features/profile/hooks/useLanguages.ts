@@ -1,5 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
 import { languagesKey } from "features/queryKeys";
-import { useQuery } from "react-query";
 import { service } from "service";
 
 export const useLanguages = () => {

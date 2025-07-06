@@ -1,4 +1,10 @@
 import { styled } from "@mui/material";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -19,12 +25,6 @@ import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { GetGroupChatMessagesRes, GroupChat } from "proto/conversations_pb";
 import { useEffect } from "react";
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "react-query";
 import { service } from "service";
 
 import ChatContent from "./ChatContent";

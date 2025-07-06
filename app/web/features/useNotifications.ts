@@ -1,8 +1,8 @@
+import { useQuery } from "@tanstack/react-query";
 import { pingInterval } from "appConstants";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { RpcError } from "grpc-web";
 import { PingRes } from "proto/api_pb";
-import { useQuery } from "react-query";
 import { service } from "service";
 
 export default function useNotifications() {

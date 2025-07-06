@@ -1,3 +1,4 @@
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import {
   modUserDetailsKey,
   modUserKey,
@@ -7,7 +8,6 @@ import { userStaleTime } from "features/userQueries/constants";
 import { RpcError } from "grpc-web";
 import { ListUserIdsRes, UserDetails } from "proto/admin_pb";
 import { User } from "proto/api_pb";
-import { useInfiniteQuery, useQuery } from "react-query";
 import { service } from "service";
 
 export const useNewUsers = () => {

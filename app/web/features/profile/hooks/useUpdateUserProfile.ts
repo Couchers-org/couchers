@@ -1,8 +1,8 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { accountInfoQueryKey, userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useRouter } from "next/router";
-import { useMutation, useQueryClient } from "react-query";
 import { routeToProfile } from "routes";
 import { service, UpdateUserProfileData } from "service/index";
 import { SetMutationError } from "utils/setMutationError";

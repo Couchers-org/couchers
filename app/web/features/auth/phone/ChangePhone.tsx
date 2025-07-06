@@ -1,6 +1,7 @@
 import "react-phone-number-input/style.css";
 
 import { Typography, useMediaQuery, useTheme } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import StyledLink from "components/StyledLink";
@@ -18,7 +19,6 @@ import {
   isValidPhoneNumber,
 } from "react-phone-number-input";
 import PhoneInputWithCountry from "react-phone-number-input/react-hook-form";
-import { useMutation, useQueryClient } from "react-query";
 import { howToDonateUrl } from "routes";
 import { service } from "service";
 

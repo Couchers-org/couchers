@@ -1,3 +1,4 @@
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { reactQueryRetries } from "appConstants";
 import { userKey, username2Id } from "features/queryKeys";
 import {
@@ -7,7 +8,6 @@ import {
 import { RpcError, StatusCode } from "grpc-web";
 import { User } from "proto/api_pb";
 import { useEffect } from "react";
-import { useQuery, useQueryClient } from "react-query";
 import { service } from "service";
 
 export default function useUserByUsername(

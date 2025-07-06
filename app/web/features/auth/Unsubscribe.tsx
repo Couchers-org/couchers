@@ -1,3 +1,4 @@
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
@@ -7,7 +8,6 @@ import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { UnsubscribeRes } from "proto/auth_pb";
-import { useMutation } from "react-query";
 import { service } from "service";
 import stringOrFirstString from "utils/stringOrFirstString";
 

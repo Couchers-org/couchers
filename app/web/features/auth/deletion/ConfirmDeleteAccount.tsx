@@ -1,3 +1,4 @@
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
@@ -6,7 +7,6 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { useMutation } from "react-query";
 import { logoutRoute } from "routes";
 import { service } from "service";
 import stringOrFirstString from "utils/stringOrFirstString";

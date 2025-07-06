@@ -5,6 +5,7 @@ import {
   styled,
   Typography,
 } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -20,7 +21,6 @@ import { Trans } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { ActiveSession } from "proto/account_pb";
-import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 import { dateFormatter, dateTimeFormatter, timestamp2Date } from "utils/date";
 import { timeAgoI18n } from "utils/timeAgo";

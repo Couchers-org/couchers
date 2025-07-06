@@ -1,4 +1,5 @@
 import { Skeleton, styled, useMediaQuery } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import CircularProgress from "components/CircularProgress";
 import HeaderButton from "components/HeaderButton";
 import { BackIcon, MuteIcon, OverflowMenuIcon } from "components/Icons";
@@ -19,7 +20,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { GroupChat } from "proto/conversations_pb";
 import { useRef, useState } from "react";
-import { useMutation, useQueryClient } from "react-query";
 import { groupChatsRoute, routeToUser } from "routes";
 import { service } from "service";
 import { theme } from "theme";

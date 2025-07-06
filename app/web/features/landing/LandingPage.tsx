@@ -1,8 +1,8 @@
 import { Container, styled } from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
 import HtmlMeta from "components/HtmlMeta";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useEffect } from "react";
-import { useQueryClient } from "react-query";
 import { theme } from "theme";
 
 import CouchersMission from "./CouchersMission";

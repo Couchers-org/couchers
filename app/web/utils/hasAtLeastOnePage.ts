@@ -1,4 +1,4 @@
-import { InfiniteData } from "react-query";
+import { InfiniteData } from "@tanstack/react-query";
 
 export type EndsWithList = `${string}List`;
 export type ObjectWithListValue<TData> = {

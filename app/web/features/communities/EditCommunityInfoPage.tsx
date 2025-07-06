@@ -1,4 +1,5 @@
 import { Typography } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
@@ -15,7 +16,6 @@ import { useRouter } from "next/router";
 import { Community } from "proto/communities_pb";
 import { Page } from "proto/pages_pb";
 import { useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "react-query";
 import { routeToCommunity } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";

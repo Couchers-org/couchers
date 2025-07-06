@@ -1,4 +1,5 @@
 import { DialogProps } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -18,7 +19,6 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import React from "react";
-import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
 export default function LeaveDialog({

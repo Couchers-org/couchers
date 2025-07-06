@@ -1,6 +1,6 @@
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
 import { UserSearchV2Res } from "proto/search_pb";
-import { useInfiniteQuery } from "react-query";
 import { service } from "service";
 
 import { FilterOptions } from "../SearchPage";

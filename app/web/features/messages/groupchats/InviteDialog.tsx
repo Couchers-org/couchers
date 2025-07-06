@@ -1,4 +1,5 @@
 import { DialogProps } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
@@ -22,7 +23,6 @@ import { User } from "proto/api_pb";
 import { GroupChat } from "proto/conversations_pb";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
 export default function InviteDialog({

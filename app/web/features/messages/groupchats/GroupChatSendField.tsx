@@ -1,4 +1,5 @@
 import { ButtonProps, styled } from "@mui/material";
+import { UseMutationResult } from "@tanstack/react-query";
 import Button from "components/Button";
 import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -8,7 +9,6 @@ import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { usePersistedState } from "platform/usePersistedState";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { UseMutationResult } from "react-query";
 import { theme } from "theme";
 
 interface MessageFormData {

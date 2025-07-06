@@ -6,6 +6,7 @@ import {
   Theme,
   Typography,
 } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -25,7 +26,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { AttendanceState, Event } from "proto/events_pb";
 import { useEffect, useState } from "react";
-import { useMutation, useQueryClient } from "react-query";
 import { routeToEditEvent, routeToEvent } from "routes";
 import { service } from "service";
 import { theme } from "theme";

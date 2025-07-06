@@ -12,6 +12,7 @@ import {
   styled,
   useMediaQuery,
 } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
@@ -19,7 +20,6 @@ import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router"; // we'll use this to reload the components w/ changed languages
-import { useMutation } from "react-query";
 import { service } from "service";
 import { theme } from "theme";
 

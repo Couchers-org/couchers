@@ -1,4 +1,5 @@
 import { Alert as MuiAlert, Typography } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import { accountInfoQueryKey } from "features/queryKeys";
@@ -8,7 +9,6 @@ import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { GetAccountInfoRes } from "proto/account_pb";
 import React from "react";
-import { useQuery } from "react-query";
 import { routeToEditProfile } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";

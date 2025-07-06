@@ -1,4 +1,10 @@
 import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import {
   availableWriteReferencesKey,
   referencesGivenKey,
   referencesReceivedBaseKey,
@@ -12,12 +18,6 @@ import {
   ListReferencesRes,
   Reference,
 } from "proto/references_pb";
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "react-query";
 import { service } from "service";
 import {
   WriteFriendReferenceInput,

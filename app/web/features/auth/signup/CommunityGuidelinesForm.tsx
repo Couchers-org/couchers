@@ -1,9 +1,9 @@
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import { useAuthContext } from "features/auth/AuthProvider";
 import CommunityGuidelines from "features/auth/CommunityGuidelines";
 import { RpcError } from "grpc-web";
 import TagManager from "react-gtm-module";
-import { useMutation } from "react-query";
 import { service } from "service";
 
 export default function CommunityGuidelinesForm() {
