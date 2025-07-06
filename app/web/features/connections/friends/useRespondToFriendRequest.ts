@@ -60,10 +60,10 @@ export default function useRespondToFriendRequest() {
         }
       },
       onSuccess: (_, { friendRequest }) => {
-        queryClient.invalidateQueries("friendIds");
+        queryClient.invalidateQueries(["friendIds"]);
         queryClient.invalidateQueries(friendRequestKey("received"));
         queryClient.invalidateQueries(userKey(friendRequest.userId));
-        queryClient.invalidateQueries("ping");
+        queryClient.invalidateQueries(["ping"]);
       },
     },
   );

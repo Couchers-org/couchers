@@ -11,7 +11,7 @@ export default function useNotifications() {
   const { data, isLoading, isError, error } = useQuery<
     PingRes.AsObject,
     RpcError
-  >("ping", service.api.ping, {
+  >(["ping"], service.api.ping, {
     enabled: authenticated && !jailed,
     refetchInterval: pingInterval,
   });

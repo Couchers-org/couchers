@@ -6,7 +6,7 @@ import { Badge } from "proto/resources_pb";
 import { service } from "service";
 
 export const useBadges = () => {
-  const { data, ...rest } = useQuery(badgesKey, async () => {
+  const { data, ...rest } = useQuery([badgesKey], async () => {
     const result = await service.resources.getBadges();
     return result.badgesList.reduce(
       (badgesResult, badge) => {

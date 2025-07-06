@@ -3,7 +3,7 @@ import { regionsKey } from "features/queryKeys";
 import { service } from "service";
 
 export const useRegions = () => {
-  const { data, ...rest } = useQuery(regionsKey, () =>
+  const { data, ...rest } = useQuery([regionsKey], () =>
     service.resources.getRegions().then((result) =>
       result.regionsList.reduce(
         (regionsResult, { alpha3, name }) => {

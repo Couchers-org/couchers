@@ -33,15 +33,15 @@ export default function useUsers(
     }
   });
 
-  const queries = useQueries<User.AsObject, Error>(
-    ids
+  const queries = useQueries<User.AsObject, Error>({
+    queries: ids
       .filter((id): id is number => !!id)
       .map((id) => ({
         queryFn: () => service.user.getUser(id.toString()),
         queryKey: userKey(id),
         staleTime: userStaleTime,
       })),
-  );
+  });
 
   const errors = queries
     .map((query) => query.error?.message)

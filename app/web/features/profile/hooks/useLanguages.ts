@@ -4,7 +4,7 @@ import { service } from "service";
 
 export const useLanguages = () => {
   const { data: { languages, languagesLookup } = {}, ...rest } = useQuery(
-    languagesKey,
+    [languagesKey],
     () =>
       service.resources.getLanguages().then((result) =>
         result.languagesList.reduce(
