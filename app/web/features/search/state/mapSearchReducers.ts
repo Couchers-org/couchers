@@ -126,7 +126,7 @@ const initialState: MapSearchState = {
     acceptsPets: undefined,
     ageMin: undefined,
     ageMax: undefined,
-    completeProfile: undefined,
+    completeProfile: true,
     drinkingAllowed: undefined,
     lastActive: 0,
     hasReferences: undefined,

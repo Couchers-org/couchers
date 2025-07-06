@@ -6,6 +6,9 @@ import {
   styled,
   Typography,
   useMediaQuery,
+  Button,
+  Card,
+  CardContent,
 } from "@mui/material";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
@@ -28,6 +31,7 @@ interface SearchResultListContentProps {
   showTopSpace?: boolean;
   totalItems: number | undefined;
   users: SearchUser.AsObject[] | undefined;
+  onIncludeEmptyProfiles?: () => void;
 }
 
 const ListContentWrapper = styled(Box, {
@@ -70,6 +74,13 @@ const CenteredRow = styled("div")(({ theme }) => ({
   padding: theme.spacing(1, 0),
 }));
 
+const SuggestionCard = styled(Card)(({ theme }) => ({
+  marginTop: theme.spacing(2),
+  backgroundColor: theme.palette.background.paper,
+  borderRadius: theme.spacing(1),
+  border: `1px solid ${theme.palette.divider}`,
+}));
+
 const SearchResultListContent = ({
   error,
   mapView,
@@ -80,11 +91,20 @@ const SearchResultListContent = ({
   showTopSpace = false,
   totalItems,
   users,
+  onIncludeEmptyProfiles,
 }: SearchResultListContentProps) => {
   const { t } = useTranslation([SEARCH]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const { selectedUserId } = useMapSearchState();
+  const { selectedUserId, filters } = useMapSearchState();
+
+  const shouldShowSuggestion = 
+    !showAlert &&
+    totalItems !== undefined &&
+    totalItems < 5 &&
+    totalItems >= 0 &&
+    filters.completeProfile === true &&
+    onIncludeEmptyProfiles;
 
   return (
     <ListContentWrapper showTopSpace={showTopSpace}>
@@ -177,6 +197,23 @@ const SearchResultListContent = ({
           </StyledCardWrapper>
         ))}
       </UserCardsWrapper>
+      {shouldShowSuggestion && (
+        <SuggestionCard>
+          <CardContent>
+            <Typography variant="body2" sx={{ marginBottom: theme.spacing(1) }}>
+              {t("search:search_result.few_results_suggestion")}
+            </Typography>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={onIncludeEmptyProfiles}
+              sx={{ backgroundColor: theme.palette.primary.main }}
+            >
+              {t("search:search_result.include_empty_profiles_button")}
+            </Button>
+          </CardContent>
+        </SuggestionCard>
+      )}
     </ListContentWrapper>
   );
 };
