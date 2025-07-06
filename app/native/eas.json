@@ -11,6 +11,23 @@
       },
       "ios": {
         "image": "macos-sequoia-15.3-xcode-16.2"
+      },
+      "env": {
+        "COUCHERS_VARIANT": "prod"
+      }
+    },
+    "hosted": {
+      "developmentClient": true,
+      "autoIncrement": true,
+      "android": {
+        "image": "latest"
+      },
+      "ios": {
+        "image": "macos-sequoia-15.3-xcode-16.2"
+      },
+      "distribution": "store",
+      "env": {
+        "COUCHERS_VARIANT": "hosted"
       }
     },
     "simulator": {
@@ -30,6 +47,11 @@
   },
   "submit": {
     "production": {
+      "ios": {
+        "ascAppId": "6623776751"
+      }
+    },
+    "hosted": {
       "ios": {
         "ascAppId": "6623776751"
       }

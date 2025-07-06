@@ -1,0 +1,70 @@
+module.exports = {
+  "name": "Couchers.org",
+  "slug": "couchers",
+  "version": "1.0.1",
+  "orientation": "portrait",
+  "icon": "./assets/images/icon.png",
+  "scheme": "couchers",
+  "userInterfaceStyle": "automatic",
+  "splash": {
+    "image": "./assets/images/splash.png",
+    "resizeMode": "contain",
+    "backgroundColor": "#ffffff"
+  },
+  "ios": {
+    "supportsTablet": true,
+    "bundleIdentifier": process.env.COUCHERS_VARIANT === "prod" ? "org.couchers.ios" : "org.couchers.ios.dev",
+    "config": {
+      "usesNonExemptEncryption": false
+    }
+  },
+  "android": {
+    "adaptiveIcon": {
+      "foregroundImage": "./assets/images/adaptive-icon.png",
+      "backgroundColor": "#ffffff"
+    },
+    "package": process.env.COUCHERS_VARIANT === "prod" ? "org.couchers.android" : "org.couchers.android.dev"
+  },
+  "web": {
+    "bundler": "metro",
+    "output": "static",
+    "favicon": "./assets/images/favicon.png"
+  },
+  "plugins": [
+    "expo-router",
+    "expo-font",
+    [
+      "@sentry/react-native/expo",
+      {
+        "url": "https://sentry.io/",
+        "project": "native",
+        "organization": "couchers"
+      }
+    ],
+    "@maplibre/maplibre-react-native",
+    [
+      "expo-location",
+      {
+        "locationAlwaysAndWhenInUsePermission": "Allow Couchers to use your location."
+      }
+    ]
+  ],
+  "experiments": {
+    "typedRoutes": true
+  },
+  "extra": {
+    "router": {
+      "origin": false
+    },
+    "eas": {
+      "projectId": "ea3d934f-4ba0-4a23-a948-2c259251488f"
+    }
+  },
+  "owner": "couchers-org",
+  "runtimeVersion": {
+    "policy": "appVersion"
+  },
+  "updates": {
+    "url": "https://u.expo.dev/ea3d934f-4ba0-4a23-a948-2c259251488f"
+  }
+}
