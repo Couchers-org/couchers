@@ -105,6 +105,7 @@ const SearchResultListContent = ({
   const { setSearchFilters } = useMapSearchActions();
 
   const shouldShowSuggestion =
+  const shouldShowSuggestion =
     !showAlert &&
     totalItems !== undefined &&
     totalItems <= 5 &&
