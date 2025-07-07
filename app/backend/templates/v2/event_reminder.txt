@@ -1,11 +1,18 @@
 Hi {{ user.name }},
 
-This is a reminder that the upcoming event is happening soon:
+This is a reminder that the following event is starting in less than 24 hours:
 
 {{ event.title }}
-Starts at {{ start_time|v2timestamp(user) }} local time
+{{ time_display }}
 
-Don’t forget to attend!
+{% if event.online_information.link %}<a href="{{ event.online_information.link|v2url }}">Online</a>{% endif %}{% if event.offline_information.address|v2esc %}{{ event.offline_information.address }}{% endif %}
 
-Best,  
+
+{{ event.content|v2quote }}
+
+
+
+You can view the event here: <{{ view_link }}>
+
+Best,
 The Couchers.org team

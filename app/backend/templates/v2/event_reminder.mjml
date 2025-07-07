@@ -1,32 +1,27 @@
-<mjml>
-  <mj-body>
-    <mj-section>
-      <mj-column>
-        <mj-text font-size="16px" font-family="Helvetica">
-          Hi {{ user.name }},
-        </mj-text>
-
-        <mj-text font-size="16px" font-family="Helvetica">
-          This is a reminder that the upcoming event is happening soon:
-        </mj-text>
-
-        <mj-text font-size="18px" font-family="Helvetica" font-weight="bold">
-          {{ event.title }}
-        </mj-text>
-
-        <mj-text font-size="16px" font-family="Helvetica">
-          Starts at {{ start_time|v2timestamp(user) }} local time
-        </mj-text>
-
-        <mj-text font-size="16px" font-family="Helvetica">
-          Don’t forget to attend!
-        </mj-text>
-
-        <mj-text font-size="16px" font-family="Helvetica">
-          Best,<br/>
-          The Couchers.org team
-        </mj-text>
-      </mj-column>
-    </mj-section>
-  </mj-body>
-</mjml>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
+    <mj-text>This is a reminder that the following event is starting in less than 24 hours:</mj-text>
+    <mj-text><b>{{ event.title|v2esc }}</b><br />
+      {{ time_display|v2esc }}<br />
+      <i>{% if event.online_information.link %}<a href="{{ event.online_information.link|v2url }}">Online</a>{% endif %}{% if event.offline_information.address|v2esc %}{{ event.offline_information.address }}{% endif %}</i>
+    </mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="10px 20px" text-align="left">
+  <mj-column background-color="#eee" border-radius="10px" padding="10px 0px">
+    <mj-text>{{ event.content|v2markdown }}</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ view_link|v2url }}">
+      <b>View event</b>
+    </mj-button>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>Best,<br />The Couchers.org Team</mj-text>
+  </mj-column>
+</mj-section>

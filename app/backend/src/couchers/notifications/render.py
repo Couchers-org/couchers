@@ -627,16 +627,15 @@ def render_notification(user, notification) -> RenderedNotification:
             )
         elif notification.action == "reminder":
             body = "Don't forget your upcoming event on Couchers.org\n"
-            body += f"{v2timestamp(data.event.start_time, user)}\n"
+            body += f"{time_display}\n"
             body += data.event.content
             return RenderedNotification(
                 email_subject=f'Reminder: "{data.event.title}" starts soon',
                 email_preview="Don't forget your upcoming event on Couchers.org",
                 email_template_name="event_reminder",
                 email_template_args={
-                    "event": data.event,
-                    "start_time": data.event.start_time,
-                    "user": user,
+                    "time_display": time_display,
+                    "event": event,
                     "view_link": event_link,
                 },
                 email_topic_action_unsubscribe_text="event reminders",
