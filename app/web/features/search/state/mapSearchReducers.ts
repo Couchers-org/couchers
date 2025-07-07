@@ -1,5 +1,5 @@
 import { LngLatLike } from "maplibre-gl";
-import { User } from "proto/api_pb";
+import { HostingStatus, User } from "proto/api_pb";
 import { UserSearchFilters } from "service/search";
 import { GeocodeResult } from "utils/hooks";
 
@@ -131,7 +131,10 @@ const initialState: MapSearchState = {
     lastActive: 0,
     hasReferences: undefined,
     hasStrongVerification: undefined,
-    hostingStatusOptions: undefined,
+    hostingStatusOptions: [
+      HostingStatus.HOSTING_STATUS_CAN_HOST,
+      HostingStatus.HOSTING_STATUS_MAYBE,
+    ],
     meetupStatus: undefined,
     numGuests: undefined,
     sleepingArrangement: undefined,
