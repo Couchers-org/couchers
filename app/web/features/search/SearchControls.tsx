@@ -7,8 +7,10 @@ import FilterDialog from "./FilterDialog";
 import FloatingSearchControls from "./FloatingSearchControls";
 import MapViewToggle from "./MapViewToggle";
 import SearchTypeRadioGroup from "./SearchTypeRadioGroup";
+import { useMapSearchState } from "./state/mapSearchContext";
+import { useMapSearchActions } from "./state/useMapSearchActions";
 import { useSearchFilters } from "./state/useSearchFilters";
-import { MapSearchTypes, MapViewOptions, MapViews } from "./utils/constants";
+import { HostingStatusOptions, MapSearchTypes, MapViewOptions, MapViews } from "./utils/constants";
 
 interface SearchControlsProps {
   drawerWidth: number;
@@ -70,7 +72,28 @@ const SearchControls = ({
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [searchType, setSearchType] = useState<MapSearchTypes>("location");
 
+  const mapSearchState = useMapSearchState();
+  const { clearSearchFilters } = useMapSearchActions();
   const { filters, resetFilters, updateFilter } = useSearchFilters();
+
+  // Map current search state to FilterOptions format for the dialog
+  const currentFilters = {
+    acceptsKids: mapSearchState.filters.acceptsKids,
+    acceptsPets: mapSearchState.filters.acceptsPets,
+    acceptsLastMinRequests: mapSearchState.filters.acceptsLastMinRequests,
+    ageMin: mapSearchState.filters.ageMin,
+    ageMax: mapSearchState.filters.ageMax,
+    completeProfile: mapSearchState.filters.completeProfile,
+    drinkingAllowed: mapSearchState.filters.drinkingAllowed,
+    hasReferences: mapSearchState.filters.hasReferences,
+    hasStrongVerification: mapSearchState.filters.hasStrongVerification,
+    hostingStatus: mapSearchState.filters.hostingStatusOptions as HostingStatusOptions[],
+    meetupStatus: mapSearchState.filters.meetupStatus,
+    numGuests: mapSearchState.filters.numGuests,
+    lastActive: mapSearchState.filters.lastActive,
+    sleepingArrangement: mapSearchState.filters.sleepingArrangement,
+    smokesAtHome: mapSearchState.filters.smokesAtHome,
+  };
 
   const handleMapViewChange = (view: MapViewOptions) => {
     onSetMapView(view);
@@ -86,6 +109,11 @@ const SearchControls = ({
 
   const handleSetSearchType = (type: MapSearchTypes) => {
     setSearchType(type);
+  };
+
+  const handleResetFilters = () => {
+    clearSearchFilters();
+    resetFilters();
   };
 
   return (
@@ -120,11 +148,11 @@ const SearchControls = ({
         />
       )}
       <FilterDialog
-        filters={filters}
+        filters={currentFilters}
         isOpen={isFiltersOpen}
         onCloseDialog={handleCloseFiltersDialog}
         updateFilter={updateFilter}
-        resetFilters={resetFilters}
+        resetFilters={handleResetFilters}
       />
     </>
   );
