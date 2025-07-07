@@ -82,20 +82,21 @@
       "reason_label": "Reason for reporting",
       "reason_helper": "Why are you reporting this content?",
       "reason_required": "Reason is required.",
+      "description_required": "Description is required.",
       "profile_reason_required": "Please fill out description or block",
       "description_label": "Describe the issue",
-      "description_helper": "Please tell us why you are reporting this person.",
+      "description_helper": "Please tell us why you are reporting this.",
       "success": "Thank you for your report and making Couchers a better platform for everybody!",
       "reason": {
-        "spam": "Spam",
-        "dating": "Dating / Flirting",
-        "external": "Incident off platform (e.g. surfing/hosting/event)",
-        "commercial": "Commercial content",
-        "harassment": "Harassment",
-        "fake": "Fake account / misleading info",
-        "freeloading": "Freeloading",
-        "guidelines_breach": "Breach of Community Guidelines",
-        "other": "Something else"
+        "dating": "Flirting / dating app behavior or similar",
+        "external": "Incident off-platform",
+        "harassment": "Harassment, bullying, hate speech, or illegal content",
+        "guidelines_breach": "Rule or policy violation (charging money, nudism, shared beds, etc)",
+        "safety": "Safety concern (to yourself or others)",
+        "scam": "Scam, fake, or misleading information",
+        "spam": "Spam or promotional content unrelated to couch surfing",
+        "sexualized": "Sexualized content or behavior",
+        "other": "Other (Please specify below)"
       }
     }
   },
