@@ -7,6 +7,12 @@ We noticed you haven't logged in for a while and wanted to check if you're still
 
 These check-ins help surfers find active hosts more easily and keep response times accurate.
 
+Since you logged in last, we've had some really exciting new updates.
+
+As of July, we are officially out of Beta and into v1, you can read more on our blog here:
+
+https://couchers.org/blog/2025/07/01/releasing-couchers-v1
+
 
 Best,
 The Couchers.org team
