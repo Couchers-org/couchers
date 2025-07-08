@@ -10,7 +10,12 @@ import SearchTypeRadioGroup from "./SearchTypeRadioGroup";
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { useSearchFilters } from "./state/useSearchFilters";
-import { HostingStatusOptions, MapSearchTypes, MapViewOptions, MapViews } from "./utils/constants";
+import {
+  HostingStatusOptions,
+  MapSearchTypes,
+  MapViewOptions,
+  MapViews,
+} from "./utils/constants";
 
 interface SearchControlsProps {
   drawerWidth: number;
@@ -87,7 +92,8 @@ const SearchControls = ({
     drinkingAllowed: mapSearchState.filters.drinkingAllowed,
     hasReferences: mapSearchState.filters.hasReferences,
     hasStrongVerification: mapSearchState.filters.hasStrongVerification,
-    hostingStatus: mapSearchState.filters.hostingStatusOptions as HostingStatusOptions[],
+    hostingStatus: mapSearchState.filters
+      .hostingStatusOptions as HostingStatusOptions[],
     meetupStatus: mapSearchState.filters.meetupStatus,
     numGuests: mapSearchState.filters.numGuests,
     lastActive: mapSearchState.filters.lastActive,

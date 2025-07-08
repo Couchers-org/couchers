@@ -33,7 +33,9 @@ interface LocalSearchFilters {
 
 export function useSearchFilters() {
   // Map UserSearchFilters to FilterOptions format
-  const mapToFilterOptions = (userFilters: typeof initialState.filters): FilterOptions => ({
+  const mapToFilterOptions = (
+    userFilters: typeof initialState.filters,
+  ): FilterOptions => ({
     acceptsKids: userFilters.acceptsKids,
     acceptsPets: userFilters.acceptsPets,
     acceptsLastMinRequests: userFilters.acceptsLastMinRequests,
@@ -51,7 +53,9 @@ export function useSearchFilters() {
     smokesAtHome: userFilters.smokesAtHome,
   });
 
-  const [filters, setFilters] = useState(mapToFilterOptions(initialState.filters));
+  const [filters, setFilters] = useState(
+    mapToFilterOptions(initialState.filters),
+  );
 
   // Update a single filter
   const updateFilter = useCallback((newFilters: Partial<FilterOptions>) => {
