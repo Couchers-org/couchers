@@ -2,13 +2,13 @@ import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 import {
   Alert,
   Box,
+  Button,
+  Card,
+  CardContent,
   IconButton,
   styled,
   Typography,
   useMediaQuery,
-  Button,
-  Card,
-  CardContent,
 } from "@mui/material";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
@@ -19,6 +19,7 @@ import { theme } from "theme";
 
 import SearchResultUserCard from "./SeachResultUserCard";
 import { useMapSearchState } from "./state/mapSearchContext";
+import { useMapSearchActions } from "./state/useMapSearchActions";
 import { MapViews } from "./utils/constants";
 
 interface SearchResultListContentProps {
@@ -31,7 +32,6 @@ interface SearchResultListContentProps {
   showTopSpace?: boolean;
   totalItems: number | undefined;
   users: SearchUser.AsObject[] | undefined;
-  onIncludeEmptyProfiles?: () => void;
 }
 
 const ListContentWrapper = styled(Box, {
@@ -58,7 +58,7 @@ const UserCardsWrapper = styled("div")(({ theme }) => ({
 }));
 
 const StyledCardWrapper = styled("div")(({ theme }) => ({
-  height: `${DEFAULT_DRAWER_WIDTH - 90}px`,
+  height: `${DEFAULT_DRAWER_WIDTH - 75}px`,
   display: "flex",
 
   [theme.breakpoints.down("md")]: {
@@ -91,20 +91,28 @@ const SearchResultListContent = ({
   showTopSpace = false,
   totalItems,
   users,
-  onIncludeEmptyProfiles,
 }: SearchResultListContentProps) => {
   const { t } = useTranslation([SEARCH]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const { selectedUserId, filters } = useMapSearchState();
+  const { filters, selectedUserId } = useMapSearchState();
+
+  const { setSearchFilters } = useMapSearchActions();
 
   const shouldShowSuggestion =
     !showAlert &&
     totalItems !== undefined &&
-    totalItems < 5 &&
-    totalItems >= 0 &&
-    filters.completeProfile === true &&
-    onIncludeEmptyProfiles;
+    totalItems <= 5 &&
+    filters.showEmptyProfile === false &&
+    selectedUserId === undefined;
+
+  const handleIncludeEmptyProfilesClick = () => {
+    setSearchFilters({
+      ...filters,
+      hostingStatus: [],
+      showEmptyProfile: true,
+    });
+  };
 
   return (
     <ListContentWrapper showTopSpace={showTopSpace}>
@@ -199,14 +207,20 @@ const SearchResultListContent = ({
       </UserCardsWrapper>
       {shouldShowSuggestion && (
         <SuggestionCard>
-          <CardContent>
+          <CardContent
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
             <Typography variant="body2" sx={{ marginBottom: theme.spacing(1) }}>
               {t("search:search_result.few_results_suggestion")}
             </Typography>
             <Button
               variant="contained"
               size="small"
-              onClick={onIncludeEmptyProfiles}
+              onClick={handleIncludeEmptyProfilesClick}
               sx={{ backgroundColor: theme.palette.primary.main }}
             >
               {t("search:search_result.include_empty_profiles_button")}

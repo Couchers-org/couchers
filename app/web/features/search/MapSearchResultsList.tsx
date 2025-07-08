@@ -25,7 +25,6 @@ interface MapSearchResultsListProps {
   onUserCardClick: (userId: number) => void;
   totalItems?: number;
   users: SearchUser.AsObject[] | undefined;
-  onIncludeEmptyProfiles?: () => void;
 }
 
 const DrawerContainer = styled("div")(({ theme }) => ({
@@ -54,7 +53,6 @@ const MapSearchResultsList = ({
   onUserCardClick,
   totalItems,
   users,
-  onIncludeEmptyProfiles,
 }: MapSearchResultsListProps) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -104,7 +102,6 @@ const MapSearchResultsList = ({
             }
             totalItems={totalItems}
             users={users}
-            onIncludeEmptyProfiles={onIncludeEmptyProfiles}
           />
         )}
       </ResizeableDrawer>

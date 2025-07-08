@@ -126,7 +126,7 @@ const initialState: MapSearchState = {
     acceptsPets: undefined,
     ageMin: undefined,
     ageMax: undefined,
-    completeProfile: true,
+    showEmptyProfile: false,
     drinkingAllowed: undefined,
     lastActive: 0,
     hasReferences: undefined,
@@ -285,11 +285,10 @@ const mapSearchReducer = (
             action.payload[key] === false ? undefined : action.payload[key];
         }
         if (
-          key === "completeProfile" &&
-          action.payload.completeProfile !== undefined
+          key === "showEmptyProfile" &&
+          action.payload.showEmptyProfile !== undefined
         ) {
-          updatedFilters.completeProfile =
-            action.payload[key] === false ? undefined : true;
+          updatedFilters.showEmptyProfile = action.payload[key];
         }
         if (key === "drinkingAllowed") {
           updatedFilters.drinkingAllowed = action.payload[key];

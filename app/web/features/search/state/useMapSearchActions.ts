@@ -51,6 +51,7 @@ function useMapSearchActions() {
   };
 
   const setSearchFilters = (newFilters: FilterOptions) => {
+    console.log("Setting search filters", newFilters);
     dispatch({
       type: mapSearchActionTypes.SET_FILTERS,
       payload: newFilters,

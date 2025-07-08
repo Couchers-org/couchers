@@ -1,8 +1,8 @@
 import { HostingStatus, SleepingArrangement } from "proto/api_pb";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { FilterOptions } from "../SearchPage";
-import { HostingStatusOptions } from "../utils/constants";
+import { useMapSearchState } from "./mapSearchContext";
 import { initialState } from "./mapSearchReducers";
 
 /** Local State for Search FilterDialog
@@ -17,7 +17,7 @@ interface LocalSearchFilters {
   ageMin: number;
   ageMax: number;
   drinkingAllowed: boolean;
-  completeProfile: boolean;
+  showEmptyProfile: boolean;
   lastActive: number;
   hasReferences: boolean;
   hasStrongVerification: boolean;
@@ -32,26 +32,14 @@ interface LocalSearchFilters {
 }
 
 export function useSearchFilters() {
-  // Map UserSearchFilters to FilterOptions format
-  const mapToFilterOptions = (userFilters: typeof initialState.filters): FilterOptions => ({
-    acceptsKids: userFilters.acceptsKids,
-    acceptsPets: userFilters.acceptsPets,
-    acceptsLastMinRequests: userFilters.acceptsLastMinRequests,
-    ageMin: userFilters.ageMin,
-    ageMax: userFilters.ageMax,
-    completeProfile: userFilters.completeProfile,
-    drinkingAllowed: userFilters.drinkingAllowed,
-    hasReferences: userFilters.hasReferences,
-    hasStrongVerification: userFilters.hasStrongVerification,
-    hostingStatus: userFilters.hostingStatusOptions as HostingStatusOptions[], // Map hostingStatusOptions to hostingStatus
-    meetupStatus: userFilters.meetupStatus,
-    numGuests: userFilters.numGuests,
-    lastActive: userFilters.lastActive,
-    sleepingArrangement: userFilters.sleepingArrangement,
-    smokesAtHome: userFilters.smokesAtHome,
-  });
+  const { filters: stateFilters } = useMapSearchState();
 
-  const [filters, setFilters] = useState(mapToFilterOptions(initialState.filters));
+  const [filters, setFilters] = useState(initialState.filters);
+
+  // Sync local filters with global filters when dialog is opened
+  useEffect(() => {
+    setFilters(stateFilters);
+  }, [stateFilters]);
 
   // Update a single filter
   const updateFilter = (newFilters: Partial<FilterOptions>) => {
@@ -62,7 +50,7 @@ export function useSearchFilters() {
   };
 
   const resetFilters = () => {
-    setFilters(mapToFilterOptions(initialState.filters));
+    setFilters(initialState.filters);
   };
 
   return {

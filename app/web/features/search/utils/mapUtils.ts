@@ -63,7 +63,7 @@ const getHasActiveFilters = (
     state.filters.hostingStatusOptions !==
       initialState.filters.hostingStatusOptions ||
     state.filters.numGuests !== initialState.filters.numGuests ||
-    state.filters.completeProfile !== initialState.filters.completeProfile ||
+    state.filters.showEmptyProfile !== initialState.filters.showEmptyProfile ||
     state.filters.acceptsKids !== initialState.filters.acceptsKids ||
     state.filters.acceptsLastMinRequests !==
       initialState.filters.acceptsLastMinRequests ||

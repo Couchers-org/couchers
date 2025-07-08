@@ -157,8 +157,8 @@ const FilterDialog = ({
     updateFilter({ drinkingAllowed: newDrinkingAllowed });
   };
 
-  const handleShowCompleteProfilesOnlyChange = () => {
-    updateFilter({ completeProfile: !filters.completeProfile });
+  const handleShowEmptyProfileChange = () => {
+    updateFilter({ showEmptyProfile: !filters.showEmptyProfile });
   };
 
   const handleLastActiveSelect = (event: SelectChangeEvent<number>) => {
@@ -250,8 +250,8 @@ const FilterDialog = ({
             {t("search:form.empty_profile_filters.title")}
           </Typography>
           <CustomColorSwitch
-            checked={filters.completeProfile || false}
-            onClick={handleShowCompleteProfilesOnlyChange}
+            checked={filters.showEmptyProfile || false}
+            onClick={handleShowEmptyProfileChange}
             customColor={theme.palette.primary.main}
           />
         </FilterItemRow>

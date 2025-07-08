@@ -32,7 +32,7 @@ export type FilterOptions = {
   acceptsLastMinRequests?: boolean;
   ageMin?: number | undefined;
   ageMax?: number | undefined;
-  completeProfile?: boolean;
+  showEmptyProfile?: boolean;
   drinkingAllowed?: boolean | undefined;
   hasReferences?: boolean;
   hasStrongVerification?: boolean;
@@ -70,7 +70,6 @@ export default function SearchPage() {
     setMoveMapUIOnly,
     setShowSearchThisAreaButton,
     setSelectedUserId,
-    setSearchFilters,
   } = useMapSearchActions();
 
   // useMemo to avoid unnecessary object reference changes - causing unnecessary rerenders
@@ -101,13 +100,6 @@ export default function SearchPage() {
     totalItems,
     users,
   } = useUserSearch(searchParams, mapSearchState);
-
-  const handleIncludeEmptyProfiles = () => {
-    setSearchFilters({ 
-      completeProfile: false,
-      hostingStatus: [] // Remove hosting status filter to show all users including "can't host"
-    });
-  };
 
   const handleLoadPreviousPage = () => {
     fetchPreviousPage();
@@ -201,7 +193,6 @@ export default function SearchPage() {
           onZoomOut={handleZoomOut}
           totalItems={totalItems}
           users={users}
-          onIncludeEmptyProfiles={handleIncludeEmptyProfiles}
         />
       </MapProvider>
     </SearchPageContainer>

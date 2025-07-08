@@ -35,7 +35,7 @@ export interface UserSearchFilters {
   hostingStatusOptions?: HostingStatus[];
   meetupStatus?: MeetupStatus[];
   numGuests?: number;
-  completeProfile?: boolean;
+  showEmptyProfile?: boolean;
   pageNumber?: number;
   pageSize?: number;
   selectedUserId?: number;
@@ -59,7 +59,7 @@ function constructUserSearchReq(
     hostingStatusOptions,
     meetupStatus,
     numGuests,
-    completeProfile,
+    showEmptyProfile,
     selectedUserId,
     sleepingArrangement,
     smokesAtHome,
@@ -109,8 +109,12 @@ function constructUserSearchReq(
     req.setLastActive(timestamp);
   }
 
-  if (completeProfile) {
-    req.setProfileCompleted(new BoolValue().setValue(completeProfile));
+  if (showEmptyProfile !== undefined) {
+    req.setProfileCompleted(
+      showEmptyProfile
+        ? undefined
+        : new BoolValue().setValue(!showEmptyProfile),
+    );
   }
 
   if (hasReferences) {
