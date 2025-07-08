@@ -32,14 +32,30 @@ interface LocalSearchFilters {
 }
 
 export function useSearchFilters() {
-  const { filters: stateFilters } = useMapSearchState();
+  // Map UserSearchFilters to FilterOptions format
+  const mapToFilterOptions = (
+    userFilters: typeof initialState.filters,
+  ): FilterOptions => ({
+    acceptsKids: userFilters.acceptsKids,
+    acceptsPets: userFilters.acceptsPets,
+    acceptsLastMinRequests: userFilters.acceptsLastMinRequests,
+    ageMin: userFilters.ageMin,
+    ageMax: userFilters.ageMax,
+    completeProfile: userFilters.completeProfile,
+    drinkingAllowed: userFilters.drinkingAllowed,
+    hasReferences: userFilters.hasReferences,
+    hasStrongVerification: userFilters.hasStrongVerification,
+    hostingStatus: userFilters.hostingStatusOptions as HostingStatusOptions[], // Map hostingStatusOptions to hostingStatus
+    meetupStatus: userFilters.meetupStatus,
+    numGuests: userFilters.numGuests,
+    lastActive: userFilters.lastActive,
+    sleepingArrangement: userFilters.sleepingArrangement,
+    smokesAtHome: userFilters.smokesAtHome,
+  });
 
-  const [filters, setFilters] = useState(initialState.filters);
-
-  // Sync local filters with global filters when dialog is opened
-  useEffect(() => {
-    setFilters(stateFilters);
-  }, [stateFilters]);
+  const [filters, setFilters] = useState(
+    mapToFilterOptions(initialState.filters),
+  );
 
   // Update a single filter
   const updateFilter = (newFilters: Partial<FilterOptions>) => {

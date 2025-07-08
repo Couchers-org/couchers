@@ -101,6 +101,13 @@ export default function SearchPage() {
     users,
   } = useUserSearch(searchParams, mapSearchState);
 
+  const handleIncludeEmptyProfiles = () => {
+    setSearchFilters({
+      completeProfile: false,
+      hostingStatus: [], // Remove hosting status filter to show all users including "can't host"
+    });
+  };
+
   const handleLoadPreviousPage = () => {
     fetchPreviousPage();
     setPageNumber(mapSearchState.pageNumber - 1);
