@@ -1,5 +1,5 @@
 import { HostingStatus, SleepingArrangement } from "proto/api_pb";
-import { useEffect, useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import { FilterOptions } from "../SearchPage";
 import { HostingStatusOptions } from "../utils/constants";
@@ -31,43 +31,52 @@ interface LocalSearchFilters {
   sleepingArrangement: SleepingArrangement;
 }
 
-export function useSearchFilters() {
-  // Map UserSearchFilters to FilterOptions format
-  const mapToFilterOptions = (
-    userFilters: typeof initialState.filters,
-  ): FilterOptions => ({
-    acceptsKids: userFilters.acceptsKids,
-    acceptsPets: userFilters.acceptsPets,
-    acceptsLastMinRequests: userFilters.acceptsLastMinRequests,
-    ageMin: userFilters.ageMin,
-    ageMax: userFilters.ageMax,
-    completeProfile: userFilters.completeProfile,
-    drinkingAllowed: userFilters.drinkingAllowed,
-    hasReferences: userFilters.hasReferences,
-    hasStrongVerification: userFilters.hasStrongVerification,
-    hostingStatus: userFilters.hostingStatusOptions as HostingStatusOptions[], // Map hostingStatusOptions to hostingStatus
-    meetupStatus: userFilters.meetupStatus,
-    numGuests: userFilters.numGuests,
-    lastActive: userFilters.lastActive,
-    sleepingArrangement: userFilters.sleepingArrangement,
-    smokesAtHome: userFilters.smokesAtHome,
-  });
+// Map UserSearchFilters to FilterOptions format - moved outside to prevent dependency issues
+const mapToFilterOptions = (
+  userFilters: typeof initialState.filters,
+): FilterOptions => ({
+  acceptsKids: userFilters.acceptsKids,
+  acceptsPets: userFilters.acceptsPets,
+  acceptsLastMinRequests: userFilters.acceptsLastMinRequests,
+  ageMin: userFilters.ageMin,
+  ageMax: userFilters.ageMax,
+  completeProfile: userFilters.completeProfile,
+  drinkingAllowed: userFilters.drinkingAllowed,
+  hasReferences: userFilters.hasReferences,
+  hasStrongVerification: userFilters.hasStrongVerification,
+  hostingStatus: userFilters.hostingStatusOptions as HostingStatusOptions[], // Map hostingStatusOptions to hostingStatus
+  meetupStatus: userFilters.meetupStatus,
+  numGuests: userFilters.numGuests,
+  lastActive: userFilters.lastActive,
+  sleepingArrangement: userFilters.sleepingArrangement,
+  smokesAtHome: userFilters.smokesAtHome,
+});
 
+export function useSearchFilters(currentFilters?: typeof initialState.filters) {
   const [filters, setFilters] = useState(
-    mapToFilterOptions(initialState.filters),
+    mapToFilterOptions(currentFilters || initialState.filters),
   );
 
+  // Sync with current filters when they change
+  useEffect(() => {
+    if (currentFilters) {
+      setFilters(mapToFilterOptions(currentFilters));
+    }
+  }, [currentFilters]);
+
   // Update a single filter
+  const updateFilter = useCallback((newFilters: Partial<FilterOptions>) => {
   const updateFilter = useCallback((newFilters: Partial<FilterOptions>) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
       ...newFilters,
     }));
   }, []);
+  }, []);
 
-  const resetFilters = () => {
+  const resetFilters = useCallback(() => {
     setFilters(mapToFilterOptions(initialState.filters));
-  };
+  }, []);
 
   return {
     filters,

@@ -288,7 +288,7 @@ const mapSearchReducer = (
           key === "showEmptyProfile" &&
           action.payload.showEmptyProfile !== undefined
         ) {
-          updatedFilters.showEmptyProfile = action.payload[key];
+          updatedFilters.completeProfile = action.payload[key];
         }
         if (key === "drinkingAllowed") {
           updatedFilters.drinkingAllowed = action.payload[key];
