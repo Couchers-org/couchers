@@ -1,5 +1,5 @@
 import { HostingStatus, SleepingArrangement } from "proto/api_pb";
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { FilterOptions } from "../SearchPage";
 import { HostingStatusOptions } from "../utils/constants";

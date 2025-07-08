@@ -9,9 +9,6 @@ import {
   styled,
   Typography,
   useMediaQuery,
-  Button,
-  Card,
-  CardContent,
 } from "@mui/material";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";

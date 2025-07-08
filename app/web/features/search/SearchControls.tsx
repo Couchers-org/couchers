@@ -10,12 +10,7 @@ import SearchTypeRadioGroup from "./SearchTypeRadioGroup";
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { useSearchFilters } from "./state/useSearchFilters";
-import {
-  HostingStatusOptions,
-  MapSearchTypes,
-  MapViewOptions,
-  MapViews,
-} from "./utils/constants";
+import { MapSearchTypes, MapViewOptions, MapViews } from "./utils/constants";
 
 interface SearchControlsProps {
   drawerWidth: number;
