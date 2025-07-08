@@ -61,9 +61,6 @@ type MapViewOptions = MapViews.MAP_AND_LIST | MapViews.LIST_ONLY;
 const MAX_ZOOM_LEVEL = 15;
 const MIN_ZOOM_LEVEL = 0;
 
-// Reference status emoji for new users
-const NO_REFERENCES_EMOJI = "🐣";
-
 export {
   aboutText,
   DEFAULT_AGE_MAX,
@@ -73,7 +70,6 @@ export {
   MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
   MAX_ZOOM_LEVEL,
   MIN_ZOOM_LEVEL,
-  NO_REFERENCES_EMOJI,
   selectedUserZoom,
   truncateWithEllipsis,
 };

@@ -14,8 +14,6 @@ import { TFunction } from "i18next";
 import { HostingStatus, MeetupStatus, User } from "proto/api_pb";
 import { theme } from "theme";
 
-import { NO_REFERENCES_EMOJI } from "./utils/constants";
-
 const Wrapper = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "flex-start",
@@ -168,7 +166,7 @@ const HostMeetupReferenceStatus = ({
               marginRight: theme.spacing(0.5),
             }}
           >
-            {NO_REFERENCES_EMOJI}
+            {"🐣"}
           </span>
         )}
         {generateReferenceText(numberReferences, t)}
