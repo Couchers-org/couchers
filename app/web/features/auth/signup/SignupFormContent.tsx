@@ -53,16 +53,18 @@ export default function SignupFormContent() {
         <Typography gutterBottom sx={{ marginBottom: 2 }}>
           <Trans
             i18nKey="landing:signup_description"
-            values={{ user_count: signupInfo?.userCount || "56k" }}
+            values={{
+              user_count: signupInfo?.userCount
+                ? Number(signupInfo.userCount).toLocaleString()
+                : "56k+",
+            }}
             components={{
               2: <Link href={baseRoute} underline="hover" />,
             }}
           >
             Travel, host, and connect with{" "}
             {{ user_count: signupInfo?.userCount || "56k" }} members.{" "}
-            <StyledLink href={baseRoute}>
-              Learn more about Couchers.org
-            </StyledLink>
+            <StyledLink href={baseRoute}>Learn more about us</StyledLink>.
           </Trans>
         </Typography>
         <BasicForm submitText={t("global:create_account")} />

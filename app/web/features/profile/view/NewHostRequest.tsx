@@ -249,8 +249,9 @@ export default function NewHostRequest({
               required: t("profile:request_form.request_description_empty"),
               minLength: {
                 value: 250,
-                message:
-                  "The minimum length to send a host request is 250 characters. Good, thoughtful requests detailing your plans and why you chose this host are more likely to be accepted.",
+                message: t(
+                  "profile:request_form.request_char_length_too_short",
+                ),
               },
             })}
             className={classes.requestField}

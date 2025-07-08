@@ -24,8 +24,13 @@ const MapWrapper = styled("div")(({ theme }) => ({
   height: 500,
   width: "100%",
   position: "relative",
-  borderRadius: "10px",
+  borderRadius: theme.shape.borderRadius,
   overflow: "hidden",
+  margin: theme.spacing(3, 0),
+
+  [theme.breakpoints.down("md")]: {
+    height: 350,
+  },
 }));
 
 const StaticMap = () => {
@@ -60,6 +65,7 @@ const StaticMap = () => {
         ref={mapRef}
         onLoad={onLoad}
         scrollZoom={false}
+        {...(isMobile && { attributionControl: false })}
       >
         <Source
           id={USERS_SOURCE_ID}
