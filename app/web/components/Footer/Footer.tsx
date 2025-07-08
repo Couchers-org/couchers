@@ -10,7 +10,9 @@ import {
   Typography,
 } from "@mui/material";
 import { BlueSkyIcon } from "components/Icons";
+import ReportButton from "components/Navigation/ReportButton";
 import StyledLink from "components/StyledLink";
+import AntibotNote from "features/antibot/AntibotNote";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
@@ -165,7 +167,7 @@ export default function Footer() {
       <StyledUpperOuterContainer>
         <StyledUpperContainer>
           <div>
-            <Typography variant="h3" component="h2">
+            <Typography variant="h4" component="h4">
               {t("nav.about")}
             </Typography>
             <FooterLink href={planRoute}>{t("nav.our_plan")}</FooterLink>
@@ -177,7 +179,7 @@ export default function Footer() {
             </FooterLink>
           </div>
           <div>
-            <Typography variant="h3" component="h2">
+            <Typography variant="h4" component="h4">
               {t("nav.community")}
             </Typography>
             <FooterLink href={blogRoute}>{t("nav.blog")}</FooterLink>
@@ -187,13 +189,14 @@ export default function Footer() {
             </FooterLink>
           </div>
           <div>
-            <Typography variant="h3" component="h2">
+            <Typography variant="h4" component="h4">
               {t("nav.legal_more")}
             </Typography>
             <FooterLink href={tosRoute}>{t("terms_of_service")}</FooterLink>
             <FooterLink href={foundationRoute}>{t("legal_name")}</FooterLink>
             <FooterLink href={builtWithRoute}>{t("nav.built_with")}</FooterLink>
             <FooterLink href={contactRoute}>{t("nav.contact_us")}</FooterLink>
+            <ReportButton isMenuLink />
           </div>
           <StyledButtonContainer>
             <Link href={donationsRoute} passHref legacyBehavior>
@@ -262,6 +265,9 @@ export default function Footer() {
             <Link href={foundationRoute} passHref>
               {t("footer.non_profit_note")}
             </Link>
+          </Typography>
+          <Typography variant="body2" sx={{ fontSize: ".6em" }}>
+            <AntibotNote />
           </Typography>
         </StyledMiddleContainer>
       </StyledMiddleOuterContainer>

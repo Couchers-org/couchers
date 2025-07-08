@@ -3,6 +3,10 @@ title: Our Mission and Values
 type: general
 ---
 
+## What is Couchers.org?
+
+Couchers.org is a community and platform built to facilitate genuine interaction between travelers and locals, centered around couch surfing—free, non-transactional homestays and meetups. Our global community is based on meaningful and inclusive cultural exchange while prioritizing trust and safety.
+
 ## Our Mission
 
 Couchers.org exists to create genuine real-world connections and community. By engaging with people from different cultures and backgrounds, we push people to grow into being more open, empathetic, and tolerant and to build safe, inclusive community.

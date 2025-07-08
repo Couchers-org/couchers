@@ -63,16 +63,6 @@ const StyledBottomContent = styled("div")(({ theme }) => ({
   },
 }));
 
-const StyledCardHeader = styled(Typography)(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  fontSize: "1.2rem",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-  wordBreak: "break-word",
-}));
-
 const StyledOpenInNewIcon = styled(OpenInNewIcon)(() => ({
   height: "1rem",
   width: "1rem",
@@ -86,12 +76,14 @@ const FlexRow = styled("div")<{
   alignItems: alignItems || "flex-start",
   flexGrow: 1,
   justifyContent: justifyContent || "flex-start",
+  overflow: "hidden",
 }));
 
 const FlexColumn = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   width: "100%",
+  overflow: "hidden",
 }));
 
 const UserDetailsRow = styled("div")(({ theme }) => ({
@@ -173,16 +165,26 @@ const SearchResultUserCard = ({
       <StyledTopContent>
         <Avatar openInNewTab user={user} />
         <FlexColumn>
-          <StyledCardHeader variant="h2">
+          <FlexRow justifyContent="space-between" alignItems="center">
             <FlexRow alignItems="center">
               <StyledLink
                 aria-label={t("profile:open_profile_new_tab")}
                 href={routeToUser(user.username)}
                 target="_blank"
                 rel="noopener noreferrer"
-                sx={{ fontSize: "1.1rem" }}
+                sx={{ fontSize: "1.1rem", overflow: "hidden" }}
               >
-                <LinesEllipsis text={user.name} maxLine={1} />
+                <Typography
+                  variant="h2"
+                  sx={{
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    marginRight: 1,
+                  }}
+                >
+                  {user.name}
+                </Typography>
               </StyledLink>
               {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
             </FlexRow>
@@ -202,7 +204,8 @@ const SearchResultUserCard = ({
                 />
               </Tooltip>
             </StyledLink>
-          </StyledCardHeader>
+          </FlexRow>
+
           <FlexRow justifyContent="space-between">
             <Tooltip title={`${user.age}, ${user.gender}, ${user.city}`}>
               <Typography variant="body2">

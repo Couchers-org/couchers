@@ -1,11 +1,13 @@
 {
   "close": "Close",
+  "create_account": "Create Account",
   "expand": "Expand",
   "retract": "Retract",
   "couchers": "Couchers.org",
   "legal_name": "Couchers, Inc.",
   "login": "Log in",
   "sign_up": "Sign up",
+  "join_us": "Join us",
   "title": "title",
   "update": "update",
   "create": "Create",
@@ -80,20 +82,21 @@
       "reason_label": "Reason for reporting",
       "reason_helper": "Why are you reporting this content?",
       "reason_required": "Reason is required.",
+      "description_required": "Description is required.",
       "profile_reason_required": "Please fill out description or block",
       "description_label": "Describe the issue",
-      "description_helper": "Please tell us why you are reporting this person.",
+      "description_helper": "Please tell us why you are reporting this.",
       "success": "Thank you for your report and making Couchers a better platform for everybody!",
       "reason": {
-        "spam": "Spam",
-        "dating": "Dating / Flirting",
-        "external": "Incident off platform (e.g. surfing/hosting/event)",
-        "commercial": "Commercial content",
-        "harassment": "Harassment",
-        "fake": "Fake account / misleading info",
-        "freeloading": "Freeloading",
-        "guidelines_breach": "Breach of Community Guidelines",
-        "other": "Something else"
+        "dating": "Flirting / dating app behavior or similar",
+        "external": "Incident off-platform",
+        "harassment": "Harassment, bullying, hate speech, or illegal content",
+        "guidelines_breach": "Rule or policy violation (charging money, nudism, shared beds, etc)",
+        "safety": "Safety concern (to yourself or others)",
+        "scam": "Scam, fake, or misleading information",
+        "spam": "Spam or promotional content unrelated to couch surfing",
+        "sexualized": "Sexualized content or behavior",
+        "other": "Other (Please specify below)"
       }
     }
   },
@@ -102,9 +105,9 @@
   "not_found_alt": "404 Error: Resource Not Found",
   "change_time": "Change time",
   "html_meta": {
-    "title_suffix": " | Couchers.org Beta",
-    "default_title": "Couchers.org Beta",
-    "default_description": "The new alternative to Couchsurfing™. Free forever. Community-led. Non-profit. Modern."
+    "title_suffix": " | Couchers.org",
+    "default_title": "Couchers.org",
+    "default_description": "Share your world, discover theirs. Authentic local experiences, built on trust and genuine connection—not transactions."
   },
   "error": {
     "fatal_message": "This shouldn't have happened. Please contact us and tell us what you were doing to help us prevent this error in the future.",

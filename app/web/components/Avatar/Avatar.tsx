@@ -6,6 +6,31 @@ import { routeToUser } from "routes";
 
 import { getProfileLinkA11yLabel } from "./constants";
 
+type UserWithAvatarUrl = Pick<
+  LiteUser.AsObject,
+  "username" | "name" | "avatarUrl"
+>;
+type UserWithAvatarThumbnailUrl = Pick<
+  LiteUser.AsObject,
+  "username" | "name" | "avatarThumbnailUrl"
+>;
+interface AvatarPropsHighRes {
+  children?: React.ReactNode;
+  highRes?: true;
+  user?: UserWithAvatarUrl;
+  grow?: boolean;
+  className?: string;
+  isProfileLink?: boolean;
+  style?: React.CSSProperties;
+  openInNewTab?: boolean;
+}
+
+interface AvatarPropsLowRes
+  extends Omit<AvatarPropsHighRes, "highRes" | "user"> {
+  highRes?: false | undefined;
+  user?: UserWithAvatarThumbnailUrl;
+}
+
 const StyledWrapper = styled("div")<{
   isDefaultSize: boolean;
   grow: boolean | undefined;
@@ -31,24 +56,15 @@ const StyledMuiAvatar = styled(MuiAvatar)(() => ({
   maxHeight: "18rem",
 }));
 
-export interface AvatarProps {
-  children?: React.ReactNode;
-  user?: Pick<LiteUser.AsObject, "username" | "name" | "avatarThumbnailUrl">;
-  grow?: boolean;
-  className?: string;
-  isProfileLink?: boolean;
-  style?: React.CSSProperties;
-  openInNewTab?: boolean;
-}
-
 export default function Avatar({
   user,
+  highRes,
   grow,
   className,
   isProfileLink = true,
   openInNewTab = false,
   ...otherProps
-}: AvatarProps) {
+}: AvatarPropsHighRes | AvatarPropsLowRes) {
   return (
     <StyledWrapper
       isDefaultSize={!className}
@@ -63,12 +79,26 @@ export default function Avatar({
             aria-label={getProfileLinkA11yLabel(user.name)}
             target={openInNewTab ? "_blank" : undefined}
           >
-            <StyledMuiAvatar alt={user.name} src={user.avatarThumbnailUrl}>
+            <StyledMuiAvatar
+              alt={user.name}
+              src={
+                !!highRes
+                  ? (user as UserWithAvatarUrl).avatarUrl
+                  : (user as UserWithAvatarThumbnailUrl).avatarThumbnailUrl
+              }
+            >
               {user.name.split(/\s+/).map((name) => name[0])}
             </StyledMuiAvatar>
           </StyledLink>
         ) : (
-          <StyledMuiAvatar alt={user.name} src={user.avatarThumbnailUrl}>
+          <StyledMuiAvatar
+            alt={user.name}
+            src={
+              !!highRes
+                ? (user as UserWithAvatarUrl).avatarUrl
+                : (user as UserWithAvatarThumbnailUrl).avatarThumbnailUrl
+            }
+          >
             {user.name.split(/\s+/).map((name) => name[0])}
           </StyledMuiAvatar>
         )

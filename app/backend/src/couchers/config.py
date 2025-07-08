@@ -93,6 +93,11 @@ CONFIG_OPTIONS = [
     ("LISTMONK_API_USERNAME", str),
     ("LISTMONK_API_KEY", str),
     ("LISTMONK_LIST_ID", int),
+    # Google recaptcha antibot
+    ("RECAPTHCA_ENABLED", bool),
+    ("RECAPTHCA_PROJECT_ID", str),
+    ("RECAPTHCA_API_KEY", str),
+    ("RECAPTHCA_SITE_KEY", str),
     # Whether we're in test
     ("IN_TEST", bool, "0"),
 ]
