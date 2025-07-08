@@ -116,7 +116,6 @@ export default function UserSummary({
         )}
       </Typography>
     </Tooltip>
-
   );
 
   return (
