@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^5.17.1",
     "@mui/lab": "^5.0.0-alpha.164",
     "@mui/material": "^5.16.7",
@@ -102,7 +102,7 @@
     "next-router-mock": "^1.0.2",
     "prettier": "3.4.2",
     "require-from-string": "^2.0.2",
-    "sentry-testkit": "^6.1.0",
+    "sentry-testkit": "^6.2.2",
     "timezone-mock": "^1.3.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",

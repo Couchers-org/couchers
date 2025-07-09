@@ -160,14 +160,14 @@ const HostMeetupReferenceStatus = ({
           />
         )}
         {numberReferences === 0 && (
-          <DoDisturb
-            fontSize="small"
-            sx={{
-              color: theme.palette.error.main,
+          <span
+            style={{
               fontSize: "0.875rem",
               marginRight: theme.spacing(0.5),
             }}
-          />
+          >
+            {"🐣"}
+          </span>
         )}
         {generateReferenceText(numberReferences, t)}
       </StyledTypography>

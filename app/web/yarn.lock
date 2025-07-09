@@ -420,10 +420,10 @@
   resolved "https://registry.yarnpkg.com/@emotion/sheet/-/sheet-1.4.0.tgz#c9299c34d248bc26e82563735f78953d2efca83c"
   integrity sha512-fTBW9/8r2w3dXWYM4HCB1Rdp8NLibOw2+XELH5m5+AkWiL/KqYX6dc0kKYlaYyKjrQ6ds33MCdMPEwgs2z1rqg==
 
-"@emotion/styled@^11.14.0":
-  version "11.14.0"
-  resolved "https://registry.yarnpkg.com/@emotion/styled/-/styled-11.14.0.tgz#f47ca7219b1a295186d7661583376fcea95f0ff3"
-  integrity sha512-XxfOnXFffatap2IyCeJyNov3kiDQWoR08gPUQxvbL7fxKryGBKUZUkG6Hz48DZwVrJSVh9sJboyV1Ds4OW6SgA==
+"@emotion/styled@^11.14.1":
+  version "11.14.1"
+  resolved "https://registry.yarnpkg.com/@emotion/styled/-/styled-11.14.1.tgz#8c34bed2948e83e1980370305614c20955aacd1c"
+  integrity sha512-qEEJt42DuToa3gurlH4Qqc1kVpNq8wO8cJtDzU46TjlzWjDlsVyevtYCRijVq3SrHsROS+gVQ8Fnea108GnKzw==
   dependencies:
     "@babel/runtime" "^7.18.3"
     "@emotion/babel-plugin" "^11.13.5"
@@ -7421,10 +7421,10 @@ send@0.19.0:
     range-parser "~1.2.1"
     statuses "2.0.1"
 
-sentry-testkit@^6.1.0:
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/sentry-testkit/-/sentry-testkit-6.1.0.tgz#ff3b4b0a0447e7ef932ff4c359b23dde87cb05bd"
-  integrity sha512-mW1aOvJQFy42QSKev91rF0e+JlkP51oqficRNEwdC1efI/uYSyfpRL7pJATmHMsMMAb1ZFa5tMpyJg1dWPqE+Q==
+sentry-testkit@^6.2.2:
+  version "6.2.2"
+  resolved "https://registry.yarnpkg.com/sentry-testkit/-/sentry-testkit-6.2.2.tgz#31327df0602f99a7782cc0ca30a1472b03c6e152"
+  integrity sha512-1YdDokVhf8pbCGF91TeaWP1ue+lHSB358nH+I3mGOWg79O1hssvv3H3OWMojp9RZ+qHXm0DgcZ05oIjnbYoMRw==
   dependencies:
     body-parser "^1.20.3"
     express "^4.21.2"

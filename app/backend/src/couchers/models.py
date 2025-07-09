@@ -27,7 +27,7 @@ from sqlalchemy.dialects.postgresql import INET, TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, deferred, relationship
-from sqlalchemy.sql import and_, func, not_, text
+from sqlalchemy.sql import and_, expression, func, not_, text
 from sqlalchemy.sql import select as sa_select
 
 from couchers import urls
@@ -2165,6 +2165,8 @@ class EventOccurrenceAttendee(Base):
     user = relationship("User")
     occurrence = relationship("EventOccurrence", backref=backref("attendances", lazy="dynamic"))
 
+    reminder_sent = Column(Boolean, nullable=False, default=False, server_default=expression.false())
+
 
 class EventCommunityInviteRequest(Base):
     """
@@ -2465,6 +2467,7 @@ class NotificationTopicAction(enum.Enum):
     event__cancel = ("event:cancel", dt_all, True, nd.EventCancel)
     event__delete = ("event:delete", dt_all, True, nd.EventDelete)
     event__invite_organizer = ("event:invite_organizer", dt_all, True, nd.EventInviteOrganizer)
+    event__reminder = ("event:reminder", dt_all, True, nd.EventReminder)
     # toplevel comment on an event
     event__comment = ("event:comment", dt_all, True, nd.EventComment)
 
