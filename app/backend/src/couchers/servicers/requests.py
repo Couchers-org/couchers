@@ -103,6 +103,10 @@ def host_request_to_pb(host_request: HostRequest, session, context):
             else host_request.host_last_seen_message_id
         ),
         latest_message=message_to_pb(latest_message),
+        hosting_city=host_request.hosting_city,
+        hosting_lat=host_request.hosting_lat,
+        hosting_lng=host_request.hosting_lng,
+        hosting_radius=host_request.hosting_radius,
     )
 
 
@@ -185,6 +189,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         session.add(message)
         session.flush()
 
+        if host.geom:
+            hosting_lat, hosting_lng = host.coordinates
+        else:
+            hosting_lat = None
+            hosting_lng = None
+
         host_request = HostRequest(
             conversation_id=conversation.id,
             surfer_user_id=context.user_id,
@@ -195,6 +205,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             surfer_last_seen_message_id=message.id,
             # TODO: tz
             # timezone=host.timezone,
+            hosting_city=host.city,
+            hosting_lat=hosting_lat,
+            hosting_lng=hosting_lng,
+            hosting_radius=host.geom_radius,
         )
         session.add(host_request)
         session.commit()
@@ -308,6 +322,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     else result.HostRequest.host_last_seen_message_id
                 ),
                 latest_message=message_to_pb(result.Message),
+                hosting_city=result.HostRequest.hosting_city or "",
+                hosting_lat=result.HostRequest.hosting_lat or 0.0,
+                hosting_lng=result.HostRequest.hosting_lng or 0.0,
+                hosting_radius=result.HostRequest.hosting_radius or 0.0,
             )
             for result in results[:pagination]
         ]

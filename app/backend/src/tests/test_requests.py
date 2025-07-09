@@ -30,7 +30,16 @@ def _(testconfig):
 
 def test_create_request(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    hosting_city = "Morningside Heights, New York City"
+    hosting_lat = 40.8086
+    hosting_lng = -73.9616
+    hosting_radius = 500
+    user2, token2 = generate_user(
+        city=hosting_city,
+        geom=f"POINT({hosting_lng} {hosting_lat})",
+        geom_radius=hosting_radius,
+    )
+
     today_plus_2 = (today() + timedelta(days=2)).isoformat()
     today_plus_3 = (today() + timedelta(days=3)).isoformat()
     today_minus_2 = (today() - timedelta(days=2)).isoformat()
@@ -92,15 +101,24 @@ def test_create_request(db):
 
         res = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text="Test request",
             )
         )
-        assert (
-            api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
-            .host_requests[0]
-            .latest_message.text.text
-            == "Test request"
-        )
+
+        host_requests = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True)).host_requests
+
+        assert len(host_requests) == 1
+        hr = host_requests[0]
+
+        assert hr.latest_message.text.text == "Test request"
+
+        assert hr.hosting_city == hosting_city
+        assert round(hr.hosting_lat, 4) == hosting_lat
+        assert round(hr.hosting_lng, 4) == hosting_lng
+        assert hr.hosting_radius == hosting_radius
 
     today_ = today()
     today_plus_one_year = today_ + timedelta(days=365)
