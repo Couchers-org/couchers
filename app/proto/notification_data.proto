@@ -178,6 +178,11 @@ message ReferenceReminder {
   uint32 days_left = 3;
 }
 
+message EventReminder {
+  org.couchers.api.events.Event event = 1;
+  org.couchers.api.core.User user = 2;
+}
+
 enum SVFailReason {
   SV_FAIL_REASON_UNKNOWN = 0;
   // birthdate doesn't match profile or gender

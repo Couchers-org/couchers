@@ -158,6 +158,7 @@ settings_layout = [
                     ("cancel", "An event you are attending is cancelled"),
                     ("delete", "An event you are attending is deleted"),
                     ("invite_organizer", "Someone invites you to co-organize an event"),
+                    ("reminder", "Reminder for an upcoming event"),
                 ],
             ),
             (
