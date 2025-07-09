@@ -625,6 +625,25 @@ def render_notification(user, notification) -> RenderedNotification:
                 push_icon=v2avatar(data.author),
                 push_url=event_link,
             )
+        elif notification.action == "reminder":
+            body = "Don't forget your upcoming event on Couchers.org\n"
+            body += f"{time_display}\n"
+            body += data.event.content
+            return RenderedNotification(
+                email_subject=f'Reminder: "{data.event.title}" starts soon',
+                email_preview="Don't forget your upcoming event on Couchers.org",
+                email_template_name="event_reminder",
+                email_template_args={
+                    "time_display": time_display,
+                    "event": event,
+                    "view_link": event_link,
+                },
+                email_topic_action_unsubscribe_text="event reminders",
+                push_title=f'"{data.event.title}" starts soon',
+                push_body=body,
+                push_icon=urls.icon_url(),
+                push_url=event_link,
+            )
     elif notification.topic == "discussion":
         discussion = data.discussion
         discussion_link = urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug)
