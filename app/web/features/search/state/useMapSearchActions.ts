@@ -2,6 +2,7 @@ import { LngLatLike } from "maplibre-gl";
 import { GeocodeResult } from "utils/hooks";
 
 import { FilterOptions } from "../SearchPage";
+import { SearchModeOptions } from "../utils/constants";
 import { useMapSearchDispatch } from "../state/mapSearchContext";
 import {
   mapSearchActionTypes,
@@ -51,10 +52,16 @@ function useMapSearchActions() {
   };
 
   const setSearchFilters = (newFilters: FilterOptions) => {
-    console.log("Setting search filters", newFilters);
     dispatch({
       type: mapSearchActionTypes.SET_FILTERS,
       payload: newFilters,
+    });
+  };
+
+  const setSearchMode = (searchMode: SearchModeOptions) => {
+    dispatch({
+      type: mapSearchActionTypes.SET_SEARCH_MODE,
+      payload: { searchMode },
     });
   };
 
@@ -119,6 +126,7 @@ function useMapSearchActions() {
     setLocationInputValue,
     setMapQueryArea,
     setSearchFilters,
+    setSearchMode,
     setSelectedUserId,
     setShowSearchThisAreaButton,
   };

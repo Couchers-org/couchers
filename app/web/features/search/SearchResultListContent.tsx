@@ -3,8 +3,6 @@ import {
   Alert,
   Box,
   Button,
-  Card,
-  CardContent,
   IconButton,
   styled,
   Typography,
@@ -32,7 +30,6 @@ interface SearchResultListContentProps {
   showTopSpace?: boolean;
   totalItems: number | undefined;
   users: SearchUser.AsObject[] | undefined;
-  onIncludeEmptyProfiles?: () => void;
 }
 
 const ListContentWrapper = styled(Box, {
@@ -41,7 +38,7 @@ const ListContentWrapper = styled(Box, {
   width: "100%",
   padding: theme.spacing(0.5, 2),
   height: "100%",
-  ...(showTopSpace && { paddingTop: theme.spacing(10) }),
+  ...(showTopSpace && { paddingTop: theme.spacing(14) }),
 }));
 
 const UserCardsWrapper = styled("div")(({ theme }) => ({
@@ -75,12 +72,7 @@ const CenteredRow = styled("div")(({ theme }) => ({
   padding: theme.spacing(1, 0),
 }));
 
-const SuggestionCard = styled(Card)(({ theme }) => ({
-  marginTop: theme.spacing(2),
-  backgroundColor: theme.palette.background.paper,
-  borderRadius: theme.spacing(1),
-  border: `1px solid ${theme.palette.divider}`,
-}));
+
 
 const SearchResultListContent = ({
   error,
@@ -92,7 +84,6 @@ const SearchResultListContent = ({
   showTopSpace = false,
   totalItems,
   users,
-  onIncludeEmptyProfiles,
 }: SearchResultListContentProps) => {
   const { t } = useTranslation([SEARCH]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -101,7 +92,6 @@ const SearchResultListContent = ({
 
   const { setSearchFilters } = useMapSearchActions();
 
-  const shouldShowSuggestion =
   const shouldShowSuggestion =
     !showAlert &&
     totalItems !== undefined &&
@@ -112,7 +102,6 @@ const SearchResultListContent = ({
   const handleIncludeEmptyProfilesClick = () => {
     setSearchFilters({
       ...filters,
-      hostingStatus: [],
       showEmptyProfile: true,
     });
   };
@@ -194,6 +183,30 @@ const SearchResultListContent = ({
           </IconButton>
         )}
       </CenteredRow>
+      {shouldShowSuggestion && (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: theme.spacing(1),
+            padding: theme.spacing(1, 0),
+            marginBottom: theme.spacing(2),
+          }}
+        >
+          <Typography variant="body2">
+            {t("search:search_result.few_results_suggestion")}
+          </Typography>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={handleIncludeEmptyProfilesClick}
+            sx={{ backgroundColor: theme.palette.primary.main }}
+          >
+            {t("search:search_result.include_empty_profiles_button")}
+          </Button>
+        </Box>
+      )}
       <UserCardsWrapper>
         {users?.map((user) => (
           <StyledCardWrapper
@@ -208,29 +221,6 @@ const SearchResultListContent = ({
           </StyledCardWrapper>
         ))}
       </UserCardsWrapper>
-      {shouldShowSuggestion && (
-        <SuggestionCard>
-          <CardContent
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <Typography variant="body2" sx={{ marginBottom: theme.spacing(1) }}>
-              {t("search:search_result.few_results_suggestion")}
-            </Typography>
-            <Button
-              variant="contained"
-              size="small"
-              onClick={handleIncludeEmptyProfilesClick}
-              sx={{ backgroundColor: theme.palette.primary.main }}
-            >
-              {t("search:search_result.include_empty_profiles_button")}
-            </Button>
-          </CardContent>
-        </SuggestionCard>
-      )}
     </ListContentWrapper>
   );
 };

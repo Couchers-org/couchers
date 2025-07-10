@@ -28,7 +28,7 @@ const MapViewToggle = ({ mapView, onMapViewChange }: MapViewToggleProps) => {
       onChange={handleSetMapViewChange}
       value={mapView}
       aria-label={t("search:views.choose_map_view")}
-      size="medium"
+      size="small"
       color="primary"
       sx={{
         borderRadius: "20px",

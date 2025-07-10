@@ -78,13 +78,18 @@
     "show_user_button_label": "Show {{name}} on the map",
     "missing_about_description": "{{name}} hasn't said anything about themselves yet",
     "people_found_message": "Showing {{numberOfTotal}} from {{totalItems}} people found",
-    "few_results_suggestion": "By default, empty and can't host profiles are left out.",
+    "few_results_suggestion": "By default, empty and profiles are left out.",
     "include_empty_profiles_button": "Include all profiles"
   },
   "views": {
     "choose_map_view": "Choose map view",
     "list": "List",
     "map_and_list": "Map & List"
+  },
+  "search_mode": {
+    "choose_search_mode": "Choose search mode",
+    "hosts": "Hosts",
+    "meetup": "Meetup"
   },
   "location": "Location",
   "keyword": "Keyword",

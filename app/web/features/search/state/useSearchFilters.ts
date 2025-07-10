@@ -1,8 +1,8 @@
 import { HostingStatus, SleepingArrangement } from "proto/api_pb";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { FilterOptions } from "../SearchPage";
-import { HostingStatusOptions } from "../utils/constants";
+import { useMapSearchState } from "./mapSearchContext";
 import { initialState } from "./mapSearchReducers";
 
 /** Local State for Search FilterDialog
@@ -21,7 +21,7 @@ interface LocalSearchFilters {
   lastActive: number;
   hasReferences: boolean;
   hasStrongVerification: boolean;
-  hostingStatus: HostingStatus;
+  hostingStatus: HostingStatus[];
   meetupStatus: Exclude<
     HostingStatus,
     | HostingStatus.HOSTING_STATUS_UNKNOWN
@@ -31,52 +31,33 @@ interface LocalSearchFilters {
   sleepingArrangement: SleepingArrangement;
 }
 
-// Map UserSearchFilters to FilterOptions format - moved outside to prevent dependency issues
-const mapToFilterOptions = (
-  userFilters: typeof initialState.filters,
-): FilterOptions => ({
-  acceptsKids: userFilters.acceptsKids,
-  acceptsPets: userFilters.acceptsPets,
-  acceptsLastMinRequests: userFilters.acceptsLastMinRequests,
-  ageMin: userFilters.ageMin,
-  ageMax: userFilters.ageMax,
-  completeProfile: userFilters.completeProfile,
-  drinkingAllowed: userFilters.drinkingAllowed,
-  hasReferences: userFilters.hasReferences,
-  hasStrongVerification: userFilters.hasStrongVerification,
-  hostingStatus: userFilters.hostingStatusOptions as HostingStatusOptions[], // Map hostingStatusOptions to hostingStatus
-  meetupStatus: userFilters.meetupStatus,
-  numGuests: userFilters.numGuests,
-  lastActive: userFilters.lastActive,
-  sleepingArrangement: userFilters.sleepingArrangement,
-  smokesAtHome: userFilters.smokesAtHome,
+// Map from internal state (hostingStatusOptions) to FilterOptions (hostingStatus)
+const mapStateToFilterOptions = (stateFilters: any): FilterOptions => ({
+  ...stateFilters,
+  hostingStatus: stateFilters.hostingStatusOptions,
 });
 
-export function useSearchFilters(currentFilters?: typeof initialState.filters) {
-  const [filters, setFilters] = useState(
-    mapToFilterOptions(currentFilters || initialState.filters),
-  );
+export function useSearchFilters() {
+  const { filters: stateFilters } = useMapSearchState();
 
-  // Sync with current filters when they change
+  const [filters, setFilters] = useState<FilterOptions>(mapStateToFilterOptions(initialState.filters));
+
+  // Sync local filters with global filters when dialog is opened
   useEffect(() => {
-    if (currentFilters) {
-      setFilters(mapToFilterOptions(currentFilters));
-    }
-  }, [currentFilters]);
+    setFilters(mapStateToFilterOptions(stateFilters));
+  }, [stateFilters]);
 
   // Update a single filter
-  const updateFilter = useCallback((newFilters: Partial<FilterOptions>) => {
-  const updateFilter = useCallback((newFilters: Partial<FilterOptions>) => {
+  const updateFilter = (newFilters: Partial<FilterOptions>) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
       ...newFilters,
     }));
-  }, []);
-  }, []);
+  };
 
-  const resetFilters = useCallback(() => {
-    setFilters(mapToFilterOptions(initialState.filters));
-  }, []);
+  const resetFilters = () => {
+    setFilters(mapStateToFilterOptions(initialState.filters));
+  };
 
   return {
     filters,

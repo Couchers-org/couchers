@@ -45,13 +45,13 @@ const SearchThisAreaButton = styled(Button, {
   boxShadow: theme.shadows[4],
   padding: theme.spacing(1, 2),
   position: "absolute",
-  top: isDrawerExpanded ? theme.spacing(2) : theme.spacing(9),
+  top: isDrawerExpanded ? theme.spacing(6) : theme.spacing(14),
   zIndex: 10,
   left: "50%",
   transform: "translateX(-50%)",
 
   [theme.breakpoints.down("md")]: {
-    top: theme.spacing(1),
+    top: theme.spacing(2),
     padding: theme.spacing(0.5, 1),
     fontSize: "0.8rem",
   },
