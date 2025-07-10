@@ -17,7 +17,7 @@
   "change_email_confirmation": {
     "change_in_progress": "Changement d’adresse e-mail en cours…",
     "success_message": "Votre adresse e-mail a bien été changée !",
-    "error_message": "Erreur lors du changement de l'adresse e-mail : {{message}}"
+    "error_message": "Erreur lors du changement de l'adresse mail : {{message}}"
   },
   "change_password_form": {
     "confirm_password": "Confirmer le mot de passe",
@@ -44,10 +44,10 @@
       "no_emails_disabled_message": "Les mails sont actuellement <1>activés</1> pour votre compte."
     },
     "action_button": {
-      "no_emails_enable_text": "Veuillez ne pas m'envoyer d'email",
-      "no_emails_disable_text": "Réactiver les emails"
+      "no_emails_enable_text": "Veuillez ne pas m'envoyer de mail",
+      "no_emails_disable_text": "Réactiver les mails"
     },
     "title": "Veuillez ne pas m'envoyer de mail",
-    "caveat": "En activant cet option, votre compte sera configuré pour refuser les demandes d'hébergement. Vous continuerez de recevoir les e-mails de sécurité (comme ceux pour la réinitialisation de votre mot de passe). La newsletter continuera de vous être envoyée, vous pouvez vous désabonner de celle-ci en utilisant le lien dans le pied de page de la newsletter."
+    "caveat": "En activant cet option, votre compte sera configuré pour refuser les demandes d'hébergement. Vous continuerez de recevoir les mails de sécurité (comme ceux pour la réinitialisation de votre mot de passe). La newsletter continuera de vous être envoyée ; vous pouvez vous désabonner de celle-ci en utilisant le lien dans le pied de page de la newsletter."
   }
 }
