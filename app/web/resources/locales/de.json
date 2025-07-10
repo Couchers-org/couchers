@@ -141,8 +141,8 @@
     "not_found_alt": "404 Fehler: Ressource nicht gefunden",
     "change_time": "Zeit ändern",
     "html_meta": {
-        "title_suffix": " | Couchers.org Beta",
-        "default_title": "Couchers.org Beta",
+        "title_suffix": " | Couchers.org",
+        "default_title": "Couchers.org",
         "default_description": "Die neue Alternative zu Couchsurfing™. Für immer kostenlos. Community-geführt. Gemeinnützig. Modern."
     },
     "error": {
