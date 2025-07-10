@@ -1,4 +1,13 @@
 {
-  "attendees_count": "{{count}} participant·e",
-  "attendees_count_plural": "{{count}} participant·es"
+  "attendees_count_0": "{{count}} participant.e",
+  "attendees_count_1": "{{count}} participant.e.s",
+  "attendees_count_2": "",
+  "by_creator": "écrit par {{name}}",
+  "cancel_event": "Annuler l'événement",
+  "show_cancelled_events": "Montrer les événements annulés",
+  "cancel_event_success_message": "L'événement a été annulé avec succès.",
+  "cancel_event_dialog": {
+    "title": "Annuleer l'événement ?",
+    "message": "Êtes-vous sûr d'annuler cet événement ?"
+  }
 }

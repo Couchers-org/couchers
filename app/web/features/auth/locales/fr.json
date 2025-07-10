@@ -44,6 +44,7 @@
     },
     "action_button": {
       "no_emails_enable_text": "Veuillez ne pas m'envoyer d'email"
-    }
+    },
+    "title": "Veuillez ne pas m'envoyer de mail"
   }
 }
