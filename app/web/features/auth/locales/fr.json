@@ -36,5 +36,14 @@
       "password_field_label": "Mot de passe",
       "forgot_password": "Mot de passe oublié ?"
     }
+  },
+  "do_not_email": {
+    "status": {
+      "no_emails_enabled_message": "Les mails sont actuellement <1>désactivés</1> pour votre compte.",
+      "no_emails_disabled_message": "Les mails sont actuellement <1>activés</1> pour votre compte."
+    },
+    "action_button": {
+      "no_emails_enable_text": "Veuillez ne pas m'envoyer d'email"
+    }
   }
 }
