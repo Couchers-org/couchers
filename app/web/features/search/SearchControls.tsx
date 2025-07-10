@@ -68,19 +68,6 @@ const CenterAligner = styled("div")(({ theme }) => ({
   gap: theme.spacing(4),
 }));
 
-const ToggleContainer = styled("div")(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: theme.spacing(0.25),
-
-  [theme.breakpoints.down("md")]: {
-    flexDirection: "column",
-    gap: theme.spacing(0.5),
-    width: "100%",
-  },
-}));
-
 const SearchControls = ({
   drawerWidth,
   mapView,

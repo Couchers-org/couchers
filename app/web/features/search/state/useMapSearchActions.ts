@@ -2,13 +2,12 @@ import { LngLatLike } from "maplibre-gl";
 import { GeocodeResult } from "utils/hooks";
 
 import { FilterOptions } from "../SearchPage";
-import { SearchModeOptions } from "../utils/constants";
 import { useMapSearchDispatch } from "../state/mapSearchContext";
 import {
   mapSearchActionTypes,
   MapSearchState,
 } from "../state/mapSearchReducers";
-import { Coordinates } from "../utils/constants";
+import { Coordinates, SearchModeOptions } from "../utils/constants";
 
 function useMapSearchActions() {
   const dispatch = useMapSearchDispatch();

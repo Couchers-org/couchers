@@ -1,5 +1,6 @@
 import { HostingStatus, SleepingArrangement } from "proto/api_pb";
 import { useEffect, useState } from "react";
+import { UserSearchFilters } from "service/search";
 
 import { FilterOptions } from "../SearchPage";
 import { useMapSearchState } from "./mapSearchContext";
@@ -32,9 +33,12 @@ interface LocalSearchFilters {
 }
 
 // Map from internal state (hostingStatusOptions) to FilterOptions (hostingStatus)
-const mapStateToFilterOptions = (stateFilters: any): FilterOptions => ({
+const mapStateToFilterOptions = (
+  stateFilters: UserSearchFilters,
+): FilterOptions => ({
   ...stateFilters,
-  hostingStatus: stateFilters.hostingStatusOptions,
+  hostingStatus:
+    stateFilters.hostingStatusOptions as FilterOptions["hostingStatus"],
 });
 
 export function useSearchFilters() {

@@ -487,7 +487,7 @@ const mapSearchReducer = (
 
     case mapSearchActionTypes.SET_SEARCH_MODE:
       const searchMode = action.payload.searchMode;
-      let modeFilters = { ...state.filters };
+      const modeFilters = { ...state.filters };
 
       if (searchMode === SearchMode.HOSTS) {
         // Set hosting filters and clear meetup filters
