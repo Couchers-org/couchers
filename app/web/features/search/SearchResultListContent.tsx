@@ -72,8 +72,6 @@ const CenteredRow = styled("div")(({ theme }) => ({
   padding: theme.spacing(1, 0),
 }));
 
-
-
 const SearchResultListContent = ({
   error,
   mapView,

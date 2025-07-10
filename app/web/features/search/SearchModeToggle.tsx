@@ -10,7 +10,10 @@ interface SearchModeToggleProps {
   onSearchModeChange: (searchMode: SearchModeOptions) => void;
 }
 
-const SearchModeToggle = ({ searchMode, onSearchModeChange }: SearchModeToggleProps) => {
+const SearchModeToggle = ({
+  searchMode,
+  onSearchModeChange,
+}: SearchModeToggleProps) => {
   const { t } = useTranslation([SEARCH]);
 
   const handleSetSearchModeChange = (
@@ -61,4 +64,4 @@ const SearchModeToggle = ({ searchMode, onSearchModeChange }: SearchModeTogglePr
   );
 };
 
-export default SearchModeToggle; 
+export default SearchModeToggle;

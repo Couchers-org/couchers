@@ -314,52 +314,68 @@ const mapSearchReducer = (
             action.payload[key] === false ? undefined : action.payload[key];
         }
         if (key === "hostingStatus") {
-          const newHostingStatus = action.payload[key] && action.payload[key].length === 0
-            ? undefined
-            : action.payload[key];
-          
+          const newHostingStatus =
+            action.payload[key] && action.payload[key].length === 0
+              ? undefined
+              : action.payload[key];
+
           // Check if hosting status is being changed manually (not from search mode toggle)
           if (state.searchMode === SearchMode.HOSTS) {
-            const currentHostingIsDefault = 
-              state.filters.hostingStatusOptions?.includes(HostingStatus.HOSTING_STATUS_CAN_HOST) &&
-              state.filters.hostingStatusOptions?.includes(HostingStatus.HOSTING_STATUS_MAYBE) &&
+            const currentHostingIsDefault =
+              state.filters.hostingStatusOptions?.includes(
+                HostingStatus.HOSTING_STATUS_CAN_HOST,
+              ) &&
+              state.filters.hostingStatusOptions?.includes(
+                HostingStatus.HOSTING_STATUS_MAYBE,
+              ) &&
               state.filters.hostingStatusOptions?.length === 2;
-            const newHostingIsNotDefault = 
+            const newHostingIsNotDefault =
               !newHostingStatus ||
-              !newHostingStatus.includes(HostingStatus.HOSTING_STATUS_CAN_HOST) ||
+              !newHostingStatus.includes(
+                HostingStatus.HOSTING_STATUS_CAN_HOST,
+              ) ||
               !newHostingStatus.includes(HostingStatus.HOSTING_STATUS_MAYBE) ||
               newHostingStatus.length !== 2;
-            
+
             if (currentHostingIsDefault && newHostingIsNotDefault) {
               shouldResetSearchMode = true;
             }
           }
-          
+
           updatedFilters.hostingStatusOptions = newHostingStatus;
         }
 
         if (key === "meetupStatus") {
-          const newMeetupStatus = action.payload[key] && action.payload[key].length === 0
-            ? undefined
-            : action.payload[key];
-          
+          const newMeetupStatus =
+            action.payload[key] && action.payload[key].length === 0
+              ? undefined
+              : action.payload[key];
+
           // Check if meetup status is being changed manually (not from search mode toggle)
           if (state.searchMode === SearchMode.MEETUP) {
-            const currentMeetupIsDefault = 
-              state.filters.meetupStatus?.includes(MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP) &&
-              state.filters.meetupStatus?.includes(MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP) &&
+            const currentMeetupIsDefault =
+              state.filters.meetupStatus?.includes(
+                MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP,
+              ) &&
+              state.filters.meetupStatus?.includes(
+                MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP,
+              ) &&
               state.filters.meetupStatus?.length === 2;
-            const newMeetupIsNotDefault = 
+            const newMeetupIsNotDefault =
               !newMeetupStatus ||
-              !newMeetupStatus.includes(MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP) ||
-              !newMeetupStatus.includes(MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP) ||
+              !newMeetupStatus.includes(
+                MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP,
+              ) ||
+              !newMeetupStatus.includes(
+                MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP,
+              ) ||
               newMeetupStatus.length !== 2;
-            
+
             if (currentMeetupIsDefault && newMeetupIsNotDefault) {
               shouldResetSearchMode = true;
             }
           }
-          
+
           updatedFilters.meetupStatus = newMeetupStatus;
         }
 

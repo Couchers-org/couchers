@@ -40,7 +40,9 @@ const mapStateToFilterOptions = (stateFilters: any): FilterOptions => ({
 export function useSearchFilters() {
   const { filters: stateFilters } = useMapSearchState();
 
-  const [filters, setFilters] = useState<FilterOptions>(mapStateToFilterOptions(initialState.filters));
+  const [filters, setFilters] = useState<FilterOptions>(
+    mapStateToFilterOptions(initialState.filters),
+  );
 
   // Sync local filters with global filters when dialog is opened
   useEffect(() => {
