@@ -1,10 +1,10 @@
 {
   "change_email_form": {
-    "title": "Changer d'adresse e-mail",
-    "current_email_message": "Votre adresse e-mail actuelle est <1>{{email}}</1>.",
-    "new_email": "Nouvelle adresse e-mail",
+    "title": "Modifier l'adresse mail",
+    "current_email_message": "Votre adresse mail actuelle est <1>{{email}}</1>.",
+    "new_email": "Nouvelle adresse mail",
     "current_password": "Mot de passe actuel",
-    "success_message": "Votre changement d’adresse e-mail a été pris en compte. Veuillez vérifier votre nouvelle adresse pour finaliser la procédure."
+    "success_message": "Votre changement d’adresse mail a été pris en compte. Veuillez vérifier votre nouvelle adresse mail pour finaliser la procédure."
   },
   "basic_form": {
     "name": {
