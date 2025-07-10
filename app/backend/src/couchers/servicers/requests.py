@@ -2,7 +2,9 @@ import logging
 from datetime import timedelta
 
 import grpc
+from geoalchemy2.shape import from_shape, to_shape
 from google.protobuf import empty_pb2
+from shapely.geometry import Point
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
@@ -89,6 +91,8 @@ def host_request_to_pb(host_request: HostRequest, session, context):
         .limit(1)
     ).scalar_one()
 
+    point = to_shape(host_request.hosting_location) if host_request.hosting_location else None
+
     return requests_pb2.HostRequest(
         host_request_id=host_request.conversation_id,
         surfer_user_id=host_request.surfer_user_id,
@@ -103,10 +107,10 @@ def host_request_to_pb(host_request: HostRequest, session, context):
             else host_request.host_last_seen_message_id
         ),
         latest_message=message_to_pb(latest_message),
-        hosting_city=host_request.hosting_city,
-        hosting_lat=host_request.hosting_lat,
-        hosting_lng=host_request.hosting_lng,
-        hosting_radius=host_request.hosting_radius,
+        hosting_city=host_request.hosting_city or "",
+        hosting_lat=point.y if point else 0.0,
+        hosting_lng=point.x if point else 0.0,
+        hosting_radius=host_request.hosting_radius or 0.0,
     )
 
 
@@ -189,12 +193,6 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         session.add(message)
         session.flush()
 
-        if host.geom:
-            hosting_lat, hosting_lng = host.coordinates
-        else:
-            hosting_lat = None
-            hosting_lng = None
-
         host_request = HostRequest(
             conversation_id=conversation.id,
             surfer_user_id=context.user_id,
@@ -206,8 +204,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             # TODO: tz
             # timezone=host.timezone,
             hosting_city=host.city,
-            hosting_lat=hosting_lat,
-            hosting_lng=hosting_lng,
+            hosting_location=from_shape(Point(host.coordinates[1], host.coordinates[0]), srid=4326),
             hosting_radius=host.geom_radius,
         )
         session.add(host_request)
@@ -323,8 +320,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 ),
                 latest_message=message_to_pb(result.Message),
                 hosting_city=result.HostRequest.hosting_city or "",
-                hosting_lat=result.HostRequest.hosting_lat or 0.0,
-                hosting_lng=result.HostRequest.hosting_lng or 0.0,
+                hosting_lat=to_shape(result.HostRequest.hosting_location).y
+                if result.HostRequest.hosting_location
+                else 0.0,
+                hosting_lng=to_shape(result.HostRequest.hosting_location).x
+                if result.HostRequest.hosting_location
+                else 0.0,
                 hosting_radius=result.HostRequest.hosting_radius or 0.0,
             )
             for result in results[:pagination]
