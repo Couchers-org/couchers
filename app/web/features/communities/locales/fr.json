@@ -9,5 +9,6 @@
   "cancel_event_dialog": {
     "title": "Annuleer l'événement ?",
     "message": "Êtes-vous sûr d'annuler cet événement ?"
-  }
+  },
+  "cancelled": "Annulé"
 }
