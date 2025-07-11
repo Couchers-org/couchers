@@ -1,5 +1,5 @@
 import { LngLatLike } from "maplibre-gl";
-import { HostingStatus, MeetupStatus, User } from "proto/api_pb";
+import { HostingStatus, User } from "proto/api_pb";
 import { UserSearchFilters } from "service/search";
 import { GeocodeResult } from "utils/hooks";
 
@@ -9,8 +9,6 @@ import {
   DEFAULT_AGE_MAX,
   DEFAULT_AGE_MIN,
   MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
-  SearchMode,
-  SearchModeOptions,
 } from "../utils/constants";
 import { getHasActiveFilters } from "../utils/mapUtils";
 
@@ -40,7 +38,6 @@ enum mapSearchActionTypes {
   SET_PAGE_NUMBER = "SET_PAGE_NUMBER",
   SET_SELECTED_USER_ID = "SET_SELECTED_USER_ID",
   SET_SHOW_SEARCH_THIS_AREA_BUTTON = "SET_SHOW_SEARCH_THIS_AREA_BUTTON",
-  SET_SEARCH_MODE = "SET_SEARCH_MODE",
 }
 
 // Overall format of the map search state
@@ -52,7 +49,6 @@ type MapSearchState = {
     bbox: Coordinates | undefined;
     query: string | undefined;
   };
-  searchMode: SearchModeOptions;
   selectedUserId: User.AsObject["userId"] | undefined;
   shouldSearchByUserId: boolean;
   showSearchThisAreaButton: boolean;
@@ -121,12 +117,6 @@ type MapSearchAction =
       payload: {
         showSearchThisAreaButton: MapSearchState["showSearchThisAreaButton"];
       };
-    }
-  | {
-      type: mapSearchActionTypes.SET_SEARCH_MODE;
-      payload: {
-        searchMode: MapSearchState["searchMode"];
-      };
     };
 
 const initialState: MapSearchState = {
@@ -156,7 +146,6 @@ const initialState: MapSearchState = {
     bbox: undefined,
     query: undefined,
   },
-  searchMode: SearchMode.HOSTS,
   selectedUserId: undefined,
   shouldSearchByUserId: false,
   showSearchThisAreaButton: false,
@@ -272,7 +261,6 @@ const mapSearchReducer = (
       };
     case mapSearchActionTypes.SET_FILTERS:
       const updatedFilters = { ...state.filters };
-      let shouldResetSearchMode = false;
 
       for (const key in action.payload) {
         if (key === "ageMin") {
@@ -314,69 +302,17 @@ const mapSearchReducer = (
             action.payload[key] === false ? undefined : action.payload[key];
         }
         if (key === "hostingStatus") {
-          const newHostingStatus =
+          updatedFilters.hostingStatusOptions =
             action.payload[key] && action.payload[key].length === 0
               ? undefined
               : action.payload[key];
-
-          // Check if hosting status is being changed manually (not from search mode toggle)
-          if (state.searchMode === SearchMode.HOSTS) {
-            const currentHostingIsDefault =
-              state.filters.hostingStatusOptions?.includes(
-                HostingStatus.HOSTING_STATUS_CAN_HOST,
-              ) &&
-              state.filters.hostingStatusOptions?.includes(
-                HostingStatus.HOSTING_STATUS_MAYBE,
-              ) &&
-              state.filters.hostingStatusOptions?.length === 2;
-            const newHostingIsNotDefault =
-              !newHostingStatus ||
-              !newHostingStatus.includes(
-                HostingStatus.HOSTING_STATUS_CAN_HOST,
-              ) ||
-              !newHostingStatus.includes(HostingStatus.HOSTING_STATUS_MAYBE) ||
-              newHostingStatus.length !== 2;
-
-            if (currentHostingIsDefault && newHostingIsNotDefault) {
-              shouldResetSearchMode = true;
-            }
-          }
-
-          updatedFilters.hostingStatusOptions = newHostingStatus;
         }
 
         if (key === "meetupStatus") {
-          const newMeetupStatus =
+          updatedFilters.meetupStatus =
             action.payload[key] && action.payload[key].length === 0
               ? undefined
               : action.payload[key];
-
-          // Check if meetup status is being changed manually (not from search mode toggle)
-          if (state.searchMode === SearchMode.MEETUP) {
-            const currentMeetupIsDefault =
-              state.filters.meetupStatus?.includes(
-                MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP,
-              ) &&
-              state.filters.meetupStatus?.includes(
-                MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP,
-              ) &&
-              state.filters.meetupStatus?.length === 2;
-            const newMeetupIsNotDefault =
-              !newMeetupStatus ||
-              !newMeetupStatus.includes(
-                MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP,
-              ) ||
-              !newMeetupStatus.includes(
-                MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP,
-              ) ||
-              newMeetupStatus.length !== 2;
-
-            if (currentMeetupIsDefault && newMeetupIsNotDefault) {
-              shouldResetSearchMode = true;
-            }
-          }
-
-          updatedFilters.meetupStatus = newMeetupStatus;
         }
 
         if (key === "lastActive") {
@@ -401,7 +337,6 @@ const mapSearchReducer = (
       const newState = {
         ...state,
         filters: updatedFilters,
-        searchMode: shouldResetSearchMode ? SearchMode.NONE : state.searchMode,
       };
 
       return {
@@ -483,46 +418,6 @@ const mapSearchReducer = (
       return {
         ...state,
         showSearchThisAreaButton: action.payload.showSearchThisAreaButton,
-      };
-
-    case mapSearchActionTypes.SET_SEARCH_MODE:
-      const searchMode = action.payload.searchMode;
-      const modeFilters = { ...state.filters };
-
-      if (searchMode === SearchMode.HOSTS) {
-        // Set hosting filters and clear meetup filters
-        modeFilters.hostingStatusOptions = [
-          HostingStatus.HOSTING_STATUS_CAN_HOST,
-          HostingStatus.HOSTING_STATUS_MAYBE,
-        ];
-        modeFilters.meetupStatus = undefined;
-        modeFilters.showEmptyProfile = false;
-      } else if (searchMode === SearchMode.MEETUP) {
-        // Set meetup filters and clear hosting filters
-        modeFilters.meetupStatus = [
-          MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP,
-          MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP,
-        ];
-        modeFilters.hostingStatusOptions = undefined;
-        modeFilters.showEmptyProfile = false;
-      } else if (searchMode === SearchMode.NONE) {
-        // Clear both hosting and meetup filters
-        modeFilters.hostingStatusOptions = undefined;
-        modeFilters.meetupStatus = undefined;
-        // Keep showEmptyProfile as is when clearing modes
-      }
-
-      const newModeState = {
-        ...state,
-        filters: modeFilters,
-        searchMode,
-      };
-
-      return {
-        ...newModeState,
-        hasActiveFilters: getHasActiveFilters(newModeState, initialState),
-        pageNumber: initialState.pageNumber,
-        shouldSearchByUserId: initialState.shouldSearchByUserId,
       };
 
     default:

@@ -86,11 +86,6 @@
     "list": "List",
     "map_and_list": "Map & List"
   },
-  "search_mode": {
-    "choose_search_mode": "Choose search mode",
-    "hosts": "Hosts",
-    "meetup": "Meetup"
-  },
   "location": "Location",
   "keyword": "Keyword",
   "search_this_area": "Search this area",

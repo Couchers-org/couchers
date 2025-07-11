@@ -1,5 +1,5 @@
 import { TFunction } from "i18n";
-import { HostingStatus, MeetupStatus, SleepingArrangement } from "proto/api_pb";
+import { HostingStatus, SleepingArrangement } from "proto/api_pb";
 import { SearchUser } from "proto/search_pb";
 import { firstName } from "utils/names";
 
@@ -40,23 +40,10 @@ type HostingStatusOptions =
   | HostingStatus.HOSTING_STATUS_MAYBE
   | HostingStatus.HOSTING_STATUS_CAN_HOST;
 
-type MeetupStatusOptions =
-  | MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP
-  | MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP
-  | MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP;
-
 type SleepingArrangementOptions =
   | SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON
   | SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE
   | SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM;
-
-enum SearchMode {
-  HOSTS = "HOSTS",
-  MEETUP = "MEETUP",
-  NONE = "NONE",
-}
-
-type SearchModeOptions = SearchMode.HOSTS | SearchMode.MEETUP | SearchMode.NONE;
 
 const DEFAULT_AGE_MIN = 18;
 const DEFAULT_AGE_MAX = 120;
@@ -83,7 +70,6 @@ export {
   MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
   MAX_ZOOM_LEVEL,
   MIN_ZOOM_LEVEL,
-  SearchMode,
   selectedUserZoom,
   truncateWithEllipsis,
 };
@@ -94,7 +80,5 @@ export type {
   HostingStatusType,
   MapSearchTypes,
   MapViewOptions,
-  MeetupStatusOptions,
-  SearchModeOptions,
   SleepingArrangementOptions,
 };

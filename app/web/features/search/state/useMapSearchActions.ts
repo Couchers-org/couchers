@@ -7,7 +7,7 @@ import {
   mapSearchActionTypes,
   MapSearchState,
 } from "../state/mapSearchReducers";
-import { Coordinates, SearchModeOptions } from "../utils/constants";
+import { Coordinates } from "../utils/constants";
 
 function useMapSearchActions() {
   const dispatch = useMapSearchDispatch();
@@ -54,13 +54,6 @@ function useMapSearchActions() {
     dispatch({
       type: mapSearchActionTypes.SET_FILTERS,
       payload: newFilters,
-    });
-  };
-
-  const setSearchMode = (searchMode: SearchModeOptions) => {
-    dispatch({
-      type: mapSearchActionTypes.SET_SEARCH_MODE,
-      payload: { searchMode },
     });
   };
 
@@ -125,7 +118,6 @@ function useMapSearchActions() {
     setLocationInputValue,
     setMapQueryArea,
     setSearchFilters,
-    setSearchMode,
     setSelectedUserId,
     setShowSearchThisAreaButton,
   };

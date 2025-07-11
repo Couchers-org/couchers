@@ -1,6 +1,5 @@
 import { HostingStatus, SleepingArrangement } from "proto/api_pb";
 import { useEffect, useState } from "react";
-import { UserSearchFilters } from "service/search";
 
 import { FilterOptions } from "../SearchPage";
 import { useMapSearchState } from "./mapSearchContext";
@@ -32,25 +31,14 @@ interface LocalSearchFilters {
   sleepingArrangement: SleepingArrangement;
 }
 
-// Map from internal state (hostingStatusOptions) to FilterOptions (hostingStatus)
-const mapStateToFilterOptions = (
-  stateFilters: UserSearchFilters,
-): FilterOptions => ({
-  ...stateFilters,
-  hostingStatus:
-    stateFilters.hostingStatusOptions as FilterOptions["hostingStatus"],
-});
-
 export function useSearchFilters() {
   const { filters: stateFilters } = useMapSearchState();
 
-  const [filters, setFilters] = useState<FilterOptions>(
-    mapStateToFilterOptions(initialState.filters),
-  );
+  const [filters, setFilters] = useState<FilterOptions>(initialState.filters);
 
   // Sync local filters with global filters when dialog is opened
   useEffect(() => {
-    setFilters(mapStateToFilterOptions(stateFilters));
+    setFilters(stateFilters);
   }, [stateFilters]);
 
   // Update a single filter
@@ -62,7 +50,7 @@ export function useSearchFilters() {
   };
 
   const resetFilters = () => {
-    setFilters(mapStateToFilterOptions(initialState.filters));
+    setFilters(initialState.filters);
   };
 
   return {

@@ -38,7 +38,7 @@ const ListContentWrapper = styled(Box, {
   width: "100%",
   padding: theme.spacing(0.5, 2),
   height: "100%",
-  ...(showTopSpace && { paddingTop: theme.spacing(14) }),
+  ...(showTopSpace && { paddingTop: theme.spacing(10) }),
 }));
 
 const UserCardsWrapper = styled("div")(({ theme }) => ({
