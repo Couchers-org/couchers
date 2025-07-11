@@ -24,7 +24,8 @@
     "title": "Changer de mot de passe",
     "old_password": "Ancien mot de passe",
     "new_password": "Nouveau mot de passe",
-    "subtitle": "Utilise ce formulaire pour réinitialiser votre mot de passe."
+    "subtitle": "Utilisez ce formulaire pour réinitialiser votre mot de passe.",
+    "password_changed_success": "Votre nouveau mot de passe a été changé et une notification a été envoyé à votre adresse mail."
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Déjà inscrit·e ? <2>Se connecter</2>",
