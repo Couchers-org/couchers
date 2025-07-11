@@ -30,7 +30,6 @@ import { useMapSearchActions } from "./state/useMapSearchActions";
 import {
   DEFAULT_AGE_MAX,
   DEFAULT_AGE_MIN,
-  HostingStatusOptions,
   lastActiveOptions,
   SleepingArrangementOptions,
 } from "./utils/constants";
@@ -176,7 +175,7 @@ const FilterDialog = ({
 
   const handleHostingStatusChange = (
     event: React.MouseEvent<HTMLElement>,
-    newHostingStatus: HostingStatusOptions[],
+    newHostingStatus: HostingStatus[],
   ) => {
     updateFilter({ hostingStatus: newHostingStatus });
   };
@@ -340,7 +339,7 @@ const FilterDialog = ({
             onChange={handleLastActiveSelect}
             variant="outlined"
             size="small"
-            value={filters.lastActive}
+            value={filters.lastActive ?? lastActiveOptions.LAST_ACTIVE_ANY}
           >
             <MenuItem value={lastActiveOptions.LAST_ACTIVE_ANY}>
               {t("search:last_active_options.any")}

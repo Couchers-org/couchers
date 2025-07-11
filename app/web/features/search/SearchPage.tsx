@@ -2,7 +2,6 @@ import { styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import {
-  HostingStatusOptions,
   MapViewOptions,
   MapViews,
   MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
@@ -10,7 +9,7 @@ import {
 } from "features/search/utils/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { MeetupStatus } from "proto/api_pb";
+import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import { useMemo, useRef, useState } from "react";
 import { LngLatLike, MapProvider, MapRef } from "react-map-gl/maplibre";
 
@@ -36,7 +35,7 @@ export type FilterOptions = {
   drinkingAllowed?: boolean | undefined;
   hasReferences?: boolean;
   hasStrongVerification?: boolean;
-  hostingStatus?: HostingStatusOptions[];
+  hostingStatus?: HostingStatus[];
   meetupStatus?: MeetupStatus[];
   numGuests?: number;
   lastActive?: number;

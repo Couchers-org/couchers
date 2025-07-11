@@ -32,7 +32,7 @@ export interface UserSearchFilters {
   lastActive?: number; //within x days
   hasReferences?: boolean;
   hasStrongVerification?: boolean;
-  hostingStatusOptions?: HostingStatus[];
+  hostingStatus?: HostingStatus[];
   meetupStatus?: MeetupStatus[];
   numGuests?: number;
   showEmptyProfile?: boolean;
@@ -56,7 +56,7 @@ function constructUserSearchReq(
     lastActive,
     hasReferences,
     hasStrongVerification,
-    hostingStatusOptions,
+    hostingStatus,
     meetupStatus,
     numGuests,
     showEmptyProfile,
@@ -125,8 +125,8 @@ function constructUserSearchReq(
     req.setOnlyWithStrongVerification(hasStrongVerification);
   }
 
-  if (hostingStatusOptions && hostingStatusOptions.length > 0) {
-    req.setHostingStatusFilterList(hostingStatusOptions);
+  if (hostingStatus && hostingStatus.length > 0) {
+    req.setHostingStatusFilterList(hostingStatus);
   }
 
   if (meetupStatus && meetupStatus.length > 0) {

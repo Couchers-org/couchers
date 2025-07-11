@@ -21,7 +21,7 @@ interface LocalSearchFilters {
   lastActive: number;
   hasReferences: boolean;
   hasStrongVerification: boolean;
-  hostingStatus: HostingStatus[];
+  hostingStatusOptions: HostingStatus[];
   meetupStatus: Exclude<
     HostingStatus,
     | HostingStatus.HOSTING_STATUS_UNKNOWN
@@ -34,7 +34,7 @@ interface LocalSearchFilters {
 export function useSearchFilters() {
   const { filters: stateFilters } = useMapSearchState();
 
-  const [filters, setFilters] = useState<FilterOptions>(initialState.filters);
+  const [filters, setFilters] = useState<FilterOptions>(stateFilters);
 
   // Sync local filters with global filters when dialog is opened
   useEffect(() => {

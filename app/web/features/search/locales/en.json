@@ -78,7 +78,7 @@
     "show_user_button_label": "Show {{name}} on the map",
     "missing_about_description": "{{name}} hasn't said anything about themselves yet",
     "people_found_message": "Showing {{numberOfTotal}} from {{totalItems}} people found",
-    "few_results_suggestion": "By default, empty profiles are left out.",
+    "few_results_suggestion": "By default, empty and \"can't host\" profiles are left out.",
     "include_empty_profiles_button": "Include all profiles"
   },
   "views": {

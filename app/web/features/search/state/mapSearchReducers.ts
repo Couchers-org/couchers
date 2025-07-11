@@ -126,15 +126,12 @@ const initialState: MapSearchState = {
     acceptsPets: undefined,
     ageMin: undefined,
     ageMax: undefined,
-    showEmptyProfile: false,
+    showEmptyProfile: undefined,
     drinkingAllowed: undefined,
     lastActive: 0,
     hasReferences: undefined,
     hasStrongVerification: undefined,
-    hostingStatusOptions: [
-      HostingStatus.HOSTING_STATUS_CAN_HOST,
-      HostingStatus.HOSTING_STATUS_MAYBE,
-    ],
+    hostingStatus: undefined,
     meetupStatus: undefined,
     numGuests: undefined,
     sleepingArrangement: undefined,
@@ -224,8 +221,16 @@ const mapSearchReducer = (
         return state; // Return the current state if locationBbox is undefined
       }
 
-      return {
+      const updatedState = {
         ...state,
+        filters: {
+          ...state.filters,
+          hostingStatus: [
+            HostingStatus.HOSTING_STATUS_CAN_HOST,
+            HostingStatus.HOSTING_STATUS_MAYBE,
+          ], // Default to can host and maybe when searching a location
+          showEmptyProfile: false, // Default to not showing empty profiles when searching a location
+        },
         search: {
           ...state.search,
           bbox: locationBbox,
@@ -240,6 +245,11 @@ const mapSearchReducer = (
           center: newCenter,
           zoom: newZoom ? newZoom : state.uiOnly.zoom,
         },
+      };
+
+      return {
+        ...updatedState,
+        hasActiveFilters: getHasActiveFilters(updatedState, initialState),
       };
 
     case mapSearchActionTypes.SET_MAP_QUERY_AREA:
@@ -284,10 +294,7 @@ const mapSearchReducer = (
           updatedFilters.acceptsLastMinRequests =
             action.payload[key] === false ? undefined : action.payload[key];
         }
-        if (
-          key === "showEmptyProfile" &&
-          action.payload.showEmptyProfile !== undefined
-        ) {
+        if (key === "showEmptyProfile") {
           updatedFilters.showEmptyProfile = action.payload[key];
         }
         if (key === "drinkingAllowed") {
@@ -302,7 +309,7 @@ const mapSearchReducer = (
             action.payload[key] === false ? undefined : action.payload[key];
         }
         if (key === "hostingStatus") {
-          updatedFilters.hostingStatusOptions =
+          updatedFilters.hostingStatus =
             action.payload[key] && action.payload[key].length === 0
               ? undefined
               : action.payload[key];
@@ -316,9 +323,9 @@ const mapSearchReducer = (
         }
 
         if (key === "lastActive") {
-          updatedFilters.lastActive =
-            action.payload[key] === 0 ? undefined : action.payload[key];
+          updatedFilters.lastActive = action.payload[key];
         }
+
         if (key === "numGuests") {
           updatedFilters.numGuests =
             action.payload[key] === 0 ? undefined : action.payload[key];

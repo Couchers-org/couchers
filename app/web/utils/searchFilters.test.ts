@@ -42,7 +42,7 @@ describe("parsedQueryToSearchFilters", () => {
       location: "Madrid, Community of Madrid, Spain",
       numGuests: 2,
       lastActive: 14,
-      hostingStatusOptions: [2, 3],
+      hostingStatus: [2, 3],
       query: "bike",
     });
   });
@@ -66,11 +66,11 @@ describe("parseSearchFiltersToQuery", () => {
         location: "Madrid, Community of Madrid, Spain",
         numGuests: 2,
         lastActive: 14,
-        hostingStatusOptions: [2, 3],
+        hostingStatus: [2, 3],
         query: "bike",
       }),
     ).toBe(
-      "location=Madrid%2C+Community+of+Madrid%2C+Spain&numGuests=2&lastActive=14&hostingStatusOptions=2&hostingStatusOptions=3&query=bike",
+      "location=Madrid%2C+Community+of+Madrid%2C+Spain&numGuests=2&lastActive=14&hostingStatus=2&hostingStatus=3&query=bike",
     );
   });
 });

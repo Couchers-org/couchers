@@ -100,6 +100,7 @@ const SearchResultListContent = ({
   const handleIncludeEmptyProfilesClick = () => {
     setSearchFilters({
       ...filters,
+      hostingStatus: undefined,
       showEmptyProfile: true,
     });
   };

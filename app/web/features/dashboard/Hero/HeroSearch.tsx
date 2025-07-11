@@ -59,7 +59,7 @@ export default function HeroSearch() {
             ];
             const searchRouteWithSearchQuery = routeToSearch({
               location: value.simplifiedName,
-              hostingStatusOptions: [
+              hostingStatus: [
                 HostingStatus.HOSTING_STATUS_CAN_HOST,
                 HostingStatus.HOSTING_STATUS_MAYBE,
               ],
