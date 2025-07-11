@@ -1,1 +1,15 @@
-{}
+{
+  "confirm_request_button_text": "Confirmer",
+  "close_request_button_text": "Refuser",
+  "write_reference_button_text": "Écrire une référence",
+  "mark_all_read_button_text": "Marquer tout comme lu",
+  "messages_page": {
+    "title": "Messages",
+    "tabs": {
+      "chats": "Discussions"
+    }
+  },
+  "chat_view": {
+    "no_messages_state_text": "Aucun message"
+  }
+}
