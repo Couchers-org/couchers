@@ -10,6 +10,7 @@ import {
   SelectChangeEvent,
   Stack,
   styled,
+  Typography,
   useMediaQuery,
 } from "@mui/material";
 import Snackbar from "components/Snackbar";
@@ -20,8 +21,10 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
+import Link from "next/link";
 import { useRouter } from "next/router"; // we'll use this to reload the components w/ changed languages
 import { useMutation } from "react-query";
+import { settingsRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 
@@ -87,7 +90,6 @@ export default function LanguagePickerSelect({
       }}
     />
   );
-  
   // Languages with < 20% translated are hidden
   // Languages with < 80% translated are greyed out
   const availableLanguages = languages
@@ -204,6 +206,31 @@ export default function LanguagePickerSelect({
               IconComponent={ExpandMoreOutlinedIcon}
             >
               {menuItems}
+              <Link
+                href={`${settingsRoute}#language`}
+                style={{ textDecoration: "none" }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
+                <Box
+                  sx={{
+                    borderTop: `1px solid ${theme.palette.divider}`,
+                    mt: 1,
+                    pt: 1,
+                    px: 2,
+                    py: 1,
+                    cursor: "pointer",
+                    "&:hover": {
+                      backgroundColor: "action.hover",
+                    },
+                  }}
+                >
+                  <Typography variant="body2" color="primary">
+                    {t("global:language_preference.view_all_settings")}
+                  </Typography>
+                </Box>
+              </Link>
             </StyledSelect>
           ) : (
             <StyledSelect
@@ -215,6 +242,31 @@ export default function LanguagePickerSelect({
               onChange={handleChange}
             >
               {menuItems}
+              <Link
+                href={`${settingsRoute}#language`}
+                style={{ textDecoration: "none" }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
+                <Box
+                  sx={{
+                    borderTop: `1px solid ${theme.palette.divider}`,
+                    mt: 1,
+                    pt: 1,
+                    px: 2,
+                    py: 1,
+                    cursor: "pointer",
+                    "&:hover": {
+                      backgroundColor: "action.hover",
+                    },
+                  }}
+                >
+                  <Typography variant="body2" color="primary">
+                    {t("global:language_preference.view_all_settings")}
+                  </Typography>
+                </Box>
+              </Link>
             </StyledSelect>
           )}
         </FormControl>

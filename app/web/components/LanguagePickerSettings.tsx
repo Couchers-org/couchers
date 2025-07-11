@@ -1,10 +1,18 @@
-import { Link, Typography } from "@mui/material";
+import { ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Link,
+  Typography,
+} from "@mui/material";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 
 import LanguagePickerSelect from "./LanguagePickerSelect";
+import TranslationProgress from "./TranslationProgress";
 
 const VOLUNTEER_PAGE_LINK = "https://couchers.org/volunteer/translator";
 
@@ -40,6 +48,49 @@ export default function LanguagePickerSettings({
           </Link>
         </Typography>
         <LanguagePickerSelect displayMode="rect" />
+
+        <Accordion
+          sx={{
+            mt: 2,
+            boxShadow: "none",
+            backgroundColor: "transparent",
+            "&:before": {
+              display: "none",
+            },
+            "& .MuiAccordionSummary-root": {
+              backgroundColor: "transparent",
+              padding: 0,
+            },
+            "& .MuiAccordionDetails-root": {
+              backgroundColor: "transparent",
+              padding: 0,
+            },
+          }}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="translation-progress-content"
+            id="translation-progress-header"
+            sx={{
+              "& .MuiAccordionSummary-content": {
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              },
+              "& .MuiAccordionSummary-expandIconWrapper": {
+                order: -1, // Move icon to the left
+                marginRight: 0,
+              },
+            }}
+          >
+            <Typography sx={{ fontWeight: "bold" }}>
+              {t("global:language_preference.view_translation_progress")}
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <TranslationProgress />
+          </AccordionDetails>
+        </Accordion>
       </>
     </div>
   );
