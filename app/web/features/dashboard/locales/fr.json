@@ -17,5 +17,9 @@
   "complete_profile_explanation": "Ne détestez-vous pas la façon dont les autres plateformes ont des profils « fantômes » vides et sans aucune information ? S'il vous plaît, ne nous faites pas ghosté ! 👻👻👻",
   "dashboard": "Tableau de bord",
   "your_communities_heading": "Vos communautés",
-  "all_communities_heading": "Toutes communautés"
+  "all_communities_heading": "Toutes communautés",
+  "no_community": "Vous ne faites pas parti.e d'une communauté.",
+  "no_sub_communities": "Aucune sous-communauté.",
+  "load_more": "Afficher plus",
+  "welcome": "Soyez bienvenu.e.s à Couchers.org !"
 }

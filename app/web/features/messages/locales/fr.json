@@ -8,5 +8,8 @@
     "tabs": {
       "chats": "Discussions"
     }
+  },
+  "chat_view": {
+    "no_messages_state_text": "Aucun message"
   }
 }
