@@ -1,12 +1,14 @@
-import { render, screen, within } from "@testing-library/react";
+import {render, screen, within } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
-import { allLanguages } from "i18n/allLanguages";
 import mockRouter from "next-router-mock";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { MockedService } from "test/utils";
 
 import LanguagePickerSelect from "./LanguagePickerSelect";
+
+const { t } = i18n;
 
 jest.mock("features/auth/useAuthStore", () => ({
   __esModule: true,
@@ -14,6 +16,23 @@ jest.mock("features/auth/useAuthStore", () => ({
     authState: {
       authenticated: true,
     },
+  }),
+}));
+
+jest.mock("features/weblate/useWeblateStats", () => ({
+  __esModule: true,
+  useWeblateStats: () => ({
+    data: [
+      { code: "en", name: "English", translated_percent: 100 },
+      { code: "es", name: "Spanish", translated_percent: 85 },
+      { code: "fr", name: "French", translated_percent: 75 },
+      { code: "de", name: "German", translated_percent: 60 },
+      { code: "it", name: "Italian", translated_percent: 45 },
+      { code: "pt", name: "Portuguese", translated_percent: 30 },
+      { code: "ru", name: "Russian", translated_percent: 15 },
+    ],
+    isLoading: false,
+    error: null,
   }),
 }));
 
@@ -37,9 +56,15 @@ describe("LanguagePickerSelect", () => {
 
     const listBox = await screen.findByRole("listbox");
 
-    allLanguages.forEach((language) => {
-      within(listBox).getByText(language.toUpperCase());
+    // Only languages with > 20% translation should be shown
+    // Based on our mock data, Russian (15%) should be filtered out
+    const expectedLanguages = ["EN", "ES", "FR", "DE", "IT", "PT"];
+    expectedLanguages.forEach((language) => {
+      within(listBox).getByText(language);
     });
+
+    // Russian should not be present since it has < 20% translation
+    expect(within(listBox).queryByText("RU")).not.toBeInTheDocument();
   });
 
   it("calls changeLanguage and re-routes with locale on selection", async () => {
@@ -56,19 +81,40 @@ describe("LanguagePickerSelect", () => {
     await user.click(select);
 
     const listBox = await screen.findByRole("listbox");
-    const firstOption = within(listBox).getByText(
-      allLanguages[0].toUpperCase(),
-    );
+    const spanishOption = within(listBox).getByText("ES");
 
-    await user.click(firstOption);
+    await user.click(spanishOption);
 
-    expect(changeLanguageMock).toHaveBeenCalledWith(allLanguages[0]);
+    expect(changeLanguageMock).toHaveBeenCalledWith("es");
 
     expect(mockRouter).toEqual(
       expect.objectContaining({
         asPath: "/messages/hosting",
         pathname: "/messages/hosting",
-        locale: allLanguages[0],
+        locale: "es",
+      }),
+    );
+  });
+
+  it("view all settings link navigates to the language section of the account settings page", async () => {
+    render(<LanguagePickerSelect />, { wrapper });
+
+    const select = screen.getByRole("combobox");
+    const user = userEvent.setup();
+    await user.click(select);
+
+    const listBox = await screen.findByRole("listbox");
+    const viewAllSettingsLink = within(listBox).getByText(
+      t("global:language_preference.view_all_settings"),
+    );
+
+    expect(viewAllSettingsLink).toBeInTheDocument();
+
+    await user.click(viewAllSettingsLink);
+
+    expect(mockRouter).toEqual(
+      expect.objectContaining({
+        asPath: "/account-settings#language",
       }),
     );
   });
