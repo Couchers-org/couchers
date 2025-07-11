@@ -36,13 +36,13 @@ describe("parsedQueryToSearchFilters", () => {
   });
   it("should return a SearchFilters object parsing the URL parameters with all filters", () => {
     const parsedQuery = parse(
-      "location=Madrid%2C+Community+of+Madrid%2C+Spain&query=bike&lastActive=14&hostingStatusOptions=2&hostingStatusOptions=3&numGuests=2",
+      "location=Madrid%2C+Community+of+Madrid%2C+Spain&query=bike&lastActive=14&hostingStatus=2&hostingStatusOptions=3&numGuests=2",
     );
     expect(parsedQueryToSearchFilters(parsedQuery)).toEqual({
       location: "Madrid, Community of Madrid, Spain",
       numGuests: 2,
       lastActive: 14,
-      hostingStatus: [2, 3],
+      hostingStatus: [2],
       query: "bike",
     });
   });
