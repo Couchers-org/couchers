@@ -18,6 +18,7 @@ import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { ReactNode } from "react";
 import {
+  baseRoute,
   blogRoute,
   builtWithRoute,
   contactRoute,
@@ -184,6 +185,7 @@ export default function Footer() {
             </Typography>
             <FooterLink href={blogRoute}>{t("nav.blog")}</FooterLink>
             <FooterLink href={teamRoute}>{t("nav.our_team")}</FooterLink>
+            <FooterLink href={baseRoute}>{t("nav.landing_page")}</FooterLink>
             <FooterLink href={eventsRoute}>
               {t("nav.show_all_events")}
             </FooterLink>
