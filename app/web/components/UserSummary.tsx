@@ -90,13 +90,13 @@ export default function UserSummary({
 
   const cityValue =
     user && "city" in user && typeof user.city === "string"
-      ? user.city.length > 45
-        ? user.city.slice(0, 45) + "..."
+      ? user.city.length > 120
+        ? user.city.slice(0, 120) + "..."
         : user.city
       : "";
 
   const title = (
-    <Tooltip title={nameValue} arrow placement="top">
+    <Tooltip title={user?.name} arrow placement="top">
       <Typography
         component={headlineComponentWithRef}
         variant="h2"
@@ -157,7 +157,11 @@ export default function UserSummary({
         secondary={
           <>
             {!nameOnly && (
-              <Tooltip title={cityValue} arrow placement="top">
+              <Tooltip
+                title={(user as LiteUser.AsObject)?.city}
+                arrow
+                placement="top"
+              >
                 <Typography
                   color="textSecondary"
                   variant="body1"
