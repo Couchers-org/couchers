@@ -5,7 +5,7 @@ from google.protobuf import empty_pb2
 
 from couchers import errors
 from couchers.crypto import secure_compare
-from couchers.interceptors import ManualAuthValidatorInterceptor
+from couchers.interceptors import MediaInterceptor
 from couchers.models import InitiatedUpload, Upload
 from couchers.sql import couchers_select as select
 from proto import media_pb2_grpc
@@ -17,7 +17,7 @@ def get_media_auth_interceptor(secret_token):
     def is_authorized(token):
         return secure_compare(token.encode("ascii"), secret_token.encode("ascii"))
 
-    return ManualAuthValidatorInterceptor(is_authorized)
+    return MediaInterceptor(is_authorized)
 
 
 class Media(media_pb2_grpc.MediaServicer):

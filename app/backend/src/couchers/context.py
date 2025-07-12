@@ -60,12 +60,14 @@ class CouchersContext:
         is_interactive: bool,
         grpc_context: grpc.ServicerContext | None,
         user_id: int | None,
+        is_api_key: bool | None,
         token: str | None,
         ui_language_preference: str | None,
     ):
         """Don't ever construct directly, always use the `make_*_context_` functions!"""
         self.__grpc_context = grpc_context
         self.__user_id = user_id
+        self.__is_api_key = is_api_key
         self.__token = token
         self.__ui_language_preference = ui_language_preference
         self.__is_interactive = is_interactive
@@ -80,6 +82,8 @@ class CouchersContext:
         if self.__logged_in:
             if not self.__user_id:
                 raise ValueError("Invalid state, logged in but missing user_id")
+            if self.__is_api_key is None:
+                raise ValueError("Invalid state, logged in but missing is_api_key")
 
     def __verify_interactive(self):
         if not self.__is_interactive:
@@ -88,6 +92,9 @@ class CouchersContext:
     def __verify_logged_in(self):
         if not self.__logged_in:
             raise NotLoggedInContextException("Called a logged-in function from logged-out context")
+
+    def is_logged_in(self):
+        return self.__logged_in
 
     def abort(self, status_code: grpc.StatusCode, error_message: str) -> None:
         """
@@ -125,6 +132,14 @@ class CouchersContext:
         return self.__user_id
 
     @property
+    def is_api_key(self) -> bool:
+        """
+        Returns whether the API call was done with API key or not, if available
+        """
+        self.__verify_logged_in()
+        return self.__is_api_key
+
+    @property
     def token(self) -> str:
         """
         Returns the token (session cookie/api key) of the current session, if available
@@ -138,13 +153,21 @@ class CouchersContext:
         return self.__ui_language_preference
 
 
-def make_interactive_user_context(grpc_context, user_id, token, ui_language_preference):
+def make_interactive_user_context(grpc_context, user_id, is_api_key, token, ui_language_preference):
     return CouchersContext(
         is_interactive=True,
         grpc_context=grpc_context,
         user_id=user_id,
+        is_api_key=is_api_key,
         token=token,
         ui_language_preference=ui_language_preference,
+    )
+
+
+def make_media_context(grpc_context):
+    return CouchersContext(
+        is_interactive=True,
+        grpc_context=grpc_context,
     )
 
 

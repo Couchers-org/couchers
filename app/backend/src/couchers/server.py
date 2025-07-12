@@ -7,7 +7,6 @@ from couchers.constants import SERVER_THREADS
 from couchers.interceptors import (
     CouchersMiddlewareInterceptor,
     ErrorSanitizationInterceptor,
-    ManualAuthValidatorInterceptor,
     OTelInterceptor,
     TracingInterceptor,
 )
@@ -111,7 +110,6 @@ def create_media_server(port, threads=8):
         interceptors=[
             TracingInterceptor(),
             get_media_auth_interceptor(config["MEDIA_SERVER_BEARER_TOKEN"]),
-            ManualAuthValidatorInterceptor(),
         ],
     )
     media_server.add_insecure_port(f"[::]:{port}")

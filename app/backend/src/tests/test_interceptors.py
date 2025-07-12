@@ -55,12 +55,11 @@ def interceptor_dummy_api(
 
         try:
             with grpc.secure_channel(f"localhost:{port}", creds or grpc.local_channel_credentials()) as channel:
-                call_rpc = channel.unary_unary(
+                yield channel.unary_unary(
                     f"/{service_name}/{method_name}",
                     request_serializer=request_type.SerializeToString,
                     response_deserializer=response_type.FromString,
                 )
-                yield call_rpc
         finally:
             server.stop(None).wait()
 

@@ -398,7 +398,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             context.abort(grpc.StatusCode.NOT_FOUND, errors.ACCOUNT_NOT_FOUND)
 
     def GetAuthState(self, request, context, session):
-        if not context.user_id:
+        if not context.is_logged_in():
             return auth_pb2.GetAuthStateRes(logged_in=False)
         else:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()

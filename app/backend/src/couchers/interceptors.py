@@ -12,7 +12,7 @@ from opentelemetry import trace
 from sqlalchemy.sql import and_, func
 
 from couchers import errors
-from couchers.context import make_interactive_user_context
+from couchers.context import make_interactive_user_context, make_media_context
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import observe_in_servicer_duration_histogram
@@ -195,6 +195,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             couchers_context = make_interactive_user_context(
                 grpc_context=context,
                 user_id=user_id,
+                is_api_key=is_api_key,
                 token=token,
                 ui_language_preference=ui_language_preference,
             )
@@ -210,7 +211,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 if ui_language_preference and ui_language_preference != parse_ui_lang_cookie(headers):
                     couchers_context.set_cookies(create_lang_cookie(ui_language_preference))
 
-                couchers_context._send_cookies()
+            couchers_context._send_cookies()
 
             return res
 
@@ -221,17 +222,21 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
         )
 
 
-class ManualAuthValidatorInterceptor(grpc.ServerInterceptor):
+class MediaInterceptor(grpc.ServerInterceptor):
     """
     Extracts an "Authorization: Bearer <hex>" header and calls the
     is_authorized function. Terminates the call with an HTTP error
     code if not authorized.
+
+    Also adds a session to called APIs.
     """
 
     def __init__(self, is_authorized):
         self._is_authorized = is_authorized
 
     def intercept_service(self, continuation, handler_call_details):
+        handler = continuation(handler_call_details)
+        prev_func = handler.unary_unary
         metadata = dict(handler_call_details.invocation_metadata)
 
         token = parse_api_key(metadata)
@@ -239,7 +244,15 @@ class ManualAuthValidatorInterceptor(grpc.ServerInterceptor):
         if not token or not self._is_authorized(token):
             return unauthenticated_handler()
 
-        return continuation(handler_call_details)
+        def function_without_session(request, grpc_context):
+            with session_scope() as session:
+                return prev_func(request, make_media_context(grpc_context), session)
+
+        return grpc.unary_unary_rpc_method_handler(
+            function_without_session,
+            request_deserializer=handler.request_deserializer,
+            response_serializer=handler.response_serializer,
+        )
 
 
 class OTelInterceptor(grpc.ServerInterceptor):
@@ -370,23 +383,43 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 res = prev_func(request, context)
                 finished = perf_counter_ns()
                 duration = (finished - start) / 1e6  # ms
-                user_id = getattr(context, "user_id", None)
-                is_api_key = getattr(context, "is_api_key", None)
                 self._store_log(
-                    method, None, duration, user_id, is_api_key, request, res, None, None, ip_address, user_agent
+                    method,
+                    None,
+                    duration,
+                    context.is_logged_in() and context.user_id,
+                    context.is_logged_in() and context.is_api_key,
+                    request,
+                    res,
+                    None,
+                    None,
+                    ip_address,
+                    user_agent,
                 )
-                observe_in_servicer_duration_histogram(method, user_id, "", "", duration / 1000)
+                observe_in_servicer_duration_histogram(
+                    method, context.is_logged_in() and context.user_id, "", "", duration / 1000
+                )
             except Exception as e:
                 finished = perf_counter_ns()
                 duration = (finished - start) / 1e6  # ms
                 code = getattr(context.code(), "name", None)
                 traceback = "".join(format_exception(type(e), e, e.__traceback__))
-                user_id = getattr(context, "user_id", None)
-                is_api_key = getattr(context, "is_api_key", None)
                 self._store_log(
-                    method, code, duration, user_id, is_api_key, request, None, traceback, None, ip_address, user_agent
+                    method,
+                    code,
+                    duration,
+                    context.is_logged_in() and context.user_id,
+                    context.is_logged_in() and context.is_api_key,
+                    request,
+                    None,
+                    traceback,
+                    None,
+                    ip_address,
+                    user_agent,
                 )
-                observe_in_servicer_duration_histogram(method, user_id, code or "", type(e).__name__, duration / 1000)
+                observe_in_servicer_duration_histogram(
+                    method, context.is_logged_in() and context.user_id, code or "", type(e).__name__, duration / 1000
+                )
 
                 if not code:
                     sentry_sdk.set_tag("context", "servicer")
@@ -398,27 +431,6 @@ class TracingInterceptor(grpc.ServerInterceptor):
 
         return grpc.unary_unary_rpc_method_handler(
             tracing_function,
-            request_deserializer=handler.request_deserializer,
-            response_serializer=handler.response_serializer,
-        )
-
-
-class SessionInterceptor(grpc.ServerInterceptor):
-    """
-    Adds a session from session_scope() as the last argument. This needs to be the last interceptor since it changes the
-    function signature by adding another argument.
-    """
-
-    def intercept_service(self, continuation, handler_call_details):
-        handler = continuation(handler_call_details)
-        prev_func = handler.unary_unary
-
-        def function_without_session(request, context):
-            with session_scope() as session:
-                return prev_func(request, context, session)
-
-        return grpc.unary_unary_rpc_method_handler(
-            function_without_session,
             request_deserializer=handler.request_deserializer,
             response_serializer=handler.response_serializer,
         )
