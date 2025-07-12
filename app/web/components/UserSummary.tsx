@@ -89,7 +89,7 @@ export default function UserSummary({
       : "";
 
   const cityValue =
-    user && user.city
+    user && "city" in user && typeof user.city === "string"
       ? user.city.length > 45
         ? user.city.slice(0, 45) + "..."
         : user.city
@@ -110,8 +110,14 @@ export default function UserSummary({
           />
         ) : (
           <>
-            {nameOnly ? nameValue : `${nameValue}, ${user.age}`}
-            {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
+            {nameOnly
+              ? nameValue
+              : `${nameValue}${user && "age" in user ? `, ${user.age}` : ""}`}
+            {user &&
+            "hasStrongVerification" in user &&
+            user.hasStrongVerification ? (
+              <StrongVerificationBadge />
+            ) : null}
           </>
         )}
       </Typography>
