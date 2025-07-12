@@ -158,6 +158,7 @@
         "request": "Request",
         "request_description": "Share your plans for the visit and include why you're requesting to stay with this particular host",
         "request_description_empty": "Please write a request message",
+        "request_char_length_too_short": "The minimum length to send a host request is 250 characters. Good, thoughtful requests detailing your plans and why you chose this host are more likely to be accepted.",
         "stay_type_a11y_text": "stay type",
         "success": "Request sent!"
     },
