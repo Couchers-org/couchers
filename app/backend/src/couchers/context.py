@@ -77,13 +77,13 @@ class CouchersContext:
         if self.__is_interactive:
             if not self.__grpc_context:
                 raise ValueError("Tried to construct interactive context without grpc context")
+            if self.__is_api_key is None:
+                raise ValueError("Tried to construct interactive context but missing is_api_key")
             self.__headers = dict(self.__grpc_context.invocation_metadata())
 
         if self.__logged_in:
             if not self.__user_id:
                 raise ValueError("Invalid state, logged in but missing user_id")
-            if self.__is_api_key is None:
-                raise ValueError("Invalid state, logged in but missing is_api_key")
 
     def __verify_interactive(self):
         if not self.__is_interactive:
@@ -175,6 +175,7 @@ def make_background_user_context(user_id):
     return CouchersContext(
         is_interactive=False,
         user_id=user_id,
+        is_api_key=None,
         grpc_context=None,
         token=None,
         ui_language_preference=None,

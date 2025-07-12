@@ -12,7 +12,7 @@ from opentelemetry import trace
 from sqlalchemy.sql import and_, func
 
 from couchers import errors
-from couchers.context import make_interactive_user_context, make_media_context
+from couchers.context import CouchersContext, make_interactive_user_context, make_media_context
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import observe_in_servicer_duration_histogram
@@ -106,22 +106,94 @@ def unauthenticated_handler(message="Unauthorized", status_code=grpc.StatusCode.
     return abort_handler(message, status_code)
 
 
+def _sanitized_bytes(proto):
+    """
+    Remove fields marked sensitive and return serialized bytes
+    """
+    if not proto:
+        return None
+
+    new_proto = deepcopy(proto)
+
+    def _sanitize_message(message):
+        for name, descriptor in message.DESCRIPTOR.fields_by_name.items():
+            if descriptor.GetOptions().Extensions[annotations_pb2.sensitive]:
+                message.ClearField(name)
+            if descriptor.message_type:
+                submessage = getattr(message, name)
+                if not submessage:
+                    continue
+                if descriptor.label == descriptor.LABEL_REPEATED:
+                    for msg in submessage:
+                        _sanitize_message(msg)
+                else:
+                    _sanitize_message(submessage)
+
+    _sanitize_message(new_proto)
+
+    return new_proto.SerializeToString()
+
+
+def _store_log(
+    method,
+    status_code,
+    duration,
+    user_id,
+    is_api_key,
+    request,
+    response,
+    traceback,
+    perf_report,
+    ip_address,
+    user_agent,
+):
+    req_bytes = _sanitized_bytes(request)
+    res_bytes = _sanitized_bytes(response)
+    with session_scope() as session:
+        response_truncated = False
+        truncate_res_bytes_length = 16 * 1024  # 16 kB
+        if res_bytes and len(res_bytes) > truncate_res_bytes_length:
+            res_bytes = res_bytes[:truncate_res_bytes_length]
+            response_truncated = True
+        session.add(
+            APICall(
+                is_api_key=is_api_key,
+                method=method,
+                status_code=status_code,
+                duration=duration,
+                user_id=user_id,
+                request=req_bytes,
+                response=res_bytes,
+                response_truncated=response_truncated,
+                traceback=traceback,
+                perf_report=perf_report,
+                ip_address=ip_address,
+                user_agent=user_agent,
+            )
+        )
+    logger.debug(f"{user_id=}, {method=}, {duration=} ms")
+
+
 class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
     """
     1. Does auth: extracts a session token from a cookie, and authenticates a user with that.
+
+    Sets context.user_id and context.token if authenticated, otherwise
+    terminates the call with an UNAUTHENTICATED error code.
 
     2. Makes sure cookies are in sync.
 
     3. Injects a session to get a database transaction.
 
-    Sets context.user_id and context.token if authenticated, otherwise
-    terminates the call with an UNAUTHENTICATED error code.
+    4. Measures and logs the time it takes to service each incoming call.
     """
 
     def __init__(self):
         self._pool = get_descriptor_pool()
 
     def intercept_service(self, continuation, handler_call_details):
+        start = perf_counter_ns()
+
         method = handler_call_details.method
         # method is of the form "/org.couchers.api.core.API/GetUser"
         _, service_name, method_name = method.split("/")
@@ -191,16 +263,62 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
         handler = continuation(handler_call_details)
         prev_function = handler.unary_unary
 
-        def function_without_couchers_stuff(req, context):
-            couchers_context = make_interactive_user_context(
-                grpc_context=context,
+        def function_without_couchers_stuff(req, grpc_context):
+            couchers_context: CouchersContext = make_interactive_user_context(
+                grpc_context=grpc_context,
                 user_id=user_id,
                 is_api_key=is_api_key,
                 token=token,
                 ui_language_preference=ui_language_preference,
             )
             with session_scope() as session:
-                res = prev_function(req, couchers_context, session)
+                try:
+                    res = prev_function(req, couchers_context, session)
+                    finished = perf_counter_ns()
+                    duration = (finished - start) / 1e6  # ms
+                    self._store_log(
+                        method,
+                        None,
+                        duration,
+                        couchers_context.__user_id,
+                        couchers_context.__is_api_key,
+                        req,
+                        res,
+                        None,
+                        None,
+                        ip_address,
+                        user_agent,
+                    )
+                    observe_in_servicer_duration_histogram(method, couchers_context.__user_id, "", "", duration / 1000)
+                except Exception as e:
+                    finished = perf_counter_ns()
+                    duration = (finished - start) / 1e6  # ms
+                    code = getattr(couchers_context.__grpc_context.code(), "name", None)
+                    traceback = "".join(format_exception(type(e), e, e.__traceback__))
+                    self._store_log(
+                        method,
+                        code,
+                        duration,
+                        couchers_context.__user_id,
+                        couchers_context.__is_api_key,
+                        req,
+                        None,
+                        traceback,
+                        None,
+                        ip_address,
+                        user_agent,
+                    )
+                    observe_in_servicer_duration_histogram(
+                        method, couchers_context.__user_id, code or "", type(e).__name__, duration / 1000
+                    )
+
+                    if not code:
+                        sentry_sdk.set_tag("context", "servicer")
+                        sentry_sdk.set_tag("method", method)
+                        sentry_sdk.capture_exception(e)
+
+                    raise e
+                return res
 
             if user_id and not is_api_key:
                 cookies = []
@@ -287,146 +405,6 @@ class OTelInterceptor(grpc.ServerInterceptor):
                 rollspan.set_attribute("web.user_agent", headers.get("user-agent") or "")
                 rollspan.set_attribute("web.ip_address", headers.get("x-couchers-real-ip") or "")
 
-            return res
-
-        return grpc.unary_unary_rpc_method_handler(
-            tracing_function,
-            request_deserializer=handler.request_deserializer,
-            response_serializer=handler.response_serializer,
-        )
-
-
-class TracingInterceptor(grpc.ServerInterceptor):
-    """
-    Measures and logs the time it takes to service each incoming call.
-    """
-
-    def _sanitized_bytes(self, proto):
-        """
-        Remove fields marked sensitive and return serialized bytes
-        """
-        if not proto:
-            return None
-
-        new_proto = deepcopy(proto)
-
-        def _sanitize_message(message):
-            for name, descriptor in message.DESCRIPTOR.fields_by_name.items():
-                if descriptor.GetOptions().Extensions[annotations_pb2.sensitive]:
-                    message.ClearField(name)
-                if descriptor.message_type:
-                    submessage = getattr(message, name)
-                    if not submessage:
-                        continue
-                    if descriptor.label == descriptor.LABEL_REPEATED:
-                        for msg in submessage:
-                            _sanitize_message(msg)
-                    else:
-                        _sanitize_message(submessage)
-
-        _sanitize_message(new_proto)
-
-        return new_proto.SerializeToString()
-
-    def _store_log(
-        self,
-        method,
-        status_code,
-        duration,
-        user_id,
-        is_api_key,
-        request,
-        response,
-        traceback,
-        perf_report,
-        ip_address,
-        user_agent,
-    ):
-        req_bytes = self._sanitized_bytes(request)
-        res_bytes = self._sanitized_bytes(response)
-        with session_scope() as session:
-            response_truncated = False
-            truncate_res_bytes_length = 16 * 1024  # 16 kB
-            if res_bytes and len(res_bytes) > truncate_res_bytes_length:
-                res_bytes = res_bytes[:truncate_res_bytes_length]
-                response_truncated = True
-            session.add(
-                APICall(
-                    is_api_key=is_api_key,
-                    method=method,
-                    status_code=status_code,
-                    duration=duration,
-                    user_id=user_id,
-                    request=req_bytes,
-                    response=res_bytes,
-                    response_truncated=response_truncated,
-                    traceback=traceback,
-                    perf_report=perf_report,
-                    ip_address=ip_address,
-                    user_agent=user_agent,
-                )
-            )
-        logger.debug(f"{user_id=}, {method=}, {duration=} ms")
-
-    def intercept_service(self, continuation, handler_call_details):
-        handler = continuation(handler_call_details)
-        prev_func = handler.unary_unary
-        method = handler_call_details.method
-
-        headers = dict(handler_call_details.invocation_metadata)
-        ip_address = headers.get("x-couchers-real-ip")
-        user_agent = headers.get("user-agent")
-
-        def tracing_function(request, context):
-            try:
-                start = perf_counter_ns()
-                res = prev_func(request, context)
-                finished = perf_counter_ns()
-                duration = (finished - start) / 1e6  # ms
-                self._store_log(
-                    method,
-                    None,
-                    duration,
-                    context.is_logged_in() and context.user_id,
-                    context.is_logged_in() and context.is_api_key,
-                    request,
-                    res,
-                    None,
-                    None,
-                    ip_address,
-                    user_agent,
-                )
-                observe_in_servicer_duration_histogram(
-                    method, context.is_logged_in() and context.user_id, "", "", duration / 1000
-                )
-            except Exception as e:
-                finished = perf_counter_ns()
-                duration = (finished - start) / 1e6  # ms
-                code = getattr(context.code(), "name", None)
-                traceback = "".join(format_exception(type(e), e, e.__traceback__))
-                self._store_log(
-                    method,
-                    code,
-                    duration,
-                    context.is_logged_in() and context.user_id,
-                    context.is_logged_in() and context.is_api_key,
-                    request,
-                    None,
-                    traceback,
-                    None,
-                    ip_address,
-                    user_agent,
-                )
-                observe_in_servicer_duration_histogram(
-                    method, context.is_logged_in() and context.user_id, code or "", type(e).__name__, duration / 1000
-                )
-
-                if not code:
-                    sentry_sdk.set_tag("context", "servicer")
-                    sentry_sdk.set_tag("method", method)
-                    sentry_sdk.capture_exception(e)
-
-                raise e
             return res
 
         return grpc.unary_unary_rpc_method_handler(

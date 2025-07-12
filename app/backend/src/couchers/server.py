@@ -8,7 +8,6 @@ from couchers.interceptors import (
     CouchersMiddlewareInterceptor,
     ErrorSanitizationInterceptor,
     OTelInterceptor,
-    TracingInterceptor,
 )
 from couchers.servicers.account import Account, Iris
 from couchers.servicers.admin import Admin
@@ -70,7 +69,6 @@ def create_main_server(port):
         interceptors=[
             ErrorSanitizationInterceptor(),
             OTelInterceptor(),
-            TracingInterceptor(),
             CouchersMiddlewareInterceptor(),
         ],
     )
@@ -108,7 +106,6 @@ def create_media_server(port, threads=8):
     media_server = grpc.server(
         futures.ThreadPoolExecutor(threads),
         interceptors=[
-            TracingInterceptor(),
             get_media_auth_interceptor(config["MEDIA_SERVER_BEARER_TOKEN"]),
         ],
     )
