@@ -1,9 +1,4 @@
-import {
-  Box,
-  Skeleton,
-  styled,
-  Typography,
-} from "@mui/material";
+import { Box, Skeleton, styled, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { LANDING } from "i18n/namespaces";
 import Lottie from "lottie-react";
@@ -24,7 +19,6 @@ const AnimationContainer = styled("div")(({ theme }) => ({
     width: "100%",
     height: "auto",
     minHeight: "300px",
-    marginTop: theme.spacing(4),
   },
 }));
 
