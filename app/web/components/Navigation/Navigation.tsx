@@ -424,7 +424,7 @@ export default function Navigation() {
               </IconButton>
               <StyledDrawer
                 variant="temporary"
-                anchor="left"
+                anchor="right"
                 open={open}
                 onClick={handleDrawerClose}
                 ModalProps={{
@@ -446,7 +446,7 @@ export default function Navigation() {
               </StyledDrawer>
             </>
           )}
-          <CouchersLogo />
+          <CouchersLogo isLoggedIn={authState.authenticated} />
           {!isMobile && (
             <StyledFlexbox>
               {(authState.authenticated && isMounted
@@ -494,19 +494,25 @@ export default function Navigation() {
               <Button
                 variant="outlined"
                 size={isMobile ? "medium" : "large"}
-                sx={{ fontSize: "1.3rem" }}
+                sx={{
+                  fontSize: "1.3rem",
+                  borderRadius: theme.spacing(1),
+                  border: `1.5px solid ${theme.palette.primary.main}`,
+                }}
                 onClick={() => router.push(loginRoute)}
               >
                 {t("login")}
               </Button>
-              <Button
-                variant="contained"
-                size={isMobile ? "medium" : "large"}
-                sx={{ fontSize: "1.3rem" }}
-                onClick={() => router.push(signupRoute)}
-              >
-                {t("join_us")}
-              </Button>
+              {!isMobile && (
+                <Button
+                  variant="contained"
+                  size={isMobile ? "medium" : "large"}
+                  sx={{ fontSize: "1.3rem" }}
+                  onClick={() => router.push(signupRoute)}
+                >
+                  {t("join_us")}
+                </Button>
+              )}
             </Box>
           )}
         </StyledMenuContainer>

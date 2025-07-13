@@ -1,6 +1,6 @@
 import { styled, SvgIcon } from "@mui/material";
 import Link from "next/link";
-import { baseRoute } from "routes";
+import { baseRoute, dashboardRoute } from "routes";
 
 const Logo = styled(SvgIcon)(({ theme }) => ({
   fill: theme.palette.secondary.main,
@@ -12,11 +12,15 @@ const Logo = styled(SvgIcon)(({ theme }) => ({
 
 export interface CouchersLogoProps {
   className?: string;
+  isLoggedIn?: boolean;
 }
 
-export default function CouchersLogo({ className }: CouchersLogoProps) {
+export default function CouchersLogo({
+  className,
+  isLoggedIn,
+}: CouchersLogoProps) {
   return (
-    <Link href={baseRoute}>
+    <Link href={isLoggedIn ? dashboardRoute : baseRoute}>
       <Logo
         className={className}
         xmlns="http://www.w3.org/2000/svg"

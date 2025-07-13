@@ -6,5 +6,6 @@
     "confirm": "Bloquer"
   },
   "blocked_list_title": "Utilisateurs bloqués",
-  "block_user": "Bloquer l'utilisateur"
+  "block_user": "Bloquer l'utilisateur",
+  "my_connections": "Mes connexions"
 }
