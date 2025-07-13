@@ -204,12 +204,13 @@ export default function LanguagePickerSelect({
           {displayMode === "round" ? (
             <StyledSelect
               id="language-select"
-              value={locale || ""}
+              value={isLoading ? "" : (locale || "")}
               displayMode={displayMode}
               onChange={handleChange}
               // Use renderValue to display the selected language in collapsed state
               renderValue={renderValue}
               IconComponent={ExpandMoreOutlinedIcon}
+              disabled={isLoading}
             >
               {menuItems}
               <Link
@@ -241,10 +242,11 @@ export default function LanguagePickerSelect({
             <StyledSelect
               id="newLanguage"
               displayMode={displayMode}
-              value={locale}
+              value={isLoading ? "" : locale}
               placeholder={t("global:language_preference.select_language")}
               fullWidth={isMobile}
               onChange={handleChange}
+              disabled={isLoading}
             >
               {menuItems}
               <Link
