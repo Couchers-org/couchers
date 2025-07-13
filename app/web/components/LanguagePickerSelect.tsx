@@ -24,7 +24,7 @@ import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router"; // we'll use this to reload the components w/ changed languages
 import { useMutation } from "react-query";
-import { settingsRoute, translateRoute } from "routes";
+import { translateRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 
@@ -225,14 +225,13 @@ export default function LanguagePickerSelect({
                     mt: 1,
                     pt: 1,
                     px: 2,
-                    py: 1,
                     cursor: "pointer",
                     "&:hover": {
                       backgroundColor: "action.hover",
                     },
                   }}
                 >
-                  <Typography variant="body2" color="primary">
+                  <Typography color="primary" sx={{ fontWeight: "bold" }}>
                     {t("global:language_preference.translation_progress.title")}
                   </Typography>
                 </Box>
