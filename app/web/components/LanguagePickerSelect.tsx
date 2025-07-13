@@ -24,7 +24,7 @@ import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router"; // we'll use this to reload the components w/ changed languages
 import { useMutation } from "react-query";
-import { settingsRoute } from "routes";
+import { settingsRoute, translateRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 
@@ -87,6 +87,7 @@ export default function LanguagePickerSelect({
       style={{
         width: 25,
         filter: percent && percent < 80 ? "grayscale(100%)" : "none",
+        opacity: percent && percent < 80 ? 0.4 : 1,
       }}
     />
   );
@@ -98,7 +99,12 @@ export default function LanguagePickerSelect({
         LANGUAGE_MAP[language.code.replace("_", "-")] &&
         language.translated_percent > 20,
     )
-    .sort((a, b) => a.code.localeCompare(b.code));
+    // sort by translated percent with the >= 80 grouped at the top, then sorted alphabetically by code
+    .sort((a, b) => {
+      if (a.translated_percent >= 80 && b.translated_percent < 80) return -1;
+      if (a.translated_percent < 80 && b.translated_percent >= 80) return 1;
+      return a.code.localeCompare(b.code);
+    });
 
   const menuItems: React.ReactNode[] | undefined = isLoading
     ? []
@@ -137,7 +143,7 @@ export default function LanguagePickerSelect({
                 </ListItemIcon>
                 <ListItemText
                   sx={{
-                    color: "#666666",
+                    opacity: language.translated_percent < 80 ? 0.4 : 1,
                     fontWeight: "bold",
                     display: "inline",
                   }}
@@ -207,7 +213,7 @@ export default function LanguagePickerSelect({
             >
               {menuItems}
               <Link
-                href={`${settingsRoute}#language`}
+                href={translateRoute}
                 style={{ textDecoration: "none" }}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -227,7 +233,7 @@ export default function LanguagePickerSelect({
                   }}
                 >
                   <Typography variant="body2" color="primary">
-                    {t("global:language_preference.view_all_settings")}
+                    {t("global:language_preference.translation_progress.title")}
                   </Typography>
                 </Box>
               </Link>
@@ -243,7 +249,7 @@ export default function LanguagePickerSelect({
             >
               {menuItems}
               <Link
-                href={`${settingsRoute}#language`}
+                href={translateRoute}
                 style={{ textDecoration: "none" }}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -263,7 +269,7 @@ export default function LanguagePickerSelect({
                   }}
                 >
                   <Typography variant="body2" color="primary">
-                    {t("global:language_preference.view_all_settings")}
+                    {t("global:language_preference.translation_progress.title")}
                   </Typography>
                 </Box>
               </Link>

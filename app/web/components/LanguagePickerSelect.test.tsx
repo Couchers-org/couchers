@@ -104,17 +104,17 @@ describe("LanguagePickerSelect", () => {
     await user.click(select);
 
     const listBox = await screen.findByRole("listbox");
-    const viewAllSettingsLink = within(listBox).getByText(
-      t("global:language_preference.view_all_settings"),
+    const translationProgressLink = within(listBox).getByText(
+      t("global:language_preference.translation_progress.title"),
     );
 
-    expect(viewAllSettingsLink).toBeInTheDocument();
+    expect(translationProgressLink).toBeInTheDocument();
 
-    await user.click(viewAllSettingsLink);
+    await user.click(translationProgressLink);
 
     expect(mockRouter).toEqual(
       expect.objectContaining({
-        asPath: "/account-settings#language",
+        asPath: "/translate",
       }),
     );
   });
