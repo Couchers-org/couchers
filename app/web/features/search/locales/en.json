@@ -79,7 +79,7 @@
     "missing_about_description": "{{name}} hasn't said anything about themselves yet",
     "people_found_message": "Showing {{numberOfTotal}} from {{totalItems}} people found",
     "few_results_suggestion": "By default, empty and \"can't host\" profiles are hidden.",
-    "include_empty_profiles_button": "Include all profiles"
+    "include_empty_profiles_button": "Show all profiles"
   },
   "views": {
     "choose_map_view": "Choose map view",
