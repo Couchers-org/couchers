@@ -1027,7 +1027,7 @@ def send_activeness_probes(payload):
             probe.responded = now()
             probe.response = ActivenessProbeStatus.expired
             if probe.user.hosting_status == HostingStatus.can_host:
-                probe.user.hosting_status = HostingStatus.cant_host
+                probe.user.hosting_status = HostingStatus.maybe
             if probe.user.meetup_status == MeetupStatus.wants_to_meetup:
                 probe.user.meetup_status = MeetupStatus.open_to_meetup
             session.commit()
