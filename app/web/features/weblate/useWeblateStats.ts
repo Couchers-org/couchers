@@ -31,9 +31,11 @@ export const useWeblateStats = (projectSlug: string = "couchers") => {
   return useQuery({
     queryKey: ["weblate-stats", projectSlug],
     queryFn: () => fetchWeblateStats(projectSlug),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: 2,
+    staleTime: 10 * 60 * 1000, // 10 minutes - data considered fresh
+    cacheTime: 10 * 60 * 1000, // 10 minutes - cache persists
+    retry: 1,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 };
 
