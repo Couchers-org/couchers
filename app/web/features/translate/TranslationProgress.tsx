@@ -7,12 +7,14 @@ import {
   Link,
   styled,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { useWeblateStats } from "features/weblate/useWeblateStats";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
 import { translateJobURL } from "routes";
+import { theme } from "theme";
 
 const ProgressBar = styled(Box)<{ percent: number }>(({ theme, percent }) => ({
   width: "100%",
@@ -38,7 +40,7 @@ const ProgressBar = styled(Box)<{ percent: number }>(({ theme, percent }) => ({
   },
 }));
 
-const LanguageCard = styled(Card)<{ percent: number }>(
+const LargeLanguageCard = styled(Card)<{ percent: number }>(
   ({ theme, percent }) => ({
     width: "100%",
     transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
@@ -49,6 +51,15 @@ const LanguageCard = styled(Card)<{ percent: number }>(
       transform: "translateY(-1px)",
       boxShadow: theme.shadows[2],
     },
+  }),
+);
+
+const SmallLanguageCard = styled(Card)<{ percent: number }>(
+  ({ theme, percent }) => ({
+    width: "100%",
+    transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+    opacity: percent < 20 ? 0.5 : 1,
+    marginBottom: theme.spacing(2),
   }),
 );
 
@@ -84,8 +95,10 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
 }));
 
 export default function TranslationProgress() {
-  const { data: languages, isLoading, error } = useWeblateStats();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t } = useTranslation([GLOBAL]);
+
+  const { data: languages, isLoading, error } = useWeblateStats();
 
   if (isLoading) {
     return (
@@ -142,7 +155,8 @@ export default function TranslationProgress() {
           underline="hover"
           sx={{ fontWeight: "bold" }}
         >
-          {t("global:language_preference.translation_progress.help_translate")} →
+          {t("global:language_preference.translation_progress.help_translate")}{" "}
+          →
         </Link>
       </Box>
 
@@ -160,55 +174,119 @@ export default function TranslationProgress() {
         if (!languageInfo) return null;
 
         return (
-          <LanguageCard percent={percent} key={language.code}>
-            <StyledCardContent>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  width: "100%",
-                }}
-              >
-                <FlagImage
-                  src={`https://cdn.couchers.org/img/language-icons/${languageInfo.flagIconCode}.svg`}
-                  alt={`${languageInfo.flagIconCode} flag`}
-                  percent={percent}
-                />
-                <Typography variant="subtitle1" fontWeight="bold" noWrap>
-                  {languageInfo.name || languageCode.toUpperCase()}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {languageCode.toUpperCase()}
-                </Typography>
-
-                <Box sx={{ flex: 1, minWidth: 0 }} />
-
-                <Box
+          <>
+            {isMobile && (
+              <SmallLanguageCard percent={percent} key={language.code}>
+                <StyledCardContent
                   sx={{
                     display: "flex",
-                    alignItems: "center",
-                    gap: 2,
-                    minWidth: 180,
+                    flexDirection: "column",
+                    alignItems: "flex-start",
                   }}
                 >
-                  <Typography variant="h5" fontWeight="bold" color="primary">
-                    {percent.toFixed(1)}%
-                  </Typography>
-                  <Chip
-                    label={getStatusText(percent, t)}
-                    size="small"
-                    color={getStatusColor(percent)}
-                    variant="outlined"
-                  />
-                </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: 2,
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      width: "100%",
+                    }}
+                  >
+                    <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                      <FlagImage
+                        src={`https://cdn.couchers.org/img/language-icons/${languageInfo.flagIconCode}.svg`}
+                        alt={`${languageInfo.flagIconCode} flag`}
+                        percent={percent}
+                      />
+                      <Typography variant="subtitle1" fontWeight="bold" noWrap>
+                        {languageInfo.name || languageCode.toUpperCase()}
+                      </Typography>
+                    </Box>
+                    <Chip
+                      label={getStatusText(percent, t)}
+                      size="small"
+                      color={getStatusColor(percent)}
+                      variant="outlined"
+                    />
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      marginTop: 2,
+                      width: "100%",
+                    }}
+                  >
+                    <Typography variant="h5" fontWeight="bold" color="primary">
+                      {percent.toFixed(1)}%
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {languageCode.toUpperCase()}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ flex: 1, width: "100%" }}>
+                    <ProgressBar percent={percent} />
+                  </Box>
+                </StyledCardContent>
+              </SmallLanguageCard>
+            )}
+            {!isMobile && (
+              <LargeLanguageCard percent={percent} key={language.code}>
+                <StyledCardContent>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      width: "100%",
+                    }}
+                  >
+                    <FlagImage
+                      src={`https://cdn.couchers.org/img/language-icons/${languageInfo.flagIconCode}.svg`}
+                      alt={`${languageInfo.flagIconCode} flag`}
+                      percent={percent}
+                    />
+                    <Typography variant="subtitle1" fontWeight="bold" noWrap>
+                      {languageInfo.name || languageCode.toUpperCase()}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {languageCode.toUpperCase()}
+                    </Typography>
 
-                <Box sx={{ flex: 1, maxWidth: 200 }}>
-                  <ProgressBar percent={percent} />
-                </Box>
-              </Box>
-            </StyledCardContent>
-          </LanguageCard>
+                    <Box sx={{ flex: 1, minWidth: 0 }} />
+
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        minWidth: 180,
+                      }}
+                    >
+                      <Typography
+                        variant="h5"
+                        fontWeight="bold"
+                        color="primary"
+                      >
+                        {percent.toFixed(1)}%
+                      </Typography>
+                      <Chip
+                        label={getStatusText(percent, t)}
+                        size="small"
+                        color={getStatusColor(percent)}
+                        variant="outlined"
+                      />
+                    </Box>
+
+                    <Box sx={{ flex: 1, maxWidth: 200 }}>
+                      <ProgressBar percent={percent} />
+                    </Box>
+                  </Box>
+                </StyledCardContent>
+              </LargeLanguageCard>
+            )}
+          </>
         );
       })}
     </Box>
