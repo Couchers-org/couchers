@@ -27,7 +27,7 @@
     "@mui/lab": "^5.0.0-alpha.164",
     "@mui/material": "^5.16.7",
     "@mui/styles": "^5.16.7",
-    "@mui/system": "^5.17.1",
+    "@mui/system": "^5.18.0",
     "@mui/utils": "^5.16.13",
     "@mui/x-date-pickers": "^5.0.20",
     "@sentry/nextjs": "^8.47.0",
