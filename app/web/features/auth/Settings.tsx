@@ -14,8 +14,6 @@ import PushNotificationSettings from "features/notifications/PushNotificationSet
 import LanguagePickerSettings from "features/translate/LanguagePickerSettings";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
-import { useRouter } from "next/router";
-import { useEffect, useRef } from "react";
 
 import DeleteAccount from "./deletion/DeleteAccount";
 import ManageDonations from "./donations/ManageDonations";
@@ -37,27 +35,12 @@ const MarginWrapper = styled("div")(({ theme }) => ({
 
 export default function Settings() {
   const { t } = useTranslation(AUTH);
-  const router = useRouter();
-  const languageSectionRef = useRef<HTMLDivElement>(null);
 
   const {
     data: accountInfo,
     error: accountInfoError,
     isLoading: isAccountInfoLoading,
   } = useAccountInfo();
-
-  // Handle scroll to language section when hash is present
-  useEffect(() => {
-    if (router.asPath.includes("#language") && languageSectionRef.current) {
-      // Small delay to ensure the page is fully rendered
-      setTimeout(() => {
-        languageSectionRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }, 100);
-    }
-  }, [router.asPath]);
 
   return (
     <>
@@ -99,7 +82,7 @@ export default function Settings() {
           <MarginWrapper>
             <Timezone timezone={accountInfo.timezone} />
           </MarginWrapper>
-          <MarginWrapper ref={languageSectionRef} data-language-section>
+          <MarginWrapper>
             <LanguagePickerSettings />
           </MarginWrapper>
           <MarginWrapper>
