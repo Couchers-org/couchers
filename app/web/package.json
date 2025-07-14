@@ -12,6 +12,8 @@
     "start": "yarn dev",
     "format": "prettier --write '**/*.{ts,tsx,js,jsx,json,css,md}'",
     "format:check": "prettier --check '**/*.{ts,tsx,js,jsx,json,css,md}'",
+    "create-translation-files": "node scripts/create-translation-files.js",
+    "delete-translation-files": "node scripts/delete-translation-files.js",
     "jest": "jest --modulePaths=.",
     "lint": "next lint",
     "lint:fix": "next lint --fix .",

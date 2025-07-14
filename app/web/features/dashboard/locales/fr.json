@@ -1,25 +1,2 @@
 {
-  "upload_photo": "2. Ajouter une photo (en cliquant sur l'avatar sur la page de modification)",
-  "edit_profile_button_text": "Modifier votre profil",
-  "please_complete_profile": "Veuillez compléter votre profile afin d'apparaître dans les résultats de recherche:",
-  "complete_profile_dialog": {
-    "description_1": "Avant de {{action_name}}, il faut <4>écrire un peu au sujet de vous</4> dans votre profile et <7>ajouter une photo de profile</7>.",
-    "title": "Vous êtes presque là ; veuillez compléter votre profil afin de continuer !",
-    "actions": {
-      "send_request": "demander une demande à séjourner",
-      "send_message": "envoyer un message",
-      "create_event": "créer un événement"
-    },
-    "edit_profile_button": "Modifier votre profil",
-    "cancel_button": "Qu'à cela ne tienne !"
-  },
-  "fill_in_who_i_am": "1. Remplissez la section « Qui suis-je » avec quelques phrases à propos de vous",
-  "complete_profile_explanation": "Ne détestez-vous pas la façon dont les autres plateformes ont des profils « fantômes » vides et sans aucune information ? S'il vous plaît, ne nous faites pas ghosté ! 👻👻👻",
-  "dashboard": "Tableau de bord",
-  "your_communities_heading": "Vos communautés",
-  "all_communities_heading": "Toutes communautés",
-  "no_community": "Vous ne faites pas parti.e d'une communauté.",
-  "no_sub_communities": "Aucune sous-communauté.",
-  "load_more": "Afficher plus",
-  "welcome": "Soyez bienvenu.e.s à Couchers.org !"
 }
