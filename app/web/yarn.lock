@@ -1084,13 +1084,14 @@
     "@mui/utils" "^5.17.1"
     prop-types "^15.8.1"
 
-"@mui/styled-engine@^5.16.14":
-  version "5.16.14"
-  resolved "https://registry.yarnpkg.com/@mui/styled-engine/-/styled-engine-5.16.14.tgz#f90fef5b4f8ebf11d48e1b1df8854a45bb31a9f5"
-  integrity sha512-UAiMPZABZ7p8mUW4akDV6O7N3+4DatStpXMZwPlt+H/dA0lt67qawN021MNND+4QTpjaiMYxbhKZeQcyWCbuKw==
+"@mui/styled-engine@^5.18.0":
+  version "5.18.0"
+  resolved "https://registry.yarnpkg.com/@mui/styled-engine/-/styled-engine-5.18.0.tgz#914cca1385bb33ce0cde31721f529c8bd7fa301c"
+  integrity sha512-BN/vKV/O6uaQh2z5rXV+MBlVrEkwoS/TK75rFQ2mjxA7+NBo8qtTAOA4UaM0XeJfn7kh2wZ+xQw2HAx0u+TiBg==
   dependencies:
     "@babel/runtime" "^7.23.9"
     "@emotion/cache" "^11.13.5"
+    "@emotion/serialize" "^1.3.3"
     csstype "^3.1.3"
     prop-types "^15.8.1"
 
@@ -1117,14 +1118,14 @@
     jss-plugin-vendor-prefixer "^10.10.0"
     prop-types "^15.8.1"
 
-"@mui/system@^5.16.12", "@mui/system@^5.16.14", "@mui/system@^5.17.1":
-  version "5.17.1"
-  resolved "https://registry.yarnpkg.com/@mui/system/-/system-5.17.1.tgz#1f987cce91bf738545a8cf5f99152cd2728e6077"
-  integrity sha512-aJrmGfQpyF0U4D4xYwA6ueVtQcEMebET43CUmKMP7e7iFh3sMIF3sBR0l8Urb4pqx1CBjHAaWgB0ojpND4Q3Jg==
+"@mui/system@^5.16.12", "@mui/system@^5.16.14", "@mui/system@^5.18.0":
+  version "5.18.0"
+  resolved "https://registry.yarnpkg.com/@mui/system/-/system-5.18.0.tgz#e55331203a40584b26c5a855a07949ac8973bfb6"
+  integrity sha512-ojZGVcRWqWhu557cdO3pWHloIGJdzVtxs3rk0F9L+x55LsUjcMUVkEhiF7E4TMxZoF9MmIHGGs0ZX3FDLAf0Xw==
   dependencies:
     "@babel/runtime" "^7.23.9"
     "@mui/private-theming" "^5.17.1"
-    "@mui/styled-engine" "^5.16.14"
+    "@mui/styled-engine" "^5.18.0"
     "@mui/types" "~7.2.15"
     "@mui/utils" "^5.17.1"
     clsx "^2.1.0"
