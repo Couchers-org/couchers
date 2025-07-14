@@ -166,11 +166,21 @@ const mapSearchReducer = (
         state.search.bbox !== undefined ||
         state.shouldSearchByUserId;
 
-      const showEmptyProfilesSelected = state.filters.showEmptyProfile;
+      const defaultFiltersActive =
+        state.filters.showEmptyProfile ||
+        (state.filters.hostingStatus?.includes(
+          HostingStatus.HOSTING_STATUS_CAN_HOST,
+        ) &&
+          state.filters.hostingStatus?.includes(
+            HostingStatus.HOSTING_STATUS_MAYBE,
+          ) &&
+          !state.filters.hostingStatus.includes(
+            HostingStatus.HOSTING_STATUS_CANT_HOST,
+          ));
 
       return {
         ...state,
-        ...(showEmptyProfilesSelected && {
+        ...(defaultFiltersActive && {
           hasActiveFilters: false,
           filters: {
             ...state.filters,
@@ -208,11 +218,21 @@ const mapSearchReducer = (
         state.search.query !== undefined ||
         state.shouldSearchByUserId;
 
-      const isShowEmptyProfilesSelected = state.filters.showEmptyProfile;
+      const areDefaultFiltersActive =
+        state.filters.showEmptyProfile ||
+        (state.filters.hostingStatus?.includes(
+          HostingStatus.HOSTING_STATUS_CAN_HOST,
+        ) &&
+          state.filters.hostingStatus?.includes(
+            HostingStatus.HOSTING_STATUS_MAYBE,
+          ) &&
+          !state.filters.hostingStatus.includes(
+            HostingStatus.HOSTING_STATUS_CANT_HOST,
+          ));
 
       return {
         ...state,
-        ...(isShowEmptyProfilesSelected && {
+        ...(areDefaultFiltersActive && {
           hasActiveFilters: false,
           filters: {
             ...state.filters,
