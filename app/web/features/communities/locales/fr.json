@@ -1,2 +1,23 @@
 {
+  "attendees_count_0": "{{count}} participant.e",
+  "attendees_count_1": "{{count}} participant.e.s",
+  "attendees_count_2": "",
+  "by_creator": "écrit par {{name}}",
+  "cancel_event": "Annuler l'événement",
+  "show_cancelled_events": "Montrer les événements annulés",
+  "cancel_event_success_message": "L'événement a été annulé avec succès.",
+  "cancel_event_dialog": {
+    "title": "Annuleer l'événement ?",
+    "message": "Êtes-vous sûr d'annuler cet événement ?"
+  },
+  "cancelled": "Annulé",
+  "invite_community_dialog": {
+    "title": "Demander une invitation communautaire pour cet événement",
+    "message": "Utilisez ce formulaire pour demander aux modérateurs d'envoyer une notification concernant cet événement à tous les utilisateurs à proximité.",
+    "toast_success": "Merci, la demande a été soumise",
+    "link": "Plus d'informations sur cette fonctionnalité"
+  },
+  "invite_community_dialog_buttons": {
+    "open": "Inviter les membres de la communauté"
+  }
 }
