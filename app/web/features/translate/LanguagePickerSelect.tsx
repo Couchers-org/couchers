@@ -85,12 +85,7 @@ export default function LanguagePickerSelect({
   const handleTranslationProgressClick = (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    console.log("Translation progress clicked, navigating to:", translateRoute);
-
-    // Close the dropdown
     setIsOpen(false);
-
-    // Navigate to the translation page
     router.push(translateRoute);
   };
 

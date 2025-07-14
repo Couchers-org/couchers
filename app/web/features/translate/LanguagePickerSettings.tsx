@@ -5,7 +5,7 @@ import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { translateJobURL, translateRoute } from "routes";
 
-import Button from "./Button";
+import Button from "../../components/Button";
 import LanguagePickerSelect from "./LanguagePickerSelect";
 
 interface ChangeLanguageProps {
@@ -41,10 +41,7 @@ export default function LanguagePickerSettings({
         </Typography>
         <LanguagePickerSelect displayMode="rect" />
         <Typography paragraph sx={{ mt: 2 }}>
-          <Button
-            // variant="primary"
-            onClick={() => router.push(translateRoute)}
-          >
+          <Button onClick={() => router.push(translateRoute)}>
             {t("global:language_preference.translation_progress.view_progress")}
           </Button>
         </Typography>
