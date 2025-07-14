@@ -186,7 +186,7 @@ def make_clustered_users_selectable(create=False):
             # DBSCAN clustering with epsilon=.15 deg (~17 km), minpoints=5, cluster will be NULL for not in any cluster
             func.ST_ClusterDBSCAN(User.geom, 0.15, 5).over(order_by=User.id).label("cluster_id"),
         )
-        .where(User.geom != None)
+        .where(User.is_visible)
         .cte("clustered")
     )
 
