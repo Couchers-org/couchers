@@ -27,7 +27,11 @@ export default function CouchersLogo({
   }, []);
 
   // During SSR and before hydration, always use baseRoute to prevent mismatch
-  const href = isMounted ? (isLoggedIn ? dashboardRoute : baseRoute) : baseRoute;
+  const href = isMounted
+    ? isLoggedIn
+      ? dashboardRoute
+      : baseRoute
+    : baseRoute;
 
   return (
     <Link href={href}>
