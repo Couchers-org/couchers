@@ -749,7 +749,7 @@ def test_AddUsersToModerationUserList(db):
     user3, _ = generate_user()
     user4, _ = generate_user()
     user5, _ = generate_user()
-    moderation_list_id = add_users_to_new_moderation_list([user1, user2, user3])
+    moderation_list_id = add_users_to_new_moderation_list([user1])
 
     with session_scope() as session:
         with real_admin_session(super_token) as api:
@@ -757,7 +757,7 @@ def test_AddUsersToModerationUserList(db):
             with pytest.raises(grpc.RpcError) as e:
                 api.AddUsersToModerationUserList(
                     admin_pb2.AddUsersToModerationUserListReq(
-                        users=[user1.username, user2.username], moderation_list_id=999
+                        users=[user2.username], moderation_list_id=999
                     ),
                 )
             assert e.value.code() == grpc.StatusCode.NOT_FOUND
@@ -771,45 +771,48 @@ def test_AddUsersToModerationUserList(db):
             assert e.value.code() == grpc.StatusCode.NOT_FOUND
             assert errors.USER_NOT_FOUND == e.value.details()
 
-            # Test successful addition of users to moderation list
+            # Test successful creation of new moderation list (no moderation_list_id provided)
             res = api.AddUsersToModerationUserList(
                 admin_pb2.AddUsersToModerationUserListReq(
-                    users=[user1.username, user2.username], moderation_list_id=moderation_list_id
+                    users=[user1.username, user2.username, user3.username]
                 ),
             )
             assert res.moderation_list_id > 0
             with session_scope() as session:
                 moderation_user_list = session.get(ModerationUserList, res.moderation_list_id)
                 assert moderation_user_list is not None
-                assert user1.id in {user.id for user in moderation_user_list.users}
-                assert user2.id in {user.id for user in moderation_user_list.users}
+                assert len(moderation_user_list.users) == 3
+                assert {user1.id, user2.id, user3.id}.issubset({user.id for user in moderation_user_list.users})
 
-            # Test list endpoint returns same moderation list
-            listRes = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user1.username))
-            assert len(listRes.moderation_list_ids) == 1
-            assert listRes.moderation_list_ids[0] == res.moderation_list_id
+            # Test list endpoint returns same moderation list with same members not repeated
+            listRes = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user2.username))
+            assert len(listRes.moderation_lists) == 1
+            assert listRes.moderation_lists[0].moderation_list_id == res.moderation_list_id
+            assert len(listRes.moderation_lists[0].member_ids) == 3
+            assert {user1.id, user2.id, user3.id}.issubset(listRes.moderation_lists[0].member_ids)
 
-            # Test adding other users to existing moderation list
+            # Test user can be in multiple moderation lists
+            listRes3 = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user1.username))
+            assert len(listRes3.moderation_lists) == 2
+
+            # Test adding users to an existing moderation list
             res2 = api.AddUsersToModerationUserList(
                 admin_pb2.AddUsersToModerationUserListReq(
                     users=[user4.username, user5.username], moderation_list_id=moderation_list_id
                 ),
             )
-            assert res2.moderation_list_id == res.moderation_list_id
+            assert res2.moderation_list_id == moderation_list_id
             with session_scope() as session:
-                moderation_user_list = session.get(ModerationUserList, res.moderation_list_id)
-                assert user3.id in {user.id for user in moderation_user_list.users}
+                moderation_user_list = session.get(ModerationUserList, moderation_list_id)
+                assert len(moderation_user_list.users) == 3
+                assert {user1.id, user4.id, user5.id}.issubset({user.id for user in moderation_user_list.users})
 
             # Test list user moderation lists endpoint returns the right moderation list
             listRes2 = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user5.username))
-            assert len(listRes2.moderation_list_ids) == 1
-            assert listRes2.moderation_list_ids[0] == res.moderation_list_id
-
-            # Test creating a separate moderation list
-            res3 = api.AddUsersToModerationUserList(
-                admin_pb2.AddUsersToModerationUserListReq(users=[user1.username, user2.username]),
-            )
-            assert res3.moderation_list_id != res.moderation_list_id
+            assert len(listRes2.moderation_lists) == 1
+            assert listRes2.moderation_lists[0].moderation_list_id == moderation_list_id
+            assert len(listRes2.moderation_lists[0].member_ids) == 3
+            assert {user1.id, user4.id, user5.id}.issubset(listRes2.moderation_lists[0].member_ids)
 
 
 def test_RemoveUserFromModerationUserList(db):
@@ -853,9 +856,9 @@ def test_RemoveUserFromModerationUserList(db):
         
         # Test list user moderation lists endpoint returns right number of moderation lists
             listRes = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user1.username))
-            assert len(listRes.moderation_list_ids) == 0
+            assert len(listRes.moderation_lists) == 0
             listRes2 = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user2.username))
-            assert len(listRes2.moderation_list_ids) == 1
+            assert len(listRes2.moderation_lists) == 1
 
         # Test removing all users from moderation list should also delete the moderation list
         api.RemoveUserFromModerationUserList(

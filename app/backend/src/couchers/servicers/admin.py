@@ -714,8 +714,13 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-        moderation_lists_ids = [ml.id for ml in user.moderation_user_lists]
-        return admin_pb2.ListModerationUserListsRes(moderation_list_ids=moderation_lists_ids)
+        moderation_lists = [
+            admin_pb2.ModerationList(
+                moderation_list_id=ml.id,
+                member_ids=[u.id for u in ml.users]
+            ) for ml in user.moderation_user_lists
+        ]
+        return admin_pb2.ListModerationUserListsRes(moderation_lists=moderation_lists)
 
     def RemoveUserFromModerationUserList(self, request, context, session):
         """Removes a user from a provided moderation user list."""
