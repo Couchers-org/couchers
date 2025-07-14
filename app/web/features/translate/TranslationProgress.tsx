@@ -13,6 +13,7 @@ import { useWeblateStats } from "features/weblate/useWeblateStats";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
+import React from "react";
 import { translateJobURL } from "routes";
 import { theme } from "theme";
 
@@ -181,9 +182,9 @@ export default function TranslationProgress() {
         if (!languageInfo) return null;
 
         return (
-          <>
+          <React.Fragment key={language.code}>
             {isMobile && (
-              <SmallLanguageCard percent={percent} key={language.code}>
+              <SmallLanguageCard percent={percent}>
                 <StyledCardContent
                   sx={{
                     display: "flex",
@@ -239,7 +240,7 @@ export default function TranslationProgress() {
               </SmallLanguageCard>
             )}
             {!isMobile && (
-              <LargeLanguageCard percent={percent} key={language.code}>
+              <LargeLanguageCard percent={percent}>
                 <StyledCardContent>
                   <Box
                     sx={{
@@ -293,7 +294,7 @@ export default function TranslationProgress() {
                 </StyledCardContent>
               </LargeLanguageCard>
             )}
-          </>
+          </React.Fragment>
         );
       })}
     </Box>
