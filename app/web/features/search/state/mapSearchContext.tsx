@@ -1,3 +1,4 @@
+import { HostingStatus } from "proto/api_pb";
 import {
   createContext,
   Dispatch,
@@ -12,7 +13,6 @@ import {
   MapSearchAction,
   mapSearchReducer,
 } from "./mapSearchReducers";
-import { HostingStatus } from "proto/api_pb";
 
 const MapSearchContext = createContext(initialState);
 const MapSearchDispatchContext = createContext<Dispatch<MapSearchAction>>(
