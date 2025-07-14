@@ -31,11 +31,13 @@ const ProgressBar = styled(Box)<{ percent: number }>(({ theme, percent }) => ({
     height: "100%",
     width: `${percent}%`,
     backgroundColor:
-      percent >= 80
+      percent >= 100
         ? theme.palette.success.main
-        : percent >= 20
-          ? theme.palette.warning.main
-          : theme.palette.error.main,
+        : percent >= 80 && percent < 100
+          ? theme.palette.info.main
+          : percent >= 20
+            ? theme.palette.warning.main
+            : theme.palette.error.main,
     transition: "width 0.3s ease-in-out",
   },
 }));
@@ -71,15 +73,20 @@ const FlagImage = styled("img")<{ percent: number }>(({ percent }) => ({
   transition: "filter 0.2s ease-in-out",
 }));
 
-const getStatusColor = (percent: number): "success" | "warning" | "error" => {
-  if (percent >= 80) return "success";
+const getStatusColor = (
+  percent: number,
+): "success" | "info" | "warning" | "error" => {
+  if (percent >= 100) return "success";
+  if (percent >= 80 && percent < 100) return "info";
   if (percent >= 20) return "warning";
   return "error";
 };
 
 const getStatusText = (percent: number, t: (key: string) => string) => {
-  if (percent >= 80)
+  if (percent >= 100)
     return t("global:language_preference.translation_progress.complete");
+  if (percent >= 80 && percent < 100)
+    return t("global:language_preference.translation_progress.almost_there");
   if (percent >= 20)
     return t("global:language_preference.translation_progress.in_progress");
   return t("global:language_preference.translation_progress.early_stage");

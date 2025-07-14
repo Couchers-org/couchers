@@ -54,6 +54,7 @@
       "error_loading": "Failed to load translation progress",
       "no_data": "No translation data available",
       "complete": "Complete",
+      "almost_there": "Almost There",
       "in_progress": "In Progress",
       "early_stage": "Early Stage",
       "complete_percent": "{{percent}}% complete",

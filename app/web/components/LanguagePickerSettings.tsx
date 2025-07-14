@@ -1,4 +1,4 @@
-import {  Link, Typography } from "@mui/material";
+import { Link, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";

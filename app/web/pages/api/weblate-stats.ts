@@ -9,17 +9,14 @@ export default async function handler(
   }
 
   try {
-    const { projectSlug = "couchers" } = req.query;
-    const weblateApiUrl =
-      process.env.NEXT_PUBLIC_WEBLATE_API_URL ||
-      "https://translate.couchershq.org/api";
-    const url = `${weblateApiUrl}/projects/${projectSlug}/languages/`;
-
-    const response = await fetch(url, {
-      headers: {
-        Accept: "application/json",
+    const response = await fetch(
+      "https://cdn.couchers.org/api/projects/couchers/languages/",
+      {
+        headers: {
+          Accept: "application/json",
+        },
       },
-    });
+    );
 
     if (!response.ok) {
       return res.status(response.status).json({

@@ -21,8 +21,8 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
-import Link from "next/link";
 import { useRouter } from "next/router"; // we'll use this to reload the components w/ changed languages
+import { useState } from "react";
 import { useMutation } from "react-query";
 import { translateRoute } from "routes";
 import { service } from "service";
@@ -63,6 +63,8 @@ export default function LanguagePickerSelect({
 
   const { data: languages, isLoading, error } = useWeblateStats();
 
+  const [isOpen, setIsOpen] = useState(false);
+
   const { mutate: changeLanguageMutation } = useMutation<
     Empty,
     RpcError,
@@ -78,6 +80,18 @@ export default function LanguagePickerSelect({
 
     // Push new route with updated locale, keep the current asPath for display
     router.push({ pathname }, asPath, { locale: newLocale });
+  };
+
+  const handleTranslationProgressClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    console.log("Translation progress clicked, navigating to:", translateRoute);
+
+    // Close the dropdown
+    setIsOpen(false);
+
+    // Navigate to the translation page
+    router.push(translateRoute);
   };
 
   const renderFlag = (flagCode: string, percent?: number) => (
@@ -204,39 +218,40 @@ export default function LanguagePickerSelect({
           {displayMode === "round" ? (
             <StyledSelect
               id="language-select"
-              value={isLoading ? "" : (locale || "")}
+              value={isLoading ? "" : locale || ""}
               displayMode={displayMode}
               onChange={handleChange}
               // Use renderValue to display the selected language in collapsed state
               renderValue={renderValue}
               IconComponent={ExpandMoreOutlinedIcon}
               disabled={isLoading}
+              open={isOpen}
+              onOpen={() => setIsOpen(true)}
+              onClose={() => setIsOpen(false)}
             >
               {menuItems}
-              <Link
-                href={translateRoute}
-                style={{ textDecoration: "none" }}
-                onClick={(e) => {
-                  e.stopPropagation();
+              <Box
+                key="translation-progress"
+                onClick={handleTranslationProgressClick}
+                sx={{
+                  borderTop: `1px solid ${theme.palette.divider}`,
+                  mt: 1,
+                  pt: 1,
+                  px: 2,
+                  cursor: "pointer",
+                  "&:hover": {
+                    backgroundColor: "action.hover",
+                  },
                 }}
               >
-                <Box
-                  sx={{
-                    borderTop: `1px solid ${theme.palette.divider}`,
-                    mt: 1,
-                    pt: 1,
-                    px: 2,
-                    cursor: "pointer",
-                    "&:hover": {
-                      backgroundColor: "action.hover",
-                    },
-                  }}
+                <Typography
+                  color="primary"
+                  sx={{ fontWeight: "bold" }}
+                  onClick={handleTranslationProgressClick}
                 >
-                  <Typography color="primary" sx={{ fontWeight: "bold" }}>
-                    {t("global:language_preference.translation_progress.title")}
-                  </Typography>
-                </Box>
-              </Link>
+                  {t("global:language_preference.translation_progress.title")}
+                </Typography>
+              </Box>
             </StyledSelect>
           ) : (
             <StyledSelect
@@ -247,33 +262,33 @@ export default function LanguagePickerSelect({
               fullWidth={isMobile}
               onChange={handleChange}
               disabled={isLoading}
+              open={isOpen}
+              onOpen={() => setIsOpen(true)}
+              onClose={() => setIsOpen(false)}
             >
               {menuItems}
-              <Link
-                href={translateRoute}
-                style={{ textDecoration: "none" }}
-                onClick={(e) => {
-                  e.stopPropagation();
+              <Box
+                onClick={handleTranslationProgressClick}
+                sx={{
+                  borderTop: `1px solid ${theme.palette.divider}`,
+                  mt: 1,
+                  pt: 1,
+                  px: 2,
+                  py: 1,
+                  cursor: "pointer",
+                  "&:hover": {
+                    backgroundColor: "action.hover",
+                  },
                 }}
               >
-                <Box
-                  sx={{
-                    borderTop: `1px solid ${theme.palette.divider}`,
-                    mt: 1,
-                    pt: 1,
-                    px: 2,
-                    py: 1,
-                    cursor: "pointer",
-                    "&:hover": {
-                      backgroundColor: "action.hover",
-                    },
-                  }}
+                <Typography
+                  variant="body2"
+                  color="primary"
+                  onClick={handleTranslationProgressClick}
                 >
-                  <Typography variant="body2" color="primary">
-                    {t("global:language_preference.translation_progress.title")}
-                  </Typography>
-                </Box>
-              </Link>
+                  {t("global:language_preference.translation_progress.title")}
+                </Typography>
+              </Box>
             </StyledSelect>
           )}
         </FormControl>
