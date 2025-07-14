@@ -166,8 +166,18 @@ const mapSearchReducer = (
         state.search.bbox !== undefined ||
         state.shouldSearchByUserId;
 
+      const showEmptyProfilesSelected = state.filters.showEmptyProfile;
+
       return {
         ...state,
+        ...(showEmptyProfilesSelected && {
+          hasActiveFilters: false,
+          filters: {
+            ...state.filters,
+            hostingStatus: undefined,
+            showEmptyProfile: false,
+          },
+        }),
         search: {
           ...state.search,
           query: initialState.search.query,
@@ -198,8 +208,18 @@ const mapSearchReducer = (
         state.search.query !== undefined ||
         state.shouldSearchByUserId;
 
+      const isShowEmptyProfilesSelected = state.filters.showEmptyProfile;
+
       return {
         ...state,
+        ...(isShowEmptyProfilesSelected && {
+          hasActiveFilters: false,
+          filters: {
+            ...state.filters,
+            hostingStatus: undefined,
+            showEmptyProfile: false,
+          },
+        }),
         search: {
           bbox: initialState.search.bbox,
           query: initialState.search.query,

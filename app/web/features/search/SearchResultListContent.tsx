@@ -93,7 +93,6 @@ const SearchResultListContent = ({
   const shouldShowSuggestion =
     !showAlert &&
     totalItems !== undefined &&
-    totalItems <= 5 &&
     filters.showEmptyProfile === false &&
     selectedUserId === undefined;
 

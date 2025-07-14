@@ -12,6 +12,7 @@ import {
   MapSearchAction,
   mapSearchReducer,
 } from "./mapSearchReducers";
+import { HostingStatus } from "proto/api_pb";
 
 const MapSearchContext = createContext(initialState);
 const MapSearchDispatchContext = createContext<Dispatch<MapSearchAction>>(
@@ -45,7 +46,18 @@ function MapSearchProvider({
 }) {
   const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
     ...initialState,
-    search: { query: initialLocationName, bbox: initialBbox },
+    hasActiveFilters: true,
+    filters: {
+      hostingStatus: [
+        HostingStatus.HOSTING_STATUS_CAN_HOST,
+        HostingStatus.HOSTING_STATUS_MAYBE,
+      ],
+      showEmptyProfile: false,
+    },
+    search: {
+      query: initialLocationName,
+      bbox: initialBbox,
+    },
   });
 
   return (
