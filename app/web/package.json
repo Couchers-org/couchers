@@ -10,8 +10,8 @@
     "injectsourcemaps": "sentry-cli sourcemaps inject .next/",
     "dev": "next dev",
     "start": "yarn dev",
-    "format": "prettier --write *",
-    "format:check": "prettier --check '**/(*.ts|.tsx)'",
+    "format": "prettier --write '**/*.{ts,tsx,js,jsx,json,css,md}'",
+    "format:check": "prettier --check '**/*.{ts,tsx,js,jsx,json,css,md}'",
     "jest": "jest --modulePaths=.",
     "lint": "next lint",
     "lint:fix": "next lint --fix .",
@@ -27,7 +27,7 @@
     "@mui/lab": "^5.0.0-alpha.164",
     "@mui/material": "^5.16.7",
     "@mui/styles": "^5.16.7",
-    "@mui/system": "^5.17.1",
+    "@mui/system": "^5.18.0",
     "@mui/utils": "^5.16.13",
     "@mui/x-date-pickers": "^5.0.20",
     "@sentry/nextjs": "^8.47.0",
@@ -63,7 +63,7 @@
     "react-query": "^3.39.3",
     "react-simple-maps": "^3.0.0",
     "seamless-scroll-polyfill": "^2.1.8",
-    "sharp": "^0.34.2"
+    "sharp": "^0.34.3"
   },
   "devDependencies": {
     "@babel/core": "^7.27.4",
