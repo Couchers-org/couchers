@@ -17,6 +17,12 @@ import React from "react";
 import { translateJobURL } from "routes";
 import { theme } from "theme";
 
+import {
+  ALMOST_DONE_CUTOFF,
+  COMPLETE_CUTOFF,
+  HIDDEN_CUTOFF,
+} from "./constants";
+
 const ProgressBar = styled(Box)<{ percent: number }>(({ theme, percent }) => ({
   width: "100%",
   height: 8,
@@ -32,11 +38,11 @@ const ProgressBar = styled(Box)<{ percent: number }>(({ theme, percent }) => ({
     height: "100%",
     width: `${percent}%`,
     backgroundColor:
-      percent >= 100
+      percent >= COMPLETE_CUTOFF
         ? theme.palette.success.main
-        : percent >= 80 && percent < 100
+        : percent >= ALMOST_DONE_CUTOFF && percent < COMPLETE_CUTOFF
           ? theme.palette.info.main
-          : percent >= 20
+          : percent >= HIDDEN_CUTOFF
             ? theme.palette.warning.main
             : theme.palette.error.main,
     transition: "width 0.3s ease-in-out",
@@ -47,7 +53,7 @@ const LargeLanguageCard = styled(Card)<{ percent: number }>(
   ({ theme, percent }) => ({
     width: "100%",
     transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
-    opacity: percent < 20 ? 0.5 : 1,
+    opacity: percent < HIDDEN_CUTOFF ? 0.5 : 1,
     marginBottom: theme.spacing(2),
 
     "&:hover": {
@@ -61,7 +67,7 @@ const SmallLanguageCard = styled(Card)<{ percent: number }>(
   ({ theme, percent }) => ({
     width: "100%",
     transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
-    opacity: percent < 20 ? 0.5 : 1,
+    opacity: percent < HIDDEN_CUTOFF ? 0.5 : 1,
     marginBottom: theme.spacing(2),
   }),
 );
@@ -70,25 +76,25 @@ const FlagImage = styled("img")<{ percent: number }>(({ percent }) => ({
   width: 32,
   height: 24,
   borderRadius: 4,
-  filter: percent < 80 ? "grayscale(50%)" : "none",
+  filter: percent < ALMOST_DONE_CUTOFF ? "grayscale(50%)" : "none",
   transition: "filter 0.2s ease-in-out",
 }));
 
 const getStatusColor = (
   percent: number,
 ): "success" | "info" | "warning" | "error" => {
-  if (percent >= 100) return "success";
-  if (percent >= 80 && percent < 100) return "info";
-  if (percent >= 20) return "warning";
+  if (percent >= COMPLETE_CUTOFF) return "success";
+  if (percent >= ALMOST_DONE_CUTOFF && percent < COMPLETE_CUTOFF) return "info";
+  if (percent >= HIDDEN_CUTOFF) return "warning";
   return "error";
 };
 
 const getStatusText = (percent: number, t: (key: string) => string) => {
-  if (percent >= 100)
+  if (percent >= COMPLETE_CUTOFF)
     return t("global:language_preference.translation_progress.complete");
-  if (percent >= 80 && percent < 100)
+  if (percent >= ALMOST_DONE_CUTOFF && percent < COMPLETE_CUTOFF)
     return t("global:language_preference.translation_progress.almost_there");
-  if (percent >= 20)
+  if (percent >= HIDDEN_CUTOFF)
     return t("global:language_preference.translation_progress.in_progress");
   return t("global:language_preference.translation_progress.early_stage");
 };
