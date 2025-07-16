@@ -13,7 +13,7 @@ const fallbackLng = {
 module.exports = {
   i18n: {
     defaultLocale: "en",
-    localeDetection: false,
+    localeDetection: true,
     locales: allLanguages,
   },
   fallbackLng,

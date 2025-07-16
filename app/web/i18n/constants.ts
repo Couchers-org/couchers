@@ -68,6 +68,14 @@ export const LANGUAGE_MAP: LanguageMap = {
     name: "Russian",
     flagIconCode: "RU",
   },
+  sv: {
+    name: "Swedish",
+    flagIconCode: "SE",
+  },
+  uk: {
+    name: "Ukrainian",
+    flagIconCode: "UA",
+  },
   "zh-Hans": {
     name: "Chinese (Simplified)",
     flagIconCode: "CN",
