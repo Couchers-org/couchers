@@ -337,11 +337,22 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         if not node.official_cluster.events_enabled:
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENTS_NOT_ENABLED)
 
+        if not request.include_parents:
+            nodes_clusters_to_search = [(node.id, node.official_cluster)]
+        else:
+            # the first value is the node_id, the last is the cluster (object)
+            nodes_clusters_to_search = [
+                (parent[0], parent[3]) for parent in get_node_parents_recursively(session, node.id)
+            ]
+
+        membership_clauses = []
+        for node_id, official_cluster_obj in nodes_clusters_to_search:
+            membership_clauses.append(Event.owner_cluster == official_cluster_obj)
+            membership_clauses.append(Event.parent_node == node_id)
+
         # for communities, we list events owned by this community or for which this is a parent
         occurrences = (
-            select(EventOccurrence)
-            .join(Event, Event.id == EventOccurrence.event_id)
-            .where(or_(Event.owner_cluster == node.official_cluster, Event.parent_node == node))
+            select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(or_(*membership_clauses))
         )
 
         if request.past:

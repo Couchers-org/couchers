@@ -235,6 +235,8 @@ message ListGuidesRes {
 message ListEventsReq {
   int64 community_id = 1;
   bool past = 4;
+  // whether to include events in all parent communities as well
+  bool include_parents = 5;
 
   uint32 page_size = 2;
   string page_token = 3;
