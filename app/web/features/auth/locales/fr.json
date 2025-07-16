@@ -36,7 +36,8 @@
     "header": "Bienvenue de nouveau !",
     "form": {
       "password_field_label": "Mot de passe",
-      "forgot_password": "Mot de passe oublié ?"
+      "forgot_password": "Mot de passe oublié ?",
+      "remember_me": "Se souvenir de moi"
     },
     "no_account_prompt": "Pas encore de compte ? <2>Inscrivez-vous</2>"
   },
