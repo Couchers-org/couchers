@@ -78,7 +78,23 @@
         "form_title": "Sprache",
         "help_translate": "Hilf dabei couchers in deine Sprache zu übersetzen.",
         "select_language": "Sprache auswählen",
-        "success_message": "Deine Änderung wurde gespeichert."
+        "success_message": "Deine Änderung wurde gespeichert.",
+        "translation_progress": {
+            "description": "Siehe, wie vollständig unsere Übersetzungen in verschiedenen Sprachen sind. Hilf uns, Couchers für mehr Menschen weltweit zugänglich zu machen!",
+            "info_text": "💡 Sprachen die weniger als 20% übersetzt sind, werden im Sprachauswahlmenü ausgeblendet. Sprachen die 20–80% übersetzt sind, werden ausgegraut angezeigt.",
+            "title": "Übersetzungsfortschritt",
+            "help_translate": "Hilf dabei Couchers in deine Sprache zu übersetzen",
+            "loading": "Übersetzungsfortschritt wird geladen...",
+            "error_loading": "Das Laden des Übersetzungsfortschritts ist fehlgeschlagen",
+            "no_data": "Keine Übersetzungsdaten verfügbar",
+            "complete": "Vollständig",
+            "almost_there": "Fast da",
+            "in_progress": "In Bearbeitung",
+            "early_stage": "Gerade angefangen",
+            "complete_percent": "{{percent}}% fertig",
+            "view_progress": "Übersetzungsfortschritt anzeigen"
+        },
+        "error_loading_languages": "Das Laden der Sprachoptionen ist fehlgeschlagen. Bitte versuche es später erneut."
     },
     "meetup_status": {
         "wants_to_meetup": "Möchte sich treffen",
@@ -210,5 +226,6 @@
     },
     "thanks": "Danke!",
     "create_account": "Account Erstellen",
-    "join_us": "Mitmachen"
+    "join_us": "Mitmachen",
+    "error_loading_languages": "Das Laden der Sprachoptionen ist fehlgeschlagen"
 }
