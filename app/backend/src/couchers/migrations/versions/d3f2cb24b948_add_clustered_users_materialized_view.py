@@ -16,7 +16,6 @@ depends_on = None
 
 
 def upgrade():
-    op.execute("DROP MATERIALIZED VIEW clustered_users;")
     op.execute(
         """
         CREATE MATERIALIZED VIEW clustered_users AS
