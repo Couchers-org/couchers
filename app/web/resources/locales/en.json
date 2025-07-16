@@ -224,11 +224,5 @@
     "message": "Don't miss requests, responses or messages; can we send you push notifications?",
     "confirm": "Yes, please!"
   },
-  "error_loading_languages": "Failed to load language options",
-  "antibot": {
-    "note": "This site is protected by reCAPTCHA and the Google",
-    "privacy_policy": "Privacy Policy",
-    "terms_of_service": "Terms of Service",
-    "apply": "apply"
-  }
+  "error_loading_languages": "Failed to load language options"
 }
