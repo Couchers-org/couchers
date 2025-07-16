@@ -18,6 +18,8 @@ export const helpCenterURL = "https://help.couchers.org";
 export const githubUpdatesURL =
   "https://github.com/Couchers-org/couchers/commits/develop";
 
+export const translateJobURL = "https://couchers.org/volunteer/translator";
+
 export const dashboardRoute = "/dashboard";
 export const blogRoute = "/blog";
 export const faqRoute = "/faq";
@@ -40,6 +42,8 @@ export const signupRoute = "/signup";
 export const settingsRoute = "/account-settings";
 export const notificationSettingsRoute = `${settingsRoute}/notifications`;
 export const loginsSettingsRoute = `${settingsRoute}/logins`;
+
+export const translateRoute = "/translate";
 
 // profile
 export const userTabs = [

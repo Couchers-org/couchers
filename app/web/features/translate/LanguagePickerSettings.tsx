@@ -3,10 +3,10 @@ import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
+import { translateJobURL, translateRoute } from "routes";
 
+import Button from "../../components/Button";
 import LanguagePickerSelect from "./LanguagePickerSelect";
-
-const VOLUNTEER_PAGE_LINK = "https://couchers.org/volunteer/translator";
 
 interface ChangeLanguageProps {
   className?: string;
@@ -31,7 +31,7 @@ export default function LanguagePickerSettings({
         </Typography>
         <Typography variant="body1" paragraph>
           <Link
-            href={VOLUNTEER_PAGE_LINK}
+            href={translateJobURL}
             target="_blank"
             rel="noreferrer noopener"
             underline="hover"
@@ -40,6 +40,11 @@ export default function LanguagePickerSettings({
           </Link>
         </Typography>
         <LanguagePickerSelect displayMode="rect" />
+        <Typography paragraph sx={{ mt: 2 }}>
+          <Button onClick={() => router.push(translateRoute)}>
+            {t("global:language_preference.translation_progress.view_progress")}
+          </Button>
+        </Typography>
       </>
     </div>
   );

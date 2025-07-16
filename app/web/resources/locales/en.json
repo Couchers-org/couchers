@@ -44,7 +44,23 @@
     "form_title": "Language",
     "help_translate": "Help translate couchers into your language.",
     "select_language": "Select language",
-    "success_message": "Your change has been saved."
+    "success_message": "Your change has been saved.",
+    "error_loading_languages": "Failed to load language options. Please try again later.",
+    "translation_progress": {
+      "title": "Translation Progress",
+      "description": "See how complete our translations are across different languages. Help us make Couchers accessible to more people around the world!",
+      "help_translate": "Help translate couchers into your language",
+      "loading": "Loading translation progress...",
+      "error_loading": "Failed to load translation progress",
+      "no_data": "No translation data available",
+      "complete": "Complete",
+      "almost_there": "Almost There",
+      "in_progress": "In Progress",
+      "early_stage": "Early Stage",
+      "complete_percent": "{{percent}}% complete",
+      "info_text": "💡 Languages with less than 20% completion are hidden from the language picker. Languages with 20-80% completion appear greyed out.",
+      "view_progress": "View translation progress"
+    }
   },
   "meetup_status": {
     "wants_to_meetup": "Wants to meet",
@@ -207,5 +223,6 @@
   "push_notification_banner": {
     "message": "Don't miss requests, responses or messages; can we send you push notifications?",
     "confirm": "Yes, please!"
-  }
+  },
+  "error_loading_languages": "Failed to load language options"
 }
