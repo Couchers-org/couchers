@@ -1,4 +1,3 @@
-import { HostingStatus } from "proto/api_pb";
 import {
   createContext,
   Dispatch,
@@ -7,6 +6,7 @@ import {
   useReducer,
 } from "react";
 import { GeocodeResult } from "utils/hooks";
+import SearchFilters from "utils/searchFilters";
 
 import {
   initialState,
@@ -39,21 +39,17 @@ function MapSearchProvider({
   children,
   initialBbox,
   initialLocationName,
+  initialFilters,
 }: {
   children: ReactNode;
   initialBbox: GeocodeResult["bbox"] | undefined;
   initialLocationName: string | undefined;
+  initialFilters: SearchFilters;
 }) {
   const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
     ...initialState,
-    hasActiveFilters: true,
-    filters: {
-      hostingStatus: [
-        HostingStatus.HOSTING_STATUS_CAN_HOST,
-        HostingStatus.HOSTING_STATUS_MAYBE,
-      ],
-      showEmptyProfile: false,
-    },
+    hasActiveFilters: Object.keys(initialFilters).length > 0 ? true : false,
+    filters: initialFilters,
     search: {
       query: initialLocationName,
       bbox: initialBbox,

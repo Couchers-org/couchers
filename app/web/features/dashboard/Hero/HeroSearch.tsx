@@ -26,7 +26,6 @@ export default function HeroSearch() {
 
   const {
     control,
-
     formState: { errors },
   } = useForm<{ location: GeocodeResult }>({ mode: "onChange" });
 
@@ -64,6 +63,7 @@ export default function HeroSearch() {
                 HostingStatus.HOSTING_STATUS_MAYBE,
               ],
               bbox: newBbox,
+              showEmptyProfile: false,
             });
             router.push(searchRouteWithSearchQuery);
           }
