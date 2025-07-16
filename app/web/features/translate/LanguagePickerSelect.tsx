@@ -27,6 +27,7 @@ import { useMutation } from "react-query";
 import { translateRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
+
 import { ALMOST_DONE_CUTOFF, HIDDEN_CUTOFF } from "./constants";
 
 interface StyledMuiSelectProps {
@@ -96,7 +97,8 @@ export default function LanguagePickerSelect({
       src={`https://cdn.couchers.org/img/language-icons/${flagCode}.svg`}
       style={{
         width: 25,
-        filter: percent && percent < ALMOST_DONE_CUTOFF ? "grayscale(100%)" : "none",
+        filter:
+          percent && percent < ALMOST_DONE_CUTOFF ? "grayscale(100%)" : "none",
         opacity: percent && percent < ALMOST_DONE_CUTOFF ? 0.4 : 1,
       }}
     />
@@ -111,8 +113,16 @@ export default function LanguagePickerSelect({
     )
     // sort by translated percent with the >= 80 grouped at the top, then sorted alphabetically by code
     .sort((a, b) => {
-      if (a.translated_percent >= ALMOST_DONE_CUTOFF && b.translated_percent < ALMOST_DONE_CUTOFF) return -1;
-      if (a.translated_percent < ALMOST_DONE_CUTOFF && b.translated_percent >= ALMOST_DONE_CUTOFF) return 1;
+      if (
+        a.translated_percent >= ALMOST_DONE_CUTOFF &&
+        b.translated_percent < ALMOST_DONE_CUTOFF
+      )
+        return -1;
+      if (
+        a.translated_percent < ALMOST_DONE_CUTOFF &&
+        b.translated_percent >= ALMOST_DONE_CUTOFF
+      )
+        return 1;
       return a.code.localeCompare(b.code);
     });
 
@@ -153,7 +163,10 @@ export default function LanguagePickerSelect({
                 </ListItemIcon>
                 <ListItemText
                   sx={{
-                    opacity: language.translated_percent < ALMOST_DONE_CUTOFF ? 0.4 : 1,
+                    opacity:
+                      language.translated_percent < ALMOST_DONE_CUTOFF
+                        ? 0.4
+                        : 1,
                     fontWeight: "bold",
                     display: "inline",
                   }}
