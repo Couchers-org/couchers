@@ -1,22 +1,21 @@
-"""Add clustered users materialized view
+"""Update materialized views
 
-Revision ID: d3f2cb24b948
-Revises: 64d94faabb20
-Create Date: 2024-10-25 16:11:06.270916
+Revision ID: d345174cb002
+Revises: 14585a4e1868
+Create Date: 2025-07-15 22:26:20.565635
 
 """
 
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "d3f2cb24b948"
-down_revision = "64d94faabb20"
+revision = "d345174cb002"
+down_revision = "14585a4e1868"
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
-    op.execute("DROP MATERIALIZED VIEW clustered_users;")
     op.execute(
         """
         CREATE MATERIALIZED VIEW clustered_users AS
@@ -26,7 +25,7 @@ def upgrade():
                 users.geom AS geom,
                 ST_ClusterDBSCAN(users.geom, 0.15, 5) OVER (ORDER BY users.id) AS cluster_id
             FROM users
-            WHERE users.geom IS NOT NULL
+            WHERE NOT (users.is_banned OR users.is_deleted)
         )
         SELECT
             ST_Centroid(ST_Collect(clustered.geom)) AS geom,
@@ -46,4 +45,4 @@ def upgrade():
 
 
 def downgrade():
-    op.execute("DROP MATERIALIZED VIEW clustered_users")
+    raise Exception("Can't downgrade")
