@@ -32,10 +32,10 @@ export interface UserSearchFilters {
   lastActive?: number; //within x days
   hasReferences?: boolean;
   hasStrongVerification?: boolean;
-  hostingStatusOptions?: HostingStatus[];
+  hostingStatus?: HostingStatus[];
   meetupStatus?: MeetupStatus[];
   numGuests?: number;
-  completeProfile?: boolean;
+  showEmptyProfile?: boolean;
   pageNumber?: number;
   pageSize?: number;
   selectedUserId?: number;
@@ -56,10 +56,10 @@ function constructUserSearchReq(
     lastActive,
     hasReferences,
     hasStrongVerification,
-    hostingStatusOptions,
+    hostingStatus,
     meetupStatus,
     numGuests,
-    completeProfile,
+    showEmptyProfile,
     selectedUserId,
     sleepingArrangement,
     smokesAtHome,
@@ -109,8 +109,12 @@ function constructUserSearchReq(
     req.setLastActive(timestamp);
   }
 
-  if (completeProfile) {
-    req.setProfileCompleted(new BoolValue().setValue(completeProfile));
+  if (showEmptyProfile !== undefined) {
+    req.setProfileCompleted(
+      showEmptyProfile
+        ? undefined
+        : new BoolValue().setValue(!showEmptyProfile),
+    );
   }
 
   if (hasReferences) {
@@ -121,8 +125,8 @@ function constructUserSearchReq(
     req.setOnlyWithStrongVerification(hasStrongVerification);
   }
 
-  if (hostingStatusOptions && hostingStatusOptions.length > 0) {
-    req.setHostingStatusFilterList(hostingStatusOptions);
+  if (hostingStatus && hostingStatus.length > 0) {
+    req.setHostingStatusFilterList(hostingStatus);
   }
 
   if (meetupStatus && meetupStatus.length > 0) {
