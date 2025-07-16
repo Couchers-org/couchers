@@ -45,6 +45,7 @@ export default function FlagButton({
   } = useForm<ReportInput>();
 
   const reason = watch("reason");
+  const description = watch("description");
   const requiredReasons = useMemo(
     () => [
       t("report.flag.reason.other"),
@@ -210,7 +211,7 @@ export default function FlagButton({
                       t("report.flag.reason.guidelines_breach"),
                       t("report.flag.reason.other"),
                     ].map((option) => (
-                      <option value={t(option, { lng: "en" })} key={option}>
+                      <option value={option} key={option}>
                         {option}
                       </option>
                     ))}
@@ -222,6 +223,7 @@ export default function FlagButton({
                 defaultValue={""}
                 name="description"
                 rules={{
+                  required: requiredReasons.includes(reason),
                   validate: (value) => {
                     // Only require description if reason is in requiredReasons
                     if (requiredReasons.includes(reason)) {
@@ -257,9 +259,6 @@ export default function FlagButton({
             </FormControl>
           </DialogContent>
           <DialogActions>
-            <Button type="submit" loading={isLoading} onClick={onSubmit}>
-              {t("submit")}
-            </Button>
             <Button
               onClick={() => handleClose({}, "button")}
               variant="outlined"
@@ -274,6 +273,16 @@ export default function FlagButton({
               }}
             >
               {t("cancel")}
+            </Button>
+            <Button
+              type="submit"
+              disabled={
+                !reason || (requiredReasons.includes(reason) && !description)
+              }
+              loading={isLoading}
+              onClick={onSubmit}
+            >
+              {t("submit")}
             </Button>
           </DialogActions>
         </form>
