@@ -203,9 +203,7 @@
     "title": "É necessária mais informação"
   },
   "login_prompt": "Clica aqui para entrar",
-  "introduction_title": "Junta-te a nós e ajuda a alimentar a nova alternativa ao Couchsurfing™",
   "reset_password": "Redefinir palavra-passe",
   "about_us": "Sobre nós",
-  "unhandled_sign_up_state": "Erro: unhandled signup flow state.",
-  "introduction_subtitle": "Grátis para sempre. Gerido pela comunidade. Sem fins lucrativos. Moderno."
+  "unhandled_sign_up_state": "Erro: unhandled signup flow state."
 }
