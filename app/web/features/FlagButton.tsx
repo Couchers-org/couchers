@@ -125,8 +125,6 @@ export default function FlagButton({
     };
 
     reportContent({ ...data, reason: reasonMap[data.reason] });
-    resetForm();
-    setIsOpen(false);
   });
 
   const handleFlagButtonClick = (event: { preventDefault: () => void }) => {

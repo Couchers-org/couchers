@@ -214,7 +214,7 @@ describe("User page", () => {
         expect(blockUserMock).not.toHaveBeenCalled();
       });
 
-      it.only("shows an error alert if the report user request failed to submit", async () => {
+      it("shows an error alert if the report user request failed to submit", async () => {
         jest.spyOn(console, "error").mockReturnValue(undefined);
         reportContentMock.mockRejectedValue(new Error("API error"));
         const reason = "Sexualized content or behavior";
