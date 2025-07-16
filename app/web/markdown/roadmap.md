@@ -239,7 +239,7 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="3"</td>
-      <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Create New Moderation Dashboard</td>
+      <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Create New Moderation Dashboard for Mods</td>
     </tr>
     <tr >
       <td colspan="3"</td>
