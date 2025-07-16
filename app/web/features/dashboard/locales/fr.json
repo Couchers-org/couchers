@@ -22,5 +22,11 @@
   "no_community": "Vous ne faites pas parti.e d'une communauté.",
   "no_sub_communities": "Aucune sous-communauté.",
   "load_more": "Afficher plus",
-  "welcome": "Soyez bienvenu.e.s à Couchers.org !"
+  "welcome": "Soyez bienvenu.e.s à Couchers.org !",
+  "new_pill": "Nouveau",
+  "member_count_0": "{{count}} membre",
+  "member_count_1": "{{count}} membres",
+  "member_count_2": "",
+  "profile_summary_edit": "Modifier",
+  "profile_summary_view": "Voir mon profil"
 }
