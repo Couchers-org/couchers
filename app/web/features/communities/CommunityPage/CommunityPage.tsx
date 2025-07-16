@@ -90,8 +90,12 @@ export default function CommunityPage({
                   {t("communities:community_header", { name: community.name })}
                 </Typography>
                 <InfoPageSection community={community} />
-                <EventsSection community={community} />
-                <DiscussionsSection community={community} />
+                {community.eventsEnabled && (
+                  <EventsSection community={community} />
+                )}
+                {community.discussionsEnabled && (
+                  <DiscussionsSection community={community} />
+                )}
               </>
             ) : tab === "info" ? (
               edit ? (

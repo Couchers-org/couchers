@@ -104,6 +104,8 @@ def communities_to_pb(session, nodes: list[Node], context):
             admin_count=admin_counts.get(official_cluster.id, 1),
             main_page=page_to_pb(session, official_cluster.main_page, context),
             can_moderate=can_moderate,
+            discussions_enabled=official_cluster.discussions_enabled,
+            events_enabled=official_cluster.events_enabled,
         )
         for node, official_cluster, can_moderate in zip(nodes, official_clusters, can_moderates)
     ]
@@ -332,6 +334,8 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+        if not node.official_cluster.events_enabled:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENTS_NOT_ENABLED)
 
         # for communities, we list events owned by this community or for which this is a parent
         occurrences = (
@@ -363,6 +367,8 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+        if not node.official_cluster.discussions_enabled:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DISCUSSIONS_NOT_ENABLED)
         discussions = (
             node.official_cluster.owned_discussions.where(or_(Discussion.id <= next_page_id, next_page_id == 0))
             .order_by(Discussion.id.desc())

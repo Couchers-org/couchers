@@ -108,6 +108,8 @@ message Community {
   uint32 admin_count = 11;
   uint32 nearby_user_count = 12;
   bool can_moderate = 13;
+  bool discussions_enabled = 14;
+  bool events_enabled = 15;
 }
 
 message GetCommunityReq {
