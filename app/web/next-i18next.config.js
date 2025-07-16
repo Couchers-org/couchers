@@ -3,11 +3,11 @@ const { allLanguages } = require("./i18n/allLanguages");
 
 const fallbackLng = {
   default: ["en"],
-  zh: ["zh-Hans", "en"],
-  "zh-CN": ["zh-Hans", "en"],
-  "zh-HK": ["zh-Hant", "zh-Hans", "en"],
-  "zh-SG": ["zh-Hans", "zh-Hant", "en"],
-  "zh-TW": ["zh-Hant", "zh-Hans", "en"],
+  "es-419": ["es", "en"],
+  "fr-CA": ["fr", "en"],
+  pt: ["pt-BR", "en"],
+  "pt-BR": ["pt", "en"],
+  "zh-Hant": ["zh-Hans", "en"],
 };
 
 module.exports = {

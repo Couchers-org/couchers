@@ -496,17 +496,20 @@ function findEnJsonFiles(dir, baseDir = "") {
 }
 
 function createTranslationFile(filePath, languageCode) {
-  const targetPath = filePath.replace("en.json", `${languageCode}.json`);
+  const targetPath = filePath.replace(
+    "en.json",
+    `${languageCode.replace("-", "_")}.json`,
+  );
 
   // Create directory if it doesn't exist
   const targetDir = path.dirname(targetPath);
   if (!fs.existsSync(targetDir)) {
     fs.mkdirSync(targetDir, { recursive: true });
-  }
 
-  // Create empty JSON file
-  fs.writeFileSync(targetPath, "{\n}\n");
-  console.log(`✅ Created: ${targetPath}`);
+    // Create empty JSON file
+    fs.writeFileSync(targetPath, "{\n}\n");
+    console.log(`✅ Created: ${targetPath}`);
+  }
 }
 
 function getLanguageName(code) {
@@ -632,7 +635,9 @@ function addToConstants(languageCode, languageName, flagCode) {
     ];
 
     // Insert the new entry
-    lines.splice(insertIndex, 0, ...newEntry);
+    if (!content.includes(`"${languageCode}"`)) {
+      lines.splice(insertIndex, 0, ...newEntry);
+    }
 
     // Write back to file
     fs.writeFileSync(constantsPath, lines.join("\n"));
