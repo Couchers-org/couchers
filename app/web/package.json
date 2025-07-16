@@ -32,6 +32,8 @@
     "@mui/x-date-pickers": "^5.0.20",
     "@sentry/nextjs": "^8.47.0",
     "@sentry/react": "^8.51.0",
+    "@statsig/react-bindings": "^3.18.2",
+    "@statsig/web-analytics": "^3.18.2",
     "@stripe/stripe-js": "^7.4.0",
     "@toast-ui/editor": "^3.2.2",
     "classnames": "^2.5.1",

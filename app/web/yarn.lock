@@ -1918,6 +1918,34 @@
   dependencies:
     "@sinonjs/commons" "^3.0.0"
 
+"@statsig/client-core@3.18.2":
+  version "3.18.2"
+  resolved "https://registry.yarnpkg.com/@statsig/client-core/-/client-core-3.18.2.tgz#6047aae9b2d39780db5e61cfbd51a24a4d7392fb"
+  integrity sha512-cGhlE6TCohwqdeD0qy8dzlvKEv2ZRQzfkOvcTy3nNO+IEORRWxHuJ6uLUY3OrJPjaVysQpoARifK8ynqP55UpQ==
+
+"@statsig/js-client@3.18.2":
+  version "3.18.2"
+  resolved "https://registry.yarnpkg.com/@statsig/js-client/-/js-client-3.18.2.tgz#4deb2000a22c215c67e43bceb11b35ff309848ea"
+  integrity sha512-Mb4A1VbETN8dh/8/3i+90HBE09E9g1VKtyDgYTk0MCkkPOqgUQZBHBGm4OBzyUkj6GjjOI57YYEWW0gjlJKTXA==
+  dependencies:
+    "@statsig/client-core" "3.18.2"
+
+"@statsig/react-bindings@^3.18.2":
+  version "3.18.2"
+  resolved "https://registry.yarnpkg.com/@statsig/react-bindings/-/react-bindings-3.18.2.tgz#2dbd484edbe89da93b57162b419efc4a4f5e997b"
+  integrity sha512-FeVEPuM/9wvS0zNIMONHnsQLhcxhoLSnKCQzh/pKGya2dffHmFH8g2VeIiwch54FnKWhcA6UpxG0vjhhgt17/Q==
+  dependencies:
+    "@statsig/client-core" "3.18.2"
+    "@statsig/js-client" "3.18.2"
+
+"@statsig/web-analytics@^3.18.2":
+  version "3.18.2"
+  resolved "https://registry.yarnpkg.com/@statsig/web-analytics/-/web-analytics-3.18.2.tgz#341f5c3a149e004cbd7d33759ad5b3a421a3d405"
+  integrity sha512-YEnT01Z4DAKbWhUg/LJxsMO3E2HBVNlBnMhYbigyQDvfurIlkNq1wjdseENU2DRbmnLKF7c5vem4jd0u8n7KbA==
+  dependencies:
+    "@statsig/client-core" "3.18.2"
+    "@statsig/js-client" "3.18.2"
+
 "@stripe/stripe-js@^7.4.0":
   version "7.4.0"
   resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-7.4.0.tgz#0076116ca6f994f40aa439ccf2e891a251ff2814"

@@ -22,6 +22,12 @@ import TagManager from "react-gtm-module";
 import { polyfill } from "seamless-scroll-polyfill";
 import { theme } from "theme";
 
+import {
+  LogLevel,
+  StatsigProvider,
+} from "@statsig/react-bindings";
+import { StatsigAutoCapturePlugin } from '@statsig/web-analytics';
+
 type AppWithLayoutProps = Omit<AppProps, "Component"> & {
   Component: AppProps["Component"] & {
     getLayout: (page: ReactNode) => ReactNode;
