@@ -55,7 +55,7 @@
       }
     },
     "empty_profile_filters": {
-      "title": "Hide empty profiles"
+      "title": "Show empty profiles"
     },
     "general_filters": {
       "accepts_last_minute_requests": "Accepts last minute requests",
@@ -77,7 +77,9 @@
     "no_user_result_message": "No users found. Try removing some filters to see more results.",
     "show_user_button_label": "Show {{name}} on the map",
     "missing_about_description": "{{name}} hasn't said anything about themselves yet",
-    "people_found_message": "Showing {{numberOfTotal}} from {{totalItems}} people found"
+    "people_found_message": "Showing {{numberOfTotal}} from {{totalItems}} people found",
+    "few_results_suggestion": "By default, empty and \"can't host\" profiles are hidden.",
+    "include_empty_profiles_button": "Show all profiles"
   },
   "views": {
     "choose_map_view": "Choose map view",

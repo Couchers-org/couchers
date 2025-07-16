@@ -10,6 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import { BlueSkyIcon } from "components/Icons";
+import ReportButton from "components/Navigation/ReportButton";
 import StyledLink from "components/StyledLink";
 import AntibotNote from "features/antibot/AntibotNote";
 import { Trans, useTranslation } from "i18n";
@@ -17,6 +18,7 @@ import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { ReactNode } from "react";
 import {
+  baseRoute,
   blogRoute,
   builtWithRoute,
   contactRoute,
@@ -183,6 +185,7 @@ export default function Footer() {
             </Typography>
             <FooterLink href={blogRoute}>{t("nav.blog")}</FooterLink>
             <FooterLink href={teamRoute}>{t("nav.our_team")}</FooterLink>
+            <FooterLink href={baseRoute}>{t("nav.landing_page")}</FooterLink>
             <FooterLink href={eventsRoute}>
               {t("nav.show_all_events")}
             </FooterLink>
@@ -195,6 +198,7 @@ export default function Footer() {
             <FooterLink href={foundationRoute}>{t("legal_name")}</FooterLink>
             <FooterLink href={builtWithRoute}>{t("nav.built_with")}</FooterLink>
             <FooterLink href={contactRoute}>{t("nav.contact_us")}</FooterLink>
+            <ReportButton isMenuLink />
           </div>
           <StyledButtonContainer>
             <Link href={donationsRoute} passHref legacyBehavior>

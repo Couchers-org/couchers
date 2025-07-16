@@ -23,6 +23,7 @@ from couchers.models import (
     Notification,
     NotificationDeliveryType,
     ParkingDetails,
+    RateLimitAction,
     Reference,
     RegionLived,
     RegionVisited,
@@ -33,6 +34,7 @@ from couchers.models import (
 )
 from couchers.notifications.notify import notify
 from couchers.notifications.settings import get_topic_actions_by_delivery_type
+from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
 from couchers.servicers.account import get_strong_verification_fields
 from couchers.sql import couchers_select as select
@@ -669,6 +671,12 @@ class API(api_pb2_grpc.APIServicer):
             is not None
         ):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.FRIENDS_ALREADY_OR_PENDING)
+
+        # Check if user has been sending friend requests excessively
+        if process_rate_limits_and_check_abort(
+            session=session, user_id=context.user_id, action=RateLimitAction.friend_request
+        ):
+            context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.FRIEND_REQUEST_RATE_LIMIT)
 
         # TODO: Race condition where we can create two friend reqs, needs db constraint! See comment in table
 

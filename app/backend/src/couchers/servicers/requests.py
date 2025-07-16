@@ -15,8 +15,9 @@ from couchers.metrics import (
     host_requests_sent_counter,
     sent_messages_counter,
 )
-from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
+from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, RateLimitAction, User
 from couchers.notifications.notify import notify
+from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.servicers.api import response_rate_to_pb, user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import (
@@ -163,6 +164,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         if to_date - from_date > timedelta(days=365):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_TO_AFTER_ONE_YEAR)
+
+        # Check if user has been sending host requests excessively
+        if process_rate_limits_and_check_abort(
+            session=session, user_id=context.user_id, action=RateLimitAction.host_request
+        ):
+            context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.HOST_REQUEST_RATE_LIMIT)
 
         conversation = Conversation()
         session.add(conversation)

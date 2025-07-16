@@ -2,6 +2,7 @@ import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 import {
   Alert,
   Box,
+  Button,
   IconButton,
   styled,
   Typography,
@@ -16,6 +17,7 @@ import { theme } from "theme";
 
 import SearchResultUserCard from "./SeachResultUserCard";
 import { useMapSearchState } from "./state/mapSearchContext";
+import { useMapSearchActions } from "./state/useMapSearchActions";
 import { MapViews } from "./utils/constants";
 
 interface SearchResultListContentProps {
@@ -54,7 +56,7 @@ const UserCardsWrapper = styled("div")(({ theme }) => ({
 }));
 
 const StyledCardWrapper = styled("div")(({ theme }) => ({
-  height: `${DEFAULT_DRAWER_WIDTH - 90}px`,
+  height: `${DEFAULT_DRAWER_WIDTH - 75}px`,
   display: "flex",
 
   [theme.breakpoints.down("md")]: {
@@ -84,7 +86,23 @@ const SearchResultListContent = ({
   const { t } = useTranslation([SEARCH]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const { selectedUserId } = useMapSearchState();
+  const { filters, selectedUserId } = useMapSearchState();
+
+  const { setSearchFilters } = useMapSearchActions();
+
+  const shouldShowSuggestion =
+    !showAlert &&
+    totalItems !== undefined &&
+    filters.showEmptyProfile === false &&
+    selectedUserId === undefined;
+
+  const handleIncludeEmptyProfilesClick = () => {
+    setSearchFilters({
+      ...filters,
+      hostingStatus: undefined,
+      showEmptyProfile: true,
+    });
+  };
 
   return (
     <ListContentWrapper showTopSpace={showTopSpace}>
@@ -163,6 +181,30 @@ const SearchResultListContent = ({
           </IconButton>
         )}
       </CenteredRow>
+      {shouldShowSuggestion && (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: theme.spacing(1),
+            padding: theme.spacing(1, 0),
+            marginBottom: theme.spacing(2),
+          }}
+        >
+          <Typography variant="body2">
+            {t("search:search_result.few_results_suggestion")}
+          </Typography>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={handleIncludeEmptyProfilesClick}
+            sx={{ backgroundColor: theme.palette.primary.main }}
+          >
+            {t("search:search_result.include_empty_profiles_button")}
+          </Button>
+        </Box>
+      )}
       <UserCardsWrapper>
         {users?.map((user) => (
           <StyledCardWrapper

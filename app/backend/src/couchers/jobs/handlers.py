@@ -5,6 +5,7 @@ Background job servicers
 import logging
 from datetime import date, timedelta
 from math import cos, pi, sin, sqrt
+from random import sample
 
 import requests
 from google.protobuf import empty_pb2
@@ -32,6 +33,7 @@ from couchers.constants import (
     ACTIVENESS_PROBE_EXPIRY_TIME,
     ACTIVENESS_PROBE_INACTIVITY_PERIOD,
     ACTIVENESS_PROBE_TIME_REMINDERS,
+    EVENT_REMINDER_TIMEDELTA,
     HOST_REQUEST_MAX_REMINDERS,
     HOST_REQUEST_REMINDER_INTERVAL,
 )
@@ -60,6 +62,8 @@ from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
+    EventOccurrence,
+    EventOccurrenceAttendee,
     GroupChat,
     GroupChatSubscription,
     HostingStatus,
@@ -87,6 +91,7 @@ from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.conversations import generate_message_notifications
 from couchers.servicers.discussions import generate_create_discussion_notifications
 from couchers.servicers.events import (
+    event_to_pb,
     generate_event_cancel_notifications,
     generate_event_create_notifications,
     generate_event_delete_notifications,
@@ -959,6 +964,20 @@ def send_activeness_probes(payload):
                 .all()
             )
 
+            total_users = session.execute(select(func.count()).select_from(User).where(User.is_visible)).scalar_one()
+            probes_today = session.execute(
+                select(func.count())
+                .select_from(ActivenessProbe)
+                .where(func.now() - ActivenessProbe.probe_initiated < timedelta(hours=24))
+            ).scalar_one()
+
+            # send probes to max 2% of users per day
+            max_probes_per_day = 0.02 * total_users
+            max_probe_size = int(max(min(max_probes_per_day - probes_today, max_probes_per_day / 24), 1))
+
+            if len(new_probe_user_ids) > max_probe_size:
+                new_probe_user_ids = sample(new_probe_user_ids, max_probe_size)
+
             for user_id in new_probe_user_ids:
                 session.add(ActivenessProbe(user_id=user_id))
 
@@ -1008,7 +1027,7 @@ def send_activeness_probes(payload):
             probe.responded = now()
             probe.response = ActivenessProbeStatus.expired
             if probe.user.hosting_status == HostingStatus.can_host:
-                probe.user.hosting_status = HostingStatus.cant_host
+                probe.user.hosting_status = HostingStatus.maybe
             if probe.user.meetup_status == MeetupStatus.wants_to_meetup:
                 probe.user.meetup_status = MeetupStatus.open_to_meetup
             session.commit()
@@ -1055,3 +1074,49 @@ def update_randomized_locations(payload):
 
 update_randomized_locations.PAYLOAD = empty_pb2.Empty
 update_randomized_locations.SCHEDULE = timedelta(hours=1)
+
+
+def send_event_reminders(payload: empty_pb2.Empty):
+    """
+    Sends reminders for events that are 24 hours away to users who marked themselves as attending.
+    """
+    logger.info("Sending event reminder emails")
+
+    with session_scope() as session:
+        occurrences = (
+            session.execute(
+                select(EventOccurrence)
+                .where(EventOccurrence.start_time <= now() + EVENT_REMINDER_TIMEDELTA)
+                .where(EventOccurrence.start_time >= now())
+            )
+            .scalars()
+            .all()
+        )
+
+        for occurrence in occurrences:
+            results = session.execute(
+                select(User, EventOccurrenceAttendee)
+                .join(EventOccurrenceAttendee, EventOccurrenceAttendee.user_id == User.id)
+                .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
+                .where(EventOccurrenceAttendee.reminder_sent == False)
+            ).all()
+
+            for user, attendee in results:
+                context = make_user_context(user_id=user.id)
+
+                notify(
+                    session,
+                    user_id=user.id,
+                    topic_action="event:reminder",
+                    data=notification_data_pb2.EventReminder(
+                        event=event_to_pb(session, occurrence, context),
+                        user=user_model_to_pb(user, session, context),
+                    ),
+                )
+
+                attendee.reminder_sent = True
+                session.commit()
+
+
+send_event_reminders.PAYLOAD = empty_pb2.Empty
+send_event_reminders.SCHEDULE = timedelta(hours=1)

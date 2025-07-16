@@ -2,6 +2,7 @@ import {
   ListItemAvatar,
   ListItemText,
   Skeleton,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/system";
@@ -80,32 +81,47 @@ export default function UserSummary({
     },
   );
 
+  const nameValue =
+    user && user.name
+      ? user.name.length > 20
+        ? user.name.slice(0, 20) + "..."
+        : user.name
+      : "";
+
+  const cityValue =
+    user && "city" in user && typeof user.city === "string"
+      ? user.city.length > 120
+        ? user.city.slice(0, 120) + "..."
+        : user.city
+      : "";
+
   const title = (
-    <Typography
-      component={headlineComponentWithRef}
-      variant="h2"
-      noWrap={nameOnly}
-      sx={{
-        marginTop: "auto",
-        fontSize: "1.2rem",
-      }}
-    >
-      {!user ? (
-        <Skeleton
-          data-testid={USER_TITLE_SKELETON_TEST_ID}
-          sx={{ maxWidth: 300 }}
-        />
-      ) : (
-        <>
-          {nameOnly
-            ? user.name
-            : `${user.name}${"age" in user ? `, ${user.age}` : ""}`}
-          {"hasStrongVerification" in user && user.hasStrongVerification ? (
-            <StrongVerificationBadge />
-          ) : null}
-        </>
-      )}
-    </Typography>
+    <Tooltip title={user?.name} arrow placement="top">
+      <Typography
+        component={headlineComponentWithRef}
+        variant="h2"
+        noWrap={nameOnly}
+        sx={{ marginTop: "auto", fontSize: "1.2rem" }}
+      >
+        {!user ? (
+          <Skeleton
+            data-testid={USER_TITLE_SKELETON_TEST_ID}
+            sx={{ maxWidth: 300 }}
+          />
+        ) : (
+          <>
+            {nameOnly
+              ? nameValue
+              : `${nameValue}${user && "age" in user ? `, ${user.age}` : ""}`}
+            {user &&
+            "hasStrongVerification" in user &&
+            user.hasStrongVerification ? (
+              <StrongVerificationBadge />
+            ) : null}
+          </>
+        )}
+      </Typography>
+    </Tooltip>
   );
 
   return (
@@ -141,13 +157,19 @@ export default function UserSummary({
         secondary={
           <>
             {!nameOnly && (
-              <Typography
-                color="textSecondary"
-                variant="body1"
-                noWrap={nameOnly}
+              <Tooltip
+                title={(user as LiteUser.AsObject)?.city}
+                arrow
+                placement="top"
               >
-                {!user ? <Skeleton /> : "city" in user ? user.city : null}
-              </Typography>
+                <Typography
+                  color="textSecondary"
+                  variant="body1"
+                  noWrap={nameOnly}
+                >
+                  {!user ? <Skeleton /> : cityValue}
+                </Typography>
+              </Tooltip>
             )}
             {children}
           </>

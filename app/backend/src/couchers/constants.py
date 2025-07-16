@@ -10,6 +10,21 @@ GUIDELINES_VERSION = 1
 
 EMAIL_REGEX = r"^[0-9a-z][0-9a-z\-\_\+\.]*@([0-9a-z\-]+\.)*[0-9a-z\-]+\.[a-z]{2,}$"
 
+BANNED_USERNAME_PHRASES = [
+    "admin",
+    "couchers",
+    "help",
+    "moderation",
+    "moderator",
+    "noreply",
+    "official",
+    "security",
+    "staff",
+    "support",
+    "system",
+    "team",
+]
+
 # expiry time for a verified phone number
 PHONE_VERIFICATION_LIFETIME = timedelta(days=2 * 365)
 
@@ -49,3 +64,5 @@ HOST_REQUEST_MAX_REMINDERS = 1
 HOST_REQUEST_REMINDER_INTERVAL = timedelta(days=2)
 
 ANTIBOT_FREQ = timedelta(hours=48)
+
+EVENT_REMINDER_TIMEDELTA = timedelta(hours=24)

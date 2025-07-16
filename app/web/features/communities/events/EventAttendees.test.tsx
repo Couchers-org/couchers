@@ -43,11 +43,11 @@ describe("Event attendees", () => {
     ).toBeVisible();
     expect(
       await screen.findByRole("heading", {
-        name: "Funny Cat current User, 28",
+        name: "Funny Cat current User",
       }),
     ).toBeVisible();
     expect(
-      await screen.findByRole("heading", { name: "Funny Chicken, 28" }),
+      await screen.findByRole("heading", { name: "Funny Chicken" }),
     ).toBeVisible();
   });
 
@@ -76,10 +76,10 @@ describe("Event attendees", () => {
         await screen.findByRole("dialog", { name: t("communities:attendees") }),
       ).toBeVisible();
       expect(
-        await screen.findByRole("heading", { name: "Funny Dog, 35" }),
+        await screen.findByRole("heading", { name: "Funny Dog" }),
       ).toBeVisible();
       expect(
-        await screen.findByRole("heading", { name: "Funny Kid, 28" }),
+        await screen.findByRole("heading", { name: "Funny Kid" }),
       ).toBeVisible();
     });
 
@@ -103,11 +103,11 @@ describe("Event attendees", () => {
 
       expect(
         await screen.findByRole("heading", {
-          name: "Funny Cat current User, 28",
+          name: "Funny Cat current User",
         }),
       ).toBeVisible();
       expect(
-        await screen.findByRole("heading", { name: "Funny Chicken, 28" }),
+        await screen.findByRole("heading", { name: "Funny Chicken" }),
       ).toBeVisible();
     });
 

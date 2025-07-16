@@ -88,7 +88,7 @@
   },
   "reset_password_form": {
     "success_message": "Überprüfe deine E-Mail-Adresse, für einen Link, um das Passwort zurückzusetzen!",
-    "enter_email": "Gib deinen Benutzernamen/deine E-Mail-Adresse ein"
+    "enter_email": "Benutzernamen/E-Mail-Adresse eingeben"
   },
   "login_page": {
     "title": "Einloggen",
@@ -111,8 +111,6 @@
   "sign_up_confirmed_prompt": "Du hast alles erledigt! Falls du nicht weitergeleitet wirst, versuche dich einzuloggen.",
   "login_prompt": "Klicke hier, um dich einzuloggen",
   "about_us": "Über uns",
-  "introduction_subtitle": "Für immer kostenlos. Gemeinschaftsgeführt. Gemeinnützig. Modern.",
-  "introduction_title": "Tritt uns bei und unterstütze uns darin, die neue Alternative zu Couchsurfing™ zu etablieren",
   "reset_password": "Passwort zurücksetzen",
   "account_settings_page": {
     "birth_date_section": {
@@ -136,10 +134,10 @@
     "title": "Kontoeinstellungen"
   },
   "feature_preview": {
-    "disclaimer": "Bitte beachte, dass diese Features experimentell sind. Sie funktionieren vielleicht nicht wie vorgesehen und können sich während der Entwicklung noch stark ändern. Gib uns gerne Feedback dazu, indem du die Schaltfläche \"Problem melden\" verwendest um Bugs zu melden!",
+    "disclaimer": "Bitte beachte, dass diese Features experimentell sind. Sie funktionieren vielleicht nicht wie vorgesehen und können sich während der Entwicklung noch stark ändern. Gib uns gerne Feedback dazu, indem du die Schaltfläche \"Ein Problem melden\" verwendest um Bugs zu melden!",
     "no_previews": {
       "explanation": "Es gibt derzeit keine aktiven Features zur Vorschau, bitte schau zu einem späteren Zeitpunkt wieder vorbei!",
-      "title": "Keine Features derzeit in der Vorschau"
+      "title": "Momentan gibt es keine Features in der Vorschau"
     },
     "title": "Feature-Vorschau",
     "explanation": "Diese Seite ermöglicht es dir Features auszuprobieren, die in Entwicklung und noch nicht für den allgemeinen Nutzen bereit sind."

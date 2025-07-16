@@ -27,7 +27,7 @@ from sqlalchemy.dialects.postgresql import INET, TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, deferred, relationship
-from sqlalchemy.sql import and_, func, not_, text
+from sqlalchemy.sql import and_, expression, func, not_, text
 from sqlalchemy.sql import select as sa_select
 
 from couchers import urls
@@ -2165,6 +2165,8 @@ class EventOccurrenceAttendee(Base):
     user = relationship("User")
     occurrence = relationship("EventOccurrence", backref=backref("attendances", lazy="dynamic"))
 
+    reminder_sent = Column(Boolean, nullable=False, default=False, server_default=expression.false())
+
 
 class EventCommunityInviteRequest(Base):
     """
@@ -2465,6 +2467,7 @@ class NotificationTopicAction(enum.Enum):
     event__cancel = ("event:cancel", dt_all, True, nd.EventCancel)
     event__delete = ("event:delete", dt_all, True, nd.EventDelete)
     event__invite_organizer = ("event:invite_organizer", dt_all, True, nd.EventInviteOrganizer)
+    event__reminder = ("event:reminder", dt_all, True, nd.EventReminder)
     # toplevel comment on an event
     event__comment = ("event:comment", dt_all, True, nd.EventComment)
 
@@ -2789,3 +2792,28 @@ class AntiBotLog(Base):
 
     score = Column(Float, nullable=False)
     provider_data = Column(JSON, nullable=False)
+
+
+class RateLimitAction(enum.Enum):
+    """Possible user actions which can be rate limited."""
+
+    host_request = "host request"
+    friend_request = "friend request"
+    chat_initiation = "chat initiation"
+
+
+class RateLimitViolation(Base):
+    __tablename__ = "rate_limit_violations"
+
+    id = Column(BigInteger, primary_key=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+    action = Column(Enum(RateLimitAction), nullable=False)
+    is_hard_limit = Column(Boolean, nullable=False)
+
+    user = relationship("User")
+
+    __table_args__ = (
+        # Fast lookup for rate limits in interval
+        Index("ix_rate_limits_by_user", user_id, action, is_hard_limit, created),
+    )

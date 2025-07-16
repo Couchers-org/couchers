@@ -6,6 +6,7 @@ import {
   useReducer,
 } from "react";
 import { GeocodeResult } from "utils/hooks";
+import SearchFilters from "utils/searchFilters";
 
 import {
   initialState,
@@ -38,14 +39,21 @@ function MapSearchProvider({
   children,
   initialBbox,
   initialLocationName,
+  initialFilters,
 }: {
   children: ReactNode;
   initialBbox: GeocodeResult["bbox"] | undefined;
   initialLocationName: string | undefined;
+  initialFilters: SearchFilters;
 }) {
   const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
     ...initialState,
-    search: { query: initialLocationName, bbox: initialBbox },
+    hasActiveFilters: Object.keys(initialFilters).length > 0 ? true : false,
+    filters: initialFilters,
+    search: {
+      query: initialLocationName,
+      bbox: initialBbox,
+    },
   });
 
   return (

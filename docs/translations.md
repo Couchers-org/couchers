@@ -28,3 +28,42 @@ Are you fluent in a language you want to help us but you can't find it? Send us 
 2. Click the "Start new translation" button in the individual component's page.
 
 3. Choose the language you want to help us in, then click the "Request new translation" button to notify us to add the language to the list.
+
+## For Developers: Adding New Languages
+
+Developers can use our automated scripts to add new languages to the codebase for i18n translation. If you are a translator and want to add a new language, you can direct a developer here to help you.
+
+### Adding a new language
+```bash
+cd app/web
+yarn create-translation-files <language-code>
+```
+
+Example:
+```bash
+yarn create-translation-files sv  # Adds Swedish
+yarn create-translation-files uk  # Adds Ukrainian
+```
+
+This script will:
+- Create empty translation files for all features (except mod)
+- Add the language to `allLanguages.js` and `constants.ts`
+- Provide the correct language name and flag code. Language codes might need to be added to the variables in `scripts/create-translation-files.ts` with name and flag code once if not already there.
+
+### Removing a language
+```bash
+cd app/web
+yarn delete-translation-files <language-code>
+```
+
+Example:
+```bash
+yarn delete-translation-files sv  # Removes Swedish
+```
+
+This script will:
+- Delete all translation files for the language
+- Remove the language from `allLanguages.js` and `constants.ts`
+- Also remove from the native app's language list
+
+Both scripts validate language codes and provide helpful feedback about the process.

@@ -14,11 +14,11 @@ import {
 import Button from "components/Button";
 import { GlobalMessage } from "components/GlobalMessage";
 import { CloseIcon, MenuIcon } from "components/Icons";
-import LanguagePickerSelect from "components/LanguagePickerSelect";
 import { MenuItem } from "components/Menu";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { PushNotificationBanner } from "features/notifications/PushNotificationBanner";
+import LanguagePickerSelect from "features/translate/LanguagePickerSelect";
 import useNotifications from "features/useNotifications";
 import { GLOBAL } from "i18n/namespaces";
 import { TFunction } from "i18next";
@@ -424,7 +424,7 @@ export default function Navigation() {
               </IconButton>
               <StyledDrawer
                 variant="temporary"
-                anchor="left"
+                anchor="right"
                 open={open}
                 onClick={handleDrawerClose}
                 ModalProps={{
@@ -446,7 +446,7 @@ export default function Navigation() {
               </StyledDrawer>
             </>
           )}
-          <CouchersLogo />
+          <CouchersLogo isLoggedIn={authState.authenticated} />
           {!isMobile && (
             <StyledFlexbox>
               {(authState.authenticated && isMounted
@@ -494,19 +494,25 @@ export default function Navigation() {
               <Button
                 variant="outlined"
                 size={isMobile ? "medium" : "large"}
-                sx={{ fontSize: "1.3rem" }}
+                sx={{
+                  fontSize: "1.3rem",
+                  borderRadius: theme.spacing(1),
+                  border: `1.5px solid ${theme.palette.primary.main}`,
+                }}
                 onClick={() => router.push(loginRoute)}
               >
                 {t("login")}
               </Button>
-              <Button
-                variant="contained"
-                size={isMobile ? "medium" : "large"}
-                sx={{ fontSize: "1.3rem" }}
-                onClick={() => router.push(signupRoute)}
-              >
-                {t("join_us")}
-              </Button>
+              {!isMobile && (
+                <Button
+                  variant="contained"
+                  size={isMobile ? "medium" : "large"}
+                  sx={{ fontSize: "1.3rem" }}
+                  onClick={() => router.push(signupRoute)}
+                >
+                  {t("join_us")}
+                </Button>
+              )}
             </Box>
           )}
         </StyledMenuContainer>

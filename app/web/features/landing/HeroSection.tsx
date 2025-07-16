@@ -24,29 +24,15 @@ const StyledContent = styled("div")(({ theme }) => ({
   width: "100%",
   justifyContent: "space-between",
   alignItems: "center",
-  marginBottom: theme.spacing(2),
   padding: theme.spacing(4, 0),
 
   [theme.breakpoints.down("md")]: {
     flexDirection: "column",
-    padding: theme.spacing(8, 0, 0, 0),
   },
 }));
 
 const StyledMobileEmbed = styled("div")(({ theme }) => ({
   margin: theme.spacing(3),
-}));
-
-const StyledMapWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  width: "55%",
-  paddingLeft: theme.spacing(8),
-
-  [theme.breakpoints.down("md")]: {
-    width: "100%",
-    marginTop: theme.spacing(2),
-    paddingLeft: 0,
-  },
 }));
 
 export default function HeroSection() {
@@ -112,9 +98,7 @@ export default function HeroSection() {
       <HtmlMeta title={t("global:join_us")} />
       <StyledContent>
         <CouchersIntroduction />
-        <StyledMapWrapper>
-          <MapAnimation />
-        </StyledMapWrapper>
+        <MapAnimation />
       </StyledContent>
     </>
   );

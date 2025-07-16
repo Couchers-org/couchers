@@ -1,22 +1,28 @@
-import { Skeleton, styled, Typography } from "@mui/material";
+import { Box, Skeleton, styled, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { LANDING } from "i18n/namespaces";
 import Lottie from "lottie-react";
 import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
+import { theme } from "theme";
 
 import Alert from "./Alert";
 
-const Wrapper = styled("div")({
+const AnimationContainer = styled("div")(({ theme }) => ({
+  width: "595px",
+  height: "524px",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  position: "relative",
-  width: "100%",
-  height: "100%",
-});
 
-const Attribution = styled(Typography)({
+  [theme.breakpoints.down("md")]: {
+    width: "100%",
+    height: "auto",
+    minHeight: "300px",
+  },
+}));
+
+const Attribution = styled(Typography)(({ theme }) => ({
   position: "absolute",
   bottom: 8,
   right: 10,
@@ -25,7 +31,7 @@ const Attribution = styled(Typography)({
   borderRadius: 4,
   pointerEvents: "none",
   zIndex: 2,
-});
+}));
 
 export default function MapAnimation() {
   const { t } = useTranslation([LANDING]);
@@ -62,23 +68,50 @@ export default function MapAnimation() {
   }
 
   return (
-    <Wrapper>
+    <AnimationContainer>
       {animationData ? (
-        <>
-          <Lottie
-            animationData={animationData}
-            loop={true}
-            height="500px"
-            width="500px"
-          />
-          <Attribution variant="caption">Map data ©2025 Google</Attribution>
-        </>
+        <Box
+          sx={{
+            position: "relative",
+            width: 595,
+            height: 524,
+            [theme.breakpoints.down("md")]: {
+              width: "100%",
+              height: "auto",
+              minHeight: "300px",
+              marginTop: theme.spacing(4),
+            },
+          }}
+        >
+          <Lottie animationData={animationData} loop={true} />
+          <Attribution variant="caption">Map data © 2025 Google</Attribution>
+        </Box>
       ) : (
-        <Skeleton
-          variant="rectangular"
-          sx={{ width: "500px", height: "500px", borderRadius: "10px" }}
-        />
+        <Box
+          sx={{
+            position: "relative",
+            height: 524,
+            width: 595,
+            [theme.breakpoints.down("md")]: {
+              width: "100%",
+              height: "auto",
+              minHeight: "300px",
+              marginTop: theme.spacing(4),
+            },
+          }}
+        >
+          <Skeleton
+            variant="rectangular"
+            sx={{
+              width: 595,
+              height: 524,
+              borderRadius: "10px",
+              flexShrink: 0,
+            }}
+          />
+          <Attribution variant="caption">Map data © 2025 Google</Attribution>
+        </Box>
       )}
-    </Wrapper>
+    </AnimationContainer>
   );
 }

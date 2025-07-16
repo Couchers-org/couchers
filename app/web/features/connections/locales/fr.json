@@ -1,1 +1,11 @@
-{}
+{
+  "add_friend": "Ajouter un.e ami.e",
+  "block_user_confirmation_dialog": {
+    "title": "Êtez-vous sûr de bloquer {{name}} ?",
+    "message": "Les messages et demandes de cette personne seront bloqués. Votre profil, vos événements et vos commentaires ne lui seront pas visibles. La personne ne sera pas informée de votre blocage.",
+    "confirm": "Bloquer"
+  },
+  "blocked_list_title": "Utilisateurs bloqués",
+  "block_user": "Bloquer l'utilisateur",
+  "my_connections": "Mes connexions"
+}

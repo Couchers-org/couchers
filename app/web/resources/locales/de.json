@@ -29,7 +29,8 @@
         "legal_more": "Rechtliches & Mehr",
         "contact_us": "Kontakt",
         "built_with": "Open Source",
-        "about": "Über uns"
+        "about": "Über uns",
+        "landing_page": "Homepage"
     },
     "footer": {
         "copyright": "© 2025 Couchers, Inc.",
@@ -77,7 +78,23 @@
         "form_title": "Sprache",
         "help_translate": "Hilf dabei couchers in deine Sprache zu übersetzen.",
         "select_language": "Sprache auswählen",
-        "success_message": "Deine Änderung wurde gespeichert."
+        "success_message": "Deine Änderung wurde gespeichert.",
+        "translation_progress": {
+            "description": "Siehe, wie vollständig unsere Übersetzungen in verschiedenen Sprachen sind. Hilf uns, Couchers für mehr Menschen weltweit zugänglich zu machen!",
+            "info_text": "💡 Sprachen die weniger als 20% übersetzt sind, werden im Sprachauswahlmenü ausgeblendet. Sprachen die 20–80% übersetzt sind, werden ausgegraut angezeigt.",
+            "title": "Übersetzungsfortschritt",
+            "help_translate": "Hilf dabei Couchers in deine Sprache zu übersetzen",
+            "loading": "Übersetzungsfortschritt wird geladen...",
+            "error_loading": "Das Laden des Übersetzungsfortschritts ist fehlgeschlagen",
+            "no_data": "Keine Übersetzungsdaten verfügbar",
+            "complete": "Vollständig",
+            "almost_there": "Fast da",
+            "in_progress": "In Bearbeitung",
+            "early_stage": "Gerade angefangen",
+            "complete_percent": "{{percent}}% fertig",
+            "view_progress": "Übersetzungsfortschritt anzeigen"
+        },
+        "error_loading_languages": "Das Laden der Sprachoptionen ist fehlgeschlagen. Bitte versuche es später erneut."
     },
     "meetup_status": {
         "wants_to_meetup": "Möchte sich treffen",
@@ -111,24 +128,28 @@
             "reason_helper": "Warum meldest du diesen Inhalt?",
             "reason_required": "Ein Grund ist erforderlich.",
             "description_label": "Beschreibe das Problem",
-            "description_helper": "Bitte teile uns mit, warum du diese Person meldest.",
+            "description_helper": "Bitte teile uns mit, warum du dies meldest.",
             "reason": {
-                "spam": "Spam",
-                "dating": "Dating / Flirting",
+                "spam": "Spam oder werbliche Inhalte, die nichts mit Couchsurfen zu tun haben",
+                "dating": "Flirting / Dating-App-Verhalten oder Ähnliches",
                 "commercial": "Kommerzieller Inhalt",
-                "harassment": "Belästigung",
+                "harassment": "Belästigung, Mobbing, Hassrede oder illegale Inhalte",
                 "fake": "Fake Account / irreführende Informationen",
                 "freeloading": "Freeloader",
-                "guidelines_breach": "Verstoß gegen die Community-Richtlinien",
-                "other": "Etwas anderes",
-                "external": "Vorfall außerhalb der Plattform (z. B. Surfen/Hosting/Event)"
+                "guidelines_breach": "Verstoß gegen Regeln oder Richtlinien (Geld verlangen, FKK, geteiltes Bett usw.)",
+                "other": "Sonstiges (bitte unten angeben)",
+                "external": "Vorfall außerhalb der Plattform",
+                "safety": "Sicherheitsbedenken (für dich selbst oder andere)",
+                "scam": "Betrug, Fake oder irreführende Informationen",
+                "sexualized": "Sexualisierte Inhalte oder Verhaltensweisen"
             },
             "success": "Vielen Dank für deinen Bericht und dafür, dass du Couchers zu einer besseren Plattform für alle machst!",
             "block_user": "{{username}} blockieren",
             "profile_button_aria_label": "Inhalt melden oder Nutzer blockieren",
             "profile_title": "Melden oder blockieren",
             "profile_reason_required": "Bitte fülle die Beschreibung aus oder blockiere die Person",
-            "block_user_explainer": "Nachrichten und Anfragen von dieser Person werden blockiert, und dein Profil, deine Events und Kommentare sind für diese Person nicht sichtbar. Die Person wird nicht darüber informiert, dass du sie blockiert hast."
+            "block_user_explainer": "Nachrichten und Anfragen von dieser Person werden blockiert, und dein Profil, deine Events und Kommentare sind für diese Person nicht sichtbar. Die Person wird nicht darüber informiert, dass du sie blockiert hast.",
+            "description_required": "Eine Beschreibung ist erforderlich."
         },
         "title": "Ein Problem melden"
     },
@@ -137,9 +158,9 @@
     "not_found_alt": "404 Fehler: Ressource nicht gefunden",
     "change_time": "Zeit ändern",
     "html_meta": {
-        "title_suffix": " | Couchers.org Beta",
-        "default_title": "Couchers.org Beta",
-        "default_description": "Die neue Alternative zu Couchsurfing™. Für immer kostenlos. Community-geführt. Gemeinnützig. Modern."
+        "title_suffix": " | Couchers.org",
+        "default_title": "Couchers.org",
+        "default_description": "Teile deine Welt, erkunde deren. Authentische lokale Erlebnisse, basierend auf Vertrauen und tiefgehenden Verbindungen - nicht auf Transaktionen."
     },
     "error": {
         "fatal_message": "Das hätte nicht passieren sollen. Bitte kontaktiere uns und teile uns mit, was du gerade gemacht hast, damit wir diesen Fehler in Zukunft verhindern können.",
@@ -148,7 +169,7 @@
             "title": "Hoppla... das ist ein unbekannter Fehler",
             "refresh_page_button_label": "Seite neu laden",
             "home_page_link_label": "Zur Startseite gehen",
-            "subtitle": "Bitte verwende die Schaltfläche „Problem melden“ und teile uns mit, was du gerade gemacht hast, damit wir diesen Fehler in Zukunft verhindern können."
+            "subtitle": "Bitte verwende die Schaltfläche „Ein Problem melden“ und teile uns mit, was du gerade gemacht hast, damit wir diesen Fehler in Zukunft verhindern können."
         }
     },
     "components": {
@@ -204,5 +225,7 @@
         "helper_text": "Die Identität des Mitglieds wurde mit einem biometrischen Reisepass verifiziert"
     },
     "thanks": "Danke!",
-    "create_account": "Account Erstellen"
+    "create_account": "Account Erstellen",
+    "join_us": "Mitmachen",
+    "error_loading_languages": "Das Laden der Sprachoptionen ist fehlgeschlagen"
 }

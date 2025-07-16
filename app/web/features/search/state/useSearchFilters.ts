@@ -1,7 +1,8 @@
 import { HostingStatus, SleepingArrangement } from "proto/api_pb";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { FilterOptions } from "../SearchPage";
+import { useMapSearchState } from "./mapSearchContext";
 import { initialState } from "./mapSearchReducers";
 
 /** Local State for Search FilterDialog
@@ -16,11 +17,11 @@ interface LocalSearchFilters {
   ageMin: number;
   ageMax: number;
   drinkingAllowed: boolean;
-  completeProfile: boolean;
+  showEmptyProfile: boolean;
   lastActive: number;
   hasReferences: boolean;
   hasStrongVerification: boolean;
-  hostingStatus: HostingStatus;
+  hostingStatusOptions: HostingStatus[];
   meetupStatus: Exclude<
     HostingStatus,
     | HostingStatus.HOSTING_STATUS_UNKNOWN
@@ -31,7 +32,14 @@ interface LocalSearchFilters {
 }
 
 export function useSearchFilters() {
-  const [filters, setFilters] = useState(initialState.filters);
+  const { filters: stateFilters } = useMapSearchState();
+
+  const [filters, setFilters] = useState<FilterOptions>(stateFilters);
+
+  // Sync local filters with global filters when dialog is opened
+  useEffect(() => {
+    setFilters(stateFilters);
+  }, [stateFilters]);
 
   // Update a single filter
   const updateFilter = (newFilters: Partial<FilterOptions>) => {

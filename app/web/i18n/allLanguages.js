@@ -14,6 +14,8 @@ const allLanguages = [
   "pt",
   "pt-BR",
   "ru",
+  "sv",
+  "uk",
   "zh-Hans",
   "zh-Hant",
 ];
