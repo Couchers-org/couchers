@@ -29,7 +29,8 @@
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Déjà inscrit·e ? <2>Se connecter</2>",
-    "header": "Lancer l'inscription !"
+    "header": "Lancer l'inscription !",
+    "sign_up_agreement_explainer": "En continuant, vous acceptez nos <2>conditions d'utilisations</2>, incluant l'emploi de cookies, de votre e-mail, et la conservation de vos données"
   },
   "login_page": {
     "title": "Se connecter",
