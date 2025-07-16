@@ -505,11 +505,11 @@ function createTranslationFile(filePath, languageCode) {
   const targetDir = path.dirname(targetPath);
   if (!fs.existsSync(targetDir)) {
     fs.mkdirSync(targetDir, { recursive: true });
-  }
 
-  // Create empty JSON file
-  fs.writeFileSync(targetPath, "{\n}\n");
-  console.log(`✅ Created: ${targetPath}`);
+    // Create empty JSON file
+    fs.writeFileSync(targetPath, "{\n}\n");
+    console.log(`✅ Created: ${targetPath}`);
+  }
 }
 
 function getLanguageName(code) {
