@@ -1,8 +1,8 @@
 {
   "add_friend": "Adicionar amigo(a)",
-  "my_connections": "As minhas ligações",
   "friends": "Amigos",
-  "friend_list_title": "Os seus amigos",
+  "my_connections": "As minhas ligações",
+  "friend_list_title": "Os teus amigos",
   "friend_requests": "Pedidos de amizade",
   "friend_requests_sent": "Pedidos de amizade enviados",
   "no_friends": "Nenhum amigo disponível",
@@ -12,7 +12,7 @@
   "remove_friend": "Remover amigo(a)",
   "remove_friend_confirmation_dialog": {
     "title": "Remover amigo(a)",
-    "confirm": "Remover",
-    "message": "Tem certeza de que deseja remover {{name}}? Esta ação não pode ser desfeita."
+    "message": "Tem a certeza de que pretende remover {{name}}? Esta ação não pode ser anulada.",
+    "confirm": "Remover"
   }
 }
