@@ -159,7 +159,7 @@ export default function ProfileReportFlagButton({
         { lng: "en" },
       ),
       [t("report.flag.reason.other")]: t("report.flag.reason.other", {
-        lng: "eng",
+        lng: "en",
       }),
     };
 

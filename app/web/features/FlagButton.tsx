@@ -120,7 +120,7 @@ export default function FlagButton({
         { lng: "en" },
       ),
       [t("report.flag.reason.other")]: t("report.flag.reason.other", {
-        lng: "eng",
+        lng: "en",
       }),
     };
 
