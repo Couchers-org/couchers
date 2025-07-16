@@ -1461,9 +1461,9 @@ class HostRequest(Base):
     surfer_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     host_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 
-    hosting_city = Column(String, nullable=True)
-    hosting_location = Column(Geometry("POINT", srid=4326), nullable=True)
-    hosting_radius = Column(Float, nullable=True)
+    hosting_city = Column(String, nullable=False)
+    hosting_location = Column(Geometry("POINT", srid=4326), nullable=False)
+    hosting_radius = Column(Float, nullable=False)
 
     # TODO: proper timezone handling
     timezone = "Etc/UTC"

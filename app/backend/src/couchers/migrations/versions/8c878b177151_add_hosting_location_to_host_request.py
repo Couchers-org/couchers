@@ -18,9 +18,23 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column("host_requests", sa.Column("hosting_city", sa.String(), nullable=True))
-    op.add_column("host_requests", sa.Column("hosting_location", Geometry("POINT", srid=4326), nullable=True))
-    op.add_column("host_requests", sa.Column("hosting_radius", sa.Float(), nullable=True))
+    op.add_column(
+        "host_requests",
+        sa.Column("hosting_city", sa.String(), nullable=False, server_default="unknown"),
+    )
+    op.add_column(
+        "host_requests",
+        sa.Column(
+            "hosting_location", Geometry("POINT", srid=4326), nullable=False, server_default="SRID=4326;POINT(0 0)"
+        ),
+    )
+    op.add_column(
+        "host_requests",
+        sa.Column("hosting_radius", sa.Float(), nullable=False, server_default="0"),
+    )
+    op.alter_column("host_requests", "hosting_city", server_default=None)
+    op.alter_column("host_requests", "hosting_location", server_default=None)
+    op.alter_column("host_requests", "hosting_radius", server_default=None)
 
 
 def downgrade():
