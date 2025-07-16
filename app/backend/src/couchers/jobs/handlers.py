@@ -663,9 +663,11 @@ def update_recommendation_scores(payload):
         long_text = int_(text_length > 2000)
         has_pic = int_(User.avatar_key != None)
         can_host = int_(User.hosting_status == HostingStatus.can_host)
+        maybe = int_(User.hosting_status == HostingStatus.maybe)
         cant_host = int_(User.hosting_status == HostingStatus.cant_host)
         filled_home = int_(User.last_minute != None) * int_(home_length > 200)
-        profile_points = 2 * has_text + 3 * long_text + 2 * has_pic + 3 * can_host + 2 * filled_home - 5 * cant_host
+        hosting_status_points = 5 * can_host - 5 * maybe - 10 * cant_host
+        profile_points = 2 * has_text + 3 * long_text + 3 * has_pic + 5 * filled_home
 
         # references
         left_ref_expr = int_(1).label("left_reference")
@@ -761,10 +763,11 @@ def update_recommendation_scores(payload):
         response_time_33p = hr_subquery.c.response_time_33p
         response_time_66p = hr_subquery.c.response_time_66p
         # be careful with nulls
-        response_rate_points = -10 * int_(response_time_33p > 60 * 72.0) + 5 * int_(response_time_66p < 60 * 48.0)
+        response_rate_points = -10 * int_(response_time_33p > 60 * 96.0) + 5 * int_(response_time_66p < 60 * 96.0)
 
         recommendation_score = (
-            profile_points
+            hosting_status_points
+            + profile_points
             + ref_score
             + activeness_points
             + other_points
