@@ -25,5 +25,12 @@
     "community_led_description": "Les décideurs et les bénévoles doivent être issus de la communauté. Les décisions doivent être prises de manière transparente et en consultation avec la communauté. L'organisation doit solliciter activement les commentaires des participants. La responsabilité de l'entretien de la plateforme incombe à la communauté.",
     "community_led_why": "Maintenir une organisation et une plateforme saine nécessite la participation active de la communauté que nous servons. Séparer la communauté du reste du projet nous empêche de  construire pour nos collaborateurs. La communauté ne peut participer que si elle a une visibilité sur l'organisation.",
     "open_source_title": "Code open source",
-    "open_source_description": "La plateforme et les outils que nous développons sont librement utilisables, modifiables et distribués, la fondation n'en détenant aucun droit exclusif. Nous nous efforçons de contribuer à la communauté open source."
+    "open_source_description": "La plateforme et les outils que nous développons sont librement utilisables, modifiables et distribués, la fondation n'en détenant aucun droit exclusif. Nous nous efforçons de contribuer à la communauté open source.",
+    "num_users": "{{numUsers}} membres",
+    "non_transactional_why": "Il est fondamentalement incompatible avec des interactions authentiques et véritables. Il est bien pour l'esprit de ne donner ou de ne recevoir que ce que l'on veut et nous devrions apprendre à être plus à l'aise avec cela.",
+    "open_source_why": "Nous souhaitons que chacun puisse bénéficier au maximum des outils que nous développons. Leur distribution gratuite offre à notre communauté une garantie plus solide que ce que nous créons ensemble sera utilisable dans l'avenir.",
+    "non_transactional_title": "Non transactionnel",
+    "non_transactional_description": "Les gens ne se rémunèrent pas mutuellement, ni en argent ni en nature, pour participer aux activités ou à la communauté. En surfant, vous n'êtes pas obligé d'héberger d'autres personnes dans l'avenir.",
+    "why": "Pourquoi ?",
+    "map_section_title": "Explorez notre communauté mondiale"
 }

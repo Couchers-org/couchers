@@ -26,7 +26,7 @@
   "new_pill": "Nouveau",
   "member_count_0": "{{count}} membre",
   "member_count_1": "{{count}} membres",
-  "member_count_2": "",
+  "member_count_2": "{{count}} membres",
   "profile_summary_edit": "Modifier",
   "profile_summary_view": "Voir mon profil"
 }
