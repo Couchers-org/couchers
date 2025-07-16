@@ -46,7 +46,7 @@ describe("Event users", () => {
     expect(screen.getByRole("img", { name: users[0].name })).toBeVisible();
     expect(
       screen.getByRole("heading", {
-        name: `${users[0].name}, ${users[0].age}`,
+        name: users[0].name,
       }),
     ).toBeVisible();
 
@@ -58,7 +58,7 @@ describe("Event users", () => {
     ).toBeVisible();
     expect(
       screen.getByRole("heading", {
-        name: `${users[1].name}, ${users[1].age}`,
+        name: users[1].name,
       }),
     ).toBeVisible();
   });
