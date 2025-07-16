@@ -126,7 +126,6 @@ export default function FlagButton({
 
     reportContent({ ...data, reason: reasonMap[data.reason] });
     resetForm();
-    resetMutation();
     setIsOpen(false);
   });
 
@@ -218,45 +217,45 @@ export default function FlagButton({
                   </Select>
                 )}
               />
-              <Controller
-                control={control}
-                defaultValue={""}
-                name="description"
-                rules={{
-                  required: requiredReasons.includes(reason),
-                  validate: (value) => {
-                    // Only require description if reason is in requiredReasons
-                    if (requiredReasons.includes(reason)) {
-                      return !!value || t("report.flag.description_required");
-                    }
-                    return true;
-                  },
-                }}
-                render={({ field }) => (
-                  <TextField
-                    id="content-report-description"
-                    {...field}
-                    error={!!errors?.description?.message}
-                    helperText={
-                      !errors?.description?.message
-                        ? t("report.flag.description_helper")
-                        : undefined
-                    }
-                    label={t("report.flag.description_label")}
-                    fullWidth
-                    multiline
-                    minRows={4}
-                    maxRows={6}
-                    sx={{
-                      marginTop: theme.spacing(2),
-                      "& + &": {
-                        marginBlockStart: theme.spacing(2),
-                      },
-                    }}
-                  />
-                )}
-              />
             </FormControl>
+            <Controller
+              control={control}
+              defaultValue={""}
+              name="description"
+              rules={{
+                required: requiredReasons.includes(reason),
+                validate: (value) => {
+                  // Only require description if reason is in requiredReasons
+                  if (requiredReasons.includes(reason)) {
+                    return !!value || t("report.flag.description_required");
+                  }
+                  return true;
+                },
+              }}
+              render={({ field }) => (
+                <TextField
+                  id="content-report-description"
+                  {...field}
+                  error={!!errors?.description?.message}
+                  helperText={
+                    !errors?.description?.message
+                      ? t("report.flag.description_helper")
+                      : undefined
+                  }
+                  label={t("report.flag.description_label")}
+                  fullWidth
+                  multiline
+                  minRows={4}
+                  maxRows={6}
+                  sx={{
+                    marginTop: theme.spacing(2),
+                    "& + &": {
+                      marginBlockStart: theme.spacing(2),
+                    },
+                  }}
+                />
+              )}
+            />
           </DialogContent>
           <DialogActions>
             <Button

@@ -166,7 +166,6 @@ export default function ProfileReportFlagButton({
     if (data.reason !== "" || data.description !== "") {
       reportContent({ ...data, reason: reasonMap[data.reason] });
       resetForm();
-      resetMutation();
       setIsOpen(false);
     }
 

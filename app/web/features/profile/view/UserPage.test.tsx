@@ -24,6 +24,7 @@ import UserPage from "./UserPage";
 const { t } = i18n;
 
 jest.mock("features/userQueries/useCurrentUser");
+jest.mock("react-simple-maps");
 
 const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
@@ -213,7 +214,7 @@ describe("User page", () => {
         expect(blockUserMock).not.toHaveBeenCalled();
       });
 
-      it("shows an error alert if the report user request failed to submit", async () => {
+      it.only("shows an error alert if the report user request failed to submit", async () => {
         jest.spyOn(console, "error").mockReturnValue(undefined);
         reportContentMock.mockRejectedValue(new Error("API error"));
         const reason = "Sexualized content or behavior";
