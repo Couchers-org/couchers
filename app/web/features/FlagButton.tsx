@@ -45,6 +45,7 @@ export default function FlagButton({
   } = useForm<ReportInput>();
 
   const reason = watch("reason");
+  const description = watch("description");
   const requiredReasons = useMemo(
     () => [
       t("report.flag.reason.other"),
@@ -119,14 +120,11 @@ export default function FlagButton({
         { lng: "en" },
       ),
       [t("report.flag.reason.other")]: t("report.flag.reason.other", {
-        lng: "eng",
+        lng: "en",
       }),
     };
 
     reportContent({ ...data, reason: reasonMap[data.reason] });
-    resetForm();
-    resetMutation();
-    setIsOpen(false);
   });
 
   const handleFlagButtonClick = (event: { preventDefault: () => void }) => {
@@ -210,56 +208,54 @@ export default function FlagButton({
                       t("report.flag.reason.guidelines_breach"),
                       t("report.flag.reason.other"),
                     ].map((option) => (
-                      <option value={t(option, { lng: "en" })} key={option}>
+                      <option value={option} key={option}>
                         {option}
                       </option>
                     ))}
                   </Select>
                 )}
               />
-              <Controller
-                control={control}
-                defaultValue={""}
-                name="description"
-                rules={{
-                  validate: (value) => {
-                    // Only require description if reason is in requiredReasons
-                    if (requiredReasons.includes(reason)) {
-                      return !!value || t("report.flag.description_required");
-                    }
-                    return true;
-                  },
-                }}
-                render={({ field }) => (
-                  <TextField
-                    id="content-report-description"
-                    {...field}
-                    error={!!errors?.description?.message}
-                    helperText={
-                      !errors?.description?.message
-                        ? t("report.flag.description_helper")
-                        : undefined
-                    }
-                    label={t("report.flag.description_label")}
-                    fullWidth
-                    multiline
-                    minRows={4}
-                    maxRows={6}
-                    sx={{
-                      marginTop: theme.spacing(2),
-                      "& + &": {
-                        marginBlockStart: theme.spacing(2),
-                      },
-                    }}
-                  />
-                )}
-              />
             </FormControl>
+            <Controller
+              control={control}
+              defaultValue={""}
+              name="description"
+              rules={{
+                required: requiredReasons.includes(reason),
+                validate: (value) => {
+                  // Only require description if reason is in requiredReasons
+                  if (requiredReasons.includes(reason)) {
+                    return !!value || t("report.flag.description_required");
+                  }
+                  return true;
+                },
+              }}
+              render={({ field }) => (
+                <TextField
+                  id="content-report-description"
+                  {...field}
+                  error={!!errors?.description?.message}
+                  helperText={
+                    !errors?.description?.message
+                      ? t("report.flag.description_helper")
+                      : undefined
+                  }
+                  label={t("report.flag.description_label")}
+                  fullWidth
+                  multiline
+                  minRows={4}
+                  maxRows={6}
+                  sx={{
+                    marginTop: theme.spacing(2),
+                    "& + &": {
+                      marginBlockStart: theme.spacing(2),
+                    },
+                  }}
+                />
+              )}
+            />
           </DialogContent>
           <DialogActions>
-            <Button type="submit" loading={isLoading} onClick={onSubmit}>
-              {t("submit")}
-            </Button>
             <Button
               onClick={() => handleClose({}, "button")}
               variant="outlined"
@@ -274,6 +270,16 @@ export default function FlagButton({
               }}
             >
               {t("cancel")}
+            </Button>
+            <Button
+              type="submit"
+              disabled={
+                !reason || (requiredReasons.includes(reason) && !description)
+              }
+              loading={isLoading}
+              onClick={onSubmit}
+            >
+              {t("submit")}
             </Button>
           </DialogActions>
         </form>

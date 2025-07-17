@@ -112,6 +112,7 @@ export default function ReportButton({
 
   const onSubmit = handleSubmit((data) => {
     reportBug(data);
+    resetForm();
   });
 
   return (

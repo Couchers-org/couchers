@@ -29,15 +29,18 @@
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Déjà inscrit·e ? <2>Se connecter</2>",
-    "header": "Lancer l'inscription !"
+    "header": "Lancer l'inscription !",
+    "sign_up_agreement_explainer": "En continuant, vous acceptez nos <2>conditions d'utilisations</2>, incluant l'emploi de cookies, de votre mail, et la conservation de vos données."
   },
   "login_page": {
     "title": "Se connecter",
     "header": "Bienvenue de nouveau !",
     "form": {
       "password_field_label": "Mot de passe",
-      "forgot_password": "Mot de passe oublié ?"
-    }
+      "forgot_password": "Mot de passe oublié ?",
+      "remember_me": "Se souvenir de moi"
+    },
+    "no_account_prompt": "Pas encore de compte ? <2>Inscrivez-vous</2>"
   },
   "do_not_email": {
     "status": {
@@ -50,5 +53,9 @@
     },
     "title": "Veuillez ne pas m'envoyer de mail",
     "caveat": "En activant cet option, votre compte sera configuré pour refuser les demandes d'hébergement. Vous continuerez de recevoir les mails de sécurité (comme ceux pour la réinitialisation de votre mot de passe). La newsletter continuera de vous être envoyée ; vous pouvez vous désabonner de celle-ci en utilisant le lien dans le pied de page de la newsletter."
+  },
+  "reset_password_form": {
+    "success_message": "Verifiez le lien envoyé à votre adresse mail pour réinitialiser votre mot de passe !",
+    "enter_email": "Entrez votre nom d’utilisateur/adresse mail"
   }
 }
