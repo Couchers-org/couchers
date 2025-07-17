@@ -57,5 +57,11 @@
   "reset_password_form": {
     "success_message": "Verifiez le lien envoyé à votre adresse mail pour réinitialiser votre mot de passe !",
     "enter_email": "Entrez votre nom d’utilisateur/adresse mail"
+  },
+  "sign_up_completed_title": "Merci pour votre inscription !",
+  "sign_up_confirmed_prompt": "Vous avez terminé ! Si vous n'êtes pas redirigé, essayez de vous connecter.",
+  "unhandled_sign_up_state": "Erreur inconnue dans le processus d'inscription.",
+  "account_settings_page": {
+    "title": "Paramètres du compte"
   }
 }
