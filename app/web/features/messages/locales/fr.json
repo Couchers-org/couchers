@@ -15,7 +15,13 @@
     "back_button": {
       "a11y_label": "Retour"
     },
-    "invalid_id_error": "Code-ID de discussion invalide."
+    "invalid_id_error": "Code-ID de discussion invalide.",
+    "actions_menu": {
+      "items": {
+        "invite_members": "Inviter à discuter",
+        "show_all_members": "Membres de la discussion"
+      }
+    }
   },
   "close_request_dialog_title": "Avez-vous fini de discuter ?"
 }

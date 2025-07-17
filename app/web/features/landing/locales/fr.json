@@ -32,5 +32,12 @@
     "non_transactional_title": "Non transactionnel",
     "non_transactional_description": "Les gens ne se rémunèrent pas mutuellement, ni en argent ni en nature, pour participer aux activités ou à la communauté. En surfant, vous n'êtes pas obligé d'héberger d'autres personnes dans l'avenir.",
     "why": "Pourquoi ?",
-    "map_section_title": "Explorez notre communauté mondiale"
+    "map_section_title": "Explorez notre communauté mondiale",
+    "authentic_title": "Authentique et véritable",
+    "num_countries": "{{numCountries}}+ pays",
+    "free_forever_title": "Grauit pour toujours",
+    "free_forever_description": "Personne ne devrait payer pour s’inscrire et/ou pour utiliser Couchers.org.",
+    "animation_error": "Erreur lors du chargement de l'animation",
+    "free_forever_why": "Exiger un frais pour l'utilisation constitue un obstacle intenable à l'entrée. En impliquant de l'argent dans le couchsurfing, les gens peuvent avoir des fausses attentes.",
+    "authentic_description": "Nous nous efforçons de créer des outils efficaces pour vous aider à vivre des expériences authentiques dans le monde réel, en minimisant le temps passé à les rechercher dans le monde numérique. Notre objectif n'est pas de susciter un engagement vide de sens."
 }
