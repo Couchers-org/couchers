@@ -38,6 +38,7 @@ function TestComponent({ event }: { event?: Event.AsObject }) {
       mutate={mutate}
       isMutationLoading={isLoading}
       title={t("communities:create_an_event")}
+      isEdit={false}
     >
       {() => <button type="submit">{t("global:create")}</button>}
     </EventForm>
