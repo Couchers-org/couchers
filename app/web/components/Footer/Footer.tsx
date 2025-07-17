@@ -41,12 +41,14 @@ import {
 } from "routes";
 import { timeAgoI18n } from "utils/timeAgo";
 
-const StyledFooter = styled("footer")<{ bottomMargin?: string }>(({ bottomMargin }) => ({
-  display: "flex",
-  flexDirection: "column",
-  width: "100%",
-  marginBottom: bottomMargin,
-}));
+const StyledFooter = styled("footer")<{ bottomMargin?: string }>(
+  ({ bottomMargin }) => ({
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
+    marginBottom: bottomMargin,
+  }),
+);
 
 const StyledUpperOuterContainer = styled("div")(({ theme }) => ({
   display: "flex",

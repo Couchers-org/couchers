@@ -9,9 +9,9 @@ import { useRouter } from "next/router";
 import { useIsNativeEmbed } from "platform/nativeLink";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { jailRoute, loginRoute } from "routes";
+import { theme } from "theme";
 
 import Navigation from "./Navigation";
-import { theme } from "theme";
 
 interface AppRouteProps {
   isPrivate: boolean;
@@ -132,9 +132,7 @@ export default function AppRoute({
               {children}
             </ContentWrapper>
             {!noFooter && (
-              <Footer
-                bottomMargin={isMobile ? bottomMargin : undefined}
-              />
+              <Footer bottomMargin={isMobile ? bottomMargin : undefined} />
             )}
           </PageWrapper>
         </>
