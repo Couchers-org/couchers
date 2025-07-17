@@ -6,10 +6,16 @@
   "messages_page": {
     "title": "Messages",
     "tabs": {
-      "chats": "Discussions"
+      "chats": "Discussions",
+      "hosting": "Hébergement"
     }
   },
   "chat_view": {
-    "no_messages_state_text": "Aucun message"
-  }
+    "no_messages_state_text": "Aucun message",
+    "back_button": {
+      "a11y_label": "Retour"
+    },
+    "invalid_id_error": "Code-ID de discussion invalide."
+  },
+  "close_request_dialog_title": "Avez-vous fini de discuter ?"
 }
