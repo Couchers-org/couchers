@@ -101,9 +101,16 @@
       "field_label": "Date de naissance",
       "required_error": "Entrez votre date de naissance",
       "validation_error": "La date doit être une date passée valide."
+    },
+    "tos_accept_label": "J'accepte les conditions d'utilisation.",
+    "password": {
+      "field_label": "Mot de passe",
+      "required_error": "Entrer un mot de passe",
+      "validation_error": "Le mot de passe doit comporter entre 8 et 256 caractères et ne pas être prévisible."
     }
   },
   "location": {
-    "validation_error": "Veuillez sélectionner une localisation valide."
+    "validation_error": "Veuillez sélectionner une localisation valide.",
+    "field_label": "Votre localisation"
   }
 }
