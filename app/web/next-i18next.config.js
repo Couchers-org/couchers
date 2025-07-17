@@ -3,17 +3,12 @@ const { allLanguages } = require("./i18n/allLanguages");
 
 const fallbackLng = {
   default: ["en"],
-  "es-419": ["es", "en"],
-  "fr-CA": ["fr", "en"],
-  pt: ["pt-BR", "en"],
-  "pt-BR": ["pt", "en"],
-  "zh-Hant": ["zh-Hans", "en"],
+  zh: ["zh-Hans", "en"],
 };
 
 module.exports = {
   i18n: {
     defaultLocale: "en",
-    localeDetection: true,
     locales: allLanguages,
   },
   fallbackLng,
@@ -23,7 +18,6 @@ module.exports = {
   ns: NAMESPACES,
   returnEmptyString: false,
   serializeConfig: false,
-  nonExplicitSupportedLngs: true, // Handle language codes like "zh-CN" and "zh-Hant" fallback to zh gracefully
   localePath: (locale, namespace) => {
     const path = require("path");
     if (namespace === "global") {

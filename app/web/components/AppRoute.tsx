@@ -1,4 +1,4 @@
-import { Box, Container, GlobalStyles } from "@mui/material";
+import { Box, Container, GlobalStyles, useMediaQuery } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import CookieBanner from "components/CookieBanner";
@@ -11,11 +11,13 @@ import { ReactNode, useEffect, useRef, useState } from "react";
 import { jailRoute, loginRoute } from "routes";
 
 import Navigation from "./Navigation";
+import { theme } from "theme";
 
 interface AppRouteProps {
   isPrivate: boolean;
   noFooter?: boolean;
   variant?: "standard" | "full-screen" | "full-width" | "no-overflow";
+  bottomMargin?: string;
   children: ReactNode;
 }
 
@@ -70,8 +72,10 @@ export default function AppRoute({
   isPrivate,
   noFooter = false,
   variant = "standard",
+  bottomMargin,
 }: AppRouteProps) {
   const router = useRouter();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const pageWrapperRef = useRef<HTMLDivElement>(null);
   const { pathname } = router;
   const { authState, authActions } = useAuthContext();
@@ -127,7 +131,11 @@ export default function AppRoute({
             >
               {children}
             </ContentWrapper>
-            {!noFooter && <Footer />}
+            {!noFooter && (
+              <Footer
+                bottomMargin={isMobile ? bottomMargin : undefined}
+              />
+            )}
           </PageWrapper>
         </>
       )}
@@ -140,10 +148,16 @@ const appGetLayout = ({
   isPrivate = true,
   noFooter = false,
   variant = "standard",
+  bottomMargin,
 }: Partial<AppRouteProps> = {}) => {
   return function AppLayout(page: ReactNode) {
     return (
-      <AppRoute isPrivate={isPrivate} noFooter={noFooter} variant={variant}>
+      <AppRoute
+        isPrivate={isPrivate}
+        noFooter={noFooter}
+        variant={variant}
+        bottomMargin={bottomMargin}
+      >
         {page}
       </AppRoute>
     );

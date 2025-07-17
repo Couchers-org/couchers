@@ -175,7 +175,7 @@ export default function TranslationProgress() {
       </Box>
 
       <Box sx={{ mb: 3, p: 2, bgcolor: "grey.50", borderRadius: 2 }}>
-        <Typography variant="body2" color="text.secondary">
+        <Typography color="text.secondary">
           {t("global:language_preference.translation_progress.info_text")}
         </Typography>
       </Box>
@@ -213,8 +213,8 @@ export default function TranslationProgress() {
                         alt={`${languageInfo.flagIconCode} flag`}
                         percent={percent}
                       />
-                      <Typography variant="subtitle1" fontWeight="bold" noWrap>
-                        {languageInfo.name || languageCode.toUpperCase()}
+                      <Typography variant="subtitle2" fontWeight="bold">
+                        {t(`language_names.${languageCode}`)}
                       </Typography>
                     </Box>
                     <Chip
@@ -262,7 +262,7 @@ export default function TranslationProgress() {
                       percent={percent}
                     />
                     <Typography variant="subtitle1" fontWeight="bold" noWrap>
-                      {languageInfo.name || languageCode.toUpperCase()}
+                      {t(`language_names.${languageCode}`)}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
                       {languageCode.toUpperCase()}
