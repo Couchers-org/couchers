@@ -132,7 +132,11 @@ export default function AppRoute({
               {children}
             </ContentWrapper>
             {!noFooter && (
-              <Footer bottomMargin={isMobile ? bottomMargin : undefined} />
+              <Footer
+                bottomMargin={
+                  isMobile && !isAuthenticated ? bottomMargin : undefined
+                }
+              />
             )}
           </PageWrapper>
         </>
