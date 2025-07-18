@@ -108,7 +108,7 @@ const HaikuContainer = styled("div")(({ theme }) => ({
   color: theme.palette.text.primary,
   opacity: 0.2,
   textAlign: "center",
-  height: "100%",
+  flexGrow: 1,
 }));
 
 const generateAboutText = (
