@@ -8,7 +8,14 @@
   },
   "basic_form": {
     "name": {
-      "empty_error": "Veuillez entrer votre nom"
+      "empty_error": "Veuillez entrer votre nom",
+      "field_label": "Votre prénom",
+      "required_error": "Ce champ ne peut pas être vide."
+    },
+    "email": {
+      "field_label": "Adresse mail",
+      "empty_error": "Veuillez saisir une adresse mail valide",
+      "required_error": "Le champ de l'adresse mail ne peut être vide."
     }
   },
   "community_guidelines_form": {
@@ -57,5 +64,53 @@
   "reset_password_form": {
     "success_message": "Verifiez le lien envoyé à votre adresse mail pour réinitialiser votre mot de passe !",
     "enter_email": "Entrez votre nom d’utilisateur/adresse mail"
+  },
+  "sign_up_completed_title": "Merci pour votre inscription !",
+  "sign_up_confirmed_prompt": "Vous avez terminé ! Si vous n'êtes pas redirigé, essayez de vous connecter.",
+  "unhandled_sign_up_state": "Erreur inconnue dans le processus d'inscription.",
+  "account_settings_page": {
+    "title": "Paramètres de votre compte"
+  },
+  "login_prompt": "Cliquez ici pour vous connecter",
+  "about_us": "Au sujet de nous",
+  "sign_up_completed_prompt": "Nous vous avons envoyé un lien de vérification à votre adresse mail. Veuillez cliquer sur ce lien pour activer votre compte.",
+  "reset_password": "Réinitialiser votre mot de passe",
+  "account_form": {
+    "tos_prompt": "Pour continuer, veuillez lire et accepter <1></1>.",
+    "header": "Détails de votre compte",
+    "hosting_status": {
+      "maybe": "Probable d'héberger",
+      "can_host": "Possible d'héberger",
+      "cant_host": "Pas possible d'héberger",
+      "field_label": "Statut d’hébergement"
+    },
+    "gender": {
+      "field_label": "Je m’identifie en tant que…",
+      "required_error": "Veuillez sélectionner votre genre",
+      "man": "Homme",
+      "non_binary": "Non binaire",
+      "woman": "Femme"
+    },
+    "username": {
+      "required_error": "Entrez votre nom d’utilisateur",
+      "username_taken_error": "Ce nom d’utilisateur est déjà pris.",
+      "field_label": "Nom d’utilisateur",
+      "validation_error": "Le nom d’utilisateur ne peut contenir que des chiffres, de lettres ou/et commencer par une lettre."
+    },
+    "birthday": {
+      "field_label": "Date de naissance",
+      "required_error": "Entrez votre date de naissance",
+      "validation_error": "La date doit être une date passée valide."
+    },
+    "tos_accept_label": "J'accepte les conditions d'utilisation.",
+    "password": {
+      "field_label": "Mot de passe",
+      "required_error": "Entrer un mot de passe",
+      "validation_error": "Le mot de passe doit comporter entre 8 et 256 caractères et ne pas être prévisible."
+    }
+  },
+  "location": {
+    "validation_error": "Veuillez sélectionner une localisation valide.",
+    "field_label": "Votre localisation"
   }
 }
