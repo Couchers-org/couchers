@@ -40,24 +40,41 @@ const MapLoadingContainer = styled("div")(({ theme }) => ({
 const SearchThisAreaButton = styled(Button, {
   shouldForwardProp: (prop) => prop !== "isDrawerExpanded",
 })<{ isDrawerExpanded: boolean }>(({ isDrawerExpanded, theme }) => ({
-  backgroundColor: theme.palette.common.white,
-  borderRadius: "20px",
-  boxShadow: theme.shadows[4],
-  padding: theme.spacing(1, 2),
+  borderRadius: "8px",
+  boxShadow: "0 2px 12px rgba(0, 0, 0, 0.2)",
+  padding: theme.spacing(1, 2.5),
   position: "absolute",
   top: isDrawerExpanded ? theme.spacing(2) : theme.spacing(9),
   zIndex: 10,
   left: "50%",
   transform: "translateX(-50%)",
+  fontSize: "0.875rem",
+  fontWeight: 600,
+  textTransform: "none",
+  color: theme.palette.text.primary,
+  minHeight: "36px",
+  border: `1px solid ${theme.palette.grey[300]}`,
+  letterSpacing: "0.025em",
+  backdropFilter: "blur(8px)",
+  backgroundColor: "rgba(255, 255, 255, 0.95)",
 
   [theme.breakpoints.down("md")]: {
     top: theme.spacing(1),
-    padding: theme.spacing(0.5, 1),
+    padding: theme.spacing(0.75, 2),
     fontSize: "0.8rem",
+    minHeight: "32px",
   },
 
   "&:hover": {
-    backgroundColor: theme.palette.grey[200],
+    backgroundColor: "rgba(255, 255, 255, 1)",
+    boxShadow: "0 4px 16px rgba(0, 0, 0, 0.25)",
+    transform: "translateX(-50%)",
+    borderColor: theme.palette.grey[400],
+  },
+
+  "&:active": {
+    backgroundColor: theme.palette.grey[50],
+    transform: "translateX(-50%) scale(0.98)",
   },
 }));
 

@@ -64,7 +64,6 @@ const MapContainer = styled("div", {
 })<{ drawerWidth: number }>(({ theme, drawerWidth }) => ({
   width: `calc(100% - ${drawerWidth}px)`,
   height: "100%",
-  overflow: "hidden",
   position: "relative",
   display: "flex",
   alignItems: "center",
