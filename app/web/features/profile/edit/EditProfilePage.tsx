@@ -1,13 +1,19 @@
 import { TabContext, TabPanel } from "@mui/lab";
-import { Button, Card, Grid } from "@mui/material";
+import { Button, Card } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
+import { BackIcon } from "components/Icons";
 import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { EditUserTab, routeToEditProfile, settingsRoute } from "routes";
+import {
+  EditUserTab,
+  routeToEditProfile,
+  routeToProfile,
+  settingsRoute,
+} from "routes";
 import makeStyles from "utils/makeStyles";
 
 import EditHostingPreference from "./EditHostingPreference";
@@ -47,6 +53,27 @@ const useStyles = makeStyles((theme) => ({
   tabPanel: {
     padding: 0,
   },
+  headerContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: theme.spacing(3),
+  },
+  leftHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing(2),
+  },
+  backButton: {
+    minWidth: "auto",
+    padding: theme.spacing(1),
+    borderRadius: "50%",
+    color: theme.palette.text.secondary,
+    "&:hover": {
+      backgroundColor: theme.palette.action.hover,
+      color: theme.palette.text.primary,
+    },
+  },
 }));
 
 export default function EditProfilePage({
@@ -61,21 +88,23 @@ export default function EditProfilePage({
   return (
     <>
       <HtmlMeta title={t("profile:heading.edit_profile")} />
-      <Grid
-        container
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-      >
-        <PageTitle>{t("profile:heading.edit_profile")}</PageTitle>
-        <div className={classes.buttonContainer}>
-          <Link href={settingsRoute} passHref legacyBehavior>
-            <Button component="a" variant="contained" color="primary">
-              {t("global:nav.account_settings")}
-            </Button>
-          </Link>
+      <div className={classes.headerContainer}>
+        <div className={classes.leftHeader}>
+          <Button
+            className={classes.backButton}
+            onClick={() => router.push(routeToProfile())}
+            aria-label={t("global:back")}
+          >
+            <BackIcon />
+          </Button>
+          <PageTitle>{t("profile:heading.edit_profile")}</PageTitle>
         </div>
-      </Grid>
+        <Link href={settingsRoute} passHref legacyBehavior>
+          <Button component="a" variant="contained" color="primary">
+            {t("global:nav.account_settings")}
+          </Button>
+        </Link>
+      </div>
       <div className={classes.root}>
         <Card className={classes.detailsCard}>
           <TabContext value={tab}>

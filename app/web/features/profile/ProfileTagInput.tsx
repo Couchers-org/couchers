@@ -26,16 +26,20 @@ const useStyles = makeStyles((theme) =>
         boxShadow: `0 0 0 2px ${theme.palette.primary.main}`,
       },
       "&:hover": {
-        boxShadow: `0 0 0 1px ${theme.palette.text.primary}`,
+        borderColor: theme.palette.primary.main,
+        backgroundColor: theme.palette.grey[50],
       },
-      borderRadius: theme.shape.borderRadius * 3,
-      boxShadow: `0 0 0 1px rgba(0, 0, 0, 0.23)`,
+      borderRadius: theme.spacing(1.5),
+      border: `1px solid ${theme.palette.grey[300]}`,
+      backgroundColor: theme.palette.common.white,
       fontFamily: "inherit",
-      fontSize: "16px",
+      fontSize: "1rem",
       justifyContent: "space-between",
       margin: theme.spacing(1, 0),
-      padding: "18.5px 14px",
+      padding: theme.spacing(1.5, 2),
       width: "inherit",
+      transition: "all 0.2s ease-in-out",
+      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
     },
     checkbox: {
       marginRight: theme.spacing(1),
@@ -55,17 +59,18 @@ const useStyles = makeStyles((theme) =>
       "& input": {
         "&:focus": {
           borderColor: theme.palette.primary.main,
-          boxShadow: `${alpha(theme.palette.primary.main, 0.25)} 0 0 0 0.2rem`,
+          boxShadow: `${alpha(theme.palette.primary.main, 0.15)} 0 0 0 2px`,
         },
         backgroundColor: theme.palette.common.white,
-        borderColor: theme.palette.divider,
-        borderRadius: theme.shape.borderRadius * 3,
+        borderColor: theme.palette.grey[300],
+        borderRadius: theme.spacing(1),
         borderStyle: "solid",
         borderWidth: 1,
-        padding: theme.spacing(1),
+        padding: theme.spacing(1, 1.5),
         transition: theme.transitions.create(["border-color", "box-shadow"]),
+        fontSize: "0.875rem",
       },
-      borderBottomColor: theme.palette.divider,
+      borderBottomColor: theme.palette.grey[200],
       borderBottomStyle: "solid",
       borderBottomWidth: 1,
       padding: theme.spacing(2),
@@ -87,12 +92,12 @@ const useStyles = makeStyles((theme) =>
       margin: 0,
     },
     popper: {
-      backgroundColor: theme.palette.background.default,
-      borderColor: "rgba(0, 0, 0, 0.23)",
-      borderRadius: theme.shape.borderRadius * 3,
+      backgroundColor: theme.palette.common.white,
+      borderColor: theme.palette.grey[200],
+      borderRadius: theme.spacing(1.5),
       borderStyle: "solid",
       borderWidth: 1,
-      boxShadow: theme.shadows[3],
+      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
       marginTop: theme.spacing(1),
       zIndex: 101,
     },
@@ -103,11 +108,22 @@ const useStyles = makeStyles((theme) =>
       alignItems: "center",
       display: "flex",
       fontSize: theme.typography.fontSize,
-      margin: theme.spacing(1, 0),
-      padding: "0 14px",
+      margin: theme.spacing(0.5, 0.5, 0.5, 0),
+      padding: theme.spacing(0.75, 1.5),
+      backgroundColor: theme.palette.primary.light,
+      border: `1px solid ${theme.palette.primary.main}`,
+      borderRadius: theme.spacing(2),
+      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
+      transition: "all 0.2s ease-in-out",
+      "&:hover": {
+        boxShadow: "0 2px 6px rgba(0, 0, 0, 0.12)",
+        transform: "translateY(-1px)",
+      },
     },
     tagLabel: {
-      marginLeft: theme.spacing(1),
+      marginLeft: theme.spacing(0.75),
+      fontWeight: 500,
+      color: theme.palette.primary.dark,
     },
     tagsContainer: {
       display: "grid",
@@ -192,7 +208,15 @@ export default function ProfileTagInput({
               })}
               edge="start"
               onClick={() => handleRemove(tag)}
-              size="large"
+              size="small"
+              sx={{
+                color: "primary.dark",
+                padding: 0.5,
+                "&:hover": {
+                  backgroundColor: "primary.main",
+                  color: "primary.contrastText",
+                },
+              }}
             >
               <CloseIcon fontSize="small" />
             </IconButton>

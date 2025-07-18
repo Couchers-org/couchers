@@ -73,7 +73,15 @@
     "space": "Sleeping privacy",
     "transportation": "Transportation, Parking, Accessibility",
     "wheelchair": "Wheelchair accessible",
-    "other_info": "Additional information"
+    "other_info": "Additional information",
+    "household_details": "Household Details",
+    "household_members": "Household Members",
+    "parking_heading": "Parking",
+    "household_habits": "Household Habits",
+    "hosting_preferences_subtitle": "Let guests know what you're comfortable with",
+    "about_home_subtitle": "Tell guests about your home and what they can expect",
+    "household_details_subtitle": "Share information about who lives in your home",
+    "general_subtitle": "Additional details about your home and area"
   },
   "edit_profile_helper_text": "Looking for some inspiration on where to start? <2>Check out our guide on creating an awesome profile</2>.",
   "edit_profile_headings": {
@@ -87,7 +95,16 @@
     "pronouns": "Pronouns",
     "hometown": "Grew up in",
     "occupation": "Occupation",
-    "education": "Education"
+    "education": "Education",
+    "basic_information": "Basic Information",
+    "basic_information_subtitle": "Start with the essentials - your photo and basic details",
+    "preferences": "Preferences",
+    "preferences_subtitle": "Let others know about your hosting and meetup preferences",
+    "personal_information": "Personal Information",
+    "personal_information_subtitle": "Share details about yourself and your background",
+    "about_me_subtitle": "Tell others about yourself - this is what makes your profile unique",
+    "travel_experience": "Travel Experience",
+    "travel_experience_subtitle": "Share your travel experiences and connections"
   },
   "edit_profile_name_required": "Name required",
   "edit_home_questions": {

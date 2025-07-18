@@ -1,8 +1,11 @@
 import {
   Autocomplete,
+  Box,
   Checkbox,
   FormControl,
   FormControlLabel,
+  Paper,
+  styled,
   Typography,
 } from "@mui/material";
 import Alert from "components/Alert";
@@ -32,6 +35,131 @@ import { useUnsavedChangesWarning } from "utils/hooks";
 
 import { DEFAULT_ABOUT_HOME_HEADINGS } from "./constants";
 import useStyles from "./styles";
+
+const ProfileSection = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(3),
+  marginBottom: theme.spacing(3),
+  borderRadius: theme.spacing(1.5),
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
+  border: `1px solid ${theme.palette.grey[100]}`,
+}));
+
+const SectionTitle = styled(Typography)(({ theme }) => ({
+  fontSize: "1.25rem",
+  fontWeight: 600,
+  color: theme.palette.text.primary,
+  marginBottom: theme.spacing(2),
+  paddingBottom: theme.spacing(1),
+  borderBottom: `2px solid ${theme.palette.primary.light}`,
+}));
+
+const SectionSubtitle = styled(Typography)(({ theme }) => ({
+  fontSize: "1rem",
+  fontWeight: 500,
+  color: theme.palette.text.secondary,
+  marginBottom: theme.spacing(2),
+}));
+
+const FieldGroup = styled(Box)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+  "&:last-child": {
+    marginBottom: 0,
+  },
+}));
+
+const CheckboxGrid = styled(Box)(({ theme }) => ({
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+  gap: theme.spacing(2),
+  marginBottom: theme.spacing(3),
+}));
+
+const CheckboxItem = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  gap: theme.spacing(1),
+}));
+
+const StickySaveBar = styled(Box)(({ theme }) => ({
+  position: "fixed",
+  bottom: 0,
+  left: 0,
+  right: 0,
+  backgroundColor: theme.palette.common.white,
+  borderTop: `1px solid ${theme.palette.grey[200]}`,
+  boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.1)",
+  padding: theme.spacing(1.5, 3),
+  zIndex: 1000,
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  gap: theme.spacing(2),
+}));
+
+const SaveButton = styled(Button)(({ theme }) => ({
+  minWidth: 200,
+  height: 44,
+  borderRadius: 22,
+  fontSize: "1rem",
+  fontWeight: 600,
+  textTransform: "none",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+  transition: "all 0.2s ease-in-out",
+
+  "&:hover": {
+    boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)",
+    transform: "translateY(-1px)",
+  },
+
+  "&:active": {
+    transform: "translateY(0)",
+  },
+}));
+
+const BottomSpacer = styled(Box)(({ theme }) => ({
+  height: 80,
+  marginBottom: theme.spacing(2),
+}));
+
+const SleepingArrangementKey = styled(Box)(({ theme }) => ({
+  marginTop: theme.spacing(2),
+  padding: theme.spacing(2),
+  backgroundColor: theme.palette.grey[50],
+  borderRadius: theme.spacing(1),
+  border: `1px solid ${theme.palette.grey[200]}`,
+}));
+
+const KeyTitle = styled(Typography)(({ theme }) => ({
+  fontSize: "0.875rem",
+  fontWeight: 600,
+  color: theme.palette.text.primary,
+  marginBottom: theme.spacing(1),
+}));
+
+const KeyItem = styled(Box)(({ theme }) => ({
+  display: "flex",
+  alignItems: "flex-start",
+  marginBottom: theme.spacing(0.5),
+  "&:last-child": {
+    marginBottom: 0,
+  },
+}));
+
+const KeyBullet = styled(Box)(({ theme }) => ({
+  width: 6,
+  height: 6,
+  borderRadius: "50%",
+  backgroundColor: theme.palette.primary.main,
+  marginTop: 6,
+  marginRight: theme.spacing(1),
+  flexShrink: 0,
+}));
+
+const KeyText = styled(Typography)(({ theme }) => ({
+  fontSize: "0.875rem",
+  color: theme.palette.text.secondary,
+  lineHeight: 1.4,
+}));
 
 interface HostingPreferenceCheckboxProps {
   className: string;
@@ -117,305 +245,417 @@ export default function HostingPreferenceForm() {
         </Alert>
       )}
       {user ? (
-        <form className={classes.form} onSubmit={onSubmit}>
-          <Typography variant="h2">
-            {t("profile:home_info_headings.hosting_preferences")}
-          </Typography>
-          <div className={classes.checkboxContainer}>
-            <HostingPreferenceCheckbox
-              className={classes.formControl}
-              defaultValue={!!user.lastMinute?.value}
-              label={t("profile:home_info_headings.last_minute")}
-              name="lastMinute"
-              register={register}
-            />
-            <HostingPreferenceCheckbox
-              className={classes.formControl}
-              defaultValue={!!user.wheelchairAccessible?.value}
-              label={t("profile:home_info_headings.wheelchair")}
-              name="wheelchairAccessible"
-              register={register}
-            />
-            <HostingPreferenceCheckbox
-              className={classes.formControl}
-              defaultValue={!!user.campingOk?.value}
-              label={t("profile:edit_home_questions.accept_camping")}
-              name="campingOk"
-              register={register}
-            />
-            <HostingPreferenceCheckbox
-              className={classes.formControl}
-              defaultValue={!!user.acceptsKids?.value}
-              label={t("profile:edit_home_questions.accept_kids")}
-              name="acceptsKids"
-              register={register}
-            />
-            <HostingPreferenceCheckbox
-              className={classes.formControl}
-              defaultValue={!!user.acceptsPets?.value}
-              label={t("profile:edit_home_questions.accept_pets")}
-              name="acceptsPets"
-              register={register}
-            />
-            <HostingPreferenceCheckbox
-              className={classes.formControl}
-              defaultValue={!!user.drinkingAllowed?.value}
-              label={t("profile:edit_home_questions.accept_drinking")}
-              name="drinkingAllowed"
-              register={register}
-            />
-          </div>
-          <Controller
-            control={control}
-            defaultValue={user.maxGuests?.value ?? null}
-            name="maxGuests"
-            render={({ field }) => (
-              <Autocomplete
-                {...field}
-                disableClearable={false}
-                defaultValue={user.maxGuests?.value}
-                forcePopupIcon
-                freeSolo
-                getOptionLabel={(option) => option.toString()}
-                options={[1, 2, 3, 4, 5]}
-                onChange={(e, value) => field.onChange(value)}
-                multiple={false}
-                renderInput={(params) => (
-                  <ProfileTextInput
-                    {...params}
-                    error={!!errors?.maxGuests?.message}
-                    helperText={errors?.maxGuests?.message}
-                    label={t("profile:home_info_headings.max_guests")}
-                    name="maxGuests"
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                    inputRef={field.ref}
-                    className={classes.field}
+        <form onSubmit={onSubmit}>
+          {/* Hosting Preferences Section */}
+          <ProfileSection>
+            <SectionTitle>
+              {t("profile:home_info_headings.hosting_preferences")}
+            </SectionTitle>
+            <SectionSubtitle>
+              {t("profile:home_info_headings.hosting_preferences_subtitle")}
+            </SectionSubtitle>
+
+            <CheckboxGrid>
+              <HostingPreferenceCheckbox
+                className={classes.formControl}
+                defaultValue={!!user.lastMinute?.value}
+                label={t("profile:home_info_headings.last_minute")}
+                name="lastMinute"
+                register={register}
+              />
+              <HostingPreferenceCheckbox
+                className={classes.formControl}
+                defaultValue={!!user.wheelchairAccessible?.value}
+                label={t("profile:home_info_headings.wheelchair")}
+                name="wheelchairAccessible"
+                register={register}
+              />
+              <HostingPreferenceCheckbox
+                className={classes.formControl}
+                defaultValue={!!user.campingOk?.value}
+                label={t("profile:edit_home_questions.accept_camping")}
+                name="campingOk"
+                register={register}
+              />
+              <HostingPreferenceCheckbox
+                className={classes.formControl}
+                defaultValue={!!user.acceptsKids?.value}
+                label={t("profile:edit_home_questions.accept_kids")}
+                name="acceptsKids"
+                register={register}
+              />
+              <HostingPreferenceCheckbox
+                className={classes.formControl}
+                defaultValue={!!user.acceptsPets?.value}
+                label={t("profile:edit_home_questions.accept_pets")}
+                name="acceptsPets"
+                register={register}
+              />
+              <HostingPreferenceCheckbox
+                className={classes.formControl}
+                defaultValue={!!user.drinkingAllowed?.value}
+                label={t("profile:edit_home_questions.accept_drinking")}
+                name="drinkingAllowed"
+                register={register}
+              />
+            </CheckboxGrid>
+
+            <FieldGroup>
+              <Controller
+                control={control}
+                defaultValue={user.maxGuests?.value ?? null}
+                name="maxGuests"
+                render={({ field }) => (
+                  <Autocomplete
+                    {...field}
+                    disableClearable={false}
+                    defaultValue={user.maxGuests?.value}
+                    forcePopupIcon
+                    freeSolo
+                    getOptionLabel={(option) => option.toString()}
+                    options={[1, 2, 3, 4, 5]}
+                    onChange={(e, value) => field.onChange(value)}
+                    multiple={false}
+                    renderInput={(params) => (
+                      <ProfileTextInput
+                        {...params}
+                        error={!!errors?.maxGuests?.message}
+                        helperText={errors?.maxGuests?.message}
+                        label={t("profile:home_info_headings.max_guests")}
+                        name="maxGuests"
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                        inputRef={field.ref}
+                        className={classes.field}
+                      />
+                    )}
                   />
                 )}
+                rules={{
+                  validate: (value) =>
+                    value && isNaN(value) ? "Invalid number provided" : true,
+                }}
               />
-            )}
-            rules={{
-              validate: (value) =>
-                value && isNaN(value) ? "Invalid number provided" : true,
-            }}
-          />
-          <Controller
-            control={control}
-            defaultValue={
-              user.smokingAllowed || SmokingLocation.SMOKING_LOCATION_UNKNOWN
-            }
-            name="smokingAllowed"
-            render={({ field }) => (
-              <Select
-                {...field}
-                onChange={(event) => field.onChange(event.target.value)}
-                label={t("profile:edit_home_questions.accept_smoking")}
-                className={classes.field}
-                value={field.value}
-                id="smokingAllowed"
-                options={[
-                  SmokingLocation.SMOKING_LOCATION_UNKNOWN,
-                  SmokingLocation.SMOKING_LOCATION_NO,
-                  SmokingLocation.SMOKING_LOCATION_OUTSIDE,
-                  SmokingLocation.SMOKING_LOCATION_WINDOW,
-                  SmokingLocation.SMOKING_LOCATION_YES,
-                ]}
-                optionLabelMap={smokingLocationLabels(t)}
-              />
-            )}
-          />
-          <ProfileMarkdownInput
-            id="aboutPlace"
-            label={t("profile:home_info_headings.about_home")}
-            name="aboutPlace"
-            defaultValue={user.aboutPlace || DEFAULT_ABOUT_HOME_HEADINGS}
-            control={control}
-            className={classes.field}
-          />
-          <Controller
-            control={control}
-            defaultValue={
-              user.sleepingArrangement ||
-              SleepingArrangement.SLEEPING_ARRANGEMENT_UNSPECIFIED
-            }
-            name="sleepingArrangement"
-            render={({ field }) => (
-              <>
-                <Select
-                  onChange={(event) => field.onChange(event.target.value)}
-                  id="sleepingArrangement"
-                  label={t("profile:home_info_headings.space")}
-                  className={classes.field}
-                  value={field.value}
-                  options={[
-                    SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE,
-                    SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON,
-                    SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM,
-                  ]}
-                  optionLabelMap={sleepingArrangementLabelsShort(t)}
-                />
-                <Typography
-                  variant="caption"
-                  component="div"
-                  style={{ whiteSpace: "pre-line", marginTop: 8 }}
-                >
-                  {`${t("profile:sleeping_arrangement.private")}\n${t("profile:sleeping_arrangement.common")}\n${t("profile:sleeping_arrangement.shared_room")}`}
-                </Typography>
-              </>
-            )}
-          />
-          <div className={classes.checkboxContainer}>
-            <div>
-              <HostingPreferenceCheckbox
-                className={classes.formControl}
-                defaultValue={!!user.hasHousemates?.value}
-                label={t("profile:home_info_headings.has_housemates")}
-                name="hasHousemates"
-                register={register}
-              />
-              <ProfileTextInput
-                id="housemateDetails"
-                {...register("housemateDetails")}
-                label={t("profile:home_info_headings.housemate_details")}
-                name="housemateDetails"
-                defaultValue={user.housemateDetails?.value ?? ""}
-                maxRows={5}
-                multiline
-                className={classes.field}
-              />
-            </div>
-            <div>
-              <HostingPreferenceCheckbox
-                className={classes.formControl}
-                defaultValue={!!user.hasKids?.value}
-                label={t("profile:home_info_headings.host_kids")}
-                name="hasKids"
-                register={register}
-              />
-              <ProfileTextInput
-                id="kidDetails"
-                {...register("kidDetails")}
-                label={t("profile:home_info_headings.kid_details")}
-                name="kidDetails"
-                defaultValue={user.kidDetails?.value ?? ""}
-                maxRows={5}
-                multiline
-                className={classes.field}
-              />
-            </div>
-            <div>
-              <HostingPreferenceCheckbox
-                className={classes.formControl}
-                defaultValue={!!user.hasPets?.value}
-                label={t("profile:home_info_headings.host_pets")}
-                name="hasPets"
-                register={register}
-              />
-              <ProfileTextInput
-                id="petDetails"
-                {...register("petDetails")}
-                label={t("profile:home_info_headings.pet_details")}
-                name="petDetails"
-                defaultValue={user.petDetails?.value ?? ""}
-                maxRows={5}
-                multiline
-                className={classes.field}
-              />
-            </div>
-            <div>
-              <HostingPreferenceCheckbox
-                className={classes.formControl}
-                defaultValue={!!user.parking?.value}
-                label={t("profile:home_info_headings.parking")}
-                name="parking"
-                register={register}
-              />
+            </FieldGroup>
+
+            <FieldGroup>
               <Controller
                 control={control}
                 defaultValue={
-                  user.parkingDetails || ParkingDetails.PARKING_DETAILS_UNKNOWN
+                  user.smokingAllowed ||
+                  SmokingLocation.SMOKING_LOCATION_UNKNOWN
                 }
-                name="parkingDetails"
+                name="smokingAllowed"
                 render={({ field }) => (
                   <Select
-                    label={t("profile:home_info_headings.parking_details")}
+                    {...field}
                     onChange={(event) => field.onChange(event.target.value)}
+                    label={t("profile:edit_home_questions.accept_smoking")}
                     className={classes.field}
                     value={field.value}
-                    id="parkingDetails"
+                    id="smokingAllowed"
                     options={[
-                      ParkingDetails.PARKING_DETAILS_UNKNOWN,
-                      ParkingDetails.PARKING_DETAILS_FREE_ONSITE,
-                      ParkingDetails.PARKING_DETAILS_FREE_OFFSITE,
-                      ParkingDetails.PARKING_DETAILS_PAID_ONSITE,
-                      ParkingDetails.PARKING_DETAILS_PAID_OFFSITE,
+                      SmokingLocation.SMOKING_LOCATION_UNKNOWN,
+                      SmokingLocation.SMOKING_LOCATION_NO,
+                      SmokingLocation.SMOKING_LOCATION_OUTSIDE,
+                      SmokingLocation.SMOKING_LOCATION_WINDOW,
+                      SmokingLocation.SMOKING_LOCATION_YES,
                     ]}
-                    optionLabelMap={parkingDetailsLabels(t)}
+                    optionLabelMap={smokingLocationLabels(t)}
                   />
                 )}
               />
-            </div>
-            <HostingPreferenceCheckbox
-              className={classes.formControl}
-              defaultValue={!!user.drinksAtHome?.value}
-              label={t("profile:home_info_headings.host_drinking")}
-              name="drinksAtHome"
-              register={register}
-            />
-            <HostingPreferenceCheckbox
-              className={classes.formControl}
-              defaultValue={!!user.smokesAtHome?.value}
-              label={t("profile:home_info_headings.host_smoking")}
-              name="smokesAtHome"
-              register={register}
-            />
-          </div>
-          <Typography variant="h2">
-            {t("profile:home_info_headings.general")}
-          </Typography>
-          <ProfileMarkdownInput
-            id="area"
-            label={t("profile:home_info_headings.local_area")}
-            name="area"
-            defaultValue={user.area?.value ?? ""}
-            control={control}
-            className={classes.field}
-          />
-          <ProfileMarkdownInput
-            id="sleepingDetails"
-            label={t("profile:home_info_headings.sleeping_arrangement")}
-            name="sleepingDetails"
-            defaultValue={user.sleepingDetails?.value ?? ""}
-            control={control}
-            className={classes.field}
-          />
-          <ProfileMarkdownInput
-            id="houseRules"
-            label={t("profile:home_info_headings.house_rules")}
-            name="houseRules"
-            defaultValue={user.houseRules?.value ?? ""}
-            control={control}
-            className={classes.field}
-          />
-          <ProfileMarkdownInput
-            id="otherHostInfo"
-            label={t("profile:home_info_headings.other_info")}
-            name="otherHostInfo"
-            defaultValue={user.otherHostInfo?.value ?? ""}
-            control={control}
-            className={classes.field}
-          />
-          <div className={classes.buttonContainer}>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              loading={updateIsLoading}
-              onClick={onSubmit}
-            >
-              {t("global:save")}
-            </Button>
-          </div>
+            </FieldGroup>
+          </ProfileSection>
+
+          {/* About Your Home Section */}
+          <ProfileSection>
+            <SectionTitle>
+              {t("profile:home_info_headings.my_home")}
+            </SectionTitle>
+            <SectionSubtitle>
+              {t("profile:home_info_headings.about_home_subtitle")}
+            </SectionSubtitle>
+
+            <FieldGroup>
+              <ProfileMarkdownInput
+                id="aboutPlace"
+                label={t("profile:home_info_headings.about_home")}
+                name="aboutPlace"
+                defaultValue={user.aboutPlace || DEFAULT_ABOUT_HOME_HEADINGS}
+                control={control}
+                className={classes.field}
+              />
+            </FieldGroup>
+
+            <FieldGroup>
+              <Controller
+                control={control}
+                defaultValue={
+                  user.sleepingArrangement ||
+                  SleepingArrangement.SLEEPING_ARRANGEMENT_UNSPECIFIED
+                }
+                name="sleepingArrangement"
+                render={({ field }) => (
+                  <>
+                    <Select
+                      onChange={(event) => field.onChange(event.target.value)}
+                      id="sleepingArrangement"
+                      label={t("profile:home_info_headings.space")}
+                      className={classes.field}
+                      value={field.value}
+                      options={[
+                        SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE,
+                        SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON,
+                        SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM,
+                      ]}
+                      optionLabelMap={sleepingArrangementLabelsShort(t)}
+                    />
+                    <SleepingArrangementKey>
+                      <KeyTitle>What these options mean:</KeyTitle>
+                      <KeyItem>
+                        <KeyBullet />
+                        <KeyText>
+                          <strong>Private space:</strong>{" "}
+                          {t("profile:sleeping_arrangement.private")}
+                        </KeyText>
+                      </KeyItem>
+                      <KeyItem>
+                        <KeyBullet />
+                        <KeyText>
+                          <strong>Common room:</strong>{" "}
+                          {t("profile:sleeping_arrangement.common")}
+                        </KeyText>
+                      </KeyItem>
+                      <KeyItem>
+                        <KeyBullet />
+                        <KeyText>
+                          <strong>Shared room:</strong>{" "}
+                          {t("profile:sleeping_arrangement.shared_room")}
+                        </KeyText>
+                      </KeyItem>
+                    </SleepingArrangementKey>
+                  </>
+                )}
+              />
+            </FieldGroup>
+          </ProfileSection>
+
+          {/* Household Details Section */}
+          <ProfileSection>
+            <SectionTitle>
+              {t("profile:home_info_headings.household_details")}
+            </SectionTitle>
+            <SectionSubtitle>
+              {t("profile:home_info_headings.household_details_subtitle")}
+            </SectionSubtitle>
+
+            {/* Household Members */}
+            <FieldGroup>
+              <Typography variant="h3" gutterBottom>
+                {t("profile:home_info_headings.household_members")}
+              </Typography>
+              <CheckboxGrid>
+                <CheckboxItem>
+                  <HostingPreferenceCheckbox
+                    className={classes.formControl}
+                    defaultValue={!!user.hasHousemates?.value}
+                    label={t("profile:home_info_headings.has_housemates")}
+                    name="hasHousemates"
+                    register={register}
+                  />
+                  <ProfileTextInput
+                    id="housemateDetails"
+                    {...register("housemateDetails")}
+                    label={t("profile:home_info_headings.housemate_details")}
+                    name="housemateDetails"
+                    defaultValue={user.housemateDetails?.value ?? ""}
+                    maxRows={3}
+                    multiline
+                    className={classes.field}
+                  />
+                </CheckboxItem>
+
+                <CheckboxItem>
+                  <HostingPreferenceCheckbox
+                    className={classes.formControl}
+                    defaultValue={!!user.hasKids?.value}
+                    label={t("profile:home_info_headings.host_kids")}
+                    name="hasKids"
+                    register={register}
+                  />
+                  <ProfileTextInput
+                    id="kidDetails"
+                    {...register("kidDetails")}
+                    label={t("profile:home_info_headings.kid_details")}
+                    name="kidDetails"
+                    defaultValue={user.kidDetails?.value ?? ""}
+                    maxRows={3}
+                    multiline
+                    className={classes.field}
+                  />
+                </CheckboxItem>
+
+                <CheckboxItem>
+                  <HostingPreferenceCheckbox
+                    className={classes.formControl}
+                    defaultValue={!!user.hasPets?.value}
+                    label={t("profile:home_info_headings.host_pets")}
+                    name="hasPets"
+                    register={register}
+                  />
+                  <ProfileTextInput
+                    id="petDetails"
+                    {...register("petDetails")}
+                    label={t("profile:home_info_headings.pet_details")}
+                    name="petDetails"
+                    defaultValue={user.petDetails?.value ?? ""}
+                    maxRows={3}
+                    multiline
+                    className={classes.field}
+                  />
+                </CheckboxItem>
+              </CheckboxGrid>
+            </FieldGroup>
+
+            {/* Parking */}
+            <FieldGroup>
+              <Typography variant="h3" gutterBottom>
+                {t("profile:home_info_headings.parking_heading")}
+              </Typography>
+              <CheckboxGrid>
+                <CheckboxItem>
+                  <HostingPreferenceCheckbox
+                    className={classes.formControl}
+                    defaultValue={!!user.parking?.value}
+                    label={t("profile:home_info_headings.parking")}
+                    name="parking"
+                    register={register}
+                  />
+                  <Controller
+                    control={control}
+                    defaultValue={
+                      user.parkingDetails ||
+                      ParkingDetails.PARKING_DETAILS_UNKNOWN
+                    }
+                    name="parkingDetails"
+                    render={({ field }) => (
+                      <Select
+                        label={t("profile:home_info_headings.parking_details")}
+                        onChange={(event) => field.onChange(event.target.value)}
+                        className={classes.field}
+                        value={field.value}
+                        id="parkingDetails"
+                        options={[
+                          ParkingDetails.PARKING_DETAILS_UNKNOWN,
+                          ParkingDetails.PARKING_DETAILS_FREE_ONSITE,
+                          ParkingDetails.PARKING_DETAILS_FREE_OFFSITE,
+                          ParkingDetails.PARKING_DETAILS_PAID_ONSITE,
+                          ParkingDetails.PARKING_DETAILS_PAID_OFFSITE,
+                        ]}
+                        optionLabelMap={parkingDetailsLabels(t)}
+                      />
+                    )}
+                  />
+                </CheckboxItem>
+              </CheckboxGrid>
+            </FieldGroup>
+
+            {/* Household Habits */}
+            <FieldGroup>
+              <Typography variant="h3" gutterBottom>
+                {t("profile:home_info_headings.household_habits")}
+              </Typography>
+              <CheckboxGrid>
+                <HostingPreferenceCheckbox
+                  className={classes.formControl}
+                  defaultValue={!!user.drinksAtHome?.value}
+                  label={t("profile:home_info_headings.host_drinking")}
+                  name="drinksAtHome"
+                  register={register}
+                />
+                <HostingPreferenceCheckbox
+                  className={classes.formControl}
+                  defaultValue={!!user.smokesAtHome?.value}
+                  label={t("profile:home_info_headings.host_smoking")}
+                  name="smokesAtHome"
+                  register={register}
+                />
+              </CheckboxGrid>
+            </FieldGroup>
+          </ProfileSection>
+
+          {/* Additional Information Section */}
+          <ProfileSection>
+            <SectionTitle>
+              {t("profile:home_info_headings.general")}
+            </SectionTitle>
+            <SectionSubtitle>
+              {t("profile:home_info_headings.general_subtitle")}
+            </SectionSubtitle>
+
+            <FieldGroup>
+              <ProfileMarkdownInput
+                id="area"
+                label={t("profile:home_info_headings.local_area")}
+                name="area"
+                defaultValue={user.area?.value ?? ""}
+                control={control}
+                className={classes.field}
+              />
+            </FieldGroup>
+
+            <FieldGroup>
+              <ProfileMarkdownInput
+                id="sleepingDetails"
+                label={t("profile:home_info_headings.sleeping_arrangement")}
+                name="sleepingDetails"
+                defaultValue={user.sleepingDetails?.value ?? ""}
+                control={control}
+                className={classes.field}
+              />
+            </FieldGroup>
+
+            <FieldGroup>
+              <ProfileMarkdownInput
+                id="houseRules"
+                label={t("profile:home_info_headings.house_rules")}
+                name="houseRules"
+                defaultValue={user.houseRules?.value ?? ""}
+                control={control}
+                className={classes.field}
+              />
+            </FieldGroup>
+
+            <FieldGroup>
+              <ProfileMarkdownInput
+                id="otherHostInfo"
+                label={t("profile:home_info_headings.other_info")}
+                name="otherHostInfo"
+                defaultValue={user.otherHostInfo?.value ?? ""}
+                control={control}
+                className={classes.field}
+              />
+            </FieldGroup>
+          </ProfileSection>
+
+          {/* Bottom spacer to prevent content from being hidden behind sticky bar */}
+          <BottomSpacer />
+
+          {/* Sticky Save Bar */}
+          {user && (
+            <StickySaveBar>
+              <SaveButton
+                type="submit"
+                variant="contained"
+                color="primary"
+                loading={updateIsLoading}
+                disabled={!formState.isDirty || updateIsLoading}
+                onClick={onSubmit}
+              >
+                {updateIsLoading ? t("global:saving") : t("global:save")}
+              </SaveButton>
+            </StickySaveBar>
+          )}
         </form>
       ) : (
         <CenteredSpinner />
