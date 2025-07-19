@@ -4,7 +4,6 @@ import {
   Checkbox,
   FormControl,
   FormControlLabel,
-  Paper,
   styled,
   Typography,
 } from "@mui/material";
@@ -43,7 +42,7 @@ const ProfileSection = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.common.white,
   border: `1px solid ${theme.palette.grey[200]}`,
   position: "relative",
-  
+
   "&:hover": {
     borderColor: theme.palette.primary.light,
     boxShadow: `0 4px 20px rgba(0, 163, 152, 0.08)`,

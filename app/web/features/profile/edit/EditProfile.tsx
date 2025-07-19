@@ -10,7 +10,6 @@ import {
   FormControlLabel,
   List,
   ListItem,
-  Paper,
   Radio,
   RadioGroup,
   styled,
@@ -51,6 +50,7 @@ import {
   DEFAULT_ABOUT_ME_HEADINGS,
   DEFAULT_HOBBIES_HEADINGS,
 } from "./constants";
+import StatusCardGroup from "./StatusCard";
 import useStyles from "./styles";
 
 const StyledAlert = styled(Alert)(({ theme }) => ({
@@ -64,7 +64,7 @@ const ProfileSection = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.common.white,
   border: `1px solid ${theme.palette.grey[200]}`,
   position: "relative",
-  
+
   "&:hover": {
     borderColor: theme.palette.primary.light,
     boxShadow: `0 4px 20px rgba(0, 163, 152, 0.08)`,
@@ -145,75 +145,6 @@ const SaveButton = styled(Button)(({ theme }) => ({
 const BottomSpacer = styled(Box)(({ theme }) => ({
   height: 80,
   marginBottom: theme.spacing(2),
-}));
-
-const StatusCardContainer = styled(Box)(({ theme }) => ({
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-  gap: theme.spacing(2),
-  marginTop: theme.spacing(2),
-}));
-
-const StatusCard = styled(Paper, {
-  shouldForwardProp: (prop) => prop !== "selected",
-})<{ selected?: boolean }>(({ theme, selected }) => ({
-  padding: theme.spacing(2),
-  cursor: "pointer",
-  border: `1px solid ${theme.palette.grey[200]}`,
-  backgroundColor: selected
-    ? `${theme.palette.primary.main}15`
-    : theme.palette.common.white,
-  transition: "all 0.2s ease-in-out",
-  position: "relative",
-  overflow: "hidden",
-
-  "&:hover": {
-    borderColor: theme.palette.primary.main,
-    backgroundColor: selected
-      ? `${theme.palette.primary.main}20`
-      : theme.palette.grey[50],
-    transform: "translateY(-2px)",
-    boxShadow: "0 8px 25px rgba(0, 0, 0, 0.15)",
-  },
-}));
-
-const StatusCardContent = styled(Box)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  textAlign: "center",
-  gap: theme.spacing(1.5),
-}));
-
-const StatusIcon = styled(Box, {
-  shouldForwardProp: (prop) => prop !== "selected",
-})<{ selected?: boolean }>(({ theme, selected }) => ({
-  width: 36,
-  height: 36,
-  borderRadius: "50%",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: selected
-    ? theme.palette.primary.main
-    : theme.palette.grey[200],
-  color: selected ? theme.palette.common.white : theme.palette.grey[700],
-  transition: "all 0.2s ease-in-out",
-}));
-
-const StatusTitle = styled(Typography, {
-  shouldForwardProp: (prop) => prop !== "selected",
-})<{ selected?: boolean }>(({ theme, selected }) => ({
-  fontSize: "1rem",
-  fontWeight: 600,
-  color: selected ? theme.palette.primary.main : theme.palette.text.primary,
-  marginBottom: theme.spacing(0.5),
-}));
-
-const StatusDescription = styled(Typography)(({ theme }) => ({
-  fontSize: "0.75rem",
-  color: theme.palette.text.secondary,
-  lineHeight: 1.4,
 }));
 
 const SearchIndicator = styled(Box)(({ theme }) => ({
@@ -502,223 +433,79 @@ export default function EditProfileForm() {
               </SectionSubtitle>
 
               <FieldGroup>
-                <Typography variant="h3" gutterBottom>
-                  {t("profile:edit_profile_headings.hosting_status")}
-                </Typography>
                 <Controller
                   control={control}
                   defaultValue={user.hostingStatus}
                   name="hostingStatus"
                   render={({ field }) => (
-                    <StatusCardContainer>
-                      <StatusCard
-                        selected={
-                          field.value === HostingStatus.HOSTING_STATUS_CAN_HOST
-                        }
-                        onClick={() =>
-                          field.onChange(HostingStatus.HOSTING_STATUS_CAN_HOST)
-                        }
-                      >
-                        <StatusCardContent>
-                          <StatusIcon
-                            selected={
-                              field.value ===
-                              HostingStatus.HOSTING_STATUS_CAN_HOST
-                            }
-                          >
-                            <CheckCircleOutline />
-                          </StatusIcon>
-                          <StatusTitle
-                            selected={
-                              field.value ===
-                              HostingStatus.HOSTING_STATUS_CAN_HOST
-                            }
-                          >
-                            {t("global:hosting_status.can_host")}
-                          </StatusTitle>
-                          <StatusDescription>
-                            I'm available to host travelers and provide
-                            accommodation
-                          </StatusDescription>
-                        </StatusCardContent>
-                      </StatusCard>
-
-                      <StatusCard
-                        selected={
-                          field.value === HostingStatus.HOSTING_STATUS_MAYBE
-                        }
-                        onClick={() =>
-                          field.onChange(HostingStatus.HOSTING_STATUS_MAYBE)
-                        }
-                      >
-                        <StatusCardContent>
-                          <StatusIcon
-                            selected={
-                              field.value === HostingStatus.HOSTING_STATUS_MAYBE
-                            }
-                          >
-                            <HelpOutline />
-                          </StatusIcon>
-                          <StatusTitle
-                            selected={
-                              field.value === HostingStatus.HOSTING_STATUS_MAYBE
-                            }
-                          >
-                            {t("global:hosting_status.maybe")}
-                          </StatusTitle>
-                          <StatusDescription>
-                            I might be able to host, depending on circumstances
-                          </StatusDescription>
-                        </StatusCardContent>
-                      </StatusCard>
-
-                      <StatusCard
-                        selected={
-                          field.value === HostingStatus.HOSTING_STATUS_CANT_HOST
-                        }
-                        onClick={() =>
-                          field.onChange(HostingStatus.HOSTING_STATUS_CANT_HOST)
-                        }
-                      >
-                        <StatusCardContent>
-                          <StatusIcon
-                            selected={
-                              field.value ===
-                              HostingStatus.HOSTING_STATUS_CANT_HOST
-                            }
-                          >
-                            <CancelOutlined />
-                          </StatusIcon>
-                          <StatusTitle
-                            selected={
-                              field.value ===
-                              HostingStatus.HOSTING_STATUS_CANT_HOST
-                            }
-                          >
-                            {t("global:hosting_status.cant_host")}
-                          </StatusTitle>
-                          <StatusDescription>
-                            I'm not able to host travelers at the moment
-                          </StatusDescription>
-                        </StatusCardContent>
-                      </StatusCard>
-                    </StatusCardContainer>
+                    <StatusCardGroup
+                      title={t("profile:edit_profile_headings.hosting_status")}
+                      selectedValue={field.value}
+                      onSelect={field.onChange}
+                      options={[
+                        {
+                          value: HostingStatus.HOSTING_STATUS_CAN_HOST,
+                          title: t("global:hosting_status.can_host"),
+                          description:
+                            "I'm available to host travelers and provide accommodation",
+                          icon: <CheckCircleOutline />,
+                        },
+                        {
+                          value: HostingStatus.HOSTING_STATUS_MAYBE,
+                          title: t("global:hosting_status.maybe"),
+                          description:
+                            "I might be able to host, depending on circumstances",
+                          icon: <HelpOutline />,
+                        },
+                        {
+                          value: HostingStatus.HOSTING_STATUS_CANT_HOST,
+                          title: t("global:hosting_status.cant_host"),
+                          description:
+                            "I'm not able to host travelers at the moment",
+                          icon: <CancelOutlined />,
+                        },
+                      ]}
+                    />
                   )}
                 />
               </FieldGroup>
 
               <FieldGroup>
-                <Typography variant="h3" gutterBottom>
-                  {t("profile:edit_profile_headings.meetup_status")}
-                </Typography>
                 <Controller
                   control={control}
                   defaultValue={user.meetupStatus}
                   name="meetupStatus"
                   render={({ field }) => (
-                    <StatusCardContainer>
-                      <StatusCard
-                        selected={
-                          field.value ===
-                          MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP
-                        }
-                        onClick={() =>
-                          field.onChange(
-                            MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP,
-                          )
-                        }
-                      >
-                        <StatusCardContent>
-                          <StatusIcon
-                            selected={
-                              field.value ===
-                              MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP
-                            }
-                          >
-                            <CheckCircleOutline />
-                          </StatusIcon>
-                          <StatusTitle
-                            selected={
-                              field.value ===
-                              MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP
-                            }
-                          >
-                            {t("global:meetup_status.wants_to_meetup")}
-                          </StatusTitle>
-                          <StatusDescription>
-                            I'm actively looking to meet up with travelers
-                          </StatusDescription>
-                        </StatusCardContent>
-                      </StatusCard>
-
-                      <StatusCard
-                        selected={
-                          field.value ===
-                          MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP
-                        }
-                        onClick={() =>
-                          field.onChange(
-                            MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP,
-                          )
-                        }
-                      >
-                        <StatusCardContent>
-                          <StatusIcon
-                            selected={
-                              field.value ===
-                              MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP
-                            }
-                          >
-                            <HelpOutline />
-                          </StatusIcon>
-                          <StatusTitle
-                            selected={
-                              field.value ===
-                              MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP
-                            }
-                          >
-                            {t("global:meetup_status.open_to_meetup")}
-                          </StatusTitle>
-                          <StatusDescription>
-                            I'm open to meeting up if the opportunity arises
-                          </StatusDescription>
-                        </StatusCardContent>
-                      </StatusCard>
-
-                      <StatusCard
-                        selected={
-                          field.value ===
-                          MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP
-                        }
-                        onClick={() =>
-                          field.onChange(
+                    <StatusCardGroup
+                      title={t("profile:edit_profile_headings.meetup_status")}
+                      selectedValue={field.value}
+                      onSelect={field.onChange}
+                      options={[
+                        {
+                          value: MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP,
+                          title: t("global:meetup_status.wants_to_meetup"),
+                          description:
+                            "I'm actively looking to meet up with travelers",
+                          icon: <CheckCircleOutline />,
+                        },
+                        {
+                          value: MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP,
+                          title: t("global:meetup_status.open_to_meetup"),
+                          description:
+                            "I'm open to meeting up if the opportunity arises",
+                          icon: <HelpOutline />,
+                        },
+                        {
+                          value:
                             MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP,
-                          )
-                        }
-                      >
-                        <StatusCardContent>
-                          <StatusIcon
-                            selected={
-                              field.value ===
-                              MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP
-                            }
-                          >
-                            <CancelOutlined />
-                          </StatusIcon>
-                          <StatusTitle
-                            selected={
-                              field.value ===
-                              MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP
-                            }
-                          >
-                            {t("global:meetup_status.does_not_want_to_meetup")}
-                          </StatusTitle>
-                          <StatusDescription>
-                            I prefer not to meet up with travelers
-                          </StatusDescription>
-                        </StatusCardContent>
-                      </StatusCard>
-                    </StatusCardContainer>
+                          title: t(
+                            "global:meetup_status.does_not_want_to_meetup",
+                          ),
+                          description: "I prefer not to meet up with travelers",
+                          icon: <CancelOutlined />,
+                        },
+                      ]}
+                    />
                   )}
                 />
               </FieldGroup>
