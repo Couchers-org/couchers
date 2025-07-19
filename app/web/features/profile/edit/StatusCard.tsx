@@ -6,6 +6,10 @@ const StatusCardContainer = styled(Box)(({ theme }) => ({
   gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
   gap: theme.spacing(2),
   marginTop: theme.spacing(2),
+  
+  [theme.breakpoints.up("md")]: {
+    gridAutoRows: "1fr",
+  },
 }));
 
 const StatusCard = styled(Paper, {
@@ -18,6 +22,9 @@ const StatusCard = styled(Paper, {
     ? `${theme.palette.primary.main}15`
     : theme.palette.common.white,
   transition: "all 0.2s ease-in-out",
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
 
   "&:hover": {
     borderColor: theme.palette.primary.main,
@@ -30,6 +37,8 @@ const StatusCard = styled(Paper, {
 
   [theme.breakpoints.down("md")]: {
     padding: theme.spacing(1.5),
+    height: "auto",
+    display: "block",
   },
 }));
 
@@ -38,10 +47,21 @@ const StatusCardContent = styled(Box)(({ theme }) => ({
   gridTemplateColumns: "auto 1fr",
   gap: theme.spacing(2),
   alignItems: "center",
-
+  flex: 1,
+  
+  [theme.breakpoints.up("md")]: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    textAlign: "center",
+    gap: theme.spacing(1),
+  },
+  
   [theme.breakpoints.down("md")]: {
     gridTemplateColumns: "auto 1fr",
     gap: theme.spacing(1.5),
+    flex: "none",
   },
 }));
 
@@ -74,7 +94,13 @@ const StatusTextContainer = styled(Box)(({ theme }) => ({
   gridTemplateColumns: "40% 60%",
   gap: theme.spacing(1),
   alignItems: "center",
-
+  
+  [theme.breakpoints.up("md")]: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  
   [theme.breakpoints.down("md")]: {
     gridTemplateColumns: "40% 60%",
     gap: theme.spacing(1),

@@ -448,21 +448,21 @@ export default function EditProfileForm() {
                           title: t("global:hosting_status.can_host"),
                           description:
                             "I'm available to host travelers and provide accommodation",
-                          icon: <CheckCircleOutline />,
+                          icon: <CheckCircleOutline sx={{ fontSize: 30 }} />,
                         },
                         {
                           value: HostingStatus.HOSTING_STATUS_MAYBE,
                           title: t("global:hosting_status.maybe"),
                           description:
                             "I might be able to host, depending on circumstances",
-                          icon: <HelpOutline />,
+                          icon: <HelpOutline sx={{ fontSize: 30 }} />,
                         },
                         {
                           value: HostingStatus.HOSTING_STATUS_CANT_HOST,
                           title: t("global:hosting_status.cant_host"),
                           description:
                             "I'm not able to host travelers at the moment",
-                          icon: <CancelOutlined />,
+                          icon: <CancelOutlined sx={{ fontSize: 30 }} />,
                         },
                       ]}
                     />
@@ -486,14 +486,14 @@ export default function EditProfileForm() {
                           title: t("global:meetup_status.wants_to_meetup"),
                           description:
                             "I'm actively looking to meet up with travelers",
-                          icon: <CheckCircleOutline />,
+                          icon: <CheckCircleOutline sx={{ fontSize: 30 }} />,
                         },
                         {
                           value: MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP,
                           title: t("global:meetup_status.open_to_meetup"),
                           description:
                             "I'm open to meeting up if the opportunity arises",
-                          icon: <HelpOutline />,
+                          icon: <HelpOutline sx={{ fontSize: 30 }} />,
                         },
                         {
                           value:
@@ -502,7 +502,7 @@ export default function EditProfileForm() {
                             "global:meetup_status.does_not_want_to_meetup",
                           ),
                           description: "I prefer not to meet up with travelers",
-                          icon: <CancelOutlined />,
+                          icon: <CancelOutlined sx={{ fontSize: 30 }} />,
                         },
                       ]}
                     />
