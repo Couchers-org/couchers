@@ -1,4 +1,10 @@
-import { CircularProgress, List, styled, Typography } from "@mui/material";
+import { ExpandLess,ExpandMore } from "@mui/icons-material";
+import {
+  Button,
+  CircularProgress,
+  styled,
+  Typography,
+} from "@mui/material";
 import Snackbar from "components/Snackbar";
 import { NOTIFICATIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
@@ -42,17 +48,23 @@ const StyledNotificationSettingsContainer = styled("div")(({ theme }) => ({
   },
 }));
 
+const StyledHeaderContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: theme.spacing(1),
+}));
+
 const StyledNotificationDescription = styled(Typography)(({ theme }) => ({
   margin: theme.spacing(1, 0),
   paddingBottom: theme.spacing(3),
 }));
 
-const StyledCustomList = styled(List)(({ theme }) => ({
+const StyledAccordionContainer = styled("div")(({ theme }) => ({
   border: `1px solid ${theme.palette.divider}`,
   marginTop: theme.spacing(1),
-  display: "flex",
-  flexDirection: "column",
-  padding: `0 ${theme.spacing(1)}`,
+  borderRadius: theme.shape.borderRadius,
+  overflow: "hidden",
 }));
 
 const StyledLoadingSpinner = styled(CircularProgress)({
@@ -79,6 +91,7 @@ export default function EditNotificationSettingsPage() {
   const { data, isLoading, isError } = useNotificationSettings();
   const [groups, setGroups] = useState<GroupsByType>({});
   const [areGroupsLoading, setAreGroupsLoading] = useState<boolean>(true);
+  const [allExpanded, setAllExpanded] = useState<boolean>(false);
 
   useEffect(() => {
     if (!data) {
@@ -113,6 +126,10 @@ export default function EditNotificationSettingsPage() {
     setAreGroupsLoading(false);
   }, [data]);
 
+  const handleToggleAll = () => {
+    setAllExpanded(!allExpanded);
+  };
+
   const renderNotificationListItems = () =>
     Object.keys(groups)
       .filter((key) => groups[key].length > 0)
@@ -121,6 +138,7 @@ export default function EditNotificationSettingsPage() {
           key={key}
           items={groups[key]}
           type={key as NotificationType}
+          isExpanded={allExpanded}
         />
       ));
 
@@ -130,14 +148,27 @@ export default function EditNotificationSettingsPage() {
       <StyledNotificationDescription variant="body1">
         {t("description")}
       </StyledNotificationDescription>
-      <Typography variant="h3">{t("list_heading")}</Typography>
+      <StyledHeaderContainer>
+        <Typography variant="h3">{t("list_heading")}</Typography>
+        <Button
+          variant="outlined"
+          size="small"
+          onClick={handleToggleAll}
+          startIcon={allExpanded ? <ExpandLess /> : <ExpandMore />}
+          sx={{ minWidth: "auto" }}
+        >
+          {allExpanded ? t("collapse_all") : t("expand_all")}
+        </Button>
+      </StyledHeaderContainer>
       {isError && (
         <Snackbar severity="error">
           <Typography>{t("error_loading")}</Typography>
         </Snackbar>
       )}
       {!isLoading && !areGroupsLoading ? (
-        <StyledCustomList>{renderNotificationListItems()}</StyledCustomList>
+        <StyledAccordionContainer>
+          {renderNotificationListItems()}
+        </StyledAccordionContainer>
       ) : (
         <StyledLoadingSpinner />
       )}

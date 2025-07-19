@@ -1,16 +1,14 @@
+import {ExpandMore } from "@mui/icons-material";
 import {
-  Collapse,
-  ListItem,
-  ListItemIcon,
-  ListItemProps,
-  ListItemText,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   styled,
   Typography,
 } from "@mui/material";
-import { ExpandLessIcon, ExpandMoreIcon } from "components/Icons";
 import { NOTIFICATIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { GroupAction, NotificationType } from "./EditNotificationSettingsPage";
 import NotificationSettingsSubListItem from "./NotificationSettingsSubListItem";
@@ -19,23 +17,29 @@ import { mapNotificationSettingsTypeToIcon } from "./utils/constants";
 export interface NotificationSettingsListItemProps {
   items: GroupAction[];
   type: NotificationType;
+  isExpanded?: boolean;
 }
 
-const StyledListItem = styled(ListItem)<ListItemProps>(({ theme }) => ({
-  background: "transparent",
-  border: "none",
-
-  "&:hover": {
-    backgroundColor: "transparent",
-  },
+const StyledAccordion = styled(Accordion)(({ theme }) => ({
   "&:not(:first-of-type)": {
     borderTop: `1px solid ${theme.palette.divider}`,
+  },
+  "&:before": {
+    display: "none",
+  },
+  boxShadow: "none",
+}));
+
+const StyledAccordionSummary = styled(AccordionSummary)(({ theme }) => ({
+  "& .MuiAccordionSummary-content": {
+    alignItems: "center",
   },
 }));
 
 export default function NotificationSettingsListItem({
   items,
   type,
+  isExpanded = false,
 }: NotificationSettingsListItemProps) {
   const notificationType =
     type as `notifications:notification_settings.edit_preferences.list_items.${NotificationType}`;
@@ -44,6 +48,11 @@ export default function NotificationSettingsListItem({
     keyPrefix: "notification_settings.edit_preferences.list_items",
   });
   const [isCollapseOpen, setIsCollapseOpen] = useState<boolean>(false);
+
+  // Update local state when global state changes
+  useEffect(() => {
+    setIsCollapseOpen(isExpanded);
+  }, [isExpanded]);
 
   const handleCollapseClick = () => {
     setIsCollapseOpen(!isCollapseOpen);
@@ -63,15 +72,14 @@ export default function NotificationSettingsListItem({
       ));
 
   return (
-    <>
-      <StyledListItem component="button" onClick={handleCollapseClick}>
-        <ListItemIcon>{mapNotificationSettingsTypeToIcon[type]}</ListItemIcon>
-        <ListItemText>
+    <StyledAccordion expanded={isCollapseOpen} onChange={handleCollapseClick}>
+      <StyledAccordionSummary expandIcon={<ExpandMore />}>
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          {mapNotificationSettingsTypeToIcon[type]}
           <Typography variant="h3">{t(notificationType)}</Typography>
-        </ListItemText>
-        {isCollapseOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-      </StyledListItem>
-      <Collapse in={isCollapseOpen}>{renderItems()}</Collapse>
-    </>
+        </div>
+      </StyledAccordionSummary>
+      <AccordionDetails>{renderItems()}</AccordionDetails>
+    </StyledAccordion>
   );
 }
