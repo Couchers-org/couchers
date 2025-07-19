@@ -122,6 +122,7 @@ export default function CreateEventPage() {
         isMutationLoading={isLoading}
         mutate={createEvent}
         title={t("communities:create_event_page_title")}
+        isEdit={false}
       >
         {({ isMutationLoading }) => (
           <>

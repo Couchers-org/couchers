@@ -69,7 +69,7 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
           data.dirtyFields.endTime || data.dirtyFields.endDate
             ? finalEndDate
             : undefined,
-        shouldNotify: true,
+        shouldNotify: data.dirtyFields.shouldNotify,
       };
 
       if (data.isOnline) {
@@ -124,6 +124,7 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
           isMutationLoading={isLoading}
           mutate={updateEvent}
           title={t("communities:edit_event")}
+          isEdit
         >
           {({ isMutationLoading }) => (
             <Button

@@ -71,6 +71,7 @@ interface BaseEventData {
   startTime: Dayjs;
   endTime: Dayjs;
   isOnline: boolean;
+  shouldNotify: boolean;
   eventImage?: string;
   parentCommunityId?: number;
   link?: string;
@@ -105,6 +106,7 @@ interface EventFormProps {
   >;
   isMutationLoading: boolean;
   title: string;
+  isEdit: boolean;
 }
 
 export default function EventForm({
@@ -114,6 +116,7 @@ export default function EventForm({
   mutate,
   isMutationLoading,
   title,
+  isEdit,
 }: EventFormProps) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useEventFormStyles();
@@ -246,6 +249,19 @@ export default function EventForm({
               {t("communities:virtual_events_subtext")}
             </Typography>
           </div>
+
+          {isEdit && (
+            <FormControlLabel
+              control={
+                <Checkbox
+                  {...register("shouldNotify")}
+                  defaultChecked={false}
+                  name="shouldNotify"
+                />
+              }
+              label={t("communities:notify_attendees")}
+            />
+          )}
         </div>
         <div className={classes.eventDetailsContainer}>
           <Typography id="content-label" variant="h3" component="p">
@@ -260,6 +276,7 @@ export default function EventForm({
             required={t("communities:event_details_required")}
           />
         </div>
+
         {children({ isMutationLoading })}
       </form>
     </div>

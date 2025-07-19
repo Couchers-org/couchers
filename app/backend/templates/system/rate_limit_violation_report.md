@@ -8,12 +8,12 @@ User {{ user.username }} has sent {{ threshold }} {{ action.value }}s in the pas
 
 {% endif %}
 **User info:**
-- Name: {{ user.name }}
-- Email: {{ user.email }}
-- Username: {{ user.username }}
-- User ID: {{ user.id }}
-- Joined: {{ user.joined }}
-- City: {{ user.city }}
+Name: {{ user.name }}
+Email: {{ user.email }}
+Username: {{ user.username }}
+User ID: {{ user.id }}
+Joined: {{ user.joined }}
+City: {{ user.city }}
 
 {% for action, entries in events.items() -%}
 **{{ action.value }}s (past {{ time_interval_str }}):**
