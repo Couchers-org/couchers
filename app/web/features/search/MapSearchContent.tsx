@@ -19,7 +19,7 @@ interface MapSearchContentProps {
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
   mapView: MapViewOptions;
-  numberOfTotal: number;
+  currentRange: string;
   onDrawerWidthChange: (width: number) => void;
   onLoadPreviousPage: () => void;
   onLoadNextPage: () => void;
@@ -82,7 +82,7 @@ const MapSearchContent = ({
   isLoading,
   mapRef,
   mapView,
-  numberOfTotal,
+  currentRange,
   onDrawerWidthChange,
   onLoadPreviousPage,
   onLoadNextPage,
@@ -129,7 +129,7 @@ const MapSearchContent = ({
           hasNextPage={hasNextPage}
           isLoading={isLoading}
           mapView={mapView}
-          numberOfTotal={numberOfTotal}
+          currentRange={currentRange}
           onDrawerWidthChange={onDrawerWidthChange}
           onLoadPreviousPage={onLoadPreviousPage}
           onLoadNextPage={onLoadNextPage}

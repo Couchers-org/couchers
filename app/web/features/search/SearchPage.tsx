@@ -95,7 +95,7 @@ export default function SearchPage() {
     isLoading,
     hasNextPage,
     hasPreviousPage,
-    numberOfTotal,
+    currentRange,
     totalItems,
     users,
   } = useUserSearch(searchParams, mapSearchState);
@@ -183,7 +183,7 @@ export default function SearchPage() {
           isLoading={isLoading}
           mapRef={mapRef}
           mapView={mapView}
-          numberOfTotal={numberOfTotal}
+          currentRange={currentRange}
           onDrawerWidthChange={handleDrawerWidthChange}
           onLoadPreviousPage={handleLoadPreviousPage}
           onLoadNextPage={handleLoadNextPage}
