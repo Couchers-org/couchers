@@ -36,19 +36,24 @@ import { useUnsavedChangesWarning } from "utils/hooks";
 import { DEFAULT_ABOUT_HOME_HEADINGS } from "./constants";
 import useStyles from "./styles";
 
-const ProfileSection = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(3),
-  marginBottom: theme.spacing(3),
-  borderRadius: theme.spacing(1.5),
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
-  border: `1px solid ${theme.palette.grey[100]}`,
+const ProfileSection = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(4),
+  marginBottom: theme.spacing(4),
+  borderRadius: theme.spacing(2),
+  backgroundColor: theme.palette.common.white,
+  border: `1px solid ${theme.palette.grey[200]}`,
+  position: "relative",
+  
+  "&:hover": {
+    borderColor: theme.palette.primary.light,
+    boxShadow: `0 4px 20px rgba(0, 163, 152, 0.08)`,
+  },
 }));
 
 const SectionTitle = styled(Typography)(({ theme }) => ({
-  fontSize: "1.25rem",
-  fontWeight: 600,
-  color: theme.palette.text.primary,
-  marginBottom: theme.spacing(2),
+  fontSize: "1.5rem",
+  fontWeight: 700,
+  marginBottom: theme.spacing(3),
   paddingBottom: theme.spacing(1),
   borderBottom: `2px solid ${theme.palette.primary.light}`,
 }));
@@ -56,15 +61,11 @@ const SectionTitle = styled(Typography)(({ theme }) => ({
 const SectionSubtitle = styled(Typography)(({ theme }) => ({
   fontSize: "1rem",
   fontWeight: 500,
-  color: theme.palette.text.secondary,
   marginBottom: theme.spacing(2),
 }));
 
 const FieldGroup = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(3),
-  "&:last-child": {
-    marginBottom: 0,
-  },
 }));
 
 const CheckboxGrid = styled(Box)(({ theme }) => ({
@@ -98,21 +99,15 @@ const StickySaveBar = styled(Box)(({ theme }) => ({
 
 const SaveButton = styled(Button)(({ theme }) => ({
   minWidth: 200,
-  height: 44,
   borderRadius: 22,
   fontSize: "1rem",
   fontWeight: 600,
-  textTransform: "none",
   boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
   transition: "all 0.2s ease-in-out",
 
   "&:hover": {
     boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)",
     transform: "translateY(-1px)",
-  },
-
-  "&:active": {
-    transform: "translateY(0)",
   },
 }));
 

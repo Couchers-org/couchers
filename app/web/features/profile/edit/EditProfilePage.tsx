@@ -27,7 +27,10 @@ const useStyles = makeStyles((theme) => ({
     },
     flexGrow: 1,
     marginRight: 0,
-    padding: theme.spacing(2),
+    padding: 0,
+    backgroundColor: "transparent",
+    boxShadow: "none",
+    border: "none",
   },
   buttonContainer: {
     display: "flex",
