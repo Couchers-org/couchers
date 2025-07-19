@@ -1,4 +1,5 @@
-import { CircularProgress, List, styled, Typography } from "@mui/material";
+import { ExpandLess, ExpandMore } from "@mui/icons-material";
+import { Button, CircularProgress, styled, Typography } from "@mui/material";
 import Snackbar from "components/Snackbar";
 import { NOTIFICATIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
@@ -37,8 +38,37 @@ const StyledNotificationSettingsContainer = styled("div")(({ theme }) => ({
   padding: theme.spacing(4),
   margin: "0 auto",
   width: "100%",
+
+  [theme.breakpoints.down("sm")]: {
+    padding: theme.spacing(2),
+  },
+
   [theme.breakpoints.up("md")]: {
     width: "50%",
+  },
+}));
+
+const StyledHeaderContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: theme.spacing(1),
+
+  [theme.breakpoints.down("sm")]: {
+    gap: theme.spacing(1),
+  },
+}));
+
+const StyledTitle = styled(Typography)(({ theme }) => ({
+  [theme.breakpoints.down("sm")]: {
+    flex: "0 0 50%",
+    fontSize: "1.1rem",
+  },
+}));
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  [theme.breakpoints.down("sm")]: {
+    fontSize: "0.75rem",
   },
 }));
 
@@ -47,12 +77,11 @@ const StyledNotificationDescription = styled(Typography)(({ theme }) => ({
   paddingBottom: theme.spacing(3),
 }));
 
-const StyledCustomList = styled(List)(({ theme }) => ({
+const StyledAccordionContainer = styled("div")(({ theme }) => ({
   border: `1px solid ${theme.palette.divider}`,
   marginTop: theme.spacing(1),
-  display: "flex",
-  flexDirection: "column",
-  padding: `0 ${theme.spacing(1)}`,
+  borderRadius: theme.shape.borderRadius,
+  overflow: "hidden",
 }));
 
 const StyledLoadingSpinner = styled(CircularProgress)({
@@ -79,6 +108,7 @@ export default function EditNotificationSettingsPage() {
   const { data, isLoading, isError } = useNotificationSettings();
   const [groups, setGroups] = useState<GroupsByType>({});
   const [areGroupsLoading, setAreGroupsLoading] = useState<boolean>(true);
+  const [allExpanded, setAllExpanded] = useState<boolean>(false);
 
   useEffect(() => {
     if (!data) {
@@ -113,6 +143,10 @@ export default function EditNotificationSettingsPage() {
     setAreGroupsLoading(false);
   }, [data]);
 
+  const handleToggleAll = () => {
+    setAllExpanded(!allExpanded);
+  };
+
   const renderNotificationListItems = () =>
     Object.keys(groups)
       .filter((key) => groups[key].length > 0)
@@ -121,6 +155,7 @@ export default function EditNotificationSettingsPage() {
           key={key}
           items={groups[key]}
           type={key as NotificationType}
+          isExpanded={allExpanded}
         />
       ));
 
@@ -130,14 +165,26 @@ export default function EditNotificationSettingsPage() {
       <StyledNotificationDescription variant="body1">
         {t("description")}
       </StyledNotificationDescription>
-      <Typography variant="h3">{t("list_heading")}</Typography>
+      <StyledHeaderContainer>
+        <StyledTitle variant="h3">{t("list_heading")}</StyledTitle>
+        <StyledButton
+          variant="outlined"
+          size="small"
+          onClick={handleToggleAll}
+          startIcon={allExpanded ? <ExpandLess /> : <ExpandMore />}
+        >
+          {allExpanded ? t("collapse_all") : t("expand_all")}
+        </StyledButton>
+      </StyledHeaderContainer>
       {isError && (
         <Snackbar severity="error">
           <Typography>{t("error_loading")}</Typography>
         </Snackbar>
       )}
       {!isLoading && !areGroupsLoading ? (
-        <StyledCustomList>{renderNotificationListItems()}</StyledCustomList>
+        <StyledAccordionContainer>
+          {renderNotificationListItems()}
+        </StyledAccordionContainer>
       ) : (
         <StyledLoadingSpinner />
       )}
