@@ -16,16 +16,16 @@ const calculateCurrentRange = ({
   totalItems: number;
 }) => {
   const pageSize = 100;
-  
+
   if (pageNumber === 1 && currentPageNumItems < pageSize) {
     // First page with fewer results than page size
     return `${currentPageNumItems}`;
   }
-  
+
   // Calculate range for paginated results
   const startRange = (pageNumber - 1) * pageSize + 1;
   const endRange = Math.min(pageNumber * pageSize, totalItems);
-  
+
   return `${startRange}-${endRange}`;
 };
 
