@@ -269,5 +269,6 @@
     "references_single": "reference",
     "references_plural": "references"
   },
-  "incomplete_profile_haiku": "Blank avatar stares,\nMystery behind silence—\nWho are you, stranger?"
+  "incomplete_profile_haiku": "Blank avatar stares,\nMystery behind silence—\nWho are you, stranger?",
+  "search_indicator": "This content is visible by other users when they search for you."
 }

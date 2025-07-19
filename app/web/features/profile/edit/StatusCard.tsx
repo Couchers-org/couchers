@@ -75,30 +75,6 @@ const StatusCardContent = styled(Box)(({ theme }) => ({
   },
 }));
 
-const StatusIcon = styled(Box, {
-  shouldForwardProp: (prop) => prop !== "selected",
-})<{ selected?: boolean }>(({ theme, selected }) => ({
-  width: 36,
-  height: 36,
-  borderRadius: "50%",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: selected ? theme.palette.primary.main : "transparent",
-  color: selected ? theme.palette.common.white : theme.palette.primary.main,
-  transition: "all 0.2s ease-in-out",
-
-  "&:hover": {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.common.white,
-  },
-
-  [theme.breakpoints.down("md")]: {
-    width: 32,
-    height: 32,
-  },
-}));
-
 const StatusTextContainer = styled(Box)(({ theme }) => ({
   display: "grid",
   gridTemplateColumns: "40% 60%",
@@ -161,9 +137,7 @@ export default function StatusCardGroup<T extends string | number>({
             onClick={() => onSelect(option.value)}
           >
             <StatusCardContent>
-              <StatusIcon selected={selectedValue === option.value}>
-                {option.icon}
-              </StatusIcon>
+              {option.icon}
               <StatusTextContainer>
                 <StatusTitle selected={selectedValue === option.value}>
                   {option.title}

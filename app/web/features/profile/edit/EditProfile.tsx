@@ -1,9 +1,4 @@
-import {
-  CancelOutlined,
-  CheckCircleOutline,
-  HelpOutline,
-  SearchOutlined,
-} from "@mui/icons-material";
+import { Cancel, CheckCircle, Help, SearchOutlined } from "@mui/icons-material";
 import {
   Box,
   DialogContent,
@@ -156,6 +151,7 @@ const SearchIndicator = styled(Box)(({ theme }) => ({
   border: `1px solid ${theme.palette.grey[200]}`,
   borderRadius: theme.spacing(1),
   marginTop: theme.spacing(1),
+  marginBottom: theme.spacing(1),
 }));
 
 const SearchIcon = styled(Box)(({ theme }) => ({
@@ -448,21 +444,54 @@ export default function EditProfileForm() {
                           title: t("global:hosting_status.can_host"),
                           description:
                             "I'm available to host travelers and provide accommodation",
-                          icon: <CheckCircleOutline sx={{ fontSize: 30 }} />,
+                          icon: (
+                            <CheckCircle
+                              sx={{
+                                fontSize: 32,
+                                color:
+                                  field.value ===
+                                  HostingStatus.HOSTING_STATUS_CAN_HOST
+                                    ? "primary.main"
+                                    : "grey.100",
+                              }}
+                            />
+                          ),
                         },
                         {
                           value: HostingStatus.HOSTING_STATUS_MAYBE,
                           title: t("global:hosting_status.maybe"),
                           description:
                             "I might be able to host, depending on circumstances",
-                          icon: <HelpOutline sx={{ fontSize: 30 }} />,
+                          icon: (
+                            <Help
+                              sx={{
+                                fontSize: 32,
+                                color:
+                                  field.value ===
+                                  HostingStatus.HOSTING_STATUS_MAYBE
+                                    ? "primary.main"
+                                    : "grey.100",
+                              }}
+                            />
+                          ),
                         },
                         {
                           value: HostingStatus.HOSTING_STATUS_CANT_HOST,
                           title: t("global:hosting_status.cant_host"),
                           description:
                             "I'm not able to host travelers at the moment",
-                          icon: <CancelOutlined sx={{ fontSize: 30 }} />,
+                          icon: (
+                            <Cancel
+                              sx={{
+                                fontSize: 32,
+                                color:
+                                  field.value ===
+                                  HostingStatus.HOSTING_STATUS_CANT_HOST
+                                    ? "primary.main"
+                                    : "grey.100",
+                              }}
+                            />
+                          ),
                         },
                       ]}
                     />
@@ -486,14 +515,36 @@ export default function EditProfileForm() {
                           title: t("global:meetup_status.wants_to_meetup"),
                           description:
                             "I'm actively looking to meet up with travelers",
-                          icon: <CheckCircleOutline sx={{ fontSize: 30 }} />,
+                          icon: (
+                            <CheckCircle
+                              sx={{
+                                fontSize: 32,
+                                color:
+                                  field.value ===
+                                  MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP
+                                    ? "primary.main"
+                                    : "grey.100",
+                              }}
+                            />
+                          ),
                         },
                         {
                           value: MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP,
                           title: t("global:meetup_status.open_to_meetup"),
                           description:
                             "I'm open to meeting up if the opportunity arises",
-                          icon: <HelpOutline sx={{ fontSize: 30 }} />,
+                          icon: (
+                            <Help
+                              sx={{
+                                fontSize: 32,
+                                color:
+                                  field.value ===
+                                  MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP
+                                    ? "primary.main"
+                                    : "grey.100",
+                              }}
+                            />
+                          ),
                         },
                         {
                           value:
@@ -502,7 +553,18 @@ export default function EditProfileForm() {
                             "global:meetup_status.does_not_want_to_meetup",
                           ),
                           description: "I prefer not to meet up with travelers",
-                          icon: <CancelOutlined sx={{ fontSize: 30 }} />,
+                          icon: (
+                            <Cancel
+                              sx={{
+                                fontSize: 32,
+                                color:
+                                  field.value ===
+                                  MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP
+                                    ? "primary.main"
+                                    : "grey.100",
+                              }}
+                            />
+                          ),
                         },
                       ]}
                     />
@@ -653,15 +715,15 @@ export default function EditProfileForm() {
                   helperText={t("profile:helper_text.characters_remaining", {
                     count: ABOUT_ME_MIN_LENGTH - aboutMeFieldLength,
                   })}
+                  description={
+                    <SearchIndicator>
+                      <SearchIcon>
+                        <SearchOutlined />
+                      </SearchIcon>
+                      <SearchText>{t("profile:search_indicator")}</SearchText>
+                    </SearchIndicator>
+                  }
                 />
-                <SearchIndicator>
-                  <SearchIcon>
-                    <SearchOutlined />
-                  </SearchIcon>
-                  <SearchText>
-                    This content appears when other users search for you
-                  </SearchText>
-                </SearchIndicator>
               </FieldGroup>
 
               <FieldGroup>
