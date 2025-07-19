@@ -1,10 +1,5 @@
-import { ExpandLess,ExpandMore } from "@mui/icons-material";
-import {
-  Button,
-  CircularProgress,
-  styled,
-  Typography,
-} from "@mui/material";
+import { ExpandLess, ExpandMore } from "@mui/icons-material";
+import { Button, CircularProgress, styled, Typography } from "@mui/material";
 import Snackbar from "components/Snackbar";
 import { NOTIFICATIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
@@ -43,6 +38,11 @@ const StyledNotificationSettingsContainer = styled("div")(({ theme }) => ({
   padding: theme.spacing(4),
   margin: "0 auto",
   width: "100%",
+
+  [theme.breakpoints.down("sm")]: {
+    padding: theme.spacing(2),
+  },
+
   [theme.breakpoints.up("md")]: {
     width: "50%",
   },
@@ -53,6 +53,23 @@ const StyledHeaderContainer = styled("div")(({ theme }) => ({
   justifyContent: "space-between",
   alignItems: "center",
   marginBottom: theme.spacing(1),
+
+  [theme.breakpoints.down("sm")]: {
+    gap: theme.spacing(1),
+  },
+}));
+
+const StyledTitle = styled(Typography)(({ theme }) => ({
+  [theme.breakpoints.down("sm")]: {
+    flex: "0 0 50%",
+    fontSize: "1.1rem",
+  },
+}));
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  [theme.breakpoints.down("sm")]: {
+    fontSize: "0.75rem",
+  },
 }));
 
 const StyledNotificationDescription = styled(Typography)(({ theme }) => ({
@@ -149,16 +166,15 @@ export default function EditNotificationSettingsPage() {
         {t("description")}
       </StyledNotificationDescription>
       <StyledHeaderContainer>
-        <Typography variant="h3">{t("list_heading")}</Typography>
-        <Button
+        <StyledTitle variant="h3">{t("list_heading")}</StyledTitle>
+        <StyledButton
           variant="outlined"
           size="small"
           onClick={handleToggleAll}
           startIcon={allExpanded ? <ExpandLess /> : <ExpandMore />}
-          sx={{ minWidth: "auto" }}
         >
           {allExpanded ? t("collapse_all") : t("expand_all")}
-        </Button>
+        </StyledButton>
       </StyledHeaderContainer>
       {isError && (
         <Snackbar severity="error">
