@@ -8,8 +8,8 @@ import i18n from "test/i18n";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
 import { addDefaultUser } from "test/utils";
 
-import EditProfilePage from "./EditProfilePage";
 import { DEFAULT_ABOUT_ME_HEADINGS } from "./constants";
+import EditProfilePage from "./EditProfilePage";
 
 const { t } = i18n;
 
