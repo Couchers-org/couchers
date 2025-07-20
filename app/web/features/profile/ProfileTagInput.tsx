@@ -19,6 +19,18 @@ import React, { useRef, useState } from "react";
 import { ControllerRenderProps } from "react-hook-form";
 import makeStyles from "utils/makeStyles";
 
+interface ProfileTagInputProps {
+  onChange: (_: unknown, value: string[]) => void;
+  value: string[];
+  options: string[];
+  label: string;
+  id: string;
+  allowCsv?: boolean;
+  className?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  inputFieldProps?: ControllerRenderProps<any, string>;
+}
+
 const useStyles = makeStyles((theme) =>
   createStyles({
     button: {
@@ -110,8 +122,8 @@ const useStyles = makeStyles((theme) =>
       fontSize: theme.typography.fontSize,
       margin: theme.spacing(0.5, 0.5, 0.5, 0),
       padding: theme.spacing(0.75, 1.5),
-      backgroundColor: theme.palette.primary.light,
-      border: `1px solid ${theme.palette.primary.main}`,
+      backgroundColor: theme.palette.primary.main,
+      border: `1px solid ${theme.palette.primary.dark}`,
       borderRadius: theme.spacing(2),
       boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
       transition: "all 0.2s ease-in-out",
@@ -123,7 +135,7 @@ const useStyles = makeStyles((theme) =>
     tagLabel: {
       marginLeft: theme.spacing(0.75),
       fontWeight: 500,
-      color: theme.palette.primary.dark,
+      color: theme.palette.common.white,
     },
     tagsContainer: {
       display: "grid",
@@ -132,17 +144,6 @@ const useStyles = makeStyles((theme) =>
   }),
 );
 
-interface ProfileTagInputProps {
-  onChange: (_: unknown, value: string[]) => void;
-  value: string[];
-  options: string[];
-  label: string;
-  id: string;
-  allowCsv?: boolean;
-  className?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  inputFieldProps?: ControllerRenderProps<any, string>;
-}
 
 export default function ProfileTagInput({
   onChange,
@@ -210,11 +211,11 @@ export default function ProfileTagInput({
               onClick={() => handleRemove(tag)}
               size="small"
               sx={{
-                color: "primary.dark",
+                color: "common.white",
                 padding: 0.5,
                 "&:hover": {
-                  backgroundColor: "primary.main",
-                  color: "primary.contrastText",
+                  backgroundColor: "primary.dark",
+                  color: "common.white",
                 },
               }}
             >
