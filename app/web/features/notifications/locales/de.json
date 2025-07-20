@@ -5,7 +5,7 @@
         "go_to_button": "Benachrichtigungseinstellungen verwalten",
         "edit_preferences": {
             "title": "Benachrichtigungseinstellungen",
-            "description": "Du erhältst möglicherweise weiterhin wichtige Benachrichtigungen über dein Konto und Inhalte außerhalb deiner bevorzugten Benachrichtigungseinstellungen.",
+            "description": "Alle Änderungen, die du unten vornimmst, werden automatisch gespeichert. Bitte beachte, dass du möglicherweise weiterhin wichtige Benachrichtigungen über dein Konto und Inhalte außerhalb deiner bevorzugten Benachrichtigungseinstellungen erhältst.",
             "list_heading": "Benachrichtigungen, die du erhalten kannst",
             "error_loading": "Fehler beim Laden der Benachrichtigungseinstellungen",
             "list_items": {
@@ -22,7 +22,7 @@
             },
             "item_descriptions": {
                 "host_request": {
-                    "create": "Jemand sendet Ihnen eine Gastgeberanfrage",
+                    "create": "Jemand sendet dir eine Host-Anfrage",
                     "accept": "Jemand akzeptiert deine Host-anfrage",
                     "confirm": "Jemand bestätigt seine Gastgeberanfrage",
                     "reject": "Jemand lehnt deine Host-anfrage ab",
@@ -31,7 +31,7 @@
                     "missed_messages": "Du hast Nachrichten in einer Host-anfrage verpasst"
                 },
                 "chat": {
-                    "message": "Jemand sendet Ihnen eine Nachricht",
+                    "message": "Jemand sendet dir eine Nachricht",
                     "missed_messages": "Du hast Nachrichten in einem Chat verpasst"
                 },
                 "reference": {
@@ -42,7 +42,7 @@
                     "reminder_surfed": "Erinnerung, eine Referenz für jemanden zu schreiben, mit dem du gesurft hast"
                 },
                 "friend_request": {
-                    "create": "Jemand sendet Ihnen eine Freundschaftsanfrage",
+                    "create": "Jemand sendet dir eine Freundschaftsanfrage",
                     "accept": "Jemand akzeptiert deine Freundschaftsanfrage"
                 },
                 "event": {
@@ -104,7 +104,9 @@
                 "general": {
                     "new_blog_post": "Ein neuer Blogbeitrag wurde veröffentlicht"
                 }
-            }
+            },
+            "expand_all": "Alle aufklappen",
+            "collapse_all": "Alle einklappen"
         },
         "push_notifications": {
             "permission_denied": {
