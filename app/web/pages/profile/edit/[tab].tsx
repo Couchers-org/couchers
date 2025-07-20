@@ -33,4 +33,4 @@ export default function EditProfilePage() {
   return <EditProfilePageComponent tab={parsedTab} />;
 }
 
-EditProfilePage.getLayout = appGetLayout();
+EditProfilePage.getLayout = appGetLayout({ noFooter: true });
