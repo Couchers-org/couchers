@@ -1,6 +1,7 @@
 import { TabContext, TabPanel } from "@mui/lab";
 import { Button, Card } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
+import IconButton from "components/IconButton";
 import { BackIcon } from "components/Icons";
 import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
@@ -93,13 +94,13 @@ export default function EditProfilePage({
       <HtmlMeta title={t("profile:heading.edit_profile")} />
       <div className={classes.headerContainer}>
         <div className={classes.leftHeader}>
-          <Button
+          <IconButton
             className={classes.backButton}
             onClick={() => router.push(routeToProfile())}
             aria-label={t("global:back")}
           >
             <BackIcon />
-          </Button>
+          </IconButton>
           <PageTitle>{t("profile:heading.edit_profile")}</PageTitle>
         </div>
         <Link href={settingsRoute} passHref legacyBehavior>

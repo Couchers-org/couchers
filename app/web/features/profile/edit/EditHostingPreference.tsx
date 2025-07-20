@@ -1,5 +1,4 @@
 import {
-  Autocomplete,
   Box,
   Checkbox,
   FormControl,
@@ -27,7 +26,7 @@ import {
   SleepingArrangement,
   SmokingLocation,
 } from "proto/api_pb";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Controller, useForm, UseFormReturn } from "react-hook-form";
 import { HostingPreferenceData } from "service";
 import { useUnsavedChangesWarning } from "utils/hooks";
@@ -194,11 +193,82 @@ export default function HostingPreferenceForm() {
   } = useUpdateHostingPreferences();
   const { data: user } = useCurrentUser();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { control, register, handleSubmit, formState } =
+  const { control, register, handleSubmit, reset, formState } =
     useForm<HostingPreferenceData>({
       mode: "onBlur",
       shouldFocusError: true,
     });
+
+  // Reset form with user data when user is loaded, without marking as dirty
+  React.useEffect(() => {
+    if (user) {
+      reset(
+        {
+          lastMinute: !!user.lastMinute?.value,
+          wheelchairAccessible: !!user.wheelchairAccessible?.value,
+          campingOk: !!user.campingOk?.value,
+          acceptsKids: !!user.acceptsKids?.value,
+          acceptsPets: !!user.acceptsPets?.value,
+          drinkingAllowed: !!user.drinkingAllowed?.value,
+          maxGuests: user.maxGuests?.value ?? 1,
+          smokingAllowed:
+            user.smokingAllowed || SmokingLocation.SMOKING_LOCATION_UNKNOWN,
+          aboutPlace: user.aboutPlace || DEFAULT_ABOUT_HOME_HEADINGS,
+          sleepingArrangement:
+            user.sleepingArrangement ||
+            SleepingArrangement.SLEEPING_ARRANGEMENT_UNSPECIFIED,
+          hasHousemates: !!user.hasHousemates?.value,
+          housemateDetails: user.housemateDetails?.value ?? "",
+          hasKids: !!user.hasKids?.value,
+          kidDetails: user.kidDetails?.value ?? "",
+          hasPets: !!user.hasPets?.value,
+          petDetails: user.petDetails?.value ?? "",
+          parking: !!user.parking?.value,
+          parkingDetails:
+            user.parkingDetails || ParkingDetails.PARKING_DETAILS_UNKNOWN,
+          drinksAtHome: !!user.drinksAtHome?.value,
+          smokesAtHome: !!user.smokesAtHome?.value,
+          area: user.area?.value ?? "",
+          sleepingDetails: user.sleepingDetails?.value ?? "",
+          houseRules: user.houseRules?.value ?? "",
+          otherHostInfo: user.otherHostInfo?.value ?? "",
+        },
+        { keepDirty: false, keepErrors: false },
+      );
+    } else {
+      // Initialize with safe defaults to prevent controlled/uncontrolled switching
+      reset(
+        {
+          lastMinute: false,
+          wheelchairAccessible: false,
+          campingOk: false,
+          acceptsKids: false,
+          acceptsPets: false,
+          drinkingAllowed: false,
+          maxGuests: 1,
+          smokingAllowed: SmokingLocation.SMOKING_LOCATION_UNKNOWN,
+          aboutPlace: DEFAULT_ABOUT_HOME_HEADINGS,
+          sleepingArrangement:
+            SleepingArrangement.SLEEPING_ARRANGEMENT_UNSPECIFIED,
+          hasHousemates: false,
+          housemateDetails: "",
+          hasKids: false,
+          kidDetails: "",
+          hasPets: false,
+          petDetails: "",
+          parking: false,
+          parkingDetails: ParkingDetails.PARKING_DETAILS_UNKNOWN,
+          drinksAtHome: false,
+          smokesAtHome: false,
+          area: "",
+          sleepingDetails: "",
+          houseRules: "",
+          otherHostInfo: "",
+        },
+        { keepDirty: false, keepErrors: false },
+      );
+    }
+  }, [user, reset]);
 
   const { errors } = formState;
 
@@ -252,42 +322,42 @@ export default function HostingPreferenceForm() {
             <CheckboxGrid>
               <HostingPreferenceCheckbox
                 className={classes.formControl}
-                defaultValue={!!user.lastMinute?.value}
+                defaultValue={false}
                 label={t("profile:home_info_headings.last_minute")}
                 name="lastMinute"
                 register={register}
               />
               <HostingPreferenceCheckbox
                 className={classes.formControl}
-                defaultValue={!!user.wheelchairAccessible?.value}
+                defaultValue={false}
                 label={t("profile:home_info_headings.wheelchair")}
                 name="wheelchairAccessible"
                 register={register}
               />
               <HostingPreferenceCheckbox
                 className={classes.formControl}
-                defaultValue={!!user.campingOk?.value}
+                defaultValue={false}
                 label={t("profile:edit_home_questions.accept_camping")}
                 name="campingOk"
                 register={register}
               />
               <HostingPreferenceCheckbox
                 className={classes.formControl}
-                defaultValue={!!user.acceptsKids?.value}
+                defaultValue={false}
                 label={t("profile:edit_home_questions.accept_kids")}
                 name="acceptsKids"
                 register={register}
               />
               <HostingPreferenceCheckbox
                 className={classes.formControl}
-                defaultValue={!!user.acceptsPets?.value}
+                defaultValue={false}
                 label={t("profile:edit_home_questions.accept_pets")}
                 name="acceptsPets"
                 register={register}
               />
               <HostingPreferenceCheckbox
                 className={classes.formControl}
-                defaultValue={!!user.drinkingAllowed?.value}
+                defaultValue={false}
                 label={t("profile:edit_home_questions.accept_drinking")}
                 name="drinkingAllowed"
                 register={register}
@@ -295,49 +365,25 @@ export default function HostingPreferenceForm() {
             </CheckboxGrid>
 
             <FieldGroup>
-              <Controller
-                control={control}
-                defaultValue={user.maxGuests?.value ?? null}
-                name="maxGuests"
-                render={({ field }) => (
-                  <Autocomplete
-                    {...field}
-                    disableClearable={false}
-                    defaultValue={user.maxGuests?.value}
-                    forcePopupIcon
-                    freeSolo
-                    getOptionLabel={(option) => option.toString()}
-                    options={[1, 2, 3, 4, 5]}
-                    onChange={(e, value) => field.onChange(value)}
-                    multiple={false}
-                    renderInput={(params) => (
-                      <ProfileTextInput
-                        {...params}
-                        error={!!errors?.maxGuests?.message}
-                        helperText={errors?.maxGuests?.message}
-                        label={t("profile:home_info_headings.max_guests")}
-                        name="maxGuests"
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                        inputRef={field.ref}
-                        className={classes.field}
-                      />
-                    )}
-                  />
-                )}
-                rules={{
-                  validate: (value) =>
-                    value && isNaN(value) ? "Invalid number provided" : true,
-                }}
+              <ProfileTextInput
+                id="maxGuests"
+                {...register("maxGuests", {
+                  valueAsNumber: true,
+                  min: { value: 1, message: "Minimum 1 guest" },
+                  max: { value: 10, message: "Maximum 10 guests" },
+                })}
+                label={t("profile:home_info_headings.max_guests")}
+                type="number"
+                inputProps={{ min: 1, max: 10 }}
+                error={!!errors?.maxGuests?.message}
+                helperText={errors?.maxGuests?.message}
+                className={classes.field}
               />
             </FieldGroup>
 
             <FieldGroup>
               <Controller
                 control={control}
-                defaultValue={
-                  user.smokingAllowed ||
-                  SmokingLocation.SMOKING_LOCATION_UNKNOWN
-                }
                 name="smokingAllowed"
                 render={({ field }) => (
                   <Select
@@ -375,7 +421,6 @@ export default function HostingPreferenceForm() {
                 id="aboutPlace"
                 label={t("profile:home_info_headings.about_home")}
                 name="aboutPlace"
-                defaultValue={user.aboutPlace || DEFAULT_ABOUT_HOME_HEADINGS}
                 control={control}
                 className={classes.field}
               />
@@ -384,10 +429,6 @@ export default function HostingPreferenceForm() {
             <FieldGroup>
               <Controller
                 control={control}
-                defaultValue={
-                  user.sleepingArrangement ||
-                  SleepingArrangement.SLEEPING_ARRANGEMENT_UNSPECIFIED
-                }
                 name="sleepingArrangement"
                 render={({ field }) => (
                   <>
@@ -452,7 +493,7 @@ export default function HostingPreferenceForm() {
                 <CheckboxItem>
                   <HostingPreferenceCheckbox
                     className={classes.formControl}
-                    defaultValue={!!user.hasHousemates?.value}
+                    defaultValue={false}
                     label={t("profile:home_info_headings.has_housemates")}
                     name="hasHousemates"
                     register={register}
@@ -462,7 +503,6 @@ export default function HostingPreferenceForm() {
                     {...register("housemateDetails")}
                     label={t("profile:home_info_headings.housemate_details")}
                     name="housemateDetails"
-                    defaultValue={user.housemateDetails?.value ?? ""}
                     maxRows={3}
                     multiline
                     className={classes.field}
@@ -472,7 +512,7 @@ export default function HostingPreferenceForm() {
                 <CheckboxItem>
                   <HostingPreferenceCheckbox
                     className={classes.formControl}
-                    defaultValue={!!user.hasKids?.value}
+                    defaultValue={false}
                     label={t("profile:home_info_headings.host_kids")}
                     name="hasKids"
                     register={register}
@@ -482,7 +522,6 @@ export default function HostingPreferenceForm() {
                     {...register("kidDetails")}
                     label={t("profile:home_info_headings.kid_details")}
                     name="kidDetails"
-                    defaultValue={user.kidDetails?.value ?? ""}
                     maxRows={3}
                     multiline
                     className={classes.field}
@@ -492,7 +531,7 @@ export default function HostingPreferenceForm() {
                 <CheckboxItem>
                   <HostingPreferenceCheckbox
                     className={classes.formControl}
-                    defaultValue={!!user.hasPets?.value}
+                    defaultValue={false}
                     label={t("profile:home_info_headings.host_pets")}
                     name="hasPets"
                     register={register}
@@ -502,7 +541,6 @@ export default function HostingPreferenceForm() {
                     {...register("petDetails")}
                     label={t("profile:home_info_headings.pet_details")}
                     name="petDetails"
-                    defaultValue={user.petDetails?.value ?? ""}
                     maxRows={3}
                     multiline
                     className={classes.field}
@@ -520,17 +558,13 @@ export default function HostingPreferenceForm() {
                 <CheckboxItem>
                   <HostingPreferenceCheckbox
                     className={classes.formControl}
-                    defaultValue={!!user.parking?.value}
+                    defaultValue={false}
                     label={t("profile:home_info_headings.parking")}
                     name="parking"
                     register={register}
                   />
                   <Controller
                     control={control}
-                    defaultValue={
-                      user.parkingDetails ||
-                      ParkingDetails.PARKING_DETAILS_UNKNOWN
-                    }
                     name="parkingDetails"
                     render={({ field }) => (
                       <Select
@@ -562,14 +596,14 @@ export default function HostingPreferenceForm() {
               <CheckboxGrid>
                 <HostingPreferenceCheckbox
                   className={classes.formControl}
-                  defaultValue={!!user.drinksAtHome?.value}
+                  defaultValue={false}
                   label={t("profile:home_info_headings.host_drinking")}
                   name="drinksAtHome"
                   register={register}
                 />
                 <HostingPreferenceCheckbox
                   className={classes.formControl}
-                  defaultValue={!!user.smokesAtHome?.value}
+                  defaultValue={false}
                   label={t("profile:home_info_headings.host_smoking")}
                   name="smokesAtHome"
                   register={register}
@@ -592,7 +626,6 @@ export default function HostingPreferenceForm() {
                 id="area"
                 label={t("profile:home_info_headings.local_area")}
                 name="area"
-                defaultValue={user.area?.value ?? ""}
                 control={control}
                 className={classes.field}
               />
@@ -603,7 +636,6 @@ export default function HostingPreferenceForm() {
                 id="sleepingDetails"
                 label={t("profile:home_info_headings.sleeping_arrangement")}
                 name="sleepingDetails"
-                defaultValue={user.sleepingDetails?.value ?? ""}
                 control={control}
                 className={classes.field}
               />
@@ -614,7 +646,6 @@ export default function HostingPreferenceForm() {
                 id="houseRules"
                 label={t("profile:home_info_headings.house_rules")}
                 name="houseRules"
-                defaultValue={user.houseRules?.value ?? ""}
                 control={control}
                 className={classes.field}
               />
@@ -625,7 +656,6 @@ export default function HostingPreferenceForm() {
                 id="otherHostInfo"
                 label={t("profile:home_info_headings.other_info")}
                 name="otherHostInfo"
-                defaultValue={user.otherHostInfo?.value ?? ""}
                 control={control}
                 className={classes.field}
               />
@@ -636,7 +666,7 @@ export default function HostingPreferenceForm() {
           <BottomSpacer />
 
           {/* Sticky Save Bar */}
-          {user && (
+          {user && formState.isDirty && (
             <StickySaveBar>
               <SaveButton
                 type="submit"

@@ -144,10 +144,9 @@ const useStyles = makeStyles((theme) =>
   }),
 );
 
-
 export default function ProfileTagInput({
   onChange,
-  value,
+  value = [],
   options,
   label,
   id,

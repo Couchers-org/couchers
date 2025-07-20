@@ -29,7 +29,7 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL, PROFILE } from "i18n/namespaces";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, useEffect, useMemo, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useQueryClient } from "react-query";
 import { howToMakeGreatProfileUrl } from "routes";
@@ -42,6 +42,7 @@ import {
 
 import {
   ABOUT_ME_MIN_LENGTH,
+  countAddedCharacters,
   DEFAULT_ABOUT_ME_HEADINGS,
   DEFAULT_HOBBIES_HEADINGS,
 } from "./constants";
@@ -202,35 +203,106 @@ export default function EditProfileForm() {
   const [isUploading, setIsUploading] = useState(false);
 
   const queryClient = useQueryClient();
+
   const {
     control,
     register,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors, isDirty, isSubmitted },
   } = useForm<EditProfileFormValues>({
-    defaultValues: {
-      location: {
-        city: user?.city,
-        lat: user?.lat,
-        lng: user?.lng,
-        radius: user?.radius,
-      },
-      aboutMe: user?.aboutMe || DEFAULT_ABOUT_ME_HEADINGS,
-    },
     shouldFocusError: true,
   });
+
+  const { regions, regionsLookup } = useRegions();
+  const { languages, languagesLookup } = useLanguages();
+
+  // Reset form with user data when user and data are loaded
+  // This allows only showing save bar once something changes
+  useEffect(() => {
+    if (user && languages && regions) {
+      reset(
+        {
+          name: user.name,
+          pronouns: user.pronouns,
+          hometown: user.hometown,
+          occupation: user.occupation,
+          education: user.education,
+          hostingStatus: user.hostingStatus,
+          meetupStatus: user.meetupStatus,
+          fluentLanguages: user.languageAbilitiesList
+            .map((ability) => languages[ability.code] || "")
+            .filter(Boolean),
+          regionsVisited: user.regionsVisitedList
+            .map((region) => regions[region] || "")
+            .filter(Boolean),
+          regionsLived: user.regionsLivedList
+            .map((region) => regions[region] || "")
+            .filter(Boolean),
+          aboutMe: user.aboutMe || DEFAULT_ABOUT_ME_HEADINGS,
+          thingsILike: user.thingsILike || DEFAULT_HOBBIES_HEADINGS,
+          additionalInformation: user.additionalInformation,
+          location: {
+            city: user.city,
+            lat: user.lat,
+            lng: user.lng,
+            radius: user.radius,
+          },
+        },
+        { keepDirty: false, keepErrors: false },
+      );
+    } else {
+      // Initialize with empty arrays to prevent undefined errors
+      reset(
+        {
+          name: "",
+          pronouns: "",
+          hometown: "",
+          occupation: "",
+          education: "",
+          hostingStatus: user?.hostingStatus,
+          meetupStatus: user?.meetupStatus,
+          fluentLanguages: [],
+          regionsVisited: [],
+          regionsLived: [],
+          aboutMe: DEFAULT_ABOUT_ME_HEADINGS,
+          thingsILike: DEFAULT_HOBBIES_HEADINGS,
+          additionalInformation: "",
+          location: {
+            city: user?.city || "",
+            lat: user?.lat || 0,
+            lng: user?.lng || 0,
+            radius: user?.radius || 0,
+          },
+        },
+        { keepDirty: false, keepErrors: false },
+      );
+    }
+  }, [user, reset, languages, regions]);
 
   const aboutMeField = useWatch({
     control,
     name: "aboutMe",
   });
 
-  // @TODO(NA) This is not entirely perfect, it will pass if they have the default headings
-  // but added just enough to make 150 chars. Will fail if only default headigns though. Avoiding
-  // doing a complicated parsing function to count everything expect the default headigns since it'll be mixed in.
-  const aboutMeFieldLength =
-    aboutMeField === DEFAULT_ABOUT_ME_HEADINGS ? 0 : aboutMeField.length;
+  // Calculate the actual content length, excluding default headings
+  const aboutMeFieldLength = useMemo(() => {
+    // Don't show warning until form is properly initialized
+    if (!user || !languages || !regions) {
+      return 0;
+    }
+
+    // Use the current field value if available, otherwise use the user's saved data
+    const currentValue =
+      aboutMeField || user.aboutMe || DEFAULT_ABOUT_ME_HEADINGS;
+
+    if (!currentValue) {
+      return 0;
+    }
+
+    return countAddedCharacters(DEFAULT_ABOUT_ME_HEADINGS, currentValue);
+  }, [aboutMeField, user, languages, regions]);
 
   useUnsavedChangesWarning({
     isDirty: isDirty || isUploading,
@@ -239,9 +311,6 @@ export default function EditProfileForm() {
       ? t("profile:image_uploading_warning")
       : t("profile:unsaved_changes_warning"),
   });
-
-  const { regions, regionsLookup } = useRegions();
-  const { languages, languagesLookup } = useLanguages();
 
   const onSubmit = handleSubmit(
     ({ regionsLived, regionsVisited, fluentLanguages, ...data }) => {
@@ -320,7 +389,7 @@ export default function EditProfileForm() {
           {t("profile:helper_text.missing_profile_photo")}
         </StyledAlert>
       )}
-      {user ? (
+      {user && languages && regions ? (
         <>
           <HelpTextContainer>
             <Typography>
@@ -831,7 +900,7 @@ export default function EditProfileForm() {
           </form>
 
           {/* Sticky Save Bar */}
-          {user && (
+          {user && (isDirty || isUploading) && (
             <StickySaveBar>
               <SaveButton
                 type="submit"
@@ -841,9 +910,7 @@ export default function EditProfileForm() {
                 disabled={!isDirty || updateIsLoading || isUploading}
                 onClick={handleSubmitButtonClick}
               >
-                {updateIsLoading || isUploading
-                  ? t("global:saving")
-                  : t("global:save")}
+                {t("global:save")}
               </SaveButton>
             </StickySaveBar>
           )}
