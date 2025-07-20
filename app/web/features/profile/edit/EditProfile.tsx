@@ -377,6 +377,10 @@ export default function EditProfileForm() {
               </FieldGroup>
 
               <FieldGroup>
+                <SectionSubtitle>
+                  {t("profile:edit_profile_headings.location_subtitle")}
+                </SectionSubtitle>
+
                 <Controller
                   defaultValue={{
                     city: user.city,
@@ -442,8 +446,9 @@ export default function EditProfileForm() {
                         {
                           value: HostingStatus.HOSTING_STATUS_CAN_HOST,
                           title: t("global:hosting_status.can_host"),
-                          description:
-                            "I'm available to host travelers and provide accommodation",
+                          description: t(
+                            "profile:hosting_status.can_host_description",
+                          ),
                           icon: (
                             <CheckCircle
                               sx={{
@@ -460,8 +465,9 @@ export default function EditProfileForm() {
                         {
                           value: HostingStatus.HOSTING_STATUS_MAYBE,
                           title: t("global:hosting_status.maybe"),
-                          description:
-                            "I might be able to host, depending on circumstances",
+                          description: t(
+                            "profile:hosting_status.maybe_host_description",
+                          ),
                           icon: (
                             <Help
                               sx={{
@@ -478,8 +484,9 @@ export default function EditProfileForm() {
                         {
                           value: HostingStatus.HOSTING_STATUS_CANT_HOST,
                           title: t("global:hosting_status.cant_host"),
-                          description:
-                            "I'm not able to host travelers at the moment",
+                          description: t(
+                            "profile:hosting_status.cannot_host_description",
+                          ),
                           icon: (
                             <Cancel
                               sx={{
@@ -513,8 +520,9 @@ export default function EditProfileForm() {
                         {
                           value: MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP,
                           title: t("global:meetup_status.wants_to_meetup"),
-                          description:
-                            "I'm actively looking to meet up with travelers",
+                          description: t(
+                            "profile:meetup_status.wants_to_meetup_description",
+                          ),
                           icon: (
                             <CheckCircle
                               sx={{
@@ -531,8 +539,9 @@ export default function EditProfileForm() {
                         {
                           value: MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP,
                           title: t("global:meetup_status.open_to_meetup"),
-                          description:
-                            "I'm open to meeting up if the opportunity arises",
+                          description: t(
+                            "profile:meetup_status.open_to_meetup_description",
+                          ),
                           icon: (
                             <Help
                               sx={{
@@ -552,7 +561,9 @@ export default function EditProfileForm() {
                           title: t(
                             "global:meetup_status.does_not_want_to_meetup",
                           ),
-                          description: "I prefer not to meet up with travelers",
+                          description: t(
+                            "profile:meetup_status.does_not_want_to_meetup_description",
+                          ),
                           icon: (
                             <Cancel
                               sx={{
@@ -700,7 +711,17 @@ export default function EditProfileForm() {
             <ProfileSection>
               <SectionTitle>{t("profile:heading.who_section")}</SectionTitle>
               <SectionSubtitle>
-                {t("profile:edit_profile_headings.about_me_subtitle")}
+                <Trans i18nKey="profile:edit_profile_headings.about_me_subtitle">
+                  Tell others about yourself. This is where trust begins. Help
+                  others get a sense of who you really are. See{" "}
+                  <StyledLink
+                    variant="body1"
+                    href="https://help.couchers.org/hc/couchersorg-help-center/articles/1725919197-how-do-i-create-a-great-profile"
+                    sx={{ fontWeight: "bold" }}
+                    target="_blank"
+                  />
+                  .
+                </Trans>
               </SectionSubtitle>
 
               <FieldGroup>

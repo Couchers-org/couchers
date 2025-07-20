@@ -31,7 +31,9 @@ const StatusCard = styled(Paper, {
 })<{ selected?: boolean }>(({ theme, selected }) => ({
   padding: theme.spacing(2),
   cursor: "pointer",
-  border: `1px solid ${theme.palette.grey[200]}`,
+  border: selected
+    ? `2px solid ${theme.palette.primary.main}`
+    : `1px solid ${theme.palette.grey[200]}`,
   backgroundColor: selected
     ? `${theme.palette.primary.main}15`
     : theme.palette.common.white,
