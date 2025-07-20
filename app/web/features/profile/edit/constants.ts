@@ -59,6 +59,20 @@ export function countAddedCharacters(base: string, input: string): number {
     return 0;
   }
 
+  // If the input doesn't contain any of the default headings, count all content as user content
+  const defaultHeadings = [
+    "# Current mission",
+    "# Why I use Couchers.org",
+    "# My favorite travel story",
+  ];
+  const hasDefaultHeadings = defaultHeadings.some((heading) =>
+    normalizedInput.includes(heading),
+  );
+
+  if (!hasDefaultHeadings) {
+    return normalizedInput.length;
+  }
+
   // Find all user content by looking for patterns where content was added
   const userContent: string[] = [];
 

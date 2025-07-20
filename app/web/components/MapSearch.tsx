@@ -39,7 +39,7 @@ const StyledBox = styled(Box)(({ theme }) => ({
   zIndex: 1,
 }));
 
-const StyledForm = styled("form")(({ theme }) => ({
+const StyledForm = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   width: "100%",
@@ -111,12 +111,7 @@ export default function MapSearch({
 
   return (
     <StyledBox>
-      <StyledForm
-        onSubmit={(e) => {
-          e.preventDefault();
-          searchSubmit(value, "createOption");
-        }}
-      >
+      <StyledForm>
         <Autocomplete
           id="map-search"
           label={SEARCH_FOR_LOCATION}
