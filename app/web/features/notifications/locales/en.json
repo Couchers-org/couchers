@@ -12,8 +12,10 @@
     "go_to_button": "Manage notification settings",
     "edit_preferences": {
       "title": "Notification Settings",
-      "description": "You may still receive important notifications about your account and content outside of your preferred notification settings.",
+      "description": "Any changes you make below are saved automatically. Please note that you may still receive important notifications about your account and content outside of your preferred notification settings.",
       "list_heading": "Notifications you may receive",
+      "expand_all": "Expand all",
+      "collapse_all": "Collapse all",
       "error_loading": "Error loading notification settings",
       "list_items": {
         "account_security": "Account security",
