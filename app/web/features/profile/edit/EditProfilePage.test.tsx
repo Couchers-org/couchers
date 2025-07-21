@@ -32,6 +32,10 @@ const updateProfileMock = service.user.updateProfile as jest.MockedFunction<
   typeof service.user.updateProfile
 >;
 
+const uploadFileMock = service.api.uploadFile as jest.MockedFunction<
+  typeof service.api.uploadFile
+>;
+
 const renderPage = async () => {
   act(() => render(<EditProfilePage />, { wrapper }));
 };
@@ -46,6 +50,15 @@ describe("Edit profile", () => {
   it("Should update and redirect to the user profile page when aboutMe and avatar filled out on first go", async () => {
     // prevent the unsavedChanged pop up by mocking window.confirm
     jest.spyOn(window, "confirm").mockImplementation(() => true);
+
+    uploadFileMock.mockResolvedValue({
+      key: "test.png",
+      file: new File(["test"], "test.png", { type: "image/png" }),
+      filename: "test.png",
+      thumbnail_url: "mock-thumbnail-url",
+      full_url: "mock-full-url",
+    });
+
     const aboutMeText =
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. Ad nauseum.";
 
@@ -68,10 +81,6 @@ describe("Edit profile", () => {
     await user.clear(aboutMeInput);
     await user.type(aboutMeInput, aboutMeText);
 
-    await waitFor(() => expect(aboutMeInput).toHaveValue(aboutMeText), {
-      timeout: 5000,
-    });
-
     // Now the save button should be visible
     const saveButton = await screen.findByRole("button", {
       name: t("global:save"),
@@ -83,7 +92,6 @@ describe("Edit profile", () => {
       const incompleteDialog = await screen.findByTestId(
         "incomplete-profile-dialog",
         {},
-        { timeout: 1000 },
       );
       if (incompleteDialog) {
         const saveAnywayButton = await screen.findByRole("button", {
@@ -99,11 +107,10 @@ describe("Edit profile", () => {
       expect.objectContaining({ aboutMe: aboutMeText }),
     );
 
-    await waitFor(
-      () => expect(mockRouter.pathname).toBe(routeToProfile("about")),
-      { timeout: 5000 },
+    await waitFor(() =>
+      expect(mockRouter.pathname).toBe(routeToProfile("about")),
     );
-  }, 8000);
+  });
 
   it(`should not submit the default headings for the '${t(
     "profile:heading.who_section",
