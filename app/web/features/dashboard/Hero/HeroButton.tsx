@@ -3,7 +3,6 @@ import Button from "components/Button";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
-import { searchRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import useHeroBackgroundTheme from "./useHeroBackgroundTheme";
@@ -33,11 +32,9 @@ export default function HeroButton() {
     <div className={classes.buttonContainer}>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={heroTheme}>
-          <Link href={searchRoute} passHref legacyBehavior>
-            <Button variant="contained" size="large">
-              <span className={classes.textGradient}>{t("show_map")}</span>
-            </Button>
-          </Link>
+          <Button component={Link} variant="contained" size="large">
+            <span className={classes.textGradient}>{t("show_map")}</span>
+          </Button>
         </ThemeProvider>
       </StyledEngineProvider>
     </div>

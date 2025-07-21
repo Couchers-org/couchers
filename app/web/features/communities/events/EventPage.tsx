@@ -283,28 +283,23 @@ export default function EventPage({
               <div className={classes.actionButtons}>
                 {event.canEdit ? (
                   <>
-                    <Link
+                    <Button
+                      component={Link}
+                      variant="outlined"
+                      disabled={event.isCancelled || isPastEvent}
                       href={routeToEditEvent(event.eventId, event.slug)}
-                      passHref
-                      legacyBehavior
-                    >
-                      <Button
-                        component="a"
-                        variant="outlined"
-                        disabled={event.isCancelled || isPastEvent}
-                        sx={{
-                          color: theme.palette.common.black,
-                          borderColor: theme.palette.grey[300],
+                      sx={{
+                        color: theme.palette.common.black,
+                        borderColor: theme.palette.grey[300],
 
-                          "&:hover": {
-                            borderColor: theme.palette.grey[300],
-                            backgroundColor: "#3135390A",
-                          },
-                        }}
-                      >
-                        {t("communities:edit_event")}
-                      </Button>
-                    </Link>
+                        "&:hover": {
+                          borderColor: theme.palette.grey[300],
+                          backgroundColor: "#3135390A",
+                        },
+                      }}
+                    >
+                      {t("communities:edit_event")}
+                    </Button>
                     <Button
                       onClick={() => setCancelDialogIsOpen(true)}
                       variant="contained"

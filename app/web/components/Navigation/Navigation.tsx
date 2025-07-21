@@ -11,6 +11,7 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
+import MuiLink from "@mui/material/Link";
 import Button from "components/Button";
 import { GlobalMessage } from "components/GlobalMessage";
 import { CloseIcon, MenuIcon } from "components/Icons";
@@ -275,8 +276,10 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
   },
 }));
 
-const StyledMenuItemLink = styled("a")(({ theme }) => ({
+const StyledMenuItemLink = styled(MuiLink)(({ theme }) => ({
   width: "100%",
+  color: theme.palette.text.primary,
+  textDecoration: "none",
 }));
 
 export default function Navigation() {
@@ -350,7 +353,7 @@ export default function Navigation() {
         notificationCount !== undefined && notificationCount > 0;
 
       const linkContent = (
-        <>
+        <span style={{ display: "flex", alignItems: "center" }}>
           {hasNotification ? (
             <StyledBadge color="primary" variant="dot">
               <Typography noWrap>{name}</Typography>
@@ -368,7 +371,7 @@ export default function Navigation() {
               {`${notificationCount} unseen`}
             </Typography>
           ) : null}
-        </>
+        </span>
       );
 
       return (
@@ -387,8 +390,11 @@ export default function Navigation() {
               {linkContent}
             </StyledMenuItemLink>
           ) : (
-            <Link href={route} legacyBehavior>
-              <StyledMenuItemLink onClick={() => setMenuOpen(false)}>
+            <Link href={route}>
+              <StyledMenuItemLink
+                href={route}
+                onClick={() => setMenuOpen(false)}
+              >
                 {linkContent}
               </StyledMenuItemLink>
             </Link>
