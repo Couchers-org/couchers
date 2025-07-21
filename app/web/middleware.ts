@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { allLanguages } from "./i18n/allLanguages";
+import { dashboardRoute } from "./routes";
 
 function getBrowserLocale(
   acceptLanguage: string | undefined,
@@ -29,6 +31,15 @@ function getBrowserLocale(
 }
 
 export function middleware(request: NextRequest) {
+  if (
+    request.cookies.get("couchers-sesh") &&
+    request.nextUrl.pathname === "/"
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = dashboardRoute;
+    return NextResponse.rewrite(url);
+  }
+
   const response = NextResponse.next();
 
   // Check if NEXT_LOCALE cookie exists and is valid
