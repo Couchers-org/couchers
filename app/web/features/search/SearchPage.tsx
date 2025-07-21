@@ -134,7 +134,7 @@ export default function SearchPage() {
       !mapSearchState.search.query // not keyword search bc already has filter then
     ) {
       const bbox = getMapBounds(mapRef);
-      setMapQueryArea(bbox, newZoom);
+      setMapQueryArea(bbox, newZoom, didCrossSearchThreshold);
     } else {
       setMoveMapUIOnly({ zoom: newZoom });
     }

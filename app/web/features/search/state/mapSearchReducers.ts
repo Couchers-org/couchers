@@ -83,6 +83,7 @@ type MapSearchAction =
       payload: {
         bbox: MapSearchState["search"]["bbox"];
         zoom?: MapSearchState["uiOnly"]["zoom"] | undefined;
+        didCrossSearchThreshold?: boolean;
       };
     }
   | {
@@ -293,8 +294,20 @@ const mapSearchReducer = (
       };
 
     case mapSearchActionTypes.SET_MAP_QUERY_AREA:
+      const didCrossSearchThreshold = action.payload.didCrossSearchThreshold;
       return {
         ...state,
+        ...(didCrossSearchThreshold && {
+          hasActiveFilters: true,
+          filters: {
+            ...state.filters,
+            hostingStatus: [
+              HostingStatus.HOSTING_STATUS_CAN_HOST,
+              HostingStatus.HOSTING_STATUS_MAYBE,
+            ],
+            showEmptyProfile: false,
+          },
+        }),
         search: {
           ...state.search,
           bbox: action.payload.bbox,
