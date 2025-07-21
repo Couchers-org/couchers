@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { allLanguages } from "./i18n/allLanguages";
-import { dashboardRoute } from "./routes";
 
 function getBrowserLocale(
   acceptLanguage: string | undefined,
@@ -36,7 +35,7 @@ export function middleware(request: NextRequest) {
     request.nextUrl.pathname === "/"
   ) {
     const url = request.nextUrl.clone();
-    url.pathname = dashboardRoute;
+    url.pathname = "/dashboard";
     return NextResponse.rewrite(url);
   }
 
