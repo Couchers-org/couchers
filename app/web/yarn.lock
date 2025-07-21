@@ -1174,10 +1174,10 @@
     react-transition-group "^4.4.5"
     rifm "^0.12.1"
 
-"@next/bundle-analyzer@^15.4.0-canary.103":
-  version "15.4.0-canary.103"
-  resolved "https://registry.yarnpkg.com/@next/bundle-analyzer/-/bundle-analyzer-15.4.0-canary.103.tgz#43f7d57ce17774b3cc18f6b3e82077b442fb5845"
-  integrity sha512-CBGwTDnmVgAvVacoJUJijcTMIYrlrrMWIe5aJ5DrBsG3JRNGq4wfs0T2q5VehgQEvHHPOfdhr87m2cLx2treGg==
+"@next/bundle-analyzer@^15.4.2":
+  version "15.4.2"
+  resolved "https://registry.yarnpkg.com/@next/bundle-analyzer/-/bundle-analyzer-15.4.2.tgz#af4d0da02afc7b673f88309652a22baac9d2324d"
+  integrity sha512-kgjecwKDgJ50DZXjVllawD6MuTyxaREB5EUBKbG9NLBHjYu10O/OPL5JqKrBrYdQ9BNVxjGEQoDGcHB76ZjViQ==
   dependencies:
     webpack-bundle-analyzer "4.10.1"
 
@@ -7498,12 +7498,10 @@ setprototypeof@1.2.0:
   resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.2.0.tgz#66c9a24a73f9fc28cbe66b09fed3d33dcaf1b424"
   integrity sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==
 
-
-sharp@^0.34.3:
+sharp@^0.34.1, sharp@^0.34.3:
   version "0.34.3"
   resolved "https://registry.yarnpkg.com/sharp/-/sharp-0.34.3.tgz#10a03bcd15fb72f16355461af0b9245ccb8a5da3"
   integrity sha512-eX2IQ6nFohW4DbvHIOLRB3MHFpYqaqvXd3Tp5e/T/dSH83fxaNJQRvDMhASmkNTsNTVF2/OOopzRCt7xokgPfg==
-
   dependencies:
     color "^4.2.3"
     detect-libc "^2.0.4"
