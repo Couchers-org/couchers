@@ -1044,10 +1044,10 @@
   resolved "https://registry.yarnpkg.com/@mui/core-downloads-tracker/-/core-downloads-tracker-5.16.14.tgz#e6536f1b6caa873f7915fbf9703fdc840a5a98d9"
   integrity sha512-sbjXW+BBSvmzn61XyTMun899E7nGPTXwqD9drm1jBUAvWEhJpPFIRxwQQiATWZnd9rvdxtnhhdsDxEGWI0jxqA==
 
-"@mui/icons-material@^5.17.1":
-  version "5.17.1"
-  resolved "https://registry.yarnpkg.com/@mui/icons-material/-/icons-material-5.17.1.tgz#2b14832473d4d3738d8194665af359377eb91752"
-  integrity sha512-CN86LocjkunFGG0yPlO4bgqHkNGgaEOEc3X/jG5Bzm401qYw79/SaLrofA7yAKCCXAGdIGnLoMHohc3+ubs95A==
+"@mui/icons-material@^5.18.0":
+  version "5.18.0"
+  resolved "https://registry.yarnpkg.com/@mui/icons-material/-/icons-material-5.18.0.tgz#97d87f1b7bee5fa7b9ba844518631de3112c1e57"
+  integrity sha512-1s0vEZj5XFXDMmz3Arl/R7IncFqJ+WQ95LDp1roHWGDE2oCO3IS4/hmiOv1/8SD9r6B7tv9GLiqVZYHo+6PkTg==
   dependencies:
     "@babel/runtime" "^7.23.9"
 
@@ -1174,10 +1174,10 @@
     react-transition-group "^4.4.5"
     rifm "^0.12.1"
 
-"@next/bundle-analyzer@^15.4.0-canary.103":
-  version "15.4.0-canary.103"
-  resolved "https://registry.yarnpkg.com/@next/bundle-analyzer/-/bundle-analyzer-15.4.0-canary.103.tgz#43f7d57ce17774b3cc18f6b3e82077b442fb5845"
-  integrity sha512-CBGwTDnmVgAvVacoJUJijcTMIYrlrrMWIe5aJ5DrBsG3JRNGq4wfs0T2q5VehgQEvHHPOfdhr87m2cLx2treGg==
+"@next/bundle-analyzer@^15.4.2":
+  version "15.4.2"
+  resolved "https://registry.yarnpkg.com/@next/bundle-analyzer/-/bundle-analyzer-15.4.2.tgz#af4d0da02afc7b673f88309652a22baac9d2324d"
+  integrity sha512-kgjecwKDgJ50DZXjVllawD6MuTyxaREB5EUBKbG9NLBHjYu10O/OPL5JqKrBrYdQ9BNVxjGEQoDGcHB76ZjViQ==
   dependencies:
     webpack-bundle-analyzer "4.10.1"
 
