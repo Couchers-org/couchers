@@ -15,10 +15,11 @@ function useMapSearchActions() {
   const setMapQueryArea = (
     bbox: MapSearchState["search"]["bbox"],
     zoom?: MapSearchState["uiOnly"]["zoom"],
+    didCrossSearchThreshold?: boolean,
   ) => {
     dispatch({
       type: mapSearchActionTypes.SET_MAP_QUERY_AREA,
-      payload: { bbox, zoom },
+      payload: { bbox, zoom, didCrossSearchThreshold },
     });
   };
 

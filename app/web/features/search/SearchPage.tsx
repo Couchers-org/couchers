@@ -95,7 +95,7 @@ export default function SearchPage() {
     isLoading,
     hasNextPage,
     hasPreviousPage,
-    numberOfTotal,
+    currentRange,
     totalItems,
     users,
   } = useUserSearch(searchParams, mapSearchState);
@@ -134,7 +134,7 @@ export default function SearchPage() {
       !mapSearchState.search.query // not keyword search bc already has filter then
     ) {
       const bbox = getMapBounds(mapRef);
-      setMapQueryArea(bbox, newZoom);
+      setMapQueryArea(bbox, newZoom, didCrossSearchThreshold);
     } else {
       setMoveMapUIOnly({ zoom: newZoom });
     }
@@ -152,7 +152,7 @@ export default function SearchPage() {
 
     setSelectedUserId(undefined);
 
-    if (didZoomBelowThreshold && !mapSearchState.search.query) {
+    if (didZoomBelowThreshold) {
       setMapQueryArea(undefined, newZoom);
     } else if (didZoomOutWithinThreshold) {
       setShowSearchThisAreaButton(true);
@@ -183,7 +183,7 @@ export default function SearchPage() {
           isLoading={isLoading}
           mapRef={mapRef}
           mapView={mapView}
-          numberOfTotal={numberOfTotal}
+          currentRange={currentRange}
           onDrawerWidthChange={handleDrawerWidthChange}
           onLoadPreviousPage={handleLoadPreviousPage}
           onLoadNextPage={handleLoadNextPage}
