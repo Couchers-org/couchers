@@ -162,7 +162,7 @@ const FloatingSearchControls = ({
   const [keyword, setKeyword] = useState("");
 
   const {
-    search: { query },
+    search: { bbox, query },
     hasActiveFilters,
   } = useMapSearchState();
 
@@ -243,6 +243,7 @@ const FloatingSearchControls = ({
             {searchType === "location" && (
               <StyledLocationAutocompleteOutlined
                 defaultValue={query}
+                hasSearchValue={!!query || !!bbox}
                 fullWidth={false}
                 placeholder={t("search:form.location_field_label")}
                 name="location"

@@ -23,7 +23,7 @@ import { MapViews } from "./utils/constants";
 interface SearchResultListContentProps {
   error: RpcError | null;
   mapView: MapViews;
-  numberOfTotal: number;
+  currentRange: string;
   onSetMapView: (view: MapViews) => void;
   onUserCardClick: (userId: number) => void;
   showAlert: boolean;
@@ -75,7 +75,7 @@ const CenteredRow = styled("div")(({ theme }) => ({
 const SearchResultListContent = ({
   error,
   mapView,
-  numberOfTotal,
+  currentRange,
   onSetMapView,
   onUserCardClick,
   showAlert,
@@ -139,7 +139,7 @@ const SearchResultListContent = ({
         {(users ?? []).length > 0 && (
           <Typography variant="body2">
             {t("search:search_result.people_found_message", {
-              numberOfTotal,
+              currentRange,
               totalItems,
             })}
           </Typography>
