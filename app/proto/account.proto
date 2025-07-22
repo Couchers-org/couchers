@@ -93,6 +93,19 @@ service Account {
   rpc SetProfilePublicVisibility(SetProfilePublicVisibilityReq) returns (google.protobuf.Empty) {
     // Set what info is shown to logged-out users
   }
+
+  rpc CreateInviteCode(CreateInviteCodeReq) returns (CreateInviteCodeRes) {
+  // Creates a new unique invite code for the current user
+  }
+
+  rpc DisableInviteCode(DisableInviteCodeReq) returns (google.protobuf.Empty) {
+  // Disables the given invite code created by the user
+  }
+
+  rpc ListInviteCodes(google.protobuf.Empty) returns (ListInviteCodesRes) {
+  // Lists all invite codes created by the user, with usage count
+  }
+
 }
 
 message GetAccountInfoRes {
@@ -143,6 +156,28 @@ message ChangeEmailV2Req {
 
 message ChangeLanguagePreferenceReq {
   string ui_language_preference = 1;
+}
+
+message CreateInviteCodeReq {}
+
+
+message CreateInviteCodeRes {
+  string code = 1;
+}
+
+message DisableInviteCodeReq {
+  string code = 1;
+}
+
+message InviteCodeInfo {
+  string code = 1;
+  google.protobuf.Timestamp created = 2;
+  google.protobuf.Timestamp disabled = 3;
+  int32 uses = 4;
+}
+
+message ListInviteCodesRes {
+  repeated InviteCodeInfo invite_codes = 1;
 }
 
 message GetContributorFormInfoRes {

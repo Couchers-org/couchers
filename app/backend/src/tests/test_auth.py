@@ -11,9 +11,11 @@ from couchers.db import session_scope
 from couchers.models import (
     ContributeOption,
     ContributorForm,
+    InviteCode,
     LoginToken,
     PasswordResetToken,
     SignupFlow,
+    Upload,
     User,
     UserSession,
 )
@@ -1137,3 +1139,83 @@ def test_banned_username(db):
 
 
 # tests for ConfirmChangeEmail within test_account.py tests for test_ChangeEmail_*
+
+
+def test_GetInviteCodeInfo(db):
+    user, token = generate_user()
+
+    with session_scope() as session:
+        avatar = Upload(
+            key="test_avatar.jpg",
+            filename="test_avatar.jpg",
+            creator_user_id=user.id,
+        )
+        session.add(avatar)
+        session.flush()
+
+        db_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
+        db_user.avatar_key = avatar.key
+
+        code = InviteCode(id="TST12345", creator_user_id=user.id)
+        session.add(code)
+        session.commit()
+
+    with auth_api_session() as (auth, _):
+        res = auth.GetInviteCodeInfo(auth_pb2.GetInviteCodeInfoReq(code="TST12345"))
+        assert res.name == user.name
+        assert res.username == user.username
+        assert res.avatar_url.endswith("/img/thumbnail/test_avatar.jpg")
+
+
+def test_GetInviteCodeInfo_no_avatar(db):
+    user, token = generate_user()
+
+    with session_scope() as session:
+        db_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
+        db_user.avatar_key = None
+
+        code = InviteCode(id="NOAVTR1", creator_user_id=user.id)
+        session.add(code)
+        session.commit()
+
+    with auth_api_session() as (auth, _):
+        res = auth.GetInviteCodeInfo(auth_pb2.GetInviteCodeInfoReq(code="NOAVTR1"))
+        assert res.name == user.name
+        assert res.username == user.username
+        assert res.avatar_url == ""
+
+
+def test_GetInviteCodeInfo_not_found(db):
+    user, token = generate_user()
+
+    with auth_api_session() as (auth, _):
+        with pytest.raises(grpc.RpcError) as e:
+            auth.GetInviteCodeInfo(auth_pb2.GetInviteCodeInfoReq(code="BADCODE"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.INVITE_CODE_NOT_FOUND
+
+
+def test_SignupFlow_invite_code(db):
+    user, token = generate_user()
+    with session_scope() as session:
+        invite = InviteCode(id="INV12345", creator_user_id=user.id)
+        session.add(invite)
+        session.commit()
+
+    with auth_api_session() as (auth_api, _):
+        # Signup basic step with invite code
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(
+                    name="Test User",
+                    email="inviteuser@example.com",
+                    invite_code="INV12345",
+                )
+            )
+        )
+        flow_token = res.flow_token
+        assert flow_token
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        assert flow.invite_code_id == "INV12345"

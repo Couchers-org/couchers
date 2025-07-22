@@ -1,0 +1,40 @@
+"""add invite codes
+
+Revision ID: 0ad661585a57
+Revises: d345174cb002
+Create Date: 2025-07-21 16:09:53.901168
+
+"""
+
+import sqlalchemy as sa
+from alembic import op
+
+# revision identifiers, used by Alembic.
+revision = "0ad661585a57"
+down_revision = "d345174cb002"
+branch_labels = None
+depends_on = None
+
+
+def upgrade():
+    op.create_table(
+        "invite_codes",
+        sa.Column("id", sa.String(length=8), primary_key=True),
+        sa.Column("created", sa.DateTime(), nullable=False, server_default=sa.text("NOW()")),
+        sa.Column("disabled", sa.DateTime(), nullable=True),
+        sa.Column("creator_user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
+    )
+
+    op.add_column(
+        "users", sa.Column("invite_code_id", sa.String(length=8), sa.ForeignKey("invite_codes.id"), nullable=True)
+    )
+    op.add_column(
+        "signup_flows",
+        sa.Column("invite_code_id", sa.String(length=8), sa.ForeignKey("invite_codes.id"), nullable=True),
+    )
+
+
+def downgrade():
+    op.drop_column("signup_flows", "invite_code_id")
+    op.drop_column("users", "invite_code_id")
+    op.drop_table("invite_codes")

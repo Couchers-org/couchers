@@ -34,6 +34,7 @@ from couchers.models import (
     AccountDeletionToken,
     ContributeOption,
     ContributorForm,
+    InviteCode,
     ModNote,
     ProfilePublicVisibility,
     StrongVerificationAttempt,
@@ -639,6 +640,52 @@ class Account(account_pb2_grpc.AccountServicer):
         user.public_visibility = profilepublicitysetting2sql[request.profile_public_visibility]
         user.has_modified_public_visibility = True
         return empty_pb2.Empty()
+
+    def CreateInviteCode(self, request, context, session):
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
+        code = urlsafe_secure_token()[:8]
+        invite = InviteCode(id=code, creator_user_id=user.id)
+        session.add(invite)
+        session.commit()
+
+        return account_pb2.CreateInviteCodeRes(code=code)
+
+    def DisableInviteCode(self, request, context, session):
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
+        invite = session.execute(
+            select(InviteCode).where(InviteCode.id == request.code, InviteCode.creator_user_id == user.id)
+        ).scalar_one_or_none()
+
+        if not invite:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.NOT_FOUND)
+
+        invite.disabled = func.now()
+        session.commit()
+
+        return empty_pb2.Empty()
+
+    def ListInviteCodes(self, request, context, session):
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
+        invites = session.execute(select(InviteCode).where(InviteCode.creator_user_id == user.id)).scalars().all()
+
+        codes = []
+        for invite in invites:
+            count = session.execute(
+                select(func.count()).select_from(User).where(User.invite_code_id == invite.id)
+            ).scalar_one()
+            codes.append(
+                account_pb2.InviteCodeInfo(
+                    code=invite.id,
+                    created=Timestamp_from_datetime(invite.created),
+                    disabled=Timestamp_from_datetime(invite.disabled) if invite.disabled else None,
+                    uses=count,
+                )
+            )
+
+        return account_pb2.ListInviteCodesRes(invite_codes=codes)
 
 
 class Iris(iris_pb2_grpc.IrisServicer):

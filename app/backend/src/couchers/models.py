@@ -124,6 +124,21 @@ class TimezoneArea(Base):
     )
 
 
+class InviteCode(Base):
+    __tablename__ = "invite_codes"
+
+    id = Column(String(8), primary_key=True)  # 8-char unique code
+    creator_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created = Column(DateTime, nullable=False, default=now)
+    disabled = Column(DateTime, nullable=True)
+
+    creator = relationship(
+        "User",
+        foreign_keys=[creator_user_id],
+        back_populates="created_invite_codes",
+    )
+
+
 class User(Base):
     """
     Basic user and profile details
@@ -325,6 +340,20 @@ class User(Base):
     last_antibot = Column(DateTime(timezone=True), nullable=False, server_default=text("to_timestamp(0)"))
 
     age = column_property(func.date_part("year", func.age(birthdate)))
+
+    # ID of the invite code used to sign up (if any)
+    invite_code_id = Column(String(8), ForeignKey("invite_codes.id"), nullable=True)
+    invite_code = relationship(
+        "InviteCode",
+        foreign_keys=[invite_code_id],
+    )
+
+    # List of invite codes created by user
+    created_invite_codes = relationship(
+        "InviteCode",
+        foreign_keys="[InviteCode.creator_user_id]",
+        back_populates="creator",
+    )
 
     __table_args__ = (
         # Verified phone numbers should be unique
@@ -1012,6 +1041,8 @@ class SignupFlow(Base):
     contribute = Column(Enum(ContributeOption), nullable=True)
     contribute_ways = Column(ARRAY(String), nullable=True)
     expertise = Column(String, nullable=True)
+
+    invite_code_id = Column(ForeignKey("invite_codes.id"), nullable=True)
 
     @hybrid_property
     def token_is_valid(self):

@@ -26,6 +26,7 @@ from couchers.models import (
     AccountDeletionToken,
     AntiBotLog,
     ContributorForm,
+    InviteCode,
     PasswordResetToken,
     SignupFlow,
     User,
@@ -41,6 +42,7 @@ from couchers.tasks import (
     maybe_send_contributor_form_email,
     send_signup_email,
 )
+from couchers.urls import media_url
 from couchers.utils import (
     create_coordinate,
     create_session_cookies,
@@ -205,10 +207,19 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 flow_token = cookiesafe_secure_token()
 
+                invite = None
+                if request.basic.invite_code:
+                    invite = session.execute(
+                        select(InviteCode).where(InviteCode.id == request.basic.invite_code)
+                    ).scalar_one_or_none()
+                    if not invite:
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_INVITE_CODE)
+
                 flow = SignupFlow(
                     flow_token=flow_token,
                     name=request.basic.name,
                     email=request.basic.email,
+                    invite_code_id=invite.id if invite else None,
                 )
                 session.add(flow)
                 session.flush()
@@ -633,3 +644,22 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     return auth_pb2.AntiBotPolicyRes(should_antibot=True)
 
         return auth_pb2.AntiBotPolicyRes(should_antibot=False)
+
+    def GetInviteCodeInfo(self, request, context, session):
+        invite = session.execute(select(InviteCode).where(InviteCode.id == request.code)).scalar_one_or_none()
+
+        if not invite:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.INVITE_CODE_NOT_FOUND)
+
+        user = session.execute(select(User).where(User.id == invite.creator_user_id)).scalar_one()
+
+        if user.avatar:
+            avatar_url = media_url(filename=user.avatar.key, size="thumbnail")
+        else:
+            avatar_url = ""
+
+        return auth_pb2.GetInviteCodeInfoRes(
+            name=user.name,
+            username=user.username,
+            avatar_url=avatar_url,
+        )
