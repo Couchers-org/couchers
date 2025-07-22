@@ -47,7 +47,7 @@ type SleepingArrangementOptions =
 
 const DEFAULT_AGE_MIN = 18;
 const DEFAULT_AGE_MAX = 120;
-const MAX_MAP_ZOOM_LEVEL_FOR_SEARCH = 7;
+const MAX_MAP_ZOOM_LEVEL_FOR_SEARCH = 8;
 
 type MapSearchTypes = "location" | "keyword";
 

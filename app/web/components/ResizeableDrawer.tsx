@@ -1,4 +1,7 @@
-import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
+import {
+  KeyboardDoubleArrowLeft,
+  KeyboardDoubleArrowRight,
+} from "@mui/icons-material";
 import { styled } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
@@ -84,13 +87,39 @@ export default function ResizeableDrawer({
               height: "35px",
               width: "35px",
               zIndex: 100,
+              transition: "all 0.2s ease-in-out",
+              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
 
               "&:hover": {
-                backgroundColor: theme.palette.common.white,
+                backgroundColor: theme.palette.grey[50],
+                borderColor: theme.palette.grey[400],
+                boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
+                transform: "scale(1.05)",
+              },
+
+              "&:active": {
+                transform: "scale(0.98)",
+                backgroundColor: theme.palette.grey[100],
               },
             }}
           >
-            {isExpanded ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+            {isExpanded ? (
+              <KeyboardDoubleArrowLeft
+                sx={{
+                  "&:hover": {
+                    color: theme.palette.primary.main,
+                  },
+                }}
+              />
+            ) : (
+              <KeyboardDoubleArrowRight
+                sx={{
+                  "&:hover": {
+                    color: theme.palette.primary.main,
+                  },
+                }}
+              />
+            )}
           </IconButton>
         </StyledDragger>
       )}
