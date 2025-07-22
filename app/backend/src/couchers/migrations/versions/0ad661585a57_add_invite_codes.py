@@ -20,7 +20,7 @@ def upgrade():
     op.create_table(
         "invite_codes",
         sa.Column("id", sa.String(length=8), primary_key=True),
-        sa.Column("created", sa.DateTime(), nullable=False, server_default=sa.text("NOW()")),
+        sa.Column("created", sa.DateTime(), nullable=False),
         sa.Column("disabled", sa.DateTime(), nullable=True),
         sa.Column("creator_user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
     )

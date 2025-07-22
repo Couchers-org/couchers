@@ -128,8 +128,8 @@ class InviteCode(Base):
     __tablename__ = "invite_codes"
 
     id = Column(String(8), primary_key=True)  # 8-char unique code
-    creator_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    created = Column(DateTime, nullable=False, default=now)
+    creator_user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    created = Column(DateTime, nullable=False, default=func.now())
     disabled = Column(DateTime, nullable=True)
 
     creator = relationship(
