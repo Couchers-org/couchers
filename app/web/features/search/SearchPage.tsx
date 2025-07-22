@@ -152,7 +152,7 @@ export default function SearchPage() {
 
     setSelectedUserId(undefined);
 
-    if (didZoomBelowThreshold && !mapSearchState.search.query) {
+    if (didZoomBelowThreshold) {
       setMapQueryArea(undefined, newZoom);
     } else if (didZoomOutWithinThreshold) {
       setShowSearchThisAreaButton(true);

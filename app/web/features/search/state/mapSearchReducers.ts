@@ -293,8 +293,17 @@ const mapSearchReducer = (
         hasActiveFilters: getHasActiveFilters(updatedState, initialState),
       };
 
-    case mapSearchActionTypes.SET_MAP_QUERY_AREA:
+    case mapSearchActionTypes.SET_MAP_QUERY_AREA: {
       const didCrossSearchThreshold = action.payload.didCrossSearchThreshold;
+      const didZoomBelowThreshold =
+        action.payload.zoom! < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
+        state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
+
+      // If we zoom out below the threshold, reset the state to initial
+      if (didZoomBelowThreshold) {
+        return initialState;
+      }
+
       return {
         ...state,
         ...(didCrossSearchThreshold && {
@@ -322,6 +331,7 @@ const mapSearchReducer = (
           zoom: action.payload.zoom ?? state.uiOnly.zoom,
         },
       };
+    }
     case mapSearchActionTypes.SET_FILTERS:
       const updatedFilters = { ...state.filters };
 

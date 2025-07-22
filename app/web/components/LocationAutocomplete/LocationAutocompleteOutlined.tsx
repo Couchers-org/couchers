@@ -12,7 +12,7 @@ import { SearchIcon } from "components/Icons";
 import TextField from "components/TextField";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
-import { forwardRef, SyntheticEvent, useState } from "react";
+import { forwardRef, SyntheticEvent, useEffect, useState } from "react";
 import { theme } from "theme";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
 
@@ -22,6 +22,7 @@ interface LocationAutocompleteOutlinedProps {
   disableRegions?: boolean;
   fieldError?: string | undefined;
   fullWidth?: boolean;
+  hasSearchValue?: boolean;
   id?: string;
   InputProps?: InputProps;
   label?: string;
@@ -61,6 +62,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     defaultValue = "",
     fieldError,
     fullWidth,
+    hasSearchValue,
     id = "location-autocomplete-outlined",
     InputProps,
     label,
@@ -72,7 +74,8 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
   const { t } = useTranslation([GLOBAL]);
 
   const [isOpen, setIsOpen] = useState(false);
-  const [value, setValue] = useState<string>(defaultValue);
+  const [inputValue, setInputValue] = useState<string>(defaultValue || "");
+  const [selected, setSelected] = useState<GeocodeResult | null>(null);
 
   const {
     query,
@@ -80,6 +83,13 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     error: geocodeError,
     isLoading,
   } = useGeocodeQuery();
+
+  useEffect(() => {
+    if (!hasSearchValue) {
+      setInputValue("");
+      setSelected(null);
+    }
+  }, [hasSearchValue]);
 
   const handleChange = (
     event: SyntheticEvent<Element, Event>,
@@ -93,7 +103,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
   };
 
   const handleSearchSubmit = () => {
-    query(value);
+    query(inputValue);
     setIsOpen(true);
   };
 
@@ -101,8 +111,8 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     event: React.SyntheticEvent<Element, Event>,
     newValue: string,
   ) => {
-    if (value !== newValue) {
-      setValue(newValue);
+    if (inputValue !== newValue) {
+      setInputValue(newValue);
     }
 
     if (newValue === "" && onClear) {
@@ -119,14 +129,8 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
         </IconWrapper>
       }
       disableClearable={false}
-      value={
-        defaultValue
-          ? ({
-              name: defaultValue,
-              simplifiedName: defaultValue,
-            } as GeocodeResult)
-          : null // Ensure it's never undefined or get uncontrolled state error
-      }
+      value={selected}
+      inputValue={inputValue}
       id={id}
       ref={ref}
       renderInput={(params) => (
@@ -145,7 +149,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
                 <InputAdornment
                   position="end"
                   sx={{
-                    marginRight: value === "" ? theme.spacing(1) : 0,
+                    marginRight: inputValue === "" ? theme.spacing(1) : 0,
                   }}
                 >
                   <IconButton
