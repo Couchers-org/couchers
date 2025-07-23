@@ -224,28 +224,28 @@ describe("Edit profile", () => {
     await user.clear(aboutMeInput);
 
     // Now check for the warning
-    const warningText = await screen.findByText(
-      t("profile:helper_text.characters_remaining", { count: 150 }),
-    );
+    const warningText = await screen.findByTestId("aboutMe-input-helper-text");
     expect(warningText).toBeInTheDocument();
 
     // Add exactly 150 characters of user content
     await user.click(aboutMeInput);
     await user.clear(aboutMeInput);
-    const userContent = "a".repeat(150); // 150 characters
+    const userContent = "a".repeat(100); // 100 characters
     await user.type(aboutMeInput, userContent);
 
+    // Warning text should show 50 more characters needed
+    expect(warningText).toHaveTextContent(
+      "Please write at least 50 characters to unlock messaging and requests. Genuine profiles build a community of trust. The more you share, the easier it is to connect!",
+    );
+
+    // Add 50 more characters
+    await user.type(aboutMeInput, "a".repeat(50));
+
     // Wait for the warning to disappear (should have exactly 150 characters)
-    await waitFor(() => {
-      expect(
-        screen.queryByText(
-          t("profile:helper_text.characters_remaining", { count: 150 }),
-        ),
-      ).not.toBeInTheDocument();
-    });
+    expect(warningText).not.toBeInTheDocument();
 
     // Verify no warning is shown
-    expect(screen.queryByText(/characters_remaining/)).not.toBeInTheDocument();
+    expect(warningText).not.toBeInTheDocument();
   });
 
   it("should only show save bar when form is dirty", async () => {

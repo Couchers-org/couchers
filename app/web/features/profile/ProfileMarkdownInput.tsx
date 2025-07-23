@@ -33,7 +33,11 @@ export default function ProfileMarkdownInput({
       <Typography variant="h2" id={`${id}-label`}>
         {label}
       </Typography>
-      {warning && helperText && <Alert severity="warning">{helperText}</Alert>}
+      {warning && helperText && (
+        <Alert severity="warning" data-testid={`${id}-input-helper-text`}>
+          {helperText}
+        </Alert>
+      )}
       {description}
       <MarkdownInput
         control={control}
