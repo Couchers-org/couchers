@@ -36,8 +36,7 @@
     "gender_verification_mismatch": "User provided gender does not match verified gender"
   },
   "helper_text": {
-    "characters_remaining": "Please write {{count}} more character to complete your profile.",
-    "characters_remaining_plural": "Please write {{count}} more characters to complete your profile.",
+    "characters_remaining": "<bold>Please write at least {{count}} characters to unlock messaging and requests.</bold> Genuine profiles build a community of trust. The more you share, the easier it is to connect!",
     "missing_profile_photo": "Please add a photo to complete your profile."
   },
   "section_tabs_a11y_label": "tabs for user's details",
@@ -274,12 +273,13 @@
   "search_indicator": "The beginning of this section is visible in search results when other members search for you",
   "hosting_status": {
     "can_host_description": "I am eager to let people stay with me",
-    "maybe_host_description": "I might be able to host, depending on circumstances",
+    "maybe_host_description": "I might be able to host, depending on the circumstances",
     "cannot_host_description": "I'm not able to host travelers at the moment"
   },
   "meetup_status": {
     "wants_to_meetup_description": "I'm eager to meet up with travelers",
     "open_to_meetup_description": "I might meet up, depending on the circumstances",
     "does_not_want_to_meetup_description": "I prefer not to meet up with travelers"
-  }
+  },
+  "avatar_photo_info": "<bold>A photo of yourself is required to interact with the community.</bold> A clear, friendly photo showing your face builds trust, helps others feel comfortable, and greatly improves your chances of receiving a response."
 }

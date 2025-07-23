@@ -13,7 +13,7 @@ interface ProfileMarkdownInputProps {
   label: string;
   name: string;
   warning?: boolean;
-  helperText?: string;
+  helperText?: string | ReactNode;
   description?: ReactNode;
 }
 

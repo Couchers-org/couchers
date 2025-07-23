@@ -17,6 +17,7 @@ import { Control, useController } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
 import { ImageInputValues } from "service/api";
+import { theme } from "theme";
 
 import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from "./constants";
 
@@ -75,7 +76,7 @@ const EditIconButton = styled(MuiIconButton)(({ theme }) => ({
   position: "absolute",
   bottom: theme.spacing(1),
   right: theme.spacing(1),
-  backgroundColor: theme.palette.background.paper,
+  backgroundColor: theme.palette.primary.main,
   boxShadow: theme.shadows[1],
   "&:hover": {
     backgroundColor: theme.palette.grey[200],
@@ -203,7 +204,10 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
                 </Avatar>
 
                 <EditIconButton size="small">
-                  <Edit fontSize="small" />
+                  <Edit
+                    fontSize="small"
+                    sx={{ color: theme.palette.common.white }}
+                  />
                 </EditIconButton>
               </MuiIconButton>
             </Tooltip>

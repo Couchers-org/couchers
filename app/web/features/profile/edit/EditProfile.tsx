@@ -1,4 +1,9 @@
-import { Cancel, CheckCircle, Help, SearchOutlined } from "@mui/icons-material";
+import {
+  Cancel,
+  CheckCircle,
+  Help,
+  InfoOutlined,
+} from "@mui/icons-material";
 import {
   Box,
   DialogContent,
@@ -102,10 +107,42 @@ const HelpTextContainer = styled(Box)(({ theme }) => ({
 const AvatarContainer = styled(Box)(({ theme }) => ({
   display: "flex",
   justifyContent: "center",
+  alignItems: "center",
   marginBottom: theme.spacing(3),
   padding: theme.spacing(2),
   backgroundColor: theme.palette.grey[50],
   borderRadius: theme.spacing(1),
+  width: "100%",
+
+  [theme.breakpoints.down("sm")]: {
+    flexDirection: "column",
+    gap: theme.spacing(2),
+  },
+}));
+
+const AvatarImageWrapper = styled(Box)(({ theme }) => ({
+  flex: "0 0 33%",
+  maxWidth: "33%",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+
+  [theme.breakpoints.down("sm")]: {
+    maxWidth: "100%",
+    width: "100%",
+    marginBottom: theme.spacing(2),
+  },
+}));
+
+const AvatarTextWrapper = styled(Box)(({ theme }) => ({
+  flex: "1 1 67%",
+  maxWidth: "67%",
+  display: "flex",
+  alignItems: "flex-start",
+  [theme.breakpoints.down("sm")]: {
+    maxWidth: "100%",
+    width: "100%",
+  },
 }));
 
 const StickySaveBar = styled(Box)(({ theme }) => ({
@@ -153,13 +190,6 @@ const SearchIndicator = styled(Box)(({ theme }) => ({
   borderRadius: theme.spacing(1),
   marginTop: theme.spacing(1),
   marginBottom: theme.spacing(1),
-}));
-
-const SearchIcon = styled(Box)(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  color: theme.palette.primary.main,
-  fontSize: "0.875rem",
 }));
 
 const SearchText = styled(Typography)(({ theme }) => ({
@@ -414,21 +444,40 @@ export default function EditProfileForm() {
               </SectionSubtitle>
 
               <AvatarContainer>
-                <ImageInput
-                  className={classes.avatar}
-                  control={control}
-                  id="profile-picture"
-                  name="avatarKey"
-                  initialPreviewSrc={user.avatarUrl}
-                  userName={user.name}
-                  type="avatar"
-                  onUploading={setIsUploading}
-                  onSuccess={async (data) => {
-                    await service.user.updateAvatar(data.key);
-                    if (user)
-                      queryClient.invalidateQueries(userKey(user.userId));
-                  }}
-                />
+                <AvatarImageWrapper>
+                  <ImageInput
+                    className={classes.avatar}
+                    control={control}
+                    id="profile-picture"
+                    name="avatarKey"
+                    initialPreviewSrc={user.avatarUrl}
+                    userName={user.name}
+                    type="avatar"
+                    onUploading={setIsUploading}
+                    onSuccess={async (data) => {
+                      await service.user.updateAvatar(data.key);
+                      if (user)
+                        queryClient.invalidateQueries(userKey(user.userId));
+                    }}
+                  />
+                </AvatarImageWrapper>
+                <AvatarTextWrapper>
+                  <Typography>
+                    <InfoOutlined
+                      sx={{
+                        color: "primary.main",
+                        fontSize: 18,
+                        verticalAlign: "text-bottom",
+                        mr: 1,
+                        display: "inline",
+                      }}
+                    />
+                    <Trans
+                      i18nKey="profile:avatar_photo_info"
+                      components={{ bold: <b /> }}
+                    />
+                  </Typography>
+                </AvatarTextWrapper>
               </AvatarContainer>
 
               <FieldGroup>
@@ -780,17 +829,19 @@ export default function EditProfileForm() {
             <ProfileSection>
               <SectionTitle>{t("profile:heading.who_section")}</SectionTitle>
               <SectionSubtitle>
-                <Trans i18nKey="profile:edit_profile_headings.about_me_subtitle">
-                  Tell others about yourself. This is where trust begins. Help
-                  others get a sense of who you really are. See{" "}
-                  <StyledLink
-                    variant="body1"
-                    href="https://help.couchers.org/hc/couchersorg-help-center/articles/1725919197-how-do-i-create-a-great-profile"
-                    sx={{ fontWeight: "bold" }}
-                    target="_blank"
-                  />
-                  .
-                </Trans>
+                <Trans
+                  i18nKey="profile:edit_profile_headings.about_me_subtitle"
+                  components={{
+                    1: (
+                      <StyledLink
+                        variant="body1"
+                        href="https://help.couchers.org/hc/couchersorg-help-center/articles/1725919197-how-do-i-create-a-great-profile"
+                        sx={{ fontWeight: "bold" }}
+                        target="_blank"
+                      />
+                    ),
+                  }}
+                />
               </SectionSubtitle>
 
               <FieldGroup>
@@ -802,14 +853,18 @@ export default function EditProfileForm() {
                   control={control}
                   className={classes.field}
                   warning={aboutMeFieldLength < ABOUT_ME_MIN_LENGTH}
-                  helperText={t("profile:helper_text.characters_remaining", {
-                    count: ABOUT_ME_MIN_LENGTH - aboutMeFieldLength,
-                  })}
+                  helperText={
+                    <Trans
+                      i18nKey="profile:helper_text.characters_remaining"
+                      values={{
+                        count: ABOUT_ME_MIN_LENGTH - aboutMeFieldLength,
+                      }}
+                      components={{ bold: <strong /> }}
+                    />
+                  }
                   description={
                     <SearchIndicator>
-                      <SearchIcon>
-                        <SearchOutlined />
-                      </SearchIcon>
+                      <InfoOutlined sx={{ color: "primary.main" }} />
                       <SearchText>{t("profile:search_indicator")}</SearchText>
                     </SearchIndicator>
                   }
