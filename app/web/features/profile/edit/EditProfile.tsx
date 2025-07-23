@@ -1,9 +1,4 @@
-import {
-  Cancel,
-  CheckCircle,
-  Help,
-  InfoOutlined,
-} from "@mui/icons-material";
+import { Cancel, CheckCircle, Help, InfoOutlined } from "@mui/icons-material";
 import {
   Box,
   DialogContent,
@@ -39,6 +34,7 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { useQueryClient } from "react-query";
 import { howToMakeGreatProfileUrl } from "routes";
 import { service, UpdateUserProfileData } from "service/index";
+import { theme } from "theme";
 import {
   useIsMounted,
   useSafeState,
@@ -178,25 +174,6 @@ const SaveButton = styled(Button)(({ theme }) => ({
 const BottomSpacer = styled(Box)(({ theme }) => ({
   height: 80,
   marginBottom: theme.spacing(2),
-}));
-
-const SearchIndicator = styled(Box)(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  gap: theme.spacing(0.75),
-  padding: theme.spacing(2),
-  backgroundColor: theme.palette.grey[50],
-  border: `1px solid ${theme.palette.grey[200]}`,
-  borderRadius: theme.spacing(1),
-  marginTop: theme.spacing(1),
-  marginBottom: theme.spacing(1),
-}));
-
-const SearchText = styled(Typography)(({ theme }) => ({
-  fontSize: "0.75rem",
-  fontWeight: 500,
-  color: theme.palette.grey[700],
-  lineHeight: 1.3,
 }));
 
 export type EditProfileFormValues = Omit<
@@ -863,10 +840,22 @@ export default function EditProfileForm() {
                     />
                   }
                   description={
-                    <SearchIndicator>
+                    <Typography
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        backgroundColor: "grey.50",
+                        padding: 1.5,
+                        borderRadius: theme.spacing(1),
+                        marginTop: 1,
+                        marginBottom: 1,
+                        fontSize: "0.875rem",
+                      }}
+                    >
                       <InfoOutlined sx={{ color: "primary.main" }} />
-                      <SearchText>{t("profile:search_indicator")}</SearchText>
-                    </SearchIndicator>
+                      {t("profile:search_indicator")}
+                    </Typography>
                   }
                 />
               </FieldGroup>

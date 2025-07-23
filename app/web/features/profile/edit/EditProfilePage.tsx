@@ -1,8 +1,8 @@
 import { TabContext, TabPanel } from "@mui/lab";
-import { Button, Card } from "@mui/material";
+import { Box, Button, Card, styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import IconButton from "components/IconButton";
-import { BackIcon } from "components/Icons";
+import { BackIcon, CouchIcon, PersonIcon } from "components/Icons";
 import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
 import Link from "next/link";
@@ -15,68 +15,56 @@ import {
   routeToProfile,
   settingsRoute,
 } from "routes";
-import makeStyles from "utils/makeStyles";
 
 import EditHostingPreference from "./EditHostingPreference";
 import EditProfile from "./EditProfile";
 
-const useStyles = makeStyles((theme) => ({
-  detailsCard: {
-    [theme.breakpoints.down("md")]: {
-      margin: 0,
-      width: "100%",
-    },
-    flexGrow: 1,
-    marginRight: 0,
-    padding: 0,
-    backgroundColor: "transparent",
-    boxShadow: "none",
-    border: "none",
+const DetailsCard = styled(Card)(({ theme }) => ({
+  [theme.breakpoints.down("md")]: {
+    margin: 0,
+    width: "100%",
   },
-  buttonContainer: {
+  flexGrow: 1,
+  marginRight: 0,
+  padding: 0,
+  backgroundColor: "transparent",
+  boxShadow: "none",
+  border: "none",
+}));
+
+const Root = styled("div")(({ theme }) => ({
+  paddingTop: theme.spacing(3),
+  [theme.breakpoints.up("md")]: {
+    paddingTop: 0,
     display: "flex",
-    justifyContent: "center",
-    paddingBottom: theme.spacing(1),
-    paddingTop: theme.spacing(1),
   },
-  linkStyle: {
-    "&:hover": {
-      textDecoration: "underline",
-    },
-    color: "inherit",
-    fontSize: "1rem",
-    textDecoration: "none",
-  },
-  root: {
-    paddingTop: theme.spacing(3),
-    [theme.breakpoints.up("md")]: {
-      paddingTop: 0,
-      display: "flex",
-    },
-  },
-  tabPanel: {
-    padding: 0,
-  },
-  headerContainer: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: theme.spacing(3),
-  },
-  leftHeader: {
-    display: "flex",
-    alignItems: "center",
-    gap: theme.spacing(2),
-  },
-  backButton: {
-    minWidth: "auto",
-    padding: theme.spacing(1),
-    borderRadius: "50%",
-    color: theme.palette.text.secondary,
-    "&:hover": {
-      backgroundColor: theme.palette.action.hover,
-      color: theme.palette.text.primary,
-    },
+}));
+
+const TabPanelStyled = styled(TabPanel)(({ theme }) => ({
+  padding: 0,
+}));
+
+const HeaderContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  marginBottom: theme.spacing(3),
+}));
+
+const LeftHeader = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: theme.spacing(2),
+}));
+
+const BackButton = styled(IconButton)(({ theme }) => ({
+  minWidth: "auto",
+  padding: theme.spacing(1),
+  borderRadius: "50%",
+  color: theme.palette.text.secondary,
+  "&:hover": {
+    backgroundColor: theme.palette.action.hover,
+    color: theme.palette.text.primary,
   },
 }));
 
@@ -86,49 +74,57 @@ export default function EditProfilePage({
   tab?: EditUserTab;
 }) {
   const { t } = useTranslation();
-  const classes = useStyles();
   const router = useRouter();
 
   return (
     <>
       <HtmlMeta title={t("profile:heading.edit_profile")} />
-      <div className={classes.headerContainer}>
-        <div className={classes.leftHeader}>
-          <IconButton
-            className={classes.backButton}
+      <HeaderContainer>
+        <LeftHeader>
+          <BackButton
             onClick={() => router.push(routeToProfile())}
             aria-label={t("global:back")}
           >
             <BackIcon />
-          </IconButton>
+          </BackButton>
           <PageTitle>{t("profile:heading.edit_profile")}</PageTitle>
-        </div>
+        </LeftHeader>
         <Link href={settingsRoute} passHref legacyBehavior>
           <Button component="a" variant="contained" color="primary">
             {t("global:nav.account_settings")}
           </Button>
         </Link>
-      </div>
-      <div className={classes.root}>
-        <Card className={classes.detailsCard}>
+      </HeaderContainer>
+      <Root>
+        <DetailsCard>
           <TabContext value={tab}>
             <TabBar
               setValue={(newTab) => router.push(routeToEditProfile(newTab))}
               labels={{
-                about: t("profile:heading.about_me"),
-                home: t("profile:heading.home"),
+                about: (
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <PersonIcon sx={{ mr: 1, fontSize: 22 }} />
+                    {t("profile:heading.about_me")}
+                  </Box>
+                ),
+                home: (
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <CouchIcon sx={{ mr: 1, fontSize: 22 }} />
+                    {t("profile:heading.home")}
+                  </Box>
+                ),
               }}
               ariaLabel={t("profile:edit_profile_tab_bar_a11y_label")}
             />
-            <TabPanel classes={{ root: classes.tabPanel }} value="about">
+            <TabPanelStyled value="about">
               <EditProfile />
-            </TabPanel>
-            <TabPanel value="home">
+            </TabPanelStyled>
+            <TabPanelStyled value="home">
               <EditHostingPreference />
-            </TabPanel>
+            </TabPanelStyled>
           </TabContext>
-        </Card>
-      </div>
+        </DetailsCard>
+      </Root>
     </>
   );
 }

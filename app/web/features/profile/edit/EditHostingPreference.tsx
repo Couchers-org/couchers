@@ -34,6 +34,14 @@ import { useUnsavedChangesWarning } from "utils/hooks";
 import { DEFAULT_ABOUT_HOME_HEADINGS } from "./constants";
 import useStyles from "./styles";
 
+interface HostingPreferenceCheckboxProps {
+  className: string;
+  defaultValue: boolean;
+  name: string;
+  label: string;
+  register: UseFormReturn<HostingPreferenceData>["register"];
+}
+
 const ProfileSection = styled(Box)(({ theme }) => ({
   padding: theme.spacing(4),
   marginBottom: theme.spacing(4),
@@ -153,14 +161,6 @@ const KeyText = styled(Typography)(({ theme }) => ({
   color: theme.palette.text.secondary,
   lineHeight: 1.4,
 }));
-
-interface HostingPreferenceCheckboxProps {
-  className: string;
-  defaultValue: boolean;
-  name: string;
-  label: string;
-  register: UseFormReturn<HostingPreferenceData>["register"];
-}
 
 function HostingPreferenceCheckbox({
   className,
