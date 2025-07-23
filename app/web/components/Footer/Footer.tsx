@@ -41,11 +41,14 @@ import {
 } from "routes";
 import { timeAgoI18n } from "utils/timeAgo";
 
-const StyledFooter = styled("footer")({
-  display: "flex",
-  flexDirection: "column",
-  width: "100%",
-});
+const StyledFooter = styled("footer")<{ bottomMargin?: string }>(
+  ({ bottomMargin }) => ({
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
+    marginBottom: bottomMargin,
+  }),
+);
 
 const StyledUpperOuterContainer = styled("div")(({ theme }) => ({
   display: "flex",
@@ -150,7 +153,7 @@ const VersionLink = styled(Link)(({ theme }) => ({
   fontWeight: 700,
 }));
 
-export default function Footer() {
+export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
   const { t } = useTranslation(GLOBAL);
 
   const version_text = process.env.NEXT_PUBLIC_DISPLAY_VERSION || "dev";
@@ -164,7 +167,7 @@ export default function Footer() {
   const updated_ago_link = githubUpdatesURL;
 
   return (
-    <StyledFooter>
+    <StyledFooter bottomMargin={bottomMargin}>
       <StyledUpperOuterContainer>
         <StyledUpperContainer>
           <div>
