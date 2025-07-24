@@ -272,4 +272,5 @@ message GetInviteCodeInfoRes {
   string name = 1;
   string username = 2;
   string avatar_url = 3;
+  string url = 4;
 }

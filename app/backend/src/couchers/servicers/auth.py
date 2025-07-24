@@ -42,7 +42,6 @@ from couchers.tasks import (
     maybe_send_contributor_form_email,
     send_signup_email,
 )
-from couchers.urls import media_url
 from couchers.utils import (
     create_coordinate,
     create_session_cookies,
@@ -653,13 +652,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         user = session.execute(select(User).where(User.id == invite.creator_user_id)).scalar_one()
 
-        if user.avatar:
-            avatar_url = media_url(filename=user.avatar.key, size="thumbnail")
-        else:
-            avatar_url = ""
-
         return auth_pb2.GetInviteCodeInfoRes(
             name=user.name,
             username=user.username,
-            avatar_url=avatar_url,
+            avatar_url=user.avatar.thumbnail_url if user.avatar else None,
+            url=f"{config['BASE_URL']}/invite?code={request.code}",
         )

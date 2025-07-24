@@ -22,7 +22,7 @@ def upgrade():
         sa.Column("id", sa.String(length=8), primary_key=True),
         sa.Column("created", sa.DateTime(), nullable=False),
         sa.Column("disabled", sa.DateTime(), nullable=True),
-        sa.Column("creator_user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
+        sa.Column("creator_user_id", sa.Integer(), sa.ForeignKey("users.id"), nullable=False),
     )
 
     op.add_column(

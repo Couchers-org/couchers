@@ -6,6 +6,7 @@ from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy.sql import delete, func
 
 from couchers import errors
+from couchers.config import config
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
 from couchers.models import (
@@ -1165,6 +1166,7 @@ def test_GetInviteCodeInfo(db):
         assert res.name == user.name
         assert res.username == user.username
         assert res.avatar_url.endswith("/img/thumbnail/test_avatar.jpg")
+        assert res.url == f"{config['BASE_URL']}/invite?code=TST12345"
 
 
 def test_GetInviteCodeInfo_no_avatar(db):
@@ -1183,6 +1185,7 @@ def test_GetInviteCodeInfo_no_avatar(db):
         assert res.name == user.name
         assert res.username == user.username
         assert res.avatar_url == ""
+        assert res.url == f"{config['BASE_URL']}/invite?code=NOAVTR1"
 
 
 def test_GetInviteCodeInfo_not_found(db):

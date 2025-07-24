@@ -642,20 +642,19 @@ class Account(account_pb2_grpc.AccountServicer):
         return empty_pb2.Empty()
 
     def CreateInviteCode(self, request, context, session):
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-
         code = urlsafe_secure_token()[:8]
-        invite = InviteCode(id=code, creator_user_id=user.id)
+        invite = InviteCode(id=code, creator_user_id=context.user_id)
         session.add(invite)
-        session.commit()
+        session.flush()
 
-        return account_pb2.CreateInviteCodeRes(code=code)
+        return account_pb2.CreateInviteCodeRes(
+            code=code,
+            url=f"{config['BASE_URL']}/invite?code={code}",
+        )
 
     def DisableInviteCode(self, request, context, session):
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-
         invite = session.execute(
-            select(InviteCode).where(InviteCode.id == request.code, InviteCode.creator_user_id == user.id)
+            select(InviteCode).where(InviteCode.id == request.code, InviteCode.creator_user_id == context.user_id)
         ).scalar_one_or_none()
 
         if not invite:
@@ -667,25 +666,29 @@ class Account(account_pb2_grpc.AccountServicer):
         return empty_pb2.Empty()
 
     def ListInviteCodes(self, request, context, session):
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-
-        invites = session.execute(select(InviteCode).where(InviteCode.creator_user_id == user.id)).scalars().all()
-
-        codes = []
-        for invite in invites:
-            count = session.execute(
-                select(func.count()).select_from(User).where(User.invite_code_id == invite.id)
-            ).scalar_one()
-            codes.append(
-                account_pb2.InviteCodeInfo(
-                    code=invite.id,
-                    created=Timestamp_from_datetime(invite.created),
-                    disabled=Timestamp_from_datetime(invite.disabled) if invite.disabled else None,
-                    uses=count,
-                )
+        results = session.execute(
+            select(
+                InviteCode.id,
+                InviteCode.disabled,
+                func.count(User.id).label("num_users"),
             )
+            .outerjoin(User, User.invite_code_id == InviteCode.id)
+            .where(InviteCode.creator_user_id == context.user_id)
+            .group_by(InviteCode.id, InviteCode.disabled)
+            .order_by(func.count(User.id).desc(), InviteCode.disabled)
+        ).all()
 
-        return account_pb2.ListInviteCodesRes(invite_codes=codes)
+        return account_pb2.ListInviteCodesRes(
+            invite_codes=[
+                account_pb2.InviteCodeInfo(
+                    code=code_id,
+                    disabled=Timestamp_from_datetime(disabled) if disabled else None,
+                    uses=len_users,
+                    url=f"{config['BASE_URL']}/invite?code={code_id}",
+                )
+                for code_id, disabled, len_users in results
+            ]
+        )
 
 
 class Iris(iris_pb2_grpc.IrisServicer):

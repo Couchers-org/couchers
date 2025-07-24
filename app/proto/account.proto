@@ -163,6 +163,7 @@ message CreateInviteCodeReq {}
 
 message CreateInviteCodeRes {
   string code = 1;
+  string url = 2;
 }
 
 message DisableInviteCodeReq {
@@ -174,6 +175,7 @@ message InviteCodeInfo {
   google.protobuf.Timestamp created = 2;
   google.protobuf.Timestamp disabled = 3;
   int32 uses = 4;
+  string url = 5;
 }
 
 message ListInviteCodesRes {
