@@ -1,5 +1,6 @@
 import functools
 import secrets
+import string
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 from typing import Optional, Union
 
@@ -193,3 +194,11 @@ def asym_decrypt(private_key: bytes, encrypted_data: bytes) -> bytes:
 def generate_asym_keypair():
     skey = PrivateKey.generate()
     return skey.encode(), skey.public_key.encode()
+
+
+def generate_invite_code(length=8):
+    """
+    Generates a secure, URL-safe invite code of the given length.
+    """
+    alphabet = string.ascii_letters + string.digits
+    return "".join(secrets.choice(alphabet) for _ in range(length))

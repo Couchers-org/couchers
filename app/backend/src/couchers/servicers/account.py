@@ -15,6 +15,7 @@ from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS,
 from couchers.crypto import (
     b64decode,
     b64encode,
+    generate_invite_code,
     hash_password,
     simple_decrypt,
     simple_encrypt,
@@ -642,7 +643,7 @@ class Account(account_pb2_grpc.AccountServicer):
         return empty_pb2.Empty()
 
     def CreateInviteCode(self, request, context, session):
-        code = urlsafe_secure_token()[:8]
+        code = generate_invite_code()
         invite = InviteCode(id=code, creator_user_id=context.user_id)
         session.add(invite)
         session.flush()
