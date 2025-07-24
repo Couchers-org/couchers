@@ -19,18 +19,16 @@ depends_on = None
 def upgrade():
     op.create_table(
         "invite_codes",
-        sa.Column("id", sa.String(length=8), primary_key=True),
+        sa.Column("id", sa.String(), primary_key=True),
         sa.Column("created", sa.DateTime(), nullable=False),
         sa.Column("disabled", sa.DateTime(), nullable=True),
         sa.Column("creator_user_id", sa.Integer(), sa.ForeignKey("users.id"), nullable=False),
     )
 
-    op.add_column(
-        "users", sa.Column("invite_code_id", sa.String(length=8), sa.ForeignKey("invite_codes.id"), nullable=True)
-    )
+    op.add_column("users", sa.Column("invite_code_id", sa.String(), sa.ForeignKey("invite_codes.id"), nullable=True))
     op.add_column(
         "signup_flows",
-        sa.Column("invite_code_id", sa.String(length=8), sa.ForeignKey("invite_codes.id"), nullable=True),
+        sa.Column("invite_code_id", sa.String(), sa.ForeignKey("invite_codes.id"), nullable=True),
     )
 
 
