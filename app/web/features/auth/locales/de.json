@@ -47,7 +47,7 @@
   "sign_up_completed_prompt": "Wir haben eine E-Mail mit einem Bestätigungslink an deine E-Mail-Adresse gesendet. Bitte klicke auf den Link, um deinen Account zu aktivieren.",
   "change_email_form": {
     "title": "E-Mail-Adresse ändern",
-    "current_email_message": "Deine aktuelle E-Mail-Adresse lautet <2>{{email}}</2>.",
+    "current_email_message": "Deine aktuelle E-Mail-Adresse lautet <1>{{email}}</1>.",
     "current_password": "Aktuelles Passwort",
     "new_email": "Neue E-Mail-Adresse",
     "success_message": "Die Änderung deiner E-Mail-Adresse wurde empfangen. Überprüfe das Postfach deiner neuen E-Mail-Adresse, um die Änderung abzuschließen."
