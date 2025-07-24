@@ -1,5 +1,6 @@
 import { TabContext, TabPanel } from "@mui/lab";
 import { Button, Card, Grid } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
@@ -8,46 +9,47 @@ import { useRouter } from "next/router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { EditUserTab, routeToEditProfile, settingsRoute } from "routes";
-import makeStyles from "utils/makeStyles";
 
 import EditHostingPreference from "./EditHostingPreference";
 import EditProfile from "./EditProfile";
 
-const useStyles = makeStyles((theme) => ({
-  detailsCard: {
-    [theme.breakpoints.down("md")]: {
-      margin: 0,
-      width: "100%",
-    },
-    flexGrow: 1,
-    marginRight: 0,
-    padding: theme.spacing(2),
-  },
-  buttonContainer: {
-    display: "flex",
-    justifyContent: "center",
-    paddingBottom: theme.spacing(1),
-    paddingTop: theme.spacing(1),
-  },
-  linkStyle: {
-    "&:hover": {
-      textDecoration: "underline",
-    },
-    color: "inherit",
-    fontSize: "1rem",
-    textDecoration: "none",
-  },
-  root: {
-    paddingTop: theme.spacing(3),
-    [theme.breakpoints.up("md")]: {
-      paddingTop: 0,
-      display: "flex",
-    },
-  },
-  tabPanel: {
-    padding: 0,
+const DetailsCard = styled(Card)(({ theme }) => ({
+  flexGrow: 1,
+  marginRight: 0,
+  padding: theme.spacing(2),
+  [theme.breakpoints.down("md")]: {
+    margin: 0,
+    width: "100%",
   },
 }));
+
+const ButtonContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  paddingBottom: theme.spacing(1),
+  paddingTop: theme.spacing(1),
+}));
+
+const LinkStyle = styled("a")(({ theme }) => ({
+  color: "inherit",
+  fontSize: "1rem",
+  textDecoration: "none",
+  "&:hover": {
+    textDecoration: "underline",
+  },
+}));
+
+const Root = styled("div")(({ theme }) => ({
+  paddingTop: theme.spacing(3),
+  [theme.breakpoints.up("md")]: {
+    paddingTop: 0,
+    display: "flex",
+  },
+}));
+
+const StyledTabPanel = styled(TabPanel)({
+  padding: 0,
+});
 
 export default function EditProfilePage({
   tab = "about",
@@ -55,7 +57,6 @@ export default function EditProfilePage({
   tab?: EditUserTab;
 }) {
   const { t } = useTranslation();
-  const classes = useStyles();
   const router = useRouter();
 
   return (
@@ -68,16 +69,16 @@ export default function EditProfilePage({
         alignItems="center"
       >
         <PageTitle>{t("profile:heading.edit_profile")}</PageTitle>
-        <div className={classes.buttonContainer}>
+        <ButtonContainer>
           <Link href={settingsRoute} passHref legacyBehavior>
-            <Button component="a" variant="contained" color="primary">
+            <Button component={LinkStyle} variant="contained" color="primary">
               {t("global:nav.account_settings")}
             </Button>
           </Link>
-        </div>
+        </ButtonContainer>
       </Grid>
-      <div className={classes.root}>
-        <Card className={classes.detailsCard}>
+      <Root>
+        <DetailsCard>
           <TabContext value={tab}>
             <TabBar
               setValue={(newTab) => router.push(routeToEditProfile(newTab))}
@@ -87,15 +88,15 @@ export default function EditProfilePage({
               }}
               ariaLabel={t("profile:edit_profile_tab_bar_a11y_label")}
             />
-            <TabPanel classes={{ root: classes.tabPanel }} value="about">
+            <StyledTabPanel value="about">
               <EditProfile />
-            </TabPanel>
-            <TabPanel value="home">
+            </StyledTabPanel>
+            <StyledTabPanel value="home">
               <EditHostingPreference />
-            </TabPanel>
+            </StyledTabPanel>
           </TabContext>
-        </Card>
-      </div>
+        </DetailsCard>
+      </Root>
     </>
   );
 }

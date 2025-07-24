@@ -1,5 +1,5 @@
 import { Typography } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { styled } from "@mui/material/styles";
 import Button from "components/Button";
 import { DoneAllIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
@@ -12,16 +12,16 @@ import { service } from "service";
 import { theme } from "theme";
 import getAllPages from "utils/getAllPages";
 
-const useStyles = makeStyles((theme) => ({
-  markAsReadButton: {
-    border: `1px solid ${theme.palette.grey[800]}`,
-    borderRadius: theme.shape.borderRadius,
-    marginBottom: theme.spacing(1),
-  },
-  markAsReadIcon: {
-    marginInlineEnd: theme.spacing(1),
-    fontSize: theme.typography.body1.fontSize,
-  },
+const MarkAsReadButtonStyled = styled(Button)(({ theme }) => ({
+  border: `1px solid ${theme.palette.grey[800]}`,
+  borderRadius: theme.shape.borderRadius,
+  marginBottom: theme.spacing(1),
+  color: theme.palette.text.primary,
+}));
+
+const MarkAsReadIconStyled = styled(DoneAllIcon)(({ theme }) => ({
+  marginInlineEnd: theme.spacing(1),
+  fontSize: theme.typography.body1.fontSize,
 }));
 
 export default function MarkAllReadButton({
@@ -29,7 +29,6 @@ export default function MarkAllReadButton({
 }: {
   type: "chats" | "hosting" | "surfing";
 }) {
-  const classes = useStyles();
   const { t } = useTranslation(MESSAGES);
   const queryClient = useQueryClient();
   const markAll = useMutation<void, RpcError>(
@@ -89,18 +88,17 @@ export default function MarkAllReadButton({
         <Snackbar severity="error">{markAll.error.message}</Snackbar>
       )}
 
-      <Button
-        className={classes.markAsReadButton}
+      <MarkAsReadButtonStyled
         loading={markAll.isLoading}
         variant="text"
         onClick={() => markAll.mutate()}
         sx={{ color: theme.palette.text.primary }}
       >
-        <DoneAllIcon className={classes.markAsReadIcon} />
+        <MarkAsReadIconStyled />
         <Typography component="span">
           {t("mark_all_read_button_text")}
         </Typography>
-      </Button>
+      </MarkAsReadButtonStyled>
     </>
   );
 }

@@ -1,4 +1,4 @@
-import makeStyles from "@mui/styles/makeStyles";
+import { styled } from "@mui/material/styles";
 import classNames from "classnames";
 import TextBody from "components/TextBody";
 import ControlMessageView from "features/messages/messagelist/ControlMessageView";
@@ -9,17 +9,16 @@ import { MESSAGES } from "i18n/namespaces";
 import { Message } from "proto/conversations_pb";
 import * as React from "react";
 
-const useStyles = makeStyles((theme) => ({
-  list: {
-    display: "flex",
-    flexDirection: "column-reverse",
-    paddingBlock: theme.spacing(2),
-  },
-  message: {
-    "&:nth-child(1)": {
-      marginBottom: 0,
-    },
-    marginBottom: theme.spacing(2),
+const List = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column-reverse",
+  paddingBlock: theme.spacing(2),
+}));
+
+const MessageWrapper = styled("div")(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+  "&:nth-child(1)": {
+    marginBottom: 0,
   },
 }));
 
@@ -35,34 +34,32 @@ export default function MessageList({
   className,
 }: MessageListProps) {
   const { t } = useTranslation(MESSAGES);
-  const classes = useStyles();
 
   return (
-    <div
-      className={classNames(classes.list, className)}
-      data-testid="message-list"
-    >
+    <List className={classNames(className)} data-testid="message-list">
       {messages.length ? (
         messages.map((message) =>
           isControlMessage(message) ? (
-            <ControlMessageView
-              key={message.messageId}
-              onVisible={() => markLastSeen(message.messageId)}
-              message={message}
-              className={classes.message}
-            />
+            <MessageWrapper key={message.messageId}>
+              <ControlMessageView
+                key={message.messageId}
+                onVisible={() => markLastSeen(message.messageId)}
+                message={message}
+              />
+            </MessageWrapper>
           ) : (
-            <MessageView
-              key={message.messageId}
-              onVisible={() => markLastSeen(message.messageId)}
-              message={message}
-              className={classes.message}
-            />
+            <MessageWrapper key={message.messageId}>
+              <MessageView
+                key={message.messageId}
+                onVisible={() => markLastSeen(message.messageId)}
+                message={message}
+              />
+            </MessageWrapper>
           ),
         )
       ) : (
         <TextBody>{t("chat_view.no_messages_state_text")}</TextBody>
       )}
-    </div>
+    </List>
   );
 }
