@@ -390,13 +390,15 @@ export default function Navigation() {
               {linkContent}
             </StyledMenuItemLink>
           ) : (
-            <Link href={route}>
-              <StyledMenuItemLink
-                href={route}
-                onClick={() => setMenuOpen(false)}
-              >
-                {linkContent}
-              </StyledMenuItemLink>
+            <Link
+              href={route}
+              style={{
+                width: "100%",
+                color: theme.palette.text.primary,
+                textDecoration: "none",
+              }}
+            >
+              {linkContent}
             </Link>
           )}
         </MenuItem>

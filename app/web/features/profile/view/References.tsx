@@ -94,11 +94,7 @@ export default function References() {
               <Button
                 component={Link}
                 startIcon={<AddIcon />}
-                href={{
-                  pathname: `${leaveReferenceBaseRoute}/${
-                    referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
-                  }/${userId}`,
-                }}
+                href={`${leaveReferenceBaseRoute}/${referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]}/${userId}`}
               >
                 {t("profile:write_reference")}
               </Button>
