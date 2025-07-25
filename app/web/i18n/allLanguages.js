@@ -10,6 +10,7 @@ const allLanguages = [
   "it",
   "ja",
   "nb-NO",
+  "nl",
   "pl",
   "pt",
   "pt-BR",
