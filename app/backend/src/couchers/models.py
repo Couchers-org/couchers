@@ -2848,3 +2848,32 @@ class RateLimitViolation(Base):
         # Fast lookup for rate limits in interval
         Index("ix_rate_limits_by_user", user_id, action, is_hard_limit, created),
     )
+
+
+class Volunteer(Base):
+    __tablename__ = "volunteers"
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+
+    role = Column(String, nullable=False)
+
+    # custom sort order on team page, sorted ascending
+    sort_key = Column(Float, nullable=True)
+
+    started_volunteering = Column(Date, nullable=False, server_default=text("CURRENT DATE"))
+    stopped_volunteering = Column(Date, nullable=True, default=None)
+
+    link_type = Column(String, nullable=True)
+    link_text = Column(String, nullable=True)
+    link_url = Column(String, nullable=True)
+
+    show_on_team_page = Column(Boolean, nullable=False, server_default=expression.true)
+
+    __table_args__ = (
+        # Link type, text, url should all be null or all not be null
+        CheckConstraint(
+            "(link_type IS NULL) = (link_text IS NULL) AND (link_type IS NULL) = (link_url IS NULL)",
+            name="link_type_text",
+        ),
+    )

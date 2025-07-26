@@ -3,7 +3,7 @@ import logging
 import grpc
 from sqlalchemy.sql import func, union_all
 
-from couchers import errors
+from couchers import errors, urls
 from couchers.models import Cluster, Node, ProfilePublicVisibility, Reference, User
 from couchers.servicers.api import fluency2api, hostingstatus2api, meetupstatus2api, user_model_to_pb
 from couchers.servicers.gis import _statement_to_geojson_response
@@ -142,4 +142,38 @@ class Public(public_pb2_grpc.PublicServicer):
             last_signup=Timestamp_from_datetime(last_signup.replace(second=0, microsecond=0)),
             last_location=last_location,
             user_count=user_count,
+        )
+
+    def GetVolunteers(self, request, context, session):
+        volunteers = session.execute(select(Volunteer, LiteUser).join(LiteUser, LiteUser.id == Volunteer.user_id).where(
+            LiteUser.is_visible
+        ).where(Volunteer.show_on_team_page)).scalars().all()
+
+        board_members = set(get_static_badge_dict()["board_member"])
+
+        def format_volunteer(volunteer, lite_user):
+            if volunteer.link_type:
+                link_type = volunteer.link_type
+                link_text = volunteer.link_text
+                link_url = volunteer.link_url
+            else:
+                link_type = "couchers"
+                link_text = f"@{lite_user.username}"
+                link_url = urls.user_link(username=lite_user.username)
+
+            return public_pb2.Volunteer(
+                name=lite_user.name,
+                username=lite_user.username,
+                is_board_member=lite_user.id in board_members,
+                role=volunteer.role,
+                location=lite_user.city,
+                img=lite_user.avatar_key,
+                link_type=volunteer.link_type,
+                link_text=volunteer.link_text,
+                link_url=volunteer.link_url,
+            )
+
+        return public_pb2.GetVolunteersRes(
+            current_volunteers=[format_volunteer(volunteer) for volunteer in volunteers if volunteer.stopped_volunteering is None],
+            past_volunteers=[format_volunteer(volunteer) for volunteer in volunteers if volunteer.stopped_volunteering is not None],
         )

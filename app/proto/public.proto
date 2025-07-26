@@ -26,6 +26,12 @@ service Public {
       get : "/public/signup-page-info"
     };
   }
+
+  rpc GetVolunteers(google.protobuf.Empty) returns (GetVolunteersRes) {
+    option (google.api.http) = {
+      get : "/public/volunteer-info"
+    };
+  }
 }
 
 message GetPublicUserReq {
@@ -90,4 +96,31 @@ message GetSignupPageInfoRes {
   string last_location = 2;
 
   uint64 user_count = 3;
+}
+
+message Volunteer {
+  // display name
+  string name = 1;
+  // couchers username
+  string username = 2;
+  // whether the user is a board member (and director)
+  bool is_board_member = 3;
+  // volunteer defined role
+  string role = 4;
+  // location from profile
+  string location = 5;
+  // avatar from profile
+  string img = 6;
+
+  // link type, one of couchers, email, linkedin, website
+  string link_type = 7;
+  // the text to be shown on the link
+  string link_text = 8;
+  // the URL the link should take you to
+  string link_url = 9;
+}
+
+message GetVolunteersRes {
+  repeated Volunteer current_volunteers = 1;
+  repeated Volunteer past_volunteers = 1;
 }
