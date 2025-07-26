@@ -138,7 +138,7 @@ class User(Base):
     # stored in libsodium hash format, can be null for email login
     hashed_password = Column(Binary, nullable=False)
     # phone number in E.164 format with leading +, for example "+46701740605"
-    phone = Column(String, nullable=True, server_default=text("NULL"))
+    phone = Column(String, nullable=True, server_default=expression.null())
     # language preference -- defaults to empty string
     ui_language_preference = Column(String, nullable=True, server_default="")
 
@@ -168,7 +168,7 @@ class User(Base):
     last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     public_visibility = Column(Enum(ProfilePublicVisibility), nullable=False, server_default="map_only")
-    has_modified_public_visibility = Column(Boolean, nullable=False, server_default=text("false"))
+    has_modified_public_visibility = Column(Boolean, nullable=False, server_default=expression.false())
 
     # id of the last message that they received a notification about
     last_notified_message_id = Column(BigInteger, nullable=False, default=0)
@@ -201,9 +201,9 @@ class User(Base):
     # "Additional information" under "About Me" tab
     additional_information = Column(String, nullable=True)  # CommonMark without images
 
-    is_banned = Column(Boolean, nullable=False, server_default=text("false"))
-    is_deleted = Column(Boolean, nullable=False, server_default=text("false"))
-    is_superuser = Column(Boolean, nullable=False, server_default=text("false"))
+    is_banned = Column(Boolean, nullable=False, server_default=expression.false())
+    is_deleted = Column(Boolean, nullable=False, server_default=expression.false())
+    is_superuser = Column(Boolean, nullable=False, server_default=expression.false())
 
     # the undelete token allows a user to recover their account for a couple of days after deletion in case it was
     # accidental or they changed their mind
@@ -246,16 +246,16 @@ class User(Base):
     accepted_tos = Column(Integer, nullable=False, default=0)
     accepted_community_guidelines = Column(Integer, nullable=False, server_default="0")
     # whether the user has yet filled in the contributor form
-    filled_contributor_form = Column(Boolean, nullable=False, server_default="false")
+    filled_contributor_form = Column(Boolean, nullable=False, server_default=expression.false())
 
     # number of onboarding emails sent
     onboarding_emails_sent = Column(Integer, nullable=False, server_default="0")
     last_onboarding_email_sent = Column(DateTime(timezone=True), nullable=True)
 
     # whether we need to sync the user's newsletter preferences with the newsletter server
-    in_sync_with_newsletter = Column(Boolean, nullable=False, server_default="false")
+    in_sync_with_newsletter = Column(Boolean, nullable=False, server_default=expression.false())
     # opted out of the newsletter
-    opt_out_of_newsletter = Column(Boolean, nullable=False, server_default="false")
+    opt_out_of_newsletter = Column(Boolean, nullable=False, server_default=expression.false())
 
     # set to null to receive no digests
     digest_frequency = Column(Interval, nullable=True)
@@ -294,10 +294,10 @@ class User(Base):
     # '-----------------'                   '-------------------'                      '-----------------------'
 
     # randomly generated Luhn 6-digit string
-    phone_verification_token = Column(String(6), nullable=True, server_default=text("NULL"))
+    phone_verification_token = Column(String(6), nullable=True, server_default=expression.null())
 
     phone_verification_sent = Column(DateTime(timezone=True), nullable=False, server_default=text("to_timestamp(0)"))
-    phone_verification_verified = Column(DateTime(timezone=True), nullable=True, server_default=text("NULL"))
+    phone_verification_verified = Column(DateTime(timezone=True), nullable=True, server_default=expression.null())
     phone_verification_attempts = Column(Integer, nullable=False, server_default=text("0"))
 
     # the stripe customer identifier if the user has donated to Couchers
@@ -307,20 +307,20 @@ class User(Base):
     # for old AU entity
     stripe_customer_id_old = Column(String, nullable=True)
 
-    has_passport_sex_gender_exception = Column(Boolean, nullable=False, server_default=text("false"))
+    has_passport_sex_gender_exception = Column(Boolean, nullable=False, server_default=expression.false())
 
     #  checking for phone verification
-    has_donated = Column(Boolean, nullable=False, server_default=text("false"))
+    has_donated = Column(Boolean, nullable=False, server_default=expression.false())
 
     # whether this user has all emails turned off
-    do_not_email = Column(Boolean, nullable=False, server_default=text("false"))
+    do_not_email = Column(Boolean, nullable=False, server_default=expression.false())
 
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
     admin_note = Column(String, nullable=False, server_default=text("''"))
 
     # whether mods have marked this user has having to update their location
-    needs_to_update_location = Column(Boolean, nullable=False, server_default=text("false"))
+    needs_to_update_location = Column(Boolean, nullable=False, server_default=expression.false())
 
     last_antibot = Column(DateTime(timezone=True), nullable=False, server_default=text("to_timestamp(0)"))
 
@@ -1163,7 +1163,7 @@ class UserSession(Base):
     # a session cookie is set in the "couchers-sesh" cookie (e.g. "cookie: couchers-sesh=<token>")
     # when a session is created, it's fixed as one or the other for security reasons
     # for api keys to be useful, they should be long lived and have a long expiry
-    is_api_key = Column(Boolean, nullable=False, server_default=text("false"))
+    is_api_key = Column(Boolean, nullable=False, server_default=expression.false())
 
     # whether it's a long-lived or short-lived session
     long_lived = Column(Boolean, nullable=False)
@@ -1480,8 +1480,8 @@ class HostRequest(Base):
     end_time_to_write_reference = column_property(date_in_timezone(to_date, timezone) + text("interval '15 days'"))
 
     status = Column(Enum(HostRequestStatus), nullable=False)
-    is_host_archived = Column(Boolean, nullable=False, default=False, server_default=text("false"))
-    is_surfer_archived = Column(Boolean, nullable=False, default=False, server_default=text("false"))
+    is_host_archived = Column(Boolean, nullable=False, default=False, server_default=expression.false())
+    is_surfer_archived = Column(Boolean, nullable=False, default=False, server_default=expression.false())
 
     host_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
     surfer_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
@@ -1572,7 +1572,7 @@ class Reference(Base):
     rating = Column(Float, nullable=False)
     was_appropriate = Column(Boolean, nullable=False)
 
-    is_deleted = Column(Boolean, nullable=False, default=False, server_default="false")
+    is_deleted = Column(Boolean, nullable=False, default=False, server_default=expression.false())
 
     from_user = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
     to_user = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
@@ -2040,8 +2040,8 @@ class EventOccurrence(Base):
     content = Column(String, nullable=False)  # CommonMark without images
     photo_key = Column(ForeignKey("uploads.key"), nullable=True)
 
-    is_cancelled = Column(Boolean, nullable=False, default=False, server_default=text("false"))
-    is_deleted = Column(Boolean, nullable=False, default=False, server_default=text("false"))
+    is_cancelled = Column(Boolean, nullable=False, default=False, server_default=expression.false())
+    is_deleted = Column(Boolean, nullable=False, default=False, server_default=expression.false())
 
     # a null geom is an online-only event
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
@@ -2552,7 +2552,7 @@ class Notification(Base):
     data = Column(Binary, nullable=False)
 
     # whether the user has marked this notification as seen or not
-    is_seen = Column(Boolean, nullable=False, server_default=text("false"))
+    is_seen = Column(Boolean, nullable=False, server_default=expression.false())
 
     user = relationship("User", foreign_keys="Notification.user_id")
 
@@ -2729,7 +2729,7 @@ class APICall(Base):
     id = Column(BigInteger, primary_key=True)
 
     # whether the call was made using an api key or session cookies
-    is_api_key = Column(Boolean, nullable=False, server_default=text("false"))
+    is_api_key = Column(Boolean, nullable=False, server_default=expression.false())
 
     # backend version (normally e.g. develop-31469e3), allows us to figure out which proto definitions were used
     # note that `default` is a python side default, not hardcoded into DB schema
@@ -2757,7 +2757,7 @@ class APICall(Base):
     response = Column(Binary, nullable=True)
 
     # whether response bytes have been truncated
-    response_truncated = Column(Boolean, nullable=False, server_default=text("false"))
+    response_truncated = Column(Boolean, nullable=False, server_default=expression.false())
 
     # the exception traceback, if any
     traceback = Column(String, nullable=True)
@@ -2847,4 +2847,33 @@ class RateLimitViolation(Base):
     __table_args__ = (
         # Fast lookup for rate limits in interval
         Index("ix_rate_limits_by_user", user_id, action, is_hard_limit, created),
+    )
+
+
+class Volunteer(Base):
+    __tablename__ = "volunteers"
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+
+    role = Column(String, nullable=False)
+
+    # custom sort order on team page, sorted ascending
+    sort_key = Column(Float, nullable=True)
+
+    started_volunteering = Column(Date, nullable=False, server_default=text("CURRENT_DATE"))
+    stopped_volunteering = Column(Date, nullable=True, default=None)
+
+    link_type = Column(String, nullable=True)
+    link_text = Column(String, nullable=True)
+    link_url = Column(String, nullable=True)
+
+    show_on_team_page = Column(Boolean, nullable=False, server_default=expression.true())
+
+    __table_args__ = (
+        # Link type, text, url should all be null or all not be null
+        CheckConstraint(
+            "(link_type IS NULL) = (link_text IS NULL) AND (link_type IS NULL) = (link_url IS NULL)",
+            name="link_type_text",
+        ),
     )
