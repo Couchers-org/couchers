@@ -124,7 +124,7 @@ def get_pending_references_to_write(session, context):
                 Reference.from_user_id == context.user_id,
             ),
         )
-        .join(LiteUser, LiteUser.id == HostRequest.host_user_id)
+        .join(LiteUser, LiteUser.id == HostRequest.surfer_user_id)
         .where_users_column_visible(context, HostRequest.surfer_user_id)
         .where(Reference.id == None)
         .where(HostRequest.can_write_reference)
@@ -135,8 +135,6 @@ def get_pending_references_to_write(session, context):
     union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
     union = select(union.c[0].label("surfed"), aliased(HostRequest, union), aliased(LiteUser, union))
     host_request_references = session.execute(union).all()
-
-    print(host_request_references)
 
     return [
         (

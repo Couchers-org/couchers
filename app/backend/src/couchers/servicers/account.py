@@ -25,7 +25,7 @@ from couchers.crypto import (
 from couchers.helpers.geoip import geoip_approximate_location
 from couchers.helpers.strong_verification import get_strong_verification_fields, has_strong_verification
 from couchers.jobs.enqueue import queue_job
-from couchers.materialized_views import lite_users
+from couchers.materialized_views import LiteUser
 from couchers.metrics import (
     account_deletion_initiations_counter,
     strong_verification_data_deletions_counter,
@@ -602,19 +602,15 @@ class Account(account_pb2_grpc.AccountServicer):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         # responding to reqs comes first in desc order of when they were received
-        pending_host_requests = (
-            session.execute(
-                select(HostRequest.conversation_id, lite_users)
-                .join(lite_users, lite_users.c.id == HostRequest.surfer_user_id)
-                .where_users_column_visible(context, HostRequest.surfer_user_id)
-                .where(HostRequest.host_user_id == context.user_id)
-                .where(HostRequest.status == HostRequestStatus.pending)
-                .where(HostRequest.start_time > func.now())
-                .order_by(HostRequest.id.asc())
-            )
-            .scalars()
-            .all()
-        )
+        pending_host_requests = session.execute(
+            select(HostRequest.conversation_id, LiteUser)
+            .join(LiteUser, LiteUser.id == HostRequest.surfer_user_id)
+            .where_users_column_visible(context, HostRequest.surfer_user_id)
+            .where(HostRequest.host_user_id == context.user_id)
+            .where(HostRequest.status == HostRequestStatus.pending)
+            .where(HostRequest.start_time > func.now())
+            .order_by(HostRequest.conversation_id.asc())
+        ).all()
         reminders = [
             account_pb2.Reminder(
                 respond_to_host_request_reminder=account_pb2.RespondToHostRequestReminder(
@@ -645,7 +641,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 account_pb2.Reminder(complete_verification_reminder=account_pb2.CompleteVerificationReminder())
             )
 
-        return account_pb2.GetRemindersRes(reminders=[])
+        return account_pb2.GetRemindersRes(reminders=reminders)
 
 
 class Iris(iris_pb2_grpc.IrisServicer):
