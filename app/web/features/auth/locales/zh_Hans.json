@@ -218,12 +218,6 @@
     },
     "learn_more": "了解强验证，点击<a>此处</a>。"
   },
-  "unsubscribe": {
-    "title": "退订",
-    "button_text": "确认退订",
-    "error_message": "退订时出错：{{message}}",
-    "missing_payload_or_sig": "无效的URL"
-  },
   "change_phone": {
     "title": "电话号码",
     "need_to_donate": "您需要<2>捐赠</2>后才能完成电话号码验证。",

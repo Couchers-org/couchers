@@ -158,12 +158,6 @@
     },
     "title": "Impostazioni conto"
   },
-  "unsubscribe": {
-    "title": "Annullare iscrizione",
-    "button_text": "Confermare annullamento iscrizione",
-    "error_message": "Errore durante l'annullamento dell'iscrizione: {{message}}",
-    "missing_payload_or_sig": "URL non valido, dati o firma mancanti"
-  },
   "change_phone": {
     "phone_label": "Il tuo numero di telefono",
     "title": "Numero di telefono",
