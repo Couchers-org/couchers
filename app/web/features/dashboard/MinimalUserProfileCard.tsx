@@ -41,11 +41,9 @@ export default function MinimalUserProfileCard({
         <div>
           <Typography align="right">{user.city}</Typography>
           <Typography noWrap align="right">
-            <Link href={routeToProfile()} passHref legacyBehavior>
-              <MuiLink underline="hover">
-                {t("dashboard:profile_mobile_summary_view")}
-              </MuiLink>
-            </Link>
+            <MuiLink component={Link} underline="hover" href={routeToProfile()}>
+              {t("dashboard:profile_mobile_summary_view")}
+            </MuiLink>
           </Typography>
         </div>
       </Box>

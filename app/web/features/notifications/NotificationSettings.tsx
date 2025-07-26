@@ -13,9 +13,9 @@ export default function NotificationSettings() {
       <Typography variant="h2" gutterBottom>
         {t("notification_settings.title")}
       </Typography>
-      <Link href={notificationSettingsRoute} passHref legacyBehavior>
-        <Button>{t("notification_settings.go_to_button")}</Button>
-      </Link>
+      <Button component={Link} href={notificationSettingsRoute}>
+        {t("notification_settings.go_to_button")}
+      </Button>
     </div>
   );
 }
