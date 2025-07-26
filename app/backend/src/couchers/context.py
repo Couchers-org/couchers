@@ -65,24 +65,24 @@ class CouchersContext:
         ui_language_preference: str | None,
     ):
         """Don't ever construct directly, always use the `make_*_context_` functions!"""
-        self.__grpc_context = grpc_context
-        self.__user_id = user_id
-        self.__is_api_key = is_api_key
+        self._grpc_context = grpc_context
+        self._user_id = user_id
+        self._is_api_key = is_api_key
         self.__token = token
         self.__ui_language_preference = ui_language_preference
         self.__is_interactive = is_interactive
-        self.__logged_in = self.__user_id is not None
+        self.__logged_in = self._user_id is not None
         self.__cookies = []
 
         if self.__is_interactive:
-            if not self.__grpc_context:
+            if not self._grpc_context:
                 raise ValueError("Tried to construct interactive context without grpc context")
-            if self.__is_api_key is None:
+            if self._is_api_key is None:
                 raise ValueError("Tried to construct interactive context but missing is_api_key")
-            self.__headers = dict(self.__grpc_context.invocation_metadata())
+            self.__headers = dict(self._grpc_context.invocation_metadata())
 
         if self.__logged_in:
-            if not self.__user_id:
+            if not self._user_id:
                 raise ValueError("Invalid state, logged in but missing user_id")
 
     def __verify_interactive(self):
@@ -103,7 +103,7 @@ class CouchersContext:
         if not self.__is_interactive:
             raise NonInteractiveAbortException(status_code, error_message)
         else:
-            self.__grpc_context.abort(status_code, error_message)
+            self._grpc_context.abort(status_code, error_message)
 
     def set_cookies(self, cookies: list[str]) -> None:
         """
@@ -113,7 +113,7 @@ class CouchersContext:
         self.__cookies += cookies
 
     def _send_cookies(self) -> None:
-        self.__grpc_context.send_initial_metadata([("set-cookie", cookie) for cookie in self.__cookies])
+        self._grpc_context.send_initial_metadata([("set-cookie", cookie) for cookie in self.__cookies])
 
     @property
     def headers(self):
@@ -129,7 +129,7 @@ class CouchersContext:
         Returns the user ID of the currently logged in user, if available
         """
         self.__verify_logged_in()
-        return self.__user_id
+        return self._user_id
 
     @property
     def is_api_key(self) -> bool:
@@ -137,7 +137,7 @@ class CouchersContext:
         Returns whether the API call was done with API key or not, if available
         """
         self.__verify_logged_in()
-        return self.__is_api_key
+        return self._is_api_key
 
     @property
     def token(self) -> str:
@@ -167,7 +167,11 @@ def make_interactive_user_context(grpc_context, user_id, is_api_key, token, ui_l
 def make_media_context(grpc_context):
     return CouchersContext(
         is_interactive=True,
+        user_id=None,
+        is_api_key=False,
         grpc_context=grpc_context,
+        token=None,
+        ui_language_preference=None,
     )
 
 

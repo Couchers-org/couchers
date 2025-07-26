@@ -1,5 +1,4 @@
 import logging
-from contextlib import contextmanager
 from copy import deepcopy
 from datetime import timedelta
 from os import getpid
@@ -136,6 +135,7 @@ def _sanitized_bytes(proto):
 
 
 def _store_log(
+    *,
     method,
     status_code,
     duration,
@@ -173,135 +173,6 @@ def _store_log(
             )
         )
     logger.debug(f"{user_id=}, {method=}, {duration=} ms")
-
-
-@contextmanager
-def tracer(start, user_id, is_api_key, handler_call_details, grpc_context, req, func):
-    method = handler_call_details.method
-    headers = dict(handler_call_details.invocation_metadata)
-    ip_address = headers.get("x-couchers-real-ip")
-    user_agent = headers.get("user-agent")
-
-    try:
-        start = perf_counter_ns()
-        res = func()
-        yield res
-        finished = perf_counter_ns()
-        duration = (finished - start) / 1e6  # ms
-        _store_log(
-            method,
-            None,
-            duration,
-            user_id,
-            is_api_key,
-            req,
-            res,
-            None,
-            None,
-            ip_address,
-            user_agent,
-        )
-        observe_in_servicer_duration_histogram(method, user_id, "", "", duration / 1000)
-    except Exception as e:
-        finished = perf_counter_ns()
-        duration = (finished - start) / 1e6  # ms
-        code = getattr(grpc_context.code(), "name", None)
-        traceback = "".join(format_exception(type(e), e, e.__traceback__))
-        _store_log(
-            method,
-            code,
-            duration,
-            user_id,
-            is_api_key,
-            req,
-            None,
-            traceback,
-            None,
-            ip_address,
-            user_agent,
-        )
-        observe_in_servicer_duration_histogram(method, user_id, code or "", type(e).__name__, duration / 1000)
-
-        if not code:
-            sentry_sdk.set_tag("context", "servicer")
-            sentry_sdk.set_tag("method", method)
-            sentry_sdk.capture_exception(e)
-
-        raise e
-    return res
-
-
-class TracingInterceptor(grpc.ServerInterceptor):
-    """
-    Measures and logs the time it takes to service each incoming call.
-    """
-
-    def intercept_service(self, continuation, handler_call_details):
-        handler = continuation(handler_call_details)
-        prev_func = handler.unary_unary
-        method = handler_call_details.method
-
-        headers = dict(handler_call_details.invocation_metadata)
-        ip_address = headers.get("x-couchers-real-ip")
-        user_agent = headers.get("user-agent")
-
-        def tracing_function(request, context):
-            try:
-                start = perf_counter_ns()
-                res = prev_func(request, context)
-                finished = perf_counter_ns()
-                duration = (finished - start) / 1e6  # ms
-                _store_log(
-                    method,
-                    None,
-                    duration,
-                    context.is_logged_in() and context.user_id,
-                    context.is_logged_in() and context.is_api_key,
-                    request,
-                    res,
-                    None,
-                    None,
-                    ip_address,
-                    user_agent,
-                )
-                observe_in_servicer_duration_histogram(
-                    method, context.is_logged_in() and context.user_id, "", "", duration / 1000
-                )
-            except Exception as e:
-                finished = perf_counter_ns()
-                duration = (finished - start) / 1e6  # ms
-                code = getattr(context.code(), "name", None)
-                traceback = "".join(format_exception(type(e), e, e.__traceback__))
-                _store_log(
-                    method,
-                    code,
-                    duration,
-                    context.is_logged_in() and context.user_id,
-                    context.is_logged_in() and context.is_api_key,
-                    request,
-                    None,
-                    traceback,
-                    None,
-                    ip_address,
-                    user_agent,
-                )
-                observe_in_servicer_duration_histogram(
-                    method, context.is_logged_in() and context.user_id, code or "", type(e).__name__, duration / 1000
-                )
-
-                if not code:
-                    sentry_sdk.set_tag("context", "servicer")
-                    sentry_sdk.set_tag("method", method)
-                    sentry_sdk.capture_exception(e)
-
-                raise e
-            return res
-
-        return grpc.unary_unary_rpc_method_handler(
-            tracing_function,
-            request_deserializer=handler.request_deserializer,
-            response_serializer=handler.response_serializer,
-        )
 
 
 class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
@@ -406,40 +277,40 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     res = prev_function(req, couchers_context, session)
                     finished = perf_counter_ns()
                     duration = (finished - start) / 1e6  # ms
-                    self._store_log(
-                        method,
-                        None,
-                        duration,
-                        couchers_context.__user_id,
-                        couchers_context.__is_api_key,
-                        req,
-                        res,
-                        None,
-                        None,
-                        ip_address,
-                        user_agent,
+                    _store_log(
+                        method=method,
+                        status_code=None,
+                        duration=duration,
+                        user_id=couchers_context._user_id,
+                        is_api_key=couchers_context._is_api_key,
+                        request=req,
+                        response=res,
+                        traceback=None,
+                        perf_report=None,
+                        ip_address=ip_address,
+                        user_agent=user_agent,
                     )
-                    observe_in_servicer_duration_histogram(method, couchers_context.__user_id, "", "", duration / 1000)
+                    observe_in_servicer_duration_histogram(method, couchers_context._user_id, "", "", duration / 1000)
                 except Exception as e:
                     finished = perf_counter_ns()
                     duration = (finished - start) / 1e6  # ms
-                    code = getattr(couchers_context.__grpc_context.code(), "name", None)
+                    code = getattr(couchers_context._grpc_context.code(), "name", None)
                     traceback = "".join(format_exception(type(e), e, e.__traceback__))
-                    self._store_log(
-                        method,
-                        code,
-                        duration,
-                        couchers_context.__user_id,
-                        couchers_context.__is_api_key,
-                        req,
-                        None,
-                        traceback,
-                        None,
-                        ip_address,
-                        user_agent,
+                    _store_log(
+                        method=method,
+                        status_code=code,
+                        duration=duration,
+                        user_id=couchers_context._user_id,
+                        is_api_key=couchers_context._is_api_key,
+                        request=req,
+                        response=None,
+                        traceback=traceback,
+                        perf_report=None,
+                        ip_address=ip_address,
+                        user_agent=user_agent,
                     )
                     observe_in_servicer_duration_histogram(
-                        method, couchers_context.__user_id, code or "", type(e).__name__, duration / 1000
+                        method, couchers_context._user_id, code or "", type(e).__name__, duration / 1000
                     )
 
                     if not code:
@@ -448,7 +319,6 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         sentry_sdk.capture_exception(e)
 
                     raise e
-                return res
 
             if user_id and not is_api_key:
                 cookies = []

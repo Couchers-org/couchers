@@ -545,10 +545,10 @@ def test_ChangeLanguagePreference(db, fast_passwords):
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert res.ui_language_preference == ""
 
-        request = account_pb2.ChangeLanguagePreferenceReq(ui_language_preference=newLanguageCode)
-
         # call will have info about the request
-        res, call = account.ChangeLanguagePreference.with_call(request)
+        res, call = account.ChangeLanguagePreference.with_call(
+            account_pb2.ChangeLanguagePreferenceReq(ui_language_preference=newLanguageCode)
+        )
 
         # cookies are sent via initial metadata, so we check for it there
         for key, val in call.initial_metadata():
@@ -560,7 +560,7 @@ def test_ChangeLanguagePreference(db, fast_passwords):
                     res = account.GetAccountInfo(empty_pb2.Empty())
                     assert res.ui_language_preference == "zh"
                     return
-        raise Exception("Didn't find right cookie")
+        raise Exception(f"Didn't find right cookie, got {call.initial_metadata()}")
 
 
 def test_contributor_form(db):

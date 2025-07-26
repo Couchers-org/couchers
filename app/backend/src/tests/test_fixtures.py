@@ -842,7 +842,7 @@ def media_session(bearer_token):
     media_auth_interceptor = get_media_auth_interceptor(bearer_token)
 
     with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[media_auth_interceptor, CouchersMiddlewareInterceptor()])
+        server = grpc.server(executor, interceptors=[media_auth_interceptor])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
         servicer = Media()
         media_pb2_grpc.add_MediaServicer_to_server(servicer, server)

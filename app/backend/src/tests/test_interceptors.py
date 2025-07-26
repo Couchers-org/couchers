@@ -11,7 +11,6 @@ from couchers.db import session_scope
 from couchers.interceptors import (
     CouchersMiddlewareInterceptor,
     ErrorSanitizationInterceptor,
-    TracingInterceptor,
 )
 from couchers.metrics import servicer_duration_histogram
 from couchers.models import APICall, UserSession
@@ -31,8 +30,8 @@ def _(testconfig):
 def interceptor_dummy_api(
     rpc,
     interceptors,
-    service_name="testing.Test",
-    method_name="TestRpc",
+    service_name="org.couchers.auth.Auth",
+    method_name="SignupFlow",
     request_type=empty_pb2.Empty,
     response_type=empty_pb2.Empty,
     creds=None,
@@ -173,35 +172,35 @@ def test_logging_interceptor_raise_custom():
 
 
 def test_tracing_interceptor_ok_open(db):
-    val = _get_histogram_labels_value("/testing.Test/TestRpc", "False", "", "")
+    val = _get_histogram_labels_value("/org.couchers.auth.Auth/SignupFlow", "False", "", "")
 
-    def TestRpc(request, context):
+    def TestRpc(request, context, session):
         return empty_pb2.Empty()
 
-    with interceptor_dummy_api(TestRpc, interceptors=[TracingInterceptor()]) as call_rpc:
+    with interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc:
         call_rpc(empty_pb2.Empty())
 
     with session_scope() as session:
         trace = session.execute(select(APICall)).scalar_one()
-        assert trace.method == "/testing.Test/TestRpc"
+        assert trace.method == "/org.couchers.auth.Auth/SignupFlow"
         assert not trace.status_code
         assert not trace.user_id
         assert len(trace.request) == 0
         assert len(trace.response) == 0
         assert not trace.traceback
 
-    assert _get_histogram_labels_value("/testing.Test/TestRpc", "False", "", "") == val + 1
+    assert _get_histogram_labels_value("/org.couchers.auth.Auth/SignupFlow", "False", "", "") == val + 1
 
 
 def test_tracing_interceptor_sensitive(db):
-    val = _get_histogram_labels_value("/testing.Test/TestRpc", "False", "", "")
+    val = _get_histogram_labels_value("/org.couchers.auth.Auth/SignupFlow", "False", "", "")
 
-    def TestRpc(request, context):
+    def TestRpc(request, context, session):
         return auth_pb2.AuthReq(user="this is not secret", password="this is secret")
 
     with interceptor_dummy_api(
         TestRpc,
-        interceptors=[TracingInterceptor()],
+        interceptors=[CouchersMiddlewareInterceptor()],
         request_type=auth_pb2.SignupFlowReq,
         response_type=auth_pb2.AuthReq,
     ) as call_rpc:
@@ -211,7 +210,7 @@ def test_tracing_interceptor_sensitive(db):
 
     with session_scope() as session:
         trace = session.execute(select(APICall)).scalar_one()
-        assert trace.method == "/testing.Test/TestRpc"
+        assert trace.method == "/org.couchers.auth.Auth/SignupFlow"
         assert not trace.status_code
         assert not trace.user_id
         assert not trace.traceback
@@ -222,7 +221,7 @@ def test_tracing_interceptor_sensitive(db):
         assert res.user == "this is not secret"
         assert not res.password
 
-    assert _get_histogram_labels_value("/testing.Test/TestRpc", "False", "", "") == val + 1
+    assert _get_histogram_labels_value("/org.couchers.auth.Auth/SignupFlow", "False", "", "") == val + 1
 
 
 def test_tracing_interceptor_sensitive_ping(db):
@@ -230,7 +229,7 @@ def test_tracing_interceptor_sensitive_ping(db):
 
     with interceptor_dummy_api(
         API().GetUser,
-        interceptors=[TracingInterceptor(), CouchersMiddlewareInterceptor()],
+        interceptors=[CouchersMiddlewareInterceptor()],
         request_type=api_pb2.GetUserReq,
         response_type=api_pb2.User,
         service_name="org.couchers.api.core.API",
@@ -240,14 +239,14 @@ def test_tracing_interceptor_sensitive_ping(db):
 
 
 def test_tracing_interceptor_exception(db):
-    val = _get_histogram_labels_value("/testing.Test/TestRpc", "False", "Exception", "")
+    val = _get_histogram_labels_value("/org.couchers.auth.Auth/SignupFlow", "False", "Exception", "")
 
-    def TestRpc(request, context):
+    def TestRpc(request, context, session):
         raise Exception("Some error message")
 
     with interceptor_dummy_api(
         TestRpc,
-        interceptors=[TracingInterceptor()],
+        interceptors=[CouchersMiddlewareInterceptor()],
         request_type=auth_pb2.SignupAccount,
         response_type=auth_pb2.AuthReq,
     ) as call_rpc:
@@ -256,7 +255,7 @@ def test_tracing_interceptor_exception(db):
 
     with session_scope() as session:
         trace = session.execute(select(APICall)).scalar_one()
-        assert trace.method == "/testing.Test/TestRpc"
+        assert trace.method == "/org.couchers.auth.Auth/SignupFlow"
         assert not trace.status_code
         assert not trace.user_id
         assert "Some error message" in trace.traceback
@@ -265,18 +264,18 @@ def test_tracing_interceptor_exception(db):
         assert req.username == "not removed"
         assert not trace.response
 
-    assert _get_histogram_labels_value("/testing.Test/TestRpc", "False", "Exception", "") == val + 1
+    assert _get_histogram_labels_value("/org.couchers.auth.Auth/SignupFlow", "False", "Exception", "") == val + 1
 
 
 def test_tracing_interceptor_abort(db):
-    val = _get_histogram_labels_value("/testing.Test/TestRpc", "False", "Exception", "FAILED_PRECONDITION")
+    val = _get_histogram_labels_value("/org.couchers.auth.Auth/SignupFlow", "False", "Exception", "FAILED_PRECONDITION")
 
-    def TestRpc(request, context):
+    def TestRpc(request, context, session):
         context.abort(grpc.StatusCode.FAILED_PRECONDITION, "now a grpc abort")
 
     with interceptor_dummy_api(
         TestRpc,
-        interceptors=[TracingInterceptor()],
+        interceptors=[CouchersMiddlewareInterceptor()],
         request_type=auth_pb2.SignupAccount,
         response_type=auth_pb2.AuthReq,
     ) as call_rpc:
@@ -285,7 +284,7 @@ def test_tracing_interceptor_abort(db):
 
     with session_scope() as session:
         trace = session.execute(select(APICall)).scalar_one()
-        assert trace.method == "/testing.Test/TestRpc"
+        assert trace.method == "/org.couchers.auth.Auth/SignupFlow"
         assert trace.status_code == "FAILED_PRECONDITION"
         assert not trace.user_id
         assert "now a grpc abort" in trace.traceback
@@ -294,7 +293,10 @@ def test_tracing_interceptor_abort(db):
         assert req.username == "not removed"
         assert not trace.response
 
-    assert _get_histogram_labels_value("/testing.Test/TestRpc", "False", "Exception", "FAILED_PRECONDITION") == val + 1
+    assert (
+        _get_histogram_labels_value("/org.couchers.auth.Auth/SignupFlow", "False", "Exception", "FAILED_PRECONDITION")
+        == val + 1
+    )
 
 
 def test_auth_interceptor(db):
@@ -388,7 +390,7 @@ def test_tracing_interceptor_auth_cookies(db):
         "rpc": account.GetAccountInfo,
         "service_name": "org.couchers.api.account.Account",
         "method_name": "GetAccountInfo",
-        "interceptors": [TracingInterceptor(), CouchersMiddlewareInterceptor()],
+        "interceptors": [CouchersMiddlewareInterceptor()],
         "request_type": empty_pb2.Empty,
         "response_type": account_pb2.GetAccountInfoRes,
     }
@@ -425,7 +427,7 @@ def test_tracing_interceptor_auth_api_key(db):
         "rpc": account.GetAccountInfo,
         "service_name": "org.couchers.api.account.Account",
         "method_name": "GetAccountInfo",
-        "interceptors": [TracingInterceptor(), CouchersMiddlewareInterceptor()],
+        "interceptors": [CouchersMiddlewareInterceptor()],
         "request_type": empty_pb2.Empty,
         "response_type": account_pb2.GetAccountInfoRes,
     }
@@ -436,7 +438,9 @@ def test_tracing_interceptor_auth_api_key(db):
     assert res1.username == user.username
 
     with session_scope() as session:
-        trace = session.execute(select(APICall)).scalar_one()
+        trace = session.execute(
+            select(APICall).where(APICall.method == "/org.couchers.api.account.Account/GetAccountInfo")
+        ).scalar_one()
         assert trace.method == "/org.couchers.api.account.Account/GetAccountInfo"
         assert not trace.status_code
         assert trace.user_id == user.id
@@ -446,7 +450,7 @@ def test_tracing_interceptor_auth_api_key(db):
 
 
 def test_auth_levels(db):
-    def TestRpc(request, context):
+    def TestRpc(request, context, session):
         return empty_pb2.Empty()
 
     def gen_args(service, method):
