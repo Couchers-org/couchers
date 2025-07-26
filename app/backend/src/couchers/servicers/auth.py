@@ -587,7 +587,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             user_agent=user_agent,
             ip_address=ip_address,
             action=request.action,
-            user_id=context.user_id,
+            user_id=context.user_id if context.is_logged_in() else None,
         )
 
         resp = requests.post(
@@ -616,7 +616,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         recaptchas_assessed_counter.labels(log.action).inc()
         recaptcha_score_histogram.labels(log.action).observe(log.score)
 
-        if context.user_id:
+        if context.is_logged_in():
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
             user.last_antibot = now()
 
@@ -624,7 +624,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
     def AntiBotPolicy(self, request, context, session):
         if config["RECAPTHCA_ENABLED"]:
-            if context.user_id:
+            if context.is_logged_in():
                 user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
                 if now() - user.last_antibot > ANTIBOT_FREQ:
                     return auth_pb2.AntiBotPolicyRes(should_antibot=True)

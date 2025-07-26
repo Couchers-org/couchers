@@ -853,7 +853,6 @@ class API(api_pb2_grpc.APIServicer):
 def response_rate_to_pb(response_rate: UserResponseRate):
     if not response_rate:
         return {"insufficient_data": requests_pb2.ResponseRateInsufficientData()}
-    print(type(response_rate))
 
     # if n is None, the user is new or they have no requests
     if response_rate.requests < 3:
