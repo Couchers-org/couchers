@@ -105,9 +105,12 @@
     "yes": "Yes"
   },
   "sleeping_arrangement": {
-    "private": "Private space",
-    "common": "Common area",
-    "shared_room": "Shared room"
+    "private_short": "Private space",
+    "common_short": "Common room",
+    "shared_room_short": "Shared room",
+    "private": "Private space (e.g. own room or similar)",
+    "common": "Common room (e.g. couch in living room)",
+    "shared_room": "Shared room (e.g. shared bedroom with own sleeping surface)"
   },
   "parking_details": {
     "free_onsite": "Free onsite parking",
@@ -193,6 +196,7 @@
     "request": "Request",
     "request_description": "Share your plans for the visit and include why you're requesting to stay with this particular host",
     "request_description_empty": "Please write a request message",
+    "request_char_length_too_short": "Request message must be at least 250 characters",
     "stay_type_a11y_text": "stay type",
     "success": "Request sent!",
     "guest_count": "Number of guests"

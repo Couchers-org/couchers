@@ -42,10 +42,10 @@ describe("Event organizers", () => {
       await screen.findByRole("heading", { name: t("communities:organizers") }),
     ).toBeVisible();
     expect(
-      await screen.findByRole("heading", { name: "Funny Dog, 35" }),
+      await screen.findByRole("heading", { name: "Funny Dog" }),
     ).toBeVisible();
     expect(
-      await screen.findByRole("heading", { name: "Funny Kid, 28" }),
+      await screen.findByRole("heading", { name: "Funny Kid" }),
     ).toBeVisible();
   });
 
@@ -78,10 +78,10 @@ describe("Event organizers", () => {
       ).toBeVisible();
 
       expect(
-        await screen.findByRole("heading", { name: "Funny Chicken, 28" }),
+        await screen.findByRole("heading", { name: "Funny Chicken" }),
       ).toBeVisible();
       expect(
-        await screen.findByRole("heading", { name: "Friendly Cow, 25" }),
+        await screen.findByRole("heading", { name: "Friendly Cow" }),
       ).toBeVisible();
     });
 
@@ -106,11 +106,11 @@ describe("Event organizers", () => {
       );
 
       expect(
-        await dialog.findByRole("heading", { name: "Funny Dog, 35" }),
+        await dialog.findByRole("heading", { name: "Funny Dog" }),
       ).toBeVisible();
 
       expect(
-        await dialog.findByRole("heading", { name: "Funny Kid, 28" }),
+        await dialog.findByRole("heading", { name: "Funny Kid" }),
       ).toBeVisible();
     });
 

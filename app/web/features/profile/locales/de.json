@@ -29,13 +29,13 @@
     "map_section": "Reisekarte"
   },
   "actions": {
-    "message_label": "Nachricht",
+    "message_label": "Chatten",
     "accept_friend_label": "Annehmen",
     "decline_friend_label": "Ablehnen",
     "request": "Anfragen",
     "back_to_dashboard": "Zurück zur Übersicht"
   },
-  "my_connections": "Meine Verbindungen",
+  "my_connections": "Meine Kontakte",
   "profile_tag_input": {
     "remove_button_a11y_text": "{{tag}} entfernen",
     "header_text": "Drück zum Hinzufügen die Eingabetaste\n<support_link>Sende uns eine E-Mail</support_link>, um einen Eintrag hinzuzufügen"
@@ -221,9 +221,12 @@
   "response_time_text_almost_all": "Normalerweise in {{p33}} bis {{p66}}",
   "unsaved_changes_warning": "Du hast die Änderungen nicht gespeichert. Bist du sicher, dass du die Seite verlassen möchtest?",
   "sleeping_arrangement": {
-    "private": "Privater Raum",
-    "common": "Gemeinschaftsbereich",
-    "shared_room": "Geteiltes Zimmer"
+    "private": "Privater Bereich (z.B. eigenes Zimmer o. Ä.)",
+    "common": "Gemeinschaftsbereich (z.B. couch im Wohnzimmer)",
+    "shared_room": "Geteiltes Zimmer (z.B. geteiltes Zimmer mit eigener Schlaffläche)",
+    "private_short": "Privater Bereich",
+    "common_short": "Gemeinschaftsraum",
+    "shared_room_short": "Geteiltes Zimmer"
   },
   "edit_profile_name_required": "Name benötigt",
   "parking_details": {

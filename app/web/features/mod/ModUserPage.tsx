@@ -29,11 +29,13 @@ function AdminActions({ username }: { username: string }) {
   const { t } = useTranslation([GLOBAL, MOD]);
   return (
     <>
-      <Link href={adminPanelUserLink(username)} passHref legacyBehavior>
-        <Button component="a" variant="outlined">
-          {t("mod:actions.open_in_console")}
-        </Button>
-      </Link>
+      <Button
+        component={Link}
+        variant="outlined"
+        href={adminPanelUserLink(username)}
+      >
+        {t("mod:actions.open_in_console")}
+      </Button>
     </>
   );
 }

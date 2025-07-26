@@ -11,6 +11,7 @@ import Timezone from "features/auth/timezone/Timezone";
 import Username from "features/auth/username/Username";
 import NotificationSettings from "features/notifications/NotificationSettings";
 import PushNotificationSettings from "features/notifications/PushNotificationSettings";
+import LanguagePickerSettings from "features/translate/LanguagePickerSettings";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 
@@ -34,6 +35,7 @@ const MarginWrapper = styled("div")(({ theme }) => ({
 
 export default function Settings() {
   const { t } = useTranslation(AUTH);
+
   const {
     data: accountInfo,
     error: accountInfoError,
@@ -79,6 +81,9 @@ export default function Settings() {
           </MarginWrapper>
           <MarginWrapper>
             <Timezone timezone={accountInfo.timezone} />
+          </MarginWrapper>
+          <MarginWrapper>
+            <LanguagePickerSettings />
           </MarginWrapper>
           <MarginWrapper>
             <DoNotEmail />

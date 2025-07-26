@@ -10,17 +10,15 @@ const allLanguages = [
   "it",
   "ja",
   "nb-NO",
+  "nl",
   "pl",
   "pt",
   "pt-BR",
   "ru",
-  "zh",
-  "zh-CN",
+  "sv",
+  "uk",
   "zh-Hans",
   "zh-Hant",
-  "zh-HK",
-  "zh-SG",
-  "zh-TW",
 ];
 
 module.exports = { allLanguages };

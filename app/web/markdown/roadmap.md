@@ -21,12 +21,12 @@ hide_title: true
   </thead>
   <tbody>
     <tr>
-      <td rowspan="4" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Key Milestone</td>
+      <td rowspan="5" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Key Milestone</td>
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Notifications Galore</td>
     </tr>
     <tr>
       <td colspan="1"</td>
-      <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><strong>COUCHERS v1 LAUNCH</strong> <img src="/img/rocket.png" style="width:16px!important;height:16px!important;display:inline-block"></td>
+      <td colspan="4" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;"><strong>✅ COUCHERS v1 LAUNCH</strong> <img src="/img/rocket.png" style="width:16px!important;height:16px!important;display:inline-block"></td>
     </tr>
     <tr >
       <td colspan="2"</td>
@@ -36,8 +36,12 @@ hide_title: true
 	  <td colspan="3"</td>
       <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Blog It Like You Mean It</td>
     </tr>
+    <tr >
+	  <td colspan="4"</td>
+      <td colspan="1" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">App Ahoy</td>
+    </tr>
     <tr>
-      <td rowspan="18" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">New Features</td>
+      <td rowspan="23" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">New Features</td>
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Push Notifications</td>
     </tr>
     <tr>
@@ -50,7 +54,7 @@ hide_title: true
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Notifications Feed</td>
     </tr>
     <tr >
-      <td colspan="5" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Pending Host Request Notification</td>
+      <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Pending Host Request Notification</td>
     </tr>
     <tr >
       <td colspan="1"</td>
@@ -62,7 +66,7 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="1"</td>
-      <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Activeness Probes</td>
+      <td colspan="4" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Activeness Probes</td>
     </tr>
     <tr >
       <td colspan="1"</td>
@@ -74,7 +78,7 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="1"</td>
-      <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Language Picker</td>
+      <td colspan="4" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Language Picker</td>
     </tr>
     <tr >
       <td colspan="1"</td>
@@ -86,7 +90,7 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="1"</td>
-	  <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Block / Unblock Members</td>
+      <td colspan="4" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Block / Unblock Members</td>
     </tr>
     <tr >
       <td colspan="1"</td>
@@ -101,11 +105,31 @@ hide_title: true
       <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Merchandise Store</td>
     </tr>
     <tr >
+      <td colspan="2"</td>
+      <td colspan="3" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Event Reminder</td>
+    </tr>
+    <tr >
+      <td colspan="2"</td>
+      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Add more Pages to Weblate for Translation</td>
+    </tr>
+    <tr >
+      <td colspan="2"</td>
+      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Boost New Users in Search</td>
+    </tr>
+    <tr >
 	  <td colspan="3"</td>
       <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Integrate Blog in Dashboard</td>
     </tr>
     <tr >
-      <td rowspan="13" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Updates</td>
+	  <td colspan="3"</td>
+      <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Prepare Android and Apple Apps</td>
+    </tr>
+    <tr >
+	  <td colspan="4"</td>
+      <td colspan="1" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Publish Beta-Apps</td>
+    </tr>
+    <tr >
+      <td rowspan="17" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Updates</td>
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Granular Notification Settings</td>
     </tr>
     <tr >
@@ -149,11 +173,27 @@ hide_title: true
 	  <td colspan="3" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Update Community Page</td>
     </tr>
     <tr >
+      <td colspan="2"</td>
+      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Bug Hunt (find and fix bugs)</td>
+    </tr>
+    <tr >
+      <td colspan="2"</td>
+      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Improve Language Selector</td>
+    </tr>
+    <tr >
+      <td colspan="2"</td>
+      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Improve Sign-up flow</td>
+    </tr>
+    <tr >
+      <td colspan="2"</td>
+      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Translate Couchers to French and Portuguese (Portugal)</td>
+    </tr>
+    <tr >
       <td colspan="3"</td>
       <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Update Blog Design</td>
     </tr>
     <tr >
-      <td rowspan="11" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Operations</td>
+      <td rowspan="14" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Operations</td>
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Re-engage Previous Volunteers Through Newsletter</td>
     </tr>
     <tr >
@@ -163,11 +203,11 @@ hide_title: true
       <td colspan="5" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Attract New Volunteers</td>
     </tr>
     <tr >
-      <td colspan="5" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Grow Community to 100k Members</td>
+      <td colspan="5" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Grow Community to 100k Members</td>
     </tr>
     <tr >
       <td colspan="1"</td>
-      <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Rebranding to Own Identity</td>
+      <td colspan="4" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Rebranding to Own Identity</td>
     </tr>
     <tr >
       <td colspan="1"</td>
@@ -178,7 +218,6 @@ hide_title: true
       <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Design and Produce Merchandise</td>
     </tr>
     <tr >
-    <tr >
       <td colspan="2"</td>
 	  <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Welcome Text to New Members from Community Builders</td>
     </tr>
@@ -187,8 +226,24 @@ hide_title: true
       <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Offer Merchandise</td>
     </tr>
     <tr >
+      <td colspan="2"</td>
+      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Improve Automated Emails</td>
+    </tr>
+    <tr >
+      <td colspan="2"</td>
+      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Create New Page Explaining Couch Surfing</td>
+    </tr>
+    <tr >
       <td colspan="3"</td>
       <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Engage Community to write Blog Posts</td>
+    </tr>
+    <tr >
+      <td colspan="3"</td>
+      <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Create New Moderation Dashboard for Mods</td>
+    </tr>
+    <tr >
+      <td colspan="3"</td>
+      <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Create New Page Comparing Couchers</td>
     </tr>
   </tbody>
 </table>

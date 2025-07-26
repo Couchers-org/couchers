@@ -32,7 +32,7 @@
     "new_password": "New password",
     "password_mismatch_error": "The passwords don't match.",
     "user_logged_error": "You cannot reset your password if you are logged in. You can change your password in settings or log out to reset it.",
-    "token_error": "There was a error processing the password reset token, please try opening the link from the email again.",
+    "token_error": "There was an error processing the password reset token, please try opening the link from the email again.",
     "reset_password_success": "Your password has been changed successfully!",
     "reset_password_error": "Error resetting password: {{message}}"
   },
@@ -101,7 +101,7 @@
   },
   "basic_form": {
     "name": {
-      "field_label": "Your name",
+      "field_label": "Name",
       "empty_error": "Please enter your name",
       "required_error": "This field can't be empty."
     },
@@ -165,8 +165,6 @@
   "unhandled_sign_up_state": "Error: unhandled signup flow state.",
   "login_prompt": "Click here to log in",
   "about_us": "About us",
-  "introduction_subtitle": "Free forever. Community-led. Non-profit. Modern.",
-  "introduction_title": "Join and help grow the new alternative to Couchsurfing™",
   "reset_password": "Reset password",
   "account_settings_page": {
     "title": "Account settings",

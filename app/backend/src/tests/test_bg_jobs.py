@@ -8,6 +8,7 @@ from sqlalchemy.sql import delete, func
 
 import couchers.jobs.worker
 from couchers.config import config
+from couchers.constants import HOST_REQUEST_MAX_REMINDERS, HOST_REQUEST_REMINDER_INTERVAL
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.email import queue_email
@@ -15,6 +16,7 @@ from couchers.email.dev import print_dev_email
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import (
     add_users_to_email_list,
+    send_host_request_reminders,
     send_message_notifications,
     send_onboarding_emails,
     send_reference_reminders,
@@ -29,7 +31,10 @@ from couchers.models import (
     BackgroundJob,
     BackgroundJobState,
     Email,
+    HostRequestStatus,
     LoginToken,
+    Message,
+    MessageType,
     PasswordResetToken,
     UserBadge,
 )
@@ -48,7 +53,7 @@ from tests.test_fixtures import (  # noqa
     requests_session,
     testconfig,
 )
-from tests.test_references import create_host_reference, create_host_request
+from tests.test_references import create_host_reference, create_host_request, create_host_request_by_date
 
 
 def now_5_min_in_future():
@@ -936,6 +941,150 @@ def test_send_reference_reminders(db):
             for find in search_strings:
                 assert find in plain, f"Expected to find string {find} in PLAIN email {subject} to {address}, didn't"
                 assert find in html, f"Expected to find string {find} in HTML email {subject} to {address}, didn't"
+
+
+def test_send_host_request_reminders(db):
+    user1, token1 = generate_user(email="user1@couchers.org.invalid", name="User 1")
+    user2, token2 = generate_user(email="user2@couchers.org.invalid", name="User 2")
+    user3, token3 = generate_user(email="user3@couchers.org.invalid", name="User 3")
+    user4, token4 = generate_user(email="user4@couchers.org.invalid", name="User 4")
+    user5, token5 = generate_user(email="user5@couchers.org.invalid", name="User 5")
+    user6, token6 = generate_user(email="user6@couchers.org.invalid", name="User 6")
+    user7, token7 = generate_user(email="user7@couchers.org.invalid", name="User 7")
+    user8, token8 = generate_user(email="user8@couchers.org.invalid", name="User 8")
+    user9, token9 = generate_user(email="user9@couchers.org.invalid", name="User 9")
+    user10, token10 = generate_user(email="user10@couchers.org.invalid", name="User 10")
+    user11, token11 = generate_user(email="user11@couchers.org.invalid", name="User 11")
+    user12, token12 = generate_user(email="user12@couchers.org.invalid", name="User 12")
+    user13, token13 = generate_user(email="user13@couchers.org.invalid", name="User 13")
+    user14, token14 = generate_user(email="user14@couchers.org.invalid", name="User 14")
+
+    with session_scope() as session:
+        # case 1: pending, future, interval elapsed => notify
+        hr1 = create_host_request_by_date(
+            session=session,
+            surfer_user_id=user1.id,
+            host_user_id=user2.id,
+            from_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=1),
+            to_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=2),
+            status=HostRequestStatus.pending,
+            host_sent_request_reminders=0,
+            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
+        )
+
+        # case 2: max reminders reached => do not notify
+        hr2 = create_host_request_by_date(
+            session=session,
+            surfer_user_id=user3.id,
+            host_user_id=user4.id,
+            from_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=1),
+            to_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=2),
+            status=HostRequestStatus.pending,
+            host_sent_request_reminders=HOST_REQUEST_MAX_REMINDERS,
+            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
+        )
+
+        # case 3: interval not yet elapsed => do not notify
+        hr3 = create_host_request_by_date(
+            session=session,
+            surfer_user_id=user5.id,
+            host_user_id=user6.id,
+            from_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=1),
+            to_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=2),
+            status=HostRequestStatus.pending,
+            host_sent_request_reminders=0,
+            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL + timedelta(hours=1),
+        )
+
+        # case 4: start date is today => do not notify
+        hr4 = create_host_request_by_date(
+            session=session,
+            surfer_user_id=user7.id,
+            host_user_id=user8.id,
+            from_date=today(),
+            to_date=today() + timedelta(days=2),
+            status=HostRequestStatus.pending,
+            host_sent_request_reminders=0,
+            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
+        )
+
+        # case 5: from_date in the past => do not notify
+        hr5 = create_host_request_by_date(
+            session=session,
+            surfer_user_id=user9.id,
+            host_user_id=user10.id,
+            from_date=today() - timedelta(days=1),
+            to_date=today() + timedelta(days=1),
+            status=HostRequestStatus.pending,
+            host_sent_request_reminders=0,
+            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
+        )
+
+        # case 6: non-pending status => do not notify
+        hr6 = create_host_request_by_date(
+            session=session,
+            surfer_user_id=user11.id,
+            host_user_id=user12.id,
+            from_date=today() + timedelta(days=3),
+            to_date=today() + timedelta(days=4),
+            status=HostRequestStatus.accepted,
+            host_sent_request_reminders=0,
+            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
+        )
+
+        # case 7: host already sent a message => do not notify
+        hr7 = create_host_request_by_date(
+            session=session,
+            surfer_user_id=user13.id,
+            host_user_id=user14.id,
+            from_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=1),
+            to_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=2),
+            status=HostRequestStatus.pending,
+            host_sent_request_reminders=0,
+            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
+        )
+
+        session.add(
+            Message(
+                time=now(),
+                conversation_id=hr7,
+                author_id=user14.id,
+                text="Looking forward to hosting you!",
+                message_type=MessageType.text,
+            )
+        )
+
+    send_host_request_reminders(empty_pb2.Empty())
+
+    while process_job():
+        pass
+
+    with session_scope() as session:
+        emails = [
+            (email.recipient, email.subject, email.plain, email.html)
+            for email in session.execute(select(Email).order_by(Email.recipient.asc())).scalars().all()
+        ]
+
+    expected_emails = [
+        (
+            "user2@couchers.org.invalid",
+            "[TEST] You have a pending host request from User 1!",
+            ("Please respond to the request!", "User 1"),
+        )
+    ]
+
+    actual_addresses_and_subjects = [email[:2] for email in emails]
+    expected_addresses_and_subjects = [email[:2] for email in expected_emails]
+
+    print(actual_addresses_and_subjects)
+    print(expected_addresses_and_subjects)
+
+    assert actual_addresses_and_subjects == expected_addresses_and_subjects
+
+    for (address, subject, plain, html), (_, _, search_strings) in zip(emails, expected_emails):
+        for find in search_strings:
+            assert find in plain, f"Expected to find string {find} in PLAIN email {subject} to {address}, didn't"
+            assert find in html, f"Expected to find string {find} in HTML email {subject} to {address}, didn't"
 
 
 def test_add_users_to_email_list(db):

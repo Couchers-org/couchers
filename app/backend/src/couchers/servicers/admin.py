@@ -715,10 +715,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
         moderation_lists = [
-            admin_pb2.ModerationList(
-                moderation_list_id=ml.id,
-                member_ids=[u.id for u in ml.users]
-            ) for ml in user.moderation_user_lists
+            admin_pb2.ModerationList(moderation_list_id=ml.id, member_ids=[u.id for u in ml.users])
+            for ml in user.moderation_user_lists
         ]
         return admin_pb2.ListModerationUserListsRes(moderation_lists=moderation_lists)
 

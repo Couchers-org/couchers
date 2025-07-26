@@ -19,9 +19,18 @@
       "title": "Unterkunftsfilter",
       "sleeping_arrangement_label": "Schlafmöglichkeiten",
       "sleeping_arrangement_filters": {
-        "shared_room": "Gemeinsames Zimmer",
-        "private": "Eigenes Zimmer",
-        "common": "Gemeinschaftsraum"
+        "shared_room": {
+          "label": "Geteiltes Zimmer",
+          "description": " - z.B. geteiltes Zimmer mit eigener Schlaffläche"
+        },
+        "common": {
+          "description": " - z.B. Couch im Wohnzimmer",
+          "label": "Gemeinschaftsraum"
+        },
+        "private": {
+          "label": "Privater Bereich",
+          "description": " - z.B. eigenes Zimmer o. Ä."
+        }
       }
     },
     "location_field_label": "In der Nähe von",
@@ -30,7 +39,7 @@
       "field_label": "Name, Stichwort oder Nutzername",
       "search_this_keyword_a11y_label": "Dieses Stichwort suchen"
     },
-    "by_location_filter_label": "Nach Standort",
+    "by_location_filter_label": "Nach Ort",
     "host_filters": {
       "last_active_field_label": "Zuletzt aktiv",
       "hosting_status_field_label": "Hosting-Status",
@@ -43,7 +52,7 @@
       "meetup_status_field_label": "Treffen-Status"
     },
     "empty_profile_filters": {
-      "title": "Leere Profile ausblenden"
+      "title": "Leere Profile anzeigen"
     },
     "submit_button_label": "Anwenden",
     "by_keyword_filter_label": "Nach Stichwort oder Name",
@@ -66,7 +75,9 @@
     "no_user_result_message": "Keine Benutzer gefunden. Versuche, einige Filter zu entfernen, um mehr Ergebnisse zu sehen.",
     "show_user_button_label": "{{name}} auf der Karte anzeigen",
     "missing_about_description": "{{name}} hat noch nichts über sich gesagt",
-    "people_found_message": "Es werden {{numberOfTotal}} von {{totalItems}} Personen angezeigt"
+    "people_found_message": "Es werden {{currentRange}} von {{totalItems}} Personen angezeigt",
+    "few_results_suggestion": "Standardmäßig werden leere Profile und Profile mit \"kann nicht hosten\" ausgeblendet.",
+    "include_empty_profiles_button": "Alle Profile anzeigen"
   },
   "choose_search_criteria": "Gib einen Ort ein oder nutze einen Filter zum suchen.",
   "error_loading_users": "Fehler beim Laden von Benutzern",
@@ -75,7 +86,7 @@
     "list": "Liste",
     "map_and_list": "Karte & Liste"
   },
-  "location": "Standort",
+  "location": "Ort",
   "keyword": "Stichwort",
   "search_this_area": "In diesem Gebiet suchen",
   "zoom_in_to_select_user": "Zoom heran, um einen Benutzer auszuwählen"

@@ -5,7 +5,7 @@ import { MapRef } from "react-map-gl/maplibre";
 import userPin from "../resources/userPin.png";
 import { MapSearchState } from "../state/mapSearchReducers";
 import { Coordinates } from "./constants";
-import { SOURCE_CLUSTERED_USERS_ID } from "./mapLayers";
+import { USERS_SOURCE_ID } from "./mapLayers";
 
 const usersToGeoJSON = (pins: SearchUser.AsObject[]): FeatureCollection => ({
   type: "FeatureCollection",
@@ -25,7 +25,7 @@ const usersToGeoJSON = (pins: SearchUser.AsObject[]): FeatureCollection => ({
 const clearMapFeatureState = (mapRef: React.RefObject<MapRef>) => {
   const map = mapRef.current?.getMap();
   if (map) {
-    map.removeFeatureState({ source: SOURCE_CLUSTERED_USERS_ID });
+    map.removeFeatureState({ source: USERS_SOURCE_ID });
   }
 };
 
@@ -35,7 +35,7 @@ const setMapFeatureState = (
   selected: boolean,
 ) => {
   mapRef.current?.setFeatureState(
-    { source: SOURCE_CLUSTERED_USERS_ID, id },
+    { source: USERS_SOURCE_ID, id },
     { selected },
   );
 };
@@ -60,10 +60,9 @@ const getHasActiveFilters = (
     state.filters.ageMin !== initialState.filters.ageMin ||
     state.filters.ageMax !== initialState.filters.ageMax ||
     state.filters.acceptsPets !== initialState.filters.acceptsPets ||
-    state.filters.hostingStatusOptions !==
-      initialState.filters.hostingStatusOptions ||
+    state.filters.hostingStatus !== initialState.filters.hostingStatus ||
     state.filters.numGuests !== initialState.filters.numGuests ||
-    state.filters.completeProfile !== initialState.filters.completeProfile ||
+    state.filters.showEmptyProfile !== initialState.filters.showEmptyProfile ||
     state.filters.acceptsKids !== initialState.filters.acceptsKids ||
     state.filters.acceptsLastMinRequests !==
       initialState.filters.acceptsLastMinRequests ||

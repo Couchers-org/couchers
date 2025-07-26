@@ -1,11 +1,13 @@
 {
   "close": "Close",
+  "create_account": "Create Account",
   "expand": "Expand",
   "retract": "Retract",
   "couchers": "Couchers.org",
   "legal_name": "Couchers, Inc.",
   "login": "Log in",
   "sign_up": "Sign up",
+  "join_us": "Join us",
   "title": "title",
   "update": "update",
   "create": "Create",
@@ -41,8 +43,24 @@
     "current_preferred_language": "Your language preferences is currently ",
     "form_title": "Language",
     "help_translate": "Help translate couchers into your language.",
-    "select_language": "Select a language",
-    "success_message": "Your change has been saved."
+    "select_language": "Select language",
+    "success_message": "Your change has been saved.",
+    "error_loading_languages": "Failed to load language options. Please try again later.",
+    "translation_progress": {
+      "title": "Translation Progress",
+      "description": "See how complete our translations are across different languages. Help us make Couchers accessible to more people around the world!",
+      "help_translate": "Help translate couchers into your language",
+      "loading": "Loading translation progress...",
+      "error_loading": "Failed to load translation progress",
+      "no_data": "No translation data available",
+      "complete": "Complete",
+      "almost_there": "Almost There",
+      "in_progress": "In Progress",
+      "early_stage": "Early Stage",
+      "complete_percent": "{{percent}}% complete",
+      "info_text": "💡 Languages with less than 20% completion are hidden from the language picker. Languages with 20-80% completion appear greyed out.",
+      "view_progress": "View translation progress"
+    }
   },
   "meetup_status": {
     "wants_to_meetup": "Wants to meet",
@@ -70,25 +88,31 @@
       "success_message": "Thank you for your report and making Couchers a better platform for everybody!"
     },
     "flag": {
+      "block_user": "Block {{username}}",
+      "block_user_explainer": "Messages and requests from this person will be blocked, and your profile, events and comments will not be visible to this person. They will not be informed that you blocked them.",
       "button_aria_label": "Report content or a user",
-      "explainer": "Use this form to confidentially report a user or content. This information will be sent to our Safety & Trust team and reviewed as soon as possible. We may follow up with you or take action without follow-up.",
+      "profile_button_aria_label": "Report content or block a user",
+      "explainer": "Confidentially send a report to the Safety & Trust team.",
       "title": "Report content or a user",
+      "profile_title": "Report or Block",
       "reason_label": "Reason for reporting",
       "reason_helper": "Why are you reporting this content?",
       "reason_required": "Reason is required.",
-      "description_label": "Description",
-      "description_helper": "Please tell us briefly why you are reporting this.",
+      "description_required": "Description is required.",
+      "profile_reason_required": "Please fill out description or block",
+      "description_label": "Describe the issue",
+      "description_helper": "Please tell us why you are reporting this.",
       "success": "Thank you for your report and making Couchers a better platform for everybody!",
       "reason": {
-        "spam": "Spam",
-        "dating": "Dating / Flirting",
-        "external": "Incident off platform (e.g. surfing/hosting/event)",
-        "commercial": "Commercial content",
-        "harassment": "Harassment",
-        "fake": "Fake account / misleading info",
-        "freeloading": "Freeloading",
-        "guidelines_breach": "Breach of Community Guidelines",
-        "other": "Something else"
+        "dating": "Flirting / dating app behavior or similar",
+        "external": "Incident off-platform",
+        "harassment": "Harassment, bullying, hate speech, or illegal content",
+        "guidelines_breach": "Rule or policy violation (charging money, nudism, shared beds, etc)",
+        "safety": "Safety concern (to yourself or others)",
+        "scam": "Scam, fake, or misleading information",
+        "spam": "Spam or promotional content unrelated to couch surfing",
+        "sexualized": "Sexualized content or behavior",
+        "other": "Other (Please specify below)"
       }
     }
   },
@@ -97,9 +121,9 @@
   "not_found_alt": "404 Error: Resource Not Found",
   "change_time": "Change time",
   "html_meta": {
-    "title_suffix": " | Couchers.org Beta",
-    "default_title": "Couchers.org Beta",
-    "default_description": "The new alternative to Couchsurfing™. Free forever. Community-led. Non-profit. Modern."
+    "title_suffix": " | Couchers.org",
+    "default_title": "Couchers.org",
+    "default_description": "Share your world, discover theirs. Authentic local experiences, built on trust and genuine connection—not transactions."
   },
   "error": {
     "fatal_message": "This shouldn't have happened. Please contact us and tell us what you were doing to help us prevent this error in the future.",
@@ -150,7 +174,8 @@
     "volunteer": "Volunteer",
     "legal_more": "Legal & More",
     "contact_us": "Contact Us",
-    "built_with": "Open Source"
+    "built_with": "Open Source",
+    "landing_page": "Landing Page"
   },
   "contribute_title": "Sign up to contribute",
   "reply": "Reply",
@@ -198,5 +223,28 @@
   "push_notification_banner": {
     "message": "Don't miss requests, responses or messages; can we send you push notifications?",
     "confirm": "Yes, please!"
+  },
+  "error_loading_languages": "Failed to load language options",
+  "language_names": {
+    "cs": "Czech",
+    "de": "German",
+    "en": "English",
+    "es": "Spanish (Spain)",
+    "es-419": "Spanish",
+    "fr": "French (France)",
+    "fr-CA": "French (Canada)",
+    "hi": "Hindi",
+    "it": "Italian",
+    "ja": "Japanese",
+    "nb-NO": "Norwegian (Bokmål)",
+    "nl": "Dutch",
+    "pl": "Polish",
+    "pt": "Portuguese (Portugal)",
+    "pt-BR": "Portuguese (Brazil)",
+    "ru": "Russian",
+    "sv": "Swedish",
+    "uk": "Ukrainian",
+    "zh-Hans": "Chinese (Simplified)",
+    "zh-Hant": "Chinese (Traditional)"
   }
 }

@@ -6,6 +6,8 @@ import FlagButton from "features/FlagButton";
 import TimeInterval from "features/messages/messagelist/TimeInterval";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
+import { useTranslation } from "i18n";
+import { MESSAGES } from "i18n/namespaces";
 import { Message } from "proto/conversations_pb";
 import { timestamp2Date } from "utils/date";
 import useOnVisibleEffect from "utils/useOnVisibleEffect";
@@ -117,6 +119,8 @@ export default function MessageView({
   message,
   onVisible,
 }: MessageProps) {
+  const { t } = useTranslation(MESSAGES);
+
   const { data: author, isLoading: isAuthorLoading } = useLiteUser(
     message.authorUserId,
   );
@@ -138,7 +142,11 @@ export default function MessageView({
     >
       {author && !isCurrentUser && (
         <StyledLeftOfMessage>
-          <StyledAvatar user={author} />
+          {author && !isAuthorLoading && <StyledAvatar user={author} />}
+          {isAuthorLoading && (
+            <Skeleton variant="rounded" width={40} height={40} />
+          )}
+          {!author && !isAuthorLoading && <StyledAvatar />}
           <FlagButton
             contentRef={`chat/message/${message.messageId}`}
             authorUser={author.userId}
@@ -147,12 +155,16 @@ export default function MessageView({
       )}
       <StyledCard isLoading={isLoading} isCurrentUser={isCurrentUser}>
         <StyledHeader>
-          {author ? (
+          {author && !isAuthorLoading && (
             <StyledNameTypography variant="h5">
               {author.name}
             </StyledNameTypography>
-          ) : (
-            <Skeleton width={100} />
+          )}
+          {isAuthorLoading && <Skeleton width={100} />}
+          {!author && !isAuthorLoading && (
+            <StyledNameTypography variant="h5">
+              {t("unknown_user")}
+            </StyledNameTypography>
           )}
           {!isCurrentUser && (
             <TimeInterval date={timestamp2Date(message.time!)} />
@@ -175,6 +187,10 @@ export default function MessageView({
         )}
       </StyledCard>
       {author && isCurrentUser && <StyledAvatar user={author} />}
+      {isCurrentUserLoading && (
+        <Skeleton variant="rounded" width={40} height={40} />
+      )}
+      {!author && !isAuthorLoading && <StyledAvatar />}
     </RootContainer>
   );
 }

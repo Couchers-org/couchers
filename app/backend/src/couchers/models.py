@@ -4,6 +4,7 @@ from geoalchemy2.types import Geometry
 from google.protobuf import empty_pb2
 from sqlalchemy import (
     ARRAY,
+    JSON,
     BigInteger,
     Boolean,
     CheckConstraint,
@@ -26,7 +27,7 @@ from sqlalchemy.dialects.postgresql import INET, TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, deferred, relationship
-from sqlalchemy.sql import and_, func, not_, text
+from sqlalchemy.sql import and_, expression, func, not_, text
 from sqlalchemy.sql import select as sa_select
 
 from couchers import urls
@@ -320,6 +321,8 @@ class User(Base):
 
     # whether mods have marked this user has having to update their location
     needs_to_update_location = Column(Boolean, nullable=False, server_default=text("false"))
+
+    last_antibot = Column(DateTime(timezone=True), nullable=False, server_default=text("to_timestamp(0)"))
 
     age = column_property(func.date_part("year", func.age(birthdate)))
 
@@ -1477,6 +1480,8 @@ class HostRequest(Base):
     end_time_to_write_reference = column_property(date_in_timezone(to_date, timezone) + text("interval '15 days'"))
 
     status = Column(Enum(HostRequestStatus), nullable=False)
+    is_host_archived = Column(Boolean, nullable=False, default=False, server_default=text("false"))
+    is_surfer_archived = Column(Boolean, nullable=False, default=False, server_default=text("false"))
 
     host_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
     surfer_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
@@ -1484,6 +1489,8 @@ class HostRequest(Base):
     # number of reference reminders sent out
     host_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
     surfer_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
+    host_sent_request_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
+    last_sent_request_reminder_time = Column(DateTime, nullable=False, server_default=func.now())
 
     # reason why the host/surfer marked that they didn't meet up
     # if null then they haven't marked it such
@@ -1503,6 +1510,14 @@ class HostRequest(Base):
         Index(
             "ix_host_requests_surfer_didnt_meetup",
             surfer_reason_didnt_meetup != None,
+        ),
+        # Used for figuring out who needs a reminder to respond
+        Index(
+            "ix_host_requests_status_reminder_counts",
+            status,
+            host_sent_request_reminders,
+            last_sent_request_reminder_time,
+            from_date,
         ),
     )
 
@@ -2154,6 +2169,8 @@ class EventOccurrenceAttendee(Base):
     user = relationship("User")
     occurrence = relationship("EventOccurrence", backref=backref("attendances", lazy="dynamic"))
 
+    reminder_sent = Column(Boolean, nullable=False, default=False, server_default=expression.false())
+
 
 class EventCommunityInviteRequest(Base):
     """
@@ -2422,6 +2439,7 @@ class NotificationTopicAction(enum.Enum):
     host_request__cancel = ("host_request:cancel", dt_all, True, nd.HostRequestCancel)
     host_request__message = ("host_request:message", [dt.push, dt.digest], True, nd.HostRequestMessage)
     host_request__missed_messages = ("host_request:missed_messages", [dt.email], True, nd.HostRequestMissedMessages)
+    host_request__reminder = ("host_request:reminder", dt_all, True, nd.HostRequestReminder)
 
     activeness__probe = ("activeness:probe", dt_sec, False, nd.ActivenessProbe)
 
@@ -2453,6 +2471,7 @@ class NotificationTopicAction(enum.Enum):
     event__cancel = ("event:cancel", dt_all, True, nd.EventCancel)
     event__delete = ("event:delete", dt_all, True, nd.EventDelete)
     event__invite_organizer = ("event:invite_organizer", dt_all, True, nd.EventInviteOrganizer)
+    event__reminder = ("event:reminder", dt_all, True, nd.EventReminder)
     # toplevel comment on an event
     event__comment = ("event:comment", dt_all, True, nd.EventComment)
 
@@ -2787,3 +2806,45 @@ class ModerationUserListMember(Base):
     moderation_list_id = Column(ForeignKey("moderation_user_lists.id"), primary_key=True)
 
     __table_args__ = (UniqueConstraint("user_id", "moderation_list_id"),)
+
+
+class AntiBotLog(Base):
+    __tablename__ = "antibot_logs"
+
+    id = Column(BigInteger, primary_key=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    user_id = Column(ForeignKey("users.id"), nullable=True)
+
+    ip_address = Column(String, nullable=True)
+    user_agent = Column(String, nullable=True)
+
+    action = Column(String, nullable=False)
+    token = Column(String, nullable=False)
+
+    score = Column(Float, nullable=False)
+    provider_data = Column(JSON, nullable=False)
+
+
+class RateLimitAction(enum.Enum):
+    """Possible user actions which can be rate limited."""
+
+    host_request = "host request"
+    friend_request = "friend request"
+    chat_initiation = "chat initiation"
+
+
+class RateLimitViolation(Base):
+    __tablename__ = "rate_limit_violations"
+
+    id = Column(BigInteger, primary_key=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+    action = Column(Enum(RateLimitAction), nullable=False)
+    is_hard_limit = Column(Boolean, nullable=False)
+
+    user = relationship("User")
+
+    __table_args__ = (
+        # Fast lookup for rate limits in interval
+        Index("ix_rate_limits_by_user", user_id, action, is_hard_limit, created),
+    )

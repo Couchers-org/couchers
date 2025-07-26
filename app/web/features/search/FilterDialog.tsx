@@ -1,5 +1,6 @@
 import { InfoOutlined } from "@mui/icons-material";
 import {
+  Box,
   Button,
   DialogActions,
   MenuItem,
@@ -29,7 +30,6 @@ import { useMapSearchActions } from "./state/useMapSearchActions";
 import {
   DEFAULT_AGE_MAX,
   DEFAULT_AGE_MIN,
-  HostingStatusOptions,
   lastActiveOptions,
   SleepingArrangementOptions,
 } from "./utils/constants";
@@ -156,8 +156,8 @@ const FilterDialog = ({
     updateFilter({ drinkingAllowed: newDrinkingAllowed });
   };
 
-  const handleShowCompleteProfilesOnlyChange = () => {
-    updateFilter({ completeProfile: !filters.completeProfile });
+  const handleShowEmptyProfileChange = () => {
+    updateFilter({ showEmptyProfile: !filters.showEmptyProfile });
   };
 
   const handleLastActiveSelect = (event: SelectChangeEvent<number>) => {
@@ -175,7 +175,7 @@ const FilterDialog = ({
 
   const handleHostingStatusChange = (
     event: React.MouseEvent<HTMLElement>,
-    newHostingStatus: HostingStatusOptions[],
+    newHostingStatus: HostingStatus[],
   ) => {
     updateFilter({ hostingStatus: newHostingStatus });
   };
@@ -249,8 +249,8 @@ const FilterDialog = ({
             {t("search:form.empty_profile_filters.title")}
           </Typography>
           <CustomColorSwitch
-            checked={filters.completeProfile || false}
-            onClick={handleShowCompleteProfilesOnlyChange}
+            checked={filters.showEmptyProfile || false}
+            onClick={handleShowEmptyProfileChange}
             customColor={theme.palette.primary.main}
           />
         </FilterItemRow>
@@ -339,7 +339,7 @@ const FilterDialog = ({
             onChange={handleLastActiveSelect}
             variant="outlined"
             size="small"
-            value={filters.lastActive}
+            value={filters.lastActive ?? lastActiveOptions.LAST_ACTIVE_ANY}
           >
             <MenuItem value={lastActiveOptions.LAST_ACTIVE_ANY}>
               {t("search:last_active_options.any")}
@@ -519,36 +519,79 @@ const FilterDialog = ({
             <ToggleButton
               value={SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON}
               aria-label={t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.common",
+                "search:form.accommodation_filters.sleeping_arrangement_filters.common.label",
               )}
               sx={{ borderRadius: "20px 0 0 20px" }}
             >
               {t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.common",
+                "search:form.accommodation_filters.sleeping_arrangement_filters.common.label",
               )}
             </ToggleButton>
             <ToggleButton
               value={SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE}
               aria-label={t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.private",
+                "search:form.accommodation_filters.sleeping_arrangement_filters.private.label",
               )}
             >
               {t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.private",
+                "search:form.accommodation_filters.sleeping_arrangement_filters.private.label",
               )}
             </ToggleButton>
             <ToggleButton
               value={SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM}
               aria-label={t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.shared_room",
+                "search:form.accommodation_filters.sleeping_arrangement_filters.shared_room.label",
               )}
               sx={{ borderRadius: "0 20px 20px 0" }}
             >
               {t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.shared_room",
+                "search:form.accommodation_filters.sleeping_arrangement_filters.shared_room.label",
               )}
             </ToggleButton>
           </ToggleButtonGroup>
+        </FilterItemRow>
+        <FilterItemRow>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 0.5,
+              width: "100%",
+              alignItems: {
+                xs: "flex-end",
+                sm: "flex-end",
+              },
+              textAlign: {
+                xs: "right",
+                sm: "right",
+              },
+            }}
+          >
+            <Typography variant="caption">
+              {t(
+                "search:form.accommodation_filters.sleeping_arrangement_filters.common.label",
+              )}{" "}
+              {t(
+                "search:form.accommodation_filters.sleeping_arrangement_filters.common.description",
+              )}
+            </Typography>
+            <Typography variant="caption">
+              {t(
+                "search:form.accommodation_filters.sleeping_arrangement_filters.private.label",
+              )}{" "}
+              {t(
+                "search:form.accommodation_filters.sleeping_arrangement_filters.private.description",
+              )}
+            </Typography>
+            <Typography variant="caption">
+              {t(
+                "search:form.accommodation_filters.sleeping_arrangement_filters.shared_room.label",
+              )}{" "}
+              {t(
+                "search:form.accommodation_filters.sleeping_arrangement_filters.shared_room.description",
+              )}
+            </Typography>
+          </Box>
         </FilterItemRow>
         <FilterItemRow>
           <Typography>

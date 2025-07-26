@@ -6,21 +6,21 @@ import { AUTH, GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { GetStaticPaths, GetStaticProps } from "next";
 import nextI18nextConfig from "next-i18next.config";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { getAllMarkdownSlugs } from "utils/markdownPages";
+import { getAllMarkdownPathsWithLocales } from "utils/markdownPages";
 
-export async function getMarkdownPageBySlug(
+async function getMarkdownPageBySlug(
   slug: Array<string>,
 ): Promise<MarkdownPageProps> {
   const md = await import(`markdown/${slug.join("/")}.md`);
   return {
-    slug: slug,
+    slug,
     frontmatter: md.attributes,
     content: md.html,
   };
 }
 
 export const getStaticPaths: GetStaticPaths = () => ({
-  paths: getAllMarkdownSlugs().map((slug) => ({ params: { slug } })),
+  paths: getAllMarkdownPathsWithLocales(),
   fallback: false,
 });
 

@@ -2,6 +2,7 @@ import {
   ListItemAvatar,
   ListItemText,
   Skeleton,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/system";
@@ -9,6 +10,7 @@ import Avatar from "components/Avatar";
 import { OpenInNewIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import { LiteUser } from "proto/api_pb";
+import { BlockedUser } from "proto/blocking_pb";
 import React from "react";
 import { routeToUser } from "routes";
 
@@ -59,8 +61,9 @@ export interface UserSummaryProps {
   smallAvatar?: boolean;
   nameOnly?: boolean;
   headlineComponent?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
-  user?: LiteUser.AsObject;
+  user?: LiteUser.AsObject | BlockedUser.AsObject;
   titleIsLink?: boolean;
+  isProfileLink?: boolean;
 }
 
 export default function UserSummary({
@@ -70,6 +73,7 @@ export default function UserSummary({
   headlineComponent = "h2",
   user,
   titleIsLink = false,
+  isProfileLink = true,
 }: UserSummaryProps) {
   const headlineComponentWithRef = React.forwardRef(
     function HeadlineComponentWithRef(props, ref) {
@@ -77,25 +81,47 @@ export default function UserSummary({
     },
   );
 
+  const nameValue =
+    user && user.name
+      ? user.name.length > 20
+        ? user.name.slice(0, 20) + "..."
+        : user.name
+      : "";
+
+  const cityValue =
+    user && "city" in user && typeof user.city === "string"
+      ? user.city.length > 120
+        ? user.city.slice(0, 120) + "..."
+        : user.city
+      : "";
+
   const title = (
-    <Typography
-      component={headlineComponentWithRef}
-      variant="h2"
-      noWrap={nameOnly}
-      sx={{ marginTop: "auto", fontSize: "1.2rem" }}
-    >
-      {!user ? (
-        <Skeleton
-          data-testid={USER_TITLE_SKELETON_TEST_ID}
-          sx={{ maxWidth: 300 }}
-        />
-      ) : (
-        <>
-          {nameOnly ? user.name : `${user.name}, ${user.age}`}
-          {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
-        </>
-      )}
-    </Typography>
+    <Tooltip title={user?.name} arrow placement="top">
+      <Typography
+        component={headlineComponentWithRef}
+        variant="h2"
+        noWrap={nameOnly}
+        sx={{ marginTop: "auto", fontSize: "1.2rem" }}
+      >
+        {!user ? (
+          <Skeleton
+            data-testid={USER_TITLE_SKELETON_TEST_ID}
+            sx={{ maxWidth: 300 }}
+          />
+        ) : (
+          <>
+            {nameOnly
+              ? nameValue
+              : `${nameValue}${user && "age" in user ? `, ${user.age}` : ""}`}
+            {user &&
+            "hasStrongVerification" in user &&
+            user.hasStrongVerification ? (
+              <StrongVerificationBadge />
+            ) : null}
+          </>
+        )}
+      </Typography>
+    </Tooltip>
   );
 
   return (
@@ -106,7 +132,7 @@ export default function UserSummary({
         ) : (
           <StyledAvatar
             user={user}
-            isProfileLink={true}
+            isProfileLink={isProfileLink}
             isSmallAvatar={smallAvatar}
           />
         )}
@@ -131,13 +157,19 @@ export default function UserSummary({
         secondary={
           <>
             {!nameOnly && (
-              <Typography
-                color="textSecondary"
-                variant="body1"
-                noWrap={nameOnly}
+              <Tooltip
+                title={(user as LiteUser.AsObject)?.city}
+                arrow
+                placement="top"
               >
-                {!user ? <Skeleton /> : user.city}
-              </Typography>
+                <Typography
+                  color="textSecondary"
+                  variant="body1"
+                  noWrap={nameOnly}
+                >
+                  {!user ? <Skeleton /> : cityValue}
+                </Typography>
+              </Tooltip>
             )}
             {children}
           </>

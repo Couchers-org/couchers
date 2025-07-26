@@ -3,6 +3,7 @@ import { AccountPromiseClient } from "proto/account_grpc_web_pb";
 import { AdminPromiseClient } from "proto/admin_grpc_web_pb";
 import { APIPromiseClient } from "proto/api_grpc_web_pb";
 import { AuthPromiseClient } from "proto/auth_grpc_web_pb";
+import { BlockingPromiseClient } from "proto/blocking_grpc_web_pb";
 import { BugsPromiseClient } from "proto/bugs_grpc_web_pb";
 import { CommunitiesPromiseClient } from "proto/communities_grpc_web_pb";
 import { ConversationsPromiseClient } from "proto/conversations_grpc_web_pb";
@@ -13,6 +14,7 @@ import { GroupsPromiseClient } from "proto/groups_grpc_web_pb";
 import { JailPromiseClient } from "proto/jail_grpc_web_pb";
 import { NotificationsPromiseClient } from "proto/notifications_grpc_web_pb";
 import { PagesPromiseClient } from "proto/pages_grpc_web_pb";
+import { PublicPromiseClient } from "proto/public_grpc_web_pb";
 import { ReferencesPromiseClient } from "proto/references_grpc_web_pb";
 import { ReportingPromiseClient } from "proto/reporting_grpc_web_pb";
 import { RequestsPromiseClient } from "proto/requests_grpc_web_pb";
@@ -83,6 +85,7 @@ const client = {
   admin: new AdminPromiseClient(URL, null, opts),
   api: new APIPromiseClient(URL, null, opts),
   auth: new AuthPromiseClient(URL, null, opts),
+  blocking: new BlockingPromiseClient(URL, null, opts),
   bugs: new BugsPromiseClient(URL, null, opts),
   communities: new CommunitiesPromiseClient(URL, null, opts),
   conversations: new ConversationsPromiseClient(URL, null, opts),
@@ -93,6 +96,7 @@ const client = {
   jail: new JailPromiseClient(URL, null, opts),
   notifications: new NotificationsPromiseClient(URL, null, opts),
   pages: new PagesPromiseClient(URL, null, opts),
+  public: new PublicPromiseClient(URL, null, opts),
   references: new ReferencesPromiseClient(URL, null, opts),
   reporting: new ReportingPromiseClient(URL, null, opts),
   requests: new RequestsPromiseClient(URL, null, opts),
@@ -110,6 +114,7 @@ if (!IS_PROD && typeof window !== "undefined") {
     client.admin,
     client.api,
     client.auth,
+    client.blocking,
     client.bugs,
     client.communities,
     client.conversations,
@@ -120,6 +125,7 @@ if (!IS_PROD && typeof window !== "undefined") {
     client.jail,
     client.notifications,
     client.pages,
+    client.public,
     client.references,
     client.reporting,
     client.requests,

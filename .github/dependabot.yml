@@ -8,8 +8,6 @@ updates:
     labels:
       - "1.topic backend"
       - "dependencies"
-    reviewers:
-      - "aapeliv"
 
   - package-ecosystem: "pip"
     directory: "/app/media"
@@ -18,8 +16,6 @@ updates:
     labels:
       - "1.topic backend"
       - "dependencies"
-    reviewers:
-      - "aapeliv"
 
   - package-ecosystem: "npm"
     directory: "/app/web"
@@ -28,9 +24,6 @@ updates:
     labels:
       - "1.topic frontend"
       - "dependencies"
-    reviewers:
-      - "aapeliv"
-      - "nabramow"
 
   - package-ecosystem: "docker"
     directories:
@@ -46,5 +39,3 @@ updates:
     labels:
       - "1.topic devops"
       - "dependencies"
-    reviewers:
-      - "aapeliv"

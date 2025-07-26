@@ -4,14 +4,18 @@ import { ReferenceType } from "proto/references_pb";
 export const languagesKey = "languages";
 export const regionsKey = "regions";
 export const badgesKey = "badges";
+export const blockedUserIdsKey = "blockedUserIds";
+export const blockedUsersKey = "blockedUsers";
 export const friendIdsKey = "friendIds";
 export const contributorFormInfoQueryKey = "contributorFormInfo";
 export const accountInfoQueryKey = "accountInfo";
+export const signupInfoQueryKey = "signupInfo";
 export const doNotEmailQueryKey = "doNotEmail";
 export const tosQueryKey = "tos";
 export const communityGuidelinesQueryKey = "communityGuidelines";
 export const notificationSettingsQueryKey = "notificationSettings";
 export const listNotificationsQueryKey = "listNotifications";
+export const username2Id = "username2Id";
 
 export function userKey(userId?: number) {
   return userId === undefined ? "user" : ["user", userId];
@@ -28,7 +32,7 @@ export function liteUserKey(userId?: number) {
   return userId === undefined ? "liteUser" : ["liteUser", userId];
 }
 
-export const liteUsersKey = (ids: number[]) => ["liteUsers", ...ids];
+export const liteUsersKey = (ids: number[] | string[]) => ["liteUsers", ...ids];
 
 export const referencesGivenKey = (userId: number) => [
   "referencesGiven",

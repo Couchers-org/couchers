@@ -10,7 +10,7 @@
         "image": "latest"
       },
       "ios": {
-        "image": "latest"
+        "image": "macos-sequoia-15.3-xcode-16.2"
       }
     },
     "simulator": {

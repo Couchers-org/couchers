@@ -1,4 +1,6 @@
-import { Button, Stack } from "@mui/material";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { Button, Stack, styled } from "@mui/material";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -11,6 +13,12 @@ interface PreviousNextPaginationProps {
   onNextClick: () => void;
 }
 
+const StyledPaginationButton = styled(Button)(({ theme }) => ({
+  minWidth: "110px",
+  height: "35px",
+  fontSize: "1rem",
+}));
+
 const PreviousNextPagination: React.FC<PreviousNextPaginationProps> = ({
   hasPreviousPage,
   hasNextPage,
@@ -21,31 +29,45 @@ const PreviousNextPagination: React.FC<PreviousNextPaginationProps> = ({
   return (
     <Stack
       direction="row"
-      spacing={2}
+      spacing={3}
       alignItems="center"
       justifyContent="space-between"
       sx={{
         width: "100%",
+        height: "50px",
         position: "sticky",
         bottom: 0,
         backgroundColor: theme.palette.common.white,
-        boxShadow: `0 -1px 4px rgba(0, 0, 0, 0.1)`,
+        padding: theme.spacing(0, 2),
+        borderTop: `1px solid ${theme.palette.grey[200]}`,
       }}
     >
-      <Button
+      <StyledPaginationButton
         aria-label={t("global:previous")}
         onClick={onPreviousClick}
         disabled={!hasPreviousPage}
+        startIcon={<ChevronLeftIcon />}
+        variant="contained"
+        sx={{
+          backgroundColor: theme.palette.primary.main,
+          color: theme.palette.common.white,
+        }}
       >
         {t("global:previous")}
-      </Button>
-      <Button
+      </StyledPaginationButton>
+      <StyledPaginationButton
         aria-label={t("global:next")}
         onClick={onNextClick}
         disabled={!hasNextPage}
+        endIcon={<ChevronRightIcon />}
+        variant="contained"
+        sx={{
+          backgroundColor: theme.palette.primary.main,
+          color: theme.palette.common.white,
+        }}
       >
         {t("global:next")}
-      </Button>
+      </StyledPaginationButton>
     </Stack>
   );
 };

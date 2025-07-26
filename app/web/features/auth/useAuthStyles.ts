@@ -5,7 +5,6 @@ import TextField from "components/TextField";
 const StyledForm = styled("form")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
-  marginBottom: theme.spacing(2),
   width: "100%",
   [theme.breakpoints.up("md")]: {
     alignItems: "flex-start",
@@ -14,9 +13,11 @@ const StyledForm = styled("form")(({ theme }) => ({
 
 const StyledInputLabel = styled(InputLabel)(({ theme }) => ({
   color: theme.palette.text.primary,
-  fontWeight: 700,
+  width: "100%",
+  fontSize: "0.875rem",
+  marginLeft: theme.spacing(0.5),
   [theme.breakpoints.up("md")]: {
-    marginBottom: theme.spacing(2),
+    marginBottom: theme.spacing(1),
   },
 }));
 
@@ -24,12 +25,17 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   marginBottom: theme.spacing(2),
   marginTop: 0,
   width: "100%",
+
+  "& .MuiInputBase-root": {
+    backgroundColor: theme.palette.common.white,
+  },
 }));
 
 const StyledButton = styled(Button)(({ theme }) => ({
   color: theme.palette.secondary.contrastText,
   fontWeight: 700,
   marginTop: theme.spacing(2),
+  fontSize: "1.4rem",
 
   [theme.breakpoints.up("md")]: {
     borderRadius: theme.shape.borderRadius,

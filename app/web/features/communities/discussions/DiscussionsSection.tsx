@@ -44,23 +44,19 @@ export default function DiscussionsSection({
       {discussionsError && (
         <Alert severity="error">{discussionsError.message}</Alert>
       )}
-      <Link
+
+      <Button
+        size="small"
+        className={classes.createResourceButton}
+        component="a"
         href={`${routeToCommunity(
           community.communityId,
           community.slug,
           "discussions",
         )}#${composingDiscussionHash}`}
-        passHref
-        legacyBehavior
       >
-        <Button
-          size="small"
-          className={classes.createResourceButton}
-          component="a"
-        >
-          {t("communities:new_post_label")}
-        </Button>
-      </Link>
+        {t("communities:new_post_label")}
+      </Button>
       <div className={classes.discussionsContainer}>
         {isDiscussionsLoading ? (
           <CenteredSpinner />
@@ -78,19 +74,17 @@ export default function DiscussionsSection({
         )}
         {discussionsHasNextPage && (
           <div className={classes.loadMoreButton}>
-            <Link
+            <MuiLink
+              component={Link}
+              underline="hover"
               href={routeToCommunity(
                 community.communityId,
                 community.slug,
                 "discussions",
               )}
-              passHref
-              legacyBehavior
             >
-              <MuiLink component="a" underline="hover">
-                {t("communities:see_more_discussions_label")}
-              </MuiLink>
-            </Link>
+              {t("communities:see_more_discussions_label")}
+            </MuiLink>
           </div>
         )}
       </div>

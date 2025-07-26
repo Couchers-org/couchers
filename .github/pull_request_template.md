@@ -1,11 +1,17 @@
+**Describe briefly what this PR is doing and why**
+
+*Please reference any issues this closes with `closes #[issue number]`.*
+
 <!---
-Please describe the pull request below.
+Please describe the pull request here.
 If it closes an issue, make sure to write "closes #1234"
 If there is an issue but it isn't completely closed, still refer to the issue number, eg. "part of #1234"
 --->
+
+
 **Please give clear steps for how the reviewer can best test this PR**
 
-Please include any necessary dev environment, .env, etc. adjustments.
+*Please include any necessary dev environment, .env, etc. adjustments.*
 
 -
 -
@@ -16,7 +22,7 @@ Checklists - you can remove one that is not applicable (ie. remove backend check
 If you need help with any of these, please ask :)
 --->
 **Backend checklist**
-- [ ] Formatted my code by running `ruff check --select I --fix . && ruff check . --fix && ruff format .` in `app/backend`
+- [ ] Formatted my code by running `make format` in `app/backend`
 - [ ] Added tests for any new code or added a regression test if fixing a bug
 - [ ] All tests pass
 - [ ] Run the backend locally and it works
@@ -30,6 +36,12 @@ If you need help with any of these, please ask :)
 - [ ] All tests pass
 - [ ] Clicked around my changes running locally and it works
 - [ ] Checked Desktop, Mobile and Tablet screen sizes
+
+**Other**
+*Untick the following if you'd prefer that maintainers don't push commits/merge your branch.*
+- [x] A maintainer can push commits to my branch
+- [x] A maintainer can merge my PR (you can also merge after approval)
+
 
 <!---
 Remember to request review from couchers-org/web, couchers-org/backend or an individual.

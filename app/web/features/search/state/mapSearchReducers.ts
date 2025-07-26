@@ -1,5 +1,5 @@
 import { LngLatLike } from "maplibre-gl";
-import { User } from "proto/api_pb";
+import { HostingStatus, User } from "proto/api_pb";
 import { UserSearchFilters } from "service/search";
 import { GeocodeResult } from "utils/hooks";
 
@@ -83,6 +83,7 @@ type MapSearchAction =
       payload: {
         bbox: MapSearchState["search"]["bbox"];
         zoom?: MapSearchState["uiOnly"]["zoom"] | undefined;
+        didCrossSearchThreshold?: boolean;
       };
     }
   | {
@@ -126,12 +127,12 @@ const initialState: MapSearchState = {
     acceptsPets: undefined,
     ageMin: undefined,
     ageMax: undefined,
-    completeProfile: undefined,
+    showEmptyProfile: undefined,
     drinkingAllowed: undefined,
     lastActive: 0,
     hasReferences: undefined,
     hasStrongVerification: undefined,
-    hostingStatusOptions: undefined,
+    hostingStatus: undefined,
     meetupStatus: undefined,
     numGuests: undefined,
     sleepingArrangement: undefined,
@@ -166,8 +167,28 @@ const mapSearchReducer = (
         state.search.bbox !== undefined ||
         state.shouldSearchByUserId;
 
+      const defaultFiltersActive =
+        state.filters.showEmptyProfile ||
+        (state.filters.hostingStatus?.includes(
+          HostingStatus.HOSTING_STATUS_CAN_HOST,
+        ) &&
+          state.filters.hostingStatus?.includes(
+            HostingStatus.HOSTING_STATUS_MAYBE,
+          ) &&
+          !state.filters.hostingStatus.includes(
+            HostingStatus.HOSTING_STATUS_CANT_HOST,
+          ));
+
       return {
         ...state,
+        ...(defaultFiltersActive && {
+          hasActiveFilters: false,
+          filters: {
+            ...state.filters,
+            hostingStatus: undefined,
+            showEmptyProfile: false,
+          },
+        }),
         search: {
           ...state.search,
           query: initialState.search.query,
@@ -198,8 +219,28 @@ const mapSearchReducer = (
         state.search.query !== undefined ||
         state.shouldSearchByUserId;
 
+      const areDefaultFiltersActive =
+        state.filters.showEmptyProfile ||
+        (state.filters.hostingStatus?.includes(
+          HostingStatus.HOSTING_STATUS_CAN_HOST,
+        ) &&
+          state.filters.hostingStatus?.includes(
+            HostingStatus.HOSTING_STATUS_MAYBE,
+          ) &&
+          !state.filters.hostingStatus.includes(
+            HostingStatus.HOSTING_STATUS_CANT_HOST,
+          ));
+
       return {
         ...state,
+        ...(areDefaultFiltersActive && {
+          hasActiveFilters: false,
+          filters: {
+            ...state.filters,
+            hostingStatus: undefined,
+            showEmptyProfile: false,
+          },
+        }),
         search: {
           bbox: initialState.search.bbox,
           query: initialState.search.query,
@@ -221,8 +262,16 @@ const mapSearchReducer = (
         return state; // Return the current state if locationBbox is undefined
       }
 
-      return {
+      const updatedState = {
         ...state,
+        filters: {
+          ...state.filters,
+          hostingStatus: [
+            HostingStatus.HOSTING_STATUS_CAN_HOST,
+            HostingStatus.HOSTING_STATUS_MAYBE,
+          ], // Default to can host and maybe when searching a location
+          showEmptyProfile: false, // Default to not showing empty profiles when searching a location
+        },
         search: {
           ...state.search,
           bbox: locationBbox,
@@ -239,9 +288,35 @@ const mapSearchReducer = (
         },
       };
 
-    case mapSearchActionTypes.SET_MAP_QUERY_AREA:
+      return {
+        ...updatedState,
+        hasActiveFilters: getHasActiveFilters(updatedState, initialState),
+      };
+
+    case mapSearchActionTypes.SET_MAP_QUERY_AREA: {
+      const didCrossSearchThreshold = action.payload.didCrossSearchThreshold;
+      const didZoomBelowThreshold =
+        action.payload.zoom! < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
+        state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
+
+      // If we zoom out below the threshold, reset the state to initial
+      if (didZoomBelowThreshold) {
+        return initialState;
+      }
+
       return {
         ...state,
+        ...(didCrossSearchThreshold && {
+          hasActiveFilters: true,
+          filters: {
+            ...state.filters,
+            hostingStatus: [
+              HostingStatus.HOSTING_STATUS_CAN_HOST,
+              HostingStatus.HOSTING_STATUS_MAYBE,
+            ],
+            showEmptyProfile: false,
+          },
+        }),
         search: {
           ...state.search,
           bbox: action.payload.bbox,
@@ -256,6 +331,7 @@ const mapSearchReducer = (
           zoom: action.payload.zoom ?? state.uiOnly.zoom,
         },
       };
+    }
     case mapSearchActionTypes.SET_FILTERS:
       const updatedFilters = { ...state.filters };
 
@@ -281,12 +357,8 @@ const mapSearchReducer = (
           updatedFilters.acceptsLastMinRequests =
             action.payload[key] === false ? undefined : action.payload[key];
         }
-        if (
-          key === "completeProfile" &&
-          action.payload.completeProfile !== undefined
-        ) {
-          updatedFilters.completeProfile =
-            action.payload[key] === false ? undefined : true;
+        if (key === "showEmptyProfile") {
+          updatedFilters.showEmptyProfile = action.payload[key];
         }
         if (key === "drinkingAllowed") {
           updatedFilters.drinkingAllowed = action.payload[key];
@@ -300,7 +372,7 @@ const mapSearchReducer = (
             action.payload[key] === false ? undefined : action.payload[key];
         }
         if (key === "hostingStatus") {
-          updatedFilters.hostingStatusOptions =
+          updatedFilters.hostingStatus =
             action.payload[key] && action.payload[key].length === 0
               ? undefined
               : action.payload[key];
@@ -314,9 +386,9 @@ const mapSearchReducer = (
         }
 
         if (key === "lastActive") {
-          updatedFilters.lastActive =
-            action.payload[key] === 0 ? undefined : action.payload[key];
+          updatedFilters.lastActive = action.payload[key];
         }
+
         if (key === "numGuests") {
           updatedFilters.numGuests =
             action.payload[key] === 0 ? undefined : action.payload[key];

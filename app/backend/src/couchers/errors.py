@@ -1,3 +1,5 @@
+from couchers.rate_limits.definitions import RATE_LIMIT_INTERVAL_STRING
+
 # CAUTION! Changing these messages may break clients.
 
 ACCOUNT_NOT_FOUND = "An account with that username or email was not found."
@@ -23,6 +25,7 @@ CANT_FRIEND_SELF = "You can't befriend yourself!"
 CANT_INVITE_SELF = "You can't invite yourself to a chat."
 CANT_INVITE_TO_DM = "You can't invite other users to a direct message."
 CANT_MAKE_SELF_ADMIN = "You can't make yourself an admin."
+CANT_MESSAGE_IN_CHAT = "You can't send a message in this chat."
 CANT_MUTE_PAST = "You can't mute until a date in the past."
 CANT_REFER_SELF = "You can't refer yourself."
 CANT_REMOVE_LAST_ADMIN = "You can't remove the last admin."
@@ -35,6 +38,7 @@ CANT_UNSUB_TOPIC = "Sorry, you can't unsubscribe from that topic right now."
 CANT_WRITE_REFERENCE_FOR_REQUEST = "You can't write a reference for that host request, or it wasn't found."
 CANT_WRITE_REFERENCE_INDICATED_DIDNT_MEETUP = "You can't write a reference for that host request because you indicated that you didn't meet up."  # fmt: skip
 CHAT_NOT_FOUND = "Couldn't find that chat."
+CHAT_INITIATION_RATE_LIMIT = f"You have messaged a lot of users in the past {RATE_LIMIT_INTERVAL_STRING}. To avoid spam, you can't contact any more users for now."  # fmt: skip
 COMMUNITY_NOT_FOUND = "Community not found."
 CONTENT_REPORT_NOT_FOUND = "Content report not found."
 DATE_FROM_AFTER_ONE_YEAR = "The start date must be within one year from today."
@@ -65,11 +69,13 @@ EVENT_TOO_FAR_IN_FUTURE = "The event needs to start within the next year."
 EVENT_TOO_LONG = "Events cannot last longer than 7 days."
 EVENT_TRANSFER_PERMISSION_DENIED = "You're not allowed to transfer that event."
 FRIEND_REQUEST_NOT_FOUND = "Couldn't find that friend request."
+FRIEND_REQUEST_RATE_LIMIT = f"You have sent a lot of friend requests in the past {RATE_LIMIT_INTERVAL_STRING}. To avoid spam, you can't send any more for now."  # fmt: skip
 FRIENDS_ALREADY_OR_PENDING = "You are already friends with or have sent a friend request to that user."
 GROUP_NOT_FOUND = "Group not found."
 GROUP_OR_COMMUNITY_NOT_FOUND = "Group or community not found."
 HOST_REQUEST_CLOSED = "This host request is closed, use a normal message instead."
 HOST_REQUEST_IN_PAST = "This host request is in the past."
+HOST_REQUEST_RATE_LIMIT = f"You have sent a lot of host requests in the past {RATE_LIMIT_INTERVAL_STRING}. To avoid spam, you can't send any more for now."  # fmt: skip
 HOST_REQUEST_NOT_FOUND = "Couldn't find that host request."
 HOST_REQUEST_SENT_OR_RECEIVED = "Can't only list sent and also only received requests."
 HOSTING_STATUS_REQUIRED = "Hosting status is required."

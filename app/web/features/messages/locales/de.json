@@ -11,8 +11,8 @@
     "tabs": {
       "aria_label": "Tabs für verschiedene Nachrichten-Typen",
       "chats": "Chats",
-      "hosting": "Hosting",
-      "surfing": "Surfing"
+      "hosting": "Hosten",
+      "surfing": "Surfen"
     },
     "title": "Nachrichten"
   },
@@ -46,7 +46,8 @@
     },
     "muted_icon": {
       "a11y_label": "Stumm"
-    }
+    },
+    "cannot_message_text": "Du kannst in diesem Chat keine Nachrichten senden"
   },
   "create_chat": {
     "group_title": "Gruppenchat erstellen",
@@ -149,5 +150,6 @@
     "request_duration_plural": "{{count}} Nächte"
   },
   "surfer_declined_request_help_text": "<0>Lies unseren Leitfaden</0>, wie man eine Anfrage schreibt, die angenommen wird.",
-  "past_request_help_text": "Diese Anfrage liegt in der Vergangenheit, du kannst weiterhin Nachrichten versenden, aber keine sonstige Änderungen vornehmen."
+  "past_request_help_text": "Diese Anfrage liegt in der Vergangenheit, du kannst weiterhin Nachrichten versenden, aber keine sonstige Änderungen vornehmen.",
+  "unknown_user": "Unbekannte Person"
 }

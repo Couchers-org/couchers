@@ -931,6 +931,11 @@ def testconfig():
 
     config["ACTIVENESS_PROBES_ENABLED"] = True
 
+    config["RECAPTHCA_ENABLED"] = False
+    config["RECAPTHCA_PROJECT_ID"] = "..."
+    config["RECAPTHCA_API_KEY"] = "..."
+    config["RECAPTHCA_SITE_KEY"] = "..."
+
     yield None
 
     config.clear()

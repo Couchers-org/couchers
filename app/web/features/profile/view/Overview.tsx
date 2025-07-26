@@ -2,9 +2,9 @@ import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
+import { doAntibot } from "features/antibot/antibot";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAccountInfo from "features/auth/useAccountInfo";
-import FlagButton from "features/FlagButton";
 import FriendActions from "features/profile/actions/FriendActions";
 import MessageUserButton from "features/profile/actions/MessageUserButton";
 import UserOverview from "features/profile/view/UserOverview";
@@ -23,9 +23,13 @@ import { theme } from "theme";
 
 import { useProfileUser } from "../hooks/useProfileUser";
 import AdminPanelUserButton from "./AdminPanelUserButton";
+import ProfileReportFlagButton from "./ProfileReportFlagButton";
 
 const StyledModButtons = styled("div")(({ theme }) => ({
-  alignSelf: "center",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  width: "100%",
 }));
 
 const getEditTab = (tab: UserTab): EditUserTab | undefined => {
@@ -42,28 +46,29 @@ function LoggedInUserActions({ tab }: { tab: UserTab }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   return (
     <>
-      <Link href={routeToEditProfile(getEditTab(tab))} passHref legacyBehavior>
-        <Button component="a" color="primary">
-          {t("global:edit")}
-        </Button>
-      </Link>
-      <Link href={connectionsRoute} passHref legacyBehavior>
-        <Button
-          component="a"
-          variant="outlined"
-          sx={{
-            color: theme.palette.common.black,
-            borderColor: theme.palette.grey[300],
+      <Button
+        component={Link}
+        color="primary"
+        href={routeToEditProfile(getEditTab(tab))}
+      >
+        {t("global:edit")}
+      </Button>
+      <Button
+        component={Link}
+        variant="outlined"
+        sx={{
+          color: theme.palette.common.black,
+          borderColor: theme.palette.grey[300],
 
-            "&:hover": {
-              borderColor: theme.palette.grey[300],
-              backgroundColor: "#3135390A",
-            },
-          }}
-        >
-          {t("profile:my_connections")}
-        </Button>
-      </Link>
+          "&:hover": {
+            borderColor: theme.palette.grey[300],
+            backgroundColor: "#3135390A",
+          },
+        }}
+        href={connectionsRoute}
+      >
+        {t("profile:my_connections")}
+      </Button>
     </>
   );
 }
@@ -86,6 +91,7 @@ function DefaultActions({
     useAccountInfo();
 
   const requestButton = () => {
+    doAntibot("host_request");
     if (!accountInfo?.profileComplete) {
       setShowCantRequestDialog(true);
     } else {
@@ -113,9 +119,10 @@ function DefaultActions({
       <FriendActions user={user} setMutationError={setMutationError} />
 
       <StyledModButtons>
-        <FlagButton
+        <ProfileReportFlagButton
           contentRef={`profile/${user.userId}`}
           authorUser={user.userId}
+          profileUser={user}
         />
         <AdminPanelUserButton username={user.username} />
       </StyledModButtons>

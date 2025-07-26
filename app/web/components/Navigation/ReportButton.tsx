@@ -1,4 +1,4 @@
-import { darken, styled, useMediaQuery } from "@mui/material";
+import { darken, styled, Typography, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -112,6 +112,7 @@ export default function ReportButton({
 
   const onSubmit = handleSubmit((data) => {
     reportBug(data);
+    resetForm();
   });
 
   return (
@@ -128,19 +129,20 @@ export default function ReportButton({
         </Snackbar>
       )}
       {isMenuLink ? (
-        <Button
-          variant="text"
+        <Typography
           aria-label={t("report.label")}
           onClick={() => setIsOpen(true)}
           sx={{
-            padding: 0,
-            margin: 0,
-            fontSize: "1rem",
-            "&:hover": { backgroundColor: "transparent" },
+            color: theme.palette.text.secondary,
+            cursor: "pointer",
+
+            "&:hover": {
+              textDecoration: "underline",
+            },
           }}
         >
           {t("report.label")}
-        </Button>
+        </Typography>
       ) : (
         <StyledReportButton
           aria-label={t("report.label")}

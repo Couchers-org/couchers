@@ -401,10 +401,10 @@ test:proxy:
   after_script:
     - docker rm -f envoy-config-test || true
   rules:
-    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
         - app/**/*
-    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/proto/**/*
         - app/proxy/**/*

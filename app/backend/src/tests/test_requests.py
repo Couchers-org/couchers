@@ -7,7 +7,8 @@ from sqlalchemy.sql import select
 from couchers import errors
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_view
-from couchers.models import Message, MessageType
+from couchers.models import Message, MessageType, RateLimitAction
+from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL_STRING
 from couchers.templates.v2 import v2date
 from couchers.utils import now, today
 from proto import api_pb2, conversations_pb2, requests_pb2
@@ -145,6 +146,71 @@ def test_create_request_incomplete_profile(db):
             )
     assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
     assert e.value.details() == errors.INCOMPLETE_PROFILE_SEND_REQUEST
+
+
+def test_excessive_requests_are_reported(db):
+    """Test that excessive host requests are first reported in a warning email and finally lead blocking of further requests."""
+    user, token = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.host_request]
+    with requests_session(token) as api:
+        # Test warning email
+        with mock_notification_email() as mock_email:
+            for _ in range(rate_limit_definition.warning_limit):
+                host_user, _ = generate_user()
+                _ = api.CreateHostRequest(
+                    requests_pb2.CreateHostRequestReq(
+                        host_user_id=host_user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                    )
+                )
+
+            assert mock_email.call_count == 0
+            host_user, _ = generate_user()
+            _ = api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=host_user.id,
+                    from_date=today_plus_2,
+                    to_date=today_plus_3,
+                    text="Excessive test request",
+                )
+            )
+            assert mock_email.call_count == 1
+            email = mock_email.mock_calls[0].kwargs["plain"]
+            assert email.startswith(
+                f"User {user.username} has sent {rate_limit_definition.warning_limit} host requests in the past {RATE_LIMIT_INTERVAL_STRING}."
+            )
+
+        # Test ban after exceeding HOST_REQUEST_HARD_LIMIT
+        with mock_notification_email() as mock_email:
+            for _ in range(rate_limit_definition.hard_limit - rate_limit_definition.warning_limit - 1):
+                host_user, _ = generate_user()
+                _ = api.CreateHostRequest(
+                    requests_pb2.CreateHostRequestReq(
+                        host_user_id=host_user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                    )
+                )
+
+            assert mock_email.call_count == 0
+            host_user, _ = generate_user()
+            with pytest.raises(grpc.RpcError) as exc_info:
+                _ = api.CreateHostRequest(
+                    requests_pb2.CreateHostRequestReq(
+                        host_user_id=host_user.id,
+                        from_date=today_plus_2,
+                        to_date=today_plus_3,
+                        text="Excessive test request",
+                    )
+                )
+            assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
+            assert exc_info.value.details() == errors.HOST_REQUEST_RATE_LIMIT
+
+            assert mock_email.call_count == 1
+            email = mock_email.mock_calls[0].kwargs["plain"]
+            assert email.startswith(
+                f"User {user.username} has sent {rate_limit_definition.hard_limit} host requests in the past {RATE_LIMIT_INTERVAL_STRING}."
+            )
+            assert "The user has been blocked from sending further host requests for now." in email
 
 
 def add_message(db, text, author_id, conversation_id):
@@ -515,8 +581,8 @@ def test_get_host_request_messages(db):
         )
 
     with requests_session(token1) as api:
-        res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=conversation_id))
         # 9 including initial message
+        res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=conversation_id))
         assert len(res.messages) == 9
         assert res.no_more
 
@@ -532,7 +598,9 @@ def test_get_host_request_messages(db):
 
         res = api.GetHostRequestMessages(
             requests_pb2.GetHostRequestMessagesReq(
-                host_request_id=conversation_id, last_message_id=res.messages[2].message_id, number=6
+                host_request_id=conversation_id,
+                last_message_id=res.messages[2].message_id,
+                number=6,
             )
         )
         assert res.no_more
@@ -711,6 +779,45 @@ def test_get_updates(db):
         # other user can't access
         res = api.GetHostRequestUpdates(requests_pb2.GetHostRequestUpdatesReq(newest_message_id=message_id_1))
         assert len(res.updates) == 0
+
+
+def test_archive_host_request(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    with requests_session(token1) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 0"
+            )
+        ).host_request_id
+
+        api.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
+        )
+        api.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 2")
+        )
+    # happy path archiving host request
+    with requests_session(token1) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
+                text="Test message 3",
+            )
+        )
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
+        assert len(res.host_requests) == 1
+        assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+        api.SetHostRequestArchiveStatus(
+            requests_pb2.SetHostRequestArchiveStatusReq(host_request_id=host_request_id, is_archived=True)
+        )
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_archived=True))
+        assert len(res.host_requests) == 1
 
 
 def test_mark_last_seen(db):

@@ -29,23 +29,22 @@ export default function ErrorFallback({ isFatal }: { isFatal?: boolean }) {
       {!isFatal && <StyledReportButton isResponsive={false} />}
       <Actions>
         {!isFatal && (
-          <Link href={baseRoute} passHref legacyBehavior>
-            <Button
-              variant="outlined"
-              component="a"
-              sx={{
-                color: theme.palette.common.black,
-                borderColor: theme.palette.grey[300],
+          <Button
+            variant="outlined"
+            component={Link}
+            href={baseRoute}
+            sx={{
+              color: theme.palette.common.black,
+              borderColor: theme.palette.grey[300],
 
-                "&:hover": {
-                  borderColor: theme.palette.grey[300],
-                  backgroundColor: "#3135390A",
-                },
-              }}
-            >
-              {t("error.fallback.home_page_link_label")}
-            </Button>
-          </Link>
+              "&:hover": {
+                borderColor: theme.palette.grey[300],
+                backgroundColor: "#3135390A",
+              },
+            }}
+          >
+            {t("error.fallback.home_page_link_label")}
+          </Button>
         )}
 
         <Button onClick={handleRefresh}>

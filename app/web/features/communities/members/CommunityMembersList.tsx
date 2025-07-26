@@ -1,43 +1,20 @@
-import { styled } from "@mui/material";
+import { styled, Typography } from "@mui/material";
+import { Box } from "@mui/system";
 import Alert from "components/Alert";
-import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import HorizontalScroller from "components/HorizontalScroller";
+import CursorPagination from "components/CursorPagination";
 import { PersonIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import UsersList from "components/UsersList";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
-import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
+import { useState } from "react";
 
 import { SectionTitle } from "../CommunityPage";
 import { useListMembers } from "../hooks";
 
-const StyledHorizontalScroller = styled(HorizontalScroller)(({ theme }) => ({
-  [theme.breakpoints.down("sm")]: {
-    //break out of page padding
-    left: "50%",
-    marginLeft: "-50vw",
-    marginRight: "-50vw",
-    position: "relative",
-    right: "50%",
-    width: "100vw",
-  },
-  [theme.breakpoints.up("sm")]: {
-    display: "grid",
-    gridTemplateColumns: "repeat(2, 1fr)",
-    gap: theme.spacing(2),
-  },
-  [theme.breakpoints.up("md")]: {
-    gridTemplateColumns: "repeat(3, 1fr)",
-    gap: theme.spacing(3),
-  },
-  width: "100%",
-  overflow: "hidden",
-}));
-
-const LoadMoreButtonWrapper = styled("div")(({ theme }) => ({
+const PaginationWrapper = styled("div")(({ theme }) => ({
   display: "flex",
   justifyContent: "center",
   width: "100%",
@@ -46,50 +23,60 @@ const LoadMoreButtonWrapper = styled("div")(({ theme }) => ({
 
 export default function CommunityMembersList({
   communityId,
+  memberCount,
 }: {
   communityId: Community.AsObject["communityId"];
+  memberCount?: Community.AsObject["memberCount"];
 }) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
+  const PAGE_SIZE = 20;
 
-  const { data, isLoading, isFetching, error, fetchNextPage, hasNextPage } =
-    useListMembers(communityId);
+  const [pageNumber, setPageNumber] = useState(1);
 
-  const memberUserIdsList = data?.pages.flatMap(
-    (page) => page.memberUserIdsList,
-  );
+  const { data, isFetching, isLoading, error, fetchNextPage } = useListMembers({
+    communityId,
+    pageSize: PAGE_SIZE,
+  });
+
+  const currentPage = data?.pages && data.pages[pageNumber - 1];
+
+  const handelPreviousPageClick = () => {
+    setPageNumber(pageNumber - 1);
+  };
+
+  const handleNextPageClick = () => {
+    fetchNextPage();
+    setPageNumber(pageNumber + 1);
+  };
 
   return (
     <>
-      <SectionTitle icon={<PersonIcon />} variant="h2">
-        {t("communities:members_title")}
-      </SectionTitle>
-
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        <SectionTitle icon={<PersonIcon />} variant="h2">
+          {t("communities:members_title")}
+        </SectionTitle>
+        <Typography variant="body2" sx={{ margin: 2 }}>
+          {memberCount} {t("communities:total_members")}
+        </Typography>
+      </Box>
       {error && <Alert severity="error">{error.message}</Alert>}
-      {isLoading ? (
-        <CenteredSpinner />
-      ) : hasAtLeastOnePage(data, "memberUserIdsList") ? (
-        <>
-          <StyledHorizontalScroller>
-            <UsersList
-              userIds={memberUserIdsList}
-              endChildren={
-                hasNextPage && (
-                  <LoadMoreButtonWrapper>
-                    <Button
-                      loading={isFetching}
-                      onClick={() => fetchNextPage()}
-                    >
-                      Load more
-                    </Button>
-                  </LoadMoreButtonWrapper>
-                )
-              }
-              titleIsLink
-            />
-          </StyledHorizontalScroller>
-        </>
-      ) : (
-        !error && <TextBody>{t("communities:members_empty_state")}</TextBody>
+      {isLoading && <CenteredSpinner />}
+      <Box sx={{ width: "450px" }}>
+        {data?.pages && data?.pages.length > 0 && (
+          <UsersList userIds={currentPage?.memberUserIdsList} titleIsLink />
+        )}
+      </Box>
+      <PaginationWrapper>
+        <CursorPagination
+          hasNextPage={currentPage?.nextPageToken !== ""}
+          onNext={handleNextPageClick}
+          hasPreviousPage={pageNumber > 1}
+          onPrevious={handelPreviousPageClick}
+          isLoading={isLoading}
+        />
+      </PaginationWrapper>
+      {!error && !isFetching && data?.pages.length === 0 && (
+        <TextBody>{t("communities:members_empty_state")}</TextBody>
       )}
     </>
   );

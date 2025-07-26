@@ -5,6 +5,7 @@ Background job servicers
 import logging
 from datetime import date, timedelta
 from math import cos, pi, sin, sqrt
+from random import sample
 
 import requests
 from google.protobuf import empty_pb2
@@ -16,6 +17,7 @@ from sqlalchemy.sql import (
     cast,
     delete,
     distinct,
+    exists,
     extract,
     func,
     literal,
@@ -31,6 +33,9 @@ from couchers.constants import (
     ACTIVENESS_PROBE_EXPIRY_TIME,
     ACTIVENESS_PROBE_INACTIVITY_PERIOD,
     ACTIVENESS_PROBE_TIME_REMINDERS,
+    EVENT_REMINDER_TIMEDELTA,
+    HOST_REQUEST_MAX_REMINDERS,
+    HOST_REQUEST_REMINDER_INTERVAL,
 )
 from couchers.crypto import (
     USER_LOCATION_RANDOMIZATION_NAME,
@@ -57,10 +62,13 @@ from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
+    EventOccurrence,
+    EventOccurrenceAttendee,
     GroupChat,
     GroupChatSubscription,
     HostingStatus,
     HostRequest,
+    HostRequestStatus,
     Invoice,
     LoginToken,
     MeetupStatus,
@@ -79,10 +87,11 @@ from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.admin import generate_new_blog_post_notifications
 from couchers.servicers.api import user_model_to_pb
-from couchers.servicers.blocking import are_blocked
+from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.conversations import generate_message_notifications
 from couchers.servicers.discussions import generate_create_discussion_notifications
 from couchers.servicers.events import (
+    event_to_pb,
     generate_event_cancel_notifications,
     generate_event_create_notifications,
     generate_event_delete_notifications,
@@ -93,7 +102,13 @@ from couchers.servicers.threads import generate_reply_notifications
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
 from couchers.tasks import send_duplicate_strong_verification_email
-from couchers.utils import Timestamp_from_datetime, create_coordinate, get_coordinates, make_user_context, now
+from couchers.utils import (
+    Timestamp_from_datetime,
+    create_coordinate,
+    get_coordinates,
+    make_user_context,
+    now,
+)
 from proto import notification_data_pb2
 from proto.internal import jobs_pb2, verification_pb2
 
@@ -483,7 +498,7 @@ def send_reference_reminders(payload):
             for surfed, host_request, user, other_user in reference_reminders:
                 # checked in sql
                 assert user.is_visible
-                if not are_blocked(session, user.id, other_user.id):
+                if not is_not_visible(session, user.id, other_user.id):
                     context = make_user_context(user_id=user.id)
                     notify(
                         session,
@@ -504,6 +519,47 @@ def send_reference_reminders(payload):
 
 send_reference_reminders.PAYLOAD = empty_pb2.Empty
 send_reference_reminders.SCHEDULE = timedelta(hours=1)
+
+
+def send_host_request_reminders(payload):
+    with session_scope() as session:
+        host_has_sent_message = select(1).where(
+            Message.conversation_id == HostRequest.conversation_id, Message.author_id == HostRequest.host_user_id
+        )
+
+        requests = (
+            session.execute(
+                select(HostRequest)
+                .where(HostRequest.status == HostRequestStatus.pending)
+                .where(HostRequest.host_sent_request_reminders < HOST_REQUEST_MAX_REMINDERS)
+                .where(HostRequest.start_time > func.now())
+                .where((func.now() - HostRequest.last_sent_request_reminder_time) >= HOST_REQUEST_REMINDER_INTERVAL)
+                .where(~exists(host_has_sent_message))
+            )
+            .scalars()
+            .all()
+        )
+
+        for host_request in requests:
+            host_request.host_sent_request_reminders += 1
+            host_request.last_sent_request_reminder_time = now()
+
+            context = make_user_context(user_id=host_request.host_user_id)
+            notify(
+                session,
+                user_id=host_request.host_user_id,
+                topic_action="host_request:reminder",
+                data=notification_data_pb2.HostRequestReminder(
+                    host_request=host_request_to_pb(host_request, session, context),
+                    surfer=user_model_to_pb(host_request.surfer, session, context),
+                ),
+            )
+
+            session.commit()
+
+
+send_host_request_reminders.PAYLOAD = empty_pb2.Empty
+send_host_request_reminders.SCHEDULE = timedelta(minutes=15)
 
 
 def add_users_to_email_list(payload):
@@ -607,9 +663,11 @@ def update_recommendation_scores(payload):
         long_text = int_(text_length > 2000)
         has_pic = int_(User.avatar_key != None)
         can_host = int_(User.hosting_status == HostingStatus.can_host)
+        maybe = int_(User.hosting_status == HostingStatus.maybe)
         cant_host = int_(User.hosting_status == HostingStatus.cant_host)
         filled_home = int_(User.last_minute != None) * int_(home_length > 200)
-        profile_points = 2 * has_text + 3 * long_text + 2 * has_pic + 3 * can_host + 2 * filled_home - 5 * cant_host
+        hosting_status_points = 5 * can_host - 5 * maybe - 10 * cant_host
+        profile_points = 2 * has_text + 3 * long_text + 3 * has_pic + 5 * filled_home
 
         # references
         left_ref_expr = int_(1).label("left_reference")
@@ -705,10 +763,11 @@ def update_recommendation_scores(payload):
         response_time_33p = hr_subquery.c.response_time_33p
         response_time_66p = hr_subquery.c.response_time_66p
         # be careful with nulls
-        response_rate_points = -10 * int_(response_time_33p > 60 * 72.0) + 5 * int_(response_time_66p < 60 * 48.0)
+        response_rate_points = -10 * int_(response_time_33p > 60 * 96.0) + 5 * int_(response_time_66p < 60 * 96.0)
 
         recommendation_score = (
-            profile_points
+            hosting_status_points
+            + profile_points
             + ref_score
             + activeness_points
             + other_points
@@ -908,6 +967,20 @@ def send_activeness_probes(payload):
                 .all()
             )
 
+            total_users = session.execute(select(func.count()).select_from(User).where(User.is_visible)).scalar_one()
+            probes_today = session.execute(
+                select(func.count())
+                .select_from(ActivenessProbe)
+                .where(func.now() - ActivenessProbe.probe_initiated < timedelta(hours=24))
+            ).scalar_one()
+
+            # send probes to max 2% of users per day
+            max_probes_per_day = 0.02 * total_users
+            max_probe_size = int(max(min(max_probes_per_day - probes_today, max_probes_per_day / 24), 1))
+
+            if len(new_probe_user_ids) > max_probe_size:
+                new_probe_user_ids = sample(new_probe_user_ids, max_probe_size)
+
             for user_id in new_probe_user_ids:
                 session.add(ActivenessProbe(user_id=user_id))
 
@@ -957,7 +1030,7 @@ def send_activeness_probes(payload):
             probe.responded = now()
             probe.response = ActivenessProbeStatus.expired
             if probe.user.hosting_status == HostingStatus.can_host:
-                probe.user.hosting_status = HostingStatus.cant_host
+                probe.user.hosting_status = HostingStatus.maybe
             if probe.user.meetup_status == MeetupStatus.wants_to_meetup:
                 probe.user.meetup_status = MeetupStatus.open_to_meetup
             session.commit()
@@ -1004,3 +1077,49 @@ def update_randomized_locations(payload):
 
 update_randomized_locations.PAYLOAD = empty_pb2.Empty
 update_randomized_locations.SCHEDULE = timedelta(hours=1)
+
+
+def send_event_reminders(payload: empty_pb2.Empty):
+    """
+    Sends reminders for events that are 24 hours away to users who marked themselves as attending.
+    """
+    logger.info("Sending event reminder emails")
+
+    with session_scope() as session:
+        occurrences = (
+            session.execute(
+                select(EventOccurrence)
+                .where(EventOccurrence.start_time <= now() + EVENT_REMINDER_TIMEDELTA)
+                .where(EventOccurrence.start_time >= now())
+            )
+            .scalars()
+            .all()
+        )
+
+        for occurrence in occurrences:
+            results = session.execute(
+                select(User, EventOccurrenceAttendee)
+                .join(EventOccurrenceAttendee, EventOccurrenceAttendee.user_id == User.id)
+                .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
+                .where(EventOccurrenceAttendee.reminder_sent == False)
+            ).all()
+
+            for user, attendee in results:
+                context = make_user_context(user_id=user.id)
+
+                notify(
+                    session,
+                    user_id=user.id,
+                    topic_action="event:reminder",
+                    data=notification_data_pb2.EventReminder(
+                        event=event_to_pb(session, occurrence, context),
+                        user=user_model_to_pb(user, session, context),
+                    ),
+                )
+
+                attendee.reminder_sent = True
+                session.commit()
+
+
+send_event_reminders.PAYLOAD = empty_pb2.Empty
+send_event_reminders.SCHEDULE = timedelta(hours=1)

@@ -1,7 +1,7 @@
 """add_moderation_user list
 
 Revision ID: e3815ef8b1e3
-Revises: cd456767d2f7
+Revises: d345174cb002
 Create Date: 2025-06-13 15:06:08.353716
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "e3815ef8b1e3"
-down_revision = "cd456767d2f7"
+down_revision = "d345174cb002"
 branch_labels = None
 depends_on = None
 

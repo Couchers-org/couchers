@@ -756,9 +756,7 @@ def test_AddUsersToModerationUserList(db):
             # Test adding users to a non-existent moderation list (should raise an error)
             with pytest.raises(grpc.RpcError) as e:
                 api.AddUsersToModerationUserList(
-                    admin_pb2.AddUsersToModerationUserListReq(
-                        users=[user2.username], moderation_list_id=999
-                    ),
+                    admin_pb2.AddUsersToModerationUserListReq(users=[user2.username], moderation_list_id=999),
                 )
             assert e.value.code() == grpc.StatusCode.NOT_FOUND
             assert errors.MODERATION_USER_LIST_NOT_FOUND == e.value.details()
@@ -773,9 +771,7 @@ def test_AddUsersToModerationUserList(db):
 
             # Test successful creation of new moderation list (no moderation_list_id provided)
             res = api.AddUsersToModerationUserList(
-                admin_pb2.AddUsersToModerationUserListReq(
-                    users=[user1.username, user2.username, user3.username]
-                ),
+                admin_pb2.AddUsersToModerationUserListReq(users=[user1.username, user2.username, user3.username]),
             )
             assert res.moderation_list_id > 0
             with session_scope() as session:
@@ -853,8 +849,8 @@ def test_RemoveUserFromModerationUserList(db):
             moderation_user_list = session.get(ModerationUserList, moderation_list_id)
             assert user1.id not in {user.id for user in moderation_user_list.users}
             assert user2.id in {user.id for user in moderation_user_list.users}
-        
-        # Test list user moderation lists endpoint returns right number of moderation lists
+
+            # Test list user moderation lists endpoint returns right number of moderation lists
             listRes = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user1.username))
             assert len(listRes.moderation_lists) == 0
             listRes2 = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user2.username))

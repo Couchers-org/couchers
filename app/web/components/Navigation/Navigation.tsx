@@ -1,6 +1,7 @@
 import {
   AppBar,
   Badge,
+  Box,
   Drawer,
   IconButton,
   List,
@@ -10,16 +11,20 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
+import MuiLink from "@mui/material/Link";
+import Button from "components/Button";
 import { GlobalMessage } from "components/GlobalMessage";
 import { CloseIcon, MenuIcon } from "components/Icons";
 import { MenuItem } from "components/Menu";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { PushNotificationBanner } from "features/notifications/PushNotificationBanner";
+import LanguagePickerSelect from "features/translate/LanguagePickerSelect";
 import useNotifications from "features/useNotifications";
 import { GLOBAL } from "i18n/namespaces";
 import { TFunction } from "i18next";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import React, { useEffect, useState } from "react";
 import CouchersLogo from "resources/CouchersLogo";
@@ -29,7 +34,6 @@ import {
   dashboardRoute,
   donationsRoute,
   eventsRoute,
-  faqRoute,
   featurePreviewRoute,
   helpCenterURL,
   loginRoute,
@@ -41,12 +45,10 @@ import {
   searchRoute,
   settingsRoute,
   signupRoute,
-  teamRoute,
   volunteerRoute,
 } from "routes";
 import { theme } from "theme";
 
-import GuestMenu from "./GuestMenu";
 import LoggedInMenu from "./LoggedInMenu";
 import NavButton from "./NavButton";
 
@@ -126,10 +128,6 @@ const loggedOutNavMenu = (
   t: TFunction<"global", undefined>,
 ): Array<MenuItemProps> => [
   {
-    name: t("nav.about"),
-    route: "/#",
-  },
-  {
     name: t("nav.blog"),
     route: blogRoute,
   },
@@ -138,16 +136,8 @@ const loggedOutNavMenu = (
     route: planRoute,
   },
   {
-    name: t("nav.faq"),
-    route: faqRoute,
-  },
-  {
     name: t("nav.mission"),
     route: missionRoute,
-  },
-  {
-    name: t("nav.the_team"),
-    route: teamRoute,
   },
 ];
 
@@ -155,18 +145,6 @@ const loggedOutDrawerMenu = (
   t: TFunction<"global", undefined>,
 ): Array<MenuItemProps> => [
   {
-    name: t("login"),
-    route: loginRoute,
-  },
-  {
-    name: t("sign_up"),
-    route: signupRoute,
-  },
-  {
-    name: t("nav.about"),
-    route: "/",
-  },
-  {
     name: t("nav.blog"),
     route: blogRoute,
   },
@@ -175,16 +153,8 @@ const loggedOutDrawerMenu = (
     route: planRoute,
   },
   {
-    name: t("nav.faq"),
-    route: faqRoute,
-  },
-  {
     name: t("nav.mission"),
     route: missionRoute,
-  },
-  {
-    name: t("nav.the_team"),
-    route: teamRoute,
   },
 ];
 
@@ -239,7 +209,9 @@ const drawerWidth = 240;
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   bottom: "auto",
   top: 0,
-  boxShadow: "0 0 4px rgba(0, 0, 0, 0.25)",
+  boxShadow: "none",
+  backgroundColor: theme.palette.common.white,
+  // boxShadow: "0 0 4px rgba(0, 0, 0, 0.25)",
   paddingRight: theme.spacing(2),
   [theme.breakpoints.up("md")]: {
     paddingRight: 0,
@@ -295,7 +267,6 @@ const StyledMenuContainer = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
-  "& > *": { marginInlineStart: theme.spacing(2) },
 }));
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
@@ -305,18 +276,22 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
   },
 }));
 
-const StyledMenuItemLink = styled("a")(({ theme }) => ({
+const StyledMenuItemLink = styled(MuiLink)(({ theme }) => ({
   width: "100%",
+  color: theme.palette.text.primary,
+  textDecoration: "none",
 }));
 
 export default function Navigation() {
-  const [open, setOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const { data: pingData } = useNotifications();
-  const { authState } = useAuthContext();
+  const router = useRouter();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [isMounted, setIsMounted] = useState(false);
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [open, setOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const { data: pingData } = useNotifications();
+  const { authState } = useAuthContext();
 
   useEffect(() => setIsMounted(true), []);
 
@@ -358,6 +333,16 @@ export default function Navigation() {
             </ListItem>
           ),
         )}
+        <ListItem
+          sx={{
+            display: "flex",
+            flex: "1",
+            maxWidth: "10.5rem",
+            padding: theme.spacing(1, 4),
+          }}
+        >
+          <LanguagePickerSelect />
+        </ListItem>
       </List>
     </div>
   );
@@ -368,7 +353,7 @@ export default function Navigation() {
         notificationCount !== undefined && notificationCount > 0;
 
       const linkContent = (
-        <>
+        <span style={{ display: "flex", alignItems: "center" }}>
           {hasNotification ? (
             <StyledBadge color="primary" variant="dot">
               <Typography noWrap>{name}</Typography>
@@ -386,7 +371,7 @@ export default function Navigation() {
               {`${notificationCount} unseen`}
             </Typography>
           ) : null}
-        </>
+        </span>
       );
 
       return (
@@ -405,10 +390,15 @@ export default function Navigation() {
               {linkContent}
             </StyledMenuItemLink>
           ) : (
-            <Link href={route} legacyBehavior>
-              <StyledMenuItemLink onClick={() => setMenuOpen(false)}>
-                {linkContent}
-              </StyledMenuItemLink>
+            <Link
+              href={route}
+              style={{
+                width: "100%",
+                color: theme.palette.text.primary,
+                textDecoration: "none",
+              }}
+            >
+              {linkContent}
             </Link>
           )}
         </MenuItem>
@@ -442,7 +432,7 @@ export default function Navigation() {
               </IconButton>
               <StyledDrawer
                 variant="temporary"
-                anchor="left"
+                anchor="right"
                 open={open}
                 onClick={handleDrawerClose}
                 ModalProps={{
@@ -464,7 +454,7 @@ export default function Navigation() {
               </StyledDrawer>
             </>
           )}
-          <CouchersLogo includeEmbellishments />
+          <CouchersLogo isLoggedIn={authState.authenticated} />
           {!isMobile && (
             <StyledFlexbox>
               {(authState.authenticated && isMounted
@@ -500,7 +490,38 @@ export default function Navigation() {
               {loggedMenuItems}
             </LoggedInMenu>
           ) : (
-            <GuestMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                width: "100%",
+                gap: 2,
+              }}
+            >
+              {!isMobile && <LanguagePickerSelect />}
+              <Button
+                variant="outlined"
+                size={isMobile ? "medium" : "large"}
+                sx={{
+                  fontSize: "1.3rem",
+                  borderRadius: theme.spacing(1),
+                  border: `1.5px solid ${theme.palette.primary.main}`,
+                }}
+                onClick={() => router.push(loginRoute)}
+              >
+                {t("login")}
+              </Button>
+              {!isMobile && (
+                <Button
+                  variant="contained"
+                  size={isMobile ? "medium" : "large"}
+                  sx={{ fontSize: "1.3rem" }}
+                  onClick={() => router.push(signupRoute)}
+                >
+                  {t("join_us")}
+                </Button>
+              )}
+            </Box>
           )}
         </StyledMenuContainer>
       </StyledToolbar>

@@ -58,6 +58,7 @@ export interface EditLocationMapProps extends BoxProps {
     | ControllerRenderProps<SignupAccountInputs, "location">
     | ControllerRenderProps<EditProfileFormValues, "location">;
   inputFieldError?: FieldError | undefined;
+  variant?: "standard" | "outlined" | "filled";
 }
 
 export default function EditLocationMap({
@@ -69,6 +70,7 @@ export default function EditLocationMap({
   exact,
   inputFieldProps,
   inputFieldError,
+  variant = "standard",
   ...otherProps
 }: EditLocationMapProps) {
   const theme = useTheme();
@@ -345,11 +347,12 @@ export default function EditLocationMap({
           ref={locationDisplayRef}
           InputLabelProps={{ shrink: shrinkLabel }}
           fullWidth
-          variant="standard"
+          variant={variant}
           label={DISPLAY_LOCATION}
           helperText={error !== "" ? error : LOCATION_PUBLICLY_VISIBLE}
           onFocus={() => setShrinkLabel(true)}
           onBlur={() => !location.current.address && setShrinkLabel(false)}
+          sx={{ marginTop: 2 }}
         />
       </StyledWrapper>
     </>

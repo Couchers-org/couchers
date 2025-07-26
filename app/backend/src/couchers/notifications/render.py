@@ -125,6 +125,25 @@ def render_notification(user, notification) -> RenderedNotification:
                 push_icon=v2avatar(other),
                 push_url=view_link,
             )
+        elif notification.action == "reminder":
+            message = f"You have a pending host request from {data.surfer.name}!"
+            description = "Please respond to the request!"
+            return RenderedNotification(
+                email_subject=message,
+                email_preview=description,
+                email_template_name="host_request__plain",
+                email_template_args={
+                    "view_link": view_link,
+                    "host_request": data.host_request,
+                    "message": description,
+                    "other": data.surfer,
+                },
+                email_topic_action_unsubscribe_text="Pending host request reminders",
+                push_title=message,
+                push_body=description,
+                push_icon=v2avatar(data.surfer),
+                push_url=view_link,
+            )
     elif notification.topic_action.display == "password:change":
         title = "Your password was changed"
         message = "Your login password for Couchers.org was changed."
@@ -604,6 +623,25 @@ def render_notification(user, notification) -> RenderedNotification:
                 push_title=f'{data.author.name} commented on "{event.title}"',
                 push_body=body,
                 push_icon=v2avatar(data.author),
+                push_url=event_link,
+            )
+        elif notification.action == "reminder":
+            body = "Don't forget your upcoming event on Couchers.org\n"
+            body += f"{time_display}\n"
+            body += data.event.content
+            return RenderedNotification(
+                email_subject=f'Reminder: "{data.event.title}" starts soon',
+                email_preview="Don't forget your upcoming event on Couchers.org",
+                email_template_name="event_reminder",
+                email_template_args={
+                    "time_display": time_display,
+                    "event": event,
+                    "view_link": event_link,
+                },
+                email_topic_action_unsubscribe_text="event reminders",
+                push_title=f'"{data.event.title}" starts soon',
+                push_body=body,
+                push_icon=urls.icon_url(),
                 push_url=event_link,
             )
     elif notification.topic == "discussion":

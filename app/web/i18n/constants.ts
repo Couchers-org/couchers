@@ -52,12 +52,16 @@ export const LANGUAGE_MAP: LanguageMap = {
     name: "Norwegian (Bokmål)",
     flagIconCode: "NO",
   },
+  nl: {
+    name: "Dutch",
+    flagIconCode: "NL",
+  },
   pl: {
     name: "Polish",
     flagIconCode: "PL",
   },
   pt: {
-    name: "Portuguese",
+    name: "Portuguese (Portugal)",
     flagIconCode: "PT",
   },
   "pt-BR": {
@@ -68,13 +72,13 @@ export const LANGUAGE_MAP: LanguageMap = {
     name: "Russian",
     flagIconCode: "RU",
   },
-  zh: {
-    name: "Chinese",
-    flagIconCode: "CN",
+  sv: {
+    name: "Swedish",
+    flagIconCode: "SE",
   },
-  "zh-CN": {
-    name: "Chinese (China)",
-    flagIconCode: "CN",
+  uk: {
+    name: "Ukrainian",
+    flagIconCode: "UA",
   },
   "zh-Hans": {
     name: "Chinese (Simplified)",
@@ -82,18 +86,6 @@ export const LANGUAGE_MAP: LanguageMap = {
   },
   "zh-Hant": {
     name: "Chinese (Traditional)",
-    flagIconCode: "CN",
-  },
-  "zh-HK": {
-    name: "Chinese (Hong Kong)",
-    flagIconCode: "HK",
-  },
-  "zh-SG": {
-    name: "Chinese (Singapore)",
-    flagIconCode: "SG",
-  },
-  "zh-TW": {
-    name: "Chinese (Taiwan)",
     flagIconCode: "CN",
   },
 };

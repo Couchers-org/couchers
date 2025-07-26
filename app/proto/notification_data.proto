@@ -50,6 +50,11 @@ message HostRequestMissedMessages {
   bool am_host = 3;
 }
 
+message HostRequestReminder {
+  org.couchers.api.requests.HostRequest host_request = 1;
+  org.couchers.api.core.User surfer = 2;
+}
+
 message BadgeAdd {
   string badge_id = 1;
   string badge_name = 2;
@@ -171,6 +176,11 @@ message ReferenceReminder {
   org.couchers.api.core.User other_user = 2;
   // time left to write the req in days
   uint32 days_left = 3;
+}
+
+message EventReminder {
+  org.couchers.api.events.Event event = 1;
+  org.couchers.api.core.User user = 2;
 }
 
 enum SVFailReason {

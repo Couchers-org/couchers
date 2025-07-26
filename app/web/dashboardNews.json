@@ -1,7 +1,12 @@
 {
+  "2025-07-01": {
+    "title": "A new chapter: Couchers is officially out of Beta! Read more here.",
+    "link": "/blog/2025/07/01/releasing-couchers-v1"
+  },
+  "2025-05-26": "It's now possible to block users and remove friends via your \"My connections\" page in your profile.",
   "2025-05-12": {
     "title": "Couchers.org v0.9.9 Released",
-    "link": "https://couchers.org/blog/2025/05/11/v0.9.9-release"
+    "link": "/blog/2025/05/11/v0.9.9-release"
   },
   "2025-04-24": "Introducing the Notifications Feed — so you never miss an update! Just look for the bell icon at the top right of the navigation bar.",
   "2025-04-16": "Search has been completely redesigned with more filters, layout and list-only view option!",

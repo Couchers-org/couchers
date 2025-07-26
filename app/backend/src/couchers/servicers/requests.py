@@ -15,8 +15,9 @@ from couchers.metrics import (
     host_requests_sent_counter,
     sent_messages_counter,
 )
-from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
+from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, RateLimitAction, User
 from couchers.notifications.notify import notify
+from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.servicers.api import response_rate_to_pb, user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import (
@@ -164,6 +165,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if to_date - from_date > timedelta(days=365):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_TO_AFTER_ONE_YEAR)
 
+        # Check if user has been sending host requests excessively
+        if process_rate_limits_and_check_abort(
+            session=session, user_id=context.user_id, action=RateLimitAction.host_request
+        ):
+            context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.HOST_REQUEST_RATE_LIMIT)
+
         conversation = Conversation()
         session.add(conversation)
         session.flush()
@@ -259,6 +266,19 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             statement = statement.where(HostRequest.surfer_user_id == context.user_id)
         elif request.only_received:
             statement = statement.where(HostRequest.host_user_id == context.user_id)
+        elif request.HasField("only_archived"):
+            statement = statement.where(
+                or_(
+                    and_(
+                        HostRequest.surfer_user_id == context.user_id,
+                        HostRequest.is_surfer_archived == request.only_archived,
+                    ),
+                    and_(
+                        HostRequest.host_user_id == context.user_id,
+                        HostRequest.is_host_archived == request.only_archived,
+                    ),
+                )
+            )
         else:
             statement = statement.where(
                 or_(HostRequest.host_user_id == context.user_id, HostRequest.surfer_user_id == context.user_id)
@@ -635,6 +655,26 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         session.commit()
         return empty_pb2.Empty()
+
+    def SetHostRequestArchiveStatus(self, request, context, session):
+        host_request: HostRequest = session.execute(
+            select(HostRequest)
+            .where(HostRequest.conversation_id == request.host_request_id)
+            .where(or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id))
+        ).scalar_one_or_none()
+
+        if not host_request:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+
+        if context.user_id == host_request.surfer_user_id:
+            host_request.is_surfer_archived = request.is_archived
+        else:
+            host_request.is_host_archived = request.is_archived
+
+        return requests_pb2.SetHostRequestArchiveStatusRes(
+            host_request_id=host_request.conversation_id,
+            is_archived=request.is_archived,
+        )
 
     def GetResponseRate(self, request, context, session):
         user_res = session.execute(

@@ -11,10 +11,7 @@ import { MapRef } from "react-map-gl/maplibre";
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./utils/constants";
-import {
-  SOURCE_CLUSTERED_USERS_ID,
-  UNCLUSTERED_LAYER_ID,
-} from "./utils/mapLayers";
+import { UNCLUSTERED_LAYER_ID, USERS_SOURCE_ID } from "./utils/mapLayers";
 import {
   clearMapFeatureState,
   getMapBounds,
@@ -43,7 +40,8 @@ const MapLoadingContainer = styled("div")(({ theme }) => ({
 const SearchThisAreaButton = styled(Button, {
   shouldForwardProp: (prop) => prop !== "isDrawerExpanded",
 })<{ isDrawerExpanded: boolean }>(({ isDrawerExpanded, theme }) => ({
-  backgroundColor: theme.palette.common.white,
+  backgroundColor: theme.palette.primary.main,
+  color: theme.palette.common.white,
   borderRadius: "20px",
   boxShadow: theme.shadows[4],
   padding: theme.spacing(1, 2),
@@ -52,6 +50,7 @@ const SearchThisAreaButton = styled(Button, {
   zIndex: 10,
   left: "50%",
   transform: "translateX(-50%)",
+  minHeight: "40px",
 
   [theme.breakpoints.down("md")]: {
     top: theme.spacing(1),
@@ -60,7 +59,7 @@ const SearchThisAreaButton = styled(Button, {
   },
 
   "&:hover": {
-    backgroundColor: theme.palette.grey[200],
+    backgroundColor: theme.palette.primary.dark,
   },
 }));
 
@@ -124,7 +123,7 @@ const MapView = ({
 
       if (isCluster) {
         const source = mapRef.current?.getSource(
-          SOURCE_CLUSTERED_USERS_ID,
+          USERS_SOURCE_ID,
         ) as GeoJSONSource;
 
         let newZoom = await source.getClusterExpansionZoom(
