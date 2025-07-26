@@ -1490,7 +1490,7 @@ class HostRequest(Base):
     host_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
     surfer_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
     host_sent_request_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
-    last_sent_request_reminder_time = Column(DateTime, nullable=False, server_default=func.now())
+    last_sent_request_reminder_time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     # reason why the host/surfer marked that they didn't meet up
     # if null then they haven't marked it such
