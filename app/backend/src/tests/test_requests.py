@@ -1,19 +1,34 @@
+import re
 from datetime import timedelta
+from urllib.parse import parse_qs, urlparse
 
 import grpc
 import pytest
 from sqlalchemy.sql import select
 
 from couchers import errors
+from couchers.crypto import b64decode
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_view
-from couchers.models import Message, MessageType, RateLimitAction
+from couchers.models import (
+    Message,
+    MessageType,
+    RateLimitAction,
+)
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL_STRING
+from couchers.sql import couchers_select as select
 from couchers.templates.v2 import v2date
 from couchers.utils import now, today
-from proto import api_pb2, conversations_pb2, requests_pb2
+from proto import (
+    api_pb2,
+    auth_pb2,
+    conversations_pb2,
+    requests_pb2,
+)
+from proto.internal import unsubscribe_pb2
 from tests.test_fixtures import (  # noqa
     api_session,
+    auth_api_session,
     db,
     email_fields,
     generate_user,
@@ -1138,6 +1153,8 @@ def test_request_notifications(db, push_collector):
     assert "host request" in e.subject.lower()
     assert host.name in e.plain
     assert host.name in e.html
+    assert "quick decline" in e.plain.lower(), e.plain
+    assert "quick decline" in e.html.lower()
     assert surfer.name in e.plain
     assert surfer.name in e.html
     assert v2date(today_plus_2, host) in e.plain
@@ -1184,3 +1201,72 @@ def test_request_notifications(db, push_collector):
         surfer.id,
         title=f"{host.name} accepted your host request",
     )
+
+
+def test_quick_decline(db, push_collector):
+    host, host_token = generate_user(complete_profile=True)
+    surfer, surfer_token = generate_user(complete_profile=True)
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    with requests_session(surfer_token) as api:
+        with mock_notification_email() as mock:
+            hr_id = api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=host.id,
+                    from_date=today_plus_2,
+                    to_date=today_plus_3,
+                    text="can i stay plz",
+                )
+            ).host_request_id
+
+    mock.assert_called_once()
+    e = email_fields(mock)
+    assert e.recipient == host.email
+    assert "host request" in e.subject.lower()
+    assert host.name in e.plain
+    assert host.name in e.html
+    assert "quick decline" in e.plain.lower(), e.plain
+    assert "quick decline" in e.html.lower()
+    assert surfer.name in e.plain
+    assert surfer.name in e.html
+    assert v2date(today_plus_2, host) in e.plain
+    assert v2date(today_plus_2, host) in e.html
+    assert v2date(today_plus_3, host) in e.plain
+    assert v2date(today_plus_3, host) in e.html
+    assert "http://localhost:5001/img/thumbnail/" not in e.plain
+    assert "http://localhost:5001/img/thumbnail/" in e.html
+    assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
+    assert f"http://localhost:3000/messages/request/{hr_id}" in e.html
+
+    push_collector.assert_user_has_single_matching(
+        host.id,
+        title=f"{surfer.name} sent you a host request",
+    )
+
+    # very ugly
+    # http://localhost:3000/quick-link?payload=CAEiGAoOZnJpZW5kX3JlcXVlc3QSBmFjY2VwdA==&sig=BQdk024NTATm8zlR0krSXTBhP5U9TlFv7VhJeIHZtUg=
+    for link in re.findall(r'<a href="(.*?)"', email_fields(mock).html):
+        if "payload" not in link:
+            continue
+        print(link)
+        url_parts = urlparse(link)
+        params = parse_qs(url_parts.query)
+        print(params["payload"][0])
+        payload = unsubscribe_pb2.UnsubscribePayload.FromString(b64decode(params["payload"][0]))
+        if payload.HasField("host_request_quick_decline"):
+            with auth_api_session() as (auth_api, metadata_interceptor):
+                res = auth_api.Unsubscribe(
+                    auth_pb2.UnsubscribeReq(
+                        payload=b64decode(params["payload"][0]),
+                        sig=b64decode(params["sig"][0]),
+                    )
+                )
+            break
+    else:
+        raise Exception("Didn't find link")
+
+    with requests_session(surfer_token) as api:
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=hr_id))
+        assert res.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED

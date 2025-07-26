@@ -37,6 +37,7 @@ from couchers.constants import (
     HOST_REQUEST_MAX_REMINDERS,
     HOST_REQUEST_REMINDER_INTERVAL,
 )
+from couchers.context import make_background_user_context
 from couchers.crypto import (
     USER_LOCATION_RANDOMIZATION_NAME,
     asym_encrypt,
@@ -106,7 +107,6 @@ from couchers.utils import (
     Timestamp_from_datetime,
     create_coordinate,
     get_coordinates,
-    make_user_context,
     now,
 )
 from proto import notification_data_pb2
@@ -277,7 +277,7 @@ def send_message_notifications(payload):
                             author=user_model_to_pb(
                                 message.author,
                                 session,
-                                make_user_context(user_id=user.id),
+                                make_background_user_context(user_id=user.id),
                             ),
                             message=format_title(message, group_chat, count_unseen),
                             text=message.text,
@@ -331,7 +331,7 @@ def send_request_notifications(payload):
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
             session.flush()
 
-            context = make_user_context(user_id=user.id)
+            context = make_background_user_context(user_id=user.id)
             notify(
                 session,
                 user_id=user.id,
@@ -348,7 +348,7 @@ def send_request_notifications(payload):
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
             session.flush()
 
-            context = make_user_context(user_id=user.id)
+            context = make_background_user_context(user_id=user.id)
             notify(
                 session,
                 user_id=user.id,
@@ -499,7 +499,7 @@ def send_reference_reminders(payload):
                 # checked in sql
                 assert user.is_visible
                 if not is_not_visible(session, user.id, other_user.id):
-                    context = make_user_context(user_id=user.id)
+                    context = make_background_user_context(user_id=user.id)
                     notify(
                         session,
                         user_id=user.id,
@@ -544,7 +544,7 @@ def send_host_request_reminders(payload):
             host_request.host_sent_request_reminders += 1
             host_request.last_sent_request_reminder_time = now()
 
-            context = make_user_context(user_id=host_request.host_user_id)
+            context = make_background_user_context(user_id=host_request.host_user_id)
             notify(
                 session,
                 user_id=host_request.host_user_id,
@@ -1001,7 +1001,7 @@ def send_activeness_probes(payload):
 
             for probe in probes:
                 probe.notifications_sent = probe_number_minus_1 + 1
-                context = make_user_context(user_id=probe.user.id)
+                context = make_background_user_context(user_id=probe.user.id)
                 notify(
                     session,
                     user_id=probe.user.id,
@@ -1105,7 +1105,7 @@ def send_event_reminders(payload: empty_pb2.Empty):
             ).all()
 
             for user, attendee in results:
-                context = make_user_context(user_id=user.id)
+                context = make_background_user_context(user_id=user.id)
 
                 notify(
                     session,

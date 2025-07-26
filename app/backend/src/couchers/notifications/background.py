@@ -20,13 +20,13 @@ from couchers.models import (
 )
 from couchers.notifications.push import push_to_user
 from couchers.notifications.push_api import send_push
-from couchers.notifications.render import render_notification
-from couchers.notifications.settings import get_preference
-from couchers.notifications.unsubscribe import (
+from couchers.notifications.quick_links import (
     generate_do_not_email,
     generate_unsub_topic_action,
     generate_unsub_topic_key,
 )
+from couchers.notifications.render import render_notification
+from couchers.notifications.settings import get_preference
 from couchers.sql import couchers_select as select
 from couchers.templates.v2 import add_filters
 from couchers.utils import get_tz_as_text, now

@@ -59,6 +59,7 @@ from couchers.tasks import (
 )
 from couchers.utils import (
     Timestamp_from_datetime,
+    create_lang_cookie,
     dt_from_page_token,
     dt_to_page_token,
     is_valid_email,
@@ -226,8 +227,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         # update the user's preference
         user.ui_language_preference = request.ui_language_preference
-        # setting this on context will update the cookie (via interceptors)?
-        context.ui_language_preference = request.ui_language_preference
+        context.set_cookies(create_lang_cookie(request.ui_language_preference))
 
         return empty_pb2.Empty()
 
@@ -540,8 +540,6 @@ class Account(account_pb2_grpc.AccountServicer):
             .all()
         )
 
-        (token, token_expiry) = context.token
-
         def _active_session_to_pb(user_session):
             user_agent = user_agents_parse(user_session.user_agent or "")
             return account_pb2.ActiveSession(
@@ -552,7 +550,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 browser=user_agent.browser.family,
                 device=user_agent.device.family,
                 approximate_location=geoip_approximate_location(user_session.ip_address) or "Unknown",
-                is_current_session=user_session.token == token,
+                is_current_session=user_session.token == context.token,
             )
 
         return account_pb2.ListActiveSessionsRes(
@@ -561,11 +559,9 @@ class Account(account_pb2_grpc.AccountServicer):
         )
 
     def LogOutSession(self, request, context, session):
-        (token, token_expiry) = context.token
-
         session.execute(
             update(UserSession)
-            .where(UserSession.token != token)
+            .where(UserSession.token != context.token)
             .where(UserSession.user_id == context.user_id)
             .where(UserSession.is_valid)
             .where(UserSession.is_api_key == False)
@@ -579,11 +575,9 @@ class Account(account_pb2_grpc.AccountServicer):
         if not request.confirm:
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.MUST_CONFIRM_LOGOUT_OTHER_SESSIONS)
 
-        (token, token_expiry) = context.token
-
         session.execute(
             update(UserSession)
-            .where(UserSession.token != token)
+            .where(UserSession.token != context.token)
             .where(UserSession.user_id == context.user_id)
             .where(UserSession.is_valid)
             .where(UserSession.is_api_key == False)

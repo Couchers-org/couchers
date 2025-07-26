@@ -96,13 +96,14 @@ def add_dummy_users():
             for region in user["regions_lived"]:
                 session.add(RegionLived(user_id=new_user.id, region_code=region))
 
-            class _DummyContext:
-                def invocation_metadata(self):
+            class _MockCouchersContext:
+                @property
+                def headers(self):
                     return {}
 
             if user.get("make_api_key", False):
                 token, _ = create_session(
-                    _DummyContext(),
+                    _MockCouchersContext(),
                     session,
                     new_user,
                     long_lived=True,
@@ -113,7 +114,7 @@ def add_dummy_users():
                 logger.info(f"API key for {new_user.username}: {token}")
 
             if user.get("make_session", False):
-                token, _ = create_session(_DummyContext(), session, new_user, long_lived=False, set_cookie=False)
+                token, _ = create_session(_MockCouchersContext(), session, new_user, long_lived=False, set_cookie=False)
                 logger.info(f"Session cookie for {new_user.username}: {token}")
 
         session.commit()
