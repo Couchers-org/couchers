@@ -1,4 +1,5 @@
 import { styled } from "@mui/material";
+import { UseInfiniteQueryResult } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -8,7 +9,6 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { ListReferencesRes } from "proto/references_pb";
-import { UseInfiniteQueryResult } from "react-query";
 import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 

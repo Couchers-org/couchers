@@ -1,8 +1,8 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { reactQueryRetries } from "appConstants";
 import { liteUserKey, liteUsersKey } from "features/queryKeys";
 import { RpcError, StatusCode } from "grpc-web";
-import { QueryClient, QueryClientProvider } from "react-query";
 import { service } from "service";
 import mockLiteUsers from "test/fixtures/liteUsers.json";
 import { getLiteUser, getLiteUsers } from "test/serviceMockDefaults";
@@ -336,7 +336,7 @@ describe("useLiteUsers & useLiteUser", () => {
       mockGetLiteUser.mockResolvedValueOnce(getLiteUser("2"));
 
       // Invalidate the query to mark the data as stale
-      queryClient.invalidateQueries(liteUserKey(2));
+      queryClient.invalidateQueries([liteUserKey(2)]);
 
       // Trigger a rerender that should cause a refetch due to stale data
       rerender();
@@ -374,7 +374,7 @@ describe("useLiteUsers & useLiteUser", () => {
       mockGetLiteUser.mockRejectedValue(new RpcError(500, "Some error", {}));
 
       // Invalidate the query to mark the data as stale
-      queryClient.invalidateQueries(liteUserKey(1));
+      queryClient.invalidateQueries([liteUserKey(1)]);
 
       // Trigger a rerender that should cause a refetch due to stale data
       rerender();

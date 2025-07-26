@@ -1,22 +1,25 @@
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { badgesKey, badgeUsersKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { ListBadgeUsersRes } from "proto/api_pb";
 import { Badge } from "proto/resources_pb";
-import { useInfiniteQuery, useQuery } from "react-query";
 import { service } from "service";
 
 export const useBadges = () => {
-  const { data, ...rest } = useQuery(badgesKey, async () => {
-    const result = await service.resources.getBadges();
-    return result.badgesList.reduce(
-      (badgesResult, badge) => {
-        badgesResult.badges[badge.id] = badge;
-        return badgesResult;
-      },
-      {
-        badges: {} as { [id: string]: Badge.AsObject },
-      },
-    );
+  const { data, ...rest } = useQuery({
+    queryKey: [badgesKey],
+    queryFn: async () => {
+      const result = await service.resources.getBadges();
+      return result.badgesList.reduce(
+        (badgesResult, badge) => {
+          badgesResult.badges[badge.id] = badge;
+          return badgesResult;
+        },
+        {
+          badges: {} as { [id: string]: Badge.AsObject },
+        },
+      );
+    },
   });
 
   return {

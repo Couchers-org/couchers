@@ -1,8 +1,8 @@
+import { useQuery } from "@tanstack/react-query";
 import { reactQueryRetries } from "appConstants";
 import { liteUserKey, liteUsersKey } from "features/queryKeys";
 import { RpcError, StatusCode } from "grpc-web";
 import { GetLiteUsersRes, LiteUser } from "proto/api_pb";
-import { useQuery } from "react-query";
 import { service } from "service";
 
 import { userStaleTime } from "./constants";
@@ -20,7 +20,6 @@ function useLiteUsers(ids: (number | undefined)[] | undefined) {
       return result;
     },
     staleTime: userStaleTime,
-    enabled: uniqueIds.length > 0, // run only if there are valid userIds
   });
 
   const isDataUndefined = !query.data || !query.data.responsesList;
@@ -57,7 +56,7 @@ function useLiteUsersList(ids: (number | undefined)[] | undefined) {
 // React Query typically retains the last successful data until the next successful fetch
 function useLiteUser(id: number | undefined) {
   const query = useQuery<LiteUser.AsObject, RpcError>({
-    queryKey: liteUserKey(id),
+    queryKey: [liteUserKey(id)],
     queryFn: () => service.user.getLiteUser(id?.toString() || ""),
     staleTime: userStaleTime,
     enabled: id !== undefined,

@@ -10,6 +10,7 @@ import {
   styled,
   Typography,
 } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Datepicker from "components/Datepicker";
 import EditLocationMap, {
@@ -30,7 +31,6 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { HostingStatus } from "proto/api_pb";
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 import { service } from "service";
 import { theme } from "theme";
 import {

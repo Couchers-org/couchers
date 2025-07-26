@@ -1,4 +1,5 @@
 import { Container, Typography } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
@@ -11,7 +12,6 @@ import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 import { loginRoute } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";

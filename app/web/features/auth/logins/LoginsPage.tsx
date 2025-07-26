@@ -1,4 +1,9 @@
 import { ButtonProps, styled, Typography } from "@mui/material";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -7,7 +12,6 @@ import { RpcError } from "grpc-web";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { ListActiveSessionsRes } from "proto/account_pb";
-import { useInfiniteQuery, useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 import { timestamp2Date } from "utils/date";
 
@@ -41,7 +45,7 @@ export default function LoginsPage() {
     fetchNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery<ListActiveSessionsRes.AsObject, RpcError>({
-    queryKey: activeLoginsKey,
+    queryKey: [activeLoginsKey],
     queryFn: ({ pageParam }) => service.account.listActiveSessions(pageParam),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
   });
@@ -58,7 +62,7 @@ export default function LoginsPage() {
     },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(activeLoginsKey);
+        queryClient.invalidateQueries([activeLoginsKey]);
       },
     },
   );

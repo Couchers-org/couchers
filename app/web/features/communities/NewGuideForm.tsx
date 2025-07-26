@@ -1,3 +1,4 @@
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -9,7 +10,6 @@ import { useRouter } from "next/router";
 import { Page, PageType } from "proto/pages_pb";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 import { routeToGuide, routeToPlace } from "routes";
 import { service } from "service";
 

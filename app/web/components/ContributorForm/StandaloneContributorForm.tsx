@@ -1,4 +1,5 @@
 import { Typography } from "@mui/material";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -7,7 +8,6 @@ import { contributorFormInfoQueryKey } from "features/queryKeys";
 import { GetContributorFormInfoRes } from "proto/account_pb";
 import { ContributorForm as ContributorFormPb } from "proto/auth_pb";
 import { useState } from "react";
-import { useQuery, useQueryClient } from "react-query";
 import { service } from "service";
 
 import { ALREADY_FILLED_IN, FILL_IN_AGAIN, SUCCESS_MSG } from "./constants";
@@ -23,14 +23,14 @@ export default function StandaloneContributorForm() {
     data,
     isLoading: queryLoading,
     error: queryError,
-  } = useQuery<GetContributorFormInfoRes.AsObject, Error>(
-    contributorFormInfoQueryKey,
-    service.account.getContributorFormInfo,
-  );
+  } = useQuery<GetContributorFormInfoRes.AsObject, Error>({
+    queryKey: [contributorFormInfoQueryKey],
+    queryFn: service.account.getContributorFormInfo,
+  });
 
   const handleSubmit = async (form: ContributorFormPb.AsObject) => {
     await service.account.fillContributorForm(form);
-    queryClient.invalidateQueries(contributorFormInfoQueryKey);
+    queryClient.invalidateQueries([contributorFormInfoQueryKey]);
     setFillState("success");
   };
 

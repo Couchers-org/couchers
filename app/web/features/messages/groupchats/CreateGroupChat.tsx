@@ -1,5 +1,6 @@
 import { ListItemAvatar, ListItemButton, ListItemText } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Autocomplete from "components/Autocomplete";
 import Avatar from "components/Avatar";
@@ -22,7 +23,6 @@ import { useRouter } from "next/router";
 import { User } from "proto/api_pb";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 import stringOrFirstString from "utils/stringOrFirstString";
 
@@ -70,7 +70,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
     ({ title, users }) => service.conversations.createGroupChat(title, users),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(groupChatsListKey);
+        queryClient.invalidateQueries([groupChatsListKey]);
         resetForm();
         setIsOpen(false);
       },

@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { userKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
@@ -5,7 +6,6 @@ import Sentry from "platform/sentry";
 import { clearStorage, usePersistedState } from "platform/usePersistedState";
 import { AuthRes, SignupFlowRes } from "proto/auth_pb";
 import { useMemo, useRef, useState } from "react";
-import { useQueryClient } from "react-query";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
 
@@ -117,7 +117,7 @@ export default function useAuthStore() {
           if (!res.isJailed) {
             setUserId(res.user.userId);
             Sentry.setUser({ id: res.user.userId.toString() });
-            queryClient.setQueryData(userKey(res.user.userId), res.user);
+            queryClient.setQueryData([userKey(res.user.userId)], res.user);
           }
           setJailed(res.isJailed);
         } catch (e) {

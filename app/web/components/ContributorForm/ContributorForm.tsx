@@ -12,6 +12,7 @@ import {
   styled,
   Typography,
 } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import TextField from "components/TextField";
@@ -22,7 +23,6 @@ import {
 } from "proto/auth_pb";
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 import { theme } from "theme";
 
 import {

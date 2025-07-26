@@ -1,7 +1,7 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook } from "@testing-library/react";
 import { notificationSettingsQueryKey } from "features/queryKeys";
 import { RpcError, StatusCode } from "grpc-web";
-import { QueryClient, QueryClientProvider } from "react-query";
 import { service } from "service";
 
 import useUpdateNotificationSettings from "./useUpdateNotificationSettings";
@@ -61,9 +61,9 @@ describe("useUpdateNotificationSettings", () => {
     expect(
       service.notifications.setNotificationSettingsPreference,
     ).toHaveBeenCalledWith(mockData);
-    expect(queryClient.invalidateQueries).toHaveBeenCalledWith(
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith([
       notificationSettingsQueryKey,
-    );
+    ]);
   });
 
   it("Should handle errors correctly", async () => {

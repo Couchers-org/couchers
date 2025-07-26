@@ -1,8 +1,8 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { userKey } from "features/queryKeys";
 import useUsers, { useUser } from "features/userQueries/useUsers";
 import React, { useState } from "react";
-import { QueryClient, QueryClientProvider } from "react-query";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import { getUser } from "test/serviceMockDefaults";
@@ -180,9 +180,9 @@ describe("cached data", () => {
   );
   beforeEach(async () => {
     sharedClient.clear();
-    sharedClient.setQueryData(userKey(1), users[0]);
-    sharedClient.setQueryData(userKey(2), users[1]);
-    sharedClient.setQueryData(userKey(3), users[2]);
+    sharedClient.setQueryData([userKey(1)], users[0]);
+    sharedClient.setQueryData([userKey(2)], users[1]);
+    sharedClient.setQueryData([userKey(3)], users[2]);
   });
 
   it("is used instead of refetching", async () => {

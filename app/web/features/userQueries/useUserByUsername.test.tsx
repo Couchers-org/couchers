@@ -1,8 +1,8 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { userKey } from "features/queryKeys";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import React from "react";
-import { QueryClient, QueryClientProvider } from "react-query";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import { getUser } from "test/serviceMockDefaults";
@@ -96,7 +96,7 @@ describe("cached data", () => {
       userId: 2,
       username: "funnydog",
     });
-    sharedClient.setQueryData(userKey(2), {
+    sharedClient.setQueryData([userKey(2)], {
       avatarUrl: "https://loremflickr.com/200/200?user2",
       name: "Funny Dog",
       userId: 2,

@@ -1,4 +1,5 @@
 import { Typography } from "@mui/material";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -7,7 +8,6 @@ import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 import { GetNotificationSettingsRes } from "proto/notifications_pb";
-import { useMutation, useQuery, useQueryClient } from "react-query";
 import { service } from "service";
 
 interface DoNotEmailFormData {
@@ -22,7 +22,7 @@ export default function DoNotEmail() {
   const { data, error, isLoading } = useQuery<
     GetNotificationSettingsRes.AsObject,
     RpcError
-  >(doNotEmailQueryKey, service.notifications.getNotificationSettings);
+  >([doNotEmailQueryKey], service.notifications.getNotificationSettings);
 
   const mutation = useMutation<
     GetNotificationSettingsRes.AsObject,
@@ -33,7 +33,7 @@ export default function DoNotEmail() {
       service.notifications.setNotificationSettings(doNotEmailEnabled),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(doNotEmailQueryKey);
+        queryClient.invalidateQueries([doNotEmailQueryKey]);
       },
     },
   );

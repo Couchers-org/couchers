@@ -1,4 +1,5 @@
 import { Typography, useMediaQuery, useTheme } from "@mui/material";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -12,7 +13,6 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, DASHBOARD } from "i18n/namespaces";
 import { ListMyEventsRes } from "proto/events_pb";
-import { useInfiniteQuery } from "react-query";
 import { service } from "service";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";

@@ -1,3 +1,4 @@
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import {
   modUserDetailsKey,
   modUserKey,
@@ -7,24 +8,23 @@ import { userStaleTime } from "features/userQueries/constants";
 import { RpcError } from "grpc-web";
 import { ListUserIdsRes, UserDetails } from "proto/admin_pb";
 import { User } from "proto/api_pb";
-import { useInfiniteQuery, useQuery } from "react-query";
 import { service } from "service";
 
 export const useNewUsers = () => {
-  const query = useInfiniteQuery<ListUserIdsRes.AsObject, RpcError>(
-    newUsersListKey,
-    ({ pageParam }) =>
+  const query = useInfiniteQuery<ListUserIdsRes.AsObject, RpcError>({
+    queryKey: [newUsersListKey],
+    queryFn: ({ pageParam }) =>
       service.admin.listUserIds({
         startTime: new Date(1970, 0, 0, 0, 0, 1),
         endTime: new Date(2050, 0, 0),
         pageSize: 50,
         pageToken: pageParam,
       }),
-    {
-      getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+    getNextPageParam: (lastPage) => ({
+      nextPageToken: lastPage.nextPageToken || undefined,
       refetchInterval: 60_000,
-    },
-  );
+    }),
+  });
   const userIds = query.data?.pages.flatMap((page) => page.userIdsList);
   return { ...query, userIds };
 };
@@ -32,13 +32,13 @@ export const useNewUsers = () => {
 export default function useUserWithDetails(user: string) {
   const query = useQuery<User.AsObject, RpcError>({
     queryFn: () => service.admin.getUser(user),
-    queryKey: modUserKey(user),
+    queryKey: [modUserKey(user)],
     staleTime: userStaleTime,
   });
 
   const detailsQuery = useQuery<UserDetails.AsObject, RpcError>({
     queryFn: () => service.admin.getUserDetails(user),
-    queryKey: modUserDetailsKey(user),
+    queryKey: [modUserDetailsKey(user)],
     staleTime: userStaleTime,
   });
 

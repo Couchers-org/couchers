@@ -1,8 +1,7 @@
+import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { userKey } from "features/queryKeys";
 import { userStaleTime } from "features/userQueries/constants";
-import { User } from "proto/api_pb";
 import { useCallback, useEffect, useRef } from "react";
-import { useQueries, useQueryClient } from "react-query";
 import { service } from "service";
 import { arrayEq } from "utils/arrayEq";
 
@@ -33,18 +32,22 @@ export default function useUsers(
     }
   });
 
-  const queries = useQueries<User.AsObject, Error>(
-    ids
+  const queries = useQueries({
+    queries: ids
       .filter((id): id is number => !!id)
       .map((id) => ({
         queryFn: () => service.user.getUser(id.toString()),
-        queryKey: userKey(id),
+        queryKey: [userKey(id)],
         staleTime: userStaleTime,
       })),
-  );
+  });
 
   const errors = queries
-    .map((query) => query.error?.message)
+    .map((query) =>
+      query.error && typeof (query.error as Error).message === "string"
+        ? (query.error as Error).message
+        : undefined,
+    )
     .filter((e): e is string => typeof e === "string");
   const isLoading = queries.some((query) => query.isLoading);
   const isFetching = queries.some((query) => query.isFetching);

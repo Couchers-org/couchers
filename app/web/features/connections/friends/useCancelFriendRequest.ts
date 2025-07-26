@@ -1,7 +1,7 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { friendRequestKey, userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
-import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
 import { SetMutationError } from ".";
@@ -29,8 +29,8 @@ export default function useCancelFriendRequest() {
         setMutationError("");
       },
       onSuccess: (_, { userId }) => {
-        queryClient.invalidateQueries(friendRequestKey("sent"));
-        queryClient.invalidateQueries(userKey(userId));
+        queryClient.invalidateQueries([friendRequestKey("sent")]);
+        queryClient.invalidateQueries([userKey(userId)]);
       },
     },
   );

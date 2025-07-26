@@ -34,7 +34,7 @@ describe("useRespondToFriendRequest hook", () => {
       friendRequestKey("received"),
       [],
     );
-    client.setQueryData<number[]>("friendIds", []);
+    client.setQueryData<number[]>(["friendIds"], []);
   });
 
   it("invalidates the friend request received list and the friend list if the mutation succeeded", async () => {
@@ -57,9 +57,9 @@ describe("useRespondToFriendRequest hook", () => {
 
     await waitFor(() => expect(setMutationError).toHaveBeenCalledTimes(1));
     expect(setMutationError).toHaveBeenCalledWith("");
-    expect(client.getQueryState("friendIds")?.isInvalidated).toBe(true);
+    expect(client.getQueryState(["friendIds"])?.isInvalidated).toBe(true);
     expect(
-      client.getQueryState(friendRequestKey("received"))?.isInvalidated,
+      client.getQueryState([friendRequestKey("received")])?.isInvalidated,
     ).toBe(true);
   });
 
@@ -85,9 +85,9 @@ describe("useRespondToFriendRequest hook", () => {
 
     await waitFor(() => expect(setMutationError).toHaveBeenCalledTimes(2));
     expect(setMutationError).toHaveBeenLastCalledWith("API error");
-    expect(client.getQueryState("friendIds")?.isInvalidated).toBe(false);
+    expect(client.getQueryState(["friendIds"])?.isInvalidated).toBe(false);
     expect(
-      client.getQueryState(friendRequestKey("received"))?.isInvalidated,
+      client.getQueryState([friendRequestKey("received")])?.isInvalidated,
     ).toBe(false);
   });
 });

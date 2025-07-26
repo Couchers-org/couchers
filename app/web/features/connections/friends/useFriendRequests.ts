@@ -1,7 +1,7 @@
+import { useQuery } from "@tanstack/react-query";
 import { friendRequestKey, FriendRequestType } from "features/queryKeys";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { FriendRequest } from "proto/api_pb";
-import { useQuery } from "react-query";
 import { service } from "service";
 
 export default function useFriendRequests(
@@ -11,14 +11,21 @@ export default function useFriendRequests(
     data: friendRequestLists,
     isLoading: isFriendReqLoading,
     error,
-  } = useQuery<FriendRequest.AsObject[], Error>(
-    friendRequestKey(friendRequestType),
-    async () => {
+  } = useQuery<FriendRequest.AsObject[], Error>({
+    queryKey: [friendRequestKey(friendRequestType)],
+    queryFn: async () => {
       const friendRequests = await service.api.listFriendRequests();
       return friendRequestType === "sent"
         ? friendRequests.sentList
         : friendRequests.receivedList;
     },
+  });
+
+  console.log(
+    "DATA",
+    friendRequestLists,
+    "isFriendReqLoading",
+    isFriendReqLoading,
   );
 
   const userIds = (friendRequestLists ?? []).map(

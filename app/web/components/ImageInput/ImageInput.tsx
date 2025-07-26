@@ -2,6 +2,7 @@ import { Edit } from "@mui/icons-material";
 import { styled, Tooltip } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import MuiIconButton from "@mui/material/IconButton";
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import {
@@ -14,7 +15,6 @@ import { PROFILE } from "i18n/namespaces";
 import Sentry from "platform/sentry";
 import React, { useRef, useState } from "react";
 import { Control, useController } from "react-hook-form";
-import { useMutation } from "react-query";
 import { service } from "service";
 import { ImageInputValues } from "service/api";
 

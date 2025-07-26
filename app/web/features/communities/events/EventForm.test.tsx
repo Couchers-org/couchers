@@ -1,8 +1,8 @@
+import { useMutation } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { RpcError } from "grpc-web";
 import { Event } from "proto/events_pb";
-import { useMutation } from "react-query";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";

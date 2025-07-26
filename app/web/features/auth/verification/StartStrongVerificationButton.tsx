@@ -1,3 +1,4 @@
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -14,7 +15,6 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { InitiateStrongVerificationRes } from "proto/account_pb";
 import { useState } from "react";
-import { useMutation } from "react-query";
 import { tosRoute } from "routes";
 import { service } from "service";
 

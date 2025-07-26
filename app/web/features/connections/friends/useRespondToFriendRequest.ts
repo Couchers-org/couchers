@@ -1,7 +1,7 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { friendRequestKey, userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { FriendRequest, User } from "proto/api_pb";
-import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
 import { SetMutationError } from ".";
@@ -35,7 +35,7 @@ export default function useRespondToFriendRequest() {
         if (cachedUser) {
           if (accept === true) {
             queryClient.setQueryData<User.AsObject>(
-              userKey(friendRequest.userId),
+              [userKey(friendRequest.userId)],
               {
                 ...cachedUser,
                 friends: User.FriendshipStatus.FRIENDS,
@@ -43,7 +43,7 @@ export default function useRespondToFriendRequest() {
             );
           } else {
             queryClient.setQueryData<User.AsObject>(
-              userKey(friendRequest.userId),
+              [userKey(friendRequest.userId)],
               {
                 ...cachedUser,
                 friends: User.FriendshipStatus.NOT_FRIENDS,
@@ -56,14 +56,14 @@ export default function useRespondToFriendRequest() {
       onError: (error, { setMutationError, friendRequest }, cachedUser) => {
         setMutationError(error.message);
         if (cachedUser) {
-          queryClient.setQueryData(userKey(friendRequest.userId), cachedUser);
+          queryClient.setQueryData([userKey(friendRequest.userId)], cachedUser);
         }
       },
       onSuccess: (_, { friendRequest }) => {
-        queryClient.invalidateQueries("friendIds");
-        queryClient.invalidateQueries(friendRequestKey("received"));
-        queryClient.invalidateQueries(userKey(friendRequest.userId));
-        queryClient.invalidateQueries("ping");
+        queryClient.invalidateQueries(["friendIds"]);
+        queryClient.invalidateQueries([friendRequestKey("received")]);
+        queryClient.invalidateQueries([userKey(friendRequest.userId)]);
+        queryClient.invalidateQueries(["ping"]);
       },
     },
   );

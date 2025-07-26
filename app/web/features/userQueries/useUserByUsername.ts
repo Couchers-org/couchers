@@ -1,3 +1,4 @@
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { reactQueryRetries } from "appConstants";
 import { userKey, username2Id } from "features/queryKeys";
 import {
@@ -7,7 +8,6 @@ import {
 import { RpcError, StatusCode } from "grpc-web";
 import { User } from "proto/api_pb";
 import { useEffect } from "react";
-import { useQuery, useQueryClient } from "react-query";
 import { service } from "service";
 
 export default function useUserByUsername(
@@ -43,7 +43,7 @@ export default function useUserByUsername(
   const queryClient = useQueryClient();
   useEffect(() => {
     if (invalidate && usernameQuery.data?.userId) {
-      queryClient.invalidateQueries(userKey(usernameQuery.data.userId));
+      queryClient.invalidateQueries([userKey(usernameQuery.data.userId)]);
     }
   }, [invalidate, queryClient, usernameQuery.data?.userId]);
 
@@ -51,7 +51,7 @@ export default function useUserByUsername(
     enabled: !!usernameQuery.data,
     queryFn: () =>
       service.user.getUser(usernameQuery.data?.userId.toString() || ""),
-    queryKey: userKey(usernameQuery.data?.userId ?? 0),
+    queryKey: [userKey(usernameQuery.data?.userId ?? 0)],
     staleTime: userStaleTime,
   });
 

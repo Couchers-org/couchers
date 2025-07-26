@@ -1,3 +1,4 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -13,7 +14,6 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
-import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
 export default function DeleteStrongVerificationDataButton() {
@@ -34,7 +34,7 @@ export default function DeleteStrongVerificationDataButton() {
       onSuccess: () => {
         setOpen(false);
         setDeleted(true);
-        queryClient.invalidateQueries(accountInfoQueryKey);
+        queryClient.invalidateQueries([accountInfoQueryKey]);
       },
     },
   );

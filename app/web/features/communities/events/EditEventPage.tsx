@@ -1,3 +1,4 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -9,7 +10,6 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Event } from "proto/events_pb";
-import { useMutation, useQueryClient } from "react-query";
 import { routeToEvent } from "routes";
 import { service } from "service";
 import type { UpdateEventInput } from "service/events";
@@ -94,14 +94,15 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
           eventKey(eventId),
           updatedEvent,
         );
-        queryClient.invalidateQueries(eventKey(eventId), {
-          refetchActive: false,
+        queryClient.invalidateQueries({
+          queryKey: eventKey(eventId),
+          refetchType: "none",
         });
-        queryClient.invalidateQueries(
+        queryClient.invalidateQueries([
           context?.parentCommunityId
             ? [communityEventsBaseKey, context.parentCommunityId]
             : communityEventsBaseKey,
-        );
+        ]);
         router.push(routeToEvent(updatedEvent.eventId, updatedEvent.slug));
       },
       onSettled() {

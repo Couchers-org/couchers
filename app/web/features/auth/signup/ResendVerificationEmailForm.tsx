@@ -1,4 +1,5 @@
 import { Typography } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -6,7 +7,6 @@ import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
-import { useMutation } from "react-query";
 import { service } from "service";
 
 export default function ResendVerificationEmailForm() {

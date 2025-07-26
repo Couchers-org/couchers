@@ -1,5 +1,6 @@
 import { People } from "@mui/icons-material";
 import { MenuItem, Typography } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
 import EllipsisMenu from "components/EllipsisMenu";
 import { blockedUsersKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
@@ -7,7 +8,6 @@ import { useTranslation } from "i18n";
 import { CONNECTIONS } from "i18n/namespaces";
 import { BlockedUser, GetBlockedUsersRes } from "proto/blocking_pb";
 import { useState } from "react";
-import { useQuery } from "react-query";
 import { service } from "service";
 import { theme } from "theme";
 
@@ -28,7 +28,7 @@ function BlockedUsersList({ refetchFriends }: { refetchFriends: () => void }) {
   const { data, error, isLoading } = useQuery<
     GetBlockedUsersRes.AsObject,
     RpcError
-  >(blockedUsersKey, service.blocking.getBlockedUsers);
+  >({ queryKey: [blockedUsersKey], queryFn: service.blocking.getBlockedUsers });
 
   const { unblockUserMutation, isUnblocking } = useUnblockUser();
 

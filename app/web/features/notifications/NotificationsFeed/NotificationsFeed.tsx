@@ -7,6 +7,7 @@ import {
   styled,
   Typography,
 } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Pill from "components/Pill";
 import { listNotificationsQueryKey } from "features/queryKeys";
@@ -16,7 +17,6 @@ import { GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { ListNotificationsRes } from "proto/notifications_pb";
 import { useState } from "react";
-import { useQuery } from "react-query";
 import { notificationSettingsRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
@@ -79,7 +79,7 @@ const NotificationsFeed = ({
     ListNotificationsRes.AsObject,
     RpcError
   >({
-    queryKey: listNotificationsQueryKey,
+    queryKey: [listNotificationsQueryKey],
     queryFn: () =>
       service.notifications.listNotifications({
         onlyUnread: notificationsFilter === "unread",

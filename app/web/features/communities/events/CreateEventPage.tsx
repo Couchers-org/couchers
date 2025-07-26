@@ -1,4 +1,5 @@
 import { Typography } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
@@ -9,7 +10,6 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Event } from "proto/events_pb";
-import { useMutation, useQueryClient } from "react-query";
 import { dashboardRoute, routeToEvent } from "routes";
 import { service } from "service";
 import type { CreateEventInput } from "service/events";
@@ -93,11 +93,11 @@ export default function CreateEventPage() {
         };
       },
       onSuccess(event, __, context) {
-        queryClient.invalidateQueries(
+        queryClient.invalidateQueries([
           context?.parentCommunityId
             ? [communityEventsBaseKey, context.parentCommunityId]
             : communityEventsBaseKey,
-        );
+        ]);
         router.push(routeToEvent(event.eventId, event.slug));
       },
       onSettled() {

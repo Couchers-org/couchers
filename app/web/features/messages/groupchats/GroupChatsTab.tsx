@@ -1,4 +1,5 @@
 import { List } from "@mui/material";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -13,7 +14,6 @@ import { MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
 import { ListGroupChatsRes } from "proto/conversations_pb";
 import React, { useEffect } from "react";
-import { useInfiniteQuery, useQueryClient } from "react-query";
 import { routeToGroupChat } from "routes";
 import { service } from "service";
 
@@ -38,7 +38,7 @@ export default function GroupChatsTab() {
     fetchNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery<ListGroupChatsRes.AsObject, RpcError>(
-    groupChatsListKey,
+    [groupChatsListKey],
     ({ pageParam: lastMessageId }) =>
       service.conversations.listGroupChats(lastMessageId),
     {

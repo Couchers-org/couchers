@@ -1,4 +1,5 @@
 import { Typography, useMediaQuery, useTheme } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import TextField from "components/TextField";
@@ -9,7 +10,6 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
 interface ChangePasswordVariables {
@@ -56,7 +56,7 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
       service.account.changePassword(oldPassword, newPassword),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(accountInfoQueryKey);
+        queryClient.invalidateQueries([accountInfoQueryKey]);
         resetForm();
       },
     },

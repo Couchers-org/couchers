@@ -1,4 +1,5 @@
 import { DialogProps, List, ListItem } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
@@ -28,7 +29,6 @@ import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { LiteUser } from "proto/api_pb";
 import { GroupChat } from "proto/conversations_pb";
 import React, { useEffect, useState } from "react";
-import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
 function AdminListItem({
@@ -51,9 +51,9 @@ function AdminListItem({
   const clearError = () => setError("");
   const handleError = (error: RpcError) => setError(error.message);
   const invalidate = () => {
-    queryClient.invalidateQueries(groupChatMessagesKey(groupChatId));
-    queryClient.invalidateQueries(groupChatsListKey);
-    queryClient.invalidateQueries(groupChatKey(groupChatId));
+    queryClient.invalidateQueries([groupChatMessagesKey(groupChatId)]);
+    queryClient.invalidateQueries([groupChatsListKey]);
+    queryClient.invalidateQueries([groupChatKey(groupChatId)]);
   };
 
   const makeAdmin = useMutation<Empty, RpcError, void>(

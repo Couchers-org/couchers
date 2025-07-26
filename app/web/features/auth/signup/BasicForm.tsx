@@ -1,3 +1,4 @@
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import { doAntibot } from "features/antibot/antibot";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -11,7 +12,6 @@ import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRef } from "react";
 import { useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 import { service } from "service";
 import {
   emailValidationPattern,

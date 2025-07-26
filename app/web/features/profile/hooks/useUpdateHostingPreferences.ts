@@ -1,8 +1,8 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useRouter } from "next/router";
-import { useMutation, useQueryClient } from "react-query";
 import { routeToProfile } from "routes";
 import { HostingPreferenceData, service } from "service";
 import { SetMutationError } from "utils/setMutationError";
@@ -33,7 +33,7 @@ export default function useUpdateHostingPreferences() {
         setMutationError(null);
       },
       onSuccess: () => {
-        queryClient.invalidateQueries(userKey(userId ?? 0));
+        queryClient.invalidateQueries([userKey(userId ?? 0)]);
         router.push(routeToProfile("home"));
       },
     },

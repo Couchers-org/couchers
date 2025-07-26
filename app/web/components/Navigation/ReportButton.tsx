@@ -1,4 +1,5 @@
 import { darken, styled, Typography, useMediaQuery } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -17,7 +18,6 @@ import { useTranslation } from "i18n";
 import { ReportBugRes } from "proto/bugs_pb";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 import { helpCenterReportContentURL } from "routes";
 import { service } from "service";
 import { theme } from "theme";

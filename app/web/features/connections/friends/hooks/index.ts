@@ -1,10 +1,10 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { blockedUsersKey, friendIdsKey, userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import Sentry from "platform/sentry";
 import { LiteUser, User } from "proto/api_pb";
 import { BlockedUser, GetBlockedUsersRes } from "proto/blocking_pb";
-import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
 const useUnblockUser = () => {
@@ -17,18 +17,18 @@ const useUnblockUser = () => {
     { previousBlockedUsers?: BlockedUser.AsObject[] }
   >(({ username }) => service.blocking.unblockUser({ username }), {
     onMutate: async ({ username }) => {
-      await queryClient.cancelQueries(blockedUsersKey);
+      await queryClient.cancelQueries([blockedUsersKey]);
       await queryClient.removeQueries(["liteUsers"]);
 
       const previousBlockedUsers =
-        queryClient.getQueryData<GetBlockedUsersRes.AsObject>(blockedUsersKey)
+        queryClient.getQueryData<GetBlockedUsersRes.AsObject>([blockedUsersKey])
           ?.blockedUsersList || [];
 
       const updatedBlockedUsers = previousBlockedUsers.filter(
         (user) => user.username !== username,
       );
 
-      queryClient.setQueryData<GetBlockedUsersRes.AsObject>(blockedUsersKey, {
+      queryClient.setQueryData<GetBlockedUsersRes.AsObject>([blockedUsersKey], {
         blockedUsersList: updatedBlockedUsers,
       });
 
@@ -40,9 +40,12 @@ const useUnblockUser = () => {
       context: { previousBlockedUsers?: BlockedUser.AsObject[] } | undefined,
     ) => {
       if (context?.previousBlockedUsers) {
-        queryClient.setQueryData<GetBlockedUsersRes.AsObject>(blockedUsersKey, {
-          blockedUsersList: context.previousBlockedUsers,
-        });
+        queryClient.setQueryData<GetBlockedUsersRes.AsObject>(
+          [blockedUsersKey],
+          {
+            blockedUsersList: context.previousBlockedUsers,
+          },
+        );
       }
       Sentry.captureException(error, {
         tags: {
@@ -53,7 +56,7 @@ const useUnblockUser = () => {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(friendIdsKey);
+      queryClient.invalidateQueries([friendIdsKey]);
     },
   });
 
@@ -79,13 +82,14 @@ const useBlockUser = () => {
       }),
     {
       onMutate: async ({ avatarThumbnailUrl, name, username, userId }) => {
-        await queryClient.cancelQueries(blockedUsersKey);
-        await queryClient.cancelQueries(friendIdsKey);
+        await queryClient.cancelQueries([blockedUsersKey]);
+        await queryClient.cancelQueries([friendIdsKey]);
         await queryClient.removeQueries(["liteUsers"]);
 
         const currentBlockedUsers =
-          queryClient.getQueryData<GetBlockedUsersRes.AsObject>(blockedUsersKey)
-            ?.blockedUsersList || [];
+          queryClient.getQueryData<GetBlockedUsersRes.AsObject>([
+            blockedUsersKey,
+          ])?.blockedUsersList || [];
 
         const updatedBlockedUsers = [
           {
@@ -97,24 +101,27 @@ const useBlockUser = () => {
           ...currentBlockedUsers,
         ];
 
-        queryClient.setQueryData<GetBlockedUsersRes.AsObject>(blockedUsersKey, {
-          blockedUsersList: updatedBlockedUsers,
-        });
+        queryClient.setQueryData<GetBlockedUsersRes.AsObject>(
+          [blockedUsersKey],
+          {
+            blockedUsersList: updatedBlockedUsers,
+          },
+        );
 
         const previousFriendIds =
-          queryClient.getQueryData<number[]>(friendIdsKey) || [];
+          queryClient.getQueryData<number[]>([friendIdsKey]) || [];
 
         const updatedFriendIds = previousFriendIds.filter(
           (id) => id !== userId,
         );
 
-        queryClient.setQueryData(friendIdsKey, updatedFriendIds);
+        queryClient.setQueryData([friendIdsKey], updatedFriendIds);
 
         return { previousBlockedUsers: currentBlockedUsers };
       },
       onSuccess: (_res, { userId }) => {
         if (userId) {
-          queryClient.removeQueries(userKey(userId));
+          queryClient.removeQueries([userKey(userId)]);
         }
       },
       onError: (
@@ -124,7 +131,7 @@ const useBlockUser = () => {
       ) => {
         if (context?.previousBlockedUsers) {
           queryClient.setQueryData<GetBlockedUsersRes.AsObject>(
-            blockedUsersKey,
+            [blockedUsersKey],
             {
               blockedUsersList: context?.previousBlockedUsers,
             },
@@ -160,14 +167,15 @@ const useRemoveFriend = () => {
   >(({ friendId }) => service.api.removeFriend(friendId), {
     onMutate: async ({ friendId, onError }) => {
       onError(null);
-      await queryClient.cancelQueries(friendIdsKey);
+      await queryClient.cancelQueries([friendIdsKey]);
 
-      const previousFriendIds =
-        queryClient.getQueryData<number[]>(friendIdsKey);
+      const previousFriendIds = queryClient.getQueryData<number[]>([
+        friendIdsKey,
+      ]);
       const newFriendIds = previousFriendIds?.filter((id) => id !== friendId);
 
       if (newFriendIds) {
-        queryClient.setQueryData<number[]>(friendIdsKey, newFriendIds);
+        queryClient.setQueryData<number[]>([friendIdsKey], newFriendIds);
       }
 
       return { previousFriendIds, onError };
@@ -176,11 +184,11 @@ const useRemoveFriend = () => {
       context?.onError(err);
 
       if (context?.previousFriendIds) {
-        queryClient.setQueryData(friendIdsKey, context.previousFriendIds);
+        queryClient.setQueryData([friendIdsKey], context.previousFriendIds);
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(friendIdsKey);
+      queryClient.invalidateQueries([friendIdsKey]);
     },
   });
 
