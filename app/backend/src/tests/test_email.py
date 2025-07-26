@@ -246,8 +246,8 @@ def test_do_not_email_security(db):
     assert "support@couchers.org" in e.plain
     assert "support@couchers.org" in e.html
 
-    assert "/unsubscribe?payload=" not in e.plain
-    assert "/unsubscribe?payload=" not in e.html
+    assert "/quick-link?payload=" not in e.plain
+    assert "/quick-link?payload=" not in e.html
 
 
 def test_do_not_email_non_security(db):
@@ -275,8 +275,8 @@ def test_do_not_email_non_security_unsublink(db):
     assert mock.call_count == 1
     e = email_fields(mock)
 
-    assert "/unsubscribe?payload=" in e.plain
-    assert "/unsubscribe?payload=" in e.html
+    assert "/quick-link?payload=" in e.plain
+    assert "/quick-link?payload=" in e.html
 
 
 def test_email_prefix_config(db, monkeypatch):

@@ -28,7 +28,7 @@ def _generate_quick_link(payload):
     payload.created.FromDatetime(now())
     msg = payload.SerializeToString()
     sig = generate_hash_signature(message=msg, key=get_secret(UNSUBSCRIBE_KEY_NAME))
-    return urls.unsubscribe_link(payload=b64encode(msg), sig=b64encode(sig))
+    return urls.quick_link(payload=b64encode(msg), sig=b64encode(sig))
 
 
 def generate_do_not_email(user):
@@ -59,6 +59,17 @@ def generate_unsub_topic_action(notification):
             topic_action=unsubscribe_pb2.UnsubscribeTopicAction(
                 topic=notification.topic,
                 action=notification.action,
+            ),
+        )
+    )
+
+
+def generate_quick_decline_link(host_request):
+    return _generate_quick_link(
+        unsubscribe_pb2.UnsubscribePayload(
+            user_id=host_request.host_user_id,
+            host_request_quick_decline=unsubscribe_pb2.HostRequestQuickDecline(
+                host_request_id=host_request.host_request_id,
             ),
         )
     )

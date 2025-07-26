@@ -161,7 +161,7 @@ def test_unsubscribe(db):
     assert mock.call_count == 1
     assert email_fields(mock).recipient == user.email
     # very ugly
-    # http://localhost:3000/unsubscribe?payload=CAEiGAoOZnJpZW5kX3JlcXVlc3QSBmFjY2VwdA==&sig=BQdk024NTATm8zlR0krSXTBhP5U9TlFv7VhJeIHZtUg=
+    # http://localhost:3000/quick-link?payload=CAEiGAoOZnJpZW5kX3JlcXVlc3QSBmFjY2VwdA==&sig=BQdk024NTATm8zlR0krSXTBhP5U9TlFv7VhJeIHZtUg=
     for link in re.findall(r'<a href="(.*?)"', email_fields(mock).html):
         if "payload" not in link:
             continue
@@ -218,7 +218,7 @@ def test_unsubscribe_do_not_email(db):
     assert mock.call_count == 1
     assert email_fields(mock).recipient == user.email
     # very ugly
-    # http://localhost:3000/unsubscribe?payload=CAEiGAoOZnJpZW5kX3JlcXVlc3QSBmFjY2VwdA==&sig=BQdk024NTATm8zlR0krSXTBhP5U9TlFv7VhJeIHZtUg=
+    # http://localhost:3000/quick-link?payload=CAEiGAoOZnJpZW5kX3JlcXVlc3QSBmFjY2VwdA==&sig=BQdk024NTATm8zlR0krSXTBhP5U9TlFv7VhJeIHZtUg=
     for link in re.findall(r'<a href="(.*?)"', email_fields(mock).html):
         if "payload" not in link:
             continue
