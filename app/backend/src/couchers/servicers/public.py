@@ -156,7 +156,7 @@ class Public(public_pb2_grpc.PublicServicer):
         return gen()
 
     def GetVolunteers(self, request, context, session):
-        @TTLCache(maxsize=1, ttl=60)
+        @TTLCache(maxsize=1, ttl=1)
         def gen():
             volunteers = (
                 session.execute(
@@ -164,6 +164,11 @@ class Public(public_pb2_grpc.PublicServicer):
                     .join(LiteUser, LiteUser.id == Volunteer.user_id)
                     .where(LiteUser.is_visible)
                     .where(Volunteer.show_on_team_page)
+                    .order_by(
+                        Volunteer.sort_key.asc().nulls_last(),
+                        Volunteer.stopped_volunteering.desc().nulls_first(),
+                        Volunteer.started_volunteering.asc(),
+                    )
                 )
                 .scalars()
                 .all()
