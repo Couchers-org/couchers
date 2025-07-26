@@ -10,7 +10,7 @@ from sqlalchemy.sql import and_, func, or_
 from couchers import errors, urls
 from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.helpers.strong_verification import has_strong_verification
-from couchers.materialized_views import lite_users, user_response_rates
+from couchers.materialized_views import LiteUser, UserResponseRate
 from couchers.models import (
     Cluster,
     ClusterSubscription,
@@ -350,8 +350,8 @@ def _user_search_inner(request, context, session):
 
     # Base statement with visibility filter
     statement = select(User.id, User.recommendation_score).where_users_visible(context)
-    # make sure that only users who are in lite_users show up
-    statement = statement.join(lite_users, lite_users.c.id == User.id)
+    # make sure that only users who are in LiteUser show up
+    statement = statement.join(LiteUser, LiteUser.id == User.id)
 
     # If exactly_user_ids is present, only filter by those IDs and ignore all other filters
     # This is a bit of a hacky feature to help with the frontend map implementation
@@ -610,16 +610,20 @@ class Search(search_pb2_grpc.SearchServicer):
     def UserSearchV2(self, request, context, session):
         user_ids_to_return, next_page_token, total_items = _user_search_inner(request, context, session)
 
-        lite_users_by_id = {
+        LiteUser_by_id = {
             lite_user.id: lite_user
-            for lite_user in session.execute(select(lite_users).where(lite_users.c.id.in_(user_ids_to_return))).all()
+            for lite_user in session.execute(select(LiteUser).where(LiteUser.id.in_(user_ids_to_return)))
+            .scalars()
+            .all()
         }
 
-        response_rates_by_id = {
+        response_rate_by_id = {
             resp_rate.user_id: resp_rate
             for resp_rate in session.execute(
-                select(user_response_rates).where(user_response_rates.c.user_id.in_(user_ids_to_return))
-            ).all()
+                select(UserResponseRate).where(UserResponseRate.user_id.in_(user_ids_to_return))
+            )
+            .scalars()
+            .all()
         }
 
         db_user_data_by_id = {
@@ -634,7 +638,7 @@ class Search(search_pb2_grpc.SearchServicer):
         ref_counts_by_user_id = get_num_references(session, user_ids_to_return)
 
         def _user_to_search_user(user_id):
-            lite_user = lite_users_by_id[user_id]
+            lite_user = LiteUser_by_id[user_id]
 
             about_me, gender, last_active, hosting_status, meetup_status = db_user_data_by_id[user_id]
 
@@ -661,7 +665,7 @@ class Search(search_pb2_grpc.SearchServicer):
                 if lite_user.avatar_filename
                 else None,
                 has_strong_verification=lite_user.has_strong_verification,
-                **response_rate_to_pb(response_rates_by_id.get(user_id)),
+                **response_rate_to_pb(response_rate_by_id.get(user_id)),
             )
 
         return search_pb2.UserSearchV2Res(
