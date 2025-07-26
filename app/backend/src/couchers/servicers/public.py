@@ -156,7 +156,7 @@ class Public(public_pb2_grpc.PublicServicer):
         return gen()
 
     def GetVolunteers(self, request, context, session):
-        @cached(cache=TTLCache(maxsize=1, ttl=1))
+        @cached(cache=TTLCache(maxsize=1, ttl=60))
         def gen():
             volunteers = session.execute(
                 select(Volunteer, LiteUser)
