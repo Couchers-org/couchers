@@ -11,7 +11,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, literal, or_, union_all
 
 from couchers import errors
-from couchers.materialized_views import lite_users
+from couchers.materialized_views import LiteUser
 from couchers.models import HostRequest, Reference, ReferenceType, User
 from couchers.notifications.notify import notify
 from couchers.servicers.api import user_model_to_pb
@@ -99,7 +99,7 @@ def check_valid_reference(request, context):
 
 def get_pending_references_to_write(session, context):
     q1 = (
-        select(literal(True), HostRequest, lite_users)
+        select(literal(True), HostRequest, LiteUser)
         .outerjoin(
             Reference,
             and_(
@@ -107,7 +107,7 @@ def get_pending_references_to_write(session, context):
                 Reference.from_user_id == context.user_id,
             ),
         )
-        .join(lite_users, lite_users.c.user_id == HostRequest.host_user_id)
+        .join(LiteUser, LiteUser.id == HostRequest.host_user_id)
         .where_users_column_visible(context, HostRequest.host_user_id)
         .where(Reference.id == None)
         .where(HostRequest.can_write_reference)
@@ -116,7 +116,7 @@ def get_pending_references_to_write(session, context):
     )
 
     q2 = (
-        select(literal(False), HostRequest, lite_users)
+        select(literal(False), HostRequest, LiteUser)
         .outerjoin(
             Reference,
             and_(
@@ -124,7 +124,7 @@ def get_pending_references_to_write(session, context):
                 Reference.from_user_id == context.user_id,
             ),
         )
-        .join(lite_users, lite_users.c.user_id == HostRequest.host_user_id)
+        .join(LiteUser, LiteUser.id == HostRequest.host_user_id)
         .where_users_column_visible(context, HostRequest.surfer_user_id)
         .where(Reference.id == None)
         .where(HostRequest.can_write_reference)
@@ -133,8 +133,10 @@ def get_pending_references_to_write(session, context):
     )
 
     union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
-    union = select(union.c[0].label("surfed"), aliased(HostRequest, union))
+    union = select(union.c[0].label("surfed"), aliased(HostRequest, union), aliased(LiteUser, union))
     host_request_references = session.execute(union).all()
+
+    print(host_request_references)
 
     return [
         (

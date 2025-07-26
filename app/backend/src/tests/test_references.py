@@ -7,6 +7,7 @@ from google.protobuf import empty_pb2
 
 from couchers import errors
 from couchers.db import session_scope
+from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import (
     Conversation,
     HostRequest,
@@ -820,6 +821,8 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
             session, user11.id, user1.id, timedelta(days=3), surfer_reason_didnt_meetup="They never showed up!!"
         )
 
+    refresh_materialized_views_rapid(None)
+
     with references_session(token1) as api:
         # can't write reference for invisible user
         with pytest.raises(grpc.RpcError) as e:
@@ -953,6 +956,8 @@ def test_regression_disappearing_refs(db, hs):
                 host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
             )
         )
+
+    refresh_materialized_views_rapid(None)
 
     with references_session(token1) as api:
         res = api.ListPendingReferencesToWrite(empty_pb2.Empty())

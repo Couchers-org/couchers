@@ -169,6 +169,10 @@ lite_users = create_materialized_view_with_different_ddl(
 )
 
 
+class LiteUser(Base):
+    __table__ = lite_users
+
+
 def make_clustered_users_selectable(create=False):
     # emits something along the lines of
     # WITH anon_1 AS (
