@@ -579,10 +579,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if not config["RECAPTHCA_ENABLED"]:
             return auth_pb2.AntiBotRes()
 
-        headers = dict(context.invocation_metadata())
-
-        ip_address = headers.get("x-couchers-real-ip")
-        user_agent = headers.get("user-agent")
+        ip_address = context.headers.get("x-couchers-real-ip")
+        user_agent = context.headers.get("user-agent")
 
         log = AntiBotLog(
             token=request.token,
