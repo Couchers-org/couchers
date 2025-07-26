@@ -9,6 +9,7 @@ from sqlalchemy.sql import func
 from couchers import errors
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
+from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import (
     AccountDeletionReason,
     AccountDeletionToken,
@@ -17,8 +18,8 @@ from couchers.models import (
     User,
 )
 from couchers.sql import couchers_select as select
-from couchers.utils import now
-from proto import account_pb2, api_pb2, auth_pb2
+from couchers.utils import now, today
+from proto import account_pb2, api_pb2, auth_pb2, conversations_pb2, requests_pb2
 from tests.test_fixtures import (  # noqa
     account_session,
     auth_api_session,
@@ -30,6 +31,7 @@ from tests.test_fixtures import (  # noqa
     process_jobs,
     push_collector,
     real_account_session,
+    requests_session,
     testconfig,
 )
 
@@ -883,3 +885,110 @@ def test_LogOutOtherSessions(db, fast_passwords):
         account.LogOutOtherSessions(account_pb2.LogOutOtherSessionsReq(confirm=True))
         res = account.ListActiveSessions(account_pb2.ListActiveSessionsReq())
         assert len(res.active_sessions) == 1
+
+
+def test_reminders(db):
+    # the strong verification reminder's absence is tested in test_strong_verification.py
+    # reference writing reminders tested in test_AvailableWriteReferences_and_ListPendingReferencesToWrite
+    # we use LiteUser, so remember to refresh materialized views
+    user, token = generate_user(complete_profile=False)
+    complete_user, complete_token = generate_user(complete_profile=True)
+    req_user1, req_user_token1 = generate_user(complete_profile=True)
+    req_user2, req_user_token2 = generate_user(complete_profile=True)
+
+    refresh_materialized_views_rapid(None)
+    with account_session(complete_token) as account:
+        assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == [
+            "complete_verification_reminder"
+        ]
+    with account_session(token) as account:
+        assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == [
+            "complete_profile_reminder",
+            "complete_verification_reminder",
+        ]
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    with requests_session(req_user_token1) as api:
+        host_request1_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+            )
+        ).host_request_id
+
+    with account_session(token) as account:
+        reminders = account.GetReminders(empty_pb2.Empty()).reminders
+        assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
+            "respond_to_host_request_reminder",
+            "complete_profile_reminder",
+            "complete_verification_reminder",
+        ]
+        assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request1_id
+        assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
+
+    with requests_session(req_user_token2) as api:
+        host_request2_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 2"
+            )
+        ).host_request_id
+
+    refresh_materialized_views_rapid(None)
+    with account_session(token) as account:
+        reminders = account.GetReminders(empty_pb2.Empty()).reminders
+        assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
+            "respond_to_host_request_reminder",
+            "respond_to_host_request_reminder",
+            "complete_profile_reminder",
+            "complete_verification_reminder",
+        ]
+        assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request1_id
+        assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
+        assert reminders[1].respond_to_host_request_reminder.host_request_id == host_request2_id
+        assert reminders[1].respond_to_host_request_reminder.surfer_user.user_id == req_user2.id
+
+    with requests_session(req_user_token1) as api:
+        host_request3_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 3"
+            )
+        ).host_request_id
+
+    refresh_materialized_views_rapid(None)
+    with account_session(token) as account:
+        reminders = account.GetReminders(empty_pb2.Empty()).reminders
+        assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
+            "respond_to_host_request_reminder",
+            "respond_to_host_request_reminder",
+            "respond_to_host_request_reminder",
+            "complete_profile_reminder",
+            "complete_verification_reminder",
+        ]
+        assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request1_id
+        assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
+        assert reminders[1].respond_to_host_request_reminder.host_request_id == host_request2_id
+        assert reminders[1].respond_to_host_request_reminder.surfer_user.user_id == req_user2.id
+        assert reminders[2].respond_to_host_request_reminder.host_request_id == host_request3_id
+        assert reminders[2].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
+
+    # accept req
+    with requests_session(token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request1_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+            )
+        )
+
+    refresh_materialized_views_rapid(None)
+    with account_session(token) as account:
+        reminders = account.GetReminders(empty_pb2.Empty()).reminders
+        assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
+            "respond_to_host_request_reminder",
+            "respond_to_host_request_reminder",
+            "complete_profile_reminder",
+            "complete_verification_reminder",
+        ]
+        assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request2_id
+        assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user2.id
+        assert reminders[1].respond_to_host_request_reminder.host_request_id == host_request3_id
+        assert reminders[1].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id

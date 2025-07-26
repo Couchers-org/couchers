@@ -50,9 +50,9 @@ from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.materialized_views import (
+    UserResponseRate,
     refresh_materialized_views,
     refresh_materialized_views_rapid,
-    user_response_rates,
 )
 from couchers.metrics import strong_verification_completions_counter
 from couchers.models import (
@@ -756,9 +756,9 @@ def update_recommendation_scores(payload):
 
         # response rate
         hr_subquery = select(
-            user_response_rates.c.user_id,
-            float_(extract("epoch", user_response_rates.c.response_time_33p) / 60.0).label("response_time_33p"),
-            float_(extract("epoch", user_response_rates.c.response_time_66p) / 60.0).label("response_time_66p"),
+            UserResponseRate.user_id,
+            float_(extract("epoch", UserResponseRate.response_time_33p) / 60.0).label("response_time_33p"),
+            float_(extract("epoch", UserResponseRate.response_time_66p) / 60.0).label("response_time_66p"),
         ).subquery()
         response_time_33p = hr_subquery.c.response_time_33p
         response_time_66p = hr_subquery.c.response_time_66p

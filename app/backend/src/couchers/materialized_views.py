@@ -87,6 +87,11 @@ cluster_subscription_counts = create_materialized_view(
     ],
 )
 
+
+class ClusterSubscriptionCount(Base):
+    __table__ = cluster_subscription_counts
+
+
 cluster_admin_counts_selectable = (
     sa_select(
         ClusterSubscription.cluster_id.label("cluster_id"),
@@ -105,6 +110,10 @@ cluster_admin_counts = create_materialized_view(
     Base.metadata,
     [Index("uq_cluster_admin_counts_cluster_id", cluster_admin_counts_selectable.c.cluster_id, unique=True)],
 )
+
+
+class ClusterAdminCount(Base):
+    __table__ = cluster_admin_counts
 
 
 def make_lite_users_selectable(create=False):
@@ -169,6 +178,10 @@ lite_users = create_materialized_view_with_different_ddl(
 )
 
 
+class LiteUser(Base):
+    __table__ = lite_users
+
+
 def make_clustered_users_selectable(create=False):
     # emits something along the lines of
     # WITH anon_1 AS (
@@ -219,6 +232,10 @@ clustered_users_selectable_create = make_clustered_users_selectable(create=True)
 clustered_users = create_materialized_view_with_different_ddl(
     "clustered_users", clustered_users_selectable_select, clustered_users_selectable_create, Base.metadata
 )
+
+
+class ClusteredUser(Base):
+    __table__ = clustered_users
 
 
 def float_(stmt):
@@ -280,6 +297,10 @@ user_response_rates = create_materialized_view(
     Base.metadata,
     [Index("uq_user_response_rates_id", user_response_rates_selectable.c.user_id, unique=True)],
 )
+
+
+class UserResponseRate(Base):
+    __table__ = user_response_rates
 
 
 def refresh_materialized_views(payload: empty_pb2.Empty):

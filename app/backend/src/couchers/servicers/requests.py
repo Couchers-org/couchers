@@ -7,7 +7,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors
-from couchers.materialized_views import user_response_rates
+from couchers.materialized_views import UserResponseRate
 from couchers.metrics import (
     account_age_on_host_request_create_histogram,
     host_request_first_response_histogram,
@@ -678,8 +678,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def GetResponseRate(self, request, context, session):
         user_res = session.execute(
-            select(User.id, user_response_rates)
-            .outerjoin(user_response_rates, user_response_rates.c.user_id == User.id)
+            select(User.id, UserResponseRate)
+            .outerjoin(UserResponseRate, UserResponseRate.user_id == User.id)
             .where_users_visible(context)
             .where(User.id == request.user_id)
         ).one_or_none()
@@ -688,5 +688,5 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if not user_res:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-        user, *response_rates = user_res
+        user, response_rates = user_res
         return requests_pb2.GetResponseRateRes(**response_rate_to_pb(response_rates))

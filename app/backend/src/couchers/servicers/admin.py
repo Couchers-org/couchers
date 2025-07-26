@@ -15,6 +15,7 @@ from couchers.db import session_scope
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.helpers.geoip import geoip_approximate_location, geoip_asn
+from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     AccountDeletionToken,
@@ -40,7 +41,7 @@ from couchers.models import (
 )
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict
-from couchers.servicers.api import get_strong_verification_fields, user_model_to_pb
+from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.auth import create_session
 from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import get_users_to_notify_for_new_event
