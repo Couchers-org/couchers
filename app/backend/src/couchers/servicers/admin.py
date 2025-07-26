@@ -29,6 +29,7 @@ from couchers.models import (
     HostRequest,
     LanguageAbility,
     Message,
+    ModerationUserList,
     ModNote,
     Node,
     Reference,
@@ -676,6 +677,68 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not obj:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.OBJECT_NOT_FOUND)
         obj.content = request.new_content.strip()
+        return empty_pb2.Empty()
+
+    def AddUsersToModerationUserList(self, request, context, session):
+        """Add multiple users to a moderation user list. If no moderation list is provided, a new one is created.
+        Id of the moderation list is returned."""
+        req_users = request.users
+        users = []
+
+        for req_user in req_users:
+            user = session.execute(select(User).where_username_or_email_or_id(req_user)).scalar_one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            users.append(user)
+
+        # Create a new moderation user list if no one is provided
+        if not request.moderation_list_id:
+            moderation_user_list = ModerationUserList()
+            session.add(moderation_user_list)
+            session.flush()
+        else:
+            moderation_user_list = session.get(ModerationUserList, request.moderation_list_id)
+            if not moderation_user_list:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.MODERATION_USER_LIST_NOT_FOUND)
+
+        # Add users to the moderation list only if not already in it
+        for user in users:
+            if user not in moderation_user_list.users:
+                moderation_user_list.users.append(user)
+
+        return admin_pb2.AddUsersToModerationUserListRes(moderation_list_id=moderation_user_list.id)
+
+    def ListModerationUserLists(self, request, context, session):
+        """Lists all moderation user lists for a user."""
+        user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+        if not user:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
+        moderation_lists = [
+            admin_pb2.ModerationList(moderation_list_id=ml.id, member_ids=[u.id for u in ml.users])
+            for ml in user.moderation_user_lists
+        ]
+        return admin_pb2.ListModerationUserListsRes(moderation_lists=moderation_lists)
+
+    def RemoveUserFromModerationUserList(self, request, context, session):
+        """Removes a user from a provided moderation user list."""
+        user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+        if not user:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+        if not request.moderation_list_id:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_MODERATION_USER_LIST_ID)
+
+        moderation_user_list = session.get(ModerationUserList, request.moderation_list_id)
+        if not moderation_user_list:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.MODERATION_USER_LIST_NOT_FOUND)
+        if user not in moderation_user_list.users:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_IN_THE_MODERATION_USER_LIST)
+
+        moderation_user_list.users.remove(user)
+
+        if len(moderation_user_list.users) == 0:
+            session.delete(moderation_user_list)
+
         return empty_pb2.Empty()
 
     def CreateAccountDeletionLink(self, request, context, session):

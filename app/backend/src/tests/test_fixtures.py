@@ -32,6 +32,7 @@ from couchers.models import (
     LanguageAbility,
     LanguageFluency,
     MeetupStatus,
+    ModerationUserList,
     PassportSex,
     Region,
     RegionLived,
@@ -412,6 +413,18 @@ def get_friend_relationship(user1, user2):
 
         session.expunge(friend_relationship)
         return friend_relationship
+
+
+def add_users_to_new_moderation_list(users):
+    """Group users as duplicated accounts"""
+    with session_scope() as session:
+        moderation_user_list = ModerationUserList()
+        session.add(moderation_user_list)
+        session.flush()
+        for user in users:
+            refreshed_user = session.get(User, user.id)
+            moderation_user_list.users.append(refreshed_user)
+        return moderation_user_list.id
 
 
 class CookieMetadataPlugin(grpc.AuthMetadataPlugin):

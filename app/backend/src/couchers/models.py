@@ -326,6 +326,10 @@ class User(Base):
 
     age = column_property(func.date_part("year", func.age(birthdate)))
 
+    moderation_user_lists = relationship(
+        "ModerationUserList", secondary="moderation_user_list_members", back_populates="users"
+    )
+
     __table_args__ = (
         # Verified phone numbers should be unique
         Index(
@@ -2775,6 +2779,33 @@ class AccountDeletionReason(Base):
     reason = Column(String, nullable=True)
 
     user = relationship("User")
+
+
+class ModerationUserList(Base):
+    """
+    Represents a list of users listed together by a moderator
+    """
+
+    __tablename__ = "moderation_user_lists"
+
+    id = Column(BigInteger, primary_key=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    # Relationships
+    users = relationship("User", secondary="moderation_user_list_members", back_populates="moderation_user_lists")
+
+
+class ModerationUserListMember(Base):
+    """
+    Association table for many-to-many relationship between users and moderation_user_lists
+    """
+
+    __tablename__ = "moderation_user_list_members"
+
+    user_id = Column(ForeignKey("users.id"), primary_key=True)
+    moderation_list_id = Column(ForeignKey("moderation_user_lists.id"), primary_key=True)
+
+    __table_args__ = (UniqueConstraint("user_id", "moderation_list_id"),)
 
 
 class AntiBotLog(Base):
