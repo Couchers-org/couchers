@@ -348,7 +348,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         membership_clauses = []
         for node_id, official_cluster_obj in nodes_clusters_to_search:
             membership_clauses.append(Event.owner_cluster == official_cluster_obj)
-            membership_clauses.append(Event.parent_node == node_id)
+            membership_clauses.append(Event.parent_node_id == node_id)
 
         # for communities, we list events owned by this community or for which this is a parent
         occurrences = (
