@@ -9,6 +9,7 @@ from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors, urls
 from couchers.crypto import decrypt_page_token, encrypt_page_token
+from couchers.helpers.strong_verification import has_strong_verification
 from couchers.materialized_views import lite_users, user_response_rates
 from couchers.models import (
     Cluster,
@@ -27,7 +28,6 @@ from couchers.models import (
     StrongVerificationAttempt,
     User,
 )
-from couchers.servicers.account import has_strong_verification
 from couchers.servicers.api import (
     fluency2sql,
     get_num_references,

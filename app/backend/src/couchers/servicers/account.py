@@ -23,7 +23,9 @@ from couchers.crypto import (
     verify_token,
 )
 from couchers.helpers.geoip import geoip_approximate_location
+from couchers.helpers.strong_verification import get_strong_verification_fields, has_strong_verification
 from couchers.jobs.enqueue import queue_job
+from couchers.materialized_views import lite_users
 from couchers.metrics import (
     account_deletion_initiations_counter,
     strong_verification_data_deletions_counter,
@@ -34,6 +36,8 @@ from couchers.models import (
     AccountDeletionToken,
     ContributeOption,
     ContributorForm,
+    HostRequest,
+    HostRequestStatus,
     ModNote,
     ProfilePublicVisibility,
     StrongVerificationAttempt,
@@ -45,6 +49,8 @@ from couchers.models import (
 from couchers.notifications.notify import notify
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
+from couchers.servicers.api import lite_user_to_pb
+from couchers.servicers.references import get_pending_references_to_write, reftype2api
 from couchers.sql import couchers_select as select
 from couchers.tasks import (
     maybe_send_contributor_form_email,
@@ -59,7 +65,7 @@ from couchers.utils import (
     now,
     to_aware_datetime,
 )
-from proto import account_pb2, account_pb2_grpc, api_pb2, auth_pb2, iris_pb2_grpc, notification_data_pb2
+from proto import account_pb2, account_pb2_grpc, auth_pb2, iris_pb2_grpc, notification_data_pb2
 from proto.google.api import httpbody_pb2
 from proto.internal import jobs_pb2, verification_pb2
 
@@ -101,20 +107,6 @@ profilepublicitysetting2api = {
 MAX_PAGINATION_LENGTH = 50
 
 
-def has_strong_verification(session, user):
-    attempt = session.execute(
-        select(StrongVerificationAttempt)
-        .where(StrongVerificationAttempt.user_id == user.id)
-        .where(StrongVerificationAttempt.is_valid)
-        .order_by(StrongVerificationAttempt.passport_expiry_datetime.desc())
-        .limit(1)
-    ).scalar_one_or_none()
-    if attempt:
-        assert attempt.is_valid
-        return attempt.has_strong_verification(user)
-    return False
-
-
 def mod_note_to_pb(note: ModNote):
     return account_pb2.ModNote(
         note_id=note.id,
@@ -122,40 +114,6 @@ def mod_note_to_pb(note: ModNote):
         created=Timestamp_from_datetime(note.created),
         acknowledged=Timestamp_from_datetime(note.acknowledged) if note.acknowledged else None,
     )
-
-
-def get_strong_verification_fields(session, db_user):
-    out = dict(
-        birthdate_verification_status=api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED,
-        gender_verification_status=api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED,
-        has_strong_verification=False,
-    )
-    attempt = session.execute(
-        select(StrongVerificationAttempt)
-        .where(StrongVerificationAttempt.user_id == db_user.id)
-        .where(StrongVerificationAttempt.is_valid)
-        .order_by(StrongVerificationAttempt.passport_expiry_datetime.desc())
-        .limit(1)
-    ).scalar_one_or_none()
-    if attempt:
-        assert attempt.is_valid
-        if attempt.matches_birthdate(db_user):
-            out["birthdate_verification_status"] = api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
-        else:
-            out["birthdate_verification_status"] = api_pb2.BIRTHDATE_VERIFICATION_STATUS_MISMATCH
-
-        if attempt.matches_gender(db_user):
-            out["gender_verification_status"] = api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
-        else:
-            out["gender_verification_status"] = api_pb2.GENDER_VERIFICATION_STATUS_MISMATCH
-
-        out["has_strong_verification"] = attempt.has_strong_verification(db_user)
-
-        assert out["has_strong_verification"] == (
-            out["birthdate_verification_status"] == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
-            and out["gender_verification_status"] == api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
-        )
-    return out
 
 
 def abort_on_invalid_password(password, context):
@@ -639,6 +597,55 @@ class Account(account_pb2_grpc.AccountServicer):
         user.public_visibility = profilepublicitysetting2sql[request.profile_public_visibility]
         user.has_modified_public_visibility = True
         return empty_pb2.Empty()
+
+    def GetReminders(self, request, context, session):
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
+        # responding to reqs comes first in desc order of when they were received
+        pending_host_requests = (
+            session.execute(
+                select(HostRequest.conversation_id, lite_users)
+                .join(lite_users, lite_users.c.id == HostRequest.surfer_user_id)
+                .where_users_column_visible(context, HostRequest.surfer_user_id)
+                .where(HostRequest.host_user_id == context.user_id)
+                .where(HostRequest.status == HostRequestStatus.pending)
+                .where(HostRequest.start_time > func.now())
+                .order_by(HostRequest.id.asc())
+            )
+            .scalars()
+            .all()
+        )
+        reminders = [
+            account_pb2.Reminder(
+                respond_to_host_request_reminder=account_pb2.RespondToHostRequestReminder(
+                    host_request_id=host_request_id,
+                    surfer_user=lite_user_to_pb(lite_user),
+                )
+            )
+            for host_request_id, lite_user in pending_host_requests
+        ]
+
+        # references come second, in order of deadline, desc
+        reminders += [
+            account_pb2.Reminder(
+                write_reference_reminder=account_pb2.WriteReferenceReminder(
+                    host_request_id=host_request_id,
+                    reference_type=reftype2api[reference_type],
+                    other_user=lite_user_to_pb(lite_user),
+                )
+            )
+            for host_request_id, reference_type, _, lite_user in get_pending_references_to_write(session, context)
+        ]
+
+        if not user.has_completed_profile:
+            reminders.append(account_pb2.Reminder(complete_profile_reminder=account_pb2.CompleteProfileReminder()))
+
+        if not has_strong_verification(session, user):
+            reminders.append(
+                account_pb2.Reminder(complete_verification_reminder=account_pb2.CompleteVerificationReminder())
+            )
+
+        return account_pb2.GetRemindersRes(reminders=[])
 
 
 class Iris(iris_pb2_grpc.IrisServicer):

@@ -8,6 +8,7 @@ import "google/protobuf/timestamp.proto";
 import "annotations.proto";
 import "api.proto";
 import "auth.proto";
+import "references.proto";
 
 service Account {
   option (auth_level) = AUTH_LEVEL_SECURE;
@@ -92,6 +93,10 @@ service Account {
 
   rpc SetProfilePublicVisibility(SetProfilePublicVisibilityReq) returns (google.protobuf.Empty) {
     // Set what info is shown to logged-out users
+  }
+
+  rpc GetReminders(google.protobuf.Empty) returns (GetRemindersRes) {
+    // Reminders to be shown on dashboard for things the user should do
   }
 }
 
@@ -249,4 +254,33 @@ enum ProfilePublicVisibility {
 
 message SetProfilePublicVisibilityReq {
   ProfilePublicVisibility profile_public_visibility = 1;
+}
+
+message CompleteProfileReminder {}
+
+message CompleteVerificationReminder {}
+
+message RespondToHostRequestReminder {
+  int64 host_request_id = 1;
+  org.couchers.api.core.LiteUser surfer_user = 2;
+}
+
+message WriteReferenceReminder {
+  int64 host_request_id = 1;
+  org.couchers.api.core.LiteUser other_user = 2;
+  org.couchers.api.references.ReferenceType reference_type = 3;
+}
+
+message Reminder {
+  oneof reminder {
+    CompleteProfileReminder complete_profile_reminder = 1;
+    CompleteVerificationReminder complete_verification_reminder = 2;
+    RespondToHostRequestReminder respond_to_host_request_reminder = 3;
+    WriteReferenceReminder write_reference_reminder  = 4;
+  }
+}
+
+message GetRemindersRes {
+  // items are returned in order from most important to least important and should be displayed as such
+  repeated Reminder reminders = 1;
 }

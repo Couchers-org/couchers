@@ -8,6 +8,7 @@ from sqlalchemy.sql import and_, delete, distinct, func, intersect, or_, union
 from couchers import errors, urls
 from couchers.config import config
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
+from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.materialized_views import lite_users, user_response_rates
 from couchers.models import (
     FriendRelationship,
@@ -36,7 +37,6 @@ from couchers.notifications.notify import notify
 from couchers.notifications.settings import get_topic_actions_by_delivery_type
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
-from couchers.servicers.account import get_strong_verification_fields
 from couchers.sql import couchers_select as select
 from couchers.sql import is_valid_user_id, is_valid_username
 from couchers.utils import (
