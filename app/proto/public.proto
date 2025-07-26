@@ -122,5 +122,5 @@ message Volunteer {
 
 message GetVolunteersRes {
   repeated Volunteer current_volunteers = 1;
-  repeated Volunteer past_volunteers = 1;
+  repeated Volunteer past_volunteers = 2;
 }

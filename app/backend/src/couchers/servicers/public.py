@@ -1,10 +1,13 @@
 import logging
 
 import grpc
+from cachetools import TTLCache
 from sqlalchemy.sql import func, union_all
 
 from couchers import errors, urls
-from couchers.models import Cluster, Node, ProfilePublicVisibility, Reference, User
+from couchers.materialized_views import LiteUser
+from couchers.models import Cluster, Node, ProfilePublicVisibility, Reference, User, Volunteer
+from couchers.resources import get_static_badge_dict
 from couchers.servicers.api import fluency2api, hostingstatus2api, meetupstatus2api, user_model_to_pb
 from couchers.servicers.gis import _statement_to_geojson_response
 from couchers.sql import couchers_select as select
@@ -20,20 +23,24 @@ class Public(public_pb2_grpc.PublicServicer):
     """
 
     def GetPublicUsers(self, request, context, session):
-        with_geom = (
-            select(User.username, User.geom)
-            .where(User.is_visible)
-            .where(User.public_visibility != ProfilePublicVisibility.nothing)
-            .where(User.public_visibility != ProfilePublicVisibility.map_only)
-        )
+        @TTLCache(maxsize=1, ttl=600)
+        def gen():
+            with_geom = (
+                select(User.username, User.geom)
+                .where(User.is_visible)
+                .where(User.public_visibility != ProfilePublicVisibility.nothing)
+                .where(User.public_visibility != ProfilePublicVisibility.map_only)
+            )
 
-        without_geom = (
-            select(None, User.randomized_geom)
-            .where(User.is_visible)
-            .where(User.randomized_geom != None)
-            .where(User.public_visibility == ProfilePublicVisibility.map_only)
-        )
-        return _statement_to_geojson_response(session, union_all(with_geom, without_geom))
+            without_geom = (
+                select(None, User.randomized_geom)
+                .where(User.is_visible)
+                .where(User.randomized_geom != None)
+                .where(User.public_visibility == ProfilePublicVisibility.map_only)
+            )
+            return _statement_to_geojson_response(session, union_all(with_geom, without_geom))
+
+        return gen()
 
     def GetPublicUser(self, request, context, session):
         user = session.execute(
@@ -109,71 +116,92 @@ class Public(public_pb2_grpc.PublicServicer):
             )
 
     def GetSignupPageInfo(self, request, context, session):
-        # last user who signed up
-        last_signup, geom = session.execute(
-            select(User.joined, User.geom).where(User.is_visible).order_by(User.id.desc()).limit(1)
-        ).one_or_none()
+        @TTLCache(maxsize=1, ttl=60)
+        def gen():
+            # last user who signed up
+            last_signup, geom = session.execute(
+                select(User.joined, User.geom).where(User.is_visible).order_by(User.id.desc()).limit(1)
+            ).one_or_none()
 
-        communities = (
-            session.execute(
-                select(Cluster.name)
-                .join(Node, Node.id == Cluster.parent_node_id)
-                .where(Cluster.is_official_cluster)
-                .where(func.ST_Contains(Node.geom, geom))
-                .order_by(Cluster.id.asc())
+            communities = (
+                session.execute(
+                    select(Cluster.name)
+                    .join(Node, Node.id == Cluster.parent_node_id)
+                    .where(Cluster.is_official_cluster)
+                    .where(func.ST_Contains(Node.geom, geom))
+                    .order_by(Cluster.id.asc())
+                )
+                .scalars()
+                .all()
             )
-            .scalars()
-            .all()
-        )
 
-        if len(communities) <= 1:
-            # either no community or just global community
-            last_location = "The World"
-        elif len(communities) == 3:
-            # probably global, continent, region, so let's just return the region
-            last_location = communities[-1]
-        else:
-            # probably global, continent, region, city
-            last_location = f"{communities[-1]}, {communities[-2]}"
+            if len(communities) <= 1:
+                # either no community or just global community
+                last_location = "The World"
+            elif len(communities) == 3:
+                # probably global, continent, region, so let's just return the region
+                last_location = communities[-1]
+            else:
+                # probably global, continent, region, city
+                last_location = f"{communities[-1]}, {communities[-2]}"
 
-        user_count = session.execute(select(func.count()).select_from(User).where(User.is_visible)).scalar_one()
+            user_count = session.execute(select(func.count()).select_from(User).where(User.is_visible)).scalar_one()
 
-        return public_pb2.GetSignupPageInfoRes(
-            last_signup=Timestamp_from_datetime(last_signup.replace(second=0, microsecond=0)),
-            last_location=last_location,
-            user_count=user_count,
-        )
+            return public_pb2.GetSignupPageInfoRes(
+                last_signup=Timestamp_from_datetime(last_signup.replace(second=0, microsecond=0)),
+                last_location=last_location,
+                user_count=user_count,
+            )
+
+        return gen()
 
     def GetVolunteers(self, request, context, session):
-        volunteers = session.execute(select(Volunteer, LiteUser).join(LiteUser, LiteUser.id == Volunteer.user_id).where(
-            LiteUser.is_visible
-        ).where(Volunteer.show_on_team_page)).scalars().all()
-
-        board_members = set(get_static_badge_dict()["board_member"])
-
-        def format_volunteer(volunteer, lite_user):
-            if volunteer.link_type:
-                link_type = volunteer.link_type
-                link_text = volunteer.link_text
-                link_url = volunteer.link_url
-            else:
-                link_type = "couchers"
-                link_text = f"@{lite_user.username}"
-                link_url = urls.user_link(username=lite_user.username)
-
-            return public_pb2.Volunteer(
-                name=lite_user.name,
-                username=lite_user.username,
-                is_board_member=lite_user.id in board_members,
-                role=volunteer.role,
-                location=lite_user.city,
-                img=lite_user.avatar_key,
-                link_type=volunteer.link_type,
-                link_text=volunteer.link_text,
-                link_url=volunteer.link_url,
+        @TTLCache(maxsize=1, ttl=60)
+        def gen():
+            volunteers = (
+                session.execute(
+                    select(Volunteer, LiteUser)
+                    .join(LiteUser, LiteUser.id == Volunteer.user_id)
+                    .where(LiteUser.is_visible)
+                    .where(Volunteer.show_on_team_page)
+                )
+                .scalars()
+                .all()
             )
 
-        return public_pb2.GetVolunteersRes(
-            current_volunteers=[format_volunteer(volunteer) for volunteer in volunteers if volunteer.stopped_volunteering is None],
-            past_volunteers=[format_volunteer(volunteer) for volunteer in volunteers if volunteer.stopped_volunteering is not None],
-        )
+            board_members = set(get_static_badge_dict()["board_member"])
+
+            def format_volunteer(volunteer, lite_user):
+                if volunteer.link_type:
+                    link_type = volunteer.link_type
+                    link_text = volunteer.link_text
+                    link_url = volunteer.link_url
+                else:
+                    link_type = "couchers"
+                    link_text = f"@{lite_user.username}"
+                    link_url = urls.user_link(username=lite_user.username)
+
+                return public_pb2.Volunteer(
+                    name=lite_user.name,
+                    username=lite_user.username,
+                    is_board_member=lite_user.id in board_members,
+                    role=volunteer.role,
+                    location=lite_user.city,
+                    img=lite_user.avatar_key,
+                    link_type=volunteer.link_type,
+                    link_text=volunteer.link_text,
+                    link_url=volunteer.link_url,
+                )
+
+            return public_pb2.GetVolunteersRes(
+                current_volunteers=[
+                    format_volunteer(volunteer) for volunteer in volunteers if volunteer.stopped_volunteering is None
+                ],
+                past_volunteers=[
+                    format_volunteer(volunteer)
+                    for volunteer in volunteers
+                    if volunteer.stopped_volunteering is not None
+                ],
+            )
+
+        return gen()
