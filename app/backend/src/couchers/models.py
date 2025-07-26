@@ -2856,6 +2856,9 @@ class Volunteer(Base):
     id = Column(BigInteger, primary_key=True)
     user_id = Column(ForeignKey("users.id"), nullable=False)
 
+    display_name = Column(String, nullable=True)
+    display_location = Column(String, nullable=True)
+
     role = Column(String, nullable=False)
 
     # custom sort order on team page, sorted ascending

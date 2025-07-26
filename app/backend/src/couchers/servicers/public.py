@@ -183,11 +183,11 @@ class Public(public_pb2_grpc.PublicServicer):
                     link_url = urls.user_link(username=lite_user.username)
 
                 return public_pb2.Volunteer(
-                    name=lite_user.name,
+                    name=volunteer.display_name or lite_user.name,
                     username=lite_user.username,
                     is_board_member=lite_user.id in board_members,
                     role=volunteer.role,
-                    location=lite_user.city,
+                    location=volunteer.display_location or lite_user.city,
                     img=urls.media_url(filename=lite_user.avatar_filename, size="thumbnail")
                     if lite_user.avatar_filename
                     else None,
