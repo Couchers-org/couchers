@@ -1,7 +1,7 @@
 """Add event/community toggle
 
 Revision ID: 34db9c02d305
-Revises: d345174cb002
+Revises: f40be9aecae7
 Create Date: 2025-07-16 09:19:34.257615
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "34db9c02d305"
-down_revision = "d345174cb002"
+down_revision = "f40be9aecae7"
 branch_labels = None
 depends_on = None
 
