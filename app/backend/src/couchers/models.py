@@ -2861,14 +2861,14 @@ class Volunteer(Base):
     # custom sort order on team page, sorted ascending
     sort_key = Column(Float, nullable=True)
 
-    started_volunteering = Column(Date, nullable=False, server_default=text("CURRENT DATE"))
+    started_volunteering = Column(Date, nullable=False, server_default=text("CURRENT_DATE"))
     stopped_volunteering = Column(Date, nullable=True, default=None)
 
     link_type = Column(String, nullable=True)
     link_text = Column(String, nullable=True)
     link_url = Column(String, nullable=True)
 
-    show_on_team_page = Column(Boolean, nullable=False, server_default=expression.true)
+    show_on_team_page = Column(Boolean, nullable=False, server_default=expression.true())
 
     __table_args__ = (
         # Link type, text, url should all be null or all not be null

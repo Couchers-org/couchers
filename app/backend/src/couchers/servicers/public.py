@@ -1,7 +1,7 @@
 import logging
 
 import grpc
-from cachetools import TTLCache
+from cachetools import TTLCache, cached
 from sqlalchemy.sql import func, union_all
 
 from couchers import errors, urls
@@ -23,7 +23,7 @@ class Public(public_pb2_grpc.PublicServicer):
     """
 
     def GetPublicUsers(self, request, context, session):
-        @TTLCache(maxsize=1, ttl=600)
+        @cached(cache=TTLCache(maxsize=1, ttl=600))
         def gen():
             with_geom = (
                 select(User.username, User.geom)
@@ -116,7 +116,7 @@ class Public(public_pb2_grpc.PublicServicer):
             )
 
     def GetSignupPageInfo(self, request, context, session):
-        @TTLCache(maxsize=1, ttl=60)
+        @cached(cache=TTLCache(maxsize=1, ttl=60))
         def gen():
             # last user who signed up
             last_signup, geom = session.execute(
@@ -156,23 +156,19 @@ class Public(public_pb2_grpc.PublicServicer):
         return gen()
 
     def GetVolunteers(self, request, context, session):
-        @TTLCache(maxsize=1, ttl=1)
+        @cached(cache=TTLCache(maxsize=1, ttl=1))
         def gen():
-            volunteers = (
-                session.execute(
-                    select(Volunteer, LiteUser)
-                    .join(LiteUser, LiteUser.id == Volunteer.user_id)
-                    .where(LiteUser.is_visible)
-                    .where(Volunteer.show_on_team_page)
-                    .order_by(
-                        Volunteer.sort_key.asc().nulls_last(),
-                        Volunteer.stopped_volunteering.desc().nulls_first(),
-                        Volunteer.started_volunteering.asc(),
-                    )
+            volunteers = session.execute(
+                select(Volunteer, LiteUser)
+                .join(LiteUser, LiteUser.id == Volunteer.user_id)
+                .where(LiteUser.is_visible)
+                .where(Volunteer.show_on_team_page)
+                .order_by(
+                    Volunteer.sort_key.asc().nulls_last(),
+                    Volunteer.stopped_volunteering.desc().nulls_first(),
+                    Volunteer.started_volunteering.asc(),
                 )
-                .scalars()
-                .all()
-            )
+            ).all()
 
             board_members = set(get_static_badge_dict()["board_member"])
 
@@ -192,7 +188,9 @@ class Public(public_pb2_grpc.PublicServicer):
                     is_board_member=lite_user.id in board_members,
                     role=volunteer.role,
                     location=lite_user.city,
-                    img=lite_user.avatar_key,
+                    img=urls.media_url(filename=lite_user.avatar_filename, size="thumbnail")
+                    if lite_user.avatar_filename
+                    else None,
                     link_type=volunteer.link_type,
                     link_text=volunteer.link_text,
                     link_url=volunteer.link_url,
@@ -200,11 +198,13 @@ class Public(public_pb2_grpc.PublicServicer):
 
             return public_pb2.GetVolunteersRes(
                 current_volunteers=[
-                    format_volunteer(volunteer) for volunteer in volunteers if volunteer.stopped_volunteering is None
+                    format_volunteer(volunteer, lite_user)
+                    for volunteer, lite_user in volunteers
+                    if volunteer.stopped_volunteering is None
                 ],
                 past_volunteers=[
-                    format_volunteer(volunteer)
-                    for volunteer in volunteers
+                    format_volunteer(volunteer, lite_user)
+                    for volunteer, lite_user in volunteers
                     if volunteer.stopped_volunteering is not None
                 ],
             )
