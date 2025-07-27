@@ -23,8 +23,6 @@ Volunteering with Couchers means contributing to something meaningful — **buil
 
 * **Leadership & ownership**: Our volunteers take a leadership role to see complex projects to completion, taking ownership of projects and tasks and learning how to get things done effectively in resourceful and innovative ways.
 
-* **Work on something that matters**: We firmly believe that meaningful human connection is the most important thing in life, and contributing your efforts to Couchers is one of the best ways of creation more of it in the world, helping thousands have positive experiences and bringing the world closer together!
-
 * **Remote work**: All work is done remotely, with everyone working to their own schedules. We have a couple of regular calls each week where team members can connect, align on priorities, and get unblocked. We try to maintain great documentation and are always working to improve our asynchronous practices to make the remote experience as smooth as possible.
 
 We value being highly collaborative in order to learn and develop together while being honest and transparent, kind, welcoming, and enthusiastic. Our team is made up of dedicated, thoughtful people who take ownership of their work and share a common goal of supporting the couch surfing community while having fun along the way.
