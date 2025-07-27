@@ -10,7 +10,7 @@ import grpc
 
 from couchers import errors, urls
 from couchers.constants import DATETIME_INFINITY
-from couchers.context import make_background_user_context
+from couchers.context import make_one_off_interactive_user_context
 from couchers.crypto import UNSUBSCRIBE_KEY_NAME, b64encode, generate_hash_signature, get_secret, verify_hash_signature
 from couchers.models import GroupChatSubscription, HostingStatus, MeetupStatus, NotificationDeliveryType, User
 from couchers.notifications import settings
@@ -124,7 +124,7 @@ def respond_quick_link(request, context, session):
                 host_request_id=payload.host_request_quick_decline.host_request_id,
                 status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
             ),
-            context=make_background_user_context(user_id=payload.user_id),
+            context=make_one_off_interactive_user_context(couchers_context=context, user_id=payload.user_id),
             session=session,
         )
         return "Thank you for responding to the host request!"

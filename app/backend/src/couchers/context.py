@@ -77,8 +77,6 @@ class CouchersContext:
         if self.__is_interactive:
             if not self._grpc_context:
                 raise ValueError("Tried to construct interactive context without grpc context")
-            if self._is_api_key is None:
-                raise ValueError("Tried to construct interactive context but missing is_api_key")
             self.__headers = dict(self._grpc_context.invocation_metadata())
 
         if self.__logged_in:
@@ -161,6 +159,17 @@ def make_interactive_user_context(grpc_context, user_id, is_api_key, token, ui_l
         is_api_key=is_api_key,
         token=token,
         ui_language_preference=ui_language_preference,
+    )
+
+
+def make_one_off_interactive_user_context(couchers_context, user_id):
+    return CouchersContext(
+        is_interactive=True,
+        grpc_context=couchers_context._grpc_context,
+        user_id=user_id,
+        is_api_key=None,
+        token=None,
+        ui_language_preference=None,
     )
 
 

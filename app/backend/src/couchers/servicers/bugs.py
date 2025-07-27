@@ -25,7 +25,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         repo = config["BUG_TOOL_GITHUB_REPO"]
         auth = (config["BUG_TOOL_GITHUB_USERNAME"], config["BUG_TOOL_GITHUB_TOKEN"])
 
-        if context.user_id:
+        if context.is_logged_in():
             username = session.execute(select(User.username).where(User.id == context.user_id)).scalar_one()
             user_details = f"[@{username}]({urls.user_link(username=username)}) ({context.user_id})"
         else:

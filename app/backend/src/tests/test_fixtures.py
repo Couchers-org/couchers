@@ -626,6 +626,9 @@ class FakeChannel:
         self._is_superuser = is_superuser
         self._token_expiry = token_expiry
 
+    def is_logged_in(self):
+        return self.user_id is not None
+
     def abort(self, code, details):
         raise FakeRpcError(code, details)
 
