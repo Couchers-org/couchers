@@ -74,7 +74,6 @@ FRIEND_REQUEST_RATE_LIMIT = f"You have sent a lot of friend requests in the past
 FRIENDS_ALREADY_OR_PENDING = "You are already friends with or have sent a friend request to that user."
 GROUP_NOT_FOUND = "Group not found."
 GROUP_OR_COMMUNITY_NOT_FOUND = "Group or community not found."
-HOST_REQUEST_CLOSED = "This host request is closed, use a normal message instead."
 HOST_REQUEST_IN_PAST = "This host request is in the past."
 HOST_REQUEST_NOT_FOUND = "Couldn't find that host request."
 HOST_REQUEST_RATE_LIMIT = f"You have sent a lot of host requests in the past {RATE_LIMIT_INTERVAL_STRING}. To avoid spam, you can't send any more for now."  # fmt: skip
