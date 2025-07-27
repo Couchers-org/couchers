@@ -1020,7 +1020,7 @@ def test_volunteer_stuff(db):
                 user_id=user.id,
                 display_name="Great Volunteer",
                 display_location="The Bitbucket",
-                role="Tester",
+                role="Lead Tester",
                 started_volunteering=date(2020, 6, 1),
                 show_on_team_page=True,
             )
@@ -1034,7 +1034,7 @@ def test_volunteer_stuff(db):
 
         assert res.display_name == "Great Volunteer"
         assert res.display_location == "The Bitbucket"
-        assert res.role == "Tester"
+        assert res.role == "Lead Tester"
         assert res.started_volunteering == "2020-06-01"
         assert not res.stopped_volunteering
         assert res.show_on_team_page
@@ -1053,7 +1053,7 @@ def test_volunteer_stuff(db):
 
         assert res.display_name == ""
         assert res.display_location == "The Bitbucket"
-        assert res.role == "Tester"
+        assert res.role == "Lead Tester"
         assert res.started_volunteering == "2020-06-01"
         assert not res.stopped_volunteering
         assert res.show_on_team_page
@@ -1069,7 +1069,7 @@ def test_volunteer_stuff(db):
         )
         assert res.display_name == ""
         assert res.display_location == "The Bitbucket"
-        assert res.role == "Tester"
+        assert res.role == "Lead Tester"
         assert res.started_volunteering == "2020-06-01"
         assert not res.stopped_volunteering
         assert res.show_on_team_page
@@ -1081,14 +1081,13 @@ def test_volunteer_stuff(db):
             account_pb2.UpdateMyVolunteerInfoReq(
                 display_name=wrappers_pb2.StringValue(value="Tester"),
                 display_location=wrappers_pb2.StringValue(value=""),
-                role=wrappers_pb2.StringValue(value="Tester In Chief"),
                 link_type=wrappers_pb2.StringValue(value="email"),
                 link_text=wrappers_pb2.StringValue(value="tester@vontester.com.invalid"),
             )
         )
         assert res.display_name == "Tester"
         assert res.display_location == ""
-        assert res.role == "Tester In Chief"
+        assert res.role == "Lead Tester"
         assert res.started_volunteering == "2020-06-01"
         assert not res.stopped_volunteering
         assert res.show_on_team_page
@@ -1105,7 +1104,7 @@ def test_volunteer_stuff(db):
         assert v.name == "Tester"
         assert v.username == "tester"
         assert v.is_board_member
-        assert v.role == "Tester In Chief"
+        assert v.role == "Lead Tester"
         assert v.location == "Amsterdam"
         assert v.img.startswith("http://localhost:5001/img/thumbnail/")
         assert v.link_type == "email"

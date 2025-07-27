@@ -321,19 +321,13 @@ message UpdateMyVolunteerInfoReq {
   // empty for missing
   google.protobuf.StringValue display_name = 1;
   google.protobuf.StringValue display_location = 2;
-  // volunteer defined role
-  google.protobuf.StringValue role = 3;
 
-  // dates as "yyyy-mm-dd"
-  google.protobuf.StringValue started_volunteering = 4;
-  google.protobuf.StringValue stopped_volunteering = 5;
+  google.protobuf.BoolValue show_on_team_page = 3;
 
-  google.protobuf.BoolValue show_on_team_page = 6;
-
-  // link type, one of couchers, email, linkedin, website
-  google.protobuf.StringValue link_type = 7;
+  // link type, one of email, linkedin, website
+  google.protobuf.StringValue link_type = 4;
   // the text to be shown on the link
-  google.protobuf.StringValue link_text = 8;
+  google.protobuf.StringValue link_text = 5;
   // the URL the link should take you to
-  google.protobuf.StringValue link_url = 9;
+  google.protobuf.StringValue link_url = 6;
 }

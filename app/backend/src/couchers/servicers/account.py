@@ -66,7 +66,6 @@ from couchers.utils import (
     dt_to_page_token,
     is_valid_email,
     now,
-    parse_date,
     to_aware_datetime,
 )
 from proto import account_pb2, account_pb2_grpc, auth_pb2, iris_pb2_grpc, notification_data_pb2
@@ -687,12 +686,6 @@ class Account(account_pb2_grpc.AccountServicer):
         if request.HasField("display_location"):
             volunteer.display_location = request.display_location.value or None
 
-        if request.HasField("role"):
-            volunteer.role = request.role.value
-
-        if request.HasField("stopped_volunteering"):
-            volunteer.stopped_volunteering = parse_date(request.stopped_volunteering.value)
-
         if request.HasField("show_on_team_page"):
             volunteer.show_on_team_page = request.show_on_team_page.value
 
@@ -713,9 +706,11 @@ class Account(account_pb2_grpc.AccountServicer):
                 if not is_valid_email(link_text):
                     context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
                 link_url = f"mailto:{link_text}"
-            elif link_type == "webiste":
-                if not link_url.startwith("https://") or "/" in link_text or link_text not in link_url:
+            elif link_type == "website":
+                if not link_url.startswith("https://") or "/" in link_text or link_text not in link_url:
                     context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_WEBSITE_URL)
+            else:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_LINK_TYPE)
             volunteer.link_type = link_type
             volunteer.link_text = link_text
             volunteer.link_url = link_url
