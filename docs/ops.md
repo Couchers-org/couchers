@@ -118,6 +118,47 @@ create role NAME_ro login password 'pwd' in role humans_ro;
 create role NAME_rw login password 'pwd' in role humans_rw;
 ```
 
+#### Connecting to Postgres
+
+Ask Aapeli and he'll create you one or two sets of credentials (read only and possibly read write). Replace `NAME_ro`, `NAME_rw`, `PASSWORD_ro`, `PASSWORD_rw` with the values given to you in the following files.
+
+```ini
+## ~/.pg_service.conf
+# main read conn: use replica (requires VPN)
+[couchers]
+host=wh.couchershq.org
+port=5432
+user=NAME_ro
+dbname=postgres
+sslmode=require
+
+# write requires primary
+[couchers_rw]
+host=db.couchers.org
+port=5432
+user=NAME_rw
+dbname=postgres
+sslmode=require
+
+# allow also primary ro
+[couchers_ro]
+host=db.couchers.org
+port=5432
+user=NAME_ro
+dbname=postgres
+sslmode=require
+```
+
+```ini
+## ~/.pgpass
+# hostname:port:database:username:password
+wh.couchershq.org:5432:postgres:NAME_ro:PASSWORD_ro
+db.couchers.org:5432:postgres:NAME_ro:PASSWORD_ro
+db.couchers.org:5432:postgres:NAME_rw:PASSWORD_rw
+```
+
+You can then connect with `psql service=couchers` or similar.
+
 #### Postgres permissions
 
 Replace the last line (`host all all all scram-sha-256`) of `pg_hba.conf` with:
