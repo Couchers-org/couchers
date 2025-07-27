@@ -1541,6 +1541,29 @@ class HostRequest(Base):
         return f"HostRequest(id={self.conversation_id}, surfer_user_id={self.surfer_user_id}, host_user_id={self.host_user_id}...)"
 
 
+class HostRequestQuality(enum.Enum):
+    high_quality = enum.auto()
+    okay_quality = enum.auto()
+    low_quality = enum.auto()
+
+
+class HostRequestFeedback(Base):
+    id = Column(BigInteger, primary_key=True)
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    host_request_id = Column(ForeignKey("host_requests.id"), nullable=True)
+
+    from_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    to_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    request_quality = Column(Enum(HostRequestQuality), nullable=True)
+    private_text = Column(String, nullable=True)  # plain text
+
+    from_user = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
+    to_user = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
+
+    host_request = relationship("HostRequest", backref="references")
+
+
 class ReferenceType(enum.Enum):
     friend = enum.auto()
     surfed = enum.auto()  # The "from" user surfed with the "to" user
