@@ -153,5 +153,11 @@ module.exports = {
         "https://docs.google.com/forms/d/e/1FAIpQLSceDmq5gQaPRJqly0NZbN2k1h7MyWgEXBL06lv1c-QCEz9zxw/viewform",
       permanent: false,
     },
+    {
+      source: "/legal-agreements",
+      destination:
+        "https://esignatures.com/signl/ebacb634-e915-4c6a-8ac8-4991b3839ef1",
+      permanent: false,
+    },
   ],
 };
