@@ -45,6 +45,7 @@ from couchers.models import (
     StrongVerificationCallbackEvent,
     User,
     UserSession,
+    Volunteer,
 )
 from couchers.notifications.notify import notify
 from couchers.phone import sms
@@ -60,10 +61,12 @@ from couchers.tasks import (
 from couchers.utils import (
     Timestamp_from_datetime,
     create_lang_cookie,
+    date_to_api,
     dt_from_page_token,
     dt_to_page_token,
     is_valid_email,
     now,
+    parse_date,
     to_aware_datetime,
 )
 from proto import account_pb2, account_pb2_grpc, auth_pb2, iris_pb2_grpc, notification_data_pb2
@@ -133,9 +136,34 @@ def abort_on_invalid_password(password, context):
         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INSECURE_PASSWORD)
 
 
+def _format_volunteer_link(volunteer, username):
+    if volunteer.link_type:
+        return dict(link_type=volunteer.link_type, link_text=volunteer.link_text, link_url=volunteer.link_url)
+    else:
+        return dict(
+            link_type="couchers",
+            link_text=f"@{username}",
+            link_url=urls.user_link(username=username),
+        )
+
+
+def _volunteer_info_to_pb(volunteer, username):
+    return account_pb2.GetMyVolunteerInfoRes(
+        display_name=volunteer.display_name,
+        display_location=volunteer.display_location,
+        role=volunteer.role,
+        started_volunteering=date_to_api(volunteer.started_volunteering),
+        stopped_volunteering=date_to_api(volunteer.stopped_volunteering) if volunteer.stopped_volunteering else None,
+        show_on_team_page=volunteer.show_on_team_page,
+        **_format_volunteer_link(volunteer, username),
+    )
+
+
 class Account(account_pb2_grpc.AccountServicer):
     def GetAccountInfo(self, request, context, session):
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user, volunteer = session.execute(
+            select(User, Volunteer).outerjoin(Volunteer, Volunteer.user_id == User.id).where(User.id == context.user_id)
+        ).one()
 
         return account_pb2.GetAccountInfoRes(
             username=user.username,
@@ -148,6 +176,7 @@ class Account(account_pb2_grpc.AccountServicer):
             is_superuser=user.is_superuser,
             ui_language_preference=user.ui_language_preference,
             profile_public_visibility=profilepublicitysetting2api[user.public_visibility],
+            is_volunteer=volunteer is not None,
             **get_strong_verification_fields(session, user),
         )
 
@@ -636,6 +665,64 @@ class Account(account_pb2_grpc.AccountServicer):
             )
 
         return account_pb2.GetRemindersRes(reminders=reminders)
+
+    def GetMyVolunteerInfo(self, request, context, session):
+        user, volunteer = session.execute(
+            select(User, Volunteer).outerjoin(Volunteer, Volunteer.user_id == User.id).where(User.id == context.user_id)
+        ).one()
+        if not volunteer:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.NOT_A_VOLUNTEER)
+        return _volunteer_info_to_pb(volunteer, user.username)
+
+    def UpdateMyVolunteerInfo(self, request, context, session):
+        user, volunteer = session.execute(
+            select(User, Volunteer).outerjoin(Volunteer, Volunteer.user_id == User.id).where(User.id == context.user_id)
+        ).one()
+        if not volunteer:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.NOT_A_VOLUNTEER)
+
+        if request.HasField("display_name"):
+            volunteer.display_name = request.display_name.value or None
+
+        if request.HasField("display_location"):
+            volunteer.display_location = request.display_location.value or None
+
+        if request.HasField("role"):
+            volunteer.role = request.role.value
+
+        if request.HasField("stopped_volunteering"):
+            volunteer.stopped_volunteering = parse_date(request.stopped_volunteering.value)
+
+        if request.HasField("show_on_team_page"):
+            volunteer.show_on_team_page = request.show_on_team_page.value
+
+        if request.HasField("link_type") or request.HasField("link_text") or request.HasField("link_url"):
+            link_type = request.link_type.value or volunteer.link_type
+            link_text = request.link_text.value or volunteer.link_text
+            link_url = request.link_url.value or volunteer.link_url
+            if link_type == "couchers":
+                # this is the default
+                link_type = None
+                link_text = None
+                link_url = None
+            elif link_type == "linkedin":
+                # this is the username
+                link_text = link_text
+                link_url = f"https://www.linkedin.com/in/{link_text}/"
+            elif link_type == "email":
+                if not is_valid_email(link_text):
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
+                link_url = f"mailto:{link_text}"
+            elif link_type == "webiste":
+                if not link_url.startwith("https://") or "/" in link_text or link_text not in link_url:
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_WEBSITE_URL)
+            volunteer.link_type = link_type
+            volunteer.link_text = link_text
+            volunteer.link_url = link_url
+
+        session.flush()
+
+        return _volunteer_info_to_pb(volunteer, user.username)
 
 
 class Iris(iris_pb2_grpc.IrisServicer):
