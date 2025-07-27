@@ -171,7 +171,6 @@ class Account(account_pb2_grpc.AccountServicer):
             has_donated=user.has_donated,
             phone_verified=user.phone_is_verified,
             profile_complete=user.has_completed_profile,
-            my_home_complete=user.has_completed_my_home,
             timezone=user.timezone,
             is_superuser=user.is_superuser,
             ui_language_preference=user.ui_language_preference,

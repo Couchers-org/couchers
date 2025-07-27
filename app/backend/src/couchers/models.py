@@ -27,7 +27,7 @@ from sqlalchemy.dialects.postgresql import INET, TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, deferred, relationship
-from sqlalchemy.sql import and_, expression, func, not_, or_, text
+from sqlalchemy.sql import and_, expression, func, not_, text
 from sqlalchemy.sql import select as sa_select
 
 from couchers import urls
@@ -400,38 +400,6 @@ class User(Base):
     @has_completed_profile.expression
     def has_completed_profile(cls):
         return (cls.avatar_key != None) & (func.character_length(cls.about_me) >= 150)
-
-    @hybrid_property
-    def has_completed_my_home(self):
-        # completed my profile means that:
-        # 1. has filled out max_guests
-        # 2. has filled out sleeping_arrangement (sleeping privacy)
-        # 3. has some text in at least one of the my home free text fields
-        return (
-            self.max_guests is not None
-            and self.sleeping_arrangement is not None
-            and (
-                self.about_place is not None
-                or self.other_host_info is not None
-                or self.sleeping_details is not None
-                or self.area is not None
-                or self.house_rules is not None
-            )
-        )
-
-    @has_completed_my_home.expression
-    def has_completed_my_home(cls):
-        return (
-            (cls.max_guests != None)
-            and (cls.sleeping_arrangement != None)
-            and or_(
-                cls.about_place != None,
-                cls.other_host_info != None,
-                cls.sleeping_details != None,
-                cls.area != None,
-                cls.house_rules != None,
-            )
-        )
 
     @hybrid_property
     def jailed_missing_tos(self):

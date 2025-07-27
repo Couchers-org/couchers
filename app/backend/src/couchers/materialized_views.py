@@ -144,7 +144,6 @@ def make_lite_users_selectable(create=False):
             User.is_visible.label("is_visible"),
             Upload.filename.label("avatar_filename"),
             User.has_completed_profile.label("has_completed_profile"),
-            User.has_completed_my_home.label("has_completed_my_home"),
             func.coalesce(strong_verification_subquery.c.true, False).label("has_strong_verification"),
         )
         .select_from(User)

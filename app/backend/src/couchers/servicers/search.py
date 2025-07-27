@@ -649,7 +649,6 @@ class Search(search_pb2_grpc.SearchServicer):
                 name=lite_user.name,
                 city=lite_user.city,
                 has_completed_profile=lite_user.has_completed_profile,
-                has_completed_my_home=lite_user.has_completed_my_home,
                 lat=lat,
                 lng=lng,
                 profile_snippet=about_me,

@@ -178,7 +178,6 @@ message SearchUser {
   string city = 4;
 
   bool has_completed_profile = 5;
-  bool has_completed_my_home = 23;
 
   double lat = 6;
   double lng = 7;
