@@ -159,5 +159,11 @@ module.exports = {
         "https://esignatures.com/signl/ebacb634-e915-4c6a-8ac8-4991b3839ef1",
       permanent: false,
     },
+    {
+      source: "/contributor-data-policy",
+      destination:
+        "https://docs.google.com/document/d/18N0uFUzNAh-tmv_Doiq3ESJ9wX8AyQXbiuhuUOrVYiw/edit",
+      permanent: false,
+    },
   ],
 };
