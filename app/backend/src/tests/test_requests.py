@@ -1270,3 +1270,113 @@ def test_quick_decline(db, push_collector):
     with requests_session(surfer_token) as api:
         res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=hr_id))
         assert res.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED
+
+
+def test_host_req_feedback(db):
+    host, host_token = generate_user(complete_profile=True)
+    host2, host2_token = generate_user(complete_profile=True)
+    host3, host3_token = generate_user(complete_profile=True)
+    surfer, surfer_token = generate_user(complete_profile=True)
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    with requests_session(surfer_token) as api:
+        hr_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text="can i stay plz",
+            )
+        ).host_request_id
+        hr2_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text="can i stay plz",
+            )
+        ).host_request_id
+        hr3_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host3.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text="can i stay plz",
+            )
+        ).host_request_id
+
+    with requests_session(host_token) as api:
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=hr_id))
+        assert not res.need_host_request_feedback
+
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=hr_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
+            )
+        )
+
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=hr_id))
+        assert res.need_host_request_feedback
+
+    # surfer can't leave feedback
+    with requests_session(surfer_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.SendHostRequestFeedback(
+                requests_pb2.SendHostRequestFeedbackReq(
+                    host_request_id=hr_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+
+    with requests_session(host_token) as api:
+        api.SendHostRequestFeedback(
+            requests_pb2.SendHostRequestFeedbackReq(
+                host_request_id=hr_id,
+                host_request_quality=requests_pb2.HOST_REQUEST_QUALITY_LOW,
+            )
+        )
+
+    # can't leave it twice
+    with requests_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.SendHostRequestFeedback(
+                requests_pb2.SendHostRequestFeedbackReq(
+                    host_request_id=hr_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.ALREADY_LEFT_HOST_REQUEST_FEEDBACK
+
+    with requests_session(host2_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=hr2_id, status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED
+            )
+        )
+        # can't leave feedback on the wrong one
+        with pytest.raises(grpc.RpcError) as e:
+            api.SendHostRequestFeedback(
+                requests_pb2.SendHostRequestFeedbackReq(
+                    host_request_id=hr_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+
+        # null feedback is still feedback
+        api.SendHostRequestFeedback(requests_pb2.SendHostRequestFeedbackReq(host_request_id=hr2_id))
+
+    with requests_session(host3_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=hr3_id, status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED
+            )
+        )
+
+        api.SendHostRequestFeedback(
+            requests_pb2.SendHostRequestFeedbackReq(host_request_id=hr3_id, decline_reason="bad req")
+        )

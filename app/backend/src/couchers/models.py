@@ -1551,7 +1551,8 @@ class HostRequestFeedback(Base):
     """
     Private feedback from host about a host request
     """
-    __tablename__ = "host_requests"
+
+    __tablename__ = "host_request_feedbacks"
 
     id = Column(BigInteger, primary_key=True)
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
@@ -1561,12 +1562,9 @@ class HostRequestFeedback(Base):
     to_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 
     request_quality = Column(Enum(HostRequestQuality), nullable=True)
-    private_text = Column(String, nullable=True)  # plain text
+    decline_reason = Column(String, nullable=True)  # plain text
 
-    from_user = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
-    to_user = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
-
-    host_request = relationship("HostRequest", backref="references")
+    host_request = relationship("HostRequest")
 
     __table_args__ = (
         # Each user can leave at most one friend reference to another user
@@ -1574,18 +1572,8 @@ class HostRequestFeedback(Base):
             "ix_unique_host_req_feedback",
             from_user_id,
             to_user_id,
-            reference_type,
-            unique=True,
-            postgresql_where=(reference_type == ReferenceType.friend),
-        ),
-        # Each user can leave at most one reference to another user for each stay
-        Index(
-            "ix_references_unique_per_host_request",
-            from_user_id,
-            to_user_id,
             host_request_id,
             unique=True,
-            postgresql_where=(host_request_id != None),
         ),
     )
 
