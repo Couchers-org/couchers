@@ -177,6 +177,8 @@ message SearchUser {
   string name = 3;
   string city = 4;
 
+  google.protobuf.Timestamp joined = 24; // not exact
+
   bool has_completed_profile = 5;
   bool has_completed_my_home = 23;
 

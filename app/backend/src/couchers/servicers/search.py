@@ -628,10 +628,16 @@ class Search(search_pb2_grpc.SearchServicer):
         }
 
         db_user_data_by_id = {
-            user_id: (about_me, gender, last_active, hosting_status, meetup_status)
-            for user_id, about_me, gender, last_active, hosting_status, meetup_status in session.execute(
+            user_id: (about_me, gender, last_active, hosting_status, meetup_status, joined)
+            for user_id, about_me, gender, last_active, hosting_status, meetup_status, joined in session.execute(
                 select(
-                    User.id, User.about_me, User.gender, User.last_active, User.hosting_status, User.meetup_status
+                    User.id,
+                    User.about_me,
+                    User.gender,
+                    User.last_active,
+                    User.hosting_status,
+                    User.meetup_status,
+                    User.joined,
                 ).where(User.id.in_(user_ids_to_return))
             ).all()
         }
@@ -641,7 +647,7 @@ class Search(search_pb2_grpc.SearchServicer):
         def _user_to_search_user(user_id):
             lite_user = LiteUser_by_id[user_id]
 
-            about_me, gender, last_active, hosting_status, meetup_status = db_user_data_by_id[user_id]
+            about_me, gender, last_active, hosting_status, meetup_status, joined = db_user_data_by_id[user_id]
 
             lat, lng = get_coordinates(lite_user.geom)
             return search_pb2.SearchUser(
@@ -649,6 +655,7 @@ class Search(search_pb2_grpc.SearchServicer):
                 username=lite_user.username,
                 name=lite_user.name,
                 city=lite_user.city,
+                joined=Timestamp_from_datetime(last_active_coarsen(joined)),
                 has_completed_profile=lite_user.has_completed_profile,
                 has_completed_my_home=lite_user.has_completed_my_home,
                 lat=lat,
