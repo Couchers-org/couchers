@@ -193,12 +193,6 @@
     "skip_step_text": "Kein Interesse? <2>Diesen Schritt Überspringen</2>"
   },
   "unhandled_sign_up_state": "Fehler: unhandled signup flow state.",
-  "unsubscribe": {
-    "button_text": "Abbestellung bestätigen",
-    "title": "Abbestellen",
-    "error_message": "Fehler beim Abbestellen: {{message}}",
-    "missing_payload_or_sig": "Ungültige URL"
-  },
   "change_phone": {
     "no_phone_description": "Du hast keine Telefonnummer zu deinem Konto hinzugefügt. Um eine hinzuzufügen, geb sie unten ein. Wir werden die Nummer mit einer SMS verifizieren.",
     "title": "Telefonnummer",

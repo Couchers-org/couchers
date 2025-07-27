@@ -174,12 +174,6 @@
       "explanation": "En administrator vil med glede endre valgt kjønn. Vennligst kontakt support@couchers.org!"
     }
   },
-  "unsubscribe": {
-    "title": "Avslutt abonnementet",
-    "button_text": "Bekreft sletting av abonnementet",
-    "error_message": "En feil er oppstått ved sletting av abonnementet: {{message}}",
-    "missing_payload_or_sig": "Ugyldig link"
-  },
   "delete_account": {
     "request": {
       "title": "Slett brukerkonto",
