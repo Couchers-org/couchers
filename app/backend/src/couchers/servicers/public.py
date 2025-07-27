@@ -8,6 +8,7 @@ from couchers import errors, urls
 from couchers.materialized_views import LiteUser
 from couchers.models import Cluster, Node, ProfilePublicVisibility, Reference, User, Volunteer
 from couchers.resources import get_static_badge_dict
+from couchers.servicers.account import _format_volunteer_link
 from couchers.servicers.api import fluency2api, hostingstatus2api, meetupstatus2api, user_model_to_pb
 from couchers.servicers.gis import _statement_to_geojson_response
 from couchers.sql import couchers_select as select
@@ -17,30 +18,121 @@ from proto import api_pb2, public_pb2, public_pb2_grpc
 logger = logging.getLogger(__name__)
 
 
+@cached(cache=TTLCache(maxsize=1, ttl=600), key=lambda _: None)
+def _get_public_users(session):
+    with_geom = (
+        select(User.username, User.geom)
+        .where(User.is_visible)
+        .where(User.public_visibility != ProfilePublicVisibility.nothing)
+        .where(User.public_visibility != ProfilePublicVisibility.map_only)
+    )
+
+    without_geom = (
+        select(None, User.randomized_geom)
+        .where(User.is_visible)
+        .where(User.randomized_geom != None)
+        .where(User.public_visibility == ProfilePublicVisibility.map_only)
+    )
+    return _statement_to_geojson_response(session, union_all(with_geom, without_geom))
+
+
+@cached(cache=TTLCache(maxsize=1, ttl=60), key=lambda _: None)
+def _get_signup_page_info(session):
+    # last user who signed up
+    last_signup, geom = session.execute(
+        select(User.joined, User.geom).where(User.is_visible).order_by(User.id.desc()).limit(1)
+    ).one_or_none()
+
+    communities = (
+        session.execute(
+            select(Cluster.name)
+            .join(Node, Node.id == Cluster.parent_node_id)
+            .where(Cluster.is_official_cluster)
+            .where(func.ST_Contains(Node.geom, geom))
+            .order_by(Cluster.id.asc())
+        )
+        .scalars()
+        .all()
+    )
+
+    if len(communities) <= 1:
+        # either no community or just global community
+        last_location = "The World"
+    elif len(communities) == 3:
+        # probably global, continent, region, so let's just return the region
+        last_location = communities[-1]
+    else:
+        # probably global, continent, region, city
+        last_location = f"{communities[-1]}, {communities[-2]}"
+
+    user_count = session.execute(select(func.count()).select_from(User).where(User.is_visible)).scalar_one()
+
+    return public_pb2.GetSignupPageInfoRes(
+        last_signup=Timestamp_from_datetime(last_signup.replace(second=0, microsecond=0)),
+        last_location=last_location,
+        user_count=user_count,
+    )
+
+
+@cached(cache=TTLCache(maxsize=1, ttl=60), key=lambda _: None)
+def _get_volunteers(session):
+    volunteers = session.execute(
+        select(Volunteer, LiteUser)
+        .join(LiteUser, LiteUser.id == Volunteer.user_id)
+        .where(LiteUser.is_visible)
+        .where(Volunteer.show_on_team_page)
+        .order_by(
+            Volunteer.sort_key.asc().nulls_last(),
+            Volunteer.stopped_volunteering.desc().nulls_first(),
+            Volunteer.started_volunteering.asc(),
+        )
+    ).all()
+
+    board_members = set(get_static_badge_dict()["board_member"])
+
+    def format_volunteer(volunteer, lite_user):
+        if volunteer.link_type:
+            link_type = volunteer.link_type
+            link_text = volunteer.link_text
+            link_url = volunteer.link_url
+        else:
+            link_type = "couchers"
+            link_text = f"@{lite_user.username}"
+            link_url = urls.user_link(username=lite_user.username)
+
+        return public_pb2.Volunteer(
+            name=volunteer.display_name or lite_user.name,
+            username=lite_user.username,
+            is_board_member=lite_user.id in board_members,
+            role=volunteer.role,
+            location=volunteer.display_location or lite_user.city,
+            img=urls.media_url(filename=lite_user.avatar_filename, size="thumbnail")
+            if lite_user.avatar_filename
+            else None,
+            **_format_volunteer_link(volunteer, lite_user.username),
+        )
+
+    return public_pb2.GetVolunteersRes(
+        current_volunteers=[
+            format_volunteer(volunteer, lite_user)
+            for volunteer, lite_user in volunteers
+            if volunteer.stopped_volunteering is None
+        ],
+        past_volunteers=[
+            format_volunteer(volunteer, lite_user)
+            for volunteer, lite_user in volunteers
+            if volunteer.stopped_volunteering is not None
+        ],
+    )
+
+
 class Public(public_pb2_grpc.PublicServicer):
     """
     Public (logged out) APIs for getting public info
     """
 
     def GetPublicUsers(self, request, context, session):
-        @cached(cache=TTLCache(maxsize=1, ttl=600))
-        def gen():
-            with_geom = (
-                select(User.username, User.geom)
-                .where(User.is_visible)
-                .where(User.public_visibility != ProfilePublicVisibility.nothing)
-                .where(User.public_visibility != ProfilePublicVisibility.map_only)
-            )
-
-            without_geom = (
-                select(None, User.randomized_geom)
-                .where(User.is_visible)
-                .where(User.randomized_geom != None)
-                .where(User.public_visibility == ProfilePublicVisibility.map_only)
-            )
-            return _statement_to_geojson_response(session, union_all(with_geom, without_geom))
-
-        return gen()
+        return _get_public_users(session)
 
     def GetPublicUser(self, request, context, session):
         user = session.execute(
@@ -116,97 +208,7 @@ class Public(public_pb2_grpc.PublicServicer):
             )
 
     def GetSignupPageInfo(self, request, context, session):
-        @cached(cache=TTLCache(maxsize=1, ttl=60))
-        def gen():
-            # last user who signed up
-            last_signup, geom = session.execute(
-                select(User.joined, User.geom).where(User.is_visible).order_by(User.id.desc()).limit(1)
-            ).one_or_none()
-
-            communities = (
-                session.execute(
-                    select(Cluster.name)
-                    .join(Node, Node.id == Cluster.parent_node_id)
-                    .where(Cluster.is_official_cluster)
-                    .where(func.ST_Contains(Node.geom, geom))
-                    .order_by(Cluster.id.asc())
-                )
-                .scalars()
-                .all()
-            )
-
-            if len(communities) <= 1:
-                # either no community or just global community
-                last_location = "The World"
-            elif len(communities) == 3:
-                # probably global, continent, region, so let's just return the region
-                last_location = communities[-1]
-            else:
-                # probably global, continent, region, city
-                last_location = f"{communities[-1]}, {communities[-2]}"
-
-            user_count = session.execute(select(func.count()).select_from(User).where(User.is_visible)).scalar_one()
-
-            return public_pb2.GetSignupPageInfoRes(
-                last_signup=Timestamp_from_datetime(last_signup.replace(second=0, microsecond=0)),
-                last_location=last_location,
-                user_count=user_count,
-            )
-
-        return gen()
+        return _get_signup_page_info(session)
 
     def GetVolunteers(self, request, context, session):
-        @cached(cache=TTLCache(maxsize=1, ttl=60))
-        def gen():
-            volunteers = session.execute(
-                select(Volunteer, LiteUser)
-                .join(LiteUser, LiteUser.id == Volunteer.user_id)
-                .where(LiteUser.is_visible)
-                .where(Volunteer.show_on_team_page)
-                .order_by(
-                    Volunteer.sort_key.asc().nulls_last(),
-                    Volunteer.stopped_volunteering.desc().nulls_first(),
-                    Volunteer.started_volunteering.asc(),
-                )
-            ).all()
-
-            board_members = set(get_static_badge_dict()["board_member"])
-
-            def format_volunteer(volunteer, lite_user):
-                if volunteer.link_type:
-                    link_type = volunteer.link_type
-                    link_text = volunteer.link_text
-                    link_url = volunteer.link_url
-                else:
-                    link_type = "couchers"
-                    link_text = f"@{lite_user.username}"
-                    link_url = urls.user_link(username=lite_user.username)
-
-                return public_pb2.Volunteer(
-                    name=volunteer.display_name or lite_user.name,
-                    username=lite_user.username,
-                    is_board_member=lite_user.id in board_members,
-                    role=volunteer.role,
-                    location=volunteer.display_location or lite_user.city,
-                    img=urls.media_url(filename=lite_user.avatar_filename, size="thumbnail")
-                    if lite_user.avatar_filename
-                    else None,
-                    link_type=volunteer.link_type,
-                    link_text=volunteer.link_text,
-                    link_url=volunteer.link_url,
-                )
-
-            return public_pb2.GetVolunteersRes(
-                current_volunteers=[
-                    format_volunteer(volunteer, lite_user)
-                    for volunteer, lite_user in volunteers
-                    if volunteer.stopped_volunteering is None
-                ],
-                past_volunteers=[
-                    format_volunteer(volunteer, lite_user)
-                    for volunteer, lite_user in volunteers
-                    if volunteer.stopped_volunteering is not None
-                ],
-            )
-
-        return gen()
+        return _get_volunteers(session)
