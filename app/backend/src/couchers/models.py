@@ -1548,9 +1548,14 @@ class HostRequestQuality(enum.Enum):
 
 
 class HostRequestFeedback(Base):
+    """
+    Private feedback from host about a host request
+    """
+    __tablename__ = "host_requests"
+
     id = Column(BigInteger, primary_key=True)
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    host_request_id = Column(ForeignKey("host_requests.id"), nullable=True)
+    host_request_id = Column(ForeignKey("host_requests.id"), nullable=False)
 
     from_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     to_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
@@ -1562,6 +1567,27 @@ class HostRequestFeedback(Base):
     to_user = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
 
     host_request = relationship("HostRequest", backref="references")
+
+    __table_args__ = (
+        # Each user can leave at most one friend reference to another user
+        Index(
+            "ix_unique_host_req_feedback",
+            from_user_id,
+            to_user_id,
+            reference_type,
+            unique=True,
+            postgresql_where=(reference_type == ReferenceType.friend),
+        ),
+        # Each user can leave at most one reference to another user for each stay
+        Index(
+            "ix_references_unique_per_host_request",
+            from_user_id,
+            to_user_id,
+            host_request_id,
+            unique=True,
+            postgresql_where=(host_request_id != None),
+        ),
+    )
 
 
 class ReferenceType(enum.Enum):
