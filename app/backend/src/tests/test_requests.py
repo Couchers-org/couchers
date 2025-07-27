@@ -1333,6 +1333,8 @@ def test_host_req_feedback(db):
                 host_request_quality=requests_pb2.HOST_REQUEST_QUALITY_LOW,
             )
         )
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=hr_id))
+        assert not res.need_host_request_feedback
 
     # can't leave it twice
     with requests_session(host_token) as api:
@@ -1344,6 +1346,9 @@ def test_host_req_feedback(db):
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == errors.ALREADY_LEFT_HOST_REQUEST_FEEDBACK
+
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=hr_id))
+        assert not res.need_host_request_feedback
 
     with requests_session(host2_token) as api:
         api.RespondHostRequest(
