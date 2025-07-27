@@ -421,16 +421,16 @@ class User(Base):
 
     @has_completed_my_home.expression
     def has_completed_my_home(cls):
-        return (
-            (cls.max_guests != None)
-            and (cls.sleeping_arrangement != None)
-            and or_(
+        return and_(
+            cls.max_guests != None,
+            cls.sleeping_arrangement != None,
+            or_(
                 cls.about_place != None,
                 cls.other_host_info != None,
                 cls.sleeping_details != None,
                 cls.area != None,
                 cls.house_rules != None,
-            )
+            ),
         )
 
     @hybrid_property
