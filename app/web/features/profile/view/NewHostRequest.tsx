@@ -19,7 +19,6 @@ import TextField from "components/TextField";
 import dayjs from "dayjs";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
-import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import React, { useEffect, useState } from "react";
@@ -100,21 +99,16 @@ export default function NewHostRequest({
     defaultValues: { hostUserId: user.userId },
   });
 
-  const { error, mutate } = useMutation<
-    number,
-    RpcError,
-    CreateHostRequestWrapper
-  >(
-    (data: CreateHostRequestWrapper) => {
+  const { error, mutate } = useMutation({
+    mutationFn: (data: CreateHostRequestWrapper) => {
       return service.requests.createHostRequest(data);
     },
-    {
-      onSuccess: () => {
-        setIsRequesting(false);
-        setIsRequestSuccess(true);
-      },
+
+    onSuccess: () => {
+      setIsRequesting(false);
+      setIsRequestSuccess(true);
     },
-  );
+  });
 
   const { isLoading: hostLoading, error: hostError } = useLiteUser(user.userId);
 

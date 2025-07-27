@@ -26,18 +26,18 @@ export default function DeleteStrongVerificationDataButton() {
 
   const {
     error,
-    isLoading,
+    isPending,
     mutate: deleteData,
-  } = useMutation<void, RpcError>(
-    service.account.deleteStrongVerificationData,
-    {
-      onSuccess: () => {
-        setOpen(false);
-        setDeleted(true);
-        queryClient.invalidateQueries([accountInfoQueryKey]);
-      },
+  } = useMutation<void, RpcError>({
+    mutationFn: () => service.account.deleteStrongVerificationData(),
+    onSuccess: () => {
+      setOpen(false);
+      setDeleted(true);
+      queryClient.invalidateQueries({
+        queryKey: [accountInfoQueryKey],
+      });
     },
-  );
+  });
 
   return (
     <>
@@ -66,7 +66,7 @@ export default function DeleteStrongVerificationDataButton() {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => deleteData()} loading={isLoading}>
+          <Button onClick={() => deleteData()} loading={isPending}>
             {t("auth:strong_verification.delete_my_data_button")}
           </Button>
           <Button variant="outlined" onClick={() => setOpen(false)}>
@@ -74,7 +74,7 @@ export default function DeleteStrongVerificationDataButton() {
           </Button>
         </DialogActions>
       </Dialog>
-      <Button loading={isLoading} onClick={() => setOpen(true)}>
+      <Button loading={isPending} onClick={() => setOpen(true)}>
         {t("auth:strong_verification.delete_button")}
       </Button>
     </>

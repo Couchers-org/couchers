@@ -89,7 +89,7 @@ const NotificationsFeed = ({
   const {
     error: markAllNotificationsSeenError,
     markAllNotificationsSeenMutation,
-    isLoading: isMarkingAllSeen,
+    isPending: isMarkingAllSeen,
   } = useMarkAllNotificationsSeen();
 
   const {

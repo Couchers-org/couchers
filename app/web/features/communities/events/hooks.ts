@@ -39,10 +39,11 @@ export function useEventOrganizers({
       service.events.listEventOrganizers({
         eventId,
         pageSize: type === "summary" ? SUMMARY_QUERY_PAGE_SIZE : undefined,
-        pageToken: pageParam,
+        pageToken: pageParam as string | undefined,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     enabled,
+    initialPageParam: "0",
   });
   const organizerIds = query.data?.pages.flatMap(
     (res) => res.organizerUserIdsList,
@@ -62,10 +63,11 @@ export function useEventAttendees({
       service.events.listEventAttendees({
         eventId,
         pageSize: type === "summary" ? SUMMARY_QUERY_PAGE_SIZE : undefined,
-        pageToken: pageParam,
+        pageToken: pageParam as string | undefined,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     enabled,
+    initialPageParam: "0",
   });
   const attendeesIds = query.data?.pages.flatMap(
     (data) => data.attendeeUserIdsList,
@@ -103,10 +105,11 @@ export function useListAllEvents({
       service.events.listAllEvents({
         pastEvents,
         pageSize,
-        pageToken: pageParam,
+        pageToken: pageParam as string | undefined,
         showCancelled,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+    initialPageParam: "0",
   });
 }
 
@@ -127,7 +130,7 @@ export function useListMyEvents({
         pastEvents,
         pageNumber,
         pageSize,
-        pageToken: pageParam,
+        pageToken: pageParam as string | undefined,
         showCancelled,
       }),
   });

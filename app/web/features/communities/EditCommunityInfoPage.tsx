@@ -8,18 +8,18 @@ import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
 import Redirect from "components/Redirect";
 import Snackbar from "components/Snackbar";
-import { communityKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { Community } from "proto/communities_pb";
-import { Page } from "proto/pages_pb";
 import { useForm } from "react-hook-form";
 import { routeToCommunity } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
 
+import { Community } from "../../proto/communities_pb";
+import { Page } from "../../proto/pages_pb";
+import { communityKey } from "../queryKeys";
 import CommunityBase from "./CommunityBase";
 
 const useStyles = makeStyles((theme) => ({
@@ -70,33 +70,32 @@ export default function EditCommunityPage({
 
   const {
     error,
-    isLoading,
+    isPending,
     isSuccess,
     mutate: updatePage,
-  } = useMutation<Page.AsObject, RpcError, UpdatePageData>(
-    ({ communityPhotoKey, content, pageId }) => {
+  } = useMutation<Page.AsObject, RpcError, UpdatePageData>({
+    mutationFn: ({ communityPhotoKey, content, pageId }) => {
       return service.pages.updatePage({
         content,
         pageId: +pageId,
         photoKey: communityPhotoKey,
       });
     },
-    {
-      onSuccess(newPageData, { communityId }) {
-        queryClient.setQueryData<Community.AsObject | undefined>(
-          communityKey(+communityId),
-          (community) =>
-            community
-              ? {
-                  ...community,
-                  mainPage: newPageData,
-                }
-              : undefined,
-        );
-        queryClient.invalidateQueries(communityKey(+communityId));
-      },
+
+    onSuccess(newPageData, { communityId }) {
+      queryClient.setQueryData<Community.AsObject | undefined>(
+        communityKey(+communityId),
+        (community) =>
+          community
+            ? {
+                ...community,
+                mainPage: newPageData,
+              }
+            : undefined,
+      );
+      queryClient.invalidateQueries({ queryKey: communityKey(+communityId) });
     },
-  );
+  });
 
   const onSubmit = handleSubmit(
     (data) => {
@@ -166,7 +165,7 @@ export default function EditCommunityPage({
                 value={community.communityId}
               />
               <Button
-                loading={isLoading}
+                loading={isPending}
                 className={classes.updateButton}
                 type="submit"
               >

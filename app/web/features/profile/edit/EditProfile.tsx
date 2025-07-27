@@ -68,7 +68,7 @@ export default function EditProfileForm() {
   const {
     updateUserProfile,
     reset: resetUpdate,
-    isLoading: updateIsLoading,
+    isPending: updateIsLoading,
     isError: updateError,
   } = useUpdateUserProfile();
   const { data: user } = useCurrentUser();
@@ -226,7 +226,10 @@ export default function EditProfileForm() {
               onUploading={setIsUploading} //track upload state
               onSuccess={async (data) => {
                 await service.user.updateAvatar(data.key);
-                if (user) queryClient.invalidateQueries([userKey(user.userId)]);
+                if (user)
+                  queryClient.invalidateQueries({
+                    queryKey: [userKey(user.userId)],
+                  });
               }}
             />
             <ProfileTextInput

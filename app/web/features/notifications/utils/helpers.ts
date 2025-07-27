@@ -151,7 +151,7 @@ export const turnPushNotificationsOff = async () => {
 export const useMarkAllNotificationsSeen = () => {
   const queryClient = useQueryClient();
 
-  const { error, mutate, isLoading } = useMutation({
+  const { error, mutate, isPending } = useMutation({
     mutationFn: async ({
       latestNotificationId,
     }: {
@@ -161,7 +161,9 @@ export const useMarkAllNotificationsSeen = () => {
         latestNotificationId,
       ),
     onMutate: () => {
-      queryClient.cancelQueries([listNotificationsQueryKey]);
+      queryClient.cancelQueries({
+        queryKey: [listNotificationsQueryKey],
+      });
 
       const previousData =
         queryClient.getQueryData<ListNotificationsRes.AsObject>([
@@ -198,13 +200,13 @@ export const useMarkAllNotificationsSeen = () => {
     },
   });
 
-  return { error, markAllNotificationsSeenMutation: mutate, isLoading };
+  return { error, markAllNotificationsSeenMutation: mutate, isPending };
 };
 
 export const useMarkSingleNotificationIsSeen = () => {
   const queryClient = useQueryClient();
 
-  const { error, mutate, isLoading } = useMutation({
+  const { error, mutate, isPending } = useMutation({
     mutationFn: async ({
       notificationId,
       isSeen,
@@ -214,7 +216,9 @@ export const useMarkSingleNotificationIsSeen = () => {
     }) =>
       await service.notifications.markNotificationSeen(notificationId, isSeen),
     onMutate: ({ notificationId, isSeen }) => {
-      queryClient.cancelQueries([listNotificationsQueryKey]);
+      queryClient.cancelQueries({
+        queryKey: [listNotificationsQueryKey],
+      });
 
       const previousData =
         queryClient.getQueryData<ListNotificationsRes.AsObject>([
@@ -252,5 +256,5 @@ export const useMarkSingleNotificationIsSeen = () => {
     },
   });
 
-  return { error, markSingleNotificationIsSeenMutation: mutate, isLoading };
+  return { error, markSingleNotificationIsSeenMutation: mutate, isPending };
 };

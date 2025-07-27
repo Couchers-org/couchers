@@ -84,17 +84,15 @@ export default function ReportButton({
   const {
     data: bug,
     error,
-    isLoading,
+    isPending,
     mutate: reportBug,
     reset: resetMutation,
-  } = useMutation<ReportBugRes.AsObject, RpcError, BugReportFormData>(
-    (formData) => service.bugs.reportBug(formData),
-    {
-      onSuccess: () => {
-        setIsOpen(false);
-      },
+  } = useMutation<ReportBugRes.AsObject, RpcError, BugReportFormData>({
+    mutationFn: (formData) => service.bugs.reportBug(formData),
+    onSuccess: () => {
+      setIsOpen(false);
     },
-  );
+  });
 
   const handleClose = (
     event: unknown,
@@ -225,7 +223,7 @@ export default function ReportButton({
               />
             </DialogContent>
             <DialogActions>
-              <Button type="submit" loading={isLoading} onClick={onSubmit}>
+              <Button type="submit" loading={isPending} onClick={onSubmit}>
                 {t("submit")}
               </Button>
               <StyledCancelButton

@@ -20,15 +20,17 @@ export default function RecoverAccount() {
   const router = useRouter();
   const token = stringOrFirstString(router.query.token);
 
-  const { error, isLoading, isSuccess, mutate } = useMutation<
+  const { error, isPending, isSuccess, mutate } = useMutation<
     void,
     RpcError,
     RecoverAccountParams
-  >(async ({ token }) => {
-    if (token === undefined) {
-      throw Error(t("auth:delete_account.missing_token"));
-    }
-    return await service.auth.recoverAccount(token);
+  >({
+    mutationFn: async ({ token }) => {
+      if (token === undefined) {
+        throw Error(t("auth:delete_account.missing_token"));
+      }
+      return await service.auth.recoverAccount(token);
+    },
   });
 
   return (
@@ -47,7 +49,7 @@ export default function RecoverAccount() {
           {t("auth:delete_account.recover.success")}
         </Alert>
       )}
-      <Button onClick={() => mutate({ token })} loading={isLoading}>
+      <Button onClick={() => mutate({ token })} loading={isPending}>
         {t("auth:delete_account.recover.button_text")}
       </Button>
     </>

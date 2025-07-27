@@ -38,13 +38,16 @@ export default function ProfileVisibility({
   });
 
   const queryClient = useQueryClient();
-  const { error, isLoading, mutate } = useMutation<
+  const { error, isPending, mutate } = useMutation<
     Empty,
     RpcError,
     ProfilePublicVisibility
-  >(service.account.setProfilePublicVisibility, {
+  >({
+    mutationFn: (choice) => service.account.setProfilePublicVisibility(choice),
     onSuccess: () => {
-      queryClient.invalidateQueries([accountInfoQueryKey]);
+      queryClient.invalidateQueries({
+        queryKey: [accountInfoQueryKey],
+      });
     },
   });
 
@@ -117,7 +120,7 @@ export default function ProfileVisibility({
           type="submit"
           variant="contained"
           color="primary"
-          loading={isLoading}
+          loading={isPending}
         >
           {t("global:save")}
         </Button>

@@ -36,15 +36,18 @@ export default function RequestsTab({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>(
-    hostRequestsListKey({ onlyActive, type }),
-    ({ pageParam: lastRequestId }) =>
-      service.requests.listHostRequests({ lastRequestId, onlyActive, type }),
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage.noMore ? undefined : lastPage.lastRequestId,
-    },
-  );
+  } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>({
+    queryKey: hostRequestsListKey({ onlyActive, type }),
+    queryFn: ({ pageParam: lastRequestId }) =>
+      service.requests.listHostRequests({
+        lastRequestId: lastRequestId as number | undefined,
+        onlyActive,
+        type,
+      }),
+    getNextPageParam: (lastPage) =>
+      lastPage.noMore ? undefined : lastPage.lastRequestId,
+    initialPageParam: undefined,
+  });
 
   const loadMoreRequests = () => fetchNextPage();
 

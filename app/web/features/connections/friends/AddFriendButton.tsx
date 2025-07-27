@@ -23,16 +23,19 @@ export default function AddFriendButton({
 }: AddFriendButtonProps) {
   const queryClient = useQueryClient();
   const { t } = useTranslation([CONNECTIONS]);
-  const { isLoading, mutate: sendFriendRequest } = useMutation<
+  const { isPending, mutate: sendFriendRequest } = useMutation<
     Empty,
     Error,
     AddFriendButtonProps
-  >(({ userId }) => service.api.sendFriendRequest(userId), {
+  >({
+    mutationFn: ({ userId }) => service.api.sendFriendRequest(userId),
     onMutate: async ({ setMutationError }) => {
       setMutationError("");
       doAntibot("friend_request");
 
-      await queryClient.cancelQueries([userKey(userId)]);
+      await queryClient.cancelQueries({
+        queryKey: [userKey(userId)],
+      });
 
       const cachedUser = queryClient.getQueryData<User.AsObject>([
         userKey(userId),
@@ -55,7 +58,9 @@ export default function AddFriendButton({
     },
 
     onSuccess: (_, { userId }) => {
-      queryClient.invalidateQueries([userKey(userId)]);
+      queryClient.invalidateQueries({
+        queryKey: [userKey(userId)],
+      });
     },
   });
 
@@ -65,7 +70,7 @@ export default function AddFriendButton({
       onClick={() => {
         sendFriendRequest({ setMutationError, userId });
       }}
-      loading={isLoading}
+      loading={isPending}
     >
       {t("connections:add_friend")}
     </Button>

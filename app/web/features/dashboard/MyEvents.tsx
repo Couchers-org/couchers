@@ -62,10 +62,11 @@ export default function MyEvents() {
       queryKey: myEventsKey("upcoming"),
       queryFn: ({ pageParam }) =>
         service.events.listMyEvents({
-          pageToken: pageParam,
+          pageToken: pageParam as string | undefined,
           pageSize: PAGE_SIZE,
         }),
       getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+      initialPageParam: undefined,
     });
 
   return (

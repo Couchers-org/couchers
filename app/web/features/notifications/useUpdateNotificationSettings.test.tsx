@@ -25,7 +25,7 @@ describe("useUpdateNotificationSettings", () => {
       wrapper,
     });
 
-    expect(result.current.isLoading).toBe(false);
+    expect(result.current.isPending).toBe(false);
     expect(result.current.isError).toBe(false);
     expect(result.current.isSuccess).toBe(false);
     expect(result.current.status).toBe("idle");
@@ -61,9 +61,9 @@ describe("useUpdateNotificationSettings", () => {
     expect(
       service.notifications.setNotificationSettingsPreference,
     ).toHaveBeenCalledWith(mockData);
-    expect(queryClient.invalidateQueries).toHaveBeenCalledWith([
-      notificationSettingsQueryKey,
-    ]);
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: [notificationSettingsQueryKey],
+    });
   });
 
   it("Should handle errors correctly", async () => {

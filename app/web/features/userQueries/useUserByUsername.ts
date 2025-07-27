@@ -21,7 +21,7 @@ export default function useUserByUsername(
     { username: string; userId: number },
     RpcError
   >({
-    cacheTime: username2IdStaleTime,
+    gcTime: username2IdStaleTime,
     queryFn: async () => {
       const user = await service.user.getUser(username);
       return {
@@ -43,7 +43,9 @@ export default function useUserByUsername(
   const queryClient = useQueryClient();
   useEffect(() => {
     if (invalidate && usernameQuery.data?.userId) {
-      queryClient.invalidateQueries([userKey(usernameQuery.data.userId)]);
+      queryClient.invalidateQueries({
+        queryKey: [userKey(usernameQuery.data.userId)],
+      });
     }
   }, [invalidate, queryClient, usernameQuery.data?.userId]);
 

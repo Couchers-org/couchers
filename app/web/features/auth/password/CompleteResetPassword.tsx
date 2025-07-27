@@ -58,13 +58,17 @@ export default function CompleteResetPassword() {
   const isResetTokenOk =
     !!resetToken && typeof resetToken === "string" && resetToken !== "";
 
-  const { error, isLoading, isSuccess, mutate } = useMutation<
+  const { error, isPending, isSuccess, mutate } = useMutation<
     Empty,
     RpcError,
     string
-  >((newPassword) =>
-    service.account.CompletePasswordResetV2(resetToken as string, newPassword),
-  );
+  >({
+    mutationFn: (newPassword) =>
+      service.account.CompletePasswordResetV2(
+        resetToken as string,
+        newPassword,
+      ),
+  });
 
   const onSubmit = handleSubmit(({ newPassword, newPasswordCheck }) => {
     if (newPassword !== newPasswordCheck) {
@@ -141,9 +145,9 @@ export default function CompleteResetPassword() {
         />
 
         <Button
-          loading={isLoading}
+          loading={isPending}
           type="submit"
-          disabled={isLoading || !isResetTokenOk || authState.authenticated}
+          disabled={isPending || !isResetTokenOk || authState.authenticated}
         >
           {t("global:submit")}
         </Button>

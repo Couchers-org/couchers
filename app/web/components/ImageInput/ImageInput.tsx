@@ -105,32 +105,28 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
   const [imageUrl, setImageUrl] = useState(initialPreviewSrc);
   const [readerError, setReaderError] = useState("");
 
-  const mutation = useMutation<ImageInputValues, Error, File>(
-    (file) => service.api.uploadFile(file),
-    {
-      onMutate: () => {
-        props.onUploading?.(true); //notify form upload has started
-      },
-      onSuccess: async (data: ImageInputValues) => {
-        field.onChange(data.key);
-        setImageUrl(
-          props.type === "avatar" ? data.thumbnail_url : data.full_url,
-        );
-        await props.onSuccess?.(data);
-        props.onUploading?.(false); //notify form upload has finished
-      },
-      onError: () => {
-        props.onUploading?.(false); //notify form upload has failed
-      },
+  const mutation = useMutation<ImageInputValues, Error, File>({
+    mutationFn: (file) => service.api.uploadFile(file),
+    onMutate: () => {
+      props.onUploading?.(true); //notify form upload has started
     },
-  );
+    onSuccess: async (data: ImageInputValues) => {
+      field.onChange(data.key);
+      setImageUrl(props.type === "avatar" ? data.thumbnail_url : data.full_url);
+      await props.onSuccess?.(data);
+      props.onUploading?.(false); //notify form upload has finished
+    },
+    onError: () => {
+      props.onUploading?.(false); //notify form upload has failed
+    },
+  });
 
   const { field } = useController({
     name,
     control,
     defaultValue: "",
     rules: {
-      validate: () => !mutation.isLoading,
+      validate: () => !mutation.isPending,
     },
   });
 
@@ -218,7 +214,7 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
               grow={props.grow}
             />
           )}
-          {mutation.isLoading && <StyledCircularProgress />}
+          {mutation.isPending && <StyledCircularProgress />}
         </StyledLabel>
       </FlexWrapper>
     </StyledWrapper>

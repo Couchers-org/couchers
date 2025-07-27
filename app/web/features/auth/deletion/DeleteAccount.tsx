@@ -43,11 +43,11 @@ export default function DeleteAccount({
 
   const {
     error: deleteAccountError,
-    isLoading: isDeleteAccountLoading,
+    isPending: isDeleteAccountLoading,
     isSuccess: isDeleteAccountSuccess,
     mutate: deleteAccount,
-  } = useMutation<Empty, RpcError, DeleteAccountForm>(
-    ({ confirmUsername, reason }) => {
+  } = useMutation<Empty, RpcError, DeleteAccountForm>({
+    mutationFn: ({ confirmUsername, reason }) => {
       const confirm =
         lowercaseAndTrimField(confirmUsername) ===
         lowercaseAndTrimField(username);
@@ -56,12 +56,10 @@ export default function DeleteAccount({
       }
       return service.account.deleteAccount(confirm, reason);
     },
-    {
-      onSuccess: () => {
-        resetForm();
-      },
+    onSuccess: () => {
+      resetForm();
     },
-  );
+  });
 
   return (
     <div className={className}>

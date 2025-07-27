@@ -1,5 +1,5 @@
 import { styled } from "@mui/material";
-import { UseInfiniteQueryResult } from "@tanstack/react-query";
+import { InfiniteData, UseInfiniteQueryResult } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -14,10 +14,18 @@ import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 import ReferenceList from "./ReferenceList";
 
+// Type utility to ensure data is properly typed for ListReferencesRes
+export type ListReferencesInfiniteQueryResult = Omit<
+  UseInfiniteQueryResult<ListReferencesRes.AsObject, RpcError>,
+  "data"
+> & {
+  data: InfiniteData<ListReferencesRes.AsObject> | undefined;
+};
+
 interface ReferencesViewProps {
   isReceived?: boolean;
   isReferenceUsersLoading: boolean;
-  referencesQuery: UseInfiniteQueryResult<ListReferencesRes.AsObject, RpcError>;
+  referencesQuery: ListReferencesInfiniteQueryResult;
   referenceUsers: ReturnType<typeof useLiteUsers>["data"];
 }
 

@@ -50,13 +50,13 @@ export default function SubmitReference({
     writeFriendReference,
     reset: resetFriendReferenceWriting,
     error: friendReferenceError,
-    isLoading: isFriendReferenceLoading,
+    isPending: isFriendReferenceLoading,
   } = useWriteFriendReference(userId);
   const {
     writeHostRequestReference,
     reset: resetHostRequestReferenceWriting,
     error: hostRequestReferenceError,
-    isLoading: isHostRequestReferenceLoading,
+    isPending: isHostRequestReferenceLoading,
   } = useWriteHostReference(userId);
 
   const router = useRouter();

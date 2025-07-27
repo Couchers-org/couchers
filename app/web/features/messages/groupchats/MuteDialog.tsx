@@ -30,8 +30,8 @@ export default function MuteDialog({
 }: DialogProps & { groupChatId: number }) {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
   const queryClient = useQueryClient();
-  const muteMutation = useMutation<void, RpcError, DurationChoice>(
-    async (duration) => {
+  const muteMutation = useMutation<void, RpcError, DurationChoice>({
+    mutationFn: async (duration) => {
       let d;
       if (duration === "1h") d = dayjs.duration({ hours: 1 });
       else if (duration === "8h") d = dayjs.duration({ hours: 8 });
@@ -44,14 +44,14 @@ export default function MuteDialog({
         forever: !d,
       });
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries([groupChatsListKey]);
-        queryClient.invalidateQueries([groupChatKey(groupChatId)]);
-        if (props.onClose) props.onClose({}, "escapeKeyDown");
-      },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [groupChatsListKey] });
+      queryClient.invalidateQueries({
+        queryKey: [groupChatKey(groupChatId)],
+      });
+      if (props.onClose) props.onClose({}, "escapeKeyDown");
     },
-  );
+  });
 
   const [selected, setSelected] = useState<DurationChoice | undefined>(
     undefined,
@@ -113,13 +113,13 @@ export default function MuteDialog({
           onClick={() =>
             props.onClose ? props.onClose({}, "escapeKeyDown") : null
           }
-          loading={muteMutation.isLoading}
+          loading={muteMutation.isPending}
         >
           {t("global:cancel")}
         </Button>
         <Button
           onClick={handleSubmit}
-          loading={muteMutation.isLoading}
+          loading={muteMutation.isPending}
           disabled={!selected}
         >
           {t("messages:chat_view.mute.button_label")}

@@ -6,9 +6,8 @@ import EditLocationMap from "components/EditLocationMap";
 import ImageInput from "components/ImageInput";
 import TextField from "components/TextField";
 import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
-import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
-import { Page, PageType } from "proto/pages_pb";
+import { PageType } from "proto/pages_pb";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { routeToGuide, routeToPlace } from "routes";
@@ -40,21 +39,27 @@ export default function NewPlaceForm() {
 
   const {
     mutate: createPlace,
-    isLoading: isCreateLoading,
+    isPending: isCreateLoading,
     error: createError,
-  } = useMutation<Page.AsObject, RpcError, NewPlaceInputs>(
-    ({ title, content, address, lat, lng, photoKey }: NewPlaceInputs) =>
+  } = useMutation({
+    mutationFn: ({
+      title,
+      content,
+      address,
+      lat,
+      lng,
+      photoKey,
+    }: NewPlaceInputs) =>
       service.pages.createPlace(title, content, address, lat, lng, photoKey),
-    {
-      onSuccess: (page) => {
-        router.push(
-          page.type === PageType.PAGE_TYPE_PLACE
-            ? routeToPlace(page.pageId, page.slug)
-            : routeToGuide(page.pageId, page.slug),
-        );
-      },
+
+    onSuccess: (page) => {
+      router.push(
+        page.type === PageType.PAGE_TYPE_PLACE
+          ? routeToPlace(page.pageId, page.slug)
+          : routeToGuide(page.pageId, page.slug),
+      );
     },
-  );
+  });
 
   const onSubmit = handleSubmit((data: NewPlaceInputs) => createPlace(data));
 

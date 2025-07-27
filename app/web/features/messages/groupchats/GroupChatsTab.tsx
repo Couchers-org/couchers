@@ -27,7 +27,9 @@ export default function GroupChatsTab() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    queryClient.invalidateQueries([groupChatsListKey]);
+    queryClient.invalidateQueries({
+      queryKey: [groupChatsListKey],
+    });
   }, [unseenMessageCount, queryClient]);
 
   const {
@@ -37,15 +39,14 @@ export default function GroupChatsTab() {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery<ListGroupChatsRes.AsObject, RpcError>(
-    [groupChatsListKey],
-    ({ pageParam: lastMessageId }) =>
-      service.conversations.listGroupChats(lastMessageId),
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage.noMore ? undefined : lastPage.lastMessageId,
-    },
-  );
+  } = useInfiniteQuery<ListGroupChatsRes.AsObject, RpcError>({
+    queryKey: [groupChatsListKey],
+    queryFn: ({ pageParam: lastMessageId }) =>
+      service.conversations.listGroupChats(lastMessageId as number | undefined),
+    getNextPageParam: (lastPage) =>
+      lastPage.noMore ? undefined : lastPage.lastMessageId,
+    initialPageParam: undefined,
+  });
 
   const loadMoreChats = () => fetchNextPage();
 

@@ -7,9 +7,10 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { UnsubscribeRes } from "proto/auth_pb";
 import { service } from "service";
 import stringOrFirstString from "utils/stringOrFirstString";
+
+import { UnsubscribeRes } from "../../proto/auth_pb";
 
 export interface UnsubscribeParams {
   payload?: string;
@@ -26,17 +27,17 @@ export default function Unsubscribe() {
   const {
     data,
     error,
-    isLoading,
+    isPending,
     isSuccess,
     mutate: unsubscribe,
-  } = useMutation<UnsubscribeRes.AsObject, RpcError, UnsubscribeParams>(
-    async ({ payload, sig }) => {
+  } = useMutation<UnsubscribeRes.AsObject, RpcError, UnsubscribeParams>({
+    mutationFn: async ({ payload, sig }) => {
       if (payload === undefined || sig === undefined) {
         throw Error(t("auth:unsubscribe.missing_payload_or_sig"));
       }
       return await service.auth.unsubscribe(payload, sig);
     },
-  );
+  });
 
   return (
     <>
@@ -50,7 +51,7 @@ export default function Unsubscribe() {
         </Alert>
       )}
       {isSuccess && <Alert severity="success">{data!.response}</Alert>}
-      <Button onClick={() => unsubscribe({ payload, sig })} loading={isLoading}>
+      <Button onClick={() => unsubscribe({ payload, sig })} loading={isPending}>
         {t("auth:unsubscribe.button_text")}
       </Button>
     </>

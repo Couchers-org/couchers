@@ -12,7 +12,6 @@ import LeaveDialog from "features/messages/groupchats/LeaveDialog";
 import MembersDialog from "features/messages/groupchats/MembersDialog";
 import MuteDialog from "features/messages/groupchats/MuteDialog";
 import { getDmUsername } from "features/messages/utils";
-import { groupChatKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
@@ -23,6 +22,8 @@ import { useRef, useState } from "react";
 import { groupChatsRoute, routeToUser } from "routes";
 import { service } from "service";
 import { theme } from "theme";
+
+import { groupChatKey } from "../../queryKeys";
 
 const StyledTitleBox = styled("div")({
   flexGrow: 1,
@@ -67,23 +68,22 @@ export default function GroupChatHeaderBar({
     settings: false,
   });
 
-  const unmuteMutation = useMutation<void, RpcError>(
-    async () => {
+  const unmuteMutation = useMutation<void, RpcError>({
+    mutationFn: async () => {
       await service.conversations.muteChat({
         groupChatId: chatId,
         unmute: true,
       });
     },
-    {
-      onSuccess() {
-        queryClient.setQueryData(groupChatKey(chatId), {
-          ...groupChat,
-          muteInfo: { muted: false },
-        });
-        queryClient.invalidateQueries(groupChatKey(chatId));
-      },
+
+    onSuccess() {
+      queryClient.setQueryData(groupChatKey(chatId), {
+        ...groupChat,
+        muteInfo: { muted: false },
+      });
+      queryClient.invalidateQueries({ queryKey: groupChatKey(chatId) });
     },
-  );
+  });
 
   const handleBack = () => router.push(groupChatsRoute);
 
@@ -129,7 +129,7 @@ export default function GroupChatHeaderBar({
               {title || <Skeleton width={100} />}
             </PageTitle>
           </Link>
-          {unmuteMutation.isLoading ? (
+          {unmuteMutation.isPending ? (
             <CircularProgress size="1.5rem" />
           ) : (
             groupChat?.muteInfo?.muted && (

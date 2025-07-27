@@ -7,8 +7,9 @@ import { PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { User } from "proto/api_pb";
 import { useState } from "react";
-import { routeToCreateMessage, routeToGroupChat } from "routes";
 import { service } from "service";
+
+import { routeToCreateMessage, routeToGroupChat } from "../../../routes";
 
 export default function MessageUserButton({
   user,
@@ -19,26 +20,25 @@ export default function MessageUserButton({
 }) {
   const { t } = useTranslation(PROFILE);
   const router = useRouter();
-  const { mutate, isLoading } = useMutation<number | false, Error>(
-    () => service.conversations.getDirectMessage(user.userId),
-    {
-      onMutate() {
-        setMutationError("");
-      },
-      onError(e) {
-        setMutationError(e.message);
-      },
-      onSuccess(data) {
-        if (!data) {
-          //no existing thread
-          router.push(routeToCreateMessage(user.username));
-        } else {
-          //has thread
-          router.push(routeToGroupChat(data));
-        }
-      },
+  const { mutate, isPending } = useMutation<number | false, Error>({
+    mutationFn: () => service.conversations.getDirectMessage(user.userId),
+
+    onMutate() {
+      setMutationError("");
     },
-  );
+    onError(e) {
+      setMutationError(e.message);
+    },
+    onSuccess(data) {
+      if (!data) {
+        //no existing thread
+        router.push(routeToCreateMessage(user.username));
+      } else {
+        //has thread
+        router.push(routeToGroupChat(data));
+      }
+    },
+  });
 
   const [showCantMessageDialog, setShowCantMessageDialog] =
     useState<boolean>(false);
@@ -62,7 +62,7 @@ export default function MessageUserButton({
         attempted_action="send_message"
       />
       <Button
-        loading={isLoading}
+        loading={isPending}
         onClick={onClick}
         disabled={isAccountInfoLoading}
       >

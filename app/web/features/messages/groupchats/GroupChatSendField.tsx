@@ -44,7 +44,7 @@ export default function GroupChatSendField({
 }: GroupChatSendFieldProps) {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
 
-  const { mutate: handleSend, isLoading } = sendMutation;
+  const { mutate: handleSend, isPending } = sendMutation;
 
   const { register, handleSubmit, reset } = useForm<MessageFormData>();
 
@@ -94,7 +94,7 @@ export default function GroupChatSendField({
         variant="contained"
         color="primary"
         onClick={onSubmit}
-        loading={isLoading}
+        loading={isPending}
       >
         {t("global:send")}
       </StyledButton>

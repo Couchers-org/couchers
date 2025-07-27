@@ -48,19 +48,19 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
   const queryClient = useQueryClient();
   const {
     error: changePasswordError,
-    isLoading: isChangePasswordLoading,
+    isPending: isChangePasswordLoading,
     isSuccess: isChangePasswordSuccess,
     mutate: changePassword,
-  } = useMutation<Empty, RpcError, ChangePasswordVariables>(
-    ({ oldPassword, newPassword }) =>
+  } = useMutation<Empty, RpcError, ChangePasswordVariables>({
+    mutationFn: ({ oldPassword, newPassword }) =>
       service.account.changePassword(oldPassword, newPassword),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries([accountInfoQueryKey]);
-        resetForm();
-      },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [accountInfoQueryKey],
+      });
+      resetForm();
     },
-  );
+  });
 
   return (
     <div className={className}>

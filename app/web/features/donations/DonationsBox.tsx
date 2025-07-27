@@ -230,10 +230,10 @@ export default function DonationsBox() {
 
   const {
     error,
-    isLoading,
+    isPending,
     mutate: initiateDonation,
-  } = useMutation<void, RpcError, DonationFormData>(
-    async ({ amount, recurring }) => {
+  } = useMutation<void, RpcError, DonationFormData>({
+    mutationFn: async ({ amount, recurring }) => {
       if (!checkForValidAmount(amount)) {
         throw Error(t("donations_box.amount_validation_error"));
       }
@@ -250,12 +250,11 @@ export default function DonationsBox() {
         throw Error(result.error.message);
       }
     },
-    {
-      onSuccess: () => {
-        resetForm();
-      },
+
+    onSuccess: () => {
+      resetForm();
     },
-  );
+  });
 
   const onSubmit = handleSubmit((data) => {
     initiateDonation(data);
@@ -504,7 +503,7 @@ export default function DonationsBox() {
         <div className={classes.donationsBoxRow}>
           <Button
             type="submit"
-            loading={isLoading}
+            loading={isPending}
             onClick={onSubmit}
             classes={{
               root: classes.buttonMain,

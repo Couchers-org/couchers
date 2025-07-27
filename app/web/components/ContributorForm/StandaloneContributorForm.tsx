@@ -30,7 +30,9 @@ export default function StandaloneContributorForm() {
 
   const handleSubmit = async (form: ContributorFormPb.AsObject) => {
     await service.account.fillContributorForm(form);
-    queryClient.invalidateQueries([contributorFormInfoQueryKey]);
+    queryClient.invalidateQueries({
+      queryKey: [contributorFormInfoQueryKey],
+    });
     setFillState("success");
   };
 

@@ -23,7 +23,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import { GetGroupChatMessagesRes, GroupChat } from "proto/conversations_pb";
+import { GetGroupChatMessagesRes } from "proto/conversations_pb";
 import { useEffect } from "react";
 import { service } from "service";
 
@@ -100,10 +100,9 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
     };
   }, []);
 
-  const { data: groupChat, error: groupChatError } = useQuery<
-    GroupChat.AsObject,
-    RpcError
-  >(groupChatKey(chatId), () => service.conversations.getGroupChat(chatId), {
+  const { data: groupChat, error: groupChatError } = useQuery({
+    queryKey: groupChatKey(chatId),
+    queryFn: () => service.conversations.getGroupChat(chatId),
     enabled: !!chatId,
     refetchInterval: GROUP_CHAT_REFETCH_INTERVAL,
   });
@@ -121,42 +120,40 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
     fetchNextPage,
     isFetchingNextPage,
     hasNextPage,
-  } = useInfiniteQuery<GetGroupChatMessagesRes.AsObject, RpcError>(
-    groupChatMessagesKey(chatId),
-    ({ pageParam: lastMessageId }) =>
-      service.conversations.getGroupChatMessages(chatId, lastMessageId),
-    {
-      enabled: !!chatId,
-      getNextPageParam: (lastPage) =>
-        lastPage.noMore ? undefined : lastPage.lastMessageId,
-      refetchInterval: GROUP_CHAT_REFETCH_INTERVAL,
-    },
-  );
+  } = useInfiniteQuery<GetGroupChatMessagesRes.AsObject, RpcError>({
+    queryKey: groupChatMessagesKey(chatId),
+    queryFn: ({ pageParam }) =>
+      service.conversations.getGroupChatMessages(
+        chatId,
+        pageParam as number | undefined,
+      ),
+    enabled: !!chatId,
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.noMore ? undefined : lastPage.lastMessageId,
+    refetchInterval: GROUP_CHAT_REFETCH_INTERVAL,
+  });
 
-  const sendMutation = useMutation<Empty, RpcError, string>(
-    (text) => service.conversations.sendMessage(chatId, text),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(groupChatMessagesKey(chatId));
-        queryClient.invalidateQueries([groupChatsListKey]);
-        queryClient.invalidateQueries(groupChatKey(chatId));
-      },
+  const sendMutation = useMutation<Empty, RpcError, string>({
+    mutationFn: (text) => service.conversations.sendMessage(chatId, text),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: groupChatMessagesKey(chatId) });
+      queryClient.invalidateQueries({ queryKey: [groupChatsListKey] });
+      queryClient.invalidateQueries({ queryKey: groupChatKey(chatId) });
     },
-  );
+  });
 
   const { mutate: markLastSeenGroupChat } = useMutation<
     Empty,
     RpcError,
     MarkLastSeenVariables
-  >(
-    (messageId) =>
+  >({
+    mutationFn: (messageId) =>
       service.conversations.markLastSeenGroupChat(chatId, messageId),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(groupChatKey(chatId));
-      },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: groupChatKey(chatId) });
     },
-  );
+  });
   const { markLastSeen } = useMarkLastSeen(
     markLastSeenGroupChat,
     groupChat?.lastSeenMessageId,

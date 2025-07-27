@@ -25,7 +25,7 @@ function PendingFriendReqButton({
     declined: false,
     menu: false,
   });
-  const { isLoading, isSuccess, respondToFriendRequest } =
+  const { isPending, isSuccess, respondToFriendRequest } =
     useRespondToFriendRequest();
   const menuAnchor = useRef<HTMLButtonElement>(null);
 
@@ -64,7 +64,7 @@ function PendingFriendReqButton({
             ref={menuAnchor}
             onClick={handleClick("menu")}
             aria-controls={RESPOND_TO_FRIEND_REQUEST_MENU_ID}
-            loading={isLoading}
+            loading={isPending}
           >
             {t("profile:connection_pending")}
           </Button>

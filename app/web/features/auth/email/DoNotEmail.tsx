@@ -7,8 +7,9 @@ import { doNotEmailQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
-import { GetNotificationSettingsRes } from "proto/notifications_pb";
 import { service } from "service";
+
+import { GetNotificationSettingsRes } from "../../../proto/notifications_pb";
 
 interface DoNotEmailFormData {
   doNotEmailEnabled: boolean;
@@ -19,24 +20,26 @@ export default function DoNotEmail() {
 
   const queryClient = useQueryClient();
 
-  const { data, error, isLoading } = useQuery<
+  const { data, error, isPending } = useQuery<
     GetNotificationSettingsRes.AsObject,
     RpcError
-  >([doNotEmailQueryKey], service.notifications.getNotificationSettings);
+  >({
+    queryKey: [doNotEmailQueryKey],
+    queryFn: service.notifications.getNotificationSettings,
+  });
 
   const mutation = useMutation<
     GetNotificationSettingsRes.AsObject,
     RpcError,
     DoNotEmailFormData
-  >(
-    ({ doNotEmailEnabled }) =>
+  >({
+    mutationFn: ({ doNotEmailEnabled }) =>
       service.notifications.setNotificationSettings(doNotEmailEnabled),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries([doNotEmailQueryKey]);
-      },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [doNotEmailQueryKey] });
     },
-  );
+  });
 
   const toggleDoNotEmail = async () => {
     if (!data) return;
@@ -52,7 +55,7 @@ export default function DoNotEmail() {
         <Alert severity="error">{mutation.error.message}</Alert>
       )}
       {error && <Alert severity="error">{error.message}</Alert>}
-      {isLoading || !data ? (
+      {isPending || !data ? (
         <CenteredSpinner />
       ) : (
         <>
@@ -72,7 +75,7 @@ export default function DoNotEmail() {
           <Typography variant="body1">
             <Button
               onClick={() => toggleDoNotEmail()}
-              loading={mutation.isLoading}
+              loading={mutation.isPending}
             >
               {data.doNotEmailEnabled
                 ? t("do_not_email.action_button.no_emails_disable_text")

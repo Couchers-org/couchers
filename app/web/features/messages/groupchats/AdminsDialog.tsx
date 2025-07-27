@@ -22,7 +22,6 @@ import {
   groupChatsListKey,
 } from "features/queryKeys";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
@@ -51,57 +50,60 @@ function AdminListItem({
   const clearError = () => setError("");
   const handleError = (error: RpcError) => setError(error.message);
   const invalidate = () => {
-    queryClient.invalidateQueries([groupChatMessagesKey(groupChatId)]);
-    queryClient.invalidateQueries([groupChatsListKey]);
-    queryClient.invalidateQueries([groupChatKey(groupChatId)]);
+    queryClient.invalidateQueries({
+      queryKey: [groupChatMessagesKey(groupChatId)],
+    });
+    queryClient.invalidateQueries({
+      queryKey: [groupChatsListKey],
+    });
+    queryClient.invalidateQueries({
+      queryKey: [groupChatKey(groupChatId)],
+    });
   };
 
-  const makeAdmin = useMutation<Empty, RpcError, void>(
-    () => service.conversations.makeGroupChatAdmin(groupChatId, member),
-    {
-      onError: handleError,
-      onMutate: clearError,
-      onSuccess: () => {
-        const previousGroupChat = queryClient.getQueryData<GroupChat.AsObject>([
-          "groupChat",
-          groupChatId,
-        ]);
-        const newAdminUserIdsList = Array.from(
-          previousGroupChat?.adminUserIdsList ?? [],
-        );
-        newAdminUserIdsList.push(member.userId);
-        queryClient.setQueryData(groupChatKey(groupChatId), {
-          ...previousGroupChat,
-          adminUserIdsList: newAdminUserIdsList,
-        });
-        invalidate();
-      },
+  const makeAdmin = useMutation({
+    mutationFn: () =>
+      service.conversations.makeGroupChatAdmin(groupChatId, member),
+    onError: handleError,
+    onMutate: clearError,
+
+    onSuccess: () => {
+      const previousGroupChat = queryClient.getQueryData<GroupChat.AsObject>([
+        "groupChat",
+        groupChatId,
+      ]);
+      const newAdminUserIdsList = Array.from(
+        previousGroupChat?.adminUserIdsList ?? [],
+      );
+      newAdminUserIdsList.push(member.userId);
+      queryClient.setQueryData(groupChatKey(groupChatId), {
+        ...previousGroupChat,
+        adminUserIdsList: newAdminUserIdsList,
+      });
+      invalidate();
     },
-  );
-  const removeAdmin = useMutation<Empty, RpcError, void>(
-    () => service.conversations.removeGroupChatAdmin(groupChatId, member),
-    {
-      onError: handleError,
-      onMutate: clearError,
-      onSuccess: () => {
-        const previousGroupChat = queryClient.getQueryData<GroupChat.AsObject>(
-          groupChatKey(groupChatId),
-        );
-        const newAdminUserIdsList = Array.from(
-          previousGroupChat?.adminUserIdsList ?? [],
-        );
-        newAdminUserIdsList.splice(
-          newAdminUserIdsList.indexOf(member.userId),
-          1,
-        );
-        queryClient.setQueryData(groupChatKey(groupChatId), {
-          ...previousGroupChat,
-          adminUserIdsList: newAdminUserIdsList,
-        });
-        invalidate();
-      },
+  });
+  const removeAdmin = useMutation({
+    mutationFn: () =>
+      service.conversations.removeGroupChatAdmin(groupChatId, member),
+    onError: handleError,
+    onMutate: clearError,
+
+    onSuccess: () => {
+      const previousGroupChat = queryClient.getQueryData<GroupChat.AsObject>(
+        groupChatKey(groupChatId),
+      );
+      const newAdminUserIdsList = Array.from(
+        previousGroupChat?.adminUserIdsList ?? [],
+      );
+      newAdminUserIdsList.splice(newAdminUserIdsList.indexOf(member.userId), 1);
+      queryClient.setQueryData(groupChatKey(groupChatId), {
+        ...previousGroupChat,
+        adminUserIdsList: newAdminUserIdsList,
+      });
+      invalidate();
     },
-  );
+  });
 
   const handleMakeAdmin = () => makeAdmin.mutate();
   const handleRemoveAdmin = () => removeAdmin.mutate();
@@ -121,7 +123,7 @@ function AdminListItem({
                 <IconButton
                   aria-label={t("admins_dialog.remove_admin.action_a11y_label")}
                   size="small"
-                  loading={removeAdmin.isLoading}
+                  loading={removeAdmin.isPending}
                   onClick={() => setIsOpen(true)}
                 >
                   <CloseIcon />
@@ -132,7 +134,7 @@ function AdminListItem({
             <IconButton
               aria-label={t("admins_dialog.remove_admin.action_a11y_label")}
               size="small"
-              loading={removeAdmin.isLoading}
+              loading={removeAdmin.isPending}
               onClick={handleRemoveAdmin}
             >
               <CloseIcon />
@@ -142,7 +144,7 @@ function AdminListItem({
           <IconButton
             aria-label={t("admins_dialog.add_admin.action_a11y_label")}
             size="small"
-            loading={makeAdmin.isLoading}
+            loading={makeAdmin.isPending}
             onClick={handleMakeAdmin}
           >
             <AddIcon />

@@ -63,19 +63,20 @@ export default function CreateGroupChat({ className }: { className?: string }) {
   const queryClient = useQueryClient();
   const {
     mutate: createGroupChat,
-    isLoading: isCreateLoading,
+    isPending: isCreateLoading,
     error: createError,
     reset: resetMutationStatus,
-  } = useMutation<number, RpcError, CreateGroupChatFormData>(
-    ({ title, users }) => service.conversations.createGroupChat(title, users),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries([groupChatsListKey]);
-        resetForm();
-        setIsOpen(false);
-      },
+  } = useMutation<number, RpcError, CreateGroupChatFormData>({
+    mutationFn: ({ title, users }) =>
+      service.conversations.createGroupChat(title, users),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [groupChatsListKey],
+      });
+      resetForm();
+      setIsOpen(false);
     },
-  );
+  });
 
   const onSubmit = handleSubmit(({ title, users }: CreateGroupChatFormData) =>
     createGroupChat({ title, users }),

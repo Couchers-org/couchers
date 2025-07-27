@@ -2,18 +2,21 @@ import { useQuery } from "@tanstack/react-query";
 import { pingInterval } from "appConstants";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { RpcError } from "grpc-web";
-import { PingRes } from "proto/api_pb";
 import { service } from "service";
+
+import { PingRes } from "../proto/api_pb";
 
 export default function useNotifications() {
   const { authenticated, jailed } = useAuthContext().authState;
 
-  const { data, isLoading, isError, error } = useQuery<
+  const { data, isPending, isError, error } = useQuery<
     PingRes.AsObject,
     RpcError
-  >(["ping"], service.api.ping, {
+  >({
+    queryKey: ["ping"],
+    queryFn: () => service.api.ping(),
     enabled: authenticated && !jailed,
     refetchInterval: pingInterval,
   });
-  return { data, error, isError, isLoading };
+  return { data, error, isError, isPending };
 }

@@ -19,25 +19,23 @@ export default function useUpdateUserProfile() {
   const {
     mutate: updateUserProfile,
     reset,
-    isLoading,
+    isPending,
     isError,
     status,
-  } = useMutation<Empty, Error, UpdateUserProfileVariables>(
-    ({ profileData }) => service.user.updateProfile(profileData),
-    {
-      onError: (error, { setMutationError }) => {
-        setMutationError(error.message);
-      },
-      onMutate: ({ setMutationError }) => {
-        setMutationError(null);
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries([userKey(userId ?? 0)]);
-        queryClient.invalidateQueries([accountInfoQueryKey]);
-        router.push(routeToProfile("about"));
-      },
+  } = useMutation<Empty, Error, UpdateUserProfileVariables>({
+    mutationFn: ({ profileData }) => service.user.updateProfile(profileData),
+    onError: (error, { setMutationError }) => {
+      setMutationError(error.message);
     },
-  );
+    onMutate: ({ setMutationError }) => {
+      setMutationError(null);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [userKey(userId ?? 0)] });
+      queryClient.invalidateQueries({ queryKey: [accountInfoQueryKey] });
+      router.push(routeToProfile("about"));
+    },
+  });
 
-  return { reset, updateUserProfile, isLoading, isError, status };
+  return { reset, updateUserProfile, isPending, isError, status };
 }

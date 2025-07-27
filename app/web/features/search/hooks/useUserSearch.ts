@@ -1,4 +1,5 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
+import { RpcError } from "grpc-web";
 import { UserSearchV2Res } from "proto/search_pb";
 import { service } from "service";
 
@@ -45,11 +46,15 @@ export function useUserSearch(
     isFetching,
     fetchNextPage,
     fetchPreviousPage,
-  } = useInfiniteQuery<UserSearchV2Res.AsObject>({
+  } = useInfiniteQuery<UserSearchV2Res.AsObject, RpcError>({
     queryKey: ["userSearch", searchParams],
     queryFn: ({ pageParam }) =>
-      service.search.userSearchV2(searchParams, pageParam),
-    keepPreviousData: meetsSearchCriteria,
+      service.search.userSearchV2(
+        searchParams,
+        pageParam as string | undefined,
+      ),
+    initialPageParam: mapSearchState.pageNumber > 1,
+    placeholderData: keepPreviousData,
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
   });
 

@@ -173,7 +173,7 @@ describe("useLiteUsers & useLiteUser", () => {
       mockGetLiteUsers.mockResolvedValueOnce(getLiteUsers(ids));
 
       // Invalidate the query to mark the data as stale
-      queryClient.invalidateQueries(liteUsersKey(ids));
+      queryClient.invalidateQueries({ queryKey: liteUsersKey(ids) });
 
       // Trigger a rerender that should cause a refetch due to stale data
       rerender();
@@ -208,7 +208,7 @@ describe("useLiteUsers & useLiteUser", () => {
       mockGetLiteUsers.mockRejectedValue(new RpcError(500, "Some error", {}));
 
       // Invalidate the query to mark the data as stale
-      queryClient.invalidateQueries(liteUsersKey(ids));
+      queryClient.invalidateQueries({ queryKey: liteUsersKey(ids) });
 
       // Trigger a rerender that should cause a refetch due to stale data
       rerender();
@@ -336,7 +336,9 @@ describe("useLiteUsers & useLiteUser", () => {
       mockGetLiteUser.mockResolvedValueOnce(getLiteUser("2"));
 
       // Invalidate the query to mark the data as stale
-      queryClient.invalidateQueries([liteUserKey(2)]);
+      queryClient.invalidateQueries({
+        queryKey: [liteUserKey(2)],
+      });
 
       // Trigger a rerender that should cause a refetch due to stale data
       rerender();
@@ -374,7 +376,9 @@ describe("useLiteUsers & useLiteUser", () => {
       mockGetLiteUser.mockRejectedValue(new RpcError(500, "Some error", {}));
 
       // Invalidate the query to mark the data as stale
-      queryClient.invalidateQueries([liteUserKey(1)]);
+      queryClient.invalidateQueries({
+        queryKey: [liteUserKey(1)],
+      });
 
       // Trigger a rerender that should cause a refetch due to stale data
       rerender();

@@ -20,12 +20,12 @@ export default function ConfirmChangeEmail() {
 
   const {
     error,
-    isLoading,
+    isPending,
     isSuccess,
     mutate: confirmChangeEmail,
-  } = useMutation<Empty, RpcError, string>((resetToken) =>
-    service.account.confirmChangeEmail(resetToken),
-  );
+  } = useMutation<Empty, RpcError, string>({
+    mutationFn: (resetToken) => service.account.confirmChangeEmail(resetToken),
+  });
 
   useEffect(() => {
     if (changeToken) {
@@ -33,7 +33,7 @@ export default function ConfirmChangeEmail() {
     }
   }, [confirmChangeEmail, changeToken]);
 
-  return isLoading ? (
+  return isPending ? (
     <Typography variant="body1">
       {t("change_email_confirmation.change_in_progress")}
     </Typography>

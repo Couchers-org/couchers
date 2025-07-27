@@ -61,7 +61,7 @@ export default function CreateDiscussionForm({
 
   const {
     error,
-    isLoading,
+    isPending,
     mutate: createDiscussion,
     reset: resetMutation,
   } = useNewDiscussionMutation(handleSuccess);
@@ -105,7 +105,7 @@ export default function CreateDiscussionForm({
           name="content"
         />
         <div className={classes.actionButtonsContainer}>
-          <Button loading={isLoading} type="submit">
+          <Button loading={isPending} type="submit">
             {t("communities:post")}
           </Button>
           <Button onClick={handleCancel}>{t("global:cancel")}</Button>

@@ -27,16 +27,14 @@ export default function StartStrongVerificationButton() {
 
   const {
     error,
-    isLoading,
+    isPending,
     mutate: startStrongVerification,
-  } = useMutation<InitiateStrongVerificationRes.AsObject, RpcError>(
-    service.account.initiateStrongVerification,
-    {
-      onSuccess: async (data) => {
-        router.push(data.redirectUrl);
-      },
+  } = useMutation<InitiateStrongVerificationRes.AsObject, RpcError>({
+    mutationFn: () => service.account.initiateStrongVerification(),
+    onSuccess: async (data) => {
+      router.push(data.redirectUrl);
     },
-  );
+  });
 
   return (
     <>
@@ -79,7 +77,7 @@ export default function StartStrongVerificationButton() {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => startStrongVerification()} loading={isLoading}>
+          <Button onClick={() => startStrongVerification()} loading={isPending}>
             {t("auth:strong_verification.begin_button")}
           </Button>
           <Button variant="outlined" onClick={() => setOpen(false)}>
@@ -87,7 +85,7 @@ export default function StartStrongVerificationButton() {
           </Button>
         </DialogActions>
       </Dialog>
-      <Button loading={isLoading} onClick={() => setOpen(true)}>
+      <Button loading={isPending} onClick={() => setOpen(true)}>
         {t("auth:strong_verification.start_button")}
       </Button>
     </>

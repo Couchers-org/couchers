@@ -124,8 +124,8 @@ export default function AccountForm() {
     shouldUnregister: false,
   });
 
-  const mutation = useMutation<void, RpcError, SignupAccountInputs>(
-    async ({
+  const mutation = useMutation<void, RpcError, SignupAccountInputs>({
+    mutationFn: async ({
       username,
       password,
       birthdate,
@@ -151,15 +151,7 @@ export default function AccountForm() {
       });
       authActions.updateSignupState(state);
     },
-    {
-      onMutate() {
-        authActions.clearError();
-      },
-      onSettled() {
-        window.scroll({ top: 0, behavior: "smooth" });
-      },
-    },
-  );
+  });
 
   const submit = handleSubmit(
     (data: SignupAccountInputs) => {
@@ -437,7 +429,7 @@ export default function AccountForm() {
         <StyledButton
           onClick={submit}
           type="submit"
-          loading={authLoading || mutation.isLoading}
+          loading={authLoading || mutation.isPending}
           disabled={!acceptTOS}
           fullWidth
         >

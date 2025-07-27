@@ -17,7 +17,6 @@ import { BackIcon, CalendarIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import Snackbar from "components/Snackbar";
 import NotFoundPage from "features/NotFoundPage";
-import { eventAttendeesBaseKey, eventKey } from "features/queryKeys";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -33,6 +32,7 @@ import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
+import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
 import CommentTree from "../discussions/CommentTree";
 import AttendanceMenu from "./AttendanceMenu";
 import CancelEventDialog from "./CancelEventDialog";
@@ -171,29 +171,27 @@ export default function EventPage({
   } = useEvent({ eventId });
 
   const {
-    isLoading: isSetEventAttendanceLoading,
+    isPending: isSetEventAttendanceLoading,
     error: setEventAttendanceError,
     mutate: setEventAttendance,
-  } = useMutation<Event.AsObject, RpcError, AttendanceState>(
-    (newEventAttendance: AttendanceState) => {
+  } = useMutation<Event.AsObject, RpcError, AttendanceState>({
+    mutationFn: (newEventAttendance: AttendanceState) => {
       return service.events.setEventAttendance({
         attendanceState: newEventAttendance,
         eventId,
       });
     },
-    {
-      onSuccess(updatedEvent) {
-        queryClient.setQueryData<Event.AsObject>(
-          eventKey(eventId),
-          updatedEvent,
-        );
-        queryClient.invalidateQueries([eventKey(eventId)], {
-          refetchType: "none",
-        });
-        queryClient.invalidateQueries([eventAttendeesBaseKey, eventId]);
-      },
+    onSuccess(updatedEvent) {
+      queryClient.setQueryData<Event.AsObject>(eventKey(eventId), updatedEvent);
+      queryClient.invalidateQueries({
+        queryKey: [eventKey(eventId)],
+        refetchType: "none",
+      });
+      queryClient.invalidateQueries({
+        queryKey: [eventAttendeesBaseKey, eventId],
+      });
     },
-  );
+  });
 
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
   const [showInviteCommunitySuccess, setShowInviteCommunitySuccess] =

@@ -46,8 +46,8 @@ export default function BasicForm({
     shouldUnregister: false,
   });
 
-  const mutation = useMutation<void, RpcError, SignupBasicInputs>(
-    async (data) => {
+  const mutation = useMutation<void, RpcError, SignupBasicInputs>({
+    mutationFn: async (data) => {
       const sanitizedEmail = lowercaseAndTrimField(data.email);
       const sanitizedName = data.name.trim();
       const state = await service.auth.startSignup(
@@ -57,17 +57,15 @@ export default function BasicForm({
       doAntibot("signup");
       return authActions.updateSignupState(state);
     },
-    {
-      onSettled() {
-        window.scroll({ top: 0, behavior: "smooth" });
-      },
-      onSuccess() {
-        if (successCallback !== undefined) {
-          successCallback();
-        }
-      },
+    onSettled() {
+      window.scroll({ top: 0, behavior: "smooth" });
     },
-  );
+    onSuccess() {
+      if (successCallback !== undefined) {
+        successCallback();
+      }
+    },
+  });
 
   const onSubmit = handleSubmit((data: SignupBasicInputs) => {
     mutation.mutate(data);
@@ -128,7 +126,7 @@ export default function BasicForm({
         <StyledButton
           onClick={onSubmit}
           type="submit"
-          loading={mutation.isLoading}
+          loading={mutation.isPending}
           fullWidth
         >
           {submitText || t("global:continue")}

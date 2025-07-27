@@ -38,12 +38,12 @@ export default function ResetPassword() {
 
   const {
     error,
-    isLoading,
+    isPending,
     isSuccess,
     mutate: resetPassword,
-  } = useMutation<Empty, RpcError, string>((userId) =>
-    service.account.resetPassword(userId),
-  );
+  } = useMutation<Empty, RpcError, string>({
+    mutationFn: (userId) => service.account.resetPassword(userId),
+  });
 
   const onSubmit = handleSubmit(({ userId }) => {
     resetPassword(lowercaseAndTrimField(userId));
@@ -64,7 +64,7 @@ export default function ResetPassword() {
           variant="standard"
           fullWidth
         />
-        <Button loading={isLoading} type="submit">
+        <Button loading={isPending} type="submit">
           {t("global:submit")}
         </Button>
         {isSuccess && (

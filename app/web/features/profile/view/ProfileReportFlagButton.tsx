@@ -22,8 +22,6 @@ import { FlagIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import TextField from "components/TextField";
 import { useBlockUser } from "features/connections/friends/hooks";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
@@ -104,18 +102,16 @@ export default function ProfileReportFlagButton({
   const {
     data: report,
     error,
-    isLoading,
+    isPending,
     mutate: reportContent,
     reset: resetMutation,
-  } = useMutation<Empty, RpcError, ReportInput>(
-    (formData) =>
+  } = useMutation({
+    mutationFn: (formData: ReportInput) =>
       service.reporting.reportContent({ ...formData, contentRef, authorUser }),
-    {
-      onSuccess: () => {
-        setIsOpen(false);
-      },
+    onSuccess: () => {
+      setIsOpen(false);
     },
-  );
+  });
 
   const { blockUserMutation, error: blockUserError } = useBlockUser();
 
@@ -360,7 +356,7 @@ export default function ProfileReportFlagButton({
                 (!reason && !shouldBlockField)
               }
               type="submit"
-              loading={isLoading}
+              loading={isPending}
               onClick={onSubmit}
             >
               {t("submit")}

@@ -83,8 +83,8 @@ export default function ContributorForm({
     shouldUnregister: false,
   });
 
-  const mutation = useMutation<void, RpcError, ContributorInputs>(
-    async (data) => {
+  const mutation = useMutation<void, RpcError, ContributorInputs>({
+    mutationFn: async (data) => {
       let contribute = ContributeOption.CONTRIBUTE_OPTION_UNSPECIFIED;
       switch (data.contribute) {
         case "Yes":
@@ -114,7 +114,7 @@ export default function ContributorForm({
         .setExpertise(data.expertise);
       await processForm(form.toObject());
     },
-  );
+  });
 
   const submit = handleSubmit((data: ContributorInputs) => {
     mutation.mutate(data);
@@ -278,7 +278,7 @@ export default function ContributorForm({
           <Button
             onClick={submit}
             type="submit"
-            loading={mutation.isLoading}
+            loading={mutation.isPending}
             fullWidth
           >
             {SUBMIT}

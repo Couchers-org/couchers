@@ -27,17 +27,22 @@ export default function LeaveDialog({
 }: DialogProps & { groupChatId: number }) {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
   const queryClient = useQueryClient();
-  const leaveGroupChatMutation = useMutation<Empty, RpcError, void>(
-    () => service.conversations.leaveGroupChat(groupChatId),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries([groupChatMessagesKey(groupChatId)]);
-        queryClient.invalidateQueries([groupChatsListKey]);
-        queryClient.invalidateQueries([groupChatKey(groupChatId)]);
-        if (props.onClose) props.onClose({}, "escapeKeyDown");
-      },
+  const leaveGroupChatMutation = useMutation<Empty, RpcError, void>({
+    mutationFn: () => service.conversations.leaveGroupChat(groupChatId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [groupChatMessagesKey(groupChatId)],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [groupChatsListKey],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [groupChatKey(groupChatId)],
+      });
+      if (props.onClose) props.onClose({}, "escapeKeyDown");
     },
-  );
+  });
+
   const handleLeaveGroupChat = () => leaveGroupChatMutation.mutate();
 
   return (
@@ -58,7 +63,7 @@ export default function LeaveDialog({
       <DialogActions>
         <Button
           onClick={handleLeaveGroupChat}
-          loading={leaveGroupChatMutation.isLoading}
+          loading={leaveGroupChatMutation.isPending}
         >
           {t("global:yes")}
         </Button>
@@ -66,7 +71,7 @@ export default function LeaveDialog({
           onClick={() =>
             props.onClose ? props.onClose({}, "escapeKeyDown") : null
           }
-          loading={leaveGroupChatMutation.isLoading}
+          loading={leaveGroupChatMutation.isPending}
         >
           {t("global:no")}
         </Button>

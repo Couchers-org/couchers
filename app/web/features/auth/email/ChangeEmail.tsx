@@ -40,18 +40,16 @@ export default function ChangeEmail({ className, email }: ChangeEmailProps) {
 
   const {
     error: changeEmailError,
-    isLoading: isChangeEmailLoading,
+    isPending: isChangeEmailLoading,
     isSuccess: isChangeEmailSuccess,
     mutate: changeEmail,
-  } = useMutation<Empty, RpcError, ChangeEmailFormData>(
-    ({ currentPassword, newEmail }) =>
+  } = useMutation<Empty, RpcError, ChangeEmailFormData>({
+    mutationFn: ({ currentPassword, newEmail }) =>
       service.account.changeEmail(newEmail, currentPassword),
-    {
-      onSuccess: () => {
-        resetForm();
-      },
+    onSuccess: () => {
+      resetForm();
     },
-  );
+  });
 
   return (
     <div className={className}>

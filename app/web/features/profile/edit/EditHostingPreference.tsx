@@ -67,7 +67,7 @@ export default function HostingPreferenceForm() {
   const {
     updateHostingPreferences,
     reset: resetUpdate,
-    isLoading: updateIsLoading,
+    isPending: updateIsLoading,
     isError: updateError,
   } = useUpdateHostingPreferences();
   const { data: user } = useCurrentUser();

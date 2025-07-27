@@ -1,5 +1,6 @@
 import { ButtonProps, styled, Typography } from "@mui/material";
 import {
+  InfiniteData,
   useInfiniteQuery,
   useMutation,
   useQueryClient,
@@ -44,9 +45,16 @@ export default function LoginsPage() {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery<ListActiveSessionsRes.AsObject, RpcError>({
+  } = useInfiniteQuery<
+    ListActiveSessionsRes.AsObject,
+    RpcError,
+    InfiniteData<ListActiveSessionsRes.AsObject>,
+    [typeof activeLoginsKey],
+    string
+  >({
     queryKey: [activeLoginsKey],
     queryFn: ({ pageParam }) => service.account.listActiveSessions(pageParam),
+    initialPageParam: "0",
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
   });
 
@@ -54,18 +62,19 @@ export default function LoginsPage() {
 
   const {
     error: logoutAllError,
-    isLoading: logoutAllIsLoading,
+    isPending: logoutAllIsLoading,
     mutate: logoutAll,
-  } = useMutation<void, RpcError>(
-    async () => {
+  } = useMutation({
+    mutationFn: async () => {
       await service.account.logOutOtherSessions(true);
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries([activeLoginsKey]);
-      },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [activeLoginsKey],
+      });
     },
-  );
+  });
 
   return (
     <StyledLoginsContainer>

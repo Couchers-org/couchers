@@ -34,10 +34,7 @@ export function liteUserKey(userId?: number) {
 
 export const liteUsersKey = (ids: number[] | string[]) => ["liteUsers", ...ids];
 
-export const referencesGivenKey = (userId: number) => [
-  "referencesGiven",
-  { userId },
-];
+export const referencesGivenKey = "referencesGiven";
 
 export const referencesReceivedBaseKey = "referencesReceived";
 export interface ReferencesReceivedKeyInputs {

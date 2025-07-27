@@ -5,7 +5,6 @@ import Button from "components/Button";
 import { DoneAllIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import { groupChatsListKey, hostRequestsListKey } from "features/queryKeys";
-import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { service } from "service";
@@ -32,8 +31,8 @@ export default function MarkAllReadButton({
   const classes = useStyles();
   const { t } = useTranslation(MESSAGES);
   const queryClient = useQueryClient();
-  const markAll = useMutation<void, RpcError>(
-    async () => {
+  const markAll = useMutation({
+    mutationFn: async () => {
       if (type === "chats") {
         const data = await getAllPages({
           serviceFunction: service.conversations.listGroupChats,
@@ -75,13 +74,16 @@ export default function MarkAllReadButton({
         );
       }
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries([hostRequestsListKey()]);
-        queryClient.invalidateQueries([groupChatsListKey]);
-      },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [hostRequestsListKey()],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [groupChatsListKey],
+      });
     },
-  );
+  });
 
   return (
     <>
@@ -91,7 +93,7 @@ export default function MarkAllReadButton({
 
       <Button
         className={classes.markAsReadButton}
-        loading={markAll.isLoading}
+        loading={markAll.isPending}
         variant="text"
         onClick={() => markAll.mutate()}
         sx={{ color: theme.palette.text.primary }}

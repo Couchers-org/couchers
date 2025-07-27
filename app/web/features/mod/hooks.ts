@@ -1,4 +1,8 @@
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import {
+  InfiniteData,
+  useInfiniteQuery,
+  useQuery,
+} from "@tanstack/react-query";
 import {
   modUserDetailsKey,
   modUserKey,
@@ -11,7 +15,13 @@ import { User } from "proto/api_pb";
 import { service } from "service";
 
 export const useNewUsers = () => {
-  const query = useInfiniteQuery<ListUserIdsRes.AsObject, RpcError>({
+  const query = useInfiniteQuery<
+    ListUserIdsRes.AsObject,
+    RpcError,
+    InfiniteData<ListUserIdsRes.AsObject>,
+    [typeof newUsersListKey],
+    string
+  >({
     queryKey: [newUsersListKey],
     queryFn: ({ pageParam }) =>
       service.admin.listUserIds({
@@ -20,10 +30,9 @@ export const useNewUsers = () => {
         pageSize: 50,
         pageToken: pageParam,
       }),
-    getNextPageParam: (lastPage) => ({
-      nextPageToken: lastPage.nextPageToken || undefined,
-      refetchInterval: 60_000,
-    }),
+    initialPageParam: "0",
+    getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+    refetchInterval: 60_000,
   });
   const userIds = query.data?.pages.flatMap((page) => page.userIdsList);
   return { ...query, userIds };
