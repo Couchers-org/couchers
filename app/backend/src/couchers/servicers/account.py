@@ -706,9 +706,11 @@ class Account(account_pb2_grpc.AccountServicer):
                 if not is_valid_email(link_text):
                     context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
                 link_url = f"mailto:{link_text}"
-            elif link_type == "webiste":
+            elif link_type == "website":
                 if not link_url.startwith("https://") or "/" in link_text or link_text not in link_url:
                     context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_WEBSITE_URL)
+            else:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_LINK_TYPE)
             volunteer.link_type = link_type
             volunteer.link_text = link_text
             volunteer.link_url = link_url
