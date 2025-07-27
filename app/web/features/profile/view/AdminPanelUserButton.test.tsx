@@ -32,6 +32,7 @@ const baseAccountInfo = {
   uiLanguagePreference: "",
   profilePublicVisibility: 1,
   isVolunteer: false,
+  myHomeComplete: false,
 };
 
 describe("AdminPanelUserButton", () => {
