@@ -28,6 +28,7 @@ from couchers.models import (
     StrongVerificationAttempt,
     User,
 )
+from couchers.reranker import reranker
 from couchers.servicers.api import (
     fluency2sql,
     get_num_references,
@@ -668,8 +669,10 @@ class Search(search_pb2_grpc.SearchServicer):
                 **response_rate_to_pb(response_rate_by_id.get(user_id)),
             )
 
+        results = reranker([_user_to_search_user(user_id) for user_id in user_ids_to_return])
+
         return search_pb2.UserSearchV2Res(
-            results=[_user_to_search_user(user_id) for user_id in user_ids_to_return],
+            results=results,
             next_page_token=next_page_token,
             total_items=total_items,
         )
