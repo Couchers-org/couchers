@@ -137,3 +137,7 @@ def media_url(*, filename, size):
 
 def console_link(*, page):
     return f"{config['CONSOLE_BASE_URL']}/{page}"
+
+
+def invite_code_link(*, code):
+    return f"{config['BASE_URL']}/invite?code={code}"

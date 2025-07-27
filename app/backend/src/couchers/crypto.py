@@ -200,5 +200,5 @@ def generate_invite_code(length=8):
     """
     Generates a secure, URL-safe invite code of the given length.
     """
-    alphabet = string.ascii_letters + string.digits
+    alphabet = string.ascii_lowercase + string.digits
     return "".join(secrets.choice(alphabet) for _ in range(length))

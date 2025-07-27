@@ -4,7 +4,7 @@ from datetime import timedelta
 import grpc
 import requests
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import delete, func
+from sqlalchemy.sql import delete, func, or_
 
 from couchers import errors
 from couchers.config import config
@@ -42,6 +42,7 @@ from couchers.tasks import (
     maybe_send_contributor_form_email,
     send_signup_email,
 )
+from couchers.urls import invite_code_link
 from couchers.utils import (
     create_coordinate,
     create_session_cookies,
@@ -206,19 +207,22 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 flow_token = cookiesafe_secure_token()
 
-                invite = None
+                invite_id = None
                 if request.basic.invite_code:
-                    invite = session.execute(
-                        select(InviteCode).where(InviteCode.id == request.basic.invite_code)
+                    invite_id = session.execute(
+                        select(InviteCode.id).where(
+                            InviteCode.id == request.basic.invite_code,
+                            or_(InviteCode.disabled == None, InviteCode.disabled > func.now()),
+                        )
                     ).scalar_one_or_none()
-                    if not invite:
+                    if not invite_id:
                         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_INVITE_CODE)
 
                 flow = SignupFlow(
                     flow_token=flow_token,
                     name=request.basic.name,
                     email=request.basic.email,
-                    invite_code_id=invite.id if invite else None,
+                    invite_code_id=invite_id,
                 )
                 session.add(flow)
                 session.flush()
@@ -317,6 +321,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 onboarding_emails_sent=1,
                 last_onboarding_email_sent=func.now(),
                 opt_out_of_newsletter=flow.opt_out_of_newsletter,
+                invite_code_id=flow.invite_code_id,
             )
 
             session.add(user)
@@ -645,7 +650,11 @@ class Auth(auth_pb2_grpc.AuthServicer):
         return auth_pb2.AntiBotPolicyRes(should_antibot=False)
 
     def GetInviteCodeInfo(self, request, context, session):
-        invite = session.execute(select(InviteCode).where(InviteCode.id == request.code)).scalar_one_or_none()
+        invite = session.execute(
+            select(InviteCode).where(
+                InviteCode.id == request.code, or_(InviteCode.disabled == None, InviteCode.disabled > func.now())
+            )
+        ).scalar_one_or_none()
 
         if not invite:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.INVITE_CODE_NOT_FOUND)
@@ -656,5 +665,5 @@ class Auth(auth_pb2_grpc.AuthServicer):
             name=user.name,
             username=user.username,
             avatar_url=user.avatar.thumbnail_url if user.avatar else None,
-            url=f"{config['BASE_URL']}/invite?code={request.code}",
+            url=invite_code_link(code=request.code),
         )

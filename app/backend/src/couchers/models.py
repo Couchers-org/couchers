@@ -1311,8 +1311,8 @@ class InviteCode(Base):
 
     id = Column(String, primary_key=True)
     creator_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    created = Column(DateTime, nullable=False, default=func.now())
-    disabled = Column(DateTime, nullable=True)
+    created = Column(DateTime(timezone=True), nullable=False, default=func.now())
+    disabled = Column(DateTime(timezone=True), nullable=True)
 
     creator = relationship("User", foreign_keys=[creator_user_id])
 

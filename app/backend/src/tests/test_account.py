@@ -7,7 +7,6 @@ from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
 from couchers import errors
-from couchers.config import config
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
 from couchers.models import (
@@ -19,6 +18,7 @@ from couchers.models import (
     User,
 )
 from couchers.sql import couchers_select as select
+from couchers.urls import invite_code_link
 from couchers.utils import now
 from proto import account_pb2, api_pb2, auth_pb2
 from tests.test_fixtures import (  # noqa
@@ -899,7 +899,7 @@ def test_CreateInviteCode(db):
         invite = session.execute(select(InviteCode).where(InviteCode.id == code)).scalar_one()
         assert invite.creator_user_id == user.id
         assert invite.disabled is None
-        assert res.url == f"{config['BASE_URL']}/invite?code={res.code}"
+        assert res.url == invite_code_link(code=res.code)
 
 
 def test_DisableInviteCode(db):
@@ -933,4 +933,4 @@ def test_ListInviteCodes(db):
         assert len(res.invite_codes) == 1
         assert res.invite_codes[0].code == code
         assert res.invite_codes[0].uses == 1
-        assert res.invite_codes[0].url == f"{config['BASE_URL']}/invite?code={code}"
+        assert res.invite_codes[0].url == invite_code_link(code=code)

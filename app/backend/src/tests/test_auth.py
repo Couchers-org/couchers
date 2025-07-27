@@ -6,7 +6,6 @@ from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy.sql import delete, func
 
 from couchers import errors
-from couchers.config import config
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
 from couchers.models import (
@@ -21,6 +20,7 @@ from couchers.models import (
     UserSession,
 )
 from couchers.sql import couchers_select as select
+from couchers.urls import invite_code_link
 from proto import api_pb2, auth_pb2
 from tests.test_fixtures import (  # noqa
     api_session,
@@ -1144,6 +1144,7 @@ def test_banned_username(db):
 
 def test_GetInviteCodeInfo(db):
     user, token = generate_user()
+    code_id = "TST12345"
 
     with session_scope() as session:
         avatar = Upload(
@@ -1157,20 +1158,21 @@ def test_GetInviteCodeInfo(db):
         db_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         db_user.avatar_key = avatar.key
 
-        code = InviteCode(id="TST12345", creator_user_id=user.id)
+        code = InviteCode(id=code_id, creator_user_id=user.id)
         session.add(code)
         session.commit()
 
     with auth_api_session() as (auth, _):
-        res = auth.GetInviteCodeInfo(auth_pb2.GetInviteCodeInfoReq(code="TST12345"))
+        res = auth.GetInviteCodeInfo(auth_pb2.GetInviteCodeInfoReq(code=code_id))
         assert res.name == user.name
         assert res.username == user.username
         assert res.avatar_url.endswith("/img/thumbnail/test_avatar.jpg")
-        assert res.url == f"{config['BASE_URL']}/invite?code=TST12345"
+        assert res.url == invite_code_link(code=code_id)
 
 
 def test_GetInviteCodeInfo_no_avatar(db):
     user, token = generate_user()
+    code_id = "NOAVTR1"
 
     with session_scope() as session:
         db_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -1181,11 +1183,11 @@ def test_GetInviteCodeInfo_no_avatar(db):
         session.commit()
 
     with auth_api_session() as (auth, _):
-        res = auth.GetInviteCodeInfo(auth_pb2.GetInviteCodeInfoReq(code="NOAVTR1"))
+        res = auth.GetInviteCodeInfo(auth_pb2.GetInviteCodeInfoReq(code=code_id))
         assert res.name == user.name
         assert res.username == user.username
         assert res.avatar_url == ""
-        assert res.url == f"{config['BASE_URL']}/invite?code=NOAVTR1"
+        assert res.url == invite_code_link(code=code_id)
 
 
 def test_GetInviteCodeInfo_not_found(db):
@@ -1200,8 +1202,10 @@ def test_GetInviteCodeInfo_not_found(db):
 
 def test_SignupFlow_invite_code(db):
     user, token = generate_user()
+    invite_code = "INV12345"
     with session_scope() as session:
-        invite = InviteCode(id="INV12345", creator_user_id=user.id)
+        session.flush()
+        invite = InviteCode(id=invite_code, creator_user_id=user.id)
         session.add(invite)
         session.commit()
 
@@ -1212,13 +1216,45 @@ def test_SignupFlow_invite_code(db):
                 basic=auth_pb2.SignupBasic(
                     name="Test User",
                     email="inviteuser@example.com",
-                    invite_code="INV12345",
+                    invite_code=invite_code,
                 )
             )
         )
         flow_token = res.flow_token
         assert flow_token
 
+        # Confirm email
+        with session_scope() as session:
+            email_token = (
+                session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one().email_token
+            )
+
+        auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+
+        # Signup account step
+        auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                account=auth_pb2.SignupAccount(
+                    username="invited_user",
+                    password="secure password",
+                    birthdate="1990-01-01",
+                    gender="Other",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    city="Example City",
+                    lat=1,
+                    lng=5,
+                    radius=100,
+                    accept_tos=True,
+                ),
+                feedback=auth_pb2.ContributorForm(),
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+            )
+        )
     with session_scope() as session:
-        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
-        assert flow.invite_code_id == "INV12345"
+        users = session.execute(select(User)).scalars().all()
+
+    # Check that invite_code_id is stored in the final User object
+    with session_scope() as session:
+        user = session.execute(select(User).where(User.username == "invited_user")).scalar_one()
+        assert user.invite_code_id == invite_code
