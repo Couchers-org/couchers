@@ -2854,7 +2854,7 @@ class Volunteer(Base):
     __tablename__ = "volunteers"
 
     id = Column(BigInteger, primary_key=True)
-    user_id = Column(ForeignKey("users.id"), nullable=False)
+    user_id = Column(ForeignKey("users.id"), nullable=False, unique=True)
 
     display_name = Column(String, nullable=True)
     display_location = Column(String, nullable=True)

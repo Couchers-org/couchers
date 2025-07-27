@@ -66,7 +66,6 @@ from couchers.utils import (
     dt_to_page_token,
     is_valid_email,
     now,
-    parse_date,
     to_aware_datetime,
 )
 from proto import account_pb2, account_pb2_grpc, auth_pb2, iris_pb2_grpc, notification_data_pb2
@@ -686,12 +685,6 @@ class Account(account_pb2_grpc.AccountServicer):
 
         if request.HasField("display_location"):
             volunteer.display_location = request.display_location.value or None
-
-        if request.HasField("role"):
-            volunteer.role = request.role.value
-
-        if request.HasField("stopped_volunteering"):
-            volunteer.stopped_volunteering = parse_date(request.stopped_volunteering.value)
 
         if request.HasField("show_on_team_page"):
             volunteer.show_on_team_page = request.show_on_team_page.value
