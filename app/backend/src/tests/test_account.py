@@ -1,9 +1,9 @@
-from datetime import timedelta
+from datetime import date, timedelta
 from unittest.mock import patch
 
 import grpc
 import pytest
-from google.protobuf import empty_pb2
+from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy.sql import func
 
 from couchers import errors
@@ -16,6 +16,7 @@ from couchers.models import (
     BackgroundJob,
     Upload,
     User,
+    Volunteer,
 )
 from couchers.sql import couchers_select as select
 from couchers.utils import now, today
@@ -29,6 +30,7 @@ from tests.test_fixtures import (  # noqa
     generate_user,
     mock_notification_email,
     process_jobs,
+    public_session,
     push_collector,
     real_account_session,
     requests_session,
@@ -54,6 +56,7 @@ def test_GetAccountInfo(db, fast_passwords):
         assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED
         assert not res.is_superuser
         assert res.ui_language_preference == ""
+        assert not res.is_volunteer
 
 
 def test_GetAccountInfo_regression(db):
@@ -991,3 +994,120 @@ def test_reminders(db):
         assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user2.id
         assert reminders[1].respond_to_host_request_reminder.host_request_id == host_request3_id
         assert reminders[1].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
+
+
+def test_volunteer_stuff(db):
+    # with password
+    user, token = generate_user(name="Von Tester", username="tester", city="Amsterdam")
+
+    with account_session(token) as account:
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert not res.is_volunteer
+
+        with pytest.raises(grpc.RpcError) as e:
+            account.GetMyVolunteerInfo(empty_pb2.Empty())
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.NOT_A_VOLUNTEER
+
+        with pytest.raises(grpc.RpcError) as e:
+            account.UpdateMyVolunteerInfo(account_pb2.UpdateMyVolunteerInfoReq())
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.NOT_A_VOLUNTEER
+
+    with session_scope() as session:
+        session.add(
+            Volunteer(
+                user_id=user.id,
+                display_name="Great Volunteer",
+                display_location="The Bitbucket",
+                role="Tester",
+                started_volunteering=date(2020, 6, 1),
+                show_on_team_page=True,
+            )
+        )
+
+    with account_session(token) as account:
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert res.is_volunteer
+
+        res = account.GetMyVolunteerInfo(empty_pb2.Empty())
+
+        assert res.display_name == "Great Volunteer"
+        assert res.display_location == "The Bitbucket"
+        assert res.role == "Tester"
+        assert res.started_volunteering == "2020-06-01"
+        assert not res.stopped_volunteering
+        assert res.show_on_team_page
+        assert res.link_type == "couchers"
+        assert res.link_text == "@tester"
+        assert res.link_url == "http://localhost:3000/user/tester"
+
+        res = account.UpdateMyVolunteerInfo(
+            account_pb2.UpdateMyVolunteerInfoReq(
+                display_name=wrappers_pb2.StringValue(value=""),
+                link_type=wrappers_pb2.StringValue(value="website"),
+                link_text=wrappers_pb2.StringValue(value="testervontester.com.invalid"),
+                link_url=wrappers_pb2.StringValue(value="https://www.testervontester.com.invalid/"),
+            )
+        )
+
+        assert res.display_name == ""
+        assert res.display_location == "The Bitbucket"
+        assert res.role == "Tester"
+        assert res.started_volunteering == "2020-06-01"
+        assert not res.stopped_volunteering
+        assert res.show_on_team_page
+        assert res.link_type == "website"
+        assert res.link_text == "testervontester.com.invalid"
+        assert res.link_url == "https://www.testervontester.com.invalid/"
+        res = account.UpdateMyVolunteerInfo(
+            account_pb2.UpdateMyVolunteerInfoReq(
+                display_name=wrappers_pb2.StringValue(value=""),
+                link_type=wrappers_pb2.StringValue(value="linkedin"),
+                link_text=wrappers_pb2.StringValue(value="tester-vontester"),
+            )
+        )
+        assert res.display_name == ""
+        assert res.display_location == "The Bitbucket"
+        assert res.role == "Tester"
+        assert res.started_volunteering == "2020-06-01"
+        assert not res.stopped_volunteering
+        assert res.show_on_team_page
+        assert res.link_type == "linkedin"
+        assert res.link_text == "tester-vontester"
+        assert res.link_url == "https://www.linkedin.com/in/tester-vontester/"
+
+        res = account.UpdateMyVolunteerInfo(
+            account_pb2.UpdateMyVolunteerInfoReq(
+                display_name=wrappers_pb2.StringValue(value="Tester"),
+                display_location=wrappers_pb2.StringValue(value=""),
+                role=wrappers_pb2.StringValue(value="Tester In Chief"),
+                link_type=wrappers_pb2.StringValue(value="email"),
+                link_text=wrappers_pb2.StringValue(value="tester@vontester.com.invalid"),
+            )
+        )
+        assert res.display_name == "Tester"
+        assert res.display_location == ""
+        assert res.role == "Tester In Chief"
+        assert res.started_volunteering == "2020-06-01"
+        assert not res.stopped_volunteering
+        assert res.show_on_team_page
+        assert res.link_type == "email"
+        assert res.link_text == "tester@vontester.com.invalid"
+        assert res.link_url == "mailto:tester@vontester.com.invalid"
+
+    refresh_materialized_views_rapid(None)
+
+    with public_session() as public:
+        res = public.GetVolunteers(empty_pb2.Empty())
+        assert len(res.current_volunteers) == 1
+        v = res.current_volunteers[0]
+        assert v.name == "Tester"
+        assert v.username == "tester"
+        assert v.is_board_member
+        assert v.role == "Tester In Chief"
+        assert v.location == "Amsterdam"
+        assert v.img.startswith("http://localhost:5001/img/thumbnail/")
+        assert v.link_type == "email"
+        assert v.link_text == "tester@vontester.com.invalid"
+        assert v.link_url == "mailto:tester@vontester.com.invalid"

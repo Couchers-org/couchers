@@ -4,6 +4,7 @@ package org.couchers.api.account;
 
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
 
 import "annotations.proto";
 import "api.proto";
@@ -98,6 +99,14 @@ service Account {
   rpc GetReminders(google.protobuf.Empty) returns (GetRemindersRes) {
     // Reminders to be shown on dashboard for things the user should do
   }
+
+  rpc GetMyVolunteerInfo(google.protobuf.Empty) returns (GetMyVolunteerInfoRes) {
+    // Returns info about the current user's volunteer status if they are volunteer
+  }
+
+  rpc UpdateMyVolunteerInfo(UpdateMyVolunteerInfoReq) returns (GetMyVolunteerInfoRes) {
+    // Updates the current user's volunteer status if they are volunteer
+  }
 }
 
 message GetAccountInfoRes {
@@ -134,6 +143,8 @@ message GetAccountInfoRes {
   string ui_language_preference = 16;
 
   ProfilePublicVisibility profile_public_visibility = 17;
+
+  bool is_volunteer = 18;
 }
 
 message ChangePasswordV2Req {
@@ -283,4 +294,46 @@ message Reminder {
 message GetRemindersRes {
   // items are returned in order from most important to least important and should be displayed as such
   repeated Reminder reminders = 1;
+}
+
+message GetMyVolunteerInfoRes {
+  // empty for missing
+  string display_name = 1;
+  string display_location = 2;
+  // volunteer defined role
+  string role = 3;
+
+  // dates as "yyyy-mm-dd"
+  string started_volunteering = 4;
+  string stopped_volunteering = 5;
+
+  bool show_on_team_page = 6;
+
+  // link type, one of couchers, email, linkedin, website
+  string link_type = 7;
+  // the text to be shown on the link
+  string link_text = 8;
+  // the URL the link should take you to
+  string link_url = 9;
+}
+
+message UpdateMyVolunteerInfoReq {
+  // empty for missing
+  google.protobuf.StringValue display_name = 1;
+  google.protobuf.StringValue display_location = 2;
+  // volunteer defined role
+  google.protobuf.StringValue role = 3;
+
+  // dates as "yyyy-mm-dd"
+  google.protobuf.StringValue started_volunteering = 4;
+  google.protobuf.StringValue stopped_volunteering = 5;
+
+  google.protobuf.BoolValue show_on_team_page = 6;
+
+  // link type, one of couchers, email, linkedin, website
+  google.protobuf.StringValue link_type = 7;
+  // the text to be shown on the link
+  google.protobuf.StringValue link_text = 8;
+  // the URL the link should take you to
+  google.protobuf.StringValue link_url = 9;
 }

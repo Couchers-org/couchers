@@ -46,6 +46,7 @@ const accountInfo = {
   isSuperuser: false,
   uiLanguagePreference: "",
   profilePublicVisibility: 1,
+  isVolunteer: false,
 };
 
 describe("Create event page", () => {
@@ -408,6 +409,7 @@ describe("Create event page", () => {
       isSuperuser: false,
       uiLanguagePreference: "",
       profilePublicVisibility: 1,
+      isVolunteer: false,
     });
 
     render(<CreateEventPage />, { wrapper });
