@@ -9,7 +9,7 @@ import {
   Skeleton,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import Datepicker from "components/Datepicker";
