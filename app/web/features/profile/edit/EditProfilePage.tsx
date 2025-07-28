@@ -1,6 +1,6 @@
 import { TabContext, TabPanel } from "@mui/lab";
 import { Button, Card, Grid } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
