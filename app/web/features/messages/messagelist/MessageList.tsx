@@ -46,13 +46,11 @@ export default function MessageList({
                 message={message}
               />
           ) : (
-            <MessageWrapper key={message.messageId}>
-              <MessageView
+              <StyledMessageView
                 key={message.messageId}
                 onVisible={() => markLastSeen(message.messageId)}
                 message={message}
               />
-            </MessageWrapper>
           ),
         )
       ) : (
