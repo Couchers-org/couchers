@@ -1,8 +1,8 @@
 import { Typography, useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import StyledChangeDetailsForm from "components/StyledChangeDetailsForm";
 import TextField from "components/TextField";
-import useChangeDetailsFormStyles from "features/auth/useChangeDetailsFormStyles";
 import { accountInfoQueryKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
@@ -27,7 +27,6 @@ interface ChangePasswordProps {
 
 export default function ChangePassword({ className }: ChangePasswordProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
-  const classes = useChangeDetailsFormStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
 
@@ -75,7 +74,7 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
           {t("auth:change_password_form.password_changed_success")}
         </Alert>
       )}
-      <form className={classes.form} onSubmit={onSubmit}>
+      <StyledChangeDetailsForm onSubmit={onSubmit}>
         <TextField
           {...register("oldPassword", { required: true })}
           id="oldPassword"
@@ -110,7 +109,7 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
         >
           {t("global:submit")}
         </Button>
-      </form>
+      </StyledChangeDetailsForm>
     </div>
   );
 }

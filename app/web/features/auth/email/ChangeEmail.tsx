@@ -1,6 +1,7 @@
 import { Typography, useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import StyledChangeDetailsForm from "components/StyledChangeDetailsForm";
 import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
@@ -10,8 +11,6 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
 import { lowercaseAndTrimField } from "utils/validation";
-
-import useChangeDetailsFormStyles from "../useChangeDetailsFormStyles";
 
 interface ChangeEmailFormData {
   newEmail: string;
@@ -25,7 +24,6 @@ interface ChangeEmailProps {
 
 export default function ChangeEmail({ className, email }: ChangeEmailProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
-  const formClasses = useChangeDetailsFormStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
 
@@ -75,7 +73,7 @@ export default function ChangeEmail({ className, email }: ChangeEmailProps) {
             {t("auth:change_email_form.success_message")}
           </Alert>
         )}
-        <form className={formClasses.form} onSubmit={onSubmit}>
+        <StyledChangeDetailsForm onSubmit={onSubmit}>
           <TextField
             id="currentPassword"
             {...register("currentPassword", { required: true })}
@@ -97,7 +95,7 @@ export default function ChangeEmail({ className, email }: ChangeEmailProps) {
           >
             {t("global:submit")}
           </Button>
-        </form>
+        </StyledChangeDetailsForm>
       </>
     </div>
   );
