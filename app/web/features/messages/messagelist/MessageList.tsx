@@ -1,4 +1,4 @@
-import { styled } from "@mui/material/styles";
+import { styled } from "@mui/material";
 import classNames from "classnames";
 import TextBody from "components/TextBody";
 import ControlMessageView from "features/messages/messagelist/ControlMessageView";
