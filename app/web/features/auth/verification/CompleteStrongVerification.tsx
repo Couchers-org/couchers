@@ -45,7 +45,7 @@ export default function CompleteStrongVerification() {
         >
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
             <Security sx={{ color: "primary.main", mr: 1, fontSize: 28 }} />
-            <Typography variant="h6" color="primary.main">
+            <Typography color="primary.main" sx={{ fontWeight: "bold" }}>
               {t("strong_verification.donation_title")}
             </Typography>
           </Box>
@@ -54,7 +54,7 @@ export default function CompleteStrongVerification() {
             <Favorite
               sx={{ color: "error.main", mr: 1.5, mt: 0.5, fontSize: 20 }}
             />
-            <Typography variant="body1" sx={{ flex: 1 }}>
+            <Typography sx={{ flex: 1 }}>
               {t("strong_verification.donation_message1")}
             </Typography>
           </Box>
@@ -63,7 +63,7 @@ export default function CompleteStrongVerification() {
             <VolunteerActivism
               sx={{ color: "secondary.main", mr: 1.5, mt: 0.5, fontSize: 20 }}
             />
-            <Typography variant="body1" sx={{ flex: 1 }}>
+            <Typography sx={{ flex: 1 }}>
               {t("strong_verification.donation_message2")}
             </Typography>
           </Box>
