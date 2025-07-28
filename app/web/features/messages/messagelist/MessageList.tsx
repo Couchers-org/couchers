@@ -15,7 +15,7 @@ const List = styled("div")(({ theme }) => ({
   paddingBlock: theme.spacing(2),
 }));
 
-const MessageWrapper = styled("div")(({ theme }) => ({
+const MessageWrapper = styled(ControlMessageView)(({ theme }) => ({
   marginBottom: theme.spacing(2),
   "&:nth-child(1)": {
     marginBottom: 0,
