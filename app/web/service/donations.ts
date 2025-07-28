@@ -18,10 +18,7 @@ export async function initiateDonation(
   }
 
   const res = await client.donations.initiateDonation(req);
-  return {
-    sessionId: res.getStripeCheckoutSessionId(),
-    checkoutUrl: res.getStripeCheckoutUrl(),
-  };
+  return res.getStripeCheckoutSessionId();
 }
 
 export async function getDonationPortalLink() {

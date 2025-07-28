@@ -237,22 +237,15 @@ export default function DonationsBox() {
       if (!checkForValidAmount(amount)) {
         throw Error(t("donations_box.amount_validation_error"));
       }
-      const source = router.query.source as string;
-      const { sessionId, checkoutUrl } =
-        await service.donations.initiateDonation(
-          amount,
-          recurring === "monthly",
-          source,
-        );
-
-      // In development/test/stage mode, redirect directly to success page
-      if (process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod") {
-        window.location.href = checkoutUrl;
-        return;
-      }
-
-      // In production mode, use Stripe Checkout
+      const source = router.query.utm_source as string;
       const stripe = (await stripePromise)!;
+
+      const sessionId = await service.donations.initiateDonation(
+        amount,
+        recurring === "monthly",
+        source,
+      );
+      // When the customer clicks on the button, redirect them to Checkout.
       const result = await stripe.redirectToCheckout({
         sessionId,
       });

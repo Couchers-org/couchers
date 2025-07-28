@@ -16,13 +16,6 @@ logger = logging.getLogger(__name__)
 
 
 def _create_stripe_customer(session, user):
-    # Skip Stripe customer creation in development if using placeholder API key
-    if config["STRIPE_API_KEY"] == "sk_test_...":
-        logger.warning("Skipping Stripe customer creation in development mode")
-        user.stripe_customer_id = f"cus_dev_{user.id}"
-        session.commit()
-        return
-
     # create a new stripe id for this user
     customer = stripe.Customer.create(
         email=user.email,
@@ -67,38 +60,30 @@ class Donations(donations_pb2_grpc.DonationsServicer):
                 "quantity": 1,
             }
 
-        # Skip Stripe checkout in development if using placeholder API key
-        if config["STRIPE_API_KEY"] == "sk_test_...":
-            logger.warning("Skipping Stripe checkout in development mode")
-            checkout_session_id = "cs_dev_test_session_id"
-            checkout_url = f"{config['BASE_URL']}/donate?success=true"
-        else:
-            checkout_session = stripe.checkout.Session.create(
-                client_reference_id=user.id,
-                submit_type="donate" if not request.recurring else None,
-                customer=user.stripe_customer_id,
-                success_url=urls.donation_success_url(),
-                cancel_url=urls.donation_cancelled_url(),
-                payment_method_types=["card"],
-                mode="subscription" if request.recurring else "payment",
-                line_items=[item],
-                api_key=config["STRIPE_API_KEY"],
-            )
-            checkout_session_id = checkout_session.id
-            checkout_url = checkout_session.url
+        checkout_session = stripe.checkout.Session.create(
+            client_reference_id=user.id,
+            submit_type="donate" if not request.recurring else None,
+            customer=user.stripe_customer_id,
+            success_url=urls.donation_success_url(),
+            cancel_url=urls.donation_cancelled_url(),
+            payment_method_types=["card"],
+            mode="subscription" if request.recurring else "payment",
+            line_items=[item],
+            api_key=config["STRIPE_API_KEY"],
+        )
 
         session.add(
             DonationInitiation(
                 user_id=user.id,
                 amount=request.amount,
-                stripe_checkout_session_id=checkout_session_id,
+                stripe_checkout_session_id=checkout_session.id,
                 donation_type=DonationType.recurring if request.recurring else DonationType.one_time,
                 source=request.source if request.source else None,
             )
         )
 
         return donations_pb2.InitiateDonationRes(
-            stripe_checkout_session_id=checkout_session_id, stripe_checkout_url=checkout_url
+            stripe_checkout_session_id=checkout_session.id, stripe_checkout_url=checkout_session.url
         )
 
     def GetDonationPortalLink(self, request, context, session):

@@ -1,18 +1,27 @@
 <mj-section padding="0px">
   <mj-column>
     <mj-text>Hi {{ user.name|v2esc }},</mj-text>
-    <mj-text><b>{{ from_user.name|v2esc }} just wrote a reference for you</b> from when you {% if surfed %}surfed with{% else %}hosted{% endif %} them.</mj-text>
+    <mj-text
+      ><b>{{ from_user.name|v2esc }} just wrote a reference for you</b> from
+      when you {% if surfed %}surfed with{% else %}hosted{% endif %}
+      them.</mj-text
+    >
   </mj-column>
 </mj-section>
 <mj-section padding="0px" text-align="left">
   <mj-column>
     <mj-table>
       <tr>
-        <td style="width: 100px;">
-          <img width="80px" style="border-radius: 80px" src="{{ from_user|v2avatar }}" />
+        <td style="width: 100px">
+          <img
+            width="80px"
+            style="border-radius: 80px"
+            src="{{ from_user|v2avatar }}"
+          />
         </td>
         <td>
-          <b>{{ from_user.name|v2esc }}</b>, {{ from_user.age|v2esc }}<br />{{ from_user.city|v2esc }}
+          <b>{{ from_user.name|v2esc }}</b>, {{ from_user.age|v2esc }}<br />{{
+          from_user.city|v2esc }}
         </td>
       </tr>
     </mj-table>
@@ -31,7 +40,12 @@
 </mj-section>
 <mj-section padding="0px">
   <mj-column>
-    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ profile_references_link|v2url }}">
+    <mj-button
+      background-color="#00a398"
+      color="white"
+      border-radius="5px"
+      href="{{ profile_references_link|v2url }}"
+    >
       <b>View the reference on your profile</b>
     </mj-button>
   </mj-column>
@@ -39,12 +53,23 @@
 <!-- {% else %} -->
 <mj-section padding="0px">
   <mj-column>
-    <mj-text>Please go and write a reference for them too. It's a nice gesture and helps us build a community together! When you've both written a reference, both references will become visible. Otherwise {{ from_user.name|v2esc }}'s reference will become visible 2 weeks after the end of your interaction, after which you cannot write a reference back.</mj-text>
+    <mj-text
+      >Please go and write a reference for them too. It's a nice gesture and
+      helps us build a community together! When you've both written a reference,
+      both references will become visible. Otherwise {{ from_user.name|v2esc
+      }}'s reference will become visible 2 weeks after the end of your
+      interaction, after which you cannot write a reference back.</mj-text
+    >
   </mj-column>
 </mj-section>
 <mj-section padding="0px">
   <mj-column>
-    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ leave_reference_link|v2url }}">
+    <mj-button
+      background-color="#00a398"
+      color="white"
+      border-radius="5px"
+      href="{{ leave_reference_link|v2url }}"
+    >
       <b>Write a reference for {{ from_user.name|v2esc }}</b>
     </mj-button>
   </mj-column>
@@ -52,7 +77,17 @@
 <!-- {% endif %} -->
 <mj-section padding="0px">
   <mj-column>
-    <mj-text><b>Couchers is a nonprofit developed and run entirely by volunteers.</b> If you are enjoying being a part of our community, please consider <a href="https://couchers.org/donate?cr=refemail">donating</a>, <a href="https://couchers.org/volunteer?cr=refemail">volunteering</a>, or just spreading the word. Your support will help us keep the lights on, grow and reach more people!</mj-text>
+    <mj-text
+      ><b>Couchers is a nonprofit developed and run entirely by volunteers.</b>
+      If you are enjoying being a part of our community, please consider
+      <a href="https://couchers.org/donate?utm_source=host-reference-email"
+        >donating</a
+      >,
+      <a href="https://couchers.org/volunteer?utm_source=host-reference-email"
+        >volunteering</a
+      >, or just spreading the word. Your support will help us keep the lights
+      on, grow and reach more people!</mj-text
+    >
   </mj-column>
 </mj-section>
 <mj-section padding="0px">
