@@ -1,4 +1,5 @@
 {
+  "eslint.useFlatConfig": false,
   "eslint.validate": [
     "javascript",
     "javascriptreact",
@@ -9,11 +10,6 @@
   "[python]": {
     "editor.tabSize": 4,
     "editor.rulers": [120]
-  },
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit",
-    "source.formatDocument": "explicit"
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[typescript]": {
@@ -38,8 +34,6 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "typescript.preferences.importModuleSpecifier": "relative",
-  "typescript.suggest.autoImports": true,
-  "typescript.updateImportsOnFileMove.enabled": "always",
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "files.trimTrailingWhitespace": true,
