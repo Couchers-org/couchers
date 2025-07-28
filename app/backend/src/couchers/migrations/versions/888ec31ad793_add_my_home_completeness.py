@@ -1,7 +1,7 @@
 """Add my home completeness
 
 Revision ID: 888ec31ad793
-Revises: c29307a66e4b
+Revises: f7fa767c2999
 Create Date: 2025-07-27 18:50:11.427303
 
 """
@@ -10,15 +10,15 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "888ec31ad793"
-down_revision = "c29307a66e4b"
+down_revision = "f7fa767c2999"
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
-    op.execute("DROP MATERIALIZED VIEW lite_users;")
     op.execute(
         """
+        DROP MATERIALIZED VIEW lite_users;
         CREATE MATERIALIZED VIEW lite_users AS
         SELECT
             users.id,
@@ -31,15 +31,7 @@ def upgrade():
             (NOT (users.is_banned OR users.is_deleted)) AS is_visible,
             uploads.filename AS avatar_filename,
             ((users.avatar_key IS NOT NULL) AND (character_length(users.about_me) >= 150)) AS has_completed_profile,
-            max_guests IS NOT NULL
-            AND sleeping_arrangement IS NOT NULL
-            AND (
-                about_place IS NOT NULL
-                OR other_host_info IS NOT NULL
-                OR sleeping_details IS NOT NULL
-                OR area IS NOT NULL
-                OR house_rules IS NOT NULL
-            ) AS has_completed_profile,
+            ((users.max_guests IS NOT NULL) AND (users.sleeping_arrangement IS NOT NULL) AND ((users.about_place IS NOT NULL) OR (users.other_host_info IS NOT NULL) OR (users.sleeping_details IS NOT NULL) OR (users.area IS NOT NULL) OR (users.house_rules IS NOT NULL))) AS has_completed_my_home,
             COALESCE(sv_subquery."true", false) AS has_strong_verification
         FROM users
         LEFT OUTER JOIN uploads ON uploads.key = users.avatar_key
@@ -65,7 +57,12 @@ def upgrade():
         CREATE UNIQUE INDEX uq_lite_users_id ON lite_users(id);
         CREATE INDEX uq_lite_users_id_visible ON lite_users(id) WHERE is_visible;
         CREATE INDEX uq_lite_users_username_visible ON lite_users(username) WHERE is_visible;
-    """
+
+        DROP INDEX uq_lite_users_id_visible;
+        DROP INDEX uq_lite_users_username_visible;
+        CREATE INDEX ix_lite_users_id_visible ON lite_users USING hash (id) WHERE is_visible;
+        CREATE INDEX ix_lite_users_username_visible ON lite_users USING hash (username) WHERE is_visible;
+        """
     )
 
 
