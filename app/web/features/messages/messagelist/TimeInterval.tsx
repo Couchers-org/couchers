@@ -1,5 +1,5 @@
 import { Typography } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { styled } from "@mui/material";
 import classNames from "classnames";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
