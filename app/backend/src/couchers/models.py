@@ -27,7 +27,7 @@ from sqlalchemy.dialects.postgresql import INET, TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, deferred, relationship
-from sqlalchemy.sql import and_, expression, func, not_, text
+from sqlalchemy.sql import and_, expression, func, not_, or_, text
 from sqlalchemy.sql import select as sa_select
 
 from couchers import urls
@@ -400,6 +400,38 @@ class User(Base):
     @has_completed_profile.expression
     def has_completed_profile(cls):
         return (cls.avatar_key != None) & (func.character_length(cls.about_me) >= 150)
+
+    @hybrid_property
+    def has_completed_my_home(self):
+        # completed my profile means that:
+        # 1. has filled out max_guests
+        # 2. has filled out sleeping_arrangement (sleeping privacy)
+        # 3. has some text in at least one of the my home free text fields
+        return (
+            self.max_guests is not None
+            and self.sleeping_arrangement is not None
+            and (
+                self.about_place is not None
+                or self.other_host_info is not None
+                or self.sleeping_details is not None
+                or self.area is not None
+                or self.house_rules is not None
+            )
+        )
+
+    @has_completed_my_home.expression
+    def has_completed_my_home(cls):
+        return and_(
+            cls.max_guests != None,
+            cls.sleeping_arrangement != None,
+            or_(
+                cls.about_place != None,
+                cls.other_host_info != None,
+                cls.sleeping_details != None,
+                cls.area != None,
+                cls.house_rules != None,
+            ),
+        )
 
     @hybrid_property
     def jailed_missing_tos(self):
@@ -1540,6 +1572,43 @@ class HostRequest(Base):
 
     def __repr__(self):
         return f"HostRequest(id={self.conversation_id}, surfer_user_id={self.surfer_user_id}, host_user_id={self.host_user_id}...)"
+
+
+class HostRequestQuality(enum.Enum):
+    high_quality = enum.auto()
+    okay_quality = enum.auto()
+    low_quality = enum.auto()
+
+
+class HostRequestFeedback(Base):
+    """
+    Private feedback from host about a host request
+    """
+
+    __tablename__ = "host_request_feedbacks"
+
+    id = Column(BigInteger, primary_key=True)
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    host_request_id = Column(ForeignKey("host_requests.id"), nullable=False)
+
+    from_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    to_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    request_quality = Column(Enum(HostRequestQuality), nullable=True)
+    decline_reason = Column(String, nullable=True)  # plain text
+
+    host_request = relationship("HostRequest")
+
+    __table_args__ = (
+        # Each user can leave at most one friend reference to another user
+        Index(
+            "ix_unique_host_req_feedback",
+            from_user_id,
+            to_user_id,
+            host_request_id,
+            unique=True,
+        ),
+    )
 
 
 class ReferenceType(enum.Enum):

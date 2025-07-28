@@ -118,6 +118,9 @@ message GetAccountInfoRes {
   // whether the user has completed their profile; otherwise needs to display a banner on dashboard
   bool profile_complete = 4;
 
+  // whether the user has completed their my home section
+  bool my_home_complete = 19;
+
   // User's alleged phone number in E.164 format (including country code with the + sign)
   string phone = 8;
 

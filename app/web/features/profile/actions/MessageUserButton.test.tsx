@@ -38,6 +38,7 @@ const accountInfo = {
   uiLanguagePreference: "",
   profilePublicVisibility: 1,
   isVolunteer: false,
+  myHomeComplete: false,
 };
 
 const incompleteAccountInfo = { ...accountInfo, profileComplete: false };

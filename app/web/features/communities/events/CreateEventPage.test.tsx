@@ -47,6 +47,7 @@ const accountInfo = {
   uiLanguagePreference: "",
   profilePublicVisibility: 1,
   isVolunteer: false,
+  myHomeComplete: false,
 };
 
 describe("Create event page", () => {
@@ -410,6 +411,7 @@ describe("Create event page", () => {
       uiLanguagePreference: "",
       profilePublicVisibility: 1,
       isVolunteer: false,
+      myHomeComplete: false,
     });
 
     render(<CreateEventPage />, { wrapper });
