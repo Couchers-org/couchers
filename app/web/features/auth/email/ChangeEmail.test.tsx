@@ -32,6 +32,7 @@ const accountInfo = {
   uiLanguagePreference: "",
   profilePublicVisibility: 1,
   isVolunteer: false,
+  myHomeComplete: false,
 };
 
 describe("ChangeEmail", () => {

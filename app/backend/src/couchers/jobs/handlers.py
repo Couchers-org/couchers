@@ -659,15 +659,16 @@ def update_recommendation_scores(payload):
             home_text += func.coalesce(field, "")
         home_length = func.length(home_text)
 
+        filled_profile = int_(User.has_completed_profile)
         has_text = int_(text_length > 500)
         long_text = int_(text_length > 2000)
-        has_pic = int_(User.avatar_key != None)
         can_host = int_(User.hosting_status == HostingStatus.can_host)
-        maybe = int_(User.hosting_status == HostingStatus.maybe)
+        may_host = int_(User.hosting_status == HostingStatus.maybe)
         cant_host = int_(User.hosting_status == HostingStatus.cant_host)
-        filled_home = int_(User.last_minute != None) * int_(home_length > 200)
-        hosting_status_points = 5 * can_host - 5 * maybe - 10 * cant_host
-        profile_points = 2 * has_text + 3 * long_text + 3 * has_pic + 5 * filled_home
+        filled_home = int_(User.has_completed_my_home)
+        filled_home_lots = int_(home_length > 200)
+        hosting_status_points = 5 * can_host - 5 * may_host - 10 * cant_host
+        profile_points = 5 * filled_profile + 2 * has_text + 3 * long_text + 5 * filled_home + 10 * filled_home_lots
 
         # references
         left_ref_expr = int_(1).label("left_reference")
