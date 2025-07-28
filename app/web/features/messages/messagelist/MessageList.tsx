@@ -40,13 +40,11 @@ export default function MessageList({
       {messages.length ? (
         messages.map((message) =>
           isControlMessage(message) ? (
-            <MessageWrapper key={message.messageId}>
-              <ControlMessageView
+              <StyledControlMessageView
                 key={message.messageId}
                 onVisible={() => markLastSeen(message.messageId)}
                 message={message}
               />
-            </MessageWrapper>
           ) : (
             <MessageWrapper key={message.messageId}>
               <MessageView
