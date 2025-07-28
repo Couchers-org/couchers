@@ -157,11 +157,6 @@
     },
     "title": "Попробовать новые функции"
   },
-  "unsubscribe": {
-    "title": "Отписаться",
-    "error_message": "Описаться не удалось: {{message}}",
-    "missing_payload_or_sig": "Неправильная ссылка"
-  },
   "change_phone": {
     "phone_not_verified_description": "Мы отправили код на <2>{{phone}}</2>. Чтобы подтвердить ваш номер телефона, введите код ниже:",
     "remove_button_text": "Отвязать текущий телефонный номер",

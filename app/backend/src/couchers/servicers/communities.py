@@ -8,7 +8,7 @@ from sqlalchemy.sql import delete, func, or_
 from couchers import errors
 from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.db import can_moderate_node, get_node_parents_recursively
-from couchers.materialized_views import cluster_admin_counts, cluster_subscription_counts
+from couchers.materialized_views import ClusterAdminCount, ClusterSubscriptionCount
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -57,8 +57,8 @@ def communities_to_pb(session, nodes: list[Node], context):
 
     member_counts = dict(
         session.execute(
-            select(cluster_subscription_counts.c.cluster_id, cluster_subscription_counts.c.count).where(
-                cluster_subscription_counts.c.cluster_id.in_(official_cluster_ids)
+            select(ClusterSubscriptionCount.cluster_id, ClusterSubscriptionCount.count).where(
+                ClusterSubscriptionCount.cluster_id.in_(official_cluster_ids)
             )
         ).all()
     )
@@ -74,8 +74,8 @@ def communities_to_pb(session, nodes: list[Node], context):
 
     admin_counts = dict(
         session.execute(
-            select(cluster_admin_counts.c.cluster_id, cluster_admin_counts.c.count).where(
-                cluster_admin_counts.c.cluster_id.in_(official_cluster_ids)
+            select(ClusterAdminCount.cluster_id, ClusterAdminCount.count).where(
+                ClusterAdminCount.cluster_id.in_(official_cluster_ids)
             )
         ).all()
     )

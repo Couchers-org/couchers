@@ -1,12 +1,20 @@
-import { Link as MuiLink, LinkProps } from "@mui/material";
-import Link from "next/link";
+import MuiLink, { LinkProps as MuiLinkProps } from "@mui/material/Link";
+import NextLink, { LinkProps as NextLinkProps } from "next/link";
 import { forwardRef } from "react";
 
-const StyledLink = forwardRef<HTMLAnchorElement, { href: string } & LinkProps>(
+// Combine Next.js and MUI Link props
+type StyledLinkProps = Omit<MuiLinkProps, "href"> &
+  NextLinkProps & { href: string };
+
+const StyledLink = forwardRef<HTMLAnchorElement, StyledLinkProps>(
   ({ href, ...props }, ref) => (
-    <Link href={href} passHref legacyBehavior>
-      <MuiLink ref={ref} {...props} underline={props.underline || "hover"} />
-    </Link>
+    <MuiLink
+      component={NextLink}
+      ref={ref}
+      href={href}
+      underline={props.underline || "hover"}
+      {...props}
+    />
   ),
 );
 

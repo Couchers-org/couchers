@@ -2,6 +2,21 @@
 # Run 'make [command]' in app/backend to execute the specified command
 format:
 	ruff check --select I --fix . && ruff check . --fix && ruff format .
+
+# Downgrade the local database to the previous migration. Good if you ran a migration on a branch and will run the backend on another branch after.
+# Usage:
+# make downgrade
+downgrade:
+	DATABASE_CONNECTION_STRING="postgresql://postgres:203d805f4b62c0a1b2f1f6b82d4583dfe563ec1619b83ce22ee414e8376a25e7@localhost:6545/postgres" \
+	alembic downgrade -1
+
+# Upgrade the local database to the next migration. Upgrade already happens automatically when you run the backend via docker compose.
+# Usage:
+# make upgrade
+upgrade:
+	DATABASE_CONNECTION_STRING="postgresql://postgres:203d805f4b62c0a1b2f1f6b82d4583dfe563ec1619b83ce22ee414e8376a25e7@localhost:6545/postgres" \
+	alembic upgrade +1
+
 # Run backend tests with optional file argument
 # Usage:
 # make test                    → runs all tests

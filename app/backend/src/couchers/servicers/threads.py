@@ -5,6 +5,7 @@ import sqlalchemy.exc
 from sqlalchemy.sql import func, select
 
 from couchers import errors
+from couchers.context import make_background_user_context
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Comment, Discussion, Event, EventOccurrence, Reply, Thread, User
@@ -12,7 +13,7 @@ from couchers.notifications.notify import notify
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime, make_user_context
+from couchers.utils import Timestamp_from_datetime
 from proto import notification_data_pb2, threads_pb2, threads_pb2_grpc
 from proto.internal import jobs_pb2
 
@@ -89,7 +90,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                         continue
                     if user_id == comment.author_user_id:
                         continue
-                    context = make_user_context(user_id=user_id)
+                    context = make_background_user_context(user_id=user_id)
                     notify(
                         session,
                         user_id=user_id,
@@ -114,7 +115,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                     if user_id == comment.author_user_id:
                         continue
 
-                    context = make_user_context(user_id=user_id)
+                    context = make_background_user_context(user_id=user_id)
                     notify(
                         session,
                         user_id=user_id,
@@ -133,7 +134,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
             reply = session.execute(select(Reply).where(Reply.id == database_id)).scalar_one()
             # the comment we're replying to
             parent_comment = session.execute(select(Comment).where(Comment.id == reply.comment_id)).scalar_one()
-            context = make_user_context(user_id=reply.author_user_id)
+            context = make_background_user_context(user_id=reply.author_user_id)
             thread_replies_author_user_ids = (
                 session.execute(
                     select(Reply.author_user_id)
@@ -169,7 +170,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                 # thread is an event thread
                 occurrence = event.occurrences.order_by(EventOccurrence.id.desc()).limit(1).one()
                 for user_id in user_ids_to_notify:
-                    context = make_user_context(user_id=user_id)
+                    context = make_background_user_context(user_id=user_id)
                     notify(
                         session,
                         user_id=user_id,
@@ -184,7 +185,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
             elif discussion:
                 # community discussion thread
                 for user_id in user_ids_to_notify:
-                    context = make_user_context(user_id=user_id)
+                    context = make_background_user_context(user_id=user_id)
                     notify(
                         session,
                         user_id=user_id,

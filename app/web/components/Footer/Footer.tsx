@@ -204,16 +204,21 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             <ReportButton isMenuLink />
           </div>
           <StyledButtonContainer>
-            <Link href={donationsRoute} passHref legacyBehavior>
-              <StyledButton component="a" variant="contained">
-                {t("nav.donate")}
-              </StyledButton>
-            </Link>
-            <Link href={volunteerRoute} passHref legacyBehavior>
-              <StyledButton component="a" variant="contained" color="secondary">
-                {t("nav.volunteer")}
-              </StyledButton>
-            </Link>
+            <StyledButton
+              component={Link}
+              href={donationsRoute}
+              variant="contained"
+            >
+              {t("nav.donate")}
+            </StyledButton>
+            <StyledButton
+              component={Link}
+              href={volunteerRoute}
+              variant="contained"
+              color="secondary"
+            >
+              {t("nav.volunteer")}
+            </StyledButton>
             <StyledSocialIconsContainer>
               <MuiLink
                 href={githubURL}
@@ -267,9 +272,9 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
       <StyledMiddleOuterContainer>
         <StyledMiddleContainer>
           <Typography variant="body2">
-            <Link href={foundationRoute} passHref>
+            <StyledLink href={foundationRoute}>
               {t("footer.non_profit_note")}
-            </Link>
+            </StyledLink>
           </Typography>
           <Typography variant="body2" sx={{ fontSize: ".6em" }}>
             <AntibotNote />

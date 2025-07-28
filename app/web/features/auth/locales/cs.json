@@ -121,10 +121,6 @@
     "explanation": "Pro svůj účet sis dříve nenastavil/a heslo. Chceš-li pokračovat, vytvoř si ho nyní."
   },
   "about_us": "O nás",
-  "unsubscribe": {
-    "title": "Odhlásit se z odběru",
-    "error_message": "Nastala chyba při odhlášení z odběru: {{message}}"
-  },
   "reset_password": "Resetovat heslo",
   "change_phone": {
     "phone_label": "Tvé telefonní číslo",

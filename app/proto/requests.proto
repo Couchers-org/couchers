@@ -46,6 +46,9 @@ service Requests {
 
   // Get the response rate and response time for a given user
   rpc GetResponseRate(GetResponseRateReq) returns (GetResponseRateRes);
+
+  // Send private feedback on host reqeust
+  rpc SendHostRequestFeedback(SendHostRequestFeedbackReq) returns (google.protobuf.Empty);
 }
 
 message CreateHostRequestReq {
@@ -68,6 +71,8 @@ message HostRequest {
   string to_date = 7;
   int64 last_seen_message_id = 8;
   org.couchers.api.conversations.Message latest_message = 9;
+
+  bool need_host_request_feedback = 10;
 }
 
 message GetHostRequestReq {
@@ -197,4 +202,17 @@ message GetResponseRateRes {
     // response rate > 90%
     ResponseRateAlmostAll almost_all = 5;
   }
+}
+
+enum HostRequestQuality {
+  HOST_REQUEST_QUALITY_UNSPECIFIED = 0;
+  HOST_REQUEST_QUALITY_LOW = 1;
+  HOST_REQUEST_QUALITY_OKAY = 2;
+  HOST_REQUEST_QUALITY_HIGH = 3;
+}
+
+message SendHostRequestFeedbackReq {
+  int64 host_request_id = 1;
+  HostRequestQuality host_request_quality = 2;
+  string decline_reason = 3;
 }

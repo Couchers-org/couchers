@@ -7,6 +7,7 @@ import pytest
 from google.protobuf import empty_pb2, timestamp_pb2
 
 from couchers import errors
+from couchers.context import make_background_user_context
 from couchers.crypto import b64decode
 from couchers.jobs.worker import process_job
 from couchers.models import (
@@ -23,7 +24,6 @@ from couchers.notifications.settings import get_topic_actions_by_delivery_type
 from couchers.servicers.api import user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.templates.v2 import v2timestamp
-from couchers.utils import make_user_context
 from proto import admin_pb2, api_pb2, auth_pb2, conversations_pb2, events_pb2, notification_data_pb2, notifications_pb2
 from proto.internal import unsubscribe_pb2
 from tests.test_fixtures import (  # noqa
@@ -161,7 +161,7 @@ def test_unsubscribe(db):
     assert mock.call_count == 1
     assert email_fields(mock).recipient == user.email
     # very ugly
-    # http://localhost:3000/unsubscribe?payload=CAEiGAoOZnJpZW5kX3JlcXVlc3QSBmFjY2VwdA==&sig=BQdk024NTATm8zlR0krSXTBhP5U9TlFv7VhJeIHZtUg=
+    # http://localhost:3000/quick-link?payload=CAEiGAoOZnJpZW5kX3JlcXVlc3QSBmFjY2VwdA==&sig=BQdk024NTATm8zlR0krSXTBhP5U9TlFv7VhJeIHZtUg=
     for link in re.findall(r'<a href="(.*?)"', email_fields(mock).html):
         if "payload" not in link:
             continue
@@ -218,7 +218,7 @@ def test_unsubscribe_do_not_email(db):
     assert mock.call_count == 1
     assert email_fields(mock).recipient == user.email
     # very ugly
-    # http://localhost:3000/unsubscribe?payload=CAEiGAoOZnJpZW5kX3JlcXVlc3QSBmFjY2VwdA==&sig=BQdk024NTATm8zlR0krSXTBhP5U9TlFv7VhJeIHZtUg=
+    # http://localhost:3000/quick-link?payload=CAEiGAoOZnJpZW5kX3JlcXVlc3QSBmFjY2VwdA==&sig=BQdk024NTATm8zlR0krSXTBhP5U9TlFv7VhJeIHZtUg=
     for link in re.findall(r'<a href="(.*?)"', email_fields(mock).html):
         if "payload" not in link:
             continue
@@ -606,7 +606,7 @@ def test_event_reminder_email_sent(db):
                         title=title,
                         start_time=start_event_time,
                     ),
-                    user=user_model_to_pb(user_in_session, session, make_user_context(user.id)),
+                    user=user_model_to_pb(user_in_session, session, make_background_user_context(user_id=user.id)),
                 ),
             )
 

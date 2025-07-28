@@ -2,7 +2,7 @@ import logging
 from dataclasses import dataclass
 
 from couchers import urls
-from couchers.notifications.unsubscribe import generate_unsub_topic_action
+from couchers.notifications.quick_links import generate_quick_decline_link, generate_unsub_topic_action
 from couchers.templates.v2 import v2avatar, v2date, v2esc, v2phone, v2timestamp
 from couchers.utils import now, to_aware_datetime
 from proto import notification_data_pb2
@@ -65,18 +65,34 @@ def render_notification(user, notification) -> RenderedNotification:
                 push_icon=v2avatar(other),
                 push_url=view_link,
             )
-        elif notification.action in ["create", "message"]:
-            if notification.action == "create":
-                other = data.surfer
-                message = f"{other.name} sent you a host request"
-                topic_action_unsub_text = "new host requests"
-            elif notification.action == "message":
-                other = data.user
-                if data.am_host:
-                    message = f"{other.name} sent you a message in their host request"
-                else:
-                    message = f"{other.name} sent you a message in your host request"
-                topic_action_unsub_text = "messages in host request"
+        elif notification.action == "create":
+            other = data.surfer
+            message = f"{other.name} sent you a host request"
+            return RenderedNotification(
+                email_subject=message,
+                email_preview=message,
+                email_template_name="host_request__new",
+                email_template_args={
+                    "view_link": view_link,
+                    "quick_decline_link": generate_quick_decline_link(data.host_request),
+                    "host_request": data.host_request,
+                    "message": message,
+                    "other": other,
+                    "text": data.text,
+                },
+                email_topic_action_unsubscribe_text="new host requests",
+                push_title=f"{message}",
+                push_body=f"Dates: {v2date(data.host_request.from_date, user)} to {v2date(data.host_request.to_date, user)}.\n\n{data.text}",
+                push_icon=v2avatar(other),
+                push_url=view_link,
+            )
+        elif notification.action == "message":
+            other = data.user
+            if data.am_host:
+                message = f"{other.name} sent you a message in their host request"
+            else:
+                message = f"{other.name} sent you a message in your host request"
+            topic_action_unsub_text = "messages in host request"
             return RenderedNotification(
                 email_subject=message,
                 email_preview=message,
