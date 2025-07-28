@@ -19,7 +19,7 @@ export default function TimeInterval({ date, className }: TimeIntervalProps) {
   const { t } = useTranslation(GLOBAL);
 
   return (
-    <Root className={classNames(className)}>
+    <Root className={className}>
       <Typography variant="caption">
         {timeAgoI18n({ input: date, t })}
       </Typography>
