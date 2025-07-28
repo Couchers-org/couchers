@@ -36,7 +36,7 @@ export default function MessageList({
   const { t } = useTranslation(MESSAGES);
 
   return (
-    <List className={classNames(className)} data-testid="message-list">
+    <List className={className} data-testid="message-list">
       {messages.length ? (
         messages.map((message) =>
           isControlMessage(message) ? (
