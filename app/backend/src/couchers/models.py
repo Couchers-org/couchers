@@ -808,6 +808,7 @@ class DonationInitiation(Base):
     stripe_checkout_session_id = Column(String, nullable=False)
 
     donation_type = Column(Enum(DonationType), nullable=False)
+    source = Column(String, nullable=True)
 
     user = relationship("User", backref="donation_initiations")
 
