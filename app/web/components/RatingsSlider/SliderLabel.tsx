@@ -1,3 +1,4 @@
+import { QuestionMark } from "@mui/icons-material";
 import {
   DissatisfiedIcon,
   ExtremelyDissatisfiedIcon,
@@ -10,10 +11,13 @@ import {
 } from "components/Icons/index";
 
 interface SliderLabelProps {
-  value: number;
+  value: number | undefined;
 }
 
 export default function SliderLabel({ value }: SliderLabelProps) {
+  if (value === undefined) {
+    return <QuestionMark />;
+  }
   if (value < 0.088) {
     return <ExtremelyDissatisfiedIcon />;
   } else if (value < 0.125) {

@@ -181,64 +181,71 @@ export default function PrivateFeedback({
             render={({ field }) => (
               <RatingsSlider onChange={field.onChange} value={field.value} />
             )}
+            rules={{
+              required: t("profile:leave_reference.rating_required"),
+            }}
           />
           {errors.privateText?.message && (
             <Alert severity="error" sx={{ marginBottom: theme.spacing(3) }}>
               {errors.privateText.message}
             </Alert>
           )}
-          {(wasAppropriate === "false" || rating < 0.33) && (
-            <PrivateTextContainer>
-              <Typography sx={{ marginTop: theme.spacing(2) }}>
-                {t("profile:leave_reference.private_text_explanation_1")}
-              </Typography>
-              <Typography sx={{ marginTop: theme.spacing(2) }}>
-                <Trans i18nKey="profile:leave_reference.private_text_explanation_2">
-                  This will only be seen by our Safety Team and will stay
-                  private. The more details the better, but even a short
-                  explanation can help a lot. Read more{" "}
-                  <StyledLink
-                    href={helpCenterPrivateFeedbackUrl}
-                    sx={{ fontWeight: 600 }}
-                  >
-                    here
-                  </StyledLink>
-                  .
-                </Trans>
-              </Typography>
-              <Typography sx={{ marginTop: theme.spacing(2) }}>
-                {t("profile:leave_reference.private_text_explanation_3")}
-              </Typography>
-              <Typography variant="h3" sx={{ marginTop: theme.spacing(4) }}>
-                {t("profile:leave_reference.what_happened")}
-              </Typography>
-              <Controller
-                control={control}
-                defaultValue={referenceData.privateText}
-                name="privateText"
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    id="privateText"
-                    label={t(
-                      "profile:leave_reference.private_text_placeholder",
-                    )}
-                    error={!!errors.privateText}
-                    helperText={errors.privateText?.message}
-                    onChange={(event) => {
-                      field.onChange(event);
-                    }}
-                    multiline
-                    minRows={3}
-                    sx={{
-                      "& > .MuiInputBase-root": { width: "100%", marginTop: 1 },
-                      marginTop: 2,
-                    }}
-                  />
-                )}
-              />
-            </PrivateTextContainer>
-          )}
+          {rating !== undefined &&
+            (wasAppropriate === "false" || rating < 0.33) && (
+              <PrivateTextContainer>
+                <Typography sx={{ marginTop: theme.spacing(2) }}>
+                  {t("profile:leave_reference.private_text_explanation_1")}
+                </Typography>
+                <Typography sx={{ marginTop: theme.spacing(2) }}>
+                  <Trans i18nKey="profile:leave_reference.private_text_explanation_2">
+                    This will only be seen by our Safety Team and will stay
+                    private. The more details the better, but even a short
+                    explanation can help a lot. Read more{" "}
+                    <StyledLink
+                      href={helpCenterPrivateFeedbackUrl}
+                      sx={{ fontWeight: 600 }}
+                    >
+                      here
+                    </StyledLink>
+                    .
+                  </Trans>
+                </Typography>
+                <Typography sx={{ marginTop: theme.spacing(2) }}>
+                  {t("profile:leave_reference.private_text_explanation_3")}
+                </Typography>
+                <Typography variant="h3" sx={{ marginTop: theme.spacing(4) }}>
+                  {t("profile:leave_reference.what_happened")}
+                </Typography>
+                <Controller
+                  control={control}
+                  defaultValue={referenceData.privateText}
+                  name="privateText"
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      id="privateText"
+                      label={t(
+                        "profile:leave_reference.private_text_placeholder",
+                      )}
+                      error={!!errors.privateText}
+                      helperText={errors.privateText?.message}
+                      onChange={(event) => {
+                        field.onChange(event);
+                      }}
+                      multiline
+                      minRows={3}
+                      sx={{
+                        "& > .MuiInputBase-root": {
+                          width: "100%",
+                          marginTop: 1,
+                        },
+                        marginTop: 2,
+                      }}
+                    />
+                  )}
+                />
+              </PrivateTextContainer>
+            )}
         </CardContent>
       </StyledCard>
 

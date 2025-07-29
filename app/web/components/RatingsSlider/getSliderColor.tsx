@@ -10,7 +10,11 @@ const badRatingRed = parseInt(theme.palette.error.main.substring(1, 3), 16);
 const badRatingGreen = parseInt(theme.palette.error.main.substring(3, 5), 16);
 const badRatingBlue = parseInt(theme.palette.error.main.substring(5, 7), 16);
 
-export const getSliderColor = (value: number) => {
+export const getSliderColor = (value: number | undefined) => {
+  if (value === undefined) {
+    return theme.palette.grey[100];
+  }
+
   const r = Math.ceil(goodRatingRed * value + badRatingRed * (1 - value));
   const g = Math.ceil(goodRatingGreen * value + badRatingGreen * (1 - value));
   const b = Math.ceil(goodRatingBlue * value + badRatingBlue * (1 - value));

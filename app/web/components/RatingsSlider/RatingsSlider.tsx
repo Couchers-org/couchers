@@ -34,7 +34,7 @@ const marks = [
 ];
 
 interface SliderProps {
-  value: number;
+  value?: number;
   onChange: (value: number | number[]) => void;
 }
 
@@ -61,6 +61,8 @@ const StyledSlider = styled(Slider, {
   "& .MuiSlider-rail": {
     height: "0.625rem",
     borderRadius: "1.5625rem",
+    backgroundColor: "transparent",
+    border: "1px solid black",
   },
   "& .MuiSlider-thumb": {
     height: "1.25rem",
@@ -92,19 +94,17 @@ const StyledSlider = styled(Slider, {
 }));
 
 export default function RatingsSlider({ value, onChange }: SliderProps) {
-  const props = { color: getSliderColor(value) };
-
   return (
     <StyledSlider
       aria-label={RATINGS_SLIDER}
-      sliderColor={props.color}
-      value={value}
+      sliderColor={getSliderColor(value)}
+      value={value ?? marks[1].value}
       min={0}
       max={1}
       step={0.01}
       marks={marks}
       valueLabelDisplay="on"
-      valueLabelFormat={(value) => <SliderLabel value={value} />}
+      valueLabelFormat={() => <SliderLabel value={value} />}
       onChange={(event, value) => {
         onChange(value);
       }}
