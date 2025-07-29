@@ -9,7 +9,7 @@ from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_view
 from couchers.models import Message, MessageType
 from couchers.templates.v2 import v2date
-from couchers.utils import now, today
+from couchers.utils import create_coordinate, now, today
 from proto import api_pb2, conversations_pb2, requests_pb2
 from tests.test_fixtures import (  # noqa
     api_session,
@@ -36,7 +36,7 @@ def test_create_request(db):
     hosting_radius = 500
     user2, token2 = generate_user(
         city=hosting_city,
-        geom=f"POINT({hosting_lng} {hosting_lat})",
+        geom=create_coordinate(hosting_lat, hosting_lng),
         geom_radius=hosting_radius,
     )
 

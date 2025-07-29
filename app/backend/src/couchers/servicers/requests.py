@@ -21,7 +21,6 @@ from couchers.servicers.api import response_rate_to_pb, user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import (
     Timestamp_from_datetime,
-    create_coordinate,
     date_to_api,
     get_coordinates,
     now,
@@ -91,8 +90,7 @@ def host_request_to_pb(host_request: HostRequest, session, context):
         .limit(1)
     ).scalar_one()
 
-    coords = get_coordinates(host_request.hosting_location)
-    lat, lng = coords if coords else (None, None)
+    lat, lng = get_coordinates(host_request.hosting_location)
 
     return requests_pb2.HostRequest(
         host_request_id=host_request.conversation_id,
@@ -108,10 +106,10 @@ def host_request_to_pb(host_request: HostRequest, session, context):
             else host_request.host_last_seen_message_id
         ),
         latest_message=message_to_pb(latest_message),
-        hosting_city=host_request.hosting_city or "",
-        hosting_lat=lat if lat else 0.0,
-        hosting_lng=lng if lng else 0.0,
-        hosting_radius=host_request.hosting_radius or 0.0,
+        hosting_city=host_request.hosting_city,
+        hosting_lat=lat,
+        hosting_lng=lng,
+        hosting_radius=host_request.hosting_radius,
     )
 
 
@@ -136,8 +134,8 @@ def _possibly_observe_first_response_time(session, host_request, user_id, respon
 class Requests(requests_pb2_grpc.RequestsServicer):
     def CreateHostRequest(self, request, context, session):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-        if not user.has_completed_profile:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.INCOMPLETE_PROFILE_SEND_REQUEST)
+        # if not user.has_completed_profile:
+        #     context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.INCOMPLETE_PROFILE_SEND_REQUEST)
 
         if request.host_user_id == context.user_id:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REQUEST_SELF)
@@ -205,7 +203,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             # TODO: tz
             # timezone=host.timezone,
             hosting_city=host.city,
-            hosting_location=create_coordinate(host.coordinates[0], host.coordinates[1]),
+            hosting_location=host.geom,
             hosting_radius=host.geom_radius,
         )
         session.add(host_request)
@@ -305,32 +303,31 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         statement = statement.order_by(Message.id.desc()).limit(pagination + 1)
         results = session.execute(statement).all()
 
-        host_requests = [
-            requests_pb2.HostRequest(
-                host_request_id=result.HostRequest.conversation_id,
-                surfer_user_id=result.HostRequest.surfer_user_id,
-                host_user_id=result.HostRequest.host_user_id,
-                status=hostrequeststatus2api[result.HostRequest.status],
-                created=Timestamp_from_datetime(result.Conversation.created),
-                from_date=date_to_api(result.HostRequest.from_date),
-                to_date=date_to_api(result.HostRequest.to_date),
-                last_seen_message_id=(
-                    result.HostRequest.surfer_last_seen_message_id
-                    if context.user_id == result.HostRequest.surfer_user_id
-                    else result.HostRequest.host_last_seen_message_id
-                ),
-                latest_message=message_to_pb(result.Message),
-                hosting_city=result.HostRequest.hosting_city or "",
-                hosting_lat=get_coordinates(result.HostRequest.hosting_location)[0]
-                if result.HostRequest.hosting_location
-                else 0.0,
-                hosting_lng=get_coordinates(result.HostRequest.hosting_location)[1]
-                if result.HostRequest.hosting_location
-                else 0.0,
-                hosting_radius=result.HostRequest.hosting_radius or 0.0,
+        host_requests = []
+        for result in results[:pagination]:
+            lat, lng = get_coordinates(result.HostRequest.hosting_location)
+            host_requests.append(
+                requests_pb2.HostRequest(
+                    host_request_id=result.HostRequest.conversation_id,
+                    surfer_user_id=result.HostRequest.surfer_user_id,
+                    host_user_id=result.HostRequest.host_user_id,
+                    status=hostrequeststatus2api[result.HostRequest.status],
+                    created=Timestamp_from_datetime(result.Conversation.created),
+                    from_date=date_to_api(result.HostRequest.from_date),
+                    to_date=date_to_api(result.HostRequest.to_date),
+                    last_seen_message_id=(
+                        result.HostRequest.surfer_last_seen_message_id
+                        if context.user_id == result.HostRequest.surfer_user_id
+                        else result.HostRequest.host_last_seen_message_id
+                    ),
+                    latest_message=message_to_pb(result.Message),
+                    hosting_city=result.HostRequest.hosting_city,
+                    hosting_lat=lat,
+                    hosting_lng=lng,
+                    hosting_radius=result.HostRequest.hosting_radius,
+                )
             )
-            for result in results[:pagination]
-        ]
+
         last_request_id = min(g.Message.id for g in results[:pagination]) if len(results) > pagination else 0  # TODO
         no_more = len(results) <= pagination
 
