@@ -142,11 +142,9 @@ export default function HostRequestSendField({
           />
         )}
         {isReferenceAvailable && (
-          <Link href={referenceRoute} passHref legacyBehavior>
-            <StyledButton color="primary" component="a">
-              {t("messages:write_reference_button_text")}
-            </StyledButton>
-          </Link>
+          <StyledButton color="primary" component={Link} href={referenceRoute}>
+            {t("messages:write_reference_button_text")}
+          </StyledButton>
         )}
       </StyledButtonContainer>
       <StyledContainer>

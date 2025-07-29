@@ -59,11 +59,9 @@ export default function ProfileIncompleteDialog({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Link href={routeToEditProfile()} passHref legacyBehavior>
-          <Button>
-            {t("dashboard:complete_profile_dialog.edit_profile_button")}
-          </Button>
-        </Link>
+        <Button component={Link} href={routeToEditProfile()}>
+          {t("dashboard:complete_profile_dialog.edit_profile_button")}
+        </Button>
         <Button onClick={onClose}>
           {t("dashboard:complete_profile_dialog.cancel_button")}
         </Button>

@@ -1,6 +1,6 @@
 {
   "change_email_form": {
-    "current_email_message": "Il tuo indirizzo e-mail attuale è <2>{{email}}</2>.",
+    "current_email_message": "Il tuo indirizzo e-mail attuale è <1>{{email}}</1>.",
     "current_password": "Password attuale",
     "new_email": "Nuova e-mail",
     "title": "Modificare e-mail",
@@ -157,12 +157,6 @@
       "explanation": "Il tuo nome utente viene definito quando crei il conto."
     },
     "title": "Impostazioni conto"
-  },
-  "unsubscribe": {
-    "title": "Annullare iscrizione",
-    "button_text": "Confermare annullamento iscrizione",
-    "error_message": "Errore durante l'annullamento dell'iscrizione: {{message}}",
-    "missing_payload_or_sig": "URL non valido, dati o firma mancanti"
   },
   "change_phone": {
     "phone_label": "Il tuo numero di telefono",

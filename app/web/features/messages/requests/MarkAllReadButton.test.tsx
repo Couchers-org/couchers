@@ -169,17 +169,20 @@ const defaultRequests: HostRequest.AsObject[] = [
     hostRequestId: 1,
     lastSeenMessageId: 1,
     latestMessage: { ...messages[0], messageId: 1 },
+    needHostRequestFeedback: false,
   },
   {
     ...request,
     hostRequestId: 2,
     lastSeenMessageId: 1,
     latestMessage: { ...messages[0], messageId: 2 },
+    needHostRequestFeedback: false,
   },
   {
     ...request,
     hostRequestId: 3,
     lastSeenMessageId: 4,
     latestMessage: { ...messages[0], messageId: 3 },
+    needHostRequestFeedback: false,
   },
 ];

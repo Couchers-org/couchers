@@ -227,5 +227,26 @@
     "thanks": "Danke!",
     "create_account": "Account Erstellen",
     "join_us": "Mitmachen",
-    "error_loading_languages": "Das Laden der Sprachoptionen ist fehlgeschlagen"
+    "error_loading_languages": "Das Laden der Sprachoptionen ist fehlgeschlagen",
+    "language_names": {
+        "ja": "Japanisch",
+        "zh-Hans": "Chinesisch (Vereinfacht)",
+        "cs": "Tschechisch",
+        "de": "Deutsch",
+        "en": "Englisch",
+        "es": "Spanisch (Spanien)",
+        "es-419": "Spanisch",
+        "fr": "Französisch (Frankreich)",
+        "fr-CA": "Französisch (Kanada)",
+        "hi": "Hindi",
+        "it": "Italienisch",
+        "nb-NO": "Norwegisch (Bokmål)",
+        "pl": "Polnisch",
+        "pt": "Portugiesisch (Portugal)",
+        "pt-BR": "Portugiesisch (Brasilien)",
+        "ru": "Russisch",
+        "sv": "Schwedisch",
+        "uk": "Ukrainisch",
+        "zh-Hant": "Chinesisch (Traditionell)"
+    }
 }

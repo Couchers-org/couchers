@@ -232,10 +232,10 @@
     "delete_button": "Delete my Strong Verification data",
     "delete_success": "Your passport data has been deleted."
   },
-  "unsubscribe": {
-    "title": "Unsubscribe",
-    "button_text": "Confirm unsubscription",
-    "error_message": "Error unsubscribing: {{message}}",
+  "quick_links": {
+    "title": "Email quick action",
+    "button_text": "Confirm action",
+    "error_message": "Error: {{message}}",
     "missing_payload_or_sig": "Invalid URL"
   },
   "change_phone": {

@@ -9,6 +9,7 @@ from sqlalchemy.sql import delete, func, or_
 from couchers import errors
 from couchers.config import config
 from couchers.constants import ANTIBOT_FREQ, BANNED_USERNAME_PHRASES, GUIDELINES_VERSION, TOS_VERSION, UNDELETE_DAYS
+from couchers.context import CouchersContext
 from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
 from couchers.metrics import (
     account_deletion_completions_counter,
@@ -33,7 +34,7 @@ from couchers.models import (
     UserSession,
 )
 from couchers.notifications.notify import notify
-from couchers.notifications.unsubscribe import unsubscribe
+from couchers.notifications.quick_links import respond_quick_link
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
 from couchers.sql import couchers_select as select
@@ -63,7 +64,9 @@ def _auth_res(user):
     return auth_pb2.AuthRes(jailed=user.is_jailed, user_id=user.id)
 
 
-def create_session(context, session, user, long_lived, is_api_key=False, duration=None, set_cookie=True):
+def create_session(
+    context: CouchersContext, session, user, long_lived, is_api_key=False, duration=None, set_cookie=True
+):
     """
     Creates a session for the given user and returns the token and expiry.
 
@@ -86,14 +89,12 @@ def create_session(context, session, user, long_lived, is_api_key=False, duratio
 
     token = cookiesafe_secure_token()
 
-    headers = dict(context.invocation_metadata())
-
     user_session = UserSession(
         token=token,
         user=user,
         long_lived=long_lived,
-        ip_address=headers.get("x-couchers-real-ip"),
-        user_agent=headers.get("user-agent"),
+        ip_address=context.headers.get("x-couchers-real-ip"),
+        user_agent=context.headers.get("user-agent"),
         is_api_key=is_api_key,
     )
     if duration:
@@ -105,9 +106,7 @@ def create_session(context, session, user, long_lived, is_api_key=False, duratio
     logger.debug(f"Handing out {token=} to {user=}")
 
     if set_cookie:
-        context.send_initial_metadata(
-            [("set-cookie", cookie) for cookie in create_session_cookies(token, user.id, user_session.expiry)]
-        )
+        context.set_cookies(create_session_cookies(token, user.id, user_session.expiry))
 
     logins_counter.labels(user.gender).inc()
 
@@ -414,7 +413,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             context.abort(grpc.StatusCode.NOT_FOUND, errors.ACCOUNT_NOT_FOUND)
 
     def GetAuthState(self, request, context, session):
-        if not context.user_id:
+        if not context.is_logged_in():
             return auth_pb2.GetAuthStateRes(logged_in=False)
         else:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
@@ -424,7 +423,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         Removes an active cookie session.
         """
-        token = parse_session_cookie(dict(context.invocation_metadata()))
+        token = parse_session_cookie(context.headers)
         logger.info(f"Deauthenticate(token={token})")
 
         # if we had a token, try to remove the session
@@ -432,7 +431,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             delete_session(session, token)
 
         # set the cookie to an empty string and expire immediately, should remove it from the browser
-        context.send_initial_metadata([("set-cookie", cookie) for cookie in create_session_cookies("", "", now())])
+        context.set_cookies(create_session_cookies("", "", now()))
 
         return empty_pb2.Empty()
 
@@ -589,23 +588,21 @@ class Auth(auth_pb2_grpc.AuthServicer):
         return empty_pb2.Empty()
 
     def Unsubscribe(self, request, context, session):
-        return auth_pb2.UnsubscribeRes(response=unsubscribe(request, context))
+        return auth_pb2.UnsubscribeRes(response=respond_quick_link(request, context, session))
 
     def AntiBot(self, request, context, session):
         if not config["RECAPTHCA_ENABLED"]:
             return auth_pb2.AntiBotRes()
 
-        headers = dict(context.invocation_metadata())
-
-        ip_address = headers.get("x-couchers-real-ip")
-        user_agent = headers.get("user-agent")
+        ip_address = context.headers.get("x-couchers-real-ip")
+        user_agent = context.headers.get("user-agent")
 
         log = AntiBotLog(
             token=request.token,
             user_agent=user_agent,
             ip_address=ip_address,
             action=request.action,
-            user_id=context.user_id,
+            user_id=context.user_id if context.is_logged_in() else None,
         )
 
         resp = requests.post(
@@ -634,7 +631,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         recaptchas_assessed_counter.labels(log.action).inc()
         recaptcha_score_histogram.labels(log.action).observe(log.score)
 
-        if context.user_id:
+        if context.is_logged_in():
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
             user.last_antibot = now()
 
@@ -642,7 +639,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
     def AntiBotPolicy(self, request, context, session):
         if config["RECAPTHCA_ENABLED"]:
-            if context.user_id:
+            if context.is_logged_in():
                 user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
                 if now() - user.last_antibot > ANTIBOT_FREQ:
                     return auth_pb2.AntiBotPolicyRes(should_antibot=True)

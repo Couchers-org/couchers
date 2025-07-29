@@ -27,7 +27,7 @@ from sqlalchemy.dialects.postgresql import INET, TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, deferred, relationship
-from sqlalchemy.sql import and_, expression, func, not_, text
+from sqlalchemy.sql import and_, expression, func, not_, or_, text
 from sqlalchemy.sql import select as sa_select
 
 from couchers import urls
@@ -138,7 +138,7 @@ class User(Base):
     # stored in libsodium hash format, can be null for email login
     hashed_password = Column(Binary, nullable=False)
     # phone number in E.164 format with leading +, for example "+46701740605"
-    phone = Column(String, nullable=True, server_default=text("NULL"))
+    phone = Column(String, nullable=True, server_default=expression.null())
     # language preference -- defaults to empty string
     ui_language_preference = Column(String, nullable=True, server_default="")
 
@@ -168,7 +168,7 @@ class User(Base):
     last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     public_visibility = Column(Enum(ProfilePublicVisibility), nullable=False, server_default="map_only")
-    has_modified_public_visibility = Column(Boolean, nullable=False, server_default=text("false"))
+    has_modified_public_visibility = Column(Boolean, nullable=False, server_default=expression.false())
 
     # id of the last message that they received a notification about
     last_notified_message_id = Column(BigInteger, nullable=False, default=0)
@@ -201,9 +201,9 @@ class User(Base):
     # "Additional information" under "About Me" tab
     additional_information = Column(String, nullable=True)  # CommonMark without images
 
-    is_banned = Column(Boolean, nullable=False, server_default=text("false"))
-    is_deleted = Column(Boolean, nullable=False, server_default=text("false"))
-    is_superuser = Column(Boolean, nullable=False, server_default=text("false"))
+    is_banned = Column(Boolean, nullable=False, server_default=expression.false())
+    is_deleted = Column(Boolean, nullable=False, server_default=expression.false())
+    is_superuser = Column(Boolean, nullable=False, server_default=expression.false())
 
     # the undelete token allows a user to recover their account for a couple of days after deletion in case it was
     # accidental or they changed their mind
@@ -246,16 +246,16 @@ class User(Base):
     accepted_tos = Column(Integer, nullable=False, default=0)
     accepted_community_guidelines = Column(Integer, nullable=False, server_default="0")
     # whether the user has yet filled in the contributor form
-    filled_contributor_form = Column(Boolean, nullable=False, server_default="false")
+    filled_contributor_form = Column(Boolean, nullable=False, server_default=expression.false())
 
     # number of onboarding emails sent
     onboarding_emails_sent = Column(Integer, nullable=False, server_default="0")
     last_onboarding_email_sent = Column(DateTime(timezone=True), nullable=True)
 
     # whether we need to sync the user's newsletter preferences with the newsletter server
-    in_sync_with_newsletter = Column(Boolean, nullable=False, server_default="false")
+    in_sync_with_newsletter = Column(Boolean, nullable=False, server_default=expression.false())
     # opted out of the newsletter
-    opt_out_of_newsletter = Column(Boolean, nullable=False, server_default="false")
+    opt_out_of_newsletter = Column(Boolean, nullable=False, server_default=expression.false())
 
     # set to null to receive no digests
     digest_frequency = Column(Interval, nullable=True)
@@ -294,10 +294,10 @@ class User(Base):
     # '-----------------'                   '-------------------'                      '-----------------------'
 
     # randomly generated Luhn 6-digit string
-    phone_verification_token = Column(String(6), nullable=True, server_default=text("NULL"))
+    phone_verification_token = Column(String(6), nullable=True, server_default=expression.null())
 
     phone_verification_sent = Column(DateTime(timezone=True), nullable=False, server_default=text("to_timestamp(0)"))
-    phone_verification_verified = Column(DateTime(timezone=True), nullable=True, server_default=text("NULL"))
+    phone_verification_verified = Column(DateTime(timezone=True), nullable=True, server_default=expression.null())
     phone_verification_attempts = Column(Integer, nullable=False, server_default=text("0"))
 
     # the stripe customer identifier if the user has donated to Couchers
@@ -307,20 +307,20 @@ class User(Base):
     # for old AU entity
     stripe_customer_id_old = Column(String, nullable=True)
 
-    has_passport_sex_gender_exception = Column(Boolean, nullable=False, server_default=text("false"))
+    has_passport_sex_gender_exception = Column(Boolean, nullable=False, server_default=expression.false())
 
     #  checking for phone verification
-    has_donated = Column(Boolean, nullable=False, server_default=text("false"))
+    has_donated = Column(Boolean, nullable=False, server_default=expression.false())
 
     # whether this user has all emails turned off
-    do_not_email = Column(Boolean, nullable=False, server_default=text("false"))
+    do_not_email = Column(Boolean, nullable=False, server_default=expression.false())
 
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
     admin_note = Column(String, nullable=False, server_default=text("''"))
 
     # whether mods have marked this user has having to update their location
-    needs_to_update_location = Column(Boolean, nullable=False, server_default=text("false"))
+    needs_to_update_location = Column(Boolean, nullable=False, server_default=expression.false())
 
     last_antibot = Column(DateTime(timezone=True), nullable=False, server_default=text("to_timestamp(0)"))
 
@@ -329,6 +329,10 @@ class User(Base):
     # ID of the invite code used to sign up (if any)
     invite_code_id = Column(ForeignKey("invite_codes.id"), nullable=True)
     invite_code = relationship("InviteCode", foreign_keys=[invite_code_id])
+
+    moderation_user_lists = relationship(
+        "ModerationUserList", secondary="moderation_user_list_members", back_populates="users"
+    )
 
     __table_args__ = (
         # Verified phone numbers should be unique
@@ -400,6 +404,38 @@ class User(Base):
     @has_completed_profile.expression
     def has_completed_profile(cls):
         return (cls.avatar_key != None) & (func.character_length(cls.about_me) >= 150)
+
+    @hybrid_property
+    def has_completed_my_home(self):
+        # completed my profile means that:
+        # 1. has filled out max_guests
+        # 2. has filled out sleeping_arrangement (sleeping privacy)
+        # 3. has some text in at least one of the my home free text fields
+        return (
+            self.max_guests is not None
+            and self.sleeping_arrangement is not None
+            and (
+                self.about_place is not None
+                or self.other_host_info is not None
+                or self.sleeping_details is not None
+                or self.area is not None
+                or self.house_rules is not None
+            )
+        )
+
+    @has_completed_my_home.expression
+    def has_completed_my_home(cls):
+        return and_(
+            cls.max_guests != None,
+            cls.sleeping_arrangement != None,
+            or_(
+                cls.about_place != None,
+                cls.other_host_info != None,
+                cls.sleeping_details != None,
+                cls.area != None,
+                cls.house_rules != None,
+            ),
+        )
 
     @hybrid_property
     def jailed_missing_tos(self):
@@ -1165,7 +1201,7 @@ class UserSession(Base):
     # a session cookie is set in the "couchers-sesh" cookie (e.g. "cookie: couchers-sesh=<token>")
     # when a session is created, it's fixed as one or the other for security reasons
     # for api keys to be useful, they should be long lived and have a long expiry
-    is_api_key = Column(Boolean, nullable=False, server_default=text("false"))
+    is_api_key = Column(Boolean, nullable=False, server_default=expression.false())
 
     # whether it's a long-lived or short-lived session
     long_lived = Column(Boolean, nullable=False)
@@ -1493,8 +1529,8 @@ class HostRequest(Base):
     end_time_to_write_reference = column_property(date_in_timezone(to_date, timezone) + text("interval '15 days'"))
 
     status = Column(Enum(HostRequestStatus), nullable=False)
-    is_host_archived = Column(Boolean, nullable=False, default=False, server_default=text("false"))
-    is_surfer_archived = Column(Boolean, nullable=False, default=False, server_default=text("false"))
+    is_host_archived = Column(Boolean, nullable=False, default=False, server_default=expression.false())
+    is_surfer_archived = Column(Boolean, nullable=False, default=False, server_default=expression.false())
 
     host_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
     surfer_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
@@ -1503,7 +1539,7 @@ class HostRequest(Base):
     host_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
     surfer_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
     host_sent_request_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
-    last_sent_request_reminder_time = Column(DateTime, nullable=False, server_default=func.now())
+    last_sent_request_reminder_time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     # reason why the host/surfer marked that they didn't meet up
     # if null then they haven't marked it such
@@ -1554,6 +1590,43 @@ class HostRequest(Base):
         return f"HostRequest(id={self.conversation_id}, surfer_user_id={self.surfer_user_id}, host_user_id={self.host_user_id}...)"
 
 
+class HostRequestQuality(enum.Enum):
+    high_quality = enum.auto()
+    okay_quality = enum.auto()
+    low_quality = enum.auto()
+
+
+class HostRequestFeedback(Base):
+    """
+    Private feedback from host about a host request
+    """
+
+    __tablename__ = "host_request_feedbacks"
+
+    id = Column(BigInteger, primary_key=True)
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    host_request_id = Column(ForeignKey("host_requests.id"), nullable=False)
+
+    from_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    to_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    request_quality = Column(Enum(HostRequestQuality), nullable=True)
+    decline_reason = Column(String, nullable=True)  # plain text
+
+    host_request = relationship("HostRequest")
+
+    __table_args__ = (
+        # Each user can leave at most one friend reference to another user
+        Index(
+            "ix_unique_host_req_feedback",
+            from_user_id,
+            to_user_id,
+            host_request_id,
+            unique=True,
+        ),
+    )
+
+
 class ReferenceType(enum.Enum):
     friend = enum.auto()
     surfed = enum.auto()  # The "from" user surfed with the "to" user
@@ -1585,7 +1658,7 @@ class Reference(Base):
     rating = Column(Float, nullable=False)
     was_appropriate = Column(Boolean, nullable=False)
 
-    is_deleted = Column(Boolean, nullable=False, default=False, server_default="false")
+    is_deleted = Column(Boolean, nullable=False, default=False, server_default=expression.false())
 
     from_user = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
     to_user = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
@@ -2053,8 +2126,8 @@ class EventOccurrence(Base):
     content = Column(String, nullable=False)  # CommonMark without images
     photo_key = Column(ForeignKey("uploads.key"), nullable=True)
 
-    is_cancelled = Column(Boolean, nullable=False, default=False, server_default=text("false"))
-    is_deleted = Column(Boolean, nullable=False, default=False, server_default=text("false"))
+    is_cancelled = Column(Boolean, nullable=False, default=False, server_default=expression.false())
+    is_deleted = Column(Boolean, nullable=False, default=False, server_default=expression.false())
 
     # a null geom is an online-only event
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
@@ -2565,7 +2638,7 @@ class Notification(Base):
     data = Column(Binary, nullable=False)
 
     # whether the user has marked this notification as seen or not
-    is_seen = Column(Boolean, nullable=False, server_default=text("false"))
+    is_seen = Column(Boolean, nullable=False, server_default=expression.false())
 
     user = relationship("User", foreign_keys="Notification.user_id")
 
@@ -2742,7 +2815,7 @@ class APICall(Base):
     id = Column(BigInteger, primary_key=True)
 
     # whether the call was made using an api key or session cookies
-    is_api_key = Column(Boolean, nullable=False, server_default=text("false"))
+    is_api_key = Column(Boolean, nullable=False, server_default=expression.false())
 
     # backend version (normally e.g. develop-31469e3), allows us to figure out which proto definitions were used
     # note that `default` is a python side default, not hardcoded into DB schema
@@ -2770,7 +2843,7 @@ class APICall(Base):
     response = Column(Binary, nullable=True)
 
     # whether response bytes have been truncated
-    response_truncated = Column(Boolean, nullable=False, server_default=text("false"))
+    response_truncated = Column(Boolean, nullable=False, server_default=expression.false())
 
     # the exception traceback, if any
     traceback = Column(String, nullable=True)
@@ -2792,6 +2865,33 @@ class AccountDeletionReason(Base):
     reason = Column(String, nullable=True)
 
     user = relationship("User")
+
+
+class ModerationUserList(Base):
+    """
+    Represents a list of users listed together by a moderator
+    """
+
+    __tablename__ = "moderation_user_lists"
+
+    id = Column(BigInteger, primary_key=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    # Relationships
+    users = relationship("User", secondary="moderation_user_list_members", back_populates="moderation_user_lists")
+
+
+class ModerationUserListMember(Base):
+    """
+    Association table for many-to-many relationship between users and moderation_user_lists
+    """
+
+    __tablename__ = "moderation_user_list_members"
+
+    user_id = Column(ForeignKey("users.id"), primary_key=True)
+    moderation_list_id = Column(ForeignKey("moderation_user_lists.id"), primary_key=True)
+
+    __table_args__ = (UniqueConstraint("user_id", "moderation_list_id"),)
 
 
 class AntiBotLog(Base):
@@ -2833,4 +2933,36 @@ class RateLimitViolation(Base):
     __table_args__ = (
         # Fast lookup for rate limits in interval
         Index("ix_rate_limits_by_user", user_id, action, is_hard_limit, created),
+    )
+
+
+class Volunteer(Base):
+    __tablename__ = "volunteers"
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, unique=True)
+
+    display_name = Column(String, nullable=True)
+    display_location = Column(String, nullable=True)
+
+    role = Column(String, nullable=False)
+
+    # custom sort order on team page, sorted ascending
+    sort_key = Column(Float, nullable=True)
+
+    started_volunteering = Column(Date, nullable=False, server_default=text("CURRENT_DATE"))
+    stopped_volunteering = Column(Date, nullable=True, default=None)
+
+    link_type = Column(String, nullable=True)
+    link_text = Column(String, nullable=True)
+    link_url = Column(String, nullable=True)
+
+    show_on_team_page = Column(Boolean, nullable=False, server_default=expression.true())
+
+    __table_args__ = (
+        # Link type, text, url should all be null or all not be null
+        CheckConstraint(
+            "(link_type IS NULL) = (link_text IS NULL) AND (link_type IS NULL) = (link_url IS NULL)",
+            name="link_type_text",
+        ),
     )

@@ -4,7 +4,7 @@ import logging
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.sql import func
 
-from couchers.materialized_views import clustered_users, lite_users
+from couchers.materialized_views import ClusteredUser, LiteUser
 from couchers.models import Node, Page, PageType, PageVersion
 from couchers.sql import couchers_select as select
 from proto import gis_pb2_grpc
@@ -37,13 +37,13 @@ def _statement_to_geojson_response(session, statement):
 
 class GIS(gis_pb2_grpc.GISServicer):
     def GetUsers(self, request, context, session):
-        statement = select(lite_users.c.id, lite_users.c.geom, lite_users.c.has_completed_profile).where_users_visible(
-            context, table=lite_users.c
+        statement = select(LiteUser.id, LiteUser.geom, LiteUser.has_completed_profile).where_users_visible(
+            context, table=LiteUser
         )
         return _statement_to_geojson_response(session, statement)
 
     def GetClusteredUsers(self, request, context, session):
-        return _statement_to_geojson_response(session, select(clustered_users.c.geom, clustered_users.c.count))
+        return _statement_to_geojson_response(session, select(ClusteredUser.geom, ClusteredUser.count))
 
     def GetCommunities(self, request, context, session):
         return _statement_to_geojson_response(session, select(Node).where(Node.geom != None))

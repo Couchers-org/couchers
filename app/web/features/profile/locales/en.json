@@ -196,6 +196,7 @@
     "request": "Request",
     "request_description": "Share your plans for the visit and include why you're requesting to stay with this particular host",
     "request_description_empty": "Please write a request message",
+    "request_char_length_too_short": "Request message must be at least 250 characters",
     "stay_type_a11y_text": "stay type",
     "success": "Request sent!",
     "guest_count": "Number of guests"

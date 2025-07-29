@@ -66,7 +66,7 @@ export default function LandingPage() {
       <Container component="section" maxWidth="lg">
         <CouchersMission />
       </Container>
-      {isMobile && (
+      {isMobile && !authState.authenticated && (
         <Box
           sx={{
             position: "fixed",

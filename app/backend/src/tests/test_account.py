@@ -1,14 +1,15 @@
-from datetime import timedelta
+from datetime import date, timedelta
 from unittest.mock import patch
 
 import grpc
 import pytest
-from google.protobuf import empty_pb2
+from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
+from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import (
     AccountDeletionReason,
     AccountDeletionToken,
@@ -16,11 +17,12 @@ from couchers.models import (
     InviteCode,
     Upload,
     User,
+    Volunteer,
 )
 from couchers.sql import couchers_select as select
 from couchers.urls import invite_code_link
-from couchers.utils import now
-from proto import account_pb2, api_pb2, auth_pb2
+from couchers.utils import now, today
+from proto import account_pb2, api_pb2, auth_pb2, conversations_pb2, requests_pb2
 from tests.test_fixtures import (  # noqa
     account_session,
     auth_api_session,
@@ -30,8 +32,10 @@ from tests.test_fixtures import (  # noqa
     generate_user,
     mock_notification_email,
     process_jobs,
+    public_session,
     push_collector,
     real_account_session,
+    requests_session,
     testconfig,
 )
 
@@ -54,6 +58,7 @@ def test_GetAccountInfo(db, fast_passwords):
         assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED
         assert not res.is_superuser
         assert res.ui_language_preference == ""
+        assert not res.is_volunteer
 
 
 def test_GetAccountInfo_regression(db):
@@ -545,23 +550,22 @@ def test_ChangeLanguagePreference(db, fast_passwords):
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert res.ui_language_preference == ""
 
-        request = account_pb2.ChangeLanguagePreferenceReq(ui_language_preference=newLanguageCode)
-
         # call will have info about the request
-        res, call = account.ChangeLanguagePreference.with_call(request)
+        res, call = account.ChangeLanguagePreference.with_call(
+            account_pb2.ChangeLanguagePreferenceReq(ui_language_preference=newLanguageCode)
+        )
 
         # cookies are sent via initial metadata, so we check for it there
-        metadata = dict(call.initial_metadata())
-
-        assert "set-cookie" in metadata, "expected 'set-cookie' in initial metadata"
-
-        # the value of "set-cookie" will be the full cookie string, pull the key value from the string
-        key_val = metadata["set-cookie"].split(";")[0]
-        assert key_val == "NEXT_LOCALE=zh", f"expected 'NEXT_LOCALE=zh', got {key_val}"
-
-        # the changed language preference should also be sent to the backend
-        res = account.GetAccountInfo(empty_pb2.Empty())
-        assert res.ui_language_preference == "zh"
+        for key, val in call.initial_metadata():
+            if key == "set-cookie":
+                # the value of "set-cookie" will be the full cookie string, pull the key value from the string
+                key_val = val.split(";")[0]
+                if key_val == "NEXT_LOCALE=zh":
+                    # the changed language preference should also be sent to the backend
+                    res = account.GetAccountInfo(empty_pb2.Empty())
+                    assert res.ui_language_preference == "zh"
+                    return
+        raise Exception(f"Didn't find right cookie, got {call.initial_metadata()}")
 
 
 def test_contributor_form(db):
@@ -934,3 +938,226 @@ def test_ListInviteCodes(db):
         assert res.invite_codes[0].code == code
         assert res.invite_codes[0].uses == 1
         assert res.invite_codes[0].url == invite_code_link(code=code)
+
+
+def test_reminders(db):
+    # the strong verification reminder's absence is tested in test_strong_verification.py
+    # reference writing reminders tested in test_AvailableWriteReferences_and_ListPendingReferencesToWrite
+    # we use LiteUser, so remember to refresh materialized views
+    user, token = generate_user(complete_profile=False)
+    complete_user, complete_token = generate_user(complete_profile=True)
+    req_user1, req_user_token1 = generate_user(complete_profile=True)
+    req_user2, req_user_token2 = generate_user(complete_profile=True)
+
+    refresh_materialized_views_rapid(None)
+    with account_session(complete_token) as account:
+        assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == [
+            "complete_verification_reminder"
+        ]
+    with account_session(token) as account:
+        assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == [
+            "complete_profile_reminder",
+            "complete_verification_reminder",
+        ]
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    with requests_session(req_user_token1) as api:
+        host_request1_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+            )
+        ).host_request_id
+
+    with account_session(token) as account:
+        reminders = account.GetReminders(empty_pb2.Empty()).reminders
+        assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
+            "respond_to_host_request_reminder",
+            "complete_profile_reminder",
+            "complete_verification_reminder",
+        ]
+        assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request1_id
+        assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
+
+    with requests_session(req_user_token2) as api:
+        host_request2_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 2"
+            )
+        ).host_request_id
+
+    refresh_materialized_views_rapid(None)
+    with account_session(token) as account:
+        reminders = account.GetReminders(empty_pb2.Empty()).reminders
+        assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
+            "respond_to_host_request_reminder",
+            "respond_to_host_request_reminder",
+            "complete_profile_reminder",
+            "complete_verification_reminder",
+        ]
+        assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request1_id
+        assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
+        assert reminders[1].respond_to_host_request_reminder.host_request_id == host_request2_id
+        assert reminders[1].respond_to_host_request_reminder.surfer_user.user_id == req_user2.id
+
+    with requests_session(req_user_token1) as api:
+        host_request3_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 3"
+            )
+        ).host_request_id
+
+    refresh_materialized_views_rapid(None)
+    with account_session(token) as account:
+        reminders = account.GetReminders(empty_pb2.Empty()).reminders
+        assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
+            "respond_to_host_request_reminder",
+            "respond_to_host_request_reminder",
+            "respond_to_host_request_reminder",
+            "complete_profile_reminder",
+            "complete_verification_reminder",
+        ]
+        assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request1_id
+        assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
+        assert reminders[1].respond_to_host_request_reminder.host_request_id == host_request2_id
+        assert reminders[1].respond_to_host_request_reminder.surfer_user.user_id == req_user2.id
+        assert reminders[2].respond_to_host_request_reminder.host_request_id == host_request3_id
+        assert reminders[2].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
+
+    # accept req
+    with requests_session(token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request1_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+            )
+        )
+
+    refresh_materialized_views_rapid(None)
+    with account_session(token) as account:
+        reminders = account.GetReminders(empty_pb2.Empty()).reminders
+        assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
+            "respond_to_host_request_reminder",
+            "respond_to_host_request_reminder",
+            "complete_profile_reminder",
+            "complete_verification_reminder",
+        ]
+        assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request2_id
+        assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user2.id
+        assert reminders[1].respond_to_host_request_reminder.host_request_id == host_request3_id
+        assert reminders[1].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
+
+
+def test_volunteer_stuff(db):
+    # with password
+    user, token = generate_user(name="Von Tester", username="tester", city="Amsterdam")
+
+    with account_session(token) as account:
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert not res.is_volunteer
+
+        with pytest.raises(grpc.RpcError) as e:
+            account.GetMyVolunteerInfo(empty_pb2.Empty())
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.NOT_A_VOLUNTEER
+
+        with pytest.raises(grpc.RpcError) as e:
+            account.UpdateMyVolunteerInfo(account_pb2.UpdateMyVolunteerInfoReq())
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.NOT_A_VOLUNTEER
+
+    with session_scope() as session:
+        session.add(
+            Volunteer(
+                user_id=user.id,
+                display_name="Great Volunteer",
+                display_location="The Bitbucket",
+                role="Lead Tester",
+                started_volunteering=date(2020, 6, 1),
+                show_on_team_page=True,
+            )
+        )
+
+    with account_session(token) as account:
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert res.is_volunteer
+
+        res = account.GetMyVolunteerInfo(empty_pb2.Empty())
+
+        assert res.display_name == "Great Volunteer"
+        assert res.display_location == "The Bitbucket"
+        assert res.role == "Lead Tester"
+        assert res.started_volunteering == "2020-06-01"
+        assert not res.stopped_volunteering
+        assert res.show_on_team_page
+        assert res.link_type == "couchers"
+        assert res.link_text == "@tester"
+        assert res.link_url == "http://localhost:3000/user/tester"
+
+        res = account.UpdateMyVolunteerInfo(
+            account_pb2.UpdateMyVolunteerInfoReq(
+                display_name=wrappers_pb2.StringValue(value=""),
+                link_type=wrappers_pb2.StringValue(value="website"),
+                link_text=wrappers_pb2.StringValue(value="testervontester.com.invalid"),
+                link_url=wrappers_pb2.StringValue(value="https://www.testervontester.com.invalid/"),
+            )
+        )
+
+        assert res.display_name == ""
+        assert res.display_location == "The Bitbucket"
+        assert res.role == "Lead Tester"
+        assert res.started_volunteering == "2020-06-01"
+        assert not res.stopped_volunteering
+        assert res.show_on_team_page
+        assert res.link_type == "website"
+        assert res.link_text == "testervontester.com.invalid"
+        assert res.link_url == "https://www.testervontester.com.invalid/"
+        res = account.UpdateMyVolunteerInfo(
+            account_pb2.UpdateMyVolunteerInfoReq(
+                display_name=wrappers_pb2.StringValue(value=""),
+                link_type=wrappers_pb2.StringValue(value="linkedin"),
+                link_text=wrappers_pb2.StringValue(value="tester-vontester"),
+            )
+        )
+        assert res.display_name == ""
+        assert res.display_location == "The Bitbucket"
+        assert res.role == "Lead Tester"
+        assert res.started_volunteering == "2020-06-01"
+        assert not res.stopped_volunteering
+        assert res.show_on_team_page
+        assert res.link_type == "linkedin"
+        assert res.link_text == "tester-vontester"
+        assert res.link_url == "https://www.linkedin.com/in/tester-vontester/"
+
+        res = account.UpdateMyVolunteerInfo(
+            account_pb2.UpdateMyVolunteerInfoReq(
+                display_name=wrappers_pb2.StringValue(value="Tester"),
+                display_location=wrappers_pb2.StringValue(value=""),
+                link_type=wrappers_pb2.StringValue(value="email"),
+                link_text=wrappers_pb2.StringValue(value="tester@vontester.com.invalid"),
+            )
+        )
+        assert res.display_name == "Tester"
+        assert res.display_location == ""
+        assert res.role == "Lead Tester"
+        assert res.started_volunteering == "2020-06-01"
+        assert not res.stopped_volunteering
+        assert res.show_on_team_page
+        assert res.link_type == "email"
+        assert res.link_text == "tester@vontester.com.invalid"
+        assert res.link_url == "mailto:tester@vontester.com.invalid"
+
+    refresh_materialized_views_rapid(None)
+
+    with public_session() as public:
+        res = public.GetVolunteers(empty_pb2.Empty())
+        assert len(res.current_volunteers) == 1
+        v = res.current_volunteers[0]
+        assert v.name == "Tester"
+        assert v.username == "tester"
+        assert v.is_board_member
+        assert v.role == "Lead Tester"
+        assert v.location == "Amsterdam"
+        assert v.img.startswith("http://localhost:5001/img/thumbnail/")
+        assert v.link_type == "email"
+        assert v.link_text == "tester@vontester.com.invalid"
+        assert v.link_url == "mailto:tester@vontester.com.invalid"

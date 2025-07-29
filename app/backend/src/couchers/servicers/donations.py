@@ -108,11 +108,9 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
         # We're set up to receive the following webhook events (with explanations from stripe docs):
         # For both recurring and one-off donations, we get a `charge.succeeded` event and we then send the user an
         # invoice. There are other events too, but we don't handle them right now.
-        headers = dict(context.invocation_metadata())
-
         event = stripe.Webhook.construct_event(
             payload=request.data,
-            sig_header=headers.get("stripe-signature"),
+            sig_header=context.headers.get("stripe-signature"),
             secret=config["STRIPE_WEBHOOK_SECRET"],
             api_key=config["STRIPE_API_KEY"],
         )
