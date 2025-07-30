@@ -1,7 +1,6 @@
-import { Typography, useMediaQuery, useTheme } from "@mui/material";
+import { styled, Typography, useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import StyledChangeDetailsForm from "components/StyledChangeDetailsForm";
 import TextField from "components/TextField";
 import { accountInfoQueryKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -11,6 +10,14 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
+import { theme } from "theme";
+
+const StyledForm = styled("form")(() => ({
+  marginBottom: theme.spacing(2),
+  "& > * + *": {
+    marginBlockStart: theme.spacing(1),
+  },
+}));
 
 interface ChangePasswordVariables {
   oldPassword: string;
@@ -74,7 +81,7 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
           {t("auth:change_password_form.password_changed_success")}
         </Alert>
       )}
-      <StyledChangeDetailsForm onSubmit={onSubmit}>
+      <StyledForm onSubmit={onSubmit}>
         <TextField
           {...register("oldPassword", { required: true })}
           id="oldPassword"
@@ -109,7 +116,7 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
         >
           {t("global:submit")}
         </Button>
-      </StyledChangeDetailsForm>
+      </StyledForm>
     </div>
   );
 }

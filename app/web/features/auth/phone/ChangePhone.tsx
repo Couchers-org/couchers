@@ -1,9 +1,8 @@
 import "react-phone-number-input/style.css";
 
-import { Typography, useMediaQuery, useTheme } from "@mui/material";
+import { styled, Typography, useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import StyledChangeDetailsForm from "components/StyledChangeDetailsForm";
 import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import { accountInfoQueryKey } from "features/queryKeys";
@@ -22,6 +21,14 @@ import PhoneInputWithCountry from "react-phone-number-input/react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
 import { howToDonateUrl } from "routes";
 import { service } from "service";
+import { theme } from "theme";
+
+const StyledForm = styled("form")(() => ({
+  marginBottom: theme.spacing(2),
+  "& > * + *": {
+    marginBlockStart: theme.spacing(1),
+  },
+}));
 
 export const validatePhoneCode = (code: string) =>
   code.length == 6 && luhn.validate(code);
@@ -152,7 +159,7 @@ export default function ChangePhone({
             </Trans>
           </Typography>
         ) : (
-          <StyledChangeDetailsForm onSubmit={onChangeSubmit}>
+          <StyledForm onSubmit={onChangeSubmit}>
             <Typography variant="body1">
               {t("auth:change_phone.no_phone_description")}
             </Typography>
@@ -173,12 +180,12 @@ export default function ChangePhone({
             >
               {t("auth:change_phone.add_button_text")}
             </Button>
-          </StyledChangeDetailsForm>
+          </StyledForm>
         )
       ) : (
         <>
           {!accountInfo.phoneVerified ? (
-            <StyledChangeDetailsForm onSubmit={onVerifySubmit}>
+            <StyledForm onSubmit={onVerifySubmit}>
               <Typography variant="body1">
                 <Trans
                   t={t}
@@ -210,7 +217,7 @@ export default function ChangePhone({
               >
                 {t("auth:change_phone.verify_button_text")}
               </Button>
-            </StyledChangeDetailsForm>
+            </StyledForm>
           ) : (
             <>
               <Typography variant="body1">
@@ -234,7 +241,7 @@ export default function ChangePhone({
               </Button>
             </>
           )}
-          <StyledChangeDetailsForm onSubmit={onChangeSubmit}>
+          <StyledForm onSubmit={onChangeSubmit}>
             <Typography variant="body1">
               {t("auth:change_phone.change_to_different_description")}
             </Typography>
@@ -256,7 +263,7 @@ export default function ChangePhone({
             >
               {t("auth:change_phone.change_button_text")}
             </Button>
-          </StyledChangeDetailsForm>
+          </StyledForm>
         </>
       )}
     </div>
