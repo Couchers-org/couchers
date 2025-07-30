@@ -19,7 +19,7 @@
     }
   },
   "community_guidelines_form": {
-    "header": "Bonne conduite de la communauté",
+    "header": "Charte de la communauté",
     "guideline": {
       "required_error": "Toutes les cases à cocher sont requises",
       "checkbox_label": "D'accord, ça marche"
