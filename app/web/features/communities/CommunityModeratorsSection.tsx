@@ -17,7 +17,9 @@ const StyledSection = styled("section")(() => ({
   rowGap: theme.spacing(2),
 }));
 
-const StyledLoadMoreModeratorsButton = styled(Button)(() => ({}));
+const StyledLoadMoreModeratorsButton = styled(Button)(() => ({
+  justifySelf: "center",
+}));
 
 interface CommunityModeratorsSectionProps {
   community: Community.AsObject;
