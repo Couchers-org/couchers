@@ -19,7 +19,11 @@
     }
   },
   "community_guidelines_form": {
-    "header": "Bonne conduite de la communauté"
+    "header": "Bonne conduite de la communauté",
+    "guideline": {
+      "required_error": "Toutes les cases à cocher sont requises",
+      "checkbox_label": "D'accord, ça marche"
+    }
   },
   "change_email_confirmation": {
     "change_in_progress": "Changement d’adresse e-mail en cours…",
@@ -69,7 +73,10 @@
   "sign_up_confirmed_prompt": "Vous avez terminé ! Si vous n'êtes pas redirigé, essayez de vous connecter.",
   "unhandled_sign_up_state": "Erreur inconnue dans le processus d'inscription.",
   "account_settings_page": {
-    "title": "Paramètres de votre compte"
+    "title": "Paramètres de votre compte",
+    "birth_date_section": {
+      "title": "Changer ma date de naissance"
+    }
   },
   "login_prompt": "Cliquez ici pour vous connecter",
   "about_us": "Au sujet de nous",
