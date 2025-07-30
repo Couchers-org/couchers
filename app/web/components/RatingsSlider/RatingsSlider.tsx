@@ -34,7 +34,7 @@ const marks = [
 ];
 
 interface SliderProps {
-  value?: number;
+  value: number | undefined;
   onChange: (value: number | number[]) => void;
 }
 

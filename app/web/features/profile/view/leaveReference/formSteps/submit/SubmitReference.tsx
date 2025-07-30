@@ -64,6 +64,10 @@ export default function SubmitReference({
   const { handleSubmit } = useForm<ReferenceContextFormData>();
 
   const onFriendReferenceSubmit = () => {
+    if (referenceData.rating === undefined) {
+      return;
+    }
+
     const formData: WriteFriendReferenceInput =
       referenceData.wasAppropriate === "true"
         ? {
@@ -94,7 +98,11 @@ export default function SubmitReference({
   };
 
   const onHostReferenceSubmit = () => {
-    if (hostRequestId && !isNaN(hostRequestId)) {
+    if (
+      hostRequestId &&
+      !isNaN(hostRequestId) &&
+      referenceData.rating !== undefined
+    ) {
       const formData: WriteHostRequestReferenceInput =
         referenceData.wasAppropriate === "true"
           ? {
