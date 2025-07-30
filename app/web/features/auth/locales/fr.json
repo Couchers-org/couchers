@@ -75,7 +75,12 @@
   "account_settings_page": {
     "title": "Paramètres de votre compte",
     "birth_date_section": {
-      "title": "Changer ma date de naissance"
+      "title": "Changer ma date de naissance",
+      "explanation": "Les administrateurs seront ravis de changer votre date d'anniversaire. Contactez support@couchers.org !"
+    },
+    "gender_section": {
+      "title": "Changement du genre",
+      "explanation": "Les administrateurs seront ravis de changer l'étiquetage de votre genre. Contactez support@couchers.org !"
     }
   },
   "login_prompt": "Cliquez ici pour vous connecter",
@@ -119,5 +124,20 @@
   "location": {
     "validation_error": "Veuillez sélectionner une localisation valide.",
     "field_label": "Votre localisation"
+  },
+  "logged_out_message": "Vous avez été déconnecté",
+  "jail": {
+    "title": "Plus d'information requise",
+    "terms_of_service_section": {
+      "description": "Les conditions d'utilisations ont été mise à jour. Pour continuer, veuillez lire et accepter les nouvelles <1></1>."
+    },
+    "location_section": {
+      "title": "Ajouter votre localisation",
+      "submit_button": {
+        "active_text": "Sauvegarder",
+        "inactive_text": "Merci !"
+      },
+      "resubmit_button_text": "Renvoyer"
+    }
   }
 }
