@@ -59,7 +59,7 @@
       "no_emails_disable_text": "Réactiver les mails"
     },
     "title": "Veuillez ne pas m'envoyer de mail",
-    "caveat": "En activant cet option, votre compte sera configuré pour refuser les demandes d'hébergement. Vous continuerez de recevoir les mails de sécurité (comme ceux pour la réinitialisation de votre mot de passe). La newsletter continuera de vous être envoyée ; vous pouvez vous désabonner de celle-ci en utilisant le lien dans le pied de page de la newsletter."
+    "caveat": "En activant cette option, votre compte sera configuré pour refuser les demandes d'hébergement. Vous continuerez de recevoir les mails de sécurité (comme ceux pour la réinitialisation de votre mot de passe). La newsletter continuera de vous être envoyée ; vous pouvez vous désabonner de celle-ci en utilisant le lien dans le pied de page de la newsletter."
   },
   "reset_password_form": {
     "success_message": "Verifiez le lien envoyé à votre adresse mail pour réinitialiser votre mot de passe !",
