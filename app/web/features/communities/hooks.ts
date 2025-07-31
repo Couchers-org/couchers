@@ -11,6 +11,7 @@ import {
   QueryType,
   subCommunitiesKey,
   threadKey,
+  volunteersKey,
 } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
@@ -27,6 +28,7 @@ import {
   ListPlacesRes,
 } from "proto/communities_pb";
 import { Discussion } from "proto/discussions_pb";
+import { GetVolunteersRes } from "proto/public_pb";
 import { GetThreadRes } from "proto/threads_pb";
 import { useEffect } from "react";
 import {
@@ -242,5 +244,17 @@ export const useThread = (
     queryKey: threadKey(threadId),
     queryFn: ({ pageParam }) => service.threads.getThread(threadId, pageParam),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+    ...options,
+  });
+
+export const useListVolunteers = (
+  options?: Omit<
+    UseQueryOptions<GetVolunteersRes.AsObject, RpcError>,
+    "queryKey" | "queryFn" | "getNextPageParam"
+  >,
+) =>
+  useQuery<GetVolunteersRes.AsObject, RpcError>({
+    queryKey: volunteersKey,
+    queryFn: () => service.publicApi.getVolunteers(),
     ...options,
   });

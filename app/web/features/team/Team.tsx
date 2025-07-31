@@ -13,12 +13,12 @@ import { EmailIcon, GlobeIcon, LinkedInIcon, PinIcon } from "components/Icons";
 import IconText from "components/IconText";
 import PageTitle from "components/PageTitle";
 import StyledLink from "components/StyledLink";
+import { useListVolunteers } from "features/communities/hooks";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
+import { Volunteer } from "proto/public_pb";
 import { volunteerRoute } from "routes";
-
-import TeamData from "./team.json";
 
 const SpacerDiv = styled("div")(({ theme }) => ({
   height: theme.spacing(4),
@@ -28,7 +28,7 @@ const TeamMemberCard = styled(Card)(({ theme }) => ({
   height: "100%",
 }));
 
-const TeamMembedCardContent = styled(CardContent)(({ theme }) => ({
+const TeamMemberCardContent = styled(CardContent)(({ theme }) => ({
   display: "flex",
 }));
 
@@ -42,8 +42,85 @@ const StyledAvatar = styled(MuiAvatar)(({ theme }) => ({
   height: theme.typography.pxToRem(96),
 }));
 
+interface TeamSectionProps {
+  title: string;
+  volunteers: Volunteer.AsObject[] | undefined;
+}
+
+function TeamSection(props: TeamSectionProps) {
+  const { t } = useTranslation([GLOBAL]);
+
+  return (
+    <section>
+      <h2>{props.title}</h2>
+      <Grid
+        container
+        maxWidth="xl"
+        spacing={2}
+        justifyContent="center"
+        alignItems="stretch"
+      >
+        {props.volunteers?.map(
+          ({
+            name,
+            isBoardMember,
+            role,
+            location,
+            img,
+            linkType,
+            linkText,
+            linkUrl,
+          }) => {
+            return (
+              <Grid key={name} item xs={12} md={6} lg={4}>
+                <TeamMemberCard elevation={isBoardMember ? 3 : 1}>
+                  <TeamMemberCardContent>
+                    <StyledAvatar alt={`Headshot of ${name}`} src={img} />
+                    <DetailDiv>
+                      <Typography
+                        variant={isBoardMember ? "h1" : "h2"}
+                        component="h2"
+                      >
+                        {name}
+                      </Typography>
+                      {isBoardMember && (
+                        <Typography variant="h2" component="h3">
+                          {t("team.board_member")}
+                        </Typography>
+                      )}
+                      <Typography variant="h3">{role}</Typography>
+                      <IconText icon={PinIcon} text={location} />
+                      {linkUrl && (
+                        <IconText
+                          icon={
+                            linkType === "linkedin"
+                              ? LinkedInIcon
+                              : linkType === "email"
+                                ? EmailIcon
+                                : GlobeIcon
+                          }
+                          text={
+                            <Typography variant="body1">
+                              <StyledLink href={linkUrl}>{linkText}</StyledLink>
+                            </Typography>
+                          }
+                        />
+                      )}
+                    </DetailDiv>
+                  </TeamMemberCardContent>
+                </TeamMemberCard>
+              </Grid>
+            );
+          },
+        )}
+      </Grid>
+    </section>
+  );
+}
+
 export default function Team() {
   const { t } = useTranslation([GLOBAL]);
+  const volunteers = useListVolunteers();
 
   return (
     <>
@@ -63,60 +140,14 @@ export default function Team() {
         </Typography>
       </Container>
       <SpacerDiv />
-      <section>
-        <Grid
-          container
-          maxWidth="xl"
-          spacing={2}
-          justifyContent="center"
-          alignItems="stretch"
-        >
-          {TeamData.map(
-            ({ name, director, board_position, role, location, img, link }) => (
-              <Grid key={name} item xs={12} md={6} lg={4}>
-                <TeamMemberCard elevation={director ? 3 : 1}>
-                  <TeamMembedCardContent>
-                    <StyledAvatar alt={`Headshot of ${name}`} src={img} />
-                    <DetailDiv>
-                      <Typography
-                        variant={director ? "h1" : "h2"}
-                        component="h2"
-                      >
-                        {name}
-                      </Typography>
-                      {director && (
-                        <Typography variant="h2" component="h3">
-                          {board_position}
-                        </Typography>
-                      )}
-                      <Typography variant="h3">{role}</Typography>
-                      <IconText icon={PinIcon} text={location} />
-                      {link && (
-                        <IconText
-                          icon={
-                            link.type === "linkedin"
-                              ? LinkedInIcon
-                              : link.type === "email"
-                                ? EmailIcon
-                                : GlobeIcon
-                          }
-                          text={
-                            <Typography variant="body1">
-                              <StyledLink href={link.url}>
-                                {link.text}
-                              </StyledLink>
-                            </Typography>
-                          }
-                        />
-                      )}
-                    </DetailDiv>
-                  </TeamMembedCardContent>
-                </TeamMemberCard>
-              </Grid>
-            ),
-          )}
-        </Grid>
-      </section>
+      <TeamSection
+        title={t("team.current_members")}
+        volunteers={volunteers.data?.currentVolunteersList}
+      />
+      <TeamSection
+        title={t("team.past_members")}
+        volunteers={volunteers.data?.pastVolunteersList}
+      />
       <SpacerDiv />
       <Container maxWidth="md">
         <Typography variant="h2" component="h2">

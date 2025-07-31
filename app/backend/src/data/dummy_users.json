@@ -1016,5 +1016,16 @@
         }
       ]
     }
+  ],
+  "volunteers": [
+    {
+      "username": "aapeli",
+      "role": "Co-founder, president & chairman",
+      "started_volunteering": "2020-01-01",
+      "stopped_volunteering": null,
+      "link_type": "link",
+      "link_text": "aapeli",
+      "link_url": "https://google.com"
+    }
   ]
 }

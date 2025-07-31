@@ -16,6 +16,7 @@ export const communityGuidelinesQueryKey = "communityGuidelines";
 export const notificationSettingsQueryKey = "notificationSettings";
 export const listNotificationsQueryKey = "listNotifications";
 export const username2Id = "username2Id";
+export const volunteerInfoQueryKey = "volunteerInfo";
 
 export function userKey(userId?: number) {
   return userId === undefined ? "user" : ["user", userId];
@@ -175,3 +176,6 @@ export const badgeUsersKey = ({ badgeId }: BadgeUsersInput) => [
 
 // mod
 export const newUsersListKey = "newUsersList";
+
+// Public
+export const volunteersKey = "volunteers";
