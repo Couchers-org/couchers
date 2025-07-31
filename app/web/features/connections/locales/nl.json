@@ -1,1 +1,32 @@
-{}
+{
+  "add_friend": "Vriend toevoegen",
+  "remove_friend": "Vriend verwijderen",
+  "blocked_list_title": "Geblokkeerde gebruikers",
+  "remove_friend_confirmation_dialog": {
+    "title": "Gebruiker ontvrienden",
+    "message": "Weet je zeker dat je {{name}} wilt ontvrienden? Deze actie kan niet ongedaan gemaakt worden.",
+    "confirm": "Ontvrienden"
+  },
+  "block_user_confirmation_dialog": {
+    "title": "Weet je zeker dat je {{name}} wilt blokkeren?",
+    "message": "Berichten en verzoeken van deze gebruiker worden geblokkeerd, en je profiel, events en comments zijn voor deze persoon niet zichtbaar. Deze gebruiker wordt niet geïnformeerd dat je hen hebt geblokkeerd.",
+    "confirm": "Blokkeren"
+  },
+  "my_connections": "Mijn connecties",
+  "friends": "Vrienden",
+  "friend_list_title": "Jouw vrienden",
+  "friend_requests": "Vriendschapsverzoeken",
+  "friend_requests_sent": "Verzonden vriendschapsverzoeken",
+  "no_blocked_users": "Geen geblokkeerde gebruikers",
+  "no_friends": "Geen vrienden beschikbaar",
+  "no_friend_requests": "Geen openstaande vriendschapsverzoeken",
+  "no_friend_requests_sent": "Geen openstaande vriendschapsverzoeken",
+  "pending": "In afwachting",
+  "unblock_user": "Gebruiker niet meer blokkeren",
+  "unblock_user_confirmation_dialog": {
+    "title": "Weet je zeker dat je {{name}} niet meer wilt blokkeren?",
+    "message": "Door deze gebruiker niet meer te blokkeren kunnen ze jouw profiel bekijken en verzoeken sturen. Als je vrienden was, komt deze persoon automatisch weer in je vriendenlijst. Ze krijgen hierover geen bericht.",
+    "confirm": "Niet meer blokkeren"
+  },
+  "block_user": "Gebruiker blokkeren"
+}
