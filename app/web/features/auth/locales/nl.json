@@ -3,7 +3,8 @@
     "title": "E-mailadres veranderen",
     "current_email_message": "Je e-mailadres is nu <1>{{email}}</1>.",
     "success_message": "De wijziging van je e-mailadres is ontvangen. Check je e-mail om de wijziging definitief te maken.",
-    "new_email": "Nieuw e-mailadres"
+    "new_email": "Nieuw e-mailadres",
+    "current_password": "Huidig wachtwoord"
   },
   "do_not_email": {
     "status": {
