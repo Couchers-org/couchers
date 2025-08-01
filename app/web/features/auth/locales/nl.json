@@ -1,5 +1,27 @@
 {
   "change_email_form": {
-    "title": "E-mailadres veranderen"
+    "title": "E-mailadres veranderen",
+    "current_email_message": "Je e-mailadres is nu <1>{{email}}</1>.",
+    "success_message": "De wijziging van je e-mailadres is ontvangen. Check je e-mail om de wijziging definitief te maken.",
+    "new_email": "Nieuw e-mailadres"
+  },
+  "do_not_email": {
+    "status": {
+      "no_emails_disabled_message": "E-mails zijn nu <1>aangezet</1> voor jouw account.",
+      "no_emails_enabled_message": "E-mails zijn nu <1>uitgeschakeld</1> voor jouw account."
+    },
+    "action_button": {
+      "no_emails_enable_text": "Stuur mij geen e-mails",
+      "no_emails_disable_text": "E-mails weer aanzetten"
+    },
+    "title": "Stuur mij geen e-mails"
+  },
+  "change_email_confirmation": {
+    "error_message": "Foutmelding bij het veranderen van je e-mailadres:  {{message}}",
+    "change_in_progress": "E-mailadres veranderen in behandeling…",
+    "success_message": "Je e-mailadres is nu veranderd!"
+  },
+  "change_password_form": {
+    "title": "Wachtwoord wijzigen"
   }
 }
