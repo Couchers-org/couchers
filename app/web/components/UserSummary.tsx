@@ -1,18 +1,22 @@
 import {
   ListItemAvatar,
   ListItemText,
+  MenuItem,
   Skeleton,
   Tooltip,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import Avatar from "components/Avatar";
+import EllipsisMenu from "components/EllipsisMenu";
 import { OpenInNewIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import { LiteUser } from "proto/api_pb";
 import { BlockedUser } from "proto/blocking_pb";
-import React from "react";
+import React, { useState } from "react";
 import { routeToUser } from "routes";
+import { theme } from "theme";
+import { MenuOption } from "utils/menuOption";
 
 import StrongVerificationBadge from "./StrongVerificationBadge";
 
@@ -64,6 +68,7 @@ export interface UserSummaryProps {
   user?: LiteUser.AsObject | BlockedUser.AsObject;
   titleIsLink?: boolean;
   isProfileLink?: boolean;
+  menuOptions?: MenuOption[];
 }
 
 export default function UserSummary({
@@ -74,12 +79,25 @@ export default function UserSummary({
   user,
   titleIsLink = false,
   isProfileLink = true,
+  menuOptions,
 }: UserSummaryProps) {
   const headlineComponentWithRef = React.forwardRef(
     function HeadlineComponentWithRef(props, ref) {
       return React.createElement(headlineComponent, { ...props, ref });
     },
   );
+
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
+    null,
+  );
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+  };
 
   const nameValue =
     user && user.name
@@ -175,6 +193,34 @@ export default function UserSummary({
           </>
         }
       />
+      {menuOptions && (
+        <EllipsisMenu
+          idName={"swag"}
+          isMenuOpen={!!menuAnchorEl}
+          menuAnchorEl={menuAnchorEl}
+          onMenuOpen={handleMenuOpen}
+          onMenuClose={handleMenuClose}
+        >
+          {menuOptions.map((option, index) => (
+            <MenuItem
+              key={index}
+              onClick={() => {
+                option.onClick();
+                setMenuAnchorEl(null);
+              }}
+              data-testid="unblock-user"
+            >
+              {option.icon}
+              <Typography
+                variant="body2"
+                sx={{ marginLeft: theme.spacing(1), fontWeight: 500 }}
+              >
+                {option.title}
+              </Typography>
+            </MenuItem>
+          ))}
+        </EllipsisMenu>
+      )}
     </StyledWrapper>
   );
 }

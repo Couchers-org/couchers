@@ -2,7 +2,9 @@ import { CircularProgress, styled } from "@mui/material";
 import UserSummary from "components/UserSummary";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
+import { LiteUser } from "proto/api_pb";
 import { ReactNode } from "react";
+import { MenuOption } from "utils/menuOption";
 
 import Alert from "./Alert";
 
@@ -22,6 +24,7 @@ export interface UsersListProps {
   endChildren?: ReactNode;
   error?: RpcError | null;
   titleIsLink?: boolean;
+  getUserMenuOptions?: (user: LiteUser.AsObject) => MenuOption[] | undefined;
 }
 
 /**
@@ -39,6 +42,7 @@ export default function UsersList({
   endChildren,
   error,
   titleIsLink = false,
+  getUserMenuOptions,
 }: UsersListProps) {
   const {
     data: users,
@@ -47,9 +51,11 @@ export default function UsersList({
   } = useLiteUsers(userIds || []);
 
   // this is undefined if userIds is undefined or users hasn't loaded, otherwise it's an actual list
-  const foundUserIds: number[] | undefined =
+  const foundUsers =
     userIds &&
-    (userIds.length > 0 ? userIds?.filter((userId) => users?.has(userId)) : []);
+    (userIds.length > 0
+      ? userIds.map((userId) => users?.get(userId)).filter((user) => !!user)
+      : []);
 
   const inner = () => {
     if (error) {
@@ -66,17 +72,20 @@ export default function UsersList({
           ))}
         </StyledUsersDiv>
       );
-    } else if (foundUserIds && foundUserIds.length > 0) {
+    } else if (foundUsers && foundUsers.length > 0) {
       return (
         <StyledUsersDiv>
-          {foundUserIds.map((userId) => (
-            <UserSummary
-              headlineComponent="h3"
-              key={userId}
-              user={users?.get(userId)}
-              titleIsLink={titleIsLink}
-            />
-          ))}
+          {foundUsers.map((user) => {
+            return (
+              <UserSummary
+                headlineComponent="h3"
+                key={user.userId}
+                user={user}
+                titleIsLink={titleIsLink}
+                menuOptions={getUserMenuOptions?.(user)}
+              />
+            );
+          })}
           <>{endChildren}</>
         </StyledUsersDiv>
       );
