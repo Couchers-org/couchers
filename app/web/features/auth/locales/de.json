@@ -285,5 +285,11 @@
       "full_profile": "<1>Volles Profil</1>: mein vollständiges Profil anzeigen (außer Referenzen)",
       "most": "<1>Das Meiste</1>: Zeige den vollständigen Abschnitt „Über mich“ außer „Zusätzliche Informationen“"
     }
+  },
+  "quick_links": {
+    "error_message": "Fehler: {{message}}",
+    "missing_payload_or_sig": "Ungültige URL",
+    "title": "E-Mail-Schnellaktion",
+    "button_text": "Aktion bestätigen"
   }
 }
