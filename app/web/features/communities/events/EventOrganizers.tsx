@@ -39,6 +39,11 @@ export default function EventOrganizers({ eventId }: EventOrganizersProps) {
 
   const [isCoOrganizerDialogOpen, setIsCoOrganizerDialogOpen] = useState(false);
 
+  // Organizers can remove themselves, creator can remove organizers
+  const canBeRemovedByCurrentUser = (user: LiteUser.AsObject) =>
+    (isCreatedByCurrentUser && currentUser.data?.userId !== user.userId) ||
+    (!isCreatedByCurrentUser && currentUser.data?.userId === user.userId);
+
   return (
     <>
       <EventUsers
@@ -48,21 +53,18 @@ export default function EventOrganizers({ eventId }: EventOrganizersProps) {
         onSeeAllClick={() => setIsDialogOpen(true)}
         userIds={organizerIds}
         title={t("communities:organizers")}
-        getUserMenuOptions={
-          isCreatedByCurrentUser
-            ? (user) =>
-                currentUser.data?.userId !== user.userId
-                  ? [
-                      {
-                        icon: <Remove fontSize="small" />,
-                        onClick: () => {
-                          setCoOrganizerRemoveUser(user);
-                          setIsCoOrganizerDialogOpen(true);
-                        },
-                        title: t("communities:remove_as_co_organizer:title"),
-                      },
-                    ]
-                  : undefined
+        getUserMenuOptions={(user) =>
+          canBeRemovedByCurrentUser(user)
+            ? [
+                {
+                  icon: <Remove fontSize="small" />,
+                  onClick: () => {
+                    setCoOrganizerRemoveUser(user);
+                    setIsCoOrganizerDialogOpen(true);
+                  },
+                  title: t("communities:remove_as_co_organizer:title"),
+                },
+              ]
             : undefined
         }
       />
