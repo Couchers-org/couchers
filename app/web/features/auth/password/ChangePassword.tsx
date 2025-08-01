@@ -1,9 +1,8 @@
-import { Typography, useMediaQuery, useTheme } from "@mui/material";
+import { styled, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import TextField from "components/TextField";
-import useChangeDetailsFormStyles from "features/auth/useChangeDetailsFormStyles";
 import { accountInfoQueryKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
@@ -11,6 +10,7 @@ import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { service } from "service";
+import { theme } from "theme";
 
 interface ChangePasswordVariables {
   oldPassword: string;
@@ -25,9 +25,15 @@ interface ChangePasswordProps {
   className?: string;
 }
 
+const StyledForm = styled("form")(() => ({
+  marginBottom: theme.spacing(2),
+  "& > * + *": {
+    marginBlockStart: theme.spacing(1),
+  },
+}));
+
 export default function ChangePassword({ className }: ChangePasswordProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
-  const classes = useChangeDetailsFormStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
 
@@ -36,7 +42,6 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
     handleSubmit,
     reset: resetForm,
     register,
-
     formState: { errors },
   } = useForm<ChangePasswordFormData>({
     mode: "onBlur",
@@ -75,7 +80,7 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
           {t("auth:change_password_form.password_changed_success")}
         </Alert>
       )}
-      <form className={classes.form} onSubmit={onSubmit}>
+      <StyledForm onSubmit={onSubmit}>
         <TextField
           {...register("oldPassword", { required: true })}
           id="oldPassword"
@@ -110,7 +115,7 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
         >
           {t("global:submit")}
         </Button>
-      </form>
+      </StyledForm>
     </div>
   );
 }

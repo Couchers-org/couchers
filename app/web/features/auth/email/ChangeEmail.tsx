@@ -1,4 +1,4 @@
-import { Typography, useMediaQuery, useTheme } from "@mui/material";
+import { styled, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -9,9 +9,15 @@ import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { service } from "service";
+import { theme } from "theme";
 import { lowercaseAndTrimField } from "utils/validation";
 
-import useChangeDetailsFormStyles from "../useChangeDetailsFormStyles";
+const StyledForm = styled("form")(() => ({
+  marginBottom: theme.spacing(2),
+  "& > * + *": {
+    marginBlockStart: theme.spacing(1),
+  },
+}));
 
 interface ChangeEmailFormData {
   newEmail: string;
@@ -25,7 +31,6 @@ interface ChangeEmailProps {
 
 export default function ChangeEmail({ className, email }: ChangeEmailProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
-  const formClasses = useChangeDetailsFormStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
 
@@ -73,7 +78,7 @@ export default function ChangeEmail({ className, email }: ChangeEmailProps) {
             {t("auth:change_email_form.success_message")}
           </Alert>
         )}
-        <form className={formClasses.form} onSubmit={onSubmit}>
+        <StyledForm onSubmit={onSubmit}>
           <TextField
             id="currentPassword"
             {...register("currentPassword", { required: true })}
@@ -95,7 +100,7 @@ export default function ChangeEmail({ className, email }: ChangeEmailProps) {
           >
             {t("global:submit")}
           </Button>
-        </form>
+        </StyledForm>
       </>
     </div>
   );

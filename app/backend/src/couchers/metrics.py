@@ -140,6 +140,12 @@ completed_profile_gauge = _make_gauge_from_query(
     select(func.count()).select_from(User).where(User.is_visible).where(User.has_completed_profile),
 )
 
+completed_my_home_gauge = _make_gauge_from_query(
+    "couchers_users_completed_my_home",
+    "Total number of users with a completed my home section",
+    select(func.count()).select_from(User).where(User.is_visible).where(User.has_completed_my_home),
+)
+
 sent_message_gauge = _make_gauge_from_query(
     "couchers_users_sent_message",
     "Total number of users who have sent a message",

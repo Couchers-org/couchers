@@ -1,4 +1,4 @@
-import { Container, Typography } from "@mui/material";
+import { Container, styled, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -14,32 +14,29 @@ import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { loginRoute } from "routes";
 import { service } from "service";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 import stringOrFirstString from "utils/stringOrFirstString";
 
-const useStyles = makeStyles((theme) => ({
-  form: {
-    "& > * + *": {
-      marginBlockStart: theme.spacing(1),
-    },
+const StyledContainer = styled(Container)(() => ({
+  marginTop: theme.spacing(2),
+  paddingLeft: theme.spacing(2),
+  paddingRight: theme.spacing(2),
+  paddingBottom: theme.spacing(2),
+  flex: 1,
+}));
+
+const StyledForm = styled("form")(() => ({
+  "& > * + *": {
+    marginBlockStart: theme.spacing(1),
   },
-  standardContainer: {
-    marginTop: theme.spacing(2),
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
-    flex: 1,
-  },
-  main: {
-    padding: theme.spacing(0, 3),
-  },
-  textField: {
-    "& > div": {
-      width: "100%",
-      marginBottom: theme.spacing(2),
-      [theme.breakpoints.up("md")]: {
-        width: theme.typography.pxToRem(400),
-      },
+}));
+
+const StyledTextField = styled(TextField)(() => ({
+  "& > div": {
+    width: "100%",
+    marginBottom: theme.spacing(2),
+    [theme.breakpoints.up("md")]: {
+      width: theme.typography.pxToRem(400),
     },
   },
 }));
@@ -47,7 +44,6 @@ const useStyles = makeStyles((theme) => ({
 export default function CompleteResetPassword() {
   const { authState } = useAuthContext();
   const { t } = useTranslation([AUTH, GLOBAL]);
-  const formClass = useStyles();
   const { handleSubmit, register } = useForm<{
     newPassword: string;
     newPasswordCheck: string;
@@ -81,16 +77,16 @@ export default function CompleteResetPassword() {
 
   if (authState.authenticated) {
     return (
-      <Container className={formClass.standardContainer}>
+      <StyledContainer>
         <Alert severity="error">
           {t("auth:change_password_form.user_logged_error")}
         </Alert>
-      </Container>
+      </StyledContainer>
     );
   }
 
   return (
-    <Container className={formClass.standardContainer}>
+    <StyledContainer>
       <HtmlMeta title={t("auth:change_password_form.title")} />
 
       {!isResetTokenOk && (
@@ -124,9 +120,8 @@ export default function CompleteResetPassword() {
         {t("auth:change_password_form.subtitle")}
       </Typography>
 
-      <form className={formClass.form} onSubmit={onSubmit}>
-        <TextField
-          className={formClass.textField}
+      <StyledForm onSubmit={onSubmit}>
+        <StyledTextField
           id="newPassword"
           {...register("newPassword", { required: true })}
           label={t("auth:change_password_form.new_password")}
@@ -135,8 +130,7 @@ export default function CompleteResetPassword() {
           variant="outlined"
         />
 
-        <TextField
-          className={formClass.textField}
+        <StyledTextField
           id="newPasswordCheck"
           {...register("newPasswordCheck", { required: true })}
           label={t("auth:change_password_form.confirm_password")}
@@ -151,7 +145,7 @@ export default function CompleteResetPassword() {
         >
           {t("global:submit")}
         </Button>
-      </form>
-    </Container>
+      </StyledForm>
+    </StyledContainer>
   );
 }

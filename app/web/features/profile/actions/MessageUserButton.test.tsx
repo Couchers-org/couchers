@@ -37,6 +37,8 @@ const accountInfo = {
   isSuperuser: false,
   uiLanguagePreference: "",
   profilePublicVisibility: 1,
+  isVolunteer: false,
+  myHomeComplete: false,
 };
 
 const incompleteAccountInfo = { ...accountInfo, profileComplete: false };
