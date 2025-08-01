@@ -1,4 +1,4 @@
-import { Card, Typography } from "@mui/material";
+import { Card, styled, Typography } from "@mui/material";
 import Button from "components/Button";
 import Markdown from "components/Markdown";
 import { Trans, useTranslation } from "i18n";
@@ -6,19 +6,18 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { ModNote } from "proto/account_pb";
 import { useState } from "react";
 import { service } from "service";
+import { theme } from "theme";
 import { dateFormatter, timestamp2Date } from "utils/date";
-import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles((theme) => ({
-  noteContainer: {
-    marginBottom: theme.spacing(4),
-    marginTop: theme.spacing(4),
-  },
-  noteCard: {
-    padding: theme.spacing(0, 2, 2, 2),
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
+const StyledNoteContainer = styled("div")(() => ({
+  marginBottom: theme.spacing(4),
+  marginTop: theme.spacing(4),
+}));
+
+const StyledNoteCard = styled(Card)(() => ({
+  padding: theme.spacing(0, 2, 2, 2),
+  marginTop: theme.spacing(2),
+  marginBottom: theme.spacing(2),
 }));
 
 interface ModNoteCardProps {
@@ -27,7 +26,6 @@ interface ModNoteCardProps {
 }
 
 export default function ModNoteCard({ note, updateJailed }: ModNoteCardProps) {
-  const classes = useStyles(makeStyles);
   const {
     t,
     i18n: { language: locale },
@@ -55,20 +53,20 @@ export default function ModNoteCard({ note, updateJailed }: ModNoteCardProps) {
   };
 
   return (
-    <div key={note.noteId} className={classes.noteContainer}>
+    <StyledNoteContainer key={note.noteId}>
       <Typography variant="h3">
         <Trans t={t} i18nKey="auth:jail.mod_note_section.note_title">
           Mod note received on {{ time: formattedTime }}:
         </Trans>
       </Typography>
-      <Card className={classes.noteCard}>
+      <StyledNoteCard>
         <Markdown source={note.noteContent} topHeaderLevel={3} />
-      </Card>
+      </StyledNoteCard>
       <Button loading={loading} onClick={acknowledge} disabled={acknowledged}>
         {acknowledged
           ? t("global:thanks")
           : t("auth:jail.mod_note_section.acknowledge")}
       </Button>
-    </div>
+    </StyledNoteContainer>
   );
 }
