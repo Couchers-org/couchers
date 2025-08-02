@@ -18,7 +18,7 @@
     "title": "Stuur mij geen e-mails"
   },
   "change_email_confirmation": {
-    "error_message": "Foutmelding bij het veranderen van je e-mailadres:  {{message}}",
+    "error_message": "Foutmelding bij het veranderen van je e-mailadres: {{message}}",
     "change_in_progress": "E-mailadres veranderen in behandeling…",
     "success_message": "Je e-mailadres is nu veranderd!"
   },
