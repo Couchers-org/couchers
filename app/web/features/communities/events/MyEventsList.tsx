@@ -96,7 +96,7 @@ const MyEventsList = () => {
           {t("communities:past")}
         </StyledFilterTag>
         <StyledFilterTag
-          isSelected={eventType === "past"}
+          isSelected={showCancelled}
           variant="body2"
           onClick={handleFilterShowCancelledClick}
         >
