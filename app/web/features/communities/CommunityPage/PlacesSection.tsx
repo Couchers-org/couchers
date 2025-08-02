@@ -1,3 +1,4 @@
+import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HorizontalScroller from "components/HorizontalScroller";
@@ -8,10 +9,43 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
 import React from "react";
+import { theme } from "theme";
 
-import { useCommunityPageStyles } from "./CommunityPage";
 import PlaceCard from "./PlaceCard";
 import TitleWithIcon from "./TitleWithIcon";
+
+const StyledCardContainer = styled(HorizontalScroller)(() => ({
+  [theme.breakpoints.down("sm")]: {
+    left: "50%",
+    marginLeft: "-50vw",
+    marginRight: "-50vw",
+    position: "relative",
+    right: "50%",
+    width: "100vw",
+  },
+  [theme.breakpoints.up("sm")]: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, 1fr)",
+    gap: theme.spacing(2),
+  },
+  [theme.breakpoints.up("md")]: {
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: theme.spacing(3),
+  },
+}));
+
+const StyledPlaceCard = styled(PlaceCard)(() => ({
+  [theme.breakpoints.up("sm")]: {
+    width: "100%",
+  },
+  [theme.breakpoints.down("sm")]: {
+    margin: theme.spacing(0, 2, 1, 0),
+  },
+  width: "50%",
+  flexShrink: 0,
+  borderRadius: theme.shape.borderRadius * 2,
+  scrollSnapAlign: "start",
+}));
 
 export default function PlacesSection({
   community,
@@ -19,13 +53,11 @@ export default function PlacesSection({
   community: Community.AsObject;
 }) {
   const { t } = useTranslation([COMMUNITIES]);
-  const classes = useCommunityPageStyles();
 
   const {
     isLoading: isPlacesLoading,
     error: placesError,
     data: places,
-    //hasNextPage: placesHasNextPage,
   } = useListPlaces(community.communityId);
 
   return (
@@ -35,7 +67,7 @@ export default function PlacesSection({
       </TitleWithIcon>
       {placesError && <Alert severity="error">{placesError.message}</Alert>}
       {isPlacesLoading && <CenteredSpinner />}
-      <HorizontalScroller className={classes.cardContainer}>
+      <StyledCardContainer>
         {places &&
         places.pages.length > 0 &&
         places.pages[0].placesList.length === 0 ? (
@@ -44,29 +76,13 @@ export default function PlacesSection({
           places?.pages
             .flatMap((res) => res.placesList)
             .map((place) => (
-              <PlaceCard
+              <StyledPlaceCard
                 place={place}
-                className={classes.placeEventCard}
                 key={`placecard-${place.pageId}`}
               />
             ))
         )}
-        {/*placesHasNextPage && (
-          <div className={classes.loadMoreButton}>
-            <Link
-              to={routeToCommunity(
-                community.communityId,
-                community.slug,
-                "places"
-              )}
-            >
-              <IconButton aria-label={SEE_MORE_PLACES_LABEL}>
-                <MoreIcon />
-              </IconButton>
-            </Link>
-          </div>
-              )*/}
-      </HorizontalScroller>
+      </StyledCardContainer>
     </>
   );
 }
