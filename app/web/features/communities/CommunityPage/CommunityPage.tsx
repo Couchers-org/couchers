@@ -20,17 +20,6 @@ const StyledTitle = styled(Typography)(() => ({
   marginTop: theme.spacing(3),
 }));
 
-export const LoadMoreButton = styled("button")(() => ({
-  alignSelf: "center",
-  display: "flex",
-  justifyContent: "center",
-  width: "100%",
-}));
-
-export const CreateResourceButton = styled("button")(() => ({
-  margin: theme.spacing(2, 0),
-}));
-
 export default function CommunityPage({
   communityId,
   tab = "overview",

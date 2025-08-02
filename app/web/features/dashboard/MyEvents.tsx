@@ -69,7 +69,6 @@ const PAGE_SIZE = 2;
 
 export default function MyEvents() {
   const { t } = useTranslation([COMMUNITIES, DASHBOARD]);
-  // const classes = { ...useStyles() };
   const theme = useTheme();
   const isBelowSm = useMediaQuery(theme.breakpoints.down("sm"));
 
