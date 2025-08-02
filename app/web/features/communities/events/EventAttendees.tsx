@@ -1,29 +1,33 @@
 import { Add } from "@mui/icons-material";
 import MakeCoOrganizerDialog from "features/communities/events/MakeCoOrganizerDialog";
+import { eventOrganizersKey } from "features/queryKeys";
 import useCurrentUser from "features/userQueries/useCurrentUser";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { LiteUser } from "proto/api_pb";
+import { Event } from "proto/events_pb";
 import { useMemo, useState } from "react";
+import { useMutation, useQueryClient } from "react-query";
+import { service } from "service";
 
 import EventAttendeesDialog from "./EventAttendeesDialog";
 import EventUsers from "./EventUsers";
-import { useEvent, useEventAttendees, useEventOrganizers } from "./hooks";
+import { useEventAttendees, useEventOrganizers } from "./hooks";
 
 interface EventAttendeesProps {
-  eventId: number;
+  event: Event.AsObject;
 }
 
-export default function EventAttendees({ eventId }: EventAttendeesProps) {
+export default function EventAttendees({ event }: EventAttendeesProps) {
   const { attendeesIds, error, hasNextPage } = useEventAttendees({
-    eventId,
+    eventId: event.eventId,
     type: "summary",
   });
 
-  const event = useEvent({ eventId });
-
   const { organizerIds } = useEventOrganizers({
-    eventId: eventId,
+    eventId: event.eventId,
     type: "all",
   });
 
@@ -38,6 +42,7 @@ export default function EventAttendees({ eventId }: EventAttendeesProps) {
   );
 
   const { t } = useTranslation([COMMUNITIES]);
+  const queryClient = useQueryClient();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -46,6 +51,19 @@ export default function EventAttendees({ eventId }: EventAttendeesProps) {
   >();
 
   const [isCoOrganizerDialogOpen, setIsCoOrganizerDialogOpen] = useState(false);
+
+  // @TODO(FB) Error handling
+  const { mutate: makeEventOrganizer } = useMutation<
+    Empty.AsObject,
+    RpcError,
+    number
+  >((userId) => service.events.inviteEventOrganizer(event.eventId, userId), {
+    onSuccess: () => {
+      queryClient.invalidateQueries([
+        eventOrganizersKey({ eventId: event.eventId, type: "all" }),
+      ]);
+    },
+  });
 
   return (
     <>
@@ -75,17 +93,19 @@ export default function EventAttendees({ eventId }: EventAttendeesProps) {
         }
       />
       <EventAttendeesDialog
-        eventId={eventId}
+        eventId={event.eventId}
         open={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
       />
       <MakeCoOrganizerDialog
         username={coOrganizerAddUser?.name ?? ""}
-        eventName={event.data?.title ?? ""}
+        eventName={event.title ?? ""}
         open={isCoOrganizerDialogOpen}
         onClose={() => setIsCoOrganizerDialogOpen(false)}
         onSubmit={() => {
-          // @TODO(FB): Actually make co-organizer
+          if (coOrganizerAddUser) {
+            makeEventOrganizer(coOrganizerAddUser.userId);
+          }
           setIsCoOrganizerDialogOpen(false);
         }}
       />

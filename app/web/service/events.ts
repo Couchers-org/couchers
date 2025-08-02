@@ -6,12 +6,14 @@ import {
   CancelEventReq,
   CreateEventReq,
   GetEventReq,
+  InviteEventOrganizerReq,
   ListAllEventsReq,
   ListEventAttendeesReq,
   ListEventOrganizersReq,
   ListMyEventsReq,
   OfflineEventInformation,
   OnlineEventInformation,
+  RemoveEventOrganizerReq,
   RequestCommunityInviteReq,
   SetEventAttendanceReq,
   UpdateEventReq,
@@ -289,5 +291,22 @@ export async function listMyEvents({
   }
 
   const res = await client.events.listMyEvents(req);
+  return res.toObject();
+}
+
+export async function inviteEventOrganizer(eventId: number, userId: number) {
+  const req = new InviteEventOrganizerReq();
+  req.setEventId(eventId);
+  req.setUserId(userId);
+  const res = await client.events.inviteEventOrganizer(req);
+  return res.toObject();
+}
+
+export async function removeEventOrganizer(eventId: number, userId: number) {
+  const req = new RemoveEventOrganizerReq();
+  req.setEventId(eventId);
+  // TODO(FB) Uncomment once implemented in API
+  // req.setUserId(userId);
+  const res = await client.events.removeEventOrganizer(req);
   return res.toObject();
 }

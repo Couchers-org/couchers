@@ -15,6 +15,7 @@ import HtmlMeta from "components/HtmlMeta";
 import { BackIcon, CalendarIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import Snackbar from "components/Snackbar";
+import EventAttendees from "features/communities/events/EventAttendees";
 import NotFoundPage from "features/NotFoundPage";
 import { eventAttendeesBaseKey, eventKey } from "features/queryKeys";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
@@ -36,7 +37,6 @@ import makeStyles from "utils/makeStyles";
 import CommentTree from "../discussions/CommentTree";
 import AttendanceMenu from "./AttendanceMenu";
 import CancelEventDialog from "./CancelEventDialog";
-import EventAttendees from "./EventAttendees";
 import EventOrganizers from "./EventOrganizers";
 import { useEvent } from "./hooks";
 import InviteCommunityDialog from "./InviteCommunityDialog";
@@ -357,8 +357,8 @@ export default function EventPage({
                 {/* @ts-ignore @TODO until we sort out the Markdown thing*/}
                 <Markdown source={event.content} topHeaderLevel={3} />
               </Card>
-              <EventOrganizers eventId={event.eventId} />
-              <EventAttendees eventId={event.eventId} />
+              <EventOrganizers event={event} />
+              <EventAttendees event={event} />
             </div>
             <div className={classes.discussionContainer}>
               <Typography variant="h2">
