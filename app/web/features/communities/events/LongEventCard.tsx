@@ -128,9 +128,8 @@ const LongEventCard = ({
           image={event.photoUrl || eventImagePlaceholderUrl}
           title={event.title}
           sx={{
-            height: "100%",
-            width: "25%",
-            objectFit: "cover",
+            height: { xs: 100, sm: "100%" },
+            width: { xs: "100%", sm: "25%" },
           }}
         />
         <FlagWrapper>
