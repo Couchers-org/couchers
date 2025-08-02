@@ -43,7 +43,7 @@ export function useEventOrganizers({
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     enabled,
-    initialPageParam: "0",
+    initialPageParam: undefined,
   });
   const organizerIds = query.data?.pages.flatMap(
     (res) => res.organizerUserIdsList,
@@ -67,7 +67,7 @@ export function useEventAttendees({
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     enabled,
-    initialPageParam: "0",
+    initialPageParam: undefined,
   });
   const attendeesIds = query.data?.pages.flatMap(
     (data) => data.attendeeUserIdsList,
@@ -109,7 +109,7 @@ export function useListAllEvents({
         showCancelled,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
-    initialPageParam: "0",
+    initialPageParam: undefined,
   });
 }
 
