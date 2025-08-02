@@ -32,8 +32,8 @@ export default function HeroButton() {
             sx={{
               "& span": {
                 background: `-webkit-linear-gradient(0deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                "-webkit-background-clip": "text",
-                "-webkit-text-fill-color": "transparent",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
               },
             }}
           >

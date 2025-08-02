@@ -35,6 +35,8 @@ import {
 } from "routes";
 import { theme } from "theme";
 
+const ACCEPTABLE_RATING_THRESHOLD = 0.33;
+
 const StyledForm = styled("form")(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
@@ -122,6 +124,11 @@ export default function PrivateFeedback({
     }
   });
 
+  const hasProvidedAcceptableExperience = !(
+    wasAppropriate === "false" ||
+    (rating !== undefined && rating < ACCEPTABLE_RATING_THRESHOLD)
+  );
+
   return (
     <StyledForm onSubmit={onSubmit}>
       <ReferenceStepHeader name={user.name} referenceType={referenceType} />
@@ -181,13 +188,16 @@ export default function PrivateFeedback({
             render={({ field }) => (
               <RatingsSlider onChange={field.onChange} value={field.value} />
             )}
+            rules={{
+              required: t("profile:leave_reference.rating_required"),
+            }}
           />
           {errors.privateText?.message && (
             <Alert severity="error" sx={{ marginBottom: theme.spacing(3) }}>
               {errors.privateText.message}
             </Alert>
           )}
-          {(wasAppropriate === "false" || rating < 0.33) && (
+          {!hasProvidedAcceptableExperience && (
             <PrivateTextContainer>
               <Typography sx={{ marginTop: theme.spacing(2) }}>
                 {t("profile:leave_reference.private_text_explanation_1")}
@@ -231,7 +241,10 @@ export default function PrivateFeedback({
                     multiline
                     minRows={3}
                     sx={{
-                      "& > .MuiInputBase-root": { width: "100%", marginTop: 1 },
+                      "& > .MuiInputBase-root": {
+                        width: "100%",
+                        marginTop: 1,
+                      },
                       marginTop: 2,
                     }}
                   />
