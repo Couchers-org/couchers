@@ -180,9 +180,9 @@ describe("cached data", () => {
   );
   beforeEach(async () => {
     sharedClient.clear();
-    sharedClient.setQueryData([userKey(1)], users[0]);
-    sharedClient.setQueryData([userKey(2)], users[1]);
-    sharedClient.setQueryData([userKey(3)], users[2]);
+    sharedClient.setQueryData(userKey(1), users[0]);
+    sharedClient.setQueryData(userKey(2), users[1]);
+    sharedClient.setQueryData(userKey(3), users[2]);
   });
 
   it("is used instead of refetching", async () => {

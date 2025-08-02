@@ -37,7 +37,7 @@ export default function useUsers(
       .filter((id): id is number => !!id)
       .map((id) => ({
         queryFn: () => service.user.getUser(id.toString()),
-        queryKey: [userKey(id)],
+        queryKey: userKey(id),
         staleTime: userStaleTime,
       })),
   });

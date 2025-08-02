@@ -32,7 +32,7 @@ export default function useUpdateHostingPreferences() {
       setMutationError(null);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [userKey(userId ?? 0)] });
+      queryClient.invalidateQueries({ queryKey: userKey(userId ?? 0) });
       router.push(routeToProfile("home"));
     },
   });

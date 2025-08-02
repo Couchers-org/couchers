@@ -116,7 +116,7 @@ const useBlockUser = () => {
     },
     onSuccess: (_res, { userId }) => {
       if (userId) {
-        queryClient.removeQueries({ queryKey: [userKey(userId)] });
+        queryClient.removeQueries({ queryKey: userKey(userId) });
       }
     },
     onError: (

@@ -18,7 +18,7 @@ export const listNotificationsQueryKey = "listNotifications";
 export const username2Id = "username2Id";
 
 export function userKey(userId?: number) {
-  return userId === undefined ? "user" : ["user", userId];
+  return userId === undefined ? ["user"] : ["user", userId];
 }
 
 export function modUserKey(user?: string) {

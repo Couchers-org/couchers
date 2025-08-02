@@ -96,7 +96,7 @@ describe("cached data", () => {
       userId: 2,
       username: "funnydog",
     });
-    sharedClient.setQueryData([userKey(2)], {
+    sharedClient.setQueryData(userKey(2), {
       avatarUrl: "https://loremflickr.com/200/200?user2",
       name: "Funny Dog",
       userId: 2,

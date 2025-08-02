@@ -44,7 +44,7 @@ export default function useUserByUsername(
   useEffect(() => {
     if (invalidate && usernameQuery.data?.userId) {
       queryClient.invalidateQueries({
-        queryKey: [userKey(usernameQuery.data.userId)],
+        queryKey: userKey(usernameQuery.data.userId),
       });
     }
   }, [invalidate, queryClient, usernameQuery.data?.userId]);
@@ -53,7 +53,7 @@ export default function useUserByUsername(
     enabled: !!usernameQuery.data,
     queryFn: () =>
       service.user.getUser(usernameQuery.data?.userId.toString() || ""),
-    queryKey: [userKey(usernameQuery.data?.userId ?? 0)],
+    queryKey: userKey(usernameQuery.data?.userId ?? 0),
     staleTime: userStaleTime,
   });
 

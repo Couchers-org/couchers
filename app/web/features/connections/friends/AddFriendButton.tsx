@@ -34,15 +34,15 @@ export default function AddFriendButton({
       doAntibot("friend_request");
 
       await queryClient.cancelQueries({
-        queryKey: [userKey(userId)],
+        queryKey: userKey(userId),
       });
 
-      const cachedUser = queryClient.getQueryData<User.AsObject>([
+      const cachedUser = queryClient.getQueryData<User.AsObject>(
         userKey(userId),
-      ]);
+      );
 
       if (cachedUser) {
-        queryClient.setQueryData<User.AsObject>([userKey(userId)], {
+        queryClient.setQueryData<User.AsObject>(userKey(userId), {
           ...cachedUser,
           friends: User.FriendshipStatus.PENDING,
         });
@@ -53,13 +53,13 @@ export default function AddFriendButton({
     onError: (error, { setMutationError }, cachedUser) => {
       setMutationError(error.message);
       if (cachedUser) {
-        queryClient.setQueryData([userKey(userId)], cachedUser);
+        queryClient.setQueryData(userKey(userId), cachedUser);
       }
     },
 
     onSuccess: (_, { userId }) => {
       queryClient.invalidateQueries({
-        queryKey: [userKey(userId)],
+        queryKey: userKey(userId),
       });
     },
   });

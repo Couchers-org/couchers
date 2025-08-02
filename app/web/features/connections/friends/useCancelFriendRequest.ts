@@ -35,7 +35,7 @@ export default function useCancelFriendRequest() {
         exact: true,
       });
       queryClient.invalidateQueries({
-        queryKey: [userKey(userId)],
+        queryKey: userKey(userId),
         exact: true,
       });
     },

@@ -117,7 +117,7 @@ export default function useAuthStore() {
           if (!res.isJailed) {
             setUserId(res.user.userId);
             Sentry.setUser({ id: res.user.userId.toString() });
-            queryClient.setQueryData([userKey(res.user.userId)], res.user);
+            queryClient.setQueryData(userKey(res.user.userId), res.user);
           }
           setJailed(res.isJailed);
         } catch (e) {

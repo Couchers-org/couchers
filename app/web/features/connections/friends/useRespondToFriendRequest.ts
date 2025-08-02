@@ -37,7 +37,7 @@ export default function useRespondToFriendRequest() {
       if (cachedUser) {
         if (accept === true) {
           queryClient.setQueryData<User.AsObject>(
-            [userKey(friendRequest.userId)],
+            userKey(friendRequest.userId),
             {
               ...cachedUser,
               friends: User.FriendshipStatus.FRIENDS,
@@ -45,7 +45,7 @@ export default function useRespondToFriendRequest() {
           );
         } else {
           queryClient.setQueryData<User.AsObject>(
-            [userKey(friendRequest.userId)],
+            userKey(friendRequest.userId),
             {
               ...cachedUser,
               friends: User.FriendshipStatus.NOT_FRIENDS,
@@ -58,7 +58,7 @@ export default function useRespondToFriendRequest() {
     onError: (error, { setMutationError, friendRequest }, cachedUser) => {
       setMutationError(error.message);
       if (cachedUser) {
-        queryClient.setQueryData([userKey(friendRequest.userId)], cachedUser);
+        queryClient.setQueryData(userKey(friendRequest.userId), cachedUser);
       }
     },
     onSuccess: (_, { friendRequest }) => {
@@ -69,7 +69,7 @@ export default function useRespondToFriendRequest() {
         queryKey: friendRequestKey("received"),
       });
       queryClient.invalidateQueries({
-        queryKey: [userKey(friendRequest.userId)],
+        queryKey: userKey(friendRequest.userId),
       });
       queryClient.invalidateQueries({
         queryKey: ["ping"],
