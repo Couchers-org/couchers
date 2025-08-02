@@ -3,41 +3,41 @@ import {
   CardActionArea,
   CardContent,
   CardMedia,
+  styled,
   useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import Link from "next/link";
 import { Page } from "proto/pages_pb";
 import React, { useMemo } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { routeToPlace } from "routes";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 import stripMarkdown from "utils/stripMarkdown";
 
-const useStyles = makeStyles((theme) => ({
-  image: {
-    backgroundColor: theme.palette.grey[200],
-    height: 80,
-    objectFit: "contain",
-    [theme.breakpoints.up("sm")]: {
-      height: 100,
-    },
-    [theme.breakpoints.up("md")]: {
-      height: 120,
-    },
+const StyledImage = styled("img")(() => ({
+  backgroundColor: theme.palette.grey[200],
+  height: 80,
+  objectFit: "contain",
+  [theme.breakpoints.up("sm")]: {
+    height: 100,
   },
-  placePreview: {
-    ...theme.typography.caption,
-    marginTop: theme.spacing(0.5),
-    [theme.breakpoints.down("md")]: {
-      height: `calc(2 * calc(${theme.typography.caption.lineHeight} * ${theme.typography.caption.fontSize}))`,
-    },
+  [theme.breakpoints.up("md")]: {
+    height: 120,
   },
-  title: {
-    ...theme.typography.h3,
-    height: `calc(2 * calc(${theme.typography.h3.lineHeight} * ${theme.typography.h3.fontSize}))`,
-    marginBottom: theme.spacing(0.5),
-    marginTop: 0,
+}));
+
+const StyledTitle = styled(LinesEllipsis)(() => ({
+  ...theme.typography.h3,
+  height: `calc(2 * calc(${theme.typography.h3.lineHeight} * ${theme.typography.h3.fontSize}))`,
+  marginBottom: theme.spacing(0.5),
+  marginTop: 0,
+}));
+
+const StyledPlacePreview = styled(LinesEllipsis)(() => ({
+  ...theme.typography.caption,
+  marginTop: theme.spacing(0.5),
+  [theme.breakpoints.down("md")]: {
+    height: `calc(2 * calc(${theme.typography.caption.lineHeight} * ${theme.typography.caption.fontSize}))`,
   },
 }));
 
@@ -48,11 +48,9 @@ export default function PlaceCard({
   place: Page.AsObject;
   className?: string;
 }) {
-  const classes = useStyles();
-  const theme = useTheme();
   const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
   const contentPreview = useMemo(
-    () => stripMarkdown(place.content.substr(0, 300).replace("\n", " ")),
+    () => stripMarkdown(place.content.substring(0, 300).replace("\n", " ")),
     [place.content],
   );
   return (
@@ -63,28 +61,21 @@ export default function PlaceCard({
             src={
               place.photoUrl ? place.photoUrl : "/img/placeImagePlaceholder.svg"
             }
-            className={classes.image}
-            component="img"
+            component={StyledImage}
           />
+
           <CardContent>
-            <LinesEllipsis
-              text={place.title}
-              maxLine={2}
-              component="h3"
-              className={classes.title}
-            />
-            <LinesEllipsis
+            <StyledTitle text={place.title} maxLine={2} component="h3" />
+            <StyledPlacePreview
               text={place.address}
               maxLine={isMdUp ? 4 : 2}
               component="p"
-              className={classes.placePreview}
             />
             {contentPreview && (
-              <LinesEllipsis
+              <StyledPlacePreview
                 text={contentPreview}
                 maxLine={isMdUp ? 6 : 2}
                 component="p"
-                className={classes.placePreview}
               />
             )}
           </CardContent>
