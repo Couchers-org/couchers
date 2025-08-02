@@ -8,27 +8,49 @@ import {
 import userEvent from "@testing-library/user-event";
 import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
 import { service } from "service";
+import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
-import { getEventAttendees, getLiteUsers } from "test/serviceMockDefaults";
+import {
+  getEventAttendees,
+  getEventOrganizers,
+  getLiteUsers,
+} from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 
 import EventAttendees from "./EventAttendees";
 
 const { t } = i18n;
 
+const [event] = events;
+
 const listEventAttendeesMock = service.events
   .listEventAttendees as jest.MockedFunction<
   typeof service.events.listEventAttendees
+>;
+const listEventOrganizersMock = service.events
+  .listEventOrganizers as jest.MockedFunction<
+  typeof service.events.listEventOrganizers
 >;
 const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
   typeof service.user.getLiteUsers
 >;
 
+jest.mock("features/auth/useAuthStore", () => ({
+  __esModule: true,
+  default: () => ({
+    authState: {
+      userId: 1,
+      authenticated: true,
+    },
+  }),
+}));
+
 describe("Event attendees", () => {
   beforeEach(() => {
     getLiteUsersMock.mockImplementation(getLiteUsers);
     listEventAttendeesMock.mockImplementation(getEventAttendees);
+    listEventOrganizersMock.mockImplementation(getEventOrganizers);
   });
 
   afterEach(() => {
@@ -36,7 +58,7 @@ describe("Event attendees", () => {
   });
 
   it("renders the attendees successfully", async () => {
-    render(<EventAttendees eventId={1} />, { wrapper });
+    render(<EventAttendees event={event} />, { wrapper });
 
     expect(
       await screen.findByRole("heading", { name: t("communities:attendees") }),
@@ -65,7 +87,7 @@ describe("Event attendees", () => {
     });
 
     it("should show dialog for seeing all attendees when the 'See all' button is clicked", async () => {
-      render(<EventAttendees eventId={1} />, { wrapper });
+      render(<EventAttendees event={event} />, { wrapper });
 
       const user = userEvent.setup();
 
@@ -84,7 +106,7 @@ describe("Event attendees", () => {
     });
 
     it("should load the next page of attendees when the 'Load more attendees' button is clicked", async () => {
-      render(<EventAttendees eventId={1} />, { wrapper });
+      render(<EventAttendees event={event} />, { wrapper });
 
       const user = userEvent.setup();
 
@@ -124,7 +146,7 @@ describe("Event attendees", () => {
           nextPageToken: "4",
         };
       });
-      render(<EventAttendees eventId={1} />, { wrapper });
+      render(<EventAttendees event={event} />, { wrapper });
 
       const user = userEvent.setup();
 
@@ -151,7 +173,7 @@ describe("Event attendees", () => {
 
     it("should show an error alert in the dialog if getting attendees failed", async () => {
       mockConsoleError();
-      render(<EventAttendees eventId={1} />, { wrapper });
+      render(<EventAttendees event={event} />, { wrapper });
       const errorMessage = "Error listing attendees";
       listEventAttendeesMock.mockRejectedValue(new Error(errorMessage));
 
@@ -166,7 +188,7 @@ describe("Event attendees", () => {
     });
 
     it("closes the dialog when the backdrop is clicked", async () => {
-      render(<EventAttendees eventId={1} />, { wrapper });
+      render(<EventAttendees event={event} />, { wrapper });
 
       const user = userEvent.setup();
 

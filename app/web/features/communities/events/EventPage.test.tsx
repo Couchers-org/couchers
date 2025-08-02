@@ -5,7 +5,7 @@ import { AttendanceState } from "proto/events_pb";
 import { eventBaseRoute } from "routes";
 import { service } from "service";
 import events from "test/fixtures/events.json";
-import { getHookWrapperWithClient } from "test/hookWrapper";
+import hookWrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import {
   getEventAttendees,
@@ -48,9 +48,18 @@ const setEventAttendanceMock = service.events
 
 function renderEventPage(id = 1, slug = "weekly-meetup") {
   mockRouter.setCurrentUrl(`${eventBaseRoute}/${id}/${slug}`);
-  const { wrapper } = getHookWrapperWithClient();
-  render(<EventPage eventId={id} eventSlug={slug} />, { wrapper });
+  render(<EventPage eventId={id} eventSlug={slug} />, { wrapper: hookWrapper });
 }
+
+jest.mock("features/auth/useAuthStore", () => ({
+  __esModule: true,
+  default: () => ({
+    authState: {
+      userId: 1,
+      authenticated: true,
+    },
+  }),
+}));
 
 describe("Event page", () => {
   beforeEach(() => {
@@ -147,7 +156,7 @@ describe("Event page", () => {
     renderEventPage();
     await screen.findByRole("heading", { name: events[0].title });
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     // @TODO should be awaited but doesn't work, try again after more package upgrades
     user.click(
@@ -206,14 +215,12 @@ describe("Event page", () => {
         name: t("communities:going_to_event"),
       });
 
-      const user = userEvent.setup();
-      // @TODO should be awaited but doesn't work, try again after more package upgrades
-      user.click(attendanceMenuButton);
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      await user.click(attendanceMenuButton);
       const leaveEventOption = await screen.findByRole("menuitem", {
         name: t("communities:not_going_to_event"),
       });
-      user.click(leaveEventOption);
-
+      await user.click(leaveEventOption);
       expect(
         await screen.findByRole("button", {
           name: t("communities:join_event"),
@@ -242,7 +249,7 @@ describe("Event page", () => {
         name: t("communities:going_to_event"),
       });
 
-      const user = await userEvent.setup();
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
       //@TODO this should be awaited but doesn't work. Try again after more package upgrades
       user.click(attendanceMenuButton);

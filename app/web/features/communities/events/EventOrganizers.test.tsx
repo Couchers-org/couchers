@@ -8,6 +8,7 @@ import {
 import userEvent from "@testing-library/user-event";
 import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
 import { service } from "service";
+import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { getEventOrganizers, getLiteUsers } from "test/serviceMockDefaults";
@@ -17,6 +18,8 @@ import EventOrganizers from "./EventOrganizers";
 
 const { t } = i18n;
 
+const [event] = events;
+
 const listEventOrganizersMock = service.events
   .listEventOrganizers as jest.MockedFunction<
   typeof service.events.listEventOrganizers
@@ -24,6 +27,16 @@ const listEventOrganizersMock = service.events
 const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
   typeof service.user.getLiteUsers
 >;
+
+jest.mock("features/auth/useAuthStore", () => ({
+  __esModule: true,
+  default: () => ({
+    authState: {
+      userId: 1,
+      authenticated: true,
+    },
+  }),
+}));
 
 describe("Event organizers", () => {
   beforeEach(() => {
@@ -36,7 +49,7 @@ describe("Event organizers", () => {
   });
 
   it("renders the organizers successfully", async () => {
-    render(<EventOrganizers eventId={1} />, { wrapper });
+    render(<EventOrganizers event={event} />, { wrapper });
 
     expect(
       await screen.findByRole("heading", { name: t("communities:organizers") }),
@@ -63,7 +76,7 @@ describe("Event organizers", () => {
     });
 
     it("should show dialog for seeing all organizers when the 'See all' button is clicked", async () => {
-      render(<EventOrganizers eventId={1} />, { wrapper });
+      render(<EventOrganizers event={event} />, { wrapper });
 
       const user = userEvent.setup();
 
@@ -86,7 +99,7 @@ describe("Event organizers", () => {
     });
 
     it("should load the next page of organizers when the 'Load more organizers' button is clicked", async () => {
-      render(<EventOrganizers eventId={1} />, { wrapper });
+      render(<EventOrganizers event={event} />, { wrapper });
 
       const user = userEvent.setup();
 
@@ -127,7 +140,7 @@ describe("Event organizers", () => {
           nextPageToken: "4",
         };
       });
-      render(<EventOrganizers eventId={1} />, { wrapper });
+      render(<EventOrganizers event={event} />, { wrapper });
 
       const user = userEvent.setup();
 
@@ -155,7 +168,7 @@ describe("Event organizers", () => {
 
     it("should show an error alert in the dialog if getting attendees failed", async () => {
       mockConsoleError();
-      render(<EventOrganizers eventId={1} />, { wrapper });
+      render(<EventOrganizers event={event} />, { wrapper });
       const errorMessage = "Error listing organizers";
       listEventOrganizersMock.mockRejectedValue(new Error(errorMessage));
 
@@ -170,7 +183,7 @@ describe("Event organizers", () => {
     });
 
     it("closes the dialog when the backdrop is clicked", async () => {
-      render(<EventOrganizers eventId={1} />, { wrapper });
+      render(<EventOrganizers event={event} />, { wrapper });
 
       const user = userEvent.setup();
 
