@@ -49,6 +49,8 @@ describe("useLiteUsers & useLiteUser", () => {
     });
 
     it("Should return loading state correctly", async () => {
+      mockGetLiteUsers.mockResolvedValue(getLiteUsers(ids));
+
       const { result } = renderHook(() => useLiteUsers(ids), {
         wrapper,
       });
@@ -82,6 +84,8 @@ describe("useLiteUsers & useLiteUser", () => {
     });
 
     it("Should filter out undefined ids", async () => {
+      mockGetLiteUsers.mockResolvedValue(getLiteUsers([1, 3]));
+
       const idsWithUndefined = [1, undefined, 3];
 
       const { result } = renderHook(() => useLiteUsers(idsWithUndefined), {
@@ -337,7 +341,7 @@ describe("useLiteUsers & useLiteUser", () => {
 
       // Invalidate the query to mark the data as stale
       queryClient.invalidateQueries({
-        queryKey: [liteUserKey(2)],
+        queryKey: liteUserKey(2),
       });
 
       // Trigger a rerender that should cause a refetch due to stale data
@@ -377,7 +381,7 @@ describe("useLiteUsers & useLiteUser", () => {
 
       // Invalidate the query to mark the data as stale
       queryClient.invalidateQueries({
-        queryKey: [liteUserKey(1)],
+        queryKey: liteUserKey(1),
       });
 
       // Trigger a rerender that should cause a refetch due to stale data

@@ -29,7 +29,7 @@ export function modUserDetailsKey(user?: string) {
 }
 
 export function liteUserKey(userId?: number) {
-  return userId === undefined ? "liteUser" : ["liteUser", userId];
+  return userId === undefined ? ["liteUser"] : ["liteUser", userId];
 }
 
 export const liteUsersKey = (ids: number[] | string[]) => ["liteUsers", ...ids];

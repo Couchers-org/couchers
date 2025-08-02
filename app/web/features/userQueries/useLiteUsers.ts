@@ -10,16 +10,14 @@ import { userStaleTime } from "./constants";
 // React Query typically retains the last successful data until the next successful fetch
 // if ids is `[]`, then `data` is `undefined`
 function useLiteUsers(ids: (number | undefined)[] | undefined) {
-  const nonFalseyIds = ids?.filter((id): id is number => !!id);
+  const nonFalseyIds = ids?.filter((id) => id !== undefined);
   // remove duplicate IDs from this list
   const uniqueIds = Array.from(new Set(nonFalseyIds));
   const query = useQuery<GetLiteUsersRes.AsObject, RpcError>({
     queryKey: liteUsersKey(uniqueIds),
-    queryFn: () => {
-      const result = service.user.getLiteUsers(uniqueIds);
-      return result;
-    },
+    queryFn: async () => await service.user.getLiteUsers(uniqueIds),
     staleTime: userStaleTime,
+    enabled: uniqueIds.length > 0,
   });
 
   const isDataUndefined = !query.data || !query.data.responsesList;
@@ -56,7 +54,7 @@ function useLiteUsersList(ids: (number | undefined)[] | undefined) {
 // React Query typically retains the last successful data until the next successful fetch
 function useLiteUser(id: number | undefined) {
   const query = useQuery<LiteUser.AsObject, RpcError>({
-    queryKey: [liteUserKey(id)],
+    queryKey: liteUserKey(id),
     queryFn: () => service.user.getLiteUser(id?.toString() || ""),
     staleTime: userStaleTime,
     enabled: id !== undefined,
