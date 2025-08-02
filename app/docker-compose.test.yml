@@ -8,6 +8,7 @@ services:
     restart: unless-stopped
     ports:
       - 6544:6544
+    platform: linux/amd64
   backend_tests:
     build: backend
     env_file: backend.test.env
@@ -19,8 +20,10 @@ services:
       - postgres_tests
     links:
       - postgres_tests
+    platform: linux/amd64
   media_tests:
     build: media
     env_file: media.test.env
     command: pytest src
     restart: unless-stopped
+    platform: linux/amd64
