@@ -12,7 +12,7 @@ export default function useUserCommunities() {
         pageParam as string | undefined,
       );
     },
-    initialPageParam: "0",
+    initialPageParam: undefined,
     getNextPageParam: (lastPage) =>
       lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
   });

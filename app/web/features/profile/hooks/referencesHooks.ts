@@ -38,7 +38,7 @@ export function useReferencesGiven(
       }),
     queryKey: [referencesGivenKey, user.userId],
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
-    initialPageParam: "0",
+    initialPageParam: undefined,
   });
 
   return referencesGivenQuery as unknown as ListReferencesInfiniteQueryResult;
@@ -67,7 +67,7 @@ export function useReferencesReceived(
       } as ReferencesReceivedKeyInputs,
     ],
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
-    initialPageParam: "0",
+    initialPageParam: undefined,
   });
 
   return referencesReceivedQuery as unknown as ListReferencesInfiniteQueryResult;
