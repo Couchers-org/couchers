@@ -130,7 +130,7 @@ const LongEventCard = ({
           sx={{
             height: "100%",
             width: "25%",
-            objectFit: "fill",
+            objectFit: "cover",
           }}
         />
         <FlagWrapper>
