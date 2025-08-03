@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
@@ -11,29 +11,28 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 import { lowercaseAndTrimField } from "utils/validation";
 
-const useStyles = makeStyles((theme) => ({
-  form: {
-    "& > * + *": {
-      marginBlockStart: theme.spacing(1),
-    },
+const StyledMain = styled("main")(() => ({
+  padding: theme.spacing(0, 3),
+}));
+
+const StyledForm = styled("form")(() => ({
+  "& > * + *": {
+    marginBlockStart: theme.spacing(1),
   },
-  main: {
-    padding: theme.spacing(0, 3),
-  },
-  textField: {
-    width: "100%",
-    [theme.breakpoints.up("md")]: {
-      width: theme.typography.pxToRem(400),
-    },
+}));
+
+const StyledTextField = styled(TextField)(() => ({
+  width: "100%",
+  [theme.breakpoints.up("md")]: {
+    width: theme.typography.pxToRem(400),
   },
 }));
 
 export default function ResetPassword() {
   const { t } = useTranslation([AUTH, GLOBAL]);
-  const classes = useStyles();
   const { handleSubmit, register } = useForm<{ userId: string }>();
 
   const {
@@ -50,13 +49,12 @@ export default function ResetPassword() {
   });
 
   return (
-    <main className={classes.main}>
+    <StyledMain>
       <HtmlMeta title={t("auth:reset_password")} />
       <PageTitle>{t("auth:reset_password")}</PageTitle>
       {error && <Alert severity="error">{error.message}</Alert>}
-      <form className={classes.form} onSubmit={onSubmit}>
-        <TextField
-          classes={{ root: classes.textField }}
+      <StyledForm onSubmit={onSubmit}>
+        <StyledTextField
           id="userId"
           {...register("userId", { required: true })}
           label={t("auth:reset_password_form.enter_email")}
@@ -72,7 +70,7 @@ export default function ResetPassword() {
             {t("auth:reset_password_form.success_message")}
           </Typography>
         )}
-      </form>
-    </main>
+      </StyledForm>
+    </StyledMain>
   );
 }

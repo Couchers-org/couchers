@@ -19,7 +19,11 @@
     }
   },
   "community_guidelines_form": {
-    "header": "Bonne conduite de la communauté"
+    "header": "Charte de la communauté",
+    "guideline": {
+      "required_error": "Toutes les cases à cocher sont requises",
+      "checkbox_label": "D'accord, ça marche"
+    }
   },
   "change_email_confirmation": {
     "change_in_progress": "Changement d’adresse e-mail en cours…",
@@ -59,7 +63,7 @@
       "no_emails_disable_text": "Réactiver les mails"
     },
     "title": "Veuillez ne pas m'envoyer de mail",
-    "caveat": "En activant cet option, votre compte sera configuré pour refuser les demandes d'hébergement. Vous continuerez de recevoir les mails de sécurité (comme ceux pour la réinitialisation de votre mot de passe). La newsletter continuera de vous être envoyée ; vous pouvez vous désabonner de celle-ci en utilisant le lien dans le pied de page de la newsletter."
+    "caveat": "En activant cette option, votre compte sera configuré pour refuser les demandes d'hébergement. Vous continuerez de recevoir les mails de sécurité (comme ceux pour la réinitialisation de votre mot de passe). La newsletter continuera de vous être envoyée ; vous pouvez vous désabonner de celle-ci en utilisant le lien dans le pied de page de la newsletter."
   },
   "reset_password_form": {
     "success_message": "Verifiez le lien envoyé à votre adresse mail pour réinitialiser votre mot de passe !",
@@ -69,7 +73,15 @@
   "sign_up_confirmed_prompt": "Vous avez terminé ! Si vous n'êtes pas redirigé, essayez de vous connecter.",
   "unhandled_sign_up_state": "Erreur inconnue dans le processus d'inscription.",
   "account_settings_page": {
-    "title": "Paramètres de votre compte"
+    "title": "Paramètres de votre compte",
+    "birth_date_section": {
+      "title": "Changer ma date de naissance",
+      "explanation": "Les administrateurs seront ravis de changer votre date d'anniversaire. Contactez support@couchers.org !"
+    },
+    "gender_section": {
+      "title": "Changement du genre",
+      "explanation": "Les administrateurs seront ravis de changer l'étiquetage de votre genre. Contactez support@couchers.org !"
+    }
   },
   "login_prompt": "Cliquez ici pour vous connecter",
   "about_us": "Au sujet de nous",
@@ -112,5 +124,20 @@
   "location": {
     "validation_error": "Veuillez sélectionner une localisation valide.",
     "field_label": "Votre localisation"
+  },
+  "logged_out_message": "Vous avez été déconnecté",
+  "jail": {
+    "title": "Plus d'information requise",
+    "terms_of_service_section": {
+      "description": "Les conditions d'utilisations ont été mise à jour. Pour continuer, veuillez lire et accepter les nouvelles <1></1>."
+    },
+    "location_section": {
+      "title": "Ajouter votre localisation",
+      "submit_button": {
+        "active_text": "Sauvegarder",
+        "inactive_text": "Merci !"
+      },
+      "resubmit_button_text": "Renvoyer"
+    }
   }
 }

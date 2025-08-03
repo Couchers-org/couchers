@@ -152,7 +152,7 @@
       "description": "We noticed you haven't logged in for a while and wanted to check if you're still open to hosting surfers.",
       "still_hosting": "I still want to host!",
       "not_hosting": "I'm no longer able to host.",
-      "note": "We'll updated your profile to match this choice!"
+      "note": "We'll update your profile to match this choice!"
     }
   },
   "logged_out_message": "You were logged out.",
