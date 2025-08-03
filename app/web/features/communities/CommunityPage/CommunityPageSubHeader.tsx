@@ -33,11 +33,13 @@ export default function CommunityPageSubHeader({
   const { t } = useTranslation([COMMUNITIES]);
 
   const router = useRouter();
-  const communityTabBarLabels: Record<CommunityTab, string> = {
+  const communityTabBarLabels: Partial<Record<CommunityTab, string>> = {
     overview: t("communities:overview_label"),
     info: t("communities:local_info_label"),
-    discussions: t("communities:discussions_label"),
-    events: t("communities:events_label"),
+    ...(community.discussionsEnabled && {
+      discussions: t("communities:discussions_label"),
+    }),
+    ...(community.eventsEnabled && { events: t("communities:events_label") }),
     members: t("communities:members_label"),
   };
 
