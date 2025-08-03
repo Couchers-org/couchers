@@ -2005,7 +2005,9 @@ def test_RemoveEventOrganizer(db):
         assert res.organizer_count == 2
 
         # Event owner can remove co-organizer
-        api.RemoveEventOrganizer(events_pb2.RemoveEventOrganizerReq(event_id=event_id, user_id=user2.id))
+        api.RemoveEventOrganizer(
+            events_pb2.RemoveEventOrganizerReq(event_id=event_id, user_id=wrappers_pb2.UInt64Value(value=user2.id))
+        )
 
         # Verify user2 is no longer an organizer
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
@@ -2027,7 +2029,9 @@ def test_RemoveEventOrganizer(db):
     with events_session(token2) as api:
         # User2 cannot remove user1 (the owner)
         with pytest.raises(grpc.RpcError) as e:
-            api.RemoveEventOrganizer(events_pb2.RemoveEventOrganizerReq(event_id=event_id, user_id=user1.id))
+            api.RemoveEventOrganizer(
+                events_pb2.RemoveEventOrganizerReq(event_id=event_id, user_id=wrappers_pb2.UInt64Value(value=user1.id))
+            )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
         assert e.value.details() == errors.EVENT_EDIT_PERMISSION_DENIED
 

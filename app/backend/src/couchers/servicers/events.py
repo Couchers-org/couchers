@@ -1157,7 +1157,7 @@ class Events(events_pb2_grpc.EventsServicer):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_UPDATE_OLD_EVENT)
 
         # Determine which user to remove
-        user_id_to_remove = request.user_id if request.HasField("user_id") else context.user_id
+        user_id_to_remove = request.user_id.value if request.HasField("user_id") else context.user_id
 
         # Check permissions: either removing yourself OR you're the event owner
         can_remove = (
