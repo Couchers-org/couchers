@@ -1156,18 +1156,32 @@ class Events(events_pb2_grpc.EventsServicer):
         if occurrence.end_time < now() - timedelta(hours=24):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_UPDATE_OLD_EVENT)
 
-        if event.owner_user_id == context.user_id:
+        # Determine which user to remove
+        user_id_to_remove = request.user_id if request.HasField("user_id") else context.user_id
+
+        # Check permissions: either removing yourself OR you're the event owner
+        can_remove = (
+            context.user_id == user_id_to_remove  # Self-removal
+            or _is_event_owner(event, context.user_id)  # Event owner removing someone else
+        )
+
+        if not can_remove:
+            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_EDIT_PERMISSION_DENIED)
+
+        # Check if the target user is the event owner (only after permission check)
+        if event.owner_user_id == user_id_to_remove:
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_REMOVE_OWNER_AS_ORGANIZER)
 
-        current = session.execute(
+        # Find the organizer to remove
+        organizer_to_remove = session.execute(
             select(EventOrganizer)
-            .where(EventOrganizer.user_id == context.user_id)
+            .where(EventOrganizer.user_id == user_id_to_remove)
             .where(EventOrganizer.event_id == event.id)
         ).scalar_one_or_none()
 
-        if not current:
+        if not organizer_to_remove:
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_NOT_AN_ORGANIZER)
 
-        session.delete(current)
+        session.delete(organizer_to_remove)
 
         return empty_pb2.Empty()

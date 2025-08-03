@@ -1995,6 +1995,42 @@ def test_RemoveEventOrganizer(db):
         assert not res.organizer
         assert res.organizer_count == 1
 
+    # Test that event owner can remove co-organizers
+    with events_session(token1) as api:
+        # Add user2 back as organizer
+        api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=event_id, user_id=user2.id))
+
+        # Verify user2 is now an organizer
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+        assert res.organizer_count == 2
+
+        # Event owner can remove co-organizer
+        api.RemoveEventOrganizer(events_pb2.RemoveEventOrganizerReq(event_id=event_id, user_id=user2.id))
+
+        # Verify user2 is no longer an organizer
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+        assert res.organizer_count == 1
+
+    # Test that non-owners cannot remove other organizers
+    with events_session(token2) as api:
+        # User2 cannot invite themselves as organizer (not the owner)
+        with pytest.raises(grpc.RpcError) as e:
+            api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=event_id, user_id=user2.id))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.EVENT_EDIT_PERMISSION_DENIED
+
+    # Test that non-owners cannot remove other organizers (user1 adds user2 back first)
+    with events_session(token1) as api:
+        # Add user2 back as organizer
+        api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=event_id, user_id=user2.id))
+
+    with events_session(token2) as api:
+        # User2 cannot remove user1 (the owner)
+        with pytest.raises(grpc.RpcError) as e:
+            api.RemoveEventOrganizer(events_pb2.RemoveEventOrganizerReq(event_id=event_id, user_id=user1.id))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.EVENT_EDIT_PERMISSION_DENIED
+
 
 def test_ListEventAttendees_regression(db):
     # see issue #1617:
