@@ -57,7 +57,7 @@ frozenlist==1.5.0
     #   aiosignal
 geoalchemy2==0.17.0
     # via -r requirements.in
-geoip2==5.0.1
+geoip2==5.1.0
     # via -r requirements.in
 googleapis-common-protos==1.66.0
     # via
@@ -97,7 +97,7 @@ markupsafe==3.0.2
     # via
     #   jinja2
     #   mako
-maxminddb==2.6.3
+maxminddb==2.8.2
     # via geoip2
 mdurl==0.1.2
     # via markdown-it-py
