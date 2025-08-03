@@ -128,6 +128,7 @@ const LongEventCard = ({
           image={event.photoUrl || eventImagePlaceholderUrl}
           title={event.title}
           sx={{
+            objectFit: event.photoUrl ? "none" : "contain",
             height: { xs: 100, sm: "100%" },
             width: { xs: "100%", sm: "25%" },
           }}
