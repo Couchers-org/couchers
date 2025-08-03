@@ -20,10 +20,8 @@ services:
       - postgres_tests
     links:
       - postgres_tests
-    platform: linux/amd64
   media_tests:
     build: media
     env_file: media.test.env
     command: pytest src
     restart: unless-stopped
-    platform: linux/amd64

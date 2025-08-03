@@ -6,7 +6,6 @@ services:
       - 8888:8888
       - 9901:9901
     dns_search: ""
-    platform: linux/amd64
   postgres:
     image: postgis/postgis:17-3.5
     env_file: postgres.dev.env
@@ -37,7 +36,6 @@ services:
       - postgres
     links:
       - postgres
-    platform: linux/amd64
   media:
     build: media
     restart: unless-stopped
@@ -48,14 +46,12 @@ services:
       - 5001:5001
     depends_on:
       - backend
-    platform: linux/amd64
   maildev:
     image: maildev/maildev
     restart: unless-stopped
     ports:
       - 1025:1025
       - 1080:1080
-    platform: linux/amd64
   jaeger:
     image: jaegertracing/all-in-one:1.60
     ports:
@@ -64,4 +60,3 @@ services:
       - 4317
     environment:
       - COLLECTOR_OTLP_ENABLED=true
-    platform: linux/amd64
