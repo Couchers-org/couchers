@@ -854,16 +854,13 @@ def render_notification(user, notification) -> RenderedNotification:
     elif notification.topic_action.display == "verification:sv_success":
         title = "Strong Verification succeeded"
         message = "You have been verified with Strong Verification! You will now see a tick next to your name on the platform."
-        donation_message = "Thanks for verifying—you're helping make Couchers.org safer for everyone.\n\nVerification is free for you, but it does come at a cost to us. As a nonprofit run by volunteers, we rely on donations to cover expenses like keeping our servers running, verification, and tools for volunteers and community builders.\n\nIf you're able, please consider donating to help keep Couchers.org running and growing."
         return RenderedNotification(
             is_critical=True,
             email_subject=title,
-            email_preview=title,
+            email_preview=message,
             email_template_name="strong_verification_success",
             email_template_args={
-                "title": title,
                 "message": message,
-                "donation_message": donation_message,
                 "donation_link": f"{urls.donation_url()}?utm_source=strong-verification-email",
             },
             push_title=title,
