@@ -27,7 +27,6 @@ export default function AttendanceMenu({
   disabled: boolean;
 }) {
   const { t } = useTranslation([COMMUNITIES]);
-  // const classes = useStyles();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
