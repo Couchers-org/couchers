@@ -34,6 +34,14 @@ const StyledActionButtonsContainer = styled("div")(() => ({
   justifyContent: "flex-end",
 }));
 
+const StyledCancelButton = styled(Button)(() => ({
+  backgroundColor: theme.palette.grey[50],
+  color: theme.palette.grey[800],
+  "&:hover": {
+    backgroundColor: theme.palette.grey[100],
+  },
+}));
+
 export interface CreateDiscussionFormProps {
   communityId: number;
   onCancel?(): void;
@@ -103,10 +111,12 @@ export default function CreateDiscussionForm({
           name="content"
         />
         <StyledActionButtonsContainer>
+          <StyledCancelButton onClick={handleCancel}>
+            {t("global:cancel")}
+          </StyledCancelButton>
           <Button loading={isLoading} type="submit">
             {t("communities:post")}
           </Button>
-          <Button onClick={handleCancel}>{t("global:cancel")}</Button>
         </StyledActionButtonsContainer>
       </StyledForm>
     </StyledWrapper>
