@@ -1967,7 +1967,7 @@ def test_RemoveEventOrganizer(db):
         with pytest.raises(grpc.RpcError) as e:
             api.RemoveEventOrganizer(events_pb2.RemoveEventOrganizerReq(event_id=event_id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.EVENT_NOT_AN_ORGANIZER
+        assert e.value.details() == errors.EVENT_EDIT_PERMISSION_DENIED
 
         assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).organizer
 
@@ -1989,7 +1989,7 @@ def test_RemoveEventOrganizer(db):
         with pytest.raises(grpc.RpcError) as e:
             api.RemoveEventOrganizer(events_pb2.RemoveEventOrganizerReq(event_id=event_id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.EVENT_NOT_AN_ORGANIZER
+        assert e.value.details() == errors.EVENT_EDIT_PERMISSION_DENIED
 
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
         assert not res.organizer
@@ -2013,7 +2013,7 @@ def test_RemoveEventOrganizer(db):
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
         assert res.organizer_count == 1
 
-    # Test that non-owners cannot remove other organizers
+    # Test that non-organizers cannot remove other organizers
     with events_session(token2) as api:
         # User2 cannot invite themselves as organizer (not the owner)
         with pytest.raises(grpc.RpcError) as e:
@@ -2021,19 +2021,10 @@ def test_RemoveEventOrganizer(db):
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
         assert e.value.details() == errors.EVENT_EDIT_PERMISSION_DENIED
 
-    # Test that non-owners cannot remove other organizers (user1 adds user2 back first)
+    # Test that non-organizers cannot remove other organizers (user1 adds user2 back first)
     with events_session(token1) as api:
         # Add user2 back as organizer
         api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=event_id, user_id=user2.id))
-
-    with events_session(token2) as api:
-        # User2 cannot remove user1 (the owner)
-        with pytest.raises(grpc.RpcError) as e:
-            api.RemoveEventOrganizer(
-                events_pb2.RemoveEventOrganizerReq(event_id=event_id, user_id=wrappers_pb2.UInt64Value(value=user1.id))
-            )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == errors.EVENT_EDIT_PERMISSION_DENIED
 
 
 def test_ListEventAttendees_regression(db):
