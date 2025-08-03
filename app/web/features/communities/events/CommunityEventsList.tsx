@@ -1,3 +1,4 @@
+import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -10,9 +11,8 @@ import { Community } from "proto/communities_pb";
 import { routeToNewEvent } from "routes";
 import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
-import makeStyles from "utils/makeStyles";
 
-import { SectionTitle, useCommunityPageStyles } from "../CommunityPage";
+import { SectionTitle } from "../CommunityPage";
 import { useListCommunityEvents } from "../hooks";
 import LongEventCard from "./LongEventCard";
 
@@ -20,21 +20,22 @@ interface CommunityEventsListProps {
   community: Community.AsObject;
 }
 
-const useStyles = makeStyles((theme) => ({
-  eventsListContainer: {
-    display: "grid",
-    rowGap: theme.spacing(3),
-    [theme.breakpoints.down("sm")]: {
-      rowGap: theme.spacing(1.5),
-    },
+const StyledEventsListContainer = styled("div")(() => ({
+  display: "grid",
+  rowGap: theme.spacing(3),
+  [theme.breakpoints.down("sm")]: {
+    rowGap: theme.spacing(1.5),
   },
+}));
+
+const StyledCreateResourceButton = styled(Button)(() => ({
+  margin: theme.spacing(2, 0),
 }));
 
 export default function CommunityEventsList({
   community,
 }: CommunityEventsListProps) {
   const { t } = useTranslation([COMMUNITIES]);
-  const classes = { ...useCommunityPageStyles(), ...useStyles() };
   const router = useRouter();
 
   const { data, error, hasNextPage, fetchNextPage, isLoading } =
@@ -49,14 +50,13 @@ export default function CommunityEventsList({
       <SectionTitle icon={<CalendarIcon />}>
         {t("communities:events_title")}
       </SectionTitle>
-      <Button
-        className={classes.createResourceButton}
+      <StyledCreateResourceButton
         onClick={() => router.push(routeToNewEvent(community.communityId))}
       >
         {t("communities:create_an_event")}
-      </Button>
+      </StyledCreateResourceButton>
       {error && <Alert severity="error">{error.message}</Alert>}
-      <div className={classes.eventsListContainer}>
+      <StyledEventsListContainer>
         {isLoading ? (
           <CenteredSpinner />
         ) : hasAtLeastOnePage(data, "eventsList") ? (
@@ -67,7 +67,7 @@ export default function CommunityEventsList({
         ) : (
           !error && <TextBody>{t("communities:events_empty_state")}</TextBody>
         )}
-      </div>
+      </StyledEventsListContainer>
       {hasNextPage && (
         <Button
           onClick={() => fetchNextPage()}
