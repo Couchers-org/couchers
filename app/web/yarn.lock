@@ -1195,10 +1195,10 @@
     react-transition-group "^4.4.5"
     rifm "^0.12.1"
 
-"@next/bundle-analyzer@^15.4.2":
-  version "15.4.2"
-  resolved "https://registry.yarnpkg.com/@next/bundle-analyzer/-/bundle-analyzer-15.4.2.tgz#af4d0da02afc7b673f88309652a22baac9d2324d"
-  integrity sha512-kgjecwKDgJ50DZXjVllawD6MuTyxaREB5EUBKbG9NLBHjYu10O/OPL5JqKrBrYdQ9BNVxjGEQoDGcHB76ZjViQ==
+"@next/bundle-analyzer@^15.4.5":
+  version "15.4.5"
+  resolved "https://registry.yarnpkg.com/@next/bundle-analyzer/-/bundle-analyzer-15.4.5.tgz#a08bdb0aa2e65e226b4f9c12af7f20cfccb98f25"
+  integrity sha512-S2o5Zn5u1iKdn9GrsUd86jvjXRXmKNT/JpQuovfLgUigPC+fshyKvNebvnYSshmztsZL1U7AuUPg71PzAaiHcg==
   dependencies:
     webpack-bundle-analyzer "4.10.1"
 
