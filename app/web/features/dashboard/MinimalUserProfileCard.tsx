@@ -6,12 +6,6 @@ import { useTranslation } from "next-i18next";
 import { User } from "proto/api_pb";
 import { routeToProfile } from "routes";
 import { theme } from "theme";
-import makeStyles from "utils/makeStyles";
-
-const useStyles = makeStyles((theme) => ({
-  container: {},
-  textFieldsContainer: {},
-}));
 
 export default function MinimalUserProfileCard({
   user,
@@ -19,7 +13,6 @@ export default function MinimalUserProfileCard({
   user: User.AsObject;
 }) {
   const { t } = useTranslation([DASHBOARD]);
-  const classes = useStyles();
   return (
     <Card
       sx={{
