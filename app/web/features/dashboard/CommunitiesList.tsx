@@ -11,7 +11,17 @@ import { routeToCommunity } from "routes";
 import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
-const StyledCommunityLink = styled("div")(() => ({
+const StyledPlaceholder = styled("div")(() => ({
+  display: "flex",
+  flexDirection: "column",
+  padding: theme.spacing(2, 0),
+  borderBottom: `solid 1px ${theme.palette.divider}`,
+  "&:first-child": {
+    borderTop: `solid 1px ${theme.palette.divider}`,
+  },
+}));
+
+const StyledCommunityLink = styled(StyledLink)(() => ({
   display: "flex",
   flexDirection: "column",
   padding: theme.spacing(2, 0),
@@ -32,14 +42,14 @@ export default function CommunitiesList({ all = false }: { all?: boolean }) {
         <Alert severity="error">{communities.error.message}</Alert>
       )}
       {communities.isLoading ? (
-        <StyledCommunityLink>
+        <StyledPlaceholder>
           <MuiLink variant="h2" component="span" underline="hover">
             <Skeleton width={100} />
           </MuiLink>
           <Typography variant="body2">
             <Skeleton width={100} />
           </Typography>
-        </StyledCommunityLink>
+        </StyledPlaceholder>
       ) : (
         communities.data &&
         (hasAtLeastOnePage(communities.data, "communitiesList") ? (
@@ -47,7 +57,7 @@ export default function CommunitiesList({ all = false }: { all?: boolean }) {
             {communities.data.pages
               .flatMap((page) => page.communitiesList)
               .map((community) => (
-                <StyledLink
+                <StyledCommunityLink
                   href={routeToCommunity(community.communityId, community.slug)}
                   key={`community-link-${community.communityId}`}
                 >
@@ -59,7 +69,7 @@ export default function CommunitiesList({ all = false }: { all?: boolean }) {
                       count: community.memberCount,
                     })}
                   </Typography>
-                </StyledLink>
+                </StyledCommunityLink>
               ))}
             {communities.hasNextPage && (
               <Button
