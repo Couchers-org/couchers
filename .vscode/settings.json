@@ -52,5 +52,6 @@
   "typescript.updateImportsOnFileMove.enabled": "always",
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
-  "files.trimTrailingWhitespace": true
+  "files.trimTrailingWhitespace": true,
+  "eslint.useFlatConfig": false
 }

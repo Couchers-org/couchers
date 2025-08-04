@@ -1,18 +1,17 @@
-import { Card, Typography } from "@mui/material";
+import { Card, styled, Typography } from "@mui/material";
 import Button from "components/Button";
 import UsersList from "components/UsersList";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 
-const useStyles = makeStyles((theme) => ({
-  cardSection: {
-    padding: theme.spacing(2),
-  },
-  seeAllButton: {
-    justifySelf: "center",
-  },
+const StyledWrapper = styled(Card)(() => ({
+  padding: theme.spacing(2),
+}));
+
+const StyledSeeAllButton = styled(Button)(() => ({
+  justifySelf: "center",
 }));
 
 export interface EventUsersProps {
@@ -33,25 +32,24 @@ export default function EventUsers({
   title,
 }: EventUsersProps) {
   const { t } = useTranslation([COMMUNITIES]);
-  const classes = useStyles();
 
   return (
-    <Card className={classes.cardSection}>
+    <StyledWrapper>
       <Typography variant="h2">{title}</Typography>
       <UsersList
         error={error}
         userIds={userIds}
         endChildren={
           hasNextPage && (
-            <Button className={classes.seeAllButton} onClick={onSeeAllClick}>
+            <StyledSeeAllButton onClick={onSeeAllClick}>
               {t("communities:see_all")}
-            </Button>
+            </StyledSeeAllButton>
           )
         }
         emptyListChildren={
           <Typography variant="body1">{emptyState}</Typography>
         }
       />
-    </Card>
+    </StyledWrapper>
   );
 }
