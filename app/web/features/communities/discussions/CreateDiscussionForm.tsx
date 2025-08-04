@@ -32,6 +32,7 @@ const StyledActionButtonsContainer = styled("div")(() => ({
   },
   display: "flex",
   justifyContent: "flex-end",
+  gap: 8,
 }));
 
 const StyledCancelButton = styled(Button)(() => ({
