@@ -27,9 +27,6 @@ const StyledForm = styled("form")(() => ({
 }));
 
 const StyledActionButtonsContainer = styled("div")(() => ({
-  "& > * + *": {
-    marginInlineStart: theme.spacing(3),
-  },
   display: "flex",
   justifyContent: "flex-end",
   gap: 8,
