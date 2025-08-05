@@ -52,6 +52,7 @@
     "about_home": "About my home",
     "general": "General",
     "has_housemates": "Has housemates",
+    "home_facilities": "Home facilities",
     "host_drinking": "Drinks at home",
     "host_kids": "Has children",
     "host_pets": "Has pets",
@@ -79,7 +80,7 @@
     "household_habits": "Household Habits",
     "hosting_preferences_subtitle": "Let guests know what you're comfortable with",
     "about_home_subtitle": "Tell guests about your home and what they can expect",
-    "household_details_subtitle": "Share information about who lives in your home",
+    "household_details_subtitle": "Share more details about your household",
     "general_subtitle": "Additional details about your home and area"
   },
   "edit_profile_helper_text": "Looking for some inspiration on where to start? <2>Check out our guide on creating an awesome profile</2>.",
@@ -108,13 +109,13 @@
   },
   "edit_profile_name_required": "Name required",
   "edit_home_questions": {
-    "accept_drinking": "Okay with drinking",
-    "accept_pets": "Hosts pets",
+    "accept_drinking": "Okay with people drinking",
+    "accept_pets": "Hosts people with pets",
     "accept_smoking": "Okay with smoking",
-    "accept_kids": "Hosts children",
+    "accept_kids": "Hosts people with children",
     "accept_camping": "Tent camping available"
   },
-  "unspecified_info": "Ask me",
+  "unspecified_info": "-",
   "smoking_location": {
     "no": "No",
     "outside": "Outside",

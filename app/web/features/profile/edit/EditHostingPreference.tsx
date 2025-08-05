@@ -193,11 +193,16 @@ export default function HostingPreferenceForm() {
   } = useUpdateHostingPreferences();
   const { data: user } = useCurrentUser();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { control, register, handleSubmit, reset, formState } =
+  const { control, register, handleSubmit, reset, formState, watch } =
     useForm<HostingPreferenceData>({
       mode: "onBlur",
       shouldFocusError: true,
     });
+
+  const hasHousemates = watch("hasHousemates");
+  const hasKids = watch("hasKids");
+  const hasPets = watch("hasPets");
+  const hasParkingAvailable = watch("parking");
 
   // Reset form with user data when user is loaded, without marking as dirty
   React.useEffect(() => {
@@ -216,7 +221,7 @@ export default function HostingPreferenceForm() {
           aboutPlace: user.aboutPlace || DEFAULT_ABOUT_HOME_HEADINGS,
           sleepingArrangement:
             user.sleepingArrangement ||
-            SleepingArrangement.SLEEPING_ARRANGEMENT_UNSPECIFIED,
+            SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN,
           hasHousemates: !!user.hasHousemates?.value,
           housemateDetails: user.housemateDetails?.value ?? "",
           hasKids: !!user.hasKids?.value,
@@ -248,8 +253,7 @@ export default function HostingPreferenceForm() {
           maxGuests: 1,
           smokingAllowed: SmokingLocation.SMOKING_LOCATION_UNKNOWN,
           aboutPlace: DEFAULT_ABOUT_HOME_HEADINGS,
-          sleepingArrangement:
-            SleepingArrangement.SLEEPING_ARRANGEMENT_UNSPECIFIED,
+          sleepingArrangement: SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN,
           hasHousemates: false,
           housemateDetails: "",
           hasKids: false,
@@ -325,20 +329,6 @@ export default function HostingPreferenceForm() {
                 defaultValue={false}
                 label={t("profile:home_info_headings.last_minute")}
                 name="lastMinute"
-                register={register}
-              />
-              <HostingPreferenceCheckbox
-                className={classes.formControl}
-                defaultValue={false}
-                label={t("profile:home_info_headings.wheelchair")}
-                name="wheelchairAccessible"
-                register={register}
-              />
-              <HostingPreferenceCheckbox
-                className={classes.formControl}
-                defaultValue={false}
-                label={t("profile:edit_home_questions.accept_camping")}
-                name="campingOk"
                 register={register}
               />
               <HostingPreferenceCheckbox
@@ -439,6 +429,7 @@ export default function HostingPreferenceForm() {
                       className={classes.field}
                       value={field.value}
                       options={[
+                        SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN,
                         SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE,
                         SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON,
                         SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM,
@@ -498,15 +489,17 @@ export default function HostingPreferenceForm() {
                     name="hasHousemates"
                     register={register}
                   />
-                  <ProfileTextInput
-                    id="housemateDetails"
-                    {...register("housemateDetails")}
-                    label={t("profile:home_info_headings.housemate_details")}
-                    name="housemateDetails"
-                    maxRows={3}
-                    multiline
-                    className={classes.field}
-                  />
+                  {hasHousemates && (
+                    <ProfileTextInput
+                      id="housemateDetails"
+                      {...register("housemateDetails")}
+                      label={t("profile:home_info_headings.housemate_details")}
+                      name="housemateDetails"
+                      maxRows={3}
+                      multiline
+                      className={classes.field}
+                    />
+                  )}
                 </CheckboxItem>
 
                 <CheckboxItem>
@@ -517,15 +510,17 @@ export default function HostingPreferenceForm() {
                     name="hasKids"
                     register={register}
                   />
-                  <ProfileTextInput
-                    id="kidDetails"
-                    {...register("kidDetails")}
-                    label={t("profile:home_info_headings.kid_details")}
-                    name="kidDetails"
-                    maxRows={3}
-                    multiline
-                    className={classes.field}
-                  />
+                  {hasKids && (
+                    <ProfileTextInput
+                      id="kidDetails"
+                      {...register("kidDetails")}
+                      label={t("profile:home_info_headings.kid_details")}
+                      name="kidDetails"
+                      maxRows={3}
+                      multiline
+                      className={classes.field}
+                    />
+                  )}
                 </CheckboxItem>
 
                 <CheckboxItem>
@@ -536,25 +531,45 @@ export default function HostingPreferenceForm() {
                     name="hasPets"
                     register={register}
                   />
-                  <ProfileTextInput
-                    id="petDetails"
-                    {...register("petDetails")}
-                    label={t("profile:home_info_headings.pet_details")}
-                    name="petDetails"
-                    maxRows={3}
-                    multiline
-                    className={classes.field}
-                  />
+                  {hasPets && (
+                    <ProfileTextInput
+                      id="petDetails"
+                      {...register("petDetails")}
+                      label={t("profile:home_info_headings.pet_details")}
+                      name="petDetails"
+                      maxRows={3}
+                      multiline
+                      className={classes.field}
+                    />
+                  )}
                 </CheckboxItem>
               </CheckboxGrid>
             </FieldGroup>
 
-            {/* Parking */}
+            {/* Home Facilities */}
             <FieldGroup>
               <Typography variant="h3" gutterBottom>
-                {t("profile:home_info_headings.parking_heading")}
+                {t("profile:home_info_headings.home_facilities")}
               </Typography>
               <CheckboxGrid>
+                <CheckboxItem>
+                  <HostingPreferenceCheckbox
+                    className={classes.formControl}
+                    defaultValue={false}
+                    label={t("profile:home_info_headings.wheelchair")}
+                    name="wheelchairAccessible"
+                    register={register}
+                  />
+                </CheckboxItem>
+                <CheckboxItem>
+                  <HostingPreferenceCheckbox
+                    className={classes.formControl}
+                    defaultValue={false}
+                    label={t("profile:edit_home_questions.accept_camping")}
+                    name="campingOk"
+                    register={register}
+                  />
+                </CheckboxItem>
                 <CheckboxItem>
                   <HostingPreferenceCheckbox
                     className={classes.formControl}
@@ -563,27 +578,33 @@ export default function HostingPreferenceForm() {
                     name="parking"
                     register={register}
                   />
-                  <Controller
-                    control={control}
-                    name="parkingDetails"
-                    render={({ field }) => (
-                      <Select
-                        label={t("profile:home_info_headings.parking_details")}
-                        onChange={(event) => field.onChange(event.target.value)}
-                        className={classes.field}
-                        value={field.value}
-                        id="parkingDetails"
-                        options={[
-                          ParkingDetails.PARKING_DETAILS_UNKNOWN,
-                          ParkingDetails.PARKING_DETAILS_FREE_ONSITE,
-                          ParkingDetails.PARKING_DETAILS_FREE_OFFSITE,
-                          ParkingDetails.PARKING_DETAILS_PAID_ONSITE,
-                          ParkingDetails.PARKING_DETAILS_PAID_OFFSITE,
-                        ]}
-                        optionLabelMap={parkingDetailsLabels(t)}
-                      />
-                    )}
-                  />
+                  {hasParkingAvailable && (
+                    <Controller
+                      control={control}
+                      name="parkingDetails"
+                      render={({ field }) => (
+                        <Select
+                          label={t(
+                            "profile:home_info_headings.parking_details",
+                          )}
+                          onChange={(event) =>
+                            field.onChange(event.target.value)
+                          }
+                          className={classes.field}
+                          value={field.value}
+                          id="parkingDetails"
+                          options={[
+                            ParkingDetails.PARKING_DETAILS_UNKNOWN,
+                            ParkingDetails.PARKING_DETAILS_FREE_ONSITE,
+                            ParkingDetails.PARKING_DETAILS_FREE_OFFSITE,
+                            ParkingDetails.PARKING_DETAILS_PAID_ONSITE,
+                            ParkingDetails.PARKING_DETAILS_PAID_OFFSITE,
+                          ]}
+                          optionLabelMap={parkingDetailsLabels(t)}
+                        />
+                      )}
+                    />
+                  )}
                 </CheckboxItem>
               </CheckboxGrid>
             </FieldGroup>

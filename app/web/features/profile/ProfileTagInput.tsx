@@ -281,17 +281,21 @@ export default function ProfileTagInput({
           options={options
             .concat(pendingValue.filter((item) => options.indexOf(item) < 0))
             .sort((a, b) => -b.localeCompare(a))}
-          renderOption={(props, option, { selected }) => (
-            <li {...props}>
-              <Checkbox
-                color="primary"
-                size="small"
-                classes={{ root: classes.checkbox }}
-                checked={selected}
-              />
-              {option}
-            </li>
-          )}
+          renderOption={(props, option, { selected }) => {
+            const { key, ...rest } = props;
+
+            return (
+              <li key={key} {...rest}>
+                <Checkbox
+                  color="primary"
+                  size="small"
+                  classes={{ root: classes.checkbox }}
+                  checked={selected}
+                />
+                {option}
+              </li>
+            );
+          }}
         />
       </Popper>
     </>
