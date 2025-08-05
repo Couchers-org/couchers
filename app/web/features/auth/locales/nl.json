@@ -27,14 +27,26 @@
   },
   "login_page": {
     "form": {
-      "remember_me": "Aangemeld blijven"
+      "remember_me": "Aangemeld blijven",
+      "forgot_password": "Wachtwoord vergeten?"
     }
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Heb je al een account? <2>Inloggen</2>",
-    "sign_up_agreement_explainer": "Door verder te gaan, ga je akkoord met onze <2>Servicevoorwaarden</2>, inclusief ons beleid voor cookies, e-mail en gegevensverwerking."
+    "sign_up_agreement_explainer": "Door verder te gaan, ga je akkoord met onze <2>Servicevoorwaarden</2>, inclusief ons beleid voor cookies, e-mail en gegevensverwerking.",
+    "header": "Laten we beginnen!"
   },
   "account_form": {
-    "header": "Jouw account details"
+    "header": "Jouw account details",
+    "username": {
+      "field_label": "Gebruikersnaam"
+    },
+    "password": {
+      "validation_error": "Het wachtwoord moet tussen de 8 en 256 karakters bevatten en niet makkelijk te raden zijn."
+    },
+    "birthday": {
+      "field_label": "Verjaardag",
+      "validation_error": "Moet een datum in het verleden zijn."
+    }
   }
 }
