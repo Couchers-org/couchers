@@ -301,7 +301,6 @@ message ListAllEventsReq {
 
   uint32 page_size = 2;
   string page_token = 3;
-
 }
 
 message ListAllEventsRes {

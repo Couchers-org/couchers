@@ -71,13 +71,8 @@ def _is_event_owner(event: Event, user_id):
 
 def _is_event_organizer(event: Event, user_id):
     """
-    Checks whether the user can act as an organizer of the event (owner or co-organizer)
+    Checks whether the user is as an organizer of the event
     """
-    # First check if they're the owner
-    if _is_event_owner(event, user_id):
-        return True
-
-    # Then check if they're a co-organizer
     return event.organizers.where(EventOrganizer.user_id == user_id).one_or_none() is not None
 
 
@@ -91,7 +86,11 @@ def _can_moderate_event(session, event: Event, user_id):
 
 
 def _can_edit_event(session, event, user_id):
-    return _is_event_organizer(event, user_id) or _can_moderate_event(session, event, user_id)
+    return (
+        _is_event_owner(event, user_id)
+        or _is_event_organizer(event, user_id)
+        or _can_moderate_event(session, event, user_id)
+    )
 
 
 def event_to_pb(session, occurrence: EventOccurrence, context):

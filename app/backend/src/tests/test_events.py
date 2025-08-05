@@ -1554,6 +1554,9 @@ def test_TransferEvent(db):
             )
         )
 
+        # remove ourselves as organizer, otherwise we can still edit it
+        api.RemoveEventOrganizer(events_pb2.RemoveEventOrganizerReq(event_id=event_id))
+
         with pytest.raises(grpc.RpcError) as e:
             api.TransferEvent(
                 events_pb2.TransferEventReq(
@@ -1585,6 +1588,9 @@ def test_TransferEvent(db):
                 new_owner_group_id=h_id,
             )
         )
+
+        # remove ourselves as organizer, otherwise we can still edit it
+        api.RemoveEventOrganizer(events_pb2.RemoveEventOrganizerReq(event_id=event_id))
 
         with pytest.raises(grpc.RpcError) as e:
             api.TransferEvent(
