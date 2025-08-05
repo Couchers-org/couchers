@@ -8,6 +8,7 @@
   "files.insertFinalNewline": true,
   "[python]": {
     "editor.tabSize": 4,
+    "editor.rulers": [120],
     "editor.formatOnSave": false,
     "editor.formatOnPaste": false,
     "editor.formatOnType": false,
