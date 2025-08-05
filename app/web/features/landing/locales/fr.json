@@ -6,7 +6,7 @@
     "signup_continue": "Terminer l'inscription",
     "what_couchsurfing_title": "Couchers.org : un autre moyen de voyager",
     "introduction_title": "Se réunir comme étrangers, partir comme amis",
-    "introduction_subtitle": "Partagez votre univers, découvrez le leur. Des expériences locales authentiques, fondées sur la confiance et une connexion authentique, et non sur des transactions.",
+    "introduction_subtitle": "Partagez votre univers, découvrez le leur. Des expériences authentiques, fondées sur la confiance et une connexion authentique, et non sur des transactions.",
     "sign_up_ready": "Inscrivez-vous et vous serez prêt.e à participer !",
     "why_couchers_title": "Pourquoi Couches.org ?",
     "safer_stronger": "Des contacts plus sûrs et plus solids",
@@ -23,7 +23,7 @@
     "authentic_why": "Nous pensons que l'abstraction de l'expérience humaine dans le monde numérique et son isolement des véritables relations humaines sont malsains et préjudiciables. Nous œuvrons activement pour un véritable sentiment de communauté et d'appartenance dans un monde qui évolue en sens inverse.",
     "community_led_title": "Dirigé par la communauté",
     "community_led_description": "Les décideurs et les bénévoles doivent être issus de la communauté. Les décisions doivent être prises de manière transparente et en consultation avec la communauté. L'organisation doit solliciter activement les commentaires des participants. La responsabilité de l'entretien de la plateforme incombe à la communauté.",
-    "community_led_why": "Maintenir une organisation et une plateforme saine nécessite la participation active de la communauté que nous servons. Séparer la communauté du reste du projet nous empêche de  construire pour nos collaborateurs. La communauté ne peut participer que si elle a une visibilité sur l'organisation.",
+    "community_led_why": "Maintenir une organisation et une plateforme saine nécessite la participation active de la communauté que nous servons. Séparer la communauté du reste du projet nous empêche de construire pour nos collaborateurs. La communauté ne peut participer que si elle a une visibilité sur l'organisation.",
     "open_source_title": "Code open source",
     "open_source_description": "La plateforme et les outils que nous développons sont librement utilisables, modifiables et distribués, la fondation n'en détenant aucun droit exclusif. Nous nous efforçons de contribuer à la communauté open source.",
     "num_users": "{{numUsers}} membres",
@@ -39,5 +39,6 @@
     "free_forever_description": "Personne ne devrait payer pour s’inscrire et/ou pour utiliser Couchers.org.",
     "animation_error": "Erreur lors du chargement de l'animation",
     "free_forever_why": "Exiger un frais pour l'utilisation constitue un obstacle intenable à l'entrée. En impliquant de l'argent dans le couchsurfing, les gens peuvent avoir des fausses attentes.",
-    "authentic_description": "Nous nous efforçons de créer des outils efficaces pour vous aider à vivre des expériences authentiques dans le monde réel, en minimisant le temps passé à les rechercher dans le monde numérique. Notre objectif n'est pas de susciter un engagement vide de sens."
+    "authentic_description": "Nous nous efforçons de créer des outils efficaces pour vous aider à vivre des expériences authentiques dans le monde réel, en minimisant le temps passé à les rechercher dans le monde numérique. Notre objectif n'est pas de susciter un engagement vide de sens.",
+    "last_signup": "Dernière inscription {{timeAgo}}"
 }

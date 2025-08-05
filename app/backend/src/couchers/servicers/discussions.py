@@ -3,6 +3,7 @@ import logging
 import grpc
 
 from couchers import errors
+from couchers.context import make_background_user_context
 from couchers.db import can_moderate_node, session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Cluster, Discussion, Thread, User
@@ -11,7 +12,7 @@ from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.threads import thread_to_pb
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime, make_user_context
+from couchers.utils import Timestamp_from_datetime
 from proto import discussions_pb2, discussions_pb2_grpc, notification_data_pb2
 from proto.internal import jobs_pb2
 
@@ -55,7 +56,7 @@ def generate_create_discussion_notifications(payload: jobs_pb2.GenerateCreateDis
         for user in list(cluster.members.where(User.is_visible)):
             if is_not_visible(session, user.id, discussion.creator_user_id):
                 continue
-            context = make_user_context(user_id=user.id)
+            context = make_background_user_context(user_id=user.id)
             notify(
                 session,
                 user_id=user.id,
@@ -90,6 +91,9 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
 
         if not cluster:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_OR_COMMUNITY_NOT_FOUND)
+
+        if not cluster.discussions_enabled:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANNOT_CREATE_DISCUSSION)
 
         discussion = Discussion(
             title=request.title,

@@ -16,28 +16,26 @@ function DashboardUserProfileSummaryActions() {
   const { t } = useTranslation([DASHBOARD]);
   return (
     <>
-      <Link href={routeToEditProfile()} passHref legacyBehavior>
-        <Button component="a" color="primary">
-          {t("dashboard:profile_summary_edit")}
-        </Button>
-      </Link>
-      <Link href={routeToProfile()} passHref legacyBehavior>
-        <Button
-          component="a"
-          variant="outlined"
-          sx={{
-            color: theme.palette.common.black,
-            borderColor: theme.palette.grey[300],
+      <Button component={Link} color="primary" href={routeToEditProfile()}>
+        {t("dashboard:profile_summary_edit")}
+      </Button>
 
-            "&:hover": {
-              borderColor: theme.palette.grey[300],
-              backgroundColor: "#3135390A",
-            },
-          }}
-        >
-          {t("dashboard:profile_summary_view")}
-        </Button>
-      </Link>
+      <Button
+        component={Link}
+        variant="outlined"
+        sx={{
+          color: theme.palette.common.black,
+          borderColor: theme.palette.grey[300],
+
+          "&:hover": {
+            borderColor: theme.palette.grey[300],
+            backgroundColor: "#3135390A",
+          },
+        }}
+        href={routeToProfile()}
+      >
+        {t("dashboard:profile_summary_view")}
+      </Button>
     </>
   );
 }

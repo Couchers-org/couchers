@@ -16,9 +16,9 @@ export default function LoginsLink() {
       <Typography variant="body1" gutterBottom>
         {t("active_logins.settings_page_text")}
       </Typography>
-      <Link href={loginsSettingsRoute} passHref legacyBehavior>
-        <Button>{t("active_logins.settings_page_link")}</Button>
-      </Link>
+      <Button component={Link} href={loginsSettingsRoute}>
+        {t("active_logins.settings_page_link")}
+      </Button>
     </div>
   );
 }

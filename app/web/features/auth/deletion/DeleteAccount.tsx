@@ -1,4 +1,4 @@
-import { Typography, useMediaQuery, useTheme } from "@mui/material";
+import { styled, Typography, useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import TextField from "components/TextField";
@@ -9,9 +9,15 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
+import { theme } from "theme";
 import { lowercaseAndTrimField } from "utils/validation";
 
-import useChangeDetailsFormStyles from "../useChangeDetailsFormStyles";
+const StyledForm = styled("form")(() => ({
+  marginBottom: theme.spacing(2),
+  "& > * + *": {
+    marginBlockStart: theme.spacing(1),
+  },
+}));
 
 interface DeleteAccountForm {
   confirmUsername: string;
@@ -28,7 +34,6 @@ export default function DeleteAccount({
   username,
 }: DeleteAccountProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
-  const formClasses = useChangeDetailsFormStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
 
@@ -80,7 +85,7 @@ export default function DeleteAccount({
             {t("auth:delete_account.request.success_message")}
           </Alert>
         )}
-        <form className={formClasses.form} onSubmit={onSubmit}>
+        <StyledForm onSubmit={onSubmit}>
           <Typography variant="subtitle1">
             <Trans
               t={t}
@@ -117,7 +122,7 @@ export default function DeleteAccount({
           >
             {t("global:submit")}
           </Button>
-        </form>
+        </StyledForm>
       </>
     </div>
   );

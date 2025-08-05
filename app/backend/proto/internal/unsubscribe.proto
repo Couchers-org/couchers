@@ -1,6 +1,11 @@
+/*
+Quick email actions, based on signed URLs that don't require login to submit, such as unsubscribe
+*/
 syntax = "proto3";
 
 package unsubscribe;
+
+import "google/protobuf/timestamp.proto";
 
 message DoNotEmail {
   // do not email me, also turns hosting and "wants to meet" off
@@ -20,12 +25,18 @@ message UnsubscribeTopicAction {
   string action = 2;
 }
 
+message HostRequestQuickDecline {
+  int64 host_request_id = 1;
+}
+
 message UnsubscribePayload {
   int64 user_id = 1;
+  google.protobuf.Timestamp created = 6;
 
   oneof type {
     UnsubscribeTopicKey topic_key = 3;
     UnsubscribeTopicAction topic_action = 4;
     DoNotEmail do_not_email = 5;
+    HostRequestQuickDecline host_request_quick_decline = 7;
   }
 }

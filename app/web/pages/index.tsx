@@ -29,4 +29,5 @@ export default function HomePage() {
 HomePage.getLayout = appGetLayout({
   isPrivate: false,
   variant: "full-screen",
+  bottomMargin: "80px",
 });

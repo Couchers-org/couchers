@@ -1,4 +1,4 @@
-import { Link as MuiLink } from "@mui/material";
+import { Link as MuiLink, styled } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -10,11 +10,41 @@ import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { Community } from "proto/communities_pb";
 import { composingDiscussionHash, routeToCommunity } from "routes";
+import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
-import { SectionTitle, useCommunityPageStyles } from "../CommunityPage";
+import { SectionTitle } from "../CommunityPage";
 import DiscussionCard from "./DiscussionCard";
-import useDiscussionsListStyles from "./useDiscussionsListStyles";
+
+const StyledLoadMoreButton = styled("div")(() => ({
+  alignSelf: "center",
+  display: "flex",
+  justifyContent: "center",
+  width: "100%",
+}));
+
+const StyledCreateResourceButton = styled(Button)(() => ({
+  margin: theme.spacing(2, 0),
+}));
+
+const StyledDiscussionsHeader = styled("div")(() => ({
+  alignItems: "center",
+  display: "flex",
+}));
+
+const StyledDiscussionsContainer = styled("div")(() => ({
+  "& > *": {
+    width: "100%",
+  },
+  "& > :not(:last-child)": {
+    marginBlockEnd: theme.spacing(3),
+  },
+  display: "flex",
+  flexDirection: "row",
+  flexWrap: "wrap",
+  justifyContent: "space-between",
+  paddingBlockEnd: theme.spacing(5),
+}));
 
 export default function DiscussionsSection({
   community,
@@ -22,10 +52,6 @@ export default function DiscussionsSection({
   community: Community.AsObject;
 }) {
   const { t } = useTranslation([COMMUNITIES]);
-  const classes = {
-    ...useCommunityPageStyles(),
-    ...useDiscussionsListStyles(),
-  };
 
   const {
     isLoading: isDiscussionsLoading,
@@ -36,32 +62,27 @@ export default function DiscussionsSection({
 
   return (
     <section>
-      <div className={classes.discussionsHeader}>
+      <StyledDiscussionsHeader>
         <SectionTitle icon={<EmailIcon />} variant="h2">
           {t("communities:discussions_title")}
         </SectionTitle>
-      </div>
+      </StyledDiscussionsHeader>
       {discussionsError && (
         <Alert severity="error">{discussionsError.message}</Alert>
       )}
-      <Link
+
+      <StyledCreateResourceButton
+        size="small"
+        component="a"
         href={`${routeToCommunity(
           community.communityId,
           community.slug,
           "discussions",
         )}#${composingDiscussionHash}`}
-        passHref
-        legacyBehavior
       >
-        <Button
-          size="small"
-          className={classes.createResourceButton}
-          component="a"
-        >
-          {t("communities:new_post_label")}
-        </Button>
-      </Link>
-      <div className={classes.discussionsContainer}>
+        {t("communities:new_post_label")}
+      </StyledCreateResourceButton>
+      <StyledDiscussionsContainer>
         {isDiscussionsLoading ? (
           <CenteredSpinner />
         ) : hasAtLeastOnePage(discussions, "discussionsList") ? (
@@ -77,23 +98,21 @@ export default function DiscussionsSection({
           <TextBody>{t("communities:discussions_empty_state")}</TextBody>
         )}
         {discussionsHasNextPage && (
-          <div className={classes.loadMoreButton}>
-            <Link
+          <StyledLoadMoreButton>
+            <MuiLink
+              component={Link}
+              underline="hover"
               href={routeToCommunity(
                 community.communityId,
                 community.slug,
                 "discussions",
               )}
-              passHref
-              legacyBehavior
             >
-              <MuiLink component="a" underline="hover">
-                {t("communities:see_more_discussions_label")}
-              </MuiLink>
-            </Link>
-          </div>
+              {t("communities:see_more_discussions_label")}
+            </MuiLink>
+          </StyledLoadMoreButton>
         )}
-      </div>
+      </StyledDiscussionsContainer>
     </section>
   );
 }

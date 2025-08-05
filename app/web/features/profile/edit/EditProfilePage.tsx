@@ -1,11 +1,10 @@
 import { TabContext, TabPanel } from "@mui/lab";
-import { Box, Button, Card, styled } from "@mui/material";
+import { Box, Button, Card, Link, styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import IconButton from "components/IconButton";
 import { BackIcon, CouchIcon, PersonIcon } from "components/Icons";
 import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -89,11 +88,14 @@ export default function EditProfilePage({
           </BackButton>
           <PageTitle>{t("profile:heading.edit_profile")}</PageTitle>
         </LeftHeader>
-        <Link href={settingsRoute} passHref legacyBehavior>
-          <Button component="a" variant="contained" color="primary">
-            {t("global:nav.account_settings")}
-          </Button>
-        </Link>
+        <Button
+          component={Link}
+          variant="contained"
+          color="primary"
+          href={settingsRoute}
+        >
+          {t("global:nav.account_settings")}
+        </Button>
       </HeaderContainer>
       <Root>
         <DetailsCard>

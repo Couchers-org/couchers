@@ -80,12 +80,6 @@
       "checkbox_label": "Ok, wszystko jasne"
     }
   },
-  "unsubscribe": {
-    "missing_payload_or_sig": "Nieprawidłowy adres URL",
-    "title": "Zrezygnuj z subskrypcji",
-    "button_text": "Potwierdź rezygnację z subskrypcji",
-    "error_message": "Błąd podczas rezygnacji z subskrypcji: {{message}}"
-  },
   "unhandled_sign_up_state": "Błąd: unhandled signup flow state.",
   "change_email_confirmation": {
     "success_message": "Udało się zmienić adres e-mail!",

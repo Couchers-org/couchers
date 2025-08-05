@@ -1,1 +1,21 @@
-{}
+{
+  "my_connections": "Mijn connecties",
+  "actions": {
+    "back_to_dashboard": "Terug naar dashboard",
+    "message_label": "Bericht sturen",
+    "accept_friend_label": "Accepteren",
+    "decline_friend_label": "Afwijzen",
+    "request": "Verzoek"
+  },
+  "heading": {
+    "about_me": "Over mij",
+    "age_gender": "Leeftijd / Geslacht",
+    "community_standing": "Community status",
+    "education": "Opleiding",
+    "edit": "Bewerken",
+    "edit_profile": "Profiel bewerken",
+    "home": "Mijn huis",
+    "hometown": "Opgegroeid in",
+    "hosting_status": "Hosting status"
+  }
+}

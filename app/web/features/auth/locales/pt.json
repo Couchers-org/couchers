@@ -30,12 +30,6 @@
     "explanation": "Esta página permite-te testares funcionalidades em desenvolvimento, antes de estarem prontas para utilização geral.",
     "title": "Pré-visualização de funcionalidade"
   },
-  "unsubscribe": {
-    "title": "Desinscrever-se",
-    "error_message": "Erro ao desinscrever: {{message}}",
-    "button_text": "Confirmar a desinscrição",
-    "missing_payload_or_sig": "URL inválido"
-  },
   "logged_out_message": "A tua sessão foi encerrada.",
   "feedback_form": {
     "header": "Dá a tua opinião",

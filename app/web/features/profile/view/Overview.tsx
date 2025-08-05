@@ -46,28 +46,29 @@ function LoggedInUserActions({ tab }: { tab: UserTab }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   return (
     <>
-      <Link href={routeToEditProfile(getEditTab(tab))} passHref legacyBehavior>
-        <Button component="a" color="primary">
-          {t("global:edit")}
-        </Button>
-      </Link>
-      <Link href={connectionsRoute} passHref legacyBehavior>
-        <Button
-          component="a"
-          variant="outlined"
-          sx={{
-            color: theme.palette.common.black,
-            borderColor: theme.palette.grey[300],
+      <Button
+        component={Link}
+        color="primary"
+        href={routeToEditProfile(getEditTab(tab))}
+      >
+        {t("global:edit")}
+      </Button>
+      <Button
+        component={Link}
+        variant="outlined"
+        sx={{
+          color: theme.palette.common.black,
+          borderColor: theme.palette.grey[300],
 
-            "&:hover": {
-              borderColor: theme.palette.grey[300],
-              backgroundColor: "#3135390A",
-            },
-          }}
-        >
-          {t("profile:my_connections")}
-        </Button>
-      </Link>
+          "&:hover": {
+            borderColor: theme.palette.grey[300],
+            backgroundColor: "#3135390A",
+          },
+        }}
+        href={connectionsRoute}
+      >
+        {t("profile:my_connections")}
+      </Button>
     </>
   );
 }

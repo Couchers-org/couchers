@@ -5,12 +5,9 @@ import grpc
 from couchers.config import config
 from couchers.constants import SERVER_THREADS
 from couchers.interceptors import (
-    AuthValidatorInterceptor,
-    CookieInterceptor,
+    CouchersMiddlewareInterceptor,
     ErrorSanitizationInterceptor,
     OTelInterceptor,
-    SessionInterceptor,
-    TracingInterceptor,
 )
 from couchers.servicers.account import Account, Iris
 from couchers.servicers.admin import Admin
@@ -72,10 +69,7 @@ def create_main_server(port):
         interceptors=[
             ErrorSanitizationInterceptor(),
             OTelInterceptor(),
-            TracingInterceptor(),
-            AuthValidatorInterceptor(),
-            CookieInterceptor(),
-            SessionInterceptor(),
+            CouchersMiddlewareInterceptor(),
         ],
     )
     server.add_insecure_port(f"[::]:{port}")
@@ -112,9 +106,7 @@ def create_media_server(port, threads=8):
     media_server = grpc.server(
         futures.ThreadPoolExecutor(threads),
         interceptors=[
-            TracingInterceptor(),
             get_media_auth_interceptor(config["MEDIA_SERVER_BEARER_TOKEN"]),
-            SessionInterceptor(),
         ],
     )
     media_server.add_insecure_port(f"[::]:{port}")

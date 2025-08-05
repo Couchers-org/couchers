@@ -8,7 +8,7 @@ from sqlalchemy.sql import delete, func, or_
 from couchers import errors
 from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.db import can_moderate_node, get_node_parents_recursively
-from couchers.materialized_views import cluster_admin_counts, cluster_subscription_counts
+from couchers.materialized_views import ClusterAdminCount, ClusterSubscriptionCount
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -57,8 +57,8 @@ def communities_to_pb(session, nodes: list[Node], context):
 
     member_counts = dict(
         session.execute(
-            select(cluster_subscription_counts.c.cluster_id, cluster_subscription_counts.c.count).where(
-                cluster_subscription_counts.c.cluster_id.in_(official_cluster_ids)
+            select(ClusterSubscriptionCount.cluster_id, ClusterSubscriptionCount.count).where(
+                ClusterSubscriptionCount.cluster_id.in_(official_cluster_ids)
             )
         ).all()
     )
@@ -74,8 +74,8 @@ def communities_to_pb(session, nodes: list[Node], context):
 
     admin_counts = dict(
         session.execute(
-            select(cluster_admin_counts.c.cluster_id, cluster_admin_counts.c.count).where(
-                cluster_admin_counts.c.cluster_id.in_(official_cluster_ids)
+            select(ClusterAdminCount.cluster_id, ClusterAdminCount.count).where(
+                ClusterAdminCount.cluster_id.in_(official_cluster_ids)
             )
         ).all()
     )
@@ -104,6 +104,8 @@ def communities_to_pb(session, nodes: list[Node], context):
             admin_count=admin_counts.get(official_cluster.id, 1),
             main_page=page_to_pb(session, official_cluster.main_page, context),
             can_moderate=can_moderate,
+            discussions_enabled=official_cluster.discussions_enabled,
+            events_enabled=official_cluster.events_enabled,
         )
         for node, official_cluster, can_moderate in zip(nodes, official_clusters, can_moderates)
     ]
@@ -332,12 +334,25 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+        if not node.official_cluster.events_enabled:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENTS_NOT_ENABLED)
+
+        if not request.include_parents:
+            nodes_clusters_to_search = [(node.id, node.official_cluster)]
+        else:
+            # the first value is the node_id, the last is the cluster (object)
+            nodes_clusters_to_search = [
+                (parent[0], parent[3]) for parent in get_node_parents_recursively(session, node.id)
+            ]
+
+        membership_clauses = []
+        for node_id, official_cluster_obj in nodes_clusters_to_search:
+            membership_clauses.append(Event.owner_cluster == official_cluster_obj)
+            membership_clauses.append(Event.parent_node_id == node_id)
 
         # for communities, we list events owned by this community or for which this is a parent
         occurrences = (
-            select(EventOccurrence)
-            .join(Event, Event.id == EventOccurrence.event_id)
-            .where(or_(Event.owner_cluster == node.official_cluster, Event.parent_node == node))
+            select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(or_(*membership_clauses))
         )
 
         if request.past:
@@ -363,6 +378,8 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+        if not node.official_cluster.discussions_enabled:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DISCUSSIONS_NOT_ENABLED)
         discussions = (
             node.official_cluster.owned_discussions.where(or_(Discussion.id <= next_page_id, next_page_id == 0))
             .order_by(Discussion.id.desc())
