@@ -5,7 +5,7 @@ import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy.sql import delete, func
 
-from couchers import errors
+from couchers import errors, urls
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
 from couchers.models import (
@@ -20,7 +20,6 @@ from couchers.models import (
     UserSession,
 )
 from couchers.sql import couchers_select as select
-from couchers.urls import invite_code_link
 from proto import api_pb2, auth_pb2
 from tests.test_fixtures import (  # noqa
     api_session,
@@ -1167,7 +1166,7 @@ def test_GetInviteCodeInfo(db):
         assert res.name == user.name
         assert res.username == user.username
         assert res.avatar_url.endswith("/img/thumbnail/test_avatar.jpg")
-        assert res.url == invite_code_link(code=code_id)
+        assert res.url == urls.invite_code_link(code=code_id)
 
 
 def test_GetInviteCodeInfo_no_avatar(db):
@@ -1187,7 +1186,7 @@ def test_GetInviteCodeInfo_no_avatar(db):
         assert res.name == user.name
         assert res.username == user.username
         assert res.avatar_url == ""
-        assert res.url == invite_code_link(code=code_id)
+        assert res.url == urls.invite_code_link(code=code_id)
 
 
 def test_GetInviteCodeInfo_not_found(db):

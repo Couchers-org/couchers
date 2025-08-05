@@ -6,7 +6,7 @@ import requests
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import delete, func, or_
 
-from couchers import errors
+from couchers import errors, urls
 from couchers.config import config
 from couchers.constants import ANTIBOT_FREQ, BANNED_USERNAME_PHRASES, GUIDELINES_VERSION, TOS_VERSION, UNDELETE_DAYS
 from couchers.context import CouchersContext
@@ -43,7 +43,6 @@ from couchers.tasks import (
     maybe_send_contributor_form_email,
     send_signup_email,
 )
-from couchers.urls import invite_code_link
 from couchers.utils import (
     create_coordinate,
     create_session_cookies,
@@ -662,5 +661,5 @@ class Auth(auth_pb2_grpc.AuthServicer):
             name=user.name,
             username=user.username,
             avatar_url=user.avatar.thumbnail_url if user.avatar else None,
-            url=invite_code_link(code=request.code),
+            url=urls.invite_code_link(code=request.code),
         )

@@ -263,7 +263,6 @@ message AntiBotPolicyRes {
   bool should_antibot = 1;
 }
 
-
 message GetInviteCodeInfoReq {
   string code = 1;
 }

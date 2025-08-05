@@ -6,7 +6,7 @@ import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy.sql import func
 
-from couchers import errors
+from couchers import errors, urls
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views_rapid
@@ -20,7 +20,6 @@ from couchers.models import (
     Volunteer,
 )
 from couchers.sql import couchers_select as select
-from couchers.urls import invite_code_link
 from couchers.utils import now, today
 from proto import account_pb2, api_pb2, auth_pb2, conversations_pb2, requests_pb2
 from tests.test_fixtures import (  # noqa
@@ -903,7 +902,7 @@ def test_CreateInviteCode(db):
         invite = session.execute(select(InviteCode).where(InviteCode.id == code)).scalar_one()
         assert invite.creator_user_id == user.id
         assert invite.disabled is None
-        assert res.url == invite_code_link(code=res.code)
+        assert res.url == urls.invite_code_link(code=res.code)
 
 
 def test_DisableInviteCode(db):
@@ -937,7 +936,7 @@ def test_ListInviteCodes(db):
         assert len(res.invite_codes) == 1
         assert res.invite_codes[0].code == code
         assert res.invite_codes[0].uses == 1
-        assert res.invite_codes[0].url == invite_code_link(code=code)
+        assert res.invite_codes[0].url == urls.invite_code_link(code=code)
 
 
 def test_reminders(db):

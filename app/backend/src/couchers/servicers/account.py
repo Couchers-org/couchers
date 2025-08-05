@@ -60,7 +60,6 @@ from couchers.tasks import (
     send_account_deletion_report_email,
     send_email_changed_confirmation_to_new_email,
 )
-from couchers.urls import invite_code_link
 from couchers.utils import (
     Timestamp_from_datetime,
     create_lang_cookie,
@@ -626,13 +625,11 @@ class Account(account_pb2_grpc.AccountServicer):
 
     def CreateInviteCode(self, request, context, session):
         code = generate_invite_code()
-        invite = InviteCode(id=code, creator_user_id=context.user_id)
-        session.add(invite)
-        session.flush()
+        session.add(InviteCode(id=code, creator_user_id=context.user_id))
 
         return account_pb2.CreateInviteCodeRes(
             code=code,
-            url=invite_code_link(code=code),
+            url=urls.invite_code_link(code=code),
         )
 
     def DisableInviteCode(self, request, context, session):
@@ -669,7 +666,7 @@ class Account(account_pb2_grpc.AccountServicer):
                     created=Timestamp_from_datetime(created),
                     disabled=Timestamp_from_datetime(disabled) if disabled else None,
                     uses=len_users,
-                    url=invite_code_link(code=code_id),
+                    url=urls.invite_code_link(code=code_id),
                 )
                 for code_id, created, disabled, len_users in results
             ]
