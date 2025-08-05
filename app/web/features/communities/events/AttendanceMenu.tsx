@@ -82,6 +82,7 @@ export default function AttendanceMenu({
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
+        aria-hidden={!open}
         MenuListProps={{
           "aria-labelledby": buttonId,
         }}
