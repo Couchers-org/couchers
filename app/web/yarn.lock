@@ -1065,10 +1065,10 @@
     clsx "^2.1.0"
     prop-types "^15.8.1"
 
-"@mui/core-downloads-tracker@^5.16.14":
-  version "5.16.14"
-  resolved "https://registry.yarnpkg.com/@mui/core-downloads-tracker/-/core-downloads-tracker-5.16.14.tgz#e6536f1b6caa873f7915fbf9703fdc840a5a98d9"
-  integrity sha512-sbjXW+BBSvmzn61XyTMun899E7nGPTXwqD9drm1jBUAvWEhJpPFIRxwQQiATWZnd9rvdxtnhhdsDxEGWI0jxqA==
+"@mui/core-downloads-tracker@^5.18.0":
+  version "5.18.0"
+  resolved "https://registry.yarnpkg.com/@mui/core-downloads-tracker/-/core-downloads-tracker-5.18.0.tgz#85019a8704b0f63305fc5600635ee663810f2b66"
+  integrity sha512-jbhwoQ1AY200PSSOrNXmrFCaSDSJWP7qk6urkTmIirvRXDROkqe+QwcLlUiw/PrREwsIF/vm3/dAXvjlMHF0RA==
 
 "@mui/icons-material@^5.18.0":
   version "5.18.0"
@@ -1090,16 +1090,16 @@
     clsx "^2.1.0"
     prop-types "^15.8.1"
 
-"@mui/material@^5.16.7":
-  version "5.16.14"
-  resolved "https://registry.yarnpkg.com/@mui/material/-/material-5.16.14.tgz#da8a75822f039d8c1b0ab7fb4146d767c2f9248a"
-  integrity sha512-eSXQVCMKU2xc7EcTxe/X/rC9QsV2jUe8eLM3MUCPYbo6V52eCE436akRIvELq/AqZpxx2bwkq7HC0cRhLB+yaw==
+"@mui/material@^5.18.0":
+  version "5.18.0"
+  resolved "https://registry.yarnpkg.com/@mui/material/-/material-5.18.0.tgz#71e72d52338252edc6f8d9461e04fdf0d61905cd"
+  integrity sha512-bbH/HaJZpFtXGvWg3TsBWG4eyt3gah3E7nCNU8GLyRjVoWcA91Vm/T+sjHfUcwgJSw9iLtucfHBoq+qW/T30aA==
   dependencies:
     "@babel/runtime" "^7.23.9"
-    "@mui/core-downloads-tracker" "^5.16.14"
-    "@mui/system" "^5.16.14"
-    "@mui/types" "^7.2.15"
-    "@mui/utils" "^5.16.14"
+    "@mui/core-downloads-tracker" "^5.18.0"
+    "@mui/system" "^5.18.0"
+    "@mui/types" "~7.2.15"
+    "@mui/utils" "^5.17.1"
     "@popperjs/core" "^2.11.8"
     "@types/react-transition-group" "^4.4.10"
     clsx "^2.1.0"
@@ -1151,7 +1151,7 @@
     jss-plugin-vendor-prefixer "^10.10.0"
     prop-types "^15.8.1"
 
-"@mui/system@^5.16.12", "@mui/system@^5.16.14", "@mui/system@^5.18.0":
+"@mui/system@^5.16.12", "@mui/system@^5.18.0":
   version "5.18.0"
   resolved "https://registry.yarnpkg.com/@mui/system/-/system-5.18.0.tgz#e55331203a40584b26c5a855a07949ac8973bfb6"
   integrity sha512-ojZGVcRWqWhu557cdO3pWHloIGJdzVtxs3rk0F9L+x55LsUjcMUVkEhiF7E4TMxZoF9MmIHGGs0ZX3FDLAf0Xw==
