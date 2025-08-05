@@ -29,7 +29,8 @@
   },
   "search_result": {
     "show_user_button_label": "Laat {{name}} op de kaart zien",
-    "missing_about_description": "{{name}} heeft nog niks over zichzelf geschreven"
+    "missing_about_description": "{{name}} heeft nog niks over zichzelf geschreven",
+    "people_found_message": "Dit zijn {{currentRange}} van de {{totalItems}} gevonden mensen"
   },
   "views": {
     "map_and_list": "Kaart & Lijst",
