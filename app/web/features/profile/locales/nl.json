@@ -17,5 +17,16 @@
     "home": "Mijn huis",
     "hometown": "Opgegroeid in",
     "hosting_status": "Hosting status"
+  },
+  "incomplete_dialog": {
+    "about_me_message": "Schrijf minstens 150 tekens voor jouw \"Wie ik ben\" tekst.",
+    "missing_photo_message": "Voeg een profielfoto toe.",
+    "save_anyway": "Toch opslaan?",
+    "title": "Profiel niet compleet",
+    "description": "Je kan geen verzoeken doen, berichten sturen of events aanmaken tot je:",
+    "continue_editing": "Doorgaan met bewerken"
+  },
+  "home_info_headings": {
+    "about_home": "Over mijn huis"
   }
 }

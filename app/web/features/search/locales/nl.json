@@ -16,6 +16,15 @@
     "location_field_label": "In de buurt van",
     "keywords": {
       "field_label": "Naam, trefwoorden of gebruikersnaam"
+    },
+    "general_filters": {
+      "has_references": "Heeft referenties",
+      "accepts_last_minute_requests": "Accepteert last minute aanvragen"
+    },
+    "rules": {
+      "title": "Regels",
+      "alcohol_allowed": "Alcohol toegestaan",
+      "kids_allowed": "Kinderen toegestaan"
     }
   }
 }

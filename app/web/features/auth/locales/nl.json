@@ -24,5 +24,17 @@
   },
   "change_password_form": {
     "title": "Wachtwoord wijzigen"
+  },
+  "login_page": {
+    "form": {
+      "remember_me": "Aangemeld blijven"
+    }
+  },
+  "basic_sign_up_form": {
+    "existing_user_prompt": "Heb je al een account? <2>Inloggen</2>",
+    "sign_up_agreement_explainer": "Door verder te gaan, ga je akkoord met onze <2>Servicevoorwaarden</2>, inclusief ons beleid voor cookies, e-mail en gegevensverwerking."
+  },
+  "account_form": {
+    "header": "Jouw account details"
   }
 }
