@@ -207,8 +207,6 @@ export function updateAvatar(avatarKey: string) {
 export function updateHostingPreference(preferences: HostingPreferenceData) {
   const req = new UpdateProfileReq();
 
-  console.log("PREFERENCE DATA", preferences);
-
   const maxGuests = preferences.maxGuests
     ? new NullableUInt32Value().setValue(preferences.maxGuests).setIsNull(false)
     : new NullableUInt32Value().setIsNull(true);
