@@ -861,7 +861,6 @@ def render_notification(user, notification) -> RenderedNotification:
             email_template_name="strong_verification_success",
             email_template_args={
                 "message": message,
-                "donation_link": f"{urls.donation_url()}?utm_source=strong-verification-email",
             },
             push_title=title,
             push_body=message,
