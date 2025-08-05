@@ -94,6 +94,9 @@ export const sleepingArrangementLabels = (t: TFunction) => ({
   [SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN]: t(
     "profile:unspecified_info",
   ),
+  [SleepingArrangement.SLEEPING_ARRANGEMENT_UNSPECIFIED]: t(
+    "profile:unspecified_info",
+  ),
 });
 
 export const sleepingArrangementLabelsShort = (t: TFunction) => ({
