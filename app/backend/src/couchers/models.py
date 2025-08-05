@@ -326,6 +326,10 @@ class User(Base):
 
     age = column_property(func.date_part("year", func.age(birthdate)))
 
+    # ID of the invite code used to sign up (if any)
+    invite_code_id = Column(ForeignKey("invite_codes.id"), nullable=True)
+    invite_code = relationship("InviteCode", foreign_keys=[invite_code_id])
+
     moderation_user_lists = relationship(
         "ModerationUserList", secondary="moderation_user_list_members", back_populates="users"
     )
@@ -1050,6 +1054,8 @@ class SignupFlow(Base):
     contribute_ways = Column(ARRAY(String), nullable=True)
     expertise = Column(String, nullable=True)
 
+    invite_code_id = Column(ForeignKey("invite_codes.id"), nullable=True)
+
     @hybrid_property
     def token_is_valid(self):
         return (self.email_token != None) & (self.email_token_expiry >= now())
@@ -1335,6 +1341,17 @@ class GroupChatSubscription(Base):
 
     def __repr__(self):
         return f"GroupChatSubscription(id={self.id}, user={self.user}, joined={self.joined}, left={self.left}, role={self.role}, group_chat={self.group_chat})"
+
+
+class InviteCode(Base):
+    __tablename__ = "invite_codes"
+
+    id = Column(String, primary_key=True)
+    creator_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created = Column(DateTime(timezone=True), nullable=False, default=func.now())
+    disabled = Column(DateTime(timezone=True), nullable=True)
+
+    creator = relationship("User", foreign_keys=[creator_user_id])
 
 
 class MessageType(enum.Enum):
