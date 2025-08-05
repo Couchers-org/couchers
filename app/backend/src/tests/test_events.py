@@ -2012,7 +2012,7 @@ def test_RemoveEventOrganizer(db):
 
         # Event owner can remove co-organizer
         api.RemoveEventOrganizer(
-            events_pb2.RemoveEventOrganizerReq(event_id=event_id, user_id=wrappers_pb2.UInt64Value(value=user2.id))
+            events_pb2.RemoveEventOrganizerReq(event_id=event_id, user_id=wrappers_pb2.Int64Value(value=user2.id))
         )
 
         # Verify user2 is no longer an organizer

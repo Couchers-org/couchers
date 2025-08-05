@@ -351,5 +351,5 @@ message InviteEventOrganizerReq {
 
 message RemoveEventOrganizerReq {
   int64 event_id = 1;
-  google.protobuf.UInt64Value user_id = 2;
+  google.protobuf.Int64Value user_id = 2;
 }
