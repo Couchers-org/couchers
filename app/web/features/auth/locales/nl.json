@@ -42,11 +42,16 @@
       "field_label": "Gebruikersnaam"
     },
     "password": {
-      "validation_error": "Het wachtwoord moet tussen de 8 en 256 karakters bevatten en niet makkelijk te raden zijn."
+      "validation_error": "Een wachtwoord heeft tussen de 8 en 256 karakters en mag niet makkelijk te raden zijn."
     },
     "birthday": {
       "field_label": "Verjaardag",
-      "validation_error": "Moet een datum in het verleden zijn."
+      "validation_error": "Moet een datum in het verleden zijn.",
+      "required_error": "Vul je geboortedatum in"
+    },
+    "hosting_status": {
+      "field_label": "Hosting status",
+      "can_host": "Kan hosten"
     }
   }
 }

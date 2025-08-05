@@ -27,6 +27,14 @@
     "continue_editing": "Doorgaan met bewerken"
   },
   "home_info_headings": {
-    "about_home": "Over mijn huis"
+    "about_home": "Over mijn huis",
+    "house_rules": "Huisregels",
+    "hosting_preferences": "Hosting voorkeuren",
+    "host_smoking": "Rookt thuis",
+    "housemates": "Huisgenoten",
+    "housemate_details": "Details huisgenoten",
+    "kid_details": "Details kinderen",
+    "local_area": "Informatie over de omgeving",
+    "last_minute": "Accepteert last minute aanvragen"
   }
 }
