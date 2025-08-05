@@ -400,6 +400,9 @@ class Events(events_pb2_grpc.EventsServicer):
             parent_node = session.execute(
                 select(Node).where(Node.id == request.parent_community_id)
             ).scalar_one_or_none()
+
+            if not parent_node.official_cluster.events_enabled:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENTS_NOT_ENABLED)
         else:
             if online:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.ONLINE_EVENT_MISSING_PARENT_COMMUNITY)

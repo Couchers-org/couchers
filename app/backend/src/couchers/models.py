@@ -1785,6 +1785,9 @@ class Cluster(Base):
 
     is_official_cluster = Column(Boolean, nullable=False, default=False)
 
+    discussions_enabled = Column(Boolean, nullable=False, default=True, server_default=expression.true())
+    events_enabled = Column(Boolean, nullable=False, default=True, server_default=expression.true())
+
     slug = column_property(func.slugify(name))
 
     official_cluster_for_node = relationship(

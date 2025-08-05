@@ -16,6 +16,7 @@ services:
     restart: unless-stopped
     ports:
       - 6545:6545
+    platform: linux/amd64
   backend:
     build: backend
     env_file: backend.dev.env
@@ -45,14 +46,12 @@ services:
       - 5001:5001
     depends_on:
       - backend
-
   maildev:
     image: maildev/maildev
     restart: unless-stopped
     ports:
       - 1025:1025
       - 1080:1080
-
   jaeger:
     image: jaegertracing/all-in-one:1.60
     ports:
