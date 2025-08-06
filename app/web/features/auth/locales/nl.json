@@ -1,1 +1,57 @@
-{}
+{
+  "change_email_form": {
+    "title": "E-mailadres veranderen",
+    "current_email_message": "Je e-mailadres is nu <1>{{email}}</1>.",
+    "success_message": "De wijziging van je e-mailadres is ontvangen. Check je e-mail om de wijziging definitief te maken.",
+    "new_email": "Nieuw e-mailadres",
+    "current_password": "Huidig wachtwoord"
+  },
+  "do_not_email": {
+    "status": {
+      "no_emails_disabled_message": "E-mails zijn nu <1>aangezet</1> voor jouw account.",
+      "no_emails_enabled_message": "E-mails zijn nu <1>uitgeschakeld</1> voor jouw account."
+    },
+    "action_button": {
+      "no_emails_enable_text": "Stuur mij geen e-mails",
+      "no_emails_disable_text": "E-mails weer aanzetten"
+    },
+    "title": "Stuur mij geen e-mails"
+  },
+  "change_email_confirmation": {
+    "error_message": "Foutmelding bij het veranderen van je e-mailadres: {{message}}",
+    "change_in_progress": "E-mailadres veranderen in behandeling…",
+    "success_message": "Je e-mailadres is nu veranderd!"
+  },
+  "change_password_form": {
+    "title": "Wachtwoord wijzigen"
+  },
+  "login_page": {
+    "form": {
+      "remember_me": "Aangemeld blijven",
+      "forgot_password": "Wachtwoord vergeten?"
+    }
+  },
+  "basic_sign_up_form": {
+    "existing_user_prompt": "Heb je al een account? <2>Inloggen</2>",
+    "sign_up_agreement_explainer": "Door verder te gaan, ga je akkoord met onze <2>Servicevoorwaarden</2>, inclusief ons beleid voor cookies, e-mail en gegevensverwerking.",
+    "header": "Laten we beginnen!"
+  },
+  "account_form": {
+    "header": "Jouw account details",
+    "username": {
+      "field_label": "Gebruikersnaam"
+    },
+    "password": {
+      "validation_error": "Een wachtwoord heeft tussen de 8 en 256 karakters en mag niet makkelijk te raden zijn."
+    },
+    "birthday": {
+      "field_label": "Verjaardag",
+      "validation_error": "Moet een datum in het verleden zijn.",
+      "required_error": "Vul je geboortedatum in"
+    },
+    "hosting_status": {
+      "field_label": "Hosting status",
+      "can_host": "Kan hosten"
+    }
+  }
+}

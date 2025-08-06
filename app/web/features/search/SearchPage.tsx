@@ -2,7 +2,6 @@ import { styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import {
-  HostingStatusOptions,
   MapViewOptions,
   MapViews,
   MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
@@ -10,7 +9,7 @@ import {
 } from "features/search/utils/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { MeetupStatus } from "proto/api_pb";
+import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import { useMemo, useRef, useState } from "react";
 import { LngLatLike, MapProvider, MapRef } from "react-map-gl/maplibre";
 
@@ -32,11 +31,11 @@ export type FilterOptions = {
   acceptsLastMinRequests?: boolean;
   ageMin?: number | undefined;
   ageMax?: number | undefined;
-  completeProfile?: boolean;
+  showEmptyProfile?: boolean;
   drinkingAllowed?: boolean | undefined;
   hasReferences?: boolean;
   hasStrongVerification?: boolean;
-  hostingStatus?: HostingStatusOptions[];
+  hostingStatus?: HostingStatus[];
   meetupStatus?: MeetupStatus[];
   numGuests?: number;
   lastActive?: number;
@@ -96,7 +95,7 @@ export default function SearchPage() {
     isLoading,
     hasNextPage,
     hasPreviousPage,
-    numberOfTotal,
+    currentRange,
     totalItems,
     users,
   } = useUserSearch(searchParams, mapSearchState);
@@ -135,7 +134,7 @@ export default function SearchPage() {
       !mapSearchState.search.query // not keyword search bc already has filter then
     ) {
       const bbox = getMapBounds(mapRef);
-      setMapQueryArea(bbox, newZoom);
+      setMapQueryArea(bbox, newZoom, didCrossSearchThreshold);
     } else {
       setMoveMapUIOnly({ zoom: newZoom });
     }
@@ -153,7 +152,7 @@ export default function SearchPage() {
 
     setSelectedUserId(undefined);
 
-    if (didZoomBelowThreshold && !mapSearchState.search.query) {
+    if (didZoomBelowThreshold) {
       setMapQueryArea(undefined, newZoom);
     } else if (didZoomOutWithinThreshold) {
       setShowSearchThisAreaButton(true);
@@ -184,7 +183,7 @@ export default function SearchPage() {
           isLoading={isLoading}
           mapRef={mapRef}
           mapView={mapView}
-          numberOfTotal={numberOfTotal}
+          currentRange={currentRange}
           onDrawerWidthChange={handleDrawerWidthChange}
           onLoadPreviousPage={handleLoadPreviousPage}
           onLoadNextPage={handleLoadNextPage}

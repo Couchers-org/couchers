@@ -14,7 +14,9 @@ from couchers.models import (
     NotificationDelivery,
     NotificationDeliveryType,
     NotificationTopicAction,
+    RateLimitAction,
 )
+from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL_STRING
 from couchers.sql import couchers_select as select
 from couchers.utils import Duration_from_timedelta, now, to_aware_datetime
 from proto import api_pb2, conversations_pb2, notification_data_pb2, notifications_pb2
@@ -26,6 +28,7 @@ from tests.test_fixtures import (  # noqa
     make_friends,
     make_user_block,
     make_user_invisible,
+    mock_notification_email,
     notifications_session,
     testconfig,
 )
@@ -677,6 +680,48 @@ def test_send_direct_message(db):
         assert messages[0].text.text == message2
         assert messages[1].text.text == message1
         assert messages[0].author_user_id == user1.id
+
+
+def test_excessive_chat_initiations_are_reported(db):
+    """Test that excessive chat initiations are first reported in a warning email and finally lead blocking of further contacting other users."""
+    user, token = generate_user()
+    rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.chat_initiation]
+    with conversations_session(token) as c:
+        # Test warning email
+        with mock_notification_email() as mock_email:
+            for _ in range(rate_limit_definition.warning_limit):
+                recipient_user, _ = generate_user()
+                _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
+
+            assert mock_email.call_count == 0
+            recipient_user, _ = generate_user()
+            _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
+
+            assert mock_email.call_count == 1
+            email = mock_email.mock_calls[0].kwargs["plain"]
+            assert email.startswith(
+                f"User {user.username} has sent {rate_limit_definition.warning_limit} chat initiations in the past {RATE_LIMIT_INTERVAL_STRING}."
+            )
+
+        # Test new chat initiations fail after exceeding CHAT_INITIATION_HARD_LIMIT
+        with mock_notification_email() as mock_email:
+            for _ in range(rate_limit_definition.hard_limit - rate_limit_definition.warning_limit - 1):
+                recipient_user, _ = generate_user()
+                _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
+
+            assert mock_email.call_count == 0
+            recipient_user, _ = generate_user()
+            with pytest.raises(grpc.RpcError) as exc_info:
+                _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
+            assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
+            assert exc_info.value.details() == errors.CHAT_INITIATION_RATE_LIMIT
+
+            assert mock_email.call_count == 1
+            email = mock_email.mock_calls[0].kwargs["plain"]
+            assert email.startswith(
+                f"User {user.username} has sent {rate_limit_definition.hard_limit} chat initiations in the past {RATE_LIMIT_INTERVAL_STRING}."
+            )
+            assert "The user has been blocked from sending further chat initiations for now." in email
 
 
 def test_leave_invite_to_group_chat(db):

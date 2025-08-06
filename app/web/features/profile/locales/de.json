@@ -35,7 +35,7 @@
     "request": "Anfragen",
     "back_to_dashboard": "Zurück zur Übersicht"
   },
-  "my_connections": "Meine Verbindungen",
+  "my_connections": "Meine Kontakte",
   "profile_tag_input": {
     "remove_button_a11y_text": "{{tag}} entfernen",
     "header_text": "Drück zum Hinzufügen die Eingabetaste\n<support_link>Sende uns eine E-Mail</support_link>, um einen Eintrag hinzuzufügen"
@@ -134,6 +134,7 @@
     "required": "Dieser Schritt ist erforderlich.",
     "thank_you_message": "Wir schätzen es sehr, dass du dir die Zeit genommen hast, eine durchdachte Referenz zu verfassen, die anderen in Zukunft helfen wird. Nachfolgend findest du eine Zusammenfassung, die du vor dem Absenden überprüfen kannst.",
     "was_appropriate_required": "Um die Sicherheit unserer Community zu gewährleisten, ist diese Frage erforderlich.",
+    "rating_required": "Bitte bewege den Slider, um deine Erfahrung zu bewerten.",
     "next_step_label": "Fortfahren",
     "reference_type_not_available": "Dieser Referenztyp ist für diesen Benutzer nicht verfügbar.",
     "text_explanation": "Hinterlasse eine Referenz und teile anderen mit, wie deine Erfahrung mit dieser Person war. So können andere besser einschätzen, was sie in Zukunft von dieser Person erwarten können.",
@@ -193,7 +194,8 @@
     "overnight_stay": "Übernachtung",
     "request_description": "Teile deine Pläne für den Besuch mit und gib an, warum du bei diesem bestimmten Host übernachten willst",
     "request_description_empty": "Bitte schreib eine Anfragenachricht",
-    "stay_type_a11y_text": "Aufenthaltstyp"
+    "stay_type_a11y_text": "Aufenthaltstyp",
+    "request_char_length_too_short": "Die Anfrage-Nachricht muss mindestens 250 Zeichen lang sein"
   },
   "response_rate_text_some": "Manchmal",
   "reference_filter_label": {

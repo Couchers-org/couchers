@@ -132,5 +132,6 @@
   "members_empty_state": "Zurzeit keine Mitglieder.",
   "members_label": "Mitglieder",
   "members_title": "Community-Mitglieder",
-  "total_members": "Mitglieder"
+  "total_members": "Mitglieder",
+  "notify_attendees": "Teilnehmende über diese Event-Änderung benachrichtigen"
 }

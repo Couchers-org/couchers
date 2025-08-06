@@ -10,10 +10,13 @@ const allLanguages = [
   "it",
   "ja",
   "nb-NO",
+  "nl",
   "pl",
   "pt",
   "pt-BR",
   "ru",
+  "sv",
+  "uk",
   "zh-Hans",
   "zh-Hant",
 ];

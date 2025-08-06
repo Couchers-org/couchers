@@ -7,6 +7,7 @@ from google.protobuf import empty_pb2
 
 from couchers import errors
 from couchers.db import session_scope
+from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import (
     Conversation,
     HostRequest,
@@ -21,6 +22,7 @@ from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, now, to_aware_datetime, today
 from proto import conversations_pb2, references_pb2, requests_pb2
 from tests.test_fixtures import (  # noqa
+    account_session,
     db,
     email_fields,
     generate_user,
@@ -826,6 +828,8 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
             session, user11.id, user1.id, timedelta(days=3), surfer_reason_didnt_meetup="They never showed up!!"
         )
 
+    refresh_materialized_views_rapid(None)
+
     with references_session(token1) as api:
         # can't write reference for invisible user
         with pytest.raises(grpc.RpcError) as e:
@@ -918,6 +922,28 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
         assert w.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
         assert now() + timedelta(days=11) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=12)
 
+    with account_session(token1) as account:
+        reminders = account.GetReminders(empty_pb2.Empty()).reminders
+        assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
+            "write_reference_reminder",
+            "write_reference_reminder",
+            "write_reference_reminder",
+            "write_reference_reminder",
+            "complete_verification_reminder",
+        ]
+        assert reminders[0].write_reference_reminder.host_request_id == hr3
+        assert reminders[0].write_reference_reminder.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+        assert reminders[0].write_reference_reminder.other_user.user_id == user3.id
+        assert reminders[1].write_reference_reminder.host_request_id == hr4
+        assert reminders[1].write_reference_reminder.reference_type == references_pb2.REFERENCE_TYPE_SURFED
+        assert reminders[1].write_reference_reminder.other_user.user_id == user4.id
+        assert reminders[2].write_reference_reminder.host_request_id == hr6
+        assert reminders[2].write_reference_reminder.reference_type == references_pb2.REFERENCE_TYPE_SURFED
+        assert reminders[2].write_reference_reminder.other_user.user_id == user10.id
+        assert reminders[3].write_reference_reminder.host_request_id == hr7
+        assert reminders[3].write_reference_reminder.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+        assert reminders[3].write_reference_reminder.other_user.user_id == user11.id
+
 
 @pytest.mark.parametrize("hs", ["host", "surfer"])
 def test_regression_disappearing_refs(db, hs):
@@ -959,6 +985,8 @@ def test_regression_disappearing_refs(db, hs):
                 host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
             )
         )
+
+    refresh_materialized_views_rapid(None)
 
     with references_session(token1) as api:
         res = api.ListPendingReferencesToWrite(empty_pb2.Empty())

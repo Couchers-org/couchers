@@ -173,6 +173,7 @@ const defaultRequests: HostRequest.AsObject[] = [
     hostingLat: 34.0522,
     hostingLng: -118.2437,
     hostingRadius: 100,
+    needHostRequestFeedback: false,
   },
   {
     ...request,
@@ -183,6 +184,7 @@ const defaultRequests: HostRequest.AsObject[] = [
     hostingLat: 37.7749,
     hostingLng: -122.4194,
     hostingRadius: 50,
+    needHostRequestFeedback: false,
   },
   {
     ...request,
@@ -193,5 +195,6 @@ const defaultRequests: HostRequest.AsObject[] = [
     hostingLat: 40.7128,
     hostingLng: -74.006,
     hostingRadius: 75,
+    needHostRequestFeedback: false,
   },
 ];

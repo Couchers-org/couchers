@@ -1,16 +1,15 @@
-import { Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import { ReactNode } from "react";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    alignItems: "center",
-    display: "flex",
-  },
-  text: {
-    margin: 0,
-    marginInlineStart: theme.spacing(1),
-  },
+const StyledWrapper = styled("div")(() => ({
+  alignItems: "center",
+  display: "flex",
+}));
+
+const StyledText = styled(Typography)(() => ({
+  margin: 0,
+  marginInlineStart: theme.spacing(1),
 }));
 
 interface TitleWithIconProps {
@@ -24,13 +23,10 @@ export default function TitleWithIcon({
   children,
   variant = "h1",
 }: TitleWithIconProps) {
-  const classes = useStyles();
   return (
-    <div className={classes.root}>
+    <StyledWrapper>
       {icon}
-      <Typography variant={variant} className={classes.text}>
-        {children}
-      </Typography>
-    </div>
+      <StyledText variant={variant}>{children}</StyledText>
+    </StyledWrapper>
   );
 }

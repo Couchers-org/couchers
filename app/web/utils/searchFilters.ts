@@ -40,7 +40,7 @@ export function parsedQueryToSearchFilters(urlQuery: ParsedUrlQuery) {
         break;
 
       //others
-      case "hostingStatusOptions":
+      case "hostingStatus":
         const rawOptions = urlQuery[key];
         const options =
           typeof rawOptions === "string" ? [rawOptions] : (rawOptions ?? []);

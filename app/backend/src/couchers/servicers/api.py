@@ -8,7 +8,8 @@ from sqlalchemy.sql import and_, delete, distinct, func, intersect, or_, union
 from couchers import errors, urls
 from couchers.config import config
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
-from couchers.materialized_views import lite_users, user_response_rates
+from couchers.helpers.strong_verification import get_strong_verification_fields
+from couchers.materialized_views import LiteUser, UserResponseRate
 from couchers.models import (
     FriendRelationship,
     FriendStatus,
@@ -23,6 +24,7 @@ from couchers.models import (
     Notification,
     NotificationDeliveryType,
     ParkingDetails,
+    RateLimitAction,
     Reference,
     RegionLived,
     RegionVisited,
@@ -33,8 +35,8 @@ from couchers.models import (
 )
 from couchers.notifications.notify import notify
 from couchers.notifications.settings import get_topic_actions_by_delivery_type
+from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
-from couchers.servicers.account import get_strong_verification_fields
 from couchers.sql import couchers_select as select
 from couchers.sql import is_valid_user_id, is_valid_username
 from couchers.utils import (
@@ -225,10 +227,10 @@ class API(api_pb2_grpc.APIServicer):
 
     def GetLiteUser(self, request, context, session):
         lite_user = session.execute(
-            select(lite_users)
-            .where_users_visible(context, table=lite_users.c)
-            .where_username_or_id(request.user, table=lite_users.c)
-        ).one_or_none()
+            select(LiteUser)
+            .where_users_visible(context, table=LiteUser)
+            .where_username_or_id(request.user, table=LiteUser)
+        ).scalar_one_or_none()
 
         if not lite_user:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
@@ -242,11 +244,15 @@ class API(api_pb2_grpc.APIServicer):
         usernames = {u for u in request.users if is_valid_username(u)}
         ids = {u for u in request.users if is_valid_user_id(u)}
 
-        users = session.execute(
-            select(lite_users)
-            .where_users_visible(context, table=lite_users.c)
-            .where(or_(lite_users.c.username.in_(usernames), lite_users.c.id.in_(ids)))
-        ).all()
+        users = (
+            session.execute(
+                select(LiteUser)
+                .where_users_visible(context, table=LiteUser)
+                .where(or_(LiteUser.username.in_(usernames), LiteUser.id.in_(ids)))
+            )
+            .scalars()
+            .all()
+        )
 
         users_by_id = {str(user.id): user for user in users}
         users_by_username = {user.username: user for user in users}
@@ -670,6 +676,12 @@ class API(api_pb2_grpc.APIServicer):
         ):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.FRIENDS_ALREADY_OR_PENDING)
 
+        # Check if user has been sending friend requests excessively
+        if process_rate_limits_and_check_abort(
+            session=session, user_id=context.user_id, action=RateLimitAction.friend_request
+        ):
+            context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.FRIEND_REQUEST_RATE_LIMIT)
+
         # TODO: Race condition where we can create two friend reqs, needs db constraint! See comment in table
 
         friend_relationship = FriendRelationship(from_user=user, to_user=to_user, status=FriendStatus.pending)
@@ -838,31 +850,29 @@ class API(api_pb2_grpc.APIServicer):
         )
 
 
-def response_rate_to_pb(response_rates):
-    if not response_rates:
+def response_rate_to_pb(response_rate: UserResponseRate):
+    if not response_rate:
         return {"insufficient_data": requests_pb2.ResponseRateInsufficientData()}
-
-    _, n, response_rate, _, response_time_p33, response_time_p66 = response_rates
 
     # if n is None, the user is new or they have no requests
-    if not n or n < 3:
+    if response_rate.requests < 3:
         return {"insufficient_data": requests_pb2.ResponseRateInsufficientData()}
 
-    if response_rate <= 0.33:
+    if response_rate.response_rate <= 0.33:
         return {"low": requests_pb2.ResponseRateLow()}
 
     response_time_p33_coarsened = Duration_from_timedelta(
-        timedelta(seconds=round(response_time_p33.total_seconds() / 60) * 60)
+        timedelta(seconds=round(response_rate.response_time_33p.total_seconds() / 60) * 60)
     )
 
-    if response_rate <= 0.66:
+    if response_rate.response_rate <= 0.66:
         return {"some": requests_pb2.ResponseRateSome(response_time_p33=response_time_p33_coarsened)}
 
     response_time_p66_coarsened = Duration_from_timedelta(
-        timedelta(seconds=round(response_time_p66.total_seconds() / 60) * 60)
+        timedelta(seconds=round(response_rate.response_time_66p.total_seconds() / 60) * 60)
     )
 
-    if response_rate <= 0.90:
+    if response_rate.response_rate <= 0.90:
         return {
             "most": requests_pb2.ResponseRateMost(
                 response_time_p33=response_time_p33_coarsened, response_time_p66=response_time_p66_coarsened
@@ -949,9 +959,9 @@ def user_model_to_pb(db_user, session, context):
         else:
             friends_status = api_pb2.User.FriendshipStatus.NOT_FRIENDS
 
-    response_rates = session.execute(
-        select(user_response_rates).where(user_response_rates.c.user_id == db_user.id)
-    ).one_or_none()
+    response_rate = session.execute(
+        select(UserResponseRate).where(UserResponseRate.user_id == db_user.id)
+    ).scalar_one_or_none()
 
     verification_score = 0.0
     if db_user.phone_verification_verified:
@@ -1000,7 +1010,7 @@ def user_model_to_pb(db_user, session, context):
         .scalars()
         .all(),
         **get_strong_verification_fields(session, db_user),
-        **response_rate_to_pb(response_rates),
+        **response_rate_to_pb(response_rate),
     )
 
     if db_user.max_guests is not None:
@@ -1066,7 +1076,7 @@ def user_model_to_pb(db_user, session, context):
     return user
 
 
-def lite_user_to_pb(lite_user):
+def lite_user_to_pb(lite_user: LiteUser):
     lat, lng = get_coordinates(lite_user.geom) or (0, 0)
 
     return api_pb2.LiteUser(

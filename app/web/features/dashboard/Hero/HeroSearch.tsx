@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import LocationAutocomplete from "components/LocationAutocomplete";
 import { Coordinates } from "features/search/utils/constants";
 import { DASHBOARD } from "i18n/namespaces";
@@ -7,31 +7,27 @@ import { useTranslation } from "next-i18next";
 import { HostingStatus } from "proto/api_pb";
 import { useForm } from "react-hook-form";
 import { routeToSearch } from "routes";
+import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
-import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles((theme) => ({
-  searchBoxContainer: {
-    padding: theme.spacing(4, 2, 6, 2),
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: theme.palette.background.paper,
-  },
+const StyledSearchBoxContainer = styled("form")(() => ({
+  padding: theme.spacing(4, 2, 6, 2),
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: theme.palette.background.paper,
 }));
 
 export default function HeroSearch() {
   const { t } = useTranslation(DASHBOARD);
-  const classes = useStyles();
   const router = useRouter();
   const searchInputId = "hero-search-input";
 
   const {
     control,
-
     formState: { errors },
   } = useForm<{ location: GeocodeResult }>({ mode: "onChange" });
 
   return (
-    <form className={classes.searchBoxContainer}>
+    <StyledSearchBoxContainer>
       <Typography
         variant="h2"
         component="label"
@@ -59,11 +55,12 @@ export default function HeroSearch() {
             ];
             const searchRouteWithSearchQuery = routeToSearch({
               location: value.simplifiedName,
-              hostingStatusOptions: [
+              hostingStatus: [
                 HostingStatus.HOSTING_STATUS_CAN_HOST,
                 HostingStatus.HOSTING_STATUS_MAYBE,
               ],
               bbox: newBbox,
+              showEmptyProfile: false,
             });
             router.push(searchRouteWithSearchQuery);
           }
@@ -71,6 +68,6 @@ export default function HeroSearch() {
         fieldError={errors.location?.message}
         disableRegions
       />
-    </form>
+    </StyledSearchBoxContainer>
   );
 }

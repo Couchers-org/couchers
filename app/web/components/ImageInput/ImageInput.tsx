@@ -185,7 +185,14 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
         <StyledLabel htmlFor={id} ref={field.ref}>
           {props.type === "avatar" ? (
             <Tooltip title={t("profile:click_replace_image")} placement="top">
-              <MuiIconButton component="span" sx={{ position: "relative" }}>
+              <MuiIconButton
+                component="span"
+                sx={{ position: "relative" }}
+                onClick={(e) => {
+                  e.preventDefault(); // prevent triggering label click again
+                  inputRef.current?.click();
+                }}
+              >
                 <Avatar
                   className={className}
                   src={imageUrl}
@@ -195,13 +202,7 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
                   {props.userName?.split(/\s+/).map((name) => name[0])}
                 </Avatar>
 
-                <EditIconButton
-                  size="small"
-                  onClick={(e) => {
-                    e.preventDefault(); // prevent triggering label click again
-                    inputRef.current?.click();
-                  }}
-                >
+                <EditIconButton size="small">
                   <Edit fontSize="small" />
                 </EditIconButton>
               </MuiIconButton>

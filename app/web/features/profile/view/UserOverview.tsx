@@ -94,7 +94,7 @@ export default function UserOverview({
   return (
     <Card className={classes.card}>
       <div className={classes.avatarContainer}>
-        <Avatar user={user} grow />
+        <Avatar user={user} highRes grow />
       </div>
 
       <div className={classes.wrapper}>

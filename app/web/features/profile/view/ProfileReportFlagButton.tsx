@@ -27,7 +27,7 @@ import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { User } from "proto/api_pb";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useMutation } from "react-query";
 import { dashboardRoute } from "routes";
@@ -70,11 +70,22 @@ export default function ProfileReportFlagButton({
   const {
     control,
     handleSubmit,
-    register,
     reset: resetForm,
     formState: { errors },
+    watch,
   } = useForm<ReportInput>();
 
+  const reason = watch("reason");
+  const description = watch("description");
+
+  const requiredReasons = useMemo(
+    () => [
+      t("report.flag.reason.other"),
+      t("report.flag.reason.safety"),
+      t("report.flag.reason.guidelines_breach"),
+    ],
+    [t],
+  );
   const {
     control: blockControl,
     register: blockRegister,
@@ -83,11 +94,6 @@ export default function ProfileReportFlagButton({
     defaultValues: {
       shouldBlock: false,
     },
-  });
-
-  const reportDescriptionField = useWatch({
-    control,
-    name: "description",
   });
 
   const shouldBlockField = useWatch({
@@ -125,8 +131,40 @@ export default function ProfileReportFlagButton({
   };
 
   const onSubmit = handleSubmit((data) => {
+    // Use English version to send to backend
+    const reasonMap: Record<string, string> = {
+      [t("report.flag.reason.dating")]: t("report.flag.reason.dating", {
+        lng: "en",
+      }),
+      [t("report.flag.reason.sexualized")]: t("report.flag.reason.sexualized", {
+        lng: "en",
+      }),
+      [t("report.flag.reason.safety")]: t("report.flag.reason.safety", {
+        lng: "en",
+      }),
+      [t("report.flag.reason.scam")]: t("report.flag.reason.scam", {
+        lng: "en",
+      }),
+      [t("report.flag.reason.spam")]: t("report.flag.reason.spam", {
+        lng: "en",
+      }),
+      [t("report.flag.reason.external")]: t("report.flag.reason.external", {
+        lng: "en",
+      }),
+      [t("report.flag.reason.harassment")]: t("report.flag.reason.harassment", {
+        lng: "en",
+      }),
+      [t("report.flag.reason.guidelines_breach")]: t(
+        "report.flag.reason.guidelines_breach",
+        { lng: "en" },
+      ),
+      [t("report.flag.reason.other")]: t("report.flag.reason.other", {
+        lng: "en",
+      }),
+    };
+
     if (data.reason !== "" || data.description !== "") {
-      reportContent(data);
+      reportContent({ ...data, reason: reasonMap[data.reason] });
     }
 
     if (shouldBlockField) {
@@ -172,7 +210,11 @@ export default function ProfileReportFlagButton({
         </DialogTitle>
         <form onSubmit={onSubmit}>
           <DialogContent>
-            {error && <Alert severity="error">{error.message}</Alert>}
+            {error && (
+              <Alert severity="error" role="alert">
+                {error.message}
+              </Alert>
+            )}
             <DialogContentText
               variant="body2"
               sx={{ paddingLeft: 1, paddingBottom: 0 }}
@@ -212,13 +254,13 @@ export default function ProfileReportFlagButton({
                   >
                     {[
                       "",
-                      t("report.flag.reason.spam"),
                       t("report.flag.reason.dating"),
+                      t("report.flag.reason.sexualized"),
+                      t("report.flag.reason.safety"),
+                      t("report.flag.reason.scam"),
+                      t("report.flag.reason.spam"),
                       t("report.flag.reason.external"),
-                      t("report.flag.reason.commercial"),
                       t("report.flag.reason.harassment"),
-                      t("report.flag.reason.fake"),
-                      t("report.flag.reason.freeloading"),
                       t("report.flag.reason.guidelines_breach"),
                       t("report.flag.reason.other"),
                     ].map((option) => (
@@ -235,15 +277,42 @@ export default function ProfileReportFlagButton({
                 </FormHelperText>
               )}
             </FormControl>
-            <TextField
-              id="content-report-description"
-              {...register("description")}
-              label={t("report.flag.description_label")}
-              helperText={t("report.flag.description_helper")}
-              fullWidth
-              multiline
-              minRows={4}
-              maxRows={6}
+            <Controller
+              control={control}
+              defaultValue={""}
+              name="description"
+              rules={{
+                validate: (value) => {
+                  // Only require description if reason is in requiredReasons
+                  if (requiredReasons.includes(reason)) {
+                    return !!value || t("report.flag.description_required");
+                  }
+                  return true;
+                },
+              }}
+              render={({ field }) => (
+                <TextField
+                  id="content-report-description"
+                  {...field}
+                  error={!!errors?.description?.message}
+                  helperText={
+                    !errors?.description?.message
+                      ? t("report.flag.description_helper")
+                      : undefined
+                  }
+                  label={t("report.flag.description_label")}
+                  fullWidth
+                  multiline
+                  minRows={4}
+                  maxRows={6}
+                  sx={{
+                    marginTop: theme.spacing(2),
+                    "& + &": {
+                      marginBlockStart: theme.spacing(2),
+                    },
+                  }}
+                />
+              )}
             />
             <FormControl
               sx={{
@@ -286,7 +355,10 @@ export default function ProfileReportFlagButton({
               {t("cancel")}
             </Button>
             <Button
-              disabled={!reportDescriptionField && !shouldBlockField}
+              disabled={
+                (requiredReasons.includes(reason) && !description) ||
+                (!reason && !shouldBlockField)
+              }
               type="submit"
               loading={isLoading}
               onClick={onSubmit}

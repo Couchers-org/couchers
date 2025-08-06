@@ -1,18 +1,34 @@
+import re
 from datetime import timedelta
+from urllib.parse import parse_qs, urlparse
 
 import grpc
 import pytest
 from sqlalchemy.sql import select
 
 from couchers import errors
+from couchers.crypto import b64decode
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_view
-from couchers.models import Message, MessageType
+from couchers.models import (
+    Message,
+    MessageType,
+    RateLimitAction,
+)
+from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL_STRING
+from couchers.sql import couchers_select as select
 from couchers.templates.v2 import v2date
 from couchers.utils import create_coordinate, now, today
-from proto import api_pb2, conversations_pb2, requests_pb2
+from proto import (
+    api_pb2,
+    auth_pb2,
+    conversations_pb2,
+    requests_pb2,
+)
+from proto.internal import unsubscribe_pb2
 from tests.test_fixtures import (  # noqa
     api_session,
+    auth_api_session,
     db,
     email_fields,
     generate_user,
@@ -163,6 +179,71 @@ def test_create_request_incomplete_profile(db):
             )
     assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
     assert e.value.details() == errors.INCOMPLETE_PROFILE_SEND_REQUEST
+
+
+def test_excessive_requests_are_reported(db):
+    """Test that excessive host requests are first reported in a warning email and finally lead blocking of further requests."""
+    user, token = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.host_request]
+    with requests_session(token) as api:
+        # Test warning email
+        with mock_notification_email() as mock_email:
+            for _ in range(rate_limit_definition.warning_limit):
+                host_user, _ = generate_user()
+                _ = api.CreateHostRequest(
+                    requests_pb2.CreateHostRequestReq(
+                        host_user_id=host_user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                    )
+                )
+
+            assert mock_email.call_count == 0
+            host_user, _ = generate_user()
+            _ = api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=host_user.id,
+                    from_date=today_plus_2,
+                    to_date=today_plus_3,
+                    text="Excessive test request",
+                )
+            )
+            assert mock_email.call_count == 1
+            email = mock_email.mock_calls[0].kwargs["plain"]
+            assert email.startswith(
+                f"User {user.username} has sent {rate_limit_definition.warning_limit} host requests in the past {RATE_LIMIT_INTERVAL_STRING}."
+            )
+
+        # Test ban after exceeding HOST_REQUEST_HARD_LIMIT
+        with mock_notification_email() as mock_email:
+            for _ in range(rate_limit_definition.hard_limit - rate_limit_definition.warning_limit - 1):
+                host_user, _ = generate_user()
+                _ = api.CreateHostRequest(
+                    requests_pb2.CreateHostRequestReq(
+                        host_user_id=host_user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                    )
+                )
+
+            assert mock_email.call_count == 0
+            host_user, _ = generate_user()
+            with pytest.raises(grpc.RpcError) as exc_info:
+                _ = api.CreateHostRequest(
+                    requests_pb2.CreateHostRequestReq(
+                        host_user_id=host_user.id,
+                        from_date=today_plus_2,
+                        to_date=today_plus_3,
+                        text="Excessive test request",
+                    )
+                )
+            assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
+            assert exc_info.value.details() == errors.HOST_REQUEST_RATE_LIMIT
+
+            assert mock_email.call_count == 1
+            email = mock_email.mock_calls[0].kwargs["plain"]
+            assert email.startswith(
+                f"User {user.username} has sent {rate_limit_definition.hard_limit} host requests in the past {RATE_LIMIT_INTERVAL_STRING}."
+            )
+            assert "The user has been blocked from sending further host requests for now." in email
 
 
 def add_message(db, text, author_id, conversation_id):
@@ -616,18 +697,15 @@ def test_SendHostRequestMessage(db):
         assert res.messages[0].text.text == "Test message 2"
         assert res.messages[0].author_user_id == user2.id
 
-        # can't send messages to a rejected, confirmed or cancelled request, but can for accepted
+        # CAN send messages to a rejected, confirmed or cancelled request, and for accepted
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED
             )
         )
-        with pytest.raises(grpc.RpcError) as e:
-            api.SendHostRequestMessage(
-                requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 3")
-            )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == errors.HOST_REQUEST_CLOSED
+        api.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 3")
+        )
 
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
@@ -650,12 +728,9 @@ def test_SendHostRequestMessage(db):
                 host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
             )
         )
-        with pytest.raises(grpc.RpcError) as e:
-            api.SendHostRequestMessage(
-                requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 3")
-            )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == errors.HOST_REQUEST_CLOSED
+        api.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 3")
+        )
 
 
 def test_get_updates(db):
@@ -1090,6 +1165,8 @@ def test_request_notifications(db, push_collector):
     assert "host request" in e.subject.lower()
     assert host.name in e.plain
     assert host.name in e.html
+    assert "quick decline" in e.plain.lower(), e.plain
+    assert "quick decline" in e.html.lower()
     assert surfer.name in e.plain
     assert surfer.name in e.html
     assert v2date(today_plus_2, host) in e.plain
@@ -1136,3 +1213,187 @@ def test_request_notifications(db, push_collector):
         surfer.id,
         title=f"{host.name} accepted your host request",
     )
+
+
+def test_quick_decline(db, push_collector):
+    host, host_token = generate_user(complete_profile=True)
+    surfer, surfer_token = generate_user(complete_profile=True)
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    with requests_session(surfer_token) as api:
+        with mock_notification_email() as mock:
+            hr_id = api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=host.id,
+                    from_date=today_plus_2,
+                    to_date=today_plus_3,
+                    text="can i stay plz",
+                )
+            ).host_request_id
+
+    mock.assert_called_once()
+    e = email_fields(mock)
+    assert e.recipient == host.email
+    assert "host request" in e.subject.lower()
+    assert host.name in e.plain
+    assert host.name in e.html
+    assert "quick decline" in e.plain.lower(), e.plain
+    assert "quick decline" in e.html.lower()
+    assert surfer.name in e.plain
+    assert surfer.name in e.html
+    assert v2date(today_plus_2, host) in e.plain
+    assert v2date(today_plus_2, host) in e.html
+    assert v2date(today_plus_3, host) in e.plain
+    assert v2date(today_plus_3, host) in e.html
+    assert "http://localhost:5001/img/thumbnail/" not in e.plain
+    assert "http://localhost:5001/img/thumbnail/" in e.html
+    assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
+    assert f"http://localhost:3000/messages/request/{hr_id}" in e.html
+
+    push_collector.assert_user_has_single_matching(
+        host.id,
+        title=f"{surfer.name} sent you a host request",
+    )
+
+    # very ugly
+    # http://localhost:3000/quick-link?payload=CAEiGAoOZnJpZW5kX3JlcXVlc3QSBmFjY2VwdA==&sig=BQdk024NTATm8zlR0krSXTBhP5U9TlFv7VhJeIHZtUg=
+    for link in re.findall(r'<a href="(.*?)"', email_fields(mock).html):
+        if "payload" not in link:
+            continue
+        print(link)
+        url_parts = urlparse(link)
+        params = parse_qs(url_parts.query)
+        print(params["payload"][0])
+        payload = unsubscribe_pb2.UnsubscribePayload.FromString(b64decode(params["payload"][0]))
+        if payload.HasField("host_request_quick_decline"):
+            with auth_api_session() as (auth_api, metadata_interceptor):
+                res = auth_api.Unsubscribe(
+                    auth_pb2.UnsubscribeReq(
+                        payload=b64decode(params["payload"][0]),
+                        sig=b64decode(params["sig"][0]),
+                    )
+                )
+            break
+    else:
+        raise Exception("Didn't find link")
+
+    with requests_session(surfer_token) as api:
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=hr_id))
+        assert res.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED
+
+
+def test_host_req_feedback(db):
+    host, host_token = generate_user(complete_profile=True)
+    host2, host2_token = generate_user(complete_profile=True)
+    host3, host3_token = generate_user(complete_profile=True)
+    surfer, surfer_token = generate_user(complete_profile=True)
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    with requests_session(surfer_token) as api:
+        hr_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text="can i stay plz",
+            )
+        ).host_request_id
+        hr2_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text="can i stay plz",
+            )
+        ).host_request_id
+        hr3_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host3.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text="can i stay plz",
+            )
+        ).host_request_id
+
+    with requests_session(host_token) as api:
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=hr_id))
+        assert not res.need_host_request_feedback
+
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=hr_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
+            )
+        )
+
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=hr_id))
+        assert res.need_host_request_feedback
+
+    # surfer can't leave feedback
+    with requests_session(surfer_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.SendHostRequestFeedback(
+                requests_pb2.SendHostRequestFeedbackReq(
+                    host_request_id=hr_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+
+    with requests_session(host_token) as api:
+        api.SendHostRequestFeedback(
+            requests_pb2.SendHostRequestFeedbackReq(
+                host_request_id=hr_id,
+                host_request_quality=requests_pb2.HOST_REQUEST_QUALITY_LOW,
+            )
+        )
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=hr_id))
+        assert not res.need_host_request_feedback
+
+    # can't leave it twice
+    with requests_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.SendHostRequestFeedback(
+                requests_pb2.SendHostRequestFeedbackReq(
+                    host_request_id=hr_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.ALREADY_LEFT_HOST_REQUEST_FEEDBACK
+
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=hr_id))
+        assert not res.need_host_request_feedback
+
+    with requests_session(host2_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=hr2_id, status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED
+            )
+        )
+        # can't leave feedback on the wrong one
+        with pytest.raises(grpc.RpcError) as e:
+            api.SendHostRequestFeedback(
+                requests_pb2.SendHostRequestFeedbackReq(
+                    host_request_id=hr_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+
+        # null feedback is still feedback
+        api.SendHostRequestFeedback(requests_pb2.SendHostRequestFeedbackReq(host_request_id=hr2_id))
+
+    with requests_session(host3_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=hr3_id, status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED
+            )
+        )
+
+        api.SendHostRequestFeedback(
+            requests_pb2.SendHostRequestFeedbackReq(host_request_id=hr3_id, decline_reason="bad req")
+        )

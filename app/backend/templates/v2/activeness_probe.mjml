@@ -14,6 +14,23 @@
 <mj-section padding="0px">
   <mj-column>
     <mj-text>These check-ins help surfers find active hosts more easily and keep response times accurate.</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>Since you logged in last, we've had some really exciting new updates.</mj-text>
+    <mj-text>As of July, we are officially out of Beta and into v1, you can read more on our blog:</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="https://couchers.org/blog/2025/07/01/releasing-couchers-v1">
+      <b>Read more on our blog</b>
+    </mj-button>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
     <mj-text>Best,<br />The Couchers.org Team</mj-text>
   </mj-column>
 </mj-section>

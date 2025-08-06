@@ -165,8 +165,6 @@
   "unhandled_sign_up_state": "错误：未处理的注册流程状态。",
   "login_prompt": "点击此处登录",
   "about_us": "关于我们",
-  "introduction_subtitle": "永久免费。社区至上。不为营利。面向未来。",
-  "introduction_title": "加入我们，与我们一同成长",
   "reset_password": "重置密码",
   "account_settings_page": {
     "title": "账户设置",
@@ -219,12 +217,6 @@
       "disabled_message": "您当前未完成<1>强验证</1>。"
     },
     "learn_more": "了解强验证，点击<a>此处</a>。"
-  },
-  "unsubscribe": {
-    "title": "退订",
-    "button_text": "确认退订",
-    "error_message": "退订时出错：{{message}}",
-    "missing_payload_or_sig": "无效的URL"
   },
   "change_phone": {
     "title": "电话号码",

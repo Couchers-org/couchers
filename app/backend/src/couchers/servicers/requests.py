@@ -3,11 +3,12 @@ from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy import exists
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors
-from couchers.materialized_views import user_response_rates
+from couchers.materialized_views import UserResponseRate
 from couchers.metrics import (
     account_age_on_host_request_create_histogram,
     host_request_first_response_histogram,
@@ -15,8 +16,19 @@ from couchers.metrics import (
     host_requests_sent_counter,
     sent_messages_counter,
 )
-from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
+from couchers.models import (
+    Conversation,
+    HostRequest,
+    HostRequestFeedback,
+    HostRequestQuality,
+    HostRequestStatus,
+    Message,
+    MessageType,
+    RateLimitAction,
+    User,
+)
 from couchers.notifications.notify import notify
+from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.servicers.api import response_rate_to_pb, user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import (
@@ -41,6 +53,12 @@ hostrequeststatus2api = {
     HostRequestStatus.rejected: conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
     HostRequestStatus.confirmed: conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
     HostRequestStatus.cancelled: conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
+}
+
+hostrequestquality2sql = {
+    requests_pb2.HOST_REQUEST_QUALITY_UNSPECIFIED: HostRequestQuality.high_quality,
+    requests_pb2.HOST_REQUEST_QUALITY_LOW: HostRequestQuality.okay_quality,
+    requests_pb2.HOST_REQUEST_QUALITY_OKAY: HostRequestQuality.low_quality,
 }
 
 
@@ -92,6 +110,17 @@ def host_request_to_pb(host_request: HostRequest, session, context):
 
     lat, lng = get_coordinates(host_request.hosting_location)
 
+    need_feedback = False
+    if context.user_id == host_request.host_user_id and host_request.status == HostRequestStatus.rejected:
+        need_feedback = not session.execute(
+            select(
+                exists().where(
+                    HostRequestFeedback.from_user_id == context.user_id,
+                    HostRequestFeedback.host_request_id == host_request.conversation_id,
+                )
+            )
+        ).scalar_one()
+
     return requests_pb2.HostRequest(
         host_request_id=host_request.conversation_id,
         surfer_user_id=host_request.surfer_user_id,
@@ -110,6 +139,7 @@ def host_request_to_pb(host_request: HostRequest, session, context):
         hosting_lat=lat,
         hosting_lng=lng,
         hosting_radius=host_request.hosting_radius,
+        need_host_request_feedback=need_feedback,
     )
 
 
@@ -170,6 +200,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         if to_date - from_date > timedelta(days=365):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_TO_AFTER_ONE_YEAR)
+
+        # Check if user has been sending host requests excessively
+        if process_rate_limits_and_check_abort(
+            session=session, user_id=context.user_id, action=RateLimitAction.host_request
+        ):
+            context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.HOST_REQUEST_RATE_LIMIT)
 
         conversation = Conversation()
         session.add(conversation)
@@ -539,9 +575,6 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if host_request.surfer_user_id != context.user_id and host_request.host_user_id != context.user_id:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
 
-        if host_request.status == HostRequestStatus.rejected or host_request.status == HostRequestStatus.cancelled:
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.HOST_REQUEST_CLOSED)
-
         if host_request.host_user_id == context.user_id:
             _possibly_observe_first_response_time(session, host_request, context.user_id, "message")
 
@@ -688,8 +721,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def GetResponseRate(self, request, context, session):
         user_res = session.execute(
-            select(User.id, user_response_rates)
-            .outerjoin(user_response_rates, user_response_rates.c.user_id == User.id)
+            select(User.id, UserResponseRate)
+            .outerjoin(UserResponseRate, UserResponseRate.user_id == User.id)
             .where_users_visible(context)
             .where(User.id == request.user_id)
         ).one_or_none()
@@ -698,5 +731,36 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if not user_res:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-        user, *response_rates = user_res
+        user, response_rates = user_res
         return requests_pb2.GetResponseRateRes(**response_rate_to_pb(response_rates))
+
+    def SendHostRequestFeedback(self, request, context, session):
+        host_request = session.execute(
+            select(HostRequest)
+            .where(HostRequest.conversation_id == request.host_request_id)
+            .where(HostRequest.host_user_id == context.user_id)
+        ).scalar_one_or_none()
+
+        if not host_request:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+
+        feedback = session.execute(
+            select(HostRequestFeedback)
+            .where(HostRequestFeedback.host_request_id == host_request.conversation_id)
+            .where(HostRequestFeedback.from_user_id == context.user_id)
+        ).scalar_one_or_none()
+
+        if feedback:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_LEFT_HOST_REQUEST_FEEDBACK)
+
+        session.add(
+            HostRequestFeedback(
+                host_request_id=host_request.conversation_id,
+                from_user_id=host_request.host_user_id,
+                to_user_id=host_request.surfer_user_id,
+                request_quality=hostrequestquality2sql.get(request.host_request_quality),
+                decline_reason=request.decline_reason,
+            )
+        )
+
+        return empty_pb2.Empty()

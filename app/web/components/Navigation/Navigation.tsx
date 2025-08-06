@@ -11,14 +11,15 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
+import MuiLink from "@mui/material/Link";
 import Button from "components/Button";
 import { GlobalMessage } from "components/GlobalMessage";
 import { CloseIcon, MenuIcon } from "components/Icons";
-import LanguagePickerSelect from "components/LanguagePickerSelect";
 import { MenuItem } from "components/Menu";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { PushNotificationBanner } from "features/notifications/PushNotificationBanner";
+import LanguagePickerSelect from "features/translate/LanguagePickerSelect";
 import useNotifications from "features/useNotifications";
 import { GLOBAL } from "i18n/namespaces";
 import { TFunction } from "i18next";
@@ -275,8 +276,10 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
   },
 }));
 
-const StyledMenuItemLink = styled("a")(({ theme }) => ({
+const StyledMenuItemLink = styled(MuiLink)(({ theme }) => ({
   width: "100%",
+  color: theme.palette.text.primary,
+  textDecoration: "none",
 }));
 
 export default function Navigation() {
@@ -350,7 +353,7 @@ export default function Navigation() {
         notificationCount !== undefined && notificationCount > 0;
 
       const linkContent = (
-        <>
+        <span style={{ display: "flex", alignItems: "center" }}>
           {hasNotification ? (
             <StyledBadge color="primary" variant="dot">
               <Typography noWrap>{name}</Typography>
@@ -368,7 +371,7 @@ export default function Navigation() {
               {`${notificationCount} unseen`}
             </Typography>
           ) : null}
-        </>
+        </span>
       );
 
       return (
@@ -387,10 +390,15 @@ export default function Navigation() {
               {linkContent}
             </StyledMenuItemLink>
           ) : (
-            <Link href={route} legacyBehavior>
-              <StyledMenuItemLink onClick={() => setMenuOpen(false)}>
-                {linkContent}
-              </StyledMenuItemLink>
+            <Link
+              href={route}
+              style={{
+                width: "100%",
+                color: theme.palette.text.primary,
+                textDecoration: "none",
+              }}
+            >
+              {linkContent}
             </Link>
           )}
         </MenuItem>
@@ -424,7 +432,7 @@ export default function Navigation() {
               </IconButton>
               <StyledDrawer
                 variant="temporary"
-                anchor="left"
+                anchor="right"
                 open={open}
                 onClick={handleDrawerClose}
                 ModalProps={{
@@ -446,7 +454,7 @@ export default function Navigation() {
               </StyledDrawer>
             </>
           )}
-          <CouchersLogo />
+          <CouchersLogo isLoggedIn={authState.authenticated} />
           {!isMobile && (
             <StyledFlexbox>
               {(authState.authenticated && isMounted
@@ -494,19 +502,25 @@ export default function Navigation() {
               <Button
                 variant="outlined"
                 size={isMobile ? "medium" : "large"}
-                sx={{ fontSize: "1.3rem" }}
+                sx={{
+                  fontSize: "1.3rem",
+                  borderRadius: theme.spacing(1),
+                  border: `1.5px solid ${theme.palette.primary.main}`,
+                }}
                 onClick={() => router.push(loginRoute)}
               >
                 {t("login")}
               </Button>
-              <Button
-                variant="contained"
-                size={isMobile ? "medium" : "large"}
-                sx={{ fontSize: "1.3rem" }}
-                onClick={() => router.push(signupRoute)}
-              >
-                {t("join_us")}
-              </Button>
+              {!isMobile && (
+                <Button
+                  variant="contained"
+                  size={isMobile ? "medium" : "large"}
+                  sx={{ fontSize: "1.3rem" }}
+                  onClick={() => router.push(signupRoute)}
+                >
+                  {t("join_us")}
+                </Button>
+              )}
             </Box>
           )}
         </StyledMenuContainer>

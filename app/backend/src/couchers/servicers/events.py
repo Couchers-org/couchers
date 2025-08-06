@@ -7,6 +7,7 @@ from psycopg2.extras import DateTimeTZRange
 from sqlalchemy.sql import and_, func, or_, select, update
 
 from couchers import errors
+from couchers.context import make_background_user_context
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
@@ -34,7 +35,6 @@ from couchers.utils import (
     Timestamp_from_datetime,
     create_coordinate,
     dt_from_millis,
-    make_user_context,
     millis_from_dt,
     now,
     to_aware_datetime,
@@ -69,6 +69,13 @@ def _is_event_owner(event: Event, user_id):
     return event.owner_cluster.admins.where(User.id == user_id).one_or_none() is not None
 
 
+def _is_event_organizer(event: Event, user_id):
+    """
+    Checks whether the user is as an organizer of the event
+    """
+    return event.organizers.where(EventOrganizer.user_id == user_id).one_or_none() is not None
+
+
 def _can_moderate_event(session, event: Event, user_id):
     # if the event is owned by a cluster, then any moderator of that cluster can moderate this event
     if event.owner_cluster is not None and can_moderate_node(session, user_id, event.owner_cluster.parent_node_id):
@@ -79,7 +86,11 @@ def _can_moderate_event(session, event: Event, user_id):
 
 
 def _can_edit_event(session, event, user_id):
-    return _is_event_owner(event, user_id) or _can_moderate_event(session, event, user_id)
+    return (
+        _is_event_owner(event, user_id)
+        or _is_event_organizer(event, user_id)
+        or _can_moderate_event(session, event, user_id)
+    )
 
 
 def event_to_pb(session, occurrence: EventOccurrence, context):
@@ -268,7 +279,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
         for user in users:
             if is_not_visible(session, user.id, creator.id):
                 continue
-            context = make_user_context(user_id=user.id)
+            context = make_background_user_context(user_id=user.id)
             notify(
                 session,
                 user_id=user.id,
@@ -295,7 +306,7 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
         for user_id in set(subscribed_user_ids + attending_user_ids):
             if is_not_visible(session, user_id, updating_user.id):
                 continue
-            context = make_user_context(user_id=user_id)
+            context = make_background_user_context(user_id=user_id)
             notify(
                 session,
                 user_id=user_id,
@@ -323,7 +334,7 @@ def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNot
         for user_id in set(subscribed_user_ids + attending_user_ids):
             if is_not_visible(session, user_id, cancelling_user.id):
                 continue
-            context = make_user_context(user_id=user_id)
+            context = make_background_user_context(user_id=user_id)
             notify(
                 session,
                 user_id=user_id,
@@ -346,7 +357,7 @@ def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNot
         attending_user_ids = [user.user_id for user in occurrence.attendances]
 
         for user_id in set(subscribed_user_ids + attending_user_ids):
-            context = make_user_context(user_id=user_id)
+            context = make_background_user_context(user_id=user_id)
             notify(
                 session,
                 user_id=user_id,
@@ -400,6 +411,9 @@ class Events(events_pb2_grpc.EventsServicer):
             parent_node = session.execute(
                 select(Node).where(Node.id == request.parent_community_id)
             ).scalar_one_or_none()
+
+            if not parent_node.official_cluster.events_enabled:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENTS_NOT_ENABLED)
         else:
             if online:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.ONLINE_EVENT_MISSING_PARENT_COMMUNITY)
@@ -1128,7 +1142,7 @@ class Events(events_pb2_grpc.EventsServicer):
         )
         session.flush()
 
-        other_user_context = make_user_context(user_id=request.user_id)
+        other_user_context = make_background_user_context(user_id=request.user_id)
 
         notify(
             session,
@@ -1156,18 +1170,27 @@ class Events(events_pb2_grpc.EventsServicer):
         if occurrence.end_time < now() - timedelta(hours=24):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_UPDATE_OLD_EVENT)
 
-        if event.owner_user_id == context.user_id:
+        # Determine which user to remove
+        user_id_to_remove = request.user_id.value if request.HasField("user_id") else context.user_id
+
+        # Check if the target user is the event owner (only after permission check)
+        if event.owner_user_id == user_id_to_remove:
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_REMOVE_OWNER_AS_ORGANIZER)
 
-        current = session.execute(
+        # Check permissions: either an organizer removing an organizer OR you're the event owner
+        if not _can_edit_event(session, event, context.user_id):
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_EDIT_PERMISSION_DENIED)
+
+        # Find the organizer to remove
+        organizer_to_remove = session.execute(
             select(EventOrganizer)
-            .where(EventOrganizer.user_id == context.user_id)
+            .where(EventOrganizer.user_id == user_id_to_remove)
             .where(EventOrganizer.event_id == event.id)
         ).scalar_one_or_none()
 
-        if not current:
+        if not organizer_to_remove:
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_NOT_AN_ORGANIZER)
 
-        session.delete(current)
+        session.delete(organizer_to_remove)
 
         return empty_pb2.Empty()

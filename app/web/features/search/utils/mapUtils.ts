@@ -60,10 +60,9 @@ const getHasActiveFilters = (
     state.filters.ageMin !== initialState.filters.ageMin ||
     state.filters.ageMax !== initialState.filters.ageMax ||
     state.filters.acceptsPets !== initialState.filters.acceptsPets ||
-    state.filters.hostingStatusOptions !==
-      initialState.filters.hostingStatusOptions ||
+    state.filters.hostingStatus !== initialState.filters.hostingStatus ||
     state.filters.numGuests !== initialState.filters.numGuests ||
-    state.filters.completeProfile !== initialState.filters.completeProfile ||
+    state.filters.showEmptyProfile !== initialState.filters.showEmptyProfile ||
     state.filters.acceptsKids !== initialState.filters.acceptsKids ||
     state.filters.acceptsLastMinRequests !==
       initialState.filters.acceptsLastMinRequests ||

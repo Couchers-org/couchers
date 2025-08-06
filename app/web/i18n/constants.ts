@@ -52,12 +52,16 @@ export const LANGUAGE_MAP: LanguageMap = {
     name: "Norwegian (Bokmål)",
     flagIconCode: "NO",
   },
+  nl: {
+    name: "Dutch",
+    flagIconCode: "NL",
+  },
   pl: {
     name: "Polish",
     flagIconCode: "PL",
   },
   pt: {
-    name: "Portuguese",
+    name: "Portuguese (Portugal)",
     flagIconCode: "PT",
   },
   "pt-BR": {
@@ -67,6 +71,14 @@ export const LANGUAGE_MAP: LanguageMap = {
   ru: {
     name: "Russian",
     flagIconCode: "RU",
+  },
+  sv: {
+    name: "Swedish",
+    flagIconCode: "SE",
+  },
+  uk: {
+    name: "Ukrainian",
+    flagIconCode: "UA",
   },
   "zh-Hans": {
     name: "Chinese (Simplified)",

@@ -15,6 +15,7 @@ from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS,
 from couchers.crypto import (
     b64decode,
     b64encode,
+    generate_invite_code,
     hash_password,
     simple_decrypt,
     simple_encrypt,
@@ -23,7 +24,9 @@ from couchers.crypto import (
     verify_token,
 )
 from couchers.helpers.geoip import geoip_approximate_location
+from couchers.helpers.strong_verification import get_strong_verification_fields, has_strong_verification
 from couchers.jobs.enqueue import queue_job
+from couchers.materialized_views import LiteUser
 from couchers.metrics import (
     account_deletion_initiations_counter,
     strong_verification_data_deletions_counter,
@@ -34,6 +37,9 @@ from couchers.models import (
     AccountDeletionToken,
     ContributeOption,
     ContributorForm,
+    HostRequest,
+    HostRequestStatus,
+    InviteCode,
     ModNote,
     ProfilePublicVisibility,
     StrongVerificationAttempt,
@@ -41,10 +47,13 @@ from couchers.models import (
     StrongVerificationCallbackEvent,
     User,
     UserSession,
+    Volunteer,
 )
 from couchers.notifications.notify import notify
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
+from couchers.servicers.api import lite_user_to_pb
+from couchers.servicers.references import get_pending_references_to_write, reftype2api
 from couchers.sql import couchers_select as select
 from couchers.tasks import (
     maybe_send_contributor_form_email,
@@ -53,13 +62,15 @@ from couchers.tasks import (
 )
 from couchers.utils import (
     Timestamp_from_datetime,
+    create_lang_cookie,
+    date_to_api,
     dt_from_page_token,
     dt_to_page_token,
     is_valid_email,
     now,
     to_aware_datetime,
 )
-from proto import account_pb2, account_pb2_grpc, api_pb2, auth_pb2, iris_pb2_grpc, notification_data_pb2
+from proto import account_pb2, account_pb2_grpc, auth_pb2, iris_pb2_grpc, notification_data_pb2
 from proto.google.api import httpbody_pb2
 from proto.internal import jobs_pb2, verification_pb2
 
@@ -101,20 +112,6 @@ profilepublicitysetting2api = {
 MAX_PAGINATION_LENGTH = 50
 
 
-def has_strong_verification(session, user):
-    attempt = session.execute(
-        select(StrongVerificationAttempt)
-        .where(StrongVerificationAttempt.user_id == user.id)
-        .where(StrongVerificationAttempt.is_valid)
-        .order_by(StrongVerificationAttempt.passport_expiry_datetime.desc())
-        .limit(1)
-    ).scalar_one_or_none()
-    if attempt:
-        assert attempt.is_valid
-        return attempt.has_strong_verification(user)
-    return False
-
-
 def mod_note_to_pb(note: ModNote):
     return account_pb2.ModNote(
         note_id=note.id,
@@ -122,40 +119,6 @@ def mod_note_to_pb(note: ModNote):
         created=Timestamp_from_datetime(note.created),
         acknowledged=Timestamp_from_datetime(note.acknowledged) if note.acknowledged else None,
     )
-
-
-def get_strong_verification_fields(session, db_user):
-    out = dict(
-        birthdate_verification_status=api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED,
-        gender_verification_status=api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED,
-        has_strong_verification=False,
-    )
-    attempt = session.execute(
-        select(StrongVerificationAttempt)
-        .where(StrongVerificationAttempt.user_id == db_user.id)
-        .where(StrongVerificationAttempt.is_valid)
-        .order_by(StrongVerificationAttempt.passport_expiry_datetime.desc())
-        .limit(1)
-    ).scalar_one_or_none()
-    if attempt:
-        assert attempt.is_valid
-        if attempt.matches_birthdate(db_user):
-            out["birthdate_verification_status"] = api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
-        else:
-            out["birthdate_verification_status"] = api_pb2.BIRTHDATE_VERIFICATION_STATUS_MISMATCH
-
-        if attempt.matches_gender(db_user):
-            out["gender_verification_status"] = api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
-        else:
-            out["gender_verification_status"] = api_pb2.GENDER_VERIFICATION_STATUS_MISMATCH
-
-        out["has_strong_verification"] = attempt.has_strong_verification(db_user)
-
-        assert out["has_strong_verification"] == (
-            out["birthdate_verification_status"] == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
-            and out["gender_verification_status"] == api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
-        )
-    return out
 
 
 def abort_on_invalid_password(password, context):
@@ -174,9 +137,34 @@ def abort_on_invalid_password(password, context):
         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INSECURE_PASSWORD)
 
 
+def _format_volunteer_link(volunteer, username):
+    if volunteer.link_type:
+        return dict(link_type=volunteer.link_type, link_text=volunteer.link_text, link_url=volunteer.link_url)
+    else:
+        return dict(
+            link_type="couchers",
+            link_text=f"@{username}",
+            link_url=urls.user_link(username=username),
+        )
+
+
+def _volunteer_info_to_pb(volunteer, username):
+    return account_pb2.GetMyVolunteerInfoRes(
+        display_name=volunteer.display_name,
+        display_location=volunteer.display_location,
+        role=volunteer.role,
+        started_volunteering=date_to_api(volunteer.started_volunteering),
+        stopped_volunteering=date_to_api(volunteer.stopped_volunteering) if volunteer.stopped_volunteering else None,
+        show_on_team_page=volunteer.show_on_team_page,
+        **_format_volunteer_link(volunteer, username),
+    )
+
+
 class Account(account_pb2_grpc.AccountServicer):
     def GetAccountInfo(self, request, context, session):
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user, volunteer = session.execute(
+            select(User, Volunteer).outerjoin(Volunteer, Volunteer.user_id == User.id).where(User.id == context.user_id)
+        ).one()
 
         return account_pb2.GetAccountInfoRes(
             username=user.username,
@@ -185,10 +173,12 @@ class Account(account_pb2_grpc.AccountServicer):
             has_donated=user.has_donated,
             phone_verified=user.phone_is_verified,
             profile_complete=user.has_completed_profile,
+            my_home_complete=user.has_completed_my_home,
             timezone=user.timezone,
             is_superuser=user.is_superuser,
             ui_language_preference=user.ui_language_preference,
             profile_public_visibility=profilepublicitysetting2api[user.public_visibility],
+            is_volunteer=volunteer is not None,
             **get_strong_verification_fields(session, user),
         )
 
@@ -268,8 +258,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         # update the user's preference
         user.ui_language_preference = request.ui_language_preference
-        # setting this on context will update the cookie (via interceptors)?
-        context.ui_language_preference = request.ui_language_preference
+        context.set_cookies(create_lang_cookie(request.ui_language_preference))
 
         return empty_pb2.Empty()
 
@@ -582,8 +571,6 @@ class Account(account_pb2_grpc.AccountServicer):
             .all()
         )
 
-        (token, token_expiry) = context.token
-
         def _active_session_to_pb(user_session):
             user_agent = user_agents_parse(user_session.user_agent or "")
             return account_pb2.ActiveSession(
@@ -594,7 +581,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 browser=user_agent.browser.family,
                 device=user_agent.device.family,
                 approximate_location=geoip_approximate_location(user_session.ip_address) or "Unknown",
-                is_current_session=user_session.token == token,
+                is_current_session=user_session.token == context.token,
             )
 
         return account_pb2.ListActiveSessionsRes(
@@ -603,11 +590,9 @@ class Account(account_pb2_grpc.AccountServicer):
         )
 
     def LogOutSession(self, request, context, session):
-        (token, token_expiry) = context.token
-
         session.execute(
             update(UserSession)
-            .where(UserSession.token != token)
+            .where(UserSession.token != context.token)
             .where(UserSession.user_id == context.user_id)
             .where(UserSession.is_valid)
             .where(UserSession.is_api_key == False)
@@ -621,11 +606,9 @@ class Account(account_pb2_grpc.AccountServicer):
         if not request.confirm:
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.MUST_CONFIRM_LOGOUT_OTHER_SESSIONS)
 
-        (token, token_expiry) = context.token
-
         session.execute(
             update(UserSession)
-            .where(UserSession.token != token)
+            .where(UserSession.token != context.token)
             .where(UserSession.user_id == context.user_id)
             .where(UserSession.is_valid)
             .where(UserSession.is_api_key == False)
@@ -639,6 +622,154 @@ class Account(account_pb2_grpc.AccountServicer):
         user.public_visibility = profilepublicitysetting2sql[request.profile_public_visibility]
         user.has_modified_public_visibility = True
         return empty_pb2.Empty()
+
+    def CreateInviteCode(self, request, context, session):
+        code = generate_invite_code()
+        session.add(InviteCode(id=code, creator_user_id=context.user_id))
+
+        return account_pb2.CreateInviteCodeRes(
+            code=code,
+            url=urls.invite_code_link(code=code),
+        )
+
+    def DisableInviteCode(self, request, context, session):
+        invite = session.execute(
+            select(InviteCode).where(InviteCode.id == request.code, InviteCode.creator_user_id == context.user_id)
+        ).scalar_one_or_none()
+
+        if not invite:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.NOT_FOUND)
+
+        invite.disabled = func.now()
+        session.commit()
+
+        return empty_pb2.Empty()
+
+    def ListInviteCodes(self, request, context, session):
+        results = session.execute(
+            select(
+                InviteCode.id,
+                InviteCode.created,
+                InviteCode.disabled,
+                func.count(User.id).label("num_users"),
+            )
+            .outerjoin(User, User.invite_code_id == InviteCode.id)
+            .where(InviteCode.creator_user_id == context.user_id)
+            .group_by(InviteCode.id, InviteCode.disabled)
+            .order_by(func.count(User.id).desc(), InviteCode.disabled)
+        ).all()
+
+        return account_pb2.ListInviteCodesRes(
+            invite_codes=[
+                account_pb2.InviteCodeInfo(
+                    code=code_id,
+                    created=Timestamp_from_datetime(created),
+                    disabled=Timestamp_from_datetime(disabled) if disabled else None,
+                    uses=len_users,
+                    url=urls.invite_code_link(code=code_id),
+                )
+                for code_id, created, disabled, len_users in results
+            ]
+        )
+
+    def GetReminders(self, request, context, session):
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
+        # responding to reqs comes first in desc order of when they were received
+        pending_host_requests = session.execute(
+            select(HostRequest.conversation_id, LiteUser)
+            .join(LiteUser, LiteUser.id == HostRequest.surfer_user_id)
+            .where_users_column_visible(context, HostRequest.surfer_user_id)
+            .where(HostRequest.host_user_id == context.user_id)
+            .where(HostRequest.status == HostRequestStatus.pending)
+            .where(HostRequest.start_time > func.now())
+            .order_by(HostRequest.conversation_id.asc())
+        ).all()
+        reminders = [
+            account_pb2.Reminder(
+                respond_to_host_request_reminder=account_pb2.RespondToHostRequestReminder(
+                    host_request_id=host_request_id,
+                    surfer_user=lite_user_to_pb(lite_user),
+                )
+            )
+            for host_request_id, lite_user in pending_host_requests
+        ]
+
+        # references come second, in order of deadline, desc
+        reminders += [
+            account_pb2.Reminder(
+                write_reference_reminder=account_pb2.WriteReferenceReminder(
+                    host_request_id=host_request_id,
+                    reference_type=reftype2api[reference_type],
+                    other_user=lite_user_to_pb(lite_user),
+                )
+            )
+            for host_request_id, reference_type, _, lite_user in get_pending_references_to_write(session, context)
+        ]
+
+        if not user.has_completed_profile:
+            reminders.append(account_pb2.Reminder(complete_profile_reminder=account_pb2.CompleteProfileReminder()))
+
+        if not has_strong_verification(session, user):
+            reminders.append(
+                account_pb2.Reminder(complete_verification_reminder=account_pb2.CompleteVerificationReminder())
+            )
+
+        return account_pb2.GetRemindersRes(reminders=reminders)
+
+    def GetMyVolunteerInfo(self, request, context, session):
+        user, volunteer = session.execute(
+            select(User, Volunteer).outerjoin(Volunteer, Volunteer.user_id == User.id).where(User.id == context.user_id)
+        ).one()
+        if not volunteer:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.NOT_A_VOLUNTEER)
+        return _volunteer_info_to_pb(volunteer, user.username)
+
+    def UpdateMyVolunteerInfo(self, request, context, session):
+        user, volunteer = session.execute(
+            select(User, Volunteer).outerjoin(Volunteer, Volunteer.user_id == User.id).where(User.id == context.user_id)
+        ).one()
+        if not volunteer:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.NOT_A_VOLUNTEER)
+
+        if request.HasField("display_name"):
+            volunteer.display_name = request.display_name.value or None
+
+        if request.HasField("display_location"):
+            volunteer.display_location = request.display_location.value or None
+
+        if request.HasField("show_on_team_page"):
+            volunteer.show_on_team_page = request.show_on_team_page.value
+
+        if request.HasField("link_type") or request.HasField("link_text") or request.HasField("link_url"):
+            link_type = request.link_type.value or volunteer.link_type
+            link_text = request.link_text.value or volunteer.link_text
+            link_url = request.link_url.value or volunteer.link_url
+            if link_type == "couchers":
+                # this is the default
+                link_type = None
+                link_text = None
+                link_url = None
+            elif link_type == "linkedin":
+                # this is the username
+                link_text = link_text
+                link_url = f"https://www.linkedin.com/in/{link_text}/"
+            elif link_type == "email":
+                if not is_valid_email(link_text):
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
+                link_url = f"mailto:{link_text}"
+            elif link_type == "website":
+                if not link_url.startswith("https://") or "/" in link_text or link_text not in link_url:
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_WEBSITE_URL)
+            else:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_LINK_TYPE)
+            volunteer.link_type = link_type
+            volunteer.link_text = link_text
+            volunteer.link_url = link_url
+
+        session.flush()
+
+        return _volunteer_info_to_pb(volunteer, user.username)
 
 
 class Iris(iris_pb2_grpc.IrisServicer):

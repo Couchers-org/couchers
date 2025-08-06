@@ -14,13 +14,8 @@ const allLanguages = [
   "pt",
   "pt-BR",
   "ru",
-  "zh",
-  "zh-CN",
   "zh-Hans",
-  "zh-Hant",
-  "zh-HK",
-  "zh-SG",
-  "zh-TW",
+  "zh-Hant"
 ];
 
 module.exports = { allLanguages };

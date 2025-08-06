@@ -1,1 +1,40 @@
-{}
+{
+  "my_connections": "Mijn connecties",
+  "actions": {
+    "back_to_dashboard": "Terug naar dashboard",
+    "message_label": "Bericht sturen",
+    "accept_friend_label": "Accepteren",
+    "decline_friend_label": "Afwijzen",
+    "request": "Verzoek"
+  },
+  "heading": {
+    "about_me": "Over mij",
+    "age_gender": "Leeftijd / Geslacht",
+    "community_standing": "Community status",
+    "education": "Opleiding",
+    "edit": "Bewerken",
+    "edit_profile": "Profiel bewerken",
+    "home": "Mijn huis",
+    "hometown": "Opgegroeid in",
+    "hosting_status": "Hosting status"
+  },
+  "incomplete_dialog": {
+    "about_me_message": "Schrijf minstens 150 tekens voor jouw \"Wie ik ben\" tekst.",
+    "missing_photo_message": "Voeg een profielfoto toe.",
+    "save_anyway": "Toch opslaan?",
+    "title": "Profiel niet compleet",
+    "description": "Je kan geen verzoeken doen, berichten sturen of events aanmaken tot je:",
+    "continue_editing": "Doorgaan met bewerken"
+  },
+  "home_info_headings": {
+    "about_home": "Over mijn huis",
+    "house_rules": "Huisregels",
+    "hosting_preferences": "Hosting voorkeuren",
+    "host_smoking": "Rookt thuis",
+    "housemates": "Huisgenoten",
+    "housemate_details": "Details huisgenoten",
+    "kid_details": "Details kinderen",
+    "local_area": "Informatie over de omgeving",
+    "last_minute": "Accepteert last minute aanvragen"
+  }
+}

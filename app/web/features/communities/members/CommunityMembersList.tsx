@@ -61,23 +61,20 @@ export default function CommunityMembersList({
       </Box>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading && <CenteredSpinner />}
-      {data?.pages && data?.pages.length > 0 && (
-        <UsersList
-          userIds={currentPage?.memberUserIdsList}
-          endChildren={
-            <PaginationWrapper>
-              <CursorPagination
-                hasNextPage={currentPage?.nextPageToken !== ""}
-                onNext={handleNextPageClick}
-                hasPreviousPage={pageNumber > 1}
-                onPrevious={handelPreviousPageClick}
-                isLoading={isLoading}
-              />
-            </PaginationWrapper>
-          }
-          titleIsLink
+      <Box sx={{ width: "450px" }}>
+        {data?.pages && data?.pages.length > 0 && (
+          <UsersList userIds={currentPage?.memberUserIdsList} titleIsLink />
+        )}
+      </Box>
+      <PaginationWrapper>
+        <CursorPagination
+          hasNextPage={currentPage?.nextPageToken !== ""}
+          onNext={handleNextPageClick}
+          hasPreviousPage={pageNumber > 1}
+          onPrevious={handelPreviousPageClick}
+          isLoading={isLoading}
         />
-      )}
+      </PaginationWrapper>
       {!error && !isFetching && data?.pages.length === 0 && (
         <TextBody>{t("communities:members_empty_state")}</TextBody>
       )}

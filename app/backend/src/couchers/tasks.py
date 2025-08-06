@@ -14,8 +14,10 @@ from couchers.models import (
     ClusterSubscription,
     EventCommunityInviteRequest,
     Node,
+    RateLimitViolation,
     User,
 )
+from couchers.rate_limits.definitions import RATE_LIMIT_INTERVAL_STRING
 from couchers.sql import couchers_select as select
 from couchers.templates.v2 import send_simple_pretty_email
 from couchers.utils import now
@@ -90,6 +92,27 @@ def maybe_send_reference_report_email(session, reference):
             "reference_report",
             template_args={"reference": reference},
         )
+
+
+def send_rate_limit_violation_report_email(session, rate_limit_violation: RateLimitViolation, events, threshold: int):
+    """Send a report email to the moderation team if a user exceeds a rate limit within a given time frame."""
+    logger.info(
+        f"Sending rate limit moderation email for user '{rate_limit_violation.user_id}' ({rate_limit_violation.action})"
+    )
+    user = session.get(User, rate_limit_violation.user_id)
+    email.enqueue_system_email(
+        session,
+        config["REPORTS_EMAIL_RECIPIENT"],
+        "rate_limit_violation_report",
+        template_args={
+            "user": user,
+            "action": rate_limit_violation.action,
+            "threshold": threshold,
+            "time_interval_str": RATE_LIMIT_INTERVAL_STRING,
+            "is_hard_limit": rate_limit_violation.is_hard_limit,
+            "events": events,
+        },
+    )
 
 
 def send_duplicate_strong_verification_email(session, old_attempt, new_attempt):

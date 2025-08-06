@@ -47,7 +47,7 @@
   "sign_up_completed_prompt": "Wir haben eine E-Mail mit einem Bestätigungslink an deine E-Mail-Adresse gesendet. Bitte klicke auf den Link, um deinen Account zu aktivieren.",
   "change_email_form": {
     "title": "E-Mail-Adresse ändern",
-    "current_email_message": "Deine aktuelle E-Mail-Adresse lautet <2>{{email}}</2>.",
+    "current_email_message": "Deine aktuelle E-Mail-Adresse lautet <1>{{email}}</1>.",
     "current_password": "Aktuelles Passwort",
     "new_email": "Neue E-Mail-Adresse",
     "success_message": "Die Änderung deiner E-Mail-Adresse wurde empfangen. Überprüfe das Postfach deiner neuen E-Mail-Adresse, um die Änderung abzuschließen."
@@ -88,7 +88,7 @@
   },
   "reset_password_form": {
     "success_message": "Überprüfe deine E-Mail-Adresse, für einen Link, um das Passwort zurückzusetzen!",
-    "enter_email": "Gib deinen Benutzernamen/deine E-Mail-Adresse ein"
+    "enter_email": "Benutzernamen/E-Mail-Adresse eingeben"
   },
   "login_page": {
     "title": "Einloggen",
@@ -111,8 +111,6 @@
   "sign_up_confirmed_prompt": "Du hast alles erledigt! Falls du nicht weitergeleitet wirst, versuche dich einzuloggen.",
   "login_prompt": "Klicke hier, um dich einzuloggen",
   "about_us": "Über uns",
-  "introduction_subtitle": "Für immer kostenlos. Gemeinschaftsgeführt. Gemeinnützig. Modern.",
-  "introduction_title": "Tritt uns bei und unterstütze uns darin, die neue Alternative zu Couchsurfing™ zu etablieren",
   "reset_password": "Passwort zurücksetzen",
   "account_settings_page": {
     "birth_date_section": {
@@ -195,12 +193,6 @@
     "skip_step_text": "Kein Interesse? <2>Diesen Schritt Überspringen</2>"
   },
   "unhandled_sign_up_state": "Fehler: unhandled signup flow state.",
-  "unsubscribe": {
-    "button_text": "Abbestellung bestätigen",
-    "title": "Abbestellen",
-    "error_message": "Fehler beim Abbestellen: {{message}}",
-    "missing_payload_or_sig": "Ungültige URL"
-  },
   "change_phone": {
     "no_phone_description": "Du hast keine Telefonnummer zu deinem Konto hinzugefügt. Um eine hinzuzufügen, geb sie unten ein. Wir werden die Nummer mit einer SMS verifizieren.",
     "title": "Telefonnummer",
@@ -293,5 +285,11 @@
       "full_profile": "<1>Volles Profil</1>: mein vollständiges Profil anzeigen (außer Referenzen)",
       "most": "<1>Das Meiste</1>: Zeige den vollständigen Abschnitt „Über mich“ außer „Zusätzliche Informationen“"
     }
+  },
+  "quick_links": {
+    "error_message": "Fehler: {{message}}",
+    "missing_payload_or_sig": "Ungültige URL",
+    "title": "E-Mail-Schnellaktion",
+    "button_text": "Aktion bestätigen"
   }
 }

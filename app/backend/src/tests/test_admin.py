@@ -7,12 +7,22 @@ from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import AccountDeletionToken, Cluster, ContentReport, EventOccurrence, Node, Reference, UserSession
+from couchers.models import (
+    AccountDeletionToken,
+    Cluster,
+    ContentReport,
+    EventOccurrence,
+    ModerationUserList,
+    Node,
+    Reference,
+    UserSession,
+)
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now, parse_date, timedelta
 from proto import admin_pb2, auth_pb2, events_pb2, references_pb2, reporting_pb2
 from tests.test_communities import create_community
 from tests.test_fixtures import (  # noqa
+    add_users_to_new_moderation_list,
     auth_api_session,
     db,
     email_fields,
@@ -730,6 +740,128 @@ def test_DeleteReference(db):
             select(Reference).where(Reference.id == reference.reference_id)
         ).scalar_one_or_none()
         assert modified_reference.is_deleted
+
+
+def test_AddUsersToModerationUserList(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+    user4, _ = generate_user()
+    user5, _ = generate_user()
+    moderation_list_id = add_users_to_new_moderation_list([user1])
+
+    with session_scope() as session:
+        with real_admin_session(super_token) as api:
+            # Test adding users to a non-existent moderation list (should raise an error)
+            with pytest.raises(grpc.RpcError) as e:
+                api.AddUsersToModerationUserList(
+                    admin_pb2.AddUsersToModerationUserListReq(users=[user2.username], moderation_list_id=999),
+                )
+            assert e.value.code() == grpc.StatusCode.NOT_FOUND
+            assert errors.MODERATION_USER_LIST_NOT_FOUND == e.value.details()
+
+            # Test with non-existent user (should raise an error)
+            with pytest.raises(grpc.RpcError) as e:
+                api.AddUsersToModerationUserList(
+                    admin_pb2.AddUsersToModerationUserListReq(users=[user1.username, "nonexistent"]),
+                )
+            assert e.value.code() == grpc.StatusCode.NOT_FOUND
+            assert errors.USER_NOT_FOUND == e.value.details()
+
+            # Test successful creation of new moderation list (no moderation_list_id provided)
+            res = api.AddUsersToModerationUserList(
+                admin_pb2.AddUsersToModerationUserListReq(users=[user1.username, user2.username, user3.username]),
+            )
+            assert res.moderation_list_id > 0
+            with session_scope() as session:
+                moderation_user_list = session.get(ModerationUserList, res.moderation_list_id)
+                assert moderation_user_list is not None
+                assert len(moderation_user_list.users) == 3
+                assert {user1.id, user2.id, user3.id}.issubset({user.id for user in moderation_user_list.users})
+
+            # Test list endpoint returns same moderation list with same members not repeated
+            listRes = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user2.username))
+            assert len(listRes.moderation_lists) == 1
+            assert listRes.moderation_lists[0].moderation_list_id == res.moderation_list_id
+            assert len(listRes.moderation_lists[0].member_ids) == 3
+            assert {user1.id, user2.id, user3.id}.issubset(listRes.moderation_lists[0].member_ids)
+
+            # Test user can be in multiple moderation lists
+            listRes3 = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user1.username))
+            assert len(listRes3.moderation_lists) == 2
+
+            # Test adding users to an existing moderation list
+            res2 = api.AddUsersToModerationUserList(
+                admin_pb2.AddUsersToModerationUserListReq(
+                    users=[user4.username, user5.username], moderation_list_id=moderation_list_id
+                ),
+            )
+            assert res2.moderation_list_id == moderation_list_id
+            with session_scope() as session:
+                moderation_user_list = session.get(ModerationUserList, moderation_list_id)
+                assert len(moderation_user_list.users) == 3
+                assert {user1.id, user4.id, user5.id}.issubset({user.id for user in moderation_user_list.users})
+
+            # Test list user moderation lists endpoint returns the right moderation list
+            listRes2 = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user5.username))
+            assert len(listRes2.moderation_lists) == 1
+            assert listRes2.moderation_lists[0].moderation_list_id == moderation_list_id
+            assert len(listRes2.moderation_lists[0].member_ids) == 3
+            assert {user1.id, user4.id, user5.id}.issubset(listRes2.moderation_lists[0].member_ids)
+
+
+def test_RemoveUserFromModerationUserList(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+    moderation_list_id = add_users_to_new_moderation_list([user1, user2])
+
+    with real_admin_session(super_token) as api:
+        # Test with non-existent user (should raise error)
+        with pytest.raises(grpc.RpcError) as e:
+            api.RemoveUserFromModerationUserList(admin_pb2.RemoveUserFromModerationUserListReq(user="nonexistent"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert errors.USER_NOT_FOUND == e.value.details()
+
+        # Test without providing moderation list id (should raise error)
+        with pytest.raises(grpc.RpcError) as e:
+            api.RemoveUserFromModerationUserList(admin_pb2.RemoveUserFromModerationUserListReq(user=user2.username))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert errors.MISSING_MODERATION_USER_LIST_ID == e.value.details()
+
+        # Test removing user that's not in the provided moderation list (should raise error)
+        with pytest.raises(grpc.RpcError) as e:
+            api.RemoveUserFromModerationUserList(
+                admin_pb2.RemoveUserFromModerationUserListReq(
+                    user=user3.username, moderation_list_id=moderation_list_id
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert errors.USER_NOT_IN_THE_MODERATION_USER_LIST == e.value.details()
+
+        # Test successful removal
+        api.RemoveUserFromModerationUserList(
+            admin_pb2.RemoveUserFromModerationUserListReq(user=user1.username, moderation_list_id=moderation_list_id)
+        )
+        with session_scope() as session:
+            moderation_user_list = session.get(ModerationUserList, moderation_list_id)
+            assert user1.id not in {user.id for user in moderation_user_list.users}
+            assert user2.id in {user.id for user in moderation_user_list.users}
+
+            # Test list user moderation lists endpoint returns right number of moderation lists
+            listRes = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user1.username))
+            assert len(listRes.moderation_lists) == 0
+            listRes2 = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user2.username))
+            assert len(listRes2.moderation_lists) == 1
+
+        # Test removing all users from moderation list should also delete the moderation list
+        api.RemoveUserFromModerationUserList(
+            admin_pb2.RemoveUserFromModerationUserListReq(user=user2.username, moderation_list_id=moderation_list_id)
+        )
+        with session_scope() as session:
+            assert session.get(ModerationUserList, moderation_list_id) is None
 
 
 def test_admin_delete_account_url(db, push_collector):

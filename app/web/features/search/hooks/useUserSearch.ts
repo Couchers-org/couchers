@@ -6,19 +6,27 @@ import { service } from "service";
 import { FilterOptions } from "../SearchPage";
 import { MapSearchState } from "../state/mapSearchReducers";
 
-const calculateCurrentNumberOfTotal = ({
+const calculateCurrentRange = ({
   pageNumber,
   currentPageNumItems,
+  totalItems,
 }: {
   pageNumber: number;
   currentPageNumItems: number;
+  totalItems: number;
 }) => {
-  if (pageNumber === 1) {
-    return currentPageNumItems;
+  const pageSize = 100;
+
+  if (pageNumber === 1 && currentPageNumItems < pageSize) {
+    // First page with fewer results than page size
+    return `${currentPageNumItems}`;
   }
 
-  // each page is 100 items plus current page number of items
-  return (pageNumber - 1) * 100 + currentPageNumItems;
+  // Calculate range for paginated results
+  const startRange = (pageNumber - 1) * pageSize + 1;
+  const endRange = Math.min(pageNumber * pageSize, totalItems);
+
+  return `${startRange}-${endRange}`;
 };
 
 export function useUserSearch(
@@ -70,9 +78,10 @@ export function useUserSearch(
   const currentPageNumItems =
     data?.pages[mapSearchState.pageNumber - 1]?.resultsList?.length ?? 0;
 
-  const numberOfTotal = calculateCurrentNumberOfTotal({
+  const currentRange = calculateCurrentRange({
     pageNumber: mapSearchState.pageNumber,
     currentPageNumItems,
+    totalItems,
   });
 
   return {
@@ -83,7 +92,7 @@ export function useUserSearch(
     hasPreviousPage,
     fetchNextPage,
     fetchPreviousPage,
-    numberOfTotal,
+    currentRange,
     totalItems,
   };
 }

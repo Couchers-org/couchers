@@ -296,12 +296,11 @@ message ListMyEventsRes {
 message ListAllEventsReq {
   // whether to paginate backwards
   bool past = 1;
-  
+
   bool include_cancelled = 4;
 
   uint32 page_size = 2;
   string page_token = 3;
-  
 }
 
 message ListAllEventsRes {
@@ -352,4 +351,5 @@ message InviteEventOrganizerReq {
 
 message RemoveEventOrganizerReq {
   int64 event_id = 1;
+  google.protobuf.Int64Value user_id = 2;
 }

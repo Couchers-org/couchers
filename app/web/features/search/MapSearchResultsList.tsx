@@ -17,7 +17,7 @@ interface MapSearchResultsListProps {
   hasPreviousPage?: boolean;
   isLoading?: boolean;
   mapView: MapViews;
-  numberOfTotal: number;
+  currentRange: string;
   onDrawerWidthChange: (width: number) => void;
   onLoadPreviousPage: () => void;
   onLoadNextPage: () => void;
@@ -45,7 +45,7 @@ const MapSearchResultsList = ({
   hasNextPage,
   isLoading,
   mapView,
-  numberOfTotal,
+  currentRange,
   onDrawerWidthChange,
   onLoadPreviousPage,
   onLoadNextPage,
@@ -90,7 +90,7 @@ const MapSearchResultsList = ({
           <SearchResultListContent
             error={error}
             mapView={mapView}
-            numberOfTotal={numberOfTotal}
+            currentRange={currentRange}
             onSetMapView={onSetMapView}
             onUserCardClick={onUserCardClick}
             showAlert={!isLoading && !meetsSearchCriteria}

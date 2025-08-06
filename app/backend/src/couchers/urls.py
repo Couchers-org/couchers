@@ -128,7 +128,11 @@ def recover_account_link(*, account_undelete_token):
 
 
 def unsubscribe_link(*, payload, sig):
-    return f"{config['BASE_URL']}/unsubscribe?payload={payload}&sig={sig}"
+    return f"{config['BASE_URL']}/quick-link?payload={payload}&sig={sig}"
+
+
+def quick_link(*, payload, sig):
+    return f"{config['BASE_URL']}/quick-link?payload={payload}&sig={sig}"
 
 
 def media_url(*, filename, size):
@@ -137,3 +141,7 @@ def media_url(*, filename, size):
 
 def console_link(*, page):
     return f"{config['CONSOLE_BASE_URL']}/{page}"
+
+
+def invite_code_link(*, code):
+    return f"{config['BASE_URL']}/invite?code={code}"

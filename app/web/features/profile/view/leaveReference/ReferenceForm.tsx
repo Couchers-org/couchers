@@ -15,7 +15,7 @@ export type ReferenceContextFormData = {
   didStay?: boolean;
   text: string;
   wasAppropriate: string;
-  rating: number;
+  rating?: number;
   privateText?: string;
 };
 
@@ -52,7 +52,7 @@ export default function ReferenceForm({
     didStay: undefined,
     text: "",
     wasAppropriate: "",
-    rating: 0.33,
+    rating: undefined,
   });
 
   const setReferenceValues = (values: ReferenceContextFormData) => {

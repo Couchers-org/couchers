@@ -4,10 +4,12 @@ package org.couchers.api.account;
 
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
 
 import "annotations.proto";
 import "api.proto";
 import "auth.proto";
+import "references.proto";
 
 service Account {
   option (auth_level) = AUTH_LEVEL_SECURE;
@@ -93,6 +95,30 @@ service Account {
   rpc SetProfilePublicVisibility(SetProfilePublicVisibilityReq) returns (google.protobuf.Empty) {
     // Set what info is shown to logged-out users
   }
+
+  rpc CreateInviteCode(CreateInviteCodeReq) returns (CreateInviteCodeRes) {
+    // Creates a new unique invite code for the current user
+  }
+
+  rpc DisableInviteCode(DisableInviteCodeReq) returns (google.protobuf.Empty) {
+    // Disables the given invite code created by the user
+  }
+
+  rpc ListInviteCodes(google.protobuf.Empty) returns (ListInviteCodesRes) {
+    // Lists all invite codes created by the user, with usage count
+  }
+
+  rpc GetReminders(google.protobuf.Empty) returns (GetRemindersRes) {
+    // Reminders to be shown on dashboard for things the user should do
+  }
+
+  rpc GetMyVolunteerInfo(google.protobuf.Empty) returns (GetMyVolunteerInfoRes) {
+    // Returns info about the current user's volunteer status if they are volunteer
+  }
+
+  rpc UpdateMyVolunteerInfo(UpdateMyVolunteerInfoReq) returns (GetMyVolunteerInfoRes) {
+    // Updates the current user's volunteer status if they are volunteer
+  }
 }
 
 message GetAccountInfoRes {
@@ -103,6 +129,9 @@ message GetAccountInfoRes {
 
   // whether the user has completed their profile; otherwise needs to display a banner on dashboard
   bool profile_complete = 4;
+
+  // whether the user has completed their my home section
+  bool my_home_complete = 19;
 
   // User's alleged phone number in E.164 format (including country code with the + sign)
   string phone = 8;
@@ -129,6 +158,8 @@ message GetAccountInfoRes {
   string ui_language_preference = 16;
 
   ProfilePublicVisibility profile_public_visibility = 17;
+
+  bool is_volunteer = 18;
 }
 
 message ChangePasswordV2Req {
@@ -249,4 +280,92 @@ enum ProfilePublicVisibility {
 
 message SetProfilePublicVisibilityReq {
   ProfilePublicVisibility profile_public_visibility = 1;
+}
+
+message CreateInviteCodeReq {}
+
+message CreateInviteCodeRes {
+  string code = 1;
+  string url = 2;
+}
+
+message DisableInviteCodeReq {
+  string code = 1;
+}
+
+message InviteCodeInfo {
+  string code = 1;
+  google.protobuf.Timestamp created = 2;
+  google.protobuf.Timestamp disabled = 3;
+  int32 uses = 4;
+  string url = 5;
+}
+
+message ListInviteCodesRes {
+  repeated InviteCodeInfo invite_codes = 1;
+}
+
+message CompleteProfileReminder {}
+
+message CompleteVerificationReminder {}
+
+message RespondToHostRequestReminder {
+  int64 host_request_id = 1;
+  org.couchers.api.core.LiteUser surfer_user = 2;
+}
+
+message WriteReferenceReminder {
+  int64 host_request_id = 1;
+  org.couchers.api.core.LiteUser other_user = 2;
+  org.couchers.api.references.ReferenceType reference_type = 3;
+}
+
+message Reminder {
+  oneof reminder {
+    CompleteProfileReminder complete_profile_reminder = 1;
+    CompleteVerificationReminder complete_verification_reminder = 2;
+    RespondToHostRequestReminder respond_to_host_request_reminder = 3;
+    WriteReferenceReminder write_reference_reminder  = 4;
+  }
+}
+
+message GetRemindersRes {
+  // items are returned in order from most important to least important and should be displayed as such
+  repeated Reminder reminders = 1;
+}
+
+message GetMyVolunteerInfoRes {
+  // empty for missing
+  string display_name = 1;
+  string display_location = 2;
+  // volunteer defined role
+  string role = 3;
+
+  // dates as "yyyy-mm-dd"
+  string started_volunteering = 4;
+  string stopped_volunteering = 5;
+
+  bool show_on_team_page = 6;
+
+  // link type, one of couchers, email, linkedin, website
+  string link_type = 7;
+  // the text to be shown on the link
+  string link_text = 8;
+  // the URL the link should take you to
+  string link_url = 9;
+}
+
+message UpdateMyVolunteerInfoReq {
+  // empty for missing
+  google.protobuf.StringValue display_name = 1;
+  google.protobuf.StringValue display_location = 2;
+
+  google.protobuf.BoolValue show_on_team_page = 3;
+
+  // link type, one of email, linkedin, website
+  google.protobuf.StringValue link_type = 4;
+  // the text to be shown on the link
+  google.protobuf.StringValue link_text = 5;
+  // the URL the link should take you to
+  google.protobuf.StringValue link_url = 6;
 }

@@ -46,6 +46,9 @@ service Requests {
 
   // Get the response rate and response time for a given user
   rpc GetResponseRate(GetResponseRateReq) returns (GetResponseRateRes);
+
+  // Send private feedback on host reqeust
+  rpc SendHostRequestFeedback(SendHostRequestFeedbackReq) returns (google.protobuf.Empty);
 }
 
 message CreateHostRequestReq {
@@ -72,6 +75,7 @@ message HostRequest {
   double hosting_lat = 11;
   double hosting_lng = 12;
   double hosting_radius = 13;
+  bool need_host_request_feedback = 14;
 }
 
 message GetHostRequestReq {
@@ -201,4 +205,17 @@ message GetResponseRateRes {
     // response rate > 90%
     ResponseRateAlmostAll almost_all = 5;
   }
+}
+
+enum HostRequestQuality {
+  HOST_REQUEST_QUALITY_UNSPECIFIED = 0;
+  HOST_REQUEST_QUALITY_LOW = 1;
+  HOST_REQUEST_QUALITY_OKAY = 2;
+  HOST_REQUEST_QUALITY_HIGH = 3;
+}
+
+message SendHostRequestFeedbackReq {
+  int64 host_request_id = 1;
+  HostRequestQuality host_request_quality = 2;
+  string decline_reason = 3;
 }

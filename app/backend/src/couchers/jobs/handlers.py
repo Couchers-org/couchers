@@ -5,6 +5,7 @@ Background job servicers
 import logging
 from datetime import date, timedelta
 from math import cos, pi, sin, sqrt
+from random import sample
 
 import requests
 from google.protobuf import empty_pb2
@@ -36,6 +37,7 @@ from couchers.constants import (
     HOST_REQUEST_MAX_REMINDERS,
     HOST_REQUEST_REMINDER_INTERVAL,
 )
+from couchers.context import make_background_user_context
 from couchers.crypto import (
     USER_LOCATION_RANDOMIZATION_NAME,
     asym_encrypt,
@@ -49,9 +51,9 @@ from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.materialized_views import (
+    UserResponseRate,
     refresh_materialized_views,
     refresh_materialized_views_rapid,
-    user_response_rates,
 )
 from couchers.metrics import strong_verification_completions_counter
 from couchers.models import (
@@ -105,7 +107,6 @@ from couchers.utils import (
     Timestamp_from_datetime,
     create_coordinate,
     get_coordinates,
-    make_user_context,
     now,
 )
 from proto import notification_data_pb2
@@ -276,7 +277,7 @@ def send_message_notifications(payload):
                             author=user_model_to_pb(
                                 message.author,
                                 session,
-                                make_user_context(user_id=user.id),
+                                make_background_user_context(user_id=user.id),
                             ),
                             message=format_title(message, group_chat, count_unseen),
                             text=message.text,
@@ -330,7 +331,7 @@ def send_request_notifications(payload):
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
             session.flush()
 
-            context = make_user_context(user_id=user.id)
+            context = make_background_user_context(user_id=user.id)
             notify(
                 session,
                 user_id=user.id,
@@ -347,7 +348,7 @@ def send_request_notifications(payload):
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
             session.flush()
 
-            context = make_user_context(user_id=user.id)
+            context = make_background_user_context(user_id=user.id)
             notify(
                 session,
                 user_id=user.id,
@@ -498,7 +499,7 @@ def send_reference_reminders(payload):
                 # checked in sql
                 assert user.is_visible
                 if not is_not_visible(session, user.id, other_user.id):
-                    context = make_user_context(user_id=user.id)
+                    context = make_background_user_context(user_id=user.id)
                     notify(
                         session,
                         user_id=user.id,
@@ -543,7 +544,7 @@ def send_host_request_reminders(payload):
             host_request.host_sent_request_reminders += 1
             host_request.last_sent_request_reminder_time = now()
 
-            context = make_user_context(user_id=host_request.host_user_id)
+            context = make_background_user_context(user_id=host_request.host_user_id)
             notify(
                 session,
                 user_id=host_request.host_user_id,
@@ -658,13 +659,16 @@ def update_recommendation_scores(payload):
             home_text += func.coalesce(field, "")
         home_length = func.length(home_text)
 
+        filled_profile = int_(User.has_completed_profile)
         has_text = int_(text_length > 500)
         long_text = int_(text_length > 2000)
-        has_pic = int_(User.avatar_key != None)
         can_host = int_(User.hosting_status == HostingStatus.can_host)
+        may_host = int_(User.hosting_status == HostingStatus.maybe)
         cant_host = int_(User.hosting_status == HostingStatus.cant_host)
-        filled_home = int_(User.last_minute != None) * int_(home_length > 200)
-        profile_points = 2 * has_text + 3 * long_text + 2 * has_pic + 3 * can_host + 2 * filled_home - 5 * cant_host
+        filled_home = int_(User.has_completed_my_home)
+        filled_home_lots = int_(home_length > 200)
+        hosting_status_points = 5 * can_host - 5 * may_host - 10 * cant_host
+        profile_points = 5 * filled_profile + 2 * has_text + 3 * long_text + 5 * filled_home + 10 * filled_home_lots
 
         # references
         left_ref_expr = int_(1).label("left_reference")
@@ -753,17 +757,18 @@ def update_recommendation_scores(payload):
 
         # response rate
         hr_subquery = select(
-            user_response_rates.c.user_id,
-            float_(extract("epoch", user_response_rates.c.response_time_33p) / 60.0).label("response_time_33p"),
-            float_(extract("epoch", user_response_rates.c.response_time_66p) / 60.0).label("response_time_66p"),
+            UserResponseRate.user_id,
+            float_(extract("epoch", UserResponseRate.response_time_33p) / 60.0).label("response_time_33p"),
+            float_(extract("epoch", UserResponseRate.response_time_66p) / 60.0).label("response_time_66p"),
         ).subquery()
         response_time_33p = hr_subquery.c.response_time_33p
         response_time_66p = hr_subquery.c.response_time_66p
         # be careful with nulls
-        response_rate_points = -10 * int_(response_time_33p > 60 * 72.0) + 5 * int_(response_time_66p < 60 * 48.0)
+        response_rate_points = -10 * int_(response_time_33p > 60 * 96.0) + 5 * int_(response_time_66p < 60 * 96.0)
 
         recommendation_score = (
-            profile_points
+            hosting_status_points
+            + profile_points
             + ref_score
             + activeness_points
             + other_points
@@ -963,6 +968,20 @@ def send_activeness_probes(payload):
                 .all()
             )
 
+            total_users = session.execute(select(func.count()).select_from(User).where(User.is_visible)).scalar_one()
+            probes_today = session.execute(
+                select(func.count())
+                .select_from(ActivenessProbe)
+                .where(func.now() - ActivenessProbe.probe_initiated < timedelta(hours=24))
+            ).scalar_one()
+
+            # send probes to max 2% of users per day
+            max_probes_per_day = 0.02 * total_users
+            max_probe_size = int(max(min(max_probes_per_day - probes_today, max_probes_per_day / 24), 1))
+
+            if len(new_probe_user_ids) > max_probe_size:
+                new_probe_user_ids = sample(new_probe_user_ids, max_probe_size)
+
             for user_id in new_probe_user_ids:
                 session.add(ActivenessProbe(user_id=user_id))
 
@@ -983,7 +1002,7 @@ def send_activeness_probes(payload):
 
             for probe in probes:
                 probe.notifications_sent = probe_number_minus_1 + 1
-                context = make_user_context(user_id=probe.user.id)
+                context = make_background_user_context(user_id=probe.user.id)
                 notify(
                     session,
                     user_id=probe.user.id,
@@ -1012,7 +1031,7 @@ def send_activeness_probes(payload):
             probe.responded = now()
             probe.response = ActivenessProbeStatus.expired
             if probe.user.hosting_status == HostingStatus.can_host:
-                probe.user.hosting_status = HostingStatus.cant_host
+                probe.user.hosting_status = HostingStatus.maybe
             if probe.user.meetup_status == MeetupStatus.wants_to_meetup:
                 probe.user.meetup_status = MeetupStatus.open_to_meetup
             session.commit()
@@ -1087,7 +1106,7 @@ def send_event_reminders(payload: empty_pb2.Empty):
             ).all()
 
             for user, attendee in results:
-                context = make_user_context(user_id=user.id)
+                context = make_background_user_context(user_id=user.id)
 
                 notify(
                     session,

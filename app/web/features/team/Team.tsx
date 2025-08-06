@@ -52,11 +52,14 @@ export default function Team() {
         <PageTitle>{t("team.title")}</PageTitle>
         <Typography paragraph>{t("team.description")}</Typography>
         <Typography paragraph>
-          <Link href={volunteerRoute} passHref legacyBehavior>
-            <Button variant="contained" color="secondary">
-              {t("team.join_the_team")}
-            </Button>
-          </Link>
+          <Button
+            component={Link}
+            variant="contained"
+            color="secondary"
+            href={volunteerRoute}
+          >
+            {t("team.join_the_team")}
+          </Button>
         </Typography>
       </Container>
       <SpacerDiv />
@@ -121,11 +124,14 @@ export default function Team() {
         </Typography>
         <Typography paragraph>{t("team.fill_form_description")}</Typography>
         <Typography paragraph>
-          <Link href={volunteerRoute} passHref legacyBehavior>
-            <Button variant="contained" color="secondary">
-              {t("team.join_our_team")}
-            </Button>
-          </Link>
+          <Button
+            component={Link}
+            variant="contained"
+            color="secondary"
+            href={volunteerRoute}
+          >
+            {t("team.join_our_team")}
+          </Button>
         </Typography>
       </Container>
     </>

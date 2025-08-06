@@ -242,10 +242,17 @@ export default function NewHostRequest({
               on how to write a request that will get accepted.
             </Trans>
           </Typography>
+
           <TextField
             id="text"
             {...register("text", {
               required: t("profile:request_form.request_description_empty"),
+              minLength: {
+                value: 250,
+                message: t(
+                  "profile:request_form.request_char_length_too_short",
+                ),
+              },
             })}
             className={classes.requestField}
             label={t("profile:request_form.request")}

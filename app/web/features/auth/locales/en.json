@@ -32,7 +32,7 @@
     "new_password": "New password",
     "password_mismatch_error": "The passwords don't match.",
     "user_logged_error": "You cannot reset your password if you are logged in. You can change your password in settings or log out to reset it.",
-    "token_error": "There was a error processing the password reset token, please try opening the link from the email again.",
+    "token_error": "There was an error processing the password reset token, please try opening the link from the email again.",
     "reset_password_success": "Your password has been changed successfully!",
     "reset_password_error": "Error resetting password: {{message}}"
   },
@@ -152,7 +152,7 @@
       "description": "We noticed you haven't logged in for a while and wanted to check if you're still open to hosting surfers.",
       "still_hosting": "I still want to host!",
       "not_hosting": "I'm no longer able to host.",
-      "note": "We'll updated your profile to match this choice!"
+      "note": "We'll update your profile to match this choice!"
     }
   },
   "logged_out_message": "You were logged out.",
@@ -165,8 +165,6 @@
   "unhandled_sign_up_state": "Error: unhandled signup flow state.",
   "login_prompt": "Click here to log in",
   "about_us": "About us",
-  "introduction_subtitle": "Free forever. Community-led. Non-profit. Modern.",
-  "introduction_title": "Join and help grow the new alternative to Couchsurfing™",
   "reset_password": "Reset password",
   "account_settings_page": {
     "title": "Account settings",
@@ -232,12 +230,16 @@
     "delete_information_text2": "If you delete your data, you cannot use the same passport for Strong Verification again.",
     "delete_my_data_button": "Delete my data",
     "delete_button": "Delete my Strong Verification data",
-    "delete_success": "Your passport data has been deleted."
+    "delete_success": "Your passport data has been deleted.",
+    "donation_title": "Thanks for verifying—you're helping make Couchers.org safer for everyone.",
+    "donation_message1": "Verification is free for you, but it does come at a cost to us. As a nonprofit run by volunteers, we rely on donations to cover expenses like keeping our servers running, verification, and tools for volunteers and community builders.",
+    "donation_message2": "If you're able, please consider donating to help keep Couchers.org running and growing.",
+    "donate_button": "Donate to support Couchers.org"
   },
-  "unsubscribe": {
-    "title": "Unsubscribe",
-    "button_text": "Confirm unsubscription",
-    "error_message": "Error unsubscribing: {{message}}",
+  "quick_links": {
+    "title": "Email quick action",
+    "button_text": "Confirm action",
+    "error_message": "Error: {{message}}",
     "missing_payload_or_sig": "Invalid URL"
   },
   "change_phone": {

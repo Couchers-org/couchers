@@ -172,6 +172,7 @@
     "thank_you_support": "Most of all, thanks for being on Couchers and a part of our community!",
     "thank_you_donation_prompt": "Consider <2>making a donation</2>! Couchers.org is a 501(c)(3) non-profit organization and we need donations to keep our servers running.",
     "was_appropriate_required": "To help us keep our community safe, this question is required.",
+    "rating_required": "Please move the slider and rate your experience.",
     "next_step_label": "Next",
     "didnt_meetup_submit_success": "Thanks for letting us know! We won't ask you to write a reference!",
     "go_to_dashboard": "Go to dashboard",
@@ -196,6 +197,7 @@
     "request": "Request",
     "request_description": "Share your plans for the visit and include why you're requesting to stay with this particular host",
     "request_description_empty": "Please write a request message",
+    "request_char_length_too_short": "Request message must be at least 250 characters",
     "stay_type_a11y_text": "stay type",
     "success": "Request sent!",
     "guest_count": "Number of guests"

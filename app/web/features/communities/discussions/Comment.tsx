@@ -1,4 +1,10 @@
-import { Card, CircularProgress, Skeleton, Typography } from "@mui/material";
+import {
+  Card,
+  CircularProgress,
+  Skeleton,
+  styled,
+  Typography,
+} from "@mui/material";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -11,71 +17,75 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { Reply } from "proto/threads_pb";
 import { useEffect, useRef, useState } from "react";
+import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
-import makeStyles from "utils/makeStyles";
 import { timeAgo } from "utils/timeAgo";
 
 import { useThread } from "../hooks";
 import CommentForm from "./CommentForm";
 
-const useStyles = makeStyles((theme) => ({
-  commentContainer: {
-    alignItems: "start",
-    columnGap: theme.spacing(2),
-    display: "grid",
-    gridTemplateAreas: `
+const StyledCommentContainer = styled(Card)(() => ({
+  alignItems: "start",
+  columnGap: theme.spacing(2),
+  display: "grid",
+  gridTemplateAreas: `
       "avatar content content"
       ". . replyButton"
     `,
-    [theme.breakpoints.up("md")]: {
-      gridTemplateAreas: `
+  [theme.breakpoints.up("md")]: {
+    gridTemplateAreas: `
         "avatar content replyButton"
       `,
-    },
-    gridTemplateColumns: "3rem minmax(0, 9fr) 1fr",
-    gridTemplateRows: "auto",
-    padding: theme.spacing(2),
-    width: "100%",
   },
-  buttonsContainer: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
+  gridTemplateColumns: "3rem minmax(0, 9fr) 1fr",
+  gridTemplateRows: "auto",
+  padding: theme.spacing(2),
+  width: "100%",
+}));
+
+const StyledButtonsContainer = styled("div")(() => ({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+}));
+
+const StyledCommentContent = styled("div")(() => ({
+  "& > * + *": {
+    marginBlockStart: theme.spacing(0.5),
   },
-  commentContent: {
-    "& > * + *": {
-      marginBlockStart: theme.spacing(0.5),
-    },
-    display: "flex",
-    flexDirection: "column",
-    gridArea: "content",
-    marginInlineStart: theme.spacing(1),
-  },
-  replyButton: {
-    gridArea: "replyButton",
-    placeSelf: "end",
-  },
-  avatar: {
-    height: "3rem",
-    gridArea: "avatar",
-    width: "3rem",
-  },
-  nestedCommentsContainer: {
-    "& > * + *": {
-      marginBlockStart: theme.spacing(2),
-    },
-    display: "flex",
-    flexDirection: "column",
+  display: "flex",
+  flexDirection: "column",
+  gridArea: "content",
+  marginInlineStart: theme.spacing(1),
+}));
+
+const StyledAvatar = styled(Avatar)(() => ({
+  height: "3rem",
+  gridArea: "avatar",
+  width: "3rem",
+}));
+
+const StyledReplyButton = styled(Button)(() => ({
+  gridArea: "replyButton",
+  placeSelf: "end",
+}));
+
+const StyledNestedCommentsContainer = styled("div")(() => ({
+  "& > * + *": {
     marginBlockStart: theme.spacing(2),
-    marginInlineStart: theme.spacing(3),
-    "&": {
-      marginInlineStart: `clamp(${theme.spacing(2)}, 5vw, ${theme.spacing(5)})`,
-    },
   },
-  loadEarlierRepliesButton: {
-    alignSelf: "center",
+  display: "flex",
+  flexDirection: "column",
+  marginBlockStart: theme.spacing(2),
+  marginInlineStart: theme.spacing(3),
+  "&": {
+    marginInlineStart: `clamp(${theme.spacing(2)}, 5vw, ${theme.spacing(5)})`,
   },
+}));
+
+const StyledLoadEarlierRepliesButton = styled(Button)(() => ({
+  alignSelf: "center",
 }));
 
 export const COMMENT_TEST_ID = "comment";
@@ -88,7 +98,6 @@ interface CommentProps {
 
 export default function Comment({ topLevel = false, comment }: CommentProps) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
-  const classes = useStyles();
   const { data: user, isLoading: isUserLoading } = useLiteUser(
     comment.authorUserId,
   );
@@ -121,15 +130,15 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
 
   return (
     <>
-      <Card className={classes.commentContainer} data-testid={COMMENT_TEST_ID}>
-        <div className={classes.buttonsContainer}>
-          <Avatar user={user} className={classes.avatar} />
+      <StyledCommentContainer data-testid={COMMENT_TEST_ID}>
+        <StyledButtonsContainer>
+          <StyledAvatar user={user} />
           <FlagButton
             contentRef={`comment/${comment.threadId}`}
             authorUser={comment.authorUserId}
           />
-        </div>
-        <div className={classes.commentContent}>
+        </StyledButtonsContainer>
+        <StyledCommentContent>
           {isUserLoading ? (
             <Skeleton />
           ) : (
@@ -149,35 +158,33 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
             </Typography>
           )}
           {isUserLoading ? <Skeleton /> : <Markdown source={comment.content} />}
-        </div>
+        </StyledCommentContent>
         {topLevel && (
-          <Button
-            className={classes.replyButton}
+          <StyledReplyButton
             onClick={() => {
               setShowCommentForm(true);
             }}
           >
             {t("global:reply")}
-          </Button>
+          </StyledReplyButton>
         )}
-      </Card>
+      </StyledCommentContainer>
       {isCommentsLoading ? (
         <CenteredSpinner />
       ) : (
-        <div className={classes.nestedCommentsContainer}>
+        <StyledNestedCommentsContainer>
           {!showLoadMoreButton && isCommentsRefetching && (
             <CircularProgress data-testid={REFETCH_LOADING_TEST_ID} />
           )}
           {hasAtLeastOnePage(comments, "repliesList") && (
             <>
               {showLoadMoreButton && (
-                <Button
-                  className={classes.loadEarlierRepliesButton}
+                <StyledLoadEarlierRepliesButton
                   loading={isFetchingNextPage}
                   onClick={() => fetchNextPage()}
                 >
                   {t("communities:load_earlier_replies")}
-                </Button>
+                </StyledLoadEarlierRepliesButton>
               )}
               {comments.pages
                 .flatMap((page) => page.repliesList)
@@ -196,7 +203,7 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
               threadId={comment.threadId}
             />
           )}
-        </div>
+        </StyledNestedCommentsContainer>
       )}
     </>
   );

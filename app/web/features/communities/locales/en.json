@@ -132,5 +132,6 @@
   "all_events_page_tabs_a11y_label": "Tabs for the events listing page",
   "discover_events_subtitle": "Check out upcoming and future events hosted by Couchers.org community members!",
   "discover_events_title": "Discover Couchers.org events",
-  "created_by_me": "Created by me"
+  "created_by_me": "Created by me",
+  "notify_attendees": "Notify event attendees of this change"
 }

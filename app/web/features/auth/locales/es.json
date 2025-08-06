@@ -3,7 +3,7 @@
     "title": "Cambiar Correo Electrónico",
     "current_password": "Contraseña actual",
     "new_email": "Nuevo correo electrónico",
-    "current_email_message": "Tu dirección actual de correo electrónico es<2>{{email}}</2>.",
+    "current_email_message": "Tu dirección actual de correo electrónico es <1>{{email}}</1>.",
     "success_message": "El cambio de tu correo electrónico ha sido recibido. Revisa tu nuevo correo electrónico para completar el cambio."
   },
   "change_email_confirmation": {
@@ -139,8 +139,6 @@
       "explanation": "El nombre de usuario se elige cuando creas tu cuenta."
     }
   },
-  "introduction_subtitle": "Gratis para siempre. Gestionada por la comunidad. Sin ánimo de lucro. Moderna.",
-  "introduction_title": "Únete y ayuda a que crezca la nueva alternativa a Couchsurfing™",
   "login_prompt": "Haz clic aquí para iniciar sesión",
   "community_guidelines_form": {
     "guideline": {
@@ -157,12 +155,6 @@
     },
     "title": "Previsualización de características",
     "disclaimer": "Por favor, ten en cuenta que estas características son experimentales. Podrían no funcionar según lo previsto y podrían cambiar rápidamente según las desarrollamos. Siéntete libre de dar tu opinión en nuestro forum. ¡Por favor, reporta cualquier error!"
-  },
-  "unsubscribe": {
-    "button_text": "Confirmar anulación de suscripción",
-    "title": "Anular suscripción",
-    "missing_payload_or_sig": "URL inválida",
-    "error_message": "Error al anular la suscripción: {{message}}"
   },
   "delete_account": {
     "request": {
