@@ -1,7 +1,7 @@
-"""add_source_&_recurring_to_donation_initiations
+"""Add source to donation initiations
 
 Revision ID: 0613ce600e4b
-Revises: c29307a66e4b
+Revises: 0ad661585a57
 Create Date: 2025-07-27 16:38:41.949812
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "0613ce600e4b"
-down_revision = "34db9c02d305"
+down_revision = "0ad661585a57"
 branch_labels = None
 depends_on = None
 
