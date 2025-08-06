@@ -1,4 +1,5 @@
 import { TabContext, TabPanel } from "@mui/lab";
+import { styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import NotificationBadge from "components/NotificationBadge";
 import PageTitle from "components/PageTitle";
@@ -12,6 +13,10 @@ import { connectionsRoute } from "routes";
 
 import { FriendsTab } from "./friends";
 
+const StyledLabelWrapper = styled("span")({
+  paddingRight: "1.8rem", // visually compensate for NotificationBadge's right offset
+});
+
 function FriendsNotification() {
   const { data } = useNotifications();
   const { t } = useTranslation([CONNECTIONS]);
@@ -24,7 +29,11 @@ function FriendsNotification() {
 }
 
 const labels = {
-  friends: <FriendsNotification />,
+  friends: (
+    <StyledLabelWrapper>
+      <FriendsNotification />
+    </StyledLabelWrapper>
+  ),
 };
 
 type ConnectionType = keyof typeof labels;
