@@ -1,5 +1,4 @@
-import { ListItemText } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { ListItemText, styled } from "@mui/material";
 import Button from "components/Button";
 import { CheckIcon, ExpandLessIcon, ExpandMoreIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
@@ -9,11 +8,9 @@ import { AttendanceState } from "proto/events_pb";
 import { useState } from "react";
 import { theme } from "theme";
 
-const useStyles = makeStyles((theme) => ({
-  menuListItem: {
-    display: "flex",
-    gap: theme.spacing(2),
-  },
+const StyledMenuListItem = styled(MenuItem)(() => ({
+  display: "flex",
+  gap: theme.spacing(2),
 }));
 
 export default function AttendanceMenu({
@@ -30,7 +27,6 @@ export default function AttendanceMenu({
   disabled: boolean;
 }) {
   const { t } = useTranslation([COMMUNITIES]);
-  const classes = useStyles();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -72,11 +68,6 @@ export default function AttendanceMenu({
             ? theme.palette.common.black
             : theme.palette.common.white,
           borderColor: theme.palette.grey[300],
-
-          "&:hover": {
-            borderColor: theme.palette.grey[300],
-            backgroundColor: "#3135390A",
-          },
         }}
       >
         {isAttending
@@ -91,6 +82,7 @@ export default function AttendanceMenu({
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
+        aria-hidden={!open}
         MenuListProps={{
           "aria-labelledby": buttonId,
         }}
@@ -103,30 +95,28 @@ export default function AttendanceMenu({
           horizontal: "right",
         }}
       >
-        <MenuItem
+        <StyledMenuListItem
           onClick={() => {
             handleChangeAttendanceState(AttendanceState.ATTENDANCE_STATE_GOING);
           }}
-          classes={{ root: classes.menuListItem }}
         >
           <ListItemText primary={t("communities:going_to_event")} />
           {attendanceState === AttendanceState.ATTENDANCE_STATE_GOING && (
             <CheckIcon />
           )}
-        </MenuItem>
-        <MenuItem
+        </StyledMenuListItem>
+        <StyledMenuListItem
           onClick={() => {
             handleChangeAttendanceState(
               AttendanceState.ATTENDANCE_STATE_NOT_GOING,
             );
           }}
-          classes={{ root: classes.menuListItem }}
         >
           <ListItemText primary={t("communities:not_going_to_event")} />
           {attendanceState === AttendanceState.ATTENDANCE_STATE_NOT_GOING && (
             <CheckIcon />
           )}
-        </MenuItem>
+        </StyledMenuListItem>
       </Menu>
     </>
   );

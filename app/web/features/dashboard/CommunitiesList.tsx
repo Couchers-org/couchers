@@ -1,5 +1,4 @@
-import { Link as MuiLink, Skeleton, Typography } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { Link as MuiLink, Skeleton, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import StyledLink from "components/StyledLink";
@@ -9,23 +8,31 @@ import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import React from "react";
 import { routeToCommunity } from "routes";
+import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
-const useStyles = makeStyles((theme) => ({
-  communityLink: {
-    display: "flex",
-    flexDirection: "column",
-    padding: theme.spacing(2, 0),
-    borderBottom: `solid 1px ${theme.palette.divider}`,
-    "&:first-child": {
-      borderTop: `solid 1px ${theme.palette.divider}`,
-    },
+const StyledPlaceholder = styled("div")(() => ({
+  display: "flex",
+  flexDirection: "column",
+  padding: theme.spacing(2, 0),
+  borderBottom: `solid 1px ${theme.palette.divider}`,
+  "&:first-child": {
+    borderTop: `solid 1px ${theme.palette.divider}`,
+  },
+}));
+
+const StyledCommunityLink = styled(StyledLink)(() => ({
+  display: "flex",
+  flexDirection: "column",
+  padding: theme.spacing(2, 0),
+  borderBottom: `solid 1px ${theme.palette.divider}`,
+  "&:first-child": {
+    borderTop: `solid 1px ${theme.palette.divider}`,
   },
 }));
 
 export default function CommunitiesList({ all = false }: { all?: boolean }) {
   const { t } = useTranslation([DASHBOARD]);
-  const classes = useStyles();
   const userCommunities = useUserCommunities();
   const allCommunities = useListSubCommunities(0);
   const communities = all ? allCommunities : userCommunities;
@@ -35,14 +42,14 @@ export default function CommunitiesList({ all = false }: { all?: boolean }) {
         <Alert severity="error">{communities.error.message}</Alert>
       )}
       {communities.isLoading ? (
-        <div className={classes.communityLink}>
+        <StyledPlaceholder>
           <MuiLink variant="h2" component="span" underline="hover">
             <Skeleton width={100} />
           </MuiLink>
           <Typography variant="body2">
             <Skeleton width={100} />
           </Typography>
-        </div>
+        </StyledPlaceholder>
       ) : (
         communities.data &&
         (hasAtLeastOnePage(communities.data, "communitiesList") ? (
@@ -50,10 +57,9 @@ export default function CommunitiesList({ all = false }: { all?: boolean }) {
             {communities.data.pages
               .flatMap((page) => page.communitiesList)
               .map((community) => (
-                <StyledLink
+                <StyledCommunityLink
                   href={routeToCommunity(community.communityId, community.slug)}
                   key={`community-link-${community.communityId}`}
-                  className={classes.communityLink}
                 >
                   <Typography variant="h2" component="span">
                     {community.name}
@@ -63,7 +69,7 @@ export default function CommunitiesList({ all = false }: { all?: boolean }) {
                       count: community.memberCount,
                     })}
                   </Typography>
-                </StyledLink>
+                </StyledCommunityLink>
               ))}
             {communities.hasNextPage && (
               <Button
