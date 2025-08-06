@@ -29,7 +29,7 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL, PROFILE } from "i18n/namespaces";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
-import React, { FormEvent, useEffect, useMemo, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useQueryClient } from "react-query";
 import { howToMakeGreatProfileUrl } from "routes";
@@ -43,7 +43,6 @@ import {
 
 import {
   ABOUT_ME_MIN_LENGTH,
-  countAddedCharacters,
   DEFAULT_ABOUT_ME_HEADINGS,
   DEFAULT_HOBBIES_HEADINGS,
 } from "./constants";
@@ -247,7 +246,7 @@ export default function EditProfileForm() {
           regionsLived: user.regionsLivedList
             .map((region) => regions[region] || "")
             .filter(Boolean),
-          aboutMe: user.aboutMe || DEFAULT_ABOUT_ME_HEADINGS,
+          aboutMe: user.aboutMe,
           thingsILike: user.thingsILike || DEFAULT_HOBBIES_HEADINGS,
           additionalInformation: user.additionalInformation,
           location: {
@@ -273,7 +272,7 @@ export default function EditProfileForm() {
           fluentLanguages: [],
           regionsVisited: [],
           regionsLived: [],
-          aboutMe: DEFAULT_ABOUT_ME_HEADINGS,
+          aboutMe: "",
           thingsILike: DEFAULT_HOBBIES_HEADINGS,
           additionalInformation: "",
           location: {
@@ -293,23 +292,7 @@ export default function EditProfileForm() {
     name: "aboutMe",
   });
 
-  // Calculate the actual content length, excluding default headings
-  const aboutMeFieldLength = useMemo(() => {
-    // Don't show warning until form is properly initialized
-    if (!user || !languages || !regions) {
-      return 0;
-    }
-
-    // Use the current field value if available, otherwise use the user's saved data
-    const currentValue =
-      aboutMeField || user.aboutMe || DEFAULT_ABOUT_ME_HEADINGS;
-
-    if (!currentValue) {
-      return 0;
-    }
-
-    return countAddedCharacters(DEFAULT_ABOUT_ME_HEADINGS, currentValue);
-  }, [aboutMeField, user, languages, regions]);
+  const aboutMeFieldLength = (aboutMeField ?? "").length;
 
   useUnsavedChangesWarning({
     isDirty: isDirty || isUploading,
@@ -342,9 +325,6 @@ export default function EditProfileForm() {
                 fluency: LanguageAbility.Fluency.FLUENCY_FLUENT,
               })),
             },
-            aboutMe: DEFAULT_ABOUT_ME_HEADINGS.includes(data.aboutMe)
-              ? ""
-              : data.aboutMe,
             thingsILike: DEFAULT_HOBBIES_HEADINGS.includes(data.thingsILike)
               ? ""
               : data.thingsILike,
@@ -826,7 +806,8 @@ export default function EditProfileForm() {
                   id="aboutMe"
                   label={t("profile:heading.about_me")}
                   name="aboutMe"
-                  defaultValue={user.aboutMe || DEFAULT_ABOUT_ME_HEADINGS}
+                  placeholder={DEFAULT_ABOUT_ME_HEADINGS}
+                  defaultValue={user.aboutMe}
                   control={control}
                   className={classes.field}
                   warning={aboutMeFieldLength < ABOUT_ME_MIN_LENGTH}

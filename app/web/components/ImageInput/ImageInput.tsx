@@ -203,7 +203,7 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
                 </Avatar>
 
                 <EditIconButton size="small">
-                  <Edit fontSize="small" />
+                  <Edit fontSize="small" sx={{ color: "common.white" }} />
                 </EditIconButton>
               </MuiIconButton>
             </Tooltip>

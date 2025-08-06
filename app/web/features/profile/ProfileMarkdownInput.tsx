@@ -15,6 +15,7 @@ interface ProfileMarkdownInputProps {
   warning?: boolean;
   helperText?: string | ReactNode;
   description?: ReactNode;
+  placeholder?: string;
 }
 
 export default function ProfileMarkdownInput({
@@ -27,6 +28,7 @@ export default function ProfileMarkdownInput({
   warning,
   description,
   helperText,
+  placeholder,
 }: ProfileMarkdownInputProps) {
   return (
     <div className={className}>
@@ -45,6 +47,7 @@ export default function ProfileMarkdownInput({
         id={id}
         labelId={`${id}-label`}
         name={name}
+        placeholder={placeholder}
       />
     </div>
   );

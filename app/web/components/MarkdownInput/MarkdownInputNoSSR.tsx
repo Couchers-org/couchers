@@ -67,6 +67,7 @@ export default function MarkdownInput({
   imageUpload = false,
   autofocus = false,
   required,
+  placeholder,
 }: MarkdownInputProps) {
   const { field, fieldState } = useController({
     name,
@@ -135,6 +136,7 @@ export default function MarkdownInput({
       },
       initialEditType: "wysiwyg",
       initialValue: initialDefaultValue.current ?? "",
+      placeholder,
       usageStatistics: false,
       toolbarItems,
       autofocus,
@@ -163,7 +165,15 @@ export default function MarkdownInput({
       if (imageUpload) uploadButton!.removeEventListener("click", openDialog);
       (fieldRef.current as ToastUIEditor).destroy();
     };
-  }, [autofocus, fieldRef, resetInputRef, id, labelId, imageUpload]);
+  }, [
+    autofocus,
+    fieldRef,
+    resetInputRef,
+    id,
+    labelId,
+    imageUpload,
+    placeholder,
+  ]);
 
   return (
     <>
