@@ -1,5 +1,4 @@
-import { Checkbox, FormControlLabel, Typography } from "@mui/material";
-import classNames from "classnames";
+import { Checkbox, FormControlLabel, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import ImageInput from "components/ImageInput";
 import LocationAutocomplete from "components/LocationAutocomplete";
@@ -15,52 +14,47 @@ import { Event } from "proto/events_pb";
 import { useRef } from "react";
 import { DeepMap, useForm } from "react-hook-form";
 import { UseMutateFunction } from "react-query";
+import { theme } from "theme";
 import { Dayjs } from "utils/dayjs";
 import type { GeocodeResult } from "utils/hooks";
-import makeStyles from "utils/makeStyles";
 
 import EventTimeChanger from "./EventTimeChanger";
 
-export const useEventFormStyles = makeStyles((theme) => ({
-  root: {
-    marginBlockStart: theme.spacing(4),
+const StyledWrapper = styled("div")(() => ({
+  marginBlockStart: theme.spacing(4),
+}));
+
+const StyledImageUploadHelperText = styled(Typography)(() => ({
+  textAlign: "center",
+}));
+
+const StyledForm = styled("form")(() => ({
+  display: "grid",
+  gridTemplateColumns: "minmax(0, 1fr)",
+  rowGap: theme.spacing(3),
+  marginBlockEnd: theme.spacing(3),
+}));
+
+const StyledLocationContainer = styled("div")(() => ({
+  display: "grid",
+  gridTemplateColumns: "1fr",
+  gap: theme.spacing(3, 2),
+  [theme.breakpoints.up("md")]: {
+    gridTemplateColumns: "1fr 1fr",
   },
-  imageUploadhelperText: {
-    textAlign: "center",
-  },
-  form: {
-    display: "grid",
-    gridTemplateColumns: "minmax(0, 1fr)",
-    rowGap: theme.spacing(3),
-    marginBlockEnd: theme.spacing(3),
-  },
-  duoContainer: {
-    display: "grid",
-    gridTemplateColumns: "1fr",
-    gap: theme.spacing(3, 2),
-    [theme.breakpoints.up("md")]: {
-      gridTemplateColumns: "1fr 1fr",
-    },
-  },
-  locationContainer: {
-    minHeight: theme.typography.pxToRem(66),
-  },
-  endDateTimeButton: {
-    justifySelf: "start",
-  },
-  isOnlineCheckbox: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-  },
-  eventDetailsContainer: {
-    display: "grid",
-    gridTemplateColumns: "minmax(0, 1fr)",
-    rowGap: theme.spacing(1),
-  },
-  submitButton: {
-    justifySelf: "start",
-  },
+  minHeight: theme.typography.pxToRem(66),
+}));
+
+const StyledIsOnlineCheckboxWrapper = styled("div")(() => ({
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+}));
+
+const StyledEventDetailsContainer = styled("div")(() => ({
+  display: "grid",
+  gridTemplateColumns: "minmax(0, 1fr)",
+  rowGap: theme.spacing(1),
 }));
 
 interface BaseEventData {
@@ -119,7 +113,6 @@ export default function EventForm({
   isEdit,
 }: EventFormProps) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
-  const classes = useEventFormStyles();
 
   const {
     control,
@@ -163,7 +156,7 @@ export default function EventForm({
   );
 
   return (
-    <div className={classes.root}>
+    <StyledWrapper>
       <ImageInput
         alt={t("communities:event_image_input_alt")}
         control={control}
@@ -174,16 +167,16 @@ export default function EventForm({
         height={"200px"}
         width={"100%"}
       />
-      <Typography className={classes.imageUploadhelperText} variant="body1">
+      <StyledImageUploadHelperText variant="body1">
         {t("communities:upload_helper_text")}
-      </Typography>
+      </StyledImageUploadHelperText>
       <PageTitle>{title}</PageTitle>
       {(error || errors.eventImage) && (
         <Alert severity="error">
           {error?.message || errors.eventImage?.message || ""}
         </Alert>
       )}
-      <form className={classes.form} onSubmit={onSubmit}>
+      <StyledForm onSubmit={onSubmit}>
         <TextField
           id="title"
           {...register("title", { required: t("communities:title_required") })}
@@ -203,12 +196,7 @@ export default function EventForm({
           setValue={setValue}
           dirtyFields={dirtyFields}
         />
-        <div
-          className={classNames(
-            classes.duoContainer,
-            classes.locationContainer,
-          )}
-        >
+        <StyledLocationContainer>
           {isOnline ? (
             <TextField
               id="link"
@@ -234,7 +222,7 @@ export default function EventForm({
               showFullDisplayName
             />
           )}
-          <div className={classes.isOnlineCheckbox}>
+          <StyledIsOnlineCheckboxWrapper>
             <FormControlLabel
               control={
                 <Checkbox
@@ -248,7 +236,7 @@ export default function EventForm({
             <Typography variant="body2">
               {t("communities:virtual_events_subtext")}
             </Typography>
-          </div>
+          </StyledIsOnlineCheckboxWrapper>
 
           {isEdit && (
             <FormControlLabel
@@ -262,8 +250,8 @@ export default function EventForm({
               label={t("communities:notify_attendees")}
             />
           )}
-        </div>
-        <div className={classes.eventDetailsContainer}>
+        </StyledLocationContainer>
+        <StyledEventDetailsContainer>
           <Typography id="content-label" variant="h3" component="p">
             {t("communities:event_details")}
           </Typography>
@@ -275,10 +263,10 @@ export default function EventForm({
             labelId="content-label"
             required={t("communities:event_details_required")}
           />
-        </div>
+        </StyledEventDetailsContainer>
 
         {children({ isMutationLoading })}
-      </form>
-    </div>
+      </StyledForm>
+    </StyledWrapper>
   );
 }

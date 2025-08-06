@@ -78,6 +78,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
                 amount=request.amount,
                 stripe_checkout_session_id=checkout_session.id,
                 donation_type=DonationType.recurring if request.recurring else DonationType.one_time,
+                source=request.source if request.source else None,
             )
         )
 

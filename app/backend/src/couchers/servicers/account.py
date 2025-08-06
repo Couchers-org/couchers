@@ -15,6 +15,7 @@ from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS,
 from couchers.crypto import (
     b64decode,
     b64encode,
+    generate_invite_code,
     hash_password,
     simple_decrypt,
     simple_encrypt,
@@ -38,6 +39,7 @@ from couchers.models import (
     ContributorForm,
     HostRequest,
     HostRequestStatus,
+    InviteCode,
     ModNote,
     ProfilePublicVisibility,
     StrongVerificationAttempt,
@@ -620,6 +622,55 @@ class Account(account_pb2_grpc.AccountServicer):
         user.public_visibility = profilepublicitysetting2sql[request.profile_public_visibility]
         user.has_modified_public_visibility = True
         return empty_pb2.Empty()
+
+    def CreateInviteCode(self, request, context, session):
+        code = generate_invite_code()
+        session.add(InviteCode(id=code, creator_user_id=context.user_id))
+
+        return account_pb2.CreateInviteCodeRes(
+            code=code,
+            url=urls.invite_code_link(code=code),
+        )
+
+    def DisableInviteCode(self, request, context, session):
+        invite = session.execute(
+            select(InviteCode).where(InviteCode.id == request.code, InviteCode.creator_user_id == context.user_id)
+        ).scalar_one_or_none()
+
+        if not invite:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.NOT_FOUND)
+
+        invite.disabled = func.now()
+        session.commit()
+
+        return empty_pb2.Empty()
+
+    def ListInviteCodes(self, request, context, session):
+        results = session.execute(
+            select(
+                InviteCode.id,
+                InviteCode.created,
+                InviteCode.disabled,
+                func.count(User.id).label("num_users"),
+            )
+            .outerjoin(User, User.invite_code_id == InviteCode.id)
+            .where(InviteCode.creator_user_id == context.user_id)
+            .group_by(InviteCode.id, InviteCode.disabled)
+            .order_by(func.count(User.id).desc(), InviteCode.disabled)
+        ).all()
+
+        return account_pb2.ListInviteCodesRes(
+            invite_codes=[
+                account_pb2.InviteCodeInfo(
+                    code=code_id,
+                    created=Timestamp_from_datetime(created),
+                    disabled=Timestamp_from_datetime(disabled) if disabled else None,
+                    uses=len_users,
+                    url=urls.invite_code_link(code=code_id),
+                )
+                for code_id, created, disabled, len_users in results
+            ]
+        )
 
     def GetReminders(self, request, context, session):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()

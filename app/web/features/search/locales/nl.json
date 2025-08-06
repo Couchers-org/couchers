@@ -16,6 +16,25 @@
     "location_field_label": "In de buurt van",
     "keywords": {
       "field_label": "Naam, trefwoorden of gebruikersnaam"
+    },
+    "general_filters": {
+      "has_references": "Heeft referenties",
+      "accepts_last_minute_requests": "Accepteert last minute aanvragen"
+    },
+    "rules": {
+      "title": "Regels",
+      "alcohol_allowed": "Alcohol toegestaan",
+      "kids_allowed": "Kinderen toegestaan"
     }
+  },
+  "search_result": {
+    "show_user_button_label": "Laat {{name}} op de kaart zien",
+    "missing_about_description": "{{name}} heeft nog niks over zichzelf geschreven",
+    "people_found_message": "Dit zijn {{currentRange}} van de {{totalItems}} gevonden mensen"
+  },
+  "views": {
+    "map_and_list": "Kaart & Lijst",
+    "choose_map_view": "Bekijken op kaart",
+    "list": "Lijst"
   }
 }
