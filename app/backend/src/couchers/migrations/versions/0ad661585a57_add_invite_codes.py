@@ -1,7 +1,7 @@
 """add invite codes
 
 Revision ID: 0ad661585a57
-Revises: d345174cb002
+Revises: 34db9c02d305
 Create Date: 2025-07-21 16:09:53.901168
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "0ad661585a57"
-down_revision = "888ec31ad793"
+down_revision = "34db9c02d305"
 branch_labels = None
 depends_on = None
 
