@@ -1,5 +1,8 @@
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
-import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
+import {
+  Int64Value,
+  StringValue,
+} from "google-protobuf/google/protobuf/wrappers_pb";
 import { ListEventsReq } from "proto/communities_pb";
 import {
   AttendanceState,
@@ -305,8 +308,7 @@ export async function inviteEventOrganizer(eventId: number, userId: number) {
 export async function removeEventOrganizer(eventId: number, userId: number) {
   const req = new RemoveEventOrganizerReq();
   req.setEventId(eventId);
-  // TODO(FB) Uncomment once implemented in API
-  // req.setUserId(userId);
+  req.setUserId(new Int64Value().setValue(userId));
   const res = await client.events.removeEventOrganizer(req);
   return res.toObject();
 }
