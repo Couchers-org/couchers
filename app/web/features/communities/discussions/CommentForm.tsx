@@ -1,4 +1,4 @@
-import { Collapse } from "@mui/material";
+import { Collapse, styled } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
@@ -10,25 +10,24 @@ import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 
 import { PostReplyRes } from "../../../proto/threads_pb";
 import { threadKey } from "../../queryKeys";
 
-const useStyles = makeStyles((theme) => ({
-  commentForm: {
-    display: "flex",
-    flexDirection: "column",
-    "& > :not(:last-child)": {
-      marginBlockEnd: theme.spacing(1),
-    },
+const StyledForm = styled("form")(() => ({
+  display: "flex",
+  flexDirection: "column",
+  "& > :not(:last-child)": {
+    marginBlockEnd: theme.spacing(1),
   },
-  buttonsContainer: {
-    display: "flex",
-    justifyContent: "flex-end",
-    "& > * + *": {
-      marginInlineStart: theme.spacing(2),
-    },
+}));
+
+const StyledButtonsContainer = styled("div")(() => ({
+  display: "flex",
+  justifyContent: "flex-end",
+  "& > * + *": {
+    marginInlineStart: theme.spacing(2),
   },
 }));
 
@@ -48,7 +47,6 @@ function InternalCommentForm(
   ref: React.ForwardedRef<HTMLFormElement>,
 ) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
-  const classes = useStyles();
   const {
     control,
     handleSubmit,
@@ -86,7 +84,7 @@ function InternalCommentForm(
 
   return (
     <Collapse data-testid={`comment-${threadId}-comment-form`} in={shown}>
-      <form className={classes.commentForm} onSubmit={onSubmit} ref={ref}>
+      <StyledForm onSubmit={onSubmit} ref={ref}>
         {error && <Alert severity="error">{error.message}</Alert>}
         <span style={visuallyHidden} id={`comment-${threadId}-reply-label`}>
           {t("communities:write_comment_a11y_label")}
@@ -99,13 +97,13 @@ function InternalCommentForm(
           name="content"
           required={t("communities:fill_out_comment")}
         />
-        <div className={classes.buttonsContainer}>
+        <StyledButtonsContainer>
           {hideable && <Button onClick={onClose}>{t("global:close")}</Button>}
           <Button loading={isPending} type="submit">
             {t("communities:comment")}
           </Button>
-        </div>
-      </form>
+        </StyledButtonsContainer>
+      </StyledForm>
     </Collapse>
   );
 }

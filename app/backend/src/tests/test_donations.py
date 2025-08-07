@@ -43,6 +43,7 @@ def test_one_time_donation_flow(db, monkeypatch):
                 donations_pb2.InitiateDonationReq(
                     amount=100,
                     recurring=False,
+                    source="test-one-time",
                 )
             )
 
@@ -100,6 +101,7 @@ def test_one_time_donation_flow(db, monkeypatch):
             donation.stripe_checkout_session_id == "cs_test_a12ftevGwzCAa236NeLPq6yRAdMt0V2S1gGjFcxfsY4xT4tiREPvbr5lhG"
         )
         assert donation.donation_type == DonationType.one_time
+        assert donation.source == "test-one-time"
 
         invoice = session.execute(select(Invoice)).scalar_one()
         assert invoice.user_id == user_id
@@ -144,6 +146,7 @@ def test_recurring_donation_flow(db, monkeypatch):
                 donations_pb2.InitiateDonationReq(
                     amount=25,
                     recurring=True,
+                    source="test-recurring",
                 )
             )
 
@@ -221,6 +224,7 @@ def test_recurring_donation_flow(db, monkeypatch):
             donation.stripe_checkout_session_id == "cs_test_a1JoMu1FbksL058ob6T6AC1byYR2DCXVRwi0ybLSZKwINYe868OQr25qaC"
         )
         assert donation.donation_type == DonationType.recurring
+        assert donation.source == "test-recurring"
 
         invoice = session.execute(select(Invoice)).scalar_one()
         assert invoice.user_id == user_id

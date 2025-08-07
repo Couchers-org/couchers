@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -15,33 +15,26 @@ import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { routeToCommunity } from "routes";
 import { service } from "service";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 
 import { Community } from "../../proto/communities_pb";
 import { Page } from "../../proto/pages_pb";
 import { communityKey } from "../queryKeys";
 import CommunityBase from "./CommunityBase";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-    justifyContent: "space-between",
-  },
-  imageUploadhelperText: {
-    textAlign: "center",
-  },
-  form: {
-    display: "grid",
-    paddingBottom: theme.spacing(5),
-    rowGap: theme.spacing(1),
-    width: "100%",
-  },
-  uploadImageButton: {
-    justifySelf: "end",
-  },
-  updateButton: {
-    justifySelf: "end",
-  },
+const StyledForm = styled("form")(() => ({
+  display: "grid",
+  paddingBottom: theme.spacing(5),
+  rowGap: theme.spacing(1),
+  width: "100%",
+}));
+
+const StyledHelperText = styled(Typography)(() => ({
+  textAlign: "center",
+}));
+
+const StyledUpdateButton = styled(Button)(() => ({
+  justifySelf: "end",
 }));
 
 interface UpdatePageData {
@@ -57,7 +50,6 @@ export default function EditCommunityPage({
   communityId: number;
 }) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
-  const classes = useStyles();
   const queryClient = useQueryClient();
   const router = useRouter();
   const {
@@ -123,7 +115,7 @@ export default function EditCommunityPage({
                 {error?.message || errors.communityPhotoKey?.message || ""}
               </Alert>
             )}
-            <form className={classes.form} onSubmit={onSubmit}>
+            <StyledForm onSubmit={onSubmit}>
               <ImageInput
                 alt={t("communities:community_image_input_alt")}
                 control={control}
@@ -132,14 +124,11 @@ export default function EditCommunityPage({
                 name="communityPhotoKey"
                 type="rect"
               />
-              <Typography
-                className={classes.imageUploadhelperText}
-                variant="body1"
-              >
+              <StyledHelperText variant="body1">
                 {community.mainPage.photoUrl
                   ? t("communities:upload_helper_text_replace")
                   : t("communities:upload_helper_text")}
-              </Typography>
+              </StyledHelperText>
               <Typography id="content-label" variant="h2">
                 {t("communities:page_content_field_label")}
               </Typography>
@@ -164,14 +153,10 @@ export default function EditCommunityPage({
                 type="hidden"
                 value={community.communityId}
               />
-              <Button
-                loading={isPending}
-                className={classes.updateButton}
-                type="submit"
-              >
+              <StyledUpdateButton loading={isPending} type="submit">
                 {t("global:save")}
-              </Button>
-            </form>
+              </StyledUpdateButton>
+            </StyledForm>
             {isSuccess && (
               <Snackbar severity="success">
                 {t("communities:edit_info_page_success_message")}

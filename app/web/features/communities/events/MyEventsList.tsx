@@ -1,4 +1,4 @@
-import { Pagination, Typography } from "@mui/material";
+import { Pagination, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import TextBody from "components/TextBody";
@@ -6,18 +6,24 @@ import { EventsType } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useState } from "react";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 
 import EventsList from "./EventsList";
 import { useListMyEvents } from "./hooks";
 
-const useStyles = makeStyles((theme) => ({
-  emptyState: {
-    marginBottom: theme.spacing(2),
-  },
-  filter: {
-    backgroundColor: theme.palette.grey[200],
-    color: theme.palette.text.primary,
+const StyledFilterTagContainer = styled("div")(() => ({
+  display: "flex",
+  alignItems: "center",
+  marginTop: theme.spacing(2),
+  marginBottom: theme.spacing(2),
+}));
+
+const StyledFilterTag = styled(Typography)<{ isSelected: boolean }>(
+  ({ isSelected }) => ({
+    backgroundColor: isSelected
+      ? theme.palette.secondary.main
+      : theme.palette.grey[200],
+    color: isSelected ? theme.palette.common.white : theme.palette.text.primary,
     padding: theme.spacing(1, 2),
     textAlign: "center",
     fontWeight: "bold",
@@ -26,35 +32,21 @@ const useStyles = makeStyles((theme) => ({
     "&:hover": {
       cursor: "pointer",
     },
-  },
-  filterTags: {
-    display: "flex",
-    alignItems: "center",
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-  pagination: {
-    display: "flex",
-    justifyContent: "center",
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-  selectedFilter: {
-    backgroundColor: theme.palette.secondary.main,
-    color: theme.palette.common.white,
-    padding: theme.spacing(1, 2),
-    textAlign: "center",
-    fontWeight: "bold",
-    margin: theme.spacing(0.5),
-    borderRadius: theme.shape.borderRadius * 6,
-    "&:hover": {
-      cursor: "pointer",
-    },
-  },
+  }),
+);
+
+const StyledEmptyBody = styled(TextBody)(() => ({
+  marginBottom: theme.spacing(2),
+}));
+
+const StyledPagination = styled(Pagination)(() => ({
+  display: "flex",
+  justifyContent: "center",
+  marginTop: theme.spacing(2),
+  marginBottom: theme.spacing(2),
 }));
 
 const MyEventsList = () => {
-  const classes = useStyles();
   const { t } = useTranslation([COMMUNITIES]);
   const pageSize = 5;
 
@@ -95,36 +87,31 @@ const MyEventsList = () => {
 
   return (
     <>
-      <div className={classes.filterTags}>
-        <Typography
-          className={
-            eventType === "past" ? classes.selectedFilter : classes.filter
-          }
+      <StyledFilterTagContainer>
+        <StyledFilterTag
+          isSelected={eventType === "past"}
           variant="body2"
           onClick={handleFilterPastClick}
         >
           {t("communities:past")}
-        </Typography>
-        <Typography
-          className={showCancelled ? classes.selectedFilter : classes.filter}
+        </StyledFilterTag>
+        <StyledFilterTag
+          isSelected={showCancelled}
           variant="body2"
           onClick={handleFilterShowCancelledClick}
         >
           {t("communities:show_cancelled_events")}
-        </Typography>
-      </div>
+        </StyledFilterTag>
+      </StyledFilterTagContainer>
       {!hasEvents && !isLoading && (
-        <TextBody className={classes.emptyState}>
-          {t("communities:events_empty_state")}
-        </TextBody>
+        <StyledEmptyBody>{t("communities:events_empty_state")}</StyledEmptyBody>
       )}
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading && <CenteredSpinner minHeight="theme.spacing(20)" />}
       {hasEvents && !isLoading && (
         <>
           <EventsList events={data.eventsList} />
-          <Pagination
-            className={classes.pagination}
+          <StyledPagination
             count={numPages}
             page={pageNumber}
             color="primary"

@@ -1,34 +1,58 @@
-import { Collapse } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { Collapse, styled } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { EmailIcon } from "components/Icons";
 import TextBody from "components/TextBody";
-import {
-  SectionTitle,
-  useCommunityPageStyles,
-} from "features/communities/CommunityPage";
+import { SectionTitle } from "features/communities/CommunityPage";
 import { useListDiscussions } from "features/communities/hooks";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
 import { useState } from "react";
+import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 import CreateDiscussionForm from "./CreateDiscussionForm";
 import DiscussionCard from "./DiscussionCard";
-import useDiscussionsListStyles from "./useDiscussionsListStyles";
 
-const useStyles = makeStyles((theme) => ({
-  newPostButtonContainer: {
-    "& > * + *": {
-      marginInlineStart: theme.spacing(2),
-    },
-    display: "flex",
-    alignItems: "center",
-    minHeight: theme.typography.pxToRem(40),
+const StyledDiscussionsHeader = styled("div")(() => ({
+  alignItems: "center",
+  display: "flex",
+}));
+
+const StyledDiscussionsContainer = styled("div")(() => ({
+  "& > *": {
+    width: "100%",
   },
+  "& > :not(:last-child)": {
+    marginBlockEnd: theme.spacing(3),
+  },
+  display: "flex",
+  flexDirection: "row",
+  flexWrap: "wrap",
+  justifyContent: "space-between",
+  paddingBlockEnd: theme.spacing(5),
+}));
+
+const StyledLoadMoreButton = styled("div")(() => ({
+  alignSelf: "center",
+  display: "flex",
+  justifyContent: "center",
+  width: "100%",
+}));
+
+const StyledCreateResourceButton = styled(Button)(() => ({
+  margin: theme.spacing(2, 0),
+}));
+
+const StyledNewPostButtonContainer = styled("div")(() => ({
+  "& > * + *": {
+    marginInlineStart: theme.spacing(2),
+  },
+  display: "flex",
+  alignItems: "center",
+  minHeight: theme.typography.pxToRem(40),
 }));
 
 export default function DiscussionsListPage({
@@ -37,11 +61,7 @@ export default function DiscussionsListPage({
   community: Community.AsObject;
 }) {
   const { t } = useTranslation([COMMUNITIES]);
-  const classes = {
-    ...useCommunityPageStyles(),
-    ...useDiscussionsListStyles(),
-    ...useStyles(),
-  };
+
   const hash = typeof window !== "undefined" ? window.location.hash : "";
   const [isCreatingNewPost, setIsCreatingNewPost] = useState(
     hash.includes("new"),
@@ -60,24 +80,23 @@ export default function DiscussionsListPage({
 
   return (
     <>
-      <div className={classes.discussionsHeader}>
+      <StyledDiscussionsHeader>
         <SectionTitle icon={<EmailIcon />}>
           {t("communities:discussions_title")}
         </SectionTitle>
-      </div>
+      </StyledDiscussionsHeader>
       {discussionsError && (
         <Alert severity="error">{discussionsError.message}</Alert>
       )}
       <Collapse in={!isCreatingNewPost}>
-        <div className={classes.newPostButtonContainer}>
-          <Button
-            className={classes.createResourceButton}
+        <StyledNewPostButtonContainer>
+          <StyledCreateResourceButton
             onClick={() => setIsCreatingNewPost(true)}
           >
             {t("communities:new_post_label")}
-          </Button>
+          </StyledCreateResourceButton>
           {isRefetching && <CenteredSpinner />}
-        </div>
+        </StyledNewPostButtonContainer>
       </Collapse>
       <Collapse in={isCreatingNewPost}>
         <CreateDiscussionForm
@@ -86,7 +105,7 @@ export default function DiscussionsListPage({
           onPostSuccess={() => setIsCreatingNewPost(false)}
         />
       </Collapse>
-      <div className={classes.discussionsContainer}>
+      <StyledDiscussionsContainer>
         {isDiscussionsLoading ? (
           <CenteredSpinner />
         ) : hasAtLeastOnePage(discussions, "discussionsList") ? (
@@ -102,13 +121,13 @@ export default function DiscussionsListPage({
           <TextBody>{t("communities:discussions_empty_state")}</TextBody>
         )}
         {discussionsHasNextPage && (
-          <div className={classes.loadMoreButton}>
+          <StyledLoadMoreButton>
             <Button onClick={() => fetchNextPage()}>
               {t("communities:see_more_discussions_label")}
             </Button>
-          </div>
+          </StyledLoadMoreButton>
         )}
-      </div>
+      </StyledDiscussionsContainer>
     </>
   );
 }

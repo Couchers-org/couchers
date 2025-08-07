@@ -1,6 +1,5 @@
 import { TabContext } from "@mui/lab";
-import { Breadcrumbs, Typography } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { Breadcrumbs, styled, Typography } from "@mui/material";
 import StyledLink from "components/StyledLink";
 import TabBar from "components/TabBar";
 import { useTranslation } from "i18n";
@@ -12,16 +11,15 @@ import { CommunityTab, routeToCommunity } from "routes";
 
 import JoinCommunityButton from "./JoinCommunityButton";
 
-export const useCommunitySubHeaderStyles = makeStyles((theme) => ({
-  breadcrumbsContainer: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  breadcrumbs: {
-    "& ol": {
-      justifyContent: "flex-start",
-    },
+const StyledBreadcrumbsContainer = styled("div")(() => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+}));
+
+const StyledBreadcrumbs = styled(Breadcrumbs)(() => ({
+  "& ol": {
+    justifyContent: "flex-start",
   },
 }));
 
@@ -33,21 +31,22 @@ export default function CommunityPageSubHeader({
   tab: CommunityTab;
 }) {
   const { t } = useTranslation([COMMUNITIES]);
-  const classes = useCommunitySubHeaderStyles();
 
   const router = useRouter();
-  const communityTabBarLabels: Record<CommunityTab, string> = {
+  const communityTabBarLabels: Partial<Record<CommunityTab, string>> = {
     overview: t("communities:overview_label"),
     info: t("communities:local_info_label"),
-    discussions: t("communities:discussions_label"),
-    events: t("communities:events_label"),
+    ...(community.discussionsEnabled && {
+      discussions: t("communities:discussions_label"),
+    }),
+    ...(community.eventsEnabled && { events: t("communities:events_label") }),
     members: t("communities:members_label"),
   };
 
   return (
     <>
-      <div className={classes.breadcrumbsContainer}>
-        <Breadcrumbs aria-label="breadcrumb" className={classes.breadcrumbs}>
+      <StyledBreadcrumbsContainer>
+        <StyledBreadcrumbs aria-label="breadcrumb">
           {community.parentsList
             .map((parent) => parent.community)
             .filter(
@@ -75,9 +74,9 @@ export default function CommunityPageSubHeader({
                 </StyledLink>
               ),
             )}
-        </Breadcrumbs>
+        </StyledBreadcrumbs>
         <JoinCommunityButton community={community} />
-      </div>
+      </StyledBreadcrumbsContainer>
       <TabContext value={tab}>
         <TabBar
           ariaLabel={t("communities:community_tabs_a11y_label")}

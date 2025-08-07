@@ -28,5 +28,7 @@
   "canModerate": false,
   "memberCount": 5,
   "adminCount": 2,
-  "nearbyUserCount": 3
+  "nearbyUserCount": 3,
+  "eventsEnabled": true,
+  "discussionsEnabled": true
 }
