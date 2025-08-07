@@ -1,4 +1,5 @@
 import { Remove } from "@mui/icons-material";
+import Snackbar from "components/Snackbar";
 import RemoveAsCoOrganizerDialog from "features/communities/events/RemoveAsCoOrganizerDialog";
 import { eventOrganizersKey } from "features/queryKeys";
 import useCurrentUser from "features/userQueries/useCurrentUser";
@@ -37,7 +38,7 @@ export default function EventOrganizers({ event }: EventOrganizersProps) {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const [coOrganizerRemoveUser, setCoOrganizerRemoveUser] = useState<
+  const [organizerToRemove, setOrganizerToRemove] = useState<
     undefined | LiteUser.AsObject
   >();
 
@@ -48,16 +49,15 @@ export default function EventOrganizers({ event }: EventOrganizersProps) {
     (isCreatedByCurrentUser && currentUser.data?.userId !== user.userId) ||
     (!isCreatedByCurrentUser && currentUser.data?.userId === user.userId);
 
-  // @TODO(FB) Error handling
-  const { mutate: removeAsEventOrganizer } = useMutation<
+  const { mutate: removeAsEventOrganizer, error: mutationError } = useMutation<
     Empty.AsObject,
     RpcError,
     number
   >((userId) => service.events.removeEventOrganizer(event.eventId, userId), {
     onSuccess: () => {
-      queryClient.invalidateQueries([
-        eventOrganizersKey({ eventId: event.eventId, type: "summary" }),
-      ]);
+      queryClient.invalidateQueries({
+        queryKey: eventOrganizersKey({ eventId: event.eventId, type: "all" }),
+      });
     },
   });
 
@@ -76,7 +76,7 @@ export default function EventOrganizers({ event }: EventOrganizersProps) {
                 {
                   icon: <Remove fontSize="small" />,
                   onClick: () => {
-                    setCoOrganizerRemoveUser(user);
+                    setOrganizerToRemove(user);
                     setIsCoOrganizerDialogOpen(true);
                   },
                   title: t("communities:remove_as_co_organizer:title"),
@@ -92,17 +92,20 @@ export default function EventOrganizers({ event }: EventOrganizersProps) {
       />
 
       <RemoveAsCoOrganizerDialog
-        username={coOrganizerRemoveUser?.name ?? ""}
+        username={organizerToRemove?.name ?? ""}
         eventName={event.title ?? ""}
         open={isCoOrganizerDialogOpen}
         onClose={() => setIsCoOrganizerDialogOpen(false)}
         onSubmit={() => {
-          if (coOrganizerRemoveUser) {
-            removeAsEventOrganizer(coOrganizerRemoveUser.userId);
+          if (organizerToRemove) {
+            removeAsEventOrganizer(organizerToRemove.userId);
           }
           setIsCoOrganizerDialogOpen(false);
         }}
       />
+      {mutationError && (
+        <Snackbar severity="error">{mutationError.message}</Snackbar>
+      )}
     </>
   );
 }

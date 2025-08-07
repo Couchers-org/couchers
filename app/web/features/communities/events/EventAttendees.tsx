@@ -1,4 +1,5 @@
 import { Add } from "@mui/icons-material";
+import Snackbar from "components/Snackbar";
 import MakeCoOrganizerDialog from "features/communities/events/MakeCoOrganizerDialog";
 import { eventOrganizersKey } from "features/queryKeys";
 import useCurrentUser from "features/userQueries/useCurrentUser";
@@ -46,22 +47,21 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const [coOrganizerAddUser, setCoOrganizerAddUser] = useState<
+  const [userToPromote, setUserToPromote] = useState<
     undefined | LiteUser.AsObject
   >();
 
   const [isCoOrganizerDialogOpen, setIsCoOrganizerDialogOpen] = useState(false);
 
-  // @TODO(FB) Error handling
-  const { mutate: makeEventOrganizer } = useMutation<
+  const { mutate: makeEventOrganizer, error: mutationError } = useMutation<
     Empty.AsObject,
     RpcError,
     number
   >((userId) => service.events.inviteEventOrganizer(event.eventId, userId), {
     onSuccess: () => {
-      queryClient.invalidateQueries([
-        eventOrganizersKey({ eventId: event.eventId, type: "all" }),
-      ]);
+      queryClient.invalidateQueries({
+        queryKey: eventOrganizersKey({ eventId: event.eventId, type: "all" }),
+      });
     },
   });
 
@@ -82,7 +82,7 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
                       {
                         icon: <Add fontSize="small" />,
                         onClick: () => {
-                          setCoOrganizerAddUser(user);
+                          setUserToPromote(user);
                           setIsCoOrganizerDialogOpen(true);
                         },
                         title: t("communities:make_co_organizer:title"),
@@ -98,17 +98,20 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
         onClose={() => setIsDialogOpen(false)}
       />
       <MakeCoOrganizerDialog
-        username={coOrganizerAddUser?.name ?? ""}
+        username={userToPromote?.name ?? ""}
         eventName={event.title ?? ""}
         open={isCoOrganizerDialogOpen}
         onClose={() => setIsCoOrganizerDialogOpen(false)}
         onSubmit={() => {
-          if (coOrganizerAddUser) {
-            makeEventOrganizer(coOrganizerAddUser.userId);
+          if (userToPromote) {
+            makeEventOrganizer(userToPromote.userId);
           }
           setIsCoOrganizerDialogOpen(false);
         }}
       />
+      {mutationError && (
+        <Snackbar severity="error">{mutationError?.message}</Snackbar>
+      )}
     </>
   );
 }
