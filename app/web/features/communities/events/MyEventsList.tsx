@@ -18,22 +18,22 @@ const StyledFilterTagContainer = styled("div")(() => ({
   marginBottom: theme.spacing(2),
 }));
 
-const StyledFilterTag = styled(Typography)<{ isSelected: boolean }>(
-  ({ isSelected }) => ({
-    backgroundColor: isSelected
-      ? theme.palette.secondary.main
-      : theme.palette.grey[200],
-    color: isSelected ? theme.palette.common.white : theme.palette.text.primary,
-    padding: theme.spacing(1, 2),
-    textAlign: "center",
-    fontWeight: "bold",
-    margin: theme.spacing(0.5),
-    borderRadius: theme.shape.borderRadius * 6,
-    "&:hover": {
-      cursor: "pointer",
-    },
-  }),
-);
+const StyledFilterTag = styled(Typography, {
+  shouldForwardProp: (propName) => propName !== "isSelected",
+})<{ isSelected: boolean }>(({ isSelected }) => ({
+  backgroundColor: isSelected
+    ? theme.palette.secondary.main
+    : theme.palette.grey[200],
+  color: isSelected ? theme.palette.common.white : theme.palette.text.primary,
+  padding: theme.spacing(1, 2),
+  textAlign: "center",
+  fontWeight: "bold",
+  margin: theme.spacing(0.5),
+  borderRadius: theme.shape.borderRadius * 6,
+  "&:hover": {
+    cursor: "pointer",
+  },
+}));
 
 const StyledEmptyBody = styled(TextBody)(() => ({
   marginBottom: theme.spacing(2),
