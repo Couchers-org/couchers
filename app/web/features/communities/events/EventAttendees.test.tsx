@@ -14,11 +14,7 @@ import events from "test/fixtures/events.json";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
-import {
-  getEventAttendees,
-  getEventOrganizers,
-  getLiteUsers,
-} from "test/serviceMockDefaults";
+import { getEventAttendees, getLiteUsers } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 
 import EventAttendees from "./EventAttendees";
@@ -47,7 +43,10 @@ describe("Event attendees", () => {
   beforeEach(() => {
     getLiteUsersMock.mockImplementation(getLiteUsers);
     listEventAttendeesMock.mockImplementation(getEventAttendees);
-    listEventOrganizersMock.mockImplementation(getEventOrganizers);
+    listEventOrganizersMock.mockImplementation(async () => ({
+      organizerUserIdsList: [1, 3],
+      nextPageToken: "",
+    }));
     useCurrentUserMock.mockReturnValue({
       data: users[0] as User.AsObject,
       isError: false,
@@ -212,6 +211,32 @@ describe("Event attendees", () => {
           name: t("communities:load_more_attendees"),
         }),
       ).not.toBeInTheDocument();
+    });
+
+    it("should make attendee an organizer on menu option click", async () => {
+      render(<EventAttendees event={event} />, { wrapper });
+
+      const spy = jest.spyOn(service.events, "inviteEventOrganizer");
+
+      const menuButton = await screen.findByTestId(
+        "funnydog-summary-menu-more-options",
+      );
+
+      const user = userEvent.setup();
+
+      await user.click(menuButton);
+
+      const menuItem = await screen.findByText(
+        t("communities:make_co_organizer:title"),
+      );
+
+      await user.click(menuItem);
+
+      const confirmButton = await screen.findByText(t("global:confirm"));
+
+      await user.click(confirmButton);
+
+      expect(spy.mock.calls.length).toBe(1);
     });
   });
 });

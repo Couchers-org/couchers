@@ -209,5 +209,31 @@ describe("Event organizers", () => {
         ).not.toBeInTheDocument(),
       );
     });
+
+    it("should remove user as organizer on menu option click", async () => {
+      render(<EventOrganizers event={event} />, { wrapper });
+
+      const spy = jest.spyOn(service.events, "removeEventOrganizer");
+
+      const menuButton = await screen.findByTestId(
+        "funnyChicken-summary-menu-more-options",
+      );
+
+      const user = userEvent.setup();
+
+      await user.click(menuButton);
+
+      const menuItem = await screen.findByText(
+        t("communities:remove_as_co_organizer:title"),
+      );
+
+      await user.click(menuItem);
+
+      const confirmButton = await screen.findByText(t("global:confirm"));
+
+      await user.click(confirmButton);
+
+      expect(spy.mock.calls.length).toBe(1);
+    });
   });
 });
