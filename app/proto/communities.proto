@@ -108,6 +108,8 @@ message Community {
   uint32 admin_count = 11;
   uint32 nearby_user_count = 12;
   bool can_moderate = 13;
+  bool discussions_enabled = 14;
+  bool events_enabled = 15;
 }
 
 message GetCommunityReq {
@@ -233,6 +235,8 @@ message ListGuidesRes {
 message ListEventsReq {
   int64 community_id = 1;
   bool past = 4;
+  // whether to include events in all parent communities as well
+  bool include_parents = 5;
 
   uint32 page_size = 2;
   string page_token = 3;

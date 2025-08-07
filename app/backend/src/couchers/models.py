@@ -326,6 +326,10 @@ class User(Base):
 
     age = column_property(func.date_part("year", func.age(birthdate)))
 
+    # ID of the invite code used to sign up (if any)
+    invite_code_id = Column(ForeignKey("invite_codes.id"), nullable=True)
+    invite_code = relationship("InviteCode", foreign_keys=[invite_code_id])
+
     moderation_user_lists = relationship(
         "ModerationUserList", secondary="moderation_user_list_members", back_populates="users"
     )
@@ -840,6 +844,7 @@ class DonationInitiation(Base):
     stripe_checkout_session_id = Column(String, nullable=False)
 
     donation_type = Column(Enum(DonationType), nullable=False)
+    source = Column(String, nullable=True)
 
     user = relationship("User", backref="donation_initiations")
 
@@ -1048,6 +1053,8 @@ class SignupFlow(Base):
     contribute = Column(Enum(ContributeOption), nullable=True)
     contribute_ways = Column(ARRAY(String), nullable=True)
     expertise = Column(String, nullable=True)
+
+    invite_code_id = Column(ForeignKey("invite_codes.id"), nullable=True)
 
     @hybrid_property
     def token_is_valid(self):
@@ -1334,6 +1341,17 @@ class GroupChatSubscription(Base):
 
     def __repr__(self):
         return f"GroupChatSubscription(id={self.id}, user={self.user}, joined={self.joined}, left={self.left}, role={self.role}, group_chat={self.group_chat})"
+
+
+class InviteCode(Base):
+    __tablename__ = "invite_codes"
+
+    id = Column(String, primary_key=True)
+    creator_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created = Column(DateTime(timezone=True), nullable=False, default=func.now())
+    disabled = Column(DateTime(timezone=True), nullable=True)
+
+    creator = relationship("User", foreign_keys=[creator_user_id])
 
 
 class MessageType(enum.Enum):
@@ -1784,6 +1802,9 @@ class Cluster(Base):
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     is_official_cluster = Column(Boolean, nullable=False, default=False)
+
+    discussions_enabled = Column(Boolean, nullable=False, default=True, server_default=expression.true())
+    events_enabled = Column(Boolean, nullable=False, default=True, server_default=expression.true())
 
     slug = column_property(func.slugify(name))
 

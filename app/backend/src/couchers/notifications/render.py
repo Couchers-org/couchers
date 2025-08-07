@@ -857,10 +857,9 @@ def render_notification(user, notification) -> RenderedNotification:
         return RenderedNotification(
             is_critical=True,
             email_subject=title,
-            email_preview=title,
-            email_template_name="security",
+            email_preview=message,
+            email_template_name="strong_verification_success",
             email_template_args={
-                "title": title,
                 "message": message,
             },
             push_title=title,

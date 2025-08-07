@@ -8,6 +8,7 @@ services:
     restart: unless-stopped
     ports:
       - 6544:6544
+    platform: linux/amd64
   backend_tests:
     build: backend
     env_file: backend.test.env

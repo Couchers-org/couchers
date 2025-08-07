@@ -1,4 +1,4 @@
-import { Alert as MuiAlert, Typography } from "@mui/material";
+import { Alert as MuiAlert, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import { accountInfoQueryKey } from "features/queryKeys";
@@ -11,18 +11,14 @@ import React from "react";
 import { useQuery } from "react-query";
 import { routeToEditProfile } from "routes";
 import { service } from "service";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 
-const useStyles = makeStyles((theme) => ({
-  alert: {
-    marginBottom: theme.spacing(2),
-  },
-  alertText: { display: "block", marginBottom: theme.spacing(1) },
+const StyledAlert = styled(MuiAlert)(() => ({
+  marginBottom: theme.spacing(2),
 }));
 
 export default function DashboardBanners() {
   const { t } = useTranslation([DASHBOARD]);
-  const classes = useStyles();
 
   const { data, error } = useQuery<GetAccountInfoRes.AsObject, RpcError>(
     accountInfoQueryKey,
@@ -35,7 +31,7 @@ export default function DashboardBanners() {
       {data && (
         <>
           {!data.profileComplete && (
-            <MuiAlert className={classes.alert} severity="warning">
+            <StyledAlert severity="warning">
               <Typography variant="inherit" paragraph>
                 {t("dashboard:please_complete_profile")}
               </Typography>
@@ -57,7 +53,7 @@ export default function DashboardBanners() {
               <Typography variant="inherit">
                 {t("dashboard:complete_profile_explanation")}
               </Typography>
-            </MuiAlert>
+            </StyledAlert>
           )}
         </>
       )}

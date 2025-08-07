@@ -3,7 +3,7 @@ import {
   Chip,
   darken,
   Link as MuiLink,
-  Theme,
+  styled,
   Typography,
 } from "@mui/material";
 import { eventImagePlaceholderUrl } from "appConstants";
@@ -32,7 +32,6 @@ import { service } from "service";
 import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
-import makeStyles from "utils/makeStyles";
 
 import CommentTree from "../discussions/CommentTree";
 import AttendanceMenu from "./AttendanceMenu";
@@ -41,105 +40,113 @@ import EventOrganizers from "./EventOrganizers";
 import { useEvent } from "./hooks";
 import InviteCommunityDialog from "./InviteCommunityDialog";
 
-export const useEventPageStyles = makeStyles<Theme, { eventImageSrc: string }>(
-  (theme) => ({
-    eventCoverPhoto: {
-      height: 100,
-      [theme.breakpoints.up("md")]: {
-        height: 200,
-      },
-      width: "100%",
-      objectFit: ({ eventImageSrc }) =>
-        eventImageSrc === eventImagePlaceholderUrl ? "contain" : "cover",
-      marginBlockStart: theme.spacing(2),
-    },
-    header: {
-      alignItems: "center",
-      gap: theme.spacing(2, 2),
-      display: "grid",
-      gridTemplateAreas: `
+const StyledHeader = styled("div")(() => ({
+  alignItems: "center",
+  gap: theme.spacing(2, 2),
+  display: "grid",
+  gridTemplateAreas: `
       "backButton eventTitle eventTitle"
       "eventTime eventTime eventTime"
       "actionButtons actionButtons ."
     `,
-      gridAutoFlow: "column",
-      gridTemplateColumns: "3.125rem 1fr auto",
-      marginBlockEnd: theme.spacing(4),
-      marginBlockStart: theme.spacing(2),
-      [theme.breakpoints.up("sm")]: {
-        gridTemplateAreas: `
+  gridAutoFlow: "column",
+  gridTemplateColumns: "3.125rem 1fr auto",
+  marginBlockEnd: theme.spacing(4),
+  marginBlockStart: theme.spacing(2),
+  [theme.breakpoints.up("sm")]: {
+    gridTemplateAreas: `
       "backButton eventTitle actionButtons"
       ". eventTime eventTime"
     `,
-      },
-    },
-    backButton: {
-      gridArea: "backButton",
-      width: "3.125rem",
-      height: "3.125rem",
-    },
-    eventTitle: {
-      gridArea: "eventTitle",
-    },
-    onlineInfoContainer: {
-      display: "grid",
-      columnGap: theme.spacing(2),
-      gridAutoFlow: "column",
-      gridTemplateColumns: "max-content max-content",
-    },
-    actionButtons: {
-      display: "grid",
-      gridAutoFlow: "column",
-      columnGap: theme.spacing(1),
-      gridArea: "actionButtons",
-      justifySelf: "start",
-    },
-    cancelButton: {
-      flexShrink: 0,
-      "&:hover": {
-        backgroundColor: darken(theme.palette.error.main, 0.1),
-      },
-      backgroundColor: theme.palette.error.main,
-    },
-    cancelledChip: {
-      backgroundColor: theme.palette.error.main,
-      color: theme.palette.common.white,
-      fontWeight: "bold",
-    },
-    eventTypeText: {
-      color: theme.palette.grey[600],
-    },
-    eventTimeContainer: {
-      alignItems: "center",
-      gridArea: "eventTime",
-      display: "grid",
-      columnGap: theme.spacing(1),
-      gridTemplateColumns: "3.75rem auto",
-      [theme.breakpoints.up("md")]: {
-        gridTemplateColumns: "3.75rem 30%",
-      },
-    },
-    calendarIcon: {
-      marginInlineStart: theme.spacing(-0.5),
-      height: "3.75rem",
-      width: "3.75rem",
-    },
-    eventDetailsContainer: {
-      display: "grid",
-      rowGap: theme.spacing(3),
-      marginBlockEnd: theme.spacing(5),
-    },
-    cardSection: {
-      padding: theme.spacing(2),
-      "& + &": {
-        marginBlockStart: theme.spacing(3),
-      },
-    },
-    discussionContainer: {
-      marginBlockEnd: theme.spacing(5),
-    },
-  }),
-);
+  },
+}));
+
+const StyledBackButton = styled(HeaderButton)(() => ({
+  gridArea: "backButton",
+  width: "3.125rem",
+  height: "3.125rem",
+}));
+
+const StyledTitle = styled("div")(() => ({
+  gridArea: "eventTitle",
+}));
+
+const StyledOnlineInfoContainer = styled("div")(() => ({
+  display: "grid",
+  columnGap: theme.spacing(2),
+  gridAutoFlow: "column",
+  gridTemplateColumns: "max-content max-content",
+}));
+
+const StyledEventTypeText = styled(Typography)(() => ({
+  color: theme.palette.grey[600],
+}));
+
+const StyledCoverPhoto = styled("img")((props) => ({
+  height: 100,
+  [theme.breakpoints.up("md")]: {
+    height: 200,
+  },
+  width: "100%",
+  objectFit: props.src === eventImagePlaceholderUrl ? "contain" : "cover",
+  marginBlockStart: theme.spacing(2),
+}));
+
+const StyledCancelledChip = styled(Chip)(() => ({
+  backgroundColor: theme.palette.error.main,
+  color: theme.palette.common.white,
+  fontWeight: "bold",
+}));
+
+const StyledCancelButton = styled(Button)(() => ({
+  flexShrink: 0,
+  "&:hover": {
+    backgroundColor: darken(theme.palette.error.main, 0.1),
+  },
+  backgroundColor: theme.palette.error.main,
+}));
+
+const StyledActionButtonsContainer = styled("div")(() => ({
+  display: "grid",
+  gridAutoFlow: "column",
+  columnGap: theme.spacing(1),
+  gridArea: "actionButtons",
+  justifySelf: "start",
+}));
+
+const StyledEventTimeContainer = styled("div")(() => ({
+  alignItems: "center",
+  gridArea: "eventTime",
+  display: "grid",
+  columnGap: theme.spacing(1),
+  gridTemplateColumns: "3.75rem auto",
+  [theme.breakpoints.up("md")]: {
+    gridTemplateColumns: "3.75rem 30%",
+  },
+}));
+
+const StyledCalendarIcon = styled(CalendarIcon)(() => ({
+  marginInlineStart: theme.spacing(-0.5),
+  height: "3.75rem",
+  width: "3.75rem",
+}));
+
+const StyledEventDetailsContainer = styled("div")(() => ({
+  display: "grid",
+  rowGap: theme.spacing(3),
+  marginBlockEnd: theme.spacing(5),
+}));
+
+const StyledCardSection = styled(Card)(() => ({
+  padding: theme.spacing(2),
+  "& + &": {
+    marginBlockStart: theme.spacing(3),
+  },
+}));
+
+const StyledDiscussionContainer = styled("div")(() => ({
+  marginBlockEnd: theme.spacing(5),
+}));
 
 function getEventTimeString(
   startTime: Timestamp.AsObject,
@@ -211,10 +218,6 @@ export default function EventPage({
     }
   }, [event, eventSlug, router]);
 
-  const classes = useEventPageStyles({
-    eventImageSrc: event?.photoUrl || eventImagePlaceholderUrl,
-  });
-
   if (!isValidEventId) {
     return <NotFoundPage />;
   }
@@ -237,50 +240,42 @@ export default function EventPage({
       ) : (
         event && (
           <>
-            <img
-              className={classes.eventCoverPhoto}
+            <StyledCoverPhoto
               src={event.photoUrl || eventImagePlaceholderUrl}
               alt=""
               data-testid="event-cover-photo"
             />
-            <div className={classes.header}>
-              <HeaderButton
-                className={classes.backButton}
+            <StyledHeader>
+              <StyledBackButton
                 onClick={() => router.back()}
                 aria-label={t("communities:previous_page")}
               >
                 <BackIcon />
-              </HeaderButton>
-              <div className={classes.eventTitle}>
+              </StyledBackButton>
+              <StyledTitle>
                 <Typography variant="h1">{event.title}</Typography>
                 {event.onlineInformation ? (
-                  <div className={classes.onlineInfoContainer}>
-                    <Typography
-                      className={classes.eventTypeText}
-                      variant="body1"
-                    >
+                  <StyledOnlineInfoContainer>
+                    <StyledEventTypeText variant="body1">
                       {t("communities:virtual_event")}
-                    </Typography>
+                    </StyledEventTypeText>
                     <MuiLink
                       href={event.onlineInformation.link}
                       underline="hover"
                     >
                       {t("communities:event_link")}
                     </MuiLink>
-                  </div>
+                  </StyledOnlineInfoContainer>
                 ) : (
-                  <Typography className={classes.eventTypeText} variant="body1">
+                  <StyledEventTypeText variant="body1">
                     {event.offlineInformation?.address}
-                  </Typography>
+                  </StyledEventTypeText>
                 )}
                 {event.isCancelled && (
-                  <Chip
-                    classes={{ root: classes.cancelledChip }}
-                    label={t("communities:cancelled")}
-                  />
+                  <StyledCancelledChip label={t("communities:cancelled")} />
                 )}
-              </div>
-              <div className={classes.actionButtons}>
+              </StyledTitle>
+              <StyledActionButtonsContainer>
                 {event.canEdit ? (
                   <>
                     <Button
@@ -300,15 +295,14 @@ export default function EventPage({
                     >
                       {t("communities:edit_event")}
                     </Button>
-                    <Button
+                    <StyledCancelButton
                       onClick={() => setCancelDialogIsOpen(true)}
                       variant="contained"
                       color="primary"
-                      classes={{ containedPrimary: classes.cancelButton }}
                       disabled={event.isCancelled || isPastEvent}
                     >
                       {t("communities:cancel_event")}
-                    </Button>
+                    </StyledCancelButton>
                     <CancelEventDialog
                       open={cancelDialogIsOpen}
                       onClose={() => setCancelDialogIsOpen(false)}
@@ -340,32 +334,31 @@ export default function EventPage({
                   id="event-page-attendance"
                   disabled={event.isCancelled || isPastEvent}
                 />
-              </div>
+              </StyledActionButtonsContainer>
 
-              <div className={classes.eventTimeContainer}>
-                <CalendarIcon className={classes.calendarIcon} />
+              <StyledEventTimeContainer>
+                <StyledCalendarIcon />
                 <Typography variant="body1">
                   {getEventTimeString(event.startTime!, event.endTime!)}
                 </Typography>
-              </div>
-            </div>
-            <div className={classes.eventDetailsContainer}>
-              <Card className={classes.cardSection}>
+              </StyledEventTimeContainer>
+            </StyledHeader>
+            <StyledEventDetailsContainer>
+              <StyledCardSection>
                 <Typography variant="h2">
                   {t("communities:details_subheading_colon")}
                 </Typography>
-                {/* @ts-ignore @TODO until we sort out the Markdown thing*/}
                 <Markdown source={event.content} topHeaderLevel={3} />
-              </Card>
+              </StyledCardSection>
               <EventOrganizers event={event} />
               <EventAttendees event={event} />
-            </div>
-            <div className={classes.discussionContainer}>
+            </StyledEventDetailsContainer>
+            <StyledDiscussionContainer>
               <Typography variant="h2">
                 {t("communities:event_discussion")}
               </Typography>
               <CommentTree threadId={event.thread!.threadId} />
-            </div>
+            </StyledDiscussionContainer>
           </>
         )
       )}
