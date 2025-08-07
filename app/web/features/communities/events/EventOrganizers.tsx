@@ -74,7 +74,7 @@ export default function EventOrganizers({ event }: EventOrganizersProps) {
           canBeRemovedByCurrentUser(user)
             ? [
                 {
-                  icon: <Remove fontSize="small" />,
+                  icon: Remove,
                   onClick: () => {
                     setOrganizerToRemove(user);
                     setIsCoOrganizerDialogOpen(true);

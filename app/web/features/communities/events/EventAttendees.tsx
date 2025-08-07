@@ -80,7 +80,7 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
                 currentUser.data?.userId !== user.userId
                   ? [
                       {
-                        icon: <Add fontSize="small" />,
+                        icon: Add,
                         onClick: () => {
                           setUserToPromote(user);
                           setIsCoOrganizerDialogOpen(true);

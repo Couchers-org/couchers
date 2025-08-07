@@ -209,7 +209,7 @@ export default function UserSummary({
                 setMenuAnchorEl(null);
               }}
             >
-              {option.icon}
+              <option.icon fontSize="small" />
               <Typography
                 variant="body2"
                 sx={{ marginLeft: theme.spacing(1), fontWeight: 500 }}

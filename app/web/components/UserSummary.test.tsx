@@ -1,3 +1,4 @@
+import { Add } from "@mui/icons-material";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import UserSummary from "components/UserSummary";
@@ -18,7 +19,7 @@ describe("UserSummary", () => {
       <UserSummary
         user={users[0]}
         menuOptions={[
-          { icon: <></>, title: menuOptionText, onClick: menuOptionFunc },
+          { icon: Add, title: menuOptionText, onClick: menuOptionFunc },
         ]}
       />,
       { wrapper },
