@@ -7,8 +7,11 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
+import useCurrentUser from "features/userQueries/useCurrentUser";
+import { User } from "proto/api_pb";
 import { service } from "service";
 import events from "test/fixtures/events.json";
+import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { getEventOrganizers, getLiteUsers } from "test/serviceMockDefaults";
@@ -27,21 +30,22 @@ const listEventOrganizersMock = service.events
 const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
   typeof service.user.getLiteUsers
 >;
-
-jest.mock("features/auth/useAuthStore", () => ({
-  __esModule: true,
-  default: () => ({
-    authState: {
-      userId: 1,
-      authenticated: true,
-    },
-  }),
-}));
+jest.mock("features/userQueries/useCurrentUser");
+const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
+  typeof useCurrentUser
+>;
 
 describe("Event organizers", () => {
   beforeEach(() => {
     getLiteUsersMock.mockImplementation(getLiteUsers);
     listEventOrganizersMock.mockImplementation(getEventOrganizers);
+    useCurrentUserMock.mockReturnValue({
+      data: users[0] as User.AsObject,
+      isError: false,
+      isFetching: false,
+      isLoading: false,
+      error: "",
+    });
   });
 
   afterEach(() => {

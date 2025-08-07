@@ -1,10 +1,13 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import useCurrentUser from "features/userQueries/useCurrentUser";
 import mockRouter from "next-router-mock";
+import { User } from "proto/api_pb";
 import { AttendanceState } from "proto/events_pb";
 import { eventBaseRoute } from "routes";
 import { service } from "service";
 import events from "test/fixtures/events.json";
+import users from "test/fixtures/users.json";
 import hookWrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import {
@@ -45,21 +48,15 @@ const setEventAttendanceMock = service.events
   .setEventAttendance as jest.MockedFunction<
   typeof service.events.setEventAttendance
 >;
+jest.mock("features/userQueries/useCurrentUser");
+const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
+  typeof useCurrentUser
+>;
 
 function renderEventPage(id = 1, slug = "weekly-meetup") {
   mockRouter.setCurrentUrl(`${eventBaseRoute}/${id}/${slug}`);
   render(<EventPage eventId={id} eventSlug={slug} />, { wrapper: hookWrapper });
 }
-
-jest.mock("features/auth/useAuthStore", () => ({
-  __esModule: true,
-  default: () => ({
-    authState: {
-      userId: 1,
-      authenticated: true,
-    },
-  }),
-}));
 
 describe("Event page", () => {
   beforeEach(() => {
@@ -68,6 +65,13 @@ describe("Event page", () => {
     listEventOrganizersMock.mockImplementation(getEventOrganizers);
     getUserMock.mockImplementation(getUser);
     getThreadMock.mockImplementation(getThread);
+    useCurrentUserMock.mockReturnValue({
+      data: users[0] as User.AsObject,
+      isError: false,
+      isFetching: false,
+      isLoading: false,
+      error: "",
+    });
     timezoneMock.register("UTC");
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-06-01 00:00"));
