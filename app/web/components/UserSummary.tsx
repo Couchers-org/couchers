@@ -195,7 +195,7 @@ export default function UserSummary({
       />
       {menuOptions && (
         <EllipsisMenu
-          idName={"swag"}
+          idName={`${user?.username}-summary-menu`}
           isMenuOpen={!!menuAnchorEl}
           menuAnchorEl={menuAnchorEl}
           onMenuOpen={handleMenuOpen}
@@ -208,7 +208,6 @@ export default function UserSummary({
                 option.onClick();
                 setMenuAnchorEl(null);
               }}
-              data-testid="unblock-user"
             >
               {option.icon}
               <Typography
