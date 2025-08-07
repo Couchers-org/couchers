@@ -270,7 +270,11 @@
     "delete_my_data_button": "Meine Daten löschen",
     "delete_button": "Meine Starke Verifizierungsdaten löschen",
     "delete_success": "Deine Reisepassdaten wurden gelöscht.",
-    "learn_more": "Erfahre mehr über Starke Verifizierung <a>hier</a>."
+    "learn_more": "Erfahre mehr über Starke Verifizierung <a>hier</a>.",
+    "donation_title": "Danke für die Verifizierung – du hilfst dabei, Couchers.org für alle sicherer zu machen.",
+    "donation_message2": "Wenn du dazu in der Lage bist, erwäge bitte eine Spende, um Couchers.org am Laufen zu halten und weiter wachsen zu lassen.",
+    "donate_button": "Spende, um Couchers.org zu unterstützen",
+    "donation_message1": "Die Verifizierung ist für dich kostenlos, aber sie verursacht für uns Kosten. Als gemeinnützige Organisation, die von Freiwilligen betrieben wird, sind wir auf Spenden angewiesen, um Ausgaben wie den Betrieb unserer Server, die Verifizierung sowie Werkzeuge für Freiwillige und Community-Betreuer zu decken."
   },
   "sign_up_resend_verification_email_help": "Keine E-Mail erhalten? Klick <2>hier, um den Bestätigungslink erneut zu senden</2>.",
   "sign_up_resend_verification_done": "Erledigt! Wir haben dir eine weitere E-Mail gesendet.",
