@@ -10,13 +10,32 @@ import { getAllMarkdownPathsWithLocales } from "utils/markdownPages";
 
 async function getMarkdownPageBySlug(
   slug: Array<string>,
+  locale: string,
 ): Promise<MarkdownPageProps> {
-  const md = await import(`markdown/${slug.join("/")}.md`);
-  return {
-    slug,
-    frontmatter: md.attributes,
-    content: md.html,
-  };
+  // Try new format first: markdown/locales/<locale>/<slug>.md
+  try {
+    const md = await import(`markdown/locales/${locale}/${slug.join("/")}.md`);
+    return {
+      slug,
+      frontmatter: md.attributes,
+      content: md.html,
+    };
+  } catch (error) {
+    // Fallback to old format: markdown/<slug>.md (default English)
+    try {
+      const md = await import(`markdown/${slug.join("/")}.md`);
+      return {
+        slug,
+        frontmatter: md.attributes,
+        content: md.html,
+      };
+    } catch (e3) {
+      // Not found in any location
+      throw new Error(
+        `Markdown file not found for slug: ${slug.join("/")} and locale: ${locale}`,
+      );
+    }
+  }
 }
 
 export const getStaticPaths: GetStaticPaths = () => ({
@@ -24,16 +43,19 @@ export const getStaticPaths: GetStaticPaths = () => ({
   fallback: false,
 });
 
-export const getStaticProps: GetStaticProps = async ({ locale, params }) => ({
-  props: {
-    ...(await serverSideTranslations(
-      locale ?? "en",
-      [GLOBAL, AUTH, NOTIFICATIONS],
-      nextI18nextConfig,
-    )),
-    page: await getMarkdownPageBySlug(params!.slug as Array<string>),
-  },
-});
+export const getStaticProps: GetStaticProps = async ({ locale, params }) => {
+  const lang = locale ?? "en";
+  return {
+    props: {
+      ...(await serverSideTranslations(
+        lang,
+        [GLOBAL, AUTH, NOTIFICATIONS],
+        nextI18nextConfig,
+      )),
+      page: await getMarkdownPageBySlug(params!.slug as Array<string>, lang),
+    },
+  };
+};
 
 export default function Markdown({ page }: { page: MarkdownPageProps }) {
   return <MarkdownPage {...page} />;
