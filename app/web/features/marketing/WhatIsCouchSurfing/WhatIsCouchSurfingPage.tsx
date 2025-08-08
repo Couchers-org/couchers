@@ -400,7 +400,7 @@ export default function WhatIsCouchSurfingPage() {
                 </TableRow>
                 <TableRow>
                   <TableCell>Cost to stay</TableCell>
-                  <TableCell>Usually free</TableCell>
+                  <TableCell>Free to stay</TableCell>
                   <TableCell>$</TableCell>
                   <TableCell>$$–$$$</TableCell>
                 </TableRow>
