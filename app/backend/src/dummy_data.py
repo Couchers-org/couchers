@@ -33,7 +33,7 @@ from couchers.models import (
     RegionVisited,
     Thread,
     User,
-    Volunteer
+    Volunteer,
 )
 from couchers.servicers.api import hostingstatus2sql
 from couchers.servicers.auth import create_session
