@@ -19,7 +19,7 @@ from couchers.models import (
     User,
 )
 from couchers.sql import couchers_select as select
-from couchers.utils import now, to_aware_datetime, today
+from couchers.utils import create_coordinate, now, to_aware_datetime, today
 from proto import conversations_pb2, references_pb2, requests_pb2
 from tests.test_fixtures import (  # noqa
     account_session,
@@ -85,6 +85,9 @@ def create_host_request(
         surfer_last_seen_message_id=message.id,
         host_reason_didnt_meetup=host_reason_didnt_meetup,
         surfer_reason_didnt_meetup=surfer_reason_didnt_meetup,
+        hosting_city="Test City",
+        hosting_location=create_coordinate(0, 0),
+        hosting_radius=10,
     )
     session.add(host_request)
     session.commit()
@@ -131,6 +134,9 @@ def create_host_request_by_date(
         status=status,
         host_sent_request_reminders=host_sent_request_reminders,
         last_sent_request_reminder_time=last_sent_request_reminder_time,
+        hosting_city="Test City",
+        hosting_location=create_coordinate(0, 0),
+        hosting_radius=10,
     )
 
     session.add(host_request)
