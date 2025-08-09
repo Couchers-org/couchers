@@ -10,6 +10,7 @@ import i18n from "test/i18n";
 import {
   getEventAttendees,
   getEventOrganizers,
+  getLiteUsers,
   getThread,
   getUser,
 } from "test/serviceMockDefaults";
@@ -46,6 +47,10 @@ const setEventAttendanceMock = service.events
   typeof service.events.setEventAttendance
 >;
 
+const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
+  typeof service.user.getLiteUsers
+>;
+
 function renderEventPage(id = 1, slug = "weekly-meetup") {
   mockRouter.setCurrentUrl(`${eventBaseRoute}/${id}/${slug}`);
   const { wrapper } = getHookWrapperWithClient();
@@ -58,6 +63,7 @@ describe("Event page", () => {
     listEventAttendeesMock.mockImplementation(getEventAttendees);
     listEventOrganizersMock.mockImplementation(getEventOrganizers);
     getUserMock.mockImplementation(getUser);
+    getLiteUsersMock.mockImplementation(getLiteUsers);
     getThreadMock.mockImplementation(getThread);
     timezoneMock.register("UTC");
     jest.useFakeTimers();

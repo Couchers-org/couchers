@@ -191,7 +191,7 @@ export default function EventPage({
     onSuccess(updatedEvent) {
       queryClient.setQueryData<Event.AsObject>(eventKey(eventId), updatedEvent);
       queryClient.invalidateQueries({
-        queryKey: [eventKey(eventId)],
+        queryKey: eventKey(eventId),
         refetchType: "none",
       });
       queryClient.invalidateQueries({
