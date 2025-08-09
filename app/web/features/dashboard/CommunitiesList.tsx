@@ -16,7 +16,7 @@ const StyledPlaceholder = styled("div")(() => ({
   flexDirection: "column",
   padding: theme.spacing(2, 0),
   borderBottom: `solid 1px ${theme.palette.divider}`,
-  "&:first-child": {
+  "&:first-of-type": {
     borderTop: `solid 1px ${theme.palette.divider}`,
   },
 }));
@@ -26,7 +26,7 @@ const StyledCommunityLink = styled(StyledLink)(() => ({
   flexDirection: "column",
   padding: theme.spacing(2, 0),
   borderBottom: `solid 1px ${theme.palette.divider}`,
-  "&:first-child": {
+  "&:first-of-type": {
     borderTop: `solid 1px ${theme.palette.divider}`,
   },
 }));
