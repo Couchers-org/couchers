@@ -31,7 +31,7 @@ export default function useCancelFriendRequest() {
     },
     onSuccess: (_, { userId }) => {
       queryClient.invalidateQueries({
-        queryKey: [friendRequestKey("sent")],
+        queryKey: friendRequestKey("sent"),
         exact: true,
       });
       queryClient.invalidateQueries({

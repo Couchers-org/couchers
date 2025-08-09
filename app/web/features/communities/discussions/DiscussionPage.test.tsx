@@ -225,7 +225,7 @@ describe("Discussion page", () => {
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    expect(screen.getByText(t("communities:no_comments"))).toBeVisible();
+    expect(await screen.findByText(t("communities:no_comments"))).toBeVisible();
   });
 
   describe("when there are more than one page of comments", () => {

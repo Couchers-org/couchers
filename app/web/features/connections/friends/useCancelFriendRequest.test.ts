@@ -42,6 +42,9 @@ describe("useCancelFriendRequest hook", () => {
       wrapper,
     });
 
+    // Spy before triggering to observe the actual invalidate from onSuccess
+    const spy = jest.spyOn(client, "invalidateQueries");
+
     act(() => {
       result.current.cancelFriendRequest({
         friendRequestId: 1,
@@ -52,14 +55,22 @@ describe("useCancelFriendRequest hook", () => {
 
     await waitFor(() => expect(setMutationError).toHaveBeenCalledTimes(1));
     expect(setMutationError).toHaveBeenCalledWith("");
-    expect(client.getQueryState(friendRequestKey("sent"))?.isInvalidated).toBe(
-      true,
+    // assert that invalidateQueries was called on the expected key
+    await waitFor(() =>
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          queryKey: friendRequestKey("sent"),
+          exact: true,
+        }),
+      ),
     );
   });
 
   it("does not invalidate existing queries if the API call failed", async () => {
     cancelFriendRequestMock.mockRejectedValue(new Error("API error"));
     jest.spyOn(console, "error").mockReturnValue(undefined);
+
+    const spy = jest.spyOn(client, "invalidateQueries");
 
     const { result } = renderHook(() => useCancelFriendRequest(), {
       wrapper,
@@ -74,8 +85,8 @@ describe("useCancelFriendRequest hook", () => {
 
     await waitFor(() => expect(setMutationError).toHaveBeenCalledTimes(2));
     expect(setMutationError).toHaveBeenLastCalledWith("API error");
-    expect(client.getQueryState(friendRequestKey("sent"))?.isInvalidated).toBe(
-      false,
-    );
+    // No invalidation expected; data remains in cache
+    expect(client.getQueryData(friendRequestKey("sent"))).toBeDefined();
+    expect(spy).not.toHaveBeenCalled();
   });
 });

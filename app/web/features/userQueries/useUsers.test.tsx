@@ -195,11 +195,19 @@ describe("cached data", () => {
   });
 
   it("is invalidated when requested", async () => {
+    const spy = jest.spyOn(sharedClient, "invalidateQueries");
     renderHook(() => useUsers([1, 2, 3], true), {
       wrapper: sharedClientWrapper,
     });
-
-    expect(getUserMock).toBeCalledTimes(3);
+    await waitFor(() =>
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          refetchType: "active",
+          predicate: expect.any(Function),
+        }),
+      ),
+    );
+    await waitFor(() => expect(getUserMock).toBeCalledTimes(3));
   });
 
   it("is returned when stale if subsequent refetch queries fail", async () => {
@@ -229,34 +237,32 @@ describe("cached data", () => {
   });
 
   it("is only invalidated on first render with invalidate=true", async () => {
+    const spy = jest.spyOn(sharedClient, "invalidateQueries");
     const { rerender } = renderHook(() => useUsers([1, 2, 3], true), {
       wrapper: sharedClientWrapper,
     });
-    expect(
-      sharedClient
-        .getQueryCache()
-        .getAll()
-        .every((query) => query.state.isInvalidated),
-    ).toBe(true);
-
+    // v5: assert invalidate was called and only one refetch cycle occurred
+    await waitFor(() =>
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          refetchType: "active",
+          predicate: expect.any(Function),
+        }),
+      ),
+    );
     await waitFor(() => expect(getUserMock).toHaveBeenCalledTimes(3));
 
-    expect(
-      sharedClient
-        .getQueryCache()
-        .getAll()
-        .every((query) => query.state.isInvalidated),
-    ).toBe(false);
+    // ensure no more invalidations/refetches after first cycle
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(getUserMock).toHaveBeenCalledTimes(3);
     rerender();
-    expect(
-      sharedClient
-        .getQueryCache()
-        .getAll()
-        .every((query) => query.state.isInvalidated),
-    ).toBe(false);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(getUserMock).toHaveBeenCalledTimes(3);
   });
 
   it("is invalidated with invalidate=true on id change", async () => {
+    const spy = jest.spyOn(sharedClient, "invalidateQueries");
+
     const { result } = renderHook(
       () => {
         const [ids, setIds] = useState([1, 2, 3]);
@@ -267,25 +273,22 @@ describe("cached data", () => {
         wrapper: sharedClientWrapper,
       },
     );
-    expect(
-      sharedClient
-        .getQueryCache()
-        .getAll()
-        .every((query) => query.state.isInvalidated),
-    ).toBe(true);
 
+    // v5: assert invalidate was called and only one refetch cycle occurred
+    await waitFor(() =>
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          refetchType: "active",
+          predicate: expect.any(Function),
+        }),
+      ),
+    );
+    // v5: assert by fetch calls instead of internal state
     await waitFor(() => expect(getUserMock).toHaveBeenCalledTimes(3));
 
-    expect(
-      sharedClient
-        .getQueryCache()
-        .getAll()
-        .every((query) => query.state.isInvalidated),
-    ).toBe(false);
+    expect(getUserMock).toHaveBeenCalledTimes(3);
     getUserMock.mockClear();
     act(() => result.current.setIds([1, 2]));
-    //testing for query.state.isInvalidated doesn't work here
-    //probably await act(... waits too long
 
     expect(getUserMock).toBeCalledTimes(2);
   });

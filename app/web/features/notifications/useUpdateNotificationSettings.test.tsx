@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, renderHook } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { notificationSettingsQueryKey } from "features/queryKeys";
 import { RpcError, StatusCode } from "grpc-web";
 import { service } from "service";
@@ -95,6 +95,6 @@ describe("useUpdateNotificationSettings", () => {
     });
 
     expect(setMutationError).toHaveBeenCalledWith("Test error message");
-    expect(result.current.isError).toBe(true);
+    await waitFor(() => expect(result.current.isError).toBe(true));
   });
 });

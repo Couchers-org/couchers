@@ -25,7 +25,7 @@ function BlockedUsersList({ refetchFriends }: { refetchFriends: () => void }) {
   );
   const isMenuOpen = Boolean(menuAnchorEl);
 
-  const { data, error, isLoading } = useQuery<
+  const { data, error, isPending } = useQuery<
     GetBlockedUsersRes.AsObject,
     RpcError
   >({ queryKey: [blockedUsersKey], queryFn: service.blocking.getBlockedUsers });
@@ -60,7 +60,7 @@ function BlockedUsersList({ refetchFriends }: { refetchFriends: () => void }) {
       <FriendTile
         title={t("connections:blocked_list_title")}
         errorMessage={error?.message || null}
-        isLoading={isLoading}
+        isLoading={isPending}
         hasData={!!data?.blockedUsersList.length}
         noDataMessage={t("connections:no_blocked_users")}
       >

@@ -15,8 +15,10 @@ export default function useUsers(
     if (invalidate) {
       queryClient.invalidateQueries({
         predicate: (query) =>
-          query.queryKey[0] === userKey() &&
+          query.queryKey[0] === userKey()[0] &&
           !!idsRef.current.includes(query.queryKey[1] as number),
+        // tells v5 to immediately refetch active observers after invalidation
+        refetchType: "active",
       });
     }
   }, [invalidate, queryClient]);
@@ -49,7 +51,7 @@ export default function useUsers(
         : undefined,
     )
     .filter((e): e is string => typeof e === "string");
-  const isLoading = queries.some((query) => query.isLoading);
+  const isPending = queries.some((query) => query.isPending);
   const isFetching = queries.some((query) => query.isFetching);
 
   // If at least one user query is not loading (i.e. has data loaded before), whilst
@@ -57,7 +59,7 @@ export default function useUsers(
   const isRefetching = !queries.every((query) => query.isLoading) && isFetching;
   const isError = !!errors.length;
 
-  const usersById = isLoading
+  const usersById = isPending
     ? undefined
     : new Map(queries.map((q, index) => [ids[index], q.data]));
 
@@ -66,7 +68,7 @@ export default function useUsers(
     errors,
     isError,
     isFetching,
-    isLoading,
+    isLoading: isPending,
     isRefetching,
   };
 }

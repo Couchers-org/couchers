@@ -34,14 +34,18 @@ describe("useRespondToFriendRequest hook", () => {
       friendRequestKey("received"),
       [],
     );
-    client.setQueryData<number[]>(["friendIds"], []);
+    client.setQueryData<number[]>(["friendIds"], [2]);
   });
 
   it("invalidates the friend request received list and the friend list if the mutation succeeded", async () => {
     respondToFriendRequestMock.mockResolvedValue(new Empty());
+
     const { result } = renderHook(() => useRespondToFriendRequest(), {
       wrapper,
     });
+
+    const spy = jest.spyOn(client, "invalidateQueries");
+
     act(() => {
       result.current.respondToFriendRequest({
         accept: true,
@@ -57,10 +61,16 @@ describe("useRespondToFriendRequest hook", () => {
 
     await waitFor(() => expect(setMutationError).toHaveBeenCalledTimes(1));
     expect(setMutationError).toHaveBeenCalledWith("");
-    expect(client.getQueryState(["friendIds"])?.isInvalidated).toBe(true);
-    expect(
-      client.getQueryState([friendRequestKey("received")])?.isInvalidated,
-    ).toBe(true);
+    await waitFor(() =>
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({ queryKey: ["friendIds"] }),
+      ),
+    );
+    await waitFor(() =>
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({ queryKey: friendRequestKey("received") }),
+      ),
+    );
   });
 
   it("does not invalidate existing queries if the API call failed", async () => {
@@ -70,6 +80,9 @@ describe("useRespondToFriendRequest hook", () => {
     const { result } = renderHook(() => useRespondToFriendRequest(), {
       wrapper,
     });
+
+    const spy = jest.spyOn(client, "invalidateQueries");
+
     act(() => {
       result.current.respondToFriendRequest({
         accept: true,
@@ -85,9 +98,7 @@ describe("useRespondToFriendRequest hook", () => {
 
     await waitFor(() => expect(setMutationError).toHaveBeenCalledTimes(2));
     expect(setMutationError).toHaveBeenLastCalledWith("API error");
-    expect(client.getQueryState(["friendIds"])?.isInvalidated).toBe(false);
-    expect(
-      client.getQueryState([friendRequestKey("received")])?.isInvalidated,
-    ).toBe(false);
+
+    expect(spy).not.toHaveBeenCalled();
   });
 });
