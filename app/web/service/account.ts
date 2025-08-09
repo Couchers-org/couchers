@@ -171,7 +171,6 @@ export type UpdateVolunteerInfoParams = {
 export function updateVolunteerInfo(info: UpdateVolunteerInfoParams) {
   const req = new UpdateMyVolunteerInfoReq();
 
-  // @TODO(FB) Clean up
   if (info.showOnTeamPage !== undefined) {
     req.setShowOnTeamPage(new BoolValue().setValue(info.showOnTeamPage));
   }

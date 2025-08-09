@@ -11,7 +11,6 @@ import Timezone from "features/auth/timezone/Timezone";
 import Username from "features/auth/username/Username";
 import NotificationSettings from "features/notifications/NotificationSettings";
 import PushNotificationSettings from "features/notifications/PushNotificationSettings";
-import UpdateVolunteerInfo from "features/team/UpdateVolunteerInfo";
 import LanguagePickerSettings from "features/translate/LanguagePickerSettings";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
@@ -103,11 +102,6 @@ export default function Settings() {
               )}
             />
           </MarginWrapper>
-          {accountInfo.isVolunteer && (
-            <MarginWrapper>
-              <UpdateVolunteerInfo />
-            </MarginWrapper>
-          )}
           <MarginWrapper>
             <DeleteAccount username={accountInfo.username} />
           </MarginWrapper>
