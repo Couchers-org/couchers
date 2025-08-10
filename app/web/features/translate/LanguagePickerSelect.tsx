@@ -13,6 +13,7 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
+import CatalanFlagIcon from "components/Icons/CatalanFlagIcon";
 import Snackbar from "components/Snackbar";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useWeblateStats } from "features/weblate/useWeblateStats";
@@ -91,23 +92,30 @@ export default function LanguagePickerSelect({
     router.push(translateRoute);
   };
 
-  const getFlagSrc = (flagCode: string): string =>
-    flagCode === "CAT"
-      ? "/img/language-icons/CAT.svg"
-      : `https://cdn.couchers.org/img/language-icons/${flagCode}.svg`;
+  const renderFlag = (flagCode: string, percent?: number) => {
+    const commonStyles = {
+      filter:
+        percent && percent < ALMOST_DONE_CUTOFF ? "grayscale(100%)" : "none",
+      opacity: percent && percent < ALMOST_DONE_CUTOFF ? 0.4 : 1,
+    } as const;
 
-  const renderFlag = (flagCode: string, percent?: number) => (
-    <img
-      alt={`${flagCode} flag`}
-      src={getFlagSrc(flagCode)}
-      style={{
-        width: 25,
-        filter:
-          percent && percent < ALMOST_DONE_CUTOFF ? "grayscale(100%)" : "none",
-        opacity: percent && percent < ALMOST_DONE_CUTOFF ? 0.4 : 1,
-      }}
-    />
-  );
+    if (flagCode === "CAT") {
+      return (
+        <CatalanFlagIcon
+          sx={{ width: 25, height: 18.75, ...commonStyles }}
+          aria-label="Catalan flag"
+        />
+      );
+    }
+
+    return (
+      <img
+        alt={`${flagCode} flag`}
+        src={`https://cdn.couchers.org/img/language-icons/${flagCode}.svg`}
+        style={{ width: 25, ...commonStyles }}
+      />
+    );
+  };
   // Languages with < 20% translated are hidden
   // Languages with < 80% translated are greyed out
   const availableLanguages = languages

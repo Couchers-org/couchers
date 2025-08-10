@@ -9,6 +9,7 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
+import CatalanFlagIcon from "components/Icons/CatalanFlagIcon";
 import { useWeblateStats } from "features/weblate/useWeblateStats";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
@@ -80,10 +81,15 @@ const FlagImage = styled("img")<{ percent: number }>(({ percent }) => ({
   transition: "filter 0.2s ease-in-out",
 }));
 
-const getFlagSrc = (flagCode: string): string =>
-  flagCode === "CAT"
-    ? "/img/language-icons/CAT.svg"
-    : `https://cdn.couchers.org/img/language-icons/${flagCode}.svg`;
+const CatalanFlag = styled(CatalanFlagIcon)<{ percent: number }>(
+  ({ percent }) => ({
+    width: 32,
+    height: 24,
+    borderRadius: 4,
+    filter: percent < ALMOST_DONE_CUTOFF ? "grayscale(50%)" : "none",
+    transition: "filter 0.2s ease-in-out",
+  }),
+);
 
 const getStatusColor = (
   percent: number,
@@ -118,6 +124,19 @@ export default function TranslationProgress() {
   const { t } = useTranslation([GLOBAL]);
 
   const { data: languages, isLoading, error } = useWeblateStats();
+
+  const renderFlag = (flagCode: string, percent: number) => {
+    if (flagCode === "CAT") {
+      return <CatalanFlag percent={percent} aria-label="Catalan flag" />;
+    }
+    return (
+      <FlagImage
+        src={`https://cdn.couchers.org/img/language-icons/${flagCode}.svg`}
+        alt={`${flagCode} flag`}
+        percent={percent}
+      />
+    );
+  };
 
   if (isLoading) {
     return (
@@ -213,11 +232,7 @@ export default function TranslationProgress() {
                     }}
                   >
                     <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-                      <FlagImage
-                        src={getFlagSrc(languageInfo.flagIconCode)}
-                        alt={`${languageInfo.flagIconCode} flag`}
-                        percent={percent}
-                      />
+                      {renderFlag(languageInfo.flagIconCode, percent)}
                       <Typography variant="subtitle2" fontWeight="bold">
                         {t(`language_names.${languageCode}`)}
                       </Typography>
@@ -261,11 +276,8 @@ export default function TranslationProgress() {
                       width: "100%",
                     }}
                   >
-                    <FlagImage
-                      src={getFlagSrc(languageInfo.flagIconCode)}
-                      alt={`${languageInfo.flagIconCode} flag`}
-                      percent={percent}
-                    />
+                    {renderFlag(languageInfo.flagIconCode, percent)}
+
                     <Typography variant="subtitle1" fontWeight="bold" noWrap>
                       {t(`language_names.${languageCode}`)}
                     </Typography>
