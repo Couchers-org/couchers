@@ -91,10 +91,15 @@ export default function LanguagePickerSelect({
     router.push(translateRoute);
   };
 
+  const getFlagSrc = (flagCode: string): string =>
+    flagCode === "CAT"
+      ? "/img/language-icons/CAT.svg"
+      : `https://cdn.couchers.org/img/language-icons/${flagCode}.svg`;
+
   const renderFlag = (flagCode: string, percent?: number) => (
     <img
       alt={`${flagCode} flag`}
-      src={`https://cdn.couchers.org/img/language-icons/${flagCode}.svg`}
+      src={getFlagSrc(flagCode)}
       style={{
         width: 25,
         filter:

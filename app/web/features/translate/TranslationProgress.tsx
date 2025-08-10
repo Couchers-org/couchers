@@ -80,6 +80,11 @@ const FlagImage = styled("img")<{ percent: number }>(({ percent }) => ({
   transition: "filter 0.2s ease-in-out",
 }));
 
+const getFlagSrc = (flagCode: string): string =>
+  flagCode === "CAT"
+    ? "/img/language-icons/CAT.svg"
+    : `https://cdn.couchers.org/img/language-icons/${flagCode}.svg`;
+
 const getStatusColor = (
   percent: number,
 ): "success" | "info" | "warning" | "error" => {
@@ -209,7 +214,7 @@ export default function TranslationProgress() {
                   >
                     <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
                       <FlagImage
-                        src={`https://cdn.couchers.org/img/language-icons/${languageInfo.flagIconCode}.svg`}
+                        src={getFlagSrc(languageInfo.flagIconCode)}
                         alt={`${languageInfo.flagIconCode} flag`}
                         percent={percent}
                       />
@@ -257,7 +262,7 @@ export default function TranslationProgress() {
                     }}
                   >
                     <FlagImage
-                      src={`https://cdn.couchers.org/img/language-icons/${languageInfo.flagIconCode}.svg`}
+                      src={getFlagSrc(languageInfo.flagIconCode)}
                       alt={`${languageInfo.flagIconCode} flag`}
                       percent={percent}
                     />
