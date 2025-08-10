@@ -32,6 +32,7 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { useQueryClient } from "react-query";
 import { howToMakeGreatProfileUrl } from "routes";
 import { service, UpdateUserProfileData } from "service/index";
+import { theme } from "theme";
 import {
   useIsMounted,
   useSafeState,
@@ -43,10 +44,78 @@ import {
   DEFAULT_ABOUT_ME_HEADINGS,
   DEFAULT_HOBBIES_HEADINGS,
 } from "./constants";
-import useStyles from "./styles";
 
-const StyledAlert = styled(Alert)(({ theme }) => ({
-  marginTop: theme.spacing(2),
+const StyledAlert = styled(Alert)(() => ({
+  marginBottom: theme.spacing(3),
+}));
+
+const StyledHelpTextContainer = styled("div")(() => ({
+  textAlign: "center",
+  margin: theme.spacing(2),
+}));
+
+const StyledForm = styled("form")(() => ({
+  marginTop: theme.spacing(1),
+  marginBottom: theme.spacing(2),
+  paddingBottom: theme.spacing(5),
+}));
+
+const styledField = <C extends React.ComponentType<React.ComponentProps<C>>>(
+  component: C,
+) => {
+  return styled(component)(() => ({
+    [theme.breakpoints.up("md")]: {
+      "& > .MuiInputBase-root": {
+        width: 400,
+      },
+    },
+    "& > .MuiInputBase-root": {
+      width: "100%",
+    },
+  }));
+};
+
+const StyledProfileTextInput = styledField(ProfileTextInput);
+
+const StyledAvatarInput = styled(ImageInput)(() => ({
+  width: 120,
+  height: 120,
+}));
+
+const StyledProfileMarkdownInput = styledField(ProfileMarkdownInput);
+
+const StyledBottomForm = styled("form")(() => ({
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  [theme.breakpoints.up("md")]: {
+    margin: theme.spacing(0, 10),
+  },
+  // to make space for floating save button
+  paddingBottom: theme.spacing(5),
+}));
+
+const StyledRadioGroup = styled(RadioGroup)(() => ({
+  display: "flex",
+  flexDirection: "column",
+  [theme.breakpoints.up("sm")]: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+  },
+}));
+
+const StyledButtonContainer = styled("div")(() => ({
+  position: "fixed",
+  bottom: 0,
+  left: 0,
+  width: "100%",
+  display: "flex",
+  zIndex: 105,
+  backgroundColor: theme.palette.background.paper,
+  borderTop: `1px solid ${theme.palette.divider}`,
+  justifyContent: "center",
+  paddingBottom: theme.spacing(1),
+  paddingTop: theme.spacing(1),
 }));
 
 export type EditProfileFormValues = Omit<
@@ -64,7 +133,6 @@ export type EditProfileFormValues = Omit<
 
 export default function EditProfileForm() {
   const { t } = useTranslation([GLOBAL, AUTH, PROFILE]);
-  const classes = useStyles();
   const {
     updateUserProfile,
     reset: resetUpdate,
@@ -203,7 +271,7 @@ export default function EditProfileForm() {
       )}
       {user ? (
         <>
-          <div className={classes.helpTextContainer}>
+          <StyledHelpTextContainer>
             <Typography variant="body1">
               <Trans i18nKey="profile:edit_profile_helper_text">
                 Looking for some inspiration on where to start?{" "}
@@ -213,10 +281,9 @@ export default function EditProfileForm() {
                 .
               </Trans>
             </Typography>
-          </div>
-          <form onSubmit={onSubmit} className={classes.topFormContainer}>
-            <ImageInput
-              className={classes.avatar}
+          </StyledHelpTextContainer>
+          <StyledForm onSubmit={onSubmit}>
+            <StyledAvatarInput
               control={control}
               id="profile-picture"
               name="avatarKey"
@@ -229,18 +296,17 @@ export default function EditProfileForm() {
                 if (user) queryClient.invalidateQueries(userKey(user.userId));
               }}
             />
-            <ProfileTextInput
+            <StyledProfileTextInput
               id="name"
               {...register("name", { required: true })}
               label={t("profile:edit_profile_headings.name")}
               defaultValue={user.name}
               error={!!errors.name}
-              className={classes.field}
               helperText={
                 errors.name ? t("profile:edit_profile_name_required") : ""
               }
             />
-          </form>
+          </StyledForm>
           <Controller
             defaultValue={{
               city: user.city,
@@ -280,10 +346,7 @@ export default function EditProfileForm() {
               />
             )}
           />
-          <form
-            onSubmit={handleSubmitButtonClick}
-            className={classes.bottomFormContainer}
-          >
+          <StyledBottomForm onSubmit={handleSubmitButtonClick}>
             <Controller
               control={control}
               defaultValue={user.hostingStatus}
@@ -293,7 +356,7 @@ export default function EditProfileForm() {
                   <Typography variant="h2">
                     {t("profile:edit_profile_headings.hosting_status")}
                   </Typography>
-                  <RadioGroup
+                  <StyledRadioGroup
                     {...field}
                     row
                     aria-label={t(
@@ -304,7 +367,6 @@ export default function EditProfileForm() {
                     onChange={(event) =>
                       field.onChange(Number(event.target.value))
                     }
-                    className={classes.radioButtons}
                   >
                     <FormControlLabel
                       value={HostingStatus.HOSTING_STATUS_CAN_HOST}
@@ -321,7 +383,7 @@ export default function EditProfileForm() {
                       control={<Radio />}
                       label={t("global:hosting_status.cant_host")}
                     />
-                  </RadioGroup>
+                  </StyledRadioGroup>
                 </>
               )}
             />
@@ -334,7 +396,7 @@ export default function EditProfileForm() {
                   <Typography variant="h2">
                     {t("profile:edit_profile_headings.meetup_status")}
                   </Typography>
-                  <RadioGroup
+                  <StyledRadioGroup
                     {...field}
                     row
                     aria-label={t(
@@ -345,7 +407,6 @@ export default function EditProfileForm() {
                     onChange={(event) =>
                       field.onChange(Number(event.target.value))
                     }
-                    className={classes.radioButtons}
                   >
                     <FormControlLabel
                       value={MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP}
@@ -362,7 +423,7 @@ export default function EditProfileForm() {
                       control={<Radio />}
                       label={t("global:meetup_status.does_not_want_to_meetup")}
                     />
-                  </RadioGroup>
+                  </StyledRadioGroup>
                 </>
               )}
             />
@@ -381,14 +442,13 @@ export default function EditProfileForm() {
                     <Typography variant="h2">
                       {t("profile:edit_profile_headings.pronouns")}
                     </Typography>
-                    <RadioGroup
+                    <StyledRadioGroup
                       {...field}
                       row
                       aria-label={t("profile:edit_profile_headings.pronouns")}
                       name="pronouns"
                       value={field.value}
                       onChange={(_, value) => field.onChange(value)}
-                      className={classes.radioButtons}
                     >
                       <FormControlLabel
                         value={t("profile:pronouns.woman")}
@@ -413,7 +473,7 @@ export default function EditProfileForm() {
                           />
                         }
                       />
-                    </RadioGroup>
+                    </StyledRadioGroup>
                   </>
                 );
               }}
@@ -437,54 +497,48 @@ export default function EditProfileForm() {
                 )}
               />
             )}
-            <ProfileTextInput
+            <StyledProfileTextInput
               id="hometown"
               {...register("hometown")}
               label={t("profile:edit_profile_headings.hometown")}
               defaultValue={user.hometown}
-              className={classes.field}
             />
-            <ProfileTextInput
+            <StyledProfileTextInput
               id="occupation"
               {...register("occupation")}
               label={t("profile:edit_profile_headings.occupation")}
               defaultValue={user.occupation}
-              className={classes.field}
             />
-            <ProfileTextInput
+            <StyledProfileTextInput
               id="education"
               {...register("education")}
               label={t("profile:edit_profile_headings.education")}
               defaultValue={user.education}
-              className={classes.field}
             />
-            <ProfileMarkdownInput
+            <StyledProfileMarkdownInput
               id="aboutMe"
               label={t("profile:heading.who_section")}
               name="aboutMe"
               defaultValue={user.aboutMe || DEFAULT_ABOUT_ME_HEADINGS}
               control={control}
-              className={classes.field}
               warning={aboutMeFieldLength < ABOUT_ME_MIN_LENGTH}
               helperText={t("profile:helper_text.characters_remaining", {
                 count: ABOUT_ME_MIN_LENGTH - aboutMeFieldLength,
               })}
             />
-            <ProfileMarkdownInput
+            <StyledProfileMarkdownInput
               id="thingsILike"
               label={t("profile:heading.hobbies_section")}
               name="thingsILike"
               defaultValue={user.thingsILike || DEFAULT_HOBBIES_HEADINGS}
               control={control}
-              className={classes.field}
             />
-            <ProfileMarkdownInput
+            <StyledProfileMarkdownInput
               id="additionalInformation"
               label={t("profile:heading.additional_information_section")}
               name="additionalInformation"
               defaultValue={user.additionalInformation}
               control={control}
-              className={classes.field}
             />
             {regions ? (
               <>
@@ -525,7 +579,7 @@ export default function EditProfileForm() {
               </>
             ) : null}
 
-            <div className={classes.buttonContainer}>
+            <StyledButtonContainer>
               <Button
                 type="submit"
                 variant="contained"
@@ -535,8 +589,8 @@ export default function EditProfileForm() {
               >
                 {t("global:save")}
               </Button>
-            </div>
-          </form>
+            </StyledButtonContainer>
+          </StyledBottomForm>
           <Dialog
             aria-labelledby={t("profile:incomplete_dialog.title")}
             maxWidth="xs"
