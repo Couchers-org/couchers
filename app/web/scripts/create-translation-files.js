@@ -505,8 +505,10 @@ function createTranslationFile(filePath, languageCode) {
   const targetDir = path.dirname(targetPath);
   if (!fs.existsSync(targetDir)) {
     fs.mkdirSync(targetDir, { recursive: true });
+  }
 
-    // Create empty JSON file
+  // Create the translation file if it doesn't exist
+  if (!fs.existsSync(targetPath)) {
     fs.writeFileSync(targetPath, "{\n}\n");
     console.log(`✅ Created: ${targetPath}`);
   }
