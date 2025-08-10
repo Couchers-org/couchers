@@ -46,7 +46,7 @@ import {
 } from "./constants";
 
 const StyledAlert = styled(Alert)(() => ({
-  marginBottom: theme.spacing(3),
+  marginTop: theme.spacing(2),
 }));
 
 const StyledHelpTextContainer = styled("div")(() => ({
