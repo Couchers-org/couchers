@@ -697,7 +697,7 @@ export default function HostingPreferenceForm() {
                 disabled={!formState.isDirty || updateIsLoading}
                 onClick={onSubmit}
               >
-                {updateIsLoading ? t("global:saving") : t("global:save")}
+                {t("global:save_changes")}
               </SaveButton>
             </StickySaveBar>
           )}

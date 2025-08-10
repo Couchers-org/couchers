@@ -30,7 +30,7 @@ import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL, PROFILE } from "i18n/namespaces";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
 import React, { FormEvent, useEffect, useState } from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useQueryClient } from "react-query";
 import { howToMakeGreatProfileUrl } from "routes";
 import { service, UpdateUserProfileData } from "service/index";
@@ -217,6 +217,7 @@ export default function EditProfileForm() {
     setValue,
     reset,
     formState: { errors, isDirty, isSubmitted },
+    watch,
   } = useForm<EditProfileFormValues>({
     shouldFocusError: true,
   });
@@ -287,12 +288,7 @@ export default function EditProfileForm() {
     }
   }, [user, reset, languages, regions]);
 
-  const aboutMeField = useWatch({
-    control,
-    name: "aboutMe",
-  });
-
-  const aboutMeFieldLength = (aboutMeField ?? "").length;
+  const aboutMeField = watch("aboutMe") ?? "";
 
   useUnsavedChangesWarning({
     isDirty: isDirty || isUploading,
@@ -352,7 +348,7 @@ export default function EditProfileForm() {
   const handleSubmitButtonClick = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (aboutMeFieldLength < ABOUT_ME_MIN_LENGTH || !user?.avatarUrl) {
+    if (aboutMeField.length < ABOUT_ME_MIN_LENGTH || !user?.avatarUrl) {
       setShowIncompleteProfileDialog(true);
     } else {
       onSubmit();
@@ -810,12 +806,12 @@ export default function EditProfileForm() {
                   defaultValue={user.aboutMe}
                   control={control}
                   className={classes.field}
-                  warning={aboutMeFieldLength < ABOUT_ME_MIN_LENGTH}
+                  warning={aboutMeField.length < ABOUT_ME_MIN_LENGTH}
                   helperText={
                     <Trans
                       i18nKey="profile:helper_text.characters_remaining"
                       values={{
-                        count: ABOUT_ME_MIN_LENGTH - aboutMeFieldLength,
+                        count: ABOUT_ME_MIN_LENGTH - aboutMeField.length,
                       }}
                       components={{ bold: <strong /> }}
                     />
@@ -935,7 +931,7 @@ export default function EditProfileForm() {
                 disabled={!isDirty || updateIsLoading || isUploading}
                 onClick={handleSubmitButtonClick}
               >
-                {t("global:save")}
+                {t("global:save_changes")}
               </SaveButton>
             </StickySaveBar>
           )}
@@ -953,7 +949,7 @@ export default function EditProfileForm() {
                 <Typography paragraph>
                   {t("profile:incomplete_dialog.description")}
                 </Typography>
-                {aboutMeFieldLength < ABOUT_ME_MIN_LENGTH && (
+                {aboutMeField.length < ABOUT_ME_MIN_LENGTH && (
                   <ListItem key={1} style={{ display: "list-item" }}>
                     {`• ${t("profile:incomplete_dialog.about_me_message")}`}
                   </ListItem>
