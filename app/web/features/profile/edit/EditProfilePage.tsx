@@ -14,6 +14,7 @@ import {
   routeToProfile,
   settingsRoute,
 } from "routes";
+import { theme } from "theme";
 
 import EditHostingPreference from "./EditHostingPreference";
 import EditProfile from "./EditProfile";
@@ -117,6 +118,38 @@ export default function EditProfilePage({
                 ),
               }}
               ariaLabel={t("profile:edit_profile_tab_bar_a11y_label")}
+              tabListSx={{
+                minHeight: 64,
+                "& .MuiTabs-indicator": {
+                  display: "none",
+                },
+              }}
+              tabSx={{
+                fontSize: "1.125rem",
+                fontWeight: 600,
+                textTransform: "none",
+                minHeight: 56,
+                padding: theme.spacing(1.5, 3),
+                borderRadius: theme.spacing(1.5, 1.5, 0, 0),
+                transition: "all 0.2s ease-in-out",
+                color: theme.palette.text.secondary,
+
+                "&.Mui-selected": {
+                  color: theme.palette.primary.main,
+                  borderBottom: `3px solid ${theme.palette.primary.main}`,
+                  fontWeight: 700,
+                },
+
+                "&:hover": {
+                  color: theme.palette.primary.main,
+                },
+
+                [theme.breakpoints.down("md")]: {
+                  fontSize: "1rem",
+                  padding: theme.spacing(1, 2),
+                  minHeight: 48,
+                },
+              }}
             />
             <TabPanelStyled value="about">
               <EditProfile />
