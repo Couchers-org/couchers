@@ -164,6 +164,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                           field.onChange(newValue);
                           setIsGroup((newValue?.length ?? 0) > 1);
                         }}
+                        multiple
                         loading={friends.isLoading}
                         options={friends.data ?? []}
                         noOptionsText={t(
