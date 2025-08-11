@@ -26,13 +26,19 @@
     "title": "Wachtwoord wijzigen",
     "password_changed_success": "Je nieuwe wachtwoord is ingesteld en een bericht hierover is verstuurd naar je e-mailadres.",
     "subtitle": "Gebruik dit formulier om je wachtwoord te resetten.",
-    "old_password": "Huidige wachtwoord"
+    "old_password": "Huidige wachtwoord",
+    "confirm_password": "Bevestig wachtwoord",
+    "new_password": "Nieuw wachtwoord",
+    "password_mismatch_error": "De wachtwoorden komen niet overeen."
   },
   "login_page": {
     "form": {
       "remember_me": "Aangemeld blijven",
       "forgot_password": "Wachtwoord vergeten?"
-    }
+    },
+    "title": "Inloggen",
+    "header": "Welkom terug!",
+    "no_account_prompt": "Nog geen account? <2>Sign up</2>"
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Heb je al een account? <2>Inloggen</2>",
@@ -56,5 +62,9 @@
       "field_label": "Hosting status",
       "can_host": "Kan hosten"
     }
+  },
+  "jail_set_password_form": {
+    "title": "Bedenk een wachtwoord",
+    "explanation": "Je hebt nog geen wachtwoord ingesteld voor uw account. Bedenk er nu een om door te gaan."
   }
 }
