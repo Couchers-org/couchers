@@ -69,7 +69,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
-    "@next/bundle-analyzer": "^15.4.5",
+    "@next/bundle-analyzer": "^15.4.6",
     "@sentry/cli": "^2.50.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.4",
