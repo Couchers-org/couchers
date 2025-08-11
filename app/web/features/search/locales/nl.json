@@ -41,7 +41,22 @@
     },
     "by_location_filter_label": "Op locatie",
     "accommodation_filters": {
-      "title": "Accommodatie filters"
+      "title": "Accommodatie filters",
+      "sleeping_arrangement_filters": {
+        "shared_room": {
+          "description": " - bijv. gedeelde slaapkamer met een eigen slaapplek",
+          "label": "Gedeelde kamer"
+        },
+        "private": {
+          "label": "Eigen kamer",
+          "description": " - bijv. eigen kamer of soortgelijk"
+        },
+        "common": {
+          "label": "Woonkamer",
+          "description": " - bijv. bank in woonkamer"
+        }
+      },
+      "guests_field_label": "Aantal gasten"
     },
     "by_keyword_filter_label": "Op trefwoord of naam"
   },

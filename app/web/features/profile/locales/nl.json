@@ -28,7 +28,13 @@
     "who_section": "Wie ik ben",
     "hobbies_section": "Wat ik doe in mijn vrije tijd",
     "additional_information_section": "Overige informatie",
-    "travel_section": "Heeft gereisd naar"
+    "travel_section": "Gereisd naar",
+    "map_section": "Mijn reizen",
+    "age_verification_verified": "Deze gebruiker heeft zijn geboortedatum geverifieerd",
+    "age_verification_mismatch": "De doorgegeven geboortedatum komt niet overeen met de geverifieerde geboortedatum",
+    "gender_verification_verified": "Deze gebruiker heeft zijn gender geverifieerd",
+    "lived_section": "Gewoond in",
+    "gender_verification_mismatch": "De doorgegeven gender komt niet overeen met de geverifieerde gender"
   },
   "incomplete_dialog": {
     "about_me_message": "Schrijf minstens 150 tekens voor jouw \"Wie ik ben\" tekst.",
@@ -48,5 +54,8 @@
     "kid_details": "Details kinderen",
     "local_area": "Informatie over de omgeving",
     "last_minute": "Accepteert last minute aanvragen"
+  },
+  "helper_text": {
+    "missing_profile_photo": "Voeg alsjeblieft een foto toe om je profiel af te maken."
   }
 }

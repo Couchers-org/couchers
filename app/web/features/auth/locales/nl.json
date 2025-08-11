@@ -34,11 +34,12 @@
   "login_page": {
     "form": {
       "remember_me": "Aangemeld blijven",
-      "forgot_password": "Wachtwoord vergeten?"
+      "forgot_password": "Wachtwoord vergeten?",
+      "username_field_label": "E-mail/gebruikersnaam"
     },
     "title": "Inloggen",
     "header": "Welkom terug!",
-    "no_account_prompt": "Nog geen account? <2>Sign up</2>"
+    "no_account_prompt": "Nog geen account? <2>Aanmelden</2>"
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Heb je al een account? <2>Inloggen</2>",
@@ -65,6 +66,10 @@
   },
   "jail_set_password_form": {
     "title": "Bedenk een wachtwoord",
-    "explanation": "Je hebt nog geen wachtwoord ingesteld voor uw account. Bedenk er nu een om door te gaan."
+    "explanation": "Je hebt nog geen wachtwoord ingesteld voor je account. Bedenk er nu een om door te gaan."
+  },
+  "reset_password_form": {
+    "enter_email": "Gebruikersnaam of e-mailadres invullen",
+    "success_message": "Check nu je e-mail om je wachtwoord te kunnen veranderen!"
   }
 }
