@@ -18,6 +18,7 @@ import { CloseIcon, MenuIcon } from "components/Icons";
 import { MenuItem } from "components/Menu";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
+import useAccountInfo from "features/auth/useAccountInfo";
 import { PushNotificationBanner } from "features/notifications/PushNotificationBanner";
 import LanguagePickerSelect from "features/translate/LanguagePickerSelect";
 import useNotifications from "features/useNotifications";
@@ -45,6 +46,7 @@ import {
   searchRoute,
   settingsRoute,
   signupRoute,
+  volunteerPortalRoute,
   volunteerRoute,
 } from "routes";
 import { theme } from "theme";
@@ -162,6 +164,7 @@ const loggedOutDrawerMenu = (
 const loggedInMenuDropDown = (
   t: TFunction<"global", undefined>,
   pingData: PingData,
+  isForVolunteer: boolean,
 ): Array<MenuItemProps> => [
   {
     name: t("nav.profile"),
@@ -180,6 +183,14 @@ const loggedInMenuDropDown = (
     name: t("nav.account_settings"),
     route: settingsRoute,
   },
+  ...(isForVolunteer
+    ? [
+        {
+          name: t("nav.volunteer_portal"),
+          route: volunteerPortalRoute,
+        },
+      ]
+    : []),
   {
     name: t("nav.feature_preview"),
     route: featurePreviewRoute,
@@ -292,6 +303,7 @@ export default function Navigation() {
 
   const { data: pingData } = useNotifications();
   const { authState } = useAuthContext();
+  const accountInfo = useAccountInfo();
 
   useEffect(() => setIsMounted(true), []);
 
@@ -347,7 +359,11 @@ export default function Navigation() {
     </div>
   );
 
-  const loggedMenuItems = loggedInMenuDropDown(t, pingData).map(
+  const loggedMenuItems = loggedInMenuDropDown(
+    t,
+    pingData,
+    !!accountInfo.data?.isVolunteer,
+  ).map(
     ({ name, notificationCount, route, externalLink, hasBottomDivider }) => {
       const hasNotification =
         notificationCount !== undefined && notificationCount > 0;
