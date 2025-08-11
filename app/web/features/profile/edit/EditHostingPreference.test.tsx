@@ -56,7 +56,7 @@ describe("EditHostingPreference", () => {
 
     // Now the save button should be visible
     await user.click(
-      await screen.findByRole("button", { name: t("global:save") }),
+      await screen.findByRole("button", { name: t("global:save_changes") }),
     );
     await waitFor(() =>
       expect(mockRouter.pathname).toBe(routeToProfile("home")),
@@ -91,7 +91,7 @@ describe("EditHostingPreference", () => {
 
     // Now the save button should be visible
     await user.click(
-      await screen.findByRole("button", { name: t("global:save") }),
+      await screen.findByRole("button", { name: t("global:save_changes") }),
     );
     await waitFor(() =>
       expect(mockRouter.pathname).toBe(routeToProfile("home")),

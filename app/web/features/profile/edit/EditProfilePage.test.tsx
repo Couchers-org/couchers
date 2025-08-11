@@ -82,7 +82,7 @@ describe("Edit profile", () => {
 
     // Now the save button should be visible
     const saveButton = await screen.findByRole("button", {
-      name: t("global:save"),
+      name: t("global:save_changes"),
     });
     await user.click(saveButton);
 
@@ -136,7 +136,7 @@ describe("Edit profile", () => {
 
     // Now the save button should be visible
     const saveButton = await screen.findByRole("button", {
-      name: t("global:save"),
+      name: t("global:save_changes"),
     });
     await user.click(saveButton);
 
@@ -187,7 +187,7 @@ describe("Edit profile", () => {
 
     // Now the save button should be visible
     const saveButton = await screen.findByRole("button", {
-      name: t("global:save"),
+      name: t("global:save_changes"),
     });
     await user.click(saveButton);
 
@@ -260,7 +260,7 @@ describe("Edit profile", () => {
 
     // Initially, save bar should not be visible (form is not dirty)
     expect(
-      screen.queryByRole("button", { name: t("global:save") }),
+      screen.queryByRole("button", { name: t("global:save_changes") }),
     ).not.toBeInTheDocument();
   });
 });
