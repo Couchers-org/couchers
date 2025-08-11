@@ -52,7 +52,9 @@
     "header": "Jouw account details",
     "username": {
       "field_label": "Gebruikersnaam",
-      "required_error": "Vul je gebruikersnaam in"
+      "required_error": "Vul je gebruikersnaam in",
+      "username_taken_error": "Deze gebruikersnaam is al in gebruik.",
+      "validation_error": "Gebruiksernaam kan enkel nummers, letters en _ (underscore) bevatten, het moet ook starten met een letter."
     },
     "password": {
       "validation_error": "Een wachtwoord heeft tussen de 8 en 256 karakters en mag niet makkelijk te raden zijn."
