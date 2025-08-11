@@ -55,7 +55,13 @@
     "local_area": "Informatie over de omgeving",
     "last_minute": "Accepteert last minute aanvragen",
     "general": "Algemeen",
-    "has_housemates": "Heeft huisgenoten"
+    "has_housemates": "Heeft huisgenoten",
+    "host_drinking": "Drinkt thuis",
+    "host_kids": "Heeft kinderen",
+    "host_pets": "Heeft huisdieren",
+    "max_guests": "Maximaal aantal gasten",
+    "my_home": "Mijn huis",
+    "parking": "Parkeerruimte beschikbaar"
   },
   "helper_text": {
     "missing_profile_photo": "Voeg alsjeblieft een foto toe om je profiel af te maken."

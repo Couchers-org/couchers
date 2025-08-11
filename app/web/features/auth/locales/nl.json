@@ -54,7 +54,7 @@
       "field_label": "Gebruikersnaam",
       "required_error": "Vul je gebruikersnaam in",
       "username_taken_error": "Deze gebruikersnaam is al in gebruik.",
-      "validation_error": "Gebruiksernaam kan enkel nummers, letters en _ (underscore) bevatten, het moet ook starten met een letter."
+      "validation_error": "Een gebruikersnaam kan alleen nummers, letters en _ (underscore) bevatten. Zorg dat je gebruikersnaam begint met een letter."
     },
     "password": {
       "validation_error": "Een wachtwoord heeft tussen de 8 en 256 karakters en mag niet makkelijk te raden zijn."
@@ -66,7 +66,9 @@
     },
     "hosting_status": {
       "field_label": "Hosting status",
-      "can_host": "Kan hosten"
+      "can_host": "Kan hosten",
+      "maybe": "Kan misschien hosten",
+      "cant_host": "Kan niet hosten"
     }
   },
   "jail_set_password_form": {

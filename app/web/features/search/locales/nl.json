@@ -63,16 +63,22 @@
     "by_keyword_filter_label": "Op trefwoord of naam",
     "empty_profile_filters": {
       "title": "Verberg lege profielen"
-    }
+    },
+    "search_filters": "Zoekfilters",
+    "clear_filters": "Alle filters verwijderen"
   },
   "search_result": {
     "show_user_button_label": "Laat {{name}} op de kaart zien",
     "missing_about_description": "{{name}} heeft nog niks over zichzelf geschreven",
-    "people_found_message": "Dit zijn {{currentRange}} van de {{totalItems}} gevonden mensen"
+    "people_found_message": "Dit zijn {{currentRange}} van de {{totalItems}} gevonden mensen",
+    "no_user_result_message": "Geen gebruikers gevonden. Probeer wat filters te verwijderen om meer resultaten te zien."
   },
   "views": {
     "map_and_list": "Kaart & Lijst",
     "choose_map_view": "Bekijken op kaart",
     "list": "Lijst"
-  }
+  },
+  "location": "Locatie",
+  "keyword": "Trefwoord",
+  "search_this_area": "Zoek in dit gebied"
 }
