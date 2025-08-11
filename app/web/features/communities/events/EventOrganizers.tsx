@@ -70,7 +70,7 @@ export default function EventOrganizers({ event }: EventOrganizersProps) {
         onSeeAllClick={() => setIsDialogOpen(true)}
         userIds={organizerIds}
         title={t("communities:organizers")}
-        getUserMenuOptions={(user) =>
+        getUserMenuItems={(user) =>
           canBeRemovedByCurrentUser(user)
             ? [
                 {
@@ -79,7 +79,7 @@ export default function EventOrganizers({ event }: EventOrganizersProps) {
                     setOrganizerToRemove(user);
                     setIsCoOrganizerDialogOpen(true);
                   },
-                  title: t("communities:remove_as_co_organizer:title"),
+                  label: t("communities:remove_as_co_organizer:title"),
                 },
               ]
             : undefined

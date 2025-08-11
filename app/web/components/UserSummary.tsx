@@ -1,22 +1,19 @@
 import {
   ListItemAvatar,
   ListItemText,
-  MenuItem,
   Skeleton,
   Tooltip,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import Avatar from "components/Avatar";
-import EllipsisMenu from "components/EllipsisMenu";
+import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import { OpenInNewIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import { LiteUser } from "proto/api_pb";
 import { BlockedUser } from "proto/blocking_pb";
 import React, { useState } from "react";
 import { routeToUser } from "routes";
-import { theme } from "theme";
-import { MenuOption } from "utils/menuOption";
 
 import StrongVerificationBadge from "./StrongVerificationBadge";
 
@@ -68,7 +65,7 @@ export interface UserSummaryProps {
   user?: LiteUser.AsObject | BlockedUser.AsObject;
   titleIsLink?: boolean;
   isProfileLink?: boolean;
-  menuOptions?: MenuOption[];
+  menuItems?: EllipsisMenuItem[];
 }
 
 export default function UserSummary({
@@ -79,7 +76,7 @@ export default function UserSummary({
   user,
   titleIsLink = false,
   isProfileLink = true,
-  menuOptions,
+  menuItems,
 }: UserSummaryProps) {
   const headlineComponentWithRef = React.forwardRef(
     function HeadlineComponentWithRef(props, ref) {
@@ -193,32 +190,16 @@ export default function UserSummary({
           </>
         }
       />
-      {menuOptions && (
+
+      {menuItems && (
         <EllipsisMenu
           idName={`${user?.username}-summary-menu`}
           isMenuOpen={!!menuAnchorEl}
           menuAnchorEl={menuAnchorEl}
           onMenuOpen={handleMenuOpen}
           onMenuClose={handleMenuClose}
-        >
-          {menuOptions.map((option, index) => (
-            <MenuItem
-              key={index}
-              onClick={() => {
-                option.onClick();
-                setMenuAnchorEl(null);
-              }}
-            >
-              <option.icon fontSize="small" />
-              <Typography
-                variant="body2"
-                sx={{ marginLeft: theme.spacing(1), fontWeight: 500 }}
-              >
-                {option.title}
-              </Typography>
-            </MenuItem>
-          ))}
-        </EllipsisMenu>
+          items={menuItems}
+        />
       )}
     </StyledWrapper>
   );

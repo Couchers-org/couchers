@@ -18,8 +18,8 @@ describe("UserSummary", () => {
     render(
       <UserSummary
         user={users[0]}
-        menuOptions={[
-          { icon: Add, title: menuOptionText, onClick: menuOptionFunc },
+        menuItems={[
+          { icon: Add, label: menuOptionText, onClick: menuOptionFunc },
         ]}
       />,
       { wrapper },

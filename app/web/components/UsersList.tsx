@@ -4,9 +4,9 @@ import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { LiteUser } from "proto/api_pb";
 import { ReactNode } from "react";
-import { MenuOption } from "utils/menuOption";
 
 import Alert from "./Alert";
+import { EllipsisMenuItem } from "./EllipsisMenu";
 
 const ContainingDiv = styled("div")(({ theme }) => ({
   padding: theme.spacing(2),
@@ -24,7 +24,9 @@ export interface UsersListProps {
   endChildren?: ReactNode;
   error?: RpcError | null;
   titleIsLink?: boolean;
-  getUserMenuOptions?: (user: LiteUser.AsObject) => MenuOption[] | undefined;
+  getUserMenuItems?: (
+    user: LiteUser.AsObject,
+  ) => EllipsisMenuItem[] | undefined;
 }
 
 /**
@@ -42,7 +44,7 @@ export default function UsersList({
   endChildren,
   error,
   titleIsLink = false,
-  getUserMenuOptions,
+  getUserMenuItems,
 }: UsersListProps) {
   const {
     data: users,
@@ -82,7 +84,7 @@ export default function UsersList({
                 key={user.userId}
                 user={user}
                 titleIsLink={titleIsLink}
-                menuOptions={getUserMenuOptions?.(user)}
+                menuItems={getUserMenuItems?.(user)}
               />
             );
           })}

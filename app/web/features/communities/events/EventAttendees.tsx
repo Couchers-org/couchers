@@ -74,7 +74,7 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
         onSeeAllClick={() => setIsDialogOpen(true)}
         userIds={attendeesIds}
         title={t("communities:attendees")}
-        getUserMenuOptions={
+        getUserMenuItems={
           isCoOrganizedByCurrentUser
             ? (user) =>
                 currentUser.data?.userId !== user.userId
@@ -85,7 +85,7 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
                           setUserToPromote(user);
                           setIsCoOrganizerDialogOpen(true);
                         },
-                        title: t("communities:make_co_organizer:title"),
+                        label: t("communities:make_co_organizer:title"),
                       },
                     ]
                   : undefined
