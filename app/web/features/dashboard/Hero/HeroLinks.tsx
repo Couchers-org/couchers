@@ -17,7 +17,9 @@ const StyledLinksContainer = styled("div")(() => ({
 const makeStyledTab = <C extends React.ComponentType<React.ComponentProps<C>>>(
   component: C,
 ) => {
-  return styled(component)<{ isSelected?: boolean }>((props) => ({
+  return styled(component, {
+    shouldForwardProp: (prop) => prop !== "isSelected",
+  })<{ isSelected?: boolean }>((props) => ({
     position: "relative",
     paddingBottom: theme.spacing(1),
     color: theme.palette.common.white,

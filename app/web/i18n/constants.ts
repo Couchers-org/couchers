@@ -10,7 +10,7 @@ interface LanguageMap {
 export const LANGUAGE_MAP: LanguageMap = {
   ca: {
     name: "Catalan",
-    flagIconCode: "ES",
+    flagIconCode: "CAT",
   },
   cs: {
     name: "Czech",

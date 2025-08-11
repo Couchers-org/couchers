@@ -226,6 +226,7 @@
   },
   "error_loading_languages": "Failed to load language options",
   "language_names": {
+    "ca": "Catalan",
     "cs": "Czech",
     "de": "German",
     "en": "English",

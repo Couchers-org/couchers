@@ -85,7 +85,7 @@ One of the best ways to get involved is to become a Community Builder for your l
 
 ### [Our Plan](/plan) and [Our Mission & Values](/mission)
 
-Read about [Our Plan](/plan) and [Our Mission & Values](/mission) our plan and mission
+Read about [Our Plan](/plan) and [Our Mission & Values](/mission).
 
 ### [Meet our volunteers](/team)
 
