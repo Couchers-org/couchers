@@ -92,10 +92,13 @@
   },
   "basic_form": {
     "name": {
-      "field_label": "Naam"
+      "field_label": "Naam",
+      "empty_error": "Vul je naam in",
+      "required_error": "Dit veld kan niet leeg zijn."
     },
     "email": {
-      "field_label": "E-mailadres"
+      "field_label": "E-mailadres",
+      "empty_error": "Vul een geldig email adres in a.u.b."
     }
   }
 }
