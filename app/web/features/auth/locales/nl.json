@@ -74,8 +74,9 @@
     },
     "gender": {
       "field_label": "Ik identificeer mij als…",
-      "required_error": "Selecteer uw gender identiteit",
-      "man": "Man"
+      "required_error": "Selecteer je gender",
+      "man": "Man",
+      "non_binary": "Non-binair"
     }
   },
   "jail_set_password_form": {
