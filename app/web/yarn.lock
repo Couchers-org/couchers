@@ -1947,10 +1947,10 @@
   dependencies:
     "@sinonjs/commons" "^3.0.0"
 
-"@stripe/stripe-js@^7.4.0":
-  version "7.4.0"
-  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-7.4.0.tgz#0076116ca6f994f40aa439ccf2e891a251ff2814"
-  integrity sha512-lQHQPfXPTBeh0XFjq6PqSBAyR7umwcJbvJhXV77uGCUDD6ymXJU/f2164ydLMLCCceNuPlbV9b+1smx98efwWQ==
+"@stripe/stripe-js@^7.8.0":
+  version "7.8.0"
+  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-7.8.0.tgz#01390d31030f04b64a7ff13adcccbafd615c7b77"
+  integrity sha512-DNXRfYUgkZlrniQORbA/wH8CdFRhiBSE0R56gYU0V5vvpJ9WZwvGrz9tBAZmfq2aTgw6SK7mNpmTizGzLWVezw==
 
 "@swc/counter@0.1.3":
   version "0.1.3"
