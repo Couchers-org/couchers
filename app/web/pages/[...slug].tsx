@@ -20,7 +20,7 @@ async function getMarkdownPageBySlug(
       frontmatter: md.attributes,
       content: md.html,
     };
-  } catch (error) {
+  } catch {
     // Fallback to old format: markdown/<slug>.md (default English)
     try {
       const md = await import(`markdown/${slug.join("/")}.md`);
@@ -29,7 +29,7 @@ async function getMarkdownPageBySlug(
         frontmatter: md.attributes,
         content: md.html,
       };
-    } catch (e3) {
+    } catch {
       // Not found in any location
       throw new Error(
         `Markdown file not found for slug: ${slug.join("/")} and locale: ${locale}`,
