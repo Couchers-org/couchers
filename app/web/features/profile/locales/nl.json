@@ -76,6 +76,10 @@
     "regions_visited": "Regio's waar ik ben geweest",
     "regions_lived": "Regio's waar ik heb gewoond",
     "gender": "Gender",
-    "languages_spoken": "Talen die ik vloeiend spreek"
+    "languages_spoken": "Talen die ik vloeiend spreek",
+    "meetup_status": "Meetup status",
+    "hosting_status": "Hosting status",
+    "name": "Naam",
+    "pronouns": "Voornaamwoorden"
   }
 }

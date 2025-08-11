@@ -98,7 +98,12 @@
     },
     "email": {
       "field_label": "E-mailadres",
-      "empty_error": "Vul een geldig email adres in a.u.b."
+      "empty_error": "Vul alsjeblieft een geldig e-mailadres in",
+      "required_error": "E-mailadres moet ingevuld worden."
     }
+  },
+  "location": {
+    "field_label": "Jouw locatie",
+    "validation_error": "Selecteer een geldige locatie."
   }
 }
