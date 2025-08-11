@@ -76,8 +76,11 @@
       "field_label": "Ik identificeer mij als…",
       "required_error": "Selecteer je gender",
       "man": "Man",
-      "non_binary": "Non-binair"
-    }
+      "non_binary": "Non-binair",
+      "woman": "Vrouw"
+    },
+    "tos_accept_label": "Ik accepteer de Terms of Service",
+    "tos_prompt": "Lees en accepteer de <1></1> om door te gaan."
   },
   "jail_set_password_form": {
     "title": "Bedenk een wachtwoord",
