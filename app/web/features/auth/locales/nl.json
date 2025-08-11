@@ -79,7 +79,7 @@
       "non_binary": "Non-binair",
       "woman": "Vrouw"
     },
-    "tos_accept_label": "Ik accepteer de Terms of Service",
+    "tos_accept_label": "Ik accepteer de servicevoorwaarden.",
     "tos_prompt": "Lees en accepteer de <1></1> om door te gaan."
   },
   "jail_set_password_form": {
@@ -89,5 +89,13 @@
   "reset_password_form": {
     "enter_email": "Gebruikersnaam of e-mailadres invullen",
     "success_message": "Check nu je e-mail om je wachtwoord te kunnen veranderen!"
+  },
+  "basic_form": {
+    "name": {
+      "field_label": "Naam"
+    },
+    "email": {
+      "field_label": "E-mailadres"
+    }
   }
 }

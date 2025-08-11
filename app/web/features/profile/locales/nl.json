@@ -71,5 +71,11 @@
   },
   "helper_text": {
     "missing_profile_photo": "Voeg alsjeblieft een foto toe om je profiel af te maken."
+  },
+  "edit_profile_headings": {
+    "regions_visited": "Regio's waar ik ben geweest",
+    "regions_lived": "Regio's waar ik heb gewoond",
+    "gender": "Gender",
+    "languages_spoken": "Talen die ik vloeiend spreek"
   }
 }
