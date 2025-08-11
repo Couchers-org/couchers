@@ -1,4 +1,4 @@
-import { DialogProps, List, ListItem } from "@mui/material";
+import { DialogProps, List, ListItem, styled } from "@mui/material";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -15,19 +15,17 @@ import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { LiteUser } from "proto/api_pb";
 import { GroupChat } from "proto/conversations_pb";
 import React from "react";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 
-export const useMembersDialogStyles = makeStyles((theme) => ({
-  avatar: {
-    height: 30,
-    marginInlineEnd: theme.spacing(1),
-    width: 30,
-  },
-  memberListItemContainer: {
-    alignItems: "center",
-    display: "flex",
-    justifyContent: "flex-start",
-  },
+const StyledAvatar = styled(Avatar)(() => ({
+  height: 30,
+  marginInlineEnd: theme.spacing(1),
+  width: 30,
+}));
+const StyledMemberListItemContainer = styled(ListItem)(() => ({
+  alignItems: "center",
+  display: "flex",
+  justifyContent: "flex-start",
 }));
 
 function MemberListItem({
@@ -37,16 +35,14 @@ function MemberListItem({
   member: LiteUser.AsObject;
   memberIsAdmin: boolean;
 }) {
-  const classes = useMembersDialogStyles();
-
   return (
-    <ListItem dense className={classes.memberListItemContainer}>
-      <Avatar user={member} className={classes.avatar} />
+    <StyledMemberListItemContainer dense>
+      <StyledAvatar user={member} />
       <TextBody noWrap>
         {member.name}
         {memberIsAdmin && " (admin)"}
       </TextBody>
-    </ListItem>
+    </StyledMemberListItemContainer>
   );
 }
 
