@@ -1,4 +1,5 @@
 import { TabContext } from "@mui/lab";
+import { styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import NotificationBadge from "components/NotificationBadge";
 import PageTitle from "components/PageTitle";
@@ -9,19 +10,17 @@ import { MESSAGES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
 import { messagesRoute, MessageType } from "routes";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 
 import useNotifications from "../useNotifications";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-  },
-  tabBarContainer: {
-    display: "flex",
-    justifyContent: "flex-start",
-  },
+const StyledWrapper = styled("div")(() => ({
+  padding: theme.spacing(0, 2),
+}));
+
+const StyledTabBarContainer = styled("div")(() => ({
+  display: "flex",
+  justifyContent: "flex-start",
 }));
 
 export function MessagesNotification() {
@@ -58,12 +57,9 @@ export function HostRequestsSentNotification() {
 }
 
 const labels: Record<MessageType, ReactNode> = {
-  //all: "All",
   chats: <MessagesNotification />,
   hosting: <HostRequestsReceivedNotification />,
   surfing: <HostRequestsSentNotification />,
-  //meet: "Meet",
-  //archived: "Archived",
 };
 
 export default function MessagesHeader({
@@ -72,15 +68,14 @@ export default function MessagesHeader({
   tab: MessageType | undefined;
 }) {
   const { t } = useTranslation(MESSAGES);
-  const classes = useStyles();
   const router = useRouter();
 
   return (
-    <div className={classes.root}>
+    <StyledWrapper>
       <HtmlMeta title={t("messages_page.title")} />
       <PageTitle>{t("messages_page.title")}</PageTitle>
       {tab && <MarkAllReadButton type={tab} />}
-      <div className={classes.tabBarContainer}>
+      <StyledTabBarContainer>
         <TabContext value={tab ?? ""}>
           <TabBar
             ariaLabel={t("messages_page.tabs.aria_label")}
@@ -88,7 +83,7 @@ export default function MessagesHeader({
             labels={labels}
           />
         </TabContext>
-      </div>
-    </div>
+      </StyledTabBarContainer>
+    </StyledWrapper>
   );
 }
