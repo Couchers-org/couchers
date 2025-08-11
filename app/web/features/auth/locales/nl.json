@@ -57,7 +57,9 @@
       "validation_error": "Een gebruikersnaam kan alleen nummers, letters en _ (underscore) bevatten. Zorg dat je gebruikersnaam begint met een letter."
     },
     "password": {
-      "validation_error": "Een wachtwoord heeft tussen de 8 en 256 karakters en mag niet makkelijk te raden zijn."
+      "validation_error": "Een wachtwoord heeft tussen de 8 en 256 karakters en mag niet makkelijk te raden zijn.",
+      "field_label": "wachtwoord",
+      "required_error": "Vul wachtwoord in"
     },
     "birthday": {
       "field_label": "Verjaardag",
@@ -69,6 +71,9 @@
       "can_host": "Kan hosten",
       "maybe": "Kan misschien hosten",
       "cant_host": "Kan niet hosten"
+    },
+    "gender": {
+      "field_label": "Ik identificeer mij als …"
     }
   },
   "jail_set_password_form": {
