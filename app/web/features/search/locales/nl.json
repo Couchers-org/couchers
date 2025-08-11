@@ -26,7 +26,9 @@
     "rules": {
       "title": "Regels",
       "alcohol_allowed": "Alcohol toegestaan",
-      "kids_allowed": "Kinderen toegestaan"
+      "kids_allowed": "Kinderen toegestaan",
+      "pets_allowed": "Huisdieren toegestaan",
+      "smokes_at_home": "Rookt thuis"
     },
     "host_filters": {
       "age": {
@@ -58,7 +60,10 @@
       },
       "guests_field_label": "Aantal gasten"
     },
-    "by_keyword_filter_label": "Op trefwoord of naam"
+    "by_keyword_filter_label": "Op trefwoord of naam",
+    "empty_profile_filters": {
+      "title": "Verberg lege profielen"
+    }
   },
   "search_result": {
     "show_user_button_label": "Laat {{name}} op de kaart zien",

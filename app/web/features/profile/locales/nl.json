@@ -53,7 +53,9 @@
     "housemate_details": "Details huisgenoten",
     "kid_details": "Details kinderen",
     "local_area": "Informatie over de omgeving",
-    "last_minute": "Accepteert last minute aanvragen"
+    "last_minute": "Accepteert last minute aanvragen",
+    "general": "Algemeen",
+    "has_housemates": "Heeft huisgenoten"
   },
   "helper_text": {
     "missing_profile_photo": "Voeg alsjeblieft een foto toe om je profiel af te maken."

@@ -37,7 +37,7 @@
       "forgot_password": "Wachtwoord vergeten?",
       "username_field_label": "E-mail/gebruikersnaam",
       "password_field_label": "wachtwoord",
-      "no_password_login_prompt": "Controleer je email voor een link om in te loggen! :)"
+      "no_password_login_prompt": "Check je e-mail voor een link om in te loggen! :)"
     },
     "title": "Inloggen",
     "header": "Welkom terug!",
@@ -52,7 +52,7 @@
     "header": "Jouw account details",
     "username": {
       "field_label": "Gebruikersnaam",
-      "required_error": "Vul uw gebruikersnaam in"
+      "required_error": "Vul je gebruikersnaam in"
     },
     "password": {
       "validation_error": "Een wachtwoord heeft tussen de 8 en 256 karakters en mag niet makkelijk te raden zijn."
