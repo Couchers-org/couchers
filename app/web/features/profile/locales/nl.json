@@ -61,7 +61,8 @@
     "host_pets": "Heeft huisdieren",
     "max_guests": "Maximaal aantal gasten",
     "my_home": "Mijn huis",
-    "parking": "Parkeerruimte beschikbaar"
+    "parking": "Parkeerruimte beschikbaar",
+    "parking_details": "Details over parkeerruimte"
   },
   "helper_text": {
     "missing_profile_photo": "Voeg alsjeblieft een foto toe om je profiel af te maken."

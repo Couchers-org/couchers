@@ -80,5 +80,6 @@
   },
   "location": "Locatie",
   "keyword": "Trefwoord",
-  "search_this_area": "Zoek in dit gebied"
+  "search_this_area": "Zoek in dit gebied",
+  "zoom_in_to_select_user": "Zoom in om een gebruiker te selecteren"
 }
