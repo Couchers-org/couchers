@@ -23,13 +23,25 @@
     "success_message": "Je e-mailadres is nu veranderd!"
   },
   "change_password_form": {
-    "title": "Wachtwoord wijzigen"
+    "title": "Wachtwoord wijzigen",
+    "password_changed_success": "Je nieuwe wachtwoord is ingesteld en een bericht hierover is verstuurd naar je e-mailadres.",
+    "subtitle": "Gebruik dit formulier om je wachtwoord te resetten.",
+    "old_password": "Huidige wachtwoord",
+    "confirm_password": "Bevestig wachtwoord",
+    "new_password": "Nieuw wachtwoord",
+    "password_mismatch_error": "De wachtwoorden komen niet overeen."
   },
   "login_page": {
     "form": {
       "remember_me": "Aangemeld blijven",
-      "forgot_password": "Wachtwoord vergeten?"
-    }
+      "forgot_password": "Wachtwoord vergeten?",
+      "username_field_label": "E-mail/gebruikersnaam",
+      "password_field_label": "wachtwoord",
+      "no_password_login_prompt": "Check je e-mail voor een link om in te loggen! :)"
+    },
+    "title": "Inloggen",
+    "header": "Welkom terug!",
+    "no_account_prompt": "Nog geen account? <2>Aanmelden</2>"
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Heb je al een account? <2>Inloggen</2>",
@@ -39,10 +51,15 @@
   "account_form": {
     "header": "Jouw account details",
     "username": {
-      "field_label": "Gebruikersnaam"
+      "field_label": "Gebruikersnaam",
+      "required_error": "Vul je gebruikersnaam in",
+      "username_taken_error": "Deze gebruikersnaam is al in gebruik.",
+      "validation_error": "Een gebruikersnaam kan alleen nummers, letters en _ (underscore) bevatten. Zorg dat je gebruikersnaam begint met een letter."
     },
     "password": {
-      "validation_error": "Een wachtwoord heeft tussen de 8 en 256 karakters en mag niet makkelijk te raden zijn."
+      "validation_error": "Een wachtwoord heeft tussen de 8 en 256 karakters en mag niet makkelijk te raden zijn.",
+      "field_label": "wachtwoord",
+      "required_error": "Vul wachtwoord in"
     },
     "birthday": {
       "field_label": "Verjaardag",
@@ -51,7 +68,37 @@
     },
     "hosting_status": {
       "field_label": "Hosting status",
-      "can_host": "Kan hosten"
+      "can_host": "Kan hosten",
+      "maybe": "Kan misschien hosten",
+      "cant_host": "Kan niet hosten"
+    },
+    "gender": {
+      "field_label": "Ik identificeer mij als…",
+      "required_error": "Selecteer je gender",
+      "man": "Man",
+      "non_binary": "Non-binair",
+      "woman": "Vrouw"
+    },
+    "tos_accept_label": "Ik accepteer de servicevoorwaarden.",
+    "tos_prompt": "Lees en accepteer de <1></1> om door te gaan."
+  },
+  "jail_set_password_form": {
+    "title": "Bedenk een wachtwoord",
+    "explanation": "Je hebt nog geen wachtwoord ingesteld voor je account. Bedenk er nu een om door te gaan."
+  },
+  "reset_password_form": {
+    "enter_email": "Gebruikersnaam of e-mailadres invullen",
+    "success_message": "Check nu je e-mail om je wachtwoord te kunnen veranderen!"
+  },
+  "basic_form": {
+    "name": {
+      "field_label": "Naam",
+      "empty_error": "Vul je naam in",
+      "required_error": "Dit veld kan niet leeg zijn."
+    },
+    "email": {
+      "field_label": "E-mailadres",
+      "empty_error": "Vul een geldig email adres in a.u.b."
     }
   }
 }

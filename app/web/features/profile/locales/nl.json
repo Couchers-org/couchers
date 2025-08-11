@@ -16,7 +16,25 @@
     "edit_profile": "Profiel bewerken",
     "home": "Mijn huis",
     "hometown": "Opgegroeid in",
-    "hosting_status": "Hosting status"
+    "hosting_status": "Hosting status",
+    "joined": "Coucher sinds",
+    "languages_conversational": "Kan een gesprek voeren in",
+    "languages_fluent": "Vloeiend in",
+    "last_active": "Laatst actief",
+    "local_time": "Lokale tijd",
+    "occupation": "Beroep",
+    "references": "Referenties",
+    "overview_section": "Overzicht",
+    "who_section": "Wie ik ben",
+    "hobbies_section": "Wat ik doe in mijn vrije tijd",
+    "additional_information_section": "Overige informatie",
+    "travel_section": "Gereisd naar",
+    "map_section": "Mijn reizen",
+    "age_verification_verified": "Deze gebruiker heeft zijn geboortedatum geverifieerd",
+    "age_verification_mismatch": "De doorgegeven geboortedatum komt niet overeen met de geverifieerde geboortedatum",
+    "gender_verification_verified": "Deze gebruiker heeft zijn gender geverifieerd",
+    "lived_section": "Gewoond in",
+    "gender_verification_mismatch": "De doorgegeven gender komt niet overeen met de geverifieerde gender"
   },
   "incomplete_dialog": {
     "about_me_message": "Schrijf minstens 150 tekens voor jouw \"Wie ik ben\" tekst.",
@@ -35,6 +53,29 @@
     "housemate_details": "Details huisgenoten",
     "kid_details": "Details kinderen",
     "local_area": "Informatie over de omgeving",
-    "last_minute": "Accepteert last minute aanvragen"
+    "last_minute": "Accepteert last minute aanvragen",
+    "general": "Algemeen",
+    "has_housemates": "Heeft huisgenoten",
+    "host_drinking": "Drinkt thuis",
+    "host_kids": "Heeft kinderen",
+    "host_pets": "Heeft huisdieren",
+    "max_guests": "Maximaal aantal gasten",
+    "my_home": "Mijn huis",
+    "parking": "Parkeerruimte beschikbaar",
+    "parking_details": "Details over parkeerruimte",
+    "pet_details": "Details over huisdieren",
+    "space": "Privacy voor slapen",
+    "transportation": "Vervoer, parkeren, toegankelijkheid",
+    "wheelchair": "Rolstoeltoegankelijkheid",
+    "other_info": "Overige informatie"
+  },
+  "helper_text": {
+    "missing_profile_photo": "Voeg alsjeblieft een foto toe om je profiel af te maken."
+  },
+  "edit_profile_headings": {
+    "regions_visited": "Regio's waar ik ben geweest",
+    "regions_lived": "Regio's waar ik heb gewoond",
+    "gender": "Gender",
+    "languages_spoken": "Talen die ik vloeiend spreek"
   }
 }

@@ -16,5 +16,11 @@
     "cancel_button": "Laat maar"
   },
   "complete_profile_explanation": "Vind jij het ook zo vervelend, van die lege \"ghost\" profielen zonder informatie? Ghost ons alsjeblieft niet! 👻👻👻",
-  "your_communities_heading": "Jouw communities"
+  "your_communities_heading": "Jouw communities",
+  "welcome": "Welkom bij Couchers.org!",
+  "all_communities_heading": "Alle communities",
+  "no_community": "Je zit op dit moment niet in een community.",
+  "no_sub_communities": "Geen sub-communities.",
+  "load_more": "Meer laden",
+  "new_pill": "Nieuw"
 }
