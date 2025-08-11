@@ -1,10 +1,10 @@
-import styled from "@emotion/styled";
 import {
   ListItemAvatar,
   ListItemButton,
   ListItemProps,
   ListItemText,
   Skeleton,
+  styled,
   Typography,
 } from "@mui/material";
 import Avatar from "components/Avatar";
