@@ -73,7 +73,9 @@
       "cant_host": "Kan niet hosten"
     },
     "gender": {
-      "field_label": "Ik identificeer mij als…"
+      "field_label": "Ik identificeer mij als…",
+      "required_error": "Selecteer uw gender identiteit",
+      "man": "Man"
     }
   },
   "jail_set_password_form": {
