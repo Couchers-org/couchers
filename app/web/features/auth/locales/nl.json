@@ -23,7 +23,10 @@
     "success_message": "Je e-mailadres is nu veranderd!"
   },
   "change_password_form": {
-    "title": "Wachtwoord wijzigen"
+    "title": "Wachtwoord wijzigen",
+    "password_changed_success": "Je nieuwe wachtwoord is ingesteld en een bericht hierover is verstuurd naar je e-mailadres.",
+    "subtitle": "Gebruik dit formulier om je wachtwoord te resetten.",
+    "old_password": "Huidige wachtwoord"
   },
   "login_page": {
     "form": {

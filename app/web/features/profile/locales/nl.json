@@ -16,7 +16,19 @@
     "edit_profile": "Profiel bewerken",
     "home": "Mijn huis",
     "hometown": "Opgegroeid in",
-    "hosting_status": "Hosting status"
+    "hosting_status": "Hosting status",
+    "joined": "Coucher sinds",
+    "languages_conversational": "Kan een gesprek voeren in",
+    "languages_fluent": "Vloeiend in",
+    "last_active": "Laatst actief",
+    "local_time": "Lokale tijd",
+    "occupation": "Beroep",
+    "references": "Referenties",
+    "overview_section": "Overzicht",
+    "who_section": "Wie ik ben",
+    "hobbies_section": "Wat ik doe in mijn vrije tijd",
+    "additional_information_section": "Overige informatie",
+    "travel_section": "Heeft gereisd naar"
   },
   "incomplete_dialog": {
     "about_me_message": "Schrijf minstens 150 tekens voor jouw \"Wie ik ben\" tekst.",

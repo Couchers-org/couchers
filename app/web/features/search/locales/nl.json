@@ -15,7 +15,9 @@
   "form": {
     "location_field_label": "In de buurt van",
     "keywords": {
-      "field_label": "Naam, trefwoorden of gebruikersnaam"
+      "field_label": "Naam, trefwoorden of gebruikersnaam",
+      "clear_field_action_a11y_label": "Zoekvelden leegmaken",
+      "search_this_keyword_a11y_label": "Zoek dit trefwoord"
     },
     "general_filters": {
       "has_references": "Heeft referenties",
@@ -25,7 +27,23 @@
       "title": "Regels",
       "alcohol_allowed": "Alcohol toegestaan",
       "kids_allowed": "Kinderen toegestaan"
-    }
+    },
+    "host_filters": {
+      "age": {
+        "max_age": "Maximumleeftijd",
+        "field_label": "Host leeftijd",
+        "min_age": "Minimumleeftijd"
+      },
+      "hosting_status_field_label": "Hosting status",
+      "last_active_field_label": "Laatst actief",
+      "complete_profiles_label": "Complete profielen",
+      "meetup_status_field_label": "Meetup status"
+    },
+    "by_location_filter_label": "Op locatie",
+    "accommodation_filters": {
+      "title": "Accommodatie filters"
+    },
+    "by_keyword_filter_label": "Op trefwoord of naam"
   },
   "search_result": {
     "show_user_button_label": "Laat {{name}} op de kaart zien",
