@@ -13,6 +13,7 @@ import { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
+import { EllipsisMenuItem } from "../../../components/EllipsisMenu";
 import EventAttendeesDialog from "./EventAttendeesDialog";
 import EventUsers from "./EventUsers";
 import { useEventAttendees, useEventOrganizers } from "./hooks";
@@ -32,14 +33,24 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
     type: "all",
   });
 
+  // Optimize searching for organizer ids
+  const organizerIdSet = useMemo(() => {
+    const set = new Set<number>();
+
+    if (organizerIds) {
+      organizerIds.forEach((id) => {
+        set.add(id);
+      });
+    }
+
+    return set;
+  }, [organizerIds]);
+
   const currentUser = useCurrentUser();
 
   const isCoOrganizedByCurrentUser = useMemo(
-    () =>
-      organizerIds?.find(
-        (organizerId) => organizerId === currentUser.data?.userId,
-      ) !== undefined,
-    [organizerIds, currentUser.data?.userId],
+    () => currentUser.data && organizerIdSet.has(currentUser.data.userId),
+    [currentUser.data, organizerIdSet],
   );
 
   const { t } = useTranslation([COMMUNITIES]);
@@ -65,6 +76,28 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
     },
   });
 
+  const getUserMenuItems = (
+    user: LiteUser.AsObject,
+  ): EllipsisMenuItem[] | undefined => {
+    if (
+      user.userId === currentUser.data?.userId ||
+      organizerIdSet.has(user.userId)
+    ) {
+      return undefined;
+    }
+
+    return [
+      {
+        icon: Add,
+        onClick: () => {
+          setUserToPromote(user);
+          setIsCoOrganizerDialogOpen(true);
+        },
+        label: t("communities:make_co_organizer:title"),
+      },
+    ];
+  };
+
   return (
     <>
       <EventUsers
@@ -75,21 +108,7 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
         userIds={attendeesIds}
         title={t("communities:attendees")}
         getUserMenuItems={
-          isCoOrganizedByCurrentUser
-            ? (user) =>
-                currentUser.data?.userId !== user.userId
-                  ? [
-                      {
-                        icon: Add,
-                        onClick: () => {
-                          setUserToPromote(user);
-                          setIsCoOrganizerDialogOpen(true);
-                        },
-                        label: t("communities:make_co_organizer:title"),
-                      },
-                    ]
-                  : undefined
-            : undefined
+          isCoOrganizedByCurrentUser ? getUserMenuItems : undefined
         }
       />
       <EventAttendeesDialog
