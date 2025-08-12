@@ -16,14 +16,12 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "types": ["jest"]
+    "types": ["jest"],
   },
   "include": [
-    "next-env.d.ts",
     "**/*.ts",
+    "**/*.js",
     "**/*.tsx",
-    "i18n/namespaces.js",
-    "i18n/allLanguages.js"
   ],
-  "exclude": ["node_modules", ".next", "jest.config.ts"]
+  "exclude": ["node_modules", ".next"]
 }

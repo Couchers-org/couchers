@@ -54,5 +54,5 @@
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "files.trimTrailingWhitespace": true,
-  "eslint.useFlatConfig": false
+  "eslint.useFlatConfig": true
 }
