@@ -20,6 +20,7 @@ export const githubUpdatesURL =
 
 export const translateJobURL = "https://couchers.org/volunteer/translator";
 
+export const landingRoute = "/landing";
 export const dashboardRoute = "/dashboard";
 export const blogRoute = "/blog";
 export const faqRoute = "/faq";
