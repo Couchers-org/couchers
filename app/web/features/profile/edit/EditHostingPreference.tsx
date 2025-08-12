@@ -26,21 +26,52 @@ import {
   SleepingArrangement,
   SmokingLocation,
 } from "proto/api_pb";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm, UseFormReturn } from "react-hook-form";
 import { HostingPreferenceData } from "service";
+import { theme } from "theme";
 import { useUnsavedChangesWarning } from "utils/hooks";
 
 import { DEFAULT_ABOUT_HOME_HEADINGS } from "./constants";
-import useStyles from "./styles";
 
 interface HostingPreferenceCheckboxProps {
-  className: string;
+  className?: string;
   defaultValue: boolean;
   name: string;
   label: string;
   register: UseFormReturn<HostingPreferenceData>["register"];
 }
+
+const StyledAlert = styled(Alert)(() => ({
+  marginBottom: theme.spacing(3),
+}));
+
+const StyledHostingPreferenceCheckbox = styled(HostingPreferenceCheckbox)(
+  () => ({
+    display: "block",
+  }),
+);
+
+const styledField = <C extends React.ComponentType<React.ComponentProps<C>>>(
+  component: C,
+) => {
+  return styled(component)(() => ({
+    [theme.breakpoints.up("md")]: {
+      "& > .MuiInputBase-root": {
+        width: 400,
+      },
+    },
+    "& > .MuiInputBase-root": {
+      width: "100%",
+    },
+  }));
+};
+
+const StyledProfileTextInput = styledField(ProfileTextInput);
+
+const StyledSelect = styledField(Select);
+
+const StyledProfileMarkdownInput = styledField(ProfileMarkdownInput);
 
 const ProfileSection = styled(Box)(({ theme }) => ({
   padding: theme.spacing(4),
@@ -183,7 +214,6 @@ function HostingPreferenceCheckbox({
 
 export default function HostingPreferenceForm() {
   const { t } = useTranslation([GLOBAL, PROFILE]);
-  const classes = useStyles();
 
   const {
     updateHostingPreferences,
@@ -205,7 +235,7 @@ export default function HostingPreferenceForm() {
   const hasParkingAvailable = watch("parking");
 
   // Reset form with user data when user is loaded, without marking as dirty
-  React.useEffect(() => {
+  useEffect(() => {
     if (user) {
       reset(
         {
@@ -308,9 +338,9 @@ export default function HostingPreferenceForm() {
   return (
     <>
       {updateError && (
-        <Alert className={classes.alert} severity="error">
+        <StyledAlert severity="error">
           {errorMessage || "Unknown error"}
-        </Alert>
+        </StyledAlert>
       )}
       {user ? (
         <form onSubmit={onSubmit}>
@@ -324,30 +354,26 @@ export default function HostingPreferenceForm() {
             </SectionSubtitle>
 
             <CheckboxGrid>
-              <HostingPreferenceCheckbox
-                className={classes.formControl}
-                defaultValue={false}
+              <StyledHostingPreferenceCheckbox
+                defaultValue={!!user.lastMinute?.value}
                 label={t("profile:home_info_headings.last_minute")}
                 name="lastMinute"
                 register={register}
               />
-              <HostingPreferenceCheckbox
-                className={classes.formControl}
-                defaultValue={false}
+              <StyledHostingPreferenceCheckbox
+                defaultValue={!!user.acceptsKids?.value}
                 label={t("profile:edit_home_questions.accept_kids")}
                 name="acceptsKids"
                 register={register}
               />
-              <HostingPreferenceCheckbox
-                className={classes.formControl}
-                defaultValue={false}
+              <StyledHostingPreferenceCheckbox
+                defaultValue={!!user.acceptsPets?.value}
                 label={t("profile:edit_home_questions.accept_pets")}
                 name="acceptsPets"
                 register={register}
               />
-              <HostingPreferenceCheckbox
-                className={classes.formControl}
-                defaultValue={false}
+              <StyledHostingPreferenceCheckbox
+                defaultValue={!!user.drinkingAllowed?.value}
                 label={t("profile:edit_home_questions.accept_drinking")}
                 name="drinkingAllowed"
                 register={register}
@@ -355,7 +381,7 @@ export default function HostingPreferenceForm() {
             </CheckboxGrid>
 
             <FieldGroup>
-              <ProfileTextInput
+              <StyledProfileTextInput
                 id="maxGuests"
                 {...register("maxGuests", {
                   valueAsNumber: true,
@@ -367,7 +393,6 @@ export default function HostingPreferenceForm() {
                 inputProps={{ min: 1, max: 10 }}
                 error={!!errors?.maxGuests?.message}
                 helperText={errors?.maxGuests?.message}
-                className={classes.field}
               />
             </FieldGroup>
 
@@ -376,11 +401,10 @@ export default function HostingPreferenceForm() {
                 control={control}
                 name="smokingAllowed"
                 render={({ field }) => (
-                  <Select
+                  <StyledSelect
                     {...field}
                     onChange={(event) => field.onChange(event.target.value)}
                     label={t("profile:edit_home_questions.accept_smoking")}
-                    className={classes.field}
                     value={field.value}
                     id="smokingAllowed"
                     options={[
@@ -407,12 +431,11 @@ export default function HostingPreferenceForm() {
             </SectionSubtitle>
 
             <FieldGroup>
-              <ProfileMarkdownInput
+              <StyledProfileMarkdownInput
                 id="aboutPlace"
                 label={t("profile:home_info_headings.about_home")}
                 name="aboutPlace"
                 control={control}
-                className={classes.field}
               />
             </FieldGroup>
 
@@ -422,11 +445,10 @@ export default function HostingPreferenceForm() {
                 name="sleepingArrangement"
                 render={({ field }) => (
                   <>
-                    <Select
+                    <StyledSelect
                       onChange={(event) => field.onChange(event.target.value)}
                       id="sleepingArrangement"
                       label={t("profile:home_info_headings.space")}
-                      className={classes.field}
                       value={field.value}
                       options={[
                         SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN,
@@ -482,64 +504,58 @@ export default function HostingPreferenceForm() {
               </Typography>
               <CheckboxGrid>
                 <CheckboxItem>
-                  <HostingPreferenceCheckbox
-                    className={classes.formControl}
-                    defaultValue={false}
+                  <StyledHostingPreferenceCheckbox
+                    defaultValue={!!user.hasHousemates?.value}
                     label={t("profile:home_info_headings.has_housemates")}
                     name="hasHousemates"
                     register={register}
                   />
                   {hasHousemates && (
-                    <ProfileTextInput
+                    <StyledProfileTextInput
                       id="housemateDetails"
                       {...register("housemateDetails")}
                       label={t("profile:home_info_headings.housemate_details")}
                       name="housemateDetails"
                       maxRows={3}
                       multiline
-                      className={classes.field}
                     />
                   )}
                 </CheckboxItem>
 
                 <CheckboxItem>
-                  <HostingPreferenceCheckbox
-                    className={classes.formControl}
-                    defaultValue={false}
+                  <StyledHostingPreferenceCheckbox
+                    defaultValue={!!user.hasKids?.value}
                     label={t("profile:home_info_headings.host_kids")}
                     name="hasKids"
                     register={register}
                   />
                   {hasKids && (
-                    <ProfileTextInput
+                    <StyledProfileTextInput
                       id="kidDetails"
                       {...register("kidDetails")}
                       label={t("profile:home_info_headings.kid_details")}
                       name="kidDetails"
                       maxRows={3}
                       multiline
-                      className={classes.field}
                     />
                   )}
                 </CheckboxItem>
 
                 <CheckboxItem>
-                  <HostingPreferenceCheckbox
-                    className={classes.formControl}
-                    defaultValue={false}
+                  <StyledHostingPreferenceCheckbox
+                    defaultValue={!!user.hasPets?.value}
                     label={t("profile:home_info_headings.host_pets")}
                     name="hasPets"
                     register={register}
                   />
                   {hasPets && (
-                    <ProfileTextInput
+                    <StyledProfileTextInput
                       id="petDetails"
                       {...register("petDetails")}
                       label={t("profile:home_info_headings.pet_details")}
                       name="petDetails"
                       maxRows={3}
                       multiline
-                      className={classes.field}
                     />
                   )}
                 </CheckboxItem>
@@ -553,27 +569,24 @@ export default function HostingPreferenceForm() {
               </Typography>
               <CheckboxGrid>
                 <CheckboxItem>
-                  <HostingPreferenceCheckbox
-                    className={classes.formControl}
-                    defaultValue={false}
+                  <StyledHostingPreferenceCheckbox
+                    defaultValue={!!user.wheelchairAccessible?.value}
                     label={t("profile:home_info_headings.wheelchair")}
                     name="wheelchairAccessible"
                     register={register}
                   />
                 </CheckboxItem>
                 <CheckboxItem>
-                  <HostingPreferenceCheckbox
-                    className={classes.formControl}
-                    defaultValue={false}
+                  <StyledHostingPreferenceCheckbox
+                    defaultValue={!!user.campingOk?.value}
                     label={t("profile:edit_home_questions.accept_camping")}
                     name="campingOk"
                     register={register}
                   />
                 </CheckboxItem>
                 <CheckboxItem>
-                  <HostingPreferenceCheckbox
-                    className={classes.formControl}
-                    defaultValue={false}
+                  <StyledHostingPreferenceCheckbox
+                    defaultValue={!!user.parking?.value}
                     label={t("profile:home_info_headings.parking")}
                     name="parking"
                     register={register}
@@ -583,14 +596,13 @@ export default function HostingPreferenceForm() {
                       control={control}
                       name="parkingDetails"
                       render={({ field }) => (
-                        <Select
+                        <StyledSelect
                           label={t(
                             "profile:home_info_headings.parking_details",
                           )}
                           onChange={(event) =>
                             field.onChange(event.target.value)
                           }
-                          className={classes.field}
                           value={field.value}
                           id="parkingDetails"
                           options={[
@@ -615,16 +627,14 @@ export default function HostingPreferenceForm() {
                 {t("profile:home_info_headings.household_habits")}
               </Typography>
               <CheckboxGrid>
-                <HostingPreferenceCheckbox
-                  className={classes.formControl}
-                  defaultValue={false}
+                <StyledHostingPreferenceCheckbox
+                  defaultValue={!!user.drinksAtHome?.value}
                   label={t("profile:home_info_headings.host_drinking")}
                   name="drinksAtHome"
                   register={register}
                 />
-                <HostingPreferenceCheckbox
-                  className={classes.formControl}
-                  defaultValue={false}
+                <StyledHostingPreferenceCheckbox
+                  defaultValue={!!user.smokesAtHome?.value}
                   label={t("profile:home_info_headings.host_smoking")}
                   name="smokesAtHome"
                   register={register}
@@ -643,42 +653,38 @@ export default function HostingPreferenceForm() {
             </SectionSubtitle>
 
             <FieldGroup>
-              <ProfileMarkdownInput
+              <StyledProfileMarkdownInput
                 id="area"
                 label={t("profile:home_info_headings.local_area")}
                 name="area"
                 control={control}
-                className={classes.field}
               />
             </FieldGroup>
 
             <FieldGroup>
-              <ProfileMarkdownInput
+              <StyledProfileMarkdownInput
                 id="sleepingDetails"
                 label={t("profile:home_info_headings.sleeping_arrangement")}
                 name="sleepingDetails"
                 control={control}
-                className={classes.field}
               />
             </FieldGroup>
 
             <FieldGroup>
-              <ProfileMarkdownInput
+              <StyledProfileMarkdownInput
                 id="houseRules"
                 label={t("profile:home_info_headings.house_rules")}
                 name="houseRules"
                 control={control}
-                className={classes.field}
               />
             </FieldGroup>
 
             <FieldGroup>
-              <ProfileMarkdownInput
+              <StyledProfileMarkdownInput
                 id="otherHostInfo"
                 label={t("profile:home_info_headings.other_info")}
                 name="otherHostInfo"
                 control={control}
-                className={classes.field}
               />
             </FieldGroup>
           </ProfileSection>

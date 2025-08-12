@@ -47,9 +47,21 @@ import {
   DEFAULT_HOBBIES_HEADINGS,
 } from "./constants";
 import StatusCardGroup from "./StatusCard";
-import useStyles from "./styles";
 
-const StyledAlert = styled(Alert)(({ theme }) => ({
+export type EditProfileFormValues = Omit<
+  UpdateUserProfileData,
+  "languageAbilities" | "city" | "lat" | "lng" | "radius"
+> & {
+  fluentLanguages: string[];
+  location: {
+    city: string;
+    lat: number;
+    lng: number;
+    radius: number;
+  };
+};
+
+const StyledAlert = styled(Alert)(() => ({
   marginTop: theme.spacing(2),
 }));
 
@@ -175,22 +187,40 @@ const BottomSpacer = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 
-export type EditProfileFormValues = Omit<
-  UpdateUserProfileData,
-  "languageAbilities" | "city" | "lat" | "lng" | "radius"
-> & {
-  fluentLanguages: string[];
-  location: {
-    city: string;
-    lat: number;
-    lng: number;
-    radius: number;
-  };
+const styledField = <C extends React.ComponentType<React.ComponentProps<C>>>(
+  component: C,
+) => {
+  return styled(component)(() => ({
+    [theme.breakpoints.up("md")]: {
+      "& > .MuiInputBase-root": {
+        width: 400,
+      },
+    },
+    "& > .MuiInputBase-root": {
+      width: "100%",
+    },
+  }));
 };
+const StyledProfileTextInput = styledField(ProfileTextInput);
+
+const StyledAvatarInput = styled(ImageInput)(() => ({
+  width: 120,
+  height: 120,
+}));
+
+const StyledProfileMarkdownInput = styledField(ProfileMarkdownInput);
+
+const StyledRadioGroup = styled(RadioGroup)(() => ({
+  display: "flex",
+  flexDirection: "column",
+  [theme.breakpoints.up("sm")]: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+  },
+}));
 
 export default function EditProfileForm() {
   const { t } = useTranslation([GLOBAL, AUTH, PROFILE]);
-  const classes = useStyles();
   const {
     updateUserProfile,
     reset: resetUpdate,
@@ -398,8 +428,7 @@ export default function EditProfileForm() {
 
               <AvatarContainer>
                 <AvatarImageWrapper>
-                  <ImageInput
-                    className={classes.avatar}
+                  <StyledAvatarInput
                     control={control}
                     id="profile-picture"
                     name="avatarKey"
@@ -434,13 +463,12 @@ export default function EditProfileForm() {
               </AvatarContainer>
 
               <FieldGroup>
-                <ProfileTextInput
+                <StyledProfileTextInput
                   id="name"
                   {...register("name", { required: true })}
                   label={t("profile:edit_profile_headings.name")}
                   defaultValue={user.name}
                   error={!!errors.name}
-                  className={classes.field}
                   helperText={
                     errors.name ? t("profile:edit_profile_name_required") : ""
                   }
@@ -682,7 +710,7 @@ export default function EditProfileForm() {
                         : field.value;
                     return (
                       <RadioGroupContainer>
-                        <RadioGroup
+                        <StyledRadioGroup
                           {...field}
                           row
                           aria-label={t(
@@ -691,7 +719,6 @@ export default function EditProfileForm() {
                           name="pronouns"
                           value={field.value}
                           onChange={(_, value) => field.onChange(value)}
-                          className={classes.radioButtons}
                         >
                           <FormControlLabel
                             value={t("profile:pronouns.woman")}
@@ -716,7 +743,7 @@ export default function EditProfileForm() {
                               />
                             }
                           />
-                        </RadioGroup>
+                        </StyledRadioGroup>
                       </RadioGroupContainer>
                     );
                   }}
@@ -748,32 +775,29 @@ export default function EditProfileForm() {
               )}
 
               <FieldGroup>
-                <ProfileTextInput
+                <StyledProfileTextInput
                   id="hometown"
                   {...register("hometown")}
                   label={t("profile:edit_profile_headings.hometown")}
                   defaultValue={user.hometown}
-                  className={classes.field}
                 />
               </FieldGroup>
 
               <FieldGroup>
-                <ProfileTextInput
+                <StyledProfileTextInput
                   id="occupation"
                   {...register("occupation")}
                   label={t("profile:edit_profile_headings.occupation")}
                   defaultValue={user.occupation}
-                  className={classes.field}
                 />
               </FieldGroup>
 
               <FieldGroup>
-                <ProfileTextInput
+                <StyledProfileTextInput
                   id="education"
                   {...register("education")}
                   label={t("profile:edit_profile_headings.education")}
                   defaultValue={user.education}
-                  className={classes.field}
                 />
               </FieldGroup>
             </ProfileSection>
@@ -798,14 +822,13 @@ export default function EditProfileForm() {
               </SectionSubtitle>
 
               <FieldGroup>
-                <ProfileMarkdownInput
+                <StyledProfileMarkdownInput
                   id="aboutMe"
                   label={t("profile:heading.about_me")}
                   name="aboutMe"
                   placeholder={DEFAULT_ABOUT_ME_HEADINGS}
                   defaultValue={user.aboutMe}
                   control={control}
-                  className={classes.field}
                   warning={aboutMeField.length < ABOUT_ME_MIN_LENGTH}
                   helperText={
                     <Trans
@@ -838,24 +861,22 @@ export default function EditProfileForm() {
               </FieldGroup>
 
               <FieldGroup>
-                <ProfileMarkdownInput
+                <StyledProfileMarkdownInput
                   id="thingsILike"
                   label={t("profile:heading.hobbies_section")}
                   name="thingsILike"
                   defaultValue={user.thingsILike || DEFAULT_HOBBIES_HEADINGS}
                   control={control}
-                  className={classes.field}
                 />
               </FieldGroup>
 
               <FieldGroup>
-                <ProfileMarkdownInput
+                <StyledProfileMarkdownInput
                   id="additionalInformation"
                   label={t("profile:heading.additional_information_section")}
                   name="additionalInformation"
                   defaultValue={user.additionalInformation}
                   control={control}
-                  className={classes.field}
                 />
               </FieldGroup>
             </ProfileSection>

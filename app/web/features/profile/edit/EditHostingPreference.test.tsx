@@ -105,6 +105,32 @@ describe("EditHostingPreference", () => {
     );
   });
 
+  it("should pre-check checkboxes based on user values", async () => {
+    getUserMock.mockImplementation(async (user) => ({
+      ...(await getUser(user)),
+      lastMinute: { value: true },
+      acceptsKids: { value: false },
+    }));
+
+    renderPage();
+
+    await screen.findByText(
+      t("profile:home_info_headings.hosting_preferences"),
+    );
+
+    expect(
+      screen.getByLabelText(
+        t("profile:home_info_headings.last_minute"),
+      ) as HTMLInputElement,
+    ).toBeChecked();
+
+    expect(
+      screen.getByLabelText(
+        t("profile:edit_home_questions.accept_kids"),
+      ) as HTMLInputElement,
+    ).not.toBeChecked();
+  });
+
   it("should display the users hosting preferences", async () => {
     renderPage();
 

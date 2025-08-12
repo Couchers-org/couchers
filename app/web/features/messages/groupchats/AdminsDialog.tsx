@@ -1,4 +1,4 @@
-import { DialogProps, List, ListItem } from "@mui/material";
+import { DialogProps, List, ListItem, styled } from "@mui/material";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
@@ -14,7 +14,6 @@ import IconButton from "components/IconButton";
 import { AddIcon, CloseIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { useMembersDialogStyles } from "features/messages/groupchats/MembersDialog";
 import {
   groupChatKey,
   groupChatMessagesKey,
@@ -30,6 +29,19 @@ import { GroupChat } from "proto/conversations_pb";
 import React, { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
+import { theme } from "theme";
+
+const StyledAvatar = styled(Avatar)(() => ({
+  height: 30,
+  marginInlineEnd: theme.spacing(1),
+  width: 30,
+}));
+
+const StyledMemberListItemContainer = styled(ListItem)(() => ({
+  alignItems: "center",
+  display: "flex",
+  justifyContent: "flex-start",
+}));
 
 function AdminListItem({
   groupChatId,
@@ -43,7 +55,6 @@ function AdminListItem({
   setError: (value: string) => void;
 }) {
   const { t } = useTranslation(MESSAGES);
-  const classes = useMembersDialogStyles();
 
   const isCurrentUser = useAuthContext().authState.userId === member.userId;
 
@@ -107,7 +118,7 @@ function AdminListItem({
   const handleRemoveAdmin = () => removeAdmin.mutate();
 
   return (
-    <ListItem dense className={classes.memberListItemContainer}>
+    <StyledMemberListItemContainer dense>
       {
         //TODO: Colours
         memberIsAdmin ? (
@@ -149,9 +160,9 @@ function AdminListItem({
           </IconButton>
         )
       }
-      <Avatar user={member} className={classes.avatar} />
+      <StyledAvatar user={member} />
       <TextBody noWrap>{member.name}</TextBody>
-    </ListItem>
+    </StyledMemberListItemContainer>
   );
 }
 

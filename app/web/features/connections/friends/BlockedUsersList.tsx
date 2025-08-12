@@ -1,5 +1,4 @@
 import { People } from "@mui/icons-material";
-import { MenuItem, Typography } from "@mui/material";
 import EllipsisMenu from "components/EllipsisMenu";
 import { blockedUsersKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
@@ -9,7 +8,6 @@ import { BlockedUser, GetBlockedUsersRes } from "proto/blocking_pb";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import { service } from "service";
-import { theme } from "theme";
 
 import ConnectionActionDialog from "./ConnectionActionDialog";
 import FriendSummaryView from "./FriendSummaryView";
@@ -76,17 +74,15 @@ function BlockedUsersList({ refetchFriends }: { refetchFriends: () => void }) {
               menuAnchorEl={menuAnchorEl}
               onMenuOpen={handleMenuOpen}
               onMenuClose={handleMenuClose}
-            >
-              <MenuItem onClick={handleDialogOpen} data-testid="unblock-user">
-                <People fontSize="small" />
-                <Typography
-                  variant="body2"
-                  sx={{ marginLeft: theme.spacing(1), fontWeight: 500 }}
-                >
-                  {t("connections:unblock_user")}
-                </Typography>
-              </MenuItem>
-            </EllipsisMenu>
+              items={[
+                {
+                  icon: People,
+                  label: t("connections:unblock_user"),
+                  onClick: handleDialogOpen,
+                  id: "unblock-user",
+                },
+              ]}
+            />
             <ConnectionActionDialog
               isOpen={isDialogOpen}
               onClose={handleDialogClose}

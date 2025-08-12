@@ -61,7 +61,6 @@ export function HostRequestsSentNotification() {
 }
 
 const labels: Record<MessageType, ReactNode> = {
-  //all: "All",
   chats: (
     <StyledLabelWrapper>
       <MessagesNotification />
@@ -77,8 +76,6 @@ const labels: Record<MessageType, ReactNode> = {
       <HostRequestsSentNotification />
     </StyledLabelWrapper>
   ),
-  //meet: "Meet",
-  //archived: "Archived",
 };
 
 export default function MessagesHeader({
