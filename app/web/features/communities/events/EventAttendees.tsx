@@ -1,4 +1,5 @@
 import { Add } from "@mui/icons-material";
+import { EllipsisMenuItem } from "components/EllipsisMenu";
 import Snackbar from "components/Snackbar";
 import MakeCoOrganizerDialog from "features/communities/events/MakeCoOrganizerDialog";
 import { eventOrganizersKey } from "features/queryKeys";
@@ -13,7 +14,6 @@ import { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
-import { EllipsisMenuItem } from "../../../components/EllipsisMenu";
 import EventAttendeesDialog from "./EventAttendeesDialog";
 import EventUsers from "./EventUsers";
 import { useEventAttendees, useEventOrganizers } from "./hooks";
