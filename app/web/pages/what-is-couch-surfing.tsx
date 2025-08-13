@@ -1,5 +1,5 @@
 import { appGetLayout } from "components/AppRoute";
-import WhatIsCouchSurfingPage from "features/marketing/WhatIsCouchSurfing/WhatIsCouchSurfingPage";
+import WhatIsCouchSurfingPage from "features/landing/WhatIsCouchSurfingPage";
 import { GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { translationStaticProps } from "i18n/server-side-translations";
 
