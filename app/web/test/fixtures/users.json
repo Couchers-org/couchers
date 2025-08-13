@@ -36,6 +36,7 @@
     "additionalInformation": "",
     "friends": 3,
     "sleepingArrangement": 2,
+    "parking": { "value": true },
     "parkingDetails": 3,
     "smokingAllowed": 1,
     "avatarUrl": "https://loremflickr.com/200/200?user1",

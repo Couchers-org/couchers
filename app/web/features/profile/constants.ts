@@ -91,10 +91,10 @@ export const sleepingArrangementLabels = (t: TFunction) => ({
   [SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM]: t(
     "profile:sleeping_arrangement.shared_room",
   ),
-  [SleepingArrangement.SLEEPING_ARRANGEMENT_UNSPECIFIED]: t(
+  [SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN]: t(
     "profile:unspecified_info",
   ),
-  [SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN]: t(
+  [SleepingArrangement.SLEEPING_ARRANGEMENT_UNSPECIFIED]: t(
     "profile:unspecified_info",
   ),
 });
@@ -109,7 +109,7 @@ export const sleepingArrangementLabelsShort = (t: TFunction) => ({
   [SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM]: t(
     "profile:sleeping_arrangement.shared_room_short",
   ),
-  [SleepingArrangement.SLEEPING_ARRANGEMENT_UNSPECIFIED]: t(
+  [SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN]: t(
     "profile:unspecified_info",
   ),
 });
