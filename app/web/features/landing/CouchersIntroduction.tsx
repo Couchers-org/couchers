@@ -73,7 +73,7 @@ const CouchersIntroduction = () => {
         >
           {t("landing:introduction_subtitle2")}
         </Typography>
-        {router.pathname === "/" && !isMobile && (
+        {!isMobile && (
           <Stack direction="row" spacing={2} sx={{ marginTop: 4 }}>
             <Button
               onClick={routeToSignupPage}
@@ -96,11 +96,11 @@ const CouchersIntroduction = () => {
                 fontSize: "1.3rem",
               }}
             >
-              Learn more
+              {t("global:learn_more")}
             </Button>
           </Stack>
         )}
-        {router.pathname === "/" && isMobile && (
+        {isMobile && (
           <Button
             onClick={routeToLearnMore}
             size="medium"
@@ -108,7 +108,7 @@ const CouchersIntroduction = () => {
             color="primary"
             sx={{ mt: 2 }}
           >
-            Learn more
+            {t("global:learn_more")}
           </Button>
         )}
       </>
