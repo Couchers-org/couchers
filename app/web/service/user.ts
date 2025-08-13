@@ -207,12 +207,9 @@ export function updateAvatar(avatarKey: string) {
 export function updateHostingPreference(preferences: HostingPreferenceData) {
   const req = new UpdateProfileReq();
 
-  const maxGuests =
-    preferences.maxGuests !== null
-      ? new NullableUInt32Value()
-          .setValue(preferences.maxGuests)
-          .setIsNull(false)
-      : new NullableUInt32Value().setIsNull(true);
+  const maxGuests = preferences.maxGuests
+    ? new NullableUInt32Value().setValue(preferences.maxGuests).setIsNull(false)
+    : new NullableUInt32Value().setIsNull(true);
   const lastMinute = new NullableBoolValue()
     .setValue(preferences.lastMinute)
     .setIsNull(false);

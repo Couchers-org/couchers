@@ -314,6 +314,7 @@ export default function EditLocationMap({
             }
             postMapInitialize={initializeMap}
             grow
+            scrollZoom={false}
             {...otherProps}
           />
           <MapSearch

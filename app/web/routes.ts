@@ -20,6 +20,7 @@ export const githubUpdatesURL =
 
 export const translateJobURL = "https://couchers.org/volunteer/translator";
 
+export const landingRoute = "/landing";
 export const dashboardRoute = "/dashboard";
 export const blogRoute = "/blog";
 export const faqRoute = "/faq";
@@ -213,6 +214,7 @@ export const helpCenterHowToLeaveGoodReferenceUrl =
 export const helpCenterCommunityBuilderURL =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder";
 
+// Note: Url must end with financials year digits
 export const latestFinancialsURL =
   "/blog/2025/04/20/couchers-inc-financials-2024";
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { sessionCookieName } from "./appConstants";
 import { allLanguages } from "./i18n/allLanguages";
 
 function getBrowserLocale(
@@ -31,7 +32,7 @@ function getBrowserLocale(
 
 export function middleware(request: NextRequest) {
   if (
-    request.cookies.get("couchers-sesh") &&
+    request.cookies.get(sessionCookieName) &&
     request.nextUrl.pathname === "/"
   ) {
     const url = request.nextUrl.clone();

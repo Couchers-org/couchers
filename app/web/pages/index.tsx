@@ -1,33 +1,18 @@
-import { appGetLayout } from "components/AppRoute";
-import {
-  AUTH,
-  DASHBOARD,
-  GLOBAL,
-  LANDING,
-  NOTIFICATIONS,
-} from "i18n/namespaces";
-import { GetStaticProps } from "next";
-import nextI18nextConfig from "next-i18next.config";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { sessionCookieName } from "appConstants";
+import { GetServerSideProps } from "next";
+import { dashboardRoute, landingRoute } from "routes";
 
-import LandingPage from "../features/landing/LandingPage";
-
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
-  props: {
-    ...(await serverSideTranslations(
-      locale ?? "en",
-      [AUTH, DASHBOARD, GLOBAL, LANDING, NOTIFICATIONS],
-      nextI18nextConfig,
-    )),
-  },
-});
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    redirect: {
+      destination: context.req.cookies[sessionCookieName]
+        ? dashboardRoute
+        : landingRoute,
+      permanent: true,
+    },
+  };
+};
 
 export default function HomePage() {
-  return <LandingPage />;
+  return undefined;
 }
-
-HomePage.getLayout = appGetLayout({
-  isPrivate: false,
-  variant: "full-screen",
-  bottomMargin: "80px",
-});

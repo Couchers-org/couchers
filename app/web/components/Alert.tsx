@@ -4,7 +4,7 @@ import {
   styled,
 } from "@mui/material";
 import { grpcErrorStrings, ObscureGrpcErrorMessages } from "appConstants";
-import React from "react";
+import React, { ReactNode } from "react";
 
 const StyledAlert = styled(MuiAlert)(({ theme }) => ({
   marginBottom: theme.spacing(2),
@@ -12,7 +12,7 @@ const StyledAlert = styled(MuiAlert)(({ theme }) => ({
 
 interface AlertProps extends MuiAlertProps {
   severity: MuiAlertProps["severity"];
-  children: string;
+  children: string | ReactNode;
 }
 
 export default function Alert({
@@ -22,7 +22,7 @@ export default function Alert({
 }: AlertProps) {
   const oldErrorKey = Object.keys(grpcErrorStrings).find(
     (oldError): oldError is ObscureGrpcErrorMessages =>
-      children.includes(oldError),
+      typeof children === "string" && children.includes(oldError),
   );
 
   return (
