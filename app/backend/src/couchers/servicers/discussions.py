@@ -92,6 +92,9 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
         if not cluster:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_OR_COMMUNITY_NOT_FOUND)
 
+        if not cluster.discussions_enabled:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANNOT_CREATE_DISCUSSION)
+
         discussion = Discussion(
             title=request.title,
             content=request.content,

@@ -1,25 +1,28 @@
-import { StyledEngineProvider, ThemeProvider, Typography } from "@mui/material";
-import classNames from "classnames";
+import { styled, Typography } from "@mui/material";
 import StyledLink from "components/StyledLink";
 import { DASHBOARD } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { routeToEditProfile } from "routes";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 
-import useHeroBackgroundTheme from "./useHeroBackgroundTheme";
+const StyledLinksContainer = styled("div")(() => ({
+  display: "flex",
+  flexWrap: "wrap",
+  rowGap: theme.spacing(2),
+  columnGap: theme.spacing(4),
+  justifyContent: "center",
+  margin: theme.spacing(4, 0),
+}));
 
-const useStyles = makeStyles((theme) => ({
-  linksContainer: {
-    display: "flex",
-    flexWrap: "wrap",
-    rowGap: theme.spacing(2),
-    columnGap: theme.spacing(4),
-    justifyContent: "center",
-    margin: theme.spacing(4, 0),
-  },
-  tabAppearance: {
+const makeStyledTab = <C extends React.ComponentType<React.ComponentProps<C>>>(
+  component: C,
+) => {
+  return styled(component, {
+    shouldForwardProp: (prop) => prop !== "isSelected",
+  })<{ isSelected?: boolean }>((props) => ({
     position: "relative",
     paddingBottom: theme.spacing(1),
+    color: theme.palette.common.white,
     "&::after": {
       content: '""',
       position: "absolute",
@@ -30,60 +33,35 @@ const useStyles = makeStyles((theme) => ({
       height: 2,
       background: theme.palette.common.white,
       transition: `opacity ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
-      opacity: 0,
+      opacity: props.isSelected ? 1 : 0,
     },
     "&:hover::after": {
       opacity: 1,
     },
-  },
-  selectedTabAppearance: {
-    "&::after": {
-      opacity: 1,
-    },
-  },
-}));
+  }));
+};
+
+const StyledDefaultTab = makeStyledTab(Typography);
+const StyledLinkTab = makeStyledTab(StyledLink);
 
 export default function HeroLinks() {
   const { t } = useTranslation(DASHBOARD);
-  const classes = useStyles();
-
-  // because this component is over an image background, we need to use a theme that overrides some styles
-  const imageOverlayTheme = useHeroBackgroundTheme();
 
   return (
     <>
-      <div className={classes.linksContainer}>
-        <StyledEngineProvider injectFirst>
-          <ThemeProvider theme={imageOverlayTheme}>
-            <Typography
-              color="textPrimary"
-              variant="body1"
-              className={classNames(
-                classes.tabAppearance,
-                classes.selectedTabAppearance,
-              )}
-            >
-              {t("find_a_host")}
-            </Typography>
+      <StyledLinksContainer>
+        <StyledDefaultTab color="textPrimary" variant="body1" isSelected={true}>
+          {t("find_a_host")}
+        </StyledDefaultTab>
 
-            <StyledLink
-              underline="none"
-              href={routeToEditProfile("home")}
-              className={classes.tabAppearance}
-            >
-              {t("become_a_host")}
-            </StyledLink>
+        <StyledLinkTab underline="none" href={routeToEditProfile("home")}>
+          {t("become_a_host")}
+        </StyledLinkTab>
 
-            <StyledLink
-              underline="none"
-              href="/communities"
-              className={classes.tabAppearance}
-            >
-              {t("browse_communities")}
-            </StyledLink>
-          </ThemeProvider>
-        </StyledEngineProvider>
-      </div>
+        <StyledLinkTab underline="none" href="/communities">
+          {t("browse_communities")}
+        </StyledLinkTab>
+      </StyledLinksContainer>
     </>
   );
 }

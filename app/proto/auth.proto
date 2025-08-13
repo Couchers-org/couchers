@@ -99,7 +99,12 @@ service Auth {
   }
 
   rpc AntiBotPolicy(AntiBotPolicyReq) returns (AntiBotPolicyRes) {}
+
+  rpc GetInviteCodeInfo(GetInviteCodeInfoReq) returns (GetInviteCodeInfoRes) {
+    // Returns basic profile of the invite code creator: name, username, avatar_url
+  }
 }
+
 
 message SignupFlowReq {
   // a token used to link the user's information across the signup flow
@@ -135,7 +140,7 @@ message SignupFlowRes {
 message SignupBasic {
   string name = 1;
   string email = 2;
-  // TODO: string invitation_code = 3;
+  string invite_code = 3;
   // TODO: UTM parameters, attribution
 }
 
@@ -256,4 +261,15 @@ message AntiBotPolicyReq {}
 
 message AntiBotPolicyRes {
   bool should_antibot = 1;
+}
+
+message GetInviteCodeInfoReq {
+  string code = 1;
+}
+
+message GetInviteCodeInfoRes {
+  string name = 1;
+  string username = 2;
+  string avatar_url = 3;
+  string url = 4;
 }

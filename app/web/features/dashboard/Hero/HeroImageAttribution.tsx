@@ -1,27 +1,26 @@
 import {
   Link as MuiLink,
+  styled,
   StyledEngineProvider,
   ThemeProvider,
   Typography,
 } from "@mui/material";
 import { Trans } from "next-i18next";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 
 import useHeroBackgroundTheme from "./useHeroBackgroundTheme";
 
-const useStyles = makeStyles((theme) => ({
-  attribution: {
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-    zIndex: 1,
-    background: theme.palette.action.active,
-    padding: theme.spacing(0, 1),
-    opacity: 0.5,
-    transition: `opacity ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
-    "&:hover": {
-      opacity: 1,
-    },
+const StyledAttribution = styled(Typography)(() => ({
+  position: "absolute",
+  bottom: 0,
+  right: 0,
+  zIndex: 1,
+  background: theme.palette.action.active,
+  padding: theme.spacing(0, 1),
+  opacity: 0.5,
+  transition: `opacity ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
+  "&:hover": {
+    opacity: 1,
   },
 }));
 
@@ -32,19 +31,13 @@ const unsplashUrl =
   "https://unsplash.com/?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText";
 
 export default function HeroImageAttribution() {
-  const classes = useStyles();
-
   // because this component is over an image background, we need to use a theme that overrides some styles
   const heroBackgroundTheme = useHeroBackgroundTheme();
 
   return (
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={heroBackgroundTheme}>
-        <Typography
-          className={classes.attribution}
-          color="textPrimary"
-          variant="body2"
-        >
+        <StyledAttribution color="textPrimary" variant="body2">
           <Trans i18nKey="dashboard:hero_image_attribution">
             {`Photo by `}
             <MuiLink
@@ -67,7 +60,7 @@ export default function HeroImageAttribution() {
               Unsplash
             </MuiLink>
           </Trans>
-        </Typography>
+        </StyledAttribution>
       </ThemeProvider>
     </StyledEngineProvider>
   );

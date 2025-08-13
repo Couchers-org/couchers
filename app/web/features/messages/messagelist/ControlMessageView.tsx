@@ -1,11 +1,10 @@
-import { Skeleton } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
-import classNames from "classnames";
+import { Skeleton, styled } from "@mui/material";
 import TextBody from "components/TextBody";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import React from "react";
+import { theme } from "theme";
 
 import { timestamp2Date } from "../../../utils/date";
 import { firstName } from "../../../utils/names";
@@ -14,17 +13,20 @@ import { controlMessage, messageTargetId } from "../utils";
 import { messageElementId, MessageProps } from "./MessageView";
 import TimeInterval from "./TimeInterval";
 
-const useStyles = makeStyles((theme) => ({
-  message: {
-    paddingInlineEnd: theme.spacing(1),
-  },
-  root: {
-    marginInlineEnd: "auto",
-    marginInlineStart: "auto",
-    textAlign: "center",
-  },
-  skeleton: { minWidth: 100 },
-  timestamp: theme.typography.caption,
+const StyledWrapper = styled("div")(() => ({
+  marginInlineEnd: "auto",
+  marginInlineStart: "auto",
+  textAlign: "center",
+}));
+
+const StyledTimestamp = styled("div")(() => theme.typography.caption);
+
+const StyledBodyWrapper = styled("div")(() => ({
+  paddingInlineEnd: theme.spacing(1),
+}));
+
+const StyledSkeleton = styled(Skeleton)(() => ({
+  minWidth: 100,
 }));
 
 export default function ControlMessageView({
@@ -33,7 +35,6 @@ export default function ControlMessageView({
   className,
 }: MessageProps) {
   const { t } = useTranslation(MESSAGES);
-  const classes = useStyles();
   const { data: author, isLoading: isAuthorLoading } = useLiteUser(
     message.authorUserId,
   );
@@ -45,17 +46,17 @@ export default function ControlMessageView({
   const authorName = firstName(author?.name);
   const targetName = firstName(target?.name);
   return (
-    <div
-      className={classNames(classes.root, className)}
+    <StyledWrapper
+      className={className}
       data-testid={`message-${message.messageId}`}
       ref={ref}
       id={messageElementId(message.messageId)}
     >
-      <div className={classes.timestamp}>
+      <StyledTimestamp>
         <TimeInterval date={timestamp2Date(message.time!)} />
-      </div>
+      </StyledTimestamp>
 
-      <div className={classes.message}>
+      <StyledBodyWrapper>
         {!isAuthorLoading && !isTargetLoading ? (
           <TextBody>
             {controlMessage({
@@ -66,9 +67,9 @@ export default function ControlMessageView({
             })}
           </TextBody>
         ) : (
-          <Skeleton className={classes.skeleton} />
+          <StyledSkeleton />
         )}
-      </div>
-    </div>
+      </StyledBodyWrapper>
+    </StyledWrapper>
   );
 }

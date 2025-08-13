@@ -69,6 +69,13 @@ def _is_event_owner(event: Event, user_id):
     return event.owner_cluster.admins.where(User.id == user_id).one_or_none() is not None
 
 
+def _is_event_organizer(event: Event, user_id):
+    """
+    Checks whether the user is as an organizer of the event
+    """
+    return event.organizers.where(EventOrganizer.user_id == user_id).one_or_none() is not None
+
+
 def _can_moderate_event(session, event: Event, user_id):
     # if the event is owned by a cluster, then any moderator of that cluster can moderate this event
     if event.owner_cluster is not None and can_moderate_node(session, user_id, event.owner_cluster.parent_node_id):
@@ -79,7 +86,11 @@ def _can_moderate_event(session, event: Event, user_id):
 
 
 def _can_edit_event(session, event, user_id):
-    return _is_event_owner(event, user_id) or _can_moderate_event(session, event, user_id)
+    return (
+        _is_event_owner(event, user_id)
+        or _is_event_organizer(event, user_id)
+        or _can_moderate_event(session, event, user_id)
+    )
 
 
 def event_to_pb(session, occurrence: EventOccurrence, context):
@@ -400,6 +411,9 @@ class Events(events_pb2_grpc.EventsServicer):
             parent_node = session.execute(
                 select(Node).where(Node.id == request.parent_community_id)
             ).scalar_one_or_none()
+
+            if not parent_node.official_cluster.events_enabled:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENTS_NOT_ENABLED)
         else:
             if online:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.ONLINE_EVENT_MISSING_PARENT_COMMUNITY)
@@ -1156,18 +1170,27 @@ class Events(events_pb2_grpc.EventsServicer):
         if occurrence.end_time < now() - timedelta(hours=24):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_UPDATE_OLD_EVENT)
 
-        if event.owner_user_id == context.user_id:
+        # Determine which user to remove
+        user_id_to_remove = request.user_id.value if request.HasField("user_id") else context.user_id
+
+        # Check if the target user is the event owner (only after permission check)
+        if event.owner_user_id == user_id_to_remove:
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_REMOVE_OWNER_AS_ORGANIZER)
 
-        current = session.execute(
+        # Check permissions: either an organizer removing an organizer OR you're the event owner
+        if not _can_edit_event(session, event, context.user_id):
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_EDIT_PERMISSION_DENIED)
+
+        # Find the organizer to remove
+        organizer_to_remove = session.execute(
             select(EventOrganizer)
-            .where(EventOrganizer.user_id == context.user_id)
+            .where(EventOrganizer.user_id == user_id_to_remove)
             .where(EventOrganizer.event_id == event.id)
         ).scalar_one_or_none()
 
-        if not current:
+        if not organizer_to_remove:
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_NOT_AN_ORGANIZER)
 
-        session.delete(current)
+        session.delete(organizer_to_remove)
 
         return empty_pb2.Empty()

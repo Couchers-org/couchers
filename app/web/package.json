@@ -27,14 +27,14 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^5.18.0",
     "@mui/lab": "^5.0.0-alpha.164",
-    "@mui/material": "^5.16.7",
+    "@mui/material": "^5.18.0",
     "@mui/styles": "^5.16.7",
     "@mui/system": "^5.18.0",
     "@mui/utils": "^5.16.13",
     "@mui/x-date-pickers": "^5.0.20",
     "@sentry/nextjs": "^8.47.0",
     "@sentry/react": "^8.51.0",
-    "@stripe/stripe-js": "^7.4.0",
+    "@stripe/stripe-js": "^7.8.0",
     "@toast-ui/editor": "^3.2.2",
     "classnames": "^2.5.1",
     "country-flag-icons": "^1.5.19",
@@ -50,7 +50,7 @@
     "luhn": "^2.4.1",
     "maplibre-gl": "^5.6.1",
     "markdown-it": "^14.1.0",
-    "next": "^15.3.4",
+    "next": "^15.4.6",
     "next-i18next": "^14.0.0",
     "prop-types": "^15.7.2",
     "react": "^18.3.1",
@@ -69,7 +69,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
-    "@next/bundle-analyzer": "^15.4.2",
+    "@next/bundle-analyzer": "^15.4.6",
     "@sentry/cli": "^2.50.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.4",
@@ -89,10 +89,10 @@
     "@types/react-simple-maps": "^3.0.6",
     "@typescript-eslint/eslint-plugin": "^8.35.1",
     "@typescript-eslint/parser": "^8.35.1",
-    "cross-env": "^7.0.3",
+    "cross-env": "^10.0.0",
     "css-mediaquery": "^0.1.2",
     "eslint": "^8.56.0",
-    "eslint-config-next": "^14.2.30",
+    "eslint-config-next": "^14.2.31",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-unused-imports": "^4.1.4",
@@ -112,5 +112,6 @@
   },
   "resolutions": {
     "@types/react": "^18.3.1"
-  }
+  },
+  "packageManager": "yarn@1.22.22"
 }

@@ -35,12 +35,28 @@ describe("EditHostingPreference", () => {
   });
 
   it("should redirect to the user profile route with 'home' tab active after successful update", async () => {
+    // prevent the unsavedChanged pop up by mocking window.confirm
+    jest.spyOn(window, "confirm").mockImplementation(() => true);
+
     renderPage();
 
     const user = userEvent.setup();
 
+    // Wait for the form to load
+    await screen.findByText(
+      t("profile:home_info_headings.hosting_preferences"),
+    );
+
+    // Make the form dirty by changing a field
+    const maxGuestsInput = await screen.findByLabelText(
+      t("profile:home_info_headings.max_guests"),
+    );
+    await user.clear(maxGuestsInput);
+    await user.type(maxGuestsInput, "3");
+
+    // Now the save button should be visible
     await user.click(
-      await screen.findByRole("button", { name: t("global:save") }),
+      await screen.findByRole("button", { name: t("global:save_changes") }),
     );
     await waitFor(() =>
       expect(mockRouter.pathname).toBe(routeToProfile("home")),
@@ -50,6 +66,9 @@ describe("EditHostingPreference", () => {
   it(`should not submit the default headings for the '${t(
     "profile:home_info_headings.about_home",
   )}'section`, async () => {
+    // prevent the unsavedChanged pop up by mocking window.confirm
+    jest.spyOn(window, "confirm").mockImplementation(() => true);
+
     getUserMock.mockImplementation(async (user) => ({
       ...(await getUser(user)),
       aboutPlace: "",
@@ -58,8 +77,21 @@ describe("EditHostingPreference", () => {
 
     const user = userEvent.setup();
 
+    // Wait for the form to load
+    await screen.findByText(
+      t("profile:home_info_headings.hosting_preferences"),
+    );
+
+    // Make the form dirty by changing a field
+    const maxGuestsInput = await screen.findByLabelText(
+      t("profile:home_info_headings.max_guests"),
+    );
+    await user.clear(maxGuestsInput);
+    await user.type(maxGuestsInput, "3");
+
+    // Now the save button should be visible
     await user.click(
-      await screen.findByRole("button", { name: t("global:save") }),
+      await screen.findByRole("button", { name: t("global:save_changes") }),
     );
     await waitFor(() =>
       expect(mockRouter.pathname).toBe(routeToProfile("home")),
@@ -71,6 +103,32 @@ describe("EditHostingPreference", () => {
         aboutPlace: "",
       }),
     );
+  });
+
+  it("should pre-check checkboxes based on user values", async () => {
+    getUserMock.mockImplementation(async (user) => ({
+      ...(await getUser(user)),
+      lastMinute: { value: true },
+      acceptsKids: { value: false },
+    }));
+
+    renderPage();
+
+    await screen.findByText(
+      t("profile:home_info_headings.hosting_preferences"),
+    );
+
+    expect(
+      screen.getByLabelText(
+        t("profile:home_info_headings.last_minute"),
+      ) as HTMLInputElement,
+    ).toBeChecked();
+
+    expect(
+      screen.getByLabelText(
+        t("profile:edit_home_questions.accept_kids"),
+      ) as HTMLInputElement,
+    ).not.toBeChecked();
   });
 
   it("should display the users hosting preferences", async () => {

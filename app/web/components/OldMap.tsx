@@ -43,6 +43,7 @@ export interface MapProps {
   grow?: boolean;
   interactive?: boolean;
   hash?: boolean;
+  scrollZoom?: boolean;
 }
 
 export default function Map({
@@ -54,6 +55,7 @@ export default function Map({
   hash,
   interactive = true,
   className,
+  scrollZoom = true,
   ...otherProps
 }: MapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -90,6 +92,7 @@ export default function Map({
         style: "https://cdn.couchers.org/maps/couchers-basemap-style-v1.json",
         transformRequest,
         zoom: initialZoom,
+        scrollZoom,
       });
 
       mapRef.current = map;

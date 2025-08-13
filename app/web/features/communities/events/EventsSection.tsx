@@ -1,3 +1,4 @@
+import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -10,21 +11,26 @@ import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Community } from "proto/communities_pb";
 import { routeToCommunity, routeToNewEvent } from "routes";
+import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
-import makeStyles from "utils/makeStyles";
 
-import { SectionTitle, useCommunityPageStyles } from "../CommunityPage";
+import { SectionTitle } from "../CommunityPage";
 import { useListCommunityEvents } from "../hooks";
 import EventCard from "./EventCard";
 
-const useStyles = makeStyles((theme) => ({
-  section: {
-    display: "grid",
-    rowGap: theme.spacing(2),
-  },
-  centerSelf: {
-    justifySelf: "center",
-  },
+const StyledLoadMoreButton = styled("div")(() => ({
+  alignSelf: "center",
+  display: "flex",
+  justifyContent: "center",
+  width: "100%",
+}));
+
+const StyledSection = styled("div")(() => ({
+  display: "grid",
+  rowGap: theme.spacing(2),
+}));
+
+const StyledCardContainer = styled(HorizontalScroller)(() => ({
   cardContainer: {
     display: "flex",
     flexDirection: "row",
@@ -35,16 +41,21 @@ const useStyles = makeStyles((theme) => ({
       flexWrap: "nowrap",
     },
   },
-  placeEventCard: {
-    [theme.breakpoints.up("sm")]: {
-      width: "calc(33.333% - 16px)", // 3 cards per row with gap
-      maxWidth: "280px",
-    },
-    [theme.breakpoints.down("sm")]: {
-      width: "200px", // Fixed width on mobile
-      flexShrink: 0,
-    },
+}));
+
+const StyledEventCard = styled(EventCard)(() => ({
+  [theme.breakpoints.up("sm")]: {
+    width: "calc(33.333% - 16px)", // 3 cards per row with gap
+    maxWidth: "280px",
   },
+  [theme.breakpoints.down("sm")]: {
+    width: "200px", // Fixed width on mobile
+    flexShrink: 0,
+  },
+}));
+
+const StyledSelfCenteredButton = styled(Button)(() => ({
+  justifySelf: "center",
 }));
 
 export default function EventsSection({
@@ -53,7 +64,6 @@ export default function EventsSection({
   community: Community.AsObject;
 }) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
-  const classes = { ...useCommunityPageStyles(), ...useStyles() };
   const router = useRouter();
 
   const { data, error, hasNextPage, isLoading } = useListCommunityEvents({
@@ -63,7 +73,7 @@ export default function EventsSection({
   });
 
   return (
-    <section className={classes.section}>
+    <StyledSection>
       <SectionTitle icon={<CalendarIcon />} variant="h2">
         {t("communities:events_title")}
       </SectionTitle>
@@ -73,20 +83,16 @@ export default function EventsSection({
         <CenteredSpinner />
       ) : hasAtLeastOnePage(data, "eventsList") ? (
         <>
-          <HorizontalScroller className={classes.cardContainer}>
+          <StyledCardContainer>
             {data.pages
               .flatMap((page) => page.eventsList)
               .filter((event) => !event.isCancelled)
               .map((event) => (
-                <EventCard
-                  key={event.eventId}
-                  event={event}
-                  className={classes.placeEventCard}
-                />
+                <StyledEventCard key={event.eventId} event={event} />
               ))}
-          </HorizontalScroller>
+          </StyledCardContainer>
           {hasNextPage && (
-            <div className={classes.loadMoreButton}>
+            <StyledLoadMoreButton>
               <StyledLink
                 href={routeToCommunity(
                   community.communityId,
@@ -96,18 +102,17 @@ export default function EventsSection({
               >
                 {t("global:nav.show_all_events")}
               </StyledLink>
-            </div>
+            </StyledLoadMoreButton>
           )}
         </>
       ) : (
         !error && <TextBody>{t("communities:events_empty_state")}</TextBody>
       )}
-      <Button
-        className={classes.centerSelf}
+      <StyledSelfCenteredButton
         onClick={() => router.push(routeToNewEvent(community.communityId))}
       >
         {t("communities:create_an_event")}
-      </Button>
-    </section>
+      </StyledSelfCenteredButton>
+    </StyledSection>
   );
 }
