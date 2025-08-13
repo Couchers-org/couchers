@@ -15,6 +15,7 @@ import HtmlMeta from "components/HtmlMeta";
 import { BackIcon, CalendarIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import Snackbar from "components/Snackbar";
+import EventAttendees from "features/communities/events/EventAttendees";
 import NotFoundPage from "features/NotFoundPage";
 import { eventAttendeesBaseKey, eventKey } from "features/queryKeys";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
@@ -35,7 +36,6 @@ import dayjs from "utils/dayjs";
 import CommentTree from "../discussions/CommentTree";
 import AttendanceMenu from "./AttendanceMenu";
 import CancelEventDialog from "./CancelEventDialog";
-import EventAttendees from "./EventAttendees";
 import EventOrganizers from "./EventOrganizers";
 import { useEvent } from "./hooks";
 import InviteCommunityDialog from "./InviteCommunityDialog";
@@ -350,8 +350,8 @@ export default function EventPage({
                 </Typography>
                 <Markdown source={event.content} topHeaderLevel={3} />
               </StyledCardSection>
-              <EventOrganizers eventId={event.eventId} />
-              <EventAttendees eventId={event.eventId} />
+              <EventOrganizers event={event} />
+              <EventAttendees event={event} />
             </StyledEventDetailsContainer>
             <StyledDiscussionContainer>
               <Typography variant="h2">
