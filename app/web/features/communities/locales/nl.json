@@ -1,3 +1,8 @@
 {
-  "location": "Locatie"
+  "location": "Locatie",
+  "by_creator": "Door {{name}}",
+  "cancelled": "Geannuleerd",
+  "attendees_count": "{{count}} deelnemer",
+  "attendees_count_plural": "{{count}} deelnemers",
+  "cancel_event": "Event annuleren"
 }
