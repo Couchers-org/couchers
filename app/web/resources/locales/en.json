@@ -1,5 +1,4 @@
 {
-  "back": "Back",
   "close": "Close",
   "create_account": "Create Account",
   "expand": "Expand",
@@ -9,6 +8,7 @@
   "login": "Log in",
   "sign_up": "Sign up",
   "join_us": "Join us",
+  "learn_more": "Learn more",
   "title": "title",
   "update": "update",
   "create": "Create",
@@ -23,7 +23,6 @@
   "verification_score_description": "Calculated from vouches by other users",
   "edit": "Edit",
   "save": "Save",
-  "save_changes": "Save changes",
   "send": "Send",
   "cancel": "Cancel",
   "submit": "Submit",
@@ -292,7 +291,6 @@
   },
   "error_loading_languages": "Failed to load language options",
   "language_names": {
-    "ca": "Catalan",
     "cs": "Czech",
     "de": "German",
     "en": "English",
