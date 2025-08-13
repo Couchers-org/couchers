@@ -1,5 +1,4 @@
-import { Typography } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { styled, Typography } from "@mui/material";
 import Divider from "components/Divider";
 import LabelAndText from "components/LabelAndText";
 import Markdown from "components/Markdown";
