@@ -1,1 +1,6 @@
-{}
+{
+    "error_updating_notifications": "Error bij updaten van notificaties",
+    "all": "Alles",
+    "unread": "Ongelezen",
+    "error_loading": "Error bij het laden van notificaties"
+}

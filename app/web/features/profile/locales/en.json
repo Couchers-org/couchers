@@ -24,7 +24,7 @@
     "occupation": "Occupation",
     "references": "References",
     "overview_section": "Overview",
-    "who_section": "Who I am",
+    "who_section": "Who I Am",
     "hobbies_section": "What I do in my free time",
     "additional_information_section": "Additional information",
     "travel_section": "Travelled to",
@@ -36,8 +36,7 @@
     "gender_verification_mismatch": "User provided gender does not match verified gender"
   },
   "helper_text": {
-    "characters_remaining": "Please write {{count}} more character to complete your profile.",
-    "characters_remaining_plural": "Please write {{count}} more characters to complete your profile.",
+    "characters_remaining": "<bold>Please write at least {{count}} characters to unlock messaging and requests.</bold> Genuine profiles build a community of trust. The more you share, the easier it is to connect!",
     "missing_profile_photo": "Please add a photo to complete your profile."
   },
   "section_tabs_a11y_label": "tabs for user's details",
@@ -53,6 +52,7 @@
     "about_home": "About my home",
     "general": "General",
     "has_housemates": "Has housemates",
+    "home_facilities": "Home Facilities",
     "host_drinking": "Drinks at home",
     "host_kids": "Has children",
     "host_pets": "Has pets",
@@ -65,7 +65,7 @@
     "last_minute": "Accept last-minute requests",
     "local_area": "Local area information",
     "max_guests": "Max number of guests",
-    "my_home": "My home",
+    "my_home": "My Home",
     "parking": "Parking available",
     "parking_details": "Parking details",
     "pet_details": "Pet details",
@@ -73,7 +73,15 @@
     "space": "Sleeping privacy",
     "transportation": "Transportation, Parking, Accessibility",
     "wheelchair": "Wheelchair accessible",
-    "other_info": "Additional information"
+    "other_info": "Additional information",
+    "household_details": "Household Details",
+    "household_members": "Household Members",
+    "parking_heading": "Parking",
+    "household_habits": "Household Habits",
+    "hosting_preferences_subtitle": "Let guests know what you're comfortable with",
+    "about_home_subtitle": "Tell guests about your home and what they can expect",
+    "household_details_subtitle": "Share more details about your household",
+    "general_subtitle": "Additional details about your home and area"
   },
   "edit_profile_helper_text": "Looking for some inspiration on where to start? <2>Check out our guide on creating an awesome profile</2>.",
   "edit_profile_headings": {
@@ -87,17 +95,27 @@
     "pronouns": "Pronouns",
     "hometown": "Grew up in",
     "occupation": "Occupation",
-    "education": "Education"
+    "education": "Education",
+    "basic_information": "Basic Information",
+    "basic_information_subtitle": "Start by providing your photo, name, and location",
+    "preferences": "Preferences",
+    "preferences_subtitle": "Let others know about your hosting and meetup preferences",
+    "personal_information": "Personal Information",
+    "personal_information_subtitle": "Share details about yourself and your background",
+    "about_me_subtitle": "Tell others about yourself. This is where trust begins. Help others get a sense of who you really are. See <1>tips for creating a great profile</1>.",
+    "travel_experience": "Travel Experience",
+    "travel_experience_subtitle": "Share your travel experiences and connections",
+    "location_subtitle": "Approximate location of your home"
   },
   "edit_profile_name_required": "Name required",
   "edit_home_questions": {
-    "accept_drinking": "Okay with drinking",
-    "accept_pets": "Hosts pets",
+    "accept_drinking": "Okay with people drinking",
+    "accept_pets": "Hosts people with pets",
     "accept_smoking": "Okay with smoking",
-    "accept_kids": "Hosts children",
+    "accept_kids": "Hosts people with children",
     "accept_camping": "Tent camping available"
   },
-  "unspecified_info": "Ask me",
+  "unspecified_info": "-",
   "smoking_location": {
     "no": "No",
     "outside": "Outside",
@@ -254,5 +272,17 @@
     "references_single": "reference",
     "references_plural": "references"
   },
-  "incomplete_profile_haiku": "Blank avatar stares,\nMystery behind silence—\nWho are you, stranger?"
+  "incomplete_profile_haiku": "Blank avatar stares,\nMystery behind silence—\nWho are you, stranger?",
+  "search_indicator": "The beginning of this section is visible in search results when other members search for you",
+  "hosting_status": {
+    "can_host_description": "I am eager to let people stay with me",
+    "maybe_host_description": "I might be able to host, depending on the circumstances",
+    "cannot_host_description": "I'm not able to host travelers at the moment"
+  },
+  "meetup_status": {
+    "wants_to_meetup_description": "I'm eager to meet up with travelers",
+    "open_to_meetup_description": "I might meet up, depending on the circumstances",
+    "does_not_want_to_meetup_description": "I prefer not to meet up with travelers"
+  },
+  "avatar_photo_info": "<bold>A photo of yourself is required to interact with the community.</bold> A clear, friendly photo showing your face builds trust, helps others feel comfortable, and greatly improves your chances of receiving a response."
 }

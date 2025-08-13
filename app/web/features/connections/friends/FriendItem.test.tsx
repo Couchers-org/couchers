@@ -23,7 +23,9 @@ describe("FriendItem", () => {
 
     user.click(screen.getByTestId("friend-item-more-options"));
 
-    const removeMenuItems = await screen.findAllByTestId("remove-friend");
+    const removeMenuItems = await screen.findAllByTestId(
+      "friend-item-remove-friend",
+    );
     const removeMenuItem = removeMenuItems[0];
 
     expect(removeMenuItem).toBeVisible();

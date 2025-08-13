@@ -1,4 +1,4 @@
-import classNames from "classnames";
+import { styled } from "@mui/material";
 import CircularProgress from "components/CircularProgress";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { messageElementId } from "features/messages/messagelist/MessageView";
@@ -10,10 +10,37 @@ import {
   useLayoutEffect,
   useRef,
 } from "react";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 import useOnVisibleEffect from "utils/useOnVisibleEffect";
 
-const useStyles = makeStyles((theme) => ({
+const StyledWrapper = styled("div")(() => ({
+  position: "relative",
+  minHeight: "80px",
+
+  "&::-webkit-scrollbar": {
+    background: "rgba(0,0,0,0)",
+    height: "0.5rem",
+    width: "0.5rem",
+  },
+  "&::-webkit-scrollbar:hover": {
+    background: "rgba(0,0,0,0.1)",
+    width: "0.5rem",
+  },
+  "&::-webkit-scrollbar-thumb": {
+    background: "rgba(0,0,0,0.2)",
+    borderRadius: "20px",
+  },
+  "&::-webkit-scrollbar-thumb:hover": {
+    background: "rgba(0,0,0,0.3)",
+  },
+  overflowY: "auto",
+  overflowX: "hidden",
+  paddingInlineEnd: `0.5rem`,
+  scrollbarHeight: "thin",
+  scrollbarWidth: "thin",
+}));
+
+const StyledLoader = styled("div")(() => ({
   loader: {
     "& > *": {
       display: "block",
@@ -24,32 +51,6 @@ const useStyles = makeStyles((theme) => ({
     position: "absolute",
     top: 0,
     width: "100%",
-  },
-  scroll: {
-    position: "relative",
-    minHeight: "80px",
-
-    "&::-webkit-scrollbar": {
-      background: "rgba(0,0,0,0)",
-      height: "0.5rem",
-      width: "0.5rem",
-    },
-    "&::-webkit-scrollbar:hover": {
-      background: "rgba(0,0,0,0.1)",
-      width: "0.5rem",
-    },
-    "&::-webkit-scrollbar-thumb": {
-      background: "rgba(0,0,0,0.2)",
-      borderRadius: "20px",
-    },
-    "&::-webkit-scrollbar-thumb:hover": {
-      background: "rgba(0,0,0,0.3)",
-    },
-    overflowY: "auto",
-    overflowX: "hidden",
-    paddingInlineEnd: `0.5rem`,
-    scrollbarHeight: "thin",
-    scrollbarWidth: "thin",
   },
 }));
 
@@ -74,7 +75,6 @@ export default function InfiniteMessageLoader({
   className,
   children,
 }: InfiniteMessageLoaderProps) {
-  const classes = useStyles();
   const { authState } = useAuthContext();
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -128,9 +128,9 @@ export default function InfiniteMessageLoader({
   }, [latestMessage?.messageId, latestMessage?.authorUserId, authState.userId]);
 
   return (
-    <div className={classNames(classes.scroll, className)} ref={scrollRef}>
+    <StyledWrapper className={className} ref={scrollRef}>
       {hasNextPage && !isError && (
-        <div className={classes.loader}>
+        <StyledLoader>
           {isFetchingNextPage ? (
             <CircularProgress />
           ) : (
@@ -140,9 +140,9 @@ export default function InfiniteMessageLoader({
               ref={loadMoreRef}
             />
           )}
-        </div>
+        </StyledLoader>
       )}
       {children}
-    </div>
+    </StyledWrapper>
   );
 }

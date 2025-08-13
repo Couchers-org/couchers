@@ -1,5 +1,9 @@
-import { ListItemAvatar, ListItemButton, ListItemText } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import {
+  ListItemAvatar,
+  ListItemButton,
+  ListItemText,
+  styled,
+} from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Autocomplete from "components/Autocomplete";
@@ -20,18 +24,26 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { User } from "proto/api_pb";
+import { LiteUser, User } from "proto/api_pb";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
+import { theme } from "theme";
 import stringOrFirstString from "utils/stringOrFirstString";
 
-const useStyles = makeStyles((theme) => ({
-  field: {
-    marginTop: theme.spacing(1),
-    "& .MuiInputBase-root": {
-      width: "100%",
-    },
+const StyledTextField = styled(TextField)(() => ({
+  marginTop: theme.spacing(1),
+  "& .MuiInputBase-root": {
+    width: "100%",
+  },
+}));
+
+const StyledAutocomplete = styled(
+  Autocomplete<LiteUser.AsObject, true, false, undefined>,
+)(() => ({
+  marginTop: theme.spacing(1),
+  "& .MuiInputBase-root": {
+    width: "100%",
   },
 }));
 
@@ -42,7 +54,6 @@ interface CreateGroupChatFormData {
 
 export default function CreateGroupChat({ className }: { className?: string }) {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
-  const classes = useStyles();
 
   //handle redirects which want to create a new message with someone
   const router = useRouter();
@@ -122,11 +133,10 @@ export default function CreateGroupChat({ className }: { className?: string }) {
               <Alert severity={"error"}>{errors.join("\n")}</Alert>
             )}
             {isGroup && (
-              <TextField
+              <StyledTextField
                 {...register("title")}
                 id="group-chat-title"
                 label={t("global:title")}
-                className={classes.field}
               />
             )}
             {createMessageToUserQuery.error && (
@@ -146,7 +156,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                   }
                   render={({ field }) => {
                     return (
-                      <Autocomplete
+                      <StyledAutocomplete
                         id="users-autocomplete"
                         isOptionEqualToValue={(friend, value) => {
                           return friend?.name === value?.name;
@@ -155,7 +165,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                           field.onChange(newValue);
                           setIsGroup((newValue?.length ?? 0) > 1);
                         }}
-                        multiple={true}
+                        multiple
                         loading={friends.isLoading}
                         options={friends.data ?? []}
                         noOptionsText={t(
@@ -170,7 +180,6 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                             : t("messages:create_chat.user_load_error_message");
                         }}
                         label={t("messages:create_chat.friends_input_label")}
-                        className={classes.field}
                         value={field.value ?? []}
                       />
                     );

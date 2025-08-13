@@ -90,7 +90,9 @@ describe("BlockedUsersList", () => {
 
     await user.click(moreOptionsButtons[1]);
 
-    const unblockButtons = await screen.findAllByTestId("unblock-user");
+    const unblockButtons = await screen.findAllByTestId(
+      "blocked-user-item-unblock-user",
+    );
 
     expect(unblockButtons).toHaveLength(3);
 
