@@ -7,9 +7,9 @@ import {
   RadioGroup,
   Select,
   Skeleton,
+  styled,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import Datepicker from "components/Datepicker";
@@ -27,40 +27,41 @@ import { useMutation } from "react-query";
 import { howToWriteRequestGuideUrl } from "routes";
 import { service } from "service";
 import { CreateHostRequestWrapper } from "service/requests";
+import { theme } from "theme";
 import { isSameOrFutureDate } from "utils/date";
 
-const StyledTitle = styled(Typography)(({ theme }) => ({
+const StyledTitle = styled(Typography)(() => ({
   marginTop: theme.spacing(1),
   marginBottom: theme.spacing(1),
 }));
 
-const StyledRequestRow = styled("div")(({ theme }) => ({
+const StyledRequestRow = styled("div")(() => ({
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
 }));
 
-const StyledDateRow = styled("div")(({ theme }) => ({
+const StyledDateRow = styled("div")(() => ({
   marginTop: theme.spacing(2),
   display: "flex",
   flexDirection: "column",
   width: "72%",
 }));
 
-const StyledDateFieldWrapper = styled("div")(({ theme }) => ({
+const StyledDatepicker = styled(Datepicker)(() => ({
   marginBottom: theme.spacing(2),
 }));
 
-const StyledHelpText = styled(Typography)(({ theme }) => ({
+const StyledHelpText = styled(Typography)(() => ({
   marginTop: theme.spacing(2),
   marginBottom: theme.spacing(2),
 }));
 
-const StyledRequestField = styled(TextField)(({ theme }) => ({
+const StyledRequestField = styled(TextField)(() => ({
   marginTop: theme.spacing(2),
 }));
 
-const StyledSendActions = styled(CardActions)(({ theme }) => ({
+const StyledSendActions = styled(CardActions)(() => ({
   display: "flex",
   justifyContent: "flex-end",
   marginTop: theme.spacing(2),
@@ -179,39 +180,33 @@ export default function NewHostRequest({
               />
             )}
             <StyledDateRow>
-              <StyledDateFieldWrapper>
-                <Datepicker
-                  control={control}
-                  error={!!errors.fromDate}
-                  helperText={errors?.fromDate?.message}
-                  id="from-date"
-                  label={t("profile:request_form.arrival_date")}
-                  name="fromDate"
-                  defaultValue={null}
-                  rules={{
-                    required: t("profile:request_form.arrival_date_empty"),
-                    validate: (stringDate) => stringDate !== "",
-                  }}
-                />
-              </StyledDateFieldWrapper>
-              <StyledDateFieldWrapper>
-                <Datepicker
-                  control={control}
-                  error={!!errors.toDate}
-                  helperText={errors?.toDate?.message}
-                  id="to-date"
-                  label={t("profile:request_form.departure_date")}
-                  minDate={
-                    watchFromDate ? watchFromDate.add(1, "day") : dayjs()
-                  }
-                  name="toDate"
-                  defaultValue={null}
-                  rules={{
-                    required: t("profile:request_form.departure_date_empty"),
-                    validate: (stringDate) => stringDate !== "",
-                  }}
-                />
-              </StyledDateFieldWrapper>
+              <StyledDatepicker
+                control={control}
+                error={!!errors.fromDate}
+                helperText={errors?.fromDate?.message}
+                id="from-date"
+                label={t("profile:request_form.arrival_date")}
+                name="fromDate"
+                defaultValue={null}
+                rules={{
+                  required: t("profile:request_form.arrival_date_empty"),
+                  validate: (stringDate) => stringDate !== "",
+                }}
+              />
+              <StyledDatepicker
+                control={control}
+                error={!!errors.toDate}
+                helperText={errors?.toDate?.message}
+                id="to-date"
+                label={t("profile:request_form.departure_date")}
+                minDate={watchFromDate ? watchFromDate.add(1, "day") : dayjs()}
+                name="toDate"
+                defaultValue={null}
+                rules={{
+                  required: t("profile:request_form.departure_date_empty"),
+                  validate: (stringDate) => stringDate !== "",
+                }}
+              />
               {isPostBetaEnabled && (
                 <>
                   <InputLabel shrink>

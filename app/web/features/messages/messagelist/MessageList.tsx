@@ -1,21 +1,29 @@
 import { styled } from "@mui/material";
-import classNames from "classnames";
 import TextBody from "components/TextBody";
 import ControlMessageView from "features/messages/messagelist/ControlMessageView";
-import MessageView from "features/messages/messagelist/MessageView";
 import { isControlMessage } from "features/messages/utils";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { Message } from "proto/conversations_pb";
 import * as React from "react";
+import { theme } from "theme";
 
-const List = styled("div")(({ theme }) => ({
+import MessageView from "./MessageView";
+
+const List = styled("div")(() => ({
   display: "flex",
   flexDirection: "column-reverse",
   paddingBlock: theme.spacing(2),
 }));
 
-const MessageWrapper = styled(ControlMessageView)(({ theme }) => ({
+const MessageWrapper = styled(MessageView)(() => ({
+  marginBottom: theme.spacing(2),
+  "&:nth-child(1)": {
+    marginBottom: 0,
+  },
+}));
+
+const ControlMessageWrapper = styled(ControlMessageView)(() => ({
   marginBottom: theme.spacing(2),
   "&:nth-child(1)": {
     marginBottom: 0,
@@ -40,17 +48,17 @@ export default function MessageList({
       {messages.length ? (
         messages.map((message) =>
           isControlMessage(message) ? (
-              <StyledControlMessageView
-                key={message.messageId}
-                onVisible={() => markLastSeen(message.messageId)}
-                message={message}
-              />
+            <ControlMessageWrapper
+              key={message.messageId}
+              onVisible={() => markLastSeen(message.messageId)}
+              message={message}
+            />
           ) : (
-              <StyledMessageView
-                key={message.messageId}
-                onVisible={() => markLastSeen(message.messageId)}
-                message={message}
-              />
+            <MessageWrapper
+              key={message.messageId}
+              onVisible={() => markLastSeen(message.messageId)}
+              message={message}
+            />
           ),
         )
       ) : (

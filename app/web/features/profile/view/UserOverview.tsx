@@ -1,5 +1,4 @@
-import { Card, CardActions, Link, Typography } from "@mui/material";
-import { styled } from "@mui/material";
+import { Card, CardActions, Link, styled, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
 import Divider from "components/Divider";
@@ -74,12 +73,6 @@ const StyledCardActions = styled(CardActions)(({ theme }) => ({
   },
 }));
 
-const StyledStrongVerificationBadge = styled("div")(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  marginLeft: theme.spacing(0.5),
-}));
-
 const StyledInfo = styled("div")(({ theme }) => ({
   marginTop: theme.spacing(0.5),
 }));
@@ -108,11 +101,7 @@ export default function UserOverview({
         <StyledIntro variant="h1">
           <span>
             {user.name}
-            {user.hasStrongVerification ? (
-              <StyledStrongVerificationBadge>
-                <StrongVerificationBadge />
-              </StyledStrongVerificationBadge>
-            ) : null}
+            {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
           </span>
         </StyledIntro>
         <StyledLink href={routeToUser(user.username)} variant="body1">

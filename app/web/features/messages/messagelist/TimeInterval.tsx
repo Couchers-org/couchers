@@ -1,6 +1,4 @@
-import { Typography } from "@mui/material";
-import { styled } from "@mui/material";
-import classNames from "classnames";
+import { styled, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import React from "react";
