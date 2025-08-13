@@ -149,7 +149,6 @@ export const AgeAndGenderRenderer = ({ user }: Props) => {
     gender,
     pronouns,
   } = user;
-  // const { iconStyles } = useStyles();
   const { t } = useTranslation("profile");
 
   const getBirthdateVerificationIcon = (
