@@ -1,13 +1,13 @@
 export const DEFAULT_ABOUT_ME_HEADINGS = `# Current mission
-<br>
+
 e.g. I want to meet people and learn...
-<br>
+
 # Why I use Couchers.org
-<br>
+
 e.g. I think couch surfing should be free...
-<br>
+
 # My favorite travel story
-<br>
+
 e.g. One time I...
 `;
 
