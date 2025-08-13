@@ -1,1 +1,6 @@
-{}
+{
+  "mark_all_read_button_text": "Alles markeren als gelezen",
+  "request_closed_message": "Dit hostverzoek is afgesloten. Om door te gaan met chatten, kan je een gewoon bericht sturen.",
+  "write_reference_button_text": "Schrijf een referentie",
+  "close_request_dialog_title": "Ben je klaar met berichten sturen?"
+}
