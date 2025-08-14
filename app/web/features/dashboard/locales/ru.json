@@ -5,5 +5,7 @@
   "edit_profile_button_text": "Редактировать профиль",
   "your_communities_heading": "Ваши сообщества",
   "all_communities_heading": "Все сообщества",
-  "no_community": "В настоящее время вы не находитесь в сообществе."
+  "no_community": "В настоящее время вы не находитесь в сообществе.",
+  "no_sub_communities": "Нет подсообществ.",
+  "load_more": "Загрузить еще"
 }
