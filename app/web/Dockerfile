@@ -18,7 +18,7 @@ ENV NEXT_PUBLIC_COMMIT_SHA=$commit_sha
 ARG commit_timestamp
 ENV NEXT_PUBLIC_COMMIT_TIMESTAMP=$commit_timestamp
 
-COPY package.json yarn.lock ./
+COPY package.json ../yarn.lock ./
 # https://github.com/yarnpkg/yarn/issues/8242
 RUN yarn config set network-timeout 300000
 RUN yarn install --frozen-lockfile

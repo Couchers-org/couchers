@@ -1,0 +1,61 @@
+name: E2E Tests
+services:
+  proxy:
+    build: proxy
+    restart: unless-stopped
+    ports:
+      - 8888:8888
+      - 9901:9901
+    dns_search: ""
+  postgres:
+    image: postgis/postgis:17-3.5
+    env_file: postgres.dev.env
+    restart: unless-stopped
+    ports:
+      - 6545:6545
+    platform: linux/amd64
+  backend:
+    build: backend
+    env_file: backend.test.env
+    # see https://github.com/eradman/entr#docker-and-windows-subsystem-for-linux
+    command: bash -c "find src -name '**.py' | ENTR_INOTIFY_WORKAROUND=1 entr -rndz python src/app.py && exit 1"
+    restart: unless-stopped
+    ports:
+      # grpc: main apis
+      - 1751:1751
+      # grpc: media upload receiver
+      - 1753:1753
+      # http: prometheus metrics
+      - 8000:8000
+    depends_on:
+      - postgres
+    links:
+      - postgres
+  frontend:
+    build:
+      context: web
+      args:
+        environment: e2e
+
+  media:
+    build: media
+    restart: unless-stopped
+    env_file: media.dev.env
+    ports:
+      - 5001:5001
+    depends_on:
+      - backend
+  maildev:
+    image: maildev/maildev
+    restart: unless-stopped
+    ports:
+      - 1025:1025
+      - 1080:1080
+  jaeger:
+    image: jaegertracing/all-in-one:1.60
+    ports:
+      - "16686:16686"
+    expose:
+      - 4317
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true

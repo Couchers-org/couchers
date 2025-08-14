@@ -35,21 +35,21 @@ export default defineConfig({
   ...(!process.env.CI
     ? {
         webServer: [
-          // Frontend
-          {
-            command: "yarn workspace web start",
-            url: TEST_FRONTEND_URL,
-            env: {
-              NODE_ENV: "test",
-            },
-          },
           // Backend
           {
-            command: "docker compose up",
+            command: "docker compose -f docker-compose.e2e.yml up",
             url: TEST_BACKEND_URL,
             reuseExistingServer: true,
             env: {
-              NODE_ENV: "test",
+              // NODE_ENV: "test",
+            },
+          },
+          // Frontend
+          {
+            command: "cd web && yarn serve:e2e",
+            url: TEST_FRONTEND_URL,
+            env: {
+              // NODE_ENV: "test",
             },
           },
         ],

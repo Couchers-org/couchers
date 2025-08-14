@@ -1,6 +1,6 @@
 FROM node:20-bullseye AS builder
 
-ARG environment=development
+ARG environment=e2e
 WORKDIR /app
 
 # disable next.js telemetry
