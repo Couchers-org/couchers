@@ -1,5 +1,8 @@
 {
   "actions": {
     "message_label": "Сообщение"
+  },
+  "heading": {
+    "age_gender": "Возраст / Пол"
   }
 }
