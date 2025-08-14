@@ -23,7 +23,8 @@
     },
     "actions_menu": {
       "items": {
-        "invite_members": "Пригласить в диалог"
+        "invite_members": "Пригласить в чат",
+        "show_all_members": "Участники чата"
       }
     }
   }
