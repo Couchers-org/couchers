@@ -14,6 +14,17 @@
   },
   "chat_view": {
     "invalid_id_error": "Неверный ID чата.",
-    "no_messages_state_text": "Нет сообщений"
+    "no_messages_state_text": "Нет сообщений",
+    "back_button": {
+      "a11y_label": "Назад"
+    },
+    "muted_icon": {
+      "a11y_label": "Уведомления отключены"
+    },
+    "actions_menu": {
+      "items": {
+        "invite_members": "Пригласить в диалог"
+      }
+    }
   }
 }
