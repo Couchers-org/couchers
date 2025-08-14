@@ -4,5 +4,9 @@
   "write_reference_button_text": "Написать отзыв",
   "close_request_dialog_host": "Пожалуйста, убедитесь, что вы закончили общение, прежде чем отклонить их запрос.",
   "close_request_button_text": "Отклонить",
-  "close_request_dialog_surfer": "Пожалуйста, убедитесь, что вы закончили общение, прежде чем отменить свой запрос."
+  "close_request_dialog_surfer": "Пожалуйста, убедитесь, что вы закончили общение, прежде чем отменить свой запрос.",
+  "confirm_request_button_text": "Подтвердить",
+  "messages_page": {
+    "title": "Сообщения"
+  }
 }
