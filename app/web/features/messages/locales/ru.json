@@ -7,6 +7,9 @@
   "close_request_dialog_surfer": "Пожалуйста, убедитесь, что вы закончили общение, прежде чем отменить свой запрос.",
   "confirm_request_button_text": "Подтвердить",
   "messages_page": {
-    "title": "Сообщения"
+    "title": "Сообщения",
+    "tabs": {
+      "chats": "Чаты"
+    }
   }
 }
