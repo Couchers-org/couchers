@@ -11,5 +11,8 @@
     "tabs": {
       "chats": "Чаты"
     }
+  },
+  "chat_view": {
+    "invalid_id_error": "Неверный ID диалога."
   }
 }
