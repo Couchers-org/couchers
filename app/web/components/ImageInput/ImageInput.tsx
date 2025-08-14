@@ -2,6 +2,7 @@ import { Edit } from "@mui/icons-material";
 import { styled, Tooltip } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import MuiIconButton from "@mui/material/IconButton";
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import {
@@ -14,7 +15,6 @@ import { PROFILE } from "i18n/namespaces";
 import Sentry from "platform/sentry";
 import React, { useRef, useState } from "react";
 import { Control, useController } from "react-hook-form";
-import { useMutation } from "react-query";
 import { service } from "service";
 import { ImageInputValues } from "service/api";
 
@@ -105,32 +105,28 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
   const [imageUrl, setImageUrl] = useState(initialPreviewSrc);
   const [readerError, setReaderError] = useState("");
 
-  const mutation = useMutation<ImageInputValues, Error, File>(
-    (file) => service.api.uploadFile(file),
-    {
-      onMutate: () => {
-        props.onUploading?.(true); //notify form upload has started
-      },
-      onSuccess: async (data: ImageInputValues) => {
-        field.onChange(data.key);
-        setImageUrl(
-          props.type === "avatar" ? data.thumbnail_url : data.full_url,
-        );
-        await props.onSuccess?.(data);
-        props.onUploading?.(false); //notify form upload has finished
-      },
-      onError: () => {
-        props.onUploading?.(false); //notify form upload has failed
-      },
+  const mutation = useMutation<ImageInputValues, Error, File>({
+    mutationFn: (file) => service.api.uploadFile(file),
+    onMutate: () => {
+      props.onUploading?.(true); //notify form upload has started
     },
-  );
+    onSuccess: async (data: ImageInputValues) => {
+      field.onChange(data.key);
+      setImageUrl(props.type === "avatar" ? data.thumbnail_url : data.full_url);
+      await props.onSuccess?.(data);
+      props.onUploading?.(false); //notify form upload has finished
+    },
+    onError: () => {
+      props.onUploading?.(false); //notify form upload has failed
+    },
+  });
 
   const { field } = useController({
     name,
     control,
     defaultValue: "",
     rules: {
-      validate: () => !mutation.isLoading,
+      validate: () => !mutation.isPending,
     },
   });
 
@@ -218,7 +214,7 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
               grow={props.grow}
             />
           )}
-          {mutation.isLoading && <StyledCircularProgress />}
+          {mutation.isPending && <StyledCircularProgress />}
         </StyledLabel>
       </FlexWrapper>
     </StyledWrapper>

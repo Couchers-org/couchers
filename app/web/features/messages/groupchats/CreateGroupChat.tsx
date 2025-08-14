@@ -4,6 +4,7 @@ import {
   ListItemText,
   styled,
 } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Autocomplete from "components/Autocomplete";
 import Avatar from "components/Avatar";
@@ -26,7 +27,6 @@ import { useRouter } from "next/router";
 import { LiteUser, User } from "proto/api_pb";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 import { theme } from "theme";
 import stringOrFirstString from "utils/stringOrFirstString";
@@ -74,19 +74,20 @@ export default function CreateGroupChat({ className }: { className?: string }) {
   const queryClient = useQueryClient();
   const {
     mutate: createGroupChat,
-    isLoading: isCreateLoading,
+    isPending: isCreateLoading,
     error: createError,
     reset: resetMutationStatus,
-  } = useMutation<number, RpcError, CreateGroupChatFormData>(
-    ({ title, users }) => service.conversations.createGroupChat(title, users),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(groupChatsListKey);
-        resetForm();
-        setIsOpen(false);
-      },
+  } = useMutation<number, RpcError, CreateGroupChatFormData>({
+    mutationFn: ({ title, users }) =>
+      service.conversations.createGroupChat(title, users),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [groupChatsListKey],
+      });
+      resetForm();
+      setIsOpen(false);
     },
-  );
+  });
 
   const onSubmit = handleSubmit(({ title, users }: CreateGroupChatFormData) =>
     createGroupChat({ title, users }),

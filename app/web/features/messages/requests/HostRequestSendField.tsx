@@ -1,4 +1,5 @@
 import { ButtonProps, styled } from "@mui/material";
+import { UseMutationResult } from "@tanstack/react-query";
 import Button from "components/Button";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -13,7 +14,6 @@ import { ReferenceType } from "proto/references_pb";
 import { HostRequest, RespondHostRequestReq } from "proto/requests_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { UseMutationResult } from "react-query";
 import { referenceTypeRoute, routeToLeaveReference } from "routes";
 import { theme } from "theme";
 
@@ -72,8 +72,8 @@ export default function HostRequestSendField({
     isHost ? hostRequest.surferUserId : hostRequest.hostUserId,
   );
 
-  const { mutate: handleSend, isLoading } = sendMutation;
-  const { mutate: handleRespond, isLoading: isResponseLoading } =
+  const { mutate: handleSend, isPending } = sendMutation;
+  const { mutate: handleRespond, isPending: isResponseLoading } =
     respondMutation;
 
   const { register, handleSubmit, reset } = useForm<MessageFormData>();
@@ -92,7 +92,7 @@ export default function HostRequestSendField({
       reset();
     });
 
-  const isButtonLoading = isLoading || isResponseLoading;
+  const isButtonLoading = isPending || isResponseLoading;
 
   const isPast = hostRequest.toDate < new Date().toISOString().split("T")[0];
 

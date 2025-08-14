@@ -10,6 +10,7 @@ import {
   styled,
   Typography,
 } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Datepicker from "components/Datepicker";
 import EditLocationMap, {
@@ -30,7 +31,6 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { HostingStatus } from "proto/api_pb";
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 import { service } from "service";
 import { theme } from "theme";
 import {
@@ -124,8 +124,8 @@ export default function AccountForm() {
     shouldUnregister: false,
   });
 
-  const mutation = useMutation<void, RpcError, SignupAccountInputs>(
-    async ({
+  const mutation = useMutation<void, RpcError, SignupAccountInputs>({
+    mutationFn: async ({
       username,
       password,
       birthdate,
@@ -151,15 +151,7 @@ export default function AccountForm() {
       });
       authActions.updateSignupState(state);
     },
-    {
-      onMutate() {
-        authActions.clearError();
-      },
-      onSettled() {
-        window.scroll({ top: 0, behavior: "smooth" });
-      },
-    },
-  );
+  });
 
   const submit = handleSubmit(
     (data: SignupAccountInputs) => {
@@ -437,7 +429,7 @@ export default function AccountForm() {
         <StyledButton
           onClick={submit}
           type="submit"
-          loading={authLoading || mutation.isLoading}
+          loading={authLoading || mutation.isPending}
           disabled={!acceptTOS}
           fullWidth
         >

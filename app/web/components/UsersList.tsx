@@ -50,7 +50,7 @@ export default function UsersList({
     data: users,
     isLoading: isLoadingLiteUsers,
     error: usersError,
-  } = useLiteUsers(userIds || []);
+  } = useLiteUsers(userIds);
 
   // this is undefined if userIds is undefined or users hasn't loaded, otherwise it's an actual list
   const foundUsers =

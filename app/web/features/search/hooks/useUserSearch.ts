@@ -1,6 +1,6 @@
+import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
 import { UserSearchV2Res } from "proto/search_pb";
-import { useInfiniteQuery } from "react-query";
 import { service } from "service";
 
 import { FilterOptions } from "../SearchPage";
@@ -46,15 +46,17 @@ export function useUserSearch(
     isFetching,
     fetchNextPage,
     fetchPreviousPage,
-  } = useInfiniteQuery<UserSearchV2Res.AsObject, RpcError>(
-    ["userSearch", searchParams],
-    ({ pageParam }) => service.search.userSearchV2(searchParams, pageParam),
-    {
-      enabled: meetsSearchCriteria,
-      keepPreviousData: meetsSearchCriteria,
-      getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
-    },
-  );
+  } = useInfiniteQuery<UserSearchV2Res.AsObject, RpcError>({
+    queryKey: ["userSearch", searchParams],
+    queryFn: ({ pageParam }) =>
+      service.search.userSearchV2(
+        searchParams,
+        pageParam as string | undefined,
+      ),
+    initialPageParam: mapSearchState.pageNumber > 1,
+    placeholderData: keepPreviousData,
+    getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+  });
 
   // React-query will keep the previously fetched data in the cache, so return undefined if we don't meet the search criteria
   const users = !meetsSearchCriteria

@@ -1,4 +1,11 @@
 import { Skeleton, styled, useMediaQuery } from "@mui/material";
+import {
+  InfiniteData,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import Alert from "components/Alert";
 import HeaderButton from "components/HeaderButton";
 import { BackIcon } from "components/Icons";
@@ -6,31 +13,21 @@ import PageTitle from "components/PageTitle";
 import dayjs from "dayjs";
 import { useAuthContext } from "features/auth/AuthProvider";
 import HostRequestSendField from "features/messages/requests/HostRequestSendField";
-import useMarkLastSeen, {
-  MarkLastSeenVariables,
-} from "features/messages/useMarkLastSeen";
+import useMarkLastSeen from "features/messages/useMarkLastSeen";
 import {
   hostRequestKey,
   hostRequestMessagesKey,
   hostRequestsListKey,
 } from "features/queryKeys";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import {
   GetHostRequestMessagesRes,
-  HostRequest,
   RespondHostRequestReq,
 } from "proto/requests_pb";
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "react-query";
 import { service } from "service";
 import { theme } from "theme";
 import { firstName } from "utils/names";
@@ -105,16 +102,11 @@ export default function HostRequestView({
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const { data: hostRequest, error: hostRequestError } = useQuery<
-    HostRequest.AsObject,
-    RpcError
-  >(
-    hostRequestKey(hostRequestId),
-    () => service.requests.getHostRequest(hostRequestId),
-    {
-      enabled: !!hostRequestId,
-    },
-  );
+  const { data: hostRequest, error: hostRequestError } = useQuery({
+    queryKey: hostRequestKey(hostRequestId),
+    queryFn: () => service.requests.getHostRequest(hostRequestId),
+    enabled: !!hostRequestId,
+  });
 
   const {
     data: messagesRes,
@@ -123,16 +115,21 @@ export default function HostRequestView({
     fetchNextPage,
     isFetchingNextPage,
     hasNextPage,
-  } = useInfiniteQuery<GetHostRequestMessagesRes.AsObject, RpcError>(
-    hostRequestMessagesKey(hostRequestId),
-    ({ pageParam: lastMessageId }) =>
+  } = useInfiniteQuery<
+    GetHostRequestMessagesRes.AsObject,
+    RpcError,
+    InfiniteData<GetHostRequestMessagesRes.AsObject>,
+    (string | number | undefined)[],
+    number
+  >({
+    queryKey: hostRequestMessagesKey(hostRequestId),
+    queryFn: ({ pageParam: lastMessageId }) =>
       service.requests.getHostRequestMessages(hostRequestId, lastMessageId),
-    {
-      enabled: !!hostRequestId,
-      getNextPageParam: (lastPage) =>
-        lastPage.noMore ? undefined : lastPage.lastMessageId,
-    },
-  );
+    enabled: !!hostRequestId,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      lastPage.noMore ? undefined : lastPage.lastMessageId,
+  });
 
   const { data: surfer } = useLiteUser(hostRequest?.surferUserId);
   const { data: host } = useLiteUser(hostRequest?.hostUserId);
@@ -169,51 +166,48 @@ export default function HostRequestView({
   }
 
   const queryClient = useQueryClient();
-  const sendMutation = useMutation<string | undefined, RpcError, string>(
-    (text: string) =>
+  const sendMutation = useMutation<string | undefined, RpcError, string>({
+    mutationFn: (text: string) =>
       service.requests.sendHostRequestMessage(hostRequestId, text),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(hostRequestMessagesKey(hostRequestId));
-        queryClient.invalidateQueries(hostRequestsListKey());
-      },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: hostRequestMessagesKey(hostRequestId),
+      });
+      queryClient.invalidateQueries({ queryKey: hostRequestsListKey() });
     },
-  );
+  });
   const respondMutation = useMutation<
     void,
     RpcError,
     Required<RespondHostRequestReq.AsObject>
-  >(
-    (req) =>
+  >({
+    mutationFn: (req) =>
       service.requests.respondHostRequest(
         req.hostRequestId,
         req.status,
         req.text,
       ),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(
-          hostRequestKey(hostRequest?.hostRequestId),
-        );
-        queryClient.invalidateQueries(hostRequestMessagesKey(hostRequestId));
-        queryClient.invalidateQueries(hostRequestsListKey());
-      },
-    },
-  );
 
-  const { mutate: markLastRequestSeen } = useMutation<
-    Empty,
-    RpcError,
-    MarkLastSeenVariables
-  >(
-    (messageId) =>
-      service.requests.markLastRequestSeen(hostRequestId, messageId),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(hostRequestKey(hostRequestId));
-      },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: hostRequestKey(hostRequest?.hostRequestId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: hostRequestMessagesKey(hostRequestId),
+      });
+      queryClient.invalidateQueries({ queryKey: hostRequestsListKey() });
     },
-  );
+  });
+
+  const { mutate: markLastRequestSeen } = useMutation({
+    mutationFn: (messageId: number) =>
+      service.requests.markLastRequestSeen(hostRequestId, messageId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: hostRequestKey(hostRequestId),
+      });
+    },
+  });
   const { markLastSeen } = useMarkLastSeen(
     markLastRequestSeen,
     hostRequest?.lastSeenMessageId,

@@ -10,6 +10,7 @@ import {
   styled,
   Typography,
 } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import Datepicker from "components/Datepicker";
@@ -18,12 +19,10 @@ import TextField from "components/TextField";
 import dayjs from "dayjs";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
-import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 import { howToWriteRequestGuideUrl } from "routes";
 import { service } from "service";
 import { CreateHostRequestWrapper } from "service/requests";
@@ -94,21 +93,16 @@ export default function NewHostRequest({
     defaultValues: { hostUserId: user.userId },
   });
 
-  const { error, mutate } = useMutation<
-    number,
-    RpcError,
-    CreateHostRequestWrapper
-  >(
-    (data: CreateHostRequestWrapper) => {
+  const { error, mutate } = useMutation({
+    mutationFn: (data: CreateHostRequestWrapper) => {
       return service.requests.createHostRequest(data);
     },
-    {
-      onSuccess: () => {
-        setIsRequesting(false);
-        setIsRequestSuccess(true);
-      },
+
+    onSuccess: () => {
+      setIsRequesting(false);
+      setIsRequestSuccess(true);
     },
-  );
+  });
 
   const { isLoading: hostLoading, error: hostError } = useLiteUser(user.userId);
 

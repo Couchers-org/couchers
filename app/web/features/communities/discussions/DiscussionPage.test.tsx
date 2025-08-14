@@ -15,7 +15,11 @@ import community from "test/fixtures/community.json";
 import discussions from "test/fixtures/discussions.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
-import { getLiteUser, getThread } from "test/serviceMockDefaults";
+import {
+  getAccountInfo,
+  getLiteUser,
+  getThread,
+} from "test/serviceMockDefaults";
 import {
   assertErrorAlert,
   mockConsoleError,
@@ -44,6 +48,10 @@ const getThreadMock = service.threads.getThread as MockedService<
 >;
 const postReplyMock = service.threads.postReply as MockedService<
   typeof service.threads.postReply
+>;
+
+const getAccountInfoMock = service.account.getAccountInfo as MockedService<
+  typeof service.account.getAccountInfo
 >;
 
 function renderDiscussion() {
@@ -103,6 +111,7 @@ describe("Discussion page", () => {
     postReplyMock.mockResolvedValue({
       threadId: 999,
     });
+    getAccountInfoMock.mockImplementation(getAccountInfo); //ModVisibleCompobnent calls this in Comment.tsx
   });
 
   it("renders the discussion successfully", async () => {
@@ -162,10 +171,13 @@ describe("Discussion page", () => {
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    const commentCards = await (
-      await screen.findAllByTestId(COMMENT_TEST_ID)
-    ).map((element) => within(element));
-    expect(commentCards).toHaveLength(8);
+    await waitFor(() =>
+      expect(screen.getAllByTestId(COMMENT_TEST_ID)).toHaveLength(8),
+    );
+
+    const commentCards = screen
+      .getAllByTestId(COMMENT_TEST_ID)
+      .map((el) => within(el));
 
     expect(
       screen.getByRole("heading", { name: t("communities:comments") }),
@@ -225,7 +237,7 @@ describe("Discussion page", () => {
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    expect(screen.getByText(t("communities:no_comments"))).toBeVisible();
+    expect(await screen.findByText(t("communities:no_comments"))).toBeVisible();
   });
 
   describe("when there are more than one page of comments", () => {

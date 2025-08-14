@@ -1,4 +1,5 @@
 import { Add } from "@mui/icons-material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { EllipsisMenuItem } from "components/EllipsisMenu";
 import Snackbar from "components/Snackbar";
 import MakeCoOrganizerDialog from "features/communities/events/MakeCoOrganizerDialog";
@@ -11,7 +12,6 @@ import { COMMUNITIES } from "i18n/namespaces";
 import { LiteUser } from "proto/api_pb";
 import { Event } from "proto/events_pb";
 import { useMemo, useState } from "react";
-import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
 import EventAttendeesDialog from "./EventAttendeesDialog";
@@ -68,7 +68,9 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
     Empty.AsObject,
     RpcError,
     number
-  >((userId) => service.events.inviteEventOrganizer(event.eventId, userId), {
+  >({
+    mutationFn: (userId) =>
+      service.events.inviteEventOrganizer(event.eventId, userId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: eventOrganizersKey({ eventId: event.eventId, type: "all" }),

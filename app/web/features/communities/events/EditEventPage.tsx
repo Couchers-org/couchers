@@ -1,20 +1,20 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import NotFoundPage from "features/NotFoundPage";
-import { communityEventsBaseKey, eventKey } from "features/queryKeys";
-import type { RpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { Event } from "proto/events_pb";
-import { useMutation, useQueryClient } from "react-query";
-import { routeToEvent } from "routes";
 import { service } from "service";
 import type { UpdateEventInput } from "service/events";
 import dayjs, { TIME_FORMAT } from "utils/dayjs";
 
+import { Event } from "../../../proto/events_pb";
+import { routeToEvent } from "../../../routes";
+import { communityEventsBaseKey, eventKey } from "../../queryKeys";
 import EventForm, { CreateEventVariables } from "./EventForm";
 import { useEvent } from "./hooks";
 
@@ -33,14 +33,14 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
   const {
     mutate: updateEvent,
     error,
-    isLoading,
+    isPending,
   } = useMutation<
     Event.AsObject,
     RpcError,
     CreateEventVariables,
     { parentCommunityId?: number }
-  >(
-    (data) => {
+  >({
+    mutationFn: (data) => {
       let updateEventInput: UpdateEventInput;
       const startTime = dayjs(data.startTime, TIME_FORMAT);
       const endTime = dayjs(data.endTime, TIME_FORMAT);
@@ -85,30 +85,29 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
       }
       return service.events.updateEvent(updateEventInput);
     },
-    {
-      onMutate({ parentCommunityId }) {
-        return { parentCommunityId };
-      },
-      onSuccess(updatedEvent, _, context) {
-        queryClient.setQueryData<Event.AsObject>(
-          eventKey(eventId),
-          updatedEvent,
-        );
-        queryClient.invalidateQueries(eventKey(eventId), {
-          refetchActive: false,
-        });
-        queryClient.invalidateQueries(
+
+    onMutate({ parentCommunityId }) {
+      return { parentCommunityId };
+    },
+    onSuccess(updatedEvent, _, context) {
+      queryClient.setQueryData<Event.AsObject>(eventKey(eventId), updatedEvent);
+      queryClient.invalidateQueries({
+        queryKey: eventKey(eventId),
+        refetchType: "none",
+      });
+      queryClient.invalidateQueries({
+        queryKey: [
           context?.parentCommunityId
             ? [communityEventsBaseKey, context.parentCommunityId]
             : communityEventsBaseKey,
-        );
-        router.push(routeToEvent(updatedEvent.eventId, updatedEvent.slug));
-      },
-      onSettled() {
-        window.scroll({ top: 0, behavior: "smooth" });
-      },
+        ],
+      });
+      router.push(routeToEvent(updatedEvent.eventId, updatedEvent.slug));
     },
-  );
+    onSettled() {
+      window.scroll({ top: 0, behavior: "smooth" });
+    },
+  });
 
   return isValidEventId ? (
     eventError ? (
@@ -121,7 +120,7 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
         <EventForm
           error={error}
           event={event}
-          isMutationLoading={isLoading}
+          isMutationLoading={isPending}
           mutate={updateEvent}
           title={t("communities:edit_event")}
           isEdit

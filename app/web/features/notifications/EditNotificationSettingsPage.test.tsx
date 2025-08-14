@@ -1,6 +1,6 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useTranslation } from "next-i18next";
-import { useMutation, useQueryClient } from "react-query";
 import { NotificationPreferenceData } from "service/notifications";
 
 import EditNotificationSettingsPage from "./EditNotificationSettingsPage";
@@ -8,7 +8,7 @@ import NotificationSettingsSubListItem from "./NotificationSettingsSubListItem";
 import useNotificationSettings from "./useNotificationSettings";
 import useUpdateNotificationSettings from "./useUpdateNotificationSettings";
 
-jest.mock("react-query", () => ({
+jest.mock("@tanstack/react-query", () => ({
   useMutation: jest.fn(),
   useQueryClient: jest.fn(),
 }));
@@ -111,7 +111,8 @@ describe("EditNotificationSettingsPage", () => {
       reset: jest.fn(),
       isLoading: false,
       isError: false,
-      status: "idle",
+      status: "loading",
+      fetchStatus: "idle",
     });
   });
 

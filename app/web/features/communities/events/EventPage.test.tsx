@@ -13,6 +13,7 @@ import i18n from "test/i18n";
 import {
   getEventAttendees,
   getEventOrganizers,
+  getLiteUsers,
   getThread,
   getUser,
 } from "test/serviceMockDefaults";
@@ -53,6 +54,10 @@ const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
   typeof useCurrentUser
 >;
 
+const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
+  typeof service.user.getLiteUsers
+>;
+
 function renderEventPage(id = 1, slug = "weekly-meetup") {
   mockRouter.setCurrentUrl(`${eventBaseRoute}/${id}/${slug}`);
   render(<EventPage eventId={id} eventSlug={slug} />, { wrapper: hookWrapper });
@@ -64,6 +69,7 @@ describe("Event page", () => {
     listEventAttendeesMock.mockImplementation(getEventAttendees);
     listEventOrganizersMock.mockImplementation(getEventOrganizers);
     getUserMock.mockImplementation(getUser);
+    getLiteUsersMock.mockImplementation(getLiteUsers);
     getThreadMock.mockImplementation(getThread);
     useCurrentUserMock.mockReturnValue({
       data: users[0] as User.AsObject,

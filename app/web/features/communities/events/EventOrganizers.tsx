@@ -1,4 +1,5 @@
 import { Remove } from "@mui/icons-material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Snackbar from "components/Snackbar";
 import RemoveAsCoOrganizerDialog from "features/communities/events/RemoveAsCoOrganizerDialog";
 import { eventOrganizersKey } from "features/queryKeys";
@@ -10,7 +11,6 @@ import { COMMUNITIES } from "i18n/namespaces";
 import { LiteUser } from "proto/api_pb";
 import { Event } from "proto/events_pb";
 import { useState } from "react";
-import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
 import EventOrganizersDialog from "./EventOrganizersDialog";
@@ -53,7 +53,9 @@ export default function EventOrganizers({ event }: EventOrganizersProps) {
     Empty.AsObject,
     RpcError,
     number
-  >((userId) => service.events.removeEventOrganizer(event.eventId, userId), {
+  >({
+    mutationFn: (userId) =>
+      service.events.removeEventOrganizer(event.eventId, userId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: eventOrganizersKey({ eventId: event.eventId, type: "all" }),

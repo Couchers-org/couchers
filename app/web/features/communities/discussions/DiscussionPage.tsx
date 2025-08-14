@@ -1,4 +1,5 @@
 import { Skeleton, styled, Typography } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -14,7 +15,6 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Discussion } from "proto/discussions_pb";
-import { useQuery } from "react-query";
 import { service } from "service";
 import { theme } from "theme";
 import { dateFormatter, timestamp2Date } from "utils/date";

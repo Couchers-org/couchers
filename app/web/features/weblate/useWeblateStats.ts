@@ -1,5 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
 import Sentry from "platform/sentry";
-import { useQuery } from "react-query";
 
 interface WeblateLanguage {
   code: string;
@@ -42,7 +42,7 @@ export const useWeblateStats = () => {
     queryKey: ["weblate-stats"],
     queryFn: () => fetchWeblateStats(),
     staleTime: 10 * 60 * 1000, // 10 minutes - data considered fresh
-    cacheTime: 10 * 60 * 1000, // 10 minutes - cache persists
+    gcTime: 10 * 60 * 1000, // 10 minutes - cache persists
     retry: 1,
     refetchOnWindowFocus: false,
     refetchOnMount: false,

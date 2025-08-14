@@ -1,15 +1,14 @@
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import EditLocationMap from "components/EditLocationMap";
 import TextField from "components/TextField";
 import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
-import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
-import { Page, PageType } from "proto/pages_pb";
+import { PageType } from "proto/pages_pb";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 import { routeToGuide, routeToPlace } from "routes";
 import { service } from "service";
 
@@ -38,22 +37,21 @@ export default function NewGuideForm() {
 
   const {
     mutate: createGuide,
-    isLoading: isCreateLoading,
+    isPending: isCreateLoading,
     error: createError,
-  } = useMutation<Page.AsObject, RpcError, NewGuideInputs>(
-    ({ title, content, address, lat, lng }: NewGuideInputs) =>
+  } = useMutation({
+    mutationFn: ({ title, content, address, lat, lng }: NewGuideInputs) =>
       // TODO: parent community ID
       service.pages.createGuide(title, content, 1, address, lat, lng),
-    {
-      onSuccess: (page) => {
-        router.push(
-          page.type === PageType.PAGE_TYPE_PLACE
-            ? routeToPlace(page.pageId, page.slug)
-            : routeToGuide(page.pageId, page.slug),
-        );
-      },
+
+    onSuccess: (page) => {
+      router.push(
+        page.type === PageType.PAGE_TYPE_PLACE
+          ? routeToPlace(page.pageId, page.slug)
+          : routeToGuide(page.pageId, page.slug),
+      );
     },
-  );
+  });
 
   const onSubmit = handleSubmit((data: NewGuideInputs) => createGuide(data));
 

@@ -1,4 +1,10 @@
-import { GetLiteUsersRes, LiteUser, User } from "proto/api_pb";
+import {
+  BirthdateVerificationStatus,
+  GenderVerificationStatus,
+  GetLiteUsersRes,
+  LiteUser,
+  User,
+} from "proto/api_pb";
 import { GetBlockedUsersRes } from "proto/blocking_pb";
 import { ListAdminsRes } from "proto/communities_pb";
 import { HostRequestStatus } from "proto/conversations_pb";
@@ -15,6 +21,8 @@ import liteUsers from "test/fixtures/liteUsers.json";
 import messages from "test/fixtures/messages.json";
 import notifications from "test/fixtures/notifications.json";
 import users from "test/fixtures/users.json";
+
+import { ProfilePublicVisibility } from "../proto/account_pb";
 
 const [user1, user2, user3, user4, user5] = users;
 const [liteUser1, liteUser2, liteUser3, liteUser4, liteUser5] = liteUsers;
@@ -137,6 +145,30 @@ export async function listHostRequests() {
       canMessage: true,
     },
   ];
+}
+
+export async function getAccountInfo() {
+  return {
+    username: "testuser",
+    email: "testuser@test.com",
+    profileComplete: true,
+    myHomeComplete: true,
+    phone: "+46701740605",
+    phoneVerified: true,
+    timezone: "Australia/Melbourne",
+    hasDonated: false,
+    hasStrongVerification: false,
+    birthdateVerificationStatus:
+      BirthdateVerificationStatus.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED,
+    genderVerificationStatus:
+      GenderVerificationStatus.GENDER_VERIFICATION_STATUS_UNVERIFIED,
+    doNotEmail: false,
+    isSuperuser: false,
+    uiLanguagePreference: "en",
+    profilePublicVisibility:
+      ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_NOTHING,
+    isVolunteer: false,
+  };
 }
 
 export async function getAvailableReferences(): Promise<AvailableWriteReferencesRes.AsObject> {

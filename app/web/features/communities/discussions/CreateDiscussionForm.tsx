@@ -65,7 +65,7 @@ export default function CreateDiscussionForm({
 
   const {
     error,
-    isLoading,
+    isPending,
     mutate: createDiscussion,
     reset: resetMutation,
   } = useNewDiscussionMutation(handleSuccess);
@@ -112,7 +112,7 @@ export default function CreateDiscussionForm({
           <StyledCancelButton onClick={handleCancel}>
             {t("global:cancel")}
           </StyledCancelButton>
-          <Button loading={isLoading} type="submit">
+          <Button loading={isPending} type="submit">
             {t("communities:post")}
           </Button>
         </StyledActionButtonsContainer>

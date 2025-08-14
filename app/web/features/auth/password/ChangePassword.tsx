@@ -1,4 +1,5 @@
 import { styled, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import TextField from "components/TextField";
@@ -8,16 +9,8 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 import { theme } from "theme";
-
-const StyledForm = styled("form")(() => ({
-  marginBottom: theme.spacing(2),
-  "& > * + *": {
-    marginBlockStart: theme.spacing(1),
-  },
-}));
 
 interface ChangePasswordVariables {
   oldPassword: string;
@@ -32,6 +25,13 @@ interface ChangePasswordProps {
   className?: string;
 }
 
+const StyledForm = styled("form")(() => ({
+  marginBottom: theme.spacing(2),
+  "& > * + *": {
+    marginBlockStart: theme.spacing(1),
+  },
+}));
+
 export default function ChangePassword({ className }: ChangePasswordProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const theme = useTheme();
@@ -42,7 +42,6 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
     handleSubmit,
     reset: resetForm,
     register,
-
     formState: { errors },
   } = useForm<ChangePasswordFormData>({
     mode: "onBlur",
@@ -54,19 +53,19 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
   const queryClient = useQueryClient();
   const {
     error: changePasswordError,
-    isLoading: isChangePasswordLoading,
+    isPending: isChangePasswordLoading,
     isSuccess: isChangePasswordSuccess,
     mutate: changePassword,
-  } = useMutation<Empty, RpcError, ChangePasswordVariables>(
-    ({ oldPassword, newPassword }) =>
+  } = useMutation<Empty, RpcError, ChangePasswordVariables>({
+    mutationFn: ({ oldPassword, newPassword }) =>
       service.account.changePassword(oldPassword, newPassword),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(accountInfoQueryKey);
-        resetForm();
-      },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [accountInfoQueryKey],
+      });
+      resetForm();
     },
-  );
+  });
 
   return (
     <div className={className}>
