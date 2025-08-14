@@ -23,5 +23,6 @@
   "member_count_1": "участника",
   "member_count_2": "участников",
   "search_input_label": "Куда ты направляешься?",
-  "browse_communities": "Просмотреть сообщества"
+  "browse_communities": "Просмотреть сообщества",
+  "search_input_placeholder": "Поиск местоположения"
 }

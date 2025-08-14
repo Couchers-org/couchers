@@ -12,5 +12,11 @@
     "local_time": "Местное время",
     "hobbies_section": "Чем я занимаюсь в свободное время",
     "lived_section": "Проживал в"
+  },
+  "home_info_headings": {
+    "about_home": "О моём доме",
+    "host_pets": "Есть домашние животные",
+    "host_smoking": "Курение в доме",
+    "house_rules": "Правила Дома"
   }
 }
