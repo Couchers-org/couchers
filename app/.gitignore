@@ -1,6 +1,7 @@
 /data/
 /pgdata/
 *.prod.env
+node_modules
 
 # protobuf descriptor sets
 descriptors.pb
