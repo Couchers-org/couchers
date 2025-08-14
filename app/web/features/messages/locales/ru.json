@@ -1,1 +1,31 @@
-{}
+{
+  "mark_all_read_button_text": "Отметить все как прочитанное",
+  "request_closed_message": "Этот запрос был закрыт или истек. Чтобы продолжить общение, отправь обычное сообщение.",
+  "write_reference_button_text": "Написать отзыв",
+  "close_request_dialog_host": "Пожалуйста, убедитесь, что вы закончили общение, прежде чем отклонить их запрос.",
+  "close_request_button_text": "Отклонить",
+  "close_request_dialog_surfer": "Пожалуйста, убедитесь, что вы закончили общение, прежде чем отменить свой запрос.",
+  "confirm_request_button_text": "Подтвердить",
+  "messages_page": {
+    "title": "Сообщения",
+    "tabs": {
+      "chats": "Чаты"
+    }
+  },
+  "chat_view": {
+    "invalid_id_error": "Неверный ID чата.",
+    "no_messages_state_text": "Нет сообщений",
+    "back_button": {
+      "a11y_label": "Назад"
+    },
+    "muted_icon": {
+      "a11y_label": "Уведомления отключены"
+    },
+    "actions_menu": {
+      "items": {
+        "invite_members": "Пригласить в чат",
+        "show_all_members": "Участники чата"
+      }
+    }
+  }
+}

@@ -250,5 +250,7 @@
         "zh-Hant": "Chinesisch (Traditionell)",
         "nl": "Niederländisch",
         "ca": "Katalan"
-    }
+    },
+    "back": "Zurück",
+    "save_changes": "Änderungen speichern"
 }
