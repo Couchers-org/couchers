@@ -13,6 +13,7 @@
     }
   },
   "chat_view": {
-    "invalid_id_error": "Неверный ID диалога."
+    "invalid_id_error": "Неверный ID чата.",
+    "no_messages_state_text": "Нет сообщений"
   }
 }
