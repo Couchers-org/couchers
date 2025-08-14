@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import Divider from "components/Divider";
 import LabelAndText from "components/LabelAndText";
 import Markdown from "components/Markdown";
@@ -11,23 +11,21 @@ import {
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { User } from "proto/api_pb";
-import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles((theme) => ({
-  info: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    width: "50%",
-  },
-  root: {
-    display: "flex",
-    justifyContent: "space-between",
-  },
+const StyledRoot = styled("div")({
+  display: "flex",
+  justifyContent: "space-between",
+});
 
-  marginTop3: {
-    marginTop: theme.spacing(3),
-  },
+const StyledInfoColumn = styled("div")({
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  width: "50%",
+});
+
+const StyledSpacedDivider = styled(Divider)(({ theme }) => ({
+  marginTop: theme.spacing(3),
 }));
 
 interface HomeProps {
@@ -36,12 +34,11 @@ interface HomeProps {
 
 export default function Home({ user }: HomeProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
-  const classes = useStyles();
 
   return (
     <>
-      <div className={classes.root}>
-        <div className={classes.info}>
+      <StyledRoot>
+        <StyledInfoColumn>
           <Typography variant="h1">
             {t("profile:home_info_headings.hosting_preferences")}
           </Typography>
@@ -77,8 +74,8 @@ export default function Home({ user }: HomeProps) {
             label={t("profile:edit_home_questions.accept_smoking")}
             text={`${smokingLocationLabels(t)[user.smokingAllowed]}`}
           />
-        </div>
-        <div className={classes.info}>
+        </StyledInfoColumn>
+        <StyledInfoColumn>
           <Typography variant="h1">
             {t("profile:home_info_headings.my_home")}
           </Typography>
@@ -122,16 +119,16 @@ export default function Home({ user }: HomeProps) {
             label={t("profile:home_info_headings.host_smoking")}
             text={booleanConversion(t, user.smokesAtHome?.value)}
           />
-        </div>
-      </div>
-      <Divider className={classes.marginTop3} />
+        </StyledInfoColumn>
+      </StyledRoot>
+      <StyledSpacedDivider />
       {user.aboutPlace && (
         <>
           <Typography variant="h1">
             {t("profile:home_info_headings.about_home")}
           </Typography>
           <Markdown source={user.aboutPlace} />
-          <Divider className={classes.marginTop3} />
+          <StyledSpacedDivider />
         </>
       )}
       {user.area && (
@@ -140,7 +137,7 @@ export default function Home({ user }: HomeProps) {
             {t("profile:home_info_headings.local_area")}
           </Typography>
           <Markdown source={user.area?.value} />
-          <Divider className={classes.marginTop3} />
+          <StyledSpacedDivider />
         </>
       )}
       {user.sleepingDetails && (
@@ -149,7 +146,7 @@ export default function Home({ user }: HomeProps) {
             {t("profile:home_info_headings.sleeping_arrangement")}
           </Typography>
           <Markdown source={user.sleepingDetails?.value} />
-          <Divider className={classes.marginTop3} />
+          <StyledSpacedDivider />
         </>
       )}
       {user.houseRules && (
@@ -158,7 +155,7 @@ export default function Home({ user }: HomeProps) {
             {t("profile:home_info_headings.house_rules")}
           </Typography>
           <Markdown source={user.houseRules?.value} />
-          <Divider className={classes.marginTop3} />
+          <StyledSpacedDivider />
         </>
       )}
       {user.otherHostInfo && (
