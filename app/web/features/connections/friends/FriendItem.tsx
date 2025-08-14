@@ -38,7 +38,6 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
   };
 
   const handleBlockUser = () => {
-    handleMenuClose();
     setOpenDialog("block-user");
   };
 
@@ -51,7 +50,6 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
   };
 
   const handleRemoveFriend = () => {
-    handleMenuClose();
     setOpenDialog("remove-friend");
   };
 

@@ -40,7 +40,6 @@ function BlockedUsersList({ refetchFriends }: { refetchFriends: () => void }) {
 
   const handleDialogOpen = () => {
     setIsDialogOpen(true);
-    handleMenuClose();
   };
 
   const handleDialogClose = () => {

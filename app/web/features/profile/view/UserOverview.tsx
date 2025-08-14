@@ -1,4 +1,4 @@
-import { Card, CardActions, Link, Typography } from "@mui/material";
+import { Card, CardActions, Link, styled, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
 import Divider from "components/Divider";
@@ -14,66 +14,68 @@ import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import React from "react";
 import { routeToUser } from "routes";
-import makeStyles from "utils/makeStyles";
 
 import { useProfileUser } from "../hooks/useProfileUser";
 import { Badges } from "./Badges";
 import { ReferencesLastActiveLabels, ResponseRateLabel } from "./userLabels";
 
-const useStyles = makeStyles((theme) => ({
-  card: {
-    flexShrink: 0,
-    borderRadius: theme.shape.borderRadius * 2,
-    padding: theme.spacing(3),
-    [theme.breakpoints.down("sm")]: {
-      marginBottom: theme.spacing(1),
-      width: "100%",
-    },
-  },
-
-  info: {
-    marginTop: theme.spacing(0.5),
-  },
-
-  intro: {
-    display: "flex",
-    justifyContent: "center",
-    wordBreak: "break-word",
-    overflowWrap: "break-word",
-    textAlign: "center",
+const StyledCard = styled(Card)(({ theme }) => ({
+  flexShrink: 0,
+  borderRadius: theme.shape.borderRadius * 2,
+  padding: theme.spacing(3),
+  [theme.breakpoints.down("sm")]: {
     marginBottom: theme.spacing(1),
+    width: "100%",
   },
+}));
 
-  wrapper: {
-    marginTop: theme.spacing(2),
-    "& h1": {
-      textAlign: "center",
-      marginBottom: theme.spacing(0.5),
-    },
-  },
+const StyledAvatarContainer = styled("div")({
+  maxWidth: "75%",
+  margin: "0 auto",
+});
 
-  cardActions: {
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "stretch",
-    padding: theme.spacing(0.5),
-    "& > *": {
-      margin: theme.spacing(0.5),
-    },
-    "& > :not(:first-child)": {
-      marginLeft: theme.spacing(0.5),
-    },
+const StyledWrapper = styled("div")(({ theme }) => ({
+  marginTop: theme.spacing(2),
+  "& h1": {
+    textAlign: "center",
+    marginBottom: theme.spacing(0.5),
   },
+}));
 
-  avatarContainer: {
-    maxWidth: "75%",
-    margin: "0 auto",
+const StyledIntro = styled(Typography)(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  wordBreak: "break-word",
+  overflowWrap: "break-word",
+  textAlign: "center",
+  marginBottom: theme.spacing(1),
+}));
+
+const StyledLink = styled(Link)(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  wordBreak: "break-word",
+  overflowWrap: "break-word",
+  textAlign: "center",
+  marginBottom: theme.spacing(1),
+}));
+
+const StyledCardActions = styled(CardActions)(({ theme }) => ({
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "stretch",
+  gap: theme.spacing(0.2),
+  padding: theme.spacing(0.5),
+  "& > *": {
+    margin: theme.spacing(0.5),
   },
-  strongVerificationBadge: {
-    display: "flex",
-    alignItems: "center",
+  "& > :not(:first-of-type)": {
     marginLeft: theme.spacing(0.5),
   },
+}));
+
+const StyledInfo = styled("div")(({ theme }) => ({
+  marginTop: theme.spacing(0.5),
 }));
 
 type UserOverviewProps = {
@@ -88,40 +90,31 @@ export default function UserOverview({
   actions,
 }: UserOverviewProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
-  const classes = useStyles();
   const user = useProfileUser();
 
   return (
-    <Card className={classes.card}>
-      <div className={classes.avatarContainer}>
+    <StyledCard>
+      <StyledAvatarContainer>
         <Avatar user={user} highRes grow />
-      </div>
+      </StyledAvatarContainer>
 
-      <div className={classes.wrapper}>
-        <Typography variant="h1" className={classes.intro}>
+      <StyledWrapper>
+        <StyledIntro variant="h1">
           <span>
             {user.name}
             {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
           </span>
-        </Typography>
-        <Link
-          href={routeToUser(user.username)}
-          variant="body1"
-          className={classes.intro}
-        >
+        </StyledIntro>
+        <StyledLink href={routeToUser(user.username)} variant="body1">
           @{user.username}
-        </Link>
-        <Typography variant="body1" className={classes.intro}>
-          {user.city}
-        </Typography>
+        </StyledLink>
+        <StyledIntro variant="body1">{user.city}</StyledIntro>
         <Badges user={user} />
-      </div>
+      </StyledWrapper>
 
       <Divider />
 
-      {actions && (
-        <CardActions className={classes.cardActions}>{actions}</CardActions>
-      )}
+      {actions && <StyledCardActions>{actions}</StyledCardActions>}
 
       {showHostAndMeetAvailability && (
         <>
@@ -162,10 +155,10 @@ export default function UserOverview({
           />
         </>
       )}
-      <div className={classes.info}>
+      <StyledInfo>
         <ReferencesLastActiveLabels user={user} />
         <ResponseRateLabel user={user} />
-      </div>
-    </Card>
+      </StyledInfo>
+    </StyledCard>
   );
 }

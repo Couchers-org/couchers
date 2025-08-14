@@ -120,7 +120,7 @@ export const eventOrganizersBaseKey = "eventOrganizers";
 export const eventOrganizersKey = ({ eventId, type }: EventUsersInput) => [
   eventOrganizersBaseKey,
   eventId,
-  { type },
+  ...(type === "summary" ? ["summary"] : []),
 ];
 export const eventAttendeesBaseKey = "eventAttendees";
 export const eventAttendeesKey = ({ eventId, type }: EventUsersInput) => [

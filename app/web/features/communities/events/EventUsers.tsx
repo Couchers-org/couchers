@@ -1,9 +1,11 @@
 import { Card, styled, Typography } from "@mui/material";
 import Button from "components/Button";
+import { EllipsisMenuItem } from "components/EllipsisMenu";
 import UsersList from "components/UsersList";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
+import { LiteUser } from "proto/api_pb";
 import { theme } from "theme";
 
 const StyledWrapper = styled(Card)(() => ({
@@ -21,6 +23,9 @@ export interface EventUsersProps {
   onSeeAllClick?(): void;
   userIds: number[] | undefined;
   title: string;
+  getUserMenuItems?: (
+    user: LiteUser.AsObject,
+  ) => EllipsisMenuItem[] | undefined;
 }
 
 export default function EventUsers({
@@ -30,6 +35,7 @@ export default function EventUsers({
   onSeeAllClick,
   userIds,
   title,
+  getUserMenuItems,
 }: EventUsersProps) {
   const { t } = useTranslation([COMMUNITIES]);
 
@@ -49,6 +55,7 @@ export default function EventUsers({
         emptyListChildren={
           <Typography variant="body1">{emptyState}</Typography>
         }
+        getUserMenuItems={getUserMenuItems}
       />
     </StyledWrapper>
   );
