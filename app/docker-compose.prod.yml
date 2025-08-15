@@ -17,7 +17,7 @@ services:
       - -c
       - ssl_min_protocol_version=TLSv1.3
     restart: always
-    env_file: postgres.prod.env
+    env_file: postgres/.env.prod
     volumes:
       - "./data/postgres/pgdata/:/var/lib/postgresql/data/"
       - "./data/certs/:/certs/:ro"
@@ -35,7 +35,7 @@ services:
   backend:
     image: registry.gitlab.com/couchers/couchers/backend
     restart: always
-    env_file: backend.prod.env
+    env_file: backend/.env.prod
     volumes:
       # auxiliary resources
       - "./data/aux/:/app/aux/:ro"
@@ -55,7 +55,7 @@ services:
   media:
     image: registry.gitlab.com/couchers/couchers/media
     restart: always
-    env_file: media.prod.env
+    env_file: media/.env.prod
     volumes:
       - "./data/media/uploads/:/uploads/"
     expose:

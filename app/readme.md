@@ -9,3 +9,7 @@ For getting started with the **web frontend**: read [app/web/readme.md](web/read
 ## Backend and full stack
 
 For getting started with the **backend**: read [app/backend/readme.md](backend/readme.md).
+
+## Run end-to-end tests
+
+`docker compose -f docker-compose.e2e.yml run tests yarn test`

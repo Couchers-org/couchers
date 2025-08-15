@@ -1,0 +1,17 @@
+{
+  "name": "e2e",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "test": "cross-env NEXT_PUBLIC_API_BASE_URL=backend playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.2",
+    "cross-env": "^10.0.0",
+    "dotenv": "^17.2.1"
+  },
+  "packageManager": "yarn@1.22.22"
+}

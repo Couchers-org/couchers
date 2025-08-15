@@ -1,4 +1,4 @@
-name: E2E Tests
+name: End-to-end-tests
 services:
   proxy:
     build: proxy
@@ -9,16 +9,15 @@ services:
     dns_search: ""
   postgres:
     image: postgis/postgis:17-3.5
-    env_file: postgres.dev.env
+    env_file: postgres/.env.test
     restart: unless-stopped
     ports:
       - 6545:6545
     platform: linux/amd64
   backend:
     build: backend
-    env_file: backend.test.env
-    # see https://github.com/eradman/entr#docker-and-windows-subsystem-for-linux
-    command: bash -c "find src -name '**.py' | ENTR_INOTIFY_WORKAROUND=1 entr -rndz python src/app.py && exit 1"
+    env_file: backend/.env.test
+    command: "python src/app.py"
     restart: unless-stopped
     ports:
       # grpc: main apis
@@ -29,18 +28,23 @@ services:
       - 8000:8000
     depends_on:
       - postgres
-    links:
-      - postgres
   frontend:
     build:
       context: web
+      dockerfile: "web/Dockerfile.e2e"
       args:
         environment: e2e
-
+    env_file: web/.env.e2e
+    restart: unless-stopped
+  tests:
+    build:
+      context: e2e
+    command:
+      "yarn test"
   media:
     build: media
     restart: unless-stopped
-    env_file: media.dev.env
+    env_file: media/.env.dev
     ports:
       - 5001:5001
     depends_on:
@@ -59,3 +63,7 @@ services:
       - 4317
     environment:
       - COLLECTOR_OTLP_ENABLED=true
+
+networks:
+  default:
+    driver: bridge
