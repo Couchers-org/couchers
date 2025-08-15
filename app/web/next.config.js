@@ -112,8 +112,4 @@ module.exports = withSentryConfig(module.exports, {
 
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   disableLogger: true,
-
-  experimental: {
-    webpackMemoryOptimizations: true,
-  },
 });
