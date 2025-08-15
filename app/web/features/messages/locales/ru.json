@@ -9,7 +9,9 @@
   "messages_page": {
     "title": "Сообщения",
     "tabs": {
-      "chats": "Чаты"
+      "chats": "Чаты",
+      "hosting": "Гости",
+      "surfing": "Хосты"
     }
   },
   "chat_view": {
@@ -27,5 +29,6 @@
         "show_all_members": "Участники чата"
       }
     }
-  }
+  },
+  "close_request_dialog_title": "Завершить переписку?"
 }
