@@ -36,7 +36,12 @@
     "old_password": "Ancien mot de passe",
     "new_password": "Nouveau mot de passe",
     "subtitle": "Utilisez ce formulaire pour réinitialiser votre mot de passe.",
-    "password_changed_success": "Votre nouveau mot de passe a été changé et une notification a été envoyé à votre adresse mail."
+    "password_changed_success": "Votre nouveau mot de passe a été changé et une notification a été envoyé à votre adresse mail.",
+    "reset_password_success": "Votre mot de passe a été changé avec succès !",
+    "reset_password_error": "Erreur lors de la réinitialisation du mot de passe : {{message}}",
+    "password_mismatch_error": "Les mots de passe ne correspondent pas.",
+    "user_logged_error": "Vous ne pouvez pas réinitialiser votre mot de passe si vous êtes connecté.e. Vous pouvez changer votre mot de passe dans les paramètres ou si vous déconnecter pour le réinitialiser.",
+    "token_error": "Une erreur s'est produite lors du traitement du jeton de réinitialisation du mot de passe, veuillez réessayer d'ouvrir le lien dans le mail que vous avez reçu."
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Déjà inscrit·e ? <2>Se connecter</2>",
@@ -51,7 +56,7 @@
       "forgot_password": "Mot de passe oublié ?",
       "remember_me": "Se souvenir de moi"
     },
-    "no_account_prompt": "Pas encore de compte ? <2>Inscrivez-vous</2>"
+    "no_account_prompt": "Pas encore de compte ? <2>Rejoignez-nous</2>"
   },
   "do_not_email": {
     "status": {
@@ -139,5 +144,8 @@
       },
       "resubmit_button_text": "Renvoyer"
     }
+  },
+  "jail_set_password_form": {
+    "explanation": "Vous n'avez pas encore défini le mot de passe pour votre compte. Veuillez en créer un maintenant pour continuer."
   }
 }
