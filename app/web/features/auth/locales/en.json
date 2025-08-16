@@ -47,7 +47,7 @@
   "login_page": {
     "title": "Log in",
     "header": "Welcome back!",
-    "no_account_prompt": "No account yet? <2>Sign up</2>",
+    "no_account_prompt": "No account yet? <2>Join us</2>",
     "form": {
       "username_field_label": "Email/Username",
       "password_field_label": "Password",
