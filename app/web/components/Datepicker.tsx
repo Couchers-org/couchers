@@ -98,16 +98,19 @@ const Datepicker = ({
                 <span data-testid={`${name}-helper-text`}>{helperText}</span>
               }
               data-testid={testId}
-              InputLabelProps={{
-                shrink: true,
-              }}
-              InputProps={{
-                ...props.InputProps,
-                ...inputProps,
-                className,
-                "aria-label": t("components.datepicker.change_date"),
-              }}
               variant={variant}
+              slotProps={{
+                input: {
+                  ...props.InputProps,
+                  ...inputProps,
+                  className,
+                  "aria-label": t("components.datepicker.change_date"),
+                },
+
+                inputLabel: {
+                  shrink: true,
+                },
+              }}
             />
           )}
         />

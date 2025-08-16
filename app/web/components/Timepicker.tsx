@@ -63,14 +63,6 @@ const Timepicker = ({
                 <span data-testid={`${name}-helper-text`}>{helperText}</span>
               }
               data-testid={testId}
-              InputLabelProps={{
-                shrink: true,
-              }}
-              InputProps={{
-                ...props.InputProps,
-                className,
-                "aria-label": t("global:change_time"),
-              }}
               variant="standard"
               sx={{
                 "& .MuiOutlinedInput-root": {
@@ -80,6 +72,17 @@ const Timepicker = ({
                 "& .MuiPaper-root": {
                   backgroundColor: theme.palette.primary.main,
                   color: theme.palette.text.primary,
+                },
+              }}
+              slotProps={{
+                input: {
+                  ...props.InputProps,
+                  className,
+                  "aria-label": t("global:change_time"),
+                },
+
+                inputLabel: {
+                  shrink: true,
                 },
               }}
             />

@@ -12,7 +12,12 @@ export default function ContributePage() {
     <>
       <HtmlMeta title={t("global:nav.volunteer")} />
       <PageTitle>{t("global:contribute_title")}</PageTitle>
-      <Typography variant="body1" paragraph>
+      <Typography
+        variant="body1"
+        sx={{
+          marginBottom: "16px",
+        }}
+      >
         {JOIN_THE_TEAM}
       </Typography>
       <StandaloneContributorForm />

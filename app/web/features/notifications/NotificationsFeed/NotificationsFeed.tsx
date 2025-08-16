@@ -136,9 +136,6 @@ const NotificationsFeed = ({
       anchorEl={anchorEl}
       onClose={onClose}
       open={isOpen}
-      MenuListProps={{
-        "aria-labelledby": "notifications-feed-button",
-      }}
       slotProps={{
         paper: {
           elevation: 0,
@@ -151,6 +148,10 @@ const NotificationsFeed = ({
             filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
             marginTop: 1.5,
           },
+        },
+
+        list: {
+          "aria-labelledby": "notifications-feed-button",
         },
       }}
       transformOrigin={{ horizontal: "right", vertical: "top" }}

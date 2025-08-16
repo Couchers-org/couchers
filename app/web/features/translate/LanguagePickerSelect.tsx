@@ -277,7 +277,6 @@ export default function LanguagePickerSelect({
               id="newLanguage"
               displayMode={displayMode}
               value={isLoading ? "" : locale}
-              placeholder={t("global:language_preference.select_language")}
               fullWidth={isMobile}
               onChange={handleChange}
               disabled={isLoading}

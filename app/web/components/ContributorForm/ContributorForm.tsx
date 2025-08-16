@@ -132,7 +132,12 @@ export default function ContributorForm({
         <Typography variant="body1">{SUCCESS_MSG}</Typography>
       ) : (
         <form onSubmit={submit}>
-          <Typography variant="body2" paragraph>
+          <Typography
+            variant="body2"
+            sx={{
+              marginBottom: "16px",
+            }}
+          >
             {QUESTIONS_OPTIONAL}
           </Typography>
           <Typography
