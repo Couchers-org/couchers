@@ -6,7 +6,9 @@
     "node": "20.x"
   },
   "scripts": {
-    "test": "cross-env NEXT_PUBLIC_API_BASE_URL=backend playwright test"
+    "deps:install": "playwright install-deps",
+    "browsers:install": "playwright install",
+    "test": "cross-env NEXT_PUBLIC_API_BASE_URL=http://proxy playwright test"
   },
   "devDependencies": {
     "@playwright/test": "^1.54.2",

@@ -7,7 +7,7 @@ COPY . .
 # https://github.com/yarnpkg/yarn/issues/8242
 RUN yarn config set network-timeout 300000
 RUN yarn install --frozen-lockfile
-
-
+RUN yarn deps:install
+RUN yarn browsers:install
 
 CMD ["yarn", "test"]

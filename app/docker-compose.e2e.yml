@@ -9,16 +9,24 @@ services:
     dns_search: ""
   postgres:
     image: postgis/postgis:17-3.5
-    env_file: postgres/.env.test
+    env_file: postgres/.env.dev
     restart: unless-stopped
     ports:
       - 6545:6545
     platform: linux/amd64
   backend:
     build: backend
-    env_file: backend/.env.test
+    env_file: backend/.env.dev
     command: "python src/app.py"
     restart: unless-stopped
+    volumes:
+      - "./backend:/app"
+    healthcheck:
+      test: curl --fail http://backend:8000/ || exit 1
+      interval: 40s
+      timeout: 30s
+      retries: 3
+      start_period: 60s
     ports:
       # grpc: main apis
       - 1751:1751
@@ -28,19 +36,26 @@ services:
       - 8000:8000
     depends_on:
       - postgres
+    links:
+      - postgres
   frontend:
     build:
       context: web
-      dockerfile: "web/Dockerfile.e2e"
+      dockerfile: "Dockerfile.e2e"
       args:
         environment: e2e
     env_file: web/.env.e2e
-    restart: unless-stopped
   tests:
+    depends_on:
+      - backend
+      - frontend
     build:
       context: e2e
     command:
-      "yarn test"
+      "PLAYWRIGHT_BROWSERS_PATH=/browsers yarn test"
+    links:
+      - frontend
+      - proxy
   media:
     build: media
     restart: unless-stopped
@@ -55,15 +70,3 @@ services:
     ports:
       - 1025:1025
       - 1080:1080
-  jaeger:
-    image: jaegertracing/all-in-one:1.60
-    ports:
-      - "16686:16686"
-    expose:
-      - 4317
-    environment:
-      - COLLECTOR_OTLP_ENABLED=true
-
-networks:
-  default:
-    driver: bridge
