@@ -259,9 +259,11 @@ describe("AccountForm", () => {
 
       const user = userEvent.setup();
 
+      expect(field).toBeEmptyDOMElement();
+
       await user.clear(field);
 
-      expect(field).toHaveValue("");
+      expect(field).toHaveValue("MM/DD/YYYY");
 
       await user.click(
         screen.getByRole("button", { name: t("global:sign_up") }),

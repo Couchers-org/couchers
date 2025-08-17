@@ -1,4 +1,3 @@
-import TextField from "@mui/material/TextField";
 import { TimePicker } from "@mui/x-date-pickers";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
@@ -53,18 +52,21 @@ const Timepicker = ({
             field.onChange(time);
             onPostChange?.(time);
           }}
-          renderInput={(props) => (
-            <TextField
-              {...props}
-              fullWidth
-              id={id}
-              error={error}
-              helperText={
+          slotProps={{
+            textField: {
+              fullWidth: true,
+              id,
+              error,
+              helperText: (
                 <span data-testid={`${name}-helper-text`}>{helperText}</span>
-              }
-              data-testid={testId}
-              variant="standard"
-              sx={{
+              ),
+              variant: "standard",
+              InputProps: {
+                className,
+                "aria-label": t("global:change_time"),
+              },
+              InputLabelProps: { shrink: true },
+              sx: {
                 "& .MuiOutlinedInput-root": {
                   backgroundColor: theme.palette.primary.main,
                   color: theme.palette.text.primary,
@@ -73,20 +75,9 @@ const Timepicker = ({
                   backgroundColor: theme.palette.primary.main,
                   color: theme.palette.text.primary,
                 },
-              }}
-              slotProps={{
-                input: {
-                  ...props.InputProps,
-                  className,
-                  "aria-label": t("global:change_time"),
-                },
-
-                inputLabel: {
-                  shrink: true,
-                },
-              }}
-            />
-          )}
+              },
+            },
+          }}
         />
       )}
     />
