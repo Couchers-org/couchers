@@ -24,14 +24,12 @@ export default function Dashboard() {
         because the hero section is full viewport width */}
       <Container maxWidth="lg">
         <Grid container direction="row">
-          <Grid item sm={4} xs={12} sx={{ marginTop: theme.spacing(3) }}>
+          <Grid size={{ sm: 4, xs: 12 }} sx={{ marginTop: theme.spacing(3) }}>
             <DashboardUserProfileSummary />
           </Grid>
 
           <Grid
-            item
-            sm={8}
-            xs={12}
+            size={{ sm: 8, xs: 12 }}
             sx={{
               [theme.breakpoints.up("sm")]: {
                 paddingLeft: theme.spacing(5),

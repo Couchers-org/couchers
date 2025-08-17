@@ -80,10 +80,11 @@ export default function Team() {
           spacing={2}
           justifyContent="center"
           alignItems="stretch"
+          sx={{ width: "100%" }}
         >
           {TeamData.map(
             ({ name, director, board_position, role, location, img, link }) => (
-              <Grid key={name} item xs={12} md={6} lg={4}>
+              <Grid key={name} size={{ xs: 12, md: 6, lg: 4 }}>
                 <TeamMemberCard elevation={director ? 3 : 1}>
                   <TeamMembedCardContent>
                     <StyledAvatar alt={`Headshot of ${name}`} src={img} />
