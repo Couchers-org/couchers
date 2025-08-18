@@ -180,11 +180,13 @@ describe("Signup", () => {
         ),
         "a very insecure password",
       );
-      const birthdayField = screen.getByLabelText(
-        t("auth:account_form.birthday.field_label"),
-      );
+      const birthdayGroup = await screen.findByRole("group", {
+        name: t("global:components.datepicker.change_date"),
+      });
 
-      await user.type(birthdayField, "01/01/1990");
+      await user.click(birthdayGroup);
+      await user.keyboard("{Control>}a{/Control}");
+      await user.keyboard("01/01/1990");
 
       await user.type(
         screen.getByTestId("edit-location-map"),

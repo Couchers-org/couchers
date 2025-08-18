@@ -82,37 +82,45 @@ describe("Create event page", () => {
 
     expect(titleInput).toHaveValue("Test event");
 
-    const startDateField = (await screen.findByLabelText(
-      t("communities:start_date"),
-    )) as HTMLInputElement;
+    const startDateGroup = await screen.findByRole("group", {
+      name: t("communities:start_date"),
+    });
 
-    await user.type(startDateField, "08012021");
+    await user.click(startDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    expect(startDateField).toHaveValue("08/01/2021");
+    expect(startDateGroup).toHaveTextContent("08/01/2021");
 
-    const startTimeField = (await screen.findByLabelText(
-      t("communities:start_time"),
-    )) as HTMLInputElement;
+    const startTimeGroup = await screen.findByRole("group", {
+      name: t("communities:start_time"),
+    });
 
-    await user.type(startTimeField, "01:00 AM");
+    await user.click(startTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("01:00 AM");
 
-    expect(startTimeField).toHaveValue("01:00 am");
+    expect(startTimeGroup).toHaveTextContent("01:00 am");
 
-    const endDateField = (await screen.findByLabelText(
-      t("communities:end_date"),
-    )) as HTMLInputElement;
+    const endDateGroup = await screen.findByRole("group", {
+      name: t("communities:end_date"),
+    });
 
-    await user.type(endDateField, "08012021");
+    await user.click(endDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    expect(endDateField).toHaveValue("08/01/2021");
+    expect(endDateGroup).toHaveTextContent("08/01/2021");
 
-    const endTimeField = screen.getByLabelText(
-      t("communities:end_time"),
-    ) as HTMLInputElement;
+    const endTimeGroup = await screen.findByRole("group", {
+      name: t("communities:end_time"),
+    });
 
-    await user.type(endTimeField, "02:00 AM");
+    await user.click(endTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("02:00 AM");
 
-    expect(endTimeField).toHaveValue("02:00 am");
+    expect(endTimeGroup).toHaveTextContent("02:00 am");
 
     const virtualEventCheckBox = screen.getByLabelText(
       t("communities:virtual_event"),
@@ -175,37 +183,45 @@ describe("Create event page", () => {
 
     expect(titleInput).toHaveValue("Test event");
 
-    const startDateField = (await screen.findByLabelText(
-      t("communities:start_date"),
-    )) as HTMLInputElement;
+    const startDateGroup = await screen.findByRole("group", {
+      name: t("communities:start_date"),
+    });
 
-    await user.type(startDateField, "08012021");
+    await user.click(startDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    expect(startDateField).toHaveValue("08/01/2021");
+    expect(startDateGroup).toHaveTextContent("08/01/2021");
 
-    const startTimeField = (await screen.findByLabelText(
-      t("communities:start_time"),
-    )) as HTMLInputElement;
+    const startTimeGroup = await screen.findByRole("group", {
+      name: t("communities:start_time"),
+    });
 
-    await user.type(startTimeField, "01:00 AM");
+    await user.click(startTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("01:00 AM");
 
-    expect(startTimeField).toHaveValue("01:00 am");
+    expect(startTimeGroup).toHaveTextContent("01:00 am");
 
-    const endDateField = (await screen.findByLabelText(
-      t("communities:end_date"),
-    )) as HTMLInputElement;
+    const endDateGroup = await screen.findByRole("group", {
+      name: t("communities:end_date"),
+    });
 
-    await user.type(endDateField, "08012021");
+    await user.click(endDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    expect(endDateField).toHaveValue("08/01/2021");
+    expect(endDateGroup).toHaveTextContent("08/01/2021");
 
-    const endTimeField = screen.getByLabelText(
-      t("communities:end_time"),
-    ) as HTMLInputElement;
+    const endTimeGroup = await screen.findByRole("group", {
+      name: t("communities:end_time"),
+    });
 
-    await user.type(endTimeField, "02:00 AM");
+    await user.click(endTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("02:00 AM");
 
-    expect(endTimeField).toHaveValue("02:00 am");
+    expect(endTimeGroup).toHaveTextContent("02:00 am");
 
     const locationInput = screen.getByLabelText(
       t("communities:location"),
@@ -260,37 +276,45 @@ describe("Create event page", () => {
 
     expect(titleInput).toHaveValue("Test event");
 
-    const startDateField = (await screen.findByLabelText(
-      t("communities:start_date"),
-    )) as HTMLInputElement;
+    const startDateGroup = await screen.findByRole("group", {
+      name: t("communities:start_date"),
+    });
 
-    await user.type(startDateField, "08012021");
+    await user.click(startDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    expect(startDateField).toHaveValue("08/01/2021");
+    expect(startDateGroup).toHaveTextContent("08/01/2021");
 
-    const startTimeField = (await screen.findByLabelText(
-      t("communities:start_time"),
-    )) as HTMLInputElement;
+    const startTimeGroup = await screen.findByRole("group", {
+      name: t("communities:start_time"),
+    });
 
-    await user.type(startTimeField, "01:00 AM");
+    await user.click(startTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("01:00 AM");
 
-    expect(startTimeField).toHaveValue("01:00 am");
+    expect(startTimeGroup).toHaveTextContent("01:00 am");
 
-    const endDateField = (await screen.findByLabelText(
-      t("communities:end_date"),
-    )) as HTMLInputElement;
+    const endDateGroup = await screen.findByRole("group", {
+      name: t("communities:end_date"),
+    });
 
-    await user.type(endDateField, "08012021");
+    await user.click(endDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    expect(endDateField).toHaveValue("08/01/2021");
+    expect(endDateGroup).toHaveTextContent("08/01/2021");
 
-    const endTimeField = screen.getByLabelText(
-      t("communities:end_time"),
-    ) as HTMLInputElement;
+    const endTimeGroup = await screen.findByRole("group", {
+      name: t("communities:end_time"),
+    });
 
-    await user.type(endTimeField, "02:00 AM");
+    await user.click(endTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("02:00 AM");
 
-    expect(endTimeField).toHaveValue("02:00 am");
+    expect(endTimeGroup).toHaveTextContent("02:00 am");
 
     const locationInput = screen.getByLabelText(
       t("communities:location"),

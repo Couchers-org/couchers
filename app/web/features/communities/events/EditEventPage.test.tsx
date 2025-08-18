@@ -85,15 +85,15 @@ describe("Edit event page", () => {
 
     expect(eventDetails).toHaveValue("We are going virtual this week!");
 
-    const endDateField = await screen.findByLabelText<HTMLInputElement>(
-      t("communities:end_date"),
-    );
+    const endDateGroup = await screen.findByRole("group", {
+      name: t("communities:end_date"),
+    });
 
-    await user.clear(endDateField);
+    await user.click(endDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("07012021");
 
-    await user.type(endDateField, "07012021");
-
-    expect(endDateField).toHaveValue("07/01/2021");
+    expect(endDateGroup).toHaveTextContent("07/01/2021");
 
     await user.click(screen.getByRole("button", { name: t("global:update") }));
 
@@ -117,16 +117,17 @@ describe("Edit event page", () => {
   it("should submit only the start date if the start date field is touched", async () => {
     renderPage();
 
-    const startDateField = await screen.findByLabelText<HTMLInputElement>(
-      t("communities:start_date"),
-    );
+    const startDateGroup = await screen.findByRole("group", {
+      name: t("communities:start_date"),
+    });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    await user.clear(startDateField);
-    await user.type(startDateField, "08012021");
+    await user.click(startDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    expect(startDateField).toHaveValue("08/01/2021");
+    expect(startDateGroup).toHaveTextContent("08/01/2021");
 
     await user.click(screen.getByRole("button", { name: t("global:update") }));
 
@@ -146,16 +147,17 @@ describe("Edit event page", () => {
 
     renderPage();
 
-    const startTimeField = (await screen.findByLabelText(
-      t("communities:start_time"),
-    )) as HTMLInputElement;
+    const startTimeGroup = await screen.findByRole("group", {
+      name: t("communities:start_time"),
+    });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    await user.clear(startTimeField);
-    await user.type(startTimeField, "0000");
+    await user.click(startTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("0000");
 
-    expect(startTimeField).toHaveValue("00:00");
+    expect(startTimeGroup).toHaveTextContent("00:00");
 
     await user.click(screen.getByRole("button", { name: t("global:update") }));
 
@@ -186,25 +188,27 @@ describe("Edit event page", () => {
   it("should show error if startDate after endDate", async () => {
     renderPage();
 
-    const startDateField = await screen.findByLabelText<HTMLInputElement>(
-      t("communities:start_date"),
-    );
+    const startDateGroup = await screen.findByRole("group", {
+      name: t("communities:start_date"),
+    });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    await user.clear(startDateField);
-    await user.type(startDateField, "07012021");
+    await user.click(startDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("07012021");
 
-    expect(startDateField).toHaveValue("07/01/2021");
+    expect(startDateGroup).toHaveTextContent("07/01/2021");
 
-    const endDateField = await screen.findByLabelText<HTMLInputElement>(
-      t("communities:end_date"),
-    );
+    const endDateGroup = await screen.findByRole("group", {
+      name: t("communities:end_date"),
+    });
 
-    await user.clear(endDateField);
-    await user.type(endDateField, "01012021");
+    await user.click(endDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("01012021");
 
-    expect(endDateField).toHaveValue("01/01/2021");
+    expect(endDateGroup).toHaveTextContent("01/01/2021");
 
     const endDateErrorText = screen.getByText(t("communities:end_date_error"));
 

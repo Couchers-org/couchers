@@ -59,7 +59,7 @@ const Timepicker = ({
           {...field}
           label={label}
           value={field.value}
-          onChange={(time) => {
+          onChange={(time: Dayjs | null) => {
             field.onChange(time);
             onPostChange?.(time);
           }}

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { useTranslation } from "i18n";
 import { useForm } from "react-hook-form";
@@ -156,19 +156,20 @@ describe("DatePicker", () => {
     let date: Dayjs | undefined = undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
-    const input = screen.getByRole("textbox") as HTMLInputElement;
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    await waitFor(() => expect(input).toBeEnabled());
+    const group = await screen.findByRole("group", { name: /Date field/i });
+    await user.click(group);
 
-    const user = userEvent.setup();
+    // Clear the field and type the full date
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("21032021");
 
-    user.type(input, "21032021");
-    await waitFor(() => expect(input).toHaveValue("21/03/2021"));
-    user.click(screen.getByRole("button", { name: t("global:submit") }));
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
+
     const expectedDate = "2021-03-21";
-    await waitFor(() => {
-      expect(date?.format().split("T")[0]).toEqual(expectedDate);
-    });
+    expect(date).toBeDefined();
+    expect(date!.format("YYYY-MM-DD")).toEqual(expectedDate);
   });
 
   it("typing should work in en-US", async () => {
@@ -178,19 +179,20 @@ describe("DatePicker", () => {
     let date: Dayjs | undefined = undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
-    const input = screen.getByRole("textbox") as HTMLInputElement;
-
-    await waitFor(() => expect(input).toBeEnabled());
-
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    await user.type(input, "03212021");
-    expect(input).toHaveValue("03/21/2021");
-    await user.click(screen.getByRole("button", { name: t("global:submit") }));
-    const expectedDate = "2021-03-21";
+    const group = await screen.findByRole("group", { name: /Date field/i });
+    await user.click(group);
 
+    // Clear the field and type the full date
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("03212021");
+
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
+
+    const expectedDate = "2021-03-21";
     expect(date).toBeDefined();
-    expect(date!.format().split("T")[0]).toEqual(expectedDate);
+    expect(date!.format("YYYY-MM-DD")).toEqual(expectedDate);
   });
 
   it("typing should work in or-IN", async () => {
@@ -200,18 +202,20 @@ describe("DatePicker", () => {
     let date: Dayjs | undefined = undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
-    const input = screen.getByRole("textbox") as HTMLInputElement;
-    await waitFor(() => expect(input).toBeEnabled());
-
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    await user.type(input, "21-0321");
-    expect(input).toHaveValue("21-03-21");
-    await user.click(screen.getByRole("button", { name: t("global:submit") }));
-    const expectedDate = "2021-03-21";
+    const group = await screen.findByRole("group", { name: /Date field/i });
+    await user.click(group);
 
+    // Clear the field and type the full date
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("21032021");
+
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
+
+    const expectedDate = "2021-03-21";
     expect(date).toBeDefined();
-    expect(date!.format().split("T")[0]).toEqual(expectedDate);
+    expect(date!.format("YYYY-MM-DD")).toEqual(expectedDate);
   });
 
   it("typing should work in zh-TW", async () => {
@@ -221,17 +225,19 @@ describe("DatePicker", () => {
     let date: Dayjs | undefined = undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
-    const input = screen.getByRole("textbox") as HTMLInputElement;
-    await waitFor(() => expect(input).toBeEnabled());
-
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    await user.type(input, "20210321");
-    expect(input).toHaveValue("2021/03/21");
-    await user.click(screen.getByRole("button", { name: t("global:submit") }));
-    const expectedDate = "2021-03-21";
+    const group = await screen.findByRole("group", { name: /Date field/i });
+    await user.click(group);
 
+    // Clear the field and type the full date
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("20210321");
+
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
+
+    const expectedDate = "2021-03-21";
     expect(date).toBeDefined();
-    expect(date!.format().split("T")[0]).toEqual(expectedDate);
+    expect(date!.format("YYYY-MM-DD")).toEqual(expectedDate);
   });
 });

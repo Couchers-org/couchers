@@ -84,22 +84,21 @@ describe("Event form", () => {
       }),
     ).toBeVisible();
     expect(screen.getByText(t("communities:upload_helper_text"))).toBeVisible();
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:start_date")),
-      "",
-    );
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:start_time")),
-      "",
-    );
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:end_date")),
-      "",
-    );
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:end_time")),
-      "",
-    );
+    // In MUI X v8, empty date/time fields don't have easily testable values
+    // So we just check that the fields exist and are rendered
+    expect(
+      screen.getByRole("group", { name: t("communities:start_date") }),
+    ).toHaveTextContent("MM/DD/YYYY");
+
+    expect(
+      screen.getByRole("group", { name: t("communities:start_time") }),
+    ).toHaveTextContent("hh:mm aa");
+    expect(
+      screen.getByRole("group", { name: t("communities:end_date") }),
+    ).toHaveTextContent("MM/DD/YYYY");
+    expect(
+      screen.getByRole("group", { name: t("communities:end_time") }),
+    ).toHaveTextContent("hh:mm aa");
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:location")),
       "",
@@ -124,22 +123,25 @@ describe("Event form", () => {
       await screen.findByLabelText(t("global:title")),
       "Weekly Meetup",
     );
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:start_date")),
-      "06/29/2021",
-    );
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:start_time")),
-      "02:37 am",
-    );
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:end_date")),
-      "06/29/2021",
-    );
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:end_time")),
-      "03:37 am",
-    );
+
+    const startDateGroup = screen.getByRole("group", {
+      name: t("communities:start_date"),
+    });
+    const startTimeGroup = screen.getByRole("group", {
+      name: t("communities:start_time"),
+    });
+    const endDateGroup = screen.getByRole("group", {
+      name: t("communities:end_date"),
+    });
+    const endTimeGroup = screen.getByRole("group", {
+      name: t("communities:end_time"),
+    });
+
+    expect(startDateGroup).toHaveTextContent("06/29/2021");
+    expect(startTimeGroup).toHaveTextContent("02:37 am");
+    expect(endDateGroup).toHaveTextContent("06/29/2021");
+    expect(endTimeGroup).toHaveTextContent("03:37 am");
+
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:location")),
       "Concertgebouw",
@@ -254,37 +256,33 @@ describe("Event form", () => {
 
     expect(titleInput).toHaveValue("Test event");
 
-    const startDateField = (await screen.findByLabelText(
-      t("communities:start_date"),
-    )) as HTMLInputElement;
+    const startDateGroup = await screen.findByRole("group", {
+      name: t("communities:start_date"),
+    });
+    await user.click(startDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    await user.type(startDateField, "08012021");
+    const startTimeGroup = await screen.findByRole("group", {
+      name: t("communities:start_time"),
+    });
+    await user.click(startTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("0100 AM");
 
-    expect(startDateField).toHaveValue("08/01/2021");
+    const endDateGroup = await screen.findByRole("group", {
+      name: t("communities:end_date"),
+    });
+    await user.click(endDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    const startTimeField = (await screen.findByLabelText(
-      t("communities:start_time"),
-    )) as HTMLInputElement;
-
-    await user.type(startTimeField, "0100 AM");
-
-    expect(startTimeField).toHaveValue("01:00 am");
-
-    const endDateField = (await screen.findByLabelText(
-      t("communities:end_date"),
-    )) as HTMLInputElement;
-
-    await user.type(endDateField, "08012021");
-
-    expect(endDateField).toHaveValue("08/01/2021");
-
-    const endTimeField = screen.getByLabelText(
-      t("communities:end_time"),
-    ) as HTMLInputElement;
-
-    await user.type(endTimeField, "0200 AM");
-
-    expect(endTimeField).toHaveValue("02:00 am");
+    const endTimeGroup = screen.getByRole("group", {
+      name: t("communities:end_time"),
+    });
+    await user.click(endTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("0200 AM");
 
     const virtualEventCheckbox = screen.getByLabelText(
       t("communities:virtual_event"),
@@ -316,6 +314,19 @@ describe("Event form", () => {
     );
 
     expect(serviceFn).toHaveBeenCalledTimes(1);
+
+    // Verify the submitted data contains the expected values
+    const submittedData = serviceFn.mock.calls[0][0];
+    expect(submittedData.title).toBe("Test event");
+    expect(submittedData.isOnline).toBe(true);
+    expect(submittedData.link).toBe("https://couchers.org/social");
+    expect(submittedData.content).toBe("sick social!");
+    expect(submittedData.startTime.toISOString()).toBe(
+      "2021-08-01T01:00:00.000Z",
+    );
+    expect(submittedData.endTime.toISOString()).toBe(
+      "2021-08-01T02:00:00.000Z",
+    );
   });
 
   it("should show an error alert if the form failed to submit", async () => {
@@ -331,37 +342,33 @@ describe("Event form", () => {
 
     expect(screen.getByLabelText(t("global:title"))).toHaveValue("Test event");
 
-    const startDateField = (await screen.findByLabelText(
-      t("communities:start_date"),
-    )) as HTMLInputElement;
+    const startDateGroup = await screen.findByRole("group", {
+      name: t("communities:start_date"),
+    });
+    await user.click(startDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    await user.type(startDateField, "08012021");
+    const startTimeGroup = await screen.findByRole("group", {
+      name: t("communities:start_time"),
+    });
+    await user.click(startTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("0100 AM");
 
-    expect(startDateField).toHaveValue("08/01/2021");
+    const endDateGroup = await screen.findByRole("group", {
+      name: t("communities:end_date"),
+    });
+    await user.click(endDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    const startTimeField = (await screen.findByLabelText(
-      t("communities:start_time"),
-    )) as HTMLInputElement;
-
-    await user.type(startTimeField, "0100 AM");
-
-    expect(startTimeField).toHaveValue("01:00 am");
-
-    const endDateField = (await screen.findByLabelText(
-      t("communities:end_date"),
-    )) as HTMLInputElement;
-
-    await user.type(endDateField, "08012021");
-
-    expect(endDateField).toHaveValue("08/01/2021");
-
-    const endTimeField = screen.getByLabelText(
-      t("communities:end_time"),
-    ) as HTMLInputElement;
-
-    await user.type(endTimeField, "0200 AM");
-
-    expect(endTimeField).toHaveValue("02:00 am");
+    const endTimeGroup = screen.getByRole("group", {
+      name: t("communities:end_time"),
+    });
+    await user.click(endTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("0200 AM");
 
     await user.click(screen.getByLabelText(t("communities:virtual_event")));
 
@@ -403,37 +410,33 @@ describe("Event form", () => {
 
     expect(titleInput).toHaveValue("Test event");
 
-    const startDateField = (await screen.findByLabelText(
-      t("communities:start_date"),
-    )) as HTMLInputElement;
+    const startDateGroup = await screen.findByRole("group", {
+      name: t("communities:start_date"),
+    });
+    await user.click(startDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    await user.type(startDateField, "08012021");
+    const startTimeGroup = await screen.findByRole("group", {
+      name: t("communities:start_time"),
+    });
+    await user.click(startTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("0100 AM");
 
-    expect(startDateField).toHaveValue("08/01/2021");
+    const endDateGroup = await screen.findByRole("group", {
+      name: t("communities:end_date"),
+    });
+    await user.click(endDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    const startTimeField = (await screen.findByLabelText(
-      t("communities:start_time"),
-    )) as HTMLInputElement;
-
-    await user.type(startTimeField, "0100 AM");
-
-    expect(startTimeField).toHaveValue("01:00 am");
-
-    const endDateField = (await screen.findByLabelText(
-      t("communities:end_date"),
-    )) as HTMLInputElement;
-
-    await user.type(endDateField, "08012021");
-
-    expect(endDateField).toHaveValue("08/01/2021");
-
-    const endTimeField = screen.getByLabelText(
-      t("communities:end_time"),
-    ) as HTMLInputElement;
-
-    await user.type(endTimeField, "0200 AM");
-
-    expect(endTimeField).toHaveValue("02:00 am");
+    const endTimeGroup = screen.getByRole("group", {
+      name: t("communities:end_time"),
+    });
+    await user.click(endTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("0200 AM");
 
     await user.type(
       screen.getByLabelText(t("communities:location")),
@@ -462,5 +465,20 @@ describe("Event form", () => {
     );
 
     expect(serviceFn).toHaveBeenCalledTimes(1);
+
+    // Verify the submitted data contains the expected values
+    const submittedData = serviceFn.mock.calls[0][0];
+    expect(submittedData.title).toBe("Test event");
+    expect(submittedData.isOnline).toBe(false);
+    expect(submittedData.location.name).toBe(
+      "test city, test county, test country",
+    );
+    expect(submittedData.content).toBe("sick social!");
+    expect(submittedData.startTime.toISOString()).toBe(
+      "2021-08-01T01:00:00.000Z",
+    );
+    expect(submittedData.endTime.toISOString()).toBe(
+      "2021-08-01T02:00:00.000Z",
+    );
   });
 });
