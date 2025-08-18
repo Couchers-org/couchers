@@ -31,7 +31,7 @@
     "@mui/system": "^5.18.0",
     "@mui/utils": "^5.16.13",
     "@mui/x-date-pickers": "^5.0.20",
-    "@sentry/nextjs": "^8.47.0",
+    "@sentry/nextjs": "^10.5.0",
     "@sentry/react": "^8.51.0",
     "@stripe/stripe-js": "^7.8.0",
     "@tanstack/query-sync-storage-persister": "^5.83.0",
