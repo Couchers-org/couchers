@@ -3,7 +3,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// @TODO(FB) Make configurable
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://frontend:3000";
 const BACKEND_URL = process.env.BACKEND_URL || "http://proxy:8888";
 

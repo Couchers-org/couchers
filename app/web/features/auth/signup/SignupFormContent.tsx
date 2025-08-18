@@ -1,4 +1,5 @@
 import { Link, Typography } from "@mui/material";
+import { API_BASE_URL } from "components/Map";
 import StyledLink from "components/StyledLink";
 import AntibotNote from "features/antibot/AntibotNote";
 import { Trans, useTranslation } from "i18n";
@@ -24,9 +25,7 @@ export default function SignupFormContent() {
   useEffect(() => {
     const fetchSignupInfo = async () => {
       try {
-        const response = await fetch(
-          "https://couchers.org/api/public/signup-page-info",
-        );
+        const response = await fetch(`${API_BASE_URL}/public/signup-page-info`);
 
         if (!response.ok) {
           throw new Error("Failed to fetch signup info");

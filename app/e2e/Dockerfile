@@ -1,13 +1,17 @@
-FROM node:20-bullseye AS builder
+FROM node:20-bullseye AS runner
+
+WORKDIR /app
+
+RUN npx playwright install
+RUN npx playwright install-deps
+
+FROM runner
 
 WORKDIR /app
 
 COPY . .
 
-# https://github.com/yarnpkg/yarn/issues/8242
 RUN yarn config set network-timeout 300000
 RUN yarn install --frozen-lockfile
-RUN yarn deps:install
-RUN yarn browsers:install
 
 CMD ["yarn", "test"]

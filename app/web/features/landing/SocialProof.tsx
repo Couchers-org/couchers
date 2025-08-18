@@ -1,6 +1,7 @@
 import { Favorite, Language, Star } from "@mui/icons-material";
 import { Box, Skeleton, Typography, useMediaQuery } from "@mui/material";
 import Divider from "components/Divider";
+import { API_BASE_URL } from "components/Map";
 import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useEffect, useState } from "react";
@@ -23,9 +24,7 @@ const SocialProof = () => {
   useEffect(() => {
     const fetchSignupInfo = async () => {
       try {
-        const response = await fetch(
-          "https://couchers.org/api/public/signup-page-info",
-        );
+        const response = await fetch(`${API_BASE_URL}/public/signup-page-info`);
 
         if (!response.ok) {
           throw new Error("Failed to fetch signup info");

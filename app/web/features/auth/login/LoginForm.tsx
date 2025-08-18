@@ -80,7 +80,7 @@ export default function LoginForm() {
 
   return (
     <>
-      <StyledForm onSubmit={onSubmit}>
+      <StyledForm onSubmit={onSubmit} aria-label="Login">
         <StyledInputLabel htmlFor="username">
           {t("auth:login_page.form.username_field_label")}
         </StyledInputLabel>
