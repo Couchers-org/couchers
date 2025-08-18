@@ -18,6 +18,7 @@ jest.mock("@mui/x-date-pickers", () => {
   return {
     ...jest.requireActual("@mui/x-date-pickers"),
     DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
+    TimePicker: jest.requireActual("@mui/x-date-pickers").DesktopTimePicker,
   };
 });
 
@@ -54,65 +55,47 @@ describe("Edit event page", () => {
     const titleField = await screen.findByLabelText(t("global:title"));
     expect(titleField).toHaveValue("Weekly Meetup");
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    user.type(titleField, " in the dam");
+    await user.type(titleField, " in the dam");
 
-    await waitFor(() => {
-      expect(titleField).toHaveValue("Weekly Meetup in the dam");
-    });
+    expect(titleField).toHaveValue("Weekly Meetup in the dam");
 
     const virtualEventCheckBox = screen.getByLabelText(
       t("communities:virtual_event"),
     ) as HTMLInputElement;
 
-    user.click(virtualEventCheckBox);
+    await user.click(virtualEventCheckBox);
 
-    await waitFor(() => {
-      expect(virtualEventCheckBox.checked).toBe(true);
-    });
+    expect(virtualEventCheckBox.checked).toBe(true);
 
     const eventLinkInput = (await screen.findByLabelText(
       t("communities:event_link"),
     )) as HTMLInputElement;
 
-    user.type(eventLinkInput, "https://couchers.org/amsterdam-social");
+    await user.type(eventLinkInput, "https://couchers.org/amsterdam-social");
 
-    await waitFor(
-      () => {
-        expect(eventLinkInput).toHaveValue(
-          "https://couchers.org/amsterdam-social",
-        );
-      },
-      { timeout: 5000 },
-    );
+    expect(eventLinkInput).toHaveValue("https://couchers.org/amsterdam-social");
 
     const eventDetails = screen.getByLabelText(t("communities:event_details"));
 
-    user.clear(eventDetails);
+    await user.clear(eventDetails);
 
-    user.type(eventDetails, "We are going virtual this week!");
+    await user.type(eventDetails, "We are going virtual this week!");
 
-    await waitFor(
-      () => {
-        expect(eventDetails).toHaveValue("We are going virtual this week!");
-      },
-      { timeout: 5000 },
-    );
+    expect(eventDetails).toHaveValue("We are going virtual this week!");
 
     const endDateField = await screen.findByLabelText<HTMLInputElement>(
       t("communities:end_date"),
     );
 
-    user.clear(endDateField);
+    await user.clear(endDateField);
 
-    user.type(endDateField, "07012021");
+    await user.type(endDateField, "07012021");
 
-    await waitFor(() => {
-      expect(endDateField).toHaveValue("07/01/2021");
-    });
+    expect(endDateField).toHaveValue("07/01/2021");
 
-    user.click(screen.getByRole("button", { name: t("global:update") }));
+    await user.click(screen.getByRole("button", { name: t("global:update") }));
 
     await waitFor(() => {
       expect(updateEventMock).toHaveBeenCalledTimes(1);
@@ -140,21 +123,16 @@ describe("Edit event page", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    user.clear(startDateField);
-    user.type(startDateField, "08012021");
+    await user.clear(startDateField);
+    await user.type(startDateField, "08012021");
+
+    expect(startDateField).toHaveValue("08/01/2021");
+
+    await user.click(screen.getByRole("button", { name: t("global:update") }));
 
     await waitFor(() => {
-      expect(startDateField).toHaveValue("08/01/2021");
+      expect(updateEventMock).toHaveBeenCalledTimes(1);
     });
-
-    user.click(screen.getByRole("button", { name: t("global:update") }));
-
-    await waitFor(
-      () => {
-        expect(updateEventMock).toHaveBeenCalledTimes(1);
-      },
-      { timeout: 5000 },
-    );
 
     expect(updateEventMock).toHaveBeenCalledWith({
       eventId: 1,
@@ -163,7 +141,9 @@ describe("Edit event page", () => {
     });
   });
 
-  it("should submit only the start date if the start time field is touched", async () => {
+  it("should submit only the start time if the start time field is touched", async () => {
+    jest.spyOn(navigator, "language", "get").mockReturnValue("en-GB");
+
     renderPage();
 
     const startTimeField = (await screen.findByLabelText(
@@ -172,14 +152,12 @@ describe("Edit event page", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    user.clear(startTimeField);
-    user.type(startTimeField, "0000");
+    await user.clear(startTimeField);
+    await user.type(startTimeField, "0000");
 
-    await waitFor(() => {
-      expect(startTimeField).toHaveValue("00:00");
-    });
+    expect(startTimeField).toHaveValue("00:00");
 
-    user.click(screen.getByRole("button", { name: t("global:update") }));
+    await user.click(screen.getByRole("button", { name: t("global:update") }));
 
     await waitFor(
       () => {
@@ -205,32 +183,28 @@ describe("Edit event page", () => {
     expect(screen.queryByLabelText(t("global:title"))).not.toBeInTheDocument();
   });
 
-  it.only("should show error if startDate after endDate", async () => {
+  it("should show error if startDate after endDate", async () => {
     renderPage();
 
     const startDateField = await screen.findByLabelText<HTMLInputElement>(
       t("communities:start_date"),
     );
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    user.clear(startDateField);
-    user.type(startDateField, "07012021");
+    await user.clear(startDateField);
+    await user.type(startDateField, "07012021");
 
-    await waitFor(() => {
-      expect(startDateField).toHaveValue("07/01/2021");
-    });
+    expect(startDateField).toHaveValue("07/01/2021");
 
     const endDateField = await screen.findByLabelText<HTMLInputElement>(
       t("communities:end_date"),
     );
 
-    user.clear(endDateField);
-    user.type(endDateField, "01012021");
+    await user.clear(endDateField);
+    await user.type(endDateField, "01012021");
 
-    await waitFor(() => {
-      expect(endDateField).toHaveValue("01/01/2021");
-    });
+    expect(endDateField).toHaveValue("01/01/2021");
 
     const endDateErrorText = screen.getByText(t("communities:end_date_error"));
 

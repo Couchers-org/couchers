@@ -90,7 +90,7 @@ describe("AccountForm", () => {
       const birthdayField = await screen.findByLabelText(
         t("auth:account_form.birthday.field_label"),
       );
-      await user.clear(birthdayField);
+
       await user.type(birthdayField, "01/01/1990");
 
       await user.type(
@@ -213,7 +213,6 @@ describe("AccountForm", () => {
 
       const user = userEvent.setup();
 
-      await user.clear(field);
       await user.type(field, "01/01/1750");
       await user.click(
         screen.getByRole("button", { name: t("global:sign_up") }),
@@ -238,7 +237,6 @@ describe("AccountForm", () => {
         .subtract(17, "year")
         .format("MM/DD/YYYY");
 
-      await user.clear(field);
       await user.type(field, seventeenYearsAgoDate);
       await user.click(
         screen.getByRole("button", { name: t("global:sign_up") }),
@@ -259,9 +257,9 @@ describe("AccountForm", () => {
 
       const user = userEvent.setup();
 
-      expect(field).toBeEmptyDOMElement();
-
       await user.clear(field);
+
+      expect(field).toBeEmptyDOMElement();
 
       expect(field).toHaveValue("MM/DD/YYYY");
 

@@ -1,7 +1,7 @@
 import { TimePicker } from "@mui/x-date-pickers";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
-import React from "react";
+import React, { useMemo } from "react";
 import { Control, Controller, UseControllerProps } from "react-hook-form";
 import { theme } from "theme";
 import { Dayjs } from "utils/dayjs";
@@ -21,6 +21,14 @@ interface TimepickerProps {
   testId?: string;
 }
 
+function uses24HourClock(locale: string = navigator.language): boolean {
+  const formatted = new Intl.DateTimeFormat(locale, {
+    hour: "numeric",
+    hour12: undefined,
+  }).format(new Date(2020, 0, 1, 23, 0));
+  return formatted.includes("23");
+}
+
 const Timepicker = ({
   className,
   control,
@@ -35,6 +43,9 @@ const Timepicker = ({
   testId,
 }: TimepickerProps) => {
   const { t } = useTranslation([GLOBAL]);
+  const locale = navigator.language;
+  const is24HourClock = useMemo(() => uses24HourClock(locale), [locale]);
+  const format = is24HourClock ? "HH:mm" : "h:mm a";
 
   return (
     <Controller
@@ -52,6 +63,7 @@ const Timepicker = ({
             field.onChange(time);
             onPostChange?.(time);
           }}
+          format={format}
           slotProps={{
             textField: {
               fullWidth: true,

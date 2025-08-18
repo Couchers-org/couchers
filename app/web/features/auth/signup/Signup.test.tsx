@@ -70,6 +70,15 @@ jest.mock("components/EditLocationMap", () => ({
 
 describe("Signup", () => {
   beforeEach(() => {
+    global.fetch = jest.fn(() =>
+      Promise.resolve(
+        new Response(JSON.stringify({}), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+
     mockRouter.setCurrentUrl(signupRoute);
     getCommunityGuidelinesMock.mockResolvedValue({
       communityGuidelinesList: [
@@ -174,7 +183,7 @@ describe("Signup", () => {
       const birthdayField = screen.getByLabelText(
         t("auth:account_form.birthday.field_label"),
       );
-      await user.clear(birthdayField);
+
       await user.type(birthdayField, "01/01/1990");
 
       await user.type(

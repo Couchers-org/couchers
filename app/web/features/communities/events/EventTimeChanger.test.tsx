@@ -141,7 +141,7 @@ describe("Event time changer", () => {
     );
 
     await user.type(startTimeField, "1000 PM");
-    expect(startTimeField).toHaveValue("10:00 PM");
+    expect(startTimeField).toHaveValue("10:00 pm");
 
     const startTimeErrorText = await screen.findByTestId(
       "startTime-helper-text",
@@ -281,7 +281,7 @@ describe("Event time changer", () => {
 
     await user.type(startTimeField, "1000 PM");
 
-    expect(startTimeField).toHaveValue("10:00 PM");
+    expect(startTimeField).toHaveValue("10:00 pm");
 
     await user.type(endDateField, "08012021");
 
@@ -299,7 +299,7 @@ describe("Event time changer", () => {
 
     await user.type(endTimeField, "1005 PM");
 
-    expect(endTimeField).toHaveValue("10:05 PM");
+    expect(endTimeField).toHaveValue("10:05 pm");
 
     expect(endTimeErrorText).toHaveTextContent(
       t("communities:past_time_error"),
@@ -421,7 +421,7 @@ describe("Event time changer", () => {
       await user.type(endTimeField, "1000 PM");
 
       await waitFor(() => {
-        expect(endTimeField).toHaveValue("10:00 PM");
+        expect(endTimeField).toHaveValue("10:00 pm");
       });
 
       await user.click(screen.getByTestId("submit"));
@@ -484,19 +484,19 @@ describe("Event time changer", () => {
 
       await user.type(startTime, "1000 PM");
 
-      expect(startTime).toHaveValue("10:00 PM");
+      expect(startTime).toHaveValue("10:00 pm");
 
       const endTime = screen.getByLabelText(t("communities:end_time"));
 
       // Increases time difference between start and end time to 3 hours
       await user.type(endTime, "0300 PM");
 
-      expect(endTime).toHaveValue("03:00 PM");
+      expect(endTime).toHaveValue("03:00 pm");
 
       await user.type(startTime, "0200 PM");
 
-      expect(startTime).toHaveValue("02:00 PM");
-      expect(endTime).toHaveValue("03:00 PM");
+      expect(startTime).toHaveValue("02:00 pm");
+      expect(endTime).toHaveValue("03:00 pm");
     });
   });
 });
