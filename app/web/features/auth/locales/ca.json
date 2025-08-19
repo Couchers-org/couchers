@@ -49,7 +49,7 @@
     "title": "Cal més informació",
     "description": "Si us plau, comprova el següent per continuar.",
     "terms_of_service_section": {
-      "description": "Hem actualitzat els nostres Termes de Servei. Per continuar, si us plau, llegeix i accepta els nous <1></1>."
+      "description": "Hem actualitzat les nostres Condicions de Servei. Per continuar, si us plau, llegeix i accepta els nous <1></1>."
     },
     "location_section": {
       "title": "Si us plau, actualitza la teva ubicació",
@@ -123,7 +123,7 @@
     },
     "opt_in_newsletter": "Subscriu-te al nostre butlletí ocasional sobre novetats de la comunitat.",
     "tos_prompt": "Per continuar, si us plau, llegeix i accepta els <1></1>.",
-    "tos_accept_label": "Accepto els Termes de Servei."
+    "tos_accept_label": "Accepto les Condicions de Servei."
   },
   "feature_preview": {
     "explanation": "Aquesta pàgina et permet provar funcionalitats que encara estan en desenvolupament abans que estiguin llestes per tothom.",
@@ -173,10 +173,27 @@
     "subtitle": "La Verificació Forta és una funcionalitat de seguretat addicional que et permet verificar la teva data de naixement i gènere utilitzant el teu passaport biomètric.",
     "title": "Verificació Forta",
     "status": {
-      "disabled_message": "<1>Actualment no estàs</1> verificat amb Verificació Forta.",
-      "enabled_message": "<1>Actualment estàs</1> verificat amb Verificació Forta."
+      "disabled_message": "Actualment <1>no estàs verificat</1> amb Verificació Forta.",
+      "enabled_message": "Actualment <1>estàs verificat</1> amb Verificació Forta."
     },
-    "start_button": "Iniciar Verificació Forta"
+    "start_button": "Iniciar Verificació Forta",
+    "begin_button": "Completa la Verificació Forta amb Iris ID",
+    "information_text1": "Necessitaràs un <strong>passaport biomètric</strong> (altres tipus d’identificació no funcionaran) i un telèfon Apple iPhone o Android amb NFC.",
+    "information_text2": "En fer clic al botó següent, se't redirigirà al lloc web d'Iris ID per completar el procés de verificació del passaport.",
+    "information_text3": "Pots llegir més sobre com nosaltres i Iris ID processem i emmagatzemem les teves dades a les nostres <2>Condicions de Servei</2>. Segons la <5>Política de Privacitat</5> d'Iris ID, eliminaran la teva informació personal en un termini de 24 hores. Pots sol·licitar que aquestes dades de Verificació Forta (excepte el país emissor, la data de caducitat i els tres últims dígits del número del document) s'eliminin dels nostres servidors en qualsevol moment amb un sol clic.",
+    "complete_title": "Estem processant el teu intent de Verificació Forta",
+    "complete_message1": "El teu passaport s’està validant. Rebràs un correu electrònic amb els resultats en pocs minuts.",
+    "complete_message2": "La Verificació Forta caduca quan caduca el teu passaport, i hauràs de completar la verificació de nou amb el nou passaport.",
+    "delete_data_title": "Elimina les teves dades de passaport de Verificació Forta",
+    "delete_information": "Pots eliminar les teves dades de Verificació Forta (excepte el país emissor, la data de caducitat i els tres últims dígits del número del document) dels nostres servidors en qualsevol moment.",
+    "delete_information_text2": "Si elimines les teves dades, no podràs utilitzar el mateix passaport per a la Verificació Forta una altra vegada.",
+    "delete_my_data_button": "Elimina les meves dades",
+    "delete_button": "Suprimeix les meves dades de Verificació Forta",
+    "delete_success": "Les dades del teu passaport han estat eliminades.",
+    "donation_title": "Gràcies per verificar la teva identitat: estàs ajudant a fer que Couchers.org sigui més segur per a tothom.",
+    "donation_message1": "La verificació és gratuïta per a tu, però per a nosaltres té un cost. Com a organització sense ànim de lucre gestionada per voluntaris, depenem de les donacions per cobrir despeses com mantenir els nostres servidors en funcionament, la verificació i les eines per als voluntaris i els creadors de comunitat.",
+    "donation_message2": "Si pots, considera fer una donació per ajudar a mantenir i fer créixer Couchers.org.",
+    "donate_button": "Fes una donació per donar suport a Couchers.org"
   },
   "do_not_email": {
     "caveat": "En habilitar aquesta opció, el teu compte deixarà d’acceptar sol·licituds com a amfitrió. Continuaràs rebent correus de seguretat (com els per restablir la contrasenya). També podràs rebre el butlletí informatiu, del qual et podràs donar de baixa mitjançant l’enllaç que hi ha al peu del correu.",
@@ -207,7 +224,7 @@
   "basic_sign_up_form": {
     "header": "Comencem!",
     "existing_user_prompt": "Ja tens un compte? <2>Inicia sessió</2>",
-    "sign_up_agreement_explainer": "Continuant, acceptes els nostres <2>Termes de Servei</2>, incloses les polítiques de cookies, correu electrònic i gestió de dades."
+    "sign_up_agreement_explainer": "Continuant, acceptes les nostres <2>Condicions de Servei</2>, incloses les polítiques de cookies, correu electrònic i gestió de dades."
   },
   "logged_out_message": "S’ha tancat la teva sessió.",
   "sign_up_completed_title": "Gràcies per registrar-te!",
@@ -216,5 +233,64 @@
   "sign_up_completed_prompt": "Hem enviat un correu electrònic amb un enllaç de verificació a la teva adreça de correu electrònic. Si us plau, fes clic a l’enllaç per activar el teu compte.",
   "sign_up_confirmed_prompt": "Ja has acabat! Si no ets redirigit, intenta iniciar sessió.",
   "login_prompt": "Fes clic aquí per iniciar sessió",
-  "about_us": "Sobre nosaltres"
+  "about_us": "Sobre nosaltres",
+  "change_phone": {
+    "wrong_code": "El codi és incorrecte.",
+    "verify_button_text": "Verificar número de telèfon",
+    "remove_button_text": "Elimina el número de telèfon actual",
+    "remove_success": "Telèfon eliminat.",
+    "change_button_text": "Canviar número de telèfon",
+    "title": "Número de telèfon",
+    "no_phone_description": "No has afegit cap número de telèfon al teu compte. Per afegir-ne un, introdueix-lo a continuació. El verificarem amb un missatge de text.",
+    "code_label": "Codi de verificació",
+    "verify_success": "Telèfon verificat.",
+    "remove_phone_description": "El teu número de telèfon actual és <2>{{phone}}</2>. Pots eliminar el teu número de telèfon a continuació.",
+    "change_to_different_description": "Per canviar el teu número de telèfon per un de diferent, introdueix-lo a continuació.",
+    "need_to_donate": "Has de <2>fer una donació</2> abans de poder completar la verificació del telèfon.",
+    "phone_label": "El teu número de telèfon",
+    "add_button_text": "Afegir número de telèfon",
+    "add_success": "Telèfon afegit.",
+    "phone_not_verified_description": "T’hem enviat un codi a <2>{{phone}}</2>. Per verificar el teu número, introdueix el codi a continuació:"
+  },
+  "delete_account": {
+    "request": {
+      "title": "Eliminar compte",
+      "description": "Per eliminar el teu compte, segueix els passos següents. T'enviarem un correu electrònic de confirmació.",
+      "reason_explanation": "Si us plau, ajuda'ns a millorar la plataforma explicant-nos per què has decidit eliminar el teu compte.",
+      "confirm_username_explanation": "El teu nom d'usuari és <1>{{ username }}</1>, si us plau, escriu-lo a continuació per confirmar l'eliminació del compte.",
+      "confirm_username_label": "Confirmació del nom d'usuari",
+      "username_mismatch": "El nom d'usuari no coincideix.",
+      "reason_label": "Motiu per eliminar el compte",
+      "success_message": "S'ha iniciat la eliminació del compte. Per completar la eliminació del compte, si us plau confirma-ho mitjançant el correu electrònic que t'hem enviat."
+    },
+    "recover": {
+      "success": "El teu compte ha estat recuperat, ja pots tornar a iniciar sessió. Estem molt contents de tenir-te de nou amb nosaltres!",
+      "title": "Recupera el teu compte de Couchers.org",
+      "error_message": "No s'ha pogut recuperar el compte: {{message}}",
+      "button_text": "Recuperar el teu compte"
+    },
+    "confirm": {
+      "account_deleted": "Compte eliminat. Gràcies per utilitzar Couchers.org!",
+      "title": "Confirmar la eliminació del compte",
+      "error_message": "No s'ha pogut confirmar l'eliminació del compte: {{message}}",
+      "button_text": "Confirmar la eliminació del compte"
+    },
+    "missing_token": "Error: falta el token"
+  },
+  "profile_visibility": {
+    "visiblility_options": {
+      "limited": "<1>Limitat</1>: mostra el meu nom, ubicació, estat d'allotjament/trobada, insígnies, nombre de referències i quant de temps fa que sóc a Coucher",
+      "nothing": "<1>Res</1>: amaga'm completament",
+      "map_only": "<1>Només mapa</1>: mostra una localització aleatòria i anònima al mapa sense cap altra informació",
+      "most": "<1>La majoria</1>: mostra la secció completa \"Sobre mi\" excepte \"Informació addicional\"",
+      "full_profile": "<1>Perfil complet</1>: mostra el meu perfil complet (excepte les referències)"
+    },
+    "title": "Visibilitat del perfil",
+    "choose": "Tria quina informació serà visible per als usuaris que no hagin iniciat sessió"
+  },
+  "quick_links": {
+    "button_text": "Confirmar l'acció",
+    "error_message": "Error: {{message}}",
+    "missing_payload_or_sig": "URL no vàlida"
+  }
 }

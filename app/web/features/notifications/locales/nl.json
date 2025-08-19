@@ -2,5 +2,12 @@
     "error_updating_notifications": "Error bij updaten van notificaties",
     "all": "Alles",
     "unread": "Ongelezen",
-    "error_loading": "Error bij het laden van notificaties"
+    "error_loading": "Error bij het laden van notificaties",
+    "mark_unread": "Markeer als ongelezen",
+    "mark_all_read": "Alles markeren als gelezen",
+    "no_new_notifications": "Geen nieuwe notificaties",
+    "notification_settings": {
+        "title": "Instellingen notificaties",
+        "edit_in_console": "Je kan je instellingen voor notificaties <2>op deze pagina</2> aanpassen. We zullen het binnenkort hierheen verplaatsen."
+    }
 }

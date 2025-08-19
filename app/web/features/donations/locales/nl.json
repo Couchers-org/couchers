@@ -6,6 +6,11 @@
   },
   "donations_box": {
     "monthly_button_label": "Maandelijks",
-    "one_time_button_label": "Eenmalig"
+    "one_time_button_label": "Eenmalig",
+    "recurrence_aria_label": "periodiek",
+    "title": "Donatie",
+    "amount_validation_error": "Alleen hele getalen, alsjeblieft.",
+    "action_button_label": "Doorgaan",
+    "validation_message": "Dit veld is verplicht"
   }
 }
