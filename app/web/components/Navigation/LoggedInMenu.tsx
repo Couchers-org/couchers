@@ -1,20 +1,54 @@
 import { NotificationsOutlined } from "@mui/icons-material";
-import { Button, styled, Tooltip, useMediaQuery } from "@mui/material";
+import {
+  Badge,
+  styled,
+  Tooltip,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
+import MuiLink from "@mui/material/Link";
 import Avatar from "components/Avatar";
+import Button from "components/Button";
 import IconButton from "components/IconButton";
 import { MenuIcon } from "components/Icons";
-import Menu from "components/Menu";
+import Menu, { MenuItem } from "components/Menu";
 import NotificationBadge from "components/NotificationBadge";
 import NotificationsFeed from "features/notifications/NotificationsFeed/NotificationsFeed";
 import LanguagePickerSelect from "features/translate/LanguagePickerSelect";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
+import Link from "next/link";
 import { PingRes } from "proto/api_pb";
-import React, { Dispatch, ReactNode, SetStateAction, useState } from "react";
+import React, {
+  Dispatch,
+  FunctionComponent,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 import { theme } from "theme";
 
-import ReportButton from "./ReportButton";
+import { AccessibleDialogProps } from "../Dialog";
+
+export type LoggedInMenuLinkItem = {
+  type: "link";
+  name: string;
+  hasBottomDivider?: boolean;
+  route: string;
+  notificationCount?: number;
+  externalLink?: boolean;
+};
+
+export type LoggedInMenuDialogItem = {
+  type: "dialog";
+  name: string;
+  hasBottomDivider?: boolean;
+  dialogComponent: FunctionComponent<AccessibleDialogProps>;
+  dialogLabel: string;
+};
+
+export type LoggedInMenuItem = LoggedInMenuLinkItem | LoggedInMenuDialogItem;
 
 const StyledMenu = styled(Menu)(({ theme }) => ({
   "& .MuiPaper-root": {
@@ -48,9 +82,141 @@ const StyledAvatar = styled(Avatar)(({ theme }) => ({
   marginLeft: theme.spacing(1),
 }));
 
-const ReportButtonContainer = styled("div")(({ theme }) => ({
-  padding: theme.spacing(2),
+const StyledBadge = styled(Badge)(({ theme }) => ({
+  "& .MuiBadge-badge": {
+    right: "-4px",
+    top: "4px",
+  },
 }));
+
+const styledMenuItem = <C extends React.ComponentType<React.ComponentProps<C>>>(
+  component: C,
+) => {
+  return styled(component)(() => ({
+    width: "100%",
+    color: theme.palette.text.primary,
+    textDecoration: "none",
+    border: "none",
+    margin: 0,
+    padding: 0,
+    textAlign: "left",
+    justifyContent: "start",
+    background: "none",
+    borderRadius: 0,
+    boxShadow: "none",
+    fontWeight: "normal",
+    fontSize: theme.typography.body1.fontSize,
+    minHeight: 0,
+
+    "&:hover": {
+      background: "none",
+      boxShadow: "none",
+    },
+  }));
+};
+
+const StyledMenuItemLink = styledMenuItem(MuiLink);
+const StyledMenuItemDialog = styledMenuItem(Button);
+
+function LinkMenuItemView({
+  externalLink,
+  route,
+  closeMenu,
+  name,
+  notificationCount,
+}: LoggedInMenuLinkItem & { closeMenu: () => unknown }) {
+  const linkContent = (
+    <span style={{ display: "flex", alignItems: "center" }}>
+      {notificationCount ? (
+        <StyledBadge color="primary" variant="dot">
+          <Typography noWrap>{name}</Typography>
+        </StyledBadge>
+      ) : (
+        <Typography noWrap>{name}</Typography>
+      )}
+
+      {notificationCount ? (
+        <Typography
+          noWrap
+          variant="subtitle2"
+          sx={{ color: theme.palette.grey[500], fontWeight: "bold" }}
+        >
+          {`${notificationCount} unseen`}
+        </Typography>
+      ) : null}
+    </span>
+  );
+
+  return (
+    <>
+      {externalLink ? (
+        <StyledMenuItemLink
+          href={route}
+          target="_blank"
+          rel="noreferrer"
+          onClick={closeMenu}
+        >
+          {linkContent}
+        </StyledMenuItemLink>
+      ) : (
+        <Link
+          href={route}
+          style={{
+            width: "100%",
+            color: theme.palette.text.primary,
+            textDecoration: "none",
+          }}
+        >
+          {linkContent}
+        </Link>
+      )}
+    </>
+  );
+}
+
+function DialogMenuItemView({
+  name,
+  dialogComponent: DialogComponent,
+  dialogLabel,
+}: LoggedInMenuDialogItem & { closeMenu: () => unknown }) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  useEffect(() => {
+    console.log(`Is open: ${isDialogOpen}`);
+  }, [isDialogOpen]);
+
+  return (
+    <>
+      <StyledMenuItemDialog
+        onClick={() => {
+          setIsDialogOpen(true);
+        }}
+      >
+        {name}
+      </StyledMenuItemDialog>
+      <DialogComponent
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        aria-labelledby={dialogLabel}
+      />
+    </>
+  );
+}
+
+function MenuItemView(props: LoggedInMenuItem & { closeMenu: () => unknown }) {
+  return (
+    <MenuItem
+      hasNotification={props.type === "link" && !!props.notificationCount}
+      hasBottomDivider={props.hasBottomDivider}
+    >
+      {props.type === "link" ? (
+        <LinkMenuItemView {...props} closeMenu={props.closeMenu} />
+      ) : (
+        <DialogMenuItemView {...props} closeMenu={props.closeMenu} />
+      )}
+    </MenuItem>
+  );
+}
 
 const NotificationMenuItemWrapper = styled("div")(({ theme }) => ({
   marginRight: theme.spacing(4),
@@ -60,12 +226,12 @@ export default function LoggedInMenu({
   menuOpen,
   notificationCount,
   setMenuOpen,
-  children,
+  items,
 }: {
   menuOpen: boolean;
   notificationCount: PingRes.AsObject["unseenNotificationCount"] | undefined;
   setMenuOpen: Dispatch<SetStateAction<boolean>>;
-  children: ReactNode;
+  items: LoggedInMenuItem[];
 }) {
   const menuRef = React.useRef<HTMLButtonElement>(null);
   const { data: user } = useCurrentUser();
@@ -88,9 +254,6 @@ export default function LoggedInMenu({
 
   return (
     <>
-      <ReportButtonContainer>
-        <ReportButton />
-      </ReportButtonContainer>
       {!isMobile && <LanguagePickerSelect />}
       <Tooltip title={t("global:nav.notifications")}>
         <NotificationMenuItemWrapper>
@@ -139,7 +302,15 @@ export default function LoggedInMenu({
           horizontal: "right",
         }}
       >
-        {children}
+        {items.map((item) => (
+          <MenuItemView
+            key={item.name}
+            {...item}
+            closeMenu={() => {
+              setMenuOpen(false);
+            }}
+          />
+        ))}
       </StyledMenu>
     </>
   );
