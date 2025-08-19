@@ -41,7 +41,7 @@
     },
     "title": "Inloggen",
     "header": "Welkom terug!",
-    "no_account_prompt": "Nog geen account? <2>Aanmelden</2>"
+    "no_account_prompt": "Nog geen account? <2>Word lid</2>"
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Heb je al een account? <2>Inloggen</2>",
