@@ -166,7 +166,7 @@
     "public_answer": "Dies wird öffentlich im Abschnitt „Referenzen“ ihres Profils angezeigt.",
     "public_text_label": "Du hinterlässt die folgende öffentliche Referenz, die auf dem Profil von {{name}} erscheinen wird:",
     "reference_form_heading_friend": "Du hast dich mit {{name}} getroffen",
-    "reference_form_heading_hosted": "Du hast {{name}} gehosted",
+    "reference_form_heading_hosted": "Du hast {{name}} gehostet",
     "rating_how": "Wie war deine Gesamterfahrung mit {{name}}?",
     "add_a_reference": "Füge eine Referenz zum Profil von {{name}} hinzu",
     "private_text_explanation_1": "Im untenstehenden Feld kannst du unserem Sicherheitsteam vertraulich mitteilen, was passiert ist.",
@@ -177,7 +177,7 @@
       "title_surfed": "Bestätige, dass du nicht bei {{name}} übernachtet hast",
       "title_hosted": "Bestätige, dass {{name}} nicht bei dir übernachtet hat",
       "message_surfed": "Du <strong>kannst keine Referenz schreiben</strong>, wenn du angibst, dass du nicht bei {{name}} übernachtet hast. {{name}} wird nicht benachrichtigt, aber kann trotzdem eine Referenz für dich hinterlassen.<br /><br />Wenn du etwas melden musst, erfahre <2>hier</2>, wie das geht.",
-      "confirm_hosted": "Bestätigung, dass ich nicht gehosted habe",
+      "confirm_hosted": "Bestätigung, dass ich nicht gehostet habe",
       "confirm_surfed": "Bestätigung, dass ich nicht gesurft habe"
     },
     "thank_you_references_available": "Beim Hosten oder Surfen werden Referenzen sichtbar, sobald beide Personen ihre Referenzen abgegeben haben oder nach zwei Wochen, je nachdem, was zuerst eintritt.",
@@ -225,7 +225,7 @@
     "all": "Alle Referenzen"
   },
   "reference_badge_label": {
-    "hosted": "Gehostet",
+    "hosted": "Host",
     "friend": "Freund",
     "surfed": "Gast"
   },
@@ -242,9 +242,9 @@
   "response_time_text_almost_all": "Normalerweise in {{p33}} bis {{p66}}",
   "unsaved_changes_warning": "Du hast die Änderungen nicht gespeichert. Bist du sicher, dass du die Seite verlassen möchtest?",
   "sleeping_arrangement": {
-    "private": "Privater Bereich (z.B. eigenes Zimmer o. Ä.)",
-    "common": "Gemeinschaftsbereich (z.B. couch im Wohnzimmer)",
-    "shared_room": "Geteiltes Zimmer (z.B. geteiltes Zimmer mit eigener Schlaffläche)",
+    "private": "Privater Bereich (z.B. Eigenes Zimmer o. Ä.)",
+    "common": "Gemeinschaftsraum (z.B. Couch im Wohnzimmer)",
+    "shared_room": "Geteiltes Zimmer (z.B. Geteiltes Zimmer mit eigener Schlaffläche)",
     "private_short": "Privater Bereich",
     "common_short": "Gemeinschaftsraum",
     "shared_room_short": "Geteiltes Zimmer"
