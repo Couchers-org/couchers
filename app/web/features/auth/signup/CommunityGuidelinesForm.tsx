@@ -1,16 +1,16 @@
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import { useAuthContext } from "features/auth/AuthProvider";
 import CommunityGuidelines from "features/auth/CommunityGuidelines";
 import { RpcError } from "grpc-web";
 import TagManager from "react-gtm-module";
-import { useMutation } from "react-query";
 import { service } from "service";
 
 export default function CommunityGuidelinesForm() {
   const { authActions, authState } = useAuthContext();
 
-  const mutation = useMutation<void, RpcError, boolean>(
-    async (accept) => {
+  const mutation = useMutation<void, RpcError, boolean>({
+    mutationFn: async (accept) => {
       const state = await service.auth.signupFlowCommunityGuidelines(
         authState.flowState!.flowToken,
         accept,
@@ -25,15 +25,13 @@ export default function CommunityGuidelinesForm() {
       });
       authActions.updateSignupState(state);
     },
-    {
-      onMutate() {
-        authActions.clearError();
-      },
-      onSettled() {
-        window.scroll({ top: 0, behavior: "smooth" });
-      },
+    onMutate() {
+      authActions.clearError();
     },
-  );
+    onSettled() {
+      window.scroll({ top: 0, behavior: "smooth" });
+    },
+  });
 
   return (
     <>

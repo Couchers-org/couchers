@@ -259,6 +259,9 @@ def send_message_notifications(payload):
                 .order_by(subquery.c.message_id.desc())
             ).all()
 
+            if not unseen_messages:
+                continue
+
             user.last_notified_message_id = max(message.id for _, message, _ in unseen_messages)
 
             def format_title(message, group_chat, count_unseen):

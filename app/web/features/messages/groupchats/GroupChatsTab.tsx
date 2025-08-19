@@ -1,4 +1,5 @@
 import { List, styled } from "@mui/material";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -12,7 +13,6 @@ import { MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
 import { ListGroupChatsRes } from "proto/conversations_pb";
 import React, { useEffect } from "react";
-import { useInfiniteQuery, useQueryClient } from "react-query";
 import { routeToGroupChat } from "routes";
 import { service } from "service";
 import { theme } from "theme";
@@ -44,7 +44,9 @@ export default function GroupChatsTab() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    queryClient.invalidateQueries([groupChatsListKey]);
+    queryClient.invalidateQueries({
+      queryKey: [groupChatsListKey],
+    });
   }, [unseenMessageCount, queryClient]);
 
   const {
@@ -54,15 +56,14 @@ export default function GroupChatsTab() {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery<ListGroupChatsRes.AsObject, RpcError>(
-    groupChatsListKey,
-    ({ pageParam: lastMessageId }) =>
-      service.conversations.listGroupChats(lastMessageId),
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage.noMore ? undefined : lastPage.lastMessageId,
-    },
-  );
+  } = useInfiniteQuery<ListGroupChatsRes.AsObject, RpcError>({
+    queryKey: [groupChatsListKey],
+    queryFn: ({ pageParam: lastMessageId }) =>
+      service.conversations.listGroupChats(lastMessageId as number | undefined),
+    getNextPageParam: (lastPage) =>
+      lastPage.noMore ? undefined : lastPage.lastMessageId,
+    initialPageParam: undefined,
+  });
 
   const loadMoreChats = () => fetchNextPage();
 

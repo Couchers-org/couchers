@@ -1,8 +1,8 @@
+import { useMutation } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { RpcError } from "grpc-web";
 import { Event } from "proto/events_pb";
-import { useMutation } from "react-query";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
@@ -25,18 +25,20 @@ jest.mock("@mui/x-date-pickers", () => {
 
 const serviceFn = jest.fn();
 function TestComponent({ event }: { event?: Event.AsObject }) {
-  const { error, mutate, isLoading } = useMutation<
+  const { error, mutate, isPending } = useMutation<
     Event.AsObject,
     RpcError,
     CreateEventVariables
-  >(serviceFn);
+  >({
+    mutationFn: serviceFn,
+  });
 
   return (
     <EventForm
       error={error}
       event={event}
       mutate={mutate}
-      isMutationLoading={isLoading}
+      isMutationLoading={isPending}
       title={t("communities:create_an_event")}
       isEdit={false}
     >

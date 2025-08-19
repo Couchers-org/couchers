@@ -13,18 +13,16 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
 import CatalanFlagIcon from "components/Icons/CatalanFlagIcon";
 import Snackbar from "components/Snackbar";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useWeblateStats } from "features/weblate/useWeblateStats";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router"; // we'll use this to reload the components w/ changed languages
 import { useState } from "react";
-import { useMutation } from "react-query";
 import { translateRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
@@ -68,11 +66,10 @@ export default function LanguagePickerSelect({
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const { mutate: changeLanguageMutation } = useMutation<
-    Empty,
-    RpcError,
-    string
-  >((newLanguage: string) => service.account.changeLanguage(newLanguage));
+  const { mutate: changeLanguageMutation } = useMutation({
+    mutationFn: (newLanguage: string) =>
+      service.account.changeLanguage(newLanguage),
+  });
 
   const handleChange = async (event: SelectChangeEvent<unknown>) => {
     const newLocale = event.target.value as string;

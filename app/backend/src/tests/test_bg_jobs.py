@@ -4,6 +4,7 @@ from unittest.mock import call, patch
 import pytest
 import requests
 from google.protobuf import empty_pb2
+from google.protobuf.empty_pb2 import Empty
 from sqlalchemy.sql import delete, func
 
 import couchers.jobs.worker
@@ -13,6 +14,7 @@ from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.email import queue_email
 from couchers.email.dev import print_dev_email
+from couchers.jobs import handlers
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import (
     add_users_to_email_list,
@@ -1226,3 +1228,49 @@ def test_update_badges(db, push_collector):
         title="The Verified Phone badge was added to your profile",
         body="Check out your profile to see the new badge!",
     )
+
+
+def test_send_message_notifications_empty_unseen_simple(monkeypatch):
+    class DummyUser:
+        id = 1
+        is_visible = True
+        last_notified_message_id = 0
+
+    class FirstResult:
+        def scalars(self):
+            return self
+
+        def unique(self):
+            return [DummyUser()]
+
+    class SecondResult:
+        def all(self):
+            return []
+
+    class DummySession:
+        def __init__(self):
+            self.calls = 0
+
+        def execute(self, *a, **k):
+            self.calls += 1
+            return FirstResult() if self.calls == 1 else SecondResult()
+
+        def commit(self):
+            pass
+
+        def flush(self):
+            pass
+
+    def fake_session_scope():
+        class Ctx:
+            def __enter__(self):
+                return DummySession()
+
+            def __exit__(self, exc_type, exc, tb):
+                pass
+
+        return Ctx()
+
+    monkeypatch.setattr(handlers, "session_scope", fake_session_scope)
+
+    handlers.send_message_notifications(Empty())

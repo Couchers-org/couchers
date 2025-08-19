@@ -26,9 +26,9 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
 
   const isMenuOpen = Boolean(menuAnchorEl);
 
-  const { blockUserMutation, isLoading: isBlocking } = useBlockUser();
+  const { blockUserMutation, isPending: isBlocking } = useBlockUser();
 
-  const { removeFriendMutation, isLoading: isRemoving } = useRemoveFriend();
+  const { removeFriendMutation, isPending: isRemoving } = useRemoveFriend();
 
   const removeFriend = (userId: number) => {
     if (userId !== undefined) {

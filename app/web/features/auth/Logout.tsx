@@ -1,9 +1,8 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { useMutation, useQueryClient } from "react-query";
 import { baseRoute } from "routes";
 
 import { useAuthContext } from "./AuthProvider";
@@ -13,17 +12,16 @@ export default function Logout() {
   const queryClient = useQueryClient();
 
   const router = useRouter();
-  const logout = useMutation<void, RpcError>(
-    async () => {
+  const logout = useMutation({
+    mutationFn: async () => {
       authActions.logout();
       queryClient.clear();
     },
-    {
-      onSuccess: () => {
-        router.push(baseRoute);
-      },
+
+    onSuccess: () => {
+      router.push(baseRoute);
     },
-  );
+  });
 
   const mutate = logout.mutate;
   useEffect(() => {

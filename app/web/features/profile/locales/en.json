@@ -136,8 +136,14 @@
     "paid_onsite": "Paid onsite parking",
     "paid_offsite": "Paid offsite parking"
   },
-  "gender": { "man": "Man", "woman": "Woman" },
-  "pronouns": { "man": "he / him", "woman": "she / her" },
+  "gender": {
+    "man": "Man",
+    "woman": "Woman"
+  },
+  "pronouns": {
+    "man": "he / him",
+    "woman": "she / her"
+  },
   "edit_profile_tab_bar_a11y_label": "tabs to edit different parts of your profile",
   "info_unanswered": "Ask me",
   "my_connections": "My connections",
@@ -280,9 +286,9 @@
     "cannot_host_description": "I'm not able to host travelers at the moment"
   },
   "meetup_status": {
-    "wants_to_meetup_description": "I'm eager to meet up with travelers",
+    "wants_to_meetup_description": "I'm eager to meet up with others",
     "open_to_meetup_description": "I might meet up, depending on the circumstances",
-    "does_not_want_to_meetup_description": "I prefer not to meet up with travelers"
+    "does_not_want_to_meetup_description": "I prefer not to meet up with others"
   },
   "avatar_photo_info": "<bold>A photo of yourself is required to interact with the community.</bold> A clear, friendly photo showing your face builds trust, helps others feel comfortable, and greatly improves your chances of receiving a response."
 }

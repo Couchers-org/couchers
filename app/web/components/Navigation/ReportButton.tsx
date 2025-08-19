@@ -1,4 +1,5 @@
 import { darken, styled, Typography, useMediaQuery } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -17,7 +18,6 @@ import { useTranslation } from "i18n";
 import { ReportBugRes } from "proto/bugs_pb";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 import { helpCenterReportContentURL } from "routes";
 import { service } from "service";
 import { theme } from "theme";
@@ -84,17 +84,15 @@ export default function ReportButton({
   const {
     data: bug,
     error,
-    isLoading,
+    isPending,
     mutate: reportBug,
     reset: resetMutation,
-  } = useMutation<ReportBugRes.AsObject, RpcError, BugReportFormData>(
-    (formData) => service.bugs.reportBug(formData),
-    {
-      onSuccess: () => {
-        setIsOpen(false);
-      },
+  } = useMutation<ReportBugRes.AsObject, RpcError, BugReportFormData>({
+    mutationFn: (formData) => service.bugs.reportBug(formData),
+    onSuccess: () => {
+      setIsOpen(false);
     },
-  );
+  });
 
   const handleClose = (
     event: unknown,
@@ -225,7 +223,7 @@ export default function ReportButton({
               />
             </DialogContent>
             <DialogActions>
-              <Button type="submit" loading={isLoading} onClick={onSubmit}>
+              <Button type="submit" loading={isPending} onClick={onSubmit}>
                 {t("submit")}
               </Button>
               <StyledCancelButton

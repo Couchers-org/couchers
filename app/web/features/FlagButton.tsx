@@ -1,4 +1,5 @@
 import { FormControl, IconButton, InputLabel, Select } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -17,7 +18,6 @@ import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 import { service } from "service";
 import { ReportInput } from "service/reporting";
 import { theme } from "theme";
@@ -68,18 +68,16 @@ export default function FlagButton({
   const {
     data: report,
     error,
-    isLoading,
+    isPending,
     mutate: reportContent,
     reset: resetMutation,
-  } = useMutation<Empty, RpcError, ReportInput>(
-    (formData) =>
+  } = useMutation<Empty, RpcError, ReportInput>({
+    mutationFn: (formData) =>
       service.reporting.reportContent({ ...formData, contentRef, authorUser }),
-    {
-      onSuccess: () => {
-        setIsOpen(false);
-      },
+    onSuccess: () => {
+      setIsOpen(false);
     },
-  );
+  });
 
   const handleClose = (
     event: unknown,
@@ -276,7 +274,7 @@ export default function FlagButton({
               disabled={
                 !reason || (requiredReasons.includes(reason) && !description)
               }
-              loading={isLoading}
+              loading={isPending}
               onClick={onSubmit}
             >
               {t("submit")}

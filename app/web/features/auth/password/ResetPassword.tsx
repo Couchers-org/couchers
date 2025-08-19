@@ -1,4 +1,5 @@
 import { styled, Typography } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
@@ -9,7 +10,6 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 import { service } from "service";
 import { theme } from "theme";
 import { lowercaseAndTrimField } from "utils/validation";
@@ -37,12 +37,12 @@ export default function ResetPassword() {
 
   const {
     error,
-    isLoading,
+    isPending,
     isSuccess,
     mutate: resetPassword,
-  } = useMutation<Empty, RpcError, string>((userId) =>
-    service.account.resetPassword(userId),
-  );
+  } = useMutation<Empty, RpcError, string>({
+    mutationFn: (userId) => service.account.resetPassword(userId),
+  });
 
   const onSubmit = handleSubmit(({ userId }) => {
     resetPassword(lowercaseAndTrimField(userId));
@@ -62,7 +62,7 @@ export default function ResetPassword() {
           variant="standard"
           fullWidth
         />
-        <Button loading={isLoading} type="submit">
+        <Button loading={isPending} type="submit">
           {t("global:submit")}
         </Button>
         {isSuccess && (

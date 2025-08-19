@@ -5,6 +5,7 @@ import {
   styled,
   Typography,
 } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -15,12 +16,10 @@ import {
 } from "components/Icons";
 import IconText from "components/IconText";
 import { activeLoginsKey } from "features/queryKeys";
-import { RpcError } from "grpc-web";
 import { Trans } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { ActiveSession } from "proto/account_pb";
-import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 import { dateFormatter, dateTimeFormatter, timestamp2Date } from "utils/date";
 import { timeAgoI18n } from "utils/timeAgo";
@@ -54,18 +53,19 @@ export default function LoginsPage({
 
   const {
     error,
-    isLoading,
+    isPending,
     mutate: logOutThisSession,
-  } = useMutation<void, RpcError>(
-    async () => {
+  } = useMutation({
+    mutationFn: async () => {
       await service.account.logOutSession(session.created!);
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(activeLoginsKey);
-      },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [activeLoginsKey],
+      });
     },
-  );
+  });
 
   return (
     <StyledCard>
@@ -130,7 +130,7 @@ export default function LoginsPage({
       </CardContent>
       {!session.isCurrentSession && (
         <CardActions>
-          <Button onClick={() => logOutThisSession()} loading={isLoading}>
+          <Button onClick={() => logOutThisSession()} loading={isPending}>
             {t("auth:active_logins.log_out_of_session")}
           </Button>
         </CardActions>

@@ -1,1 +1,38 @@
-{}
+{
+  "actions": {
+    "message_label": "Сообщение",
+    "accept_friend_label": "Принять",
+    "decline_friend_label": "Отклонить",
+    "request": "Отправить Запрос",
+    "back_to_dashboard": "Вернуться на главную страницу"
+  },
+  "heading": {
+    "age_gender": "Возраст / Пол",
+    "edit": "Редактировать",
+    "edit_profile": "Редактировать профиль",
+    "education": "Образование",
+    "languages_fluent": "Языки, которыми владею в совершенстве",
+    "last_active": "Последний раз был(а) в сети",
+    "local_time": "Местное время",
+    "hobbies_section": "Чем я занимаюсь в свободное время",
+    "lived_section": "Проживал в",
+    "about_me": "Обо мне",
+    "community_standing": "Статус сообщества",
+    "home": "Мой дом",
+    "hometown": "Вырос в",
+    "hosting_status": "Статус приёма гостей",
+    "joined": "Coucher с",
+    "languages_conversational": "Языки, которыми владею в совершенстве",
+    "occupation": "Профессия",
+    "references": "Отзывы",
+    "overview_section": "Детали профиля"
+  },
+  "home_info_headings": {
+    "about_home": "О моём доме",
+    "host_pets": "Есть домашние животные",
+    "host_smoking": "Курение в доме",
+    "house_rules": "Правила Дома"
+  },
+  "my_connections": "Мои контакты",
+  "cancel": "Отменить"
+}

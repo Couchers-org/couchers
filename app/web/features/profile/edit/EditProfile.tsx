@@ -11,6 +11,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -31,7 +32,6 @@ import { AUTH, GLOBAL, PROFILE } from "i18n/namespaces";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
 import React, { FormEvent, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useQueryClient } from "react-query";
 import { howToMakeGreatProfileUrl } from "routes";
 import { service, UpdateUserProfileData } from "service/index";
 import { theme } from "theme";
@@ -224,7 +224,7 @@ export default function EditProfileForm() {
   const {
     updateUserProfile,
     reset: resetUpdate,
-    isLoading: updateIsLoading,
+    isPending: updateIsLoading,
     isError: updateError,
   } = useUpdateUserProfile();
   const { data: user } = useCurrentUser();
@@ -439,7 +439,9 @@ export default function EditProfileForm() {
                     onSuccess={async (data) => {
                       await service.user.updateAvatar(data.key);
                       if (user)
-                        queryClient.invalidateQueries(userKey(user.userId));
+                        queryClient.invalidateQueries({
+                          queryKey: userKey(user.userId),
+                        });
                     }}
                   />
                 </AvatarImageWrapper>

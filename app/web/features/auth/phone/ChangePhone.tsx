@@ -1,6 +1,7 @@
 import "react-phone-number-input/style.css";
 
 import { styled, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import StyledLink from "components/StyledLink";
@@ -18,7 +19,6 @@ import {
   isValidPhoneNumber,
 } from "react-phone-number-input";
 import PhoneInputWithCountry from "react-phone-number-input/react-hook-form";
-import { useMutation, useQueryClient } from "react-query";
 import { howToDonateUrl } from "routes";
 import { service } from "service";
 import { theme } from "theme";
@@ -66,21 +66,21 @@ export default function ChangePhone({
 
   const {
     error: changeError,
-    isLoading: isChangeLoading,
+    isPending: isChangeLoading,
     isSuccess: isChangeSuccess,
     mutate: changePhone,
     reset: resetChange,
-  } = useMutation<Empty, RpcError, ChangePhoneFormData>(
-    ({ phone }) => service.account.changePhone(phone),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(accountInfoQueryKey);
-        resetChangeForm();
-        resetVerify();
-        resetRemove();
-      },
+  } = useMutation<Empty, RpcError, ChangePhoneFormData>({
+    mutationFn: ({ phone }) => service.account.changePhone(phone),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [accountInfoQueryKey],
+      });
+      resetChangeForm();
+      resetVerify();
+      resetRemove();
     },
-  );
+  });
 
   const {
     handleSubmit: verifyHandleSubmit,
@@ -94,31 +94,34 @@ export default function ChangePhone({
 
   const {
     error: verifyError,
-    isLoading: isVerifyLoading,
+    isPending: isVerifyLoading,
     isSuccess: isVerifySuccess,
     mutate: verifyPhone,
     reset: resetVerify,
-  } = useMutation<Empty, RpcError, VerifyPhoneFormData>(
-    ({ code }) => service.account.verifyPhone(code),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(accountInfoQueryKey);
-        resetVerifyForm();
-        resetChange();
-        resetRemove();
-      },
+  } = useMutation<Empty, RpcError, VerifyPhoneFormData>({
+    mutationFn: ({ code }) => service.account.verifyPhone(code),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [accountInfoQueryKey],
+      });
+      resetVerifyForm();
+      resetChange();
+      resetRemove();
     },
-  );
+  });
 
   const {
     error: removeError,
-    isLoading: isRemoveLoading,
+    isPending: isRemoveLoading,
     isSuccess: isRemoveSuccess,
     mutate: removePhone,
     reset: resetRemove,
-  } = useMutation<Empty, RpcError>(service.account.removePhone, {
+  } = useMutation<Empty, RpcError>({
+    mutationFn: () => service.account.removePhone(),
     onSuccess: () => {
-      queryClient.invalidateQueries(accountInfoQueryKey);
+      queryClient.invalidateQueries({
+        queryKey: [accountInfoQueryKey],
+      });
       resetChangeForm();
       resetVerifyForm();
       resetChange();

@@ -1,8 +1,8 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { accountInfoQueryKey, userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useRouter } from "next/router";
-import { useMutation, useQueryClient } from "react-query";
 import { routeToProfile } from "routes";
 import { service, UpdateUserProfileData } from "service/index";
 import { SetMutationError } from "utils/setMutationError";
@@ -19,25 +19,23 @@ export default function useUpdateUserProfile() {
   const {
     mutate: updateUserProfile,
     reset,
-    isLoading,
+    isPending,
     isError,
     status,
-  } = useMutation<Empty, Error, UpdateUserProfileVariables>(
-    ({ profileData }) => service.user.updateProfile(profileData),
-    {
-      onError: (error, { setMutationError }) => {
-        setMutationError(error.message);
-      },
-      onMutate: ({ setMutationError }) => {
-        setMutationError(null);
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries(userKey(userId ?? 0));
-        queryClient.invalidateQueries(accountInfoQueryKey);
-        router.push(routeToProfile("about"));
-      },
+  } = useMutation<Empty, Error, UpdateUserProfileVariables>({
+    mutationFn: ({ profileData }) => service.user.updateProfile(profileData),
+    onError: (error, { setMutationError }) => {
+      setMutationError(error.message);
     },
-  );
+    onMutate: ({ setMutationError }) => {
+      setMutationError(null);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userKey(userId ?? 0) });
+      queryClient.invalidateQueries({ queryKey: [accountInfoQueryKey] });
+      router.push(routeToProfile("about"));
+    },
+  });
 
-  return { reset, updateUserProfile, isLoading, isError, status };
+  return { reset, updateUserProfile, isPending, isError, status };
 }
