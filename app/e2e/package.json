@@ -11,9 +11,7 @@
     "test": "playwright test"
   },
   "devDependencies": {
-    "@playwright/test": "^1.54.2",
-    "cross-env": "^10.0.0",
-    "dotenv": "^17.2.1"
+    "@playwright/test": "^1.54.2"
   },
   "packageManager": "yarn@1.22.22"
 }

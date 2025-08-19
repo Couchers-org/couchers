@@ -1,7 +1,7 @@
 import { expect, Page, test } from "@playwright/test";
 
-const USERNAME = process.env.TEST_USER_USERNAME || "";
-const PASSWORD = process.env.TEST_USER_PASSWORD || "";
+const USERNAME = process.env.TEST_USER_USERNAME || "aapeli";
+const PASSWORD = process.env.TEST_USER_PASSWORD || "Aapeli's password";
 
 test.describe("Auth", async () => {
   //  @TODO(FB) Need disposable email API to properly test the signup flow

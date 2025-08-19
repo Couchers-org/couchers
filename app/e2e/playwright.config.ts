@@ -1,10 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
-import dotenv from "dotenv";
-
-dotenv.config();
-
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://frontend:3000";
-const BACKEND_URL = process.env.BACKEND_URL || "http://proxy:8888";
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 
 export default defineConfig({
   testDir: "./test/",
