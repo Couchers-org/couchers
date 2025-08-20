@@ -33,11 +33,16 @@ const StyledTextField = styled(TextField)(() => ({
 
 // If onKeyDown event propagation isn't stopped, rendering inside menu will cause
 // focus issues
-const ReportDialogTextField = forwardRef(
-  (props: Omit<ComponentPropsWithRef<typeof TextField>, "onKeyDown">) => (
-    <StyledTextField {...props} onKeyDown={(e) => e.stopPropagation()} />
-  ),
-);
+const ReportDialogTextField = forwardRef<
+  HTMLInputElement,
+  Omit<ComponentPropsWithRef<typeof TextField>, "onKeyDown">
+>((props, ref) => (
+  <StyledTextField
+    ref={ref}
+    {...props}
+    onKeyDown={(e) => e.stopPropagation()}
+  />
+));
 
 ReportDialogTextField.displayName = "ReportDialogTextField";
 
