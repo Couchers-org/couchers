@@ -15,7 +15,7 @@ import TextField from "components/TextField";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { ReportBugRes } from "proto/bugs_pb";
-import { useState } from "react";
+import { ComponentPropsWithRef, forwardRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { helpCenterReportContentURL } from "routes";
 import { service } from "service";
@@ -26,9 +26,21 @@ export interface BugReportFormData {
   description: string;
   results: string;
 }
+
 const StyledTextField = styled(TextField)(() => ({
   marginBottom: theme.spacing(2),
 }));
+
+// If onKeyDown event propagation isn't stopped, rendering inside menu will cause
+// focus issues
+const ReportDialogTextField = forwardRef(
+  (props: Omit<ComponentPropsWithRef<typeof TextField>, "onKeyDown">) => (
+    <StyledTextField {...props} onKeyDown={(e) => e.stopPropagation()} />
+  ),
+);
+
+ReportDialogTextField.displayName = "ReportDialogTextField";
+
 const StyledReportTypeButton = styled(Button)(() => ({
   display: "block",
   margin: "0 auto",
@@ -135,13 +147,13 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
               <DialogContentText>
                 {t("report.bug.warning_message")}
               </DialogContentText>
-              <StyledTextField
+              <ReportDialogTextField
                 id="bug-report-subject"
                 {...register("subject", { required: true })}
                 label={t("report.bug.title_label")}
                 fullWidth
               />
-              <StyledTextField
+              <ReportDialogTextField
                 id="bug-report-description"
                 {...register("description", { required: true })}
                 label={t("report.bug.problem_label")}
@@ -152,7 +164,7 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
                 minRows={4}
                 maxRows={6}
               />
-              <StyledTextField
+              <ReportDialogTextField
                 {...register("results")}
                 id="bug-report-results"
                 defaultValue=""
