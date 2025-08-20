@@ -26,13 +26,9 @@ export interface BugReportFormData {
   description: string;
   results: string;
 }
-
 const StyledTextField = styled(TextField)(() => ({
-  "& + &": {
-    marginBlockStart: theme.spacing(2),
-  },
+  marginBottom: theme.spacing(2),
 }));
-
 const StyledReportTypeButton = styled(Button)(() => ({
   display: "block",
   margin: "0 auto",
@@ -76,8 +72,6 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
     event: unknown,
     reason: "backdropClick" | "escapeKeyDown" | "button",
   ) => {
-    console.log(`Handle close: Reason ${reason}`);
-
     if (reason !== "button") return;
     resetForm();
     resetMutation();
@@ -145,7 +139,6 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
                 id="bug-report-subject"
                 {...register("subject", { required: true })}
                 label={t("report.bug.title_label")}
-                helperText={t("report.bug.title_helper")}
                 fullWidth
               />
               <StyledTextField

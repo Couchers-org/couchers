@@ -24,7 +24,6 @@ import React, {
   Dispatch,
   FunctionComponent,
   SetStateAction,
-  useEffect,
   useState,
 } from "react";
 import { theme } from "theme";
@@ -180,10 +179,6 @@ function DialogMenuItemView({
   dialogLabel,
 }: LoggedInMenuDialogItem & { closeMenu: () => unknown }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  useEffect(() => {
-    console.log(`Is open: ${isDialogOpen}`);
-  }, [isDialogOpen]);
 
   return (
     <>
