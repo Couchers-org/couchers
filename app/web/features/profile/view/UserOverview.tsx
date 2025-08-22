@@ -64,14 +64,8 @@ const StyledCardActions = styled(CardActions)(({ theme }) => ({
   flexDirection: "column",
   justifyContent: "center",
   alignItems: "stretch",
-  gap: theme.spacing(0.2),
+  gap: theme.spacing(1),
   padding: theme.spacing(0.5),
-  "& > *": {
-    margin: theme.spacing(0.5),
-  },
-  "& > :not(:first-of-type)": {
-    marginLeft: theme.spacing(0.5),
-  },
 }));
 
 const StyledInfo = styled("div")(({ theme }) => ({
@@ -114,7 +108,9 @@ export default function UserOverview({
 
       <Divider />
 
-      {actions && <StyledCardActions>{actions}</StyledCardActions>}
+      {actions && (
+        <StyledCardActions disableSpacing={true}>{actions}</StyledCardActions>
+      )}
 
       {showHostAndMeetAvailability && (
         <>
