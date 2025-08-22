@@ -11,11 +11,11 @@
     "keywords": {
       "clear_field_action_a11y_label": "Очистить поиск",
       "field_label": "Имя, ключевые слова или имя пользователя",
-      "search_this_keyword_a11y_label": "Найдите это ключевое слово"
+      "search_this_keyword_a11y_label": "Найти по ключевому слову"
     },
     "location_field_label": "Рядом с местоположением",
     "host_filters": {
-      "last_active_field_label": "Последний раз был(а) в сети",
+      "last_active_field_label": "Последняя активность",
       "hosting_status_field_label": "Статус приёма гостей",
       "age": {
         "min_age": "Минимальный возраст",
@@ -41,7 +41,7 @@
           "description": " - например, общая комната с отдельным спальным местом"
         },
         "common": {
-          "label": "Общая комната",
+          "label": "Гостиная",
           "description": " - например, диван в гостиной"
         }
       }
@@ -62,7 +62,7 @@
     "show_user_button_label": "Показать {{name}} на карте",
     "few_results_suggestion": "По умолчанию пустые профили и профили с отметкой «не могу принимать гостей» скрыты.",
     "no_user_result_message": "Пользователи не найдены. Попробуйте убрать некоторые фильтры, чтобы увидеть больше результатов.",
-    "missing_about_description": "{{name}} ещё ничего не рассказал о себе",
+    "missing_about_description": "{{name}} ещё ничего не рассказал(a) о себе",
     "people_found_message": "{{currentRange}} из {{totalItems}} человек",
     "include_empty_profiles_button": "Показать все профили"
   },

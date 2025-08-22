@@ -272,7 +272,7 @@
   "decline_friend_label": "Отклонить запрос в друзья",
   "no_references": "Пока нет таких отзывов!",
   "languages_fluent_false": "Не указано",
-  "regions_empty_state": "Нет",
+  "regions_empty_state": "Никуда",
   "response_rate_label": "Коэффициент отклика",
   "response_rate_text_insufficient": "Пока не уверен",
   "response_rate_text_low": "Редко",
