@@ -165,7 +165,7 @@ export default function EventTimeChanger({
           control={control}
           defaultValue={eventEndDate ?? null}
           error={!!errors.endDate?.message}
-          helperText={errors.endDate?.message}
+          helperText={errors.endDate?.message || ""}
           id="endDate"
           label={t("communities:end_date")}
           name="endDate"

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 import { routeToEvent, routeToNewEvent } from "routes";
@@ -72,102 +72,88 @@ describe("Create event page", () => {
 
   it("renders and creates an online event successfully", async () => {
     render(<CreateEventPage />, { wrapper });
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     const titleInput = (await screen.findByLabelText(
       t("global:title"),
     )) as HTMLInputElement;
 
-    // @TODO These should be awaited, but it times out with this component. Try again after upgrading jest and mui x-datepickers maybe?
+    await user.type(titleInput, "Test event");
 
-    user.type(titleInput, "Test event");
+    expect(titleInput).toHaveValue("Test event");
 
-    await waitFor(() => {
-      expect(titleInput).toHaveValue("Test event");
+    const startDateGroup = await screen.findByRole("group", {
+      name: t("communities:start_date"),
     });
 
-    const startDateField = (await screen.findByLabelText(
-      t("communities:start_date"),
-    )) as HTMLInputElement;
+    await user.click(startDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    user.type(startDateField, "08012021");
+    expect(startDateGroup).toHaveTextContent("08/01/2021");
 
-    await waitFor(() => {
-      expect(startDateField).toHaveValue("08/01/2021");
+    const startTimeGroup = await screen.findByRole("group", {
+      name: t("communities:start_time"),
     });
 
-    const startTimeField = (await screen.findByLabelText(
-      t("communities:start_time"),
-    )) as HTMLInputElement;
+    await user.click(startTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("01:00 AM");
 
-    user.type(startTimeField, "01:00 AM");
+    expect(startTimeGroup).toHaveTextContent("01:00 am");
 
-    await waitFor(() => {
-      expect(startTimeField).toHaveValue("01:00 AM");
+    const endDateGroup = await screen.findByRole("group", {
+      name: t("communities:end_date"),
     });
 
-    const endDateField = (await screen.findByLabelText(
-      t("communities:end_date"),
-    )) as HTMLInputElement;
+    await user.click(endDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    user.type(endDateField, "08012021");
+    expect(endDateGroup).toHaveTextContent("08/01/2021");
 
-    await waitFor(() => {
-      expect(endDateField).toHaveValue("08/01/2021");
+    const endTimeGroup = await screen.findByRole("group", {
+      name: t("communities:end_time"),
     });
 
-    const endTimeField = screen.getByLabelText(
-      t("communities:end_time"),
-    ) as HTMLInputElement;
+    await user.click(endTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("02:00 AM");
 
-    user.type(endTimeField, "02:00 AM");
-
-    await waitFor(() => expect(endTimeField).toHaveValue("02:00 AM"));
+    expect(endTimeGroup).toHaveTextContent("02:00 am");
 
     const virtualEventCheckBox = screen.getByLabelText(
       t("communities:virtual_event"),
     ) as HTMLInputElement;
 
-    user.click(virtualEventCheckBox);
+    await user.click(virtualEventCheckBox);
 
-    await waitFor(() => {
-      expect(virtualEventCheckBox.checked).toBe(true);
-    });
+    expect(virtualEventCheckBox.checked).toBe(true);
 
     const eventLinkInput = (await screen.findByLabelText(
       t("communities:event_link"),
     )) as HTMLInputElement;
 
-    user.type(eventLinkInput, "https://couchers.org/social");
+    await user.type(eventLinkInput, "https://couchers.org/social");
 
-    await waitFor(
-      () => {
-        expect(screen.getByLabelText(t("communities:event_link"))).toHaveValue(
-          "https://couchers.org/social",
-        );
-      },
-      { timeout: 5000 },
+    expect(screen.getByLabelText(t("communities:event_link"))).toHaveValue(
+      "https://couchers.org/social",
     );
 
-    user.type(
+    await user.type(
       screen.getByLabelText(t("communities:event_details")),
       "sick social!",
     );
 
-    await waitFor(
-      () => {
-        expect(
-          screen.getByLabelText(t("communities:event_details")),
-        ).toHaveValue("sick social!");
-      },
-      { timeout: 5000 },
+    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
+      "sick social!",
     );
 
-    user.click(screen.getByRole("button", { name: t("global:create") }));
+    await act(async () =>
+      user.click(screen.getByRole("button", { name: t("global:create") })),
+    );
 
-    await waitFor(() => {
-      expect(createEventMock).toHaveBeenCalledTimes(1);
-    });
+    expect(createEventMock).toHaveBeenCalledTimes(1);
 
     expect(createEventMock).toHaveBeenCalledWith({
       isOnline: true,
@@ -187,95 +173,82 @@ describe("Create event page", () => {
   it("creates on offline event with no route state correctly", async () => {
     renderPageWithState();
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     const titleInput = (await screen.findByLabelText(
       t("global:title"),
     )) as HTMLInputElement;
 
-    // @TODO These should be awaited, but it times out with this component. Try again after upgrading jest and mui x-datepickers maybe?
-    user.type(titleInput, "Test event");
+    await user.type(titleInput, "Test event");
 
-    await waitFor(() => {
-      expect(titleInput).toHaveValue("Test event");
+    expect(titleInput).toHaveValue("Test event");
+
+    const startDateGroup = await screen.findByRole("group", {
+      name: t("communities:start_date"),
     });
 
-    const startDateField = (await screen.findByLabelText(
-      t("communities:start_date"),
-    )) as HTMLInputElement;
+    await user.click(startDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    user.type(startDateField, "08012021");
+    expect(startDateGroup).toHaveTextContent("08/01/2021");
 
-    await waitFor(() => {
-      expect(startDateField).toHaveValue("08/01/2021");
+    const startTimeGroup = await screen.findByRole("group", {
+      name: t("communities:start_time"),
     });
 
-    const startTimeField = (await screen.findByLabelText(
-      t("communities:start_time"),
-    )) as HTMLInputElement;
+    await user.click(startTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("01:00 AM");
 
-    user.type(startTimeField, "01:00 AM");
+    expect(startTimeGroup).toHaveTextContent("01:00 am");
 
-    await waitFor(() => {
-      expect(startTimeField).toHaveValue("01:00 AM");
+    const endDateGroup = await screen.findByRole("group", {
+      name: t("communities:end_date"),
     });
 
-    const endDateField = (await screen.findByLabelText(
-      t("communities:end_date"),
-    )) as HTMLInputElement;
+    await user.click(endDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    user.type(endDateField, "08012021");
+    expect(endDateGroup).toHaveTextContent("08/01/2021");
 
-    await waitFor(() => {
-      expect(endDateField).toHaveValue("08/01/2021");
+    const endTimeGroup = await screen.findByRole("group", {
+      name: t("communities:end_time"),
     });
 
-    const endTimeField = screen.getByLabelText(
-      t("communities:end_time"),
-    ) as HTMLInputElement;
+    await user.click(endTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("02:00 AM");
 
-    user.type(endTimeField, "02:00 AM");
-
-    await waitFor(() => expect(endTimeField).toHaveValue("02:00 AM"));
-
-    // msw server response doesn't work with fake timers on, so turn it off temporarily
-    jest.useRealTimers();
+    expect(endTimeGroup).toHaveTextContent("02:00 am");
 
     const locationInput = screen.getByLabelText(
       t("communities:location"),
     ) as HTMLInputElement;
 
-    user.type(locationInput, "tes{enter}");
+    await user.type(locationInput, "tes{enter}");
 
-    await waitFor(() => {
-      expect(locationInput).toHaveValue("tes");
-    });
+    expect(locationInput).toHaveValue("tes");
 
-    user.click(await screen.findByText("test city, test county, test country"));
+    await user.click(
+      await screen.findByText("test city, test county, test country"),
+    );
 
-    user.type(
+    await user.type(
       screen.getByLabelText(t("communities:event_details")),
       "sick social!",
     );
 
-    await waitFor(() => {
-      expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
-        "sick social!",
-      );
-    });
-
-    // Now we got our location, turn fake timers back on so the default date we got earlier from the "current"
-    // date would pass form validation
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date("2021-08-01 00:00"));
-    user.click(screen.getByRole("button", { name: t("global:create") }));
-
-    await waitFor(
-      () => {
-        expect(createEventMock).toHaveBeenCalledTimes(1);
-      },
-      { timeout: 5000 },
+    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
+      "sick social!",
     );
+
+    await act(async () =>
+      user.click(screen.getByRole("button", { name: t("global:create") })),
+    );
+
+    expect(createEventMock).toHaveBeenCalledTimes(1);
 
     expect(createEventMock).toHaveBeenCalledWith({
       isOnline: false,
@@ -293,92 +266,82 @@ describe("Create event page", () => {
   it("creates on offline event with route state correctly", async () => {
     renderPageWithState({ communityId: 99 });
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     const titleInput = (await screen.findByLabelText(
       t("global:title"),
     )) as HTMLInputElement;
 
-    // @TODO These should be awaited, but it times out with this component. Try again after upgrading jest and mui x-datepickers maybe?
-    user.type(titleInput, "Test event");
+    await user.type(titleInput, "Test event");
 
-    await waitFor(() => {
-      expect(titleInput).toHaveValue("Test event");
+    expect(titleInput).toHaveValue("Test event");
+
+    const startDateGroup = await screen.findByRole("group", {
+      name: t("communities:start_date"),
     });
 
-    const startDateField = (await screen.findByLabelText(
-      t("communities:start_date"),
-    )) as HTMLInputElement;
+    await user.click(startDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    user.type(startDateField, "08012021");
+    expect(startDateGroup).toHaveTextContent("08/01/2021");
 
-    await waitFor(() => {
-      expect(startDateField).toHaveValue("08/01/2021");
+    const startTimeGroup = await screen.findByRole("group", {
+      name: t("communities:start_time"),
     });
 
-    const startTimeField = (await screen.findByLabelText(
-      t("communities:start_time"),
-    )) as HTMLInputElement;
+    await user.click(startTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("01:00 AM");
 
-    user.type(startTimeField, "01:00 AM");
+    expect(startTimeGroup).toHaveTextContent("01:00 am");
 
-    await waitFor(() => {
-      expect(startTimeField).toHaveValue("01:00 AM");
+    const endDateGroup = await screen.findByRole("group", {
+      name: t("communities:end_date"),
     });
 
-    const endDateField = (await screen.findByLabelText(
-      t("communities:end_date"),
-    )) as HTMLInputElement;
+    await user.click(endDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    user.type(endDateField, "08012021");
+    expect(endDateGroup).toHaveTextContent("08/01/2021");
 
-    await waitFor(() => {
-      expect(endDateField).toHaveValue("08/01/2021");
+    const endTimeGroup = await screen.findByRole("group", {
+      name: t("communities:end_time"),
     });
 
-    const endTimeField = screen.getByLabelText(
-      t("communities:end_time"),
-    ) as HTMLInputElement;
+    await user.click(endTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("02:00 AM");
 
-    user.type(endTimeField, "02:00 AM");
-
-    await waitFor(() => expect(endTimeField).toHaveValue("02:00 AM"));
-
-    jest.useRealTimers();
+    expect(endTimeGroup).toHaveTextContent("02:00 am");
 
     const locationInput = screen.getByLabelText(
       t("communities:location"),
     ) as HTMLInputElement;
 
-    user.type(locationInput, "tes{enter}");
+    await user.type(locationInput, "tes{enter}");
 
-    await waitFor(() => {
-      expect(locationInput).toHaveValue("tes");
-    });
+    expect(locationInput).toHaveValue("tes");
 
-    user.click(await screen.findByText("test city, test county, test country"));
+    await user.click(
+      await screen.findByText("test city, test county, test country"),
+    );
 
-    user.type(
+    await user.type(
       screen.getByLabelText(t("communities:event_details")),
       "sick social!",
     );
 
-    await waitFor(() => {
-      expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
-        "sick social!",
-      );
-    });
-
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date("2021-08-01 00:00"));
-    user.click(screen.getByRole("button", { name: t("global:create") }));
-
-    await waitFor(
-      () => {
-        expect(createEventMock).toHaveBeenCalledTimes(1);
-      },
-      { timeout: 5000 },
+    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
+      "sick social!",
     );
+
+    await act(async () =>
+      user.click(screen.getByRole("button", { name: t("global:create") })),
+    );
+
+    expect(createEventMock).toHaveBeenCalledTimes(1);
 
     expect(createEventMock).toHaveBeenCalledWith({
       isOnline: false,

@@ -32,16 +32,31 @@ export default function DashboardBanners() {
         <>
           {!data.profileComplete && (
             <StyledAlert severity="warning">
-              <Typography variant="inherit" paragraph>
+              <Typography
+                variant="inherit"
+                sx={{
+                  marginBottom: "16px",
+                }}
+              >
                 {t("dashboard:please_complete_profile")}
               </Typography>
               <Typography variant="inherit">
                 {t("dashboard:fill_in_who_i_am")}
               </Typography>
-              <Typography variant="inherit" paragraph>
+              <Typography
+                variant="inherit"
+                sx={{
+                  marginBottom: "16px",
+                }}
+              >
                 {t("dashboard:upload_photo")}
               </Typography>
-              <Typography variant="inherit" paragraph>
+              <Typography
+                variant="inherit"
+                sx={{
+                  marginBottom: "16px",
+                }}
+              >
                 <Button
                   component={Link}
                   role="link"

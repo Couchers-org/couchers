@@ -20,7 +20,7 @@ export default function NewComment({ onComment }: NewCommentProps) {
     <>
       <p>Write a comment:</p>
       <Grid container spacing={2}>
-        <Grid item xs={12} md={preview ? 6 : 12}>
+        <Grid size={{ xs: 12, md: preview ? 6 : 12 }}>
           <TextField
             id="new-comment"
             label="Text field"
@@ -41,7 +41,7 @@ export default function NewComment({ onComment }: NewCommentProps) {
           </Box>
         </Grid>
         {preview && (
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Markdown source={comment} />
           </Grid>
         )}

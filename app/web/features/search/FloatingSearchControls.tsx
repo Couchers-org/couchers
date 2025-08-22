@@ -317,7 +317,6 @@ const FloatingSearchControls = ({
                 value={searchType}
                 label="search-type"
                 onChange={handleSearchTypeChange}
-                placeholder="Search Type"
               >
                 <MenuItem value="location">{t("search:location")}</MenuItem>
                 <MenuItem value="keyword">{t("search:keyword")}</MenuItem>

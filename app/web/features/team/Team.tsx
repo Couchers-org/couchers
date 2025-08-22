@@ -50,8 +50,18 @@ export default function Team() {
       <HtmlMeta title="The Team" />
       <Container maxWidth="md">
         <PageTitle>{t("team.title")}</PageTitle>
-        <Typography paragraph>{t("team.description")}</Typography>
-        <Typography paragraph>
+        <Typography
+          sx={{
+            marginBottom: "16px",
+          }}
+        >
+          {t("team.description")}
+        </Typography>
+        <Typography
+          sx={{
+            marginBottom: "16px",
+          }}
+        >
           <Button
             component={Link}
             variant="contained"
@@ -70,10 +80,11 @@ export default function Team() {
           spacing={2}
           justifyContent="center"
           alignItems="stretch"
+          sx={{ width: "100%" }}
         >
           {TeamData.map(
             ({ name, director, board_position, role, location, img, link }) => (
-              <Grid key={name} item xs={12} md={6} lg={4}>
+              <Grid key={name} size={{ xs: 12, md: 6, lg: 4 }}>
                 <TeamMemberCard elevation={director ? 3 : 1}>
                   <TeamMembedCardContent>
                     <StyledAvatar alt={`Headshot of ${name}`} src={img} />
@@ -122,8 +133,18 @@ export default function Team() {
         <Typography variant="h2" component="h2">
           {t("team.have_skills_contribute")}
         </Typography>
-        <Typography paragraph>{t("team.fill_form_description")}</Typography>
-        <Typography paragraph>
+        <Typography
+          sx={{
+            marginBottom: "16px",
+          }}
+        >
+          {t("team.fill_form_description")}
+        </Typography>
+        <Typography
+          sx={{
+            marginBottom: "16px",
+          }}
+        >
           <Button
             component={Link}
             variant="contained"

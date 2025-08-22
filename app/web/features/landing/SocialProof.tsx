@@ -63,11 +63,11 @@ const SocialProof = () => {
         {t("landing:what_couchsurfing_title")}
       </Typography>
       <Typography
-        paragraph
         sx={{
           marginTop: 2,
           fontSize: "1.2rem",
           padding: isMobile ? undefined : theme.spacing(0, 20),
+          marginBottom: "16px",
         }}
       >
         {t("landing:what_couchsurfing_description")}

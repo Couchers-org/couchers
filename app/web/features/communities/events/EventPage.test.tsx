@@ -18,7 +18,6 @@ import {
   getUser,
 } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
-import timezoneMock from "timezone-mock";
 
 import EventPage from "./EventPage";
 
@@ -78,14 +77,12 @@ describe("Event page", () => {
       isLoading: false,
       error: "",
     });
-    timezoneMock.register("UTC");
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-06-01 00:00"));
   });
 
   afterEach(() => {
     jest.useRealTimers();
-    timezoneMock.unregister();
   });
 
   it("renders an offline event successfully", async () => {

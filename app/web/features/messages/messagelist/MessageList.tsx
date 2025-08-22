@@ -18,14 +18,14 @@ const List = styled("div")(() => ({
 
 const MessageWrapper = styled(MessageView)(() => ({
   marginBottom: theme.spacing(2),
-  "&:nth-child(1)": {
+  "&:nth-of-type(1)": {
     marginBottom: 0,
   },
 }));
 
 const ControlMessageWrapper = styled(ControlMessageView)(() => ({
   marginBottom: theme.spacing(2),
-  "&:nth-child(1)": {
+  "&:nth-of-type(1)": {
     marginBottom: 0,
   },
 }));

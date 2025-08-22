@@ -33,9 +33,7 @@ const WhyCouchersSection = () => {
         }}
       >
         <Grid
-          item
-          xs={12}
-          md={4}
+          size={{ xs: 12, md: 4 }}
           display="flex"
           sx={{
             backgroundColor: theme.palette.grey[50],
@@ -63,9 +61,7 @@ const WhyCouchersSection = () => {
           </Box>
         </Grid>
         <Grid
-          item
-          xs={12}
-          md={4}
+          size={{ xs: 12, md: 4 }}
           display="flex"
           sx={{
             backgroundColor: theme.palette.grey[50],
@@ -92,9 +88,7 @@ const WhyCouchersSection = () => {
           </Box>
         </Grid>
         <Grid
-          item
-          xs={12}
-          md={4}
+          size={{ xs: 12, md: 4 }}
           display="flex"
           sx={{
             backgroundColor: theme.palette.grey[50],

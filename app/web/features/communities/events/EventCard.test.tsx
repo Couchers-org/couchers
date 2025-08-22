@@ -2,7 +2,6 @@ import { render, screen } from "@testing-library/react";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
-import timezoneMock from "timezone-mock";
 
 import EventCard from "./EventCard";
 
@@ -11,14 +10,6 @@ const { t } = i18n;
 const [firstEvent, secondEvent, thirdEvent, cancelledEvent] = events;
 
 describe("Event card", () => {
-  beforeEach(() => {
-    timezoneMock.register("UTC");
-  });
-
-  afterEach(() => {
-    timezoneMock.unregister();
-  });
-
   it("renders an offline event card details correctly with the same start and end day", async () => {
     render(<EventCard event={firstEvent} />, { wrapper });
 

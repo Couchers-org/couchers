@@ -25,6 +25,7 @@ const StyledForm = styled("form")(() => ({
 
 const StyledButtonsContainer = styled("div")(() => ({
   display: "flex",
+  gap: 1,
   justifyContent: "flex-end",
   "& > * + *": {
     marginInlineStart: theme.spacing(2),
@@ -98,7 +99,11 @@ function InternalCommentForm(
           required={t("communities:fill_out_comment")}
         />
         <StyledButtonsContainer>
-          {hideable && <Button onClick={onClose}>{t("global:close")}</Button>}
+          {hideable && (
+            <Button onClick={onClose} variant="outlined">
+              {t("global:close")}
+            </Button>
+          )}
           <Button loading={isPending} type="submit">
             {t("communities:comment")}
           </Button>
