@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { RpcError } from "grpc-web";
 import { Event } from "proto/events_pb";
@@ -84,22 +84,21 @@ describe("Event form", () => {
       }),
     ).toBeVisible();
     expect(screen.getByText(t("communities:upload_helper_text"))).toBeVisible();
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:start_date")),
-      "",
-    );
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:start_time")),
-      "",
-    );
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:end_date")),
-      "",
-    );
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:end_time")),
-      "",
-    );
+    // In MUI X v8, empty date/time fields don't have easily testable values
+    // So we just check that the fields exist and are rendered
+    expect(
+      screen.getByRole("group", { name: t("communities:start_date") }),
+    ).toHaveTextContent("MM/DD/YYYY");
+
+    expect(
+      screen.getByRole("group", { name: t("communities:start_time") }),
+    ).toHaveTextContent("hh:mm aa");
+    expect(
+      screen.getByRole("group", { name: t("communities:end_date") }),
+    ).toHaveTextContent("MM/DD/YYYY");
+    expect(
+      screen.getByRole("group", { name: t("communities:end_time") }),
+    ).toHaveTextContent("hh:mm aa");
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:location")),
       "",
@@ -124,22 +123,25 @@ describe("Event form", () => {
       await screen.findByLabelText(t("global:title")),
       "Weekly Meetup",
     );
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:start_date")),
-      "06/29/2021",
-    );
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:start_time")),
-      "02:37 AM",
-    );
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:end_date")),
-      "06/29/2021",
-    );
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:end_time")),
-      "03:37 AM",
-    );
+
+    const startDateGroup = screen.getByRole("group", {
+      name: t("communities:start_date"),
+    });
+    const startTimeGroup = screen.getByRole("group", {
+      name: t("communities:start_time"),
+    });
+    const endDateGroup = screen.getByRole("group", {
+      name: t("communities:end_date"),
+    });
+    const endTimeGroup = screen.getByRole("group", {
+      name: t("communities:end_time"),
+    });
+
+    expect(startDateGroup).toHaveTextContent("06/29/2021");
+    expect(startTimeGroup).toHaveTextContent("02:37 am");
+    expect(endDateGroup).toHaveTextContent("06/29/2021");
+    expect(endTimeGroup).toHaveTextContent("03:37 am");
+
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:location")),
       "Concertgebouw",
@@ -169,19 +171,15 @@ describe("Event form", () => {
   it("should hide the location field when the virtual event checkbox is ticked", async () => {
     renderForm();
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     const virtualEventCheckbox = screen.getByLabelText(
       t("communities:virtual_event"),
     );
 
-    user.click(virtualEventCheckbox);
+    await user.click(virtualEventCheckbox);
 
-    await waitFor(() =>
-      expect(
-        screen.getByLabelText(t("communities:virtual_event")),
-      ).toBeChecked(),
-    );
+    expect(screen.getByLabelText(t("communities:virtual_event"))).toBeChecked();
     expect(screen.getByLabelText(t("communities:event_link"))).toBeVisible();
     expect(
       screen.queryByLabelText(t("communities:location")),
@@ -191,23 +189,25 @@ describe("Event form", () => {
   it("should not submit if the title is missing", async () => {
     renderForm();
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    user.click(screen.getByRole("button", { name: t("global:create") }));
+    await act(async () =>
+      user.click(screen.getByRole("button", { name: t("global:create") })),
+    );
 
-    await waitFor(() => {
-      expect(serviceFn).not.toHaveBeenCalled();
-    });
+    expect(serviceFn).not.toHaveBeenCalled();
   });
 
   it("should not submit if location is missing for an offline event", async () => {
     renderForm();
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    user.type(screen.getByLabelText(t("global:title")), "Test event");
+    await user.type(screen.getByLabelText(t("global:title")), "Test event");
 
-    user.click(screen.getByRole("button", { name: t("global:create") }));
+    await act(async () =>
+      user.click(screen.getByRole("button", { name: t("global:create") })),
+    );
 
     expect(
       await screen.findByText(t("communities:location_required")),
@@ -218,26 +218,27 @@ describe("Event form", () => {
   it("should not submit if an event meeting link is missing for an online event", async () => {
     renderForm();
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    user.type(screen.getByLabelText(t("global:title")), "Test event");
+    await user.type(screen.getByLabelText(t("global:title")), "Test event");
 
     const virtualEventCheckbox = screen.getByLabelText(
       t("communities:virtual_event"),
     ) as HTMLInputElement;
 
-    user.click(virtualEventCheckbox);
+    await user.click(virtualEventCheckbox);
 
-    await waitFor(() => {
-      expect(virtualEventCheckbox.checked).toBe(true);
-    });
-    user.click(screen.getByRole("button", { name: t("global:create") }));
+    expect(virtualEventCheckbox.checked).toBe(true);
+
+    await act(async () =>
+      user.click(screen.getByRole("button", { name: t("global:create") })),
+    );
 
     const linkRequiredHelperText = await screen.findByText(
       t("communities:link_required"),
     );
 
-    await waitFor(async () => expect(linkRequiredHelperText).toBeVisible());
+    expect(linkRequiredHelperText).toBeVisible();
 
     expect(serviceFn).not.toHaveBeenCalled();
   });
@@ -245,95 +246,87 @@ describe("Event form", () => {
   it("should submit the form successfully if all required fields are filled in", async () => {
     renderForm();
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     const titleInput = screen.getByLabelText(
       t("global:title"),
     ) as HTMLInputElement;
 
-    // @TODO These should be awaited, but it times out with this component. Try again after upgrading jest and mui x-datepickers maybe?
+    await user.type(titleInput, "Test event");
 
-    user.type(titleInput, "Test event");
+    expect(titleInput).toHaveValue("Test event");
 
-    await waitFor(() => {
-      expect(titleInput).toHaveValue("Test event");
+    const startDateGroup = await screen.findByRole("group", {
+      name: t("communities:start_date"),
     });
+    await user.click(startDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    const startDateField = (await screen.findByLabelText(
-      t("communities:start_date"),
-    )) as HTMLInputElement;
-
-    user.type(startDateField, "08012021");
-
-    await waitFor(() => {
-      expect(startDateField).toHaveValue("08/01/2021");
+    const startTimeGroup = await screen.findByRole("group", {
+      name: t("communities:start_time"),
     });
+    await user.click(startTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("0100 AM");
 
-    const startTimeField = (await screen.findByLabelText(
-      t("communities:start_time"),
-    )) as HTMLInputElement;
-
-    user.type(startTimeField, "0100 AM");
-
-    await waitFor(() => {
-      expect(startTimeField).toHaveValue("01:00 AM");
+    const endDateGroup = await screen.findByRole("group", {
+      name: t("communities:end_date"),
     });
+    await user.click(endDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    const endDateField = (await screen.findByLabelText(
-      t("communities:end_date"),
-    )) as HTMLInputElement;
-
-    user.type(endDateField, "08012021");
-
-    await waitFor(() => {
-      expect(endDateField).toHaveValue("08/01/2021");
+    const endTimeGroup = screen.getByRole("group", {
+      name: t("communities:end_time"),
     });
-
-    const endTimeField = screen.getByLabelText(
-      t("communities:end_time"),
-    ) as HTMLInputElement;
-
-    user.type(endTimeField, "0200 AM");
-
-    await waitFor(() => expect(endTimeField).toHaveValue("02:00 AM"));
+    await user.click(endTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("0200 AM");
 
     const virtualEventCheckbox = screen.getByLabelText(
       t("communities:virtual_event"),
     ) as HTMLInputElement;
 
-    user.click(virtualEventCheckbox);
+    await user.click(virtualEventCheckbox);
 
-    await waitFor(() => {
-      expect(virtualEventCheckbox.checked).toBe(true);
-    });
+    expect(virtualEventCheckbox.checked).toBe(true);
 
     const eventLinkInput = await screen.findByLabelText(
       t("communities:event_link"),
     );
 
-    user.type(eventLinkInput, "https://couchers.org/social");
+    await user.type(eventLinkInput, "https://couchers.org/social");
 
-    await waitFor(
-      () => expect(eventLinkInput).toHaveValue("https://couchers.org/social"),
-      { timeout: 5000 },
-    );
+    expect(eventLinkInput).toHaveValue("https://couchers.org/social");
 
-    user.type(
+    await user.type(
       screen.getByLabelText(t("communities:event_details")),
       "sick social!",
     );
 
-    await waitFor(() => {
-      expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
-        "sick social!",
-      );
-    });
+    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
+      "sick social!",
+    );
 
-    user.click(screen.getByRole("button", { name: t("global:create") }));
+    await act(async () =>
+      user.click(screen.getByRole("button", { name: t("global:create") })),
+    );
 
-    await waitFor(() => {
-      expect(serviceFn).toHaveBeenCalledTimes(1);
-    });
+    expect(serviceFn).toHaveBeenCalledTimes(1);
+
+    // Verify the submitted data contains the expected values
+    const submittedData = serviceFn.mock.calls[0][0];
+    expect(submittedData.title).toBe("Test event");
+    expect(submittedData.isOnline).toBe(true);
+    expect(submittedData.link).toBe("https://couchers.org/social");
+    expect(submittedData.content).toBe("sick social!");
+    expect(submittedData.startTime.toISOString()).toBe(
+      "2021-08-01T01:00:00.000Z",
+    );
+    expect(submittedData.endTime.toISOString()).toBe(
+      "2021-08-01T02:00:00.000Z",
+    );
   });
 
   it("should show an error alert if the form failed to submit", async () => {
@@ -343,176 +336,149 @@ describe("Event form", () => {
 
     renderForm();
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    // @TODO These should be awaited, but it times out with this component. Try again after upgrading jest and mui x-datepickers maybe?
+    await user.type(screen.getByLabelText(t("global:title")), "Test event");
 
-    user.type(screen.getByLabelText(t("global:title")), "Test event");
+    expect(screen.getByLabelText(t("global:title"))).toHaveValue("Test event");
 
-    await waitFor(() => {
-      expect(screen.getByLabelText(t("global:title"))).toHaveValue(
-        "Test event",
-      );
+    const startDateGroup = await screen.findByRole("group", {
+      name: t("communities:start_date"),
     });
+    await user.click(startDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    const startDateField = (await screen.findByLabelText(
-      t("communities:start_date"),
-    )) as HTMLInputElement;
-
-    user.type(startDateField, "08012021");
-
-    await waitFor(() => {
-      expect(startDateField).toHaveValue("08/01/2021");
+    const startTimeGroup = await screen.findByRole("group", {
+      name: t("communities:start_time"),
     });
+    await user.click(startTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("0100 AM");
 
-    const startTimeField = (await screen.findByLabelText(
-      t("communities:start_time"),
-    )) as HTMLInputElement;
-
-    user.type(startTimeField, "0100 AM");
-
-    await waitFor(() => {
-      expect(startTimeField).toHaveValue("01:00 AM");
+    const endDateGroup = await screen.findByRole("group", {
+      name: t("communities:end_date"),
     });
+    await user.click(endDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    const endDateField = (await screen.findByLabelText(
-      t("communities:end_date"),
-    )) as HTMLInputElement;
-
-    user.type(endDateField, "08012021");
-
-    await waitFor(() => {
-      expect(endDateField).toHaveValue("08/01/2021");
+    const endTimeGroup = screen.getByRole("group", {
+      name: t("communities:end_time"),
     });
+    await user.click(endTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("0200 AM");
 
-    const endTimeField = screen.getByLabelText(
-      t("communities:end_time"),
-    ) as HTMLInputElement;
-
-    user.type(endTimeField, "0200 AM");
-
-    await waitFor(() => expect(endTimeField).toHaveValue("02:00 AM"));
-
-    user.click(screen.getByLabelText(t("communities:virtual_event")));
+    await user.click(screen.getByLabelText(t("communities:virtual_event")));
 
     const eventLinkInput = (await screen.findByLabelText(
       t("communities:event_link"),
     )) as HTMLInputElement;
 
-    user.type(eventLinkInput, "https://couchers.org/social");
+    await user.type(eventLinkInput, "https://couchers.org/social");
 
-    await waitFor(
-      () => {
-        expect(eventLinkInput).toHaveValue("https://couchers.org/social");
-      },
-      { timeout: 5000 },
-    );
+    expect(eventLinkInput).toHaveValue("https://couchers.org/social");
 
-    user.type(
+    await user.type(
       screen.getByLabelText(t("communities:event_details")),
       "sick social!",
     );
 
-    await waitFor(() => {
-      expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
-        "sick social!",
-      );
-    });
+    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
+      "sick social!",
+    );
 
-    user.click(screen.getByRole("button", { name: t("global:create") }));
+    await act(async () =>
+      user.click(screen.getByRole("button", { name: t("global:create") })),
+    );
 
-    await waitFor(() => {
-      expect(serviceFn).toHaveBeenCalledTimes(1);
-    });
+    expect(serviceFn).toHaveBeenCalledTimes(1);
     await assertErrorAlert(errorMessage);
   });
 
   it("should submit an offline event successfully", async () => {
     renderForm();
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     const titleInput = screen.getByLabelText(
       t("global:title"),
     ) as HTMLInputElement;
 
-    user.type(titleInput, "Test event");
+    await user.type(titleInput, "Test event");
 
-    await waitFor(() => {
-      expect(titleInput).toHaveValue("Test event");
+    expect(titleInput).toHaveValue("Test event");
+
+    const startDateGroup = await screen.findByRole("group", {
+      name: t("communities:start_date"),
     });
+    await user.click(startDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    const startDateField = (await screen.findByLabelText(
-      t("communities:start_date"),
-    )) as HTMLInputElement;
-
-    user.type(startDateField, "08012021");
-
-    await waitFor(() => {
-      expect(startDateField).toHaveValue("08/01/2021");
+    const startTimeGroup = await screen.findByRole("group", {
+      name: t("communities:start_time"),
     });
+    await user.click(startTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("0100 AM");
 
-    const startTimeField = (await screen.findByLabelText(
-      t("communities:start_time"),
-    )) as HTMLInputElement;
-
-    user.type(startTimeField, "0100 AM");
-
-    await waitFor(() => {
-      expect(startTimeField).toHaveValue("01:00 AM");
+    const endDateGroup = await screen.findByRole("group", {
+      name: t("communities:end_date"),
     });
+    await user.click(endDateGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("08012021");
 
-    const endDateField = (await screen.findByLabelText(
-      t("communities:end_date"),
-    )) as HTMLInputElement;
-
-    user.type(endDateField, "08012021");
-
-    await waitFor(() => {
-      expect(endDateField).toHaveValue("08/01/2021");
+    const endTimeGroup = screen.getByRole("group", {
+      name: t("communities:end_time"),
     });
+    await user.click(endTimeGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("0200 AM");
 
-    const endTimeField = screen.getByLabelText(
-      t("communities:end_time"),
-    ) as HTMLInputElement;
+    await user.type(
+      screen.getByLabelText(t("communities:location")),
+      "tes{enter}",
+    );
 
-    user.type(endTimeField, "0200 AM");
+    expect(screen.getByLabelText(t("communities:location"))).toHaveValue("tes");
 
-    await waitFor(() => expect(endTimeField).toHaveValue("02:00 AM"));
+    await user.click(
+      await screen.findByText("test city, test county, test country"),
+    );
 
-    jest.useRealTimers();
-
-    user.type(screen.getByLabelText(t("communities:location")), "tes{enter}");
-
-    await waitFor(() => {
-      expect(screen.getByLabelText(t("communities:location"))).toHaveValue(
-        "tes",
-      );
-    });
-
-    user.click(await screen.findByText("test city, test county, test country"));
-
-    user.type(
+    await user.type(
       screen.getByLabelText(t("communities:event_details")),
       "sick social!",
     );
 
-    await waitFor(() => {
-      expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
-        "sick social!",
-      );
-    });
+    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
+      "sick social!",
+    );
 
-    jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-08-01 00:00"));
 
-    user.click(screen.getByRole("button", { name: t("global:create") }));
+    await act(async () =>
+      user.click(screen.getByRole("button", { name: t("global:create") })),
+    );
 
-    await waitFor(
-      () => {
-        expect(serviceFn).toHaveBeenCalledTimes(1);
-      },
-      { timeout: 5000 },
+    expect(serviceFn).toHaveBeenCalledTimes(1);
+
+    // Verify the submitted data contains the expected values
+    const submittedData = serviceFn.mock.calls[0][0];
+    expect(submittedData.title).toBe("Test event");
+    expect(submittedData.isOnline).toBe(false);
+    expect(submittedData.location.name).toBe(
+      "test city, test county, test country",
+    );
+    expect(submittedData.content).toBe("sick social!");
+    expect(submittedData.startTime.toISOString()).toBe(
+      "2021-08-01T01:00:00.000Z",
+    );
+    expect(submittedData.endTime.toISOString()).toBe(
+      "2021-08-01T02:00:00.000Z",
     );
   });
 });

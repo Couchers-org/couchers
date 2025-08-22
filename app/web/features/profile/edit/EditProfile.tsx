@@ -969,7 +969,11 @@ export default function EditProfileForm() {
             <DialogContent>
               <Typography></Typography>
               <List>
-                <Typography paragraph>
+                <Typography
+                  sx={{
+                    marginBottom: "16px",
+                  }}
+                >
                   {t("profile:incomplete_dialog.description")}
                 </Typography>
                 {aboutMeField.length < ABOUT_ME_MIN_LENGTH && (

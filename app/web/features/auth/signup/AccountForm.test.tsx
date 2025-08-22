@@ -87,11 +87,13 @@ describe("AccountForm", () => {
         ),
         "a very insecure password",
       );
-      const birthdayField = await screen.findByLabelText(
-        t("auth:account_form.birthday.field_label"),
-      );
-      await user.clear(birthdayField);
-      await user.type(birthdayField, "01/01/1990");
+      const birthdayGroup = await screen.findByRole("group", {
+        name: t("global:components.datepicker.change_date"),
+      });
+
+      await user.click(birthdayGroup);
+      await user.keyboard("{Control>}a{/Control}");
+      await user.keyboard("01011990");
 
       await user.type(
         screen.getByTestId("edit-location-map"),
@@ -207,14 +209,16 @@ describe("AccountForm", () => {
     });
 
     it("Fails on birthdate older than 120", async () => {
-      const field = await screen.findByLabelText(
-        t("auth:account_form.birthday.field_label"),
-      );
+      const birthdayGroup = await screen.findByRole("group", {
+        name: t("global:components.datepicker.change_date"),
+      });
 
       const user = userEvent.setup();
 
-      await user.clear(field);
-      await user.type(field, "01/01/1750");
+      await user.click(birthdayGroup);
+      await user.keyboard("{Control>}a{/Control}");
+      await user.keyboard("01/01/1750");
+
       await user.click(
         screen.getByRole("button", { name: t("global:sign_up") }),
       );
@@ -228,9 +232,9 @@ describe("AccountForm", () => {
     });
 
     it("Fails on birthdate younger than 18", async () => {
-      const field = await screen.findByLabelText(
-        t("auth:account_form.birthday.field_label"),
-      );
+      const birthdayGroup = await screen.findByRole("group", {
+        name: t("global:components.datepicker.change_date"),
+      });
 
       const user = userEvent.setup();
 
@@ -238,8 +242,10 @@ describe("AccountForm", () => {
         .subtract(17, "year")
         .format("MM/DD/YYYY");
 
-      await user.clear(field);
-      await user.type(field, seventeenYearsAgoDate);
+      await user.click(birthdayGroup);
+      await user.keyboard("{Control>}a{/Control}");
+      await user.keyboard(seventeenYearsAgoDate);
+
       await user.click(
         screen.getByRole("button", { name: t("global:sign_up") }),
       );
@@ -253,15 +259,15 @@ describe("AccountForm", () => {
     });
 
     it("Fails on blank birthdate", async () => {
-      const field = await screen.findByLabelText(
-        t("auth:account_form.birthday.field_label"),
-      );
+      const birthdayGroup = await screen.findByRole("group", {
+        name: t("global:components.datepicker.change_date"),
+      });
 
       const user = userEvent.setup();
 
-      await user.clear(field);
-
-      expect(field).toHaveValue("");
+      await user.click(birthdayGroup);
+      await user.keyboard("{Control>}a{/Control}");
+      await user.keyboard("{Backspace}");
 
       await user.click(
         screen.getByRole("button", { name: t("global:sign_up") }),
@@ -364,11 +370,13 @@ describe("AccountForm", () => {
         ),
         "a very insecure password",
       );
-      const birthdayField = screen.getByLabelText(
-        t("auth:account_form.birthday.field_label"),
-      );
-      await user.clear(birthdayField);
-      await user.type(birthdayField, "01/01/1990");
+      const birthdayGroup = await screen.findByRole("group", {
+        name: t("global:components.datepicker.change_date"),
+      });
+
+      await user.click(birthdayGroup);
+      await user.keyboard("{Control>}a{/Control}");
+      await user.keyboard("01/01/1990");
 
       await user.type(
         screen.getByTestId("edit-location-map"),

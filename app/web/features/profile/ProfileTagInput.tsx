@@ -251,8 +251,6 @@ export default function ProfileTagInput({
           open
           onClose={handleClose}
           multiple
-          PopperComponent={StyledAutocompletePopper}
-          PaperComponent={StyledAutocompletePaper}
           onChange={(_, newValue) => {
             let uniqueValues: Set<string>;
             if (Array.isArray(newValue) && newValue.length) {
@@ -294,6 +292,10 @@ export default function ProfileTagInput({
                 {option}
               </StyledAutocompleteOption>
             );
+          }}
+          slots={{
+            paper: StyledAutocompletePaper,
+            popper: StyledAutocompletePopper,
           }}
         />
       </StyledPopper>

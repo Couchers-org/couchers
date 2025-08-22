@@ -108,6 +108,10 @@ export default function GroupChatListItem({
         )}
       </ListItemAvatar>
       <ListItemText
+        slotProps={{
+          primary: { component: "span" },
+          secondary: { component: "span" },
+        }}
         primary={
           <StyledListItemTypography isUnread={isUnread} noWrap>
             {groupChatMembersQuery.isLoading ? (

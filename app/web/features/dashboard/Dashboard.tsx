@@ -20,19 +20,16 @@ export default function Dashboard() {
   return (
     <>
       <Hero />
-
       {/* this view uses a container, instead of it coming from the route layout,
         because the hero section is full viewport width */}
       <Container maxWidth="lg">
         <Grid container direction="row">
-          <Grid item sm={4} xs={12} sx={{ marginTop: theme.spacing(3) }}>
+          <Grid size={{ sm: 4, xs: 12 }} sx={{ marginTop: theme.spacing(3) }}>
             <DashboardUserProfileSummary />
           </Grid>
 
           <Grid
-            item
-            sm={8}
-            xs={12}
+            size={{ sm: 8, xs: 12 }}
             sx={{
               [theme.breakpoints.up("sm")]: {
                 paddingLeft: theme.spacing(5),
@@ -51,7 +48,13 @@ export default function Dashboard() {
               </Typography>
             </Alert>
 
-            <Typography variant="h1" component="h2" paragraph>
+            <Typography
+              variant="h1"
+              component="h2"
+              sx={{
+                marginBottom: "16px",
+              }}
+            >
               {t("dashboard:dashboard")}
             </Typography>
 

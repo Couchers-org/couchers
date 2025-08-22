@@ -21,7 +21,12 @@ export default function FeaturePreview() {
     <>
       <HtmlMeta title={t("feature_preview.title")} />
       <PageTitle>{t("feature_preview.title")}</PageTitle>
-      <Typography variant="body1" paragraph>
+      <Typography
+        variant="body1"
+        sx={{
+          marginBottom: "16px",
+        }}
+      >
         {t("feature_preview.explanation")}
       </Typography>
       <MuiAlert severity="warning">
