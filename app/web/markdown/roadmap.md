@@ -136,7 +136,7 @@ hide_title: true
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Pretty Notification Emails</td>
     </tr>
     <tr >
-      <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Translate Couchers.org to German</td>
+      <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Translate Couchers to German</td>
     </tr>
     <tr>
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ New Chat Bubble Design in Messages</td>
@@ -182,7 +182,7 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="2"</td>
-      <td colspan="3" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅  Improve Language Selector</td>
+      <td colspan="3" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Improve Language Selector</td>
     </tr>
     <tr >
       <td colspan="2"</td>
@@ -190,7 +190,7 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="2"</td>
-      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Translate Couchers to Russian</td>
+      <td colspan="3" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Translate Couchers to Russian</td>
     </tr>
     <tr >
       <td colspan="2"</td>
