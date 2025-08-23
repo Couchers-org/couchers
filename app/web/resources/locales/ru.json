@@ -3,7 +3,7 @@
     "expand": "Развернуть",
     "back": "Назад",
     "continue": "Продолжить",
-    "update": "обновить",
+    "update": "Обновить",
     "community_standing_description": "Рассчитывается на основе различных факторов, таких как рекомендации и вовлечённость сообщества.",
     "language_preference": {
         "translation_progress": {
@@ -13,7 +13,7 @@
             "info_text": "💡 Языки с уровнем завершённости менее 20% скрыты из списка выбора языка. Языки с завершённостью от 20% до 80% отображаются серым цветом.",
             "no_data": "Данные для перевода отсутствуют",
             "error_loading": "Не удалось загрузить прогресс перевода",
-            "complete": "Завершить",
+            "complete": "Завершено",
             "almost_there": "Почти готово",
             "in_progress": "В процессе",
             "early_stage": "Ранняя стадия",
@@ -53,7 +53,7 @@
     "sign_up": "Зарегистрироваться",
     "title": "заголовок",
     "create": "Создать",
-    "terms_of_service": "Условия обслуживания",
+    "terms_of_service": "Условия Обслуживания",
     "required": "Требуется",
     "accept": "Принять",
     "thanks": "Спасибо!",
@@ -144,7 +144,7 @@
     "components": {
         "edit_location_map": {
             "display_location_label": "Показать местоположение",
-            "search_location_label": "Поиск местоположения"
+            "search_location_label": "Поиск по локации"
         },
         "datepicker": {
             "change_date": "Изменить дату"

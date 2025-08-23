@@ -28,7 +28,8 @@
                     "reject": "Jemand lehnt deine Host-anfrage ab",
                     "cancel": "Jemand storniert seine Gastgeberanfrage",
                     "message": "Jemand sendet eine Nachricht in einer Gastgeberanfrage",
-                    "missed_messages": "Du hast Nachrichten in einer Host-anfrage verpasst"
+                    "missed_messages": "Du hast Nachrichten in einer Host-anfrage verpasst",
+                    "reminder": "Du hast auf eine ausstehende Host-Anfrage nicht geantwortet"
                 },
                 "chat": {
                     "message": "Jemand sendet dir eine Nachricht",
