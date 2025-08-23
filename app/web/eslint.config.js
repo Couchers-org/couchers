@@ -1,8 +1,8 @@
-// import reactRefresh from "eslint-plugin-react-refresh";
 import { FlatCompat } from "@eslint/eslintrc";
 import eslint from "@eslint/js";
 import eslintParser from "@typescript-eslint/parser";
 import importPlugin from "eslint-plugin-import";
+import jestPlugin from "eslint-plugin-jest";
 import noRelativeImportPlugin from "eslint-plugin-no-relative-import-paths";
 import unusedImportsPlugin from "eslint-plugin-unused-imports";
 import { dirname } from "path";
@@ -64,7 +64,7 @@ export default tseslint.config([
   },
   // Next config needs compatibility layer for new ESLint versions
   compat.config({
-    extends: ["next"],
+    extends: ["next/core-web-vitals", "next/typescript", "prettier"],
     settings: {
       next: {
         rootDir: ".",
@@ -77,7 +77,7 @@ export default tseslint.config([
     languageOptions: {
       parser: eslintParser,
       parserOptions: {
-        ecmaVersion: 2021,
+        ecmaVersion: "latest",
         sourceType: "module",
         project: true,
         tsconfigRootDir: __dirname,
@@ -88,6 +88,7 @@ export default tseslint.config([
       "unused-imports": unusedImportsPlugin,
       import: importPlugin,
       "no-relative-import-paths": noRelativeImportPlugin,
+      jest: jestPlugin,
     },
     rules: {
       // Add a space after comments for consistency.
@@ -195,6 +196,9 @@ export default tseslint.config([
       "@typescript-eslint/no-empty-function": "off",
       "@typescript-eslint/ban-ts-comment": "off",
       "@typescript-eslint/no-non-null-assertion": "off",
+      "jest/no-test-prefixes": "warn",
+      "jest/no-disabled-tests": "warn",
+      "jest/consistent-test-it": ["warn", { fn: "it" }],
     },
   },
 ]);

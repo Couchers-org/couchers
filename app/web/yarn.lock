@@ -4245,6 +4245,11 @@ eslint-config-next@15.4.6:
     eslint-plugin-react "^7.37.0"
     eslint-plugin-react-hooks "^5.0.0"
 
+eslint-config-prettier@^10.1.8:
+  version "10.1.8"
+  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-10.1.8.tgz#15734ce4af8c2778cc32f0b01b37b0b5cd1ecb97"
+  integrity sha512-82GZUjRS0p/jganf6q1rEO25VSoHH0hKPCTrgillPjdI/3bgBhAE1QzHrHTizjpRvy6pGAvKjDJtk2pF9NDq8w==
+
 eslint-import-context@^0.1.8:
   version "0.1.9"
   resolved "https://registry.yarnpkg.com/eslint-import-context/-/eslint-import-context-0.1.9.tgz#967b0b2f0a90ef4b689125e088f790f0b7756dbe"

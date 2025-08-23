@@ -11,8 +11,8 @@
     "injectsourcemaps": "sentry-cli sourcemaps inject .next/",
     "dev": "next dev",
     "start": "yarn dev",
-    "format": "prettier --write '**/*.{ts,tsx,js,jsx,json,css,md}'",
-    "format:check": "prettier --check '**/*.{ts,tsx,js,jsx,json,css,md}'",
+    "format": "yarn lint:fix && prettier --write '**/*.{ts,tsx,js,jsx,json,css,md}'",
+    "format:check": "yarn eslint && prettier --check '**/*.{ts,tsx,js,jsx,json,css,md}'",
     "create-translation-files": "node scripts/create-translation-files.js",
     "delete-translation-files": "node scripts/delete-translation-files.js",
     "jest": "jest --modulePaths=.",
@@ -40,6 +40,7 @@
     "classnames": "^2.5.1",
     "country-flag-icons": "^1.5.19",
     "dayjs": "^1.11.13",
+    "eslint-config-prettier": "^10.1.8",
     "frontmatter-markdown-loader": "^3.7.0",
     "geojson": "^0.5.0",
     "glob": "^11.0.3",
@@ -113,6 +114,9 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.39.1",
     "whatwg-fetch": "^3.6.20"
+  },
+  "resolutions": {
+    "@types/react": "^18.3.1"
   },
   "packageManager": "yarn@1.22.22"
 }

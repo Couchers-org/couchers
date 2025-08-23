@@ -1,8 +1,8 @@
 const config = {
-  importOrder: ["<THIRD_PARTY_MODULES>", "^[./]"],
+  // Third-party modules are moved to top by default
+  importOrder: ["^@/(.*)$", "^[.]"],
   importOrderSeparation: true,
   importOrderSortSpecifiers: true,
-  printWidth: 79,
   plugins: ["@trivago/prettier-plugin-sort-imports"],
   trailingComma: "all",
   singleQuote: false,
