@@ -4,10 +4,6 @@ const config = {
   importOrderSeparation: true,
   importOrderSortSpecifiers: true,
   plugins: ["@trivago/prettier-plugin-sort-imports"],
-  trailingComma: "all",
-  singleQuote: false,
-  tabWidth: 2,
-  endingPosition: "absolute-with-indent",
 };
 
 export default config;
