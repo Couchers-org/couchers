@@ -1,6 +1,8 @@
 import { FlatCompat } from "@eslint/eslintrc";
 import eslint from "@eslint/js";
+import stylisticPlugin from "@stylistic/eslint-plugin";
 import eslintParser from "@typescript-eslint/parser";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
 import importPlugin from "eslint-plugin-import";
 import jestPlugin from "eslint-plugin-jest";
 import noRelativeImportPlugin from "eslint-plugin-no-relative-import-paths";
@@ -64,7 +66,7 @@ export default tseslint.config([
   },
   // Next config needs compatibility layer for new ESLint versions
   compat.config({
-    extends: ["next/core-web-vitals", "next/typescript", "prettier"],
+    extends: ["next/core-web-vitals"],
     settings: {
       next: {
         rootDir: ".",
@@ -89,11 +91,12 @@ export default tseslint.config([
       import: importPlugin,
       "no-relative-import-paths": noRelativeImportPlugin,
       jest: jestPlugin,
+      stylistic: stylisticPlugin,
     },
     rules: {
       // Add a space after comments for consistency.
       // Stylistic rule that isn't handled by prettier
-      "spaced-comment": ["warn", "always"],
+      "stylistic/spaced-comment": ["warn", "always"],
 
       // Console logs should only be used for debugging.
       // Use custom logging function for actual logging
@@ -103,10 +106,7 @@ export default tseslint.config([
 
       // Force promises to be awaited/handled with .catch,
       // can be bypassed by adding "void" in front of call
-      "@typescript-eslint/no-floating-promises": [
-        "warn",
-        { ignoreVoid: true },
-      ],
+      "@typescript-eslint/no-floating-promises": ["warn", { ignoreVoid: true }],
 
       "@typescript-eslint/no-unused-vars": "off",
       "unused-imports/no-unused-imports": "warn",
@@ -201,4 +201,5 @@ export default tseslint.config([
       "jest/consistent-test-it": ["warn", { fn: "it" }],
     },
   },
+  eslintConfigPrettier,
 ]);

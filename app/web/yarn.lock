@@ -1978,6 +1978,18 @@
   resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-7.8.0.tgz#01390d31030f04b64a7ff13adcccbafd615c7b77"
   integrity sha512-DNXRfYUgkZlrniQORbA/wH8CdFRhiBSE0R56gYU0V5vvpJ9WZwvGrz9tBAZmfq2aTgw6SK7mNpmTizGzLWVezw==
 
+"@stylistic/eslint-plugin@^5.2.3":
+  version "5.2.3"
+  resolved "https://registry.yarnpkg.com/@stylistic/eslint-plugin/-/eslint-plugin-5.2.3.tgz#f2be5d25e768f5ef4bb72d339bb71c500accef61"
+  integrity sha512-oY7GVkJGVMI5benlBDCaRrSC1qPasafyv5dOBLLv5MTilMGnErKhO6ziEfodDDIZbo5QxPUNW360VudJOFODMw==
+  dependencies:
+    "@eslint-community/eslint-utils" "^4.7.0"
+    "@typescript-eslint/types" "^8.38.0"
+    eslint-visitor-keys "^4.2.1"
+    espree "^10.4.0"
+    estraverse "^5.3.0"
+    picomatch "^4.0.3"
+
 "@swc/helpers@0.5.15":
   version "0.5.15"
   resolved "https://registry.yarnpkg.com/@swc/helpers/-/helpers-0.5.15.tgz#79efab344c5819ecf83a43f3f9f811fc84b516d7"
@@ -2600,7 +2612,7 @@
   resolved "https://registry.yarnpkg.com/@typescript-eslint/types/-/types-8.39.1.tgz#f0ab996c8ab2c3b046bbf86bb1990b03529869a1"
   integrity sha512-7sPDKQQp+S11laqTrhHqeAbsCfMkwJMrV7oTDvtDds4mEofJYir414bYKUEb8YPUm9QL3U+8f6L6YExSoAGdQw==
 
-"@typescript-eslint/types@8.40.0", "@typescript-eslint/types@^8.40.0":
+"@typescript-eslint/types@8.40.0", "@typescript-eslint/types@^8.38.0", "@typescript-eslint/types@^8.40.0":
   version "8.40.0"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/types/-/types-8.40.0.tgz#0b580fdf643737aa5c01285314b5c6e9543846a9"
   integrity sha512-ETdbFlgbAmXHyFPwqUIYrfc12ArvpBhEVgGAxVYSwli26dn8Ko+lIo4Su9vI9ykTZdJn+vJprs/0eZU0YMAEQg==
@@ -4512,7 +4524,7 @@ eslint@9.0.0:
     strip-ansi "^6.0.1"
     text-table "^0.2.0"
 
-espree@^10.0.1:
+espree@^10.0.1, espree@^10.4.0:
   version "10.4.0"
   resolved "https://registry.yarnpkg.com/espree/-/espree-10.4.0.tgz#d54f4949d4629005a1fa168d937c3ff1f7e2a837"
   integrity sha512-j6PAQ2uUr79PZhBjP5C5fhl8e39FmRnOjsD5lGnWrFU8i2G776tBK7+nP8KuQUTTyAZUwfQqXAgrVH5MbH9CYQ==
@@ -7200,6 +7212,11 @@ picomatch@^4.0.2:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-4.0.2.tgz#77c742931e8f3b8820946c76cd0c1f13730d1dab"
   integrity sha512-M7BAV6Rlcy5u+m6oPhAPFgJTzAioX/6B0DxyvDlo9l8+T3nLKbrczg2WLUyzd45L8RqfUMyGPzekbMvX2Ldkwg==
+
+picomatch@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-4.0.3.tgz#796c76136d1eead715db1e7bad785dedd695a042"
+  integrity sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==
 
 pirates@^4.0.4:
   version "4.0.6"
