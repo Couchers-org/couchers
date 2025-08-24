@@ -4,7 +4,7 @@ This is the react/nextjs web frontend for Couchers.org. We are using Typescript 
 
 Communication with the backend is via [protobuf messages](https://github.com/protocolbuffers/protobuf-javascript) over [grpc-web](https://github.com/grpc/grpc-web). You can find some helpful documentation on [protobuf messages in javascript here](https://protobuf.dev/protobuf-javascript/).
 
-_Readme last updated: 2024/11/14._
+_Readme last updated: 2025/08/23._
 
 ## Quick Start
 
