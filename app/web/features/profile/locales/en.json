@@ -290,5 +290,7 @@
     "open_to_meetup_description": "I might meet up, depending on the circumstances",
     "does_not_want_to_meetup_description": "I prefer not to meet up with others"
   },
-  "avatar_photo_info": "<bold>A photo of yourself is required to interact with the community.</bold> A clear, friendly photo showing your face builds trust, helps others feel comfortable, and greatly improves your chances of receiving a response."
+  "avatar_photo_info": "<bold>A photo of yourself is required to interact with the community.</bold> A clear, friendly photo showing your face builds trust, helps others feel comfortable, and greatly improves your chances of receiving a response.",
+  "profile_changes_saved_message": "Profile changes saved!",
+  "hosting_preferences_success_message": "Hosting preferences saved!"
 }

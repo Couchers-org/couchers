@@ -10,6 +10,7 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Select from "components/Select";
+import Snackbar from "components/Snackbar";
 import {
   parkingDetailsLabels,
   sleepingArrangementLabelsShort,
@@ -223,11 +224,19 @@ export default function HostingPreferenceForm() {
   } = useUpdateHostingPreferences();
   const { data: user } = useCurrentUser();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { control, register, handleSubmit, reset, formState, watch } =
-    useForm<HostingPreferenceData>({
-      mode: "onBlur",
-      shouldFocusError: true,
-    });
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const {
+    control,
+    register,
+    handleSubmit,
+    reset,
+    formState,
+    watch,
+    getValues,
+  } = useForm<HostingPreferenceData>({
+    mode: "onBlur",
+    shouldFocusError: true,
+  });
 
   const hasHousemates = watch("hasHousemates");
   const hasKids = watch("hasKids");
@@ -325,6 +334,12 @@ export default function HostingPreferenceForm() {
             : data.aboutPlace,
         },
         setMutationError: setErrorMessage,
+        onSuccess: () => {
+          // Reset form dirty state to hide save bar
+          const currentValues = getValues();
+          reset(currentValues, { keepValues: true, keepDirty: false });
+          setShowSuccessToast(true);
+        },
       },
       {
         // Scoll to top on submission error
@@ -337,6 +352,11 @@ export default function HostingPreferenceForm() {
 
   return (
     <>
+      {showSuccessToast && (
+        <Snackbar severity="success">
+          {t("profile:hosting_preferences_success_message")}
+        </Snackbar>
+      )}
       {updateError && (
         <StyledAlert severity="error">
           {errorMessage || "Unknown error"}
