@@ -4,11 +4,11 @@ This is the react/nextjs web frontend for Couchers.org. We are using Typescript 
 
 Communication with the backend is via [protobuf messages](https://github.com/protocolbuffers/protobuf-javascript) over [grpc-web](https://github.com/grpc/grpc-web). You can find some helpful documentation on [protobuf messages in javascript here](https://protobuf.dev/protobuf-javascript/).
 
-*Readme last updated: 2024/11/14.*
+_Readme last updated: 2024/11/14._
 
 ## Quick Start
 
-*These instructions should work directly on Linux and macOS. If you are using Windows, please [install Ubuntu via WSL2](https://documentation.ubuntu.com/wsl/en/latest/guides/install-ubuntu-wsl2/), then follow these instructions inside Ubuntu.*
+_These instructions should work directly on Linux and macOS. If you are using Windows, please [install Ubuntu via WSL2](https://documentation.ubuntu.com/wsl/en/latest/guides/install-ubuntu-wsl2/), then follow these instructions inside Ubuntu._
 
 You need `nodejs` v20. We recommend using `nvm` (the [node version manager](https://github.com/nvm-sh/nvm)) to do this. You can install it with:
 
@@ -143,6 +143,10 @@ cp .env.localdev .env.development
 # run the frontend (follow Quick Start for prep)
 yarn start
 ```
+
+## Sentry error logging
+
+We self-host sentry to capture errors. It can be accessed at https://couchers.sentry.io/.
 
 ## Other dev commands
 
