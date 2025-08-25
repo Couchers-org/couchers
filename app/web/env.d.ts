@@ -15,5 +15,6 @@ declare namespace NodeJS {
     NEXT_PUBLIC_STRIPE_KEY: string;
     NEXT_PUBLIC_GLOBAL_MESSAGE_URL: string;
     NEXT_PUBLIC_RECAPTCHA_SITE_KEY?: string;
+    SENTRY_RELEASE: string;
   }
 }
