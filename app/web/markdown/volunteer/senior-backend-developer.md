@@ -10,7 +10,7 @@ description: "Apply to volunteer as a Senior Backend Developer for Couchers.org"
 
 **This is a remote volunteer position**
 
-Couchers.org is seeking a Senior Backend Developer to help guide our backend team. For this role we are specifically seeking experienced Python engineers who are able to help review PRs and support our junior and mid-level backend team, in addition to doing feature work.
+For this role we are specifically seeking experienced Python engineers who are able to help review PRs and support our junior and mid-level engineers on the backend team, in addition to doing feature work.
 
 The Couchers.org codebase is open source under the MIT license and we accept occasional contributions via the [Open Source Developer process](/volunteer/open-source-developer), however, we are looking for some dedicated volunteers who can join the formal backend team and make a commitment of 5+ hours per week (you choose when!).
 
