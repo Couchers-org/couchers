@@ -563,7 +563,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         )
 
     def SendHostRequestMessage(self, request, context, session):
-        if request.text == "":
+        message = request.text.strip()
+        if not message:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
         host_request = session.execute(
             select(HostRequest).where(HostRequest.conversation_id == request.host_request_id)
@@ -578,11 +579,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if host_request.host_user_id == context.user_id:
             _possibly_observe_first_response_time(session, host_request, context.user_id, "message")
 
-        message = Message()
-        message.conversation_id = host_request.conversation_id
-        message.author_id = context.user_id
-        message.message_type = MessageType.text
-        message.text = request.text
+        message = Message(
+            conversation_id=host_request.conversation_id,
+            author_id=context.user_id,
+            message_type=MessageType.text,
+            text=message,
+        )
         session.add(message)
         session.flush()
 
@@ -597,7 +599,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 data=notification_data_pb2.HostRequestMessage(
                     host_request=host_request_to_pb(host_request, session, context),
                     user=user_model_to_pb(host_request.surfer, session, context),
-                    text=request.text,
+                    text=message,
                     am_host=True,
                 ),
             )
@@ -613,7 +615,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 data=notification_data_pb2.HostRequestMessage(
                     host_request=host_request_to_pb(host_request, session, context),
                     user=user_model_to_pb(host_request.host, session, context),
-                    text=request.text,
+                    text=message,
                     am_host=False,
                 ),
             )
