@@ -229,6 +229,8 @@ export default function HostingPreferenceForm() {
       shouldFocusError: true,
     });
 
+  console.log("USER", user);
+
   const hasHousemates = watch("hasHousemates");
   const hasKids = watch("hasKids");
   const hasPets = watch("hasPets");
@@ -436,6 +438,7 @@ export default function HostingPreferenceForm() {
                 label={t("profile:home_info_headings.about_home")}
                 name="aboutPlace"
                 control={control}
+                defaultValue={user.aboutPlace || DEFAULT_ABOUT_HOME_HEADINGS}
               />
             </FieldGroup>
 
@@ -658,6 +661,7 @@ export default function HostingPreferenceForm() {
                 label={t("profile:home_info_headings.local_area")}
                 name="area"
                 control={control}
+                defaultValue={user.area?.value}
               />
             </FieldGroup>
 
@@ -667,6 +671,7 @@ export default function HostingPreferenceForm() {
                 label={t("profile:home_info_headings.sleeping_arrangement")}
                 name="sleepingDetails"
                 control={control}
+                defaultValue={user.sleepingDetails?.value}
               />
             </FieldGroup>
 
@@ -676,6 +681,7 @@ export default function HostingPreferenceForm() {
                 label={t("profile:home_info_headings.house_rules")}
                 name="houseRules"
                 control={control}
+                defaultValue={user.houseRules?.value}
               />
             </FieldGroup>
 
@@ -685,6 +691,7 @@ export default function HostingPreferenceForm() {
                 label={t("profile:home_info_headings.other_info")}
                 name="otherHostInfo"
                 control={control}
+                defaultValue={user.otherHostInfo?.value}
               />
             </FieldGroup>
           </ProfileSection>
