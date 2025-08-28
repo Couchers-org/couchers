@@ -1,15 +1,4 @@
-import {
-  CardActions,
-  FormControlLabel,
-  InputLabel,
-  MenuItem,
-  Radio,
-  RadioGroup,
-  Select,
-  Skeleton,
-  styled,
-  Typography,
-} from "@mui/material";
+import { CardActions, Skeleton, styled, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -21,8 +10,8 @@ import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
-import React, { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { howToWriteRequestGuideUrl } from "routes";
 import { service } from "service";
 import { CreateHostRequestWrapper } from "service/requests";
@@ -76,8 +65,6 @@ export default function NewHostRequest({
   setIsRequesting,
 }: NewHostRequestProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
-  const isPostBetaEnabled = process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED;
-  const [numVisitors, setNumVisitors] = useState(1);
   const user = useProfileUser();
 
   const {
@@ -111,15 +98,6 @@ export default function NewHostRequest({
   const onSubmit = handleSubmit((data) => {
     mutate(data);
     reset();
-  });
-
-  const guests = Array.from({ length: 8 }, (_, i) => {
-    const num = i + 1;
-    return (
-      <MenuItem key={num} value={num}>
-        {num}
-      </MenuItem>
-    );
   });
 
   const watchFromDate = watch("fromDate", undefined);
