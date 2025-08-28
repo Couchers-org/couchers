@@ -396,11 +396,6 @@ export default function EditProfileForm() {
 
   return (
     <>
-      {showSuccessToast && (
-        <Snackbar severity="success">
-          {t("profile:profile_changes_saved_message")}
-        </Snackbar>
-      )}
       {updateError && (
         <Alert severity="error">
           {errorMessage || t("global:error.unknown")}
@@ -951,6 +946,15 @@ export default function EditProfileForm() {
                   />
                 </FieldGroup>
               </ProfileSection>
+            )}
+
+            {showSuccessToast && (
+              <Snackbar
+                severity="success"
+                onClose={() => setShowSuccessToast(false)}
+              >
+                {t("profile:profile_changes_saved_message")}
+              </Snackbar>
             )}
 
             {/* Bottom spacer to prevent content from being hidden behind sticky bar */}
