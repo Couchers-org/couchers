@@ -93,8 +93,9 @@ export default function PushNotificationSettings() {
       </StyledTitleBox>
       {errorMessage && (
         <StyledAlert severity="error">
-          {errorMessage ||
-            t("notification_settings.push_notifications.error_generic")}
+          {errorMessage
+            ? t(errorMessage)
+            : t("notification_settings.push_notifications.error_generic")}
         </StyledAlert>
       )}
       {shouldPromptAllow && (
