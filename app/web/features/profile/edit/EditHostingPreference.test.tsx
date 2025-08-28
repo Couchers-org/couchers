@@ -8,9 +8,9 @@ import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { getUser } from "test/serviceMockDefaults";
 
+import { ParkingDetails } from "../../../proto/api_pb";
 import { addDefaultUser, MockedService } from "../../../test/utils";
 import EditHostingPreference from "./EditHostingPreference";
-import { ParkingDetails } from "../../../proto/api_pb";
 
 const { t } = i18n;
 
@@ -107,30 +107,16 @@ describe("EditHostingPreference", () => {
   });
 
   it("should pre-fill info based on existing user values", async () => {
-    getUserMock.mockImplementation(async (user) => ({
-      ...(await getUser(user)),
-      lastMinute: { value: true },
-      acceptsKids: { value: false },
-    }));
-
     renderPage();
 
     await screen.findByText(
       t("profile:home_info_headings.hosting_preferences"),
     );
 
-    // Check checkboxes are pre-filled correctly
-    expect(
-      screen.getByLabelText(
-        t("profile:home_info_headings.last_minute"),
-      ) as HTMLInputElement,
-    ).toBeChecked();
-
-    expect(
-      screen.getByLabelText(
-        t("profile:edit_home_questions.accept_kids"),
-      ) as HTMLInputElement,
-    ).not.toBeChecked();
+    const lastMinuteField = screen.getByLabelText(
+      t("profile:home_info_headings.last_minute"),
+    ) as HTMLInputElement;
+    expect(lastMinuteField).toBeChecked();
 
     // Check that free text input fields are pre-filled with existing values
     const aboutPlaceField = await screen.findByLabelText(
@@ -139,6 +125,27 @@ describe("EditHostingPreference", () => {
     expect(aboutPlaceField).toHaveValue(
       "You should not come if you are allergic to cat furs.",
     );
+
+    const hasKidsField = await screen.findByLabelText(
+      t("profile:home_info_headings.has_kids"),
+    );
+    expect(hasKidsField).toBeChecked();
+
+    const acceptKidsField = await screen.findByLabelText(
+      t("profile:edit_home_questions.accept_kids"),
+    );
+    expect(acceptKidsField).toBeChecked();
+
+    const hasHousematesField = await screen.findByLabelText(
+      t("profile:home_info_headings.has_housemates"),
+    );
+    expect(hasHousematesField).toBeChecked();
+
+    const acceptPetsField = await screen.findByLabelText(
+      t("profile:edit_home_questions.accept_pets"),
+    );
+
+    expect(acceptPetsField).toBeChecked();
 
     const areaField = await screen.findByLabelText(
       t("profile:home_info_headings.local_area"),
@@ -272,7 +279,7 @@ describe("EditHostingPreference", () => {
     expect(hasHousematesCheckbox).not.toBeChecked();
 
     const hasChildrenCheckbox = await screen.findByLabelText(
-      t("profile:home_info_headings.host_kids"),
+      t("profile:home_info_headings.has_kids"),
     );
 
     const hasChildrenDetailsField = (await screen.findByLabelText(
@@ -290,7 +297,7 @@ describe("EditHostingPreference", () => {
     expect(hasChildrenCheckbox).not.toBeChecked();
 
     const hasPetsCheckbox = await screen.findByLabelText(
-      t("profile:home_info_headings.host_pets"),
+      t("profile:home_info_headings.has_pets"),
     );
 
     const hasPetsDetailsField = (await screen.findByLabelText(

@@ -37,7 +37,7 @@
   },
   "home_info_headings": {
     "about_home": "О моём доме",
-    "host_pets": "Есть домашние животные",
+    "has_pets": "Есть домашние животные",
     "host_smoking": "Курение в доме",
     "house_rules": "Правила Дома",
     "hosting_preferences": "Настройки размещения",
@@ -57,7 +57,7 @@
     "about_home_subtitle": "Расскажите гостям о вашем доме и о том, чего они могут ожидать",
     "hosting_preferences_subtitle": "Дайте гостям понять, что для вас приемлемо",
     "home_facilities": "Удобства в доме",
-    "host_kids": "Есть дети",
+    "has_kids": "Есть дети",
     "kid_details": "Данные о детях",
     "last_minute": "Принимать запросы в последнюю минуту",
     "local_area": "Информация о местности",
