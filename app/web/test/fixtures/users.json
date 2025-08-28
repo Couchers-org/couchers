@@ -51,12 +51,15 @@
     "parking": { "value": true },
     "parkingDetails": 3,
     "smokingAllowed": 1,
+    "acceptsKids": { "value": true },
+    "acceptsPets": { "value": true },
     "avatarUrl": "https://loremflickr.com/200/200?user1",
     "avatarThumbnailUrl": "https://loremflickr.com/50/50?user1",
     "badgesList": ["founder", "donor", "strong_verification"],
     "hasStrongVerification": true,
     "birthdateVerificationStatus": 2,
-    "genderVerificationStatus": 2
+    "genderVerificationStatus": 2,
+    "lastMinute": { "value": true }
   },
   {
     "name": "Funny Dog",
