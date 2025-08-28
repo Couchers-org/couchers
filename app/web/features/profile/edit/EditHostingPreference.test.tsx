@@ -10,6 +10,7 @@ import { getUser } from "test/serviceMockDefaults";
 
 import { addDefaultUser, MockedService } from "../../../test/utils";
 import EditHostingPreference from "./EditHostingPreference";
+import { ParkingDetails } from "../../../proto/api_pb";
 
 const { t } = i18n;
 
@@ -212,5 +213,133 @@ describe("EditHostingPreference", () => {
         t("profile:home_info_headings.space"),
       ) as HTMLSelectElement,
     ).toHaveValue("2");
+  });
+
+  it("should properly update a value when the user unchecks the checkbox", async () => {
+    // prevent the unsavedChanged pop up by mocking window.confirm
+    jest.spyOn(window, "confirm").mockImplementation(() => true);
+
+    renderPage();
+
+    const user = userEvent.setup();
+
+    const lastMinuteCheckbox = await screen.findByLabelText(
+      t("profile:home_info_headings.last_minute"),
+    );
+
+    expect(lastMinuteCheckbox).toBeChecked();
+
+    await user.click(lastMinuteCheckbox);
+
+    expect(lastMinuteCheckbox).not.toBeChecked();
+
+    const saveButton = await screen.findByRole("button", {
+      name: t("global:save_changes"),
+    });
+    await user.click(saveButton);
+
+    expect(updateHostingPreferenceMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        lastMinute: false,
+      }),
+    );
+  });
+
+  it("should clear related input value when the user unchecks the checkbox", async () => {
+    // prevent the unsavedChanged pop up by mocking window.confirm
+    jest.spyOn(window, "confirm").mockImplementation(() => true);
+
+    renderPage();
+
+    const user = userEvent.setup();
+
+    const hasHousematesCheckbox = await screen.findByLabelText(
+      t("profile:home_info_headings.has_housemates"),
+    );
+
+    const hasHousematesDetailsField = (await screen.findByLabelText(
+      t("profile:home_info_headings.housemate_details"),
+    )) as HTMLInputElement;
+
+    expect(hasHousematesCheckbox).toBeChecked();
+
+    expect(hasHousematesDetailsField).toHaveValue(
+      "Two roommates, both graduate students",
+    );
+
+    await user.click(hasHousematesCheckbox);
+
+    expect(hasHousematesCheckbox).not.toBeChecked();
+
+    const hasChildrenCheckbox = await screen.findByLabelText(
+      t("profile:home_info_headings.host_kids"),
+    );
+
+    const hasChildrenDetailsField = (await screen.findByLabelText(
+      t("profile:home_info_headings.kid_details"),
+    )) as HTMLInputElement;
+
+    expect(hasChildrenCheckbox).toBeChecked();
+
+    expect(hasChildrenDetailsField).toHaveValue(
+      "One 8-year-old daughter, very friendly",
+    );
+
+    await user.click(hasChildrenCheckbox);
+
+    expect(hasChildrenCheckbox).not.toBeChecked();
+
+    const hasPetsCheckbox = await screen.findByLabelText(
+      t("profile:home_info_headings.host_pets"),
+    );
+
+    const hasPetsDetailsField = (await screen.findByLabelText(
+      t("profile:home_info_headings.pet_details"),
+    )) as HTMLInputElement;
+
+    expect(hasPetsCheckbox).toBeChecked();
+
+    expect(hasPetsDetailsField).toHaveValue(
+      "One cat named Mittens, very social",
+    );
+
+    await user.click(hasPetsCheckbox);
+
+    expect(hasPetsCheckbox).not.toBeChecked();
+
+    const hasParkingAvailableCheckbox = await screen.findByLabelText(
+      t("profile:home_info_headings.parking"),
+    );
+
+    const hasParkingAvailableDetailsField = (await screen.findByLabelText(
+      t("profile:home_info_headings.parking_details"),
+    )) as HTMLSelectElement;
+
+    expect(hasParkingAvailableCheckbox).toBeChecked();
+
+    expect(hasParkingAvailableDetailsField).toHaveValue("3");
+
+    await user.click(hasParkingAvailableCheckbox);
+
+    expect(hasParkingAvailableCheckbox).not.toBeChecked();
+
+    const saveButton = await screen.findByRole("button", {
+      name: t("global:save_changes"),
+    });
+
+    await user.click(saveButton);
+
+    expect(updateHostingPreferenceMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        hasHousemates: false,
+        housemateDetails: "",
+        hasKids: false,
+        kidDetails: "",
+        hasPets: false,
+        petDetails: "",
+        parking: false,
+        parkingDetails: ParkingDetails.PARKING_DETAILS_UNKNOWN,
+      }),
+    );
   });
 });

@@ -229,8 +229,6 @@ export default function HostingPreferenceForm() {
       shouldFocusError: true,
     });
 
-  console.log("USER", user);
-
   const hasHousemates = watch("hasHousemates");
   const hasKids = watch("hasKids");
   const hasPets = watch("hasPets");
@@ -255,14 +253,21 @@ export default function HostingPreferenceForm() {
             user.sleepingArrangement ||
             SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN,
           hasHousemates: !!user.hasHousemates?.value,
-          housemateDetails: user.housemateDetails?.value ?? "",
+          housemateDetails:
+            user.housemateDetails?.value && hasHousemates
+              ? user.housemateDetails?.value
+              : "",
           hasKids: !!user.hasKids?.value,
-          kidDetails: user.kidDetails?.value ?? "",
+          kidDetails:
+            user.kidDetails?.value && hasKids ? user.kidDetails?.value : "",
           hasPets: !!user.hasPets?.value,
-          petDetails: user.petDetails?.value ?? "",
+          petDetails:
+            user.petDetails?.value && hasPets ? user.petDetails?.value : "",
           parking: !!user.parking?.value,
           parkingDetails:
-            user.parkingDetails || ParkingDetails.PARKING_DETAILS_UNKNOWN,
+            user.parkingDetails && hasParkingAvailable
+              ? user.parkingDetails
+              : ParkingDetails.PARKING_DETAILS_UNKNOWN,
           drinksAtHome: !!user.drinksAtHome?.value,
           smokesAtHome: !!user.smokesAtHome?.value,
           area: user.area?.value ?? "",
@@ -521,6 +526,7 @@ export default function HostingPreferenceForm() {
                       name="housemateDetails"
                       maxRows={3}
                       multiline
+                      value={user.housemateDetails?.value}
                     />
                   )}
                 </CheckboxItem>
@@ -540,6 +546,7 @@ export default function HostingPreferenceForm() {
                       name="kidDetails"
                       maxRows={3}
                       multiline
+                      value={user.kidDetails?.value}
                     />
                   )}
                 </CheckboxItem>
@@ -559,6 +566,7 @@ export default function HostingPreferenceForm() {
                       name="petDetails"
                       maxRows={3}
                       multiline
+                      value={user.petDetails?.value}
                     />
                   )}
                 </CheckboxItem>
@@ -606,7 +614,7 @@ export default function HostingPreferenceForm() {
                           onChange={(event) =>
                             field.onChange(event.target.value)
                           }
-                          value={field.value}
+                          value={user.parkingDetails}
                           id="parkingDetails"
                           options={[
                             ParkingDetails.PARKING_DETAILS_UNKNOWN,

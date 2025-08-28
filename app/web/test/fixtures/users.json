@@ -56,7 +56,8 @@
     "badgesList": ["founder", "donor", "strong_verification"],
     "hasStrongVerification": true,
     "birthdateVerificationStatus": 2,
-    "genderVerificationStatus": 2
+    "genderVerificationStatus": 2,
+    "lastMinute": { "value": true }
   },
   {
     "name": "Funny Dog",
