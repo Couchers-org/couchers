@@ -105,7 +105,7 @@ describe("EditHostingPreference", () => {
     );
   });
 
-  it("should pre-check checkboxes based on user values", async () => {
+  it("should pre-fill info based on existing user values", async () => {
     getUserMock.mockImplementation(async (user) => ({
       ...(await getUser(user)),
       lastMinute: { value: true },
@@ -118,6 +118,7 @@ describe("EditHostingPreference", () => {
       t("profile:home_info_headings.hosting_preferences"),
     );
 
+    // Check checkboxes are pre-filled correctly
     expect(
       screen.getByLabelText(
         t("profile:home_info_headings.last_minute"),
@@ -129,6 +130,62 @@ describe("EditHostingPreference", () => {
         t("profile:edit_home_questions.accept_kids"),
       ) as HTMLInputElement,
     ).not.toBeChecked();
+
+    // Check that free text input fields are pre-filled with existing values
+    const aboutPlaceField = await screen.findByLabelText(
+      t("profile:home_info_headings.about_home"),
+    );
+    expect(aboutPlaceField).toHaveValue(
+      "You should not come if you are allergic to cat furs.",
+    );
+
+    const areaField = await screen.findByLabelText(
+      t("profile:home_info_headings.local_area"),
+    );
+    expect(areaField).toHaveValue(
+      "Great neighborhood with cafes and parks nearby",
+    );
+
+    const sleepingDetailsField = await screen.findByLabelText(
+      t("profile:home_info_headings.sleeping_arrangement"),
+    );
+    expect(sleepingDetailsField).toHaveValue(
+      "Comfortable sofa bed in living room",
+    );
+
+    const houseRulesField = await screen.findByLabelText(
+      t("profile:home_info_headings.house_rules"),
+    );
+    expect(houseRulesField).toHaveValue(
+      "No smoking inside, quiet hours after 10pm",
+    );
+
+    const otherHostInfoField = await screen.findByLabelText(
+      t("profile:home_info_headings.other_info"),
+    );
+    expect(otherHostInfoField).toHaveValue(
+      "I have a friendly cat and love cooking together",
+    );
+
+    // Check conditional fields that should appear when checkboxes are checked
+    const housemateDetailsField = await screen.findByLabelText(
+      t("profile:home_info_headings.housemate_details"),
+    );
+    expect(housemateDetailsField).toHaveValue(
+      "Two roommates, both graduate students",
+    );
+
+    const kidDetailsField = await screen.findByLabelText(
+      t("profile:home_info_headings.kid_details"),
+    );
+    expect(kidDetailsField).toHaveValue(
+      "One 8-year-old daughter, very friendly",
+    );
+
+    const petDetailsField = await screen.findByLabelText(
+      t("profile:home_info_headings.pet_details"),
+    );
+    expect(petDetailsField).toHaveValue("One cat named Mittens, very social");
   });
 
   it("should display the users hosting preferences", async () => {
