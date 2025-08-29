@@ -423,26 +423,32 @@ export default function HostingPreferenceForm({
                     optionLabelMap={sleepingArrangementLabelsShort(t)}
                   />
                   <SleepingArrangementKey>
-                    <KeyTitle>What these options mean:</KeyTitle>
+                    <KeyTitle>{t("profile:what_options_mean")}:</KeyTitle>
                     <KeyItem>
                       <KeyBullet />
                       <KeyText>
-                        <strong>Private space:</strong>{" "}
-                        {t("profile:sleeping_arrangement.private")}
+                        <strong>
+                          {t("profile:sleeping_arrangement.private_short")}
+                        </strong>{" "}
+                        {`(${t("profile:sleeping_arrangement.private")})`}
                       </KeyText>
                     </KeyItem>
                     <KeyItem>
                       <KeyBullet />
                       <KeyText>
-                        <strong>Common room:</strong>{" "}
-                        {t("profile:sleeping_arrangement.common")}
+                        <strong>
+                          {t("profile:sleeping_arrangement.common_short")}
+                        </strong>{" "}
+                        {`(${t("profile:sleeping_arrangement.common")})`}
                       </KeyText>
                     </KeyItem>
                     <KeyItem>
                       <KeyBullet />
                       <KeyText>
-                        <strong>Shared room:</strong>{" "}
-                        {t("profile:sleeping_arrangement.shared_room")}
+                        <strong>
+                          {t("profile:sleeping_arrangement.shared_room_short")}:
+                        </strong>{" "}
+                        {`(${t("profile:sleeping_arrangement.shared_room")})`}
                       </KeyText>
                     </KeyItem>
                   </SleepingArrangementKey>
