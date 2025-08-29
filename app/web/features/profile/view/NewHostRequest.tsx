@@ -173,7 +173,7 @@ export default function NewHostRequest({
                 value: 250,
                 message: t(
                   "profile:request_form.request_char_length_too_short",
-                  { charactersRemaining: 250 - textField.length },
+                  { charactersRemaining: 250 - (textField?.length ?? 0) },
                 ),
               },
             })}
@@ -186,9 +186,9 @@ export default function NewHostRequest({
             helperText={
               errors.text?.message
                 ? errors.text.message
-                : 250 - textField.length > 0
+                : 250 - (textField?.length ?? 0) > 0
                   ? t("profile:request_form.request_char_length_too_short", {
-                      charactersRemaining: 250 - textField.length,
+                      charactersRemaining: 250 - (textField?.length ?? 0),
                     })
                   : ""
             }
