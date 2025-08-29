@@ -355,7 +355,7 @@ export default function HostingPreferenceForm({
               })}
               label={t("profile:home_info_headings.max_guests")}
               type="number"
-              inputProps={{ min: 1, max: 10 }}
+              slotProps={{ input: { inputProps: { min: 1, max: 10 } } }}
               error={!!errors?.maxGuests?.message}
               helperText={errors?.maxGuests?.message}
             />

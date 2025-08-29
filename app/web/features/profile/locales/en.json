@@ -1,4 +1,5 @@
 {
+  "active": "Active",
   "actions": {
     "back_to_dashboard": "Back to dashboard",
     "message_label": "Message",
@@ -290,5 +291,8 @@
     "open_to_meetup_description": "I might meet up, depending on the circumstances",
     "does_not_want_to_meetup_description": "I prefer not to meet up with others"
   },
-  "avatar_photo_info": "<bold>A photo of yourself is required to interact with the community.</bold> A clear, friendly photo showing your face builds trust, helps others feel comfortable, and greatly improves your chances of receiving a response."
+  "avatar_photo_info": "<bold>A photo of yourself is required to interact with the community.</bold> A clear, friendly photo showing your face builds trust, helps others feel comfortable, and greatly improves your chances of receiving a response.",
+  "couldnt_read_file": "Couldn't read file",
+  "select_an_image": "Select an image",
+  "names_profile_photo": "{{name}}'s profile photo"
 }
