@@ -18,6 +18,7 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { Dialog, DialogActions, DialogTitle } from "components/Dialog";
 import EditLocationMap from "components/EditLocationMap";
 import ImageInput from "components/ImageInput";
+import Snackbar from "components/Snackbar";
 import StyledLink from "components/StyledLink";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { useRegions } from "features/profile/hooks/useRegions";
@@ -235,6 +236,7 @@ export default function EditProfileForm() {
   );
   const [showIncompleteProfileDialog, setShowIncompleteProfileDialog] =
     useState(false);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
 
   const [isUploading, setIsUploading] = useState(false);
 
@@ -248,6 +250,7 @@ export default function EditProfileForm() {
     reset,
     formState: { errors, isDirty, isSubmitted },
     watch,
+    getValues,
   } = useForm<EditProfileFormValues>({
     shouldFocusError: true,
   });
@@ -356,6 +359,12 @@ export default function EditProfileForm() {
               : data.thingsILike,
           },
           setMutationError: setErrorMessage,
+          onSuccess: () => {
+            // Reset form dirty state to hide save bar
+            const currentValues = getValues();
+            reset(currentValues, { keepValues: true, keepDirty: false });
+            setShowSuccessToast(true);
+          },
         },
         {
           // Scoll to top on submission error
@@ -937,6 +946,15 @@ export default function EditProfileForm() {
                   />
                 </FieldGroup>
               </ProfileSection>
+            )}
+
+            {showSuccessToast && (
+              <Snackbar
+                severity="success"
+                onClose={() => setShowSuccessToast(false)}
+              >
+                {t("profile:profile_changes_saved_message")}
+              </Snackbar>
             )}
 
             {/* Bottom spacer to prevent content from being hidden behind sticky bar */}
