@@ -171,16 +171,23 @@ export default function MarkdownPage({
         sx={{ marginTop: theme.spacing(3) }}
       >
         <StyledBreadcrumbs aria-label="breadcrumb">
-          {crumbs.map((crumb) => (
-            <Link
-              key={crumb.key}
-              underline="hover"
-              color="inherit"
-              href={crumb.path}
-            >
-              {crumb.value}
-            </Link>
-          ))}
+          {crumbs.map((crumb, index) => {
+            const isLast = index === crumbs.length - 1;
+            return isLast ? (
+              <Typography key={crumb.key} color="textPrimary">
+                {crumb.value}
+              </Typography>
+            ) : (
+              <Link
+                key={crumb.key}
+                underline="hover"
+                color="inherit"
+                href={crumb.path}
+              >
+                {crumb.value}
+              </Link>
+            );
+          })}
         </StyledBreadcrumbs>
         {!frontmatter.hide_title && (
           <StyledTitle>{frontmatter.title}</StyledTitle>

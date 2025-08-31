@@ -1,10 +1,5 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {
-  COULDNT_READ_FILE,
-  getAvatarLabel,
-  SELECT_AN_IMAGE,
-} from "components/constants";
 import { StatusCode } from "grpc-web";
 import { InitiateMediaUploadRes } from "proto/api_pb";
 import { useForm } from "react-hook-form";
@@ -76,7 +71,9 @@ describe.each`
               id="image-input"
               initialPreviewSrc={MOCK_INITIAL_SRC}
               name="imageInput"
-              alt={getAvatarLabel(NAME)}
+              alt={t("profile:names_profile_photo", {
+                name: NAME,
+              })}
               type="rect"
               onSuccess={onSuccessMock}
             />
@@ -93,17 +90,26 @@ describe.each`
   });
 
   it("displays initial preview", async () => {
-    expect(screen.getByAltText(getAvatarLabel(NAME))).toBeVisible();
-    expect(screen.getByAltText(getAvatarLabel(NAME))).toHaveProperty(
-      "src",
-      MOCK_INITIAL_SRC,
-    );
+    expect(
+      screen.getByAltText(
+        t("profile:names_profile_photo", {
+          name: NAME,
+        }),
+      ),
+    ).toBeVisible();
+    expect(
+      screen.getByAltText(
+        t("profile:names_profile_photo", {
+          name: NAME,
+        }),
+      ),
+    ).toHaveProperty("src", MOCK_INITIAL_SRC);
   });
 
   it("uploads and submits key", async () => {
     const user = userEvent.setup({ applyAccept: false });
     await user.upload(
-      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
       MOCK_FILE,
     );
 
@@ -130,7 +136,13 @@ describe.each`
       expect(submitForm).toHaveBeenCalledWith({ imageInput: MOCK_KEY });
     });
     expect(
-      screen.getByAltText(getAvatarLabel(NAME)).getAttribute("src"),
+      screen
+        .getByAltText(
+          t("profile:names_profile_photo", {
+            name: NAME,
+          }),
+        )
+        .getAttribute("src"),
     ).toMatch(new RegExp(expectedImage));
   });
 
@@ -143,7 +155,7 @@ describe.each`
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
       MOCK_FILE,
     );
 
@@ -161,11 +173,11 @@ describe.each`
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
       new File([new Blob(undefined)], ""),
     );
     expect(
-      await screen.findByText(new RegExp(COULDNT_READ_FILE)),
+      await screen.findByText(new RegExp(t("profile:couldnt_read_file"))),
     ).toBeVisible();
   });
 
@@ -176,7 +188,7 @@ describe.each`
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
       new File([new Blob(undefined)], ""),
     );
 
@@ -208,7 +220,9 @@ describe.each`
 
     // Start upload
     await user.upload(
-      within(form).getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      within(form).getByLabelText(
+        t("profile:select_an_image"),
+      ) as HTMLInputElement,
       MOCK_FILE,
     );
 
@@ -274,7 +288,7 @@ describe("ImageInput http error tests", () => {
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
       MOCK_FILE,
     );
 
@@ -294,7 +308,7 @@ describe("ImageInput http error tests", () => {
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
       MOCK_FILE,
     );
 
@@ -317,7 +331,7 @@ describe("ImageInput http error tests", () => {
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
       MOCK_FILE,
     );
 

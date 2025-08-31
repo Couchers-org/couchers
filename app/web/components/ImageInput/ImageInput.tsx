@@ -5,11 +5,6 @@ import MuiIconButton from "@mui/material/IconButton";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
-import {
-  COULDNT_READ_FILE,
-  getAvatarLabel,
-  SELECT_AN_IMAGE,
-} from "components/constants";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import Sentry from "platform/sentry";
@@ -152,7 +147,7 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
           },
         },
       );
-      setReaderError(COULDNT_READ_FILE);
+      setReaderError(t("profile:couldnt_read_file"));
     }
   };
 
@@ -170,7 +165,7 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
       {readerError && <Alert severity="error">{readerError}</Alert>}
       <FlexWrapper>
         <StyledInput
-          aria-label={SELECT_AN_IMAGE}
+          aria-label={t("profile:select_an_image")}
           accept="image/jpeg,image/png,image/gif"
           id={id}
           type="file"
@@ -192,7 +187,9 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
                 <Avatar
                   className={className}
                   src={imageUrl}
-                  alt={getAvatarLabel(props.userName ?? "")}
+                  alt={t("profile:names_profile_photo", {
+                    name: props.userName ?? "",
+                  })}
                   sx={{ "& img": { objectFit: "cover" } }}
                 >
                   {props.userName?.split(/\s+/).map((name) => name[0])}
