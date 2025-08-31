@@ -1,24 +1,3 @@
-export const getAvatarLabel = (name: string) => `${name}'s profile picture`;
-export const COULDNT_READ_FILE = "Couldn't read file";
-export const SELECT_AN_IMAGE = "Select an image";
-
-export const DISPLAY_LOCATION = "Display location";
-export const INVALID_COORDINATE =
-  "Missing coordinates, please select a location with the map above";
-export const LOCATION_ACCURACY = "Location accuracy";
-export const MAP_IS_BLANK =
-  "Missing coordinates, start by searching for a location with the map above";
-export const DISPLAY_LOCATION_NOT_EMPTY = "Please fill in a display address";
-export const LOCATION_PUBLICLY_VISIBLE = "This will be publicly visible";
-export const NO_LOCATION_RESULTS_TEXT =
-  "No results. Try searching for just the city.";
-export const NO_MAP_SUPPORT =
-  "Your device doesn't support the map. Please make sure WebGL2 is enabled or try a different device/browser. Sorry for the trouble!";
-export const SEARCH_FOR_LOCATION = "Search for location";
-export const PRESS_ENTER_TO_SEARCH = "Press enter to search";
-export const getRadiusText = (radius: number) => `${radius} meters`;
-export const LOCATION_WARN = `Click and drag the circle below to show people the approximate location of your home. Make sure your home is not at the center of the circle, so people will not know the exact location.`;
-
 //these come from https://github.com/unicode-org/cldr-json/tree/master/cldr-json/cldr-dates-modern/main
 //but really https://stackoverflow.com/a/9893752
 //all D and M have been replaced with DD and MM, because otherwise keyboard input is buggy

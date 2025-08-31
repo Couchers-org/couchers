@@ -1,4 +1,5 @@
 {
+  "active": "Active",
   "actions": {
     "back_to_dashboard": "Back to dashboard",
     "message_label": "Message",
@@ -122,13 +123,14 @@
     "window": "Window",
     "yes": "Yes"
   },
+  "what_options_mean": "What these options mean",
   "sleeping_arrangement": {
     "private_short": "Private space",
     "common_short": "Common room",
     "shared_room_short": "Shared room",
-    "private": "Private space (e.g. own room or similar)",
-    "common": "Common room (e.g. couch in living room)",
-    "shared_room": "Shared room (e.g. shared bedroom with own sleeping surface)"
+    "private": "e.g. own room or similar",
+    "common": "e.g. couch in living room",
+    "shared_room": "e.g. shared bedroom with own sleeping surface"
   },
   "parking_details": {
     "free_onsite": "Free onsite parking",
@@ -290,5 +292,8 @@
     "open_to_meetup_description": "I might meet up, depending on the circumstances",
     "does_not_want_to_meetup_description": "I prefer not to meet up with others"
   },
-  "avatar_photo_info": "<bold>A photo of yourself is required to interact with the community.</bold> A clear, friendly photo showing your face builds trust, helps others feel comfortable, and greatly improves your chances of receiving a response."
+  "avatar_photo_info": "<bold>A photo of yourself is required to interact with the community.</bold> A clear, friendly photo showing your face builds trust, helps others feel comfortable, and greatly improves your chances of receiving a response.",
+  "couldnt_read_file": "Couldn't read file",
+  "select_an_image": "Select an image",
+  "names_profile_photo": "{{name}}'s profile photo"
 }
