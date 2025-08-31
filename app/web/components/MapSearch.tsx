@@ -2,17 +2,14 @@ import { Box, IconButton, styled } from "@mui/material";
 import { AutocompleteChangeReason } from "@mui/material/Autocomplete";
 import { SignupAccountInputs } from "features/auth/signup/AccountForm";
 import { EditProfileFormValues } from "features/profile/edit/EditProfile";
+import { GLOBAL } from "i18n/namespaces";
 import { LngLat } from "maplibre-gl";
 import React, { useEffect, useState } from "react";
 import { ControllerRenderProps, FieldError } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { useGeocodeQuery } from "utils/hooks";
 
 import Autocomplete from "./Autocomplete";
-import {
-  NO_LOCATION_RESULTS_TEXT,
-  PRESS_ENTER_TO_SEARCH,
-  SEARCH_FOR_LOCATION,
-} from "./constants";
 import { SearchIcon } from "./Icons";
 
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -66,6 +63,8 @@ export default function MapSearch({
 }: MapSearchProps) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
+  const { t } = useTranslation([GLOBAL]);
+
   const { query, isLoading, results, error } = useGeocodeQuery();
 
   //create a dummy search options if there are no results
@@ -75,7 +74,9 @@ export default function MapSearch({
       ? [
           {
             location: new LngLat(0, 0),
-            name: NO_LOCATION_RESULTS_TEXT,
+            name: t(
+              "global:components.edit_location_map.no_location_results_text",
+            ),
             simplifiedName: "",
           },
         ]
@@ -114,7 +115,7 @@ export default function MapSearch({
       <StyledForm>
         <Autocomplete
           id="map-search"
-          label={SEARCH_FOR_LOCATION}
+          label={t("global:components.edit_location_map.search_location_label")}
           value={value}
           size="small"
           options={searchOptions?.map((o) => o.name) || []}
@@ -134,14 +135,19 @@ export default function MapSearch({
           filterOptions={(x) => x}
           disableClearable
           sx={{ flexGrow: 1 }}
-          getOptionDisabled={(option) => option === NO_LOCATION_RESULTS_TEXT}
-          helperText={PRESS_ENTER_TO_SEARCH}
+          getOptionDisabled={(option) =>
+            option ===
+            t("global:components.edit_location_map.no_location_results_text")
+          }
+          helperText={t(
+            "global:components.edit_location_map.press_enter_to_search",
+          )}
           onKeyDown={(e) => {
             if (e.key === "Enter") searchSubmit(value, "createOption");
           }}
         />
         <IconButton
-          aria-label="Search location"
+          aria-label={t("global:location_autocomplete.search_location_button")}
           size="medium"
           onClick={() => {
             searchSubmit(value, "createOption");

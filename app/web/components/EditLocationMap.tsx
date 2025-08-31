@@ -15,17 +15,9 @@ import {
 } from "maplibre-gl";
 import React, { useRef, useState } from "react";
 import { ControllerRenderProps, FieldError } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
-import {
-  DISPLAY_LOCATION,
-  DISPLAY_LOCATION_NOT_EMPTY,
-  getRadiusText,
-  INVALID_COORDINATE,
-  LOCATION_ACCURACY,
-  LOCATION_PUBLICLY_VISIBLE,
-  LOCATION_WARN,
-  MAP_IS_BLANK,
-} from "./constants";
+import { GLOBAL } from "../i18n/namespaces";
 
 const StyledWrapper = styled("div")<{ grow?: boolean }>(({ grow }) => ({
   margin: "auto",
@@ -75,6 +67,7 @@ export default function EditLocationMap({
 }: EditLocationMapProps) {
   const theme = useTheme();
   const [error, setError] = useState("");
+  const { t } = useTranslation([GLOBAL]);
 
   const map = useRef<MaplibreMap | null>(null);
 
@@ -181,15 +174,17 @@ export default function EditLocationMap({
     if (shouldUpdate) {
       if (isBlank.current) {
         // haven't selected a location yet
-        setError(addressNotEmpty ? MAP_IS_BLANK : "");
+        setError(
+          addressNotEmpty ? t("components.edit_location_map.map_is_blank") : "",
+        );
         updateLocation(null);
       } else if (location.current.lat === 0 && location.current.lng === 0) {
         // somehow have lat/lng == 0
-        setError(INVALID_COORDINATE);
+        setError(t("components.edit_location_map.invalid_coordinate"));
         updateLocation(null);
       } else if (location.current.address === "") {
         // missing display address
-        setError(DISPLAY_LOCATION_NOT_EMPTY);
+        setError(t("components.edit_location_map.display_location_not_empty"));
         setShrinkLabel(false);
         updateLocation(null);
       } else {
@@ -336,6 +331,7 @@ export default function EditLocationMap({
             commit={commit}
             initialRadius={location.current.radius}
             redrawMap={redrawMap}
+            t={t}
           />
         )}
         <TextField
@@ -349,8 +345,12 @@ export default function EditLocationMap({
           InputLabelProps={{ shrink: shrinkLabel }}
           fullWidth
           variant={variant}
-          label={DISPLAY_LOCATION}
-          helperText={error !== "" ? error : LOCATION_PUBLICLY_VISIBLE}
+          label={t("components.edit_location_map.display_location_label")}
+          helperText={
+            error !== ""
+              ? error
+              : t("components.edit_location_map.location_publicly_visible")
+          }
           onFocus={() => setShrinkLabel(true)}
           onBlur={() => !location.current.address && setShrinkLabel(false)}
           sx={{ marginTop: 2 }}
@@ -364,21 +364,29 @@ interface RadiusSliderProps {
   commit(updates: Partial<ApproximateLocation>, shouldUpdate?: boolean): void;
   initialRadius: number;
   redrawMap(): void;
+  t: (key: string, options?: { radius?: number }) => string;
 }
 
-function RadiusSlider({ commit, initialRadius, redrawMap }: RadiusSliderProps) {
+function RadiusSlider({
+  commit,
+  initialRadius,
+  redrawMap,
+  t,
+}: RadiusSliderProps) {
   const [radius, setRadius] = useState(initialRadius);
   return (
     <>
       <Typography variant="body2" gutterBottom>
-        {LOCATION_WARN}
+        {t("components.edit_location_map.location_warn")}
       </Typography>
       <Typography id="location-radius" gutterBottom>
-        {LOCATION_ACCURACY}
+        {t("components.edit_location_map.location_accuracy")}
       </Typography>
       <Slider
         aria-labelledby="location-radius"
-        aria-valuetext={getRadiusText(radius)}
+        aria-valuetext={t("components.edit_location_map.radius_text", {
+          radius,
+        })}
         value={radius}
         step={5}
         min={userLocationMinRadius}
