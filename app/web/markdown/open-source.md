@@ -13,35 +13,35 @@ That said, Couchers is an open-source project and we are very heavy users of ope
 
 We'd like to thank the amazing folks who built these core technologies, without which Couchers couldn't exist:
 
-- The [PostgreSQL](https://www.postgresql.org/) open-source database project: this incredible project provides the backbone to Couchers!
-- The [Python](https://www.python.org/) language: old & gold!
-- The [React Ecosystem](https://react.dev/) that powers our web platform
-- The [Protocol Buffers](https://protobuf.dev/) and [gRPC](https://grpc.io/) open-source projects
-- The [PostGIS](https://postgis.net/) geospatial extension to Postgres
-- The [MapLibre](https://maplibre.org/) and [Protomaps](https://protomaps.com/) projects that have given everyone the power to have pretty maps!
-- The [SQLAlchemy](https://www.sqlalchemy.org/), [GeoAlchemy 2](https://geoalchemy-2.readthedocs.io/), and [Psycopg](https://www.psycopg.org/) projects
-- The [Material UI project](https://mui.com/) ensures our website looks great.
-- The [Ubuntu](https://design.ubuntu.com/font) and [Mansalva](https://github.com/carolinashort/mansalva) open-source fonts
-- The [Weblate](https://weblate.org/en/) open-source project that allows us to easily translate the site
-- The [Prometheus](https://prometheus.io/)/[Victoriametrics](https://victoriametrics.com/)/[Grafana](https://grafana.com/) monitoring stack
-- The [Wiki.js](https://js.wiki/) project that powers our wiki
-- The [Chatwoot](https://www.chatwoot.com/) open source support platform project that powers all our Support systems
-- The [Listmonk](https://listmonk.app/) self-hosted newsletter and mailing list manager we use for our newsletters
+* The [PostgreSQL](https://www.postgresql.org/) open-source database project: this incredible project provides the backbone to Couchers!
+* The [Python](https://www.python.org/) language: old & gold!
+* The [React Ecosystem](https://react.dev/) that powers our web platform
+* The [Protocol Buffers](https://protobuf.dev/) and [gRPC](https://grpc.io/) open-source projects
+* The [PostGIS](https://postgis.net/) geospatial extension to Postgres
+* The [MapLibre](https://maplibre.org/) and [Protomaps](https://protomaps.com/) projects that have given everyone the power to have pretty maps!
+* The [SQLAlchemy](https://www.sqlalchemy.org/), [GeoAlchemy 2](https://geoalchemy-2.readthedocs.io/), and [Psycopg](https://www.psycopg.org/) projects
+* The [Material UI project](https://mui.com/) ensures our website looks great.
+* The [Ubuntu](https://design.ubuntu.com/font) and [Mansalva](https://github.com/carolinashort/mansalva) open-source fonts
+* The [Weblate](https://weblate.org/en/) open-source project that allows us to easily translate the site
+* The [Prometheus](https://prometheus.io/)/[Victoriametrics](https://victoriametrics.com/)/[Grafana](https://grafana.com/) monitoring stack
+* The [Wiki.js](https://js.wiki/) project that powers our wiki
+* The [Chatwoot](https://www.chatwoot.com/) open source support platform project that powers all our Support systems
+* The [Listmonk](https://listmonk.app/) self-hosted newsletter and mailing list manager we use for our newsletters
 
 ## Company Sponsorships
 
 We are grateful to the following companies that generously provide us with free services, whether specifically due to our non-profit/open-source nature or as part of their general support:
 
-- [Amazon Web Services (AWS)](https://aws.amazon.com/): Couchers operates entirely in the cloud, with hosting costs partially offse by the generous [non-profit credit program](https://aws.amazon.com/government-education/nonprofits/nonprofit-credit-program/) by AWS!
-- [GitHub](https://github.com) hosts [all our code](https://github.com/Couchers-org/couchers) and is where we build Couchers ([come help out by the way](https://couchers.org/volunteer))
-- [GitLab](https://about.gitlab.com/) sponsors [us](https://gitlab.com/couchers/couchers) a [very generous](https://about.gitlab.com/solutions/open-source/) CI/CD allowance, allowing us to ship better software quicker!
-- [Google](https://www.google.com/) sponsors us free email & drive
-- [Sentry](https://sentry.io/) sponsors a [Sentry for Good](https://sentry.io/for/good/) plan that helps us identify and track bugs
-- [Monday](https://monday.com/) sponsors us a plan that helps us organize our recruiting processes
-- [Stripe](https://stripe.com/) gives us a discount on processing fees
-- [Maxmind](https://www.maxmind.com/en/home) gives us access to free GeoIP data
-- [Slack](https://slack.com/) sponsors our Slack workspace with a free Pro Plan where core volunteers collaborate
-- [Zulip](https://zulip.com/) sponsors our Zulip workspace with a free Standard Plan where Community Builders collaborate
+* [Amazon Web Services (AWS)](https://aws.amazon.com/): Couchers operates entirely in the cloud, with hosting costs partially offse by the generous [non-profit credit program](https://aws.amazon.com/government-education/nonprofits/nonprofit-credit-program/) by AWS!
+* [GitHub](https://github.com) hosts [all our code](https://github.com/Couchers-org/couchers) and is where we build Couchers ([come help out by the way](https://couchers.org/volunteer))
+* [GitLab](https://about.gitlab.com/) sponsors [us](https://gitlab.com/couchers/couchers) a [very generous](https://about.gitlab.com/solutions/open-source/) CI/CD allowance, allowing us to ship better software quicker!
+* [Google](https://www.google.com/) sponsors us free email & drive
+* [Sentry](https://sentry.io/) sponsors a [Sentry for Good](https://sentry.io/for/good/) plan that helps us identify and track bugs
+* [Monday](https://monday.com/) sponsors us a plan that helps us organize our recruiting processes
+* [Stripe](https://stripe.com/) gives us a discount on processing fees
+* [Maxmind](https://www.maxmind.com/en/home) gives us access to free GeoIP data
+* [Slack](https://slack.com/) sponsors our Slack workspace with a free Pro Plan where core volunteers collaborate
+* [Zulip](https://zulip.com/) sponsors our Zulip workspace with a free Standard Plan where Community Builders collaborate
 
 ## Past Company Sponsorships
 
