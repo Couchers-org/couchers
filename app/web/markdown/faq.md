@@ -27,13 +27,13 @@ We are keeping the platform as a non-profit **forever**. Our plan to follow this
 
 2. We will carry out a policy of **distributed moderation**, so that we will engage hundreds of moderators as volunteers around the world to moderate their own communities. We will make the platform reliant on volunteers, and so the entity controlling the platform could not be a for-profit business without violating laws in many countries. The foundation would have to remain as a non-profit to continue operating.
 
-3. Our code base is [**open source**](https://couchers.org/open-source) and anybody can spin up an alternative instance. If the community ever comes to feel that the leaders of the platform are not acting in their interest, they can simply fork the codebase, making a copy that is under control of new management.
+3. Our code base is [**open source**](https://github.com/Couchers-org/couchers) and anybody can spin up an alternative instance. If the community ever comes to feel that the leaders of the platform are not acting in their interest, they can simply fork the codebase, making a copy that is under control of new management.
 
 Finally, we do hope that you can trust our Founders ([Aapeli](/user/aapeli) and [Itsi](/user/itsi)) and [Board Members](/foundation) in their promise to keep the platform not only community-led, non-profit, and open-source, but in line with the greater interests of the global couch surfing community.
 
 ### Why are you working on this? What are you getting out of it?
 
-Most everyone on our team has had amazing experiences couch surfing, but we'd like to see it improved. A lot of us come from community leadership backgrounds including co-ops, clubs, unions, and open-source projects. We understand the value of communities and get a lot of joy in seeing them thrive. Quite honestly though, we want to build something that we'd want to use so we can have a better time when we're hosting or traveling.
+Most everyone on our team has had amazing experiences couch surfing, but we'd like to see the experience improved. A lot of us come from community leadership backgrounds including co-ops, clubs, unions, and open-source projects. We understand the value of communities and get a lot of joy in seeing them thrive. Quite honestly though, we want to build something that we'd want to use so we can have a better time when we're hosting or traveling.
 
 We don't plan on making money out of this. [There is no money to be made out of this](/issues/profit-and-incentives). That's one important lesson we can learn from the monetization of Couchsurfing&#8482;.
 
@@ -51,9 +51,7 @@ If you want to help out in other ways, please get in touch and [join the team](/
 
 ### How do you plan on funding this? Doesn't it cost a lot of money?
 
-The main cost that a couch surfing platform needs to cover are:
-
-- Server hosting and third-party services
+The main cost that a couch surfing platform needs to cover is the cost of server hosting and the third-party services required to operate the platform.
 
 As we scale we will also need to pay for additional:
 
