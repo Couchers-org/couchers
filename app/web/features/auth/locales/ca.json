@@ -112,7 +112,8 @@
       "field_label": "Estat d'allotjament",
       "can_host": "Pot allotjar",
       "maybe": "Podria allotjar",
-      "cant_host": "No pot allotjar"
+      "cant_host": "No pot allotjar",
+      "any": "Qualsevol"
     },
     "gender": {
       "field_label": "M'identifico com…",
@@ -291,6 +292,8 @@
   "quick_links": {
     "button_text": "Confirmar l'acció",
     "error_message": "Error: {{message}}",
-    "missing_payload_or_sig": "URL no vàlida"
-  }
+    "missing_payload_or_sig": "URL no vàlida",
+    "title": "Acció ràpida amb el correu electrònic"
+  },
+  "unhandled_sign_up_state": "Error: unhandled signup flow state."
 }
