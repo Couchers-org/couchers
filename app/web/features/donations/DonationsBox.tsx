@@ -393,7 +393,12 @@ export default function DonationsBox() {
           </AmountGrid>
         )}
       />
-      <Typography variant="body2" paragraph>
+      <Typography
+        variant="body2"
+        sx={{
+          marginBottom: "16px",
+        }}
+      >
         <Trans
           t={t}
           i18nKey="donations_box.helper_text"

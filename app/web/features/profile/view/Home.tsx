@@ -100,13 +100,13 @@ export default function Home({ user }: HomeProps) {
             }`}
           />
           <LabelAndText
-            label={t("profile:home_info_headings.host_kids")}
+            label={t("profile:home_info_headings.has_kids")}
             text={`${booleanConversion(t, user.hasKids?.value)}${
               user.kidDetails?.value ? `, ${user.kidDetails?.value}` : ""
             }`}
           />
           <LabelAndText
-            label={t("profile:home_info_headings.host_pets")}
+            label={t("profile:home_info_headings.has_pets")}
             text={`${booleanConversion(t, user.hasPets?.value)}${
               user.petDetails?.value ? `, ${user.petDetails?.value}` : ""
             }`}

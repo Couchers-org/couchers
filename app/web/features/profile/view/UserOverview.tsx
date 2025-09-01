@@ -66,11 +66,11 @@ const StyledCardActions = styled(CardActions)(({ theme }) => ({
   alignItems: "stretch",
   gap: theme.spacing(0.2),
   padding: theme.spacing(0.5),
-  "& > *": {
-    margin: theme.spacing(0.5),
-  },
-  "& > :not(:first-of-type)": {
-    marginLeft: theme.spacing(0.5),
+  "&.MuiCardActions-root > *": {
+    marginLeft: 0,
+    marginRight: 0,
+    marginTop: theme.spacing(0.5),
+    marginBottom: theme.spacing(0.5),
   },
 }));
 

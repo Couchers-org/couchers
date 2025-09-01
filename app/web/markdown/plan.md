@@ -4,13 +4,14 @@ crumb: Plan
 type: general
 ---
 
-We are working on building a platform that works for the whole community. We've talked to a lot of people from the inception of the platform, and put a lot of thought into identifying the [main issues with Couchsurfing&#8482;](/issues) so we can fix them and build something better.
+We are working on building a platform that works for the whole community. We've talked to a lot of people from the inception of the platform, and put a lot of thought into identifying the [main issues with Couchsurfing&#8482;](issues) so we can fix them and build something better.
 
 Primarily we are building something that is:
- - Free for all users forever
- - Managed by the community
- - Modern and well built, adapting to user needs
- - Accessible and safe
+
+- Free for all users forever
+- Managed by the community
+- Modern and well built, adapting to user needs
+- Accessible and safe
 
 We fundamentally believe that a tool like this can enhance the experiences of its users and the communities that use it if we execute and build it correctly.
 
