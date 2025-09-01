@@ -130,7 +130,7 @@ export default function InviteCodesPage() {
                     >
                       <IconButton
                         edge="end"
-                        aria-label="copy"
+                        aria-label={t("global:copy")}
                         onClick={() => copy(shareUrl, c.code)}
                         disabled={!!c.disabled}
                       >

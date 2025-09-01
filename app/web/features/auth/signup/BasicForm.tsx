@@ -41,7 +41,6 @@ export default function BasicForm({
   const {
     register,
     handleSubmit,
-
     formState: { errors },
   } = useForm<SignupBasicInputs>({
     mode: "onBlur",
