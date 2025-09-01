@@ -1,4 +1,4 @@
-import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
+import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { persistQueryClient } from "@tanstack/react-query-persist-client";
@@ -24,14 +24,14 @@ export function ReactQueryClientProvider({
   children,
 }: ReactQueryClientProviderProps) {
   useEffect(() => {
-    const persister = createSyncStoragePersister({
+    const asyncStoragePersister = createAsyncStoragePersister({
       storage: localStorage,
       throttleTime: 100,
     });
 
     persistQueryClient({
       maxAge: 14 * 24 * 60 * 60 * 1000,
-      persister,
+      persister: asyncStoragePersister,
       queryClient,
     });
   }, []);
@@ -43,12 +43,3 @@ export function ReactQueryClientProvider({
     </QueryClientProvider>
   );
 }
-// declare module "@tanstack/react-query" {
-//   export function useQueries<
-//     TData = unknown,
-//     TError = unknown,
-//     TQueryFnData = TData,
-//   >(
-//     queries: UseQueryOptions<TData, TError, TQueryFnData>[],
-//   ): UseQueryResult<TData, TError>[];
-// }
