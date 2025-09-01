@@ -35,7 +35,7 @@
     "@sentry/react": "^10.5.0",
     "@stripe/stripe-js": "^7.8.0",
     "@tanstack/query-sync-storage-persister": "^5.83.0",
-    "@tanstack/react-query": "^5.83.0",
+    "@tanstack/react-query": "^5.85.6",
     "@tanstack/react-query-devtools": "^5.83.0",
     "@tanstack/react-query-persist-client": "^5.83.0",
     "@toast-ui/editor": "^3.2.2",
