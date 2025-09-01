@@ -27,11 +27,13 @@ type SignupBasicInputs = {
 interface BasicFormProps {
   submitText?: string;
   successCallback?: () => void;
+  inviteCode?: string;
 }
 
 export default function BasicForm({
   submitText,
   successCallback,
+  inviteCode,
 }: BasicFormProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authActions } = useAuthContext();
@@ -53,6 +55,7 @@ export default function BasicForm({
       const state = await service.auth.startSignup(
         sanitizedName,
         sanitizedEmail,
+        inviteCode,
       );
       doAntibot("signup");
       return authActions.updateSignupState(state);

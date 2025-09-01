@@ -39,6 +39,8 @@ export const featurePreviewRoute = "/preview";
 export const confirmChangeEmailRoute = "/confirm-email";
 
 export const signupRoute = "/signup";
+export const inviteRoute = "/invite";
+export const inviteCodesRoute = "/invite-codes";
 
 export const settingsRoute = "/account-settings";
 export const notificationSettingsRoute = `${settingsRoute}/notifications`;
