@@ -8,7 +8,7 @@ services:
     dns_search: ""
   postgres:
     image: postgis/postgis:17-3.5
-    env_file: postgres/.env.dev
+    env_file: postgres.dev.env
     # uncomment this line if you want postgres to log all queries
     # command: ["postgres", "-c", "log_statement=all"]
     volumes:
@@ -19,7 +19,7 @@ services:
     platform: linux/amd64
   backend:
     build: backend
-    env_file: backend/.env.dev
+    env_file: backend.dev.env
     volumes:
       - "./backend:/app"
     # see https://github.com/eradman/entr#docker-and-windows-subsystem-for-linux
@@ -39,7 +39,7 @@ services:
   media:
     build: media
     restart: unless-stopped
-    env_file: media/.env.test
+    env_file: media.test.env
     volumes:
       - "./data/media/uploads/:/uploads/"
     ports:
