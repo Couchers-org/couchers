@@ -32,6 +32,7 @@ import {
   instagramURL,
   landingRoute,
   missionRoute,
+  newsletterSignupURL,
   planRoute,
   redditURL,
   roadmapRoute,
@@ -191,6 +192,9 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             <FooterLink href={landingRoute}>{t("nav.landing_page")}</FooterLink>
             <FooterLink href={eventsRoute}>
               {t("nav.show_all_events")}
+            </FooterLink>
+            <FooterLink href={newsletterSignupURL}>
+              {t("nav.newsletter")}
             </FooterLink>
           </div>
           <div>
