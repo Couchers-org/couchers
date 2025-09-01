@@ -1,6 +1,6 @@
 import { appGetLayout } from "components/AppRoute";
 import InviteCodesPage from "features/auth/InviteCodesPage";
-import { GLOBAL } from "i18n/namespaces";
+import { GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
@@ -10,7 +10,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
     ...(await serverSideTranslations(
       locale ?? "en",
-      [GLOBAL],
+      [GLOBAL, NOTIFICATIONS],
       nextI18nextConfig,
     )),
   },
