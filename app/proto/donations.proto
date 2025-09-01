@@ -26,6 +26,8 @@ message InitiateDonationReq {
   uint32 amount = 1;
   // whether to create a monthly recurring donation
   bool recurring = 2;
+  // source of the donation (e.g., "strong-verification-complete")
+  string source = 3;
 }
 
 message InitiateDonationRes {

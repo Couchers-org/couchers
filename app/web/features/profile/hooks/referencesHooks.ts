@@ -1,23 +1,19 @@
 import {
-  availableWriteReferencesKey,
-  referencesGivenKey,
-  referencesReceivedBaseKey,
-  referencesReceivedKey,
-  ReferencesReceivedKeyInputs,
-} from "features/queryKeys";
-import { RpcError } from "grpc-web";
-import { User } from "proto/api_pb";
-import {
-  AvailableWriteReferencesRes,
-  ListReferencesRes,
-  Reference,
-} from "proto/references_pb";
-import {
+  InfiniteData,
   useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
-} from "react-query";
+} from "@tanstack/react-query";
+import {
+  availableWriteReferencesKey,
+  referencesGivenKey,
+  referencesReceivedBaseKey,
+  ReferencesReceivedKeyInputs,
+} from "features/queryKeys";
+import { RpcError } from "grpc-web";
+import { User } from "proto/api_pb";
+import { ListReferencesRes, Reference } from "proto/references_pb";
 import { service } from "service";
 import {
   WriteFriendReferenceInput,
@@ -25,56 +21,67 @@ import {
 } from "service/references";
 
 import type { ReferenceTypeState } from "../view/References";
+import type { ListReferencesInfiniteQueryResult } from "../view/ReferencesView";
 
-export function useReferencesGiven(user: User.AsObject) {
+export function useReferencesGiven(
+  user: User.AsObject,
+): ListReferencesInfiniteQueryResult {
   const referencesGivenQuery = useInfiniteQuery<
     ListReferencesRes.AsObject,
-    RpcError
+    RpcError,
+    InfiniteData<ListReferencesRes.AsObject>
   >({
-    queryFn: ({ pageParam: pageToken }: { pageParam?: string }) =>
+    queryFn: ({ pageParam }: { pageParam?: unknown }) =>
       service.references.getReferencesGivenByUser({
-        pageToken,
+        pageToken: pageParam as string,
         userId: user.userId,
       }),
-    queryKey: referencesGivenKey(user.userId),
+    queryKey: [referencesGivenKey, user.userId],
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+    initialPageParam: undefined,
   });
 
-  return referencesGivenQuery;
+  return referencesGivenQuery as unknown as ListReferencesInfiniteQueryResult;
 }
 
 export function useReferencesReceived(
   user: User.AsObject,
   referenceType: Exclude<ReferenceTypeState, "given">,
-) {
+): ListReferencesInfiniteQueryResult {
   const referencesReceivedQuery = useInfiniteQuery<
     ListReferencesRes.AsObject,
-    RpcError
+    RpcError,
+    InfiniteData<ListReferencesRes.AsObject>
   >({
-    queryFn: ({ pageParam: pageToken }: { pageParam?: string }) =>
+    queryFn: ({ pageParam }: { pageParam?: unknown }) =>
       service.references.getReferencesReceivedForUser({
-        pageToken,
+        pageToken: pageParam as string,
         referenceType,
         userId: user.userId,
       }),
-    queryKey: referencesReceivedKey({
-      userId: user.userId,
-      type: referenceType,
-    }),
+    queryKey: [
+      referencesReceivedBaseKey,
+      {
+        userId: user.userId,
+        type: referenceType,
+      } as ReferencesReceivedKeyInputs,
+    ],
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+    initialPageParam: undefined,
   });
 
-  return referencesReceivedQuery;
+  return referencesReceivedQuery as unknown as ListReferencesInfiniteQueryResult;
 }
 
 export const useListAvailableReferences = (userId: number) =>
-  useQuery<AvailableWriteReferencesRes.AsObject, RpcError>(
-    availableWriteReferencesKey(userId),
-    () =>
+  useQuery({
+    queryKey: availableWriteReferencesKey(userId),
+
+    queryFn: () =>
       service.references.getAvailableReferences({
         userId,
       }),
-  );
+  });
 
 interface WriteHostRequestReferenceVariables {
   referenceData: WriteHostRequestReferenceInput;
@@ -87,27 +94,28 @@ export function useWriteHostReference(userId: number) {
     status,
     reset,
     error,
-    isLoading,
+    isPending,
   } = useMutation<
     Reference.AsObject,
     Error,
     WriteHostRequestReferenceVariables
-  >(
-    ({ referenceData }) =>
+  >({
+    mutationFn: ({ referenceData }) =>
       service.references.writeHostRequestReference(referenceData),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries([availableWriteReferencesKey(userId)]);
-        queryClient.invalidateQueries({
-          predicate: ({ queryKey }) =>
-            queryKey[0] === referencesReceivedBaseKey &&
-            (queryKey[1] as ReferencesReceivedKeyInputs)?.userId === userId,
-        });
-      },
-    },
-  );
 
-  return { reset, status, writeHostRequestReference, error, isLoading };
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [availableWriteReferencesKey(userId)],
+      });
+      queryClient.invalidateQueries({
+        predicate: ({ queryKey }) =>
+          queryKey[0] === referencesReceivedBaseKey &&
+          (queryKey[1] as ReferencesReceivedKeyInputs)?.userId === userId,
+      });
+    },
+  });
+
+  return { reset, status, writeHostRequestReference, error, isPending };
 }
 
 interface WriteFriendReferenceVariables {
@@ -121,21 +129,21 @@ export function useWriteFriendReference(userId: number) {
     status,
     reset,
     error,
-    isLoading,
-  } = useMutation<Reference.AsObject, Error, WriteFriendReferenceVariables>(
-    ({ referenceData }) =>
+    isPending,
+  } = useMutation<Reference.AsObject, Error, WriteFriendReferenceVariables>({
+    mutationFn: ({ referenceData }) =>
       service.references.writeFriendRequestReference(referenceData),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries([availableWriteReferencesKey(userId)]);
-        queryClient.invalidateQueries({
-          predicate: ({ queryKey }) =>
-            queryKey[0] === referencesReceivedBaseKey &&
-            (queryKey[1] as ReferencesReceivedKeyInputs)?.userId === userId,
-        });
-      },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [availableWriteReferencesKey(userId)],
+      });
+      queryClient.invalidateQueries({
+        predicate: ({ queryKey }) =>
+          queryKey[0] === referencesReceivedBaseKey &&
+          (queryKey[1] as ReferencesReceivedKeyInputs)?.userId === userId,
+      });
     },
-  );
+  });
 
-  return { reset, status, writeFriendReference, error, isLoading };
+  return { reset, status, writeFriendReference, error, isPending };
 }

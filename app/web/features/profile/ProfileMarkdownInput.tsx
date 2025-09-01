@@ -1,7 +1,7 @@
 import { Typography } from "@mui/material";
 import Alert from "components/Alert";
 import MarkdownInput from "components/MarkdownInput";
-import React from "react";
+import React, { ReactNode } from "react";
 import { Control } from "react-hook-form";
 
 interface ProfileMarkdownInputProps {
@@ -13,7 +13,9 @@ interface ProfileMarkdownInputProps {
   label: string;
   name: string;
   warning?: boolean;
-  helperText?: string;
+  helperText?: string | ReactNode;
+  description?: ReactNode;
+  placeholder?: string;
 }
 
 export default function ProfileMarkdownInput({
@@ -24,20 +26,28 @@ export default function ProfileMarkdownInput({
   label,
   name,
   warning,
+  description,
   helperText,
+  placeholder,
 }: ProfileMarkdownInputProps) {
   return (
     <div className={className}>
       <Typography variant="h2" id={`${id}-label`}>
         {label}
       </Typography>
-      {warning && helperText && <Alert severity="warning">{helperText}</Alert>}
+      {warning && helperText && (
+        <Alert severity="warning" data-testid={`${id}-input-helper-text`}>
+          {helperText}
+        </Alert>
+      )}
+      {description}
       <MarkdownInput
         control={control}
         defaultValue={defaultValue}
         id={id}
         labelId={`${id}-label`}
         name={name}
+        placeholder={placeholder}
       />
     </div>
   );

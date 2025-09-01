@@ -1,10 +1,10 @@
-import { List } from "@mui/material";
+import { List, styled } from "@mui/material";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import TextBody from "components/TextBody";
 import HostRequestListItem from "features/messages/requests/HostRequestListItem";
-import useMessageListStyles from "features/messages/useMessageListStyles";
 import { hostRequestsListKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -13,9 +13,22 @@ import Link from "next/link";
 import { GroupChat } from "proto/conversations_pb";
 import { ListHostRequestsRes } from "proto/requests_pb";
 import * as React from "react";
-import { useInfiniteQuery } from "react-query";
 import { routeToHostRequest } from "routes";
 import { service } from "service";
+import { theme } from "theme";
+
+const StyledWrapper = styled("div")(() => ({
+  padding: theme.spacing(0, 2),
+}));
+
+const StyledList = styled(List)(() => ({
+  width: "100%",
+}));
+
+const StyledListItem = styled(HostRequestListItem)(() => ({
+  marginInline: `-${theme.spacing(2)}`,
+  paddingInline: `${theme.spacing(2)}`,
+}));
 
 export interface GroupChatListProps {
   groupChats: Array<GroupChat.AsObject>;
@@ -36,26 +49,28 @@ export default function RequestsTab({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>(
-    hostRequestsListKey({ onlyActive, type }),
-    ({ pageParam: lastRequestId }) =>
-      service.requests.listHostRequests({ lastRequestId, onlyActive, type }),
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage.noMore ? undefined : lastPage.lastRequestId,
-    },
-  );
+  } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>({
+    queryKey: hostRequestsListKey({ onlyActive, type }),
+    queryFn: ({ pageParam: lastRequestId }) =>
+      service.requests.listHostRequests({
+        lastRequestId: lastRequestId as number | undefined,
+        onlyActive,
+        type,
+      }),
+    getNextPageParam: (lastPage) =>
+      lastPage.noMore ? undefined : lastPage.lastRequestId,
+    initialPageParam: undefined,
+  });
 
   const loadMoreRequests = () => fetchNextPage();
 
-  const classes = useMessageListStyles();
   return (
-    <div className={classes.root}>
+    <StyledWrapper>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
         <CenteredSpinner />
       ) : (
-        <List className={classes.list}>
+        <StyledList>
           {data &&
             data.pages.map((hostRequestsRes, pageNumber) =>
               pageNumber === 0 &&
@@ -70,10 +85,7 @@ export default function RequestsTab({
                       href={routeToHostRequest(hostRequest.hostRequestId)}
                       key={hostRequest.hostRequestId}
                     >
-                      <HostRequestListItem
-                        hostRequest={hostRequest}
-                        className={classes.listItem}
-                      />
+                      <StyledListItem hostRequest={hostRequest} />
                     </Link>
                   ))}
                 </React.Fragment>
@@ -84,8 +96,8 @@ export default function RequestsTab({
               {t("requests_tab.load_more_button_label")}
             </Button>
           )}
-        </List>
+        </StyledList>
       )}
-    </div>
+    </StyledWrapper>
   );
 }

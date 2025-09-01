@@ -28,17 +28,18 @@
                     "reject": "Jemand lehnt deine Host-anfrage ab",
                     "cancel": "Jemand storniert seine Gastgeberanfrage",
                     "message": "Jemand sendet eine Nachricht in einer Gastgeberanfrage",
-                    "missed_messages": "Du hast Nachrichten in einer Host-anfrage verpasst"
+                    "missed_messages": "Du hast Nachrichten in einer Host-anfrage verpasst",
+                    "reminder": "Du hast auf eine ausstehende Host-Anfrage nicht geantwortet"
                 },
                 "chat": {
                     "message": "Jemand sendet dir eine Nachricht",
                     "missed_messages": "Du hast Nachrichten in einem Chat verpasst"
                 },
                 "reference": {
-                    "receive_hosted": "Du erhältst eine Referenz von jemandem, der dich gehosted hat",
+                    "receive_hosted": "Du erhältst eine Referenz von jemandem, der dich gehostet hat",
                     "receive_surfed": "Du erhältst eine Referenz von jemandem, den du gehostet hast",
                     "receive_friend": "Du hast eine Referenz von einem Freund erhalten",
-                    "reminder_hosted": "Erinnerung, eine Referenz für jemanden zu schreiben, der dich gehosted hat",
+                    "reminder_hosted": "Erinnerung, eine Referenz für jemanden zu schreiben, der dich gehostet hat",
                     "reminder_surfed": "Erinnerung, eine Referenz für jemanden zu schreiben, mit dem du gesurft hast"
                 },
                 "friend_request": {

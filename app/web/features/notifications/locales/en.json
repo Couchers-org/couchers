@@ -37,7 +37,8 @@
           "reject": "Someone declines your host request",
           "cancel": "Someone cancels their host request",
           "message": "Someone sends a message in a host request",
-          "missed_messages": "You miss messages in a host request"
+          "missed_messages": "You miss messages in a host request",
+          "reminder": "You haven't responded to a pending host request"
         },
         "chat": {
           "message": "Someone sends you a message",

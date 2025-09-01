@@ -1,7 +1,6 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import { styled, Typography } from "@mui/material";
-import { NO_MAP_SUPPORT } from "components/constants";
 import {
   LngLat,
   Map as MaplibreMap,
@@ -9,6 +8,9 @@ import {
   RequestParameters,
 } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+
+import { SEARCH } from "../i18n/namespaces";
 
 const URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -43,6 +45,7 @@ export interface MapProps {
   grow?: boolean;
   interactive?: boolean;
   hash?: boolean;
+  scrollZoom?: boolean;
 }
 
 export default function Map({
@@ -54,10 +57,12 @@ export default function Map({
   hash,
   interactive = true,
   className,
+  scrollZoom = true,
   ...otherProps
 }: MapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [noMap, setNoMap] = useState(false);
+  const { t } = useTranslation([SEARCH]);
 
   /*
   Allows sending cookies (counted as sensitive "credentials") on cross-origin requests when we grab GeoJSON/other data from the API.
@@ -90,6 +95,7 @@ export default function Map({
         style: "https://cdn.couchers.org/maps/couchers-basemap-style-v1.json",
         transformRequest,
         zoom: initialZoom,
+        scrollZoom,
       });
 
       mapRef.current = map;
@@ -121,7 +127,7 @@ export default function Map({
       <StyledMap ref={containerRef}>
         {noMap && (
           <StyledNoMapText>
-            <Typography variant="body1">{NO_MAP_SUPPORT}</Typography>
+            <Typography variant="body1">{t("no_map_support")}</Typography>
           </StyledNoMapText>
         )}
       </StyledMap>

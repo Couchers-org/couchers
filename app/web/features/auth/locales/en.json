@@ -47,7 +47,7 @@
   "login_page": {
     "title": "Log in",
     "header": "Welcome back!",
-    "no_account_prompt": "No account yet? <2>Sign up</2>",
+    "no_account_prompt": "No account yet? <2>Join us</2>",
     "form": {
       "username_field_label": "Email/Username",
       "password_field_label": "Password",
@@ -230,7 +230,11 @@
     "delete_information_text2": "If you delete your data, you cannot use the same passport for Strong Verification again.",
     "delete_my_data_button": "Delete my data",
     "delete_button": "Delete my Strong Verification data",
-    "delete_success": "Your passport data has been deleted."
+    "delete_success": "Your passport data has been deleted.",
+    "donation_title": "Thanks for verifying—you're helping make Couchers.org safer for everyone.",
+    "donation_message1": "Verification is free for you, but it does come at a cost to us. As a nonprofit run by volunteers, we rely on donations to cover expenses like keeping our servers running, verification, and tools for volunteers and community builders.",
+    "donation_message2": "If you're able, please consider donating to help keep Couchers.org running and growing.",
+    "donate_button": "Donate to support Couchers.org"
   },
   "quick_links": {
     "title": "Email quick action",

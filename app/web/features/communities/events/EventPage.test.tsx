@@ -1,20 +1,23 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import useCurrentUser from "features/userQueries/useCurrentUser";
 import mockRouter from "next-router-mock";
+import { User } from "proto/api_pb";
 import { AttendanceState } from "proto/events_pb";
 import { eventBaseRoute } from "routes";
 import { service } from "service";
 import events from "test/fixtures/events.json";
-import { getHookWrapperWithClient } from "test/hookWrapper";
+import users from "test/fixtures/users.json";
+import hookWrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import {
   getEventAttendees,
   getEventOrganizers,
+  getLiteUsers,
   getThread,
   getUser,
 } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
-import timezoneMock from "timezone-mock";
 
 import EventPage from "./EventPage";
 
@@ -45,11 +48,18 @@ const setEventAttendanceMock = service.events
   .setEventAttendance as jest.MockedFunction<
   typeof service.events.setEventAttendance
 >;
+jest.mock("features/userQueries/useCurrentUser");
+const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
+  typeof useCurrentUser
+>;
+
+const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
+  typeof service.user.getLiteUsers
+>;
 
 function renderEventPage(id = 1, slug = "weekly-meetup") {
   mockRouter.setCurrentUrl(`${eventBaseRoute}/${id}/${slug}`);
-  const { wrapper } = getHookWrapperWithClient();
-  render(<EventPage eventId={id} eventSlug={slug} />, { wrapper });
+  render(<EventPage eventId={id} eventSlug={slug} />, { wrapper: hookWrapper });
 }
 
 describe("Event page", () => {
@@ -58,15 +68,21 @@ describe("Event page", () => {
     listEventAttendeesMock.mockImplementation(getEventAttendees);
     listEventOrganizersMock.mockImplementation(getEventOrganizers);
     getUserMock.mockImplementation(getUser);
+    getLiteUsersMock.mockImplementation(getLiteUsers);
     getThreadMock.mockImplementation(getThread);
-    timezoneMock.register("UTC");
+    useCurrentUserMock.mockReturnValue({
+      data: users[0] as User.AsObject,
+      isError: false,
+      isFetching: false,
+      isLoading: false,
+      error: "",
+    });
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-06-01 00:00"));
   });
 
   afterEach(() => {
     jest.useRealTimers();
-    timezoneMock.unregister();
   });
 
   it("renders an offline event successfully", async () => {
@@ -147,7 +163,7 @@ describe("Event page", () => {
     renderEventPage();
     await screen.findByRole("heading", { name: events[0].title });
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     // @TODO should be awaited but doesn't work, try again after more package upgrades
     user.click(
@@ -206,14 +222,12 @@ describe("Event page", () => {
         name: t("communities:going_to_event"),
       });
 
-      const user = userEvent.setup();
-      // @TODO should be awaited but doesn't work, try again after more package upgrades
-      user.click(attendanceMenuButton);
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      await user.click(attendanceMenuButton);
       const leaveEventOption = await screen.findByRole("menuitem", {
         name: t("communities:not_going_to_event"),
       });
-      user.click(leaveEventOption);
-
+      await user.click(leaveEventOption);
       expect(
         await screen.findByRole("button", {
           name: t("communities:join_event"),
@@ -242,7 +256,7 @@ describe("Event page", () => {
         name: t("communities:going_to_event"),
       });
 
-      const user = await userEvent.setup();
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
       //@TODO this should be awaited but doesn't work. Try again after more package upgrades
       user.click(attendanceMenuButton);

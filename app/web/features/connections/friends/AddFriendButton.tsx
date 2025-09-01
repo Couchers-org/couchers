@@ -1,3 +1,4 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
 import { PersonAddIcon } from "components/Icons";
 import { doAntibot } from "features/antibot/antibot";
@@ -7,7 +8,6 @@ import { CONNECTIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { User } from "proto/api_pb";
 import React from "react";
-import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
 import { SetMutationError } from ".";
@@ -23,16 +23,19 @@ export default function AddFriendButton({
 }: AddFriendButtonProps) {
   const queryClient = useQueryClient();
   const { t } = useTranslation([CONNECTIONS]);
-  const { isLoading, mutate: sendFriendRequest } = useMutation<
+  const { isPending, mutate: sendFriendRequest } = useMutation<
     Empty,
     Error,
     AddFriendButtonProps
-  >(({ userId }) => service.api.sendFriendRequest(userId), {
+  >({
+    mutationFn: ({ userId }) => service.api.sendFriendRequest(userId),
     onMutate: async ({ setMutationError }) => {
       setMutationError("");
       doAntibot("friend_request");
 
-      await queryClient.cancelQueries(userKey(userId));
+      await queryClient.cancelQueries({
+        queryKey: userKey(userId),
+      });
 
       const cachedUser = queryClient.getQueryData<User.AsObject>(
         userKey(userId),
@@ -55,7 +58,9 @@ export default function AddFriendButton({
     },
 
     onSuccess: (_, { userId }) => {
-      queryClient.invalidateQueries(userKey(userId));
+      queryClient.invalidateQueries({
+        queryKey: userKey(userId),
+      });
     },
   });
 
@@ -65,7 +70,7 @@ export default function AddFriendButton({
       onClick={() => {
         sendFriendRequest({ setMutationError, userId });
       }}
-      loading={isLoading}
+      loading={isPending}
     >
       {t("connections:add_friend")}
     </Button>

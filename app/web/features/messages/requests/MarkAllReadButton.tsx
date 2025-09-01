@@ -1,27 +1,25 @@
-import { Typography } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { styled, Typography } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
 import { DoneAllIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import { groupChatsListKey, hostRequestsListKey } from "features/queryKeys";
-import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
-import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 import { theme } from "theme";
 import getAllPages from "utils/getAllPages";
 
-const useStyles = makeStyles((theme) => ({
-  markAsReadButton: {
-    border: `1px solid ${theme.palette.grey[800]}`,
-    borderRadius: theme.shape.borderRadius,
-    marginBottom: theme.spacing(1),
-  },
-  markAsReadIcon: {
-    marginInlineEnd: theme.spacing(1),
-    fontSize: theme.typography.body1.fontSize,
-  },
+const MarkAsReadButtonStyled = styled(Button)(({ theme }) => ({
+  border: `1px solid ${theme.palette.grey[800]}`,
+  borderRadius: theme.shape.borderRadius,
+  marginBottom: theme.spacing(1),
+  color: theme.palette.text.primary,
+}));
+
+const MarkAsReadIconStyled = styled(DoneAllIcon)(({ theme }) => ({
+  marginInlineEnd: theme.spacing(1),
+  fontSize: theme.typography.body1.fontSize,
 }));
 
 export default function MarkAllReadButton({
@@ -29,11 +27,10 @@ export default function MarkAllReadButton({
 }: {
   type: "chats" | "hosting" | "surfing";
 }) {
-  const classes = useStyles();
   const { t } = useTranslation(MESSAGES);
   const queryClient = useQueryClient();
-  const markAll = useMutation<void, RpcError>(
-    async () => {
+  const markAll = useMutation({
+    mutationFn: async () => {
       if (type === "chats") {
         const data = await getAllPages({
           serviceFunction: service.conversations.listGroupChats,
@@ -75,13 +72,16 @@ export default function MarkAllReadButton({
         );
       }
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(hostRequestsListKey());
-        queryClient.invalidateQueries(groupChatsListKey);
-      },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [hostRequestsListKey()],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [groupChatsListKey],
+      });
     },
-  );
+  });
 
   return (
     <>
@@ -89,18 +89,17 @@ export default function MarkAllReadButton({
         <Snackbar severity="error">{markAll.error.message}</Snackbar>
       )}
 
-      <Button
-        className={classes.markAsReadButton}
-        loading={markAll.isLoading}
+      <MarkAsReadButtonStyled
+        loading={markAll.isPending}
         variant="text"
         onClick={() => markAll.mutate()}
         sx={{ color: theme.palette.text.primary }}
       >
-        <DoneAllIcon className={classes.markAsReadIcon} />
+        <MarkAsReadIconStyled />
         <Typography component="span">
           {t("mark_all_read_button_text")}
         </Typography>
-      </Button>
+      </MarkAsReadButtonStyled>
     </>
   );
 }

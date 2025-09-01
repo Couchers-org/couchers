@@ -13,17 +13,16 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
+import CatalanFlagIcon from "components/Icons/CatalanFlagIcon";
 import Snackbar from "components/Snackbar";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useWeblateStats } from "features/weblate/useWeblateStats";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router"; // we'll use this to reload the components w/ changed languages
 import { useState } from "react";
-import { useMutation } from "react-query";
 import { translateRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
@@ -67,11 +66,10 @@ export default function LanguagePickerSelect({
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const { mutate: changeLanguageMutation } = useMutation<
-    Empty,
-    RpcError,
-    string
-  >((newLanguage: string) => service.account.changeLanguage(newLanguage));
+  const { mutate: changeLanguageMutation } = useMutation({
+    mutationFn: (newLanguage: string) =>
+      service.account.changeLanguage(newLanguage),
+  });
 
   const handleChange = async (event: SelectChangeEvent<unknown>) => {
     const newLocale = event.target.value as string;
@@ -91,18 +89,30 @@ export default function LanguagePickerSelect({
     router.push(translateRoute);
   };
 
-  const renderFlag = (flagCode: string, percent?: number) => (
-    <img
-      alt={`${flagCode} flag`}
-      src={`https://cdn.couchers.org/img/language-icons/${flagCode}.svg`}
-      style={{
-        width: 25,
-        filter:
-          percent && percent < ALMOST_DONE_CUTOFF ? "grayscale(100%)" : "none",
-        opacity: percent && percent < ALMOST_DONE_CUTOFF ? 0.4 : 1,
-      }}
-    />
-  );
+  const renderFlag = (flagCode: string, percent?: number) => {
+    const commonStyles = {
+      filter:
+        percent && percent < ALMOST_DONE_CUTOFF ? "grayscale(100%)" : "none",
+      opacity: percent && percent < ALMOST_DONE_CUTOFF ? 0.4 : 1,
+    } as const;
+
+    if (flagCode === "CAT") {
+      return (
+        <CatalanFlagIcon
+          sx={{ width: 25, height: 18.75, ...commonStyles }}
+          aria-label="Catalan flag"
+        />
+      );
+    }
+
+    return (
+      <img
+        alt={`${flagCode} flag`}
+        src={`https://cdn.couchers.org/img/language-icons/${flagCode}.svg`}
+        style={{ width: 25, ...commonStyles }}
+      />
+    );
+  };
   // Languages with < 20% translated are hidden
   // Languages with < 80% translated are greyed out
   const availableLanguages = languages
@@ -267,7 +277,6 @@ export default function LanguagePickerSelect({
               id="newLanguage"
               displayMode={displayMode}
               value={isLoading ? "" : locale}
-              placeholder={t("global:language_preference.select_language")}
               fullWidth={isMobile}
               onChange={handleChange}
               disabled={isLoading}

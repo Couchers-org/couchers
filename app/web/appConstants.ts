@@ -17,3 +17,5 @@ export const grpcErrorStrings = {
 };
 
 export type ObscureGrpcErrorMessages = keyof typeof grpcErrorStrings;
+
+export const sessionCookieName = "couchers-sesh";

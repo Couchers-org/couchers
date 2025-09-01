@@ -1,8 +1,8 @@
 ---
 title: Roadmap
+description: Keep up to date with the Couchers development roadmap.
 crumb: Roadmap
 type: general
-description: Keep up to date with the Couchers development roadmap.
 hide_title: true
 ---
 <table style="width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 3; border-radius: 5px; text-align: left; font-family: Ubuntu, sans-serif; font-size: 14px;">
@@ -94,7 +94,7 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="1"</td>
-	  <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Event Co-organizers</td>
+      <td colspan="4" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Event Co-organizers</td>
     </tr>
     <tr >
       <td colspan="1"</td>
@@ -114,7 +114,7 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="2"</td>
-      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Boost New Users in Search</td>
+      <td colspan="3" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Boost New Users in Search</td>
     </tr>
     <tr >
 	  <td colspan="3"</td>
@@ -129,14 +129,14 @@ hide_title: true
       <td colspan="1" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Publish Beta-Apps</td>
     </tr>
     <tr >
-      <td rowspan="17" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Updates</td>
+      <td rowspan="22" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Updates</td>
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Granular Notification Settings</td>
     </tr>
     <tr >
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Pretty Notification Emails</td>
     </tr>
     <tr >
-      <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Translate Couchers.org to Chinese (Simplified), German & Portuguese (Brazil)</td>
+      <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Translate Couchers to German</td>
     </tr>
     <tr>
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ New Chat Bubble Design in Messages</td>
@@ -174,11 +174,15 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="2"</td>
+	  <td colspan="3" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Update Edit Profile Page</td>
+    </tr>
+    <tr >
+      <td colspan="2"</td>
       <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Bug Hunt (find and fix bugs)</td>
     </tr>
     <tr >
       <td colspan="2"</td>
-      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Improve Language Selector</td>
+      <td colspan="3" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Improve Language Selector</td>
     </tr>
     <tr >
       <td colspan="2"</td>
@@ -186,14 +190,30 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="2"</td>
-      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Translate Couchers to French and Portuguese (Portugal)</td>
+      <td colspan="3" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Translate Couchers to Russian</td>
+    </tr>
+    <tr >
+      <td colspan="2"</td>
+      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Translate Couchers to French</td>
+    </tr>
+    <tr >
+      <td colspan="2"</td>
+      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Translate Couchers to Portuguese (Portugal)</td>
+    </tr>
+    <tr >
+      <td colspan="2"</td>
+      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Translate Couchers to Dutch</td>
+    </tr>
+    <tr >
+      <td colspan="2"</td>
+      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Translate Couchers to Catalan</td>
     </tr>
     <tr >
       <td colspan="3"</td>
       <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Update Blog Design</td>
     </tr>
     <tr >
-      <td rowspan="14" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Operations</td>
+      <td rowspan="15" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Operations</td>
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Re-engage Previous Volunteers Through Newsletter</td>
     </tr>
     <tr >
@@ -216,6 +236,10 @@ hide_title: true
     <tr >
       <td colspan="1"</td>
       <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Design and Produce Merchandise</td>
+    </tr>
+    <tr >
+      <td colspan="2"</td>
+	  <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Improve volunteer onboarding</td>
     </tr>
     <tr >
       <td colspan="2"</td>

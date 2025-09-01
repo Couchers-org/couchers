@@ -14,7 +14,6 @@ import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { getUser } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
-import timezoneMock from "timezone-mock";
 
 import { EVENT_CARD_TEST_ID } from "./EventCard";
 import EventsSection from "./EventsSection";
@@ -43,11 +42,6 @@ describe("Events section", () => {
         nextPageToken: pageToken ? "" : "2",
       };
     });
-    timezoneMock.register("UTC");
-  });
-
-  afterEach(() => {
-    timezoneMock.unregister();
   });
 
   it("renders the events section correctly", async () => {

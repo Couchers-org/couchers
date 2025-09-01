@@ -1,4 +1,5 @@
-import { Alert as MuiAlert, Typography } from "@mui/material";
+import { Alert as MuiAlert, styled, Typography } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import { accountInfoQueryKey } from "features/queryKeys";
@@ -8,26 +9,21 @@ import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { GetAccountInfoRes } from "proto/account_pb";
 import React from "react";
-import { useQuery } from "react-query";
 import { routeToEditProfile } from "routes";
 import { service } from "service";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 
-const useStyles = makeStyles((theme) => ({
-  alert: {
-    marginBottom: theme.spacing(2),
-  },
-  alertText: { display: "block", marginBottom: theme.spacing(1) },
+const StyledAlert = styled(MuiAlert)(() => ({
+  marginBottom: theme.spacing(2),
 }));
 
 export default function DashboardBanners() {
   const { t } = useTranslation([DASHBOARD]);
-  const classes = useStyles();
 
-  const { data, error } = useQuery<GetAccountInfoRes.AsObject, RpcError>(
-    accountInfoQueryKey,
-    service.account.getAccountInfo,
-  );
+  const { data, error } = useQuery<GetAccountInfoRes.AsObject, RpcError>({
+    queryKey: [accountInfoQueryKey],
+    queryFn: service.account.getAccountInfo,
+  });
 
   return (
     <>
@@ -35,17 +31,32 @@ export default function DashboardBanners() {
       {data && (
         <>
           {!data.profileComplete && (
-            <MuiAlert className={classes.alert} severity="warning">
-              <Typography variant="inherit" paragraph>
+            <StyledAlert severity="warning">
+              <Typography
+                variant="inherit"
+                sx={{
+                  marginBottom: "16px",
+                }}
+              >
                 {t("dashboard:please_complete_profile")}
               </Typography>
               <Typography variant="inherit">
                 {t("dashboard:fill_in_who_i_am")}
               </Typography>
-              <Typography variant="inherit" paragraph>
+              <Typography
+                variant="inherit"
+                sx={{
+                  marginBottom: "16px",
+                }}
+              >
                 {t("dashboard:upload_photo")}
               </Typography>
-              <Typography variant="inherit" paragraph>
+              <Typography
+                variant="inherit"
+                sx={{
+                  marginBottom: "16px",
+                }}
+              >
                 <Button
                   component={Link}
                   role="link"
@@ -57,7 +68,7 @@ export default function DashboardBanners() {
               <Typography variant="inherit">
                 {t("dashboard:complete_profile_explanation")}
               </Typography>
-            </MuiAlert>
+            </StyledAlert>
           )}
         </>
       )}

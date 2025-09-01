@@ -19,4 +19,4 @@ export default function EditProfilePage() {
   return <EditProfilePageComponent tab="about" />;
 }
 
-EditProfilePage.getLayout = appGetLayout();
+EditProfilePage.getLayout = appGetLayout({ noFooter: true });

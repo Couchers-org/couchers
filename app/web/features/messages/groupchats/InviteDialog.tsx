@@ -1,4 +1,5 @@
 import { DialogProps } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
@@ -22,7 +23,6 @@ import { User } from "proto/api_pb";
 import { GroupChat } from "proto/conversations_pb";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
 export default function InviteDialog({
@@ -39,20 +39,22 @@ export default function InviteDialog({
   );
 
   const queryClient = useQueryClient();
-  const mutation = useMutation<Empty[], RpcError, User.AsObject[]>(
-    (users: User.AsObject[]) =>
+  const mutation = useMutation<Empty[], RpcError, User.AsObject[]>({
+    mutationFn: (users: User.AsObject[]) =>
       service.conversations.inviteToGroupChat(groupChat.groupChatId, users),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(
-          groupChatMessagesKey(groupChat.groupChatId),
-        );
-        queryClient.invalidateQueries(groupChatsListKey);
-        queryClient.invalidateQueries(groupChatKey(groupChat.groupChatId));
-        if (props.onClose) props.onClose({}, "escapeKeyDown");
-      },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [groupChatMessagesKey(groupChat.groupChatId)],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [groupChatsListKey],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [groupChatKey(groupChat.groupChatId)],
+      });
+      if (props.onClose) props.onClose({}, "escapeKeyDown");
     },
-  );
+  });
 
   const onSubmit = handleSubmit(({ selected }) => {
     mutation.mutate(selected);
@@ -102,7 +104,7 @@ export default function InviteDialog({
         </form>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onSubmit} loading={mutation.isLoading}>
+        <Button onClick={onSubmit} loading={mutation.isPending}>
           {t("messages:invite_dialog.invite_button_label")}
         </Button>
         <Button

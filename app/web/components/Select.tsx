@@ -44,10 +44,34 @@ const Select = forwardRef(function Select<
       margin="normal"
       sx={{
         "& .MuiOutlinedInput-root": {
-          borderRadius: theme.shape.borderRadius * 3,
+          borderRadius: theme.spacing(1.5),
+          backgroundColor: theme.palette.common.white,
+          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
+          transition: "all 0.2s ease-in-out",
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: theme.palette.grey[300],
+          },
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: theme.palette.primary.main,
+          },
+          "&:hover": {
+            backgroundColor: theme.palette.grey[50],
+          },
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: theme.palette.primary.main,
+            borderWidth: "1px",
+          },
+          "&.Mui-focused": {
+            boxShadow: `0 0 0 2px ${theme.palette.primary.main}15`,
+          },
         },
         "& .MuiInputBase-input": {
           height: "auto",
+          fontSize: "1rem",
+          padding: theme.spacing(1.5, 2),
+        },
+        "& .MuiSelect-icon": {
+          color: theme.palette.grey[600],
         },
         display: "block",
       }}

@@ -5,7 +5,9 @@
     "last_month": "Vorige maand",
     "last_3_months": "Laatste 3 maanden",
     "last_week": "Vorige week",
-    "last_6_months": "Laatste 6 maanden"
+    "last_6_months": "Laatste 6 maanden",
+    "any": "Alles",
+    "last_year": "Vorig jaar"
   },
   "filter_dialog": {
     "mobile_title": "Zoeken",
@@ -15,7 +17,77 @@
   "form": {
     "location_field_label": "In de buurt van",
     "keywords": {
-      "field_label": "Naam, trefwoorden of gebruikersnaam"
-    }
-  }
+      "field_label": "Naam, trefwoorden of gebruikersnaam",
+      "clear_field_action_a11y_label": "Zoekvelden leegmaken",
+      "search_this_keyword_a11y_label": "Zoek dit trefwoord"
+    },
+    "general_filters": {
+      "has_references": "Heeft referenties",
+      "accepts_last_minute_requests": "Accepteert last minute aanvragen",
+      "has_strong_verification": "Heeft een sterke verificatie"
+    },
+    "rules": {
+      "title": "Regels",
+      "alcohol_allowed": "Alcohol toegestaan",
+      "kids_allowed": "Kinderen toegestaan",
+      "pets_allowed": "Huisdieren toegestaan",
+      "smokes_at_home": "Rookt thuis"
+    },
+    "host_filters": {
+      "age": {
+        "max_age": "Maximumleeftijd",
+        "field_label": "Host leeftijd",
+        "min_age": "Minimumleeftijd"
+      },
+      "hosting_status_field_label": "Hosting status",
+      "last_active_field_label": "Laatst actief",
+      "complete_profiles_label": "Complete profielen",
+      "meetup_status_field_label": "Meetup status"
+    },
+    "by_location_filter_label": "Op locatie",
+    "accommodation_filters": {
+      "title": "Accommodatie filters",
+      "sleeping_arrangement_filters": {
+        "shared_room": {
+          "description": " - bijv. gedeelde slaapkamer met een eigen slaapplek",
+          "label": "Gedeelde kamer"
+        },
+        "private": {
+          "label": "Eigen kamer",
+          "description": " - bijv. eigen kamer of soortgelijk"
+        },
+        "common": {
+          "label": "Woonkamer",
+          "description": " - bijv. bank in woonkamer"
+        }
+      },
+      "guests_field_label": "Aantal gasten",
+      "sleeping_arrangement_label": "Slaapgelegenheid"
+    },
+    "by_keyword_filter_label": "Op trefwoord of naam",
+    "empty_profile_filters": {
+      "title": "Verberg lege profielen"
+    },
+    "search_filters": "Zoekfilters",
+    "clear_filters": "Alle filters verwijderen",
+    "missing_location_validation_error": "Kies een locatie om dit filter te gebruiken",
+    "submit_button_label": "Toepassen"
+  },
+  "search_result": {
+    "show_user_button_label": "Laat {{name}} op de kaart zien",
+    "missing_about_description": "{{name}} heeft nog niks over zichzelf geschreven",
+    "people_found_message": "Dit zijn {{currentRange}} van de {{totalItems}} gevonden mensen",
+    "no_user_result_message": "Geen gebruikers gevonden. Probeer wat filters te verwijderen om meer resultaten te zien.",
+    "few_results_suggestion": "Standaard worden lege profielen en profielen met \"kan niet hosten\" verborgen.",
+    "include_empty_profiles_button": "Toon alle profielen"
+  },
+  "views": {
+    "map_and_list": "Kaart & Lijst",
+    "choose_map_view": "Bekijken op kaart",
+    "list": "Lijst"
+  },
+  "location": "Locatie",
+  "keyword": "Trefwoord",
+  "search_this_area": "Zoek in dit gebied",
+  "zoom_in_to_select_user": "Zoom in om een gebruiker te selecteren"
 }

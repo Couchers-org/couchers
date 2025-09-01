@@ -1,5 +1,4 @@
-import { Tooltip } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { styled, Tooltip } from "@mui/material";
 import { CheckCircleIcon, ErrorIcon } from "components/Icons";
 import LabelAndText from "components/LabelAndText";
 import { useLanguages } from "features/profile/hooks/useLanguages";
@@ -10,6 +9,7 @@ import {
   GenderVerificationStatus,
   User,
 } from "proto/api_pb";
+import { theme } from "theme";
 import { monthFormatter, timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import { hourMillis, timeAgoI18n } from "utils/timeAgo";
@@ -123,21 +123,25 @@ export const ResponseRateLabel = ({ user }: Props) => {
   );
 };
 
-const useStyles = makeStyles((theme) => ({
-  iconStyles: {
-    margin: theme.spacing(0.5),
-    alignSelf: "center",
-  },
-  container: {
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
-  },
+const StyledContainer = styled("div")(() => ({
+  display: "flex",
+  flexWrap: "wrap",
+  alignItems: "center",
 }));
 
-export const AgeAndGenderRenderer = ({ user }: Props) => {
-  const classes = useStyles();
+const styledIcon = <C extends React.ComponentType<React.ComponentProps<C>>>(
+  component: C,
+) => {
+  return styled(component)(() => ({
+    margin: theme.spacing(0.5),
+    alignSelf: "center",
+  }));
+};
 
+const StyledCheckCircleIcon = styledIcon(CheckCircleIcon);
+const StyledErrorIcon = styledIcon(ErrorIcon);
+
+export const AgeAndGenderRenderer = ({ user }: Props) => {
   const {
     birthdateVerificationStatus,
     genderVerificationStatus,
@@ -145,7 +149,6 @@ export const AgeAndGenderRenderer = ({ user }: Props) => {
     gender,
     pronouns,
   } = user;
-  const { iconStyles } = useStyles();
   const { t } = useTranslation("profile");
 
   const getBirthdateVerificationIcon = (
@@ -155,10 +158,9 @@ export const AgeAndGenderRenderer = ({ user }: Props) => {
       case BirthdateVerificationStatus.BIRTHDATE_VERIFICATION_STATUS_VERIFIED:
         return (
           <Tooltip title={t("heading.age_verification_verified")}>
-            <CheckCircleIcon
+            <StyledCheckCircleIcon
               color="primary"
               data-testid="check-circle-icon"
-              className={iconStyles}
               fontSize="inherit"
             />
           </Tooltip>
@@ -166,10 +168,9 @@ export const AgeAndGenderRenderer = ({ user }: Props) => {
       case BirthdateVerificationStatus.BIRTHDATE_VERIFICATION_STATUS_MISMATCH:
         return (
           <Tooltip title={t("heading.age_verification_mismatch")}>
-            <ErrorIcon
+            <StyledErrorIcon
               color="error"
               data-testid="error-icon"
-              className={iconStyles}
               fontSize="inherit"
             />
           </Tooltip>
@@ -184,10 +185,9 @@ export const AgeAndGenderRenderer = ({ user }: Props) => {
       case GenderVerificationStatus.GENDER_VERIFICATION_STATUS_VERIFIED:
         return (
           <Tooltip title={t("heading.gender_verification_verified")}>
-            <CheckCircleIcon
+            <StyledCheckCircleIcon
               color="primary"
               data-testid="check-circle-icon"
-              className={iconStyles}
               fontSize="inherit"
             />
           </Tooltip>
@@ -195,10 +195,9 @@ export const AgeAndGenderRenderer = ({ user }: Props) => {
       case GenderVerificationStatus.GENDER_VERIFICATION_STATUS_MISMATCH:
         return (
           <Tooltip title={t("heading.gender_verification_mismatch")}>
-            <ErrorIcon
+            <StyledErrorIcon
               color="error"
               data-testid="error-icon"
-              className={iconStyles}
               fontSize="inherit"
             />
           </Tooltip>
@@ -208,14 +207,14 @@ export const AgeAndGenderRenderer = ({ user }: Props) => {
     }
   };
   return (
-    <div className={classes.container}>
+    <StyledContainer>
       <span>{age}</span>
       {getBirthdateVerificationIcon(birthdateVerificationStatus)}
       <span>/&nbsp;</span>
       <span>{gender}</span>
       {getGenderVerificationIcon(genderVerificationStatus)}
       {pronouns && <span>({pronouns.replace(/\s+/g, "")})</span>}
-    </div>
+    </StyledContainer>
   );
 };
 

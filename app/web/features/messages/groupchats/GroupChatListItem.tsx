@@ -4,8 +4,9 @@ import {
   ListItemProps,
   ListItemText,
   Skeleton,
+  styled,
+  Typography,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
 import Avatar from "components/Avatar";
 import { MuteIcon } from "components/Icons";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -20,12 +21,21 @@ import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { GroupChat } from "proto/conversations_pb";
 import React from "react";
+import { theme } from "theme";
 import { firstName } from "utils/names";
 
-const useStyles = makeStyles((theme) => ({
-  titlePadding: { marginInlineEnd: theme.spacing(1) },
-  muteIcon: { verticalAlign: "middle" },
-  unread: { fontWeight: "bold" },
+const StyledListItemTypography = styled(Typography, {
+  shouldForwardProp: (propName) => propName !== "isUnread",
+})<{ isUnread: boolean }>(({ isUnread }) => ({
+  fontWeight: isUnread ? "bold" : "inherit",
+}));
+
+const StyledMuteIcon = styled(MuteIcon)(() => ({
+  verticalAlign: "middle",
+}));
+
+const StyledTitle = styled("span")(() => ({
+  marginInlineEnd: theme.spacing(1),
 }));
 
 export interface GroupChatListItemProps extends ListItemProps {
@@ -37,13 +47,11 @@ export default function GroupChatListItem({
   className,
 }: GroupChatListItemProps) {
   const { t } = useTranslation(MESSAGES);
-  const classes = useStyles();
   const currentUserId = useAuthContext().authState.userId!;
   const latestMessageAuthorId = groupChat.latestMessage?.authorUserId;
-  const isUnreadClass =
-    groupChat.lastSeenMessageId !== groupChat.latestMessage?.messageId
-      ? classes.unread
-      : "";
+
+  const isUnread =
+    groupChat.lastSeenMessageId !== groupChat.latestMessage?.messageId;
 
   //It is possible the last message is sent by someone who has left
   //so include it just in case
@@ -99,26 +107,28 @@ export default function GroupChatListItem({
           />
         )}
       </ListItemAvatar>
-      {
-        //When we want more than primary and secondary (host Request status, etc)
-        //They can also take react nodes. But change typography component using props
-      }
       <ListItemText
+        slotProps={{
+          primary: { component: "span" },
+          secondary: { component: "span" },
+        }}
         primary={
-          groupChatMembersQuery.isLoading ? (
-            <Skeleton />
-          ) : (
-            <>
-              <span className={classes.titlePadding}>{title}</span>
-              {groupChat.muteInfo?.muted && (
-                <MuteIcon className={classes.muteIcon} />
-              )}
-            </>
-          )
+          <StyledListItemTypography isUnread={isUnread} noWrap>
+            {groupChatMembersQuery.isLoading ? (
+              <Skeleton />
+            ) : (
+              <>
+                <StyledTitle>{title}</StyledTitle>
+                {groupChat.muteInfo?.muted && <StyledMuteIcon />}
+              </>
+            )}
+          </StyledListItemTypography>
         }
-        secondary={groupChatMembersQuery.isLoading ? <Skeleton /> : text}
-        primaryTypographyProps={{ noWrap: true, className: isUnreadClass }}
-        secondaryTypographyProps={{ noWrap: true, className: isUnreadClass }}
+        secondary={
+          <StyledListItemTypography isUnread={isUnread} noWrap>
+            {groupChatMembersQuery.isLoading ? <Skeleton /> : text}
+          </StyledListItemTypography>
+        }
       />
     </ListItemButton>
   );

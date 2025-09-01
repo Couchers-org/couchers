@@ -1,4 +1,5 @@
-import { Skeleton, Typography } from "@mui/material";
+import { Skeleton, styled, Typography } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -14,30 +15,38 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Discussion } from "proto/discussions_pb";
-import { useQuery } from "react-query";
 import { service } from "service";
+import { theme } from "theme";
 import { dateFormatter, timestamp2Date } from "utils/date";
-import makeStyles from "utils/makeStyles";
 
 import CommunityBase from "../CommunityBase";
 import CommunityPageSubHeader from "../CommunityPage/CommunityPageSubHeader";
 import PageHeader from "../PageHeader";
 import CommentTree from "./CommentTree";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    paddingBlockEnd: theme.spacing(5),
-  },
-  header: {
-    alignItems: "center",
-    display: "flex",
-  },
-  discussionTitle: {
-    marginInlineStart: theme.spacing(2),
-  },
-  discussionContent: {
-    marginBlockEnd: theme.spacing(3),
-  },
+const StyledPageHeader = styled(PageHeader)(() => ({
+  alignItems: "center",
+  display: "flex",
+}));
+
+const StyledDiscussionHeader = styled("div")(() => ({
+  alignItems: "center",
+  display: "flex",
+}));
+
+const StyledDiscussionBodyWrapper = styled("div")(() => ({
+  paddingBlockEnd: theme.spacing(5),
+}));
+
+const StyledDiscussionTitle = styled(PageTitle)(() => ({
+  marginInlineStart: theme.spacing(2),
+}));
+
+const StyledDiscussionContent = styled(Markdown)(() => ({
+  marginBlockEnd: theme.spacing(3),
+}));
+
+const StyledCreatorContainer = styled("div")(() => ({
   creatorContainer: {
     "& > * + *": {
       marginInlineStart: theme.spacing(2),
@@ -46,14 +55,16 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     marginBlockEnd: theme.spacing(3),
   },
-  creatorDetailsContainer: {
-    display: "flex",
-    flexDirection: "column",
-  },
-  avatar: {
-    height: "3rem",
-    width: "3rem",
-  },
+}));
+
+const StyledAvatar = styled(Avatar)(() => ({
+  height: "3rem",
+  width: "3rem",
+}));
+
+const StyledCreatorDetailsContainer = styled("div")(() => ({
+  display: "flex",
+  flexDirection: "column",
 }));
 
 export const CREATOR_TEST_ID = "creator";
@@ -67,7 +78,6 @@ export default function DiscussionPage({
     t,
     i18n: { language: locale },
   } = useTranslation([GLOBAL, COMMUNITIES]);
-  const classes = useStyles();
   const router = useRouter();
 
   const {
@@ -95,40 +105,28 @@ export default function DiscussionPage({
             {({ community }) => (
               <>
                 {community.mainPage && (
-                  <PageHeader
-                    page={community.mainPage}
-                    className={classes.header}
-                  />
+                  <StyledPageHeader page={community.mainPage} />
                 )}
                 <CommunityPageSubHeader
                   community={community}
                   tab="discussions"
                 />
-                <div className={classes.root}>
-                  <div className={classes.header}>
+                <StyledDiscussionBodyWrapper>
+                  <StyledDiscussionHeader>
                     <HeaderButton
                       onClick={() => router.back()}
                       aria-label={t("communities:previous_page")}
                     >
                       <BackIcon />
                     </HeaderButton>
-                    <PageTitle className={classes.discussionTitle}>
+                    <StyledDiscussionTitle>
                       {discussion.title}
-                    </PageTitle>
-                  </div>
-                  <Markdown
-                    className={classes.discussionContent}
-                    source={discussion.content}
-                  />
-                  <div
-                    className={classes.creatorContainer}
-                    data-testid={CREATOR_TEST_ID}
-                  >
-                    <Avatar
-                      user={discussionCreator}
-                      className={classes.avatar}
-                    />
-                    <div className={classes.creatorDetailsContainer}>
+                    </StyledDiscussionTitle>
+                  </StyledDiscussionHeader>
+                  <StyledDiscussionContent source={discussion.content} />
+                  <StyledCreatorContainer data-testid={CREATOR_TEST_ID}>
+                    <StyledAvatar user={discussionCreator} />
+                    <StyledCreatorDetailsContainer>
                       {isCreatorLoading ? (
                         <Skeleton width={100} />
                       ) : (
@@ -147,13 +145,13 @@ export default function DiscussionPage({
                           )}
                         </Typography>
                       )}
-                    </div>
-                  </div>
+                    </StyledCreatorDetailsContainer>
+                  </StyledCreatorContainer>
                   <Typography variant="h2">
                     {t("communities:comments")}
                   </Typography>
                   <CommentTree threadId={discussion.thread!.threadId} />
-                </div>
+                </StyledDiscussionBodyWrapper>
               </>
             )}
           </CommunityBase>

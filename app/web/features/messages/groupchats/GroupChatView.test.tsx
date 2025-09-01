@@ -2,6 +2,7 @@ import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MARK_LAST_SEEN_TIMEOUT } from "features/messages/constants";
 import GroupChatView from "features/messages/groupchats/GroupChatView";
+import { groupChatKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import {
@@ -12,7 +13,12 @@ import { service } from "service";
 import messageData from "test/fixtures/messages.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
-import { getGroupChatMessages, getLiteUser } from "test/serviceMockDefaults";
+import {
+  getGroupChatMessages,
+  getLiteUser,
+  getLiteUsers,
+  getUser,
+} from "test/serviceMockDefaults";
 import {
   addDefaultUser,
   assertErrorAlert,
@@ -29,6 +35,9 @@ const getGroupChatMock = service.conversations.getGroupChat as MockedService<
   typeof service.conversations.getGroupChat
 >;
 const getLiteUserMock = service.user.getLiteUser as jest.Mock;
+const getLiteUsersMock = service.user.getLiteUsers as jest.Mock;
+const getUserMock = service.user.getUser as jest.Mock;
+
 const listFriendsMock = service.api.listFriends as MockedService<
   typeof service.api.listFriends
 >;
@@ -95,6 +104,8 @@ describe("GroupChatView", () => {
     getGroupChatMock.mockResolvedValue(baseGroupChatMockResponse);
     getGroupChatMessagesMock.mockImplementation(getGroupChatMessages);
     getLiteUserMock.mockImplementation(getLiteUser);
+    getLiteUsersMock.mockImplementation(getLiteUsers);
+    getUserMock.mockImplementation(getUser);
     markLastSeenGroupChatMock.mockResolvedValue(new Empty());
     listFriendsMock.mockResolvedValue([1, 2]);
   });
@@ -205,6 +216,10 @@ describe("GroupChatView", () => {
 
       await act(async () => {
         jest.advanceTimersByTime(GROUP_CHAT_REFETCH_INTERVAL);
+      });
+
+      await waitFor(() => {
+        expect(getGroupChatMessagesMock).toHaveBeenCalledTimes(2);
       });
 
       messages = screen.getAllByTestId(/message-\d/);
@@ -427,15 +442,8 @@ describe("GroupChatView", () => {
   it("for an unmuted chat, can mute and then shows mute icon", async () => {
     getGroupChatMock.mockResolvedValue(baseGroupChatMockResponse);
     muteChatMock.mockResolvedValue(new Empty());
-    renderGroupChatView();
 
-    getGroupChatMock.mockResolvedValue({
-      ...baseGroupChatMockResponse,
-      muteInfo: {
-        muted: true,
-        mutedUntil: Timestamp.fromDate(new Date(Date() + 10000)).toObject(),
-      },
-    });
+    const client = renderGroupChatView();
 
     screen
       .getByRole("button", {
@@ -461,6 +469,16 @@ describe("GroupChatView", () => {
     await waitFor(() => {
       expect(muteChatMock).toBeCalledWith({ groupChatId: 1, forever: true });
     });
+
+    // Manually update the query data to reflect the muted state
+    client.setQueryData(groupChatKey(1), {
+      ...baseGroupChatMockResponse,
+      muteInfo: {
+        muted: true,
+        mutedUntil: Timestamp.fromDate(new Date(Date() + 10000)).toObject(),
+      },
+    });
+
     const muteIcon = await screen.findByTestId("mute-icon");
     expect(muteIcon).toBeVisible();
   });

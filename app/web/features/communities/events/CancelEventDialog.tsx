@@ -1,4 +1,5 @@
 import { DialogProps } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -14,7 +15,6 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import React from "react";
-import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
 export default function CancelEventDialog({
@@ -23,15 +23,15 @@ export default function CancelEventDialog({
 }: DialogProps & { eventId: number }) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const queryClient = useQueryClient();
-  const cancelEventMutation = useMutation<Empty, RpcError, void>(
-    () => service.events.cancelEvent(eventId),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(eventKey(eventId));
-        if (props.onClose) props.onClose({}, "escapeKeyDown");
-      },
+  const cancelEventMutation = useMutation<Empty, RpcError, void>({
+    mutationFn: () => service.events.cancelEvent(eventId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: eventKey(eventId),
+      });
+      if (props.onClose) props.onClose({}, "escapeKeyDown");
     },
-  );
+  });
 
   const handleCancelEvent = () => cancelEventMutation.mutate();
 
@@ -51,7 +51,7 @@ export default function CancelEventDialog({
       <DialogActions>
         <Button
           onClick={handleCancelEvent}
-          loading={cancelEventMutation.isLoading}
+          loading={cancelEventMutation.isPending}
         >
           {t("global:yes")}
         </Button>
@@ -59,7 +59,7 @@ export default function CancelEventDialog({
           onClick={() =>
             props.onClose ? props.onClose({}, "escapeKeyDown") : null
           }
-          loading={cancelEventMutation.isLoading}
+          loading={cancelEventMutation.isPending}
         >
           {t("global:no")}
         </Button>

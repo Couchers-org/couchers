@@ -25,23 +25,35 @@ export interface NominatimPlace {
 }
 
 export const simplifyPlaceDisplayName = (place: NominatimPlace) => {
-  const addressFields = [
-    "village",
-    "town",
-    "neighbourhood",
-    "suburb",
-    "city",
-    "state",
-    "country",
-  ];
-
   const addressParts: Array<string> = [];
 
-  for (const field of addressFields) {
-    if (field in place.address) {
-      addressParts.push(place.address[field]);
-    }
+  // Primary locality (city/town level)
+  const primaryLocality =
+    place.address.city ||
+    place.address.town ||
+    place.address.village ||
+    place.address.municipality ||
+    place.address.hamlet;
+
+  if (primaryLocality) {
+    addressParts.push(primaryLocality);
   }
+
+  // Administrative region (state/province level)
+  const adminRegion =
+    place.address.state ||
+    place.address.province ||
+    place.address.state_district;
+
+  if (adminRegion) {
+    addressParts.push(adminRegion);
+  }
+
+  // Country
+  if (place.address.country) {
+    addressParts.push(place.address.country);
+  }
+
   return addressParts.join(", ");
 };
 

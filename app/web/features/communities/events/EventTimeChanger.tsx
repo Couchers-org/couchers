@@ -1,3 +1,4 @@
+import { styled } from "@mui/material";
 import Datepicker from "components/Datepicker";
 import Timepicker from "components/Timepicker";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
@@ -5,11 +6,21 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Event } from "proto/events_pb";
 import { UseFormReturn } from "react-hook-form";
+import { theme } from "theme";
 import { isSameOrFutureDate, timestamp2Date } from "utils/date";
 import dayjs, { Dayjs } from "utils/dayjs";
 import { timePattern } from "utils/validation";
 
-import { CreateEventData, useEventFormStyles } from "./EventForm";
+import { CreateEventData } from "./EventForm";
+
+const StyledContainer = styled("div")(() => ({
+  display: "grid",
+  gridTemplateColumns: "1fr",
+  gap: theme.spacing(3, 2),
+  [theme.breakpoints.up("md")]: {
+    gridTemplateColumns: "1fr 1fr",
+  },
+}));
 
 function splitTimestampToDateAndTime(timestamp?: Timestamp.AsObject): {
   date?: Dayjs;
@@ -44,7 +55,6 @@ export default function EventTimeChanger({
   setValue,
 }: EventTimeChangerProps) {
   const { t } = useTranslation([COMMUNITIES]);
-  const classes = useEventFormStyles();
 
   const { date: eventStartDate, time: eventStartTime } =
     splitTimestampToDateAndTime(event?.startTime);
@@ -81,7 +91,7 @@ export default function EventTimeChanger({
 
   return (
     <>
-      <div className={classes.duoContainer}>
+      <StyledContainer>
         <Datepicker
           control={control}
           defaultValue={eventStartDate ?? null}
@@ -149,13 +159,13 @@ export default function EventTimeChanger({
           helperText={errors.startTime?.message || ""}
           testId="startTime"
         />
-      </div>
-      <div className={classes.duoContainer}>
+      </StyledContainer>
+      <StyledContainer>
         <Datepicker
           control={control}
           defaultValue={eventEndDate ?? null}
           error={!!errors.endDate?.message}
-          helperText={errors.endDate?.message}
+          helperText={errors.endDate?.message || ""}
           id="endDate"
           label={t("communities:end_date")}
           name="endDate"
@@ -233,7 +243,7 @@ export default function EventTimeChanger({
           helperText={errors.endTime?.message || ""}
           testId="endTime"
         />
-      </div>
+      </StyledContainer>
     </>
   );
 }

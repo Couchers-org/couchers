@@ -1,25 +1,22 @@
-import { Link as MuiLink, Typography } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { Link as MuiLink, styled, Typography } from "@mui/material";
 import StyledLink from "components/StyledLink";
 import useAccountInfo from "features/auth/useAccountInfo";
 import CommunitiesList from "features/dashboard/CommunitiesList";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { communityCreationFormURL } from "routes";
+import { theme } from "theme";
 
-const useStyles = makeStyles((theme) => ({
-  createCommunityText: {
-    paddingBlockStart: theme.spacing(2),
-  },
-  browseCommunitiesLink: {
-    verticalAlign: "baseline",
-  },
+const StyledBrowseCommunitiesLink = styled(StyledLink)(() => ({
+  verticalAlign: "baseline",
+}));
+
+const StyledCreateCommunityText = styled(Typography)(() => ({
+  paddingBlockStart: theme.spacing(2),
 }));
 
 export default function CommunitiesSection() {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
-  const classes = useStyles();
-
   const { data: accountInfo } = useAccountInfo();
 
   return (
@@ -27,26 +24,22 @@ export default function CommunitiesSection() {
       <Typography variant="h2" gutterBottom>
         {t("dashboard:your_communities_heading")}
       </Typography>
-      <Typography variant="body1" paragraph>
+      <Typography
+        variant="body1"
+        sx={{
+          marginBottom: "16px",
+        }}
+      >
         <Trans i18nKey="dashboard:your_communities_helper_text">
           {`You have been added to all communities based on your location. Feel free to `}
-          <StyledLink
-            href="/communities"
-            className={classes.browseCommunitiesLink}
-            underline="hover"
-          >
+          <StyledBrowseCommunitiesLink href="/communities" underline="hover">
             browse communities
-          </StyledLink>
+          </StyledBrowseCommunitiesLink>
           {` in other locations as well.`}
         </Trans>
       </Typography>
       <CommunitiesList />
-
-      <Typography
-        variant="body1"
-        paragraph
-        className={classes.createCommunityText}
-      >
+      <StyledCreateCommunityText variant="body1" paragraph>
         <Trans i18nKey="dashboard:your_communities_helper_text2">
           {`Don't see your community? `}
           <MuiLink
@@ -58,7 +51,7 @@ export default function CommunitiesSection() {
             Get it started!
           </MuiLink>
         </Trans>
-      </Typography>
+      </StyledCreateCommunityText>
     </>
   );
 }

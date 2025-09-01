@@ -173,6 +173,7 @@ const SearchResultUserCard = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 sx={{ fontSize: "1.1rem", overflow: "hidden" }}
+                onClick={(e) => e.stopPropagation()}
               >
                 <Typography
                   variant="h2"
@@ -193,6 +194,7 @@ const SearchResultUserCard = ({
               href={routeToUser(user.username)}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
             >
               <Tooltip title={t("profile:open_profile_new_tab")}>
                 <StyledOpenInNewIcon
@@ -226,7 +228,7 @@ const SearchResultUserCard = ({
           <UserDetailsRow>
             <Typography variant="body2">
               {user.lastActive
-                ? `Active: ` +
+                ? `${t("profile:active")}: ` +
                   timeAgoI18n({
                     input: timestamp2Date(user.lastActive),
                     t,

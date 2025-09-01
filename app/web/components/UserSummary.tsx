@@ -7,11 +7,12 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/system";
 import Avatar from "components/Avatar";
+import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import { OpenInNewIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import { LiteUser } from "proto/api_pb";
 import { BlockedUser } from "proto/blocking_pb";
-import React from "react";
+import React, { useState } from "react";
 import { routeToUser } from "routes";
 
 import StrongVerificationBadge from "./StrongVerificationBadge";
@@ -64,6 +65,7 @@ export interface UserSummaryProps {
   user?: LiteUser.AsObject | BlockedUser.AsObject;
   titleIsLink?: boolean;
   isProfileLink?: boolean;
+  menuItems?: EllipsisMenuItem[];
 }
 
 export default function UserSummary({
@@ -74,12 +76,25 @@ export default function UserSummary({
   user,
   titleIsLink = false,
   isProfileLink = true,
+  menuItems,
 }: UserSummaryProps) {
   const headlineComponentWithRef = React.forwardRef(
     function HeadlineComponentWithRef(props, ref) {
       return React.createElement(headlineComponent, { ...props, ref });
     },
   );
+
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
+    null,
+  );
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+  };
 
   const nameValue =
     user && user.name
@@ -175,6 +190,17 @@ export default function UserSummary({
           </>
         }
       />
+
+      {menuItems && (
+        <EllipsisMenu
+          idName={`${user?.username}-summary-menu`}
+          isMenuOpen={!!menuAnchorEl}
+          menuAnchorEl={menuAnchorEl}
+          onMenuOpen={handleMenuOpen}
+          onMenuClose={handleMenuClose}
+          items={menuItems}
+        />
+      )}
     </StyledWrapper>
   );
 }

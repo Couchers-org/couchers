@@ -6,7 +6,7 @@ import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy.sql import func
 
-from couchers import errors
+from couchers import errors, urls
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views_rapid
@@ -14,6 +14,7 @@ from couchers.models import (
     AccountDeletionReason,
     AccountDeletionToken,
     BackgroundJob,
+    InviteCode,
     Upload,
     User,
     Volunteer,
@@ -887,6 +888,55 @@ def test_LogOutOtherSessions(db, fast_passwords):
         account.LogOutOtherSessions(account_pb2.LogOutOtherSessionsReq(confirm=True))
         res = account.ListActiveSessions(account_pb2.ListActiveSessionsReq())
         assert len(res.active_sessions) == 1
+
+
+def test_CreateInviteCode(db):
+    user, token = generate_user()
+
+    with account_session(token) as account:
+        res = account.CreateInviteCode(account_pb2.CreateInviteCodeReq())
+        code = res.code
+        assert len(code) == 8
+
+    with session_scope() as session:
+        invite = session.execute(select(InviteCode).where(InviteCode.id == code)).scalar_one()
+        assert invite.creator_user_id == user.id
+        assert invite.disabled is None
+        assert res.url == urls.invite_code_link(code=res.code)
+
+
+def test_DisableInviteCode(db):
+    user, token = generate_user()
+    code = "TEST1234"
+    with session_scope() as session:
+        session.add(InviteCode(id=code, creator_user_id=user.id))
+        session.commit()
+
+    with account_session(token) as account:
+        account.DisableInviteCode(account_pb2.DisableInviteCodeReq(code=code))
+
+    with session_scope() as session:
+        invite = session.execute(select(InviteCode).where(InviteCode.id == code)).scalar_one()
+        assert invite.disabled is not None
+
+
+def test_ListInviteCodes(db):
+    user, token = generate_user()
+    another_user, _ = generate_user()
+
+    code = "LIST1234"
+    with session_scope() as session:
+        session.add(InviteCode(id=code, creator_user_id=user.id))
+        db_other_user = session.execute(select(User).where(User.id == another_user.id)).scalar_one()
+        db_other_user.invite_code_id = code
+        session.commit()
+
+    with account_session(token) as account:
+        res = account.ListInviteCodes(empty_pb2.Empty())
+        assert len(res.invite_codes) == 1
+        assert res.invite_codes[0].code == code
+        assert res.invite_codes[0].uses == 1
+        assert res.invite_codes[0].url == urls.invite_code_link(code=code)
 
 
 def test_reminders(db):

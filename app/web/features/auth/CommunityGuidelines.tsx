@@ -8,6 +8,7 @@ import {
   Typography,
   TypographyVariant,
 } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -19,7 +20,6 @@ import Sentry from "platform/sentry";
 import { GetCommunityGuidelinesRes } from "proto/resources_pb";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useQuery } from "react-query";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
 import { useIsMounted, useSafeState } from "utils/hooks";
@@ -64,7 +64,7 @@ export default function CommunityGuidelines({
     error: loadError,
     isLoading,
   } = useQuery<GetCommunityGuidelinesRes.AsObject, RpcError>({
-    queryKey: communityGuidelinesQueryKey,
+    queryKey: [communityGuidelinesQueryKey],
     queryFn: () => service.resources.getCommunityGuidelines(),
   });
 

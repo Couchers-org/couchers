@@ -7,7 +7,11 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
+import useCurrentUser from "features/userQueries/useCurrentUser";
+import { User } from "proto/api_pb";
 import { service } from "service";
+import events from "test/fixtures/events.json";
+import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { getEventAttendees, getLiteUsers } from "test/serviceMockDefaults";
@@ -17,18 +21,39 @@ import EventAttendees from "./EventAttendees";
 
 const { t } = i18n;
 
+const [event] = events;
+
 const listEventAttendeesMock = service.events
   .listEventAttendees as jest.MockedFunction<
   typeof service.events.listEventAttendees
 >;
+const listEventOrganizersMock = service.events
+  .listEventOrganizers as jest.MockedFunction<
+  typeof service.events.listEventOrganizers
+>;
 const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
   typeof service.user.getLiteUsers
+>;
+jest.mock("features/userQueries/useCurrentUser");
+const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
+  typeof useCurrentUser
 >;
 
 describe("Event attendees", () => {
   beforeEach(() => {
     getLiteUsersMock.mockImplementation(getLiteUsers);
     listEventAttendeesMock.mockImplementation(getEventAttendees);
+    listEventOrganizersMock.mockImplementation(async () => ({
+      organizerUserIdsList: [1, 3],
+      nextPageToken: "",
+    }));
+    useCurrentUserMock.mockReturnValue({
+      data: users[0] as User.AsObject,
+      isError: false,
+      isFetching: false,
+      isLoading: false,
+      error: "",
+    });
   });
 
   afterEach(() => {
@@ -36,7 +61,7 @@ describe("Event attendees", () => {
   });
 
   it("renders the attendees successfully", async () => {
-    render(<EventAttendees eventId={1} />, { wrapper });
+    render(<EventAttendees event={event} />, { wrapper });
 
     expect(
       await screen.findByRole("heading", { name: t("communities:attendees") }),
@@ -65,7 +90,7 @@ describe("Event attendees", () => {
     });
 
     it("should show dialog for seeing all attendees when the 'See all' button is clicked", async () => {
-      render(<EventAttendees eventId={1} />, { wrapper });
+      render(<EventAttendees event={event} />, { wrapper });
 
       const user = userEvent.setup();
 
@@ -84,7 +109,7 @@ describe("Event attendees", () => {
     });
 
     it("should load the next page of attendees when the 'Load more attendees' button is clicked", async () => {
-      render(<EventAttendees eventId={1} />, { wrapper });
+      render(<EventAttendees event={event} />, { wrapper });
 
       const user = userEvent.setup();
 
@@ -124,7 +149,7 @@ describe("Event attendees", () => {
           nextPageToken: "4",
         };
       });
-      render(<EventAttendees eventId={1} />, { wrapper });
+      render(<EventAttendees event={event} />, { wrapper });
 
       const user = userEvent.setup();
 
@@ -151,7 +176,7 @@ describe("Event attendees", () => {
 
     it("should show an error alert in the dialog if getting attendees failed", async () => {
       mockConsoleError();
-      render(<EventAttendees eventId={1} />, { wrapper });
+      render(<EventAttendees event={event} />, { wrapper });
       const errorMessage = "Error listing attendees";
       listEventAttendeesMock.mockRejectedValue(new Error(errorMessage));
 
@@ -166,7 +191,7 @@ describe("Event attendees", () => {
     });
 
     it("closes the dialog when the backdrop is clicked", async () => {
-      render(<EventAttendees eventId={1} />, { wrapper });
+      render(<EventAttendees event={event} />, { wrapper });
 
       const user = userEvent.setup();
 
@@ -186,6 +211,32 @@ describe("Event attendees", () => {
           name: t("communities:load_more_attendees"),
         }),
       ).not.toBeInTheDocument();
+    });
+
+    it("should make attendee an organizer on menu option click", async () => {
+      render(<EventAttendees event={event} />, { wrapper });
+
+      const spy = jest.spyOn(service.events, "inviteEventOrganizer");
+
+      const menuButton = await screen.findByTestId(
+        "funnydog-summary-menu-more-options",
+      );
+
+      const user = userEvent.setup();
+
+      await user.click(menuButton);
+
+      const menuItem = await screen.findByText(
+        t("communities:make_co_organizer:title"),
+      );
+
+      await user.click(menuItem);
+
+      const confirmButton = await screen.findByText(t("global:confirm"));
+
+      await user.click(confirmButton);
+
+      expect(spy.mock.calls.length).toBe(1);
     });
   });
 });

@@ -19,7 +19,7 @@ export const username2Id = "username2Id";
 export const volunteerInfoQueryKey = "volunteerInfo";
 
 export function userKey(userId?: number) {
-  return userId === undefined ? "user" : ["user", userId];
+  return userId === undefined ? ["user"] : ["user", userId];
 }
 
 export function modUserKey(user?: string) {
@@ -30,15 +30,12 @@ export function modUserDetailsKey(user?: string) {
 }
 
 export function liteUserKey(userId?: number) {
-  return userId === undefined ? "liteUser" : ["liteUser", userId];
+  return userId === undefined ? ["liteUser"] : ["liteUser", userId];
 }
 
 export const liteUsersKey = (ids: number[] | string[]) => ["liteUsers", ...ids];
 
-export const referencesGivenKey = (userId: number) => [
-  "referencesGiven",
-  { userId },
-];
+export const referencesGivenKey = "referencesGiven";
 
 export const referencesReceivedBaseKey = "referencesReceived";
 export interface ReferencesReceivedKeyInputs {
@@ -124,7 +121,7 @@ export const eventOrganizersBaseKey = "eventOrganizers";
 export const eventOrganizersKey = ({ eventId, type }: EventUsersInput) => [
   eventOrganizersBaseKey,
   eventId,
-  { type },
+  ...(type === "summary" ? ["summary"] : []),
 ];
 export const eventAttendeesBaseKey = "eventAttendees";
 export const eventAttendeesKey = ({ eventId, type }: EventUsersInput) => [

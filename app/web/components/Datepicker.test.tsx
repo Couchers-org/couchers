@@ -1,9 +1,8 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { useTranslation } from "i18n";
 import { useForm } from "react-hook-form";
 import i18n from "test/i18n";
-import timezoneMock from "timezone-mock";
 import dayjs, { Dayjs } from "utils/dayjs";
 
 import wrapper from "../test/hookWrapper";
@@ -41,21 +40,12 @@ const Form = ({ setDate }: { setDate: (date: Dayjs) => void }) => {
 };
 
 describe("DatePicker", () => {
-  beforeAll(() => {
-    jest.useFakeTimers();
-  });
-
   beforeEach(() => {
-    jest.setSystemTime(new Date("2021-03-20"));
-    timezoneMock.register("UTC");
-  });
-
-  afterAll(() => {
-    jest.useRealTimers();
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date("2021-03-20 00:00"));
   });
 
   afterEach(() => {
-    timezoneMock.unregister();
     jest.resetAllMocks();
     jest.clearAllTimers();
   });
@@ -64,109 +54,99 @@ describe("DatePicker", () => {
     let date: Dayjs | undefined = undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    // @TODO(NA) These should be awaited according to the testing-library docs, but timesout now
-    // I think bc old mui-x-datepickers package. Try again once we upgrade MUI to latest version.
-    user.click(
+    await user.click(
       screen.getByLabelText(t("global:components.datepicker.change_date")),
     );
 
-    user.click(screen.getByRole("button", { name: t("global:submit") }));
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
-    await waitFor(() => {
-      expect(date?.date).toEqual(dayjs("2021-03-23").date);
-    });
+    expect(date).toBeDefined();
+    expect(date!.date).toEqual(dayjs("2021-03-23").date);
   });
 
   it("selecting today works with timezone US/Eastern", async () => {
-    timezoneMock.register("US/Eastern");
-    const mockDate = new Date("2021-03-20 00:00");
-    //@ts-ignore - ts thinks we mock Date() but actually we want to mock new Date()
-    jest.spyOn(global, "Date").mockImplementation(() => mockDate);
-
     let date: Dayjs | undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    user.click(await screen.findByRole("button", { name: t("global:submit") }));
-
-    await waitFor(() => {
-      expect(date?.format().split("T")[0]).toBe(undefined);
+    const submitButton = await screen.findByRole("button", {
+      name: t("global:submit"),
     });
+
+    await user.click(submitButton);
+
+    expect(date?.format("YYYY-MM-DD")).toBe("2021-03-20");
   });
 
   it("selecting today works with timezone UTC", async () => {
-    timezoneMock.register("UTC");
-    const mockDate = new Date("2021-03-20 00:00");
-    //@ts-ignore - ts thinks we mock Date() but actually we want to mock new Date()
-    jest.spyOn(global, "Date").mockImplementation(() => mockDate);
+    dayjs.tz.setDefault("UTC");
 
     let date: Dayjs | undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    user.click(await screen.findByRole("button", { name: t("global:submit") }));
-
-    await waitFor(() => {
-      expect(date?.format().split("T")[0]).toBe(undefined);
+    const submitButton = await screen.findByRole("button", {
+      name: t("global:submit"),
     });
+
+    await user.click(submitButton);
+
+    expect(date?.format("YYYY-MM-DD")).toBe("2021-03-20");
   });
 
   it("selecting today works with timezone Europe/London", async () => {
-    timezoneMock.register("Europe/London");
-    const mockDate = new Date("2021-03-20 00:00");
-    //@ts-ignore - ts thinks we mock Date() but actually we want to mock new Date()
-    jest.spyOn(global, "Date").mockImplementation(() => mockDate);
+    dayjs.tz.setDefault("Europe/London");
 
     let date: Dayjs | undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    user.click(await screen.findByRole("button", { name: t("global:submit") }));
-
-    await waitFor(() => {
-      expect(date?.format().split("T")[0]).toBe(undefined);
+    const submitButton = await screen.findByRole("button", {
+      name: t("global:submit"),
     });
+
+    await user.click(submitButton);
+
+    expect(date?.format("YYYY-MM-DD")).toBe("2021-03-20");
   });
 
   it("selecting today works with timezone Brazil/East", async () => {
-    timezoneMock.register("Brazil/East");
-    const mockDate = new Date("2021-03-20 00:00");
-    //@ts-ignore - ts thinks we mock Date() but actually we want to mock new Date()
-    jest.spyOn(global, "Date").mockImplementation(() => mockDate);
+    dayjs.tz.setDefault("Brazil/East");
 
     let date: Dayjs | undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    user.click(await screen.findByRole("button", { name: t("global:submit") }));
-
-    await waitFor(() => {
-      expect(date?.format().split("T")[0]).toBe(undefined);
+    const submitButton = await screen.findByRole("button", {
+      name: t("global:submit"),
     });
+
+    await user.click(submitButton);
+
+    expect(date?.format("YYYY-MM-DD")).toBe("2021-03-20");
   });
 
   it("selecting today works with timezone Australia/Adelaide", async () => {
-    timezoneMock.register("Australia/Adelaide");
-    const mockDate = new Date("2021-03-20 00:00");
-    //@ts-ignore - ts thinks we mock Date() but actually we want to mock new Date()
-    jest.spyOn(global, "Date").mockImplementation(() => mockDate);
+    dayjs.tz.setDefault("Australia/Adelaide");
 
     let date: Dayjs | undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    user.click(await screen.findByRole("button", { name: t("global:submit") }));
-
-    await waitFor(() => {
-      expect(date?.format().split("T")[0]).toBe(undefined);
+    const submitButton = await screen.findByRole("button", {
+      name: t("global:submit"),
     });
+
+    await user.click(submitButton);
+
+    expect(date?.format("YYYY-MM-DD")).toBe("2021-03-20");
   });
 
   it("typing should work in en-GB", async () => {
@@ -176,23 +156,20 @@ describe("DatePicker", () => {
     let date: Dayjs | undefined = undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
-    const input = screen.getByRole("textbox") as HTMLInputElement;
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    await waitFor(() => expect(input).toBeEnabled());
+    const group = await screen.findByRole("group", { name: /Date field/i });
+    await user.click(group);
 
-    const user = userEvent.setup();
+    // Clear the field and type the full date
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("21032021");
 
-    user.type(input, "{backspace}");
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
-    await waitFor(() => expect(input).toHaveValue("20/03/202"));
-    user.clear(input);
-    user.type(input, "21032021");
-    await waitFor(() => expect(input).toHaveValue("21/03/2021"));
-    user.click(screen.getByRole("button", { name: t("global:submit") }));
     const expectedDate = "2021-03-21";
-    await waitFor(() => {
-      expect(date?.format().split("T")[0]).toEqual(expectedDate);
-    });
+    expect(date).toBeDefined();
+    expect(date!.format("YYYY-MM-DD")).toEqual(expectedDate);
   });
 
   it("typing should work in en-US", async () => {
@@ -202,22 +179,20 @@ describe("DatePicker", () => {
     let date: Dayjs | undefined = undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
-    const input = screen.getByRole("textbox") as HTMLInputElement;
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    await waitFor(() => expect(input).toBeEnabled());
+    const group = await screen.findByRole("group", { name: /Date field/i });
+    await user.click(group);
 
-    const user = userEvent.setup();
+    // Clear the field and type the full date
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("03212021");
 
-    user.type(input, "{backspace}");
-    await waitFor(() => expect(input).toHaveValue("03/20/202"));
-    user.clear(input);
-    user.type(input, "03212021");
-    await waitFor(() => expect(input).toHaveValue("03/21/2021"));
-    user.click(screen.getByRole("button", { name: t("global:submit") }));
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
+
     const expectedDate = "2021-03-21";
-    await waitFor(() => {
-      expect(date?.format().split("T")[0]).toEqual(expectedDate);
-    });
+    expect(date).toBeDefined();
+    expect(date!.format("YYYY-MM-DD")).toEqual(expectedDate);
   });
 
   it("typing should work in or-IN", async () => {
@@ -227,21 +202,20 @@ describe("DatePicker", () => {
     let date: Dayjs | undefined = undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
-    const input = screen.getByRole("textbox") as HTMLInputElement;
-    await waitFor(() => expect(input).toBeEnabled());
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    const user = userEvent.setup();
+    const group = await screen.findByRole("group", { name: /Date field/i });
+    await user.click(group);
 
-    user.type(input, "{backspace}");
-    await waitFor(() => expect(input).toHaveValue("20-03-2"));
-    user.clear(input);
-    user.type(input, "21-0321");
-    await waitFor(() => expect(input).toHaveValue("21-03-21"));
-    user.click(screen.getByRole("button", { name: t("global:submit") }));
+    // Clear the field and type the full date
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("21032021");
+
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
+
     const expectedDate = "2021-03-21";
-    await waitFor(() => {
-      expect(date?.format().split("T")[0]).toEqual(expectedDate);
-    });
+    expect(date).toBeDefined();
+    expect(date!.format("YYYY-MM-DD")).toEqual(expectedDate);
   });
 
   it("typing should work in zh-TW", async () => {
@@ -251,22 +225,19 @@ describe("DatePicker", () => {
     let date: Dayjs | undefined = undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
-    const input = screen.getByRole("textbox") as HTMLInputElement;
-    await waitFor(() => expect(input).toBeEnabled());
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    const user = userEvent.setup();
+    const group = await screen.findByRole("group", { name: /Date field/i });
+    await user.click(group);
 
-    // @TODO These need to be updated to await but seems not to work with old mui-x-datepickers
-    user.type(input, "{backspace}");
+    // Clear the field and type the full date
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("20210321");
 
-    await waitFor(() => expect(input).toHaveValue("2021/03/2"));
-    user.clear(input);
-    user.type(input, "20210321");
-    await waitFor(() => expect(input).toHaveValue("2021/03/21"));
-    user.click(screen.getByRole("button", { name: t("global:submit") }));
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
+
     const expectedDate = "2021-03-21";
-    await waitFor(() => {
-      expect(date?.format().split("T")[0]).toEqual(expectedDate);
-    });
+    expect(date).toBeDefined();
+    expect(date!.format("YYYY-MM-DD")).toEqual(expectedDate);
   });
 });

@@ -1,4 +1,4 @@
-import { Card, Typography } from "@mui/material";
+import { Card, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import MarkdownInput from "components/MarkdownInput";
@@ -6,32 +6,37 @@ import TextField from "components/TextField";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 
 import { CreateDiscussionInput, useNewDiscussionMutation } from "../hooks";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    "& > :not(:last-child)": {
-      marginBlockEnd: theme.spacing(3),
-    },
-    marginBlockEnd: theme.spacing(5),
-    padding: theme.spacing(3),
+const StyledWrapper = styled(Card)(() => ({
+  "& > :not(:last-child)": {
+    marginBlockEnd: theme.spacing(3),
   },
-  title: {
-    marginTop: 0,
+  marginBlockEnd: theme.spacing(5),
+  padding: theme.spacing(3),
+}));
+
+const StyledTitle = styled(Typography)(() => ({ marginTop: 0 }));
+
+const StyledForm = styled("form")(() => ({
+  "& > * + *": {
+    marginBlockStart: theme.spacing(3),
   },
-  form: {
-    "& > * + *": {
-      marginBlockStart: theme.spacing(3),
-    },
-  },
-  actionButtonsContainer: {
-    "& > * + *": {
-      marginInlineStart: theme.spacing(3),
-    },
-    display: "flex",
-    justifyContent: "flex-end",
+}));
+
+const StyledActionButtonsContainer = styled("div")(() => ({
+  display: "flex",
+  justifyContent: "flex-end",
+  gap: 8,
+}));
+
+const StyledCancelButton = styled(Button)(() => ({
+  backgroundColor: theme.palette.grey[50],
+  color: theme.palette.grey[800],
+  "&:hover": {
+    backgroundColor: theme.palette.grey[100],
   },
 }));
 
@@ -49,7 +54,6 @@ export default function CreateDiscussionForm({
   onPostSuccess,
 }: CreateDiscussionFormProps) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
-  const classes = useStyles();
   const {
     control,
     handleSubmit,
@@ -61,7 +65,7 @@ export default function CreateDiscussionForm({
 
   const {
     error,
-    isLoading,
+    isPending,
     mutate: createDiscussion,
     reset: resetMutation,
   } = useNewDiscussionMutation(handleSuccess);
@@ -83,12 +87,12 @@ export default function CreateDiscussionForm({
   });
 
   return (
-    <Card className={classes.root}>
-      <Typography className={classes.title} variant="h2">
+    <StyledWrapper>
+      <StyledTitle variant="h2">
         {t("communities:create_new_discussion_title")}
-      </Typography>
+      </StyledTitle>
       {error && <Alert severity="error">{error.message}</Alert>}
-      <form className={classes.form} onSubmit={onSubmit}>
+      <StyledForm onSubmit={onSubmit}>
         <TextField
           id="title"
           {...register("title", { required: true })}
@@ -104,13 +108,15 @@ export default function CreateDiscussionForm({
           labelId="content-label"
           name="content"
         />
-        <div className={classes.actionButtonsContainer}>
-          <Button loading={isLoading} type="submit">
+        <StyledActionButtonsContainer>
+          <StyledCancelButton onClick={handleCancel}>
+            {t("global:cancel")}
+          </StyledCancelButton>
+          <Button loading={isPending} type="submit">
             {t("communities:post")}
           </Button>
-          <Button onClick={handleCancel}>{t("global:cancel")}</Button>
-        </div>
-      </form>
-    </Card>
+        </StyledActionButtonsContainer>
+      </StyledForm>
+    </StyledWrapper>
   );
 }

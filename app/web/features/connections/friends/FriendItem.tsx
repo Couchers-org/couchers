@@ -1,11 +1,9 @@
 import { Block, PersonRemove } from "@mui/icons-material";
-import { MenuItem, Typography } from "@mui/material";
 import EllipsisMenu from "components/EllipsisMenu";
 import { useTranslation } from "i18n";
 import { CONNECTIONS, GLOBAL } from "i18n/namespaces";
 import { LiteUser } from "proto/api_pb";
 import { useState } from "react";
-import { theme } from "theme";
 
 import ConnectionActionDialog from "./ConnectionActionDialog";
 import FriendSummaryView from "./FriendSummaryView";
@@ -28,9 +26,9 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
 
   const isMenuOpen = Boolean(menuAnchorEl);
 
-  const { blockUserMutation, isLoading: isBlocking } = useBlockUser();
+  const { blockUserMutation, isPending: isBlocking } = useBlockUser();
 
-  const { removeFriendMutation, isLoading: isRemoving } = useRemoveFriend();
+  const { removeFriendMutation, isPending: isRemoving } = useRemoveFriend();
 
   const removeFriend = (userId: number) => {
     if (userId !== undefined) {
@@ -40,7 +38,6 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
   };
 
   const handleBlockUser = () => {
-    handleMenuClose();
     setOpenDialog("block-user");
   };
 
@@ -53,7 +50,6 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
   };
 
   const handleRemoveFriend = () => {
-    handleMenuClose();
     setOpenDialog("remove-friend");
   };
 
@@ -79,26 +75,21 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
         menuAnchorEl={menuAnchorEl}
         onMenuOpen={handleMenuOpen}
         onMenuClose={handleMenuClose}
-      >
-        <MenuItem onClick={handleRemoveFriend} data-testid="remove-friend">
-          <PersonRemove fontSize="small" />
-          <Typography
-            variant="body2"
-            sx={{ marginLeft: theme.spacing(1), fontWeight: 500 }}
-          >
-            {t("connections:remove_friend")}
-          </Typography>
-        </MenuItem>
-        <MenuItem onClick={handleBlockUser} data-testid="remove-friend">
-          <Block fontSize="small" />
-          <Typography
-            variant="body2"
-            sx={{ marginLeft: theme.spacing(1), fontWeight: 500 }}
-          >
-            {t("connections:block_user")}
-          </Typography>
-        </MenuItem>
-      </EllipsisMenu>
+        items={[
+          {
+            icon: PersonRemove,
+            label: t("connections:remove_friend"),
+            onClick: handleRemoveFriend,
+            id: "remove-friend",
+          },
+          {
+            icon: Block,
+            label: t("connections:block_user"),
+            onClick: handleBlockUser,
+            id: "block-user",
+          },
+        ]}
+      />
       {openDialog === "remove-friend" && (
         <ConnectionActionDialog
           dialogConfirm={t(

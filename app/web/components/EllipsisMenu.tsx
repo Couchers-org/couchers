@@ -1,29 +1,39 @@
-import { MoreHoriz } from "@mui/icons-material";
-import { IconButton, Menu, styled } from "@mui/material";
+import { MoreHoriz, SvgIconComponent } from "@mui/icons-material";
+import { IconButton, Menu, styled, Typography } from "@mui/material";
+import { theme } from "theme";
+
+import { MenuItem } from "./Menu";
+
+export interface EllipsisMenuItem {
+  icon: SvgIconComponent;
+  label: string;
+  onClick: () => unknown;
+  id?: string;
+  shouldCloseMenu?: boolean;
+}
 
 interface EllipsisMenuProps {
-  children: React.ReactNode;
   idName: string;
   isMenuOpen: boolean;
   menuAnchorEl: Element | null;
   onMenuOpen: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  onMenuClose: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onMenuClose: (event: React.MouseEvent<HTMLLIElement>) => void;
+  items: EllipsisMenuItem[];
 }
 
-const MenuWrapper = styled("div")(({ theme }) => ({
+const MenuWrapper = styled("div")(() => ({
   display: "flex",
   justifyContent: "flex-end",
   flexDirection: "column",
 }));
 
-//** @param {children} should be the  MenuItems */
 const EllipsisMenu = ({
-  children,
   idName,
   isMenuOpen,
   menuAnchorEl,
   onMenuOpen,
   onMenuClose,
+  items,
 }: EllipsisMenuProps) => {
   return (
     <MenuWrapper>
@@ -76,7 +86,31 @@ const EllipsisMenu = ({
           transformOrigin={{ horizontal: "right", vertical: "top" }}
           anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         >
-          {children}
+          {items.map((item, index) => (
+            <MenuItem
+              key={index}
+              onClick={(e) => {
+                if (item.shouldCloseMenu !== false) {
+                  onMenuClose(e);
+                }
+                item.onClick();
+              }}
+              {...(item.id
+                ? {
+                    id: `${idName}-${item.id}`,
+                    "data-testid": `${idName}-${item.id}`,
+                  }
+                : {})}
+            >
+              <item.icon fontSize="small" />
+              <Typography
+                variant="body2"
+                sx={{ marginLeft: theme.spacing(1), fontWeight: 500 }}
+              >
+                {item.label}
+              </Typography>
+            </MenuItem>
+          ))}
         </Menu>
       </>
     </MenuWrapper>

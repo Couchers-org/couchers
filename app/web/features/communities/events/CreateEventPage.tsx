@@ -1,15 +1,13 @@
 import { Typography } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import useAccountInfo from "features/auth/useAccountInfo";
-import { communityEventsBaseKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { Event } from "proto/events_pb";
-import { useMutation, useQueryClient } from "react-query";
 import { dashboardRoute, routeToEvent } from "routes";
 import { service } from "service";
 import type { CreateEventInput } from "service/events";
@@ -17,6 +15,8 @@ import { theme } from "theme";
 import dayjs, { TIME_FORMAT } from "utils/dayjs";
 import stringOrFirstString from "utils/stringOrFirstString";
 
+import { Event } from "../../../proto/events_pb";
+import { communityEventsBaseKey } from "../../queryKeys";
 import EventForm, { CreateEventVariables } from "./EventForm";
 
 export default function CreateEventPage() {
@@ -36,14 +36,14 @@ export default function CreateEventPage() {
   const {
     mutate: createEvent,
     error,
-    isLoading,
+    isPending,
   } = useMutation<
     Event.AsObject,
     RpcError,
     CreateEventVariables,
     { parentCommunityId?: number }
-  >(
-    (data) => {
+  >({
+    mutationFn: (data) => {
       let createEventInput: CreateEventInput;
       const startTime = dayjs(data.startTime, TIME_FORMAT);
       const endTime = dayjs(data.endTime, TIME_FORMAT);
@@ -86,25 +86,26 @@ export default function CreateEventPage() {
       }
       return service.events.createEvent(createEventInput);
     },
-    {
-      onMutate({ parentCommunityId }) {
-        return {
-          parentCommunityId: parentCommunityId ?? urlCommunityId,
-        };
-      },
-      onSuccess(event, __, context) {
-        queryClient.invalidateQueries(
+
+    onMutate({ parentCommunityId }) {
+      return {
+        parentCommunityId: parentCommunityId ?? urlCommunityId,
+      };
+    },
+    onSuccess(event, __, context) {
+      queryClient.invalidateQueries({
+        queryKey: [
           context?.parentCommunityId
             ? [communityEventsBaseKey, context.parentCommunityId]
             : communityEventsBaseKey,
-        );
-        router.push(routeToEvent(event.eventId, event.slug));
-      },
-      onSettled() {
-        window.scroll({ top: 0, behavior: "smooth" });
-      },
+        ],
+      });
+      router.push(routeToEvent(event.eventId, event.slug));
     },
-  );
+    onSettled() {
+      window.scroll({ top: 0, behavior: "smooth" });
+    },
+  });
 
   const { data: accountInfo, isLoading: isAccountInfoLoading } =
     useAccountInfo();
@@ -119,7 +120,7 @@ export default function CreateEventPage() {
       />
       <EventForm
         error={error}
-        isMutationLoading={isLoading}
+        isMutationLoading={isPending}
         mutate={createEvent}
         title={t("communities:create_event_page_title")}
         isEdit={false}

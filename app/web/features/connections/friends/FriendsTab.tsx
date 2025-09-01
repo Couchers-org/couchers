@@ -16,18 +16,18 @@ function FriendsTab() {
   const { errors, isLoading, data: friends, refetchFriends } = useFriendList();
 
   return (
-    <Grid container gap={2}>
-      <StyledGrid item xs={12} md={6}>
+    <Grid container direction="column" gap={2} sx={{ width: "100%" }}>
+      <StyledGrid size={{ xs: 12, md: 6 }}>
         <FriendRequestsReceived />
       </StyledGrid>
-      <StyledGrid item xs={12} md={6}>
+      <StyledGrid size={{ xs: 12, md: 6 }}>
         <FriendList errors={errors} friends={friends} isLoading={isLoading} />
       </StyledGrid>
       <Grid container spacing={2}>
-        <StyledGrid item xs={12} md={6}>
+        <StyledGrid size={{ xs: 12, md: 6 }}>
           <FriendRequestsSent />
         </StyledGrid>
-        <StyledGrid item xs={12} md={6}>
+        <StyledGrid size={{ xs: 12, md: 6 }}>
           <BlockedUsersList refetchFriends={refetchFriends} />
         </StyledGrid>
       </Grid>

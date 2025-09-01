@@ -1,6 +1,5 @@
 import {
   AppBar,
-  Badge,
   Box,
   Drawer,
   IconButton,
@@ -8,14 +7,11 @@ import {
   ListItem,
   styled,
   Toolbar,
-  Typography,
   useMediaQuery,
 } from "@mui/material";
-import MuiLink from "@mui/material/Link";
 import Button from "components/Button";
 import { GlobalMessage } from "components/GlobalMessage";
 import { CloseIcon, MenuIcon } from "components/Icons";
-import { MenuItem } from "components/Menu";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { PushNotificationBanner } from "features/notifications/PushNotificationBanner";
@@ -23,10 +19,9 @@ import LanguagePickerSelect from "features/translate/LanguagePickerSelect";
 import useNotifications from "features/useNotifications";
 import { GLOBAL } from "i18n/namespaces";
 import { TFunction } from "i18next";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
   blogRoute,
@@ -49,8 +44,9 @@ import {
 } from "routes";
 import { theme } from "theme";
 
-import LoggedInMenu from "./LoggedInMenu";
+import LoggedInMenu, { LoggedInMenuItem } from "./LoggedInMenu";
 import NavButton from "./NavButton";
+import ReportDialog from "./ReportDialog";
 
 interface MenuItemProps {
   name: string;
@@ -162,13 +158,15 @@ const loggedOutDrawerMenu = (
 const loggedInMenuDropDown = (
   t: TFunction<"global", undefined>,
   pingData: PingData,
-): Array<MenuItemProps> => [
+): Array<LoggedInMenuItem> => [
   {
+    type: "link",
     name: t("nav.profile"),
     route: routeToProfile(),
     hasBottomDivider: true,
   },
   {
+    type: "link",
     name: t("nav.messages"),
     route: messagesRoute,
     notificationCount:
@@ -177,28 +175,41 @@ const loggedInMenuDropDown = (
       (pingData?.unseenSentHostRequestCount ?? 0),
   },
   {
+    type: "link",
     name: t("nav.account_settings"),
     route: settingsRoute,
   },
   {
+    type: "link",
     name: t("nav.feature_preview"),
     route: featurePreviewRoute,
     hasBottomDivider: true,
   },
   {
+    type: "link",
     name: t("nav.help_center"),
     route: helpCenterURL,
     externalLink: true,
   },
   {
+    type: "link",
     name: t("nav.donate"),
     route: donationsRoute,
   },
   {
+    type: "link",
     name: t("nav.volunteer"),
     route: volunteerRoute,
   },
   {
+    type: "dialog",
+    name: t("report.label"),
+    dialogComponent: ReportDialog,
+    dialogLabel: t("report.label"),
+    hasBottomDivider: true,
+  },
+  {
+    type: "link",
     name: t("nav.log_out"),
     route: logoutRoute,
   },
@@ -211,7 +222,6 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   top: 0,
   boxShadow: "none",
   backgroundColor: theme.palette.common.white,
-  // boxShadow: "0 0 4px rgba(0, 0, 0, 0.25)",
   paddingRight: theme.spacing(2),
   [theme.breakpoints.up("md")]: {
     paddingRight: 0,
@@ -267,19 +277,6 @@ const StyledMenuContainer = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
-}));
-
-const StyledBadge = styled(Badge)(({ theme }) => ({
-  "& .MuiBadge-badge": {
-    right: "-4px",
-    top: "4px",
-  },
-}));
-
-const StyledMenuItemLink = styled(MuiLink)(({ theme }) => ({
-  width: "100%",
-  color: theme.palette.text.primary,
-  textDecoration: "none",
 }));
 
 export default function Navigation() {
@@ -347,63 +344,9 @@ export default function Navigation() {
     </div>
   );
 
-  const loggedMenuItems = loggedInMenuDropDown(t, pingData).map(
-    ({ name, notificationCount, route, externalLink, hasBottomDivider }) => {
-      const hasNotification =
-        notificationCount !== undefined && notificationCount > 0;
-
-      const linkContent = (
-        <span style={{ display: "flex", alignItems: "center" }}>
-          {hasNotification ? (
-            <StyledBadge color="primary" variant="dot">
-              <Typography noWrap>{name}</Typography>
-            </StyledBadge>
-          ) : (
-            <Typography noWrap>{name}</Typography>
-          )}
-
-          {hasNotification ? (
-            <Typography
-              noWrap
-              variant="subtitle2"
-              sx={{ color: theme.palette.grey[500], fontWeight: "bold" }}
-            >
-              {`${notificationCount} unseen`}
-            </Typography>
-          ) : null}
-        </span>
-      );
-
-      return (
-        <MenuItem
-          key={name}
-          hasNotification={hasNotification}
-          hasBottomDivider={hasBottomDivider}
-        >
-          {externalLink ? (
-            <StyledMenuItemLink
-              href={route}
-              target="_blank"
-              rel="noreferrer"
-              onClick={() => setMenuOpen(false)}
-            >
-              {linkContent}
-            </StyledMenuItemLink>
-          ) : (
-            <Link
-              href={route}
-              style={{
-                width: "100%",
-                color: theme.palette.text.primary,
-                textDecoration: "none",
-              }}
-            >
-              {linkContent}
-            </Link>
-          )}
-        </MenuItem>
-      );
-    },
+  const loggedInMenuItems = useMemo(
+    () => loggedInMenuDropDown(t, pingData),
+    [t, pingData],
   );
 
   const handleDrawerOpen = () => {
@@ -486,9 +429,8 @@ export default function Navigation() {
               menuOpen={menuOpen}
               notificationCount={pingData?.unseenNotificationCount}
               setMenuOpen={setMenuOpen}
-            >
-              {loggedMenuItems}
-            </LoggedInMenu>
+              items={loggedInMenuItems}
+            />
           ) : (
             <Box
               sx={{
