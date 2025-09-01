@@ -214,7 +214,7 @@
     "request_description": "Teile deine Pläne für den Besuch mit und gib an, warum du bei diesem bestimmten Host übernachten willst",
     "request_description_empty": "Bitte schreib eine Anfragenachricht",
     "stay_type_a11y_text": "Aufenthaltstyp",
-    "request_char_length_too_short": "Die Anfrage-Nachricht muss mindestens 250 Zeichen lang sein"
+    "request_char_length_too_short": "Bitte schreibe mindestens {{charactersRemaining}} weitere Zeichen, um eine Host-Anfrage zu senden."
   },
   "response_rate_text_some": "Manchmal",
   "reference_filter_label": {
@@ -242,9 +242,9 @@
   "response_time_text_almost_all": "Normalerweise in {{p33}} bis {{p66}}",
   "unsaved_changes_warning": "Du hast die Änderungen nicht gespeichert. Bist du sicher, dass du die Seite verlassen möchtest?",
   "sleeping_arrangement": {
-    "private": "Privater Bereich (z.B. Eigenes Zimmer o. Ä.)",
-    "common": "Gemeinschaftsraum (z.B. Couch im Wohnzimmer)",
-    "shared_room": "Geteiltes Zimmer (z.B. Geteiltes Zimmer mit eigener Schlaffläche)",
+    "private": "z.B. Eigenes Zimmer o. Ä.",
+    "common": "z.B. Couch im Wohnzimmer",
+    "shared_room": "z.B. Geteiltes Zimmer mit eigener Schlaffläche",
     "private_short": "Privater Bereich",
     "common_short": "Gemeinschaftsraum",
     "shared_room_short": "Geteiltes Zimmer"
@@ -291,5 +291,12 @@
     "open_to_meetup_description": "Ich könnte mich treffen, je nach den Umständen",
     "does_not_want_to_meetup_description": "Ich möchte mich lieber nicht mit anderen treffen"
   },
-  "avatar_photo_info": "<bold>Ein Foto von dir ist erforderlich, um mit der Community zu interagieren.</bold> Ein klares, freundliches Foto, das dein Gesicht zeigt, schafft Vertrauen, hilft anderen sich wohlzufühlen und erhöht deine Chancen auf eine Antwort erheblich."
+  "avatar_photo_info": "<bold>Ein Foto von dir ist erforderlich, um mit der Community zu interagieren.</bold> Ein klares, freundliches Foto, das dein Gesicht zeigt, schafft Vertrauen, hilft anderen sich wohlzufühlen und erhöht deine Chancen auf eine Antwort erheblich.",
+  "active": "Aktiv",
+  "what_options_mean": "Was diese Optionen bedeuten",
+  "profile_changes_saved_message": "Profiländerungen gespeichert!",
+  "hosting_preferences_success_message": "Host-einstellungen gespeichert!",
+  "couldnt_read_file": "Die Datei konnte nicht gelesen werden",
+  "select_an_image": "Bild auswählen",
+  "names_profile_photo": "Profilfoto von {{name}}"
 }
