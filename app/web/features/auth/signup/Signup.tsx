@@ -108,6 +108,7 @@ export default function Signup() {
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
+
   const inviter = inviteInfo
     ? {
         username: inviteInfo.username,
@@ -125,7 +126,12 @@ export default function Signup() {
             {error}
           </Alert>
         )}
-        {inviteCode && (inviter || inviteError || isInvitePending) && (
+        {inviter && inviteError && (
+          <Alert severity="info" sx={{ width: "100%" }}>
+            {t("global:error_loading_invite_codes")}
+          </Alert>
+        )}
+        {inviteCode && !inviteError && (
           <Box
             sx={{
               display: "flex",
@@ -138,7 +144,7 @@ export default function Signup() {
               mb: 2,
             }}
           >
-            {inviter ? (
+            {inviter && !isInvitePending && (
               <>
                 <Avatar
                   user={{
@@ -152,11 +158,9 @@ export default function Signup() {
                   {t("global:invited_you", { name: inviter.name })}
                 </Typography>
               </>
-            ) : inviteError ? (
-              <Alert severity="info" sx={{ width: "100%" }}>
-                {inviteError}
-              </Alert>
-            ) : (
+            )}
+
+            {inviter && isInvitePending && (
               <>
                 <Skeleton variant="circular" sx={{ width: 48, height: 48 }} />
                 <Skeleton variant="text" sx={{ width: "60%" }} />
@@ -196,7 +200,12 @@ export default function Signup() {
               {error}
             </Alert>
           )}
-          {inviteCode && (inviter || inviteError || isInvitePending) && (
+          {inviteError && (
+            <Alert severity="error" sx={{ width: "100%" }}>
+              {t("global:error_loading_invite_codes")}
+            </Alert>
+          )}
+          {inviteCode && !inviteError && (
             <Box
               sx={{
                 display: "flex",
@@ -209,7 +218,7 @@ export default function Signup() {
                 mb: 2,
               }}
             >
-              {inviter ? (
+              {inviter && !isInvitePending && (
                 <>
                   <Avatar
                     user={{
@@ -223,11 +232,9 @@ export default function Signup() {
                     {t("global:invited_you", { name: inviter.name })}
                   </Typography>
                 </>
-              ) : inviteError ? (
-                <Alert severity="info" sx={{ width: "100%" }}>
-                  {inviteError}
-                </Alert>
-              ) : (
+              )}
+
+              {isInvitePending && (
                 <>
                   <Skeleton variant="circular" sx={{ width: 48, height: 48 }} />
                   <Skeleton variant="text" sx={{ width: "60%" }} />

@@ -7,6 +7,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Skeleton,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -20,6 +21,8 @@ import React from "react";
 import { inviteRoute } from "routes";
 import { service } from "service";
 
+import { inviteCodesKey } from "../queryKeys";
+
 export default function InviteCodesPage() {
   const { t } = useTranslation(GLOBAL);
   const queryClient = useQueryClient();
@@ -29,7 +32,7 @@ export default function InviteCodesPage() {
     RpcError,
     ListInviteCodesRes.AsObject
   >({
-    queryKey: ["inviteCodes"],
+    queryKey: [inviteCodesKey],
     queryFn: service.account.listInviteCodes,
     select: (res) => ({
       ...res,
@@ -42,14 +45,14 @@ export default function InviteCodesPage() {
   const { isPending: isCreatePending, mutate: createInviteCode } = useMutation({
     mutationFn: service.account.createInviteCode,
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["inviteCodes"] }),
+      queryClient.invalidateQueries({ queryKey: [inviteCodesKey] }),
   });
 
   const { isPending: isDisablePending, mutate: disableInviteCode } =
     useMutation({
       mutationFn: (code: string) => service.account.disableInviteCode(code),
       onSuccess: () =>
-        queryClient.invalidateQueries({ queryKey: ["inviteCodes"] }),
+        queryClient.invalidateQueries({ queryKey: [inviteCodesKey] }),
     });
 
   const [copiedCode, setCopiedCode] = React.useState<string | null>(null);
@@ -83,14 +86,29 @@ export default function InviteCodesPage() {
           onClick={() => createInviteCode()}
           disabled={isCreatePending}
         >
-          {t("global:create", "Create")}
+          {t("global:create")}
         </Button>
       </Box>
 
       {error && <Alert severity="error">{error.message}</Alert>}
 
       {isLoading ? (
-        <Typography>{t("global:loading", "Loading...")}</Typography>
+        <List>
+          {[0, 1].map((i) => (
+            <ListItem
+              key={`sk-${i}`}
+              divider
+              secondaryAction={
+                <Skeleton variant="circular" sx={{ width: 24, height: 24 }} />
+              }
+            >
+              <ListItemText
+                primary={<Skeleton variant="text" sx={{ width: "15%" }} />}
+                secondary={<Skeleton variant="text" sx={{ width: "50%" }} />}
+              />
+            </ListItem>
+          ))}
+        </List>
       ) : (
         <List>
           {(data?.inviteCodesList ?? []).map((c) => {
@@ -126,7 +144,7 @@ export default function InviteCodesPage() {
                         onClick={() => disableInviteCode(c.code)}
                         disabled={isDisablePending}
                       >
-                        {t("global:disable", "Disable")}
+                        {t("global:disable")}
                       </Button>
                     )}
                   </>
@@ -139,7 +157,7 @@ export default function InviteCodesPage() {
                     <>
                       {c.created?.seconds && (
                         <>
-                          {t("global:created", "Created")}:{" "}
+                          {t("global:created")}:{" "}
                           {dayjs(new Date(c.created.seconds * 1000)).format(
                             "YYYY-MM-DD HH:mm",
                           )}
@@ -148,7 +166,7 @@ export default function InviteCodesPage() {
                       {c.disabled?.seconds && (
                         <>
                           {" • "}
-                          {t("global:disabled", "Disabled")}:{" "}
+                          {t("global:disabled")}:{" "}
                           {dayjs(new Date(c.disabled.seconds * 1000)).format(
                             "YYYY-MM-DD HH:mm",
                           )}
@@ -168,7 +186,9 @@ export default function InviteCodesPage() {
             );
           })}
           {!(data?.inviteCodesList?.length ?? 0) && (
-            <Typography color="textSecondary">{t("global:empty")}</Typography>
+            <Typography color="textSecondary">
+              {t("global:no_invite_codes")}
+            </Typography>
           )}
         </List>
       )}
