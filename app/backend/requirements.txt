@@ -226,7 +226,7 @@ shapely==2.1.1
     # via -r requirements.in
 six==1.17.0
     # via python-dateutil
-sqlalchemy==2.0.40
+sqlalchemy==2.0.43
     # via
     #   -r requirements.in
     #   alembic
