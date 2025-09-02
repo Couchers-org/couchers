@@ -51,7 +51,7 @@ pyvips==3.0.0
     # via -r requirements.in
 ruff==0.12.7
     # via -r requirements.in
-sentry-sdk==2.34.1
+sentry-sdk==2.35.1
     # via -r requirements.in
 urllib3==2.3.0
     # via sentry-sdk
