@@ -30,7 +30,8 @@
         "contact_us": "Kontakt",
         "built_with": "Open Source",
         "about": "Über uns",
-        "landing_page": "Homepage"
+        "landing_page": "Homepage",
+        "newsletter": "Newsletter"
     },
     "footer": {
         "copyright": "© 2025 Couchers, Inc.",
