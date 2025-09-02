@@ -49,7 +49,7 @@ pytest==8.4.1
     # via -r requirements.in
 pyvips==3.0.0
     # via -r requirements.in
-ruff==0.12.7
+ruff==0.12.11
     # via -r requirements.in
 sentry-sdk==2.35.1
     # via -r requirements.in
