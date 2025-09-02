@@ -1,8 +1,8 @@
 {
   "change_email_form": {
-    "title": "Canviar correu electrònic",
+    "title": "Canvia el correu electrònic",
     "success_message": "Hem rebut la teva sol·licitud de canvi de correu electrònic. Revisa el teu nou correu per completar el canvi.",
-    "current_email_message": "El teu correu electrònic actual és <1>{{email}}</1>.",
+    "current_email_message": "La teva adreça de correu electrònic actual és <1>{{email}}</1>.",
     "current_password": "Contrasenya actual",
     "new_email": "Nou correu electrònic"
   },
@@ -38,7 +38,7 @@
       "no_password_login_prompt": "Revisa el teu correu electrònic per un enllaç per iniciar sessió! :)",
       "forgot_password": "Has oblidat la contrasenya?"
     },
-    "title": "Iniciar sessió",
+    "title": "Inicia sessió",
     "header": "Benvingut de nou!"
   },
   "feedback_form": {
@@ -54,10 +54,10 @@
     "location_section": {
       "title": "Si us plau, actualitza la teva ubicació",
       "submit_button": {
-        "active_text": "Desar",
+        "active_text": "Desa",
         "inactive_text": "Gràcies!"
       },
-      "resubmit_button_text": "Reenviar",
+      "resubmit_button_text": "Reenvia",
       "explanation": "Sembla que les teves coordenades no són correctes. Si us plau, actualitza la teva ubicació per continuar."
     },
     "activeness_probe": {
@@ -76,9 +76,9 @@
   },
   "change_password_form": {
     "user_logged_error": "No pots restablir la contrasenya si estàs connectat. Pots canviar la contrasenya a la configuració o tancar sessió per restablir-la.",
-    "title": "Canviar contrasenya",
+    "title": "Canvia la contrasenya",
     "subtitle": "Fes servir aquest formulari per restablir la contrasenya d’accés.",
-    "confirm_password": "Confirmar contrasenya",
+    "confirm_password": "Confirma la contrasenya",
     "password_changed_success": "S’ha establert la teva nova contrasenya i s’ha enviat una notificació al teu correu electrònic.",
     "old_password": "Contrasenya antiga",
     "new_password": "Nova contrasenya",
@@ -112,7 +112,8 @@
       "field_label": "Estat d'allotjament",
       "can_host": "Pot allotjar",
       "maybe": "Podria allotjar",
-      "cant_host": "No pot allotjar"
+      "cant_host": "No pot allotjar",
+      "any": "Qualsevol"
     },
     "gender": {
       "field_label": "M'identifico com…",
@@ -144,13 +145,13 @@
     "last_activity": "Última activitat <2>{{last_activity_ago}}</2>",
     "expiry": "Caduca el <1>{{expiry_datetime}}</1>",
     "current_session": "Aquesta és la teva sessió actual.",
-    "log_out_of_session": "Tancar aquesta sessió",
-    "log_out_of_all_session": "Tancar totes les altres sessions"
+    "log_out_of_session": "Tanca aquesta sessió",
+    "log_out_of_all_session": "Tanca totes les altres sessions"
   },
   "account_settings_page": {
     "gender_section": {
       "explanation": "Els administradors estaran encantats de canviar la teva etiqueta de gènere. Si us plau, contacta amb support@couchers.org!",
-      "title": "Canviar el gènere"
+      "title": "Canvia el gènere"
     },
     "timezone_section": {
       "description": "El teu fus horari és <1>{{timezone}}</1>. Segons això, la teva hora local és aproximadament <4>{{time}}</4>.",
@@ -159,7 +160,7 @@
     },
     "title": "Configuració del compte",
     "birth_date_section": {
-      "title": "Canviar la data de naixement",
+      "title": "Canvia la data de naixement",
       "explanation": "Els administradors estaran encantats de canviar la teva data de naixement. Si us plau, contacta amb support@couchers.org!"
     },
     "username_section": {
@@ -176,7 +177,7 @@
       "disabled_message": "Actualment <1>no estàs verificat</1> amb Verificació Forta.",
       "enabled_message": "Actualment <1>estàs verificat</1> amb Verificació Forta."
     },
-    "start_button": "Iniciar Verificació Forta",
+    "start_button": "Inicia Verificació Forta",
     "begin_button": "Completa la Verificació Forta amb Iris ID",
     "information_text1": "Necessitaràs un <strong>passaport biomètric</strong> (altres tipus d’identificació no funcionaran) i un telèfon Apple iPhone o Android amb NFC.",
     "information_text2": "En fer clic al botó següent, se't redirigirà al lloc web d'Iris ID per completar el procés de verificació del passaport.",
@@ -204,12 +205,12 @@
     },
     "action_button": {
       "no_emails_enable_text": "No vull rebre correus electrònics",
-      "no_emails_disable_text": "Reactivar els correus electrònics"
+      "no_emails_disable_text": "Reactiva els correus electrònics"
     }
   },
   "jail_set_password_form": {
     "explanation": "No has establert una contrasenya prèviament pel teu compte. Si us plau, crea’n una ara per continuar.",
-    "title": "Establir una contrasenya"
+    "title": "Estableix una contrasenya"
   },
   "reset_password": "Restableix la contrasenya",
   "change_email_confirmation": {
@@ -236,10 +237,10 @@
   "about_us": "Sobre nosaltres",
   "change_phone": {
     "wrong_code": "El codi és incorrecte.",
-    "verify_button_text": "Verificar número de telèfon",
+    "verify_button_text": "Verifica número de telèfon",
     "remove_button_text": "Elimina el número de telèfon actual",
     "remove_success": "Telèfon eliminat.",
-    "change_button_text": "Canviar número de telèfon",
+    "change_button_text": "Canvia número de telèfon",
     "title": "Número de telèfon",
     "no_phone_description": "No has afegit cap número de telèfon al teu compte. Per afegir-ne un, introdueix-lo a continuació. El verificarem amb un missatge de text.",
     "code_label": "Codi de verificació",
@@ -248,13 +249,13 @@
     "change_to_different_description": "Per canviar el teu número de telèfon per un de diferent, introdueix-lo a continuació.",
     "need_to_donate": "Has de <2>fer una donació</2> abans de poder completar la verificació del telèfon.",
     "phone_label": "El teu número de telèfon",
-    "add_button_text": "Afegir número de telèfon",
+    "add_button_text": "Afegeix número de telèfon",
     "add_success": "Telèfon afegit.",
     "phone_not_verified_description": "T’hem enviat un codi a <2>{{phone}}</2>. Per verificar el teu número, introdueix el codi a continuació:"
   },
   "delete_account": {
     "request": {
-      "title": "Eliminar compte",
+      "title": "Elimina compte",
       "description": "Per eliminar el teu compte, segueix els passos següents. T'enviarem un correu electrònic de confirmació.",
       "reason_explanation": "Si us plau, ajuda'ns a millorar la plataforma explicant-nos per què has decidit eliminar el teu compte.",
       "confirm_username_explanation": "El teu nom d'usuari és <1>{{ username }}</1>, si us plau, escriu-lo a continuació per confirmar l'eliminació del compte.",
@@ -267,15 +268,15 @@
       "success": "El teu compte ha estat recuperat, ja pots tornar a iniciar sessió. Estem molt contents de tenir-te de nou amb nosaltres!",
       "title": "Recupera el teu compte de Couchers.org",
       "error_message": "No s'ha pogut recuperar el compte: {{message}}",
-      "button_text": "Recuperar el teu compte"
+      "button_text": "Recupera el teu compte"
     },
     "confirm": {
       "account_deleted": "Compte eliminat. Gràcies per utilitzar Couchers.org!",
-      "title": "Confirmar la eliminació del compte",
+      "title": "Confirma la eliminació del compte",
       "error_message": "No s'ha pogut confirmar l'eliminació del compte: {{message}}",
-      "button_text": "Confirmar la eliminació del compte"
+      "button_text": "Confirma la eliminació del compte"
     },
-    "missing_token": "Error: falta el token"
+    "missing_token": "Error: missing token"
   },
   "profile_visibility": {
     "visiblility_options": {
@@ -289,8 +290,10 @@
     "choose": "Tria quina informació serà visible per als usuaris que no hagin iniciat sessió"
   },
   "quick_links": {
-    "button_text": "Confirmar l'acció",
+    "button_text": "Confirma l'acció",
     "error_message": "Error: {{message}}",
-    "missing_payload_or_sig": "URL no vàlida"
-  }
+    "missing_payload_or_sig": "URL invàlida",
+    "title": "Acció ràpida amb el correu electrònic"
+  },
+  "unhandled_sign_up_state": "Error: unhandled signup flow state."
 }
