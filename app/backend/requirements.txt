@@ -232,7 +232,7 @@ sqlalchemy==2.0.40
     #   alembic
     #   geoalchemy2
     #   sqlalchemy-utils
-sqlalchemy-utils==0.41.2
+sqlalchemy-utils==0.42.0
     # via -r requirements.in
 stripe==12.4.0
     # via -r requirements.in
