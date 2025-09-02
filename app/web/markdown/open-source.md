@@ -32,7 +32,7 @@ We'd like to thank the amazing folks who built these core technologies, without 
 
 We are grateful to the following companies that generously provide us with free services, whether specifically due to our non-profit/open-source nature or as part of their general support:
 
-* [Amazon Web Services (AWS)](https://aws.amazon.com/): Couchers operates entirely in the cloud, with hosting costs partially offse by the generous [non-profit credit program](https://aws.amazon.com/government-education/nonprofits/nonprofit-credit-program/) by AWS!
+* [Amazon Web Services (AWS)](https://aws.amazon.com/): Couchers operates entirely in the cloud, with hosting costs partially offset by the generous [non-profit credit program](https://aws.amazon.com/government-education/nonprofits/nonprofit-credit-program/) by AWS!
 * [GitHub](https://github.com) hosts [all our code](https://github.com/Couchers-org/couchers) and is where we build Couchers ([come help out by the way](https://couchers.org/volunteer))
 * [GitLab](https://about.gitlab.com/) sponsors [us](https://gitlab.com/couchers/couchers) a [very generous](https://about.gitlab.com/solutions/open-source/) CI/CD allowance, allowing us to ship better software quicker!
 * [Google](https://www.google.com/) sponsors us free email & drive
