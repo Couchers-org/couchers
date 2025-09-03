@@ -86,7 +86,7 @@ const getMapBounds = (mapRef: React.RefObject<MapRef>) => {
   return bbox;
 };
 
-const getAreaZoom = (area: string, isRegion: boolean) => {
+const getAreaZoom = (area: string, isRegion: boolean | undefined = false) => {
   switch (area) {
     case "China":
     case "Brazil":

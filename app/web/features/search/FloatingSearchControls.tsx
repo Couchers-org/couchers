@@ -217,11 +217,11 @@ const FloatingSearchControls = ({
       setLocationInputValue({
         center: [value.location.lng, value.location.lat],
         location: value,
-        zoom: getAreaZoom(value.simplifiedName, value.isRegion ?? false),
+        zoom: getAreaZoom(value.simplifiedName, value.isRegion),
       });
 
       onZoomIn(
-        getAreaZoom(value.simplifiedName, value.isRegion ?? false),
+        getAreaZoom(value.simplifiedName, value.isRegion),
         [value.location.lng, value.location.lat],
         true,
       );
