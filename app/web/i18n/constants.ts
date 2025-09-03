@@ -80,6 +80,10 @@ export const LANGUAGE_MAP: LanguageMap = {
     name: "Swedish",
     flagIconCode: "SE",
   },
+  tr: {
+    name: "Turkish",
+    flagIconCode: "TR",
+  },
   uk: {
     name: "Ukrainian",
     flagIconCode: "UA",
