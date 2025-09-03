@@ -73,7 +73,7 @@ export default function InviteCodesPage() {
   return (
     <Box sx={{ width: "100%", maxWidth: 800, mx: "auto", mt: 6, px: 2 }}>
       <Typography variant="h2" gutterBottom sx={{ mb: 1 }}>
-        {t("global:nav.invite_members", "Invite members")}
+        {t("global:nav.invite_members")}
       </Typography>
 
       <Typography color="textSecondary" sx={{ mb: 3 }}>
@@ -151,7 +151,7 @@ export default function InviteCodesPage() {
                 }
               >
                 <ListItemText
-                  primary={`${c.code}`}
+                  primary={shareUrl}
                   sx={c.disabled ? { color: "text.disabled" } : undefined}
                   secondary={
                     <>
