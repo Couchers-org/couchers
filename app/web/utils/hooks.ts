@@ -31,6 +31,34 @@ const nonRegionKeys = [
   "subdivision",
 ];
 
+// Bounding box overrides for specific countries
+// Some countries return an administrative level bounding box instead of a country level bounding box
+// For example, France returns a bounding box for the French territories instead of the country level bounding box
+const countryBboxOverrides: Record<string, Coordinates> = {
+  // Metropolitan France
+  fr: [-5.142, 41.333, 9.559, 51.092],
+  // Contiguous United States (excludes Alaska/Hawaii/territories)
+  us: [-125.0, 24.396308, -66.93457, 49.384358],
+  // Mainland Spain (excludes Canary Islands)
+  es: [-9.392883, 35.94685, 3.039484, 43.792366],
+  // Mainland Portugal (excludes Azores/Madeira)
+  pt: [-9.52657, 36.83827, -6.18916, 42.15431],
+  // Mainland Ecuador (excludes Galápagos)
+  ec: [-81.0, -5.0, -75.19, 1.66],
+  // Mainland Chile (excludes Easter Island)
+  cl: [-75.0, -55.95, -66.0, -17.5],
+  // New Zealand main islands
+  nz: [165.0, -47.5, 179.1, -34.0],
+  // Mainland Colombia (excludes San Andrés/Providencia)
+  co: [-79.1, -4.3, -66.85, 12.5],
+  // Mainland Norway (excludes Svalbard/Jan Mayen)
+  no: [4.5, 57.9, 31.7, 71.4],
+  // Denmark (excludes Greenland/Faroe)
+  dk: [7.9, 54.56, 15.19, 57.75],
+  // Netherlands (excludes Caribbean Netherlands)
+  nl: [3.36, 50.75, 7.22, 53.7],
+};
+
 function useIsMounted() {
   const isMounted = useRef(false);
 
@@ -118,6 +146,15 @@ const useGeocodeQuery = () => {
             result["boundingbox"].push(firstElem);
             result["boundingbox"].unshift(lastElem);
 
+            // Apply country-level bbox overrides when available
+            const isCountryLevel =
+              result.type === "country" || (result.place_rank ?? 99) <= 4;
+            const cc = (result.address?.country_code || "").toLowerCase();
+            let bbox = result["boundingbox"] as Coordinates;
+            if (isCountryLevel && cc && countryBboxOverrides[cc]) {
+              bbox = countryBboxOverrides[cc];
+            }
+
             return {
               location: new LngLat(
                 Number(result["lon"]),
@@ -126,7 +163,7 @@ const useGeocodeQuery = () => {
               name: result["display_name"],
               simplifiedName: simplifyPlaceDisplayName(result),
               isRegion: !nonRegionKeys.some((k) => k in result.address),
-              bbox: result["boundingbox"],
+              bbox,
             };
           });
 

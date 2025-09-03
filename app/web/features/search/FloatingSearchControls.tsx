@@ -23,7 +23,7 @@ import { GeocodeResult } from "utils/hooks";
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { MapSearchTypes } from "./utils/constants";
-import { getMapBounds } from "./utils/mapUtils";
+import { getAreaZoom, getMapBounds } from "./utils/mapUtils";
 
 interface FloatingSearchNavigationProps {
   mapRef: React.RefObject<MapRef>;
@@ -217,10 +217,14 @@ const FloatingSearchControls = ({
       setLocationInputValue({
         center: [value.location.lng, value.location.lat],
         location: value,
-        zoom: 10,
+        zoom: getAreaZoom(value.simplifiedName, value.isRegion ?? false),
       });
 
-      onZoomIn(10, [value.location.lng, value.location.lat], true);
+      onZoomIn(
+        getAreaZoom(value.simplifiedName, value.isRegion ?? false),
+        [value.location.lng, value.location.lat],
+        true,
+      );
     }
   };
 

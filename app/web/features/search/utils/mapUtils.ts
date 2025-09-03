@@ -86,8 +86,26 @@ const getMapBounds = (mapRef: React.RefObject<MapRef>) => {
   return bbox;
 };
 
+const getAreaZoom = (area: string, isRegion: boolean) => {
+  switch (area) {
+    case "China":
+    case "Brazil":
+    case "India":
+    case "Mexico":
+      return 4;
+    case "Russia":
+      return 2;
+    case "Canada":
+    case "United States":
+      return 3;
+    default:
+      return isRegion ? 5 : 10;
+  }
+};
+
 export {
   clearMapFeatureState,
+  getAreaZoom,
   getHasActiveFilters,
   getMapBounds,
   loadMapUserPins,
