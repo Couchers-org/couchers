@@ -49,7 +49,7 @@
     "editor.formatOnSave": false,
     "editor.formatOnType": false
   },
-  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.preferences.importModuleSpecifier": "relative",
   "typescript.suggest.autoImports": true,
   "typescript.updateImportsOnFileMove.enabled": "always",
   "editor.tabSize": 2,

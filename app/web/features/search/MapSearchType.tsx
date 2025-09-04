@@ -3,16 +3,17 @@ import {
   FormControlLabel,
   Radio,
   RadioGroup,
-  styled,
   Typography,
+  styled,
 } from "@mui/material";
-import { useTranslation } from "i18n";
-import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { ChangeEvent, useState } from "react";
+
+import { useTranslation } from "@/i18n";
+import { GLOBAL, SEARCH } from "@/i18n/namespaces";
 
 type MapSearchTypes = "location" | "keyword";
 
-const CenteredContainer = styled("div")(({ theme }) => ({
+const CenteredContainer = styled("div")(() => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "flex-start",
@@ -29,7 +30,7 @@ const MapSearchType = ({
   const [searchType, setSearchType] = useState<MapSearchTypes>("location");
 
   const handleChange = (
-    event: ChangeEvent<HTMLInputElement>,
+    _event: ChangeEvent<HTMLInputElement>,
     value: string,
   ) => {
     if (value === "location") {

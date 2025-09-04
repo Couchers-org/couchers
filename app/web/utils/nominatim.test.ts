@@ -1,6 +1,6 @@
 import {
-  filterDuplicatePlaces,
   NominatimPlace,
+  filterDuplicatePlaces,
   simplifyPlaceDisplayName,
 } from "./nominatim";
 
@@ -12,9 +12,9 @@ describe("Nominatim utilities", () => {
           city: "City of Brisbane",
           state: "Queensland",
           country: "Australia",
-          state_district: "",
+          stateDistrict: "",
           postcode: "",
-          country_code: "",
+          countryCode: "",
         },
       };
 
@@ -27,10 +27,10 @@ describe("Nominatim utilities", () => {
         address: {
           city: "Brisbane",
           state: "California",
-          state_district: "San Mateo County",
+          stateDistrict: "San Mateo County",
           country: "United States",
           postcode: "94005",
-          country_code: "",
+          countryCode: "",
         },
       };
 
@@ -44,9 +44,9 @@ describe("Nominatim utilities", () => {
           town: "Smalltown",
           state: "Vermont",
           country: "United States",
-          state_district: "",
+          stateDistrict: "",
           postcode: "",
-          country_code: "",
+          countryCode: "",
         },
       };
 
@@ -60,9 +60,9 @@ describe("Nominatim utilities", () => {
           village: "Little Village",
           state: "Rural State",
           country: "Somewhere",
-          state_district: "",
+          stateDistrict: "",
           postcode: "",
-          country_code: "",
+          countryCode: "",
         },
       };
 
@@ -76,9 +76,9 @@ describe("Nominatim utilities", () => {
           city: "Oklahoma City",
           state: "Oklahoma",
           country: "United States",
-          state_district: "",
+          stateDistrict: "",
           postcode: "",
-          country_code: "",
+          countryCode: "",
         },
       };
 
@@ -91,9 +91,9 @@ describe("Nominatim utilities", () => {
         address: {
           state: "Montana",
           country: "United States",
-          state_district: "",
+          stateDistrict: "",
           postcode: "",
-          country_code: "",
+          countryCode: "",
         },
       };
 
@@ -107,9 +107,9 @@ describe("Nominatim utilities", () => {
           city: "Somecity",
           country: "",
           state: "Somestate",
-          state_district: "",
+          stateDistrict: "",
           postcode: "",
-          country_code: "",
+          countryCode: "",
         },
       };
 
@@ -124,9 +124,9 @@ describe("Nominatim utilities", () => {
           province: "Ontario",
           country: "Canada",
           state: "",
-          state_district: "",
+          stateDistrict: "",
           postcode: "",
-          country_code: "",
+          countryCode: "",
         },
       };
 
@@ -140,9 +140,9 @@ describe("Nominatim utilities", () => {
           city: "Singapore",
           country: "Singapore",
           state: "",
-          state_district: "",
+          stateDistrict: "",
           postcode: "",
-          country_code: "",
+          countryCode: "",
         },
       };
 
@@ -157,12 +157,12 @@ describe("Nominatim utilities", () => {
           state: "New York",
           country: "United States",
           postcode: "10001",
-          state_district: "New York County",
-          country_code: "US",
+          stateDistrict: "New York County",
+          countryCode: "US",
           neighbourhood: "Manhattan",
           suburb: "Midtown",
           road: "5th Avenue",
-          house_number: "123",
+          houseNumber: "123",
         },
       };
 
@@ -176,9 +176,9 @@ describe("Nominatim utilities", () => {
         address: {
           state: "California",
           country: "United States",
-          state_district: "",
+          stateDistrict: "",
           postcode: "",
-          country_code: "",
+          countryCode: "",
         },
       };
 
@@ -193,9 +193,9 @@ describe("Nominatim utilities", () => {
         address: {
           country: "Germany",
           state: "",
-          state_district: "",
+          stateDistrict: "",
           postcode: "",
-          country_code: "",
+          countryCode: "",
         },
       };
 
@@ -209,9 +209,9 @@ describe("Nominatim utilities", () => {
           province: "Ontario",
           country: "Canada",
           state: "",
-          state_district: "",
+          stateDistrict: "",
           postcode: "",
-          country_code: "",
+          countryCode: "",
         },
       };
 
@@ -224,9 +224,9 @@ describe("Nominatim utilities", () => {
         address: {
           state: "New York",
           country: "United States",
-          state_district: "",
+          stateDistrict: "",
           postcode: "",
-          country_code: "",
+          countryCode: "",
         },
       };
 
@@ -239,101 +239,101 @@ describe("Nominatim utilities", () => {
     it("should filter duplicate places and keep highest importance", () => {
       const places: Partial<NominatimPlace>[] = [
         {
-          place_id: 1,
+          placeId: 1,
           importance: 0.1,
           address: {
             city: "Toronto",
-            state_district: "",
+            stateDistrict: "",
             state: "Ontario",
             postcode: "",
             country: "Canada",
-            country_code: "",
+            countryCode: "",
           },
         },
         {
-          place_id: 2,
+          placeId: 2,
           importance: 0.9,
           address: {
             city: "Toronto",
-            state_district: "",
+            stateDistrict: "",
             state: "Ontario",
             postcode: "",
             country: "Canada",
-            country_code: "",
+            countryCode: "",
           },
         },
         {
-          place_id: 3,
+          placeId: 3,
           importance: 0.1,
           address: {
             city: "Ottawa",
-            state_district: "",
+            stateDistrict: "",
             state: "Ontario",
             postcode: "",
             country: "Canada",
-            country_code: "",
+            countryCode: "",
           },
         },
         {
-          place_id: 4,
+          placeId: 4,
           importance: 0.1,
           address: {
             city: "Ottawa",
-            state_district: "",
+            stateDistrict: "",
             state: "Ontario",
             postcode: "",
             country: "Canada",
-            country_code: "",
+            countryCode: "",
           },
         },
         {
-          place_id: 5,
+          placeId: 5,
           importance: 0.2,
           address: {
             city: "Toronto",
-            state_district: "",
+            stateDistrict: "",
             state: "Ohio",
             postcode: "",
             country: "United States",
-            country_code: "",
+            countryCode: "",
           },
         },
       ];
       const expected: Partial<NominatimPlace>[] = [
         {
-          place_id: 2,
+          placeId: 2,
           importance: 0.9,
           address: {
             city: "Toronto",
-            state_district: "",
+            stateDistrict: "",
             state: "Ontario",
             postcode: "",
             country: "Canada",
-            country_code: "",
+            countryCode: "",
           },
         },
         {
-          place_id: 3,
+          placeId: 3,
           importance: 0.1,
           address: {
             city: "Ottawa",
-            state_district: "",
+            stateDistrict: "",
             state: "Ontario",
             postcode: "",
             country: "Canada",
-            country_code: "",
+            countryCode: "",
           },
         },
         {
-          place_id: 5,
+          placeId: 5,
           importance: 0.2,
           address: {
             city: "Toronto",
-            state_district: "",
+            stateDistrict: "",
             state: "Ohio",
             postcode: "",
             country: "United States",
-            country_code: "",
+            countryCode: "",
           },
         },
       ];
@@ -345,27 +345,27 @@ describe("Nominatim utilities", () => {
     it("should preserve Brisbane locations in different countries", () => {
       const brisbanes: Partial<NominatimPlace>[] = [
         {
-          place_id: 1,
+          placeId: 1,
           importance: 0.8,
           address: {
             city: "Brisbane",
             state: "Queensland",
             country: "Australia",
-            state_district: "",
+            stateDistrict: "",
             postcode: "",
-            country_code: "",
+            countryCode: "",
           },
         },
         {
-          place_id: 2,
+          placeId: 2,
           importance: 0.3,
           address: {
             city: "Brisbane",
             state: "California",
             country: "United States",
-            state_district: "",
+            stateDistrict: "",
             postcode: "",
-            country_code: "",
+            countryCode: "",
           },
         },
       ];
@@ -373,26 +373,26 @@ describe("Nominatim utilities", () => {
       const actual = filterDuplicatePlaces(brisbanes as NominatimPlace[]);
 
       expect(actual).toHaveLength(2);
-      expect(actual.some((p) => p.place_id === 1)).toBe(true); // Brisbane, Australia
-      expect(actual.some((p) => p.place_id === 2)).toBe(true); // Brisbane, USA
+      expect(actual.some((p) => p.placeId === 1)).toBe(true); // Brisbane, Australia
+      expect(actual.some((p) => p.placeId === 2)).toBe(true); // Brisbane, USA
     });
 
     it("should handle places with missing primary locality gracefully", () => {
       const regionOnly: Partial<NominatimPlace> = {
-        place_id: 1,
+        placeId: 1,
         importance: 0.5,
         address: {
           state: "Montana",
           country: "United States",
-          state_district: "",
+          stateDistrict: "",
           postcode: "",
-          country_code: "",
+          countryCode: "",
         },
       };
 
       const actual = filterDuplicatePlaces([regionOnly] as NominatimPlace[]);
       expect(actual).toHaveLength(1);
-      expect(actual[0].place_id).toBe(1);
+      expect(actual[0].placeId).toBe(1);
     });
   });
 });

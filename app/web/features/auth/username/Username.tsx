@@ -1,6 +1,6 @@
 import { Typography } from "@mui/material";
-import { Trans, useTranslation } from "i18n";
-import { AUTH } from "i18n/namespaces";
+import { Trans, useTranslation } from "@/i18n";
+import { AUTH } from "@/i18n/namespaces";
 
 interface UsernameProps {
   username: string;

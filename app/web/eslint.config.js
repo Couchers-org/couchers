@@ -1,5 +1,4 @@
 import { FlatCompat } from "@eslint/eslintrc";
-import eslint from "@eslint/js";
 import stylisticPlugin from "@stylistic/eslint-plugin";
 import eslintParser from "@typescript-eslint/parser";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
@@ -22,6 +21,7 @@ const boolPrefixes = ["is", "should", "has", "can", "did", "will"];
 
 const baseNamingConventions = [
   {
+    // Allow prefixing unused variables with an underscore
     selector: "default",
     modifiers: ["unused"],
     format: ["strictCamelCase"],
@@ -44,7 +44,7 @@ const baseNamingConventions = [
   },
   {
     selector: "variable",
-    modifiers: ["const", "global"],
+    modifiers: ["const", "global", "exported"],
     types: ["boolean"],
     format: ["UPPER_CASE"],
     prefix: boolPrefixes.map((prefix) => `${prefix.toUpperCase()}_`),
@@ -55,8 +55,14 @@ const baseNamingConventions = [
   },
   {
     selector: "variable",
-    modifiers: ["const", "global"],
+    modifiers: ["const", "global", "exported"],
+    types: ["boolean", "number", "string"],
     format: ["UPPER_CASE"],
+  },
+  {
+    selector: "variable",
+    modifiers: ["const", "global"],
+    format: ["UPPER_CASE", "camelCase"],
   },
   {
     selector: "variable",
@@ -79,8 +85,7 @@ export default tseslint.config([
       },
     },
   }),
-  eslint.configs.recommended,
-  tseslint.configs.strict,
+  tseslint.configs.strictTypeChecked,
   {
     languageOptions: {
       parser: eslintParser,

@@ -3,16 +3,17 @@ import {
   FormControlLabel,
   Radio,
   RadioGroup,
-  styled,
   Typography,
+  styled,
 } from "@mui/material";
-import { useTranslation } from "i18n";
-import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { ChangeEvent } from "react";
+
+import { useTranslation } from "@/i18n";
+import { GLOBAL, SEARCH } from "@/i18n/namespaces";
 
 import { MapSearchTypes } from "./utils/constants";
 
-const CenteredContainer = styled("div")(({ theme }) => ({
+const CenteredContainer = styled("div")(() => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -32,7 +33,7 @@ const SearchTypeRadioGroup = ({
   const { t } = useTranslation([GLOBAL, SEARCH]);
 
   const handleChange = (
-    event: ChangeEvent<HTMLInputElement>,
+    _event: ChangeEvent<HTMLInputElement>,
     value: string,
   ) => {
     onChange(value as MapSearchTypes);

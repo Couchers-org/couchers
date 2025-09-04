@@ -35,7 +35,7 @@ const customJestConfig: Config = {
     // Disable server-only
     "server-only": `<rootDir>/__mocks__/empty.js`,
   },
-  //<rootDir> instead of . - https://github.com/tannerlinsley/react-query/issues/2339
+  // <rootDir> instead of . - https://github.com/tannerlinsley/react-query/issues/2339
   // @TODO(NA) ^^ Fixed in react-query v4, but we are still on v3. Remove this when we upgrade.
   moduleDirectories: ["node_modules", "<rootDir>"],
   reporters: ["default", "jest-junit"],

@@ -11,26 +11,11 @@ import {
 } from "react";
 
 import { Coordinates } from "@/features/search/utils/constants";
-import Sentry from "@/platform/sentry";
-import {
-  NominatimPlace,
-  filterDuplicatePlaces,
-  simplifyPlaceDisplayName,
-} from "@/utils/nominatim";
+import sentry from "@/platform/sentry";
+import { nominatimQuery } from "@/utils/nominatim";
 
 // Locations having one of these keys are considered non-regions.
 // https://nominatim.org/release-docs/latest/api/Output/#addressdetails
-const nonRegionKeys = [
-  "municipality",
-  "city",
-  "town",
-  "village",
-  "city_district",
-  "district",
-  "borough",
-  "suburb",
-  "subdivision",
-];
 
 function useIsMounted() {
   const isMounted = useRef(false);
@@ -71,8 +56,6 @@ export interface GeocodeResult {
   isRegion?: boolean;
 }
 
-const NOMINATIM_URL = process.env.NEXT_PUBLIC_NOMINATIM_URL;
-
 const useGeocodeQuery = () => {
   const isMounted = useIsMounted();
   const [isLoading, setIsLoading] = useSafeState(isMounted, false);
@@ -93,54 +76,18 @@ const useGeocodeQuery = () => {
       setIsLoading(true);
       setError(undefined);
       setResults(undefined);
-      const url = `${NOMINATIM_URL}search?format=jsonv2&q=${encodeURIComponent(
-        value,
-      )}&addressdetails=1`;
-      const fetchOptions = {
-        headers: {
-          accept: "application/json",
-        },
-        method: "GET",
-      };
+
       try {
-        const response = await fetch(url, fetchOptions);
-
-        if (!response.ok) throw Error(await response.text());
-
-        const nominatimResults: NominatimPlace[] = await response.json();
-
-        if (nominatimResults.length === 0) {
-          setResults([]);
-        } else {
-          const filteredResults = filterDuplicatePlaces(nominatimResults);
-          const formattedResults = filteredResults.map((result) => {
-            const firstElem = result["boundingbox"].shift() as number;
-            const lastElem = result["boundingbox"].pop() as number;
-            result["boundingbox"].push(firstElem);
-            result["boundingbox"].unshift(lastElem);
-
-            return {
-              location: new LngLat(
-                Number(result["lon"]),
-                Number(result["lat"]),
-              ),
-              name: result["display_name"],
-              simplifiedName: simplifyPlaceDisplayName(result),
-              isRegion: !nonRegionKeys.some((k) => k in result.address),
-              bbox: result["boundingbox"],
-            };
-          });
-
-          setResults(formattedResults);
-        }
+        setResults(await nominatimQuery(value));
       } catch (e) {
-        Sentry.captureException(e, {
+        sentry.captureException(e, {
           tags: {
             hook: "useGeocodeQuery",
           },
         });
         setError(e instanceof Error ? e.message : "");
       }
+
       setIsLoading(false);
     },
     [setError, setIsLoading, setResults],
@@ -172,6 +119,7 @@ function useUnsavedChangesWarning({
     const handleWindowClose = (e: BeforeUnloadEvent) => {
       if (!isDirty) return;
       e.preventDefault();
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       e.returnValue = warningMessage;
       return;
     };
