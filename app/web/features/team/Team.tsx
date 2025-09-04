@@ -19,27 +19,39 @@ import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { Volunteer } from "proto/public_pb";
 import { volunteerRoute } from "routes";
+import { theme } from "theme";
 
-const SpacerDiv = styled("div")(({ theme }) => ({
+const SpacerDiv = styled("div")(({}) => ({
   height: theme.spacing(4),
 }));
 
-const TeamMemberCard = styled(Card)(({ theme }) => ({
+const TeamMemberCard = styled(Card)(({}) => ({
   height: "100%",
 }));
 
-const TeamMemberCardContent = styled(CardContent)(({ theme }) => ({
+const TeamMemberCardContent = styled(CardContent)(({}) => ({
   display: "flex",
 }));
 
-const DetailDiv = styled("div")(({ theme }) => ({
+const DetailDiv = styled("div")(({}) => ({
   padding: theme.spacing(1, 2),
   flex: "1 1 0%",
 }));
 
-const StyledAvatar = styled(MuiAvatar)(({ theme }) => ({
+const StyledAvatar = styled(MuiAvatar)(({}) => ({
   width: theme.typography.pxToRem(96),
   height: theme.typography.pxToRem(96),
+}));
+
+const StyledSectionTitle = styled("h2")(() => ({
+  fontSize: theme.typography.h2.fontSize,
+}));
+
+const StyledMembersContainer = styled("div")(() => ({
+  display: "flex",
+  flexFlow: "column nowrap",
+  gap: theme.spacing(10),
+  margin: theme.spacing(4, 0),
 }));
 
 interface TeamSectionProps {
@@ -52,7 +64,7 @@ function TeamSection(props: TeamSectionProps) {
 
   return (
     <section>
-      <h2>{props.title}</h2>
+      <StyledSectionTitle>{props.title}</StyledSectionTitle>
       <Grid
         container
         maxWidth="xl"
@@ -150,14 +162,16 @@ export default function Team() {
         </Typography>
       </Container>
       <SpacerDiv />
-      <TeamSection
-        title={t("team.current_members")}
-        volunteers={volunteers.data?.currentVolunteersList}
-      />
-      <TeamSection
-        title={t("team.past_members")}
-        volunteers={volunteers.data?.pastVolunteersList}
-      />
+      <StyledMembersContainer>
+        <TeamSection
+          title={t("team.current_members")}
+          volunteers={volunteers.data?.currentVolunteersList}
+        />
+        <TeamSection
+          title={t("team.past_members")}
+          volunteers={volunteers.data?.pastVolunteersList}
+        />
+      </StyledMembersContainer>
       <SpacerDiv />
       <Container maxWidth="md">
         <Typography variant="h2" component="h2">
