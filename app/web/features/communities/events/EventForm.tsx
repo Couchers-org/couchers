@@ -1,22 +1,23 @@
-import { Checkbox, FormControlLabel, styled, Typography } from "@mui/material";
+import { Checkbox, FormControlLabel, Typography, styled } from "@mui/material";
 import { UseMutateFunction } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import ImageInput from "components/ImageInput";
-import LocationAutocomplete from "components/LocationAutocomplete";
-import MarkdownInput from "components/MarkdownInput";
-import PageTitle from "components/PageTitle";
-import TextField from "components/TextField";
-import { Coordinates } from "features/search/utils/constants";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { LngLat } from "maplibre-gl";
-import { Event } from "proto/events_pb";
 import { useRef } from "react";
 import { DeepMap, useForm } from "react-hook-form";
-import { theme } from "theme";
-import { Dayjs } from "utils/dayjs";
-import type { GeocodeResult } from "utils/hooks";
+
+import Alert from "@/components/Alert";
+import ImageInput from "@/components/ImageInput";
+import LocationAutocomplete from "@/components/LocationAutocomplete";
+import MarkdownInput from "@/components/MarkdownInput";
+import PageTitle from "@/components/PageTitle";
+import TextField from "@/components/TextField";
+import { Coordinates } from "@/features/search/utils/constants";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
+import { Event } from "@/proto/events_pb";
+import { theme } from "@/theme";
+import { Dayjs } from "@/utils/dayjs";
+import type { GeocodeResult } from "@/utils/hooks";
 
 import EventTimeChanger from "./EventTimeChanger";
 
@@ -216,7 +217,7 @@ export default function EventForm({
               name="location"
               defaultValue={locationDefaultValue}
               fieldError={errors.location?.message}
-              fullWidth
+              isFullWidth
               label={t("communities:location")}
               required={t("communities:location_required")}
               showFullDisplayName

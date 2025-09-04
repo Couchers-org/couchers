@@ -1,13 +1,15 @@
 import { Card, styled } from "@mui/material";
-import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import NewComment from "components/Comments/NewComment";
-import Markdown from "components/Markdown";
 import { useTranslation } from "next-i18next";
-import { Reply } from "proto/threads_pb";
 import React, { useEffect, useState } from "react";
-import { service } from "service";
-import isGrpcError from "service/utils/isGrpcError";
+
+import Alert from "@/components/Alert";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import NewComment from "@/components/Comments/NewComment";
+import Markdown from "@/components/Markdown";
+import log from "@/log";
+import { Reply } from "@/proto/threads_pb";
+import { service } from "@/service";
+import isGrpcError from "@/service/utils/isGrpcError";
 
 interface CommentBoxProps {
   threadId: number;
@@ -29,14 +31,14 @@ const StyledCard = styled(Card)(() => ({
 export default function CommentBox({ threadId }: CommentBoxProps) {
   const { t } = useTranslation();
 
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
   const [comments, setComments] = useState<Array<MultiLevelReply>>([]);
 
   useEffect(() => {
-    (async () => {
-      setLoading(true);
+    void (async () => {
+      setIsLoading(true);
       try {
         const thread = await service.threads.getThread(threadId);
         setComments(
@@ -54,16 +56,16 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
           ),
         );
       } catch (e) {
-        console.error(e);
+        log.error(e);
         setError(isGrpcError(e) ? e.message : t("error.fatal_message"));
       }
-      setLoading(false);
+      setIsLoading(false);
     })();
   }, [t, threadId]);
 
   const handleComment = async (threadId: number, content: string) => {
     await service.threads.postReply(threadId, content);
-    setLoading(true);
+    setIsLoading(true);
     try {
       const thread = await service.threads.getThread(threadId);
       setComments(
@@ -81,27 +83,27 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
         ),
       );
     } catch (e) {
-      console.error(e);
+      log.error(e);
       setError(isGrpcError(e) ? e.message : t("error.fatal_message"));
     }
-    setLoading(false);
+    setIsLoading(false);
   };
   return (
     <>
       {error && <Alert severity="error">{error}</Alert>}
-      {loading && <CenteredSpinner />}
+      {isLoading && <CenteredSpinner />}
       {comments.map((comment) => (
         <>
           <StyledCard>
             Comment: by user id {comment.authorUserId}, posted at{" "}
-            {comment.createdTime!.seconds}, {comment.numReplies} replies.
+            {comment.createdTime?.seconds}, {comment.numReplies} replies.
             <Markdown source={comment.content} />
             Replies:
             {comment.replies.map((reply) => (
               <>
                 <StyledCard>
                   Reply: by user id {reply.authorUserId}, posted at{" "}
-                  {reply.createdTime!.seconds}.
+                  {reply.createdTime?.seconds}.
                   <Markdown source={reply.content} />
                 </StyledCard>
               </>

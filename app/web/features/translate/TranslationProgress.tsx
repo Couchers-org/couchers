@@ -5,18 +5,19 @@ import {
   CardContent,
   Chip,
   Link,
-  styled,
   Typography,
+  styled,
   useMediaQuery,
 } from "@mui/material";
-import CatalanFlagIcon from "components/Icons/CatalanFlagIcon";
-import { useWeblateStats } from "features/weblate/useWeblateStats";
-import { useTranslation } from "i18n";
-import { LANGUAGE_MAP } from "i18n/constants";
-import { GLOBAL } from "i18n/namespaces";
 import React from "react";
-import { translateJobURL } from "routes";
-import { theme } from "theme";
+
+import CatalanFlagIcon from "@/components/Icons/CatalanFlagIcon";
+import { useWeblateStats } from "@/features/weblate/useWeblateStats";
+import { useTranslation } from "@/i18n";
+import { LANGUAGE_MAP } from "@/i18n/constants";
+import { GLOBAL } from "@/i18n/namespaces";
+import { translateJobURL } from "@/routes";
+import { theme } from "@/theme";
 
 import {
   ALMOST_DONE_CUTOFF,

@@ -7,38 +7,39 @@ import {
   FormLabelProps,
   Radio,
   RadioGroup,
-  styled,
   Typography,
+  styled,
 } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Datepicker from "components/Datepicker";
+import dayjs, { Dayjs } from "dayjs";
+import { RpcError } from "grpc-web";
+import { useRef } from "react";
+import { Controller, useForm } from "react-hook-form";
+
+import Alert from "@/components/Alert";
+import Datepicker from "@/components/Datepicker";
 import EditLocationMap, {
   ApproximateLocation,
-} from "components/EditLocationMap";
-import Select from "components/Select";
-import TOSLink from "components/TOSLink";
-import dayjs, { Dayjs } from "dayjs";
-import { useAuthContext } from "features/auth/AuthProvider";
+} from "@/components/EditLocationMap";
+import Select from "@/components/Select";
+import TOSLink from "@/components/TOSLink";
+import { useAuthContext } from "@/features/auth/AuthProvider";
 import {
   StyledButton,
   StyledInputLabel,
   StyledTextField,
-} from "features/auth/useAuthStyles";
-import { RpcError } from "grpc-web";
-import { Trans, useTranslation } from "i18n";
-import { AUTH, GLOBAL } from "i18n/namespaces";
-import { HostingStatus } from "proto/api_pb";
-import { useRef } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { service } from "service";
-import { theme } from "theme";
+} from "@/features/auth/useAuthStyles";
+import { Trans, useTranslation } from "@/i18n";
+import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import { HostingStatus } from "@/proto/api_pb";
+import { service } from "@/service";
+import { theme } from "@/theme";
 import {
+  USERNAME_VALIDATION_PATTERN,
   lowercaseAndTrimField,
-  usernameValidationPattern,
   validatePassword,
   validatePastDate,
-} from "utils/validation";
+} from "@/utils/validation";
 
 export type SignupAccountInputs = {
   username: string;
@@ -194,7 +195,7 @@ export default function AccountForm() {
           {...register("username", {
             pattern: {
               message: t("auth:account_form.username.validation_error"),
-              value: usernameValidationPattern,
+              value: USERNAME_VALIDATION_PATTERN,
             },
             required: t("auth:account_form.username.required_error"),
             validate: async (username: string) => {

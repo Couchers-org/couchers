@@ -1,13 +1,14 @@
-import { Card, styled, Typography } from "@mui/material";
-import Button from "components/Button";
-import Markdown from "components/Markdown";
-import { Trans, useTranslation } from "i18n";
-import { AUTH, GLOBAL } from "i18n/namespaces";
-import { ModNote } from "proto/account_pb";
+import { Card, Typography, styled } from "@mui/material";
 import { useState } from "react";
-import { service } from "service";
-import { theme } from "theme";
-import { dateFormatter, timestamp2Date } from "utils/date";
+
+import Button from "@/components/Button";
+import Markdown from "@/components/Markdown";
+import { Trans, useTranslation } from "@/i18n";
+import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import { ModNote } from "@/proto/account_pb";
+import { service } from "@/service";
+import { theme } from "@/theme";
+import { dateFormatter, timestamp2Date } from "@/utils/date";
 
 const StyledNoteContainer = styled("div")(() => ({
   marginBottom: theme.spacing(4),

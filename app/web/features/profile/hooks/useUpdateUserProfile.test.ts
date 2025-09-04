@@ -1,11 +1,11 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
-import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
-import useCurrentUser from "features/userQueries/useCurrentUser";
+import useUpdateUserProfile from "@/features/profile/hooks/useUpdateUserProfile";
+import useCurrentUser from "@/features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { LanguageAbility, User } from "proto/api_pb";
-import { service, UpdateUserProfileData } from "service";
-import wrapper from "test/hookWrapper";
-import { addDefaultUser } from "test/utils";
+import { LanguageAbility, User } from "@/proto/api_pb";
+import { service, UpdateUserProfileData } from "@/service;
+import wrapper from "@/test/hookWrapper";
+import { addDefaultUser } from "@/test/utils";
 
 const getUserMock = service.user.getUser as jest.Mock;
 const updateProfileMock = service.user.updateProfile as jest.Mock;

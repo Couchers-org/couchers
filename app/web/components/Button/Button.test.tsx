@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import wrapper from "test/hookWrapper";
+
+import wrapper from "@/test/hookWrapper";
 
 import Button from "./Button";
 

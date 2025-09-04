@@ -5,13 +5,14 @@ import {
   RadioGroup,
   Typography,
 } from "@mui/material";
-import Button from "components/Button";
-import { useTranslation } from "i18n";
-import { AUTH, GLOBAL } from "i18n/namespaces";
-import { ActivenessProbeResponse } from "proto/jail_pb";
 import React, { useState } from "react";
-import { service } from "service";
-import { theme } from "theme";
+
+import Button from "@/components/Button";
+import { useTranslation } from "@/i18n";
+import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import { ActivenessProbeResponse } from "@/proto/jail_pb";
+import { service } from "@/service";
+import { theme } from "@/theme";
 
 interface ActivenessProbeSectionProps {
   updateJailed: () => void;

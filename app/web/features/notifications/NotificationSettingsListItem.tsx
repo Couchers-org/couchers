@@ -3,12 +3,13 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  styled,
   Typography,
+  styled,
 } from "@mui/material";
-import { NOTIFICATIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { useEffect, useState } from "react";
+
+import { NOTIFICATIONS } from "@/i18n/namespaces";
 
 import { GroupAction, NotificationType } from "./EditNotificationSettingsPage";
 import NotificationSettingsSubListItem from "./NotificationSettingsSubListItem";

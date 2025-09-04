@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuthContext } from "features/auth/AuthProvider";
-import { userKey } from "features/queryKeys";
+import { useAuthContext } from "@/features/auth/AuthProvider";
+import { userKey } from "@/features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { HostingPreferenceData, service } from "service";
-import { SetMutationError } from "utils/setMutationError";
+import { HostingPreferenceData, service } from "@/service;
+import { SetMutationError } from "@/utils/setMutationError";
 
 interface UpdateHostingPreferencesVariables {
   preferenceData: HostingPreferenceData;

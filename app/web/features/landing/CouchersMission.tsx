@@ -3,14 +3,15 @@ import {
   Box,
   Grid,
   IconButton,
-  styled,
   Typography,
+  styled,
   useMediaQuery,
 } from "@mui/material";
-import { useTranslation } from "i18n";
-import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useEffect, useRef, useState } from "react";
-import { theme } from "theme";
+
+import { useTranslation } from "@/i18n";
+import { GLOBAL, LANDING } from "@/i18n/namespaces";
+import { theme } from "@/theme";
 
 interface StyledBubbleProps extends React.ComponentProps<typeof Box> {
   selected?: boolean;

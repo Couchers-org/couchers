@@ -1,4 +1,4 @@
-import { CreateDiscussionReq, GetDiscussionReq } from "proto/discussions_pb";
+import { CreateDiscussionReq, GetDiscussionReq } from "@/proto/discussions_pb";
 
 import client from "./client";
 

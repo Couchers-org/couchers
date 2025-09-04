@@ -1,14 +1,15 @@
 import { styled } from "@mui/material";
-import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import HtmlMeta from "components/HtmlMeta";
-import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
-import Overview from "features/profile/view/Overview";
-import useCurrentUser from "features/userQueries/useCurrentUser";
-import { useTranslation } from "i18n";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { routeToProfile, UserTab } from "routes";
+
+import Alert from "@/components/Alert";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import HtmlMeta from "@/components/HtmlMeta";
+import { ProfileUserProvider } from "@/features/profile/hooks/useProfileUser";
+import Overview from "@/features/profile/view/Overview";
+import useCurrentUser from "@/features/userQueries/useCurrentUser";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, PROFILE } from "@/i18n/namespaces";
+import { UserTab, routeToProfile } from "@/routes";
 
 import UserCard from "./UserCard";
 

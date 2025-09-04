@@ -1,12 +1,13 @@
-import { Pagination, styled, Typography } from "@mui/material";
-import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import TextBody from "components/TextBody";
-import { EventsType } from "features/queryKeys";
-import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
+import { Pagination, Typography, styled } from "@mui/material";
 import { useState } from "react";
-import { theme } from "theme";
+
+import Alert from "@/components/Alert";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import TextBody from "@/components/TextBody";
+import { EventsType } from "@/features/queryKeys";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES } from "@/i18n/namespaces";
+import { theme } from "@/theme";
 
 import EventsList from "./EventsList";
 import { useListMyEvents } from "./hooks";

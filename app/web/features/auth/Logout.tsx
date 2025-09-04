@@ -1,9 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { baseRoute } from "routes";
+
+import Alert from "@/components/Alert";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import { baseRoute } from "@/routes";
 
 import { useAuthContext } from "./AuthProvider";
 

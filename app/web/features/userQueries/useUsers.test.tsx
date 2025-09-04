@@ -1,12 +1,13 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
-import { userKey } from "features/queryKeys";
-import useUsers, { useUser } from "features/userQueries/useUsers";
 import React, { useState } from "react";
-import { service } from "service";
-import users from "test/fixtures/users.json";
-import { getUser } from "test/serviceMockDefaults";
-import { mockConsoleError } from "test/utils";
+
+import { userKey } from "@/features/queryKeys";
+import useUsers, { useUser } from "@/features/userQueries/useUsers";
+import { service } from "@/service";
+import users from "@/test/fixtures/users.json";
+import { getUser } from "@/test/serviceMockDefaults";
+import { mockConsoleError } from "@/test/utils";
 
 const getUserMock = service.user.getUser as jest.Mock;
 

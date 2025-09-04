@@ -1,10 +1,11 @@
 import { TimePicker } from "@mui/x-date-pickers";
-import { useTranslation } from "i18n";
-import { GLOBAL } from "i18n/namespaces";
 import React, { useMemo } from "react";
 import { Control, Controller, UseControllerProps } from "react-hook-form";
-import { theme } from "theme";
-import { Dayjs } from "utils/dayjs";
+
+import { useTranslation } from "@/i18n";
+import { GLOBAL } from "@/i18n/namespaces";
+import { theme } from "@/theme";
+import { Dayjs } from "@/utils/dayjs";
 
 interface TimepickerProps {
   className?: string;

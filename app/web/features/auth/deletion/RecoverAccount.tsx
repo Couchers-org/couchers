@@ -1,14 +1,15 @@
 import { useMutation } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import HtmlMeta from "components/HtmlMeta";
-import PageTitle from "components/PageTitle";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { service } from "service";
-import stringOrFirstString from "utils/stringOrFirstString";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import HtmlMeta from "@/components/HtmlMeta";
+import PageTitle from "@/components/PageTitle";
+import { useTranslation } from "@/i18n";
+import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import { service } from "@/service";
+import stringOrFirstString from "@/utils/stringOrFirstString";
 
 export interface RecoverAccountParams {
   token?: string;

@@ -1,22 +1,28 @@
 import {
-  Avatar as MuiAvatar,
   Card,
   CardContent,
   Container,
   Grid,
-  styled,
+  Avatar as MuiAvatar,
   Typography,
+  styled,
 } from "@mui/material";
-import Button from "components/Button";
-import HtmlMeta from "components/HtmlMeta";
-import { EmailIcon, GlobeIcon, LinkedInIcon, PinIcon } from "components/Icons";
-import IconText from "components/IconText";
-import PageTitle from "components/PageTitle";
-import StyledLink from "components/StyledLink";
-import { useTranslation } from "i18n";
-import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
-import { volunteerRoute } from "routes";
+
+import Button from "@/components/Button";
+import HtmlMeta from "@/components/HtmlMeta";
+import IconText from "@/components/IconText";
+import {
+  EmailIcon,
+  GlobeIcon,
+  LinkedInIcon,
+  PinIcon,
+} from "@/components/Icons";
+import PageTitle from "@/components/PageTitle";
+import StyledLink from "@/components/StyledLink";
+import { useTranslation } from "@/i18n";
+import { GLOBAL } from "@/i18n/namespaces";
+import { volunteerRoute } from "@/routes";
 
 import TeamData from "./team.json";
 

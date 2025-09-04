@@ -6,26 +6,27 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { getProfileLinkA11yLabel } from "components/Avatar/constants";
 import mockRouter from "next-router-mock";
-import { discussionBaseRoute } from "routes";
-import { service } from "service";
-import comments from "test/fixtures/comments.json";
-import community from "test/fixtures/community.json";
-import discussions from "test/fixtures/discussions.json";
-import { getHookWrapperWithClient } from "test/hookWrapper";
-import i18n from "test/i18n";
+
+import { getProfileLinkA11yLabel } from "@/components/Avatar/constants";
+import { discussionBaseRoute } from "@/routes";
+import { service } from "@/service";
+import comments from "@/test/fixtures/comments.json";
+import community from "@/test/fixtures/community.json";
+import discussions from "@/test/fixtures/discussions.json";
+import { getHookWrapperWithClient } from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
 import {
   getAccountInfo,
   getLiteUser,
   getThread,
-} from "test/serviceMockDefaults";
+} from "@/test/serviceMockDefaults";
 import {
+  MockedService,
   assertErrorAlert,
   mockConsoleError,
-  MockedService,
   wait,
-} from "test/utils";
+} from "@/test/utils";
 
 import { COMMENT_TEST_ID, REFETCH_LOADING_TEST_ID } from "./Comment";
 import DiscussionPage, { CREATOR_TEST_ID } from "./DiscussionPage";

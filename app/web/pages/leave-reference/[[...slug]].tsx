@@ -1,11 +1,12 @@
-import { appGetLayout } from "components/AppRoute";
-import NotFoundPage from "features/NotFoundPage";
-import LeaveReferencePageComponent from "features/profile/view/leaveReference/LeaveReferencePage";
-import { GLOBAL, NOTIFICATIONS, PROFILE } from "i18n/namespaces";
-import { translationStaticProps } from "i18n/server-side-translations";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
-import { referenceStepStrings, referenceTypeRouteStrings } from "routes";
+
+import { appGetLayout } from "@/components/AppRoute";
+import NotFoundPage from "@/features/NotFoundPage";
+import LeaveReferencePageComponent from "@/features/profile/view/leaveReference/LeaveReferencePage";
+import { GLOBAL, NOTIFICATIONS, PROFILE } from "@/i18n/namespaces";
+import { translationStaticProps } from "@/i18n/server-side-translations";
+import { referenceStepStrings, referenceTypeRouteStrings } from "@/routes";
 
 export const getStaticPaths: GetStaticPaths = () => ({
   paths: [],

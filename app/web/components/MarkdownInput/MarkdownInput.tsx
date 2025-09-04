@@ -4,7 +4,7 @@ import { MutableRefObject } from "react";
 import { Control } from "react-hook-form";
 
 const MarkdownInput = dynamic(
-  () => import("components/MarkdownInput/MarkdownInputNoSSR"),
+  () => import("@/components/MarkdownInput/MarkdownInputNoSSR"),
   {
     ssr: false,
   },

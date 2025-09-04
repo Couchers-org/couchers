@@ -1,6 +1,7 @@
-import { useTranslation } from "i18n";
-import { GLOBAL } from "i18n/namespaces";
 import Head from "next/head";
+
+import { useTranslation } from "@/i18n";
+import { GLOBAL } from "@/i18n/namespaces";
 
 const HTML_META_DEFAULT_SHARE_IMAGE = "https://couchers.org/img/share.jpg";
 

@@ -1,9 +1,10 @@
 import { renderHook, waitFor } from "@testing-library/react";
-import { service } from "service";
-import liteUsers from "test/fixtures/liteUsers.json";
-import wrapper from "test/hookWrapper";
-import { getLiteUsers } from "test/serviceMockDefaults";
-import { mockConsoleError } from "test/utils";
+
+import { service } from "@/service";
+import liteUsers from "@/test/fixtures/liteUsers.json";
+import wrapper from "@/test/hookWrapper";
+import { getLiteUsers } from "@/test/serviceMockDefaults";
+import { mockConsoleError } from "@/test/utils";
 
 import useFriendRequests from "./useFriendRequests";
 

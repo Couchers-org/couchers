@@ -6,17 +6,18 @@ import {
   Button,
   ButtonProps,
   Link as MuiLink,
-  styled,
   Typography,
+  styled,
 } from "@mui/material";
-import { BlueSkyIcon } from "components/Icons";
-import ReportButton from "components/Navigation/ReportButton";
-import StyledLink from "components/StyledLink";
-import AntibotNote from "features/antibot/AntibotNote";
-import { Trans, useTranslation } from "i18n";
-import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { ReactNode } from "react";
+
+import { BlueSkyIcon } from "@/components/Icons";
+import ReportButton from "@/components/Navigation/ReportButton";
+import StyledLink from "@/components/StyledLink";
+import AntibotNote from "@/features/antibot/AntibotNote";
+import { Trans, useTranslation } from "@/i18n";
+import { GLOBAL } from "@/i18n/namespaces";
 import {
   blogRoute,
   builtWithRoute,
@@ -26,8 +27,8 @@ import {
   facebookURL,
   faqRoute,
   foundationRoute,
-  githubUpdatesURL,
   githubURL,
+  githubUpdatesURL,
   helpCenterURL,
   instagramURL,
   landingRoute,
@@ -39,8 +40,8 @@ import {
   teamRoute,
   tosRoute,
   volunteerRoute,
-} from "routes";
-import { timeAgoI18n } from "utils/timeAgo";
+} from "@/routes";
+import { timeAgoI18n } from "@/utils/timeAgo";
 
 const StyledFooter = styled("footer")<{ bottomMargin?: string }>(
   ({ bottomMargin }) => ({

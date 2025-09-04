@@ -1,6 +1,7 @@
-import { sessionCookieName } from "appConstants";
 import { GetServerSideProps } from "next";
-import { dashboardRoute, landingRoute } from "routes";
+
+import { sessionCookieName } from "@/appConstants";
+import { dashboardRoute, landingRoute } from "@/routes";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   return {

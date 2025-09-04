@@ -1,12 +1,14 @@
 import { Container, styled } from "@mui/material";
-import { DASHBOARD } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
+
+import { DASHBOARD } from "@/i18n/namespaces";
 
 import HeroButton from "./HeroButton";
 import HeroImage from "./HeroImage";
 import HeroImageAttribution from "./HeroImageAttribution";
 import HeroLinks from "./HeroLinks";
 import HeroSearch from "./HeroSearch";
+
 // Photo by Mesut Kaya on Unsplash - https://unsplash.com/photos/eOcyhe5-9sQ
 
 const StyledContainer = styled(Container)(({ theme }) => ({

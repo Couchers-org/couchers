@@ -1,5 +1,6 @@
-import { User } from "proto/api_pb";
 import * as React from "react";
+
+import { User } from "@/proto/api_pb";
 
 const ProfileUserContext = React.createContext<User.AsObject>(
   {} as User.AsObject,

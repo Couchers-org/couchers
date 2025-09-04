@@ -1,16 +1,17 @@
-import { styled, Typography } from "@mui/material";
-import Divider from "components/Divider";
-import LabelAndText from "components/LabelAndText";
-import Markdown from "components/Markdown";
+import { Typography, styled } from "@mui/material";
+
+import Divider from "@/components/Divider";
+import LabelAndText from "@/components/LabelAndText";
+import Markdown from "@/components/Markdown";
 import {
   booleanConversion,
   parkingDetailsLabels,
   sleepingArrangementLabels,
   smokingLocationLabels,
-} from "features/profile/constants";
-import { useTranslation } from "i18n";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
-import { User } from "proto/api_pb";
+} from "@/features/profile/constants";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, PROFILE } from "@/i18n/namespaces";
+import { User } from "@/proto/api_pb";
 
 const StyledRoot = styled("div")({
   display: "flex",

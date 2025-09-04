@@ -1,8 +1,9 @@
-import { Card, CircularProgress, styled, Typography } from "@mui/material";
-import Alert from "components/Alert";
-import TextBody from "components/TextBody";
+import { Card, CircularProgress, Typography, styled } from "@mui/material";
 import React from "react";
-import { theme } from "theme";
+
+import Alert from "@/components/Alert";
+import TextBody from "@/components/TextBody";
+import { theme } from "@/theme";
 
 interface FriendTileProps {
   children: React.ReactNode;

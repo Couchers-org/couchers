@@ -3,13 +3,14 @@ import {
   screen,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
-import { getProfileLinkA11yLabel } from "components/Avatar/constants";
-import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
-import { service } from "service";
-import users from "test/fixtures/liteUsers.json";
-import wrapper from "test/hookWrapper";
-import { getLiteUsers } from "test/serviceMockDefaults";
-import { assertErrorAlert } from "test/utils";
+
+import { getProfileLinkA11yLabel } from "@/components/Avatar/constants";
+import { USER_TITLE_SKELETON_TEST_ID } from "@/components/UserSummary";
+import { service } from "@/service";
+import users from "@/test/fixtures/liteUsers.json";
+import wrapper from "@/test/hookWrapper";
+import { getLiteUsers } from "@/test/serviceMockDefaults";
+import { assertErrorAlert } from "@/test/utils";
 
 import UsersList from "./UsersList";
 

@@ -1,21 +1,22 @@
 import { styled } from "@mui/material";
-import HtmlMeta from "components/HtmlMeta";
-import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
-import {
-  MapViewOptions,
-  MapViews,
-  MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
-  SleepingArrangementOptions,
-} from "features/search/utils/constants";
-import { useTranslation } from "i18n";
-import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import { useMemo, useRef, useState } from "react";
 import { LngLatLike, MapProvider, MapRef } from "react-map-gl/maplibre";
 
-import { useUserSearch } from "./hooks/useUserSearch";
+import HtmlMeta from "@/components/HtmlMeta";
+import { DEFAULT_DRAWER_WIDTH } from "@/components/ResizeableDrawer";
+import {
+  MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
+  MapViewOptions,
+  MapViews,
+  SleepingArrangementOptions,
+} from "@/features/search/utils/constants";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, SEARCH } from "@/i18n/namespaces";
+import { HostingStatus, MeetupStatus } from "@/proto/api_pb";
+
 import MapSearchContent from "./MapSearchContent";
 import SearchControls from "./SearchControls";
+import { useUserSearch } from "./hooks/useUserSearch";
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { getMapBounds } from "./utils/mapUtils";

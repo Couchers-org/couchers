@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useTranslation } from "next-i18next";
-import { NotificationPreferenceData } from "service/notifications";
+
+import { NotificationPreferenceData } from "@/service/notifications";
 
 import EditNotificationSettingsPage from "./EditNotificationSettingsPage";
 import NotificationSettingsSubListItem from "./NotificationSettingsSubListItem";

@@ -1,9 +1,10 @@
 import { Block, PersonRemove } from "@mui/icons-material";
-import EllipsisMenu from "components/EllipsisMenu";
-import { useTranslation } from "i18n";
-import { CONNECTIONS, GLOBAL } from "i18n/namespaces";
-import { LiteUser } from "proto/api_pb";
 import { useState } from "react";
+
+import EllipsisMenu from "@/components/EllipsisMenu";
+import { useTranslation } from "@/i18n";
+import { CONNECTIONS, GLOBAL } from "@/i18n/namespaces";
+import { LiteUser } from "@/proto/api_pb";
 
 import ConnectionActionDialog from "./ConnectionActionDialog";
 import FriendSummaryView from "./FriendSummaryView";

@@ -1,7 +1,8 @@
 import { styled, useMediaQuery } from "@mui/material";
 import { useState } from "react";
 import { LngLatLike, MapRef } from "react-map-gl/maplibre";
-import { theme } from "theme";
+
+import { theme } from "@/theme";
 
 import FilterDialog from "./FilterDialog";
 import FloatingSearchControls from "./FloatingSearchControls";

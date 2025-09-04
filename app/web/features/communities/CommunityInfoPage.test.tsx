@@ -6,16 +6,17 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { getProfileLinkA11yLabel } from "components/Avatar/constants";
 import mockRouter from "next-router-mock";
-import { routeToCommunity, routeToEditCommunityPage } from "routes";
-import { service } from "service";
-import community from "test/fixtures/community.json";
-import users from "test/fixtures/users.json";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { getLiteUsers, listCommunityAdmins } from "test/serviceMockDefaults";
-import { assertErrorAlert, keyPress, mockConsoleError } from "test/utils";
+
+import { getProfileLinkA11yLabel } from "@/components/Avatar/constants";
+import { routeToCommunity, routeToEditCommunityPage } from "@/routes";
+import { service } from "@/service";
+import community from "@/test/fixtures/community.json";
+import users from "@/test/fixtures/users.json";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { getLiteUsers, listCommunityAdmins } from "@/test/serviceMockDefaults";
+import { assertErrorAlert, keyPress, mockConsoleError } from "@/test/utils";
 
 import CommunityInfoPage from "./CommunityInfoPage";
 

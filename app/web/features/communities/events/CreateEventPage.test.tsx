@@ -1,13 +1,14 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
-import { routeToEvent, routeToNewEvent } from "routes";
-import { service } from "service";
-import events from "test/fixtures/events.json";
-import wrapper, { getHookWrapperWithClient } from "test/hookWrapper";
-import i18n from "test/i18n";
-import { server } from "test/restMock";
-import { MockedService } from "test/utils";
+
+import { routeToEvent, routeToNewEvent } from "@/routes";
+import { service } from "@/service";
+import events from "@/test/fixtures/events.json";
+import wrapper, { getHookWrapperWithClient } from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { server } from "@/test/restMock";
+import { MockedService } from "@/test/utils";
 
 import CreateEventPage from "./CreateEventPage";
 

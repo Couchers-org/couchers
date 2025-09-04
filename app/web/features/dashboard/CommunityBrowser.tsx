@@ -6,20 +6,21 @@ import {
   ListItemText,
   styled,
 } from "@mui/material";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import StyledLink from "components/StyledLink";
+import { useState } from "react";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import StyledLink from "@/components/StyledLink";
 import {
   useCommunity,
   useListSubCommunities,
-} from "features/communities/hooks";
-import { useTranslation } from "i18n";
-import { DASHBOARD } from "i18n/namespaces";
-import { Community } from "proto/communities_pb";
-import { useState } from "react";
-import { routeToCommunity } from "routes";
-import { theme } from "theme";
+} from "@/features/communities/hooks";
+import { useTranslation } from "@/i18n";
+import { DASHBOARD } from "@/i18n/namespaces";
+import { Community } from "@/proto/communities_pb";
+import { routeToCommunity } from "@/routes";
+import { theme } from "@/theme";
 
 const OuterWrapper = styled("div")(({ theme }) => ({
   display: "flex",

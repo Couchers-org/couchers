@@ -1,18 +1,23 @@
 import { render, renderHook, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { EditLocationMapProps } from "components/EditLocationMap";
-import useAuthStore from "features/auth/useAuthStore";
-import { hostingStatusLabels } from "features/profile/constants";
 import { StatusCode } from "grpc-web";
 import mockRouter from "next-router-mock";
-import { HostingStatus } from "proto/api_pb";
-import { SignupFlowRes } from "proto/auth_pb";
 import TagManager from "react-gtm-module";
-import { dashboardRoute, signupRoute } from "routes";
-import { service } from "service";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
+
+import { EditLocationMapProps } from "@/components/EditLocationMap";
+import useAuthStore from "@/features/auth/useAuthStore";
+import { hostingStatusLabels } from "@/features/profile/constants";
+import { HostingStatus } from "@/proto/api_pb";
+import { SignupFlowRes } from "@/proto/auth_pb";
+import { dashboardRoute, signupRoute } from "@/routes";
+import { service } from "@/service";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import {
+  MockedService,
+  assertErrorAlert,
+  mockConsoleError,
+} from "@/test/utils";
 
 import Signup from "./Signup";
 

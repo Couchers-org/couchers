@@ -1,6 +1,7 @@
 import { InputLabel, styled } from "@mui/material";
-import Button from "components/Button";
-import TextField from "components/TextField";
+
+import Button from "@/components/Button";
+import TextField from "@/components/TextField";
 
 const StyledForm = styled("form")(({ theme }) => ({
   display: "flex",

@@ -1,24 +1,25 @@
 import { Clear, Tune } from "@mui/icons-material";
 import {
-  alpha,
   InputAdornment,
   MenuItem,
   Select,
   SelectChangeEvent,
-  styled,
   TextField,
   Tooltip,
+  alpha,
+  styled,
   useMediaQuery,
 } from "@mui/material";
-import IconButton from "components/IconButton";
-import { SearchIcon } from "components/Icons";
-import LocationAutocompleteOutlined from "components/LocationAutocomplete/LocationAutocompleteOutlined";
-import { useTranslation } from "i18n";
-import { SEARCH } from "i18n/namespaces";
 import { useState } from "react";
 import { LngLatLike, MapRef } from "react-map-gl/maplibre";
-import { theme } from "theme";
-import { GeocodeResult } from "utils/hooks";
+
+import IconButton from "@/components/IconButton";
+import { SearchIcon } from "@/components/Icons";
+import LocationAutocompleteOutlined from "@/components/LocationAutocomplete/LocationAutocompleteOutlined";
+import { useTranslation } from "@/i18n";
+import { SEARCH } from "@/i18n/namespaces";
+import { theme } from "@/theme";
+import { GeocodeResult } from "@/utils/hooks";
 
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
@@ -244,7 +245,7 @@ const FloatingSearchControls = ({
               <StyledLocationAutocompleteOutlined
                 defaultValue={query}
                 hasSearchValue={!!query || !!bbox}
-                fullWidth={false}
+                isFullWidth={false}
                 placeholder={t("search:form.location_field_label")}
                 name="location"
                 onChange={handleLocationChange}

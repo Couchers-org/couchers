@@ -1,25 +1,26 @@
 import { styled } from "@mui/material";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
-import { doAntibot } from "features/antibot/antibot";
-import { useAuthContext } from "features/auth/AuthProvider";
-import useAccountInfo from "features/auth/useAccountInfo";
-import FriendActions from "features/profile/actions/FriendActions";
-import MessageUserButton from "features/profile/actions/MessageUserButton";
-import UserOverview from "features/profile/view/UserOverview";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
-import Link from "next/link";
 import { useTranslation } from "next-i18next";
-import { HostingStatus } from "proto/api_pb";
+import Link from "next/link";
 import { useState } from "react";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import ProfileIncompleteDialog from "@/components/ProfileIncompleteDialog/ProfileIncompleteDialog";
+import { doAntibot } from "@/features/antibot/antibot";
+import { useAuthContext } from "@/features/auth/AuthProvider";
+import useAccountInfo from "@/features/auth/useAccountInfo";
+import FriendActions from "@/features/profile/actions/FriendActions";
+import MessageUserButton from "@/features/profile/actions/MessageUserButton";
+import UserOverview from "@/features/profile/view/UserOverview";
+import { GLOBAL, PROFILE } from "@/i18n/namespaces";
+import { HostingStatus } from "@/proto/api_pb";
 import {
-  connectionsRoute,
   EditUserTab,
-  routeToEditProfile,
   UserTab,
-} from "routes";
-import { theme } from "theme";
+  connectionsRoute,
+  routeToEditProfile,
+} from "@/routes";
+import { theme } from "@/theme";
 
 import { useProfileUser } from "../hooks/useProfileUser";
 import AdminPanelUserButton from "./AdminPanelUserButton";

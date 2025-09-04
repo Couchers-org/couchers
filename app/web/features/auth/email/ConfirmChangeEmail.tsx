@@ -1,16 +1,17 @@
 import { Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import StyledLink from "components/StyledLink";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { AUTH } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { loginRoute } from "routes";
-import { service } from "service";
-import stringOrFirstString from "utils/stringOrFirstString";
+
+import Alert from "@/components/Alert";
+import StyledLink from "@/components/StyledLink";
+import { useTranslation } from "@/i18n";
+import { AUTH } from "@/i18n/namespaces";
+import { loginRoute } from "@/routes";
+import { service } from "@/service";
+import stringOrFirstString from "@/utils/stringOrFirstString";
 
 export default function ConfirmChangeEmail() {
   const { t } = useTranslation(AUTH);

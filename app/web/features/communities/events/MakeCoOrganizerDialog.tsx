@@ -1,14 +1,15 @@
 import { DialogProps } from "@mui/material";
-import Button from "components/Button";
+
+import Button from "@/components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-} from "components/Dialog";
-import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
+} from "@/components/Dialog";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES } from "@/i18n/namespaces";
 
 export const MAKE_CO_ORGANIZER_DIALOG_LABEL_ID = "make-co-organizer";
 

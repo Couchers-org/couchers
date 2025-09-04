@@ -1,11 +1,12 @@
 import { Alert, Button, styled } from "@mui/material";
-import { useAuthContext } from "features/auth/AuthProvider";
-import { useTranslation } from "i18n";
-import { NOTIFICATIONS } from "i18n/namespaces";
-import { usePersistedState } from "platform/usePersistedState";
 import React, { useEffect, useState } from "react";
 import { Trans } from "react-i18next";
-import { theme } from "theme";
+
+import { useAuthContext } from "@/features/auth/AuthProvider";
+import { useTranslation } from "@/i18n";
+import { NOTIFICATIONS } from "@/i18n/namespaces";
+import { usePersistedState } from "@/platform/usePersistedState";
+import { theme } from "@/theme";
 
 import { checkPushEnabled, turnPushNotificationsOn } from "./utils/helpers";
 

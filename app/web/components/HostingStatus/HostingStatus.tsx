@@ -1,11 +1,12 @@
 import { Skeleton, styled } from "@mui/material";
-import { CouchIcon } from "components/Icons";
-import IconText from "components/IconText";
-import { hostingStatusLabels } from "features/profile/constants";
-import { useTranslation } from "i18n";
-import { GLOBAL } from "i18n/namespaces";
-import { HostingStatus as THostingStatus } from "proto/api_pb";
 import React from "react";
+
+import IconText from "@/components/IconText";
+import { CouchIcon } from "@/components/Icons";
+import { hostingStatusLabels } from "@/features/profile/constants";
+import { useTranslation } from "@/i18n";
+import { GLOBAL } from "@/i18n/namespaces";
+import { HostingStatus as THostingStatus } from "@/proto/api_pb";
 
 const StyledHostingAbilityContainer = styled("div")(({ theme }) => ({
   alignItems: "center",

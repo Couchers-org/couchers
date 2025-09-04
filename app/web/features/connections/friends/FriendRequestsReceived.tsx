@@ -1,10 +1,11 @@
 import { Box, IconButton } from "@mui/material";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import { CheckIcon, CloseIcon } from "components/Icons";
-import { CONNECTIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
-import { FriendRequest } from "proto/api_pb";
-import { useIsMounted, useSafeState } from "utils/hooks";
+
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import { CheckIcon, CloseIcon } from "@/components/Icons";
+import { CONNECTIONS } from "@/i18n/namespaces";
+import { FriendRequest } from "@/proto/api_pb";
+import { useIsMounted, useSafeState } from "@/utils/hooks";
 
 import type { SetMutationError } from ".";
 import FriendSummaryView from "./FriendSummaryView";

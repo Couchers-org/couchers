@@ -4,25 +4,26 @@ import {
   FormControl,
   FormControlLabel,
   FormHelperText,
-  styled,
   Typography,
   TypographyVariant,
+  styled,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import { communityGuidelinesQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { AUTH, GLOBAL } from "i18n/namespaces";
-import Sentry from "platform/sentry";
-import { GetCommunityGuidelinesRes } from "proto/resources_pb";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { service } from "service";
-import isGrpcError from "service/utils/isGrpcError";
-import { useIsMounted, useSafeState } from "utils/hooks";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import { communityGuidelinesQueryKey } from "@/features/queryKeys";
+import { useTranslation } from "@/i18n";
+import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import Sentry from "@/platform/sentry";
+import { GetCommunityGuidelinesRes } from "@/proto/resources_pb";
+import { service } from "@/service";
+import isGrpcError from "@/service/utils/isGrpcError";
+import { useIsMounted, useSafeState } from "@/utils/hooks";
 
 interface CommunityGuidelinesProps {
   onSubmit: (accept: boolean) => Promise<void>;

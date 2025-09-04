@@ -1,25 +1,26 @@
 import { DialogProps, styled } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
+import { RpcError } from "grpc-web";
+import { ComponentPropsWithRef, forwardRef, useState } from "react";
+import { useForm } from "react-hook-form";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-} from "components/Dialog";
-import Snackbar from "components/Snackbar";
-import StyledLink from "components/StyledLink";
-import TextField from "components/TextField";
-import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { ReportBugRes } from "proto/bugs_pb";
-import { ComponentPropsWithRef, forwardRef, useState } from "react";
-import { useForm } from "react-hook-form";
-import { helpCenterReportContentURL } from "routes";
-import { service } from "service";
-import { theme } from "theme";
+} from "@/components/Dialog";
+import Snackbar from "@/components/Snackbar";
+import StyledLink from "@/components/StyledLink";
+import TextField from "@/components/TextField";
+import { useTranslation } from "@/i18n";
+import { ReportBugRes } from "@/proto/bugs_pb";
+import { helpCenterReportContentURL } from "@/routes";
+import { service } from "@/service";
+import { theme } from "@/theme";
 
 export interface BugReportFormData {
   subject: string;

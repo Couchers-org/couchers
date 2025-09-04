@@ -1,12 +1,13 @@
-import { appGetLayout } from "components/AppRoute";
-import NotFoundPage from "features/NotFoundPage";
-import { ProfilePage as ProfilePageComponent } from "features/profile";
-import { GLOBAL, NOTIFICATIONS, PROFILE } from "i18n/namespaces";
 import { GetStaticPaths, GetStaticProps } from "next";
-import { useRouter } from "next/router";
 import nextI18nextConfig from "next-i18next.config";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { userTabs } from "routes";
+import { useRouter } from "next/router";
+
+import { appGetLayout } from "@/components/AppRoute";
+import NotFoundPage from "@/features/NotFoundPage";
+import { ProfilePage as ProfilePageComponent } from "@/features/profile";
+import { GLOBAL, NOTIFICATIONS, PROFILE } from "@/i18n/namespaces";
+import { userTabs } from "@/routes";
 
 export const getStaticPaths: GetStaticPaths = () => ({
   paths: [],

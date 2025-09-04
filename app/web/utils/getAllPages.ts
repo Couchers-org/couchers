@@ -1,4 +1,4 @@
-import { EndsWithList, ObjectWithListValue } from "utils/hasAtLeastOnePage";
+import { EndsWithList, ObjectWithListValue } from "@/utils/hasAtLeastOnePage";
 
 interface GetAllPagesParams<TData extends ObjectWithListValue<TData>, TParams> {
   serviceFunction: (params: TParams) => Promise<TData>;

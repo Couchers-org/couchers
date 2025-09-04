@@ -1,7 +1,5 @@
-import { Coordinates } from "features/search/utils/constants";
 import { LngLat } from "maplibre-gl";
 import { useRouter } from "next/router";
-import Sentry from "platform/sentry";
 import {
   Dispatch,
   MutableRefObject,
@@ -11,11 +9,14 @@ import {
   useRef,
   useState,
 } from "react";
+
+import { Coordinates } from "@/features/search/utils/constants";
+import Sentry from "@/platform/sentry";
 import {
-  filterDuplicatePlaces,
   NominatimPlace,
+  filterDuplicatePlaces,
   simplifyPlaceDisplayName,
-} from "utils/nominatim";
+} from "@/utils/nominatim";
 
 // Locations having one of these keys are considered non-regions.
 // https://nominatim.org/release-docs/latest/api/Output/#addressdetails
@@ -92,12 +93,12 @@ const useGeocodeQuery = () => {
       setIsLoading(true);
       setError(undefined);
       setResults(undefined);
-      const url = `${NOMINATIM_URL!}search?format=jsonv2&q=${encodeURIComponent(
+      const url = `${NOMINATIM_URL}search?format=jsonv2&q=${encodeURIComponent(
         value,
       )}&addressdetails=1`;
       const fetchOptions = {
         headers: {
-          Accept: "application/json",
+          accept: "application/json",
         },
         method: "GET",
       };

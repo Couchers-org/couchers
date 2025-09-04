@@ -1,20 +1,21 @@
 import {
   Skeleton,
-  styled,
   Tooltip,
   Typography,
+  styled,
   useMediaQuery,
 } from "@mui/material";
-import Avatar from "components/Avatar";
-import UserSummary from "components/UserSummary";
-import { useTranslation } from "i18n";
-import { MESSAGES } from "i18n/namespaces";
-import { LiteUser } from "proto/api_pb";
-import { HostRequest } from "proto/requests_pb";
-import { theme } from "theme";
-import { numNights } from "utils/date";
-import dayjs from "utils/dayjs";
-import truncateTextEllipsis from "utils/truncateTextEllipsis";
+
+import Avatar from "@/components/Avatar";
+import UserSummary from "@/components/UserSummary";
+import { useTranslation } from "@/i18n";
+import { MESSAGES } from "@/i18n/namespaces";
+import { LiteUser } from "@/proto/api_pb";
+import { HostRequest } from "@/proto/requests_pb";
+import { theme } from "@/theme";
+import { numNights } from "@/utils/date";
+import dayjs from "@/utils/dayjs";
+import truncateTextEllipsis from "@/utils/truncateTextEllipsis";
 
 const StyledRequestedDatesWrapper = styled("div")(({ theme }) => ({
   display: "flex",

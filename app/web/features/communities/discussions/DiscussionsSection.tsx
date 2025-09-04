@@ -1,17 +1,18 @@
 import { Link as MuiLink, styled } from "@mui/material";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import { EmailIcon } from "components/Icons";
-import TextBody from "components/TextBody";
-import { useListDiscussions } from "features/communities/hooks";
-import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
-import { Community } from "proto/communities_pb";
-import { composingDiscussionHash, routeToCommunity } from "routes";
-import { theme } from "theme";
-import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import { EmailIcon } from "@/components/Icons";
+import TextBody from "@/components/TextBody";
+import { useListDiscussions } from "@/features/communities/hooks";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES } from "@/i18n/namespaces";
+import { Community } from "@/proto/communities_pb";
+import { composingDiscussionHash, routeToCommunity } from "@/routes";
+import { theme } from "@/theme";
+import hasAtLeastOnePage from "@/utils/hasAtLeastOnePage";
 
 import { SectionTitle } from "../CommunityPage";
 import DiscussionCard from "./DiscussionCard";

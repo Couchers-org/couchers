@@ -2,8 +2,9 @@ import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persi
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { persistQueryClient } from "@tanstack/react-query-persist-client";
-import { reactQueryRetries } from "appConstants";
 import { useEffect } from "react";
+
+import { reactQueryRetries } from "@/appConstants";
 
 export const queryClient = new QueryClient({
   //grpc-web has built in timeout, so better not use the default exponential backoff

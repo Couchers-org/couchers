@@ -5,34 +5,35 @@ import {
   FormHelperText,
   InputLabel,
   Select,
-  styled,
   Typography,
+  styled,
 } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
+import { useRouter } from "next/router";
+import { useMemo, useState } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-} from "components/Dialog";
-import { FlagIcon } from "components/Icons";
-import Snackbar from "components/Snackbar";
-import TextField from "components/TextField";
-import { useBlockUser } from "features/connections/friends/hooks";
-import { useTranslation } from "i18n";
-import { GLOBAL } from "i18n/namespaces";
-import { useRouter } from "next/router";
-import { User } from "proto/api_pb";
-import { useMemo, useState } from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
-import { dashboardRoute } from "routes";
-import { service } from "service";
-import { BlockInput } from "service/blocking";
-import { ReportInput } from "service/reporting";
-import { theme } from "theme";
+} from "@/components/Dialog";
+import { FlagIcon } from "@/components/Icons";
+import Snackbar from "@/components/Snackbar";
+import TextField from "@/components/TextField";
+import { useBlockUser } from "@/features/connections/friends/hooks";
+import { useTranslation } from "@/i18n";
+import { GLOBAL } from "@/i18n/namespaces";
+import { User } from "@/proto/api_pb";
+import { dashboardRoute } from "@/routes";
+import { service } from "@/service";
+import { BlockInput } from "@/service/blocking";
+import { ReportInput } from "@/service/reporting";
+import { theme } from "@/theme";
 
 interface ProfileReportFlagButtonProps {
   contentRef: string;

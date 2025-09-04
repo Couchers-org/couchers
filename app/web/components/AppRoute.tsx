@@ -1,15 +1,16 @@
 import { Box, Container, GlobalStyles, useMediaQuery } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import CookieBanner from "components/CookieBanner";
-import ErrorBoundary from "components/ErrorBoundary";
-import Footer from "components/Footer";
-import { useAuthContext } from "features/auth/AuthProvider";
 import { useRouter } from "next/router";
-import { useIsNativeEmbed } from "platform/nativeLink";
 import { ReactNode, useEffect, useRef, useState } from "react";
-import { jailRoute, loginRoute } from "routes";
-import { theme } from "theme";
+
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import CookieBanner from "@/components/CookieBanner";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import Footer from "@/components/Footer";
+import { useAuthContext } from "@/features/auth/AuthProvider";
+import { useIsNativeEmbed } from "@/platform/nativeLink";
+import { jailRoute, loginRoute } from "@/routes";
+import { theme } from "@/theme";
 
 import Navigation from "./Navigation";
 

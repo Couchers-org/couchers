@@ -1,10 +1,11 @@
-import { Button, styled, Typography } from "@mui/material";
-import PageTitle from "components/PageTitle";
-import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
+import { Button, Typography, styled } from "@mui/material";
 import { useRouter } from "next/router";
-import { newEventRoute } from "routes";
-import { theme } from "theme";
+
+import PageTitle from "@/components/PageTitle";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
+import { newEventRoute } from "@/routes";
+import { theme } from "@/theme";
 
 import DiscoverEventsList from "../events/DiscoverEventsList";
 import MyEventsList from "./MyEventsList";

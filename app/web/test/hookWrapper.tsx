@@ -4,7 +4,8 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouterProvider } from "next-router-mock/MemoryRouterProvider";
 import React, { Suspense } from "react";
-import { theme } from "theme";
+
+import { theme } from "@/theme";
 
 import AuthProvider from "../features/auth/AuthProvider";
 

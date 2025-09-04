@@ -1,13 +1,14 @@
 import { TabContext } from "@mui/lab";
-import { Breadcrumbs, styled, Typography } from "@mui/material";
-import StyledLink from "components/StyledLink";
-import TabBar from "components/TabBar";
-import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
+import { Breadcrumbs, Typography, styled } from "@mui/material";
 import { useRouter } from "next/router";
-import { Community } from "proto/communities_pb";
-import { CommunityParent } from "proto/groups_pb";
-import { CommunityTab, routeToCommunity } from "routes";
+
+import StyledLink from "@/components/StyledLink";
+import TabBar from "@/components/TabBar";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES } from "@/i18n/namespaces";
+import { Community } from "@/proto/communities_pb";
+import { CommunityParent } from "@/proto/groups_pb";
+import { CommunityTab, routeToCommunity } from "@/routes";
 
 import JoinCommunityButton from "./JoinCommunityButton";
 

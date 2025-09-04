@@ -1,9 +1,10 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
-import { routeToNewEvent } from "routes";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
+
+import { routeToNewEvent } from "@/routes";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
 
 import EventsPage from "./EventsPage";
 

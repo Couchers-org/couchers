@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import Sentry from "platform/sentry";
+
+import Sentry from "@/platform/sentry";
 
 interface WeblateLanguage {
   code: string;

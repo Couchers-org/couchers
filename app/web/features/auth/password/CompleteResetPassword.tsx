@@ -1,21 +1,22 @@
-import { Container, styled, Typography } from "@mui/material";
+import { Container, Typography, styled } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import HtmlMeta from "components/HtmlMeta";
-import StyledLink from "components/StyledLink";
-import TextField from "components/TextField";
-import { useAuthContext } from "features/auth/AuthProvider";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
-import { loginRoute } from "routes";
-import { service } from "service";
-import { theme } from "theme";
-import stringOrFirstString from "utils/stringOrFirstString";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import HtmlMeta from "@/components/HtmlMeta";
+import StyledLink from "@/components/StyledLink";
+import TextField from "@/components/TextField";
+import { useAuthContext } from "@/features/auth/AuthProvider";
+import { useTranslation } from "@/i18n";
+import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import { loginRoute } from "@/routes";
+import { service } from "@/service";
+import { theme } from "@/theme";
+import stringOrFirstString from "@/utils/stringOrFirstString";
 
 const StyledContainer = styled(Container)(() => ({
   marginTop: theme.spacing(2),

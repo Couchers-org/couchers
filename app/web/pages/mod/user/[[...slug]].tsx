@@ -1,6 +1,11 @@
-import { appGetLayout } from "components/AppRoute";
-import UserPageComponent from "features/mod/ModUserPage";
-import NotFoundPage from "features/NotFoundPage";
+import { GetStaticPaths, GetStaticProps } from "next";
+import nextI18nextConfig from "next-i18next.config";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useRouter } from "next/router";
+
+import { appGetLayout } from "@/components/AppRoute";
+import NotFoundPage from "@/features/NotFoundPage";
+import UserPageComponent from "@/features/mod/ModUserPage";
 import {
   CONNECTIONS,
   DASHBOARD,
@@ -8,13 +13,9 @@ import {
   MOD,
   NOTIFICATIONS,
   PROFILE,
-} from "i18n/namespaces";
-import { GetStaticPaths, GetStaticProps } from "next";
-import { useRouter } from "next/router";
-import nextI18nextConfig from "next-i18next.config";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { userTabs } from "routes";
-import stringOrFirstString from "utils/stringOrFirstString";
+} from "@/i18n/namespaces";
+import { userTabs } from "@/routes";
+import stringOrFirstString from "@/utils/stringOrFirstString";
 
 export const getStaticPaths: GetStaticPaths = () => ({
   paths: [],

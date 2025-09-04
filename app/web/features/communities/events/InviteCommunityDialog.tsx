@@ -1,22 +1,23 @@
 import { DialogProps, Link as MuiLink } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { RpcError } from "grpc-web";
+import React from "react";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-} from "components/Dialog";
-import { eventKey } from "features/queryKeys";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
-import React from "react";
-import { howToInviteCommunityUrl } from "routes";
-import { service } from "service";
+} from "@/components/Dialog";
+import { eventKey } from "@/features/queryKeys";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
+import { howToInviteCommunityUrl } from "@/routes";
+import { service } from "@/service";
 
 export default function InviteCommunityDialog({
   eventId,

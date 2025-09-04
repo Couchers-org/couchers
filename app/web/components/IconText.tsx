@@ -1,8 +1,9 @@
-import { styled, Typography } from "@mui/material";
+import { Typography, styled } from "@mui/material";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
 import { SvgIconTypeMap } from "@mui/material/SvgIcon";
 import React, { ReactNode } from "react";
-import { theme } from "theme";
+
+import { theme } from "@/theme";
 
 const StyledWrapper = styled("div")(({ theme }) => ({
   alignItems: "center",

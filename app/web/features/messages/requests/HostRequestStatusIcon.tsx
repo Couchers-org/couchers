@@ -1,9 +1,10 @@
 import { Avatar, AvatarProps } from "@mui/material";
-import { CheckIcon, CrossIcon, QuestionIcon } from "components/Icons";
-import { HostRequestStatus } from "proto/conversations_pb";
-import { HostRequest } from "proto/requests_pb";
 import React from "react";
-import { theme } from "theme";
+
+import { CheckIcon, CrossIcon, QuestionIcon } from "@/components/Icons";
+import { HostRequestStatus } from "@/proto/conversations_pb";
+import { HostRequest } from "@/proto/requests_pb";
+import { theme } from "@/theme";
 
 interface HostRequestStatusIconProps extends AvatarProps {
   hostRequest: HostRequest.AsObject;

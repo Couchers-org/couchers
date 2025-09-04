@@ -2,12 +2,13 @@ import { useMutation } from "@tanstack/react-query";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { RpcError } from "grpc-web";
-import { Event } from "proto/events_pb";
-import events from "test/fixtures/events.json";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { server } from "test/restMock";
-import { assertErrorAlert, mockConsoleError } from "test/utils";
+
+import { Event } from "@/proto/events_pb";
+import events from "@/test/fixtures/events.json";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { server } from "@/test/restMock";
+import { assertErrorAlert, mockConsoleError } from "@/test/utils";
 
 import EventForm, { CreateEventVariables } from "./EventForm";
 

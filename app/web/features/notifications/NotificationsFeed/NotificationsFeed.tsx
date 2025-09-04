@@ -4,22 +4,23 @@ import {
   IconButton,
   Menu,
   MenuItem,
-  styled,
   Typography,
+  styled,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import Pill from "components/Pill";
-import { listNotificationsQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { ListNotificationsRes } from "proto/notifications_pb";
 import { useState } from "react";
-import { notificationSettingsRoute } from "routes";
-import { service } from "service";
-import { theme } from "theme";
+
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import Pill from "@/components/Pill";
+import { listNotificationsQueryKey } from "@/features/queryKeys";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, NOTIFICATIONS } from "@/i18n/namespaces";
+import { ListNotificationsRes } from "@/proto/notifications_pb";
+import { notificationSettingsRoute } from "@/routes";
+import { service } from "@/service";
+import { theme } from "@/theme";
 
 import {
   useMarkAllNotificationsSeen,

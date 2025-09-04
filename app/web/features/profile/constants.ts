@@ -1,12 +1,13 @@
 import { TFunction } from "i18next";
+
 import {
   HostingStatus,
   MeetupStatus,
   ParkingDetails,
   SleepingArrangement,
   SmokingLocation,
-} from "proto/api_pb";
-import { ReferenceType } from "proto/references_pb";
+} from "@/proto/api_pb";
+import { ReferenceType } from "@/proto/references_pb";
 
 export const referencesQueryStaleTime = 10 * 60 * 1000;
 export const contactLink = "mailto:support@couchers.org";

@@ -1,6 +1,7 @@
 import { FeatureCollection } from "geojson";
-import { SearchUser } from "proto/search_pb";
 import { MapRef } from "react-map-gl/maplibre";
+
+import { SearchUser } from "@/proto/search_pb";
 
 import userPin from "../resources/userPin.png";
 import { MapSearchState } from "../state/mapSearchReducers";

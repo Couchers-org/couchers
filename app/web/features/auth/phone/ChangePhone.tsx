@@ -1,27 +1,27 @@
-import "react-phone-number-input/style.css";
-
-import { styled, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Typography, styled, useMediaQuery, useTheme } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import StyledLink from "components/StyledLink";
-import TextField from "components/TextField";
-import { accountInfoQueryKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
-import { AUTH } from "i18n/namespaces";
 import luhn from "luhn";
 import { Trans, useTranslation } from "next-i18next";
-import { GetAccountInfoRes } from "proto/account_pb";
 import { useForm } from "react-hook-form";
 import {
   formatPhoneNumberIntl,
   isValidPhoneNumber,
 } from "react-phone-number-input";
 import PhoneInputWithCountry from "react-phone-number-input/react-hook-form";
-import { howToDonateUrl } from "routes";
-import { service } from "service";
-import { theme } from "theme";
+import "react-phone-number-input/style.css";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import StyledLink from "@/components/StyledLink";
+import TextField from "@/components/TextField";
+import { accountInfoQueryKey } from "@/features/queryKeys";
+import { AUTH } from "@/i18n/namespaces";
+import { GetAccountInfoRes } from "@/proto/account_pb";
+import { howToDonateUrl } from "@/routes";
+import { service } from "@/service";
+import { theme } from "@/theme";
 
 const StyledForm = styled("form")(() => ({
   marginBottom: theme.spacing(2),

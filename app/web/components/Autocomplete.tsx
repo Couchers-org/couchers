@@ -2,10 +2,11 @@ import {
   Autocomplete as MuiAutocomplete,
   AutocompleteProps as MuiAutocompleteProps,
 } from "@mui/material";
-import { SignupAccountInputs } from "features/auth/signup/AccountForm";
-import { EditProfileFormValues } from "features/profile/edit/EditProfile";
 import React from "react";
 import { ControllerRenderProps } from "react-hook-form";
+
+import { SignupAccountInputs } from "@/features/auth/signup/AccountForm";
+import { EditProfileFormValues } from "@/features/profile/edit/EditProfile";
 
 import TextField from "./TextField";
 

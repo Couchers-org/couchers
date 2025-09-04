@@ -5,13 +5,18 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { service } from "service";
-import community from "test/fixtures/community.json";
-import discussions from "test/fixtures/discussions.json";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { getLiteUser } from "test/serviceMockDefaults";
-import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
+
+import { service } from "@/service";
+import community from "@/test/fixtures/community.json";
+import discussions from "@/test/fixtures/discussions.json";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { getLiteUser } from "@/test/serviceMockDefaults";
+import {
+  MockedService,
+  assertErrorAlert,
+  mockConsoleError,
+} from "@/test/utils";
 
 import { DISCUSSION_CARD_TEST_ID } from "./DiscussionCard";
 import DiscussionsListPage from "./DiscussionsListPage";

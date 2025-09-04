@@ -1,9 +1,10 @@
 import { Typography } from "@mui/material";
-import Button from "components/Button";
-import { useTranslation } from "i18n";
-import { NOTIFICATIONS } from "i18n/namespaces";
 import Link from "next/link";
-import { notificationSettingsRoute } from "routes";
+
+import Button from "@/components/Button";
+import { useTranslation } from "@/i18n";
+import { NOTIFICATIONS } from "@/i18n/namespaces";
+import { notificationSettingsRoute } from "@/routes";
 
 export default function NotificationSettings() {
   const { t } = useTranslation([NOTIFICATIONS]);

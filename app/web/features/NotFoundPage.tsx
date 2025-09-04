@@ -1,12 +1,13 @@
-import { styled, Typography } from "@mui/material";
-import HtmlMeta from "components/HtmlMeta";
-import StyledLink from "components/StyledLink";
-import { useAuthContext } from "features/auth/AuthProvider";
-import { Trans, useTranslation } from "i18n";
-import { GLOBAL } from "i18n/namespaces";
+import { Typography, styled } from "@mui/material";
 import { useEffect, useState } from "react";
-import Graphic from "resources/404graphic.png";
-import { baseRoute, dashboardRoute } from "routes";
+
+import HtmlMeta from "@/components/HtmlMeta";
+import StyledLink from "@/components/StyledLink";
+import { useAuthContext } from "@/features/auth/AuthProvider";
+import { Trans, useTranslation } from "@/i18n";
+import { GLOBAL } from "@/i18n/namespaces";
+import Graphic from "@/resources/404graphic.png";
+import { baseRoute, dashboardRoute } from "@/routes";
 
 const StyledWrapper = styled("div")(({ theme }) => ({
   display: "flex",

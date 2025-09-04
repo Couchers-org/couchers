@@ -1,20 +1,21 @@
 import { TabContext, TabPanel } from "@mui/lab";
 import { Box, Button, Card, Link, styled } from "@mui/material";
-import HtmlMeta from "components/HtmlMeta";
-import IconButton from "components/IconButton";
-import { BackIcon, CouchIcon, PersonIcon } from "components/Icons";
-import PageTitle from "components/PageTitle";
-import TabBar from "components/TabBar";
 import { useRouter } from "next/router";
 import React from "react";
 import { useTranslation } from "react-i18next";
+
+import HtmlMeta from "@/components/HtmlMeta";
+import IconButton from "@/components/IconButton";
+import { BackIcon, CouchIcon, PersonIcon } from "@/components/Icons";
+import PageTitle from "@/components/PageTitle";
+import TabBar from "@/components/TabBar";
 import {
   EditUserTab,
   routeToEditProfile,
   routeToProfile,
   settingsRoute,
-} from "routes";
-import { theme } from "theme";
+} from "@/routes";
+import { theme } from "@/theme";
 
 import EditHostingPreference from "./EditHostingPreference";
 import EditProfile from "./EditProfile";

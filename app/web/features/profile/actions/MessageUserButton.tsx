@@ -1,13 +1,14 @@
 import { useMutation } from "@tanstack/react-query";
-import Button from "components/Button";
-import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
-import useAccountInfo from "features/auth/useAccountInfo";
-import { useTranslation } from "i18n";
-import { PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { User } from "proto/api_pb";
 import { useState } from "react";
-import { service } from "service";
+
+import Button from "@/components/Button";
+import ProfileIncompleteDialog from "@/components/ProfileIncompleteDialog/ProfileIncompleteDialog";
+import useAccountInfo from "@/features/auth/useAccountInfo";
+import { useTranslation } from "@/i18n";
+import { PROFILE } from "@/i18n/namespaces";
+import { User } from "@/proto/api_pb";
+import { service } from "@/service";
 
 import { routeToCreateMessage, routeToGroupChat } from "../../../routes";
 

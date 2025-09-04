@@ -3,21 +3,22 @@ import {
   CardContent,
   CardMedia,
   Chip,
-  styled,
   Typography,
+  styled,
 } from "@mui/material";
-import { eventImagePlaceholderUrl } from "appConstants";
-import Divider from "components/Divider";
-import FlagButton from "features/FlagButton";
-import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
-import { Event } from "proto/events_pb";
 import { useMemo } from "react";
-import { routeToEvent } from "routes";
-import { timestamp2Date } from "utils/date";
-import dayjs from "utils/dayjs";
-import stripMarkdown from "utils/stripMarkdown";
+
+import { eventImagePlaceholderUrl } from "@/appConstants";
+import Divider from "@/components/Divider";
+import FlagButton from "@/features/FlagButton";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES } from "@/i18n/namespaces";
+import { Event } from "@/proto/events_pb";
+import { routeToEvent } from "@/routes";
+import { timestamp2Date } from "@/utils/date";
+import dayjs from "@/utils/dayjs";
+import stripMarkdown from "@/utils/stripMarkdown";
 
 const StyledCard = styled(Card, {
   shouldForwardProp: (prop) => prop !== "isCancelled",

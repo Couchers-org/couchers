@@ -1,10 +1,15 @@
 import { render, renderHook, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { StatusCode } from "grpc-web";
-import { service } from "service";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
+
+import { service } from "@/service";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import {
+  MockedService,
+  assertErrorAlert,
+  mockConsoleError,
+} from "@/test/utils";
 
 import { useAuthContext } from "../AuthProvider";
 import BasicForm from "./BasicForm";

@@ -1,5 +1,5 @@
-import { BugReportFormData } from "components/Navigation/ReportDialog";
-import { ReportBugReq, ScreenResolution } from "proto/bugs_pb";
+import { BugReportFormData } from "@/components/Navigation/ReportDialog";
+import { ReportBugReq, ScreenResolution } from "@/proto/bugs_pb";
 
 import client from "./client";
 

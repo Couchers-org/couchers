@@ -1,5 +1,5 @@
-import Sentry from "platform/sentry";
-import { service } from "service";
+import Sentry from "@/platform/sentry";
+import { service } from "@/service";
 
 export async function doAntibot(action: string) {
   if (!process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {

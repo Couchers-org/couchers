@@ -8,11 +8,12 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mediaQuery from "css-mediaquery";
-import { helpCenterReportContentURL } from "routes";
-import { service } from "service";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { MockedService, wait } from "test/utils";
+
+import { helpCenterReportContentURL } from "@/routes";
+import { service } from "@/service";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { MockedService, wait } from "@/test/utils";
 
 import ReportButton from "./ReportButton";
 

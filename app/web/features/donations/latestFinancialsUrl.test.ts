@@ -1,4 +1,4 @@
-import { latestFinancialsURL } from "routes";
+import { latestFinancialsURL } from "@/routes";
 
 describe("Latest financials URL", () => {
   it("should end with valid year digits", () => {

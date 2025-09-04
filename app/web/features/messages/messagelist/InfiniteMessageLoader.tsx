@@ -1,8 +1,4 @@
 import { styled } from "@mui/material";
-import CircularProgress from "components/CircularProgress";
-import { useAuthContext } from "features/auth/AuthProvider";
-import { messageElementId } from "features/messages/messagelist/MessageView";
-import { Message } from "proto/conversations_pb";
 import {
   ReactNode,
   useCallback,
@@ -10,8 +6,13 @@ import {
   useLayoutEffect,
   useRef,
 } from "react";
-import { theme } from "theme";
-import useOnVisibleEffect from "utils/useOnVisibleEffect";
+
+import CircularProgress from "@/components/CircularProgress";
+import { useAuthContext } from "@/features/auth/AuthProvider";
+import { messageElementId } from "@/features/messages/messagelist/MessageView";
+import { Message } from "@/proto/conversations_pb";
+import { theme } from "@/theme";
+import useOnVisibleEffect from "@/utils/useOnVisibleEffect";
 
 const StyledWrapper = styled("div")(() => ({
   position: "relative",

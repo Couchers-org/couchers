@@ -2,11 +2,12 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
-import { loginRoute } from "routes";
-import { service } from "service";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { MockedService } from "test/utils";
+
+import { loginRoute } from "@/routes";
+import { service } from "@/service";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { MockedService } from "@/test/utils";
 
 import ConfirmChangeEmail from "./ConfirmChangeEmail";
 

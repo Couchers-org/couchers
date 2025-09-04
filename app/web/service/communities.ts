@@ -11,7 +11,7 @@ import {
   ListNearbyUsersReq,
   ListPlacesReq,
   ListUserCommunitiesReq,
-} from "proto/communities_pb";
+} from "@/proto/communities_pb";
 
 import client from "./client";
 

@@ -1,14 +1,15 @@
 import { styled } from "@mui/material";
 import Slider from "@mui/material/Slider";
+
+import SliderLabel from "@/components/RatingsSlider/SliderLabel";
 import {
   AMAZING,
   NEGATIVE,
   NEUTRAL,
   POSITIVE,
   RATINGS_SLIDER,
-} from "components/RatingsSlider/constants";
-import { getSliderColor } from "components/RatingsSlider/getSliderColor";
-import SliderLabel from "components/RatingsSlider/SliderLabel";
+} from "@/components/RatingsSlider/constants";
+import { getSliderColor } from "@/components/RatingsSlider/getSliderColor";
 
 interface ColorProps {
   sliderColor: string;

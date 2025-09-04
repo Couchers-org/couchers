@@ -1,13 +1,14 @@
-import { appGetLayout } from "components/AppRoute";
-import PagePageComponent from "features/communities/PagePage";
-import NotFoundPage from "features/NotFoundPage";
-import { GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { GetStaticPaths, GetStaticProps } from "next";
-import { useRouter } from "next/router";
 import nextI18NextConfig from "next-i18next.config";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { PageType } from "proto/pages_pb";
-import stringOrFirstString from "utils/stringOrFirstString";
+import { useRouter } from "next/router";
+
+import { appGetLayout } from "@/components/AppRoute";
+import NotFoundPage from "@/features/NotFoundPage";
+import PagePageComponent from "@/features/communities/PagePage";
+import { GLOBAL, NOTIFICATIONS } from "@/i18n/namespaces";
+import { PageType } from "@/proto/pages_pb";
+import stringOrFirstString from "@/utils/stringOrFirstString";
 
 export const getStaticPaths: GetStaticPaths = () => ({
   paths: [],

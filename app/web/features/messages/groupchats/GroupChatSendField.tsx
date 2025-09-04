@@ -1,15 +1,16 @@
 import { ButtonProps, styled } from "@mui/material";
 import { UseMutationResult } from "@tanstack/react-query";
-import Button from "components/Button";
-import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import { usePersistedState } from "platform/usePersistedState";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { theme } from "theme";
+
+import Button from "@/components/Button";
+import TextField from "@/components/TextField";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
+import { usePersistedState } from "@/platform/usePersistedState";
+import { theme } from "@/theme";
 
 interface MessageFormData {
   text: string;

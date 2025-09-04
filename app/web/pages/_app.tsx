@@ -1,6 +1,3 @@
-import "intersection-observer";
-import "./main.css";
-
 import {
   CssBaseline,
   StyledEngineProvider,
@@ -8,18 +5,22 @@ import {
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { EnvironmentBanner } from "components/EnvironmentBanner";
-import ErrorBoundary from "components/ErrorBoundary";
-import HtmlMeta from "components/HtmlMeta";
-import AuthProvider from "features/auth/AuthProvider";
-import { ReactQueryClientProvider } from "features/reactQueryClient";
-import type { AppProps } from "next/app";
+import "intersection-observer";
 import { appWithTranslation } from "next-i18next";
 import nextI18nextConfig from "next-i18next.config";
+import type { AppProps } from "next/app";
 import React, { ReactNode, useEffect } from "react";
 import TagManager from "react-gtm-module";
 import { polyfill } from "seamless-scroll-polyfill";
-import { theme } from "theme";
+
+import { EnvironmentBanner } from "@/components/EnvironmentBanner";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import HtmlMeta from "@/components/HtmlMeta";
+import AuthProvider from "@/features/auth/AuthProvider";
+import { ReactQueryClientProvider } from "@/features/reactQueryClient";
+import { theme } from "@/theme";
+
+import "./main.css";
 
 type AppWithLayoutProps = Omit<AppProps, "Component"> & {
   Component: AppProps["Component"] & {

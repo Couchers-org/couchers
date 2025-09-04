@@ -1,17 +1,18 @@
 import { Collapse, styled } from "@mui/material";
-import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import HtmlMeta from "components/HtmlMeta";
-import Snackbar from "components/Snackbar";
-import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
-import NewHostRequest from "features/profile/view/NewHostRequest";
-import Overview from "features/profile/view/Overview";
-import useUserByUsername from "features/userQueries/useUserByUsername";
-import { useTranslation } from "i18n";
-import { PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useLayoutEffect, useState } from "react";
-import { routeToUser, UserTab } from "routes";
+
+import Alert from "@/components/Alert";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import HtmlMeta from "@/components/HtmlMeta";
+import Snackbar from "@/components/Snackbar";
+import { ProfileUserProvider } from "@/features/profile/hooks/useProfileUser";
+import NewHostRequest from "@/features/profile/view/NewHostRequest";
+import Overview from "@/features/profile/view/Overview";
+import useUserByUsername from "@/features/userQueries/useUserByUsername";
+import { useTranslation } from "@/i18n";
+import { PROFILE } from "@/i18n/namespaces";
+import { UserTab, routeToUser } from "@/routes";
 
 import UserCard from "./UserCard";
 

@@ -1,44 +1,45 @@
 import {
   Card,
   Chip,
-  darken,
   Link as MuiLink,
-  styled,
   Typography,
+  darken,
+  styled,
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { eventImagePlaceholderUrl } from "appConstants";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import HeaderButton from "components/HeaderButton";
-import HtmlMeta from "components/HtmlMeta";
-import { BackIcon, CalendarIcon } from "components/Icons";
-import Markdown from "components/Markdown";
-import Snackbar from "components/Snackbar";
-import EventAttendees from "features/communities/events/EventAttendees";
-import NotFoundPage from "features/NotFoundPage";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { AttendanceState, Event } from "proto/events_pb";
 import { useEffect, useState } from "react";
-import { routeToEditEvent, routeToEvent } from "routes";
-import { service } from "service";
-import { theme } from "theme";
-import { timestamp2Date } from "utils/date";
-import dayjs from "utils/dayjs";
+
+import { eventImagePlaceholderUrl } from "@/appConstants";
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import HeaderButton from "@/components/HeaderButton";
+import HtmlMeta from "@/components/HtmlMeta";
+import { BackIcon, CalendarIcon } from "@/components/Icons";
+import Markdown from "@/components/Markdown";
+import Snackbar from "@/components/Snackbar";
+import NotFoundPage from "@/features/NotFoundPage";
+import EventAttendees from "@/features/communities/events/EventAttendees";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES } from "@/i18n/namespaces";
+import { AttendanceState, Event } from "@/proto/events_pb";
+import { routeToEditEvent, routeToEvent } from "@/routes";
+import { service } from "@/service";
+import { theme } from "@/theme";
+import { timestamp2Date } from "@/utils/date";
+import dayjs from "@/utils/dayjs";
 
 import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
 import CommentTree from "../discussions/CommentTree";
 import AttendanceMenu from "./AttendanceMenu";
 import CancelEventDialog from "./CancelEventDialog";
 import EventOrganizers from "./EventOrganizers";
-import { useEvent } from "./hooks";
 import InviteCommunityDialog from "./InviteCommunityDialog";
+import { useEvent } from "./hooks";
 
 const StyledHeader = styled("div")(() => ({
   alignItems: "center",

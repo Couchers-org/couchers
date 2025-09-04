@@ -1,23 +1,24 @@
 import { useMutation } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import { doAntibot } from "features/antibot/antibot";
-import { useAuthContext } from "features/auth/AuthProvider";
+import { RpcError } from "grpc-web";
+import { useRef } from "react";
+import { useForm } from "react-hook-form";
+
+import Alert from "@/components/Alert";
+import { doAntibot } from "@/features/antibot/antibot";
+import { useAuthContext } from "@/features/auth/AuthProvider";
 import {
   StyledButton,
   StyledInputLabel,
   StyledTextField,
-} from "features/auth/useAuthStyles";
-import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { AUTH, GLOBAL } from "i18n/namespaces";
-import { useRef } from "react";
-import { useForm } from "react-hook-form";
-import { service } from "service";
+} from "@/features/auth/useAuthStyles";
+import { useTranslation } from "@/i18n";
+import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import { service } from "@/service";
 import {
-  emailValidationPattern,
+  EMAIL_VALIDATION_PATTERN,
+  NAME_VALIDATION_PATTERN,
   lowercaseAndTrimField,
-  nameValidationPattern,
-} from "utils/validation";
+} from "@/utils/validation";
 
 type SignupBasicInputs = {
   name: string;
@@ -87,7 +88,7 @@ export default function BasicForm({
           {...register("name", {
             pattern: {
               message: t("auth:basic_form.name.empty_error"),
-              value: nameValidationPattern,
+              value: NAME_VALIDATION_PATTERN,
             },
             required: t("auth:basic_form.name.required_error"),
           })}
@@ -111,7 +112,7 @@ export default function BasicForm({
           {...register("email", {
             pattern: {
               message: t("auth:basic_form.email.empty_error"),
-              value: emailValidationPattern,
+              value: EMAIL_VALIDATION_PATTERN,
             },
             required: t("auth:basic_form.email.required_error"),
           })}

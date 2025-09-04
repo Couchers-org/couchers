@@ -1,12 +1,13 @@
-import Button from "components/Button";
+import { useTranslation } from "react-i18next";
+
+import Button from "@/components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "components/Dialog";
-import { GLOBAL } from "i18n/namespaces";
-import { useTranslation } from "react-i18next";
+} from "@/components/Dialog";
+import { GLOBAL } from "@/i18n/namespaces";
 
 interface ConnectionActionDialogProps {
   dialogConfirm: string;

@@ -1,11 +1,12 @@
 import { LngLatLike } from "maplibre-gl";
-import { GeocodeResult } from "utils/hooks";
+
+import { GeocodeResult } from "@/utils/hooks";
 
 import { FilterOptions } from "../SearchPage";
 import { useMapSearchDispatch } from "../state/mapSearchContext";
 import {
-  mapSearchActionTypes,
   MapSearchState,
+  mapSearchActionTypes,
 } from "../state/mapSearchReducers";
 import { Coordinates } from "../utils/constants";
 

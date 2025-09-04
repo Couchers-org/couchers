@@ -1,5 +1,6 @@
 import { glob } from "glob";
-import { allLanguages } from "i18n/allLanguages";
+
+import { allLanguages } from "@/i18n/allLanguages";
 
 export function getAllMarkdownFiles(): Array<string> {
   return glob.sync("markdown/**/*.md");

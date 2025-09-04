@@ -1,7 +1,8 @@
 import { render, screen } from "@testing-library/react";
-import events from "test/fixtures/events.json";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
+
+import events from "@/test/fixtures/events.json";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
 
 import EventCard from "./EventCard";
 

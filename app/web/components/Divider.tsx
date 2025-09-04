@@ -1,6 +1,7 @@
 import { Divider as MuiDivider, SxProps } from "@mui/material";
 import React from "react";
-import { theme } from "theme";
+
+import { theme } from "@/theme";
 
 export interface DividerProps {
   className?: string;

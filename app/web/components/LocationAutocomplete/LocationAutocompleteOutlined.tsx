@@ -1,37 +1,38 @@
 import { Clear } from "@mui/icons-material";
 import {
-  alpha,
   Autocomplete,
   AutocompleteChangeReason,
   InputAdornment,
   InputProps,
+  alpha,
   styled,
 } from "@mui/material";
-import IconButton from "components/IconButton";
-import { SearchIcon } from "components/Icons";
-import TextField from "components/TextField";
-import { useTranslation } from "i18n";
-import { GLOBAL } from "i18n/namespaces";
-import { forwardRef, SyntheticEvent, useEffect, useState } from "react";
-import { theme } from "theme";
-import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
+import { SyntheticEvent, forwardRef, useEffect, useState } from "react";
+
+import IconButton from "@/components/IconButton";
+import { SearchIcon } from "@/components/Icons";
+import TextField from "@/components/TextField";
+import { useTranslation } from "@/i18n";
+import { GLOBAL } from "@/i18n/namespaces";
+import { theme } from "@/theme";
+import { GeocodeResult, useGeocodeQuery } from "@/utils/hooks";
 
 interface LocationAutocompleteOutlinedProps {
   className?: string;
   defaultValue?: string;
   disableRegions?: boolean;
   fieldError?: string | undefined;
-  fullWidth?: boolean;
+  isFullWidth?: boolean;
   hasSearchValue?: boolean;
   id?: string;
-  InputProps?: InputProps;
+  inputProps?: InputProps;
   label?: string;
   name: string;
   onChange: (value: GeocodeResult | undefined) => void;
   onClear?: () => void;
   placeholder?: string;
   required?: string;
-  showFullDisplayName?: boolean;
+  shouldShowFullDisplayName?: boolean;
 }
 
 const IconWrapper = styled("div")({
@@ -61,15 +62,15 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     className,
     defaultValue = "",
     fieldError,
-    fullWidth,
+    isFullWidth,
     hasSearchValue,
     id = "location-autocomplete-outlined",
-    InputProps,
+    inputProps,
     label,
     onChange,
     onClear,
     placeholder,
-    showFullDisplayName = false,
+    shouldShowFullDisplayName = false,
   } = props;
   const { t } = useTranslation([GLOBAL]);
 
@@ -92,7 +93,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
   }, [hasSearchValue]);
 
   const handleChange = (
-    event: SyntheticEvent<Element, Event>,
+    _event: SyntheticEvent<Element, Event>,
     newValue: NonNullable<string | GeocodeResult> | null,
     reason: AutocompleteChangeReason,
   ) => {
@@ -103,12 +104,12 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
   };
 
   const handleSearchSubmit = () => {
-    query(inputValue);
+    void query(inputValue);
     setIsOpen(true);
   };
 
   const handleInputChange = (
-    event: React.SyntheticEvent<Element, Event>,
+    _event: React.SyntheticEvent<Element, Event>,
     newValue: string,
   ) => {
     if (inputValue !== newValue) {
@@ -138,34 +139,36 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
           {...params}
           label={label}
           error={!!fieldError || !!geocodeError}
-          fullWidth={fullWidth}
+          fullWidth={isFullWidth}
           variant="outlined"
           placeholder={placeholder}
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: (
-              <>
-                {params.InputProps.endAdornment}
-                <InputAdornment
-                  position="end"
-                  sx={{
-                    marginRight: inputValue === "" ? theme.spacing(1) : 0,
-                  }}
-                >
-                  <IconButton
-                    aria-label={t(
-                      "location_autocomplete.search_location_button",
-                    )}
-                    onClick={handleSearchSubmit}
-                    size="small"
-                    sx={{ marginRight: theme.spacing(1) }}
+          slotProps={{
+            input: {
+              ...params.InputProps,
+              endAdornment: (
+                <>
+                  {params.InputProps.endAdornment}
+                  <InputAdornment
+                    position="end"
+                    sx={{
+                      marginRight: inputValue === "" ? theme.spacing(1) : 0,
+                    }}
                   >
-                    <SearchIcon />
-                  </IconButton>
-                  {InputProps?.endAdornment}
-                </InputAdornment>
-              </>
-            ),
+                    <IconButton
+                      aria-label={t(
+                        "location_autocomplete.search_location_button",
+                      )}
+                      onClick={handleSearchSubmit}
+                      size="small"
+                      sx={{ marginRight: theme.spacing(1) }}
+                    >
+                      <SearchIcon />
+                    </IconButton>
+                    {inputProps?.endAdornment}
+                  </InputAdornment>
+                </>
+              ),
+            },
           }}
         />
       )}
@@ -174,7 +177,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
       open={isOpen}
       onClose={() => setIsOpen(false)}
       getOptionLabel={(option) => {
-        return geocodeResult2String(option, showFullDisplayName);
+        return geocodeResult2String(option, shouldShowFullDisplayName);
       }}
       onChange={handleChange}
       onInputChange={handleInputChange}

@@ -5,20 +5,21 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { RpcError } from "grpc-web";
+
 import {
+  ReferencesReceivedKeyInputs,
   availableWriteReferencesKey,
   referencesGivenKey,
   referencesReceivedBaseKey,
-  ReferencesReceivedKeyInputs,
-} from "features/queryKeys";
-import { RpcError } from "grpc-web";
-import { User } from "proto/api_pb";
-import { ListReferencesRes, Reference } from "proto/references_pb";
-import { service } from "service";
+} from "@/features/queryKeys";
+import { User } from "@/proto/api_pb";
+import { ListReferencesRes, Reference } from "@/proto/references_pb";
+import { service } from "@/service";
 import {
   WriteFriendReferenceInput,
   WriteHostRequestReferenceInput,
-} from "service/references";
+} from "@/service/references";
 
 import type { ReferenceTypeState } from "../view/References";
 import type { ListReferencesInfiniteQueryResult } from "../view/ReferencesView";

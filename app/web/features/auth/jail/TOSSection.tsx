@@ -1,10 +1,11 @@
 import { Typography } from "@mui/material";
-import Button from "components/Button";
-import TOSLink from "components/TOSLink";
-import { Trans, useTranslation } from "i18n";
-import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
-import { service } from "service";
+
+import Button from "@/components/Button";
+import TOSLink from "@/components/TOSLink";
+import { Trans, useTranslation } from "@/i18n";
+import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import { service } from "@/service";
 
 interface TOSSectionProps {
   updateJailed: () => void;

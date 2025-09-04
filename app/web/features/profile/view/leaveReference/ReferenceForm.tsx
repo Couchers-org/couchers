@@ -1,12 +1,13 @@
 import { Alert } from "@mui/material";
-import Redirect from "components/Redirect";
-import PrivateFeedback from "features/profile/view/leaveReference/formSteps/PrivateFeedback";
-import SubmitReference from "features/profile/view/leaveReference/formSteps/submit/SubmitReference";
-import Text from "features/profile/view/leaveReference/formSteps/Text";
-import { useTranslation } from "i18n";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useState } from "react";
-import { leaveReferenceBaseRoute, ReferenceStep } from "routes";
+
+import Redirect from "@/components/Redirect";
+import PrivateFeedback from "@/features/profile/view/leaveReference/formSteps/PrivateFeedback";
+import Text from "@/features/profile/view/leaveReference/formSteps/Text";
+import SubmitReference from "@/features/profile/view/leaveReference/formSteps/submit/SubmitReference";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, PROFILE } from "@/i18n/namespaces";
+import { ReferenceStep, leaveReferenceBaseRoute } from "@/routes";
 
 import DidStay from "./formSteps/DidStay";
 import ThankYouReference from "./formSteps/submit/ThankYouReference";

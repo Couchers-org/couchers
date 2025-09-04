@@ -1,5 +1,6 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { BlockUserReq } from "proto/blocking_pb";
+
+import { BlockUserReq } from "@/proto/blocking_pb";
 
 import client from "./client";
 

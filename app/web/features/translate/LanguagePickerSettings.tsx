@@ -1,9 +1,10 @@
 import { Link, Typography } from "@mui/material";
-import { useTranslation } from "i18n";
-import { LANGUAGE_MAP } from "i18n/constants";
-import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { translateJobURL, translateRoute } from "routes";
+
+import { useTranslation } from "@/i18n";
+import { LANGUAGE_MAP } from "@/i18n/constants";
+import { GLOBAL } from "@/i18n/namespaces";
+import { translateJobURL, translateRoute } from "@/routes";
 
 import Button from "../../components/Button";
 import LanguagePickerSelect from "./LanguagePickerSelect";

@@ -1,8 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
-import { notificationSettingsQueryKey } from "features/queryKeys";
 import { RpcError, StatusCode } from "grpc-web";
-import { service } from "service";
+
+import { notificationSettingsQueryKey } from "@/features/queryKeys";
+import { service } from "@/service";
 
 import useUpdateNotificationSettings from "./useUpdateNotificationSettings";
 

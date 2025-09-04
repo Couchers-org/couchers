@@ -1,20 +1,21 @@
 import { Backdrop, styled } from "@mui/material";
-import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import HtmlMeta from "components/HtmlMeta";
-import PageTitle from "components/PageTitle";
-import Redirect from "components/Redirect";
-import TextBody from "components/TextBody";
-import { useAuthContext } from "features/auth/AuthProvider";
-import CommunityGuidelinesSection from "features/auth/jail/CommunityGuidelinesSection";
-import LocationSection from "features/auth/jail/LocationSection";
-import TOSSection from "features/auth/jail/TOSSection";
-import { useTranslation } from "i18n";
-import { AUTH } from "i18n/namespaces";
-import { JailInfoRes } from "proto/jail_pb";
 import React, { useEffect, useState } from "react";
-import { loginRoute } from "routes";
-import { service } from "service";
+
+import Alert from "@/components/Alert";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import HtmlMeta from "@/components/HtmlMeta";
+import PageTitle from "@/components/PageTitle";
+import Redirect from "@/components/Redirect";
+import TextBody from "@/components/TextBody";
+import { useAuthContext } from "@/features/auth/AuthProvider";
+import CommunityGuidelinesSection from "@/features/auth/jail/CommunityGuidelinesSection";
+import LocationSection from "@/features/auth/jail/LocationSection";
+import TOSSection from "@/features/auth/jail/TOSSection";
+import { useTranslation } from "@/i18n";
+import { AUTH } from "@/i18n/namespaces";
+import { JailInfoRes } from "@/proto/jail_pb";
+import { loginRoute } from "@/routes";
+import { service } from "@/service";
 
 import ActivenessProbeSection from "./ActivenessProbeSection";
 import ModNoteSection from "./ModNoteSection";

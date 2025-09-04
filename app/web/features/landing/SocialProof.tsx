@@ -1,11 +1,12 @@
 import { Favorite, Language, Star } from "@mui/icons-material";
 import { Box, Skeleton, Typography, useMediaQuery } from "@mui/material";
-import Divider from "components/Divider";
-import { useTranslation } from "i18n";
-import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useEffect, useState } from "react";
-import { theme } from "theme";
-import { timeAgoI18n } from "utils/timeAgo";
+
+import Divider from "@/components/Divider";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, LANDING } from "@/i18n/namespaces";
+import { theme } from "@/theme";
+import { timeAgoI18n } from "@/utils/timeAgo";
 
 export interface SignupInfo {
   userCount: string;

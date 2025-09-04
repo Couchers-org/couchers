@@ -1,14 +1,15 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import MessageUserButton from "features/profile/actions/MessageUserButton";
 import mockRouter from "next-router-mock";
 import React from "react";
-import { routeToCreateMessage, routeToGroupChat } from "routes";
-import { service } from "service";
-import users from "test/fixtures/users.json";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { MockedService } from "test/utils";
+
+import MessageUserButton from "@/features/profile/actions/MessageUserButton";
+import { routeToCreateMessage, routeToGroupChat } from "@/routes";
+import { service } from "@/service";
+import users from "@/test/fixtures/users.json";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { MockedService } from "@/test/utils";
 
 const { t } = i18n;
 

@@ -1,17 +1,18 @@
 import { Typography } from "@mui/material";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import EditLocationMap, {
-  ApproximateLocation,
-} from "components/EditLocationMap";
-import TextBody from "components/TextBody";
-import { useTranslation } from "i18n";
-import { AUTH, GLOBAL } from "i18n/namespaces";
-import Sentry from "platform/sentry";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { service } from "service";
-import isGrpcError from "service/utils/isGrpcError";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import EditLocationMap, {
+  ApproximateLocation,
+} from "@/components/EditLocationMap";
+import TextBody from "@/components/TextBody";
+import { useTranslation } from "@/i18n";
+import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import Sentry from "@/platform/sentry";
+import { service } from "@/service";
+import isGrpcError from "@/service/utils/isGrpcError";
 
 interface LocationInfo {
   location: ApproximateLocation;

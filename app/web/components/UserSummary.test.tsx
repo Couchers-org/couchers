@@ -1,9 +1,10 @@
 import { Add } from "@mui/icons-material";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import UserSummary from "components/UserSummary";
-import users from "test/fixtures/users.json";
-import wrapper from "test/hookWrapper";
+
+import UserSummary from "@/components/UserSummary";
+import users from "@/test/fixtures/users.json";
+import wrapper from "@/test/hookWrapper";
 
 describe("UserSummary", () => {
   it("shouldn't render menu icon when no options set", async () => {

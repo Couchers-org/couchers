@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { pingInterval } from "appConstants";
-import { useAuthContext } from "features/auth/AuthProvider";
 import { RpcError } from "grpc-web";
-import { service } from "service";
+
+import { pingInterval } from "@/appConstants";
+import { useAuthContext } from "@/features/auth/AuthProvider";
+import { service } from "@/service";
 
 import { PingRes } from "../proto/api_pb";
 

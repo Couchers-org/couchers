@@ -1,14 +1,15 @@
-import { styled, Typography } from "@mui/material";
-import Actions from "components/Actions";
-import Button from "components/Button";
-import ReportButton from "components/Navigation/ReportButton";
-import PageTitle from "components/PageTitle";
-import { GLOBAL } from "i18n/namespaces";
+import { Typography, styled } from "@mui/material";
+import { useTranslation } from "next-i18next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
-import { baseRoute } from "routes";
-import { theme } from "theme";
+
+import Actions from "@/components/Actions";
+import Button from "@/components/Button";
+import ReportButton from "@/components/Navigation/ReportButton";
+import PageTitle from "@/components/PageTitle";
+import { GLOBAL } from "@/i18n/namespaces";
+import { baseRoute } from "@/routes";
+import { theme } from "@/theme";
 
 const StyledReportButton = styled(ReportButton)(({ theme }) => ({
   marginTop: theme.spacing(2),

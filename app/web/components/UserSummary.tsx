@@ -6,14 +6,15 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/system";
-import Avatar from "components/Avatar";
-import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
-import { OpenInNewIcon } from "components/Icons";
-import StyledLink from "components/StyledLink";
-import { LiteUser } from "proto/api_pb";
-import { BlockedUser } from "proto/blocking_pb";
 import React, { useState } from "react";
-import { routeToUser } from "routes";
+
+import Avatar from "@/components/Avatar";
+import EllipsisMenu, { EllipsisMenuItem } from "@/components/EllipsisMenu";
+import { OpenInNewIcon } from "@/components/Icons";
+import StyledLink from "@/components/StyledLink";
+import { LiteUser } from "@/proto/api_pb";
+import { BlockedUser } from "@/proto/blocking_pb";
+import { routeToUser } from "@/routes";
 
 import StrongVerificationBadge from "./StrongVerificationBadge";
 

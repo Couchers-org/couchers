@@ -1,32 +1,33 @@
 import { NotificationsOutlined } from "@mui/icons-material";
 import {
   Badge,
-  styled,
   Tooltip,
   Typography,
+  styled,
   useMediaQuery,
 } from "@mui/material";
 import MuiLink from "@mui/material/Link";
-import Avatar from "components/Avatar";
-import Button from "components/Button";
-import IconButton from "components/IconButton";
-import { MenuIcon } from "components/Icons";
-import Menu, { MenuItem } from "components/Menu";
-import NotificationBadge from "components/NotificationBadge";
-import NotificationsFeed from "features/notifications/NotificationsFeed/NotificationsFeed";
-import LanguagePickerSelect from "features/translate/LanguagePickerSelect";
-import useCurrentUser from "features/userQueries/useCurrentUser";
-import { useTranslation } from "i18n";
-import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
-import { PingRes } from "proto/api_pb";
 import React, {
   Dispatch,
   FunctionComponent,
   SetStateAction,
   useState,
 } from "react";
-import { theme } from "theme";
+
+import Avatar from "@/components/Avatar";
+import Button from "@/components/Button";
+import IconButton from "@/components/IconButton";
+import { MenuIcon } from "@/components/Icons";
+import Menu, { MenuItem } from "@/components/Menu";
+import NotificationBadge from "@/components/NotificationBadge";
+import NotificationsFeed from "@/features/notifications/NotificationsFeed/NotificationsFeed";
+import LanguagePickerSelect from "@/features/translate/LanguagePickerSelect";
+import useCurrentUser from "@/features/userQueries/useCurrentUser";
+import { useTranslation } from "@/i18n";
+import { GLOBAL } from "@/i18n/namespaces";
+import { PingRes } from "@/proto/api_pb";
+import { theme } from "@/theme";
 
 import { AccessibleDialogProps } from "../Dialog";
 

@@ -1,8 +1,9 @@
+import { useCallback, useState } from "react";
+
 import {
   clearState as nativeLinkClearState,
   sendState,
-} from "platform/nativeLink";
-import { useCallback, useState } from "react";
+} from "@/platform/nativeLink";
 
 type StorageType = "localStorage" | "sessionStorage";
 

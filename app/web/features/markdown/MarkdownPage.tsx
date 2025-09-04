@@ -2,13 +2,14 @@ import {
   Breadcrumbs,
   Container,
   Link,
-  styled,
   Typography,
   TypographyProps,
+  styled,
 } from "@mui/material";
-import HtmlMeta from "components/HtmlMeta";
 import markdown from "markdown-it";
-import { theme } from "theme";
+
+import HtmlMeta from "@/components/HtmlMeta";
+import { theme } from "@/theme";
 
 const mkd = new markdown();
 

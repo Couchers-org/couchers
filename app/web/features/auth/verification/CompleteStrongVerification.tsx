@@ -1,12 +1,13 @@
 import { Favorite, Security, VolunteerActivism } from "@mui/icons-material";
 import { Box, Container, Typography } from "@mui/material";
-import Button from "components/Button";
-import HtmlMeta from "components/HtmlMeta";
-import PageTitle from "components/PageTitle";
-import { useTranslation } from "i18n";
-import { AUTH } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import stringOrFirstString from "utils/stringOrFirstString";
+
+import Button from "@/components/Button";
+import HtmlMeta from "@/components/HtmlMeta";
+import PageTitle from "@/components/PageTitle";
+import { useTranslation } from "@/i18n";
+import { AUTH } from "@/i18n/namespaces";
+import stringOrFirstString from "@/utils/stringOrFirstString";
 
 export default function CompleteStrongVerification() {
   const { t } = useTranslation(AUTH);

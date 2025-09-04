@@ -1,16 +1,17 @@
 import { Skeleton, styled } from "@mui/material";
-import TextBody from "components/TextBody";
-import { useLiteUser } from "features/userQueries/useLiteUsers";
-import { useTranslation } from "i18n";
-import { MESSAGES } from "i18n/namespaces";
 import React from "react";
-import { theme } from "theme";
+
+import TextBody from "@/components/TextBody";
+import { useLiteUser } from "@/features/userQueries/useLiteUsers";
+import { useTranslation } from "@/i18n";
+import { MESSAGES } from "@/i18n/namespaces";
+import { theme } from "@/theme";
 
 import { timestamp2Date } from "../../../utils/date";
 import { firstName } from "../../../utils/names";
 import useOnVisibleEffect from "../../../utils/useOnVisibleEffect";
 import { controlMessage, messageTargetId } from "../utils";
-import { messageElementId, MessageProps } from "./MessageView";
+import { MessageProps, messageElementId } from "./MessageView";
 import TimeInterval from "./TimeInterval";
 
 const StyledWrapper = styled("div")(() => ({

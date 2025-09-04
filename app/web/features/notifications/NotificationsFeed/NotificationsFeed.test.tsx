@@ -2,11 +2,12 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
-import { service } from "service";
-import { getHookWrapperWithClient } from "test/hookWrapper";
-import i18n from "test/i18n";
-import { listNotifications } from "test/serviceMockDefaults";
-import { MockedService } from "test/utils";
+
+import { service } from "@/service";
+import { getHookWrapperWithClient } from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { listNotifications } from "@/test/serviceMockDefaults";
+import { MockedService } from "@/test/utils";
 
 import NotificationsFeed from "./NotificationsFeed";
 

@@ -1,9 +1,10 @@
 import { CircularProgress, styled } from "@mui/material";
-import UserSummary from "components/UserSummary";
-import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
-import { LiteUser } from "proto/api_pb";
 import { ReactNode } from "react";
+
+import UserSummary from "@/components/UserSummary";
+import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
+import { LiteUser } from "@/proto/api_pb";
 
 import Alert from "./Alert";
 import { EllipsisMenuItem } from "./EllipsisMenu";

@@ -1,7 +1,9 @@
-import { Coordinates } from "features/search/utils/constants";
 import { ParsedUrlQuery } from "querystring";
-import { UserSearchFilters as ServiceUserSearchFilters } from "service/search";
-import stringOrFirstString from "utils/stringOrFirstString";
+
+import { Coordinates } from "@/features/search/utils/constants";
+import log from "@/log";
+import { UserSearchFilters as ServiceUserSearchFilters } from "@/service/search";
+import stringOrFirstString from "@/utils/stringOrFirstString";
 
 export default interface SearchFilters extends ServiceUserSearchFilters {
   location?: string;
@@ -14,44 +16,52 @@ export function parsedQueryToSearchFilters(urlQuery: ParsedUrlQuery) {
   const filters: SearchFilters = {};
   Array.from(Object.keys(urlQuery)).forEach((key) => {
     switch (key) {
-      //strings
+      // strings
       case "location":
       case "query":
-        const str = stringOrFirstString(urlQuery[key]);
-        if (str) filters[key] = str;
+        {
+          const str = stringOrFirstString(urlQuery[key]);
+          if (str) filters[key] = str;
+        }
         break;
 
-      //ints
+      // ints
       case "lastActive":
       case "numGuests":
-        const int = Number.parseInt(stringOrFirstString(urlQuery[key]) || "");
-        if (int) filters[key] = int;
+        {
+          const int = Number.parseInt(stringOrFirstString(urlQuery[key]) || "");
+          if (int) filters[key] = int;
+        }
         break;
 
       case "bbox":
-        const list = urlQuery[key] || [];
-        if (list && list.length && Array.isArray(list)) {
-          const parsedList = list.map((value) => Number.parseFloat(value));
+        {
+          const list = urlQuery[key] || [];
+          if (list && list.length && Array.isArray(list)) {
+            const parsedList = list.map((value) => Number.parseFloat(value));
 
-          if (parsedList.length === 4) {
-            filters[key] = parsedList as Coordinates;
+            if (parsedList.length === 4) {
+              filters[key] = parsedList as Coordinates;
+            }
           }
         }
         break;
 
-      //others
+      // others
       case "hostingStatus":
-        const rawOptions = urlQuery[key];
-        const options =
-          typeof rawOptions === "string" ? [rawOptions] : (rawOptions ?? []);
+        {
+          const rawOptions = urlQuery[key];
+          const options =
+            typeof rawOptions === "string" ? [rawOptions] : (rawOptions ?? []);
 
-        filters[key] = options
-          .map((o) => Number.parseInt(o))
-          .filter((o) => !!o);
+          filters[key] = options
+            .map((o) => Number.parseInt(o))
+            .filter((o) => !!o);
+        }
         break;
 
       default:
-        console.warn(`Unhandled search parameter ${key} ignored`);
+        log.warn(`Unhandled search parameter ${key} ignored`);
         break;
     }
   });

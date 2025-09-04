@@ -1,15 +1,16 @@
-import { styled, Typography } from "@mui/material";
+import { Typography, styled } from "@mui/material";
 import { Box } from "@mui/system";
-import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import CursorPagination from "components/CursorPagination";
-import { PersonIcon } from "components/Icons";
-import TextBody from "components/TextBody";
-import UsersList from "components/UsersList";
-import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
-import { Community } from "proto/communities_pb";
 import { useState } from "react";
+
+import Alert from "@/components/Alert";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import CursorPagination from "@/components/CursorPagination";
+import { PersonIcon } from "@/components/Icons";
+import TextBody from "@/components/TextBody";
+import UsersList from "@/components/UsersList";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
+import { Community } from "@/proto/communities_pb";
 
 import { SectionTitle } from "../CommunityPage";
 import { useListMembers } from "../hooks";

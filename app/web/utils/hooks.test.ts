@@ -1,6 +1,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { LngLat } from "maplibre-gl";
-import { rest, server } from "test/restMock";
+
+import { rest, server } from "@/test/restMock";
 
 import { useGeocodeQuery, useIsMounted, useSafeState } from "./hooks";
 

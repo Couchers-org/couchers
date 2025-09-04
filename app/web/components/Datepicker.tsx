@@ -1,8 +1,9 @@
 import { InputProps } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
-import { useTranslation } from "i18n";
 import { Control, Controller, UseControllerProps } from "react-hook-form";
-import dayjs, { Dayjs } from "utils/dayjs";
+
+import { useTranslation } from "@/i18n";
+import dayjs, { Dayjs } from "@/utils/dayjs";
 
 import { dateFormats } from "./constants";
 

@@ -1,11 +1,12 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import ChangeEmail from "features/auth/email/ChangeEmail";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { service } from "service";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { MockedService } from "test/utils";
+
+import ChangeEmail from "@/features/auth/email/ChangeEmail";
+import { service } from "@/service";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { MockedService } from "@/test/utils";
 
 const { t } = i18n;
 

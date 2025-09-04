@@ -1,13 +1,14 @@
-import { styled, Typography } from "@mui/material";
-import IconButton from "components/IconButton";
-import { CloseIcon } from "components/Icons";
-import StyledLink from "components/StyledLink";
-import { useAuthContext } from "features/auth/AuthProvider";
-import { Trans, useTranslation } from "i18n";
-import { usePersistedState } from "platform/usePersistedState";
-import { tosRoute } from "routes";
-import { theme } from "theme";
-import { useIsMounted } from "utils/hooks";
+import { Typography, styled } from "@mui/material";
+
+import IconButton from "@/components/IconButton";
+import { CloseIcon } from "@/components/Icons";
+import StyledLink from "@/components/StyledLink";
+import { useAuthContext } from "@/features/auth/AuthProvider";
+import { Trans, useTranslation } from "@/i18n";
+import { usePersistedState } from "@/platform/usePersistedState";
+import { tosRoute } from "@/routes";
+import { theme } from "@/theme";
+import { useIsMounted } from "@/utils/hooks";
 
 const StyledWrapper = styled("div")(({ theme }) => ({
   position: "fixed",

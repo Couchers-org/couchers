@@ -1,12 +1,13 @@
-import { styled, Typography } from "@mui/material";
-import HeaderButton from "components/HeaderButton";
-import { BackIcon } from "components/Icons";
-import { useTranslation } from "i18n";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
+import { Typography, styled } from "@mui/material";
 import { useRouter } from "next/router";
-import { ReferenceType } from "proto/references_pb";
-import { referenceTypeRoute } from "routes";
-import { theme } from "theme";
+
+import HeaderButton from "@/components/HeaderButton";
+import { BackIcon } from "@/components/Icons";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, PROFILE } from "@/i18n/namespaces";
+import { ReferenceType } from "@/proto/references_pb";
+import { referenceTypeRoute } from "@/routes";
+import { theme } from "@/theme";
 
 export interface ReferenceStepHeaderProps {
   name?: string;

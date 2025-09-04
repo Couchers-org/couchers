@@ -14,24 +14,29 @@ import {
   Typography,
 } from "@mui/material";
 import { styled, useMediaQuery } from "@mui/system";
-import CustomColorSwitch from "components/CustomColorSwitch";
-import { Dialog, DialogTitle } from "components/Dialog";
-import Divider from "components/Divider";
-import IconButton from "components/IconButton";
-import { CloseIcon } from "components/Icons";
-import PlusMinusSelector from "components/PlusMinusSelector";
-import { useTranslation } from "i18n";
-import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { HostingStatus, MeetupStatus, SleepingArrangement } from "proto/api_pb";
-import { theme } from "theme";
+
+import CustomColorSwitch from "@/components/CustomColorSwitch";
+import { Dialog, DialogTitle } from "@/components/Dialog";
+import Divider from "@/components/Divider";
+import IconButton from "@/components/IconButton";
+import { CloseIcon } from "@/components/Icons";
+import PlusMinusSelector from "@/components/PlusMinusSelector";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, SEARCH } from "@/i18n/namespaces";
+import {
+  HostingStatus,
+  MeetupStatus,
+  SleepingArrangement,
+} from "@/proto/api_pb";
+import { theme } from "@/theme";
 
 import { FilterOptions } from "./SearchPage";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import {
   DEFAULT_AGE_MAX,
   DEFAULT_AGE_MIN,
-  lastActiveOptions,
   SleepingArrangementOptions,
+  lastActiveOptions,
 } from "./utils/constants";
 
 interface FilterDialogProps {

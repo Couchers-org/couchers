@@ -1,15 +1,15 @@
-import Button from "components/Button";
+import Button from "@/components/Button";
 import {
   AccessibleDialogProps,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "components/Dialog";
-import UsersList from "components/UsersList";
-import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
-import { Community } from "proto/communities_pb";
+} from "@/components/Dialog";
+import UsersList from "@/components/UsersList";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES } from "@/i18n/namespaces";
+import { Community } from "@/proto/communities_pb";
 
 import { useListAdmins } from "./hooks";
 

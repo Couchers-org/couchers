@@ -1,15 +1,16 @@
 import { TabContext, TabPanel } from "@mui/lab";
 import { styled } from "@mui/material";
-import HtmlMeta from "components/HtmlMeta";
-import NotificationBadge from "components/NotificationBadge";
-import PageTitle from "components/PageTitle";
-import TabBar from "components/TabBar";
-import useNotifications from "features/useNotifications";
-import { CONNECTIONS } from "i18n/namespaces";
-import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
+import { useRouter } from "next/router";
 import React from "react";
-import { connectionsRoute } from "routes";
+
+import HtmlMeta from "@/components/HtmlMeta";
+import NotificationBadge from "@/components/NotificationBadge";
+import PageTitle from "@/components/PageTitle";
+import TabBar from "@/components/TabBar";
+import useNotifications from "@/features/useNotifications";
+import { CONNECTIONS } from "@/i18n/namespaces";
+import { connectionsRoute } from "@/routes";
 
 import { FriendsTab } from "./friends";
 

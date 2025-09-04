@@ -1,16 +1,17 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import HtmlMeta from "components/HtmlMeta";
-import NotFoundPage from "features/NotFoundPage";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { service } from "service";
-import type { UpdateEventInput } from "service/events";
-import dayjs, { TIME_FORMAT } from "utils/dayjs";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import HtmlMeta from "@/components/HtmlMeta";
+import NotFoundPage from "@/features/NotFoundPage";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
+import { service } from "@/service";
+import type { UpdateEventInput } from "@/service/events";
+import dayjs, { TIME_FORMAT } from "@/utils/dayjs";
 
 import { Event } from "../../../proto/events_pb";
 import { routeToEvent } from "../../../routes";

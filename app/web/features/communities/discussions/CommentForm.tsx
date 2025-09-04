@@ -1,16 +1,17 @@
 import { Collapse, styled } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import MarkdownInput, { MarkdownInputProps } from "components/MarkdownInput";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
-import { service } from "service";
-import { theme } from "theme";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import MarkdownInput, { MarkdownInputProps } from "@/components/MarkdownInput";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
+import { service } from "@/service";
+import { theme } from "@/theme";
 
 import { PostReplyRes } from "../../../proto/threads_pb";
 import { threadKey } from "../../queryKeys";

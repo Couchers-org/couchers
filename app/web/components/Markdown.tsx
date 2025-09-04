@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 
-const Markdown = dynamic(() => import("components/MarkdownNoSSR"), {
+const Markdown = dynamic(() => import("@/components/MarkdownNoSSR"), {
   ssr: false,
 });
 

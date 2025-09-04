@@ -1,23 +1,24 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import useCurrentUser from "features/userQueries/useCurrentUser";
 import mockRouter from "next-router-mock";
-import { User } from "proto/api_pb";
-import { AttendanceState } from "proto/events_pb";
-import { eventBaseRoute } from "routes";
-import { service } from "service";
-import events from "test/fixtures/events.json";
-import users from "test/fixtures/users.json";
-import hookWrapper from "test/hookWrapper";
-import i18n from "test/i18n";
+
+import useCurrentUser from "@/features/userQueries/useCurrentUser";
+import { User } from "@/proto/api_pb";
+import { AttendanceState } from "@/proto/events_pb";
+import { eventBaseRoute } from "@/routes";
+import { service } from "@/service";
+import events from "@/test/fixtures/events.json";
+import users from "@/test/fixtures/users.json";
+import hookWrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
 import {
   getEventAttendees,
   getEventOrganizers,
   getLiteUsers,
   getThread,
   getUser,
-} from "test/serviceMockDefaults";
-import { assertErrorAlert, mockConsoleError } from "test/utils";
+} from "@/test/serviceMockDefaults";
+import { assertErrorAlert, mockConsoleError } from "@/test/utils";
 
 import EventPage from "./EventPage";
 

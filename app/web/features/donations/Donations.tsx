@@ -1,15 +1,16 @@
-import { Link, styled, Typography } from "@mui/material";
-import HtmlMeta from "components/HtmlMeta";
-import Markdown from "components/Markdown";
-import Landscape from "features/donations/resources/landscape.jpeg";
-import { DONATIONS, GLOBAL } from "i18n/namespaces";
+import { Link, Typography, styled } from "@mui/material";
 import { Trans, useTranslation } from "next-i18next";
-import CouchersLogo from "resources/CouchersLogo";
-import { foundationRoute, latestFinancialsURL } from "routes";
-import { theme } from "theme";
 
-import { BENEFACTOR_EMAIL } from "./constants";
+import HtmlMeta from "@/components/HtmlMeta";
+import Markdown from "@/components/Markdown";
+import Landscape from "@/features/donations/resources/landscape.jpeg";
+import { DONATIONS, GLOBAL } from "@/i18n/namespaces";
+import CouchersLogo from "@/resources/CouchersLogo";
+import { foundationRoute, latestFinancialsURL } from "@/routes";
+import { theme } from "@/theme";
+
 import DonationsBox from "./DonationsBox";
+import { BENEFACTOR_EMAIL } from "./constants";
 
 const LATEST_FINANCIALS_YEAR = latestFinancialsURL.slice(-4);
 

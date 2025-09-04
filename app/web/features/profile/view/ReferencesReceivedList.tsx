@@ -1,4 +1,4 @@
-import { useLiteUsers } from "features/userQueries/useLiteUsers";
+import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
 
 import { useReferencesReceived } from "../hooks/referencesHooks";
 import { useProfileUser } from "../hooks/useProfileUser";

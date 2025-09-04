@@ -1,12 +1,13 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import CreateGroupChat from "features/messages/groupchats/CreateGroupChat";
 import mockRouter from "next-router-mock";
-import { service } from "service";
-import users from "test/fixtures/users.json";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { getUser } from "test/serviceMockDefaults";
-import { MockedService } from "test/utils";
+
+import CreateGroupChat from "@/features/messages/groupchats/CreateGroupChat";
+import { service } from "@/service";
+import users from "@/test/fixtures/users.json";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { getUser } from "@/test/serviceMockDefaults";
+import { MockedService } from "@/test/utils";
 
 const { t } = i18n;
 

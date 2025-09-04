@@ -1,13 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
-import { service } from "service";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
-import { addDefaultUser, MockedService } from "test/utils";
+
+import useCurrentUser from "@/features/userQueries/useCurrentUser";
+import { service } from "@/service";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { getLanguages, getRegions, getUser } from "@/test/serviceMockDefaults";
+import { MockedService, addDefaultUser } from "@/test/utils";
 
 import ProfilePage from "./ProfilePage";
 

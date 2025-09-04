@@ -5,12 +5,13 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
-import { routeToCommunity, routeToEditCommunityPage } from "routes";
-import { service } from "service";
-import community from "test/fixtures/community.json";
-import { getHookWrapperWithClient } from "test/hookWrapper";
-import i18n from "test/i18n";
-import { assertErrorAlert, mockConsoleError } from "test/utils";
+
+import { routeToCommunity, routeToEditCommunityPage } from "@/routes";
+import { service } from "@/service";
+import community from "@/test/fixtures/community.json";
+import { getHookWrapperWithClient } from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { assertErrorAlert, mockConsoleError } from "@/test/utils";
 
 import EditCommunityInfoPage from "./EditCommunityInfoPage";
 

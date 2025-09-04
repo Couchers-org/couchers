@@ -1,19 +1,20 @@
 import { styled } from "@mui/material";
-import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import HtmlMeta from "components/HtmlMeta";
-import MapAnimation from "components/MapAnimation";
-import CouchersIntroduction from "features/landing/CouchersIntroduction";
-import { useTranslation } from "i18n";
-import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { useIsNativeEmbed } from "platform/nativeLink";
-import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
-import { signupRoute } from "routes";
-import { service } from "service";
-import isGrpcError from "service/utils/isGrpcError";
-import stringOrFirstString from "utils/stringOrFirstString";
+
+import Alert from "@/components/Alert";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import HtmlMeta from "@/components/HtmlMeta";
+import MapAnimation from "@/components/MapAnimation";
+import CouchersIntroduction from "@/features/landing/CouchersIntroduction";
+import { useTranslation } from "@/i18n";
+import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import { useIsNativeEmbed } from "@/platform/nativeLink";
+import Sentry from "@/platform/sentry";
+import { signupRoute } from "@/routes";
+import { service } from "@/service";
+import isGrpcError from "@/service/utils/isGrpcError";
+import stringOrFirstString from "@/utils/stringOrFirstString";
 
 import { useAuthContext } from "../auth/AuthProvider";
 import SignupFormContent from "../auth/signup/SignupFormContent";

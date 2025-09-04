@@ -1,7 +1,8 @@
-import { IconButton, styled, Tooltip } from "@mui/material";
-import { HelpIcon } from "components/Icons";
+import { IconButton, Tooltip, styled } from "@mui/material";
 import React from "react";
-import { theme } from "theme";
+
+import { HelpIcon } from "@/components/Icons";
+import { theme } from "@/theme";
 
 import ScoreBar from "./ScoreBar";
 

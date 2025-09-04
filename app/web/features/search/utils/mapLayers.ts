@@ -1,5 +1,6 @@
 import { LayerProps } from "react-map-gl/maplibre";
-import { theme } from "theme";
+
+import { theme } from "@/theme";
 
 const CLUSTER_LAYER_ID = "clusters";
 const UNCLUSTERED_LAYER_ID = "unclustered-points";

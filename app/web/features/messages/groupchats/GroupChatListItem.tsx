@@ -4,25 +4,26 @@ import {
   ListItemProps,
   ListItemText,
   Skeleton,
-  styled,
   Typography,
+  styled,
 } from "@mui/material";
-import Avatar from "components/Avatar";
-import { MuteIcon } from "components/Icons";
-import { useAuthContext } from "features/auth/AuthProvider";
+import React from "react";
+
+import Avatar from "@/components/Avatar";
+import { MuteIcon } from "@/components/Icons";
+import { useAuthContext } from "@/features/auth/AuthProvider";
 import {
   controlMessage,
   groupChatTitleText,
   isControlMessage,
   messageTargetId,
-} from "features/messages/utils";
-import { useLiteUsers } from "features/userQueries/useLiteUsers";
-import { useTranslation } from "i18n";
-import { MESSAGES } from "i18n/namespaces";
-import { GroupChat } from "proto/conversations_pb";
-import React from "react";
-import { theme } from "theme";
-import { firstName } from "utils/names";
+} from "@/features/messages/utils";
+import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
+import { useTranslation } from "@/i18n";
+import { MESSAGES } from "@/i18n/namespaces";
+import { GroupChat } from "@/proto/conversations_pb";
+import { theme } from "@/theme";
+import { firstName } from "@/utils/names";
 
 const StyledListItemTypography = styled(Typography, {
   shouldForwardProp: (propName) => propName !== "isUnread",

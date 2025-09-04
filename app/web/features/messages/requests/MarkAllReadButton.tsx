@@ -1,14 +1,15 @@
-import { styled, Typography } from "@mui/material";
+import { Typography, styled } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Button from "components/Button";
-import { DoneAllIcon } from "components/Icons";
-import Snackbar from "components/Snackbar";
-import { groupChatsListKey, hostRequestsListKey } from "features/queryKeys";
-import { useTranslation } from "i18n";
-import { MESSAGES } from "i18n/namespaces";
-import { service } from "service";
-import { theme } from "theme";
-import getAllPages from "utils/getAllPages";
+
+import Button from "@/components/Button";
+import { DoneAllIcon } from "@/components/Icons";
+import Snackbar from "@/components/Snackbar";
+import { groupChatsListKey, hostRequestsListKey } from "@/features/queryKeys";
+import { useTranslation } from "@/i18n";
+import { MESSAGES } from "@/i18n/namespaces";
+import { service } from "@/service";
+import { theme } from "@/theme";
+import getAllPages from "@/utils/getAllPages";
 
 const MarkAsReadButtonStyled = styled(Button)(({ theme }) => ({
   border: `1px solid ${theme.palette.grey[800]}`,

@@ -1,4 +1,4 @@
-import { Coordinates } from "features/search/utils/constants";
+import { Coordinates } from "@/features/search/utils/constants";
 
 export interface NominatimPlace {
   address: {

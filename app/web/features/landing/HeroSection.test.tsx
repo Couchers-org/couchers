@@ -1,8 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
+
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
 
 import HeroSection from "./HeroSection";
 

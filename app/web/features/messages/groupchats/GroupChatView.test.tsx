@@ -1,31 +1,32 @@
 import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MARK_LAST_SEEN_TIMEOUT } from "features/messages/constants";
-import GroupChatView from "features/messages/groupchats/GroupChatView";
-import { groupChatKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import {
   mockAllIsIntersecting,
   mockIsIntersecting,
 } from "react-intersection-observer/test-utils";
-import { service } from "service";
-import messageData from "test/fixtures/messages.json";
-import { getHookWrapperWithClient } from "test/hookWrapper";
-import i18n from "test/i18n";
+
+import { MARK_LAST_SEEN_TIMEOUT } from "@/features/messages/constants";
+import GroupChatView from "@/features/messages/groupchats/GroupChatView";
+import { groupChatKey } from "@/features/queryKeys";
+import { service } from "@/service";
+import messageData from "@/test/fixtures/messages.json";
+import { getHookWrapperWithClient } from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
 import {
   getGroupChatMessages,
   getLiteUser,
   getLiteUsers,
   getUser,
-} from "test/serviceMockDefaults";
+} from "@/test/serviceMockDefaults";
 import {
+  MockedService,
   addDefaultUser,
   assertErrorAlert,
   mockConsoleError,
-  MockedService,
   wait,
-} from "test/utils";
+} from "@/test/utils";
 
 import { GROUP_CHAT_REFETCH_INTERVAL } from "./constants";
 

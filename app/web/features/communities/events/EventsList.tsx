@@ -1,6 +1,7 @@
 import { styled } from "@mui/material";
-import { useAuthContext } from "features/auth/AuthProvider";
-import { Event } from "proto/events_pb";
+
+import { useAuthContext } from "@/features/auth/AuthProvider";
+import { Event } from "@/proto/events_pb";
 
 import EventCard from "./EventCard";
 import LongEventCard from "./LongEventCard";

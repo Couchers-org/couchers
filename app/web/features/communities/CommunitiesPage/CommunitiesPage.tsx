@@ -1,15 +1,16 @@
-import { styled, Typography } from "@mui/material";
+import { Typography, styled } from "@mui/material";
 import MuiLink from "@mui/material/Link";
-import PageTitle from "components/PageTitle";
-import useAccountInfo from "features/auth/useAccountInfo";
-import CommunityBrowser from "features/dashboard/CommunityBrowser";
-import { Trans, useTranslation } from "i18n";
-import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import React from "react";
+
+import PageTitle from "@/components/PageTitle";
+import useAccountInfo from "@/features/auth/useAccountInfo";
+import CommunityBrowser from "@/features/dashboard/CommunityBrowser";
+import { Trans, useTranslation } from "@/i18n";
+import { DASHBOARD, GLOBAL } from "@/i18n/namespaces";
 import {
   communityCreationFormURL,
   helpCenterCommunityBuilderURL,
-} from "routes";
+} from "@/routes";
 
 const HeaderRow = styled("div")(({ theme }) => ({
   display: "flex",

@@ -1,8 +1,9 @@
-import { appGetLayout } from "components/AppRoute";
-import Jail from "features/auth/jail/Jail";
 import { GetStaticProps } from "next";
 import nextI18nextConfig from "next-i18next.config";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+
+import { appGetLayout } from "@/components/AppRoute";
+import Jail from "@/features/auth/jail/Jail";
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {

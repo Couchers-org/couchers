@@ -1,19 +1,24 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { StatusCode } from "grpc-web";
-import { InitiateMediaUploadRes } from "proto/api_pb";
 import { useForm } from "react-hook-form";
-import { service } from "service";
-import client from "service/client";
+
+import { InitiateMediaUploadRes } from "@/proto/api_pb";
+import { service } from "@/service";
+import client from "@/service/client";
 import {
   IMAGE_TOO_LARGE,
   INTERNAL_ERROR,
   SERVER_ERROR,
-} from "service/constants";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { server } from "test/restMock";
-import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
+} from "@/service/constants";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { server } from "@/test/restMock";
+import {
+  MockedService,
+  assertErrorAlert,
+  mockConsoleError,
+} from "@/test/utils";
 
 import ImageInput from "./ImageInput";
 

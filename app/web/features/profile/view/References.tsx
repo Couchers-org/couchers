@@ -1,19 +1,20 @@
-import { styled, Typography } from "@mui/material";
+import { Typography, styled } from "@mui/material";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import Button from "components/Button";
-import { AddIcon } from "components/Icons";
-import { MenuItem } from "components/Menu";
-import { referencesFilterLabels } from "features/profile/constants";
-import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
-import { useProfileUser } from "features/profile/hooks/useProfileUser";
-import { useTranslation } from "i18n";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
 import Link from "next/link";
-import { User } from "proto/api_pb";
-import { ReferenceType } from "proto/references_pb";
 import React, { useState } from "react";
-import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
-import { theme } from "theme";
+
+import Button from "@/components/Button";
+import { AddIcon } from "@/components/Icons";
+import { MenuItem } from "@/components/Menu";
+import { referencesFilterLabels } from "@/features/profile/constants";
+import { useListAvailableReferences } from "@/features/profile/hooks/referencesHooks";
+import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, PROFILE } from "@/i18n/namespaces";
+import { User } from "@/proto/api_pb";
+import { ReferenceType } from "@/proto/references_pb";
+import { leaveReferenceBaseRoute, referenceTypeRoute } from "@/routes";
+import { theme } from "@/theme";
 
 import ReferencesGivenList from "./ReferencesGivenList";
 import ReferencesReceivedList from "./ReferencesReceivedList";

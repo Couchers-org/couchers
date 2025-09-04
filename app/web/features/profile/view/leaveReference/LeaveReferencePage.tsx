@@ -1,19 +1,20 @@
 import { styled, useMediaQuery } from "@mui/material";
-import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
-import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
-import ReferenceForm from "features/profile/view/leaveReference/ReferenceForm";
-import UserOverview from "features/profile/view/UserOverview";
-import { useUser } from "features/userQueries/useUsers";
-import { useTranslation } from "i18n";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
-import { User } from "proto/api_pb";
-import { ReferenceType } from "proto/references_pb";
 import React from "react";
-import { ReferenceStep, referenceTypeRoute } from "routes";
-import { ReferenceTypeStrings } from "service/references";
-import { theme } from "theme";
+
+import Alert from "@/components/Alert";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import { useListAvailableReferences } from "@/features/profile/hooks/referencesHooks";
+import { ProfileUserProvider } from "@/features/profile/hooks/useProfileUser";
+import UserOverview from "@/features/profile/view/UserOverview";
+import ReferenceForm from "@/features/profile/view/leaveReference/ReferenceForm";
+import { useUser } from "@/features/userQueries/useUsers";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, PROFILE } from "@/i18n/namespaces";
+import { User } from "@/proto/api_pb";
+import { ReferenceType } from "@/proto/references_pb";
+import { ReferenceStep, referenceTypeRoute } from "@/routes";
+import { ReferenceTypeStrings } from "@/service/references";
+import { theme } from "@/theme";
 
 const StyledRoot = styled("div")(({ theme }) => ({
   padding: theme.spacing(1),

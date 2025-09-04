@@ -1,21 +1,22 @@
 import { List, styled } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import TextBody from "components/TextBody";
-import HostRequestListItem from "features/messages/requests/HostRequestListItem";
-import { hostRequestsListKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
-import { GroupChat } from "proto/conversations_pb";
-import { ListHostRequestsRes } from "proto/requests_pb";
 import * as React from "react";
-import { routeToHostRequest } from "routes";
-import { service } from "service";
-import { theme } from "theme";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import TextBody from "@/components/TextBody";
+import HostRequestListItem from "@/features/messages/requests/HostRequestListItem";
+import { hostRequestsListKey } from "@/features/queryKeys";
+import { useTranslation } from "@/i18n";
+import { MESSAGES } from "@/i18n/namespaces";
+import { GroupChat } from "@/proto/conversations_pb";
+import { ListHostRequestsRes } from "@/proto/requests_pb";
+import { routeToHostRequest } from "@/routes";
+import { service } from "@/service";
+import { theme } from "@/theme";
 
 const StyledWrapper = styled("div")(() => ({
   padding: theme.spacing(0, 2),

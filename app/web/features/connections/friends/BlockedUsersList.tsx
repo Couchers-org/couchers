@@ -1,13 +1,14 @@
 import { People } from "@mui/icons-material";
 import { useQuery } from "@tanstack/react-query";
-import EllipsisMenu from "components/EllipsisMenu";
-import { blockedUsersKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { CONNECTIONS } from "i18n/namespaces";
-import { BlockedUser, GetBlockedUsersRes } from "proto/blocking_pb";
 import { useState } from "react";
-import { service } from "service";
+
+import EllipsisMenu from "@/components/EllipsisMenu";
+import { blockedUsersKey } from "@/features/queryKeys";
+import { useTranslation } from "@/i18n";
+import { CONNECTIONS } from "@/i18n/namespaces";
+import { BlockedUser, GetBlockedUsersRes } from "@/proto/blocking_pb";
+import { service } from "@/service";
 
 import ConnectionActionDialog from "./ConnectionActionDialog";
 import FriendSummaryView from "./FriendSummaryView";

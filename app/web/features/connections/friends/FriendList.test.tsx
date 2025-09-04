@@ -1,7 +1,8 @@
 import { render, screen, within } from "@testing-library/react";
-import users from "test/fixtures/users.json";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
+
+import users from "@/test/fixtures/users.json";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
 
 import FriendList from "./FriendList";
 import { FRIEND_ITEM_TEST_ID } from "./FriendSummaryView";

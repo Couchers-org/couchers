@@ -1,5 +1,6 @@
-import { styled, SxProps, Typography } from "@mui/material";
-import { theme } from "theme";
+import { SxProps, Typography, styled } from "@mui/material";
+
+import { theme } from "@/theme";
 
 interface PillStylesProps {
   backgroundColor?: string;

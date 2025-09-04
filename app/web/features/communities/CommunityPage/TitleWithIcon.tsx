@@ -1,6 +1,7 @@
-import { styled, Typography } from "@mui/material";
+import { Typography, styled } from "@mui/material";
 import { ReactNode } from "react";
-import { theme } from "theme";
+
+import { theme } from "@/theme";
 
 const StyledWrapper = styled("div")(() => ({
   alignItems: "center",

@@ -1,16 +1,17 @@
-import { FormControlLabel, styled, Typography } from "@mui/material";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import CustomColorSwitch from "components/CustomColorSwitch";
-import TextBody from "components/TextBody";
-import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
+import { FormControlLabel, Typography, styled } from "@mui/material";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { newEventRoute } from "routes";
-import { theme } from "theme";
-import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import CustomColorSwitch from "@/components/CustomColorSwitch";
+import TextBody from "@/components/TextBody";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES } from "@/i18n/namespaces";
+import { newEventRoute } from "@/routes";
+import { theme } from "@/theme";
+import hasAtLeastOnePage from "@/utils/hasAtLeastOnePage";
 
 import EventCard from "./EventCard";
 import { useListAllEvents } from "./hooks";

@@ -1,7 +1,8 @@
 import { LngLatLike } from "maplibre-gl";
-import { HostingStatus, User } from "proto/api_pb";
-import { UserSearchFilters } from "service/search";
-import { GeocodeResult } from "utils/hooks";
+
+import { HostingStatus, User } from "@/proto/api_pb";
+import { UserSearchFilters } from "@/service/search";
+import { GeocodeResult } from "@/utils/hooks";
 
 import { FilterOptions } from "../SearchPage";
 import {

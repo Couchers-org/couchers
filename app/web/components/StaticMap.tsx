@@ -1,22 +1,22 @@
-import "maplibre-gl/dist/maplibre-gl.css";
-
 import { styled, useMediaQuery } from "@mui/material";
-import {
-  clusterCountLayer,
-  clusterLayer,
-  unclusteredPointLayer,
-  USERS_SOURCE_ID,
-} from "features/search/utils/mapLayers";
-import { loadMapUserPins } from "features/search/utils/mapUtils";
+import "maplibre-gl/dist/maplibre-gl.css";
 import React, { useRef } from "react";
 import {
   Layer,
-  Map as MaplibreMap,
   MapRef,
+  Map as MaplibreMap,
   NavigationControl,
   Source,
 } from "react-map-gl/maplibre";
-import { theme } from "theme";
+
+import {
+  USERS_SOURCE_ID,
+  clusterCountLayer,
+  clusterLayer,
+  unclusteredPointLayer,
+} from "@/features/search/utils/mapLayers";
+import { loadMapUserPins } from "@/features/search/utils/mapUtils";
+import { theme } from "@/theme";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 

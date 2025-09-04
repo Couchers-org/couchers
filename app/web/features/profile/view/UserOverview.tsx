@@ -1,19 +1,20 @@
-import { Card, CardActions, Link, styled, Typography } from "@mui/material";
-import Avatar from "components/Avatar";
-import BarWithHelp from "components/Bar/BarWithHelp";
-import Divider from "components/Divider";
-import { CouchIcon, LocationIcon } from "components/Icons";
-import IconText from "components/IconText";
-import StrongVerificationBadge from "components/StrongVerificationBadge";
+import { Card, CardActions, Link, Typography, styled } from "@mui/material";
+import React from "react";
+
+import Avatar from "@/components/Avatar";
+import BarWithHelp from "@/components/Bar/BarWithHelp";
+import Divider from "@/components/Divider";
+import IconText from "@/components/IconText";
+import { CouchIcon, LocationIcon } from "@/components/Icons";
+import StrongVerificationBadge from "@/components/StrongVerificationBadge";
 import {
   hostingStatusLabels,
   meetupStatusLabels,
-} from "features/profile/constants";
-import { useTranslation } from "i18n";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
-import { HostingStatus, MeetupStatus } from "proto/api_pb";
-import React from "react";
-import { routeToUser } from "routes";
+} from "@/features/profile/constants";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, PROFILE } from "@/i18n/namespaces";
+import { HostingStatus, MeetupStatus } from "@/proto/api_pb";
+import { routeToUser } from "@/routes";
 
 import { useProfileUser } from "../hooks/useProfileUser";
 import { Badges } from "./Badges";

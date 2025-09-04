@@ -1,7 +1,8 @@
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { Box, IconButton, Typography } from "@mui/material";
-import { theme } from "theme";
+
+import { theme } from "@/theme";
 
 interface PlusMinusSelectorProps {
   onChange: (value: number) => void;

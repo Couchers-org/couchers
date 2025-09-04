@@ -6,15 +6,16 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { mockIsIntersecting } from "react-intersection-observer/test-utils";
-import { service } from "service";
-import events from "test/fixtures/events.json";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
+
+import { service } from "@/service";
+import events from "@/test/fixtures/events.json";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
 import {
   assertErrorAlert,
   createMatchMedia,
   mockConsoleError,
-} from "test/utils";
+} from "@/test/utils";
 
 import MyEvents from "./MyEvents";
 

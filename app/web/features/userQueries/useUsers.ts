@@ -1,9 +1,10 @@
 import { useQueries, useQueryClient } from "@tanstack/react-query";
-import { userKey } from "features/queryKeys";
-import { userStaleTime } from "features/userQueries/constants";
 import { useCallback, useEffect, useRef } from "react";
-import { service } from "service";
-import { arrayEq } from "utils/arrayEq";
+
+import { userKey } from "@/features/queryKeys";
+import { userStaleTime } from "@/features/userQueries/constants";
+import { service } from "@/service";
+import { arrayEq } from "@/utils/arrayEq";
 
 export default function useUsers(
   ids: (number | undefined)[],

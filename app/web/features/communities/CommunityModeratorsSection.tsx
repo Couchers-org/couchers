@@ -1,12 +1,13 @@
-import { styled, Typography } from "@mui/material";
-import Button from "components/Button";
-import { CommunityLeadersIcon } from "components/Icons";
-import UsersList from "components/UsersList";
-import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
-import { Community } from "proto/communities_pb";
+import { Typography, styled } from "@mui/material";
 import { useState } from "react";
-import { theme } from "theme";
+
+import Button from "@/components/Button";
+import { CommunityLeadersIcon } from "@/components/Icons";
+import UsersList from "@/components/UsersList";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES } from "@/i18n/namespaces";
+import { Community } from "@/proto/communities_pb";
+import { theme } from "@/theme";
 
 import CommunityModeratorsDialog from "./CommunityModeratorsDialog";
 import { SectionTitle } from "./CommunityPage";

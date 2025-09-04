@@ -1,6 +1,7 @@
-import { styled, SvgIcon } from "@mui/material";
+import { SvgIcon, styled } from "@mui/material";
 import Link from "next/link";
-import { baseRoute } from "routes";
+
+import { baseRoute } from "@/routes";
 
 const Logo = styled(SvgIcon)(({ theme }) => ({
   fill: theme.palette.secondary.main,

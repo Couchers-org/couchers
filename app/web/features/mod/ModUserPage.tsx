@@ -1,21 +1,22 @@
 import { TabPanel } from "@mui/lab";
 import { Button, styled } from "@mui/material";
-import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import HtmlMeta from "components/HtmlMeta";
-import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
-import UserCard from "features/profile/view/UserCard";
-import UserOverview from "features/profile/view/UserOverview";
-import { StyledProfileRoot } from "features/profile/view/UserPage";
-import { useTranslation } from "i18n";
-import { GLOBAL, MOD } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { UserDetails } from "proto/admin_pb";
-import { adminPanelUserLink, routeToModUser, UserTab } from "routes";
 
-import useUserWithDetails from "./hooks";
+import Alert from "@/components/Alert";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import HtmlMeta from "@/components/HtmlMeta";
+import { ProfileUserProvider } from "@/features/profile/hooks/useProfileUser";
+import UserCard from "@/features/profile/view/UserCard";
+import UserOverview from "@/features/profile/view/UserOverview";
+import { StyledProfileRoot } from "@/features/profile/view/UserPage";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, MOD } from "@/i18n/namespaces";
+import { UserDetails } from "@/proto/admin_pb";
+import { UserTab, adminPanelUserLink, routeToModUser } from "@/routes";
+
 import ModPanel from "./ModPanel";
+import useUserWithDetails from "./hooks";
 import { ModUserDetails } from "./useModUserDetails";
 
 const StyledBanDelBanner = styled("h1")(({ theme }) => ({

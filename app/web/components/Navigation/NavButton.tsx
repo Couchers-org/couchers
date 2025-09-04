@@ -1,8 +1,9 @@
-import { styled, Typography, TypographyProps } from "@mui/material";
-import NotificationBadge from "components/NotificationBadge";
+import { Typography, TypographyProps, styled } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { baseRoute } from "routes";
+
+import NotificationBadge from "@/components/NotificationBadge";
+import { baseRoute } from "@/routes";
 
 interface NavButtonProps {
   route: string;

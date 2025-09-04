@@ -4,9 +4,10 @@ import {
   VerifiedUserOutlined,
 } from "@mui/icons-material";
 import { Box, Grid, Typography } from "@mui/material";
-import { useTranslation } from "i18n";
-import { LANDING } from "i18n/namespaces";
-import { theme } from "theme";
+
+import { useTranslation } from "@/i18n";
+import { LANDING } from "@/i18n/namespaces";
+import { theme } from "@/theme";
 
 const WhyCouchersSection = () => {
   const { t } = useTranslation([LANDING]);

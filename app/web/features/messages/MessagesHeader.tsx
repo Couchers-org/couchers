@@ -1,15 +1,16 @@
 import { TabContext } from "@mui/lab";
 import { styled } from "@mui/material";
-import HtmlMeta from "components/HtmlMeta";
-import NotificationBadge from "components/NotificationBadge";
-import PageTitle from "components/PageTitle";
-import TabBar from "components/TabBar";
-import MarkAllReadButton from "features/messages/requests/MarkAllReadButton";
-import { useTranslation } from "i18n";
-import { MESSAGES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
-import { messagesRoute, MessageType } from "routes";
+
+import HtmlMeta from "@/components/HtmlMeta";
+import NotificationBadge from "@/components/NotificationBadge";
+import PageTitle from "@/components/PageTitle";
+import TabBar from "@/components/TabBar";
+import MarkAllReadButton from "@/features/messages/requests/MarkAllReadButton";
+import { useTranslation } from "@/i18n";
+import { MESSAGES } from "@/i18n/namespaces";
+import { MessageType, messagesRoute } from "@/routes";
 
 import useNotifications from "../useNotifications";
 

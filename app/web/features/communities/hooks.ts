@@ -1,14 +1,19 @@
 import {
   InfiniteData,
+  UseInfiniteQueryOptions,
+  UseQueryOptions,
   keepPreviousData,
   useInfiniteQuery,
-  UseInfiniteQueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
-  UseQueryOptions,
 } from "@tanstack/react-query";
+import { RpcError } from "grpc-web";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
+
 import {
+  QueryType,
   communityAdminsKey,
   communityDiscussionsKey,
   communityEventsKey,
@@ -18,12 +23,9 @@ import {
   communityMembersKey,
   communityNearbyUsersKey,
   communityPlacesKey,
-  QueryType,
   subCommunitiesKey,
   threadKey,
-} from "features/queryKeys";
-import { RpcError } from "grpc-web";
-import { useRouter } from "next/router";
+} from "@/features/queryKeys";
 import {
   Community,
   ListAdminsRes,
@@ -35,11 +37,10 @@ import {
   ListMembersRes,
   ListNearbyUsersRes,
   ListPlacesRes,
-} from "proto/communities_pb";
-import { GetThreadRes } from "proto/threads_pb";
-import { useEffect } from "react";
-import { routeToCommunity } from "routes";
-import { service } from "service";
+} from "@/proto/communities_pb";
+import { GetThreadRes } from "@/proto/threads_pb";
+import { routeToCommunity } from "@/routes";
+import { service } from "@/service";
 
 import { Discussion } from "../../proto/discussions_pb";
 

@@ -9,21 +9,22 @@ import {
   FormLabelProps,
   Radio,
   RadioGroup,
-  styled,
   Typography,
+  styled,
 } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import TextField from "components/TextField";
 import { RpcError } from "grpc-web";
+import { useRef } from "react";
+import { Controller, useForm } from "react-hook-form";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import TextField from "@/components/TextField";
 import {
   ContributeOption,
   ContributorForm as ContributorFormPb,
-} from "proto/auth_pb";
-import { useRef } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { theme } from "theme";
+} from "@/proto/auth_pb";
+import { theme } from "@/theme";
 
 import {
   CONTRIBUTE_LABEL,

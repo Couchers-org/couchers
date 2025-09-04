@@ -1,5 +1,6 @@
 import { Dayjs } from "dayjs";
-import { HostRequestStatus } from "proto/conversations_pb";
+
+import { HostRequestStatus } from "@/proto/conversations_pb";
 import {
   CreateHostRequestReq,
   GetHostRequestMessagesReq,
@@ -9,7 +10,7 @@ import {
   MarkLastSeenHostRequestReq,
   RespondHostRequestReq,
   SendHostRequestMessageReq,
-} from "proto/requests_pb";
+} from "@/proto/requests_pb";
 
 import client from "./client";
 

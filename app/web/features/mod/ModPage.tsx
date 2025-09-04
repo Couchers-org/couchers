@@ -1,10 +1,11 @@
 import { Typography } from "@mui/material";
-import Button from "components/Button";
-import HtmlMeta from "components/HtmlMeta";
-import PageTitle from "components/PageTitle";
-import UsersList from "components/UsersList";
-import { useTranslation } from "i18n";
-import { GLOBAL, MOD, PROFILE } from "i18n/namespaces";
+
+import Button from "@/components/Button";
+import HtmlMeta from "@/components/HtmlMeta";
+import PageTitle from "@/components/PageTitle";
+import UsersList from "@/components/UsersList";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, MOD, PROFILE } from "@/i18n/namespaces";
 
 import { useNewUsers } from "./hooks";
 

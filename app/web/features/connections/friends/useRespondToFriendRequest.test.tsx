@@ -1,10 +1,11 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
-import useRespondToFriendRequest from "features/connections/friends/useRespondToFriendRequest";
-import { friendRequestKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { FriendRequest } from "proto/api_pb";
-import { service } from "service";
-import { getHookWrapperWithClient } from "test/hookWrapper";
+
+import useRespondToFriendRequest from "@/features/connections/friends/useRespondToFriendRequest";
+import { friendRequestKey } from "@/features/queryKeys";
+import { FriendRequest } from "@/proto/api_pb";
+import { service } from "@/service";
+import { getHookWrapperWithClient } from "@/test/hookWrapper";
 
 const respondToFriendRequestMock = service.api
   .respondFriendRequest as jest.Mock<

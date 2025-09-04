@@ -1,12 +1,13 @@
-import { appGetLayout } from "components/AppRoute";
-import MarkdownPage, {
-  MarkdownPageProps,
-} from "features/markdown/MarkdownPage";
-import { AUTH, GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { GetStaticPaths, GetStaticProps } from "next";
 import nextI18nextConfig from "next-i18next.config";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { getAllMarkdownPathsWithLocales } from "utils/markdownPages";
+
+import { appGetLayout } from "@/components/AppRoute";
+import MarkdownPage, {
+  MarkdownPageProps,
+} from "@/features/markdown/MarkdownPage";
+import { AUTH, GLOBAL, NOTIFICATIONS } from "@/i18n/namespaces";
+import { getAllMarkdownPathsWithLocales } from "@/utils/markdownPages";
 
 async function getMarkdownPageBySlug(
   slug: Array<string>,

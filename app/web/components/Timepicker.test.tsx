@@ -1,7 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { useForm } from "react-hook-form";
-import { Dayjs } from "utils/dayjs";
+
+import { Dayjs } from "@/utils/dayjs";
 
 import wrapper from "../test/hookWrapper";
 import Timepicker from "./Timepicker";

@@ -1,13 +1,14 @@
 import { Box, IconButton, styled } from "@mui/material";
 import { AutocompleteChangeReason } from "@mui/material/Autocomplete";
-import { SignupAccountInputs } from "features/auth/signup/AccountForm";
-import { EditProfileFormValues } from "features/profile/edit/EditProfile";
-import { GLOBAL } from "i18n/namespaces";
 import { LngLat } from "maplibre-gl";
 import React, { useEffect, useState } from "react";
 import { ControllerRenderProps, FieldError } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useGeocodeQuery } from "utils/hooks";
+
+import { SignupAccountInputs } from "@/features/auth/signup/AccountForm";
+import { EditProfileFormValues } from "@/features/profile/edit/EditProfile";
+import { GLOBAL } from "@/i18n/namespaces";
+import { useGeocodeQuery } from "@/utils/hooks";
 
 import Autocomplete from "./Autocomplete";
 import { SearchIcon } from "./Icons";

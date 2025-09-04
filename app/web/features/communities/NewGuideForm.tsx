@@ -1,16 +1,17 @@
 import { useMutation } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import EditLocationMap from "components/EditLocationMap";
-import TextField from "components/TextField";
-import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import { useRouter } from "next/router";
-import { PageType } from "proto/pages_pb";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { routeToGuide, routeToPlace } from "routes";
-import { service } from "service";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import EditLocationMap from "@/components/EditLocationMap";
+import TextField from "@/components/TextField";
+import ProfileMarkdownInput from "@/features/profile/ProfileMarkdownInput";
+import { PageType } from "@/proto/pages_pb";
+import { routeToGuide, routeToPlace } from "@/routes";
+import { service } from "@/service";
 
 type NewGuideInputs = {
   title: string;

@@ -1,14 +1,15 @@
-import { Pagination, styled, Typography, useMediaQuery } from "@mui/material";
-import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import LocationAutocomplete from "components/LocationAutocomplete";
-import TextBody from "components/TextBody";
-import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
+import { Pagination, Typography, styled, useMediaQuery } from "@mui/material";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { theme } from "theme";
-import { GeocodeResult } from "utils/hooks";
+
+import Alert from "@/components/Alert";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import LocationAutocomplete from "@/components/LocationAutocomplete";
+import TextBody from "@/components/TextBody";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
+import { theme } from "@/theme";
+import { GeocodeResult } from "@/utils/hooks";
 
 import EventsList from "./EventsList";
 import { useEventSearch } from "./hooks";
@@ -134,7 +135,7 @@ const DiscoverEventsList = () => {
       label={t("global:location_autocomplete.search_location_button")}
       onChange={handleOnChangeAutocomplete}
       fieldError={undefined}
-      fullWidth={isMobile}
+      isFullWidth={isMobile}
     />
   );
 

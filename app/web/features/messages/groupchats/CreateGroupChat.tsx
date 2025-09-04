@@ -5,31 +5,32 @@ import {
   styled,
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Autocomplete from "components/Autocomplete";
-import Avatar from "components/Avatar";
-import Button from "components/Button";
+import { RpcError } from "grpc-web";
+import { useRouter } from "next/router";
+import React, { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+
+import Alert from "@/components/Alert";
+import Autocomplete from "@/components/Autocomplete";
+import Avatar from "@/components/Avatar";
+import Button from "@/components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "components/Dialog";
-import { AddIcon } from "components/Icons";
-import TextField from "components/TextField";
-import useFriendList from "features/connections/friends/useFriendList";
-import { groupChatsListKey } from "features/queryKeys";
-import useUserByUsername from "features/userQueries/useUserByUsername";
-import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import { useRouter } from "next/router";
-import { LiteUser, User } from "proto/api_pb";
-import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { service } from "service";
-import { theme } from "theme";
-import stringOrFirstString from "utils/stringOrFirstString";
+} from "@/components/Dialog";
+import { AddIcon } from "@/components/Icons";
+import TextField from "@/components/TextField";
+import useFriendList from "@/features/connections/friends/useFriendList";
+import { groupChatsListKey } from "@/features/queryKeys";
+import useUserByUsername from "@/features/userQueries/useUserByUsername";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
+import { LiteUser, User } from "@/proto/api_pb";
+import { service } from "@/service";
+import { theme } from "@/theme";
+import stringOrFirstString from "@/utils/stringOrFirstString";
 
 const StyledTextField = styled(TextField)(() => ({
   marginTop: theme.spacing(1),

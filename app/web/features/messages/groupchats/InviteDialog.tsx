@@ -1,29 +1,30 @@
 import { DialogProps } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Autocomplete from "components/Autocomplete";
-import Button from "components/Button";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { RpcError } from "grpc-web";
+import React from "react";
+import { Controller, useForm } from "react-hook-form";
+
+import Alert from "@/components/Alert";
+import Autocomplete from "@/components/Autocomplete";
+import Button from "@/components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "components/Dialog";
-import useFriendList from "features/connections/friends/useFriendList";
+} from "@/components/Dialog";
+import useFriendList from "@/features/connections/friends/useFriendList";
 import {
   groupChatKey,
   groupChatMessagesKey,
   groupChatsListKey,
-} from "features/queryKeys";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import { User } from "proto/api_pb";
-import { GroupChat } from "proto/conversations_pb";
-import React from "react";
-import { Controller, useForm } from "react-hook-form";
-import { service } from "service";
+} from "@/features/queryKeys";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
+import { User } from "@/proto/api_pb";
+import { GroupChat } from "@/proto/conversations_pb";
+import { service } from "@/service";
 
 export default function InviteDialog({
   groupChat,

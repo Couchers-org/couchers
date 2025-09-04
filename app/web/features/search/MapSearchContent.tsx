@@ -1,14 +1,15 @@
 import { styled } from "@mui/material";
-import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
-import { SearchUser } from "proto/search_pb";
 import { LngLatLike, MapRef } from "react-map-gl/maplibre";
+
+import { DEFAULT_DRAWER_WIDTH } from "@/components/ResizeableDrawer";
+import { SearchUser } from "@/proto/search_pb";
 
 import MapSearchResultsList from "./MapSearchResultsList";
 import MapView from "./MapView";
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
-import { MapViewOptions, MapViews, MAX_ZOOM_LEVEL } from "./utils/constants";
+import { MAX_ZOOM_LEVEL, MapViewOptions, MapViews } from "./utils/constants";
 import { clearMapFeatureState, setMapFeatureState } from "./utils/mapUtils";
 
 interface MapSearchContentProps {

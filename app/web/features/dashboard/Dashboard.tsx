@@ -1,12 +1,13 @@
 import { Alert, Container, Grid, Typography } from "@mui/material";
-import Divider from "components/Divider";
-import HtmlMeta from "components/HtmlMeta";
-import PageTitle from "components/PageTitle";
-import StyledLink from "components/StyledLink";
-import DashboardBanners from "features/dashboard/DashboardBanners";
-import { useTranslation } from "i18n";
-import { DASHBOARD, GLOBAL } from "i18n/namespaces";
-import { theme } from "theme";
+
+import Divider from "@/components/Divider";
+import HtmlMeta from "@/components/HtmlMeta";
+import PageTitle from "@/components/PageTitle";
+import StyledLink from "@/components/StyledLink";
+import DashboardBanners from "@/features/dashboard/DashboardBanners";
+import { useTranslation } from "@/i18n";
+import { DASHBOARD, GLOBAL } from "@/i18n/namespaces";
+import { theme } from "@/theme";
 
 import dashboardNews from "../../dashboardNews.json";
 import CommunitiesSection from "./CommunitiesSection";

@@ -1,20 +1,21 @@
-import { styled, Tooltip, Typography } from "@mui/material";
+import { Tooltip, Typography, styled } from "@mui/material";
 import { FlexboxProps, useMediaQuery } from "@mui/system";
-import Avatar from "components/Avatar";
-import { OpenInNewIcon } from "components/Icons";
-import StrongVerificationBadge from "components/StrongVerificationBadge";
-import StyledLink from "components/StyledLink";
-import { ResponseRateText } from "features/profile/view/userLabels";
-import { useTranslation } from "i18n";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { TFunction } from "i18next";
-import { SearchUser } from "proto/search_pb";
 import LinesEllipsis from "react-lines-ellipsis";
-import { routeToUser } from "routes";
-import { theme } from "theme";
-import { timestamp2Date } from "utils/date";
-import stripMarkdown from "utils/stripMarkdown";
-import { hourMillis, timeAgoI18n } from "utils/timeAgo";
+
+import Avatar from "@/components/Avatar";
+import { OpenInNewIcon } from "@/components/Icons";
+import StrongVerificationBadge from "@/components/StrongVerificationBadge";
+import StyledLink from "@/components/StyledLink";
+import { ResponseRateText } from "@/features/profile/view/userLabels";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, PROFILE } from "@/i18n/namespaces";
+import { SearchUser } from "@/proto/search_pb";
+import { routeToUser } from "@/routes";
+import { theme } from "@/theme";
+import { timestamp2Date } from "@/utils/date";
+import stripMarkdown from "@/utils/stripMarkdown";
+import { HOUR_MILLIS, timeAgoI18n } from "@/utils/timeAgo";
 
 import HostMeetupReferenceStatus from "./HostMeetupReferenceStatus";
 import { aboutText, truncateWithEllipsis } from "./utils/constants";
@@ -233,7 +234,7 @@ const SearchResultUserCard = ({
                     input: timestamp2Date(user.lastActive),
                     t,
                     fuzzy: {
-                      millis: hourMillis,
+                      millis: HOUR_MILLIS,
                       translationKey: "relative_time.less_than_one_hour_ago",
                     },
                   })

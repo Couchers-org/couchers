@@ -2,15 +2,15 @@ import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
 export default function useOnVisibleEffect(onVisible?: () => void) {
-  const { ref, inView } = useInView({
+  const { ref, inView: isInView } = useInView({
     threshold: 0.9,
   });
 
   useEffect(() => {
-    if (inView) {
+    if (isInView) {
       onVisible?.();
     }
-  }, [inView, onVisible]);
+  }, [isInView, onVisible]);
 
   return { ref };
 }

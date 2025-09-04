@@ -1,33 +1,33 @@
 import {
-  dayMillis,
-  hourMillis,
-  lessThanHour,
-  minuteMillis,
-  monthMillis,
+  DAY_MILLIS,
+  HOUR_MILLIS,
+  LESS_THAN_HOUR,
+  MINUTE_MILLIS,
+  MONTH_MILLIS,
+  TWO_DAY_MILLIS,
+  TWO_HOUR_MILLIS,
+  TWO_MINUTE_MILLIS,
+  TWO_MONTH_MILLIS,
+  TWO_WEEK_MILLIS,
+  WEEK_MILLIS,
+  YEAR_MILLIS,
   timeAgo,
-  twoDayMillis,
-  twoHourMillis,
-  twoMinuteMillis,
-  twoMonthMillis,
-  twoWeekMillis,
   twoYearMillis,
-  weekMillis,
-  yearMillis,
 } from "./timeAgo";
 
 const timeAgoMap = {
-  [dayMillis]: "1 day ago",
-  [hourMillis]: "1 hour ago",
-  [minuteMillis]: "< 1 minute ago",
-  [monthMillis]: "1 month ago",
-  [twoDayMillis]: "2 days ago",
-  [twoHourMillis]: "2 hours ago",
-  [twoMinuteMillis]: "1 minute ago",
-  [twoMonthMillis]: "2 months ago",
-  [twoWeekMillis]: "2 weeks ago",
+  [DAY_MILLIS]: "1 day ago",
+  [HOUR_MILLIS]: "1 hour ago",
+  [MINUTE_MILLIS]: "< 1 minute ago",
+  [MONTH_MILLIS]: "1 month ago",
+  [TWO_DAY_MILLIS]: "2 days ago",
+  [TWO_HOUR_MILLIS]: "2 hours ago",
+  [TWO_MINUTE_MILLIS]: "1 minute ago",
+  [TWO_MONTH_MILLIS]: "2 months ago",
+  [TWO_WEEK_MILLIS]: "2 weeks ago",
   [twoYearMillis]: "2 years ago",
-  [weekMillis]: "1 week ago",
-  [yearMillis]: "1 year ago",
+  [WEEK_MILLIS]: "1 week ago",
+  [YEAR_MILLIS]: "1 year ago",
 };
 
 beforeEach(() => {
@@ -47,7 +47,10 @@ test("timeAgo function", () => {
 
 test("timeAgo function with fuzzy", () => {
   const now = Date.now();
-  const date = new Date(now - twoMinuteMillis);
-  const timeString = timeAgo(date, { millis: hourMillis, text: lessThanHour });
-  expect(timeString).toBe(lessThanHour);
+  const date = new Date(now - TWO_MINUTE_MILLIS);
+  const timeString = timeAgo(date, {
+    millis: HOUR_MILLIS,
+    text: LESS_THAN_HOUR,
+  });
+  expect(timeString).toBe(LESS_THAN_HOUR);
 });

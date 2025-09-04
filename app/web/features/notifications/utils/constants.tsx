@@ -12,6 +12,7 @@ import {
   VerifiedUser,
 } from "@mui/icons-material";
 import { Box } from "@mui/material";
+
 import {
   AccountSecurityIcon,
   AccountSettingsIcon,
@@ -23,8 +24,8 @@ import {
   PenIcon,
   SegmentIcon,
   SinglePersonIcon,
-} from "components/Icons";
-import { theme } from "theme";
+} from "@/components/Icons";
+import { theme } from "@/theme";
 
 const mapNotificationSettingsTypeToIcon: { [key: string]: JSX.Element } = {
   account_security: <AccountSecurityIcon fontSize="large" color="action" />,

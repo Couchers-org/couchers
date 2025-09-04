@@ -5,18 +5,19 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
-import { User } from "proto/api_pb";
 import React from "react";
-import { routeToUser } from "routes";
-import { service } from "service";
-import mockUsers from "test/fixtures/users.json";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
-import { addDefaultUser, MockedService } from "test/utils";
+
+import useCurrentUser from "@/features/userQueries/useCurrentUser";
+import { User } from "@/proto/api_pb";
+import { routeToUser } from "@/routes";
+import { service } from "@/service";
+import mockUsers from "@/test/fixtures/users.json";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { getLanguages, getRegions, getUser } from "@/test/serviceMockDefaults";
+import { MockedService, addDefaultUser } from "@/test/utils";
 
 import { sectionLabels } from "./UserCard";
 import UserPage from "./UserPage";

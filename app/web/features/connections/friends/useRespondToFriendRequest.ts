@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { friendRequestKey, userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { FriendRequest, User } from "proto/api_pb";
-import { service } from "service";
+
+import { friendRequestKey, userKey } from "@/features/queryKeys";
+import { FriendRequest, User } from "@/proto/api_pb";
+import { service } from "@/service";
 
 import { SetMutationError } from ".";
 

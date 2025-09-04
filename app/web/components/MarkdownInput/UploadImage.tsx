@@ -1,18 +1,19 @@
 import { Emitter } from "@toast-ui/editor";
-import Button from "components/Button";
+import React, { useRef } from "react";
+import { useForm } from "react-hook-form";
+
+import Button from "@/components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "components/Dialog";
-import ImageInput from "components/ImageInput";
-import TextField from "components/TextField";
-import { useTranslation } from "i18n";
-import { GLOBAL } from "i18n/namespaces";
-import React, { useRef } from "react";
-import { useForm } from "react-hook-form";
-import { ImageInputValues } from "service/api";
+} from "@/components/Dialog";
+import ImageInput from "@/components/ImageInput";
+import TextField from "@/components/TextField";
+import { useTranslation } from "@/i18n";
+import { GLOBAL } from "@/i18n/namespaces";
+import { ImageInputValues } from "@/service/api";
 
 import {
   IMAGE_DESCRIPTION,

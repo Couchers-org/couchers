@@ -1,21 +1,22 @@
 import { ButtonProps, styled } from "@mui/material";
 import { UseMutationResult } from "@tanstack/react-query";
-import Button from "components/Button";
-import TextField from "components/TextField";
-import { useAuthContext } from "features/auth/AuthProvider";
-import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
-import { HostRequestStatus } from "proto/conversations_pb";
-import { ReferenceType } from "proto/references_pb";
-import { HostRequest, RespondHostRequestReq } from "proto/requests_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { referenceTypeRoute, routeToLeaveReference } from "routes";
-import { theme } from "theme";
+
+import Button from "@/components/Button";
+import TextField from "@/components/TextField";
+import { useAuthContext } from "@/features/auth/AuthProvider";
+import { useListAvailableReferences } from "@/features/profile/hooks/referencesHooks";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
+import { HostRequestStatus } from "@/proto/conversations_pb";
+import { ReferenceType } from "@/proto/references_pb";
+import { HostRequest, RespondHostRequestReq } from "@/proto/requests_pb";
+import { referenceTypeRoute, routeToLeaveReference } from "@/routes";
+import { theme } from "@/theme";
 
 import FieldButton from "./FieldButton";
 import HostRequestGuideLinks from "./HostRequestGuideLinks";

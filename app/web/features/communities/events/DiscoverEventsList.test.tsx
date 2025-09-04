@@ -3,13 +3,14 @@ import userEvent from "@testing-library/user-event";
 import { LngLat } from "maplibre-gl";
 import mockRouter from "next-router-mock";
 import React from "react";
-import { service } from "service";
-import mockEvents from "test/fixtures/events.json";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { getEvents } from "test/serviceMockDefaults";
-import { theme } from "theme";
-import { GeocodeResult } from "utils/hooks";
+
+import { service } from "@/service";
+import mockEvents from "@/test/fixtures/events.json";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { getEvents } from "@/test/serviceMockDefaults";
+import { theme } from "@/theme";
+import { GeocodeResult } from "@/utils/hooks";
 
 import DiscoverEventsList from "./DiscoverEventsList";
 

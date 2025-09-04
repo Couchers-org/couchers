@@ -1,12 +1,12 @@
-import "@toast-ui/editor/dist/toastui-editor.css";
-
 import { styled } from "@mui/material";
 import ToastUIEditor from "@toast-ui/editor";
+import "@toast-ui/editor/dist/toastui-editor.css";
 import { ToolbarItem } from "@toast-ui/editor/types/ui";
-import { INSERT_IMAGE } from "components/MarkdownInput/constants";
-import UploadImage from "components/MarkdownInput/UploadImage";
 import { useEffect, useRef, useState } from "react";
 import { useController } from "react-hook-form";
+
+import UploadImage from "@/components/MarkdownInput/UploadImage";
+import { INSERT_IMAGE } from "@/components/MarkdownInput/constants";
 
 import { MarkdownInputProps } from "./MarkdownInput";
 

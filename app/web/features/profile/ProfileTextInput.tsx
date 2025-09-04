@@ -1,6 +1,7 @@
 import { TextFieldProps } from "@mui/material";
-import TextField from "components/TextField";
-import React, { forwardRef, LegacyRef, RefObject } from "react";
+import React, { LegacyRef, RefObject, forwardRef } from "react";
+
+import TextField from "@/components/TextField";
 
 interface ProfileTextInputProps extends Omit<TextFieldProps, "margin"> {
   id: NonNullable<TextFieldProps["id"]>;

@@ -1,9 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { service } from "service";
-import liteUsers from "test/fixtures/liteUsers.json";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
+
+import { service } from "@/service";
+import liteUsers from "@/test/fixtures/liteUsers.json";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
 
 import FriendItem from "./FriendItem";
 

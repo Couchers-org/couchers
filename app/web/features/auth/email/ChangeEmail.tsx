@@ -1,16 +1,17 @@
-import { styled, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Typography, styled, useMediaQuery, useTheme } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
-import { Trans, useTranslation } from "i18n";
-import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
-import { service } from "service";
-import { theme } from "theme";
-import { lowercaseAndTrimField } from "utils/validation";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import TextField from "@/components/TextField";
+import { Trans, useTranslation } from "@/i18n";
+import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import { service } from "@/service";
+import { theme } from "@/theme";
+import { lowercaseAndTrimField } from "@/utils/validation";
 
 const StyledForm = styled("form")(() => ({
   marginBottom: theme.spacing(2),

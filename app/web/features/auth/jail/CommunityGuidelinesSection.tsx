@@ -1,7 +1,8 @@
 import { styled } from "@mui/material";
-import CommunityGuidelines from "features/auth/CommunityGuidelines";
 import React from "react";
-import { service } from "service";
+
+import CommunityGuidelines from "@/features/auth/CommunityGuidelines";
+import { service } from "@/service";
 
 const StyledCommunityGuidelines = styled(CommunityGuidelines)(() => ({
   maxWidth: "30rem",

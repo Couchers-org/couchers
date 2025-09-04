@@ -6,15 +6,16 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { useForm } from "react-hook-form";
+
 import {
   IMAGE_DESCRIPTION,
   INSERT_IMAGE,
-} from "components/MarkdownInput/constants";
-import { useForm } from "react-hook-form";
-import { service } from "service";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { MockedService } from "test/utils";
+} from "@/components/MarkdownInput/constants";
+import { service } from "@/service";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { MockedService } from "@/test/utils";
 
 import MarkdownInput from "./MarkdownInput";
 

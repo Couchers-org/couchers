@@ -1,21 +1,22 @@
-import { alpha, Container, styled, Typography } from "@mui/material";
-import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import HtmlMeta from "components/HtmlMeta";
-import Redirect from "components/Redirect";
-import StyledLink from "components/StyledLink";
-import { Trans, useTranslation } from "i18n";
-import { AUTH, GLOBAL } from "i18n/namespaces";
+import { Container, Typography, alpha, styled } from "@mui/material";
 import { useRouter } from "next/router";
-import { useIsNativeEmbed } from "platform/nativeLink";
-import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
-import CouchersTextLogo from "resources/CouchersTextLogo";
-import { dashboardRoute, loginRoute, signupRoute } from "routes";
-import { service } from "service";
-import isGrpcError from "service/utils/isGrpcError";
-import { theme } from "theme";
-import stringOrFirstString from "utils/stringOrFirstString";
+
+import Alert from "@/components/Alert";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import HtmlMeta from "@/components/HtmlMeta";
+import Redirect from "@/components/Redirect";
+import StyledLink from "@/components/StyledLink";
+import { Trans, useTranslation } from "@/i18n";
+import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import { useIsNativeEmbed } from "@/platform/nativeLink";
+import Sentry from "@/platform/sentry";
+import CouchersTextLogo from "@/resources/CouchersTextLogo";
+import { dashboardRoute, loginRoute, signupRoute } from "@/routes";
+import { service } from "@/service";
+import isGrpcError from "@/service/utils/isGrpcError";
+import { theme } from "@/theme";
+import stringOrFirstString from "@/utils/stringOrFirstString";
 
 import { useAuthContext } from "../AuthProvider";
 import SignupFormContent from "./SignupFormContent";

@@ -1,10 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { service } from "service";
-import mockEvents from "test/fixtures/events.json";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { getMyEvents } from "test/serviceMockDefaults";
+
+import { service } from "@/service";
+import mockEvents from "@/test/fixtures/events.json";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { getMyEvents } from "@/test/serviceMockDefaults";
 
 import MyEventsList from "./MyEventsList";
 

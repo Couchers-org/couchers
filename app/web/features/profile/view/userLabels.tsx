@@ -1,18 +1,19 @@
-import { styled, Tooltip } from "@mui/material";
-import { CheckCircleIcon, ErrorIcon } from "components/Icons";
-import LabelAndText from "components/LabelAndText";
-import { useLanguages } from "features/profile/hooks/useLanguages";
-import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL, PROFILE } from "i18n/namespaces";
+import { Tooltip, styled } from "@mui/material";
+
+import { CheckCircleIcon, ErrorIcon } from "@/components/Icons";
+import LabelAndText from "@/components/LabelAndText";
+import { useLanguages } from "@/features/profile/hooks/useLanguages";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES, GLOBAL, PROFILE } from "@/i18n/namespaces";
 import {
   BirthdateVerificationStatus,
   GenderVerificationStatus,
   User,
-} from "proto/api_pb";
-import { theme } from "theme";
-import { monthFormatter, timestamp2Date } from "utils/date";
-import dayjs from "utils/dayjs";
-import { hourMillis, timeAgoI18n } from "utils/timeAgo";
+} from "@/proto/api_pb";
+import { theme } from "@/theme";
+import { monthFormatter, timestamp2Date } from "@/utils/date";
+import dayjs from "@/utils/dayjs";
+import { HOUR_MILLIS, timeAgoI18n } from "@/utils/timeAgo";
 
 interface Props {
   user: User.AsObject;
@@ -36,7 +37,7 @@ export const ReferencesLastActiveLabels = ({ user }: Props) => {
                 input: timestamp2Date(user.lastActive),
                 t: tGlobal,
                 fuzzy: {
-                  millis: hourMillis,
+                  millis: HOUR_MILLIS,
                   translationKey: "relative_time.less_than_one_hour_ago",
                 },
               })

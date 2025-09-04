@@ -4,20 +4,21 @@ import {
   Box,
   Menu,
   MenuItem,
-  styled,
   Typography,
+  styled,
   useMediaQuery,
 } from "@mui/material";
-import IconButton from "components/IconButton";
-import { useTranslation } from "i18n";
-import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { Notification } from "proto/notifications_pb";
 import { useState } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
-import { theme } from "theme";
-import { timestamp2Date } from "utils/date";
-import { timeAgoI18n } from "utils/timeAgo";
+
+import IconButton from "@/components/IconButton";
+import { useTranslation } from "@/i18n";
+import { GLOBAL } from "@/i18n/namespaces";
+import { Notification } from "@/proto/notifications_pb";
+import { theme } from "@/theme";
+import { timestamp2Date } from "@/utils/date";
+import { timeAgoI18n } from "@/utils/timeAgo";
 
 import { mapNotificationFeedTypeToIcon } from "../utils/constants";
 

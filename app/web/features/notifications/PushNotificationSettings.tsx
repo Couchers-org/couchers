@@ -1,11 +1,12 @@
-import { styled, Typography } from "@mui/material";
-import Alert from "components/Alert";
-import CustomColorSwitch from "components/CustomColorSwitch";
-import { Trans, useTranslation } from "i18n";
-import { NOTIFICATIONS } from "i18n/namespaces";
-import Sentry from "platform/sentry";
+import { Typography, styled } from "@mui/material";
 import { useEffect, useState } from "react";
-import { theme } from "theme";
+
+import Alert from "@/components/Alert";
+import CustomColorSwitch from "@/components/CustomColorSwitch";
+import { Trans, useTranslation } from "@/i18n";
+import { NOTIFICATIONS } from "@/i18n/namespaces";
+import Sentry from "@/platform/sentry";
+import { theme } from "@/theme";
 
 import PushNotificationDenied from "./PushNotificationDenied";
 import {

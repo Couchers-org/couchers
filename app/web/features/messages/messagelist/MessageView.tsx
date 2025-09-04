@@ -1,16 +1,17 @@
-import { Card, CardContent, Skeleton, styled, Typography } from "@mui/material";
-import Avatar from "components/Avatar";
-import Linkify from "components/Linkify";
-import TextBody from "components/TextBody";
-import FlagButton from "features/FlagButton";
-import TimeInterval from "features/messages/messagelist/TimeInterval";
-import useCurrentUser from "features/userQueries/useCurrentUser";
-import { useLiteUser } from "features/userQueries/useLiteUsers";
-import { useTranslation } from "i18n";
-import { MESSAGES } from "i18n/namespaces";
-import { Message } from "proto/conversations_pb";
-import { timestamp2Date } from "utils/date";
-import useOnVisibleEffect from "utils/useOnVisibleEffect";
+import { Card, CardContent, Skeleton, Typography, styled } from "@mui/material";
+
+import Avatar from "@/components/Avatar";
+import Linkify from "@/components/Linkify";
+import TextBody from "@/components/TextBody";
+import FlagButton from "@/features/FlagButton";
+import TimeInterval from "@/features/messages/messagelist/TimeInterval";
+import useCurrentUser from "@/features/userQueries/useCurrentUser";
+import { useLiteUser } from "@/features/userQueries/useLiteUsers";
+import { useTranslation } from "@/i18n";
+import { MESSAGES } from "@/i18n/namespaces";
+import { Message } from "@/proto/conversations_pb";
+import { timestamp2Date } from "@/utils/date";
+import useOnVisibleEffect from "@/utils/useOnVisibleEffect";
 
 export const messageElementId = (id: number) => `message-${id}`;
 

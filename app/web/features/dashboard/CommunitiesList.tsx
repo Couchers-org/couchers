@@ -1,15 +1,16 @@
-import { Link as MuiLink, Skeleton, styled, Typography } from "@mui/material";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import StyledLink from "components/StyledLink";
-import { useListSubCommunities } from "features/communities/hooks";
-import useUserCommunities from "features/userQueries/useUserCommunities";
-import { useTranslation } from "i18n";
-import { DASHBOARD } from "i18n/namespaces";
+import { Link as MuiLink, Skeleton, Typography, styled } from "@mui/material";
 import React from "react";
-import { routeToCommunity } from "routes";
-import { theme } from "theme";
-import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import StyledLink from "@/components/StyledLink";
+import { useListSubCommunities } from "@/features/communities/hooks";
+import useUserCommunities from "@/features/userQueries/useUserCommunities";
+import { useTranslation } from "@/i18n";
+import { DASHBOARD } from "@/i18n/namespaces";
+import { routeToCommunity } from "@/routes";
+import { theme } from "@/theme";
+import hasAtLeastOnePage from "@/utils/hasAtLeastOnePage";
 
 const StyledPlaceholder = styled("div")(() => ({
   display: "flex",

@@ -1,10 +1,11 @@
 import { styled } from "@mui/material";
 import { InfiniteData } from "@tanstack/react-query";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import InfiniteMessageLoader from "features/messages/messagelist/InfiniteMessageLoader";
-import MessageList from "features/messages/messagelist/MessageList";
-import { GetGroupChatMessagesRes } from "proto/conversations_pb";
-import { HostRequest } from "proto/requests_pb";
+
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import InfiniteMessageLoader from "@/features/messages/messagelist/InfiniteMessageLoader";
+import MessageList from "@/features/messages/messagelist/MessageList";
+import { GetGroupChatMessagesRes } from "@/proto/conversations_pb";
+import { HostRequest } from "@/proto/requests_pb";
 
 const StyledInfiniteMessageLoader = styled(InfiniteMessageLoader)(
   ({ theme }) => ({

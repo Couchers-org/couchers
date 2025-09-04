@@ -1,9 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuthContext } from "features/auth/AuthProvider";
-import { accountInfoQueryKey, userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { service, UpdateUserProfileData } from "service/index";
-import { SetMutationError } from "utils/setMutationError";
+
+import { useAuthContext } from "@/features/auth/AuthProvider";
+import { accountInfoQueryKey, userKey } from "@/features/queryKeys";
+import { UpdateUserProfileData, service } from "@/service/index";
+import { SetMutationError } from "@/utils/setMutationError";
 
 interface UpdateUserProfileVariables {
   profileData: UpdateUserProfileData;

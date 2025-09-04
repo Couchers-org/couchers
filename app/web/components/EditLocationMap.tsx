@@ -1,21 +1,22 @@
-import { BoxProps, Slider, styled, Typography, useTheme } from "@mui/material";
-import { userLocationMaxRadius, userLocationMinRadius } from "appConstants";
-import MapSearch from "components/MapSearch";
-import Map from "components/OldMap";
-import TextField from "components/TextField";
-import { SignupAccountInputs } from "features/auth/signup/AccountForm";
-import { EditProfileFormValues } from "features/profile/edit/EditProfile";
+import { BoxProps, Slider, Typography, styled, useTheme } from "@mui/material";
 import { Feature, GeoJsonProperties, Geometry } from "geojson";
 import {
   GeoJSONSource,
   LngLat,
-  Map as MaplibreMap,
   MapMouseEvent,
   MapTouchEvent,
+  Map as MaplibreMap,
 } from "maplibre-gl";
 import React, { useRef, useState } from "react";
 import { ControllerRenderProps, FieldError } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+
+import { userLocationMaxRadius, userLocationMinRadius } from "@/appConstants";
+import MapSearch from "@/components/MapSearch";
+import Map from "@/components/OldMap";
+import TextField from "@/components/TextField";
+import { SignupAccountInputs } from "@/features/auth/signup/AccountForm";
+import { EditProfileFormValues } from "@/features/profile/edit/EditProfile";
 
 import { GLOBAL } from "../i18n/namespaces";
 

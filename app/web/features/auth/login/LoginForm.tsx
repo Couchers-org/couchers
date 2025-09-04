@@ -1,16 +1,17 @@
 import { FormControlLabel, styled } from "@mui/material";
-import CustomColorSwitch from "components/CustomColorSwitch";
-import StyledLink from "components/StyledLink";
-import { doAntibot } from "features/antibot/antibot";
-import { useAuthContext } from "features/auth/AuthProvider";
-import { useTranslation } from "i18n";
-import { AUTH, GLOBAL } from "i18n/namespaces";
-import Sentry from "platform/sentry";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { resetPasswordRoute } from "routes";
-import isGrpcError from "service/utils/isGrpcError";
-import { lowercaseAndTrimField } from "utils/validation";
+
+import CustomColorSwitch from "@/components/CustomColorSwitch";
+import StyledLink from "@/components/StyledLink";
+import { doAntibot } from "@/features/antibot/antibot";
+import { useAuthContext } from "@/features/auth/AuthProvider";
+import { useTranslation } from "@/i18n";
+import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import Sentry from "@/platform/sentry";
+import { resetPasswordRoute } from "@/routes";
+import isGrpcError from "@/service/utils/isGrpcError";
+import { lowercaseAndTrimField } from "@/utils/validation";
 
 import {
   StyledButton,

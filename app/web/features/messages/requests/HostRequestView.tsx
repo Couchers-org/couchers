@@ -6,31 +6,32 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import HeaderButton from "components/HeaderButton";
-import { BackIcon } from "components/Icons";
-import PageTitle from "components/PageTitle";
 import dayjs from "dayjs";
-import { useAuthContext } from "features/auth/AuthProvider";
-import HostRequestSendField from "features/messages/requests/HostRequestSendField";
-import useMarkLastSeen from "features/messages/useMarkLastSeen";
+import { RpcError } from "grpc-web";
+import { useRouter } from "next/router";
+
+import Alert from "@/components/Alert";
+import HeaderButton from "@/components/HeaderButton";
+import { BackIcon } from "@/components/Icons";
+import PageTitle from "@/components/PageTitle";
+import { useAuthContext } from "@/features/auth/AuthProvider";
+import HostRequestSendField from "@/features/messages/requests/HostRequestSendField";
+import useMarkLastSeen from "@/features/messages/useMarkLastSeen";
 import {
   hostRequestKey,
   hostRequestMessagesKey,
   hostRequestsListKey,
-} from "features/queryKeys";
-import { useLiteUser } from "features/userQueries/useLiteUsers";
-import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { MESSAGES } from "i18n/namespaces";
-import { useRouter } from "next/router";
+} from "@/features/queryKeys";
+import { useLiteUser } from "@/features/userQueries/useLiteUsers";
+import { useTranslation } from "@/i18n";
+import { MESSAGES } from "@/i18n/namespaces";
 import {
   GetHostRequestMessagesRes,
   RespondHostRequestReq,
-} from "proto/requests_pb";
-import { service } from "service";
-import { theme } from "theme";
-import { firstName } from "utils/names";
+} from "@/proto/requests_pb";
+import { service } from "@/service";
+import { theme } from "@/theme";
+import { firstName } from "@/utils/names";
 
 import { requestStatusToTransKey } from "../constants";
 import ChatContent from "../groupchats/ChatContent";

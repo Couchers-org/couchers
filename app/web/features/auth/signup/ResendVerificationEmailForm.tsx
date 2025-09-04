@@ -1,12 +1,13 @@
 import { Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import StyledLink from "components/StyledLink";
-import { useAuthContext } from "features/auth/AuthProvider";
-import { Trans, useTranslation } from "i18n";
-import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
-import { service } from "service";
+
+import Alert from "@/components/Alert";
+import StyledLink from "@/components/StyledLink";
+import { useAuthContext } from "@/features/auth/AuthProvider";
+import { Trans, useTranslation } from "@/i18n";
+import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import { service } from "@/service";
 
 export default function ResendVerificationEmailForm() {
   const { t } = useTranslation([AUTH, GLOBAL]);

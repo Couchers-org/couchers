@@ -1,6 +1,6 @@
-import { theme } from "theme";
-import { colorStringToHsl } from "utils/color";
-import { lerp } from "utils/math";
+import { theme } from "@/theme";
+import { colorStringToHsl } from "@/utils/color";
+import { lerp } from "@/utils/math";
 
 const goodHsl = colorStringToHsl(theme.palette.success.main);
 const badHsl = colorStringToHsl(theme.palette.error.main);

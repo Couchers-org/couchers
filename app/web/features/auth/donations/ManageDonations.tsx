@@ -1,9 +1,10 @@
 import { Typography } from "@mui/material";
-import Button from "components/Button";
-import { DONATIONS } from "i18n/namespaces";
-import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
-import { service } from "service";
+import { useRouter } from "next/router";
+
+import Button from "@/components/Button";
+import { DONATIONS } from "@/i18n/namespaces";
+import { service } from "@/service";
 
 type ManageDonationsProps = {
   className?: string;

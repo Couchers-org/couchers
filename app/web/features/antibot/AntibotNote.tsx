@@ -1,4 +1,4 @@
-import StyledLink from "components/StyledLink";
+import StyledLink from "@/components/StyledLink";
 
 export default function AntibotNote() {
   return (

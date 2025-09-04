@@ -2,18 +2,19 @@ import {
   Box,
   Card,
   CardContent,
-  styled,
   Typography,
+  styled,
   useMediaQuery,
 } from "@mui/material";
-import SliderLabel from "components/RatingsSlider/SliderLabel";
-import TextBody from "components/TextBody";
-import UserSummary from "components/UserSummary";
-import { useProfileUser } from "features/profile/hooks/useProfileUser";
-import { ReferenceContextFormData } from "features/profile/view/leaveReference/ReferenceForm";
-import { useTranslation } from "i18n";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
-import { theme } from "theme";
+
+import SliderLabel from "@/components/RatingsSlider/SliderLabel";
+import TextBody from "@/components/TextBody";
+import UserSummary from "@/components/UserSummary";
+import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
+import { ReferenceContextFormData } from "@/features/profile/view/leaveReference/ReferenceForm";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, PROFILE } from "@/i18n/namespaces";
+import { theme } from "@/theme";
 
 const StyledTextBody = styled(TextBody)(({ theme }) => ({
   "& > .MuiInputBase-root": {

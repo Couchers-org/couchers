@@ -1,8 +1,9 @@
-import { styled, StyledEngineProvider, ThemeProvider } from "@mui/material";
-import Button from "components/Button";
-import { DASHBOARD } from "i18n/namespaces";
-import Link from "next/link";
+import { StyledEngineProvider, ThemeProvider, styled } from "@mui/material";
 import { useTranslation } from "next-i18next";
+import Link from "next/link";
+
+import Button from "@/components/Button";
+import { DASHBOARD } from "@/i18n/namespaces";
 
 import { searchRoute } from "../../../routes";
 import { theme } from "../../../theme";

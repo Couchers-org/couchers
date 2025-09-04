@@ -1,11 +1,12 @@
 import { Link, Typography } from "@mui/material";
-import StyledLink from "components/StyledLink";
-import AntibotNote from "features/antibot/AntibotNote";
-import { Trans, useTranslation } from "i18n";
-import { AUTH, GLOBAL } from "i18n/namespaces";
-import { GetSignupPageInfoRes } from "proto/public_pb";
 import { useEffect, useState } from "react";
-import { baseRoute, tosRoute } from "routes";
+
+import StyledLink from "@/components/StyledLink";
+import AntibotNote from "@/features/antibot/AntibotNote";
+import { Trans, useTranslation } from "@/i18n";
+import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import { GetSignupPageInfoRes } from "@/proto/public_pb";
+import { baseRoute, tosRoute } from "@/routes";
 
 import { useAuthContext } from "../AuthProvider";
 import AccountForm from "./AccountForm";

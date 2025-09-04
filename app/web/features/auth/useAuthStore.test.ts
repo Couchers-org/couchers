@@ -1,8 +1,9 @@
 import { act, renderHook } from "@testing-library/react";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { StatusCode } from "grpc-web";
-import { usePersistedState } from "platform/usePersistedState";
-import { service } from "service";
+
+import { usePersistedState } from "@/platform/usePersistedState";
+import { service } from "@/service";
 
 import wrapper from "../../test/hookWrapper";
 import { addDefaultUser } from "../../test/utils";

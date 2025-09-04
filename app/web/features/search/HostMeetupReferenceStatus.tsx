@@ -3,16 +3,17 @@ import {
   DoDisturb,
   PendingRounded,
 } from "@mui/icons-material";
-import { styled, Typography } from "@mui/material";
+import { Typography, styled } from "@mui/material";
+import { TFunction } from "i18next";
+
 import {
   hostingStatusLabels,
   meetupStatusLabels,
-} from "features/profile/constants";
-import { useTranslation } from "i18n";
-import { PROFILE } from "i18n/namespaces";
-import { TFunction } from "i18next";
-import { HostingStatus, MeetupStatus, User } from "proto/api_pb";
-import { theme } from "theme";
+} from "@/features/profile/constants";
+import { useTranslation } from "@/i18n";
+import { PROFILE } from "@/i18n/namespaces";
+import { HostingStatus, MeetupStatus, User } from "@/proto/api_pb";
+import { theme } from "@/theme";
 
 const Wrapper = styled("div")(({ theme }) => ({
   display: "flex",

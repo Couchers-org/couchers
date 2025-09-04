@@ -1,27 +1,28 @@
 import { Checkbox, DialogProps, FormControlLabel } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { RpcError } from "grpc-web";
+import React from "react";
+import { useForm } from "react-hook-form";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "components/Dialog";
-import TextField from "components/TextField";
+} from "@/components/Dialog";
+import TextField from "@/components/TextField";
 import {
   groupChatKey,
   groupChatMessagesKey,
   groupChatsListKey,
-} from "features/queryKeys";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import { GroupChat } from "proto/conversations_pb";
-import React from "react";
-import { useForm } from "react-hook-form";
-import { service } from "service";
+} from "@/features/queryKeys";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
+import { GroupChat } from "@/proto/conversations_pb";
+import { service } from "@/service";
 
 interface GroupChatSettingsData {
   title: string;

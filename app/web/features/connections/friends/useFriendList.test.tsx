@@ -1,11 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import React from "react";
-import { service } from "service";
-import users from "test/fixtures/liteUsers.json";
-import wrapper from "test/hookWrapper";
-import { getLiteUsers, listFriends } from "test/serviceMockDefaults";
-import { mockConsoleError } from "test/utils";
+
+import { service } from "@/service";
+import users from "@/test/fixtures/liteUsers.json";
+import wrapper from "@/test/hookWrapper";
+import { getLiteUsers, listFriends } from "@/test/serviceMockDefaults";
+import { mockConsoleError } from "@/test/utils";
 
 import useFriendList from "./useFriendList";
 

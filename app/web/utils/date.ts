@@ -3,7 +3,7 @@ import { Duration as DurationPb } from "google-protobuf/google/protobuf/duration
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 
 import { Dayjs, Duration } from "./dayjs";
-import { dayMillis } from "./timeAgo";
+import { DAY_MILLIS } from "./timeAgo";
 
 const monthFormatter = (locale: string) =>
   new Intl.DateTimeFormat(locale, {
@@ -26,7 +26,7 @@ const dateFormatter = (locale: string) =>
 
 const numNights = (date1: string, date2: string) => {
   const diffTime = Date.parse(date1) - Date.parse(date2);
-  const diffDays = Math.ceil(diffTime / dayMillis);
+  const diffDays = Math.ceil(diffTime / DAY_MILLIS);
   return diffDays;
 };
 

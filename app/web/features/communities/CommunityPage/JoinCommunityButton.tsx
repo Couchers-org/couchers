@@ -1,11 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Button from "components/Button";
-import Snackbar from "components/Snackbar";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
-import { Community } from "proto/communities_pb";
-import { service } from "service";
+
+import Button from "@/components/Button";
+import Snackbar from "@/components/Snackbar";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES } from "@/i18n/namespaces";
+import { Community } from "@/proto/communities_pb";
+import { service } from "@/service";
 
 import { communityKey } from "../../queryKeys";
 

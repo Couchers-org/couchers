@@ -1,4 +1,5 @@
-//From https://github.com/stiang/remove-markdown
+// From https://github.com/stiang/remove-markdown
+import log from "@/log";
 
 interface StripMarkdownOptions {
   stripListLeaders?: boolean; // strip list leaders (default: true)
@@ -77,7 +78,7 @@ export default function stripMarkdown(
       // Replace two or more newlines with exactly two? Not entirely sure this belongs here...
       .replace(/\n{2,}/g, "\n\n");
   } catch (e) {
-    console.error(e);
+    log.error(e);
     return md;
   }
   return output;

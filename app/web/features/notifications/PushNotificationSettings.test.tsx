@@ -1,11 +1,12 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { useTranslation } from "i18n";
 import { ReactChildren } from "react";
+
+import { useTranslation } from "@/i18n";
 import {
   getVapidPublicKey,
   registerPushNotificationSubscription,
-} from "service/notifications";
-import wrapper from "test/hookWrapper";
+} from "@/service/notifications";
+import wrapper from "@/test/hookWrapper";
 
 import PushNotificationSettings from "./PushNotificationSettings";
 

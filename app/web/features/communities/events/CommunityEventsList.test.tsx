@@ -6,14 +6,15 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
-import { routeToNewEvent } from "routes";
-import { service } from "service";
-import community from "test/fixtures/community.json";
-import events from "test/fixtures/events.json";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { getUser } from "test/serviceMockDefaults";
-import { assertErrorAlert, mockConsoleError } from "test/utils";
+
+import { routeToNewEvent } from "@/routes";
+import { service } from "@/service";
+import community from "@/test/fixtures/community.json";
+import events from "@/test/fixtures/events.json";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { getUser } from "@/test/serviceMockDefaults";
+import { assertErrorAlert, mockConsoleError } from "@/test/utils";
 
 import CommunityEventsList from "./CommunityEventsList";
 

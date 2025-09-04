@@ -1,7 +1,7 @@
-import { TFunction } from "i18n";
-import { HostingStatus, SleepingArrangement } from "proto/api_pb";
-import { SearchUser } from "proto/search_pb";
-import { firstName } from "utils/names";
+import { TFunction } from "@/i18n";
+import { HostingStatus, SleepingArrangement } from "@/proto/api_pb";
+import { SearchUser } from "@/proto/search_pb";
+import { firstName } from "@/utils/names";
 
 const aboutText = (user: SearchUser.AsObject, t: TFunction) => {
   const missingAbout = user.profileSnippet.length === 0;

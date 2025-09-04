@@ -1,13 +1,14 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { service } from "service";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { getUser } from "test/serviceMockDefaults";
+
+import { service } from "@/service";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { getUser } from "@/test/serviceMockDefaults";
 
 import { ParkingDetails } from "../../../proto/api_pb";
-import { addDefaultUser, MockedService } from "../../../test/utils";
+import { MockedService, addDefaultUser } from "../../../test/utils";
 import EditHostingPreference from "./EditHostingPreference";
 
 const { t } = i18n;

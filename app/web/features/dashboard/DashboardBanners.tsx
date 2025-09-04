@@ -1,17 +1,18 @@
-import { Alert as MuiAlert, styled, Typography } from "@mui/material";
+import { Alert as MuiAlert, Typography, styled } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import { accountInfoQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
-import { GetAccountInfoRes } from "proto/account_pb";
 import React from "react";
-import { routeToEditProfile } from "routes";
-import { service } from "service";
-import { theme } from "theme";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import { accountInfoQueryKey } from "@/features/queryKeys";
+import { useTranslation } from "@/i18n";
+import { DASHBOARD } from "@/i18n/namespaces";
+import { GetAccountInfoRes } from "@/proto/account_pb";
+import { routeToEditProfile } from "@/routes";
+import { service } from "@/service";
+import { theme } from "@/theme";
 
 const StyledAlert = styled(MuiAlert)(() => ({
   marginBottom: theme.spacing(2),

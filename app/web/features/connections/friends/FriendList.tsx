@@ -1,9 +1,10 @@
 import { Alert } from "@mui/material";
-import { useTranslation } from "i18n";
-import { CONNECTIONS, GLOBAL } from "i18n/namespaces";
-import { LiteUser } from "proto/api_pb";
 import { useState } from "react";
-import { theme } from "theme";
+
+import { useTranslation } from "@/i18n";
+import { CONNECTIONS, GLOBAL } from "@/i18n/namespaces";
+import { LiteUser } from "@/proto/api_pb";
+import { theme } from "@/theme";
 
 import FriendItem from "./FriendItem";
 import FriendTile from "./FriendTile";

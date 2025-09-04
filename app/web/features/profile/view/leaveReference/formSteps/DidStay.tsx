@@ -1,30 +1,31 @@
 import { Alert, Box, styled, useMediaQuery } from "@mui/material";
-import Button from "components/Button";
+import { useRouter } from "next/router";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+
+import Button from "@/components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "components/Dialog";
-import StyledLink from "components/StyledLink";
-import TextBody from "components/TextBody";
-import TextField from "components/TextField";
-import { useProfileUser } from "features/profile/hooks/useProfileUser";
-import { Trans, useTranslation } from "i18n";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
-import { useRouter } from "next/router";
-import { ReferenceType } from "proto/references_pb";
-import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+} from "@/components/Dialog";
+import StyledLink from "@/components/StyledLink";
+import TextBody from "@/components/TextBody";
+import TextField from "@/components/TextField";
+import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
+import { Trans, useTranslation } from "@/i18n";
+import { GLOBAL, PROFILE } from "@/i18n/namespaces";
+import { ReferenceType } from "@/proto/references_pb";
 import {
   baseRoute,
   helpCenterReportContentURL,
   leaveReferenceBaseRoute,
   referenceStepStrings,
   referenceTypeRoute,
-} from "routes";
-import { indicateDidntMeetup } from "service/references";
-import { theme } from "theme";
+} from "@/routes";
+import { indicateDidntMeetup } from "@/service/references";
+import { theme } from "@/theme";
 
 import { ReferenceStepProps } from "../ReferenceForm";
 import ReferenceStepHeader from "./ReferenceStepHeader";

@@ -1,4 +1,4 @@
-import stripMarkdown from "utils/stripMarkdown";
+import stripMarkdown from "@/utils/stripMarkdown";
 
 export default function getContentSummary({
   maxLength,

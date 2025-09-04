@@ -1,25 +1,26 @@
 import { DialogProps } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { RpcError } from "grpc-web";
+import React from "react";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-} from "components/Dialog";
+} from "@/components/Dialog";
 import {
   groupChatKey,
   groupChatMessagesKey,
   groupChatsListKey,
-} from "features/queryKeys";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import React from "react";
-import { service } from "service";
+} from "@/features/queryKeys";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
+import { service } from "@/service";
 
 export default function LeaveDialog({
   groupChatId,

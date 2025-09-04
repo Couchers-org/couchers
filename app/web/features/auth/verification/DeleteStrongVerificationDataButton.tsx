@@ -1,20 +1,21 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
+import { RpcError } from "grpc-web";
+import { useState } from "react";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-} from "components/Dialog";
-import Snackbar from "components/Snackbar";
-import { accountInfoQueryKey } from "features/queryKeys";
-import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { AUTH, GLOBAL } from "i18n/namespaces";
-import { useState } from "react";
-import { service } from "service";
+} from "@/components/Dialog";
+import Snackbar from "@/components/Snackbar";
+import { accountInfoQueryKey } from "@/features/queryKeys";
+import { useTranslation } from "@/i18n";
+import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import { service } from "@/service";
 
 export default function DeleteStrongVerificationDataButton() {
   const { t } = useTranslation([GLOBAL, AUTH]);

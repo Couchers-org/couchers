@@ -7,7 +7,8 @@ import {
   SelectProps,
 } from "@mui/material";
 import React, { forwardRef } from "react";
-import { theme } from "theme";
+
+import { theme } from "@/theme";
 
 const Select = forwardRef(function Select<
   T extends Record<string | number, string>,

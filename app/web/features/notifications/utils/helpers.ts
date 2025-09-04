@@ -1,13 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { listNotificationsQueryKey } from "features/queryKeys";
-import Sentry from "platform/sentry";
-import { ListNotificationsRes } from "proto/notifications_pb";
-import { service } from "service";
+
+import { listNotificationsQueryKey } from "@/features/queryKeys";
+import Sentry from "@/platform/sentry";
+import { ListNotificationsRes } from "@/proto/notifications_pb";
+import { service } from "@/service";
 import {
   getVapidPublicKey,
   registerPushNotificationSubscription,
-} from "service/notifications";
-import { arrayBufferToBase64 } from "utils/arrayBufferToBase64";
+} from "@/service/notifications";
+import { arrayBufferToBase64 } from "@/utils/arrayBufferToBase64";
 
 interface PushNotificationPermissionSuccessResponse {
   success: true;

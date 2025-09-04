@@ -4,16 +4,17 @@ import {
   Box,
   Button,
   IconButton,
-  styled,
   Typography,
+  styled,
   useMediaQuery,
 } from "@mui/material";
-import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { SEARCH } from "i18n/namespaces";
-import { SearchUser } from "proto/search_pb";
-import { theme } from "theme";
+
+import { DEFAULT_DRAWER_WIDTH } from "@/components/ResizeableDrawer";
+import { useTranslation } from "@/i18n";
+import { SEARCH } from "@/i18n/namespaces";
+import { SearchUser } from "@/proto/search_pb";
+import { theme } from "@/theme";
 
 import SearchResultUserCard from "./SeachResultUserCard";
 import { useMapSearchState } from "./state/mapSearchContext";

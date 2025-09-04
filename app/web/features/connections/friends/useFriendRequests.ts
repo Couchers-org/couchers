@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { friendRequestKey, FriendRequestType } from "features/queryKeys";
-import { useLiteUsers } from "features/userQueries/useLiteUsers";
-import { FriendRequest } from "proto/api_pb";
-import { service } from "service";
+
+import { FriendRequestType, friendRequestKey } from "@/features/queryKeys";
+import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
+import { FriendRequest } from "@/proto/api_pb";
+import { service } from "@/service";
 
 export default function useFriendRequests(
   friendRequestType: FriendRequestType,

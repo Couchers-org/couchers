@@ -1,15 +1,16 @@
 import { styled } from "@mui/material";
-import Datepicker from "components/Datepicker";
-import Timepicker from "components/Timepicker";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
-import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
-import { Event } from "proto/events_pb";
 import { UseFormReturn } from "react-hook-form";
-import { theme } from "theme";
-import { isSameOrFutureDate, timestamp2Date } from "utils/date";
-import dayjs, { Dayjs } from "utils/dayjs";
-import { timePattern } from "utils/validation";
+
+import Datepicker from "@/components/Datepicker";
+import Timepicker from "@/components/Timepicker";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES } from "@/i18n/namespaces";
+import { Event } from "@/proto/events_pb";
+import { theme } from "@/theme";
+import { isSameOrFutureDate, timestamp2Date } from "@/utils/date";
+import dayjs, { Dayjs } from "@/utils/dayjs";
+import { TIME_PATTERN } from "@/utils/validation";
 
 import { CreateEventData } from "./EventForm";
 
@@ -126,7 +127,7 @@ export default function EventTimeChanger({
             required: t("communities:time_required"),
             pattern: {
               message: t("communities:invalid_time"),
-              value: timePattern,
+              value: TIME_PATTERN,
             },
             validate: (time: Dayjs) => {
               if (event && !dirtyFields.startTime) {
@@ -201,7 +202,7 @@ export default function EventTimeChanger({
             required: t("communities:time_required"),
             pattern: {
               message: t("communities:invalid_time"),
-              value: timePattern,
+              value: TIME_PATTERN,
             },
             validate: (time: Dayjs) => {
               if (event && !dirtyFields.endTime) {

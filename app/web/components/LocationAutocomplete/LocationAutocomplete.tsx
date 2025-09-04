@@ -1,20 +1,20 @@
 import { AutocompleteChangeReason } from "@mui/material";
-import Autocomplete from "components/Autocomplete";
-import IconButton from "components/IconButton";
-import { SearchIcon } from "components/Icons";
-import { GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import React, { useState } from "react";
 import { Control, useController } from "react-hook-form";
-import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
+
+import Autocomplete from "@/components/Autocomplete";
+import IconButton from "@/components/IconButton";
+import { SearchIcon } from "@/components/Icons";
+import { GLOBAL } from "@/i18n/namespaces";
+import { GeocodeResult, useGeocodeQuery } from "@/utils/hooks";
 
 interface LocationAutocompleteProps {
   className?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  control: Control<any>;
+  control: Control;
   defaultValue: GeocodeResult | "";
   fieldError: string | undefined;
-  fullWidth?: boolean;
+  isFullWidth?: boolean;
   label?: string;
   placeholder?: string;
   id?: string;
@@ -22,8 +22,8 @@ interface LocationAutocompleteProps {
   name: string;
   onChange?(value: GeocodeResult | ""): void;
   required?: string;
-  showFullDisplayName?: boolean;
-  disableRegions?: boolean;
+  shouldShowFullDisplayName?: boolean;
+  shouldDisableRegions?: boolean;
 }
 
 const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
@@ -35,7 +35,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
     control,
     defaultValue,
     fieldError,
-    fullWidth,
+    isFullWidth,
     label,
     placeholder,
     id = "location-autocomplete",
@@ -43,8 +43,8 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
     variant = "standard",
     onChange,
     required,
-    showFullDisplayName = false,
-    disableRegions = false,
+    shouldShowFullDisplayName = false,
+    shouldDisableRegions = false,
   } = props;
 
   const { t } = useTranslation(GLOBAL);
@@ -61,7 +61,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
             ? true
             : t("location_autocomplete.select_location_hint"),
         isSpecific: (value) =>
-          !value?.isRegion || !disableRegions
+          !value?.isRegion || !shouldDisableRegions
             ? true
             : t("location_autocomplete.more_specific"),
       },
@@ -77,8 +77,8 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
   const [isOpen, setIsOpen] = useState(false);
 
   const handleChange = (value: GeocodeResult | string | null) => {
-    //workaround - autocomplete seems to call onChange with the string value on mount
-    //this line prevents needing to reselect the location even if there are no changes
+    // workaround - autocomplete seems to call onChange with the string value on mount
+    // this line prevents needing to reselect the location even if there are no changes
     if (value === controller.field.value?.simplifiedName) return;
 
     controller.field.onChange(value ?? "");
@@ -88,16 +88,16 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
     value: GeocodeResult | string | null,
     reason: AutocompleteChangeReason,
   ) => {
-    //just close if the menu is clicked away
+    // just close if the menu is clicked away
     if (reason === "blur") {
       setIsOpen(false);
       return;
     }
 
     if (typeof value === "string") {
-      //createOption is when enter is pressed on user-entered string
+      // createOption is when enter is pressed on user-entered string
       if (reason === "createOption") {
-        query(value);
+        void query(value);
         setIsOpen(true);
       }
     } else {
@@ -114,7 +114,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
       ref={ref}
       label={label}
       error={fieldError || geocodeError}
-      fullWidth={fullWidth}
+      fullWidth={isFullWidth}
       variant={variant}
       placeholder={placeholder}
       helperText={
@@ -128,7 +128,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
       onClose={() => setIsOpen(false)}
       value={controller.field.value}
       getOptionLabel={(option: GeocodeResult | string) => {
-        return geocodeResult2String(option, showFullDisplayName);
+        return geocodeResult2String(option, shouldShowFullDisplayName);
       }}
       onInputChange={(_e, value) => handleChange(value)}
       onChange={(_e, value, reason) => {

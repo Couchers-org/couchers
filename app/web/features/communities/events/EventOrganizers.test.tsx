@@ -6,16 +6,17 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
-import useCurrentUser from "features/userQueries/useCurrentUser";
-import { User } from "proto/api_pb";
-import { service } from "service";
-import events from "test/fixtures/events.json";
-import users from "test/fixtures/users.json";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { getEventOrganizers, getLiteUsers } from "test/serviceMockDefaults";
-import { assertErrorAlert, mockConsoleError } from "test/utils";
+
+import { USER_TITLE_SKELETON_TEST_ID } from "@/components/UserSummary";
+import useCurrentUser from "@/features/userQueries/useCurrentUser";
+import { User } from "@/proto/api_pb";
+import { service } from "@/service";
+import events from "@/test/fixtures/events.json";
+import users from "@/test/fixtures/users.json";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { getEventOrganizers, getLiteUsers } from "@/test/serviceMockDefaults";
+import { assertErrorAlert, mockConsoleError } from "@/test/utils";
 
 import EventOrganizers from "./EventOrganizers";
 

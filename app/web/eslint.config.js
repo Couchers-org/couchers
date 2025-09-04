@@ -23,6 +23,12 @@ const boolPrefixes = ["is", "should", "has", "can", "did", "will"];
 const baseNamingConventions = [
   {
     selector: "default",
+    modifiers: ["unused"],
+    format: ["strictCamelCase"],
+    leadingUnderscore: "require",
+  },
+  {
+    selector: "default",
     format: ["camelCase"],
   },
   {
@@ -135,8 +141,11 @@ export default tseslint.config([
         "warn",
         {
           allowSameFolder: true,
+          prefix: "@",
         },
       ],
+
+      "no-useless-rename": ["warn"],
     },
   },
   {

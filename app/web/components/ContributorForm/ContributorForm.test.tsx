@@ -1,9 +1,11 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { ContributeOption } from "proto/auth_pb";
-import wrapper from "test/hookWrapper";
-import { mockConsoleError } from "test/utils";
 
+import { ContributeOption } from "@/proto/auth_pb";
+import wrapper from "@/test/hookWrapper";
+import { mockConsoleError } from "@/test/utils";
+
+import ContributorForm from "./ContributorForm";
 import {
   CONTRIBUTE_WAYS_OPTIONS,
   EXPERIENCE_LABEL,
@@ -13,7 +15,6 @@ import {
   SUBMIT,
   SUCCESS_MSG,
 } from "./constants";
-import ContributorForm from "./ContributorForm";
 
 describe("contributor form", () => {
   it("can be submitted empty", async () => {

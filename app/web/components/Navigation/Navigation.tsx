@@ -5,24 +5,25 @@ import {
   IconButton,
   List,
   ListItem,
-  styled,
   Toolbar,
+  styled,
   useMediaQuery,
 } from "@mui/material";
-import Button from "components/Button";
-import { GlobalMessage } from "components/GlobalMessage";
-import { CloseIcon, MenuIcon } from "components/Icons";
-import ExternalNavButton from "components/Navigation/ExternalNavButton";
-import { useAuthContext } from "features/auth/AuthProvider";
-import { PushNotificationBanner } from "features/notifications/PushNotificationBanner";
-import LanguagePickerSelect from "features/translate/LanguagePickerSelect";
-import useNotifications from "features/useNotifications";
-import { GLOBAL } from "i18n/namespaces";
 import { TFunction } from "i18next";
-import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
+import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
-import CouchersLogo from "resources/CouchersLogo";
+
+import Button from "@/components/Button";
+import { GlobalMessage } from "@/components/GlobalMessage";
+import { CloseIcon, MenuIcon } from "@/components/Icons";
+import ExternalNavButton from "@/components/Navigation/ExternalNavButton";
+import { useAuthContext } from "@/features/auth/AuthProvider";
+import { PushNotificationBanner } from "@/features/notifications/PushNotificationBanner";
+import LanguagePickerSelect from "@/features/translate/LanguagePickerSelect";
+import useNotifications from "@/features/useNotifications";
+import { GLOBAL } from "@/i18n/namespaces";
+import CouchersLogo from "@/resources/CouchersLogo";
 import {
   blogRoute,
   communitiesRoute,
@@ -41,8 +42,8 @@ import {
   settingsRoute,
   signupRoute,
   volunteerRoute,
-} from "routes";
-import { theme } from "theme";
+} from "@/routes";
+import { theme } from "@/theme";
 
 import LoggedInMenu, { LoggedInMenuItem } from "./LoggedInMenu";
 import NavButton from "./NavButton";

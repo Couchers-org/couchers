@@ -1,4 +1,5 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+
 import {
   AcceptCommunityGuidelinesReq,
   AcceptTOSReq,
@@ -6,7 +7,7 @@ import {
   ActivenessProbeResponse,
   RespondToActivenessProbeReq,
   SetLocationReq,
-} from "proto/jail_pb";
+} from "@/proto/jail_pb";
 
 import client from "./client";
 import { getCurrentUser } from "./user";

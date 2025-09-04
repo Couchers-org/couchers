@@ -1,11 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useCommunity } from "features/communities/hooks";
-import { service } from "service";
-import mockCommunity from "test/fixtures/community.json";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { mockConsoleError, MockedService } from "test/utils";
+
+import { useCommunity } from "@/features/communities/hooks";
+import { service } from "@/service";
+import mockCommunity from "@/test/fixtures/community.json";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { MockedService, mockConsoleError } from "@/test/utils";
 
 import JoinCommunityButton from "./JoinCommunityButton";
 

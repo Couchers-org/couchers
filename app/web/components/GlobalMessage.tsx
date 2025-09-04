@@ -1,6 +1,7 @@
 import { Alert as MuiAlert } from "@mui/material";
-import { usePersistedState } from "platform/usePersistedState";
 import React, { useEffect } from "react";
+
+import { usePersistedState } from "@/platform/usePersistedState";
 
 interface GlobalMessageData {
   // the unix timestamp (as a string with milliseconds) when the message was issued

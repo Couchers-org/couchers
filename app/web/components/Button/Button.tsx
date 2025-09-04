@@ -1,12 +1,13 @@
 import {
-  Button as MuiButton,
   ButtonProps,
+  Button as MuiButton,
   styled,
   useTheme,
 } from "@mui/material";
-import Sentry from "platform/sentry";
 import React, { ElementType, ForwardedRef, forwardRef } from "react";
-import { useIsMounted, useSafeState } from "utils/hooks";
+
+import Sentry from "@/platform/sentry";
+import { useIsMounted, useSafeState } from "@/utils/hooks";
 
 import CircularProgress from "../CircularProgress";
 

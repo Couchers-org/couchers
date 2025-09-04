@@ -1,10 +1,11 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Event } from "proto/events_pb";
 import { useForm } from "react-hook-form";
-import events from "test/fixtures/events.json";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
+
+import { Event } from "@/proto/events_pb";
+import events from "@/test/fixtures/events.json";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
 
 import { CreateEventData } from "./EventForm";
 import EventTimeChanger from "./EventTimeChanger";

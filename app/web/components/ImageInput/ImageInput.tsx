@@ -1,17 +1,18 @@
 import { Edit } from "@mui/icons-material";
-import { styled, Tooltip } from "@mui/material";
+import { Tooltip, styled } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import MuiIconButton from "@mui/material/IconButton";
 import { useMutation } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
-import { useTranslation } from "i18n";
-import { PROFILE } from "i18n/namespaces";
-import Sentry from "platform/sentry";
 import React, { useRef, useState } from "react";
 import { Control, useController } from "react-hook-form";
-import { service } from "service";
-import { ImageInputValues } from "service/api";
+
+import Alert from "@/components/Alert";
+import CircularProgress from "@/components/CircularProgress";
+import { useTranslation } from "@/i18n";
+import { PROFILE } from "@/i18n/namespaces";
+import Sentry from "@/platform/sentry";
+import { service } from "@/service";
+import { ImageInputValues } from "@/service/api";
 
 import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from "./constants";
 
@@ -23,7 +24,7 @@ interface ImageInputProps {
   initialPreviewSrc?: string;
   name: string;
   onSuccess?(data: ImageInputValues): Promise<void>;
-  onUploading?: (isUploading: boolean) => void; //new prop
+  onUploading?: (isUploading: boolean) => void; // new prop
 }
 
 interface AvatarInputProps extends ImageInputProps {
@@ -39,13 +40,13 @@ interface RectImgInputProps extends ImageInputProps {
   width?: string;
 }
 
-const StyledWrapper = styled("div")(({ theme }) => ({
+const StyledWrapper = styled("div")(() => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
 }));
 
-const FlexWrapper = styled("div")(({ theme }) => ({
+const FlexWrapper = styled("div")(() => ({
   display: "flex",
   width: "100%",
 }));
@@ -77,18 +78,18 @@ const EditIconButton = styled(MuiIconButton)(({ theme }) => ({
   },
 }));
 
-const StyledLabel = styled("label")(({ theme }) => ({
+const StyledLabel = styled("label")(() => ({
   alignItems: "center",
   display: "flex",
   justifyContent: "center",
   width: "100%",
 }));
 
-const StyledCircularProgress = styled(CircularProgress)(({ theme }) => ({
+const StyledCircularProgress = styled(CircularProgress)(() => ({
   position: "absolute",
 }));
 
-const StyledInput = styled("input")(({ theme }) => ({
+const StyledInput = styled("input")(() => ({
   display: "none",
 }));
 
@@ -103,16 +104,16 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
   const mutation = useMutation<ImageInputValues, Error, File>({
     mutationFn: (file) => service.api.uploadFile(file),
     onMutate: () => {
-      props.onUploading?.(true); //notify form upload has started
+      props.onUploading?.(true); // notify form upload has started
     },
     onSuccess: async (data: ImageInputValues) => {
       field.onChange(data.key);
       setImageUrl(props.type === "avatar" ? data.thumbnail_url : data.full_url);
       await props.onSuccess?.(data);
-      props.onUploading?.(false); //notify form upload has finished
+      props.onUploading?.(false); // notify form upload has finished
     },
     onError: () => {
-      props.onUploading?.(false); //notify form upload has failed
+      props.onUploading?.(false); // notify form upload has failed
     },
   });
 
@@ -151,7 +152,7 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
     }
   };
 
-  //without this, onChange is not fired when the same file is selected after cancelling
+  // without this, onChange is not fired when the same file is selected after cancelling
   const inputRef = useRef<HTMLInputElement>(null);
   const handleClick = () => {
     if (inputRef.current) inputRef.current.value = "";

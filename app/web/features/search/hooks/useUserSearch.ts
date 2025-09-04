@@ -1,7 +1,8 @@
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
-import { UserSearchV2Res } from "proto/search_pb";
-import { service } from "service";
+
+import { UserSearchV2Res } from "@/proto/search_pb";
+import { service } from "@/service";
 
 import { FilterOptions } from "../SearchPage";
 import { MapSearchState } from "../state/mapSearchReducers";

@@ -1,10 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { notificationSettingsQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
-import { GetNotificationSettingsRes } from "proto/notifications_pb";
-import { service } from "service";
-import { NotificationPreferenceData } from "service/notifications";
-import { SetMutationError } from "utils/setMutationError";
+
+import { notificationSettingsQueryKey } from "@/features/queryKeys";
+import { GetNotificationSettingsRes } from "@/proto/notifications_pb";
+import { service } from "@/service";
+import { NotificationPreferenceData } from "@/service/notifications";
+import { SetMutationError } from "@/utils/setMutationError";
 
 export default function useUpdateNotificationSettings() {
   const queryClient = useQueryClient();

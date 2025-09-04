@@ -1,11 +1,12 @@
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { AUTH } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import React, { Context, ReactNode, useContext, useEffect } from "react";
-import { jailRoute, loginRoute } from "routes";
-import { setUnauthenticatedErrorHandler } from "service/client";
-import useStablePush from "utils/useStablePush";
+
+import { useTranslation } from "@/i18n";
+import { AUTH } from "@/i18n/namespaces";
+import { jailRoute, loginRoute } from "@/routes";
+import { setUnauthenticatedErrorHandler } from "@/service/client";
+import useStablePush from "@/utils/useStablePush";
 
 import { JAILED_ERROR_MESSAGE } from "./constants";
 import useAuthStore, { AuthStoreType } from "./useAuthStore";

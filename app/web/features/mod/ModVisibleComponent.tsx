@@ -1,5 +1,6 @@
-import useAccountInfo from "features/auth/useAccountInfo";
 import { ReactNode } from "react";
+
+import useAccountInfo from "@/features/auth/useAccountInfo";
 
 export interface ModVisibleComponentProps {
   children: ReactNode;

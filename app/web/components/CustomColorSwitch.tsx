@@ -1,6 +1,7 @@
-import { styled, Switch, SwitchProps } from "@mui/material";
+import { Switch, SwitchProps, styled } from "@mui/material";
 import { useEffect, useState } from "react";
-import { theme } from "theme";
+
+import { theme } from "@/theme";
 
 import CircularProgress from "./CircularProgress";
 

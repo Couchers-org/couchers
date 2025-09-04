@@ -1,14 +1,15 @@
 import { Alert, Theme, useMediaQuery } from "@mui/material";
-import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
-import UserOverview from "features/profile/view/UserOverview";
-import useCurrentUser from "features/userQueries/useCurrentUser";
-import { DASHBOARD } from "i18n/namespaces";
-import Link from "next/link";
 import { useTranslation } from "next-i18next";
-import { routeToEditProfile, routeToProfile } from "routes";
-import { theme } from "theme";
+import Link from "next/link";
+
+import Button from "@/components/Button";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import { ProfileUserProvider } from "@/features/profile/hooks/useProfileUser";
+import UserOverview from "@/features/profile/view/UserOverview";
+import useCurrentUser from "@/features/userQueries/useCurrentUser";
+import { DASHBOARD } from "@/i18n/namespaces";
+import { routeToEditProfile, routeToProfile } from "@/routes";
+import { theme } from "@/theme";
 
 import MinimalUserProfileCard from "./MinimalUserProfileCard";
 

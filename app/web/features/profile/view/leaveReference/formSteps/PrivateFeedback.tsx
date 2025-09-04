@@ -4,36 +4,37 @@ import {
   FormControlLabel,
   Radio,
   RadioGroup,
-  styled,
   TextField,
   Typography,
+  styled,
   useMediaQuery,
 } from "@mui/material";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import Divider from "components/Divider";
-import RatingsSlider from "components/RatingsSlider/RatingsSlider";
-import StyledLink from "components/StyledLink";
-import TextBody from "components/TextBody";
-import { useProfileUser } from "features/profile/hooks/useProfileUser";
-import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
+import { useRouter } from "next/router";
+import { Controller, useForm } from "react-hook-form";
+import { Trans } from "react-i18next";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import Divider from "@/components/Divider";
+import RatingsSlider from "@/components/RatingsSlider/RatingsSlider";
+import StyledLink from "@/components/StyledLink";
+import TextBody from "@/components/TextBody";
+import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
 import {
   ReferenceContextFormData,
   ReferenceStepProps,
-} from "features/profile/view/leaveReference/ReferenceForm";
-import { useTranslation } from "i18n";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
-import { useRouter } from "next/router";
-import { ReferenceType } from "proto/references_pb";
-import { Controller, useForm } from "react-hook-form";
-import { Trans } from "react-i18next";
+} from "@/features/profile/view/leaveReference/ReferenceForm";
+import ReferenceStepHeader from "@/features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, PROFILE } from "@/i18n/namespaces";
+import { ReferenceType } from "@/proto/references_pb";
 import {
   helpCenterPrivateFeedbackUrl,
   leaveReferenceBaseRoute,
   referenceStepStrings,
   referenceTypeRoute,
-} from "routes";
-import { theme } from "theme";
+} from "@/routes";
+import { theme } from "@/theme";
 
 const ACCEPTABLE_RATING_THRESHOLD = 0.33;
 

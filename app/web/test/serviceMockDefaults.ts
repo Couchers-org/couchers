@@ -4,23 +4,26 @@ import {
   GetLiteUsersRes,
   LiteUser,
   User,
-} from "proto/api_pb";
-import { GetBlockedUsersRes } from "proto/blocking_pb";
-import { ListAdminsRes } from "proto/communities_pb";
-import { HostRequestStatus } from "proto/conversations_pb";
-import { ListEventAttendeesRes, ListEventOrganizersRes } from "proto/events_pb";
-import { ListNotificationsRes } from "proto/notifications_pb";
+} from "@/proto/api_pb";
+import { GetBlockedUsersRes } from "@/proto/blocking_pb";
+import { ListAdminsRes } from "@/proto/communities_pb";
+import { HostRequestStatus } from "@/proto/conversations_pb";
+import {
+  ListEventAttendeesRes,
+  ListEventOrganizersRes,
+} from "@/proto/events_pb";
+import { ListNotificationsRes } from "@/proto/notifications_pb";
 import {
   AvailableWriteReferencesRes,
   ReferenceType,
-} from "proto/references_pb";
-import { EventSearchRes } from "proto/search_pb";
-import comments from "test/fixtures/comments.json";
-import events from "test/fixtures/events.json";
-import liteUsers from "test/fixtures/liteUsers.json";
-import messages from "test/fixtures/messages.json";
-import notifications from "test/fixtures/notifications.json";
-import users from "test/fixtures/users.json";
+} from "@/proto/references_pb";
+import { EventSearchRes } from "@/proto/search_pb";
+import comments from "@/test/fixtures/comments.json";
+import events from "@/test/fixtures/events.json";
+import liteUsers from "@/test/fixtures/liteUsers.json";
+import messages from "@/test/fixtures/messages.json";
+import notifications from "@/test/fixtures/notifications.json";
+import users from "@/test/fixtures/users.json";
 
 import { ProfilePublicVisibility } from "../proto/account_pb";
 

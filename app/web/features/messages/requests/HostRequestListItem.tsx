@@ -1,28 +1,29 @@
 import {
-  capitalize,
   ListItem,
   ListItemAvatar,
   ListItemText,
   Skeleton,
-  styled,
   Typography,
+  capitalize,
+  styled,
 } from "@mui/material";
-import Avatar from "components/Avatar";
-import TextBody from "components/TextBody";
-import { useAuthContext } from "features/auth/AuthProvider";
-import HostRequestStatusIcon from "features/messages/requests/HostRequestStatusIcon";
+
+import Avatar from "@/components/Avatar";
+import TextBody from "@/components/TextBody";
+import { useAuthContext } from "@/features/auth/AuthProvider";
+import HostRequestStatusIcon from "@/features/messages/requests/HostRequestStatusIcon";
 import {
   controlMessage,
   isControlMessage,
   messageTargetId,
-} from "features/messages/utils";
-import useCurrentUser from "features/userQueries/useCurrentUser";
-import { useLiteUser } from "features/userQueries/useLiteUsers";
-import { useTranslation } from "i18n";
-import { MESSAGES } from "i18n/namespaces";
-import { HostRequest } from "proto/requests_pb";
-import dayjs from "utils/dayjs";
-import { firstName } from "utils/names";
+} from "@/features/messages/utils";
+import useCurrentUser from "@/features/userQueries/useCurrentUser";
+import { useLiteUser } from "@/features/userQueries/useLiteUsers";
+import { useTranslation } from "@/i18n";
+import { MESSAGES } from "@/i18n/namespaces";
+import { HostRequest } from "@/proto/requests_pb";
+import dayjs from "@/utils/dayjs";
+import { firstName } from "@/utils/names";
 
 import HostRequestStatusText from "./HostRequestStatusText";
 

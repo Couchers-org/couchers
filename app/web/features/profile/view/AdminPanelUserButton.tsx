@@ -1,11 +1,12 @@
-import IconButton from "components/IconButton";
-import { SettingsIcon } from "components/Icons";
-import ModVisibleComponent from "features/mod/ModVisibleComponent";
-import { useTranslation } from "i18n";
-import { PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import React from "react";
-import { adminPanelUserLink } from "routes";
+
+import IconButton from "@/components/IconButton";
+import { SettingsIcon } from "@/components/Icons";
+import ModVisibleComponent from "@/features/mod/ModVisibleComponent";
+import { useTranslation } from "@/i18n";
+import { PROFILE } from "@/i18n/namespaces";
+import { adminPanelUserLink } from "@/routes";
 
 export interface AdminPanelUserButtonProps {
   username: string;

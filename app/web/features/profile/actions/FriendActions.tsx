@@ -1,6 +1,6 @@
-import { SetMutationError } from "features/connections/friends";
-import AddFriendButton from "features/connections/friends/AddFriendButton";
-import { User } from "proto/api_pb";
+import { SetMutationError } from "@/features/connections/friends";
+import AddFriendButton from "@/features/connections/friends/AddFriendButton";
+import { User } from "@/proto/api_pb";
 
 import PendingFriendReqButton from "./PendingFriendReqButton";
 

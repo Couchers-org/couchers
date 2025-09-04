@@ -1,8 +1,9 @@
 import { Typography } from "@mui/material";
-import Alert from "components/Alert";
-import MarkdownInput from "components/MarkdownInput";
 import React, { ReactNode } from "react";
 import { Control } from "react-hook-form";
+
+import Alert from "@/components/Alert";
+import MarkdownInput from "@/components/MarkdownInput";
 
 interface ProfileMarkdownInputProps {
   className?: string;

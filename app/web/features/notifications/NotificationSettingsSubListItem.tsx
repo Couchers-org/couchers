@@ -5,17 +5,18 @@ import {
   ListItemIcon,
   ListItemProps,
   ListItemText,
-  styled,
   Typography,
+  styled,
 } from "@mui/material";
-import Alert from "components/Alert";
-import CustomColorSwitch from "components/CustomColorSwitch";
-import { NotificationNewIcon } from "components/Icons";
-import { GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { useState } from "react";
-import { NotificationPreferenceData } from "service/notifications";
-import { theme } from "theme";
+
+import Alert from "@/components/Alert";
+import CustomColorSwitch from "@/components/CustomColorSwitch";
+import { NotificationNewIcon } from "@/components/Icons";
+import { GLOBAL, NOTIFICATIONS } from "@/i18n/namespaces";
+import { NotificationPreferenceData } from "@/service/notifications";
+import { theme } from "@/theme";
 
 import useUpdateNotificationSettings from "./useUpdateNotificationSettings";
 

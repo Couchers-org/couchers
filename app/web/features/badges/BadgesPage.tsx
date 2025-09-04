@@ -1,18 +1,19 @@
 import {
   Divider,
   DividerProps,
-  styled,
   Typography,
+  styled,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import HtmlMeta from "components/HtmlMeta";
-import PageTitle from "components/PageTitle";
-import Badge from "features/badges/Badge";
-import { useBadges } from "features/badges/hooks";
-import { useTranslation } from "i18n";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
+
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import HtmlMeta from "@/components/HtmlMeta";
+import PageTitle from "@/components/PageTitle";
+import Badge from "@/features/badges/Badge";
+import { useBadges } from "@/features/badges/hooks";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, PROFILE } from "@/i18n/namespaces";
 
 import BadgeUserList from "./BadgeUserList";
 

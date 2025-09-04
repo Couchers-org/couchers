@@ -1,9 +1,10 @@
 import { Typography } from "@mui/material";
-import Button from "components/Button";
-import UsersList from "components/UsersList";
-import { useBadgeUsers } from "features/badges/hooks";
-import { useTranslation } from "i18n";
-import { PROFILE } from "i18n/namespaces";
+
+import Button from "@/components/Button";
+import UsersList from "@/components/UsersList";
+import { useBadgeUsers } from "@/features/badges/hooks";
+import { useTranslation } from "@/i18n";
+import { PROFILE } from "@/i18n/namespaces";
 
 export interface BadgeUserListProps {
   badgeId: string;

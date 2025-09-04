@@ -1,19 +1,20 @@
 import CloseIcon from "@mui/icons-material/Close";
 import {
-  Dialog as MuiDialog,
-  DialogActions as MuiDialogActions,
   DialogActionsProps,
-  DialogContent as MuiDialogContent,
   DialogContentProps,
-  DialogContentText as MuiDialogContentText,
   DialogContentTextProps,
   DialogProps,
+  Dialog as MuiDialog,
+  DialogActions as MuiDialogActions,
+  DialogContent as MuiDialogContent,
+  DialogContentText as MuiDialogContentText,
   DialogTitle as MuiDialogTitle,
   DialogTitleProps as MuiDialogTitleProps,
 } from "@mui/material";
-import IconButton from "components/IconButton";
 import React from "react";
-import { theme } from "theme";
+
+import IconButton from "@/components/IconButton";
+import { theme } from "@/theme";
 
 export interface AccessibleDialogProps extends Omit<DialogProps, "className"> {
   "aria-labelledby": string;

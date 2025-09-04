@@ -1,17 +1,18 @@
-import Button from "components/Button";
+import Link from "next/link";
+import React from "react";
+
+import Button from "@/components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-} from "components/Dialog";
-import StyledLink from "components/StyledLink";
-import { Trans, useTranslation } from "i18n";
-import { DASHBOARD } from "i18n/namespaces";
-import Link from "next/link";
-import React from "react";
-import { howToCompleteProfileUrl, routeToEditProfile } from "routes";
+} from "@/components/Dialog";
+import StyledLink from "@/components/StyledLink";
+import { Trans, useTranslation } from "@/i18n";
+import { DASHBOARD } from "@/i18n/namespaces";
+import { howToCompleteProfileUrl, routeToEditProfile } from "@/routes";
 
 export interface ProfileIncompleteDialogProps {
   open: boolean;

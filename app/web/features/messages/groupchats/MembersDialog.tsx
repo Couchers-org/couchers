@@ -1,21 +1,22 @@
 import { DialogProps, List, ListItem, styled } from "@mui/material";
-import Avatar from "components/Avatar";
-import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import React from "react";
+
+import Avatar from "@/components/Avatar";
+import Button from "@/components/Button";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "components/Dialog";
-import TextBody from "components/TextBody";
-import { useLiteUsers } from "features/userQueries/useLiteUsers";
-import { useTranslation } from "i18n";
-import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import { LiteUser } from "proto/api_pb";
-import { GroupChat } from "proto/conversations_pb";
-import React from "react";
-import { theme } from "theme";
+} from "@/components/Dialog";
+import TextBody from "@/components/TextBody";
+import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
+import { LiteUser } from "@/proto/api_pb";
+import { GroupChat } from "@/proto/conversations_pb";
+import { theme } from "@/theme";
 
 const StyledAvatar = styled(Avatar)(() => ({
   height: 30,

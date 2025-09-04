@@ -1,11 +1,12 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import MapUI from "components/OldMap";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { useEffect } from "react";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { server } from "test/restMock";
+
+import MapUI from "@/components/OldMap";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { server } from "@/test/restMock";
 
 import EditLocationMap from "./EditLocationMap";
 

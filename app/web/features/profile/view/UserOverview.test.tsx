@@ -1,8 +1,9 @@
 import { render, screen } from "@testing-library/react";
-import { HostingStatus, MeetupStatus } from "proto/api_pb";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { addDefaultUser } from "test/utils";
+
+import { HostingStatus, MeetupStatus } from "@/proto/api_pb";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { addDefaultUser } from "@/test/utils";
 
 import { hostingStatusLabels, meetupStatusLabels } from "../constants";
 import { ProfileUserProvider } from "../hooks/useProfileUser";

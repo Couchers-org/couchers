@@ -1,26 +1,27 @@
 import { FormControl, IconButton, InputLabel, Select } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { RpcError } from "grpc-web";
+import { useEffect, useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-} from "components/Dialog";
-import { FlagIcon } from "components/Icons";
-import Snackbar from "components/Snackbar";
-import TextField from "components/TextField";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { GLOBAL } from "i18n/namespaces";
-import { useEffect, useMemo, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { service } from "service";
-import { ReportInput } from "service/reporting";
-import { theme } from "theme";
+} from "@/components/Dialog";
+import { FlagIcon } from "@/components/Icons";
+import Snackbar from "@/components/Snackbar";
+import TextField from "@/components/TextField";
+import { useTranslation } from "@/i18n";
+import { GLOBAL } from "@/i18n/namespaces";
+import { service } from "@/service";
+import { ReportInput } from "@/service/reporting";
+import { theme } from "@/theme";
 
 export interface FlagButtonProps {
   contentRef: string;

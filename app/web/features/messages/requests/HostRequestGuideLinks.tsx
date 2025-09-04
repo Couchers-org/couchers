@@ -1,10 +1,14 @@
-import { styled, Typography } from "@mui/material";
-import StyledLink from "components/StyledLink";
-import { Trans, useTranslation } from "i18n";
-import { MESSAGES } from "i18n/namespaces";
-import { HostRequestStatus } from "proto/conversations_pb";
+import { Typography, styled } from "@mui/material";
 import React from "react";
-import { howToRespondRequestGuideUrl, howToWriteRequestGuideUrl } from "routes";
+
+import StyledLink from "@/components/StyledLink";
+import { Trans, useTranslation } from "@/i18n";
+import { MESSAGES } from "@/i18n/namespaces";
+import { HostRequestStatus } from "@/proto/conversations_pb";
+import {
+  howToRespondRequestGuideUrl,
+  howToWriteRequestGuideUrl,
+} from "@/routes";
 
 const StyledHelpTextContainer = styled("div")(({ theme }) => ({
   display: "flex",

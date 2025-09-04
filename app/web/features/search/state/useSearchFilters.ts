@@ -1,5 +1,6 @@
-import { HostingStatus, SleepingArrangement } from "proto/api_pb";
 import { useEffect, useState } from "react";
+
+import { HostingStatus, SleepingArrangement } from "@/proto/api_pb";
 
 import { FilterOptions } from "../SearchPage";
 import { useMapSearchState } from "./mapSearchContext";

@@ -1,21 +1,22 @@
 import { List, styled } from "@mui/material";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import TextBody from "components/TextBody";
-import CreateGroupChat from "features/messages/groupchats/CreateGroupChat";
-import GroupChatListItem from "features/messages/groupchats/GroupChatListItem";
-import { groupChatsListKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
-import { ListGroupChatsRes } from "proto/conversations_pb";
 import React, { useEffect } from "react";
-import { routeToGroupChat } from "routes";
-import { service } from "service";
-import { theme } from "theme";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import TextBody from "@/components/TextBody";
+import CreateGroupChat from "@/features/messages/groupchats/CreateGroupChat";
+import GroupChatListItem from "@/features/messages/groupchats/GroupChatListItem";
+import { groupChatsListKey } from "@/features/queryKeys";
+import { useTranslation } from "@/i18n";
+import { MESSAGES } from "@/i18n/namespaces";
+import { ListGroupChatsRes } from "@/proto/conversations_pb";
+import { routeToGroupChat } from "@/routes";
+import { service } from "@/service";
+import { theme } from "@/theme";
 
 import useNotifications from "../../useNotifications";
 

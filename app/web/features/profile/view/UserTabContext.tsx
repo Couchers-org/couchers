@@ -1,6 +1,7 @@
 import { TabContext } from "@mui/lab";
 import { PropsWithChildren } from "react";
-import { UserTab } from "routes";
+
+import { UserTab } from "@/routes";
 
 export default function UserTabContext({
   children,

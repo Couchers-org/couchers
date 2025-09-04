@@ -5,31 +5,32 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import HtmlMeta from "components/HtmlMeta";
-import { useAuthContext } from "features/auth/AuthProvider";
-import GroupChatSendField from "features/messages/groupchats/GroupChatSendField";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { RpcError } from "grpc-web";
+import { useEffect } from "react";
+
+import Alert from "@/components/Alert";
+import HtmlMeta from "@/components/HtmlMeta";
+import { useAuthContext } from "@/features/auth/AuthProvider";
+import GroupChatSendField from "@/features/messages/groupchats/GroupChatSendField";
 import useMarkLastSeen, {
   MarkLastSeenVariables,
-} from "features/messages/useMarkLastSeen";
-import { groupChatTitleText } from "features/messages/utils";
+} from "@/features/messages/useMarkLastSeen";
+import { groupChatTitleText } from "@/features/messages/utils";
 import {
   groupChatKey,
   groupChatMessagesKey,
   groupChatsListKey,
-} from "features/queryKeys";
-import { useLiteUsers } from "features/userQueries/useLiteUsers";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import { GetGroupChatMessagesRes } from "proto/conversations_pb";
-import { useEffect } from "react";
-import { service } from "service";
+} from "@/features/queryKeys";
+import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
+import { GetGroupChatMessagesRes } from "@/proto/conversations_pb";
+import { service } from "@/service";
 
 import ChatContent from "./ChatContent";
-import { GROUP_CHAT_REFETCH_INTERVAL } from "./constants";
 import GroupChatHeaderBar from "./GroupChatHeaderBar";
+import { GROUP_CHAT_REFETCH_INTERVAL } from "./constants";
 
 const StyledHeader = styled("div")(({ theme }) => ({
   padding: theme.spacing(1, 2),

@@ -1,18 +1,19 @@
-import { Card, CardContent, Skeleton, styled, Typography } from "@mui/material";
-import Avatar from "components/Avatar";
-import FlagButton from "features/FlagButton";
-import CopyOnClick from "features/mod/CopyOnClick";
-import ModVisibleComponent from "features/mod/ModVisibleComponent";
-import { useLiteUser } from "features/userQueries/useLiteUsers";
-import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
+import { Card, CardContent, Skeleton, Typography, styled } from "@mui/material";
 import Link from "next/link";
-import { Discussion } from "proto/discussions_pb";
 import { useMemo } from "react";
-import { routeToDiscussion } from "routes";
-import { theme } from "theme";
-import { timestamp2Date } from "utils/date";
-import { timeAgo } from "utils/timeAgo";
+
+import Avatar from "@/components/Avatar";
+import FlagButton from "@/features/FlagButton";
+import CopyOnClick from "@/features/mod/CopyOnClick";
+import ModVisibleComponent from "@/features/mod/ModVisibleComponent";
+import { useLiteUser } from "@/features/userQueries/useLiteUsers";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES } from "@/i18n/namespaces";
+import { Discussion } from "@/proto/discussions_pb";
+import { routeToDiscussion } from "@/routes";
+import { theme } from "@/theme";
+import { timestamp2Date } from "@/utils/date";
+import { timeAgo } from "@/utils/timeAgo";
 
 import getContentSummary from "../getContentSummary";
 

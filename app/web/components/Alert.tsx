@@ -3,8 +3,9 @@ import {
   AlertProps as MuiAlertProps,
   styled,
 } from "@mui/material";
-import { grpcErrorStrings, ObscureGrpcErrorMessages } from "appConstants";
 import React, { ReactNode } from "react";
+
+import { ObscureGrpcErrorMessages, grpcErrorStrings } from "@/appConstants";
 
 const StyledAlert = styled(MuiAlert)(({ theme }) => ({
   marginBottom: theme.spacing(2),

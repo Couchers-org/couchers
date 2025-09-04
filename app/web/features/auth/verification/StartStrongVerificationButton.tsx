@@ -1,22 +1,23 @@
 import { useMutation } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
+import { RpcError } from "grpc-web";
+import { useRouter } from "next/router";
+import { useState } from "react";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-} from "components/Dialog";
-import StyledLink from "components/StyledLink";
-import { RpcError } from "grpc-web";
-import { Trans, useTranslation } from "i18n";
-import { AUTH, GLOBAL } from "i18n/namespaces";
-import { useRouter } from "next/router";
-import { InitiateStrongVerificationRes } from "proto/account_pb";
-import { useState } from "react";
-import { tosRoute } from "routes";
-import { service } from "service";
+} from "@/components/Dialog";
+import StyledLink from "@/components/StyledLink";
+import { Trans, useTranslation } from "@/i18n";
+import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import { InitiateStrongVerificationRes } from "@/proto/account_pb";
+import { tosRoute } from "@/routes";
+import { service } from "@/service";
 
 export default function StartStrongVerificationButton() {
   const { t } = useTranslation([GLOBAL, AUTH]);

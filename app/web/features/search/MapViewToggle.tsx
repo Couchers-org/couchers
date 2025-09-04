@@ -1,7 +1,8 @@
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
-import { useTranslation } from "i18n";
-import { SEARCH } from "i18n/namespaces";
-import { theme } from "theme";
+
+import { useTranslation } from "@/i18n";
+import { SEARCH } from "@/i18n/namespaces";
+import { theme } from "@/theme";
 
 import { MapViewOptions, MapViews } from "./utils/constants";
 

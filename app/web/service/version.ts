@@ -1,4 +1,4 @@
-import { StatusReq } from "proto/bugs_pb";
+import { StatusReq } from "@/proto/bugs_pb";
 
 import client from "./client";
 

@@ -3,7 +3,8 @@ import {
   Int64Value,
   StringValue,
 } from "google-protobuf/google/protobuf/wrappers_pb";
-import { ListEventsReq } from "proto/communities_pb";
+
+import { ListEventsReq } from "@/proto/communities_pb";
 import {
   AttendanceState,
   CancelEventReq,
@@ -20,7 +21,7 @@ import {
   RequestCommunityInviteReq,
   SetEventAttendanceReq,
   UpdateEventReq,
-} from "proto/events_pb";
+} from "@/proto/events_pb";
 
 import client from "./client";
 

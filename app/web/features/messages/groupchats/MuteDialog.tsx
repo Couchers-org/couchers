@@ -6,21 +6,22 @@ import {
   RadioGroup,
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
+import { RpcError } from "grpc-web";
+import React, { useState } from "react";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "components/Dialog";
-import { groupChatKey, groupChatsListKey } from "features/queryKeys";
-import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import React, { useState } from "react";
-import { service } from "service";
-import dayjs from "utils/dayjs";
+} from "@/components/Dialog";
+import { groupChatKey, groupChatsListKey } from "@/features/queryKeys";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
+import { service } from "@/service";
+import dayjs from "@/utils/dayjs";
 
 type DurationChoice = "1h" | "8h" | "1d" | "1w" | "1m" | "forever";
 

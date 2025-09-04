@@ -1,11 +1,12 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
 import { StatusCode } from "grpc-web";
-import { service } from "service";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { MockedService } from "test/utils";
+
+import CommunityGuidelinesForm from "@/features/auth/signup/CommunityGuidelinesForm";
+import { service } from "@/service";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { MockedService } from "@/test/utils";
 
 const { t } = i18n;
 

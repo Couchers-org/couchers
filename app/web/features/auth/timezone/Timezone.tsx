@@ -1,7 +1,8 @@
 import { Typography } from "@mui/material";
-import { Trans, useTranslation } from "i18n";
-import { AUTH } from "i18n/namespaces";
-import dayjs from "utils/dayjs";
+
+import { Trans, useTranslation } from "@/i18n";
+import { AUTH } from "@/i18n/namespaces";
+import dayjs from "@/utils/dayjs";
 
 interface TimezoneProps {
   className?: string;

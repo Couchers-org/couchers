@@ -1,19 +1,20 @@
-import { styled, Typography, useMediaQuery } from "@mui/material";
+import { Typography, styled, useMediaQuery } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import HorizontalScroller from "components/HorizontalScroller";
-import TextBody from "components/TextBody";
-import EventCard from "features/communities/events/EventCard";
-import { myEventsKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { COMMUNITIES, DASHBOARD } from "i18n/namespaces";
-import { ListMyEventsRes } from "proto/events_pb";
-import { service } from "service";
-import { theme } from "theme";
-import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import HorizontalScroller from "@/components/HorizontalScroller";
+import TextBody from "@/components/TextBody";
+import EventCard from "@/features/communities/events/EventCard";
+import { myEventsKey } from "@/features/queryKeys";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES, DASHBOARD } from "@/i18n/namespaces";
+import { ListMyEventsRes } from "@/proto/events_pb";
+import { service } from "@/service";
+import { theme } from "@/theme";
+import hasAtLeastOnePage from "@/utils/hasAtLeastOnePage";
 
 const StyledCardContainer = styled(HorizontalScroller)(() => ({
   paddingLeft: theme.spacing(1),

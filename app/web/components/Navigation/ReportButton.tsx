@@ -1,9 +1,10 @@
-import { darken, styled, Typography, useMediaQuery } from "@mui/material";
-import Button from "components/Button";
-import { BugIcon } from "components/Icons";
-import { useTranslation } from "i18n";
+import { Typography, darken, styled, useMediaQuery } from "@mui/material";
 import { useState } from "react";
-import { theme } from "theme";
+
+import Button from "@/components/Button";
+import { BugIcon } from "@/components/Icons";
+import { useTranslation } from "@/i18n";
+import { theme } from "@/theme";
 
 import ReportDialog from "./ReportDialog";
 

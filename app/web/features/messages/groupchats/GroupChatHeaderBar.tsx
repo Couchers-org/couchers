@@ -1,27 +1,28 @@
 import { Skeleton, styled, useMediaQuery } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import CircularProgress from "components/CircularProgress";
-import HeaderButton from "components/HeaderButton";
-import { BackIcon, MuteIcon, OverflowMenuIcon } from "components/Icons";
-import Menu, { MenuItem } from "components/Menu";
-import PageTitle from "components/PageTitle";
-import AdminsDialog from "features/messages/groupchats/AdminsDialog";
-import GroupChatSettingsDialog from "features/messages/groupchats/GroupChatSettingsDialog";
-import InviteDialog from "features/messages/groupchats/InviteDialog";
-import LeaveDialog from "features/messages/groupchats/LeaveDialog";
-import MembersDialog from "features/messages/groupchats/MembersDialog";
-import MuteDialog from "features/messages/groupchats/MuteDialog";
-import { getDmUsername } from "features/messages/utils";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { GroupChat } from "proto/conversations_pb";
 import { useRef, useState } from "react";
-import { groupChatsRoute, routeToUser } from "routes";
-import { service } from "service";
-import { theme } from "theme";
+
+import CircularProgress from "@/components/CircularProgress";
+import HeaderButton from "@/components/HeaderButton";
+import { BackIcon, MuteIcon, OverflowMenuIcon } from "@/components/Icons";
+import Menu, { MenuItem } from "@/components/Menu";
+import PageTitle from "@/components/PageTitle";
+import AdminsDialog from "@/features/messages/groupchats/AdminsDialog";
+import GroupChatSettingsDialog from "@/features/messages/groupchats/GroupChatSettingsDialog";
+import InviteDialog from "@/features/messages/groupchats/InviteDialog";
+import LeaveDialog from "@/features/messages/groupchats/LeaveDialog";
+import MembersDialog from "@/features/messages/groupchats/MembersDialog";
+import MuteDialog from "@/features/messages/groupchats/MuteDialog";
+import { getDmUsername } from "@/features/messages/utils";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
+import { GroupChat } from "@/proto/conversations_pb";
+import { groupChatsRoute, routeToUser } from "@/routes";
+import { service } from "@/service";
+import { theme } from "@/theme";
 
 import { groupChatKey } from "../../queryKeys";
 

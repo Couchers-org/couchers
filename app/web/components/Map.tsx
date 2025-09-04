@@ -1,25 +1,25 @@
-import "maplibre-gl/dist/maplibre-gl.css";
-
 import { useMediaQuery } from "@mui/system";
-import { useMapSearchState } from "features/search/state/mapSearchContext";
-import {
-  clusterCountLayer,
-  clusterLayer,
-  UNCLUSTERED_LAYER_ID,
-  unclusteredPointLayer,
-  USERS_SOURCE_ID,
-} from "features/search/utils/mapLayers";
-import ZoomControl from "features/search/ZoomControl";
 import { MapLayerMouseEvent, RequestParameters } from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 import React, { useRef } from "react";
 import {
   Layer,
-  Map as MaplibreMap,
   MapRef,
+  Map as MaplibreMap,
   Source,
   ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
-import { theme } from "theme";
+
+import ZoomControl from "@/features/search/ZoomControl";
+import { useMapSearchState } from "@/features/search/state/mapSearchContext";
+import {
+  UNCLUSTERED_LAYER_ID,
+  USERS_SOURCE_ID,
+  clusterCountLayer,
+  clusterLayer,
+  unclusteredPointLayer,
+} from "@/features/search/utils/mapLayers";
+import { theme } from "@/theme";
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 

@@ -1,9 +1,10 @@
 import { Typography } from "@mui/material";
-import Button from "components/Button";
-import { useTranslation } from "i18n";
-import { AUTH } from "i18n/namespaces";
 import Link from "next/link";
-import { loginsSettingsRoute } from "routes";
+
+import Button from "@/components/Button";
+import { useTranslation } from "@/i18n";
+import { AUTH } from "@/i18n/namespaces";
+import { loginsSettingsRoute } from "@/routes";
 
 export default function LoginsLink() {
   const { t } = useTranslation(AUTH);

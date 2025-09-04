@@ -1,21 +1,22 @@
-import { styled, Typography } from "@mui/material";
+import { Typography, styled } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import HtmlMeta from "components/HtmlMeta";
-import ImageInput from "components/ImageInput";
-import MarkdownInput from "components/MarkdownInput";
-import PageTitle from "components/PageTitle";
-import Redirect from "components/Redirect";
-import Snackbar from "components/Snackbar";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
-import { routeToCommunity } from "routes";
-import { service } from "service";
-import { theme } from "theme";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import HtmlMeta from "@/components/HtmlMeta";
+import ImageInput from "@/components/ImageInput";
+import MarkdownInput from "@/components/MarkdownInput";
+import PageTitle from "@/components/PageTitle";
+import Redirect from "@/components/Redirect";
+import Snackbar from "@/components/Snackbar";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
+import { routeToCommunity } from "@/routes";
+import { service } from "@/service";
+import { theme } from "@/theme";
 
 import { Community } from "../../proto/communities_pb";
 import { Page } from "../../proto/pages_pb";

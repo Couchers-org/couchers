@@ -1,10 +1,11 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { service } from "service";
-import liteUsers from "test/fixtures/liteUsers.json";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { getBlockedUsers } from "test/serviceMockDefaults";
+
+import { service } from "@/service";
+import liteUsers from "@/test/fixtures/liteUsers.json";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { getBlockedUsers } from "@/test/serviceMockDefaults";
 
 import BlockedUsersList from "./BlockedUsersList";
 

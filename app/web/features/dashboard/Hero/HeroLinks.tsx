@@ -1,9 +1,10 @@
-import { styled, Typography } from "@mui/material";
-import StyledLink from "components/StyledLink";
-import { DASHBOARD } from "i18n/namespaces";
+import { Typography, styled } from "@mui/material";
 import { useTranslation } from "next-i18next";
-import { routeToEditProfile } from "routes";
-import { theme } from "theme";
+
+import StyledLink from "@/components/StyledLink";
+import { DASHBOARD } from "@/i18n/namespaces";
+import { routeToEditProfile } from "@/routes";
+import { theme } from "@/theme";
 
 const StyledLinksContainer = styled("div")(() => ({
   display: "flex",

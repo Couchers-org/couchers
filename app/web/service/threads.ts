@@ -1,4 +1,4 @@
-import { GetThreadReq, PostReplyReq } from "proto/threads_pb";
+import { GetThreadReq, PostReplyReq } from "@/proto/threads_pb";
 
 import client from "./client";
 

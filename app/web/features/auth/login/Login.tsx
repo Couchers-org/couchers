@@ -1,15 +1,16 @@
-import { alpha, styled, Typography } from "@mui/material";
-import Alert from "components/Alert";
-import HtmlMeta from "components/HtmlMeta";
-import StyledLink from "components/StyledLink";
-import AntibotNote from "features/antibot/AntibotNote";
-import { Trans, useTranslation } from "i18n";
-import { AUTH, GLOBAL, LANDING } from "i18n/namespaces";
+import { Typography, alpha, styled } from "@mui/material";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import CouchersTextLogo from "resources/CouchersTextLogo";
-import { dashboardRoute, signupRoute } from "routes";
-import stringOrFirstString from "utils/stringOrFirstString";
+
+import Alert from "@/components/Alert";
+import HtmlMeta from "@/components/HtmlMeta";
+import StyledLink from "@/components/StyledLink";
+import AntibotNote from "@/features/antibot/AntibotNote";
+import { Trans, useTranslation } from "@/i18n";
+import { AUTH, GLOBAL, LANDING } from "@/i18n/namespaces";
+import CouchersTextLogo from "@/resources/CouchersTextLogo";
+import { dashboardRoute, signupRoute } from "@/routes";
+import stringOrFirstString from "@/utils/stringOrFirstString";
 
 import { useAuthContext } from "../AuthProvider";
 import LoginForm from "./LoginForm";

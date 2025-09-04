@@ -1,6 +1,7 @@
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import useCurrentUser from "features/userQueries/useCurrentUser";
 import React from "react";
+
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import useCurrentUser from "@/features/userQueries/useCurrentUser";
 
 import {
   ParkingDetails,
@@ -9,8 +10,8 @@ import {
   User,
 } from "../../../proto/api_pb";
 import { HostingPreferenceData } from "../../../service/user";
-import { DEFAULT_ABOUT_HOME_HEADINGS } from "./constants";
 import EditHostingPreferenceForm from "./EditHostingPreferenceForm";
+import { DEFAULT_ABOUT_HOME_HEADINGS } from "./constants";
 
 export default function EditHostingPreference() {
   const { data: user } = useCurrentUser();

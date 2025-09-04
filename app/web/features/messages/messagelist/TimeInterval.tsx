@@ -1,8 +1,9 @@
-import { styled, Typography } from "@mui/material";
-import { useTranslation } from "i18n";
-import { GLOBAL } from "i18n/namespaces";
+import { Typography, styled } from "@mui/material";
 import React from "react";
-import { timeAgoI18n } from "utils/timeAgo";
+
+import { useTranslation } from "@/i18n";
+import { GLOBAL } from "@/i18n/namespaces";
+import { timeAgoI18n } from "@/utils/timeAgo";
 
 const Root = styled("div")(({ theme }) => ({
   paddingInlineEnd: theme.spacing(1),

@@ -1,11 +1,12 @@
-import { styled, Typography } from "@mui/material";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
-import { theme } from "theme";
-import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
+import { Typography, styled } from "@mui/material";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES } from "@/i18n/namespaces";
+import { theme } from "@/theme";
+import hasAtLeastOnePage from "@/utils/hasAtLeastOnePage";
 
 import { useThread } from "../hooks";
 import Comment from "./Comment";

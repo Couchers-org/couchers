@@ -5,20 +5,6 @@ const { redirects } = require("./redirects"); // eslint-disable-line
 const nextConfig = {
   assetPrefix: process.env.ASSET_PREFIX,
   reactStrictMode: true,
-  eslint: {
-    dirs: [
-      "components",
-      "features",
-      "i18n",
-      "markdown",
-      "pages",
-      "resources",
-      "service",
-      "test",
-      "types",
-      "utils",
-    ],
-  },
   i18n,
   productionBrowserSourceMaps: true,
   webpack: (config) => {

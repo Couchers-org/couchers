@@ -7,47 +7,48 @@ import {
   ListItem,
   Radio,
   RadioGroup,
-  styled,
   TextField,
   Typography,
+  styled,
 } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import { Dialog, DialogActions, DialogTitle } from "components/Dialog";
-import EditLocationMap from "components/EditLocationMap";
-import ImageInput from "components/ImageInput";
-import Snackbar from "components/Snackbar";
-import StyledLink from "components/StyledLink";
-import { useLanguages } from "features/profile/hooks/useLanguages";
-import { useRegions } from "features/profile/hooks/useRegions";
-import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
-import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
-import ProfileTagInput from "features/profile/ProfileTagInput";
-import ProfileTextInput from "features/profile/ProfileTextInput";
-import { userKey } from "features/queryKeys";
-import useCurrentUser from "features/userQueries/useCurrentUser";
-import { Trans, useTranslation } from "i18n";
-import { AUTH, GLOBAL, PROFILE } from "i18n/namespaces";
-import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
 import React, { FormEvent, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { howToMakeGreatProfileUrl } from "routes";
-import { service, UpdateUserProfileData } from "service/index";
-import { theme } from "theme";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import { Dialog, DialogActions, DialogTitle } from "@/components/Dialog";
+import EditLocationMap from "@/components/EditLocationMap";
+import ImageInput from "@/components/ImageInput";
+import Snackbar from "@/components/Snackbar";
+import StyledLink from "@/components/StyledLink";
+import ProfileMarkdownInput from "@/features/profile/ProfileMarkdownInput";
+import ProfileTagInput from "@/features/profile/ProfileTagInput";
+import ProfileTextInput from "@/features/profile/ProfileTextInput";
+import { useLanguages } from "@/features/profile/hooks/useLanguages";
+import { useRegions } from "@/features/profile/hooks/useRegions";
+import useUpdateUserProfile from "@/features/profile/hooks/useUpdateUserProfile";
+import { userKey } from "@/features/queryKeys";
+import useCurrentUser from "@/features/userQueries/useCurrentUser";
+import { Trans, useTranslation } from "@/i18n";
+import { AUTH, GLOBAL, PROFILE } from "@/i18n/namespaces";
+import { HostingStatus, LanguageAbility, MeetupStatus } from "@/proto/api_pb";
+import { howToMakeGreatProfileUrl } from "@/routes";
+import { UpdateUserProfileData, service } from "@/service/index";
+import { theme } from "@/theme";
 import {
   useIsMounted,
   useSafeState,
   useUnsavedChangesWarning,
-} from "utils/hooks";
+} from "@/utils/hooks";
 
+import StatusCardGroup from "./StatusCard";
 import {
   ABOUT_ME_MIN_LENGTH,
   DEFAULT_ABOUT_ME_HEADINGS,
   DEFAULT_HOBBIES_HEADINGS,
 } from "./constants";
-import StatusCardGroup from "./StatusCard";
 
 export type EditProfileFormValues = Omit<
   UpdateUserProfileData,

@@ -1,5 +1,6 @@
-import { styled, Typography } from "@mui/material";
-import { theme } from "theme";
+import { Typography, styled } from "@mui/material";
+
+import { theme } from "@/theme";
 
 import TextBody from "./TextBody";
 

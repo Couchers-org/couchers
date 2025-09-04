@@ -1,15 +1,16 @@
 import { styled } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import HtmlMeta from "components/HtmlMeta";
-import Markdown from "components/Markdown";
-import PageTitle from "components/PageTitle";
-import { tosQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { GLOBAL } from "i18n/namespaces";
-import { GetTermsOfServiceRes } from "proto/resources_pb";
-import { service } from "service";
+
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import HtmlMeta from "@/components/HtmlMeta";
+import Markdown from "@/components/Markdown";
+import PageTitle from "@/components/PageTitle";
+import { tosQueryKey } from "@/features/queryKeys";
+import { useTranslation } from "@/i18n";
+import { GLOBAL } from "@/i18n/namespaces";
+import { GetTermsOfServiceRes } from "@/proto/resources_pb";
+import { service } from "@/service";
 
 const StyledWrapper = styled("div")(({ theme }) => ({
   maxWidth: theme.breakpoints.values.lg,

@@ -2,20 +2,21 @@ import {
   Card,
   CardContent,
   CardMedia,
-  styled,
   Tooltip,
   Typography,
+  styled,
 } from "@mui/material";
-import { eventImagePlaceholderUrl } from "appConstants";
-import Pill from "components/Pill";
-import FlagButton from "features/FlagButton";
-import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
-import { Event } from "proto/events_pb";
-import { routeToEvent } from "routes";
-import { timestamp2Date } from "utils/date";
-import dayjs from "utils/dayjs";
+
+import { eventImagePlaceholderUrl } from "@/appConstants";
+import Pill from "@/components/Pill";
+import FlagButton from "@/features/FlagButton";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES } from "@/i18n/namespaces";
+import { Event } from "@/proto/events_pb";
+import { routeToEvent } from "@/routes";
+import { timestamp2Date } from "@/utils/date";
+import dayjs from "@/utils/dayjs";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   margin: 0,

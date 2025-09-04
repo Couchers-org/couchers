@@ -1,13 +1,14 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { userKey } from "features/queryKeys";
-import { useTranslation } from "i18n";
-import { GLOBAL } from "i18n/namespaces";
-import Sentry from "platform/sentry";
-import { clearStorage, usePersistedState } from "platform/usePersistedState";
-import { AuthRes, SignupFlowRes } from "proto/auth_pb";
 import { useMemo, useRef, useState } from "react";
-import { service } from "service";
-import isGrpcError from "service/utils/isGrpcError";
+
+import { userKey } from "@/features/queryKeys";
+import { useTranslation } from "@/i18n";
+import { GLOBAL } from "@/i18n/namespaces";
+import Sentry from "@/platform/sentry";
+import { clearStorage, usePersistedState } from "@/platform/usePersistedState";
+import { AuthRes, SignupFlowRes } from "@/proto/auth_pb";
+import { service } from "@/service";
+import isGrpcError from "@/service/utils/isGrpcError";
 
 export default function useAuthStore() {
   const [authenticated, setAuthenticated] = usePersistedState(

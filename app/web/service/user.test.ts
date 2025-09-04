@@ -1,5 +1,6 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import user from "test/fixtures/defaultUser.json";
+
+import user from "@/test/fixtures/defaultUser.json";
 
 import client from "./client";
 import { updateHostingPreference, updateProfile } from "./user";

@@ -1,16 +1,17 @@
 import {
-  createContext,
   Dispatch,
   ReactNode,
+  createContext,
   useContext,
   useReducer,
 } from "react";
-import { GeocodeResult } from "utils/hooks";
-import SearchFilters from "utils/searchFilters";
+
+import { GeocodeResult } from "@/utils/hooks";
+import SearchFilters from "@/utils/searchFilters";
 
 import {
-  initialState,
   MapSearchAction,
+  initialState,
   mapSearchReducer,
 } from "./mapSearchReducers";
 

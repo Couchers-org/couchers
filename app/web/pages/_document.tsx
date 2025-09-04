@@ -1,5 +1,6 @@
 import Document, { Head, Html, Main, NextScript } from "next/document";
-import { theme } from "theme";
+
+import { theme } from "@/theme";
 
 export default class MyDocument extends Document {
   render() {

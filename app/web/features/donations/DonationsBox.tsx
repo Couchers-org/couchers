@@ -6,25 +6,26 @@ import {
   FormHelperText,
   Radio,
   RadioGroup,
-  styled,
   Typography,
+  styled,
 } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import StyledLink from "components/StyledLink";
-import {
-  DONATIONS_BOX_CURRENCY,
-  DONATIONS_BOX_VALUES,
-} from "features/donations/constants";
 import { RpcError } from "grpc-web";
-import { Trans, useTranslation } from "i18n";
-import { DONATIONS } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import React, { PropsWithChildren, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { service } from "service";
-import { theme } from "theme";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import StyledLink from "@/components/StyledLink";
+import {
+  DONATIONS_BOX_CURRENCY,
+  DONATIONS_BOX_VALUES,
+} from "@/features/donations/constants";
+import { Trans, useTranslation } from "@/i18n";
+import { DONATIONS } from "@/i18n/namespaces";
+import { service } from "@/service";
+import { theme } from "@/theme";
 
 const SUB_GRID_ITEM_AMOUNT = 2;
 

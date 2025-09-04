@@ -1,9 +1,9 @@
-import { service as originalService } from "service/index";
-import comments from "test/fixtures/comments.json";
-import groupChat from "test/fixtures/groupChat.json";
-import messages from "test/fixtures/messages.json";
-import notificationSettings from "test/fixtures/notificationSettings.json";
-import users from "test/fixtures/users.json";
+import { service as originalService } from "@/service/index";
+import comments from "@/test/fixtures/comments.json";
+import groupChat from "@/test/fixtures/groupChat.json";
+import messages from "@/test/fixtures/messages.json";
+import notificationSettings from "@/test/fixtures/notificationSettings.json";
+import users from "@/test/fixtures/users.json";
 
 const [user1, user2, user3, user4] = users;
 

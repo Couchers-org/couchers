@@ -1,8 +1,9 @@
 import { styled } from "@mui/material";
-import Map from "components/OldMap";
 import { LngLat } from "maplibre-gl";
-import { Page } from "proto/pages_pb";
 import React from "react";
+
+import Map from "@/components/OldMap";
+import { Page } from "@/proto/pages_pb";
 
 const StyledWrapper = styled("div")(({ theme }) => ({
   backgroundSize: "cover",

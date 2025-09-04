@@ -1,12 +1,13 @@
 import { ListItemText, styled } from "@mui/material";
-import Button from "components/Button";
-import { CheckIcon, ExpandLessIcon, ExpandMoreIcon } from "components/Icons";
-import Menu, { MenuItem } from "components/Menu";
-import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
-import { AttendanceState } from "proto/events_pb";
 import { useState } from "react";
-import { theme } from "theme";
+
+import Button from "@/components/Button";
+import { CheckIcon, ExpandLessIcon, ExpandMoreIcon } from "@/components/Icons";
+import Menu, { MenuItem } from "@/components/Menu";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES } from "@/i18n/namespaces";
+import { AttendanceState } from "@/proto/events_pb";
+import { theme } from "@/theme";
 
 const StyledMenuListItem = styled(MenuItem)(() => ({
   display: "flex",

@@ -1,6 +1,7 @@
 import { MoreHoriz, SvgIconComponent } from "@mui/icons-material";
-import { IconButton, Menu, styled, Typography } from "@mui/material";
-import { theme } from "theme";
+import { IconButton, Menu, Typography, styled } from "@mui/material";
+
+import { theme } from "@/theme";
 
 import { MenuItem } from "./Menu";
 

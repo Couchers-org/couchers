@@ -1,20 +1,21 @@
-import { ButtonProps, styled, Typography } from "@mui/material";
+import { ButtonProps, Typography, styled } from "@mui/material";
 import {
   InfiniteData,
   useInfiniteQuery,
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import { activeLoginsKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
-import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
-import { ListActiveSessionsRes } from "proto/account_pb";
-import { service } from "service";
-import { timestamp2Date } from "utils/date";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import { activeLoginsKey } from "@/features/queryKeys";
+import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import { ListActiveSessionsRes } from "@/proto/account_pb";
+import { service } from "@/service";
+import { timestamp2Date } from "@/utils/date";
 
 import LoginCard from "./LoginCard";
 

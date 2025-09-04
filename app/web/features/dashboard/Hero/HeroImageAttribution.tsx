@@ -1,12 +1,13 @@
 import {
   Link as MuiLink,
-  styled,
   StyledEngineProvider,
   ThemeProvider,
   Typography,
+  styled,
 } from "@mui/material";
 import { Trans } from "next-i18next";
-import { theme } from "theme";
+
+import { theme } from "@/theme";
 
 import useHeroBackgroundTheme from "./useHeroBackgroundTheme";
 

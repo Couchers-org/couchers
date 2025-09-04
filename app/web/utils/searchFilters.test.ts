@@ -1,19 +1,21 @@
 import { parse } from "querystring";
 
+import log from "@/log";
+
 import {
-  parsedQueryToSearchFilters,
   parseSearchFiltersToQuery,
+  parsedQueryToSearchFilters,
 } from "./searchFilters";
 
 function overrideConsoleWarn() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let originalConsoleWarn: (message?: any, ...optionalParams: any[]) => void;
   beforeEach(() => {
-    originalConsoleWarn = console.warn;
-    console.warn = jest.fn();
+    originalConsoleWarn = log.warn;
+    log.warn = jest.fn();
   });
   afterEach(() => {
-    console.warn = originalConsoleWarn;
+    log.warn = originalConsoleWarn;
   });
 }
 

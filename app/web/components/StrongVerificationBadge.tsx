@@ -1,8 +1,9 @@
 import { VerifiedUser } from "@mui/icons-material";
-import { styled, Tooltip } from "@mui/material";
-import { useTranslation } from "i18n";
-import { GLOBAL } from "i18n/namespaces";
+import { Tooltip, styled } from "@mui/material";
 import React from "react";
+
+import { useTranslation } from "@/i18n";
+import { GLOBAL } from "@/i18n/namespaces";
 
 const StyledSpan = styled("span")(({ theme }) => ({
   display: "inline-block",

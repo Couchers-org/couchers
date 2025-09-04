@@ -3,13 +3,13 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import "@testing-library/jest-dom";
-import "whatwg-fetch";
-
 import { waitFor } from "@testing-library/react";
 import crypto from "crypto";
 import mediaQuery from "css-mediaquery";
 import sentryTestkit from "sentry-testkit";
-import i18n from "test/i18n";
+import "whatwg-fetch";
+
+import i18n from "@/test/i18n";
 
 import user from "./fixtures/defaultUser.json";
 
@@ -27,7 +27,7 @@ jest.mock("next/router", () => {
 });
 // Mock next/dynamic to skip the dynamic part
 // This works by extracting the require("path/to/component")
-// It needs to be in the form dynamic(() => import("components/MarkdownNoSSR"))
+// It needs to be in the form dynamic(() => import("@/components/MarkdownNoSSR"))
 // This is hacky. Really we need to just ditch any non-ssr components
 /// TODO: Get an SSR-friendly markdown editor
 jest.mock("next/dynamic", () => ({

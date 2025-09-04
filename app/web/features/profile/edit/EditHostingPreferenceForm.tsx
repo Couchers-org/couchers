@@ -3,33 +3,34 @@ import {
   Checkbox,
   FormControl,
   FormControlLabel,
-  styled,
   Typography,
+  styled,
 } from "@mui/material";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import Select from "components/Select";
-import Snackbar from "components/Snackbar";
+import ProfileMarkdownInput from "@/features/profile/ProfileMarkdownInput";
+import ProfileTextInput from "@/features/profile/ProfileTextInput";
 import {
   parkingDetailsLabels,
   sleepingArrangementLabelsShort,
   smokingLocationLabels,
-} from "features/profile/constants";
-import useUpdateHostingPreferences from "features/profile/hooks/useUpdateHostingPreferences";
-import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
-import ProfileTextInput from "features/profile/ProfileTextInput";
-import { useTranslation } from "i18n";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
+} from "@/features/profile/constants";
+import useUpdateHostingPreferences from "@/features/profile/hooks/useUpdateHostingPreferences";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, PROFILE } from "@/i18n/namespaces";
 import {
   ParkingDetails,
   SleepingArrangement,
   SmokingLocation,
-} from "proto/api_pb";
+} from "@/proto/api_pb";
 import React, { useEffect, useState } from "react";
-import { Controller, useForm, UseFormReturn } from "react-hook-form";
-import { HostingPreferenceData } from "service";
-import { theme } from "theme";
-import { useUnsavedChangesWarning } from "utils/hooks";
+import { Controller, UseFormReturn, useForm } from "react-hook-form";
+import { HostingPreferenceData } from "@/service;
+import { theme } from "@/theme";
+import { useUnsavedChangesWarning } from "@/utils/hooks";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import Select from "@/components/Select";
+import Snackbar from "@/components/Snackbar";
 
 import { DEFAULT_ABOUT_HOME_HEADINGS } from "./constants";
 

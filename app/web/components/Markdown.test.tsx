@@ -6,7 +6,8 @@ import {
   render,
   screen,
 } from "@testing-library/react";
-import wrapper from "test/hookWrapper";
+
+import wrapper from "@/test/hookWrapper";
 
 import Markdown, { increaseMarkdownHeaderLevel } from "./Markdown";
 

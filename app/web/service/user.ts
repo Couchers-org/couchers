@@ -1,5 +1,6 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb";
+
 import {
   GetLiteUserReq,
   GetLiteUsersReq,
@@ -13,8 +14,8 @@ import {
   RepeatedStringValue,
   UpdateProfileReq,
   User,
-} from "proto/api_pb";
-import { AuthReq } from "proto/auth_pb";
+} from "@/proto/api_pb";
+import { AuthReq } from "@/proto/auth_pb";
 
 import client from "./client";
 import { ProtoToJsTypes } from "./utils/types";

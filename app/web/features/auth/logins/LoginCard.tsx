@@ -2,27 +2,28 @@ import {
   Card,
   CardActions,
   CardContent,
-  styled,
   Typography,
+  styled,
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
+import { useTranslation } from "next-i18next";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import IconText from "@/components/IconText";
 import {
   CalendarIcon,
   ClockIcon,
   InfoIcon,
   LocationIcon,
-} from "components/Icons";
-import IconText from "components/IconText";
-import { activeLoginsKey } from "features/queryKeys";
-import { Trans } from "i18n";
-import { AUTH, GLOBAL } from "i18n/namespaces";
-import { useTranslation } from "next-i18next";
-import { ActiveSession } from "proto/account_pb";
-import { service } from "service";
-import { dateFormatter, dateTimeFormatter, timestamp2Date } from "utils/date";
-import { timeAgoI18n } from "utils/timeAgo";
+} from "@/components/Icons";
+import { activeLoginsKey } from "@/features/queryKeys";
+import { Trans } from "@/i18n";
+import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import { ActiveSession } from "@/proto/account_pb";
+import { service } from "@/service";
+import { dateFormatter, dateTimeFormatter, timestamp2Date } from "@/utils/date";
+import { timeAgoI18n } from "@/utils/timeAgo";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   marginTop: theme.spacing(1),

@@ -1,4 +1,5 @@
 import { QuestionMark } from "@mui/icons-material";
+
 import {
   DissatisfiedIcon,
   ExtremelyDissatisfiedIcon,
@@ -8,7 +9,7 @@ import {
   SlightlySatisfiedIcon,
   VeryDissatisfiedIcon,
   VerySatisfiedIcon,
-} from "components/Icons/index";
+} from "@/components/Icons/index";
 
 interface SliderLabelProps {
   value: number | undefined;

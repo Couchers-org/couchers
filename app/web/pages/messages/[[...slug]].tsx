@@ -1,16 +1,17 @@
-import { appGetLayout } from "components/AppRoute";
-import GroupChatsTab from "features/messages/groupchats/GroupChatsTab";
-import GroupChatView from "features/messages/groupchats/GroupChatView";
-import MessagesHeader from "features/messages/MessagesHeader";
-import HostRequestView from "features/messages/requests/HostRequestView";
-import RequestsTab from "features/messages/requests/RequestsTab";
-import NotFoundPage from "features/NotFoundPage";
-import { GLOBAL, MESSAGES, NOTIFICATIONS } from "i18n/namespaces";
-import { translationStaticProps } from "i18n/server-side-translations";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
-import { messageTypeStrings } from "routes";
+
+import { appGetLayout } from "@/components/AppRoute";
+import NotFoundPage from "@/features/NotFoundPage";
+import MessagesHeader from "@/features/messages/MessagesHeader";
+import GroupChatView from "@/features/messages/groupchats/GroupChatView";
+import GroupChatsTab from "@/features/messages/groupchats/GroupChatsTab";
+import HostRequestView from "@/features/messages/requests/HostRequestView";
+import RequestsTab from "@/features/messages/requests/RequestsTab";
+import { GLOBAL, MESSAGES, NOTIFICATIONS } from "@/i18n/namespaces";
+import { translationStaticProps } from "@/i18n/server-side-translations";
+import { messageTypeStrings } from "@/routes";
 
 export const getStaticPaths: GetStaticPaths = () => ({
   paths: [],

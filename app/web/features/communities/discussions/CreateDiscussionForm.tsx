@@ -1,12 +1,13 @@
-import { Card, styled, Typography } from "@mui/material";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import MarkdownInput from "components/MarkdownInput";
-import TextField from "components/TextField";
-import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
+import { Card, Typography, styled } from "@mui/material";
 import { useForm } from "react-hook-form";
-import { theme } from "theme";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import MarkdownInput from "@/components/MarkdownInput";
+import TextField from "@/components/TextField";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
+import { theme } from "@/theme";
 
 import { CreateDiscussionInput, useNewDiscussionMutation } from "../hooks";
 

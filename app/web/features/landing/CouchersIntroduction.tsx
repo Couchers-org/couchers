@@ -1,10 +1,11 @@
-import { styled, Typography, useMediaQuery } from "@mui/material";
-import Button from "components/Button";
-import { Trans, useTranslation } from "i18n";
-import { GLOBAL, LANDING } from "i18n/namespaces";
+import { Typography, styled, useMediaQuery } from "@mui/material";
 import { useRouter } from "next/router";
-import { signupRoute } from "routes";
-import { theme } from "theme";
+
+import Button from "@/components/Button";
+import { Trans, useTranslation } from "@/i18n";
+import { GLOBAL, LANDING } from "@/i18n/namespaces";
+import { signupRoute } from "@/routes";
+import { theme } from "@/theme";
 
 const StyledIntroduction = styled("div")(({ theme }) => ({
   flexDirection: "column",

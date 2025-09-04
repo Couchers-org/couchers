@@ -3,11 +3,12 @@ import {
   useInfiniteQuery,
   useQuery,
 } from "@tanstack/react-query";
-import { badgesKey, badgeUsersKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
-import { ListBadgeUsersRes } from "proto/api_pb";
-import { Badge } from "proto/resources_pb";
-import { service } from "service";
+
+import { badgeUsersKey, badgesKey } from "@/features/queryKeys";
+import { ListBadgeUsersRes } from "@/proto/api_pb";
+import { Badge } from "@/proto/resources_pb";
+import { service } from "@/service";
 
 export const useBadges = () => {
   const { data, ...rest } = useQuery({

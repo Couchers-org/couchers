@@ -1,12 +1,13 @@
-import Button from "components/Button";
-import { CheckIcon, CloseIcon, PersonAddIcon } from "components/Icons";
-import Menu, { MenuItem } from "components/Menu";
-import type { SetMutationError } from "features/connections/friends";
-import useRespondToFriendRequest from "features/connections/friends/useRespondToFriendRequest";
-import { PROFILE } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
-import { FriendRequest } from "proto/api_pb";
 import React, { useRef, useState } from "react";
+
+import Button from "@/components/Button";
+import { CheckIcon, CloseIcon, PersonAddIcon } from "@/components/Icons";
+import Menu, { MenuItem } from "@/components/Menu";
+import type { SetMutationError } from "@/features/connections/friends";
+import useRespondToFriendRequest from "@/features/connections/friends/useRespondToFriendRequest";
+import { PROFILE } from "@/i18n/namespaces";
+import { FriendRequest } from "@/proto/api_pb";
 
 interface PendingFriendReqButtonProps {
   friendRequest: FriendRequest.AsObject;

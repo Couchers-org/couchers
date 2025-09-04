@@ -1,18 +1,19 @@
-import { styled, Typography } from "@mui/material";
+import { Typography, styled } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import HtmlMeta from "components/HtmlMeta";
-import PageTitle from "components/PageTitle";
-import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
-import { service } from "service";
-import { theme } from "theme";
-import { lowercaseAndTrimField } from "utils/validation";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import HtmlMeta from "@/components/HtmlMeta";
+import PageTitle from "@/components/PageTitle";
+import TextField from "@/components/TextField";
+import { useTranslation } from "@/i18n";
+import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import { service } from "@/service";
+import { theme } from "@/theme";
+import { lowercaseAndTrimField } from "@/utils/validation";
 
 const StyledMain = styled("main")(() => ({
   padding: theme.spacing(0, 3),

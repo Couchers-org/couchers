@@ -1,34 +1,35 @@
 import { DialogProps, List, ListItem, styled } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Avatar from "components/Avatar";
-import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
+import { RpcError } from "grpc-web";
+import React, { useEffect, useState } from "react";
+
+import Alert from "@/components/Alert";
+import Avatar from "@/components/Avatar";
+import Button from "@/components/Button";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import ConfirmationDialogWrapper from "@/components/ConfirmationDialogWrapper";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "components/Dialog";
-import IconButton from "components/IconButton";
-import { AddIcon, CloseIcon } from "components/Icons";
-import TextBody from "components/TextBody";
-import { useAuthContext } from "features/auth/AuthProvider";
+} from "@/components/Dialog";
+import IconButton from "@/components/IconButton";
+import { AddIcon, CloseIcon } from "@/components/Icons";
+import TextBody from "@/components/TextBody";
+import { useAuthContext } from "@/features/auth/AuthProvider";
 import {
   groupChatKey,
   groupChatMessagesKey,
   groupChatsListKey,
-} from "features/queryKeys";
-import { useLiteUsers } from "features/userQueries/useLiteUsers";
-import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import { LiteUser } from "proto/api_pb";
-import { GroupChat } from "proto/conversations_pb";
-import React, { useEffect, useState } from "react";
-import { service } from "service";
-import { theme } from "theme";
+} from "@/features/queryKeys";
+import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
+import { LiteUser } from "@/proto/api_pb";
+import { GroupChat } from "@/proto/conversations_pb";
+import { service } from "@/service";
+import { theme } from "@/theme";
 
 const StyledAvatar = styled(Avatar)(() => ({
   height: 30,

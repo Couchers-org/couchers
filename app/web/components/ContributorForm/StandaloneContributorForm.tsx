@@ -1,14 +1,15 @@
 import { Typography } from "@mui/material";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import ContributorForm from "components/ContributorForm";
-import { contributorFormInfoQueryKey } from "features/queryKeys";
-import { GetContributorFormInfoRes } from "proto/account_pb";
-import { ContributorForm as ContributorFormPb } from "proto/auth_pb";
 import { useState } from "react";
-import { service } from "service";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import ContributorForm from "@/components/ContributorForm";
+import { contributorFormInfoQueryKey } from "@/features/queryKeys";
+import { GetContributorFormInfoRes } from "@/proto/account_pb";
+import { ContributorForm as ContributorFormPb } from "@/proto/auth_pb";
+import { service } from "@/service";
 
 import { ALREADY_FILLED_IN, FILL_IN_AGAIN, SUCCESS_MSG } from "./constants";
 

@@ -2,25 +2,26 @@ import {
   Card,
   CircularProgress,
   Skeleton,
-  styled,
   Typography,
+  styled,
 } from "@mui/material";
-import Avatar from "components/Avatar";
-import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import Markdown from "components/Markdown";
-import FlagButton from "features/FlagButton";
-import CopyOnClick from "features/mod/CopyOnClick";
-import ModVisibleComponent from "features/mod/ModVisibleComponent";
-import { useLiteUser } from "features/userQueries/useLiteUsers";
-import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
-import { Reply } from "proto/threads_pb";
 import { useEffect, useRef, useState } from "react";
-import { theme } from "theme";
-import { timestamp2Date } from "utils/date";
-import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
-import { timeAgo } from "utils/timeAgo";
+
+import Avatar from "@/components/Avatar";
+import Button from "@/components/Button";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import Markdown from "@/components/Markdown";
+import FlagButton from "@/features/FlagButton";
+import CopyOnClick from "@/features/mod/CopyOnClick";
+import ModVisibleComponent from "@/features/mod/ModVisibleComponent";
+import { useLiteUser } from "@/features/userQueries/useLiteUsers";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
+import { Reply } from "@/proto/threads_pb";
+import { theme } from "@/theme";
+import { timestamp2Date } from "@/utils/date";
+import hasAtLeastOnePage from "@/utils/hasAtLeastOnePage";
+import { timeAgo } from "@/utils/timeAgo";
 
 import { useThread } from "../hooks";
 import CommentForm from "./CommentForm";

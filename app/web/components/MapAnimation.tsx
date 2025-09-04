@@ -1,10 +1,11 @@
-import { Box, Skeleton, styled, Typography } from "@mui/material";
-import { useTranslation } from "i18n";
-import { LANDING } from "i18n/namespaces";
+import { Box, Skeleton, Typography, styled } from "@mui/material";
 import Lottie from "lottie-react";
-import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
-import { theme } from "theme";
+
+import { useTranslation } from "@/i18n";
+import { LANDING } from "@/i18n/namespaces";
+import Sentry from "@/platform/sentry";
+import { theme } from "@/theme";
 
 import Alert from "./Alert";
 

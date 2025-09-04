@@ -3,10 +3,11 @@ import {
   KeyboardDoubleArrowRight,
 } from "@mui/icons-material";
 import { styled } from "@mui/material";
-import { useTranslation } from "i18n";
-import { GLOBAL } from "i18n/namespaces";
 import React from "react";
-import { theme } from "theme";
+
+import { useTranslation } from "@/i18n";
+import { GLOBAL } from "@/i18n/namespaces";
+import { theme } from "@/theme";
 
 import IconButton from "./IconButton";
 

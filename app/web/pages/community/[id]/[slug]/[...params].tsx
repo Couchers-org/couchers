@@ -1,13 +1,14 @@
-import { appGetLayout } from "components/AppRoute";
-import CommunityPageComponent from "features/communities/CommunityPage";
-import NotFoundPage from "features/NotFoundPage";
-import { COMMUNITIES, GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { GetStaticPaths, GetStaticProps } from "next";
-import { useRouter } from "next/router";
 import nextI18nextConfig from "next-i18next.config";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { communityTabs } from "routes";
-import stringOrFirstString from "utils/stringOrFirstString";
+import { useRouter } from "next/router";
+
+import { appGetLayout } from "@/components/AppRoute";
+import NotFoundPage from "@/features/NotFoundPage";
+import CommunityPageComponent from "@/features/communities/CommunityPage";
+import { COMMUNITIES, GLOBAL, NOTIFICATIONS } from "@/i18n/namespaces";
+import { communityTabs } from "@/routes";
+import stringOrFirstString from "@/utils/stringOrFirstString";
 
 export const getStaticPaths: GetStaticPaths = () => ({
   paths: [],

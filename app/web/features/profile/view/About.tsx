@@ -1,10 +1,11 @@
-import { styled, Typography, useTheme } from "@mui/material";
-import Divider from "components/Divider";
-import Markdown from "components/Markdown";
-import { useTranslation } from "i18n";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
-import { User } from "proto/api_pb";
+import { Typography, styled, useTheme } from "@mui/material";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
+
+import Divider from "@/components/Divider";
+import Markdown from "@/components/Markdown";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, PROFILE } from "@/i18n/namespaces";
+import { User } from "@/proto/api_pb";
 
 import { useRegions } from "../hooks/useRegions";
 import { AgeGenderLanguagesLabels, RemainingAboutLabels } from "./userLabels";

@@ -1,19 +1,20 @@
 import { Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Button from "components/Button";
-import HtmlMeta from "components/HtmlMeta";
-import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
-import useAccountInfo from "features/auth/useAccountInfo";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { dashboardRoute, routeToEvent } from "routes";
-import { service } from "service";
-import type { CreateEventInput } from "service/events";
-import { theme } from "theme";
-import dayjs, { TIME_FORMAT } from "utils/dayjs";
-import stringOrFirstString from "utils/stringOrFirstString";
+
+import Button from "@/components/Button";
+import HtmlMeta from "@/components/HtmlMeta";
+import ProfileIncompleteDialog from "@/components/ProfileIncompleteDialog/ProfileIncompleteDialog";
+import useAccountInfo from "@/features/auth/useAccountInfo";
+import { useTranslation } from "@/i18n";
+import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
+import { dashboardRoute, routeToEvent } from "@/routes";
+import { service } from "@/service";
+import type { CreateEventInput } from "@/service/events";
+import { theme } from "@/theme";
+import dayjs, { TIME_FORMAT } from "@/utils/dayjs";
+import stringOrFirstString from "@/utils/stringOrFirstString";
 
 import { Event } from "../../../proto/events_pb";
 import { communityEventsBaseKey } from "../../queryKeys";

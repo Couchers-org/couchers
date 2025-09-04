@@ -1,14 +1,19 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { EditLocationMapProps } from "components/EditLocationMap";
 import dayjs from "dayjs";
-import { hostingStatusLabels } from "features/profile/constants";
 import { StatusCode } from "grpc-web";
-import { HostingStatus } from "proto/api_pb";
-import { service } from "service";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
+
+import { EditLocationMapProps } from "@/components/EditLocationMap";
+import { hostingStatusLabels } from "@/features/profile/constants";
+import { HostingStatus } from "@/proto/api_pb";
+import { service } from "@/service";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import {
+  MockedService,
+  assertErrorAlert,
+  mockConsoleError,
+} from "@/test/utils";
 
 import AccountForm from "./AccountForm";
 

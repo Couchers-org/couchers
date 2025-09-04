@@ -1,17 +1,18 @@
-import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import CommentBox from "components/Comments/CommentBox";
-import HtmlMeta from "components/HtmlMeta";
-import Markdown from "components/Markdown";
-import PageTitle from "components/PageTitle";
-import TextBody from "components/TextBody";
-import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
-import { Page, PageType } from "proto/pages_pb";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { routeToGuide, routeToPlace } from "routes";
-import { service } from "service";
-import isGrpcError from "service/utils/isGrpcError";
+
+import Alert from "@/components/Alert";
+import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import CommentBox from "@/components/Comments/CommentBox";
+import HtmlMeta from "@/components/HtmlMeta";
+import Markdown from "@/components/Markdown";
+import PageTitle from "@/components/PageTitle";
+import TextBody from "@/components/TextBody";
+import { Page, PageType } from "@/proto/pages_pb";
+import { routeToGuide, routeToPlace } from "@/routes";
+import { service } from "@/service";
+import isGrpcError from "@/service/utils/isGrpcError";
 
 export default function PagePage({
   pageType,

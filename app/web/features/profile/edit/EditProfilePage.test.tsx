@@ -1,10 +1,11 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { service } from "service";
-import wrapper from "test/hookWrapper";
-import i18n from "test/i18n";
-import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
-import { addDefaultUser } from "test/utils";
+
+import { service } from "@/service";
+import wrapper from "@/test/hookWrapper";
+import i18n from "@/test/i18n";
+import { getLanguages, getRegions, getUser } from "@/test/serviceMockDefaults";
+import { addDefaultUser } from "@/test/utils";
 
 import EditProfilePage from "./EditProfilePage";
 

@@ -1,11 +1,12 @@
 import { Typography } from "@mui/material";
-import Button from "components/Button";
-import StyledLink from "components/StyledLink";
-import { Trans, useTranslation } from "i18n";
-import { PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { dashboardRoute, donationsRoute } from "routes";
-import { theme } from "theme";
+
+import Button from "@/components/Button";
+import StyledLink from "@/components/StyledLink";
+import { Trans, useTranslation } from "@/i18n";
+import { PROFILE } from "@/i18n/namespaces";
+import { dashboardRoute, donationsRoute } from "@/routes";
+import { theme } from "@/theme";
 
 const ThankYouReference = () => {
   const { t } = useTranslation([PROFILE]);

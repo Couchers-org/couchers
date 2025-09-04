@@ -1,8 +1,9 @@
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Box, Button, Stack } from "@mui/material";
-import { useTranslation } from "i18n";
-import { GLOBAL } from "i18n/namespaces";
+
+import { useTranslation } from "@/i18n";
+import { GLOBAL } from "@/i18n/namespaces";
 
 interface CursorPaginationProps {
   hasPreviousPage: boolean;

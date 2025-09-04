@@ -1,9 +1,10 @@
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import { Button, CircularProgress, styled, Typography } from "@mui/material";
-import Snackbar from "components/Snackbar";
-import { NOTIFICATIONS } from "i18n/namespaces";
+import { Button, CircularProgress, Typography, styled } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import { useEffect, useState } from "react";
+
+import Snackbar from "@/components/Snackbar";
+import { NOTIFICATIONS } from "@/i18n/namespaces";
 
 import NotificationSettingsListItem from "./NotificationSettingsListItem";
 import useNotificationSettings from "./useNotificationSettings";

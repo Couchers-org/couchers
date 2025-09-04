@@ -1,11 +1,12 @@
-import { Link as MuiLink, styled, Typography } from "@mui/material";
-import StyledLink from "components/StyledLink";
-import useAccountInfo from "features/auth/useAccountInfo";
-import CommunitiesList from "features/dashboard/CommunitiesList";
-import { Trans, useTranslation } from "i18n";
-import { DASHBOARD, GLOBAL } from "i18n/namespaces";
-import { communityCreationFormURL } from "routes";
-import { theme } from "theme";
+import { Link as MuiLink, Typography, styled } from "@mui/material";
+
+import StyledLink from "@/components/StyledLink";
+import useAccountInfo from "@/features/auth/useAccountInfo";
+import CommunitiesList from "@/features/dashboard/CommunitiesList";
+import { Trans, useTranslation } from "@/i18n";
+import { DASHBOARD, GLOBAL } from "@/i18n/namespaces";
+import { communityCreationFormURL } from "@/routes";
+import { theme } from "@/theme";
 
 const StyledBrowseCommunitiesLink = styled(StyledLink)(() => ({
   verticalAlign: "baseline",

@@ -1,5 +1,4 @@
 import {
-  alpha,
   ButtonBase,
   Checkbox,
   IconButton,
@@ -7,18 +6,20 @@ import {
   Link,
   Paper,
   Popper,
-  styled,
   Typography,
+  alpha,
+  styled,
 } from "@mui/material";
 import Autocomplete, {
   AutocompleteCloseReason,
 } from "@mui/material/Autocomplete";
-import { CloseIcon, ExpandMoreIcon } from "components/Icons";
-import { Trans, useTranslation } from "i18n";
-import { PROFILE } from "i18n/namespaces";
 import React, { useRef, useState } from "react";
 import { ControllerRenderProps } from "react-hook-form";
-import { theme } from "theme";
+
+import { CloseIcon, ExpandMoreIcon } from "@/components/Icons";
+import { Trans, useTranslation } from "@/i18n";
+import { PROFILE } from "@/i18n/namespaces";
+import { theme } from "@/theme";
 
 interface ProfileTagInputProps {
   onChange: (_: unknown, value: string[]) => void;

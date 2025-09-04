@@ -1,20 +1,22 @@
 import { TFunction } from "i18next";
 
-export const minuteMillis = 60000;
-export const twoMinuteMillis = 120000;
-export const quarterHourMillis = 900000;
-export const hourMillis = 3600000;
-export const twoHourMillis = 7200000;
-export const dayMillis = 86400000;
-export const twoDayMillis = 172800000;
-export const weekMillis = 604800000;
-export const twoWeekMillis = 1209600000;
-export const monthMillis = weekMillis * 4;
-export const twoMonthMillis = weekMillis * 8;
-export const yearMillis = 31557600000;
-export const twoYearMillis = 31557600000 * 2;
+// TODO(FB) Consider using date-fns
 
-export const lessThanHour = "Less than an hour ago";
+export const MINUTE_MILLIS = 60000;
+export const TWO_MINUTE_MILLIS = MINUTE_MILLIS * 2;
+export const QUARTER_HOUR_MILLIS = MINUTE_MILLIS * 15;
+export const HOUR_MILLIS = QUARTER_HOUR_MILLIS * 4;
+export const TWO_HOUR_MILLIS = HOUR_MILLIS * 2;
+export const DAY_MILLIS = HOUR_MILLIS * 24;
+export const TWO_DAY_MILLIS = DAY_MILLIS * 2;
+export const WEEK_MILLIS = DAY_MILLIS * 7;
+export const TWO_WEEK_MILLIS = WEEK_MILLIS * 2;
+export const MONTH_MILLIS = WEEK_MILLIS * 4;
+export const TWO_MONTH_MILLIS = MONTH_MILLIS * 2;
+export const YEAR_MILLIS = MONTH_MILLIS * 12;
+export const TWO_YEAR_MILLIS = YEAR_MILLIS * 2;
+
+export const LESS_THAN_HOUR = "Less than an hour ago";
 
 export interface FuzzySpec {
   millis: number;
@@ -34,29 +36,29 @@ export function timeAgo(input: Date | string, fuzzy?: FuzzySpec) {
     return fuzzy.text;
   }
 
-  if (diffMillis <= minuteMillis) return "< 1 minute ago";
-  if (diffMillis <= twoMinuteMillis) return "1 minute ago";
-  if (diffMillis < hourMillis)
-    return "" + (diffMillis / minuteMillis).toFixed() + " minutes ago";
+  if (diffMillis <= MINUTE_MILLIS) return "< 1 minute ago";
+  if (diffMillis <= TWO_MINUTE_MILLIS) return "1 minute ago";
+  if (diffMillis < HOUR_MILLIS)
+    return "" + (diffMillis / MINUTE_MILLIS).toFixed() + " minutes ago";
 
-  if (diffMillis < twoHourMillis) return "1 hour ago";
-  if (diffMillis < dayMillis)
-    return "" + (diffMillis / hourMillis).toFixed() + " hours ago";
+  if (diffMillis < TWO_HOUR_MILLIS) return "1 hour ago";
+  if (diffMillis < DAY_MILLIS)
+    return "" + (diffMillis / HOUR_MILLIS).toFixed() + " hours ago";
 
-  if (diffMillis < twoDayMillis) return "1 day ago";
-  if (diffMillis < weekMillis)
-    return "" + (diffMillis / dayMillis).toFixed() + " days ago";
+  if (diffMillis < TWO_DAY_MILLIS) return "1 day ago";
+  if (diffMillis < WEEK_MILLIS)
+    return "" + (diffMillis / DAY_MILLIS).toFixed() + " days ago";
 
-  if (diffMillis < twoWeekMillis) return "1 week ago";
-  if (diffMillis < monthMillis)
-    return "" + (diffMillis / weekMillis).toFixed() + " weeks ago";
+  if (diffMillis < TWO_WEEK_MILLIS) return "1 week ago";
+  if (diffMillis < MONTH_MILLIS)
+    return "" + (diffMillis / WEEK_MILLIS).toFixed() + " weeks ago";
 
-  if (diffMillis < twoMonthMillis) return "1 month ago";
-  if (diffMillis < yearMillis)
-    return "" + (diffMillis / monthMillis).toFixed() + " months ago";
+  if (diffMillis < TWO_MONTH_MILLIS) return "1 month ago";
+  if (diffMillis < YEAR_MILLIS)
+    return "" + (diffMillis / MONTH_MILLIS).toFixed() + " months ago";
 
-  if (diffMillis < twoYearMillis) return "1 year ago";
-  return "" + (diffMillis / yearMillis).toFixed() + " years ago";
+  if (diffMillis < TWO_YEAR_MILLIS) return "1 year ago";
+  return "" + (diffMillis / YEAR_MILLIS).toFixed() + " years ago";
 }
 
 export interface FuzzySpecT {
@@ -82,40 +84,40 @@ export function timeAgoI18n({
     return t(fuzzy.translationKey) as string;
   }
 
-  if (diffMillis < minuteMillis)
+  if (diffMillis < MINUTE_MILLIS)
     return t("relative_time.less_than_a_minute_ago");
-  if (diffMillis < twoMinuteMillis) return t("relative_time.one_minute_ago");
-  if (diffMillis < hourMillis)
+  if (diffMillis < TWO_MINUTE_MILLIS) return t("relative_time.one_minute_ago");
+  if (diffMillis < HOUR_MILLIS)
     return t("relative_time.x_minutes_ago", {
-      date: (diffMillis / minuteMillis).toFixed(),
+      date: (diffMillis / MINUTE_MILLIS).toFixed(),
     });
 
-  if (diffMillis < twoHourMillis) return t("relative_time.one_hour_ago");
-  if (diffMillis < dayMillis)
+  if (diffMillis < TWO_HOUR_MILLIS) return t("relative_time.one_hour_ago");
+  if (diffMillis < DAY_MILLIS)
     return t("relative_time.x_hours_ago", {
-      date: (diffMillis / hourMillis).toFixed(),
+      date: (diffMillis / HOUR_MILLIS).toFixed(),
     });
 
-  if (diffMillis < twoDayMillis) return t("relative_time.one_day_ago");
-  if (diffMillis < weekMillis)
+  if (diffMillis < TWO_DAY_MILLIS) return t("relative_time.one_day_ago");
+  if (diffMillis < WEEK_MILLIS)
     return t("relative_time.x_days_ago", {
-      date: (diffMillis / dayMillis).toFixed(),
+      date: (diffMillis / DAY_MILLIS).toFixed(),
     });
 
-  if (diffMillis < twoWeekMillis) return t("relative_time.one_week_ago");
-  if (diffMillis < monthMillis)
+  if (diffMillis < TWO_WEEK_MILLIS) return t("relative_time.one_week_ago");
+  if (diffMillis < MONTH_MILLIS)
     return t("relative_time.x_weeks_ago", {
-      date: (diffMillis / weekMillis).toFixed(),
+      date: (diffMillis / WEEK_MILLIS).toFixed(),
     });
 
-  if (diffMillis < twoMonthMillis) return t("relative_time.one_month_ago");
-  if (diffMillis < yearMillis)
+  if (diffMillis < TWO_MONTH_MILLIS) return t("relative_time.one_month_ago");
+  if (diffMillis < YEAR_MILLIS)
     return t("relative_time.x_months_ago", {
-      date: (diffMillis / monthMillis).toFixed(),
+      date: (diffMillis / MONTH_MILLIS).toFixed(),
     });
 
-  if (diffMillis < twoYearMillis) return t("relative_time.one_year_ago");
+  if (diffMillis < TWO_YEAR_MILLIS) return t("relative_time.one_year_ago");
   return t("relative_time.x_years_ago", {
-    date: (diffMillis / yearMillis).toFixed(),
+    date: (diffMillis / YEAR_MILLIS).toFixed(),
   });
 }

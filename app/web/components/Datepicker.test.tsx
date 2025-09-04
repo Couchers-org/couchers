@@ -1,9 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
-import { useTranslation } from "i18n";
 import { useForm } from "react-hook-form";
-import i18n from "test/i18n";
-import dayjs, { Dayjs } from "utils/dayjs";
+
+import { useTranslation } from "@/i18n";
+import i18n from "@/test/i18n";
+import dayjs, { Dayjs } from "@/utils/dayjs";
 
 import wrapper from "../test/hookWrapper";
 import Datepicker from "./Datepicker";
