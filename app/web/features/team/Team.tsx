@@ -21,24 +21,24 @@ import { Volunteer } from "proto/public_pb";
 import { volunteerRoute } from "routes";
 import { theme } from "theme";
 
-const SpacerDiv = styled("div")(({}) => ({
+const SpacerDiv = styled("div")(() => ({
   height: theme.spacing(4),
 }));
 
-const TeamMemberCard = styled(Card)(({}) => ({
+const TeamMemberCard = styled(Card)(() => ({
   height: "100%",
 }));
 
-const TeamMemberCardContent = styled(CardContent)(({}) => ({
+const TeamMemberCardContent = styled(CardContent)(() => ({
   display: "flex",
 }));
 
-const DetailDiv = styled("div")(({}) => ({
+const DetailDiv = styled("div")(() => ({
   padding: theme.spacing(1, 2),
   flex: "1 1 0%",
 }));
 
-const StyledAvatar = styled(MuiAvatar)(({}) => ({
+const StyledAvatar = styled(MuiAvatar)(() => ({
   width: theme.typography.pxToRem(96),
   height: theme.typography.pxToRem(96),
 }));
