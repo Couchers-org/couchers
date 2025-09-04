@@ -111,7 +111,8 @@
       "maybe": "Probable d'héberger",
       "can_host": "Possible d'héberger",
       "cant_host": "Pas possible d'héberger",
-      "field_label": "Statut d’hébergement"
+      "field_label": "Statut d’hébergement",
+      "any": "Tous"
     },
     "gender": {
       "field_label": "Je m’identifie en tant que…",
@@ -176,7 +177,8 @@
     }
   },
   "jail_set_password_form": {
-    "explanation": "Vous n'avez pas encore défini le mot de passe pour votre compte. Veuillez en créer un maintenant pour continuer."
+    "explanation": "Vous n'avez pas encore défini le mot de passe pour votre compte. Veuillez en créer un maintenant pour continuer.",
+    "title": "Définir un mot de passe"
   },
   "strong_verification": {
     "learn_more": "En savoir plus sur la vérification renforcée <a>ici</a>.",
