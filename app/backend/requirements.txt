@@ -10,7 +10,7 @@ aiohttp==3.11.11
     # via geoip2
 aiosignal==1.3.2
     # via aiohttp
-alembic==1.16.2
+alembic==1.16.5
     # via -r requirements.in
 attrs==24.3.0
     # via aiohttp
@@ -91,7 +91,7 @@ luhn==0.2.0
     # via -r requirements.in
 mako==1.3.8
     # via alembic
-markdown-it-py==3.0.0
+markdown-it-py==4.0.0
     # via -r requirements.in
 markupsafe==3.0.2
     # via
@@ -226,15 +226,15 @@ shapely==2.1.1
     # via -r requirements.in
 six==1.17.0
     # via python-dateutil
-sqlalchemy==2.0.40
+sqlalchemy==2.0.43
     # via
     #   -r requirements.in
     #   alembic
     #   geoalchemy2
     #   sqlalchemy-utils
-sqlalchemy-utils==0.41.2
+sqlalchemy-utils==0.42.0
     # via -r requirements.in
-stripe==12.4.0
+stripe==12.5.0
     # via -r requirements.in
 typing-extensions==4.12.2
     # via
