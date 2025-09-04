@@ -228,7 +228,7 @@ const SearchResultUserCard = ({
           <UserDetailsRow>
             <Typography variant="body2">
               {user.lastActive
-                ? `Active: ` +
+                ? `${t("profile:active")}: ` +
                   timeAgoI18n({
                     input: timestamp2Date(user.lastActive),
                     t,

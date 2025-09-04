@@ -1,4 +1,5 @@
 import { Typography } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import StyledLink from "components/StyledLink";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -7,7 +8,6 @@ import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { useMutation } from "react-query";
 import { loginRoute } from "routes";
 import { service } from "service";
 import stringOrFirstString from "utils/stringOrFirstString";
@@ -20,12 +20,12 @@ export default function ConfirmChangeEmail() {
 
   const {
     error,
-    isLoading,
+    isPending,
     isSuccess,
     mutate: confirmChangeEmail,
-  } = useMutation<Empty, RpcError, string>((resetToken) =>
-    service.account.confirmChangeEmail(resetToken),
-  );
+  } = useMutation<Empty, RpcError, string>({
+    mutationFn: (resetToken) => service.account.confirmChangeEmail(resetToken),
+  });
 
   useEffect(() => {
     if (changeToken) {
@@ -33,7 +33,7 @@ export default function ConfirmChangeEmail() {
     }
   }, [confirmChangeEmail, changeToken]);
 
-  return isLoading ? (
+  return isPending ? (
     <Typography variant="body1">
       {t("change_email_confirmation.change_in_progress")}
     </Typography>

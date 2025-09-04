@@ -1,4 +1,5 @@
 import { People } from "@mui/icons-material";
+import { useQuery } from "@tanstack/react-query";
 import EllipsisMenu from "components/EllipsisMenu";
 import { blockedUsersKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
@@ -6,7 +7,6 @@ import { useTranslation } from "i18n";
 import { CONNECTIONS } from "i18n/namespaces";
 import { BlockedUser, GetBlockedUsersRes } from "proto/blocking_pb";
 import { useState } from "react";
-import { useQuery } from "react-query";
 import { service } from "service";
 
 import ConnectionActionDialog from "./ConnectionActionDialog";
@@ -23,10 +23,10 @@ function BlockedUsersList({ refetchFriends }: { refetchFriends: () => void }) {
   );
   const isMenuOpen = Boolean(menuAnchorEl);
 
-  const { data, error, isLoading } = useQuery<
+  const { data, error, isPending } = useQuery<
     GetBlockedUsersRes.AsObject,
     RpcError
-  >(blockedUsersKey, service.blocking.getBlockedUsers);
+  >({ queryKey: [blockedUsersKey], queryFn: service.blocking.getBlockedUsers });
 
   const { unblockUserMutation, isUnblocking } = useUnblockUser();
 
@@ -40,7 +40,6 @@ function BlockedUsersList({ refetchFriends }: { refetchFriends: () => void }) {
 
   const handleDialogOpen = () => {
     setIsDialogOpen(true);
-    handleMenuClose();
   };
 
   const handleDialogClose = () => {
@@ -58,7 +57,7 @@ function BlockedUsersList({ refetchFriends }: { refetchFriends: () => void }) {
       <FriendTile
         title={t("connections:blocked_list_title")}
         errorMessage={error?.message || null}
-        isLoading={isLoading}
+        isLoading={isPending}
         hasData={!!data?.blockedUsersList.length}
         noDataMessage={t("connections:no_blocked_users")}
       >

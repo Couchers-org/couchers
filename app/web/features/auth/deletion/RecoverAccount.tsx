@@ -1,3 +1,4 @@
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
@@ -6,7 +7,6 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { useMutation } from "react-query";
 import { service } from "service";
 import stringOrFirstString from "utils/stringOrFirstString";
 
@@ -20,15 +20,17 @@ export default function RecoverAccount() {
   const router = useRouter();
   const token = stringOrFirstString(router.query.token);
 
-  const { error, isLoading, isSuccess, mutate } = useMutation<
+  const { error, isPending, isSuccess, mutate } = useMutation<
     void,
     RpcError,
     RecoverAccountParams
-  >(async ({ token }) => {
-    if (token === undefined) {
-      throw Error(t("auth:delete_account.missing_token"));
-    }
-    return await service.auth.recoverAccount(token);
+  >({
+    mutationFn: async ({ token }) => {
+      if (token === undefined) {
+        throw Error(t("auth:delete_account.missing_token"));
+      }
+      return await service.auth.recoverAccount(token);
+    },
   });
 
   return (
@@ -47,7 +49,7 @@ export default function RecoverAccount() {
           {t("auth:delete_account.recover.success")}
         </Alert>
       )}
-      <Button onClick={() => mutate({ token })} loading={isLoading}>
+      <Button onClick={() => mutate({ token })} loading={isPending}>
         {t("auth:delete_account.recover.button_text")}
       </Button>
     </>

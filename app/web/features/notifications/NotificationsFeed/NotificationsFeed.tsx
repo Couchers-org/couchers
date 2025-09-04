@@ -7,6 +7,7 @@ import {
   styled,
   Typography,
 } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Pill from "components/Pill";
 import { listNotificationsQueryKey } from "features/queryKeys";
@@ -16,7 +17,6 @@ import { GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { ListNotificationsRes } from "proto/notifications_pb";
 import { useState } from "react";
-import { useQuery } from "react-query";
 import { notificationSettingsRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
@@ -79,7 +79,7 @@ const NotificationsFeed = ({
     ListNotificationsRes.AsObject,
     RpcError
   >({
-    queryKey: listNotificationsQueryKey,
+    queryKey: [listNotificationsQueryKey],
     queryFn: () =>
       service.notifications.listNotifications({
         onlyUnread: notificationsFilter === "unread",
@@ -89,7 +89,7 @@ const NotificationsFeed = ({
   const {
     error: markAllNotificationsSeenError,
     markAllNotificationsSeenMutation,
-    isLoading: isMarkingAllSeen,
+    isPending: isMarkingAllSeen,
   } = useMarkAllNotificationsSeen();
 
   const {
@@ -136,9 +136,6 @@ const NotificationsFeed = ({
       anchorEl={anchorEl}
       onClose={onClose}
       open={isOpen}
-      MenuListProps={{
-        "aria-labelledby": "notifications-feed-button",
-      }}
       slotProps={{
         paper: {
           elevation: 0,
@@ -151,6 +148,10 @@ const NotificationsFeed = ({
             filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
             marginTop: 1.5,
           },
+        },
+
+        list: {
+          "aria-labelledby": "notifications-feed-button",
         },
       }}
       transformOrigin={{ horizontal: "right", vertical: "top" }}

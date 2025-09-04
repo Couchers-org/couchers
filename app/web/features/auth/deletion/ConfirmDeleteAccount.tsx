@@ -1,3 +1,4 @@
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
@@ -6,7 +7,6 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { useMutation } from "react-query";
 import { logoutRoute } from "routes";
 import { service } from "service";
 import stringOrFirstString from "utils/stringOrFirstString";
@@ -21,23 +21,22 @@ export default function ConfirmDeleteAccount() {
   const router = useRouter();
   const token = stringOrFirstString(router.query.token);
 
-  const { error, isLoading, isSuccess, mutate } = useMutation<
+  const { error, isPending, isSuccess, mutate } = useMutation<
     void,
     RpcError,
     ConfirmDeleteAccountParams
-  >(
-    async ({ token }) => {
+  >({
+    mutationFn: async ({ token }) => {
       if (token === undefined) {
         throw Error(t("auth:delete_account.missing_token"));
       }
       return await service.auth.confirmDeleteAccount(token);
     },
-    {
-      onSuccess: () => {
-        router.push(logoutRoute);
-      },
+
+    onSuccess: () => {
+      router.push(logoutRoute);
     },
-  );
+  });
 
   return (
     <>
@@ -55,7 +54,7 @@ export default function ConfirmDeleteAccount() {
           {t("auth:delete_account.confirm.account_deleted")}
         </Alert>
       )}
-      <Button onClick={() => mutate({ token })} loading={isLoading}>
+      <Button onClick={() => mutate({ token })} loading={isPending}>
         {t("auth:delete_account.confirm.button_text")}
       </Button>
     </>

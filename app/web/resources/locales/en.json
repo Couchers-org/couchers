@@ -1,4 +1,5 @@
 {
+  "back": "Back",
   "close": "Close",
   "create_account": "Create Account",
   "expand": "Expand",
@@ -9,7 +10,7 @@
   "sign_up": "Sign up",
   "join_us": "Join us",
   "title": "title",
-  "update": "update",
+  "update": "Update",
   "create": "Create",
   "terms_of_service": "Terms of Service",
   "required": "Required",
@@ -22,6 +23,7 @@
   "verification_score_description": "Calculated from vouches by other users",
   "edit": "Edit",
   "save": "Save",
+  "save_changes": "Save changes",
   "send": "Send",
   "cancel": "Cancel",
   "submit": "Submit",
@@ -141,7 +143,17 @@
     },
     "edit_location_map": {
       "display_location_label": "Display location",
-      "search_location_label": "Search for location"
+      "search_location_label": "Search for location",
+      "display_location_not_empty": "Please fill in a display address",
+      "invalid_coordinate": "Missing coordinates, please select a location with the map above",
+      "location_accuracy": "Location accuracy",
+      "location_publicly_visible": "This will be publicly visible",
+      "location_warn": "Click and drag the circle below to show people the approximate location of your home. Make sure your home is not at the center of the circle, so people will not know the exact location.",
+      "map_is_blank": "Missing coordinates, start by searching for a location with the map above",
+      "radius_text": "{{radius}} meters",
+      "no_location_results_text": "No results. Try searching for just the city.",
+      "no_map_support": "Your device doesn't support the map. Please make sure WebGL2 is enabled or try a different device/browser. Sorry for the trouble!",
+      "press_enter_to_search": "Press enter to search"
     }
   },
   "nav": {
@@ -165,6 +177,7 @@
     "map_search": "Search",
     "mission": "Mission and Values",
     "messages": "Messages",
+    "newsletter": "Newsletter",
     "notifications": "Notifications",
     "our_plan": "Our Plan",
     "our_team": "Our Team",

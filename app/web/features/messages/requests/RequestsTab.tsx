@@ -1,4 +1,5 @@
 import { List, styled } from "@mui/material";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -12,7 +13,6 @@ import Link from "next/link";
 import { GroupChat } from "proto/conversations_pb";
 import { ListHostRequestsRes } from "proto/requests_pb";
 import * as React from "react";
-import { useInfiniteQuery } from "react-query";
 import { routeToHostRequest } from "routes";
 import { service } from "service";
 import { theme } from "theme";
@@ -49,15 +49,18 @@ export default function RequestsTab({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>(
-    hostRequestsListKey({ onlyActive, type }),
-    ({ pageParam: lastRequestId }) =>
-      service.requests.listHostRequests({ lastRequestId, onlyActive, type }),
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage.noMore ? undefined : lastPage.lastRequestId,
-    },
-  );
+  } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>({
+    queryKey: hostRequestsListKey({ onlyActive, type }),
+    queryFn: ({ pageParam: lastRequestId }) =>
+      service.requests.listHostRequests({
+        lastRequestId: lastRequestId as number | undefined,
+        onlyActive,
+        type,
+      }),
+    getNextPageParam: (lastPage) =>
+      lastPage.noMore ? undefined : lastPage.lastRequestId,
+    initialPageParam: undefined,
+  });
 
   const loadMoreRequests = () => fetchNextPage();
 

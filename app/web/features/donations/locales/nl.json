@@ -1,3 +1,16 @@
 {
-  "donate": "Doneren"
+  "donate": "Doneren",
+  "donations_banner": {
+    "title": "Zonder jouw hulp kunnen we niet verder met onze missie",
+    "body": "Bouw mee aan de toekomst van couchsurfen"
+  },
+  "donations_box": {
+    "monthly_button_label": "Maandelijks",
+    "one_time_button_label": "Eenmalig",
+    "recurrence_aria_label": "periodiek",
+    "title": "Donatie",
+    "amount_validation_error": "Alleen hele getalen, alsjeblieft.",
+    "action_button_label": "Doorgaan",
+    "validation_message": "Dit veld is verplicht"
+  }
 }

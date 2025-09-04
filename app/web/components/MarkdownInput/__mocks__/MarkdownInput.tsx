@@ -34,6 +34,7 @@ export default function MarkdownInputMock({
       }}
       ref={ref}
       value={value}
+      data-testid={`${id}-input`}
     />
   );
 }

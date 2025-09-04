@@ -1,3 +1,4 @@
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import {
   eventAttendeesKey,
   eventKey,
@@ -15,7 +16,6 @@ import {
   ListMyEventsRes,
 } from "proto/events_pb";
 import { EventSearchRes } from "proto/search_pb";
-import { useInfiniteQuery, useQuery } from "react-query";
 import { service } from "service";
 import type { ListAllEventsInput, ListMyEventsInput } from "service/events";
 import { GeocodeResult } from "utils/hooks";
@@ -39,10 +39,11 @@ export function useEventOrganizers({
       service.events.listEventOrganizers({
         eventId,
         pageSize: type === "summary" ? SUMMARY_QUERY_PAGE_SIZE : undefined,
-        pageToken: pageParam,
+        pageToken: pageParam as string | undefined,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     enabled,
+    initialPageParam: undefined,
   });
   const organizerIds = query.data?.pages.flatMap(
     (res) => res.organizerUserIdsList,
@@ -62,10 +63,11 @@ export function useEventAttendees({
       service.events.listEventAttendees({
         eventId,
         pageSize: type === "summary" ? SUMMARY_QUERY_PAGE_SIZE : undefined,
-        pageToken: pageParam,
+        pageToken: pageParam as string | undefined,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     enabled,
+    initialPageParam: undefined,
   });
   const attendeesIds = query.data?.pages.flatMap(
     (data) => data.attendeeUserIdsList,
@@ -103,10 +105,11 @@ export function useListAllEvents({
       service.events.listAllEvents({
         pastEvents,
         pageSize,
-        pageToken: pageParam,
+        pageToken: pageParam as string | undefined,
         showCancelled,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+    initialPageParam: undefined,
   });
 }
 
@@ -127,7 +130,7 @@ export function useListMyEvents({
         pastEvents,
         pageNumber,
         pageSize,
-        pageToken: pageParam,
+        pageToken: pageParam as string | undefined,
         showCancelled,
       }),
   });

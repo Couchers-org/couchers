@@ -10,18 +10,22 @@ import { MESSAGES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
 import { messagesRoute, MessageType } from "routes";
-import { theme } from "theme";
 
 import useNotifications from "../useNotifications";
 
-const StyledWrapper = styled("div")(() => ({
-  padding: theme.spacing(0, 2),
+const StyledRoot = styled("div")(({ theme }) => ({
+  paddingLeft: theme.spacing(2),
+  paddingRight: theme.spacing(2),
 }));
 
-const StyledTabBarContainer = styled("div")(() => ({
+const StyledTabBarContainer = styled("div")({
   display: "flex",
   justifyContent: "flex-start",
-}));
+});
+
+const StyledLabelWrapper = styled("span")({
+  paddingRight: "1.8rem", // visually compensate for NotificationBadge's right offset
+});
 
 export function MessagesNotification() {
   const { t } = useTranslation(MESSAGES);
@@ -57,9 +61,21 @@ export function HostRequestsSentNotification() {
 }
 
 const labels: Record<MessageType, ReactNode> = {
-  chats: <MessagesNotification />,
-  hosting: <HostRequestsReceivedNotification />,
-  surfing: <HostRequestsSentNotification />,
+  chats: (
+    <StyledLabelWrapper>
+      <MessagesNotification />
+    </StyledLabelWrapper>
+  ),
+  hosting: (
+    <StyledLabelWrapper>
+      <HostRequestsReceivedNotification />
+    </StyledLabelWrapper>
+  ),
+  surfing: (
+    <StyledLabelWrapper>
+      <HostRequestsSentNotification />
+    </StyledLabelWrapper>
+  ),
 };
 
 export default function MessagesHeader({
@@ -71,7 +87,7 @@ export default function MessagesHeader({
   const router = useRouter();
 
   return (
-    <StyledWrapper>
+    <StyledRoot>
       <HtmlMeta title={t("messages_page.title")} />
       <PageTitle>{t("messages_page.title")}</PageTitle>
       {tab && <MarkAllReadButton type={tab} />}
@@ -84,6 +100,6 @@ export default function MessagesHeader({
           />
         </TabContext>
       </StyledTabBarContainer>
-    </StyledWrapper>
+    </StyledRoot>
   );
 }

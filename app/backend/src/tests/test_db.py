@@ -156,6 +156,11 @@ def test_migrations(testconfig):
         # filter out alembic tables
         s = "\n-- ".join(x for x in s.split("\n-- ") if not x.startswith("Name: alembic_"))
 
+        # filter out \restrict and \unrestrict lines (Postgres 16+)
+        s = "\n".join(
+            line for line in s.splitlines() if not line.startswith("\\restrict") and not line.startswith("\\unrestrict")
+        )
+
         return strip_leading_whitespace(s.splitlines())
 
     diff = "\n".join(

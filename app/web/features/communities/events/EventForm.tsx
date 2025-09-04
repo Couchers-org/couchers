@@ -1,4 +1,5 @@
 import { Checkbox, FormControlLabel, styled, Typography } from "@mui/material";
+import { UseMutateFunction } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import ImageInput from "components/ImageInput";
 import LocationAutocomplete from "components/LocationAutocomplete";
@@ -13,7 +14,6 @@ import { LngLat } from "maplibre-gl";
 import { Event } from "proto/events_pb";
 import { useRef } from "react";
 import { DeepMap, useForm } from "react-hook-form";
-import { UseMutateFunction } from "react-query";
 import { theme } from "theme";
 import { Dayjs } from "utils/dayjs";
 import type { GeocodeResult } from "utils/hooks";

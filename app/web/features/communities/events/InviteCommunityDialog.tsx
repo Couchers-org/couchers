@@ -1,4 +1,5 @@
 import { DialogProps, Link as MuiLink } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -14,7 +15,6 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import React from "react";
-import { useMutation, useQueryClient } from "react-query";
 import { howToInviteCommunityUrl } from "routes";
 import { service } from "service";
 
@@ -25,16 +25,16 @@ export default function InviteCommunityDialog({
 }: DialogProps & { eventId: number; afterSuccess: () => void }) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const queryClient = useQueryClient();
-  const inviteCommunityMutation = useMutation<Empty, RpcError, void>(
-    () => service.events.RequestCommunityInvite(eventId),
-    {
-      onSuccess: () => {
-        afterSuccess();
-        queryClient.invalidateQueries(eventKey(eventId));
-        if (props.onClose) props.onClose({}, "escapeKeyDown");
-      },
+  const inviteCommunityMutation = useMutation<Empty, RpcError, void>({
+    mutationFn: () => service.events.RequestCommunityInvite(eventId),
+    onSuccess: () => {
+      afterSuccess();
+      queryClient.invalidateQueries({
+        queryKey: eventKey(eventId),
+      });
+      if (props.onClose) props.onClose({}, "escapeKeyDown");
     },
-  );
+  });
 
   const inviteCommunity = () => inviteCommunityMutation.mutate();
 
@@ -67,7 +67,7 @@ export default function InviteCommunityDialog({
       <DialogActions>
         <Button
           onClick={inviteCommunity}
-          loading={inviteCommunityMutation.isLoading}
+          loading={inviteCommunityMutation.isPending}
         >
           {t("communities:invite_community_dialog_buttons.confirm")}
         </Button>
@@ -75,7 +75,7 @@ export default function InviteCommunityDialog({
           onClick={() =>
             props.onClose ? props.onClose({}, "escapeKeyDown") : null
           }
-          loading={inviteCommunityMutation.isLoading}
+          loading={inviteCommunityMutation.isPending}
         >
           {t("communities:invite_community_dialog_buttons.close")}
         </Button>

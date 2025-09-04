@@ -1,17 +1,22 @@
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
-import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
+import {
+  Int64Value,
+  StringValue,
+} from "google-protobuf/google/protobuf/wrappers_pb";
 import { ListEventsReq } from "proto/communities_pb";
 import {
   AttendanceState,
   CancelEventReq,
   CreateEventReq,
   GetEventReq,
+  InviteEventOrganizerReq,
   ListAllEventsReq,
   ListEventAttendeesReq,
   ListEventOrganizersReq,
   ListMyEventsReq,
   OfflineEventInformation,
   OnlineEventInformation,
+  RemoveEventOrganizerReq,
   RequestCommunityInviteReq,
   SetEventAttendanceReq,
   UpdateEventReq,
@@ -289,5 +294,21 @@ export async function listMyEvents({
   }
 
   const res = await client.events.listMyEvents(req);
+  return res.toObject();
+}
+
+export async function inviteEventOrganizer(eventId: number, userId: number) {
+  const req = new InviteEventOrganizerReq();
+  req.setEventId(eventId);
+  req.setUserId(userId);
+  const res = await client.events.inviteEventOrganizer(req);
+  return res.toObject();
+}
+
+export async function removeEventOrganizer(eventId: number, userId: number) {
+  const req = new RemoveEventOrganizerReq();
+  req.setEventId(eventId);
+  req.setUserId(new Int64Value().setValue(userId));
+  const res = await client.events.removeEventOrganizer(req);
   return res.toObject();
 }

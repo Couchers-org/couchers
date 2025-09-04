@@ -133,5 +133,15 @@
   "discover_events_subtitle": "Check out upcoming and future events hosted by Couchers.org community members!",
   "discover_events_title": "Discover Couchers.org events",
   "created_by_me": "Created by me",
-  "notify_attendees": "Notify event attendees of this change"
+  "notify_attendees": "Notify event attendees of this change",
+  "make_co_organizer": {
+    "title": "Make co-organizer",
+    "dialog_title": "Make {{name}} co-organizer",
+    "dialog_text": "Are you sure you want to make {{name}} a co-organizer of {{event}}?"
+  },
+  "remove_as_co_organizer": {
+    "title": "Remove as co-organizer",
+    "dialog_title": "Remove {{name}} as co-organizer",
+    "dialog_text": "Are you sure you want to remove {{name}} as a co-organizer of {{event}}?"
+  }
 }

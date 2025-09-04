@@ -6,7 +6,6 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { SELECT_AN_IMAGE } from "components/constants";
 import {
   IMAGE_DESCRIPTION,
   INSERT_IMAGE,
@@ -14,9 +13,12 @@ import {
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { MockedService } from "test/utils";
 
 import MarkdownInput from "./MarkdownInput";
+
+const { t } = i18n;
 
 const uploadFileMock = service.api.uploadFile as MockedService<
   typeof service.api.uploadFile
@@ -62,7 +64,7 @@ describe("MarkdownInput", () => {
     await user.click(screen.getByRole("button", { name: INSERT_IMAGE }));
     const dialog = await screen.findByRole("dialog");
     await user.upload(
-      within(dialog).getByLabelText(SELECT_AN_IMAGE),
+      within(dialog).getByLabelText(t("profile:select_an_image")),
       MOCK_FILE,
     );
     await user.type(

@@ -1,1 +1,93 @@
-{}
+{
+  "form": {
+    "rules": {
+      "kids_allowed": "Дети разрешены",
+      "pets_allowed": "Разрешено размещение с домашними животными",
+      "smokes_at_home": "Курение в доме",
+      "title": "Правила",
+      "alcohol_allowed": "Алкоголь разрешён"
+    },
+    "clear_filters": "Сбросить все фильтры",
+    "keywords": {
+      "clear_field_action_a11y_label": "Очистить поиск",
+      "field_label": "Имя, ключевые слова или имя пользователя",
+      "search_this_keyword_a11y_label": "Найти по ключевому слову"
+    },
+    "location_field_label": "Рядом с местоположением",
+    "host_filters": {
+      "last_active_field_label": "Последняя активность",
+      "hosting_status_field_label": "Статус приёма гостей",
+      "age": {
+        "min_age": "Минимальный возраст",
+        "max_age": "Максимальный возраст",
+        "field_label": "Возраст хоста"
+      },
+      "complete_profiles_label": "Полные профили",
+      "meetup_status_field_label": "Статус для встреч"
+    },
+    "missing_location_validation_error": "Укажите местоположение для использования этого фильтра",
+    "by_location_filter_label": "По местоположению",
+    "accommodation_filters": {
+      "sleeping_arrangement_label": "Спальные места",
+      "guests_field_label": "Количество гостей",
+      "title": "Настройки фильтров жилья",
+      "sleeping_arrangement_filters": {
+        "private": {
+          "description": " - например, собственная комната или что-то подобное",
+          "label": "Личное пространство"
+        },
+        "shared_room": {
+          "label": "Общая комната",
+          "description": " - например, общая комната с отдельным спальным местом"
+        },
+        "common": {
+          "label": "Гостиная",
+          "description": " - например, диван в гостиной"
+        }
+      }
+    },
+    "empty_profile_filters": {
+      "title": "Показать пустые профили"
+    },
+    "submit_button_label": "Применить",
+    "search_filters": "Фильтры поиска",
+    "by_keyword_filter_label": "По ключевому слову или имени",
+    "general_filters": {
+      "has_strong_verification": "Имеет Надёжную Верификацию",
+      "has_references": "Есть отзывы",
+      "accepts_last_minute_requests": "Принимает запросы в последнюю минуту"
+    }
+  },
+  "search_result": {
+    "show_user_button_label": "Показать {{name}} на карте",
+    "few_results_suggestion": "По умолчанию пустые профили и профили с отметкой «не могу принимать гостей» скрыты.",
+    "no_user_result_message": "Пользователи не найдены. Попробуйте убрать некоторые фильтры, чтобы увидеть больше результатов.",
+    "missing_about_description": "{{name}} ещё ничего не рассказал(a) о себе",
+    "people_found_message": "{{currentRange}} из {{totalItems}} человек",
+    "include_empty_profiles_button": "Показать все профили"
+  },
+  "filter_dialog": {
+    "desktop_title": "Фильтры",
+    "mobile_title": "Поиск",
+    "search_here_button": "Искать в этом районе"
+  },
+  "last_active_options": {
+    "any": "Любые",
+    "last_month": "В прошлом месяце",
+    "last_week": "На прошлой неделе",
+    "last_3_months": "Последние 3 месяца",
+    "last_6_months": "Последние 6 месяцев",
+    "last_year": "Год назад"
+  },
+  "search_this_area": "Искать в этом районе",
+  "choose_search_criteria": "Введите местоположение или примените фильтр для поиска.",
+  "error_loading_users": "Ошибка загрузки пользователей",
+  "views": {
+    "choose_map_view": "Выберите вид карты",
+    "list": "Список",
+    "map_and_list": "Карта & Список"
+  },
+  "location": "Местоположение",
+  "keyword": "Ключевое слово",
+  "zoom_in_to_select_user": "Увеличьте масштаб, чтобы выбрать пользователя"
+}

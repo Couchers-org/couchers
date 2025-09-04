@@ -1,4 +1,5 @@
 import { Box, Container, styled, useMediaQuery } from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -6,7 +7,6 @@ import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useQueryClient } from "react-query";
 import { signupRoute } from "routes";
 import { theme } from "theme";
 

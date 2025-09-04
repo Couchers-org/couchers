@@ -1,3 +1,35 @@
 {
-    "load_more": "Meer laden"
+    "load_more": "Meer laden",
+    "back": "Terug",
+    "create_account": "Account aanmaken",
+    "close": "Sluiten",
+    "retract": "Intrekken",
+    "couchers": "Couchers.org",
+    "legal_name": "Couchers, Inc.",
+    "login": "Inloggen",
+    "sign_up": "Aanmelden",
+    "nav": {
+        "account_settings": "Accountinstellingen",
+        "about": "Over",
+        "blog": "Blog",
+        "community": "Community",
+        "help": "Help",
+        "roadmap_updates": "Roadmap & Updates",
+        "map_search": "Zoeken",
+        "communities": "Communities",
+        "events": "Events",
+        "faq": "FAQ",
+        "feature_preview": "Feature preview",
+        "forum": "Forum",
+        "log_out": "Uitloggen",
+        "dashboard": "Dashboard",
+        "donate": "Doneren",
+        "github": "GitHub",
+        "help_center": "Helpdesk"
+    },
+    "components": {
+        "edit_location_map": {
+            "press_enter_to_search": "Druk op enter om te zoeken"
+        }
+    }
 }

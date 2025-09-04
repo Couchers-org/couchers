@@ -23,4 +23,5 @@ export interface MarkdownInputProps {
   imageUpload?: boolean;
   required?: string;
   autofocus?: boolean;
+  placeholder?: string;
 }

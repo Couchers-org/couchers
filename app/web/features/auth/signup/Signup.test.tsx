@@ -70,6 +70,15 @@ jest.mock("components/EditLocationMap", () => ({
 
 describe("Signup", () => {
   beforeEach(() => {
+    global.fetch = jest.fn(() =>
+      Promise.resolve(
+        new Response(JSON.stringify({}), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+
     mockRouter.setCurrentUrl(signupRoute);
     getCommunityGuidelinesMock.mockResolvedValue({
       communityGuidelinesList: [
@@ -171,11 +180,13 @@ describe("Signup", () => {
         ),
         "a very insecure password",
       );
-      const birthdayField = screen.getByLabelText(
-        t("auth:account_form.birthday.field_label"),
-      );
-      await user.clear(birthdayField);
-      await user.type(birthdayField, "01/01/1990");
+      const birthdayGroup = await screen.findByRole("group", {
+        name: t("global:components.datepicker.change_date"),
+      });
+
+      await user.click(birthdayGroup);
+      await user.keyboard("{Control>}a{/Control}");
+      await user.keyboard("01/01/1990");
 
       await user.type(
         screen.getByTestId("edit-location-map"),

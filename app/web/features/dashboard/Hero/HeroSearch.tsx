@@ -33,11 +33,12 @@ export default function HeroSearch() {
         component="label"
         display="block"
         htmlFor={searchInputId}
-        paragraph
+        sx={{
+          marginBottom: "16px",
+        }}
       >
         {t("search_input_label")}
       </Typography>
-
       <LocationAutocomplete
         control={control}
         name="location"

@@ -1,7 +1,7 @@
-import { act, renderHook } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { notificationSettingsQueryKey } from "features/queryKeys";
 import { RpcError, StatusCode } from "grpc-web";
-import { QueryClient, QueryClientProvider } from "react-query";
 import { service } from "service";
 
 import useUpdateNotificationSettings from "./useUpdateNotificationSettings";
@@ -25,7 +25,7 @@ describe("useUpdateNotificationSettings", () => {
       wrapper,
     });
 
-    expect(result.current.isLoading).toBe(false);
+    expect(result.current.isPending).toBe(false);
     expect(result.current.isError).toBe(false);
     expect(result.current.isSuccess).toBe(false);
     expect(result.current.status).toBe("idle");
@@ -61,9 +61,9 @@ describe("useUpdateNotificationSettings", () => {
     expect(
       service.notifications.setNotificationSettingsPreference,
     ).toHaveBeenCalledWith(mockData);
-    expect(queryClient.invalidateQueries).toHaveBeenCalledWith(
-      notificationSettingsQueryKey,
-    );
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: [notificationSettingsQueryKey],
+    });
   });
 
   it("Should handle errors correctly", async () => {
@@ -95,6 +95,6 @@ describe("useUpdateNotificationSettings", () => {
     });
 
     expect(setMutationError).toHaveBeenCalledWith("Test error message");
-    expect(result.current.isError).toBe(true);
+    await waitFor(() => expect(result.current.isError).toBe(true));
   });
 });
