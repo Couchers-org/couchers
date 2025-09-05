@@ -54,15 +54,21 @@ describe("InviteCodesPage", () => {
     render(<InviteCodesPage />, { wrapper });
 
     // Verify order by DOM sequence of code labels
-    const codeLabels = await screen.findAllByText(/^(NEW456|OLD123|DISABLED)$/);
-    expect(codeLabels[0]).toHaveTextContent("NEW456");
-    expect(codeLabels[1]).toHaveTextContent("OLD123");
-    expect(codeLabels[2]).toHaveTextContent("DISABLED");
+    const codeLabels = await screen.findAllByTestId("invite-code-link");
+    expect(codeLabels[0]).toHaveTextContent(
+      `${window.location.origin}/invite?code=NEW456`,
+    );
+    expect(codeLabels[1]).toHaveTextContent(
+      `${window.location.origin}/invite?code=OLD123`,
+    );
+    expect(codeLabels[2]).toHaveTextContent(
+      `${window.location.origin}/invite?code=DISABLED`,
+    );
 
     // Active codes have Disable action, disabled does not
     expect(
-      screen.getAllByRole("button", { name: t("global:disable") }).length,
-    ).toBe(2);
+      screen.getAllByRole("button", { name: t("global:disable") }),
+    ).toHaveLength(2);
   });
 
   it("creates a new invite code when clicking Create", async () => {

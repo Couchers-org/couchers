@@ -151,7 +151,9 @@ export default function InviteCodesPage() {
                 }
               >
                 <ListItemText
-                  primary={shareUrl}
+                  primary={
+                    <span data-testid="invite-code-link">{shareUrl}</span>
+                  }
                   sx={c.disabled ? { color: "text.disabled" } : undefined}
                   secondary={
                     <>
