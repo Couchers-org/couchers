@@ -197,7 +197,7 @@ def add_dummy_users():
                 stopped_volunteering=volunteer["stopped_volunteering"],
                 link_type=volunteer["link_type"],
                 link_text=volunteer["link_text"],
-                link_url=volunteer["link_url"]
+                link_url=volunteer["link_url"],
             )
 
             session.add(new_volunteer)
