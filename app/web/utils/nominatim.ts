@@ -1,13 +1,9 @@
 // import { NominatimPlace } from "./types";
 import { Static, TOptional, TString, Type } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
+import * as changeCase from "change-case/keys";
 import { LngLat } from "maplibre-gl";
 
-import sentry from "@/platform/sentry";
-import {
-  recursiveCamelToSnakeCase,
-  recursiveSnakeToCamelCase,
-} from "@/utils/string";
 import { RecursiveSnakeToCamelCase } from "@/utils/types";
 
 const NON_REGION_KEYS = [
@@ -50,6 +46,8 @@ const ADDRESS_KEYS = [
 
 const NOMINATIM_URL = process.env.NEXT_PUBLIC_NOMINATIM_URL ?? "";
 
+const CASE_CHANGE_RECURSION_DEPTH = 100;
+
 const nominatimPlaceSchema = Type.Object({
   address: Type.Object(
     ADDRESS_KEYS.reduce(
@@ -80,19 +78,29 @@ const nominatimPlaceSchema = Type.Object({
 
 type NominatimPlaceInternal = Static<typeof nominatimPlaceSchema>;
 
-// RecursiveCamelToSnakeCase<NominatimPlace>;
-
 export type NominatimPlace = RecursiveSnakeToCamelCase<NominatimPlaceInternal>;
-
-// const nominatimPlaceTransform = Type.Transform(nominatimPlaceSchema)
-//   .Decode((val) => recursiveSnakeToCamelCase(val))
-//   .Encode((val) => recursiveCamelToSnakeCase(val));
 
 const nominatimResponseSchema = Type.Array(nominatimPlaceSchema);
 
 const nominatimResponseTransform = Type.Transform(nominatimResponseSchema)
-  .Decode((val) => val.map(recursiveSnakeToCamelCase))
-  .Encode((val) => val.map(recursiveCamelToSnakeCase));
+  .Decode((val) =>
+    val.map(
+      (key) =>
+        changeCase.camelCase(
+          key,
+          CASE_CHANGE_RECURSION_DEPTH,
+        ) as NominatimPlace,
+    ),
+  )
+  .Encode((val) =>
+    val.map(
+      (key) =>
+        changeCase.snakeCase(
+          key,
+          CASE_CHANGE_RECURSION_DEPTH,
+        ) as NominatimPlaceInternal,
+    ),
+  );
 
 export const nominatimQuery = async (value: string) => {
   const url = `${NOMINATIM_URL}search?format=jsonv2&q=${encodeURIComponent(
@@ -104,45 +112,37 @@ export const nominatimQuery = async (value: string) => {
     },
     method: "GET",
   };
-  try {
-    const response = await fetch(url, fetchOptions);
 
-    if (!response.ok) throw Error(await response.text());
+  const response = await fetch(url, fetchOptions);
 
-    const nominatimResults = Value.Decode(
-      nominatimResponseTransform,
-      Value.Parse(nominatimResponseSchema, await response.json()),
-    );
+  if (!response.ok) throw Error(await response.text());
 
-    if (nominatimResults.length === 0) {
-      return [];
-    }
+  const nominatimResults = Value.Decode(
+    nominatimResponseTransform,
+    Value.Parse(nominatimResponseSchema, await response.json()),
+  );
 
-    const filteredResults = filterDuplicatePlaces(nominatimResults);
-    const formattedResults = filteredResults.map((result) => {
-      const firstElem = result.boundingBox.shift() as number;
-      const lastElem = result.boundingBox.pop() as number;
-      result.boundingBox.push(firstElem);
-      result.boundingBox.unshift(lastElem);
-
-      return {
-        location: new LngLat(Number(result["lon"]), Number(result["lat"])),
-        name: result.displayName,
-        simplifiedName: simplifyPlaceDisplayName(result),
-        isRegion: !NON_REGION_KEYS.some((k) => k in result.address),
-        bbox: result.boundingBox,
-      };
-    });
-
-    return formattedResults;
-  } catch (e) {
-    sentry.captureException(e, {
-      tags: {
-        hook: "useGeocodeQuery",
-      },
-    });
-    // TODO(FB) Error handling
+  if (nominatimResults.length === 0) {
+    return [];
   }
+
+  const filteredResults = filterDuplicatePlaces(nominatimResults);
+  const formattedResults = filteredResults.map((result) => {
+    const firstElem = result.boundingBox.shift() as number;
+    const lastElem = result.boundingBox.pop() as number;
+    result.boundingBox.push(firstElem);
+    result.boundingBox.unshift(lastElem);
+
+    return {
+      location: new LngLat(Number(result["lon"]), Number(result["lat"])),
+      name: result.displayName,
+      simplifiedName: simplifyPlaceDisplayName(result),
+      isRegion: !NON_REGION_KEYS.some((k) => k in result.address),
+      bbox: result.boundingBox,
+    };
+  });
+
+  return formattedResults;
 };
 
 export const simplifyPlaceDisplayName = (place: NominatimPlace) => {
@@ -193,10 +193,6 @@ export const filterDuplicatePlaces = (
       }
 
       return previousRecord;
-
-      // return previousImportance >= importance
-      //   ? previousRecord
-      //   : { ...previousRecord, [displayName]: currentPlace };
     },
     new Map(),
   );
