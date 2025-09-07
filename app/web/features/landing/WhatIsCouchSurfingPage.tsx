@@ -47,17 +47,13 @@ export default function WhatIsCouchSurfingPage() {
           <Container maxWidth="lg" sx={{ px: { xs: 0, md: 3 } }}>
             <Grid container spacing={{ xs: 1, md: 4 }} alignItems="center">
               <Grid
-                item
-                xs={12}
-                md={5}
+                size={{ xs: 12, md: 5 }}
                 sx={{ order: { xs: 2, md: 1 }, mt: { xs: 3, md: 0 } }}
               >
                 <PaperPlaneAnimation compact />
               </Grid>
               <Grid
-                item
-                xs={12}
-                md={7}
+                size={{ xs: 12, md: 7 }}
                 sx={{
                   order: { xs: 1, md: 2 },
                   display: "flex",
@@ -419,7 +415,7 @@ export default function WhatIsCouchSurfingPage() {
             {t("what_is_cs.looks_like_title")}
           </Typography>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Box
                 sx={{
                   border: `1px solid ${theme.palette.grey[200]}`,
@@ -453,7 +449,7 @@ export default function WhatIsCouchSurfingPage() {
                 </List>
               </Box>
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Box
                 sx={{
                   border: `1px solid ${theme.palette.grey[200]}`,
@@ -505,7 +501,7 @@ export default function WhatIsCouchSurfingPage() {
         >
           <Container maxWidth="lg">
             <Grid container spacing={4} alignItems="center">
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Typography
                   variant="h2"
                   sx={{
@@ -540,7 +536,27 @@ export default function WhatIsCouchSurfingPage() {
                   </ListItem>
                 </List>
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Box
+                  sx={{
+                    border: `1px solid ${theme.palette.grey[200]}`,
+                    borderRadius: 3,
+                    overflow: "hidden",
+                    mb: 3,
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src="/images/why-people-love.jpg"
+                    alt="Why people love couch surfing"
+                    sx={{
+                      display: "block",
+                      width: "100%",
+                      aspectRatio: "16 / 9",
+                      objectFit: "cover",
+                    }}
+                  />
+                </Box>
                 <Box
                   sx={{
                     border: `1px solid ${theme.palette.grey[200]}`,

@@ -1969,11 +1969,6 @@
   dependencies:
     "@tanstack/query-persist-client-core" "5.85.6"
 
-"@tanstack/query-core@5.85.5":
-  version "5.85.5"
-  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.85.5.tgz#c4adc126bb3a927e4d60280bf3cf62210700147c"
-  integrity sha512-KO0WTob4JEApv69iYp1eGvfMSUkgw//IpMnq+//cORBzXf0smyRwPLrUvEe5qtAEGjwZTXrjxg+oJNP/C00t6w==
-
 "@tanstack/query-core@5.85.6":
   version "5.85.6"
   resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.85.6.tgz#2af90f3c56c38fd2194e0ed1996122373c4bfca5"
@@ -1984,27 +1979,12 @@
   resolved "https://registry.yarnpkg.com/@tanstack/query-devtools/-/query-devtools-5.84.0.tgz#dabed4f4abf405f0e320758ed7bc895a7687d9bb"
   integrity sha512-fbF3n+z1rqhvd9EoGp5knHkv3p5B2Zml1yNRjh7sNXklngYI5RVIWUrUjZ1RIcEoscarUb0+bOvIs5x9dwzOXQ==
 
-"@tanstack/query-persist-client-core@5.85.5":
-  version "5.85.5"
-  resolved "https://registry.yarnpkg.com/@tanstack/query-persist-client-core/-/query-persist-client-core-5.85.5.tgz#04ba995509d5e279771b37c0e0a21879476f3576"
-  integrity sha512-2JQiyiTVaaUu8pwPqOp6tjNa64ZN+0T9eZ3lfksV4le1VuG99fTcAYmZFIydvzwWlSM7GEF/1kpl5bwW2Y1qfQ==
-  dependencies:
-    "@tanstack/query-core" "5.85.5"
-
 "@tanstack/query-persist-client-core@5.85.6":
   version "5.85.6"
   resolved "https://registry.yarnpkg.com/@tanstack/query-persist-client-core/-/query-persist-client-core-5.85.6.tgz#92f9d3ac83f51b0bd452fe3b65047f4196c3f56a"
   integrity sha512-wUdoEurIC0YCNZzR020Xcg3OsJeF4SXmEPqlNwZ6EaGKgWeNjU17hVdK+X4ZeirUm+h0muiEQx+aIQU1lk7roQ==
   dependencies:
     "@tanstack/query-core" "5.85.6"
-
-"@tanstack/query-sync-storage-persister@^5.83.0":
-  version "5.85.5"
-  resolved "https://registry.yarnpkg.com/@tanstack/query-sync-storage-persister/-/query-sync-storage-persister-5.85.5.tgz#6c882950f914cbbb852e12d054b307e2af2a02d2"
-  integrity sha512-Tko59nPVteoFal/J5YmXoKB3NC/fHWAJZ9Ju56DNIXSPEPt7qY+cshbLGfzkLJfNj8QiCAXbMIhAULjB+Wx8UQ==
-  dependencies:
-    "@tanstack/query-core" "5.85.5"
-    "@tanstack/query-persist-client-core" "5.85.5"
 
 "@tanstack/react-query-devtools@^5.83.0":
   version "5.85.5"
