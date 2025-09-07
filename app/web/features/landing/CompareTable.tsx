@@ -112,12 +112,6 @@ export default function CompareTable() {
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>{t("what_is_cs.table.cost_to_stay")}</TableCell>
-              <TableCell>{t("what_is_cs.table.free_to_stay")}</TableCell>
-              <TableCell>{t("what_is_cs.table.dollar")}</TableCell>
-              <TableCell>{t("what_is_cs.table.dollars_range")}</TableCell>
-            </TableRow>
-            <TableRow>
               <TableCell>{t("what_is_cs.table.stay_with_locals")}</TableCell>
               <TableCell>
                 <CheckCircleOutlineIcon color="primary" fontSize="small" />
@@ -130,9 +124,7 @@ export default function CompareTable() {
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>
-                {t("what_is_cs.table.references_moderation")}
-              </TableCell>
+              <TableCell>{t("what_is_cs.table.social_expectation")}</TableCell>
               <TableCell>
                 <CheckCircleOutlineIcon color="primary" fontSize="small" />
               </TableCell>
@@ -141,6 +133,20 @@ export default function CompareTable() {
               </TableCell>
               <TableCell>
                 <CloseIcon color="disabled" fontSize="small" />
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>
+                {t("what_is_cs.table.professionally_managed")}
+              </TableCell>
+              <TableCell>
+                <CloseIcon color="disabled" fontSize="small" />
+              </TableCell>
+              <TableCell>
+                <CheckCircleOutlineIcon color="primary" fontSize="small" />
+              </TableCell>
+              <TableCell>
+                <CheckCircleOutlineIcon color="primary" fontSize="small" />
               </TableCell>
             </TableRow>
             <TableRow>
@@ -178,6 +184,12 @@ export default function CompareTable() {
               <TableCell>
                 <CloseIcon color="disabled" fontSize="small" />
               </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t("what_is_cs.table.cost_to_stay")}</TableCell>
+              <TableCell>{t("what_is_cs.table.free_to_stay")}</TableCell>
+              <TableCell>{t("what_is_cs.table.dollar")}</TableCell>
+              <TableCell>{t("what_is_cs.table.dollars_range")}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell>

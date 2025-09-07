@@ -2,8 +2,10 @@ import {
   ChevronRightRounded,
   EventOutlined,
   ForumOutlined,
+  GroupAddOutlined,
   GroupOutlined,
   LightbulbOutlined,
+  SecurityOutlined,
   TravelExploreOutlined,
   WeekendOutlined,
 } from "@mui/icons-material";
@@ -27,7 +29,6 @@ import { signupRoute } from "routes";
 import { theme } from "theme";
 
 import CompareTable from "./CompareTable";
-import PaperPlaneAnimation from "./PaperPlaneAnimation";
 
 export default function WhatIsCouchSurfingPage() {
   const router = useRouter();
@@ -37,7 +38,7 @@ export default function WhatIsCouchSurfingPage() {
 
   return (
     <>
-      <HtmlMeta title={t("what_is_cs.meta_title")} />
+      <HtmlMeta title={t("what_is_cs.title")} />
       <Container
         component="article"
         maxWidth="lg"
@@ -48,10 +49,24 @@ export default function WhatIsCouchSurfingPage() {
             <Grid container spacing={{ xs: 1, md: 4 }} alignItems="center">
               <Grid
                 size={{ xs: 12, md: 5 }}
-                sx={{ order: { xs: 2, md: 1 }, mt: { xs: 3, md: 0 } }}
+                sx={{
+                  order: { xs: 2, md: 1 },
+                  mt: { xs: 3, md: 0 },
+                }}
               >
-                <PaperPlaneAnimation compact />
+                <Box
+                  component="img"
+                  src="/emily-group.jpg"
+                  alt="Group of Couchers"
+                  sx={{
+                    display: "block",
+                    width: "100%",
+                    aspectRatio: "4 / 3",
+                    objectFit: "cover",
+                  }}
+                />
               </Grid>
+
               <Grid
                 size={{ xs: 12, md: 7 }}
                 sx={{
@@ -77,161 +92,59 @@ export default function WhatIsCouchSurfingPage() {
                       textAlign: { xs: "center", md: "right" },
                       mb: { xs: 1, md: 1.5 },
                       position: "relative",
-                      "&::after": {
-                        content: '""',
-                        display: "block",
-                        height: 3,
-                        width: 56,
-                        backgroundColor: theme.palette.primary.main,
-                        borderRadius: 2,
-                        marginTop: theme.spacing(0.5),
-                        marginLeft: { xs: "auto", md: "auto" },
-                        marginRight: { xs: "auto", md: 0 },
-                        animation:
-                          "growBar 2.8s ease-in-out infinite alternate",
-                      },
-                      "@keyframes growBar": {
-                        from: { width: 24, opacity: 0.7 },
-                        to: { width: 80, opacity: 1 },
-                      },
                     }}
                   >
-                    {t("what_is_cs.get_involved_title")}
+                    {t("what_is_cs.title")}
                   </Typography>
-                  <List sx={{ textAlign: { xs: "left", md: "right" } }}>
-                    <ListItem
-                      sx={{
-                        p: 0,
-                        mb: 1.25,
-                        justifyContent: "flex-end",
-                        alignItems: "center",
-                        columnGap: 1,
-                      }}
+                  <Box>
+                    <Stack
+                      direction="row"
+                      spacing={2}
+                      alignItems="center"
+                      sx={{ mb: 1 }}
                     >
-                      <ListItemIcon
-                        sx={{
-                          minWidth: 36,
-                          color: theme.palette.primary.main,
-                        }}
-                      >
-                        <WeekendOutlined
-                          sx={{ fontSize: { xs: 22, md: 28 } }}
-                        />
-                      </ListItemIcon>
-                      <Typography
-                        component="span"
-                        sx={{
-                          fontSize: { xs: "1.0625rem", md: "1.2rem" },
-                        }}
-                      >
-                        {t("what_is_cs.actions.host")}
+                      <Box sx={{ color: theme.palette.primary.main }}>
+                        <WeekendOutlined sx={{ fontSize: 36 }} />
+                      </Box>
+                      <Typography variant="h3">
+                        {t("what_is_cs.host_title")}
                       </Typography>
+                    </Stack>
+                    <List sx={{ listStyle: "disc", pl: 3 }}>
+                      <ListItem sx={{ display: "list-item", p: 0, mb: 1 }}>
+                        {t("what_is_cs.host_points.one")}
+                      </ListItem>
+                      <ListItem sx={{ display: "list-item", p: 0, mb: 1 }}>
+                        {t("what_is_cs.host_points.two")}
+                      </ListItem>
+                      <ListItem sx={{ display: "list-item", p: 0, mb: 1 }}>
+                        {t("what_is_cs.host_points.three")}
+                      </ListItem>
+                    </List>
+                  </Box>
+
+                  <Stack
+                    direction="row"
+                    spacing={2}
+                    alignItems="center"
+                    sx={{ mb: 1 }}
+                  >
+                    <Box sx={{ color: theme.palette.primary.main }}>
+                      <TravelExploreOutlined sx={{ fontSize: 36 }} />
+                    </Box>
+                    <Typography variant="h3">
+                      {t("what_is_cs.traveler_title")}
+                    </Typography>
+                  </Stack>
+                  <List sx={{ listStyle: "disc", pl: 3 }}>
+                    <ListItem sx={{ display: "list-item", p: 0, mb: 1 }}>
+                      {t("what_is_cs.traveler_points.one")}
                     </ListItem>
-                    <ListItem
-                      sx={{
-                        p: 0,
-                        mb: 1.25,
-                        justifyContent: "flex-end",
-                        alignItems: "center",
-                        columnGap: 1,
-                      }}
-                    >
-                      <ListItemIcon
-                        sx={{
-                          minWidth: 36,
-                          color: theme.palette.primary.main,
-                        }}
-                      >
-                        <TravelExploreOutlined
-                          sx={{ fontSize: { xs: 22, md: 28 } }}
-                        />
-                      </ListItemIcon>
-                      <Typography
-                        component="span"
-                        sx={{
-                          fontSize: { xs: "1.0625rem", md: "1.2rem" },
-                        }}
-                      >
-                        {t("what_is_cs.actions.surf")}
-                      </Typography>
+                    <ListItem sx={{ display: "list-item", p: 0, mb: 1 }}>
+                      {t("what_is_cs.traveler_points.two")}
                     </ListItem>
-                    <ListItem
-                      sx={{
-                        p: 0,
-                        mb: 1.25,
-                        justifyContent: "flex-end",
-                        alignItems: "center",
-                        columnGap: 1,
-                      }}
-                    >
-                      <ListItemIcon
-                        sx={{
-                          minWidth: 36,
-                          color: theme.palette.primary.main,
-                        }}
-                      >
-                        <EventOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
-                      </ListItemIcon>
-                      <Typography
-                        component="span"
-                        sx={{
-                          fontSize: { xs: "1.0625rem", md: "1.2rem" },
-                        }}
-                      >
-                        {t("what_is_cs.actions.attend_events")}
-                      </Typography>
-                    </ListItem>
-                    <ListItem
-                      sx={{
-                        p: 0,
-                        mb: 1.25,
-                        justifyContent: "flex-end",
-                        alignItems: "center",
-                        columnGap: 1,
-                      }}
-                    >
-                      <ListItemIcon
-                        sx={{
-                          minWidth: 36,
-                          color: theme.palette.primary.main,
-                        }}
-                      >
-                        <GroupOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
-                      </ListItemIcon>
-                      <Typography
-                        component="span"
-                        sx={{
-                          fontSize: { xs: "1.0625rem", md: "1.2rem" },
-                        }}
-                      >
-                        {t("what_is_cs.actions.find_people")}
-                      </Typography>
-                    </ListItem>
-                    <ListItem
-                      sx={{
-                        p: 0,
-                        mb: 1.25,
-                        justifyContent: "flex-end",
-                        alignItems: "center",
-                        columnGap: 1,
-                      }}
-                    >
-                      <ListItemIcon
-                        sx={{
-                          minWidth: 36,
-                          color: theme.palette.primary.main,
-                        }}
-                      >
-                        <ForumOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
-                      </ListItemIcon>
-                      <Typography
-                        component="span"
-                        sx={{
-                          fontSize: { xs: "1.0625rem", md: "1.2rem" },
-                        }}
-                      >
-                        {t("what_is_cs.actions.join_discussions")}
-                      </Typography>
+                    <ListItem sx={{ display: "list-item", p: 0, mb: 1 }}>
+                      {t("what_is_cs.traveler_points.three")}
                     </ListItem>
                   </List>
                   <Stack
@@ -404,16 +317,6 @@ export default function WhatIsCouchSurfingPage() {
         </Box>
 
         <Box component="section" sx={{ py: 6 }}>
-          <Typography
-            variant="h2"
-            sx={{
-              mb: 2,
-              textAlign: "center",
-              fontSize: { xs: "1.5rem", md: "2rem" },
-            }}
-          >
-            {t("what_is_cs.looks_like_title")}
-          </Typography>
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 6 }}>
               <Box
@@ -430,21 +333,33 @@ export default function WhatIsCouchSurfingPage() {
                   sx={{ mb: 1 }}
                 >
                   <Box sx={{ color: theme.palette.primary.main }}>
-                    <TravelExploreOutlined sx={{ fontSize: 36 }} />
+                    <SecurityOutlined sx={{ fontSize: 36 }} />
                   </Box>
                   <Typography variant="h3">
-                    {t("what_is_cs.traveler_title")}
+                    {t("what_is_cs.is_it_safe.title")}
                   </Typography>
                 </Stack>
                 <List sx={{ listStyle: "disc", pl: 3 }}>
                   <ListItem sx={{ display: "list-item", p: 0, mb: 1 }}>
-                    {t("what_is_cs.traveler_points.one")}
+                    <Trans
+                      ns={GLOBAL}
+                      i18nKey="what_is_cs.is_it_safe.points.trust"
+                      components={{ bold: <b /> }}
+                    />
                   </ListItem>
                   <ListItem sx={{ display: "list-item", p: 0, mb: 1 }}>
-                    {t("what_is_cs.traveler_points.two")}
+                    <Trans
+                      ns={GLOBAL}
+                      i18nKey="what_is_cs.is_it_safe.points.verification"
+                      components={{ bold: <b /> }}
+                    />
                   </ListItem>
                   <ListItem sx={{ display: "list-item", p: 0, mb: 1 }}>
-                    {t("what_is_cs.traveler_points.three")}
+                    <Trans
+                      ns={GLOBAL}
+                      i18nKey="what_is_cs.is_it_safe.points.moderation"
+                      components={{ bold: <b /> }}
+                    />
                   </ListItem>
                 </List>
               </Box>
@@ -464,23 +379,159 @@ export default function WhatIsCouchSurfingPage() {
                   sx={{ mb: 1 }}
                 >
                   <Box sx={{ color: theme.palette.primary.main }}>
-                    <WeekendOutlined sx={{ fontSize: 36 }} />
+                    <GroupAddOutlined sx={{ fontSize: 36 }} />
                   </Box>
                   <Typography variant="h3">
-                    {t("what_is_cs.host_title")}
+                    {t("what_is_cs.get_involved_title")}
                   </Typography>
                 </Stack>
-                <List sx={{ listStyle: "disc", pl: 3 }}>
-                  <ListItem sx={{ display: "list-item", p: 0, mb: 1 }}>
-                    {t("what_is_cs.host_points.one")}
-                  </ListItem>
-                  <ListItem sx={{ display: "list-item", p: 0, mb: 1 }}>
-                    {t("what_is_cs.host_points.two")}
-                  </ListItem>
-                  <ListItem sx={{ display: "list-item", p: 0, mb: 1 }}>
-                    {t("what_is_cs.host_points.three")}
-                  </ListItem>
-                </List>
+
+                <Box
+                  sx={{
+                    maxWidth: { xs: "100vw", md: 560 },
+                    width: { xs: "100vw", md: "auto" },
+                    ml: { xs: -1, md: 0 },
+                    mr: { xs: -1, md: 0 },
+                    textAlign: { xs: "left", md: "right" },
+                  }}
+                >
+                  <List sx={{ textAlign: { xs: "left", md: "right" } }}>
+                    <ListItem
+                      sx={{
+                        p: 0,
+                        mb: 3,
+                        justifyContent: "flex-end",
+                        alignItems: "center",
+                        columnGap: 1,
+                      }}
+                    >
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 36,
+                          color: theme.palette.primary.main,
+                        }}
+                      >
+                        <WeekendOutlined
+                          sx={{ fontSize: { xs: 22, md: 28 } }}
+                        />
+                      </ListItemIcon>
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: { xs: "1.0625rem", md: "1.2rem" },
+                        }}
+                      >
+                        {t("what_is_cs.actions.host")}
+                      </Typography>
+                    </ListItem>
+                    <ListItem
+                      sx={{
+                        p: 0,
+                        mb: 3,
+                        justifyContent: "flex-end",
+                        alignItems: "center",
+                        columnGap: 1,
+                      }}
+                    >
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 36,
+                          color: theme.palette.primary.main,
+                        }}
+                      >
+                        <TravelExploreOutlined
+                          sx={{ fontSize: { xs: 22, md: 28 } }}
+                        />
+                      </ListItemIcon>
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: { xs: "1.0625rem", md: "1.2rem" },
+                        }}
+                      >
+                        {t("what_is_cs.actions.surf")}
+                      </Typography>
+                    </ListItem>
+                    <ListItem
+                      sx={{
+                        p: 0,
+                        mb: 3,
+                        justifyContent: "flex-end",
+                        alignItems: "center",
+                        columnGap: 1,
+                      }}
+                    >
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 36,
+                          color: theme.palette.primary.main,
+                        }}
+                      >
+                        <EventOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
+                      </ListItemIcon>
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: { xs: "1.0625rem", md: "1.2rem" },
+                        }}
+                      >
+                        {t("what_is_cs.actions.attend_events")}
+                      </Typography>
+                    </ListItem>
+                    <ListItem
+                      sx={{
+                        p: 0,
+                        mb: 3,
+                        justifyContent: "flex-end",
+                        alignItems: "center",
+                        columnGap: 1,
+                      }}
+                    >
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 36,
+                          color: theme.palette.primary.main,
+                        }}
+                      >
+                        <GroupOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
+                      </ListItemIcon>
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: { xs: "1.0625rem", md: "1.2rem" },
+                        }}
+                      >
+                        {t("what_is_cs.actions.find_people")}
+                      </Typography>
+                    </ListItem>
+                    <ListItem
+                      sx={{
+                        p: 0,
+                        mb: 3,
+                        justifyContent: "flex-end",
+                        alignItems: "center",
+                        columnGap: 1,
+                      }}
+                    >
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 36,
+                          color: theme.palette.primary.main,
+                        }}
+                      >
+                        <ForumOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
+                      </ListItemIcon>
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: { xs: "1.0625rem", md: "1.2rem" },
+                        }}
+                      >
+                        {t("what_is_cs.actions.join_discussions")}
+                      </Typography>
+                    </ListItem>
+                  </List>
+                </Box>
               </Box>
             </Grid>
           </Grid>
@@ -535,28 +586,6 @@ export default function WhatIsCouchSurfingPage() {
                     />
                   </ListItem>
                 </List>
-              </Grid>
-              <Grid size={{ xs: 12, md: 6 }}>
-                <Box
-                  sx={{
-                    border: `1px solid ${theme.palette.grey[200]}`,
-                    borderRadius: 3,
-                    overflow: "hidden",
-                    mb: 3,
-                  }}
-                >
-                  <Box
-                    component="img"
-                    src="/images/why-people-love.jpg"
-                    alt="Why people love couch surfing"
-                    sx={{
-                      display: "block",
-                      width: "100%",
-                      aspectRatio: "16 / 9",
-                      objectFit: "cover",
-                    }}
-                  />
-                </Box>
                 <Box
                   sx={{
                     border: `1px solid ${theme.palette.grey[200]}`,
@@ -581,6 +610,28 @@ export default function WhatIsCouchSurfingPage() {
                   <Typography variant="body2">
                     {t("what_is_cs.tip_text")}
                   </Typography>
+                </Box>
+              </Grid>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Box
+                  sx={{
+                    border: `1px solid ${theme.palette.grey[200]}`,
+                    borderRadius: 3,
+                    overflow: "hidden",
+                    mb: 3,
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src="/yannic-group.jpg"
+                    alt="Why people love couch surfing"
+                    sx={{
+                      display: "block",
+                      width: "100%",
+                      aspectRatio: "1.5 / 1",
+                      objectFit: "cover",
+                    }}
+                  />
                 </Box>
               </Grid>
             </Grid>

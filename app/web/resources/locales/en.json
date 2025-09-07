@@ -225,7 +225,7 @@
     "version_info": "Version <2>{{version}}</2>, last updated <5>{{updated_ago}}</5>."
   },
   "what_is_cs": {
-    "meta_title": "What is couch surfing?",
+    "title": "What is couch surfing?",
     "get_involved_title": "What can I do on Couchers.org?",
     "get_started": "Get started",
     "timeline_title": "A quick history of couch surfing",
@@ -239,7 +239,6 @@
       "today_year": "Today",
       "today_text": "The next chapter: modern, safer, nonprofit couch surfing — built by and for the community."
     },
-    "looks_like_title": "What couch surfing looks like",
     "traveler_title": "As a traveler",
     "traveler_points": {
       "one": "Stay with a local instead of a hotel or hostel",
@@ -278,15 +277,24 @@
       "dollar": "$",
       "dollars_range": "$$–$$$",
       "stay_with_locals": "Stay with locals",
-      "references_moderation": "References & community moderation",
+      "professionally_managed": "Professionally managed stay",
       "meetups_communities": "Meetups & local communities",
       "cultural_exchange": "Cultural exchange focus",
       "non_transactional": "Non‑transactional community model",
-      "no_investor_pressure": "No investor pressure"
+      "no_investor_pressure": "No investor pressure",
+      "social_expectation": "Encouraged to spend time with host"
     },
     "bottom_cta_title": "Ready to try couch surfing?",
     "bottom_cta_subtitle": "Join Couchers.org and be part of a global community built on hospitality and connection.",
-    "join_couchers": "Join Couchers.org"
+    "join_couchers": "Join Couchers.org",
+    "is_it_safe": {
+      "title": "Is it safe?",
+      "points": {
+        "trust": "<bold>Community-driven trust system –</bold> Every member has a profile with references and reviews from people they’ve met, so you can see real experiences before deciding to connect.",
+        "verification": "<bold>Verification & identity checks –</bold> Members can choose strong verification (ID, phone, email) to confirm they are who they say they are, giving an extra layer of confidence.",
+        "moderation": "<bold>Active moderation & safety tools –</bold> A moderation team monitors reports, and you can block or report anyone at any time. Safety tips and guidelines are built into the platform so you’re always in control of your experience."
+      }
+    }
   },
   "team": {
     "title": "The Team",
