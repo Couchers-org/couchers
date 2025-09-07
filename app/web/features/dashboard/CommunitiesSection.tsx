@@ -24,7 +24,12 @@ export default function CommunitiesSection() {
       <Typography variant="h2" gutterBottom>
         {t("dashboard:your_communities_heading")}
       </Typography>
-      <Typography variant="body1" paragraph>
+      <Typography
+        variant="body1"
+        sx={{
+          marginBottom: "16px",
+        }}
+      >
         <Trans i18nKey="dashboard:your_communities_helper_text">
           {`You have been added to all communities based on your location. Feel free to `}
           <StyledBrowseCommunitiesLink href="/communities" underline="hover">
@@ -34,7 +39,6 @@ export default function CommunitiesSection() {
         </Trans>
       </Typography>
       <CommunitiesList />
-
       <StyledCreateCommunityText variant="body1" paragraph>
         <Trans i18nKey="dashboard:your_communities_helper_text2">
           {`Don't see your community? `}

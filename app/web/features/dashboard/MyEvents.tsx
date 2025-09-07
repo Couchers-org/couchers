@@ -1,4 +1,5 @@
 import { styled, Typography, useMediaQuery } from "@mui/material";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -10,7 +11,6 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, DASHBOARD } from "i18n/namespaces";
 import { ListMyEventsRes } from "proto/events_pb";
-import { useInfiniteQuery } from "react-query";
 import { service } from "service";
 import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
@@ -76,10 +76,11 @@ export default function MyEvents() {
       queryKey: myEventsKey("upcoming"),
       queryFn: ({ pageParam }) =>
         service.events.listMyEvents({
-          pageToken: pageParam,
+          pageToken: pageParam as string | undefined,
           pageSize: PAGE_SIZE,
         }),
       getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+      initialPageParam: undefined,
     });
 
   return (

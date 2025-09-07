@@ -9,6 +9,7 @@ import {
   styled,
   Typography,
 } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import StyledLink from "components/StyledLink";
@@ -22,7 +23,6 @@ import { DONATIONS } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import React, { PropsWithChildren, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation } from "react-query";
 import { service } from "service";
 import { theme } from "theme";
 
@@ -244,10 +244,10 @@ export default function DonationsBox() {
 
   const {
     error,
-    isLoading,
+    isPending,
     mutate: initiateDonation,
-  } = useMutation<void, RpcError, DonationFormData>(
-    async ({ amount, recurring }) => {
+  } = useMutation<void, RpcError, DonationFormData>({
+    mutationFn: async ({ amount, recurring }) => {
       if (!checkForValidAmount(amount)) {
         throw Error(t("donations_box.amount_validation_error"));
       }
@@ -267,12 +267,11 @@ export default function DonationsBox() {
         throw Error(result.error.message);
       }
     },
-    {
-      onSuccess: () => {
-        resetForm();
-      },
+
+    onSuccess: () => {
+      resetForm();
     },
-  );
+  });
 
   const onSubmit = handleSubmit((data) => {
     initiateDonation(data);
@@ -394,7 +393,12 @@ export default function DonationsBox() {
           </AmountGrid>
         )}
       />
-      <Typography variant="body2" paragraph>
+      <Typography
+        variant="body2"
+        sx={{
+          marginBottom: "16px",
+        }}
+      >
         <Trans
           t={t}
           i18nKey="donations_box.helper_text"
@@ -411,7 +415,7 @@ export default function DonationsBox() {
           }}
         />
       </Typography>
-      <StyledSubmitButton type="submit" loading={isLoading} onClick={onSubmit}>
+      <StyledSubmitButton type="submit" loading={isPending} onClick={onSubmit}>
         {t("donations_box.action_button_label")}
       </StyledSubmitButton>
     </StyledForm>

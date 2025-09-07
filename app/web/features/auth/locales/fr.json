@@ -36,7 +36,12 @@
     "old_password": "Ancien mot de passe",
     "new_password": "Nouveau mot de passe",
     "subtitle": "Utilisez ce formulaire pour réinitialiser votre mot de passe.",
-    "password_changed_success": "Votre nouveau mot de passe a été changé et une notification a été envoyé à votre adresse mail."
+    "password_changed_success": "Votre nouveau mot de passe a été changé et une notification a été envoyé à votre adresse mail.",
+    "reset_password_success": "Votre mot de passe a été changé avec succès !",
+    "reset_password_error": "Erreur lors de la réinitialisation du mot de passe : {{message}}",
+    "password_mismatch_error": "Les mots de passe ne correspondent pas.",
+    "user_logged_error": "Vous ne pouvez pas réinitialiser votre mot de passe si vous êtes connecté.e. Vous pouvez changer votre mot de passe dans les paramètres ou si vous déconnecter pour le réinitialiser.",
+    "token_error": "Une erreur s'est produite lors du traitement du jeton de réinitialisation du mot de passe, veuillez réessayer d'ouvrir le lien dans le mail que vous avez reçu."
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Déjà inscrit·e ? <2>Se connecter</2>",
@@ -49,9 +54,11 @@
     "form": {
       "password_field_label": "Mot de passe",
       "forgot_password": "Mot de passe oublié ?",
-      "remember_me": "Se souvenir de moi"
+      "remember_me": "Se souvenir de moi",
+      "username_field_label": "Mail/Nom d'utilisateur",
+      "no_password_login_prompt": "Verifiez vos mails pour obtenir le lien de connexion ! :)"
     },
-    "no_account_prompt": "Pas encore de compte ? <2>Inscrivez-vous</2>"
+    "no_account_prompt": "Pas encore de compte ? <2>Rejoignez-nous</2>"
   },
   "do_not_email": {
     "status": {
@@ -81,6 +88,16 @@
     "gender_section": {
       "title": "Changement du genre",
       "explanation": "Les administrateurs seront ravis de changer l'étiquetage de votre genre. Contactez support@couchers.org !"
+    },
+    "timezone_section": {
+      "title": "Fuseau horaire et localisation",
+      "description": "Votre fuseau horaire est <1>{{timezone}}</1>. En fonction de cela, votre heure locale est approximativement <4>{{time}}</4>.",
+      "explanation": "Cette heure et ce fuseau horaire sont déterminés en fonction de votre localisation géographique d’accueil. Veuillez signaler un bug si cela est incorrect."
+    },
+    "username_section": {
+      "title": "Nom d’utilisateur",
+      "description": "Votre nom d'utilisateur est <1>{{username}}</1>.",
+      "explanation": "Votre nom d'utilisateur est défini lors de la création de votre compte."
     }
   },
   "login_prompt": "Cliquez ici pour vous connecter",
@@ -94,7 +111,8 @@
       "maybe": "Probable d'héberger",
       "can_host": "Possible d'héberger",
       "cant_host": "Pas possible d'héberger",
-      "field_label": "Statut d’hébergement"
+      "field_label": "Statut d’hébergement",
+      "any": "Tous"
     },
     "gender": {
       "field_label": "Je m’identifie en tant que…",
@@ -112,14 +130,17 @@
     "birthday": {
       "field_label": "Date de naissance",
       "required_error": "Entrez votre date de naissance",
-      "validation_error": "La date doit être une date passée valide."
+      "validation_error": "La date doit être une date passée valide.",
+      "too_young_error": "Vous devez avoir au moins de 18 ans pour utiliser Couchers",
+      "not_real_date_error": "Veuillez entrer une date de naissance véritable"
     },
     "tos_accept_label": "J'accepte les conditions d'utilisation.",
     "password": {
       "field_label": "Mot de passe",
       "required_error": "Entrer un mot de passe",
       "validation_error": "Le mot de passe doit comporter entre 8 et 256 caractères et ne pas être prévisible."
-    }
+    },
+    "opt_in_newsletter": "Abonnez-vous a notre newsletter occasionnelle pour recevoir les dernières actualités de la communauté."
   },
   "location": {
     "validation_error": "Veuillez sélectionner une localisation valide.",
@@ -137,7 +158,60 @@
         "active_text": "Sauvegarder",
         "inactive_text": "Merci !"
       },
-      "resubmit_button_text": "Renvoyer"
+      "resubmit_button_text": "Renvoyer",
+      "explanation": "Il semble que vos coordonnées n'étaient pas correctes. Veuillez mettre à jour votre localisation géographique pour continuer."
+    },
+    "description": "Veuillez vérifier la suite afin de continuer.",
+    "activeness_probe": {
+      "title": "Êtes-vous toujours ouvert.e à accueillir des voyageurs ?",
+      "description": "Nous avons remarqué que vous ne vous êtes pas connecté.e depuis un certain temps et nous voulions savoir si vous êtes toujours disposé.e à accueillir des voyageurs.",
+      "still_hosting": "Je veux toujours héberger les voyageurs !",
+      "not_hosting": "Je ne peux plus héberger les voyageurs.",
+      "note": "Nous mettrons à jour votre profil pour correspondre à ce choix !"
+    },
+    "mod_note_section": {
+      "note_title": "Note de modération reçue à {{time}} :",
+      "acknowledge": "Accuser réception de la note",
+      "title": "Vous avez reçu une note des modérateurs",
+      "description": "Les modérateurs vous ont envoyé la note suivante. Veuillez la lire attentivement et confirmer que vous l'avez lue et comprise avant de continuer."
     }
+  },
+  "jail_set_password_form": {
+    "explanation": "Vous n'avez pas encore défini le mot de passe pour votre compte. Veuillez en créer un maintenant pour continuer.",
+    "title": "Définir un mot de passe"
+  },
+  "strong_verification": {
+    "learn_more": "En savoir plus sur la vérification renforcée <a>ici</a>.",
+    "title": "Vérification Renforcée",
+    "subtitle": "La Vérification Renforcée est une fonctionnalité de sécurité supplémentaire qui vous permet de vérifier votre date de naissance et votre genre à l'aide de votre passeport biométrique."
+  },
+  "feedback_form": {
+    "skip_step_text": "Pas intéressé.e ? <2>Sautez cette étape</2>",
+    "header": "Donnez votres avis"
+  },
+  "sign_up_need_verification_title": "On y est presque là, mais encore une dernière chose !",
+  "sign_up_resend_verification_email_help": "N'avez-vous pas reçu le mail ? Cliquez <2>ici pour renvoyer le lien de vérification</2>.",
+  "sign_up_resend_verification_done": "C'est fait ! Nous vous avons envoyé un autre mail.",
+  "feature_preview": {
+    "no_previews": {
+      "title": "Aucune fonctionnalité n'est actuellement en préversion",
+      "explanation": "Il n'y a actuellement aucune fonctionnalité en préversion, veuillez revenir plus tard !"
+    },
+    "title": "Aperçu des fonctionnalités",
+    "explanation": "Cette page vous permet d’essayer des fonctionnalités encore en cours de développement avant qu’elles ne soient prêtes à être utilisées par tous.",
+    "disclaimer": "Veuillez garder à l'esprit que ces fonctionnalités sont expérimentales. Elles peuvent ne pas fonctionner comme prévu et peuvent évoluer rapidement au fur et à mesure de leur développement. N'hésitez pas à donner votre avis en utilisant le bouton « Signaler un problème » pour signaler tout bug !"
+  },
+  "active_logins": {
+    "heading": "Utilisateurs connectés actuels",
+    "settings_page_link": "Gérer les connexions actuelles",
+    "description": "Cette page montre les connexions actives. Vous pouvez vous déconnecter de l’une d’elles en cliquant sur le bouton à côté de la connexion, ou faire défiler jusqu’en bas et cliquer sur le bouton pour vous déconnecter de toutes connexions sauf cette session.",
+    "login_header": "Conneté.e à {{login_datetime}}",
+    "location": "Près de <2>{{approximate_location}}</2>",
+    "last_activity": "Dernière activité il y a <2>{{last_activity_ago}}</2>",
+    "current_session": "Ceci est votre session actuelle.",
+    "log_out_of_session": "Déconnectez-vous de cette session",
+    "log_out_of_all_session": "Déconnectez-vous de toutes les autres sessions",
+    "settings_page_text": "Voir où vous êtes connecté.e et déconnectez-vous des autres sessions",
+    "expiry": "Expire le <1>{{expiry_datetime}}</1>"
   }
 }

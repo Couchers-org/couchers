@@ -26,10 +26,10 @@
   "login_page": {
     "title": "ログイン",
     "header": "おかえりなさい！",
-    "no_account_prompt": "まだアカウントを持っていませんか？<2>1$t(global:sign_up)</2>"
+    "no_account_prompt": "まだアカウントを持っていませんか？<2>Join us</2>"
   },
   "basic_sign_up_form": {
-    "existing_user_prompt": "すでにアカウントを持っていますか？<2>1$t(global:login)</2>",
+    "existing_user_prompt": "すでにアカウントを持っていますか？<2>Log in</2>",
     "header": "始めましょう！",
     "sign_up_agreement_explainer": "続行するには、クッキー、メールアドレス、データ処理に関する規約<2>Terms of Service</2>に同意してください。"
   },

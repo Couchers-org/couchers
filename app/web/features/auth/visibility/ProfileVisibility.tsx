@@ -5,6 +5,7 @@ import {
   RadioGroup,
   Typography,
 } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import { accountInfoQueryKey } from "features/queryKeys";
@@ -15,7 +16,6 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { GetAccountInfoRes, ProfilePublicVisibility } from "proto/account_pb";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
 type ProfileVisibilityProps = {
@@ -38,13 +38,16 @@ export default function ProfileVisibility({
   });
 
   const queryClient = useQueryClient();
-  const { error, isLoading, mutate } = useMutation<
+  const { error, isPending, mutate } = useMutation<
     Empty,
     RpcError,
     ProfilePublicVisibility
-  >(service.account.setProfilePublicVisibility, {
+  >({
+    mutationFn: (choice) => service.account.setProfilePublicVisibility(choice),
     onSuccess: () => {
-      queryClient.invalidateQueries(accountInfoQueryKey);
+      queryClient.invalidateQueries({
+        queryKey: [accountInfoQueryKey],
+      });
     },
   });
 
@@ -117,7 +120,7 @@ export default function ProfileVisibility({
           type="submit"
           variant="contained"
           color="primary"
-          loading={isLoading}
+          loading={isPending}
         >
           {t("global:save")}
         </Button>

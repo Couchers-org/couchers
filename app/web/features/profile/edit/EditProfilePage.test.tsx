@@ -1,7 +1,5 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import mockRouter from "next-router-mock";
-import { routeToProfile } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
@@ -46,7 +44,7 @@ describe("Edit profile", () => {
     getLanguagesMock.mockImplementation(getLanguages);
   });
 
-  it("Should update and redirect to the user profile page when aboutMe and avatar filled out on first go", async () => {
+  it("Should update and show success toast when aboutMe and avatar filled out on first go", async () => {
     // prevent the unsavedChanged pop up by mocking window.confirm
     jest.spyOn(window, "confirm").mockImplementation(() => true);
 
@@ -107,7 +105,9 @@ describe("Edit profile", () => {
     );
 
     await waitFor(() =>
-      expect(mockRouter.pathname).toBe(routeToProfile("about")),
+      expect(
+        screen.getByText(t("profile:profile_changes_saved_message")),
+      ).toBeInTheDocument(),
     );
   });
 
@@ -159,7 +159,9 @@ describe("Edit profile", () => {
     );
 
     await waitFor(() =>
-      expect(mockRouter.pathname).toBe(routeToProfile("about")),
+      expect(
+        screen.getByText(t("profile:profile_changes_saved_message")),
+      ).toBeInTheDocument(),
     );
   });
 

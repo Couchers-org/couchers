@@ -1,7 +1,7 @@
 import { debounce } from "@mui/material";
+import { UseMutateFunction } from "@tanstack/react-query";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useEffect, useMemo, useRef } from "react";
-import { UseMutateFunction } from "react-query";
 
 import { MARK_LAST_SEEN_TIMEOUT } from "./constants";
 

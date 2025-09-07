@@ -1,2 +1,32 @@
 {
+  "blocked_list_title": "Usuaris bloquejats",
+  "block_user_confirmation_dialog": {
+    "message": "Els missatges i sol·licituds d’aquesta persona seran bloquejats, i el teu perfil, esdeveniments i comentaris no seran visibles per a aquesta persona. No se’ls informarà que els has bloquejat.",
+    "title": "Esteu segur que voleu bloquejar {{name}}?",
+    "confirm": "Bloca"
+  },
+  "no_friends": "No hi ha amics disponibles",
+  "remove_friend_confirmation_dialog": {
+    "message": "Estàs segur que vols eliminar {{name}}? Aquesta acció no es pot desfer.",
+    "title": "Elimina amic",
+    "confirm": "Elimina"
+  },
+  "unblock_user_confirmation_dialog": {
+    "message": "Desbloquejar-los els permetrà veure el teu perfil i enviar-te sol·licituds. Si abans éreu amics, tornaran a aparèixer a la teva llista d'amics. No rebran cap notificació.",
+    "title": "Estàs segur que vols desbloquejar {{name}}?",
+    "confirm": "Desbloca"
+  },
+  "add_friend": "Afegeix amic",
+  "block_user": "Bloca l'usuari",
+  "my_connections": "Els meus contactes",
+  "friends": "Amics",
+  "friend_list_title": "Els teus amics",
+  "friend_requests": "Sol·licituds d'amistat",
+  "friend_requests_sent": "Sol·licituds d'amistat enviades",
+  "no_blocked_users": "No hi ha usuaris bloquejats",
+  "no_friend_requests": "No hi ha sol·licituds d'amistat pendents",
+  "no_friend_requests_sent": "No hi ha sol·licituds d'amistat pendents",
+  "pending": "Pendent",
+  "remove_friend": "Elimina amic",
+  "unblock_user": "Desbloqueja l'usuari"
 }

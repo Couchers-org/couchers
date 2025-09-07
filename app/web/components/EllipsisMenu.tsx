@@ -9,6 +9,7 @@ export interface EllipsisMenuItem {
   label: string;
   onClick: () => unknown;
   id?: string;
+  shouldCloseMenu?: boolean;
 }
 
 interface EllipsisMenuProps {
@@ -16,7 +17,7 @@ interface EllipsisMenuProps {
   isMenuOpen: boolean;
   menuAnchorEl: Element | null;
   onMenuOpen: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  onMenuClose: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onMenuClose: (event: React.MouseEvent<HTMLLIElement>) => void;
   items: EllipsisMenuItem[];
 }
 
@@ -88,7 +89,12 @@ const EllipsisMenu = ({
           {items.map((item, index) => (
             <MenuItem
               key={index}
-              onClick={item.onClick}
+              onClick={(e) => {
+                if (item.shouldCloseMenu !== false) {
+                  onMenuClose(e);
+                }
+                item.onClick();
+              }}
               {...(item.id
                 ? {
                     id: `${idName}-${item.id}`,

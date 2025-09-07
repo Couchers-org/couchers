@@ -206,7 +206,6 @@ const CouchersMission = () => {
         )}
       </Box>
       <Grid
-        item
         sx={{
           marginTop: 2,
           backgroundColor: theme.palette.grey[50],

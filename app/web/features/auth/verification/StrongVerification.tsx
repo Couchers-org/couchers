@@ -33,7 +33,12 @@ export default function StrongVerification({
           You <strong>are currently</strong> verified with Strong Verification.
         </Trans>
       </Typography>
-      <Typography variant="body1" paragraph>
+      <Typography
+        variant="body1"
+        sx={{
+          marginBottom: "16px",
+        }}
+      >
         <Trans
           t={t}
           i18nKey="strong_verification.learn_more"

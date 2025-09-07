@@ -26,9 +26,9 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
 
   const isMenuOpen = Boolean(menuAnchorEl);
 
-  const { blockUserMutation, isLoading: isBlocking } = useBlockUser();
+  const { blockUserMutation, isPending: isBlocking } = useBlockUser();
 
-  const { removeFriendMutation, isLoading: isRemoving } = useRemoveFriend();
+  const { removeFriendMutation, isPending: isRemoving } = useRemoveFriend();
 
   const removeFriend = (userId: number) => {
     if (userId !== undefined) {
@@ -38,7 +38,6 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
   };
 
   const handleBlockUser = () => {
-    handleMenuClose();
     setOpenDialog("block-user");
   };
 
@@ -51,7 +50,6 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
   };
 
   const handleRemoveFriend = () => {
-    handleMenuClose();
     setOpenDialog("remove-friend");
   };
 

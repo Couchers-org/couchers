@@ -1,1 +1,156 @@
-{}
+{
+  "mark_all_read_button_text": "Отметить все как прочитанное",
+  "request_closed_message": "Этот запрос был закрыт или истек. Чтобы продолжить общение, отправь обычное сообщение.",
+  "write_reference_button_text": "Написать отзыв",
+  "close_request_dialog_host": "Пожалуйста, убедитесь, что вы закончили общение, прежде чем отклонить их запрос.",
+  "close_request_button_text": "Отклонить",
+  "close_request_dialog_surfer": "Пожалуйста, убедитесь, что вы закончили общение, прежде чем отменить свой запрос.",
+  "confirm_request_button_text": "Подтвердить",
+  "messages_page": {
+    "title": "Сообщения",
+    "tabs": {
+      "chats": "Чаты",
+      "hosting": "Гости",
+      "surfing": "Хосты",
+      "aria_label": "Вкладки для разных типов сообщений"
+    }
+  },
+  "chat_view": {
+    "invalid_id_error": "Неверный ID чата.",
+    "no_messages_state_text": "Нет сообщений",
+    "back_button": {
+      "a11y_label": "Назад"
+    },
+    "muted_icon": {
+      "a11y_label": "Уведомления отключены"
+    },
+    "actions_menu": {
+      "items": {
+        "invite_members": "Пригласить в чат",
+        "show_all_members": "Участники чата",
+        "leave_chat": "Покинуть чат",
+        "manage_admins": "Администраторы чата",
+        "chat_settings": "Настройки чата"
+      },
+      "a11y_label": "Показать больше действий чата"
+    },
+    "cannot_message_text": "Вы не можете отправлять сообщения в этом чате",
+    "mute": {
+      "1_hour_label": "1 час",
+      "button_label": "Отключить звук чата",
+      "unmute_button_label": "Включить звук в чате",
+      "dialog_title": "На сколько времени вы хотите отключить звук?",
+      "8_hours_label": "8 часов",
+      "1_day_label": "1 день",
+      "1_week_label": "1 неделя",
+      "1_month_label": "1 месяц",
+      "forever_label": "Пока я не включу звук"
+    }
+  },
+  "close_request_dialog_title": "Завершить переписку?",
+  "past_request_help_text": "Этот запрос уже в прошлом, вы все еще можете отправлять сообщения, но не можете вносить другие изменения.",
+  "host_pending_request_help_text": "Что учесть</0> перед ответом.",
+  "surfer_declined_request_help_text": "<0>Прочитайте наше руководство</0> о том, как написать запрос, который будет принят.",
+  "group_chats_tab": {
+    "no_chats_message": "Пока нет групповых чатов",
+    "load_more_button_label": "Загрузить еще"
+  },
+  "control_message": {
+    "admin_removal_text": "{{user}} удалил {{target_user}} из администраторов",
+    "host_request_status_changed_text": "{{user}} изменил запрос на {{status}}",
+    "user_left_chat_text": "{{user}} вышел из чата",
+    "admin_assignment_text": "{{user}} назначил(а) {{target_user}} администратором",
+    "unknown_message_text": "Неизвестное управляющее сообщение",
+    "created_chat_text": "{{user}} создал(а) чат",
+    "edited_chat_text": "{{user}} отредактировал(а) чат",
+    "invite_user_text": "{{user}} пригласил(а) {{target_user}}"
+  },
+  "host_request_status": {
+    "cancelled": "Отменено",
+    "confirmed": "Подтверждено",
+    "accepted": "Принято",
+    "past": "Прошлое",
+    "pending": "В ожидании",
+    "rejected": "Отклонено"
+  },
+  "admins_dialog": {
+    "remove_admin": {
+      "title": "Удалить администратора",
+      "action_a11y_label": "Удалить из администраторов"
+    },
+    "step_down_confirmation_dialog": {
+      "title": "Отказаться от прав администратора?",
+      "message": "Вы уверены, что хотите отказаться от прав администратора в этом групповом чате? Вы не сможете снова стать администратором, если другой администратор не назначит вас."
+    },
+    "add_admin": {
+      "title": "Добавить администратора",
+      "action_a11y_label": "Добавить как администратора"
+    }
+  },
+  "host_request_item": {
+    "surfer_status": {
+      "confirmed": "Ваш запрос был подтверждён",
+      "accepted": "Ваш запрос был принят",
+      "cancelled": "Ваш запрос был отменён",
+      "rejected": "Ваш запрос был отклонён"
+    },
+    "host_status": {
+      "accepted": "Вы приняли этот запрос",
+      "cancelled": "Вы отменили этот запрос",
+      "confirmed": "Вы подтвердили этот запрос",
+      "rejected": "Вы отклонили этот запрос"
+    },
+    "expired": "Этот запрос истёк",
+    "pending": "Этот запрос все еще находится в ожидании"
+  },
+  "host_request_view": {
+    "request_duration_0": "{{count}} ночь",
+    "request_duration_1": "{{count}} ночи",
+    "request_duration_2": "{{count}} ночей",
+    "error_message": "Неверный ID запроса хоста",
+    "back_button_a11y_label": "Назад",
+    "title_for_host": "Запрос от {{user}} - {{status}}",
+    "title_for_surfer": "Запрос к {{user}} - {{status}}"
+  },
+  "create_chat": {
+    "user_load_error_message": "(Ошибка загрузки пользователя)",
+    "dm_title": "Создать новый чат",
+    "group_title": "Создать групповой чат",
+    "group_title_field_label": "Заголовок",
+    "no_friends_found_message": "Не удалось найти друзей",
+    "friends_input_label": "Друзья"
+  },
+  "leave_chat_dialog": {
+    "message": "Вы уверены, что хотите покинуть этот чат?",
+    "title": "Покинуть чат?"
+  },
+  "group_chat_settings_dialog": {
+    "only_admins_invite": {
+      "field_label": "Только администраторы могут приглашать других в чат"
+    },
+    "title": "Настройки группового чата",
+    "chat_title": {
+      "field_label": "Название чата"
+    }
+  },
+  "chat_input": {
+    "label": "Сообщение"
+  },
+  "requests_tab": {
+    "no_requests_message": "Пока нет запросов",
+    "load_more_button_label": "Загрузить еще"
+  },
+  "invite_dialog": {
+    "title": "Пригласить в чат",
+    "selected": {
+      "field_label": "Друзья",
+      "no_options_text": "Некого пригласить",
+      "option_load_error_text": "(Ошибка загрузки пользователя)"
+    },
+    "invite_button_label": "Пригласить"
+  },
+  "members_dialog": {
+    "title": "Участники чата"
+  },
+  "unknown_user": "Неизвестный пользователь"
+}

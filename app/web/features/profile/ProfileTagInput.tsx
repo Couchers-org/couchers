@@ -228,75 +228,87 @@ export default function ProfileTagInput({
           </StyledTagWrapper>
         ))}
       </StyledTagsContainer>
-      <StyledPopper
-        id={popperId}
-        open={open}
-        anchorEl={anchorEl.current}
-        placement="bottom-start"
-      >
-        <StyledHeader>
-          <Typography>
-            <Trans
-              components={{
-                support_link: (
-                  <Link href="mailto:support@couchers.org" underline="hover" />
+      {open && anchorEl.current && (
+        <StyledPopper
+          id={popperId}
+          open={open}
+          anchorEl={anchorEl.current}
+          placement="bottom-start"
+        >
+          <StyledHeader>
+            <Typography>
+              <Trans
+                components={{
+                  support_link: (
+                    <Link
+                      href="mailto:support@couchers.org"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      underline="hover"
+                      onMouseDown={(e) => e.preventDefault()}
+                    />
+                  ),
+                }}
+                i18nKey="profile:profile_tag_input.header_text"
+              />
+            </Typography>
+          </StyledHeader>
+          <Autocomplete
+            {...inputFieldProps}
+            open
+            onClose={handleClose}
+            multiple
+            onChange={(_, newValue) => {
+              let uniqueValues: Set<string>;
+              if (Array.isArray(newValue) && newValue.length) {
+                // For some reason I came across situations when there were undefined values in this array.
+                newValue = newValue.filter((element) => element !== undefined);
+
+                uniqueValues = new Set(newValue);
+              } else {
+                uniqueValues = new Set([]);
+              }
+              setPendingValue(
+                Array.from(uniqueValues).filter(
+                  (value) => !/^\s*$/.test(value),
                 ),
-              }}
-              i18nKey="profile:profile_tag_input.header_text"
-            />
-          </Typography>
-        </StyledHeader>
-        <Autocomplete
-          {...inputFieldProps}
-          open
-          onClose={handleClose}
-          multiple
-          PopperComponent={StyledAutocompletePopper}
-          PaperComponent={StyledAutocompletePaper}
-          onChange={(_, newValue) => {
-            let uniqueValues: Set<string>;
-            if (Array.isArray(newValue) && newValue.length) {
-              // For some reason I came across situations when there were undefined values in this array.
-              newValue = newValue.filter((element) => element !== undefined);
+              );
+            }}
+            value={pendingValue}
+            renderInput={(params) => (
+              <StyledInputBase
+                ref={params.InputProps.ref}
+                inputProps={params.inputProps}
+                autoFocus
+              />
+            )}
+            disableCloseOnSelect
+            disablePortal
+            options={options
+              .concat(pendingValue.filter((item) => options.indexOf(item) < 0))
+              .sort((a, b) => -b.localeCompare(a))}
+            renderOption={(props, option, { selected }) => {
+              const { key, ...rest } = props;
 
-              uniqueValues = new Set(newValue);
-            } else {
-              uniqueValues = new Set([]);
-            }
-            setPendingValue(
-              Array.from(uniqueValues).filter((value) => !/^\s*$/.test(value)),
-            );
-          }}
-          value={pendingValue}
-          renderInput={(params) => (
-            <StyledInputBase
-              ref={params.InputProps.ref}
-              inputProps={params.inputProps}
-              autoFocus
-            />
-          )}
-          disableCloseOnSelect
-          disablePortal
-          options={options
-            .concat(pendingValue.filter((item) => options.indexOf(item) < 0))
-            .sort((a, b) => -b.localeCompare(a))}
-          renderOption={(props, option, { selected }) => {
-            const { key, ...rest } = props;
+              return (
+                <StyledAutocompleteOption key={key} {...rest}>
+                  <StyledCheckbox
+                    color="primary"
+                    size="small"
+                    checked={selected}
+                  />
 
-            return (
-              <StyledAutocompleteOption key={key} {...rest}>
-                <StyledCheckbox
-                  color="primary"
-                  size="small"
-                  checked={selected}
-                />
-
-                {option}
-              </StyledAutocompleteOption>
-            );
-          }}
-        />
-      </StyledPopper>
+                  {option}
+                </StyledAutocompleteOption>
+              );
+            }}
+            slots={{
+              paper: StyledAutocompletePaper,
+              popper: StyledAutocompletePopper,
+            }}
+          />
+        </StyledPopper>
+      )}
     </>
   );
 }

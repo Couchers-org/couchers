@@ -1,4 +1,5 @@
 {
+  "active": "Active",
   "actions": {
     "back_to_dashboard": "Back to dashboard",
     "message_label": "Message",
@@ -54,8 +55,8 @@
     "has_housemates": "Has housemates",
     "home_facilities": "Home Facilities",
     "host_drinking": "Drinks at home",
-    "host_kids": "Has children",
-    "host_pets": "Has pets",
+    "has_kids": "Has kids",
+    "has_pets": "Has pets",
     "host_smoking": "Smokes at home",
     "hosting_preferences": "Hosting Preferences",
     "house_rules": "House rules",
@@ -122,13 +123,14 @@
     "window": "Window",
     "yes": "Yes"
   },
+  "what_options_mean": "What these options mean",
   "sleeping_arrangement": {
     "private_short": "Private space",
     "common_short": "Common room",
     "shared_room_short": "Shared room",
-    "private": "Private space (e.g. own room or similar)",
-    "common": "Common room (e.g. couch in living room)",
-    "shared_room": "Shared room (e.g. shared bedroom with own sleeping surface)"
+    "private": "e.g. own room or similar",
+    "common": "e.g. couch in living room",
+    "shared_room": "e.g. shared bedroom with own sleeping surface"
   },
   "parking_details": {
     "free_onsite": "Free onsite parking",
@@ -136,8 +138,14 @@
     "paid_onsite": "Paid onsite parking",
     "paid_offsite": "Paid offsite parking"
   },
-  "gender": { "man": "Man", "woman": "Woman" },
-  "pronouns": { "man": "he / him", "woman": "she / her" },
+  "gender": {
+    "man": "Man",
+    "woman": "Woman"
+  },
+  "pronouns": {
+    "man": "he / him",
+    "woman": "she / her"
+  },
   "edit_profile_tab_bar_a11y_label": "tabs to edit different parts of your profile",
   "info_unanswered": "Ask me",
   "my_connections": "My connections",
@@ -215,7 +223,7 @@
     "request": "Request",
     "request_description": "Share your plans for the visit and include why you're requesting to stay with this particular host",
     "request_description_empty": "Please write a request message",
-    "request_char_length_too_short": "Request message must be at least 250 characters",
+    "request_char_length_too_short": "Please write at least {{charactersRemaining}} more characters to send a host request.",
     "stay_type_a11y_text": "stay type",
     "success": "Request sent!",
     "guest_count": "Number of guests"
@@ -280,9 +288,14 @@
     "cannot_host_description": "I'm not able to host travelers at the moment"
   },
   "meetup_status": {
-    "wants_to_meetup_description": "I'm eager to meet up with travelers",
+    "wants_to_meetup_description": "I'm eager to meet up with others",
     "open_to_meetup_description": "I might meet up, depending on the circumstances",
-    "does_not_want_to_meetup_description": "I prefer not to meet up with travelers"
+    "does_not_want_to_meetup_description": "I prefer not to meet up with others"
   },
-  "avatar_photo_info": "<bold>A photo of yourself is required to interact with the community.</bold> A clear, friendly photo showing your face builds trust, helps others feel comfortable, and greatly improves your chances of receiving a response."
+  "avatar_photo_info": "<bold>A photo of yourself is required to interact with the community.</bold> A clear, friendly photo showing your face builds trust, helps others feel comfortable, and greatly improves your chances of receiving a response.",
+  "profile_changes_saved_message": "Profile changes saved!",
+  "hosting_preferences_success_message": "Hosting preferences saved!",
+  "couldnt_read_file": "Couldn't read file",
+  "select_an_image": "Select an image",
+  "names_profile_photo": "{{name}}'s profile photo"
 }

@@ -20,7 +20,7 @@
     "local_time": "Ortszeit",
     "occupation": "Beruf",
     "references": "Referenzen",
-    "who_section": "Wer ich bin",
+    "who_section": "Wer Ich Bin",
     "hobbies_section": "Was ich in meiner Freizeit mache",
     "additional_information_section": "Weitere Informationen",
     "travel_section": "Ich reiste nach",
@@ -43,8 +43,8 @@
   "view_in_admin_console": "Benutzer in Admin-Panel ansehen",
   "helper_text": {
     "missing_profile_photo": "Bitte fügen ein Foto hinzu, um dein Profil zu vervollständigen.",
-    "characters_remaining": "Bitte schreibe {{count}} weiteres Zeichen, um dein Profil zu vervollständigen.",
-    "characters_remaining_plural": "Bitte schreibe {{count}} weitere Zeichen, um dein Profil zu vervollständigen."
+    "characters_remaining": "<bold>Bitte schreib mindestens {{count}} Zeichen, um Chats und Anfragen freizuschalten.</bold> Authentische Profile bilden eine Community des Vertrauens. Je mehr du teilst, desto einfacher ist es, Kontakte zu knüpfen!",
+    "characters_remaining_plural": "<bold>Bitte schreib mindestens {{count}} Zeichen, um Chats und Anfragen freizuschalten.</bold> Authentische Profile bilden eine Community des Vertrauens. Je mehr du teilst, desto einfacher ist es, Kontakte zu knüpfen!"
   },
   "section_tabs_a11y_label": "tabs für User details",
   "incomplete_dialog": {
@@ -60,7 +60,7 @@
     "general": "Allgemein",
     "has_housemates": "Hat Mitbewohner",
     "host_drinking": "Trinkt zu Hause",
-    "host_kids": "Hat Kinder",
+    "has_kids": "Hat Kinder",
     "house_rules": "Hausregeln",
     "housemates": "Mitbewohner",
     "kid_details": "Details zu Kindern",
@@ -77,9 +77,18 @@
     "my_home": "Mein Zuhause",
     "parking": "Parkmöglichkeiten vorhanden",
     "housemate_details": "Details zum Mitbewohner",
-    "host_pets": "Hat Haustiere",
+    "has_pets": "Hat Haustiere",
     "host_smoking": "Raucht zu Hause",
-    "hosting_preferences": "Hosting-Präferenzen"
+    "hosting_preferences": "Hosting-Präferenzen",
+    "household_details": "Haushaltsdetails",
+    "household_members": "Haushaltsmitglieder",
+    "parking_heading": "Parken",
+    "household_habits": "Haushaltsgewohnheiten",
+    "hosting_preferences_subtitle": "Lasse Gäste wissen, womit du ok bist",
+    "about_home_subtitle": "Erzähle Gästen von deinem Zuhause und was sie erwarten können",
+    "household_details_subtitle": "Teile mehr Details über deinen Haushalt",
+    "general_subtitle": "Weitere Details über dein Zuhause und die Umgebung",
+    "home_facilities": "Heimeinrichtung"
   },
   "edit_profile_headings": {
     "regions_visited": "Regionen, die ich besucht habe",
@@ -92,16 +101,26 @@
     "hometown": "Aufgewachsen in",
     "education": "Ausbildung",
     "occupation": "Beruf",
-    "languages_spoken": "Sprachen, die ich fließend spreche"
+    "languages_spoken": "Sprachen, die ich fließend spreche",
+    "about_me_subtitle": "Erzähle anderen von dir. Vertrauen beginnt hier. Hilf anderen, ein Gefühl dafür zu bekommen, wer du wirklich bist. Sieh dir <1>Tipps für die Erstellung eines großartigen Profils</1> an.",
+    "basic_information": "Grundlegende Informationen",
+    "basic_information_subtitle": "Fang damit an, dein Foto, deinen Namen und deinen Ort anzugeben",
+    "preferences": "Vorlieben",
+    "preferences_subtitle": "Teile andere deine Hosting- und Meetup-Präferenzen mit",
+    "personal_information": "Persönliche Informationen",
+    "personal_information_subtitle": "Teile Details über dich und deinen Hintergrund",
+    "travel_experience": "Reiseerfahrung",
+    "travel_experience_subtitle": "Teile deine Reiseerfahrungen und Kontakte",
+    "location_subtitle": "Ungefähre Lage deines Zuhauses"
   },
   "edit_home_questions": {
-    "accept_drinking": "Okay mit Trinken",
+    "accept_drinking": "Okay wenn leute trinken",
     "accept_pets": "Haustiere willkommen",
-    "accept_kids": "Hosted Kinder",
+    "accept_kids": "Hosted Surfer mit Kinder",
     "accept_smoking": "Okay mit dem Rauchen",
     "accept_camping": "Zelten möglich"
   },
-  "unspecified_info": "Frag mich",
+  "unspecified_info": "-",
   "smoking_location": {
     "no": "Nein",
     "outside": "Draußen",
@@ -147,7 +166,7 @@
     "public_answer": "Dies wird öffentlich im Abschnitt „Referenzen“ ihres Profils angezeigt.",
     "public_text_label": "Du hinterlässt die folgende öffentliche Referenz, die auf dem Profil von {{name}} erscheinen wird:",
     "reference_form_heading_friend": "Du hast dich mit {{name}} getroffen",
-    "reference_form_heading_hosted": "Du hast {{name}} gehosted",
+    "reference_form_heading_hosted": "Du hast {{name}} gehostet",
     "rating_how": "Wie war deine Gesamterfahrung mit {{name}}?",
     "add_a_reference": "Füge eine Referenz zum Profil von {{name}} hinzu",
     "private_text_explanation_1": "Im untenstehenden Feld kannst du unserem Sicherheitsteam vertraulich mitteilen, was passiert ist.",
@@ -158,7 +177,7 @@
       "title_surfed": "Bestätige, dass du nicht bei {{name}} übernachtet hast",
       "title_hosted": "Bestätige, dass {{name}} nicht bei dir übernachtet hat",
       "message_surfed": "Du <strong>kannst keine Referenz schreiben</strong>, wenn du angibst, dass du nicht bei {{name}} übernachtet hast. {{name}} wird nicht benachrichtigt, aber kann trotzdem eine Referenz für dich hinterlassen.<br /><br />Wenn du etwas melden musst, erfahre <2>hier</2>, wie das geht.",
-      "confirm_hosted": "Bestätigung, dass ich nicht gehosted habe",
+      "confirm_hosted": "Bestätigung, dass ich nicht gehostet habe",
       "confirm_surfed": "Bestätigung, dass ich nicht gesurft habe"
     },
     "thank_you_references_available": "Beim Hosten oder Surfen werden Referenzen sichtbar, sobald beide Personen ihre Referenzen abgegeben haben oder nach zwei Wochen, je nachdem, was zuerst eintritt.",
@@ -195,7 +214,7 @@
     "request_description": "Teile deine Pläne für den Besuch mit und gib an, warum du bei diesem bestimmten Host übernachten willst",
     "request_description_empty": "Bitte schreib eine Anfragenachricht",
     "stay_type_a11y_text": "Aufenthaltstyp",
-    "request_char_length_too_short": "Die Anfrage-Nachricht muss mindestens 250 Zeichen lang sein"
+    "request_char_length_too_short": "Bitte schreibe mindestens {{charactersRemaining}} weitere Zeichen, um eine Host-Anfrage zu senden."
   },
   "response_rate_text_some": "Manchmal",
   "reference_filter_label": {
@@ -206,7 +225,7 @@
     "all": "Alle Referenzen"
   },
   "reference_badge_label": {
-    "hosted": "Gehostet",
+    "hosted": "Host",
     "friend": "Freund",
     "surfed": "Gast"
   },
@@ -223,9 +242,9 @@
   "response_time_text_almost_all": "Normalerweise in {{p33}} bis {{p66}}",
   "unsaved_changes_warning": "Du hast die Änderungen nicht gespeichert. Bist du sicher, dass du die Seite verlassen möchtest?",
   "sleeping_arrangement": {
-    "private": "Privater Bereich (z.B. eigenes Zimmer o. Ä.)",
-    "common": "Gemeinschaftsbereich (z.B. couch im Wohnzimmer)",
-    "shared_room": "Geteiltes Zimmer (z.B. geteiltes Zimmer mit eigener Schlaffläche)",
+    "private": "z.B. Eigenes Zimmer o. Ä.",
+    "common": "z.B. Couch im Wohnzimmer",
+    "shared_room": "z.B. Geteiltes Zimmer mit eigener Schlaffläche",
     "private_short": "Privater Bereich",
     "common_short": "Gemeinschaftsraum",
     "shared_room_short": "Geteiltes Zimmer"
@@ -260,5 +279,24 @@
     "references_plural": "Referenzen"
   },
   "incomplete_profile_haiku": "Leeres Bild blickt stumm,\nGeheimnis hinter Schweigen—\nWer bist du, Fremder?",
-  "open_profile_new_tab": "Profil in neuem Tab öffnen"
+  "open_profile_new_tab": "Profil in neuem Tab öffnen",
+  "hosting_status": {
+    "can_host_description": "Ich möchte Surfer bei mir aufzunehmen",
+    "cannot_host_description": "Ich kann im Moment keine Surfer hosten",
+    "maybe_host_description": "Ich könnte vielleicht hosten, je nach den Umständen"
+  },
+  "search_indicator": "Der Anfang dieses Abschnitts ist in den Suchergebnissen sichtbar, wenn andere Mitglieder nach dir suchen",
+  "meetup_status": {
+    "wants_to_meetup_description": "Ich möchte mich mit anderen treffen",
+    "open_to_meetup_description": "Ich könnte mich treffen, je nach den Umständen",
+    "does_not_want_to_meetup_description": "Ich möchte mich lieber nicht mit anderen treffen"
+  },
+  "avatar_photo_info": "<bold>Ein Foto von dir ist erforderlich, um mit der Community zu interagieren.</bold> Ein klares, freundliches Foto, das dein Gesicht zeigt, schafft Vertrauen, hilft anderen sich wohlzufühlen und erhöht deine Chancen auf eine Antwort erheblich.",
+  "active": "Aktiv",
+  "what_options_mean": "Was diese Optionen bedeuten",
+  "profile_changes_saved_message": "Profiländerungen gespeichert!",
+  "hosting_preferences_success_message": "Host-einstellungen gespeichert!",
+  "couldnt_read_file": "Die Datei konnte nicht gelesen werden",
+  "select_an_image": "Bild auswählen",
+  "names_profile_photo": "Profilfoto von {{name}}"
 }

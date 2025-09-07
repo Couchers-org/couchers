@@ -29,7 +29,12 @@ export default function LanguagePickerSettings({
           {`${t("global:language_preference.current_preferred_language")}`}
           <strong>{LANGUAGE_MAP[locale || "en"]?.name}</strong>
         </Typography>
-        <Typography variant="body1" paragraph>
+        <Typography
+          variant="body1"
+          sx={{
+            marginBottom: "16px",
+          }}
+        >
           <Link
             href={translateJobURL}
             target="_blank"
@@ -40,7 +45,12 @@ export default function LanguagePickerSettings({
           </Link>
         </Typography>
         <LanguagePickerSelect displayMode="rect" />
-        <Typography paragraph sx={{ mt: 2 }}>
+        <Typography
+          sx={{
+            mt: 2,
+            marginBottom: "16px",
+          }}
+        >
           <Button onClick={() => router.push(translateRoute)}>
             {t("global:language_preference.translation_progress.view_progress")}
           </Button>

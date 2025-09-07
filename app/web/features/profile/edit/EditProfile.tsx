@@ -11,12 +11,14 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { Dialog, DialogActions, DialogTitle } from "components/Dialog";
 import EditLocationMap from "components/EditLocationMap";
 import ImageInput from "components/ImageInput";
+import Snackbar from "components/Snackbar";
 import StyledLink from "components/StyledLink";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { useRegions } from "features/profile/hooks/useRegions";
@@ -31,7 +33,6 @@ import { AUTH, GLOBAL, PROFILE } from "i18n/namespaces";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
 import React, { FormEvent, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useQueryClient } from "react-query";
 import { howToMakeGreatProfileUrl } from "routes";
 import { service, UpdateUserProfileData } from "service/index";
 import { theme } from "theme";
@@ -224,7 +225,7 @@ export default function EditProfileForm() {
   const {
     updateUserProfile,
     reset: resetUpdate,
-    isLoading: updateIsLoading,
+    isPending: updateIsLoading,
     isError: updateError,
   } = useUpdateUserProfile();
   const { data: user } = useCurrentUser();
@@ -235,6 +236,7 @@ export default function EditProfileForm() {
   );
   const [showIncompleteProfileDialog, setShowIncompleteProfileDialog] =
     useState(false);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
 
   const [isUploading, setIsUploading] = useState(false);
 
@@ -248,6 +250,7 @@ export default function EditProfileForm() {
     reset,
     formState: { errors, isDirty, isSubmitted },
     watch,
+    getValues,
   } = useForm<EditProfileFormValues>({
     shouldFocusError: true,
   });
@@ -356,6 +359,12 @@ export default function EditProfileForm() {
               : data.thingsILike,
           },
           setMutationError: setErrorMessage,
+          onSuccess: () => {
+            // Reset form dirty state to hide save bar
+            const currentValues = getValues();
+            reset(currentValues, { keepValues: true, keepDirty: false });
+            setShowSuccessToast(true);
+          },
         },
         {
           // Scoll to top on submission error
@@ -439,7 +448,9 @@ export default function EditProfileForm() {
                     onSuccess={async (data) => {
                       await service.user.updateAvatar(data.key);
                       if (user)
-                        queryClient.invalidateQueries(userKey(user.userId));
+                        queryClient.invalidateQueries({
+                          queryKey: userKey(user.userId),
+                        });
                     }}
                   />
                 </AvatarImageWrapper>
@@ -937,6 +948,15 @@ export default function EditProfileForm() {
               </ProfileSection>
             )}
 
+            {showSuccessToast && (
+              <Snackbar
+                severity="success"
+                onClose={() => setShowSuccessToast(false)}
+              >
+                {t("profile:profile_changes_saved_message")}
+              </Snackbar>
+            )}
+
             {/* Bottom spacer to prevent content from being hidden behind sticky bar */}
             <BottomSpacer />
           </form>
@@ -967,7 +987,11 @@ export default function EditProfileForm() {
             <DialogContent>
               <Typography></Typography>
               <List>
-                <Typography paragraph>
+                <Typography
+                  sx={{
+                    marginBottom: "16px",
+                  }}
+                >
                   {t("profile:incomplete_dialog.description")}
                 </Typography>
                 {aboutMeField.length < ABOUT_ME_MIN_LENGTH && (

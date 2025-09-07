@@ -6,6 +6,7 @@ import {
   styled,
   Typography,
 } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -15,8 +16,8 @@ import HtmlMeta from "components/HtmlMeta";
 import { BackIcon, CalendarIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import Snackbar from "components/Snackbar";
+import EventAttendees from "features/communities/events/EventAttendees";
 import NotFoundPage from "features/NotFoundPage";
-import { eventAttendeesBaseKey, eventKey } from "features/queryKeys";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -25,17 +26,16 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { AttendanceState, Event } from "proto/events_pb";
 import { useEffect, useState } from "react";
-import { useMutation, useQueryClient } from "react-query";
 import { routeToEditEvent, routeToEvent } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 
+import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
 import CommentTree from "../discussions/CommentTree";
 import AttendanceMenu from "./AttendanceMenu";
 import CancelEventDialog from "./CancelEventDialog";
-import EventAttendees from "./EventAttendees";
 import EventOrganizers from "./EventOrganizers";
 import { useEvent } from "./hooks";
 import InviteCommunityDialog from "./InviteCommunityDialog";
@@ -178,29 +178,27 @@ export default function EventPage({
   } = useEvent({ eventId });
 
   const {
-    isLoading: isSetEventAttendanceLoading,
+    isPending: isSetEventAttendanceLoading,
     error: setEventAttendanceError,
     mutate: setEventAttendance,
-  } = useMutation<Event.AsObject, RpcError, AttendanceState>(
-    (newEventAttendance: AttendanceState) => {
+  } = useMutation<Event.AsObject, RpcError, AttendanceState>({
+    mutationFn: (newEventAttendance: AttendanceState) => {
       return service.events.setEventAttendance({
         attendanceState: newEventAttendance,
         eventId,
       });
     },
-    {
-      onSuccess(updatedEvent) {
-        queryClient.setQueryData<Event.AsObject>(
-          eventKey(eventId),
-          updatedEvent,
-        );
-        queryClient.invalidateQueries(eventKey(eventId), {
-          refetchActive: false,
-        });
-        queryClient.invalidateQueries([eventAttendeesBaseKey, eventId]);
-      },
+    onSuccess(updatedEvent) {
+      queryClient.setQueryData<Event.AsObject>(eventKey(eventId), updatedEvent);
+      queryClient.invalidateQueries({
+        queryKey: eventKey(eventId),
+        refetchType: "none",
+      });
+      queryClient.invalidateQueries({
+        queryKey: [eventAttendeesBaseKey, eventId],
+      });
     },
-  );
+  });
 
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
   const [showInviteCommunitySuccess, setShowInviteCommunitySuccess] =
@@ -350,8 +348,8 @@ export default function EventPage({
                 </Typography>
                 <Markdown source={event.content} topHeaderLevel={3} />
               </StyledCardSection>
-              <EventOrganizers eventId={event.eventId} />
-              <EventAttendees eventId={event.eventId} />
+              <EventOrganizers event={event} />
+              <EventAttendees event={event} />
             </StyledEventDetailsContainer>
             <StyledDiscussionContainer>
               <Typography variant="h2">
