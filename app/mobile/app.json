@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "couchersorg",
+    "scheme": "couchers",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -36,6 +36,14 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
+        }
+      ],
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "native",
+          "organization": "couchers"
         }
       ]
     ],

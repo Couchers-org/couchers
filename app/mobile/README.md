@@ -10,7 +10,13 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Start the app
+2. Download & extract the latest protos
+
+   ``` bash
+   curl -sL https://develop--protos.preview.couchershq.org/ts.tar.gz | tar xz
+   ```
+
+3. Start the app
 
    ```bash
    npx expo start
