@@ -1,5 +1,7 @@
 import { decomposeColor } from "@mui/system";
 
+import log from "@/log";
+
 // Slightly adapted from https://github.com/Qix-/color-convert
 // Using HSL (hue-saturation-lightness) values makes it easy to interpolate between colors in a natural way
 export const colorStringToHsl = (colorString: string) => {
@@ -11,7 +13,7 @@ export const colorStringToHsl = (colorString: string) => {
     const { values } = decomposeColor(colorString);
     rgb = values as [number, number, number];
   } catch {
-    console.warn(`Tried to decompose invalid color string '${colorString}'`);
+    log.warn(`Tried to decompose invalid color string '${colorString}'`);
   }
 
   const r = rgb[0] / 255;

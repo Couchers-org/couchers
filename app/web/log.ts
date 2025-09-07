@@ -1,9 +1,10 @@
 /* eslint-disable no-console */
-// eslint-disable-next-line @typescript-eslint/naming-convention
 const log = {
   debug: console.log,
+  info: console.info,
   error: console.error,
   warn: console.warn,
 };
+/* eslint-enable no-console */
 
 export default log;

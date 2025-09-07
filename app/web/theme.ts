@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import type {} from "@mui/lab/themeAugmentation";
 import { createTheme } from "@mui/material";
 import { ThemeOptions } from "@mui/material/styles";
@@ -6,8 +7,8 @@ import { createBreakpoints } from "@mui/system";
 const breakpoints = createBreakpoints({});
 const spacing = (factor: number) => `${0.5 * factor}rem`;
 const borderRadius = 4;
-const navBarHeightXs = 3.5; //rem
-const navBarHeightSmUp = 4; //rem
+const navBarHeightXs = 3.5; // rem
+const navBarHeightSmUp = 4; // rem
 
 declare module "@mui/material/styles" {
   interface Shape {
@@ -121,70 +122,70 @@ const themeOptions: ThemeOptions = {
       lineHeight: 1.5,
     },
     body1: {
-      fontSize: "1rem", //16px
+      fontSize: "1rem", // 16px
     },
     body2: {
-      fontSize: "0.75rem", //12px
+      fontSize: "0.75rem", // 12px
     },
     button: {
-      fontSize: "0.875rem", //14px
-      textTransform: "none", //don't capitalize
+      fontSize: "0.875rem", // 14px
+      textTransform: "none", // don't capitalize
     },
     caption: {
-      fontSize: "0.625rem", //10px
+      fontSize: "0.625rem", // 10px
     },
     fontFamily: "Ubuntu, sans-serif",
     h1: {
-      fontSize: "1.25rem", //20px
+      fontSize: "1.25rem", // 20px
       fontWeight: "bold",
       [breakpoints.up("md")]: {
-        fontSize: "1.5rem", //24px
+        fontSize: "1.5rem", // 24px
       },
     },
     h2: {
-      fontSize: "1rem", //16px
+      fontSize: "1rem", // 16px
       fontWeight: "bold",
       [breakpoints.up("md")]: {
-        fontSize: "1.25rem", //20px
+        fontSize: "1.25rem", // 20px
       },
     },
     h3: {
-      fontSize: "0.875rem", //14px
+      fontSize: "0.875rem", // 14px
       fontWeight: "bold",
       [breakpoints.up("md")]: {
-        fontSize: "1rem", //16px
+        fontSize: "1rem", // 16px
       },
     },
     h4: {
-      fontSize: "0.75rem", //12px
+      fontSize: "0.75rem", // 12px
       fontWeight: "bold",
       [breakpoints.up("md")]: {
-        fontSize: "0.875rem", //14px
+        fontSize: "0.875rem", // 14px
       },
     },
     h5: {
-      fontSize: "0.75rem", //12px
+      fontSize: "0.75rem", // 12px
       fontWeight: "bold",
       [breakpoints.up("md")]: {
-        fontSize: "0.875rem", //14px
+        fontSize: "0.875rem", // 14px
       },
     },
     h6: {
-      fontSize: "0.75rem", //12px
+      fontSize: "0.75rem", // 12px
       fontWeight: "bold",
       [breakpoints.up("md")]: {
-        fontSize: "0.875rem", //14px
+        fontSize: "0.875rem", // 14px
       },
     },
     overline: {
-      fontSize: "0.875rem", //14px
+      fontSize: "0.875rem", // 14px
       fontStyle: "italic",
       [breakpoints.up("md")]: {
-        fontSize: "1rem", //14px
+        fontSize: "1rem", // 14px
       },
     },
     subtitle1: {
-      fontSize: "1rem", //16px
+      fontSize: "1rem", // 16px
     },
   },
 };

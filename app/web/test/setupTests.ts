@@ -15,7 +15,10 @@ import user from "./fixtures/defaultUser.json";
 
 jest.mock("service");
 jest.mock("next/router", () => {
-  const routerMock = jest.requireActual("next-router-mock");
+  const routerMock = jest.requireActual<{
+    events: { on: () => unknown; off: () => unknown; emit: () => unknown };
+  }>("next-router-mock");
+
   return {
     ...routerMock,
     events: {
@@ -29,15 +32,15 @@ jest.mock("next/router", () => {
 // This works by extracting the require("path/to/component")
 // It needs to be in the form dynamic(() => import("@/components/MarkdownNoSSR"))
 // This is hacky. Really we need to just ditch any non-ssr components
-/// TODO: Get an SSR-friendly markdown editor
+// / TODO: Get an SSR-friendly markdown editor
 jest.mock("next/dynamic", () => ({
   __esModule: true,
   default: (...props: unknown[]) => {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     const matchedPath = /require\("(.*)"\)/.exec(`${props[0]}`);
     if (matchedPath) {
-      const Component = require(matchedPath[1]).default; //eslint-disable-line
-      return Component;
-    } else throw Error(`Couldn't resolve dynamic component: ${matchedPath}`);
+      return require(matchedPath[1]).default; //eslint-disable-line
+    } else throw Error(`Couldn't resolve dynamic component`);
   },
 }));
 jest.mock("react-gtm-module");
@@ -70,15 +73,15 @@ beforeEach(async () => {
 Element.prototype.scroll = () => {};
 Element.prototype.scrollIntoView = jest.fn();
 window.scroll = jest.fn();
-//below required by maplibre-gl
+// below required by maplibre-gl
 window.URL.createObjectURL = jest.fn();
 window.matchMedia = createMatchMedia(window.innerWidth);
 
 declare global {
-  /* eslint-disable no-var */ // Disable the rule for this block
+  /* eslint-disable no-var */
   var defaultUser: typeof user;
   var testKit: ReturnType<typeof sentryTestkit>["testkit"];
-  /* eslint-enable no-var */ // Re-enable the rule
+  /* eslint-enable no-var*/
 }
 
 function createWebStorageMock() {
@@ -100,6 +103,7 @@ function createWebStorageMock() {
     },
 
     removeItem(key: string) {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete this.store[key];
     },
 

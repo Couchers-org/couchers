@@ -126,30 +126,34 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
     },
   });
 
-  const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setReaderError("");
     if (!event.target.files?.length) return;
     const file = event.target.files[0];
-    try {
-      const base64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = (error) => reject(error);
-        reader.readAsDataURL(file);
-      });
-      setImageUrl(base64);
-      mutation.mutate(file);
-    } catch (e) {
-      Sentry.captureException(
-        new Error((e as ProgressEvent<FileReader>).toString()),
-        {
+
+    void (async () => {
+      try {
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            resolve(reader.result as string);
+          };
+          reader.onerror = () => {
+            reject(new Error(`Error reading file '${file.name}'`));
+          };
+          reader.readAsDataURL(file);
+        });
+        setImageUrl(base64);
+        mutation.mutate(file);
+      } catch (e) {
+        Sentry.captureException(e, {
           tags: {
             component: "component/ImageInput",
           },
-        },
-      );
-      setReaderError(t("profile:couldnt_read_file"));
-    }
+        });
+        setReaderError(t("profile:couldnt_read_file"));
+      }
+    })();
   };
 
   // without this, onChange is not fired when the same file is selected after cancelling
@@ -161,7 +165,7 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
   return (
     <StyledWrapper>
       {mutation.isError && (
-        <Alert severity="error">{mutation.error?.message || ""}</Alert>
+        <Alert severity="error">{mutation.error.message || ""}</Alert>
       )}
       {readerError && <Alert severity="error">{readerError}</Alert>}
       <FlexWrapper>
@@ -189,11 +193,11 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
                   className={className}
                   src={imageUrl}
                   alt={t("profile:names_profile_photo", {
-                    name: props.userName ?? "",
+                    name: props.userName,
                   })}
                   sx={{ "& img": { objectFit: "cover" } }}
                 >
-                  {props.userName?.split(/\s+/).map((name) => name[0])}
+                  {props.userName.split(/\s+/).map((name) => name[0])}
                 </Avatar>
 
                 <EditIconButton size="small">

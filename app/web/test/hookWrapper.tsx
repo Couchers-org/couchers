@@ -5,9 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouterProvider } from "next-router-mock/MemoryRouterProvider";
 import React, { Suspense } from "react";
 
+import AuthProvider from "@/features/auth/AuthProvider";
 import { theme } from "@/theme";
-
-import AuthProvider from "../features/auth/AuthProvider";
 
 export default function hookWrapper({
   children,

@@ -48,33 +48,35 @@ const NOMINATIM_URL = process.env.NEXT_PUBLIC_NOMINATIM_URL ?? "";
 
 const CASE_CHANGE_RECURSION_DEPTH = 100;
 
-const nominatimPlaceSchema = Type.Object({
-  address: Type.Object(
-    ADDRESS_KEYS.reduce(
-      (prev, key) => {
-        prev[key] = Type.Optional(Type.String());
-        return prev;
-      },
-      {} as Record<(typeof ADDRESS_KEYS)[number], TOptional<TString>>,
+const nominatimPlaceSchema = Type.Object(
+  /* eslint-disable @typescript-eslint/naming-convention */
+  {
+    address: Type.Object(
+      ADDRESS_KEYS.reduce(
+        (prev, key) => {
+          prev[key] = Type.Optional(Type.String());
+          return prev;
+        },
+        {} as Record<(typeof ADDRESS_KEYS)[number], TOptional<TString>>,
+      ),
     ),
-  ),
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  bounding_box: Type.Tuple([
-    Type.Number(),
-    Type.Number(),
-    Type.Number(),
-    Type.Number(),
-  ]),
-  category: Type.Optional(Type.String()),
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  display_name: Type.String(),
-  icon: Type.Optional(Type.String()),
-  lat: Type.String(),
-  lon: Type.String(),
-  importance: Type.Optional(Type.Number()),
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  place_id: Type.Optional(Type.Number()),
-});
+
+    bounding_box: Type.Tuple([
+      Type.Number(),
+      Type.Number(),
+      Type.Number(),
+      Type.Number(),
+    ]),
+    category: Type.Optional(Type.String()),
+    display_name: Type.String(),
+    icon: Type.Optional(Type.String()),
+    lat: Type.String(),
+    lon: Type.String(),
+    importance: Type.Optional(Type.Number()),
+    place_id: Type.Optional(Type.Number()),
+    /* eslint-enable @typescript-eslint/naming-convention */
+  },
+);
 
 type NominatimPlaceInternal = Static<typeof nominatimPlaceSchema>;
 

@@ -1,19 +1,22 @@
-/** @type {import('next').NextConfig} */
-const { i18n } = require("./next-i18next.config"); // eslint-disable-line
-const { redirects } = require("./redirects"); // eslint-disable-line
+import bundleAnalyzer from "@next/bundle-analyzer";
+import { withSentryConfig } from "@sentry/nextjs";
+import { NextConfig } from "next";
+import webpack from "webpack";
 
-const nextConfig = {
+import { redirects } from "./redirects";
+
+const nextConfig: NextConfig = {
   assetPrefix: process.env.ASSET_PREFIX,
   reactStrictMode: true,
-  i18n,
   productionBrowserSourceMaps: true,
-  webpack: (config) => {
-    config.module.rules.push({
+  webpack: (config: webpack.Configuration) => {
+    config.module?.rules?.push({
       test: /\.md$/,
       loader: "frontmatter-markdown-loader",
     });
     return config;
   },
+  /* eslint-disable @typescript-eslint/require-await */
   redirects: async () => redirects,
   headers: async () => [
     {
@@ -69,20 +72,15 @@ const nextConfig = {
       ],
     },
   ],
+  /* eslint-enable @typescript-eslint/require-await */
   output: "standalone",
 };
 
-// Injected content via Sentry wizard below
-
-const { withSentryConfig } = require("@sentry/nextjs");
-
-const withBundleAnalyzer = require("@next/bundle-analyzer")({
+const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
 
-module.exports = withBundleAnalyzer(nextConfig);
-
-module.exports = withSentryConfig(module.exports, {
+export default withSentryConfig(withBundleAnalyzer(nextConfig), {
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options
   sourcemaps: {

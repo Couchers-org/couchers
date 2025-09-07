@@ -93,7 +93,7 @@ const SearchControls = ({
     <>
       <MapControlsWrapper
         drawerWidth={drawerWidth}
-        isDualView={mapView === MapViews.MAP_AND_LIST}
+        isDualView={mapView === MapViews.mapAndList}
         isMobile={isMobile}
         onClick={(e) => e.stopPropagation()}
       >

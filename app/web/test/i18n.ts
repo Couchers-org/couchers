@@ -3,7 +3,7 @@ import { initReactI18next } from "react-i18next";
 
 import resources from "@/i18n/resources";
 
-i18n.use(initReactI18next).init({
+void i18n.use(initReactI18next).init({
   fallbackLng: "en",
   compatibilityJSON: "v3",
   debug: process.env.NODE_ENV === "development",

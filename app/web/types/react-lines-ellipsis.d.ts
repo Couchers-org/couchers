@@ -1,6 +1,4 @@
 declare module "react-lines-ellipsis" {
-  import * as React from "react";
-
   interface ReactLinesEllipsisProps {
     basedOn?: "letters" | "words";
     className?: string;

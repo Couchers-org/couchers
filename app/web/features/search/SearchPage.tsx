@@ -61,7 +61,7 @@ export default function SearchPage() {
   const mapRef = useRef<MapRef | null>(null);
 
   const [drawerWidth, setDrawerWidth] = useState<number>(DEFAULT_DRAWER_WIDTH);
-  const [mapView, setMapView] = useState<MapViewOptions>(MapViews.MAP_AND_LIST);
+  const [mapView, setMapView] = useState<MapViewOptions>(MapViews.mapAndList);
 
   const mapSearchState = useMapSearchState();
   const {

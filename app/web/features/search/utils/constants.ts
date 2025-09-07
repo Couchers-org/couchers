@@ -8,7 +8,7 @@ const aboutText = (user: SearchUser.AsObject, t: TFunction) => {
 
   return missingAbout
     ? t("search:search_result.missing_about_description", {
-        name: firstName(user?.name),
+        name: firstName(user.name),
       })
     : user.profileSnippet;
 };
@@ -16,16 +16,16 @@ const aboutText = (user: SearchUser.AsObject, t: TFunction) => {
 const truncateWithEllipsis = (str: string, maxLength = 40): string =>
   str.length > maxLength ? str.slice(0, maxLength) + "…" : str;
 
-enum lastActiveOptions {
-  LAST_ACTIVE_ANY = 0,
-  LAST_ACTIVE_LAST_WEEK = 7,
-  LAST_ACTIVE_LAST_MONTH = 31,
-  LAST_ACTIVE_LAST_3_MONTHS = 93,
-  LAST_ACTIVE_LAST_SIX_MONTHS = 183,
-  LAST_ACTIVE_LAST_YEAR = 365,
+enum LastActiveOptions {
+  any = 0,
+  lastWeek = 7,
+  lastMonth = 31,
+  lastThreeMonths = 93,
+  lastSixMonths = 183,
+  lastYear = 365,
 }
 
-const selectedUserZoom = 10;
+const SELECTED_USER_ZOOM = 10;
 
 type Coordinates = [number, number, number, number];
 
@@ -52,11 +52,11 @@ const MAX_MAP_ZOOM_LEVEL_FOR_SEARCH = 8;
 type MapSearchTypes = "location" | "keyword";
 
 enum MapViews {
-  MAP_AND_LIST = "MAP_AND_LIST",
-  LIST_ONLY = "LIST_ONLY",
+  mapAndList = "MAP_AND_LIST",
+  listOnly = "LIST_ONLY",
 }
 
-type MapViewOptions = MapViews.MAP_AND_LIST | MapViews.LIST_ONLY;
+type MapViewOptions = MapViews.mapAndList | MapViews.listOnly;
 
 const MAX_ZOOM_LEVEL = 15;
 const MIN_ZOOM_LEVEL = 0;
@@ -65,12 +65,12 @@ export {
   aboutText,
   DEFAULT_AGE_MAX,
   DEFAULT_AGE_MIN,
-  lastActiveOptions,
+  LastActiveOptions as lastActiveOptions,
   MapViews,
   MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
   MAX_ZOOM_LEVEL,
   MIN_ZOOM_LEVEL,
-  selectedUserZoom,
+  SELECTED_USER_ZOOM as selectedUserZoom,
   truncateWithEllipsis,
 };
 

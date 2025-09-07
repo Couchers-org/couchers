@@ -151,6 +151,25 @@ export default tseslint.config([
       ],
 
       "no-useless-rename": ["warn"],
+
+      "@typescript-eslint/restrict-template-expressions": [
+        "warn",
+        {
+          allowAny: false,
+          allowBoolean: true,
+          allowNever: false,
+          allowNullish: false,
+          allowNumber: true,
+          allowRegExp: false,
+        },
+      ],
+
+      "@typescript-eslint/no-unnecessary-condition": [
+        "warn",
+        {
+          allowConstantLoopConditions: "only-allowed-literals",
+        },
+      ],
     },
   },
   {
@@ -205,7 +224,7 @@ export default tseslint.config([
   },
   {
     // Be a bit more lenient for tests
-    files: ["**/*.test.{ts,tsx}"],
+    files: ["**/*.test.{ts,tsx}", "test/**/*"],
     rules: {
       "@typescript-eslint/no-empty-function": "off",
       "@typescript-eslint/ban-ts-comment": "off",
@@ -213,6 +232,16 @@ export default tseslint.config([
       "jest/no-test-prefixes": "warn",
       "jest/no-disabled-tests": "warn",
       "jest/consistent-test-it": ["warn", { fn: "it" }],
+      "@typescript-eslint/no-unsafe-assignment": "off",
+
+      "@typescript-eslint/naming-convention": [
+        "off",
+        {
+          selector: "property",
+          format: null,
+        },
+        ...baseNamingConventions,
+      ],
     },
   },
   eslintConfigPrettier,

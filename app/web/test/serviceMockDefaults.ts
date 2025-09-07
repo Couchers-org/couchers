@@ -1,3 +1,4 @@
+import { ProfilePublicVisibility } from "@/proto/account_pb";
 import {
   BirthdateVerificationStatus,
   GenderVerificationStatus,
@@ -24,8 +25,6 @@ import liteUsers from "@/test/fixtures/liteUsers.json";
 import messages from "@/test/fixtures/messages.json";
 import notifications from "@/test/fixtures/notifications.json";
 import users from "@/test/fixtures/users.json";
-
-import { ProfilePublicVisibility } from "../proto/account_pb";
 
 const [user1, user2, user3, user4, user5] = users;
 const [liteUser1, liteUser2, liteUser3, liteUser4, liteUser5] = liteUsers;
@@ -54,6 +53,7 @@ const liteUserMap: Record<string, LiteUser.AsObject> = {
   funnykid: liteUser3,
 };
 
+/* eslint-disable @typescript-eslint/require-await */
 export async function getUser(userId: string): Promise<User.AsObject> {
   return userMap[userId];
 }

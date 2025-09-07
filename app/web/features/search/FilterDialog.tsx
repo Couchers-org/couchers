@@ -344,24 +344,24 @@ const FilterDialog = ({
             onChange={handleLastActiveSelect}
             variant="outlined"
             size="small"
-            value={filters.lastActive ?? lastActiveOptions.LAST_ACTIVE_ANY}
+            value={filters.lastActive ?? lastActiveOptions.any}
           >
-            <MenuItem value={lastActiveOptions.LAST_ACTIVE_ANY}>
+            <MenuItem value={lastActiveOptions.any}>
               {t("search:last_active_options.any")}
             </MenuItem>
-            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_YEAR}>
+            <MenuItem value={lastActiveOptions.lastYear}>
               {t("search:last_active_options.last_year")}
             </MenuItem>
-            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_SIX_MONTHS}>
+            <MenuItem value={lastActiveOptions.lastSixMonths}>
               {t("search:last_active_options.last_6_months")}
             </MenuItem>
-            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_3_MONTHS}>
+            <MenuItem value={lastActiveOptions.lastThreeMonths}>
               {t("search:last_active_options.last_3_months")}
             </MenuItem>
-            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_MONTH}>
+            <MenuItem value={lastActiveOptions.lastMonth}>
               {t("search:last_active_options.last_month")}
             </MenuItem>
-            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_WEEK}>
+            <MenuItem value={lastActiveOptions.lastWeek}>
               {t("search:last_active_options.last_week")}
             </MenuItem>
           </Select>

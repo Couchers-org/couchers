@@ -1,7 +1,8 @@
+import { t } from "i18next";
+
 import {
   DAY_MILLIS,
   HOUR_MILLIS,
-  LESS_THAN_HOUR,
   MINUTE_MILLIS,
   MONTH_MILLIS,
   TWO_DAY_MILLIS,
@@ -9,48 +10,60 @@ import {
   TWO_MINUTE_MILLIS,
   TWO_MONTH_MILLIS,
   TWO_WEEK_MILLIS,
+  TWO_YEAR_MILLIS,
   WEEK_MILLIS,
   YEAR_MILLIS,
-  timeAgo,
-  twoYearMillis,
+  timeAgoI18n,
 } from "./timeAgo";
 
-const timeAgoMap = {
-  [DAY_MILLIS]: "1 day ago",
-  [HOUR_MILLIS]: "1 hour ago",
-  [MINUTE_MILLIS]: "< 1 minute ago",
-  [MONTH_MILLIS]: "1 month ago",
-  [TWO_DAY_MILLIS]: "2 days ago",
-  [TWO_HOUR_MILLIS]: "2 hours ago",
-  [TWO_MINUTE_MILLIS]: "1 minute ago",
-  [TWO_MONTH_MILLIS]: "2 months ago",
-  [TWO_WEEK_MILLIS]: "2 weeks ago",
-  [twoYearMillis]: "2 years ago",
-  [WEEK_MILLIS]: "1 week ago",
-  [YEAR_MILLIS]: "1 year ago",
+const timeAgoMap: Record<number, string | [string, number]> = {
+  [DAY_MILLIS]: "one_day_ago",
+  [HOUR_MILLIS]: "one_hour_ago ",
+  [MINUTE_MILLIS]: "less_than_a_minute_ago",
+  [MONTH_MILLIS]: "one_month_ago",
+  [TWO_DAY_MILLIS]: ["x_days_ago", 2],
+  [TWO_HOUR_MILLIS]: ["x_hours_ago", 2],
+  [TWO_MINUTE_MILLIS]: "one_minute_ago",
+  [TWO_MONTH_MILLIS]: ["x_months_ago", 2],
+  [TWO_WEEK_MILLIS]: ["x_weeks_ago", 2],
+  [TWO_YEAR_MILLIS]: ["x_years_ago", 2],
+  [WEEK_MILLIS]: "one_week_ago",
+  [YEAR_MILLIS]: "one_year_ago",
 };
 
 beforeEach(() => {
   jest.spyOn(Date, "now").mockReturnValue(1614556800000);
 });
 
-test("timeAgo function", () => {
+it("timeAgo function", () => {
   Object.keys(timeAgoMap).forEach((key: string) => {
     const now = Date.now();
     const millis = parseInt(key);
-    const expectedValue = timeAgoMap[millis];
+
+    const tInput = timeAgoMap[millis];
+
+    const expectedValue =
+      typeof tInput === "string"
+        ? t(`relative_time.${tInput}`)
+        : t(`relative_time.${tInput[0]}`, { date: tInput[1] });
+
     const date = new Date(now - millis);
-    const timeString = timeAgo(date);
+    const timeString = timeAgoI18n({ input: date, t: t });
     expect(timeString).toBe(expectedValue);
   });
 });
 
-test("timeAgo function with fuzzy", () => {
+it("timeAgo function with fuzzy", () => {
   const now = Date.now();
   const date = new Date(now - TWO_MINUTE_MILLIS);
-  const timeString = timeAgo(date, {
-    millis: HOUR_MILLIS,
-    text: LESS_THAN_HOUR,
+  const translationKey = "relative_time.less_than_one_hour_ago";
+  const timeString = timeAgoI18n({
+    input: date,
+    t,
+    fuzzy: {
+      millis: HOUR_MILLIS,
+      translationKey,
+    },
   });
-  expect(timeString).toBe(LESS_THAN_HOUR);
+  expect(timeString).toBe(t(translationKey));
 });

@@ -97,7 +97,7 @@ const MapSearchContent = ({
   const { selectedUserId } = useMapSearchState();
 
   const handleUserCardClick = (userId: number) => {
-    if (mapView === MapViews.LIST_ONLY) {
+    if (mapView === MapViews.listOnly) {
       return;
     }
 
@@ -121,7 +121,7 @@ const MapSearchContent = ({
     <Wrapper>
       <SearchResultsContainer
         drawerWidth={drawerWidth}
-        isListOnlyView={mapView === MapViews.LIST_ONLY}
+        isListOnlyView={mapView === MapViews.listOnly}
       >
         <MapSearchResultsList
           error={error}
@@ -140,7 +140,7 @@ const MapSearchContent = ({
           users={users}
         />
       </SearchResultsContainer>
-      {mapView !== MapViews.LIST_ONLY && (
+      {mapView !== MapViews.listOnly && (
         <MapContainer drawerWidth={drawerWidth}>
           <MapView
             isDrawerExpanded={drawerWidth > DEFAULT_DRAWER_WIDTH}

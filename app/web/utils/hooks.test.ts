@@ -22,10 +22,14 @@ describe("useSafeState hook", () => {
       useSafeState(useIsMounted(), 1),
     );
     expect(result.current[0]).toBe(1);
-    act(() => result.current[1](2));
+    act(() => {
+      result.current[1](2);
+    });
     expect(result.current[0]).toBe(2);
     unmount();
-    act(() => result.current[1](3));
+    act(() => {
+      result.current[1](3);
+    });
     expect(result.current[0]).toBe(2);
   });
 });

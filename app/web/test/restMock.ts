@@ -9,7 +9,7 @@ process.env = {
 const server = setupServer(
   rest.get(
     `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`,
-    (req, res, ctx) => {
+    (_req, res, ctx) => {
       return res(
         ctx.json([
           {

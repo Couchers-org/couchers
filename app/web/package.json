@@ -5,6 +5,7 @@
   "engines": {
     "node": "20.x"
   },
+  "type": "module",
   "scripts": {
     "build": "next build",
     "injectsourcemaps": "sentry-cli sourcemaps inject .next/",
@@ -40,6 +41,7 @@
     "@tanstack/react-query-devtools": "^5.83.0",
     "@tanstack/react-query-persist-client": "^5.85.6",
     "@toast-ui/editor": "^3.2.2",
+    "@types/webpack": "^5.28.5",
     "change-case": "^5.4.4",
     "dayjs": "^1.11.18",
     "frontmatter-markdown-loader": "^3.7.0",

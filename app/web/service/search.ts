@@ -30,7 +30,7 @@ export interface UserSearchFilters {
   drinkingAllowed?: boolean | undefined;
   query?: string;
   bbox?: Coordinates;
-  lastActive?: number; //within x days
+  lastActive?: number; // within x days
   hasReferences?: boolean;
   hasStrongVerification?: boolean;
   hostingStatus?: HostingStatus[];

@@ -149,14 +149,14 @@ const SearchResultListContent = ({
         {isMobile && (
           <IconButton
             onClick={() => {
-              if (mapView === MapViews.LIST_ONLY) {
-                onSetMapView(MapViews.MAP_AND_LIST);
+              if (mapView === MapViews.listOnly) {
+                onSetMapView(MapViews.mapAndList);
               } else {
-                onSetMapView(MapViews.LIST_ONLY);
+                onSetMapView(MapViews.listOnly);
               }
             }}
             aria-label={t(
-              `global:${mapView === MapViews.LIST_ONLY ? "retract" : "expand"}`,
+              `global:${mapView === MapViews.listOnly ? "retract" : "expand"}`,
             )}
             sx={{
               fontSize: "24px",
@@ -174,7 +174,7 @@ const SearchResultListContent = ({
               },
             }}
           >
-            {mapView === MapViews.LIST_ONLY ? (
+            {mapView === MapViews.listOnly ? (
               <KeyboardArrowDown />
             ) : (
               <KeyboardArrowUp />

@@ -73,7 +73,7 @@ const MapSearchResultsList = ({
     <DrawerContainer>
       <ResizeableDrawer
         onDrawerWidthChange={onDrawerWidthChange}
-        showDragger={!isMobile && mapView !== MapViews.LIST_ONLY}
+        showDragger={!isMobile && mapView !== MapViews.listOnly}
         nonScrollableChildren={
           <PreviousNextPagination
             hasPreviousPage={hasPreviousPage}
@@ -97,8 +97,8 @@ const MapSearchResultsList = ({
             showAlert={!isLoading && !meetsSearchCriteria}
             showTopSpace={
               !isMobile &&
-              (mapView === MapViews.LIST_ONLY ||
-                (mapView === MapViews.MAP_AND_LIST &&
+              (mapView === MapViews.listOnly ||
+                (mapView === MapViews.mapAndList &&
                   drawerWidth > window.innerWidth / 2))
             }
             totalItems={totalItems}

@@ -73,15 +73,17 @@ export function parsedQueryToSearchFilters(urlQuery: ParsedUrlQuery) {
  */
 export function parseSearchFiltersToQuery(filters: SearchFilters) {
   const entries: [string, string][] = [];
-  Object.entries(filters).forEach(([key, filterValue]) => {
-    if (Array.isArray(filterValue)) {
-      filterValue.forEach((value) => {
-        entries.push([key, `${value}`]);
-      });
-    } else {
-      entries.push([key, filterValue]);
-    }
-  });
+  (Object.entries(filters) as Array<[string, keyof typeof filters]>).forEach(
+    ([key, filterValue]) => {
+      if (Array.isArray(filterValue)) {
+        filterValue.forEach((value: string | number) => {
+          entries.push([key, `${value}`]);
+        });
+      } else {
+        entries.push([key, filterValue]);
+      }
+    },
+  );
   const searchParams = new URLSearchParams(entries);
   return searchParams.toString();
 }

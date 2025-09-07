@@ -23,47 +23,9 @@ export interface FuzzySpec {
   text: string;
 }
 
-/**
- * @deprecated Use `timeAgoI18n` instead.
- */
-export function timeAgo(input: Date | string, fuzzy?: FuzzySpec) {
-  if (input === undefined) return "";
-  const date = new Date(input);
-  const diffMillis = Date.now() - date.getTime();
-
-  if (fuzzy && diffMillis < fuzzy.millis) {
-    // if fuzzyMillis and fuzzyText are both set, then for times less than fuzzyMillis, we return fuzzyText
-    return fuzzy.text;
-  }
-
-  if (diffMillis <= MINUTE_MILLIS) return "< 1 minute ago";
-  if (diffMillis <= TWO_MINUTE_MILLIS) return "1 minute ago";
-  if (diffMillis < HOUR_MILLIS)
-    return "" + (diffMillis / MINUTE_MILLIS).toFixed() + " minutes ago";
-
-  if (diffMillis < TWO_HOUR_MILLIS) return "1 hour ago";
-  if (diffMillis < DAY_MILLIS)
-    return "" + (diffMillis / HOUR_MILLIS).toFixed() + " hours ago";
-
-  if (diffMillis < TWO_DAY_MILLIS) return "1 day ago";
-  if (diffMillis < WEEK_MILLIS)
-    return "" + (diffMillis / DAY_MILLIS).toFixed() + " days ago";
-
-  if (diffMillis < TWO_WEEK_MILLIS) return "1 week ago";
-  if (diffMillis < MONTH_MILLIS)
-    return "" + (diffMillis / WEEK_MILLIS).toFixed() + " weeks ago";
-
-  if (diffMillis < TWO_MONTH_MILLIS) return "1 month ago";
-  if (diffMillis < YEAR_MILLIS)
-    return "" + (diffMillis / MONTH_MILLIS).toFixed() + " months ago";
-
-  if (diffMillis < TWO_YEAR_MILLIS) return "1 year ago";
-  return "" + (diffMillis / YEAR_MILLIS).toFixed() + " years ago";
-}
-
 export interface FuzzySpecT {
   millis: number;
-  translationKey: Parameters<TFunction<"global", undefined>>[0];
+  translationKey: Parameters<TFunction<"global">>[0];
 }
 
 export function timeAgoI18n({
@@ -72,16 +34,15 @@ export function timeAgoI18n({
   fuzzy = undefined,
 }: {
   input: Date | string;
-  t: TFunction<"global", undefined>;
+  t: TFunction<"global">;
   fuzzy?: FuzzySpecT;
 }) {
-  if (input === undefined) return "";
   const date = new Date(input);
   const diffMillis = Date.now() - date.getTime();
 
   if (fuzzy && diffMillis < fuzzy.millis) {
     // if fuzzyMillis and fuzzyText are both set, then for times less than fuzzyMillis, we return fuzzyText
-    return t(fuzzy.translationKey) as string;
+    return t(fuzzy.translationKey);
   }
 
   if (diffMillis < MINUTE_MILLIS)
