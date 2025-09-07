@@ -17,26 +17,10 @@ import { theme } from "theme";
 
 const TeamMemberCard = styled(Card, {
   shouldForwardProp: (prop) => prop !== "memberType",
-})<{ memberType?: "boardMember" | "pastMember" }>(({ memberType }) => {
-  let border: string;
-
-  switch (memberType) {
-    case "boardMember":
-      border = `2px solid ${theme.palette.primary.light}`;
-      break;
-    case "pastMember":
-      border = `1px solid ${theme.palette.grey[50]}`;
-      break;
-    default:
-      border = `1px solid ${theme.palette.grey[400]}`;
-      break;
-  }
-
-  return {
-    height: `${memberType === "boardMember" ? 15 : 13}rem`,
-    border,
-  };
-});
+})<{ memberType?: "boardMember" | "pastMember" }>(({ memberType }) => ({
+  height: `${memberType === "boardMember" ? 15 : 13}rem`,
+  border: `1px solid${memberType === "pastMember" ? theme.palette.grey[50] : theme.palette.grey[400]}`,
+}));
 
 const TeamMemberCardContent = styled(CardContent)(() => ({
   display: "flex",
@@ -172,36 +156,31 @@ interface TeamSectionProps {
   volunteers: Volunteer.AsObject[] | undefined;
 }
 function TeamSection({ variant, volunteers }: TeamSectionProps) {
-  const { boardMembers, leads, others } = useMemo(() => {
-    return (volunteers ?? []).reduce<{
-      boardMembers: Volunteer.AsObject[];
-      leads: Volunteer.AsObject[];
-      others: Volunteer.AsObject[];
-    }>(
+  const sections = useMemo(() => {
+    if (variant === "past") {
+      return [volunteers];
+    }
+
+    return (volunteers ?? []).reduce<Volunteer.AsObject[][]>(
       (acc, curr) => {
-        if (curr.isBoardMember) {
-          acc.boardMembers.push(curr);
-        } else if (curr.role.toLowerCase().includes("lead")) {
-          acc.leads.push(curr);
-        } else {
-          acc.others.push(curr);
-        }
+        if (variant)
+          if (curr.isBoardMember) {
+            acc[0].push(curr);
+          } else {
+            acc[1].push(curr);
+          }
 
         return acc;
       },
-      {
-        boardMembers: [],
-        leads: [],
-        others: [],
-      },
+      [[], []],
     );
-  }, [volunteers]);
+  }, [variant, volunteers]);
 
   return (
     <StyledSection>
-      <MemberList volunteers={boardMembers} variant={variant} />
-      <MemberList volunteers={leads} variant={variant} />
-      <MemberList volunteers={others} variant={variant} />
+      {sections.map((section, index) => (
+        <MemberList key={index} volunteers={section} variant={variant} />
+      ))}
     </StyledSection>
   );
 }
