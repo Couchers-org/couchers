@@ -13,7 +13,11 @@ import BasicForm from "./BasicForm";
 import CommunityGuidelinesForm from "./CommunityGuidelinesForm";
 import ResendVerificationEmailForm from "./ResendVerificationEmailForm";
 
-export default function SignupFormContent() {
+export default function SignupFormContent({
+  inviteCode,
+}: {
+  inviteCode?: string;
+}) {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authState } = useAuthContext();
   const state = authState.flowState;
@@ -67,7 +71,10 @@ export default function SignupFormContent() {
             <StyledLink href={baseRoute}>Learn more about us</StyledLink>.
           </Trans>
         </Typography>
-        <BasicForm submitText={t("global:create_account")} />
+        <BasicForm
+          inviteCode={inviteCode}
+          submitText={t("global:create_account")}
+        />
         <Typography variant="caption">
           <Trans i18nKey="auth:basic_sign_up_form.sign_up_agreement_explainer">
             By continuing, you agree to our{" "}

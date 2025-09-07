@@ -29,8 +29,8 @@ import {
   dashboardRoute,
   donationsRoute,
   eventsRoute,
-  featurePreviewRoute,
   helpCenterURL,
+  inviteCodesRoute,
   loginRoute,
   logoutRoute,
   messagesRoute,
@@ -181,8 +181,8 @@ const loggedInMenuDropDown = (
   },
   {
     type: "link",
-    name: t("nav.feature_preview"),
-    route: featurePreviewRoute,
+    name: t("nav.invite_members"),
+    route: inviteCodesRoute,
     hasBottomDivider: true,
   },
   {
