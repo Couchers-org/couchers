@@ -18,6 +18,7 @@ import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import "react-native-reanimated";
 import AuthProvider from "@/features/auth/AuthProvider";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { ReactQueryClientProvider } from "@/features/reactQueryClient";
@@ -56,15 +57,17 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <ReactQueryClientProvider>
-        <AuthProvider>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="login" />
-          </Stack>
-        </AuthProvider>
-      </ReactQueryClientProvider>
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <ReactQueryClientProvider>
+          <AuthProvider>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="login" />
+            </Stack>
+          </AuthProvider>
+        </ReactQueryClientProvider>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
