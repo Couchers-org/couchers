@@ -85,7 +85,13 @@ export async function getCurrentUser(): Promise<User.AsObject> {
 
   const response = await client.api.ping(req);
 
-  return response.getUser()!.toObject();
+  const user = response.getUser()?.toObject();
+
+  if (!user) {
+    throw new Error("No logged in user found");
+  }
+
+  return user;
 }
 
 /**

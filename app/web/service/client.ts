@@ -1,5 +1,6 @@
 import { Request, RpcError, StatusCode } from "grpc-web";
 
+import config from "@/config";
 import { AccountPromiseClient } from "@/proto/account_grpc_web_pb";
 import { AdminPromiseClient } from "@/proto/admin_grpc_web_pb";
 import { APIPromiseClient } from "@/proto/api_grpc_web_pb";
@@ -25,13 +26,13 @@ import { ThreadsPromiseClient } from "@/proto/threads_grpc_web_pb";
 
 import isGrpcError from "./utils/isGrpcError";
 
-const URL = (process.env.NEXT_PUBLIC_API_BASE_URL ||
+const URL = (config.NEXT_PUBLIC_API_BASE_URL ||
   process.env.EXPO_PUBLIC_API_BASE_URL)!;
 const IS_PROD =
   (process.env.NEXT_PUBLIC_COUCHERS_ENV ||
-    process.env.EXPO_PUBLIC_COUCHERS_ENV)! === "prod";
+    process.env.EXPO_PUBLIC_COUCHERS_ENV) === "prod";
 
-export const grpcTimeout = 10000; //milliseconds
+export const grpcTimeout = 10000; // milliseconds
 
 let _unauthenticatedErrorHandler: (
   e: RpcError,
@@ -78,7 +79,7 @@ const opts = {
   unaryInterceptors: [authInterceptor, timeoutInterceptor],
   // this modifies the behaviour on the API so that it will send cookies on the requests
   withCredentials: true,
-  /// TODO: streaming interceptor for auth https://grpc.io/blog/grpc-web-interceptor/
+  // / TODO: streaming interceptor for auth https://grpc.io/blog/grpc-web-interceptor/
 };
 
 const client = {

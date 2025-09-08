@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Divider from "@/components/Divider";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, LANDING } from "@/i18n/namespaces";
+import log from "@/log";
 import { theme } from "@/theme";
 import { timeAgoI18n } from "@/utils/timeAgo";
 
@@ -25,22 +26,22 @@ const SocialProof = () => {
     const fetchSignupInfo = async () => {
       try {
         const response = await fetch(
-          "https://couchers.org/api/public/signup-page-info",
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/public/signup-page-info`,
         );
 
         if (!response.ok) {
           throw new Error("Failed to fetch signup info");
         }
-        const data = await response.json();
+        const data = (await response.json()) as SignupInfo;
         setSignupInfo(data);
       } catch (error) {
-        console.error("Error fetching signup info:", error);
+        log.error("Error fetching signup info:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchSignupInfo();
+    void fetchSignupInfo();
   }, []);
 
   return (

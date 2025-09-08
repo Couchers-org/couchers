@@ -1,6 +1,7 @@
 import { GetStaticProps } from "next";
-import nextI18NextConfig from "next-i18next.config";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+
+import nextI18NextConfig from "@/next-i18next.config";
 
 export const serverSideTranslationProps = async (
   locale: string | undefined,

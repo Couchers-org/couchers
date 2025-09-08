@@ -4,6 +4,7 @@ import eslintParser from "@typescript-eslint/parser";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 import importPlugin from "eslint-plugin-import";
 import jestPlugin from "eslint-plugin-jest";
+import nPlugin from "eslint-plugin-n";
 import noRelativeImportPlugin from "eslint-plugin-no-relative-import-paths";
 import unusedImportsPlugin from "eslint-plugin-unused-imports";
 import { dirname } from "path";
@@ -101,6 +102,7 @@ export default tseslint.config([
       "unused-imports": unusedImportsPlugin,
       import: importPlugin,
       "no-relative-import-paths": noRelativeImportPlugin,
+      n: nPlugin,
       jest: jestPlugin,
       stylistic: stylisticPlugin,
     },
@@ -141,6 +143,26 @@ export default tseslint.config([
 
       "import/no-unresolved": "warn",
 
+      // Prevent accidental imports
+      "no-restricted-imports": [
+        "warn",
+        {
+          paths: [
+            {
+              name: "@/config",
+              message:
+                "Please don't import from @/config, it is only used for tooling",
+            },
+          ],
+          patterns: [
+            {
+              group: ["@mui/system*"],
+              message:
+                "Please don't import from @mui/system, use @mui/material instead",
+            },
+          ],
+        },
+      ],
       // Force absolute imports except from same folder
       "no-relative-import-paths/no-relative-import-paths": [
         "warn",
@@ -170,6 +192,8 @@ export default tseslint.config([
           allowConstantLoopConditions: "only-allowed-literals",
         },
       ],
+
+      "n/no-process-env": "warn",
     },
   },
   {

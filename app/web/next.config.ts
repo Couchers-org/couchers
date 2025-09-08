@@ -1,15 +1,42 @@
+/* eslint-disable n/no-process-env */
 import bundleAnalyzer from "@next/bundle-analyzer";
 import { withSentryConfig } from "@sentry/nextjs";
+import { Static } from "@sinclair/typebox";
+import { Value } from "@sinclair/typebox/value";
 import { NextConfig } from "next";
 import webpack from "webpack";
 
+import { CamelCaseConfigWithoutPrefix, configUtils } from "./config";
 import { redirects } from "./redirects";
+
+const envVarPrefix = "NEXT_PUBLIC_";
+
+const utils = configUtils(envVarPrefix);
+
+type RawConfig = Static<typeof utils.schema>;
+
+type Config = CamelCaseConfigWithoutPrefix<RawConfig, typeof envVarPrefix>;
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const Config: Config;
+}
+
+const parsedEnv = Value.Parse(utils.schema, process.env);
 
 const nextConfig: NextConfig = {
   assetPrefix: process.env.ASSET_PREFIX,
   reactStrictMode: true,
   productionBrowserSourceMaps: true,
   webpack: (config: webpack.Configuration) => {
+    if (!config.plugins) {
+      config.plugins = [];
+    }
+
+    config.plugins.push(
+      new webpack.DefinePlugin(utils.getStringReplacements(parsedEnv)),
+    );
+
     config.module?.rules?.push({
       test: /\.md$/,
       loader: "frontmatter-markdown-loader",

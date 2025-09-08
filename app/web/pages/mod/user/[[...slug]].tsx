@@ -1,5 +1,4 @@
 import { GetStaticPaths, GetStaticProps } from "next";
-import nextI18nextConfig from "next-i18next.config";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useRouter } from "next/router";
 
@@ -14,6 +13,7 @@ import {
   NOTIFICATIONS,
   PROFILE,
 } from "@/i18n/namespaces";
+import nextI18nextConfig from "@/next-i18next.config";
 import { userTabs } from "@/routes";
 import stringOrFirstString from "@/utils/stringOrFirstString";
 
@@ -35,7 +35,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
 export default function UserPage() {
   const router = useRouter();
 
-  //first element of slug is the username
+  // first element of slug is the username
   const username = stringOrFirstString(router.query.slug);
   if (!username) return <NotFoundPage />;
   const tab = router.query.slug?.[1];

@@ -1,4 +1,4 @@
-const allLanguages = [
+export const allLanguages = [
   "ca",
   "cs",
   "de",
@@ -22,5 +22,3 @@ const allLanguages = [
   "zh-Hans",
   "zh-Hant",
 ];
-
-module.exports = { allLanguages };

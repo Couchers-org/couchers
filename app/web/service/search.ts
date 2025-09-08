@@ -173,7 +173,7 @@ export async function userSearchV2(filters: UserSearchFilters, pageToken = "") {
   return response.toObject();
 }
 
-export async function EventSearch({
+export async function eventSearch({
   pageNumber,
   pageSize,
   pastEvents,

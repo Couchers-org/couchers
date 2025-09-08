@@ -1,4 +1,4 @@
-import { useMediaQuery } from "@mui/system";
+import { useMediaQuery } from "@mui/material";
 import { MapLayerMouseEvent, RequestParameters } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import React, { useRef } from "react";

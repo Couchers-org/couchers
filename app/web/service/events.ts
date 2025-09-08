@@ -56,7 +56,7 @@ export function cancelEvent(eventId: number) {
   return client.events.cancelEvent(req);
 }
 
-export function RequestCommunityInvite(eventId: number) {
+export function requestCommunityInvite(eventId: number) {
   const req = new RequestCommunityInviteReq();
   req.setEventId(eventId);
   return client.events.requestCommunityInvite(req);
@@ -242,9 +242,8 @@ export async function listAllEvents({
 }: ListAllEventsInput) {
   const req = new ListAllEventsReq();
 
-  if (pastEvents !== undefined) {
-    req.setPast(pastEvents);
-  }
+  req.setPast(pastEvents);
+
   if (pageSize) {
     req.setPageSize(pageSize);
   }

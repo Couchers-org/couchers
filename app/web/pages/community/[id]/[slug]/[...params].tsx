@@ -1,5 +1,4 @@
 import { GetStaticPaths, GetStaticProps } from "next";
-import nextI18nextConfig from "next-i18next.config";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useRouter } from "next/router";
 
@@ -7,6 +6,7 @@ import { appGetLayout } from "@/components/AppRoute";
 import NotFoundPage from "@/features/NotFoundPage";
 import CommunityPageComponent from "@/features/communities/CommunityPage";
 import { COMMUNITIES, GLOBAL, NOTIFICATIONS } from "@/i18n/namespaces";
+import nextI18nextConfig from "@/next-i18next.config";
 import { communityTabs } from "@/routes";
 import stringOrFirstString from "@/utils/stringOrFirstString";
 
@@ -30,11 +30,11 @@ export default function CommunityPage() {
 
   const parsedId = Number.parseInt(stringOrFirstString(router.query.id) ?? "");
   if (isNaN(parsedId)) return <NotFoundPage />;
-  //first element of params is the tab
+  // first element of params is the tab
   const tab = stringOrFirstString(router.query.params);
   let parsedTab = undefined;
   if (tab) {
-    //if the tab isn't blank and isn't valid, 404
+    // if the tab isn't blank and isn't valid, 404
     parsedTab = communityTabs.find((valid) => tab === valid);
     if (!parsedTab) return <NotFoundPage />;
   }

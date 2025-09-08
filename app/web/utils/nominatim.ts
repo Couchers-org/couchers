@@ -1,7 +1,7 @@
 // import { NominatimPlace } from "./types";
 import { Static, TOptional, TString, Type } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
-import * as changeCase from "change-case/keys";
+import { camelCase, snakeCase } from "change-case/keys";
 import { LngLat } from "maplibre-gl";
 
 import { RecursiveSnakeToCamelCase } from "@/utils/types";
@@ -87,20 +87,13 @@ const nominatimResponseSchema = Type.Array(nominatimPlaceSchema);
 const nominatimResponseTransform = Type.Transform(nominatimResponseSchema)
   .Decode((val) =>
     val.map(
-      (key) =>
-        changeCase.camelCase(
-          key,
-          CASE_CHANGE_RECURSION_DEPTH,
-        ) as NominatimPlace,
+      (key) => camelCase(key, CASE_CHANGE_RECURSION_DEPTH) as NominatimPlace,
     ),
   )
   .Encode((val) =>
     val.map(
       (key) =>
-        changeCase.snakeCase(
-          key,
-          CASE_CHANGE_RECURSION_DEPTH,
-        ) as NominatimPlaceInternal,
+        snakeCase(key, CASE_CHANGE_RECURSION_DEPTH) as NominatimPlaceInternal,
     ),
   );
 
