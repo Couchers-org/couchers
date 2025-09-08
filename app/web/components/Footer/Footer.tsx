@@ -19,28 +19,29 @@ import AntibotNote from "@/features/antibot/AntibotNote";
 import { Trans, useTranslation } from "@/i18n";
 import { GLOBAL } from "@/i18n/namespaces";
 import {
-  blogRoute,
-  builtWithRoute,
-  contactRoute,
-  donationsRoute,
-  eventsRoute,
-  facebookURL,
-  faqRoute,
-  foundationRoute,
-  githubURL,
-  githubUpdatesURL,
-  helpCenterURL,
-  instagramURL,
-  landingRoute,
-  missionRoute,
-  newsletterSignupURL,
-  planRoute,
-  redditURL,
-  roadmapRoute,
-  teamRoute,
-  tosRoute,
-  volunteerRoute,
+  BLOG_ROUTE,
+  BUILT_WITH_ROUTE,
+  CONTACT_ROUTE,
+  DONATIONS_ROUTE,
+  EVENTS_ROUTE,
+  FACEBOOK_URL,
+  FAQ_ROUTE,
+  FOUNDATION_ROUTE,
+  GITHUB_UPDATES_URL,
+  GITHUB_URL,
+  HELP_CENTER_URL,
+  INSTAGRAM_URL,
+  LANDING_ROUTE,
+  MISSION_ROUTE,
+  NEWSLETTER_SIGNUP_URL,
+  PLAN_ROUTE,
+  REDDIT_URL,
+  ROADMAP_ROUTE,
+  TEAM_ROUTE,
+  TOS_ROUTE,
+  VOLUNTEER_ROUTE,
 } from "@/routes";
+import { theme } from "@/theme";
 import { timeAgoI18n } from "@/utils/timeAgo";
 
 const StyledFooter = styled("footer")<{ bottomMargin?: string }>(
@@ -139,7 +140,7 @@ const StyledSocialIconsContainer = styled("div")({
   marginTop: "16px",
 });
 
-const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
+const StyledButton = styled(Button)<ButtonProps>(() => ({
   minWidth: "8rem",
   textAlign: "center",
   marginBlockEnd: theme.spacing(2),
@@ -151,22 +152,22 @@ const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
   },
 }));
 
-const VersionLink = styled(Link)(({ theme }) => ({
+const VersionLink = styled(Link)(() => ({
   fontWeight: 700,
 }));
 
-export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
+const Footer = ({ bottomMargin }: { bottomMargin?: string }) => {
   const { t } = useTranslation(GLOBAL);
 
-  const version_text = process.env.NEXT_PUBLIC_DISPLAY_VERSION || "dev";
-  const version_link = roadmapRoute;
-  const updated_ago_text = process.env.NEXT_PUBLIC_COMMIT_TIMESTAMP
+  const versionText = Config.displayVersion;
+  const versionLink = ROADMAP_ROUTE;
+  const updatedAgoText = Config.commitTimestamp
     ? timeAgoI18n({
-        input: new Date(process.env.NEXT_PUBLIC_COMMIT_TIMESTAMP),
+        input: Config.commitTimestamp,
         t: t,
       })
     : "unknown";
-  const updated_ago_link = githubUpdatesURL;
+  const updateAgoLink = GITHUB_UPDATES_URL;
 
   return (
     <StyledFooter bottomMargin={bottomMargin}>
@@ -176,11 +177,13 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             <Typography variant="h4" component="h4">
               {t("nav.about")}
             </Typography>
-            <FooterLink href={planRoute}>{t("nav.our_plan")}</FooterLink>
-            <FooterLink href={faqRoute}>{t("nav.faq")}</FooterLink>
-            <FooterLink href={missionRoute}>{t("nav.mission")}</FooterLink>
-            <FooterLink href={helpCenterURL}>{t("nav.help_center")}</FooterLink>
-            <FooterLink href={roadmapRoute}>
+            <FooterLink href={PLAN_ROUTE}>{t("nav.our_plan")}</FooterLink>
+            <FooterLink href={FAQ_ROUTE}>{t("nav.faq")}</FooterLink>
+            <FooterLink href={MISSION_ROUTE}>{t("nav.mission")}</FooterLink>
+            <FooterLink href={HELP_CENTER_URL}>
+              {t("nav.help_center")}
+            </FooterLink>
+            <FooterLink href={ROADMAP_ROUTE}>
               {t("nav.roadmap_updates")}
             </FooterLink>
           </div>
@@ -188,13 +191,15 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             <Typography variant="h4" component="h4">
               {t("nav.community")}
             </Typography>
-            <FooterLink href={blogRoute}>{t("nav.blog")}</FooterLink>
-            <FooterLink href={teamRoute}>{t("nav.our_team")}</FooterLink>
-            <FooterLink href={landingRoute}>{t("nav.landing_page")}</FooterLink>
-            <FooterLink href={eventsRoute}>
+            <FooterLink href={BLOG_ROUTE}>{t("nav.blog")}</FooterLink>
+            <FooterLink href={TEAM_ROUTE}>{t("nav.our_team")}</FooterLink>
+            <FooterLink href={LANDING_ROUTE}>
+              {t("nav.landing_page")}
+            </FooterLink>
+            <FooterLink href={EVENTS_ROUTE}>
               {t("nav.show_all_events")}
             </FooterLink>
-            <FooterLink href={newsletterSignupURL}>
+            <FooterLink href={NEWSLETTER_SIGNUP_URL}>
               {t("nav.newsletter")}
             </FooterLink>
           </div>
@@ -202,23 +207,25 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             <Typography variant="h4" component="h4">
               {t("nav.legal_more")}
             </Typography>
-            <FooterLink href={tosRoute}>{t("terms_of_service")}</FooterLink>
-            <FooterLink href={foundationRoute}>{t("legal_name")}</FooterLink>
-            <FooterLink href={builtWithRoute}>{t("nav.built_with")}</FooterLink>
-            <FooterLink href={contactRoute}>{t("nav.contact_us")}</FooterLink>
+            <FooterLink href={TOS_ROUTE}>{t("terms_of_service")}</FooterLink>
+            <FooterLink href={FOUNDATION_ROUTE}>{t("legal_name")}</FooterLink>
+            <FooterLink href={BUILT_WITH_ROUTE}>
+              {t("nav.built_with")}
+            </FooterLink>
+            <FooterLink href={CONTACT_ROUTE}>{t("nav.contact_us")}</FooterLink>
             <ReportButton isMenuLink />
           </div>
           <StyledButtonContainer>
             <StyledButton
               component={Link}
-              href={donationsRoute}
+              href={DONATIONS_ROUTE}
               variant="contained"
             >
               {t("nav.donate")}
             </StyledButton>
             <StyledButton
               component={Link}
-              href={volunteerRoute}
+              href={VOLUNTEER_ROUTE}
               variant="contained"
               color="secondary"
             >
@@ -226,7 +233,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             </StyledButton>
             <StyledSocialIconsContainer>
               <MuiLink
-                href={githubURL}
+                href={GITHUB_URL}
                 target="_blank"
                 rel="noopener"
                 aria-label="GitHub"
@@ -235,7 +242,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
                 <GitHubIcon />
               </MuiLink>
               <MuiLink
-                href={instagramURL}
+                href={INSTAGRAM_URL}
                 target="_blank"
                 rel="noopener"
                 aria-label="Instagram"
@@ -244,7 +251,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
                 <InstagramIcon />
               </MuiLink>
               <MuiLink
-                href={redditURL}
+                href={REDDIT_URL}
                 target="_blank"
                 rel="noopener"
                 aria-label="Reddit"
@@ -262,7 +269,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
                 <BlueSkyIcon />
               </MuiLink>
               <MuiLink
-                href={facebookURL}
+                href={FACEBOOK_URL}
                 target="_blank"
                 rel="noopener"
                 aria-label="Facebook"
@@ -277,7 +284,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
       <StyledMiddleOuterContainer>
         <StyledMiddleContainer>
           <Typography variant="body2">
-            <StyledLink href={foundationRoute}>
+            <StyledLink href={FOUNDATION_ROUTE}>
               {t("footer.non_profit_note")}
             </StyledLink>
           </Typography>
@@ -294,26 +301,29 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
               t={t}
               i18nKey="footer.version_info"
               values={{
-                version: version_text,
-                updated_ago: updated_ago_text,
+                version: versionText,
+                updated_ago: updatedAgoText,
               }}
             >
               Version{" "}
-              <VersionLink href={version_link}>{version_text}</VersionLink>,
-              last updated{" "}
-              <VersionLink href={updated_ago_link}>
-                {updated_ago_text}
-              </VersionLink>
-              .
+              <VersionLink href={versionLink}>{versionText}</VersionLink>, last
+              updated{" "}
+              <VersionLink href={updateAgoLink}>{updatedAgoText}</VersionLink>.
             </Trans>
           </Typography>
         </StyledLowerContainer>
       </StyledLowerOuterContainer>
     </StyledFooter>
   );
-}
+};
 
-function FooterLink({ href, children }: { href: string; children: ReactNode }) {
+const FooterLink = ({
+  href,
+  children,
+}: {
+  href: string;
+  children: ReactNode;
+}) => {
   if (href.startsWith("http")) {
     return (
       <Typography variant="body1">
@@ -336,4 +346,6 @@ function FooterLink({ href, children }: { href: string; children: ReactNode }) {
       </StyledLink>
     </Typography>
   );
-}
+};
+
+export default Footer;

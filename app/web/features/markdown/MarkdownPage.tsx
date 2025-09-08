@@ -13,6 +13,8 @@ import { theme } from "@/theme";
 
 const mkd = new markdown();
 
+// TODO(FB) Move to sensible location
+/* eslint-disable @typescript-eslint/naming-convention */
 export interface MarkdownPageFrontmatter {
   title: string;
   hide_title?: boolean;
@@ -24,6 +26,7 @@ export interface MarkdownPageFrontmatter {
   author?: string;
   share_image?: string;
 }
+/* eslint-enable @typescript-eslint/naming-convention */
 
 export interface MarkdownPageProps {
   slug: Array<string>;
@@ -31,7 +34,7 @@ export interface MarkdownPageProps {
   content: string;
 }
 
-const StyledBreadcrumbs = styled(Breadcrumbs)(({ theme }) => ({
+const StyledBreadcrumbs = styled(Breadcrumbs)(() => ({
   marginTop: theme.spacing(3),
   marginBottom: theme.spacing(3),
 
@@ -40,7 +43,7 @@ const StyledBreadcrumbs = styled(Breadcrumbs)(({ theme }) => ({
   },
 }));
 
-const StyledBusTitle = styled(Typography)<TypographyProps>(({ theme }) => ({
+const StyledBusTitle = styled(Typography)<TypographyProps>(() => ({
   marginTop: theme.spacing(3),
   "& > *": {
     fontSize: "1.5rem",
@@ -51,7 +54,7 @@ const StyledBusTitle = styled(Typography)<TypographyProps>(({ theme }) => ({
   },
 }));
 
-const StyledMarkdown = styled("div")(({ theme }) => ({
+const StyledMarkdown = styled("div")(() => ({
   fontSize: theme.typography.fontSize,
   fontFamily: theme.typography.fontFamily,
   "& h1, & h2, & h3, & h4, & h5, & h6, & p": {
@@ -101,7 +104,7 @@ const StyledMarkdown = styled("div")(({ theme }) => ({
   },
 }));
 
-const StyledTitle = styled(Typography)(({ theme }) => ({
+const StyledTitle = styled(Typography)(() => ({
   fontSize: "2.5rem",
   lineHeight: "1.125",
 }));
@@ -145,11 +148,7 @@ function createBreadcrumbs({
   return crumbs;
 }
 
-export default function MarkdownPage({
-  slug,
-  frontmatter,
-  content,
-}: MarkdownPageProps) {
+const MarkdownPage = ({ slug, frontmatter, content }: MarkdownPageProps) => {
   const subtitle = !!frontmatter.subtitle
     ? mkd.renderInline(frontmatter.subtitle)
     : null;
@@ -195,18 +194,18 @@ export default function MarkdownPage({
         )}
         {subtitle && (
           <Typography component="h2">
-            <div dangerouslySetInnerHTML={{ __html: subtitle }}></div>
+            <div> {subtitle}</div>
           </Typography>
         )}
-        <StyledMarkdown
-          dangerouslySetInnerHTML={{ __html: content }}
-        ></StyledMarkdown>
+        <StyledMarkdown>{content}</StyledMarkdown>
         {bustitle && (
           <StyledBusTitle component="h2">
-            <div dangerouslySetInnerHTML={{ __html: bustitle }}></div>
+            <div>{bustitle}</div>
           </StyledBusTitle>
         )}
       </Container>
     </>
   );
-}
+};
+
+export default MarkdownPage;

@@ -6,7 +6,7 @@ import NotFoundPage from "@/features/NotFoundPage";
 import LeaveReferencePageComponent from "@/features/profile/view/leaveReference/LeaveReferencePage";
 import { GLOBAL, NOTIFICATIONS, PROFILE } from "@/i18n/namespaces";
 import { translationStaticProps } from "@/i18n/server-side-translations";
-import { referenceStepStrings, referenceTypeRouteStrings } from "@/routes";
+import { REFERENCE_STEP_STRINGS, REFERENCE_TYPE_ROUTE_STRINGS } from "@/routes";
 
 export const getStaticPaths: GetStaticPaths = () => ({
   paths: [],
@@ -18,7 +18,8 @@ export const getStaticProps: GetStaticProps = translationStaticProps([
   PROFILE,
   NOTIFICATIONS,
 ]);
-export default function LeaveReferencePage() {
+
+const LeaveReferencePage = () => {
   const router = useRouter();
 
   // leave-reference/:type/:userId/:hostRequestId?
@@ -29,7 +30,7 @@ export default function LeaveReferencePage() {
   if (!slug?.[0] || !slug?.[1]) return <NotFoundPage />;
   const referenceType = slug[0];
 
-  const parsedReferenceType = referenceTypeRouteStrings.find(
+  const parsedReferenceType = REFERENCE_TYPE_ROUTE_STRINGS.find(
     (valid) => referenceType === valid,
   );
 
@@ -39,13 +40,13 @@ export default function LeaveReferencePage() {
   let step: string | undefined = undefined;
   let hostRequestId = undefined;
   if (parsedReferenceType === "friend") {
-    step = slug?.[2] ? slug[2] : referenceStepStrings[1];
+    step = slug?.[2] ? slug[2] : REFERENCE_STEP_STRINGS[1];
   } else {
     hostRequestId = slug?.[2];
     if (!hostRequestId) return <NotFoundPage />;
-    step = slug?.[3] ? slug[3] : referenceStepStrings[0];
+    step = slug?.[3] ? slug[3] : REFERENCE_STEP_STRINGS[0];
   }
-  const parsedStep = referenceStepStrings.find((s) => s === step);
+  const parsedStep = REFERENCE_STEP_STRINGS.find((s) => s === step);
 
   const parsedHostRequestId = hostRequestId
     ? Number.parseInt(hostRequestId)
@@ -59,6 +60,8 @@ export default function LeaveReferencePage() {
       step={parsedStep}
     />
   );
-}
+};
 
 LeaveReferencePage.getLayout = appGetLayout();
+
+export default LeaveReferencePage;

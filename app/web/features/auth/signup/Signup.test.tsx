@@ -9,7 +9,7 @@ import useAuthStore from "@/features/auth/useAuthStore";
 import { hostingStatusLabels } from "@/features/profile/constants";
 import { HostingStatus } from "@/proto/api_pb";
 import { SignupFlowRes } from "@/proto/auth_pb";
-import { dashboardRoute, signupRoute } from "@/routes";
+import { DASHBOARD_ROUTE, SIGNUP_ROUTE } from "@/routes";
 import { service } from "@/service";
 import wrapper from "@/test/hookWrapper";
 import i18n from "@/test/i18n";
@@ -84,7 +84,7 @@ describe("Signup", () => {
       ),
     );
 
-    mockRouter.setCurrentUrl(signupRoute);
+    mockRouter.setCurrentUrl(SIGNUP_ROUTE);
     getCommunityGuidelinesMock.mockResolvedValue({
       communityGuidelinesList: [
         {
@@ -256,7 +256,7 @@ describe("Signup", () => {
 
       await user.click(button);
 
-      await waitFor(() => expect(mockRouter.pathname).toBe(dashboardRoute));
+      await waitFor(() => expect(mockRouter.pathname).toBe(DASHBOARD_ROUTE));
 
       expect(TagManager.dataLayer).toHaveBeenCalledTimes(1);
       expect(TagManager.dataLayer).toHaveBeenCalledWith({
@@ -426,7 +426,7 @@ describe("Signup", () => {
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
 
-    mockRouter.setCurrentUrl(`${signupRoute}?token=fakeEmailToken`);
+    mockRouter.setCurrentUrl(`${SIGNUP_ROUTE}?token=fakeEmailToken`);
     render(<View />, {
       wrapper,
     });
@@ -452,7 +452,7 @@ describe("Signup", () => {
       flowToken: "token",
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
-    mockRouter.setCurrentUrl(`${signupRoute}?token=fakeEmailToken`);
+    mockRouter.setCurrentUrl(`${SIGNUP_ROUTE}?token=fakeEmailToken`);
     render(<View />, {
       wrapper,
     });

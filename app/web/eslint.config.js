@@ -6,6 +6,7 @@ import importPlugin from "eslint-plugin-import";
 import jestPlugin from "eslint-plugin-jest";
 import nPlugin from "eslint-plugin-n";
 import noRelativeImportPlugin from "eslint-plugin-no-relative-import-paths";
+import reactPlugin from "eslint-plugin-react";
 import unusedImportsPlugin from "eslint-plugin-unused-imports";
 import { dirname } from "path";
 import tseslint from "typescript-eslint";
@@ -87,6 +88,7 @@ export default tseslint.config([
     },
   }),
   tseslint.configs.strictTypeChecked,
+  reactPlugin.configs.flat.recommended,
   {
     languageOptions: {
       parser: eslintParser,
@@ -172,7 +174,18 @@ export default tseslint.config([
         },
       ],
 
-      "no-useless-rename": ["warn"],
+      "no-useless-rename": "warn",
+
+      "react/react-in-jsx-scope": "off",
+
+      // Enforce arrow functions
+      "no-restricted-syntax": [
+        "warn",
+        "FunctionExpression",
+        "FunctionDeclaration",
+      ],
+
+      "prefer-arrow-callback": "warn",
 
       "@typescript-eslint/restrict-template-expressions": [
         "warn",
@@ -244,6 +257,13 @@ export default tseslint.config([
         },
         ...baseNamingConventions,
       ],
+      "react/function-component-definition": [
+        "warn",
+        {
+          namedComponents: "arrow-function",
+          unnamedComponents: "arrow-function",
+        },
+      ],
     },
   },
   {
@@ -257,6 +277,7 @@ export default tseslint.config([
       "jest/no-disabled-tests": "warn",
       "jest/consistent-test-it": ["warn", { fn: "it" }],
       "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
 
       "@typescript-eslint/naming-convention": [
         "off",

@@ -5,7 +5,7 @@ import log from "@/log";
 import { UserSearchFilters as ServiceUserSearchFilters } from "@/service/search";
 import stringOrFirstString from "@/utils/stringOrFirstString";
 
-export default interface SearchFilters extends ServiceUserSearchFilters {
+export interface SearchFilters extends ServiceUserSearchFilters {
   location?: string;
 }
 

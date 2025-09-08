@@ -12,7 +12,7 @@ import { useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
 import { User } from "@/proto/api_pb";
 import { ReferenceType } from "@/proto/references_pb";
-import { ReferenceStep, referenceTypeRoute } from "@/routes";
+import { REFERENCE_TYPE_ROUTE, ReferenceStep } from "@/routes";
 import { ReferenceTypeStrings } from "@/service/references";
 import { theme } from "@/theme";
 
@@ -44,7 +44,7 @@ const StyledFormWrapper = styled("div")(({ theme }) => ({
   padding: theme.spacing(2),
 }));
 
-export default function LeaveReferencePage({
+const LeaveReferencePage = ({
   referenceType,
   userId,
   hostRequestId,
@@ -54,7 +54,7 @@ export default function LeaveReferencePage({
   userId: number;
   hostRequestId?: number;
   step?: ReferenceStep;
-}) {
+}) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const isBelowMedium = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -88,7 +88,7 @@ export default function LeaveReferencePage({
       {availableReferences &&
         user &&
         ((referenceType ===
-          referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND] &&
+          REFERENCE_TYPE_ROUTE[ReferenceType.REFERENCE_TYPE_FRIEND] &&
           availableReferences.canWriteFriendReference &&
           user.friends === User.FriendshipStatus.FRIENDS) ||
         (hostRequestId &&
@@ -117,4 +117,6 @@ export default function LeaveReferencePage({
         ))}
     </>
   );
-}
+};
+
+export default LeaveReferencePage;

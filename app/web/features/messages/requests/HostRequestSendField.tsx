@@ -15,7 +15,7 @@ import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
 import { HostRequestStatus } from "@/proto/conversations_pb";
 import { ReferenceType } from "@/proto/references_pb";
 import { HostRequest, RespondHostRequestReq } from "@/proto/requests_pb";
-import { referenceTypeRoute, routeToLeaveReference } from "@/routes";
+import { REFERENCE_TYPE_ROUTE, routeToLeaveReference } from "@/routes";
 import { theme } from "@/theme";
 
 import FieldButton from "./FieldButton";
@@ -59,17 +59,17 @@ const StyledContainer = styled("div")(({ theme }) => ({
   marginTop: theme.spacing(3),
 }));
 
-export default function HostRequestSendField({
+const HostRequestSendField = ({
   hostRequest,
   sendMutation,
   respondMutation,
-}: HostRequestSendFieldProps) {
+}: HostRequestSendFieldProps) => {
   const { t } = useTranslation([MESSAGES, GLOBAL]);
   const { authState } = useAuthContext();
 
   const isHost = hostRequest.hostUserId === authState.userId;
 
-  const { data: availableRefrences } = useListAvailableReferences(
+  const { data: availableReferences } = useListAvailableReferences(
     isHost ? hostRequest.surferUserId : hostRequest.hostUserId,
   );
 
@@ -78,13 +78,14 @@ export default function HostRequestSendField({
     respondMutation;
 
   const { register, handleSubmit, reset } = useForm<MessageFormData>();
-  const onSubmit = handleSubmit(async (data: MessageFormData) => {
-    handleSend(data.text);
-    reset();
-  });
+  const onSubmit = () =>
+    handleSubmit((data: MessageFormData) => {
+      handleSend(data.text);
+      reset();
+    });
 
   const handleStatus = (status: HostRequestStatus) =>
-    handleSubmit(async (data: MessageFormData) => {
+    handleSubmit((data: MessageFormData) => {
       handleRespond({
         hostRequestId: hostRequest.hostRequestId,
         status,
@@ -104,13 +105,13 @@ export default function HostRequestSendField({
   const isReferenceAvailable =
     (hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED ||
       hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED) &&
-    availableRefrences &&
-    availableRefrences.availableWriteReferencesList.find(
+    availableReferences &&
+    availableReferences.availableWriteReferencesList.find(
       ({ hostRequestId }) => hostRequestId === hostRequest.hostRequestId,
     );
 
   const referenceRoute = routeToLeaveReference(
-    referenceTypeRoute[
+    REFERENCE_TYPE_ROUTE[
       isHost
         ? ReferenceType.REFERENCE_TYPE_HOSTED
         : ReferenceType.REFERENCE_TYPE_SURFED
@@ -122,7 +123,7 @@ export default function HostRequestSendField({
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Enter" && event.ctrlKey) {
       event.preventDefault();
-      onSubmit();
+      void onSubmit();
     }
   };
 
@@ -159,11 +160,13 @@ export default function HostRequestSendField({
           aria-label={t("messages:chat_input.label")}
           label={!isRequestClosed ? t("messages:chat_input.label") : ""}
           id="host-request-message"
-          InputLabelProps={{
-            style: {
-              transform: isRequestClosed ? "none" : undefined,
+          slotProps={{
+            inputLabel: {
+              style: {
+                transform: isRequestClosed ? "none" : undefined,
+              },
+              shrink: isRequestClosed ? false : undefined,
             },
-            shrink: isRequestClosed ? false : undefined,
           }}
           multiline
           onKeyDown={handleKeyDown}
@@ -182,4 +185,6 @@ export default function HostRequestSendField({
       </StyledContainer>
     </form>
   );
-}
+};
+
+export default HostRequestSendField;

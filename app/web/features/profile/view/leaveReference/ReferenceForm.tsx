@@ -7,7 +7,7 @@ import Text from "@/features/profile/view/leaveReference/formSteps/Text";
 import SubmitReference from "@/features/profile/view/leaveReference/formSteps/submit/SubmitReference";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
-import { ReferenceStep, leaveReferenceBaseRoute } from "@/routes";
+import { LEAVE_REFERENCE_BASE_ROUTE, ReferenceStep } from "@/routes";
 
 import DidStay from "./formSteps/DidStay";
 import ThankYouReference from "./formSteps/submit/ThankYouReference";
@@ -41,12 +41,12 @@ interface ReferenceRouteParams {
   step: ReferenceStep;
 }
 
-export default function ReferenceForm({
+const ReferenceForm = ({
   referenceType,
   userId,
   hostRequestId,
   step,
-}: ReferenceRouteParams) {
+}: ReferenceRouteParams) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
 
   const [referenceData, setReferenceData] = useState<ReferenceContextFormData>({
@@ -75,8 +75,8 @@ export default function ReferenceForm({
 
   const redirectTo =
     referenceType === "friend"
-      ? `${leaveReferenceBaseRoute}/${referenceType}/${userId}`
-      : `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`;
+      ? `${LEAVE_REFERENCE_BASE_ROUTE}/${referenceType}/${userId}`
+      : `${LEAVE_REFERENCE_BASE_ROUTE}/${referenceType}/${userId}/${hostRequestId ?? ""}`;
 
   if (isDidStaySkipped || isPrivateFeedbackSkipped) {
     return <Redirect to={redirectTo} />;
@@ -128,4 +128,6 @@ export default function ReferenceForm({
         </Alert>
       );
   }
-}
+};
+
+export default ReferenceForm;

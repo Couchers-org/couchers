@@ -13,7 +13,7 @@ import { useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
 import { User } from "@/proto/api_pb";
 import { ReferenceType } from "@/proto/references_pb";
-import { leaveReferenceBaseRoute, referenceTypeRoute } from "@/routes";
+import { LEAVE_REFERENCE_BASE_ROUTE, REFERENCE_TYPE_ROUTE } from "@/routes";
 import { theme } from "@/theme";
 
 import ReferencesGivenList from "./ReferencesGivenList";
@@ -28,11 +28,11 @@ const StyledReferencesContainer = styled("div")({
   flexFlow: "row wrap",
 });
 
-const StyledHeaderParentContainer = styled("div")(({ theme }) => ({
+const StyledHeaderParentContainer = styled("div")(() => ({
   width: "100%",
 }));
 
-const StyledHeaderContainer = styled("div")(({ theme }) => ({
+const StyledHeaderContainer = styled("div")(() => ({
   alignItems: "center",
   display: "flex",
   justifyContent: "space-between",
@@ -40,7 +40,7 @@ const StyledHeaderContainer = styled("div")(({ theme }) => ({
   width: "100%",
 }));
 
-const StyledButtonContainer = styled("div")(({ theme }) => ({
+const StyledButtonContainer = styled("div")(() => ({
   "& > button": {
     marginInline: theme.spacing(2),
   },
@@ -51,14 +51,14 @@ const StyledButtonContainer = styled("div")(({ theme }) => ({
   marginTop: theme.spacing(1),
 }));
 
-export default function References() {
+const References = () => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const [referenceType, setReferenceType] = useState<ReferenceTypeState>("all");
   const { userId, friends } = useProfileUser();
   const { data: availableReferences } = useListAvailableReferences(userId);
 
   const handleChange = (event: SelectChangeEvent<ReferenceTypeState>) => {
-    setReferenceType(event.target.value as ReferenceTypeState);
+    setReferenceType(event.target.value);
   };
 
   return (
@@ -72,6 +72,7 @@ export default function References() {
             variant="standard"
             displayEmpty
             inputProps={{
+              // eslint-disable-next-line @typescript-eslint/naming-convention
               "aria-label": t("profile:references_filter_a11y_label"),
             }}
             onChange={handleChange}
@@ -95,7 +96,7 @@ export default function References() {
               <Button
                 component={Link}
                 startIcon={<AddIcon />}
-                href={`${leaveReferenceBaseRoute}/${referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]}/${userId}`}
+                href={`${LEAVE_REFERENCE_BASE_ROUTE}/${REFERENCE_TYPE_ROUTE[ReferenceType.REFERENCE_TYPE_FRIEND]}/${userId}`}
               >
                 {t("profile:write_reference")}
               </Button>
@@ -109,4 +110,6 @@ export default function References() {
       )}
     </StyledReferencesContainer>
   );
-}
+};
+
+export default References;

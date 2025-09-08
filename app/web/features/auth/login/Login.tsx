@@ -6,13 +6,13 @@ import Alert from "@/components/Alert";
 import HtmlMeta from "@/components/HtmlMeta";
 import StyledLink from "@/components/StyledLink";
 import AntibotNote from "@/features/antibot/AntibotNote";
+import { useAuthContext } from "@/features/auth/AuthProvider";
 import { Trans, useTranslation } from "@/i18n";
 import { AUTH, GLOBAL, LANDING } from "@/i18n/namespaces";
 import CouchersTextLogo from "@/resources/CouchersTextLogo";
-import { dashboardRoute, signupRoute } from "@/routes";
+import { DASHBOARD_ROUTE, SIGNUP_ROUTE } from "@/routes";
 import stringOrFirstString from "@/utils/stringOrFirstString";
 
-import { useAuthContext } from "../AuthProvider";
 import LoginForm from "./LoginForm";
 
 const StyledContent = styled("div")(({ theme }) => ({
@@ -35,21 +35,21 @@ const StyledFormWrapper = styled("div")(({ theme }) => ({
   marginTop: theme.spacing(2),
 }));
 
-export default function Login() {
+const Login = () => {
   const { t } = useTranslation([AUTH, GLOBAL, LANDING]);
   const { authState } = useAuthContext();
-  const authenticated = authState.authenticated;
+  const isAuthenticated = authState.authenticated;
   const error = authState.error;
 
   const router = useRouter();
-  const from = stringOrFirstString(router.query.from) ?? dashboardRoute;
-  const redirectTo = from === "/" || from === "%2F" ? dashboardRoute : from;
+  const from = stringOrFirstString(router.query.from) ?? DASHBOARD_ROUTE;
+  const redirectTo = from === "/" || from === "%2F" ? DASHBOARD_ROUTE : from;
 
   useEffect(() => {
-    if (authenticated) {
-      router.push(redirectTo);
+    if (isAuthenticated) {
+      void router.push(redirectTo);
     }
-  }, [authenticated, router, redirectTo]);
+  }, [isAuthenticated, router, redirectTo]);
 
   return (
     <>
@@ -72,7 +72,7 @@ export default function Login() {
           <Typography sx={{ marginTop: 2 }}>
             <Trans t={t} i18nKey="auth:login_page.no_account_prompt">
               No account yet?{" "}
-              <StyledLink href={signupRoute}>Sign up</StyledLink>
+              <StyledLink href={SIGNUP_ROUTE}>Sign up</StyledLink>
             </Trans>
           </Typography>
           <Typography variant="caption">
@@ -83,4 +83,6 @@ export default function Login() {
       </StyledContent>
     </>
   );
-}
+};
+
+export default Login;

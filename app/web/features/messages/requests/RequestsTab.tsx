@@ -28,20 +28,20 @@ const StyledList = styled(List)(() => ({
 
 const StyledListItem = styled(HostRequestListItem)(() => ({
   marginInline: `-${theme.spacing(2)}`,
-  paddingInline: `${theme.spacing(2)}`,
+  paddingInline: theme.spacing(2),
 }));
 
 export interface GroupChatListProps {
   groupChats: Array<GroupChat.AsObject>;
 }
 
-export default function RequestsTab({
+const RequestsTab = ({
   type,
   onlyActive = false,
 }: {
   type: "all" | "hosting" | "surfing";
   onlyActive?: boolean;
-}) {
+}) => {
   const { t } = useTranslation(MESSAGES);
   const {
     data,
@@ -101,4 +101,6 @@ export default function RequestsTab({
       )}
     </StyledWrapper>
   );
-}
+};
+
+export default RequestsTab;

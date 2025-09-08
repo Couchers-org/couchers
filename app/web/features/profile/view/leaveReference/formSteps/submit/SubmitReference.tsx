@@ -9,22 +9,21 @@ import {
   useWriteHostReference,
 } from "@/features/profile/hooks/referencesHooks";
 import { ReferenceContextFormData } from "@/features/profile/view/leaveReference/ReferenceForm";
+import ReferenceStepHeader from "@/features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
 import ReferenceOverview from "@/features/profile/view/leaveReference/formSteps/submit/ReferenceOverview";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
 import { ReferenceType } from "@/proto/references_pb";
 import {
-  leaveReferenceBaseRoute,
-  referenceStepStrings,
-  referenceTypeRoute,
+  LEAVE_REFERENCE_BASE_ROUTE,
+  REFERENCE_STEP_STRINGS,
+  REFERENCE_TYPE_ROUTE,
 } from "@/routes";
 import {
   WriteFriendReferenceInput,
   WriteHostRequestReferenceInput,
 } from "@/service/references";
 import { theme } from "@/theme";
-
-import ReferenceStepHeader from "../ReferenceStepHeader";
 
 export interface SubmitReferenceProps {
   referenceData: ReferenceContextFormData;
@@ -39,12 +38,12 @@ const StyledButtonContainer = styled("div")(({ theme }) => ({
   paddingTop: theme.spacing(1),
 }));
 
-export default function SubmitReference({
+const SubmitReference = ({
   referenceData,
   referenceType,
   hostRequestId,
   userId,
-}: SubmitReferenceProps) {
+}: SubmitReferenceProps) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
 
   const {
@@ -138,20 +137,22 @@ export default function SubmitReference({
 
   const redirectToThankYouPage = () => {
     if (
-      referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
+      referenceType ===
+      REFERENCE_TYPE_ROUTE[ReferenceType.REFERENCE_TYPE_FRIEND]
     ) {
-      router.push(
-        `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${referenceStepStrings[4]}`,
+      void router.push(
+        `${LEAVE_REFERENCE_BASE_ROUTE}/${referenceType}/${userId}/${REFERENCE_STEP_STRINGS[4]}`,
       );
     } else {
-      router.push(
-        `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}/${referenceStepStrings[4]}`,
+      // TODO(FB) Handle undefined hostRequestId properly
+      void router.push(
+        `${LEAVE_REFERENCE_BASE_ROUTE}/${referenceType}/${userId}/${hostRequestId ?? ""}/${REFERENCE_STEP_STRINGS[4]}`,
       );
     }
   };
 
   const onSubmit =
-    referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
+    referenceType === REFERENCE_TYPE_ROUTE[ReferenceType.REFERENCE_TYPE_FRIEND]
       ? onFriendReferenceSubmit
       : onHostReferenceSubmit;
 
@@ -167,7 +168,7 @@ export default function SubmitReference({
         </Alert>
       ) : null}
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={() => handleSubmit(onSubmit)}>
         <ReferenceStepHeader isSubmitStep />
         <ReferenceOverview referenceData={referenceData} />
         <StyledButtonContainer>
@@ -182,4 +183,6 @@ export default function SubmitReference({
       </form>
     </>
   );
-}
+};
+
+export default SubmitReference;

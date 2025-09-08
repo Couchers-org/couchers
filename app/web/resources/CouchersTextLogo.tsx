@@ -1,7 +1,7 @@
 import { SvgIcon, styled } from "@mui/material";
 import Link from "next/link";
 
-import { baseRoute } from "@/routes";
+import { BASE_ROUTE } from "@/routes";
 
 const Logo = styled(SvgIcon)(({ theme }) => ({
   fill: theme.palette.secondary.main,
@@ -17,7 +17,7 @@ export interface CouchersLogoProps {
 
 export default function CouchersTextLogo({ className }: CouchersLogoProps) {
   return (
-    <Link href={baseRoute}>
+    <Link href={BASE_ROUTE}>
       <Logo
         className={className}
         xmlns="http://www.w3.org/2000/svg"

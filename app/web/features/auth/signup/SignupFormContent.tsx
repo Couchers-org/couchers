@@ -3,18 +3,19 @@ import { useEffect, useState } from "react";
 
 import StyledLink from "@/components/StyledLink";
 import AntibotNote from "@/features/antibot/AntibotNote";
+import { useAuthContext } from "@/features/auth/AuthProvider";
 import { Trans, useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import log from "@/log";
 import { GetSignupPageInfoRes } from "@/proto/public_pb";
-import { baseRoute, tosRoute } from "@/routes";
+import { BASE_ROUTE, TOS_ROUTE } from "@/routes";
 
-import { useAuthContext } from "../AuthProvider";
 import AccountForm from "./AccountForm";
 import BasicForm from "./BasicForm";
 import CommunityGuidelinesForm from "./CommunityGuidelinesForm";
 import ResendVerificationEmailForm from "./ResendVerificationEmailForm";
 
-export default function SignupFormContent() {
+const SignupFormContent = () => {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authState } = useAuthContext();
   const state = authState.flowState;
@@ -32,14 +33,14 @@ export default function SignupFormContent() {
         if (!response.ok) {
           throw new Error("Failed to fetch signup info");
         }
-        const data = await response.json();
+        const data = (await response.json()) as GetSignupPageInfoRes.AsObject;
         setSignupInfo(data);
       } catch (error) {
-        console.error("Error fetching signup info:", error);
+        log.error("Error fetching signup info:", error);
       }
     };
 
-    fetchSignupInfo();
+    void fetchSignupInfo();
   }, []);
 
   if (!state || state.needBasic) {
@@ -56,16 +57,16 @@ export default function SignupFormContent() {
             i18nKey="landing:signup_description"
             values={{
               user_count: signupInfo?.userCount
-                ? Number(signupInfo.userCount).toLocaleString()
+                ? signupInfo.userCount.toLocaleString()
                 : "56k+",
             }}
             components={{
-              2: <Link href={baseRoute} underline="hover" />,
+              2: <Link href={BASE_ROUTE} underline="hover" />,
             }}
           >
             Travel, host, and connect with{" "}
             {{ user_count: signupInfo?.userCount || "56k" }} members.{" "}
-            <StyledLink href={baseRoute}>Learn more about us</StyledLink>.
+            <StyledLink href={BASE_ROUTE}>Learn more about us</StyledLink>.
           </Trans>
         </Typography>
         <BasicForm submitText={t("global:create_account")} />
@@ -73,7 +74,7 @@ export default function SignupFormContent() {
           <Trans i18nKey="auth:basic_sign_up_form.sign_up_agreement_explainer">
             By continuing, you agree to our{" "}
             <StyledLink
-              href={tosRoute}
+              href={TOS_ROUTE}
               target="_blank"
               variant="caption"
               sx={{ fontWeight: 700 }}
@@ -127,4 +128,6 @@ export default function SignupFormContent() {
   } else {
     throw Error(t("auth:unhandled_sign_up_state"));
   }
-}
+};
+
+export default SignupFormContent;

@@ -1,5 +1,3 @@
-// const { NAMESPACES } = require("./i18n/namespaces");
-// const { allLanguages } = require("./i18n/allLanguages");
 import { UserConfig } from "next-i18next";
 import path from "path";
 
@@ -16,9 +14,6 @@ const fallbackLng = {
   zh: ["zh-Hans", "en"],
 };
 /* eslint-enable @typescript-eslint/naming-convention */
-
-// eslint-disable-next-line n/no-process-env
-console.log(`Next 18n env: ${JSON.stringify(process.env)}`);
 
 const userConfig: UserConfig = {
   i18n: {

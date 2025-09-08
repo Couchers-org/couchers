@@ -4,23 +4,23 @@ import { useEffect } from "react";
 
 import Alert from "@/components/Alert";
 import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
-import { baseRoute } from "@/routes";
+import { BASE_ROUTE } from "@/routes";
 
 import { useAuthContext } from "./AuthProvider";
 
-export default function Logout() {
+const Logout = () => {
   const { authActions } = useAuthContext();
   const queryClient = useQueryClient();
 
   const router = useRouter();
   const logout = useMutation({
     mutationFn: async () => {
-      authActions.logout();
+      await authActions.logout();
       queryClient.clear();
     },
 
-    onSuccess: () => {
-      router.push(baseRoute);
+    onSuccess: async () => {
+      await router.push(BASE_ROUTE);
     },
   });
 
@@ -38,4 +38,6 @@ export default function Logout() {
       )}
     </>
   );
-}
+};
+
+export default Logout;

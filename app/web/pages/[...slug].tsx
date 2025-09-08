@@ -3,22 +3,31 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 import { appGetLayout } from "@/components/AppRoute";
 import MarkdownPage, {
+  MarkdownPageFrontmatter,
   MarkdownPageProps,
 } from "@/features/markdown/MarkdownPage";
 import { AUTH, GLOBAL, NOTIFICATIONS } from "@/i18n/namespaces";
 import nextI18nextConfig from "@/next-i18next.config";
 import { getAllMarkdownPathsWithLocales } from "@/utils/markdownPages";
 
-async function getMarkdownPageBySlug(
+type FrontmatterMarkdownLoaderOutput = {
+  attributes: MarkdownPageFrontmatter;
+  html: string;
+};
+
+const getMarkdownPageBySlug = async (
   slug: Array<string>,
-): Promise<MarkdownPageProps> {
-  const md = await import(`markdown/${slug.join("/")}.md`);
+): Promise<MarkdownPageProps> => {
+  const md = (await import(
+    `markdown/${slug.join("/")}.md`
+  )) as FrontmatterMarkdownLoaderOutput;
+
   return {
     slug,
     frontmatter: md.attributes,
     content: md.html,
   };
-}
+};
 
 export const getStaticPaths: GetStaticPaths = () => ({
   paths: getAllMarkdownPathsWithLocales(),
@@ -32,14 +41,16 @@ export const getStaticProps: GetStaticProps = async ({ locale, params }) => ({
       [GLOBAL, AUTH, NOTIFICATIONS],
       nextI18nextConfig,
     )),
-    page: await getMarkdownPageBySlug(params!.slug as Array<string>),
+    page: await getMarkdownPageBySlug((params?.slug ?? []) as Array<string>),
   },
 });
 
-export default function Markdown({ page }: { page: MarkdownPageProps }) {
+const Markdown = ({ page }: { page: MarkdownPageProps }) => {
   return <MarkdownPage {...page} />;
-}
+};
 
 Markdown.getLayout = appGetLayout({
   isPrivate: false,
 });
+
+export default Markdown;

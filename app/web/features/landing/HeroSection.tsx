@@ -11,7 +11,7 @@ import { useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
 import { useIsNativeEmbed } from "@/platform/nativeLink";
 import Sentry from "@/platform/sentry";
-import { signupRoute } from "@/routes";
+import { SIGNUP_ROUTE } from "@/routes";
 import { service } from "@/service";
 import isGrpcError from "@/service/utils/isGrpcError";
 import stringOrFirstString from "@/utils/stringOrFirstString";
@@ -71,7 +71,7 @@ export default function HeroSection() {
           authActions.authError(
             isGrpcError(err) ? err.message : t("global:error.fatal_message"),
           );
-          router.push(signupRoute);
+          router.push(SIGNUP_ROUTE);
           return;
         }
         setLoading(false);

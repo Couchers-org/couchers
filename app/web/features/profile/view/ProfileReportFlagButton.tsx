@@ -29,7 +29,7 @@ import { useBlockUser } from "@/features/connections/friends/hooks";
 import { useTranslation } from "@/i18n";
 import { GLOBAL } from "@/i18n/namespaces";
 import { User } from "@/proto/api_pb";
-import { dashboardRoute } from "@/routes";
+import { DASHBOARD_ROUTE } from "@/routes";
 import { service } from "@/service";
 import { BlockInput } from "@/service/blocking";
 import { ReportInput } from "@/service/reporting";
@@ -166,7 +166,7 @@ export default function ProfileReportFlagButton({
 
     if (shouldBlockField) {
       blockUserMutation(profileUser);
-      router.push(dashboardRoute);
+      router.push(DASHBOARD_ROUTE);
     }
   });
 

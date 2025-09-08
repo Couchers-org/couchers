@@ -18,10 +18,10 @@ import { useTranslation } from "@/i18n";
 import { PROFILE } from "@/i18n/namespaces";
 import { ReferenceType } from "@/proto/references_pb";
 import {
-  helpCenterHowToLeaveGoodReferenceUrl,
-  leaveReferenceBaseRoute,
-  referenceStepStrings,
-  referenceTypeRoute,
+  HELP_CENTER_HOW_TO_LEAVE_GOOD_REFERENCE_URL,
+  LEAVE_REFERENCE_BASE_ROUTE,
+  REFERENCE_STEP_STRINGS,
+  REFERENCE_TYPE_ROUTE,
 } from "@/routes";
 import { theme } from "@/theme";
 
@@ -52,12 +52,12 @@ const StyledButtonContainer = styled("div")(({ theme }) => ({
   paddingTop: theme.spacing(1),
 }));
 
-export default function Text({
+const Text = ({
   referenceData,
   setReferenceValues,
   referenceType,
   hostRequestId,
-}: ReferenceStepProps) {
+}: ReferenceStepProps) => {
   const { t } = useTranslation([PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
@@ -72,20 +72,23 @@ export default function Text({
     },
   });
 
-  const onSubmit = handleSubmit((values) => {
-    setReferenceValues(values);
-    if (
-      referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
-    ) {
-      router.push(
-        `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${referenceStepStrings[3]}`,
-      );
-    } else {
-      router.push(
-        `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${referenceStepStrings[3]}`,
-      );
-    }
-  });
+  const onSubmit = () =>
+    handleSubmit((values) => {
+      setReferenceValues(values);
+      if (
+        referenceType ===
+        REFERENCE_TYPE_ROUTE[ReferenceType.REFERENCE_TYPE_FRIEND]
+      ) {
+        void router.push(
+          `${LEAVE_REFERENCE_BASE_ROUTE}/${referenceType}/${user.userId}/${REFERENCE_STEP_STRINGS[3]}`,
+        );
+      } else {
+        // TODO(FB) Handle undefined hostRequestId properly
+        void router.push(
+          `${LEAVE_REFERENCE_BASE_ROUTE}/${referenceType}/${user.userId}/${hostRequestId ?? ""}/${REFERENCE_STEP_STRINGS[3]}`,
+        );
+      }
+    });
 
   return (
     <StyledForm onSubmit={onSubmit}>
@@ -95,7 +98,7 @@ export default function Text({
       </StyledTextBody>
       <StyledTextBody sx={{ marginTop: theme.spacing(2) }}>
         {referenceType !==
-        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
+        REFERENCE_TYPE_ROUTE[ReferenceType.REFERENCE_TYPE_FRIEND]
           ? t("profile:leave_reference.text_explanation_hosted_surfed", {
               name: user.name,
             })
@@ -122,7 +125,9 @@ export default function Text({
               multiline={true}
               minRows={15}
               id="reference-text-input"
-              onChange={(event) => field.onChange(event.target.value)}
+              onChange={(event) => {
+                field.onChange(event.target.value);
+              }}
               value={field.value}
             />
           )}
@@ -135,7 +140,9 @@ export default function Text({
         <Trans
           i18nKey="profile:leave_reference.by_writing_thoughtful"
           components={{
-            1: <StyledLink href={helpCenterHowToLeaveGoodReferenceUrl} />,
+            1: (
+              <StyledLink href={HELP_CENTER_HOW_TO_LEAVE_GOOD_REFERENCE_URL} />
+            ),
           }}
         />
       </Typography>
@@ -146,4 +153,6 @@ export default function Text({
       </StyledButtonContainer>
     </StyledForm>
   );
-}
+};
+
+export default Text;

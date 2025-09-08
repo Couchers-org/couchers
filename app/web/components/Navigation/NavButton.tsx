@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 
 import NotificationBadge from "@/components/NotificationBadge";
-import { baseRoute } from "@/routes";
+import { BASE_ROUTE } from "@/routes";
 
 interface NavButtonProps {
   route: string;
@@ -38,15 +38,15 @@ const StyledTypography = styled(Typography)(({ theme }) => ({
   },
 }));
 
-export default function NavButton({
+const NavButton = ({
   route,
   label,
   labelVariant = "h4",
   notificationCount,
-}: NavButtonProps) {
+}: NavButtonProps) => {
   const router = useRouter();
   const isActive =
-    route === baseRoute
+    route === BASE_ROUTE
       ? router.asPath === route
       : router.asPath.includes(route);
 
@@ -63,4 +63,6 @@ export default function NavButton({
       </NotificationBadge>
     </StyledNextLink>
   );
-}
+};
+
+export default NavButton;

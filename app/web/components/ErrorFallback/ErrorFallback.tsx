@@ -8,18 +8,20 @@ import Button from "@/components/Button";
 import ReportButton from "@/components/Navigation/ReportButton";
 import PageTitle from "@/components/PageTitle";
 import { GLOBAL } from "@/i18n/namespaces";
-import { baseRoute } from "@/routes";
+import { BASE_ROUTE } from "@/routes";
 import { theme } from "@/theme";
 
 const StyledReportButton = styled(ReportButton)(({ theme }) => ({
   marginTop: theme.spacing(2),
 }));
 
-export default function ErrorFallback({ isFatal }: { isFatal?: boolean }) {
+const ErrorFallback = ({ isFatal }: { isFatal?: boolean }) => {
   const { t } = useTranslation(GLOBAL);
   const router = useRouter();
 
-  const handleRefresh = () => router.reload();
+  const handleRefresh = () => {
+    router.reload();
+  };
 
   return (
     <>
@@ -33,7 +35,7 @@ export default function ErrorFallback({ isFatal }: { isFatal?: boolean }) {
           <Button
             variant="outlined"
             component={Link}
-            href={baseRoute}
+            href={BASE_ROUTE}
             sx={{
               color: theme.palette.common.black,
               borderColor: theme.palette.grey[300],
@@ -54,4 +56,6 @@ export default function ErrorFallback({ isFatal }: { isFatal?: boolean }) {
       </Actions>
     </>
   );
-}
+};
+
+export default ErrorFallback;

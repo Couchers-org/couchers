@@ -18,7 +18,7 @@ import StyledLink from "@/components/StyledLink";
 import TextField from "@/components/TextField";
 import { useTranslation } from "@/i18n";
 import { ReportBugRes } from "@/proto/bugs_pb";
-import { helpCenterReportContentURL } from "@/routes";
+import { HELP_CENTER_REPORT_CONTENT_URL } from "@/routes";
 import { service } from "@/service";
 import { theme } from "@/theme";
 
@@ -41,7 +41,9 @@ const ReportDialogTextField = forwardRef<
   <StyledTextField
     ref={ref}
     {...props}
-    onKeyDown={(e) => e.stopPropagation()}
+    onKeyDown={(e) => {
+      e.stopPropagation();
+    }}
   />
 ));
 
@@ -64,7 +66,7 @@ const StyledCancelButton = styled(Button)(() => ({
   },
 }));
 
-export default function ReportDialog({ open, onClose }: DialogProps) {
+const ReportDialog = ({ open, onClose }: DialogProps) => {
   const { t } = useTranslation("global");
 
   const [type, setType] = useState<"initial" | "bug">("initial");
@@ -87,23 +89,23 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
   });
 
   const handleClose = (
-    event: unknown,
+    _event: unknown,
     reason: "backdropClick" | "escapeKeyDown" | "button",
   ) => {
     if (reason !== "button") return;
     resetForm();
     resetMutation();
     onClose?.({}, "escapeKeyDown");
-    setTimeout(
-      () => setType("initial"),
-      theme.transitions.duration.leavingScreen,
-    );
+    setTimeout(() => {
+      setType("initial");
+    }, theme.transitions.duration.leavingScreen);
   };
 
-  const onSubmit = handleSubmit((data) => {
-    reportBug(data);
-    resetForm();
-  });
+  const onSubmit = () =>
+    handleSubmit((data) => {
+      reportBug(data);
+      resetForm();
+    });
 
   return (
     <>
@@ -131,7 +133,7 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
                 {t("report.bug.button_label")}
               </StyledReportTypeButton>
               <StyledReportTypeButton
-                href={helpCenterReportContentURL}
+                href={HELP_CENTER_REPORT_CONTENT_URL}
                 style={{ maxWidth: "fit-content", textAlign: "center" }}
               >
                 {t("report.content.button_label")}
@@ -139,14 +141,16 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
             </DialogContent>
             <DialogActions>
               <StyledCancelButton
-                onClick={() => handleClose({}, "button")}
+                onClick={() => {
+                  handleClose({}, "button");
+                }}
                 variant="outlined"
               >
                 {t("cancel")}
               </StyledCancelButton>
             </DialogActions>
           </>
-        ) : type === "bug" ? (
+        ) : (
           <form onSubmit={onSubmit}>
             <DialogContent>
               {error && <Alert severity="error">{error.message}</Alert>}
@@ -188,15 +192,19 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
                 {t("submit")}
               </Button>
               <StyledCancelButton
-                onClick={() => handleClose({}, "button")}
+                onClick={() => {
+                  handleClose({}, "button");
+                }}
                 variant="outlined"
               >
                 {t("cancel")}
               </StyledCancelButton>
             </DialogActions>
           </form>
-        ) : null}
+        )}
       </Dialog>
     </>
   );
-}
+};
+
+export default ReportDialog;

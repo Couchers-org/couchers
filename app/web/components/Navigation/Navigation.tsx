@@ -25,23 +25,23 @@ import useNotifications from "@/features/useNotifications";
 import { GLOBAL } from "@/i18n/namespaces";
 import CouchersLogo from "@/resources/CouchersLogo";
 import {
-  blogRoute,
-  communitiesRoute,
-  dashboardRoute,
-  donationsRoute,
-  eventsRoute,
-  featurePreviewRoute,
-  helpCenterURL,
-  loginRoute,
-  logoutRoute,
-  messagesRoute,
-  missionRoute,
-  planRoute,
+  BLOG_ROUTE,
+  COMMUNITIES_ROUTE,
+  DASHBOARD_ROUTE,
+  DONATIONS_ROUTE,
+  EVENTS_ROUTE,
+  FEATURE_PREVIEW_ROUTE,
+  HELP_CENTER_URL,
+  LOGIN_ROUTE,
+  LOGOUT_ROUTE,
+  MESSAGES_ROUTE,
+  MISSION_ROUTE,
+  PLAN_ROUTE,
+  SEARCH_ROUTE,
+  SETTINGS_ROUTE,
+  SIGNUP_ROUTE,
+  VOLUNTEER_ROUTE,
   routeToProfile,
-  searchRoute,
-  settingsRoute,
-  signupRoute,
-  volunteerRoute,
 } from "@/routes";
 import { theme } from "@/theme";
 
@@ -61,16 +61,16 @@ type PingData = ReturnType<typeof useNotifications>["data"];
 
 // shown on mobile/small screens
 const loggedInDrawerMenu = (
-  t: TFunction<"global", undefined>,
+  t: TFunction<"global">,
   pingData: PingData,
 ): Array<MenuItemProps> => [
   {
     name: t("nav.dashboard"),
-    route: dashboardRoute,
+    route: DASHBOARD_ROUTE,
   },
   {
     name: t("nav.messages"),
-    route: messagesRoute,
+    route: MESSAGES_ROUTE,
     notificationCount:
       (pingData?.unseenMessageCount ?? 0) +
       (pingData?.unseenReceivedHostRequestCount ?? 0) +
@@ -78,30 +78,30 @@ const loggedInDrawerMenu = (
   },
   {
     name: t("nav.map_search"),
-    route: searchRoute,
+    route: SEARCH_ROUTE,
   },
   {
     name: t("nav.events"),
-    route: eventsRoute,
+    route: EVENTS_ROUTE,
   },
   {
     name: t("nav.communities"),
-    route: communitiesRoute,
+    route: COMMUNITIES_ROUTE,
   },
 ];
 
 // shown on desktop and big screens on top of the screen
 const loggedInNavMenu = (
-  t: TFunction<"global", undefined>,
+  t: TFunction<"global">,
   pingData: PingData,
 ): Array<MenuItemProps> => [
   {
     name: t("nav.dashboard"),
-    route: dashboardRoute,
+    route: DASHBOARD_ROUTE,
   },
   {
     name: t("nav.messages"),
-    route: messagesRoute,
+    route: MESSAGES_ROUTE,
     notificationCount:
       (pingData?.unseenMessageCount ?? 0) +
       (pingData?.unseenReceivedHostRequestCount ?? 0) +
@@ -109,55 +109,51 @@ const loggedInNavMenu = (
   },
   {
     name: t("nav.map_search"),
-    route: searchRoute,
+    route: SEARCH_ROUTE,
   },
   {
     name: t("nav.events"),
-    route: eventsRoute,
+    route: EVENTS_ROUTE,
   },
   {
     name: t("nav.communities"),
-    route: communitiesRoute,
+    route: COMMUNITIES_ROUTE,
   },
 ];
 
-const loggedOutNavMenu = (
-  t: TFunction<"global", undefined>,
-): Array<MenuItemProps> => [
+const loggedOutNavMenu = (t: TFunction<"global">): Array<MenuItemProps> => [
   {
     name: t("nav.blog"),
-    route: blogRoute,
+    route: BLOG_ROUTE,
   },
   {
     name: t("nav.our_plan"),
-    route: planRoute,
+    route: PLAN_ROUTE,
   },
   {
     name: t("nav.mission"),
-    route: missionRoute,
+    route: MISSION_ROUTE,
   },
 ];
 
-const loggedOutDrawerMenu = (
-  t: TFunction<"global", undefined>,
-): Array<MenuItemProps> => [
+const loggedOutDrawerMenu = (t: TFunction<"global">): Array<MenuItemProps> => [
   {
     name: t("nav.blog"),
-    route: blogRoute,
+    route: BLOG_ROUTE,
   },
   {
     name: t("nav.our_plan"),
-    route: planRoute,
+    route: PLAN_ROUTE,
   },
   {
     name: t("nav.mission"),
-    route: missionRoute,
+    route: MISSION_ROUTE,
   },
 ];
 
 // shown on desktop and big screens in the top right corner when logged in
 const loggedInMenuDropDown = (
-  t: TFunction<"global", undefined>,
+  t: TFunction<"global">,
   pingData: PingData,
 ): Array<LoggedInMenuItem> => [
   {
@@ -169,7 +165,7 @@ const loggedInMenuDropDown = (
   {
     type: "link",
     name: t("nav.messages"),
-    route: messagesRoute,
+    route: MESSAGES_ROUTE,
     notificationCount:
       (pingData?.unseenMessageCount ?? 0) +
       (pingData?.unseenReceivedHostRequestCount ?? 0) +
@@ -178,29 +174,29 @@ const loggedInMenuDropDown = (
   {
     type: "link",
     name: t("nav.account_settings"),
-    route: settingsRoute,
+    route: SETTINGS_ROUTE,
   },
   {
     type: "link",
     name: t("nav.feature_preview"),
-    route: featurePreviewRoute,
+    route: FEATURE_PREVIEW_ROUTE,
     hasBottomDivider: true,
   },
   {
     type: "link",
     name: t("nav.help_center"),
-    route: helpCenterURL,
+    route: HELP_CENTER_URL,
     externalLink: true,
   },
   {
     type: "link",
     name: t("nav.donate"),
-    route: donationsRoute,
+    route: DONATIONS_ROUTE,
   },
   {
     type: "link",
     name: t("nav.volunteer"),
-    route: volunteerRoute,
+    route: VOLUNTEER_ROUTE,
   },
   {
     type: "dialog",
@@ -212,13 +208,13 @@ const loggedInMenuDropDown = (
   {
     type: "link",
     name: t("nav.log_out"),
-    route: logoutRoute,
+    route: LOGOUT_ROUTE,
   },
 ];
 
 const drawerWidth = 240;
 
-const StyledAppBar = styled(AppBar)(({ theme }) => ({
+const StyledAppBar = styled(AppBar)(() => ({
   bottom: "auto",
   top: 0,
   boxShadow: "none",
@@ -229,7 +225,7 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   },
 }));
 
-const StyledFlexbox = styled("div")(({ theme }) => ({
+const StyledFlexbox = styled("div")(() => ({
   display: "flex",
   flex: 0,
   justifyContent: "flex-start",
@@ -238,17 +234,17 @@ const StyledFlexbox = styled("div")(({ theme }) => ({
   width: "auto",
 }));
 
-const StyledDrawerHeader = styled("div")(({ theme }) => ({
+const StyledDrawerHeader = styled("div")(() => ({
   display: "flex",
   justifyContent: "space-between",
 }));
 
-const StyledDrawer = styled(Drawer)(({ theme }) => ({
+const StyledDrawer = styled(Drawer)(() => ({
   padding: theme.spacing(2),
   width: drawerWidth,
 }));
 
-const StyledDrawerTitle = styled("div")(({ theme }) => ({
+const StyledDrawerTitle = styled("div")(() => ({
   alignSelf: "center",
   fontSize: "1.5rem",
   fontWeight: 400,
@@ -258,7 +254,7 @@ const StyledDrawerTitle = styled("div")(({ theme }) => ({
   marginInlineStart: theme.spacing(1.5),
 }));
 
-const StyledToolbar = styled(Toolbar)(({ theme }) => ({
+const StyledToolbar = styled(Toolbar)(() => ({
   [theme.breakpoints.up("md")]: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
@@ -268,30 +264,32 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   paddingRight: 0,
 }));
 
-const StyledNav = styled("div")(({ theme }) => ({
+const StyledNav = styled("div")(() => ({
   alignItems: "center",
   display: "flex",
   flex: 0,
 }));
 
-const StyledMenuContainer = styled("div")(({ theme }) => ({
+const StyledMenuContainer = styled("div")(() => ({
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
 }));
 
-export default function Navigation() {
+const Navigation = () => {
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [isMounted, setIsMounted] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const { data: pingData } = useNotifications();
   const { authState } = useAuthContext();
 
-  useEffect(() => setIsMounted(true), []);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const { t } = useTranslation(GLOBAL);
 
@@ -351,11 +349,11 @@ export default function Navigation() {
   );
 
   const handleDrawerOpen = () => {
-    setOpen(true);
+    setIsOpen(true);
   };
 
   const handleDrawerClose = () => {
-    setOpen(false);
+    setIsOpen(false);
   };
 
   return (
@@ -377,7 +375,7 @@ export default function Navigation() {
               <StyledDrawer
                 variant="temporary"
                 anchor="right"
-                open={open}
+                open={isOpen}
                 onClick={handleDrawerClose}
                 ModalProps={{
                   keepMounted: true, // better open performance on mobile
@@ -427,9 +425,9 @@ export default function Navigation() {
         <StyledMenuContainer>
           {authState.authenticated && isMounted ? (
             <LoggedInMenu
-              menuOpen={menuOpen}
+              menuOpen={isMenuOpen}
               notificationCount={pingData?.unseenNotificationCount}
-              setMenuOpen={setMenuOpen}
+              setMenuOpen={setIsMenuOpen}
               items={loggedInMenuItems}
             />
           ) : (
@@ -450,16 +448,16 @@ export default function Navigation() {
                   borderRadius: theme.spacing(1),
                   border: `1.5px solid ${theme.palette.primary.main}`,
                 }}
-                onClick={() => router.push(loginRoute)}
+                onClick={() => router.push(LOGIN_ROUTE)}
               >
                 {t("login")}
               </Button>
               {!isMobile && (
                 <Button
                   variant="contained"
-                  size={isMobile ? "medium" : "large"}
+                  size={"large"}
                   sx={{ fontSize: "1.3rem" }}
-                  onClick={() => router.push(signupRoute)}
+                  onClick={() => router.push(SIGNUP_ROUTE)}
                 >
                   {t("join_us")}
                 </Button>
@@ -472,4 +470,6 @@ export default function Navigation() {
       <PushNotificationBanner />
     </StyledAppBar>
   );
-}
+};
+
+export default Navigation;

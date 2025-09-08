@@ -5,7 +5,7 @@ import Button from "@/components/Button";
 import StyledLink from "@/components/StyledLink";
 import { Trans, useTranslation } from "@/i18n";
 import { PROFILE } from "@/i18n/namespaces";
-import { dashboardRoute, donationsRoute } from "@/routes";
+import { DASHBOARD_ROUTE, donationsRoute } from "@/routes";
 import { theme } from "@/theme";
 
 const ThankYouReference = () => {
@@ -38,7 +38,7 @@ const ThankYouReference = () => {
       </Typography>
       <Button
         sx={{ marginTop: theme.spacing(3) }}
-        onClick={() => router.push(dashboardRoute)}
+        onClick={() => router.push(DASHBOARD_ROUTE)}
       >
         {t("profile:actions.back_to_dashboard")}
       </Button>

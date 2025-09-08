@@ -6,7 +6,7 @@ import { BackIcon } from "@/components/Icons";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
 import { ReferenceType } from "@/proto/references_pb";
-import { referenceTypeRoute } from "@/routes";
+import { REFERENCE_TYPE_ROUTE } from "@/routes";
 import { theme } from "@/theme";
 
 export interface ReferenceStepHeaderProps {
@@ -21,12 +21,12 @@ const StyledHeader = styled("div")({
   alignItems: "center",
 });
 
-export default function ReferenceStepHeader({
+const ReferenceStepHeader = ({
   name,
   referenceType,
   isSubmitStep = false,
   isDidStayStep = false,
-}: ReferenceStepHeaderProps) {
+}: ReferenceStepHeaderProps) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const router = useRouter();
 
@@ -37,7 +37,7 @@ export default function ReferenceStepHeader({
 
     if (isDidStayStep) {
       return referenceType ===
-        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
+        REFERENCE_TYPE_ROUTE[ReferenceType.REFERENCE_TYPE_SURFED]
         ? t("profile:leave_reference.reference_form_heading_did_stay_surfed", {
             name,
           })
@@ -46,14 +46,16 @@ export default function ReferenceStepHeader({
           });
     }
     if (
-      referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
+      referenceType ===
+      REFERENCE_TYPE_ROUTE[ReferenceType.REFERENCE_TYPE_FRIEND]
     ) {
       return t("profile:leave_reference.reference_form_heading_friend", {
         name,
       });
     }
     if (
-      referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
+      referenceType ===
+      REFERENCE_TYPE_ROUTE[ReferenceType.REFERENCE_TYPE_SURFED]
     ) {
       return t("profile:leave_reference.reference_form_heading_surfed", {
         name,
@@ -67,7 +69,9 @@ export default function ReferenceStepHeader({
   return (
     <StyledHeader>
       <HeaderButton
-        onClick={() => router.back()}
+        onClick={() => {
+          router.back();
+        }}
         aria-label={t("profile:leave_reference.previous_step")}
       >
         <BackIcon />
@@ -77,4 +81,6 @@ export default function ReferenceStepHeader({
       </Typography>
     </StyledHeader>
   );
-}
+};
+
+export default ReferenceStepHeader;

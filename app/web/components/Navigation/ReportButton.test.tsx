@@ -9,7 +9,7 @@ import {
 import userEvent from "@testing-library/user-event";
 import mediaQuery from "css-mediaquery";
 
-import { helpCenterReportContentURL } from "@/routes";
+import { HELP_CENTER_REPORT_CONTENT_URL } from "@/routes";
 import { service } from "@/service";
 import wrapper from "@/test/hookWrapper";
 import i18n from "@/test/i18n";
@@ -28,11 +28,11 @@ const reportBugMock = service.bugs.reportBug as MockedService<
   typeof service.bugs.reportBug
 >;
 
-async function fillInAndSubmitReportButton(
+const fillInAndSubmitReportButton = async (
   subjectFieldLabel: string,
   descriptionFieldLabel: string,
   resultsFieldLabel = "",
-) {
+) => {
   const subjectField = await screen.findByLabelText(subjectFieldLabel);
   const descriptionField = await screen.findByLabelText(descriptionFieldLabel);
   const resultsField = screen.queryByLabelText(resultsFieldLabel);
@@ -49,7 +49,7 @@ async function fillInAndSubmitReportButton(
   }
 
   await user.click(screen.getByRole("button", { name: t("global:submit") }));
-}
+};
 
 describe("ReportButton", () => {
   beforeEach(() => {
@@ -76,13 +76,13 @@ describe("ReportButton", () => {
   });
 
   describe("when displayed in a small screen", () => {
-    function createMatchMedia(width: number) {
+    const createMatchMedia = (width: number) => {
       return (query: string) => ({
         addListener: jest.fn(),
         matches: mediaQuery.match(query, { width }),
         removeListener: jest.fn(),
       });
-    }
+    };
 
     beforeEach(() => {
       // @ts-ignore JSDom doesn't enforce this to be readonly, so less verbose to do this than
@@ -162,7 +162,7 @@ describe("ReportButton", () => {
       expect(reportContentLink).toBeVisible();
       expect(reportContentLink).toHaveAttribute(
         "href",
-        helpCenterReportContentURL,
+        HELP_CENTER_REPORT_CONTENT_URL,
       );
     });
 

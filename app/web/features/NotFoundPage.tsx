@@ -7,9 +7,9 @@ import { useAuthContext } from "@/features/auth/AuthProvider";
 import { Trans, useTranslation } from "@/i18n";
 import { GLOBAL } from "@/i18n/namespaces";
 import Graphic from "@/resources/404graphic.png";
-import { baseRoute, dashboardRoute } from "@/routes";
+import { BASE_ROUTE, DASHBOARD_ROUTE } from "@/routes";
 
-const StyledWrapper = styled("div")(({ theme }) => ({
+const StyledWrapper = styled("div")(() => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
@@ -20,13 +20,15 @@ const StyledImg = styled("img")(({ theme }) => ({
   margin: theme.spacing(8, 0),
 }));
 
-export default function NotFoundPage() {
+const NotFoundPage = () => {
   const { t } = useTranslation(GLOBAL);
   const {
     authState: { authenticated },
   } = useAuthContext();
   const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => setIsMounted(true), []);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
     <>
@@ -38,7 +40,7 @@ export default function NotFoundPage() {
           <Trans t={t} i18nKey="not_found_text_2">
             Do you just want to
             <StyledLink
-              href={!authenticated || !isMounted ? baseRoute : dashboardRoute}
+              href={!authenticated || !isMounted ? BASE_ROUTE : DASHBOARD_ROUTE}
             >
               go home?
             </StyledLink>
@@ -47,4 +49,5 @@ export default function NotFoundPage() {
       </StyledWrapper>
     </>
   );
-}
+};
+export default NotFoundPage;

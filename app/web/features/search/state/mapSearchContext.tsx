@@ -7,7 +7,7 @@ import {
 } from "react";
 
 import { GeocodeResult } from "@/utils/hooks";
-import SearchFilters from "@/utils/searchFilters";
+import { SearchFilters } from "@/utils/searchFilters";
 
 import {
   MapSearchAction,
@@ -15,20 +15,23 @@ import {
   mapSearchReducer,
 } from "./mapSearchReducers";
 
+// TODO(FB) Find a better solution
+/* eslint-disable @typescript-eslint/naming-convention */
 const MapSearchContext = createContext(initialState);
 const MapSearchDispatchContext = createContext<Dispatch<MapSearchAction>>(
   () => {
     throw new Error("MapSearchDispatchContext used outside of provider");
   },
 );
+/* eslint-enable @typescript-eslint/naming-convention */
 
-function useMapSearchState() {
+const useMapSearchState = () => {
   return useContext(MapSearchContext);
-}
+};
 
-function useMapSearchDispatch() {
+const useMapSearchDispatch = () => {
   return useContext(MapSearchDispatchContext);
-}
+};
 
 // This is the pattern of using Reducer with Context we're using here:
 // https://react.dev/learn/scaling-up-with-reducer-and-context
@@ -36,7 +39,7 @@ function useMapSearchDispatch() {
 // e.g. if the APIs were refactored to return not just the users but the current filters and search state,
 // we could just grab it from the react-query cache since we are passing that data to the API anyway.
 
-function MapSearchProvider({
+const MapSearchProvider = ({
   children,
   initialBbox,
   initialLocationName,
@@ -46,7 +49,7 @@ function MapSearchProvider({
   initialBbox: GeocodeResult["bbox"] | undefined;
   initialLocationName: string | undefined;
   initialFilters: SearchFilters;
-}) {
+}) => {
   const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
     ...initialState,
     hasActiveFilters: Object.keys(initialFilters).length > 0 ? true : false,
@@ -64,7 +67,7 @@ function MapSearchProvider({
       </MapSearchDispatchContext.Provider>
     </MapSearchContext.Provider>
   );
-}
+};
 
 export {
   MapSearchContext,

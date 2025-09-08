@@ -8,7 +8,7 @@ import Button from "@/components/Button";
 import HtmlMeta from "@/components/HtmlMeta";
 import { useAuthContext } from "@/features/auth/AuthProvider";
 import { GLOBAL } from "@/i18n/namespaces";
-import { signupRoute } from "@/routes";
+import { SIGNUP_ROUTE } from "@/routes";
 import { theme } from "@/theme";
 
 import CouchersMission from "./CouchersMission";
@@ -85,7 +85,7 @@ export default function LandingPage() {
             size="small"
             fullWidth
             sx={{ fontSize: "1.3rem", borderRadius: theme.spacing(1) }}
-            onClick={() => router.push(signupRoute)}
+            onClick={() => router.push(SIGNUP_ROUTE)}
           >
             {t("join_us")}
           </Button>

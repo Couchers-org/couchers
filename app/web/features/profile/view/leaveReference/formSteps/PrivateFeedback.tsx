@@ -29,10 +29,10 @@ import { useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
 import { ReferenceType } from "@/proto/references_pb";
 import {
-  helpCenterPrivateFeedbackUrl,
-  leaveReferenceBaseRoute,
-  referenceStepStrings,
-  referenceTypeRoute,
+  HELP_CENTER_PRIVATE_FEEDBACK_URL,
+  LEAVE_REFERENCE_BASE_ROUTE,
+  REFERENCE_STEP_STRINGS,
+  REFERENCE_TYPE_ROUTE,
 } from "@/routes";
 import { theme } from "@/theme";
 
@@ -84,12 +84,12 @@ const PrivateTextContainer = styled("div")(({ theme }) => ({
   width: "100%",
 }));
 
-export default function PrivateFeedback({
+const PrivateFeedback = ({
   referenceData,
   setReferenceValues,
   referenceType,
   hostRequestId,
-}: ReferenceStepProps) {
+}: ReferenceStepProps) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
@@ -110,20 +110,23 @@ export default function PrivateFeedback({
 
   const { rating, wasAppropriate } = watch();
 
-  const onSubmit = handleSubmit((values) => {
-    setReferenceValues(values);
-    if (
-      referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
-    ) {
-      router.push(
-        `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${referenceStepStrings[2]}`,
-      );
-    } else {
-      router.push(
-        `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${referenceStepStrings[2]}`,
-      );
-    }
-  });
+  const onSubmit = () =>
+    handleSubmit((values) => {
+      setReferenceValues(values);
+      if (
+        referenceType ===
+        REFERENCE_TYPE_ROUTE[ReferenceType.REFERENCE_TYPE_FRIEND]
+      ) {
+        void router.push(
+          `${LEAVE_REFERENCE_BASE_ROUTE}/${referenceType}/${user.userId}/${REFERENCE_STEP_STRINGS[2]}`,
+        );
+      } else {
+        // TODO(FB) Handle undefined hostRequestId properly
+        void router.push(
+          `${LEAVE_REFERENCE_BASE_ROUTE}/${referenceType}/${user.userId}/${hostRequestId ?? ""}/${REFERENCE_STEP_STRINGS[2]}`,
+        );
+      }
+    });
 
   const hasProvidedAcceptableExperience = !(
     wasAppropriate === "false" ||
@@ -177,7 +180,7 @@ export default function PrivateFeedback({
             })}
           </Typography>
           <Divider />
-          {errors && errors.rating?.message && (
+          {errors.rating?.message && (
             <Alert severity="error" sx={{ marginBottom: theme.spacing(3) }}>
               {errors.rating.message}
             </Alert>
@@ -209,7 +212,7 @@ export default function PrivateFeedback({
                   private. The more details the better, but even a short
                   explanation can help a lot. Read more{" "}
                   <StyledLink
-                    href={helpCenterPrivateFeedbackUrl}
+                    href={HELP_CENTER_PRIVATE_FEEDBACK_URL}
                     sx={{ fontWeight: 600 }}
                   >
                     here
@@ -263,4 +266,6 @@ export default function PrivateFeedback({
       </StyledButtonContainer>
     </StyledForm>
   );
-}
+};
+
+export default PrivateFeedback;

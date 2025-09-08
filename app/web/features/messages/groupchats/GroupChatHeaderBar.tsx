@@ -1,6 +1,5 @@
 import { Skeleton, styled, useMediaQuery } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { RpcError } from "grpc-web";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useRef, useState } from "react";
@@ -17,14 +16,14 @@ import LeaveDialog from "@/features/messages/groupchats/LeaveDialog";
 import MembersDialog from "@/features/messages/groupchats/MembersDialog";
 import MuteDialog from "@/features/messages/groupchats/MuteDialog";
 import { getDmUsername } from "@/features/messages/utils";
+import { groupChatKey } from "@/features/queryKeys";
+import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
 import { GroupChat } from "@/proto/conversations_pb";
-import { groupChatsRoute, routeToUser } from "@/routes";
+import { GROUP_CHATS_ROUTE, routeToUser } from "@/routes";
 import { service } from "@/service";
 import { theme } from "@/theme";
-
-import { groupChatKey } from "../../queryKeys";
 
 const StyledTitleBox = styled("div")({
   flexGrow: 1,
@@ -36,7 +35,7 @@ const StyledTitleBox = styled("div")({
   "& > *": { marginInlineEnd: theme.spacing(2) },
 });
 
-export default function GroupChatHeaderBar({
+const GroupChatHeaderBar = ({
   chatId,
   currentUserId,
   groupChat,
@@ -46,10 +45,10 @@ export default function GroupChatHeaderBar({
   chatId: number;
   currentUserId: number;
   groupChat: GroupChat.AsObject | undefined;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  groupChatMembersQuery: any;
+
+  groupChatMembersQuery: ReturnType<typeof useLiteUsers>;
   title: string | undefined;
-}) {
+}) => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { t } = useTranslation([GLOBAL, MESSAGES]);
@@ -69,7 +68,7 @@ export default function GroupChatHeaderBar({
     settings: false,
   });
 
-  const unmuteMutation = useMutation<void, RpcError>({
+  const unmuteMutation = useMutation({
     mutationFn: async () => {
       await service.conversations.muteChat({
         groupChatId: chatId,
@@ -77,26 +76,26 @@ export default function GroupChatHeaderBar({
       });
     },
 
-    onSuccess() {
+    onSuccess: async () => {
       queryClient.setQueryData(groupChatKey(chatId), {
         ...groupChat,
         muteInfo: { muted: false },
       });
-      queryClient.invalidateQueries({ queryKey: groupChatKey(chatId) });
+      await queryClient.invalidateQueries({ queryKey: groupChatKey(chatId) });
     },
   });
 
-  const handleBack = () => router.push(groupChatsRoute);
+  const handleBack = () => void router.push(GROUP_CHATS_ROUTE);
 
   const handleClick = (item: keyof typeof isOpen) => {
-    //just unmute straight away with no dialog if muted
+    // just unmute straight away with no dialog if muted
     if (item === "mute" && groupChat?.muteInfo?.muted) {
       unmuteMutation.mutate();
       setIsOpen((prev) => ({ ...prev, menu: false }));
       return;
     }
 
-    //close the menu if a menu item was selected
+    // close the menu if a menu item was selected
     if (item !== "menu") {
       setIsOpen((prev) => ({ ...prev, [item]: true, menu: false }));
     } else {
@@ -133,7 +132,7 @@ export default function GroupChatHeaderBar({
           {unmuteMutation.isPending ? (
             <CircularProgress size="1.5rem" />
           ) : (
-            groupChat?.muteInfo?.muted && (
+            groupChat.muteInfo?.muted && (
               <MuteIcon
                 data-testid="mute-icon"
                 titleAccess={t("messages:chat_view.muted_icon.a11y_label")}
@@ -164,7 +163,9 @@ export default function GroupChatHeaderBar({
       )}
       <>
         <HeaderButton
-          onClick={() => handleClick("menu")}
+          onClick={() => {
+            handleClick("menu");
+          }}
           aria-label={t("messages:chat_view.actions_menu.a11y_label")}
           aria-haspopup="true"
           aria-controls="more-menu"
@@ -178,11 +179,18 @@ export default function GroupChatHeaderBar({
           anchorEl={menuAnchor.current}
           keepMounted
           open={isOpen.menu}
-          onClose={() => handleClose("menu")}
+          onClose={() => {
+            handleClose("menu");
+          }}
         >
           {[
             groupChat ? (
-              <MenuItem onClick={() => handleClick("mute")} key="mute">
+              <MenuItem
+                onClick={() => {
+                  handleClick("mute");
+                }}
+                key="mute"
+              >
                 {!groupChat.muteInfo?.muted
                   ? t("messages:chat_view.mute.button_label")
                   : t("messages:chat_view.mute.unmute_button_label")}
@@ -192,7 +200,9 @@ export default function GroupChatHeaderBar({
               ? [
                   !groupChat?.onlyAdminsInvite || isChatAdmin ? (
                     <MenuItem
-                      onClick={() => handleClick("invite")}
+                      onClick={() => {
+                        handleClick("invite");
+                      }}
                       key="invite"
                     >
                       {t(
@@ -201,7 +211,9 @@ export default function GroupChatHeaderBar({
                     </MenuItem>
                   ) : null,
                   <MenuItem
-                    onClick={() => handleClick("members")}
+                    onClick={() => {
+                      handleClick("members");
+                    }}
                     key="members"
                   >
                     {t(
@@ -211,7 +223,9 @@ export default function GroupChatHeaderBar({
                   isChatAdmin
                     ? [
                         <MenuItem
-                          onClick={() => handleClick("admins")}
+                          onClick={() => {
+                            handleClick("admins");
+                          }}
                           key="admins"
                         >
                           {t(
@@ -219,7 +233,9 @@ export default function GroupChatHeaderBar({
                           )}
                         </MenuItem>,
                         <MenuItem
-                          onClick={() => handleClick("settings")}
+                          onClick={() => {
+                            handleClick("settings");
+                          }}
                           key="settings"
                         >
                           {t(
@@ -230,7 +246,12 @@ export default function GroupChatHeaderBar({
                     : null,
 
                   groupChat?.memberUserIdsList.includes(currentUserId) ? (
-                    <MenuItem onClick={() => handleClick("leave")} key="leave">
+                    <MenuItem
+                      onClick={() => {
+                        handleClick("leave");
+                      }}
+                      key="leave"
+                    >
                       {t("messages:chat_view.actions_menu.items.leave_chat")}
                     </MenuItem>
                   ) : null,
@@ -242,37 +263,51 @@ export default function GroupChatHeaderBar({
           <>
             <MuteDialog
               open={isOpen.mute}
-              onClose={() => handleClose("mute")}
+              onClose={() => {
+                handleClose("mute");
+              }}
               groupChatId={chatId}
             />
             <InviteDialog
               open={isOpen.invite}
-              onClose={() => handleClose("invite")}
+              onClose={() => {
+                handleClose("invite");
+              }}
               groupChat={groupChat}
             />
             <MembersDialog
               open={isOpen.members}
-              onClose={() => handleClose("members")}
+              onClose={() => {
+                handleClose("members");
+              }}
               groupChat={groupChat}
             />
             <AdminsDialog
               open={isOpen.admins}
-              onClose={() => handleClose("admins")}
+              onClose={() => {
+                handleClose("admins");
+              }}
               groupChat={groupChat}
             />
             <GroupChatSettingsDialog
               open={isOpen.settings}
-              onClose={() => handleClose("settings")}
+              onClose={() => {
+                handleClose("settings");
+              }}
               groupChat={groupChat}
             />
           </>
         )}
         <LeaveDialog
           open={isOpen.leave}
-          onClose={() => handleClose("leave")}
+          onClose={() => {
+            handleClose("leave");
+          }}
           groupChatId={chatId}
         />
       </>
     </>
   );
-}
+};
+
+export default GroupChatHeaderBar;

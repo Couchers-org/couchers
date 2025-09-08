@@ -2,7 +2,7 @@ import { SvgIcon, styled } from "@mui/material";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { baseRoute, dashboardRoute } from "@/routes";
+import { BASE_ROUTE, DASHBOARD_ROUTE } from "@/routes";
 
 const Logo = styled(SvgIcon)(({ theme }) => ({
   fill: theme.palette.secondary.main,
@@ -17,10 +17,7 @@ export interface CouchersLogoProps {
   isLoggedIn?: boolean;
 }
 
-export default function CouchersLogo({
-  className,
-  isLoggedIn,
-}: CouchersLogoProps) {
+const CouchersLogo = ({ className, isLoggedIn }: CouchersLogoProps) => {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -30,9 +27,9 @@ export default function CouchersLogo({
   // During SSR and before hydration, always use baseRoute to prevent mismatch
   const href = isMounted
     ? isLoggedIn
-      ? dashboardRoute
-      : baseRoute
-    : baseRoute;
+      ? DASHBOARD_ROUTE
+      : BASE_ROUTE
+    : BASE_ROUTE;
 
   return (
     <Link href={href}>
@@ -49,4 +46,6 @@ export default function CouchersLogo({
       </Logo>
     </Link>
   );
-}
+};
+
+export default CouchersLogo;

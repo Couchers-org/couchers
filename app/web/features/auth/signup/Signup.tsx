@@ -12,7 +12,7 @@ import { AUTH, GLOBAL } from "@/i18n/namespaces";
 import { useIsNativeEmbed } from "@/platform/nativeLink";
 import Sentry from "@/platform/sentry";
 import CouchersTextLogo from "@/resources/CouchersTextLogo";
-import { dashboardRoute, loginRoute, signupRoute } from "@/routes";
+import { DASHBOARD_ROUTE, SIGNUP_ROUTE, loginRoute } from "@/routes";
 import { service } from "@/service";
 import isGrpcError from "@/service/utils/isGrpcError";
 import { theme } from "@/theme";
@@ -74,7 +74,7 @@ export default function Signup() {
           authActions.authError(
             isGrpcError(err) ? err.message : t("global:error.fatal_message"),
           );
-          router.push(signupRoute);
+          router.push(SIGNUP_ROUTE);
           return;
         }
         setLoading(false);
@@ -99,7 +99,7 @@ export default function Signup() {
 
   return (
     <>
-      {authenticated && <Redirect to={dashboardRoute} />}
+      {authenticated && <Redirect to={DASHBOARD_ROUTE} />}
       <HtmlMeta title={t("global:sign_up")} />
       <Container
         component="section"

@@ -6,7 +6,7 @@ import {
 } from "@testing-library/react";
 import mockRouter from "next-router-mock";
 
-import { ReferenceStep, leaveReferenceBaseRoute } from "@/routes";
+import { LEAVE_REFERENCE_BASE_ROUTE, ReferenceStep } from "@/routes";
 import { service } from "@/service";
 import wrapper from "@/test/hookWrapper";
 import i18n from "@/test/i18n";
@@ -25,18 +25,18 @@ const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
 >;
 
-function renderLeaveFriendReferencePage(
+const renderLeaveFriendReferencePage = (
   referenceType: string,
   userId: number,
   step?: ReferenceStep,
-) {
+) => {
   if (step) {
     mockRouter.setCurrentUrl(
-      `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${step}`,
+      `${LEAVE_REFERENCE_BASE_ROUTE}/${referenceType}/${userId}/${step}`,
     );
   } else {
     mockRouter.setCurrentUrl(
-      `${leaveReferenceBaseRoute}/${referenceType}/${userId}`,
+      `${LEAVE_REFERENCE_BASE_ROUTE}/${referenceType}/${userId}`,
     );
   }
 
@@ -50,21 +50,21 @@ function renderLeaveFriendReferencePage(
       wrapper,
     },
   );
-}
+};
 
-function renderLeaveRequestReferencePage(
+const renderLeaveRequestReferencePage = (
   referenceType: string,
   userId: number,
   hostRequestId: number,
   step?: ReferenceStep,
-) {
+) => {
   if (step) {
     mockRouter.setCurrentUrl(
-      `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}/${step}`,
+      `${LEAVE_REFERENCE_BASE_ROUTE}/${referenceType}/${userId}/${hostRequestId}/${step}`,
     );
   } else {
     mockRouter.setCurrentUrl(
-      `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`,
+      `${LEAVE_REFERENCE_BASE_ROUTE}/${referenceType}/${userId}/${hostRequestId}`,
     );
   }
 
@@ -77,7 +77,7 @@ function renderLeaveRequestReferencePage(
     />,
     { wrapper },
   );
-}
+};
 
 describe("LeaveReferencePage", () => {
   beforeEach(() => {
@@ -114,7 +114,7 @@ describe("LeaveReferencePage", () => {
         renderLeaveFriendReferencePage("friend", 5);
       });
 
-      it("verifies that the review type is available", async () => {
+      it("verifies that the review type is available", () => {
         expect(getAvailableReferencesMock).toHaveBeenCalledTimes(1);
         expect(getAvailableReferencesMock).toHaveBeenCalledWith({ userId: 5 });
       });
@@ -123,9 +123,11 @@ describe("LeaveReferencePage", () => {
         expect(screen.queryByRole("alert")).not.toBeInTheDocument();
       });
 
-      it("should redirect to base friend route to get first friend step", async () => {
+      it("should redirect to base friend route to get first friend step", () => {
         // if friend, it should skip the "did-stay" step
-        expect(mockRouter.pathname).toBe(`${leaveReferenceBaseRoute}/friend/5`);
+        expect(mockRouter.pathname).toBe(
+          `${LEAVE_REFERENCE_BASE_ROUTE}/friend/5`,
+        );
       });
     });
 
@@ -134,7 +136,7 @@ describe("LeaveReferencePage", () => {
         renderLeaveFriendReferencePage("friend", 1);
       });
 
-      it("verifies the review type", async () => {
+      it("verifies the review type", () => {
         expect(getAvailableReferencesMock).toHaveBeenCalledTimes(1);
         expect(getAvailableReferencesMock).toHaveBeenCalledWith({ userId: 1 });
       });
@@ -164,7 +166,7 @@ describe("LeaveReferencePage", () => {
         renderLeaveRequestReferencePage("hosted", 5, 1);
       });
 
-      it("verifies that the review type is available", async () => {
+      it("verifies that the review type is available", () => {
         expect(getAvailableReferencesMock).toHaveBeenCalledTimes(1);
         expect(getAvailableReferencesMock).toHaveBeenCalledWith({ userId: 5 });
       });
@@ -185,7 +187,7 @@ describe("LeaveReferencePage", () => {
         renderLeaveRequestReferencePage("hosted", 5, 2);
       });
 
-      it("verifies the review type", async () => {
+      it("verifies the review type", () => {
         expect(getAvailableReferencesMock).toHaveBeenCalledTimes(1);
         expect(getAvailableReferencesMock).toHaveBeenCalledWith({ userId: 5 });
       });
@@ -214,14 +216,18 @@ describe("LeaveReferencePage", () => {
       renderLeaveRequestReferencePage("hosted", 5, 1, "submit");
 
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-      expect(mockRouter.pathname).toBe(`${leaveReferenceBaseRoute}/hosted/5/1`);
+      expect(mockRouter.pathname).toBe(
+        `${LEAVE_REFERENCE_BASE_ROUTE}/hosted/5/1`,
+      );
     });
 
     it("redirects to first step of the friend reference form", async () => {
       renderLeaveFriendReferencePage("friend", 5, "submit");
 
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-      expect(mockRouter.pathname).toBe(`${leaveReferenceBaseRoute}/friend/5`);
+      expect(mockRouter.pathname).toBe(
+        `${LEAVE_REFERENCE_BASE_ROUTE}/friend/5`,
+      );
     });
   });
 });

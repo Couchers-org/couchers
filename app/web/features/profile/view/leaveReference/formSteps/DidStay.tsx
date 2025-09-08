@@ -14,20 +14,20 @@ import StyledLink from "@/components/StyledLink";
 import TextBody from "@/components/TextBody";
 import TextField from "@/components/TextField";
 import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
+import { ReferenceStepProps } from "@/features/profile/view/leaveReference/ReferenceForm";
 import { Trans, useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
 import { ReferenceType } from "@/proto/references_pb";
 import {
-  baseRoute,
-  helpCenterReportContentURL,
-  leaveReferenceBaseRoute,
-  referenceStepStrings,
-  referenceTypeRoute,
+  BASE_ROUTE,
+  HELP_CENTER_REPORT_CONTENT_URL,
+  LEAVE_REFERENCE_BASE_ROUTE,
+  REFERENCE_STEP_STRINGS,
+  REFERENCE_TYPE_ROUTE,
 } from "@/routes";
 import { indicateDidntMeetup } from "@/service/references";
 import { theme } from "@/theme";
 
-import { ReferenceStepProps } from "../ReferenceForm";
 import ReferenceStepHeader from "./ReferenceStepHeader";
 
 interface IndicateDidntMeetupFormData {
@@ -109,14 +109,16 @@ const DidStay = ({
     setValue("didStay", true);
 
     if (
-      referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
+      referenceType ===
+      REFERENCE_TYPE_ROUTE[ReferenceType.REFERENCE_TYPE_FRIEND]
     ) {
-      router.push(
-        `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${referenceStepStrings[1]}`,
+      void router.push(
+        `${LEAVE_REFERENCE_BASE_ROUTE}/${referenceType}/${user.userId}/${REFERENCE_STEP_STRINGS[1]}`,
       );
     } else {
-      router.push(
-        `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${referenceStepStrings[1]}`,
+      // TODO(FB) Handle undefined hostRequestId properly
+      void router.push(
+        `${LEAVE_REFERENCE_BASE_ROUTE}/${referenceType}/${user.userId}/${hostRequestId ?? 0}/${REFERENCE_STEP_STRINGS[1]}`,
       );
     }
   };
@@ -150,7 +152,7 @@ const DidStay = ({
           size="large"
           sx={{ marginTop: 2 }}
           onClick={() => {
-            router.push(`${baseRoute}`);
+            void router.push(BASE_ROUTE);
           }}
         >
           {t("profile:leave_reference.go_to_dashboard")}
@@ -193,7 +195,7 @@ const DidStay = ({
             components={{ bold: <strong /> }}
           />
         </StyledTextBody>
-        {didStay === false && (
+        {!didStay && (
           <StyledReasonContainer>
             <Controller
               control={control}
@@ -236,7 +238,7 @@ const DidStay = ({
       >
         <DialogTitle id="did-stay--no-dialog-title">
           {referenceType ===
-          referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED]
+          REFERENCE_TYPE_ROUTE[ReferenceType.REFERENCE_TYPE_HOSTED]
             ? t("profile:leave_reference.did_stay_confirmation.title_hosted", {
                 name: user.name,
               })
@@ -248,14 +250,16 @@ const DidStay = ({
           <Trans
             i18nKey={
               referenceType ===
-              referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED]
+              REFERENCE_TYPE_ROUTE[ReferenceType.REFERENCE_TYPE_HOSTED]
                 ? "profile:leave_reference.did_stay_confirmation.message_hosted"
                 : "profile:leave_reference.did_stay_confirmation.message_surfed"
             }
             values={{ name: user.name }}
             components={{
               strong: <strong />,
-              2: <StyledLink href={helpCenterReportContentURL} target="#" />,
+              2: (
+                <StyledLink href={HELP_CENTER_REPORT_CONTENT_URL} target="#" />
+              ),
               br: <br />,
             }}
           />
@@ -266,7 +270,7 @@ const DidStay = ({
           </Button>
           <Button variant="contained" onClick={onSubmitDidNotStay}>
             {referenceType ===
-            referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED]
+            REFERENCE_TYPE_ROUTE[ReferenceType.REFERENCE_TYPE_HOSTED]
               ? t(
                   "profile:leave_reference.did_stay_confirmation.confirm_hosted",
                 )

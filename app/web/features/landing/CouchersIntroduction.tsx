@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import Button from "@/components/Button";
 import { Trans, useTranslation } from "@/i18n";
 import { GLOBAL, LANDING } from "@/i18n/namespaces";
-import { signupRoute } from "@/routes";
+import { SIGNUP_ROUTE } from "@/routes";
 import { theme } from "@/theme";
 
 const StyledIntroduction = styled("div")(({ theme }) => ({
@@ -26,7 +26,7 @@ const CouchersIntroduction = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const routeToSignupPage = () => {
-    router.push(signupRoute);
+    router.push(SIGNUP_ROUTE);
   };
 
   return (

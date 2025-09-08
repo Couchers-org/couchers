@@ -9,7 +9,7 @@ import ProfileIncompleteDialog from "@/components/ProfileIncompleteDialog/Profil
 import useAccountInfo from "@/features/auth/useAccountInfo";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
-import { dashboardRoute, routeToEvent } from "@/routes";
+import { DASHBOARD_ROUTE, routeToEvent } from "@/routes";
 import { service } from "@/service";
 import type { CreateEventInput } from "@/service/events";
 import { theme } from "@/theme";
@@ -116,7 +116,7 @@ export default function CreateEventPage() {
       <HtmlMeta title={t("communities:create_event_page_title")} />
       <ProfileIncompleteDialog
         open={!isAccountInfoLoading && !accountInfo?.profileComplete}
-        onClose={() => router.push(dashboardRoute)}
+        onClose={() => router.push(DASHBOARD_ROUTE)}
         attempted_action="create_event"
       />
       <EventForm
