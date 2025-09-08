@@ -160,6 +160,7 @@ export const searchQueryKey = (query?: string) =>
 export const userCommunitiesKey = "userCommunities";
 export const myEventsKey = (type: EventsType) => ["myEvents", { type }];
 export const activeLoginsKey = "activeLogins";
+export const inviteCodesKey = "inviteCodes";
 
 // Badges
 export interface BadgeUsersInput {

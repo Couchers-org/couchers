@@ -4,6 +4,7 @@ import {
   AntiBotReq,
   ConfirmDeleteAccountReq,
   ContributorForm as ContributorFormPb,
+  GetInviteCodeInfoReq,
   RecoverAccountReq,
   SignupAccount,
   SignupBasic,
@@ -14,13 +15,30 @@ import {
 
 import client from "./client";
 
-export async function startSignup(name: string, email: string) {
+export async function startSignup(
+  name: string,
+  email: string,
+  inviteCode?: string,
+) {
   const req = new SignupFlowReq();
   const basic = new SignupBasic();
+
+  if (inviteCode) {
+    basic.setInviteCode(inviteCode);
+  }
+
   basic.setName(name);
   basic.setEmail(email);
+
   req.setBasic(basic);
   const res = await client.auth.signupFlow(req);
+  return res.toObject();
+}
+
+export async function getInviteCodeInfo(code: string) {
+  const req = new GetInviteCodeInfoReq();
+  req.setCode(code);
+  const res = await client.auth.getInviteCodeInfo(req);
   return res.toObject();
 }
 
