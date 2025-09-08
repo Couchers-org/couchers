@@ -248,10 +248,10 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.27.1"
 
-"@babel/runtime@^7.12.5", "@babel/runtime@^7.18.3", "@babel/runtime@^7.20.13", "@babel/runtime@^7.22.5", "@babel/runtime@^7.23.2", "@babel/runtime@^7.28.2", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.7":
-  version "7.28.3"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.28.3.tgz#75c5034b55ba868121668be5d5bb31cc64e6e61a"
-  integrity sha512-9uIQ10o0WGdpP6GDhXcdOJPJuDgFtIDtN/9+ArJQ2NAfAmiuhTQdzkaTGR33v43GYS2UrSA0eX2pPPHoFVvpxA==
+"@babel/runtime@^7.12.5", "@babel/runtime@^7.18.3", "@babel/runtime@^7.20.13", "@babel/runtime@^7.22.5", "@babel/runtime@^7.23.2", "@babel/runtime@^7.28.2", "@babel/runtime@^7.28.3", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.7":
+  version "7.28.4"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.28.4.tgz#a70226016fabe25c5783b2f22d3e1c9bc5ca3326"
+  integrity sha512-Q/N6JNWvIvPnLDvjlE1OUBLPQHH6l3CltCEsHIujp45zQUSSh8K+gHnaEX45yAT1nyngnINhvWtzN+Nb9D8RAQ==
 
 "@babel/template@^7.27.2", "@babel/template@^7.3.3":
   version "7.27.2"
@@ -1076,20 +1076,20 @@
     csstype "^3.1.3"
     prop-types "^15.8.1"
 
-"@mui/types@^7.4.5":
-  version "7.4.5"
-  resolved "https://registry.yarnpkg.com/@mui/types/-/types-7.4.5.tgz#97533ac6f95498820e1331c6b961b7acc04e91d7"
-  integrity sha512-ZPwlAOE3e8C0piCKbaabwrqZbW4QvWz0uapVPWya7fYj6PeDkl5sSJmomT7wjOcZGPB48G/a6Ubidqreptxz4g==
+"@mui/types@^7.4.5", "@mui/types@^7.4.6":
+  version "7.4.6"
+  resolved "https://registry.yarnpkg.com/@mui/types/-/types-7.4.6.tgz#1432e0814cf155287283f6bbd1e95976a148ef07"
+  integrity sha512-NVBbIw+4CDMMppNamVxyTccNv0WxtDb7motWDlMeSC8Oy95saj1TIZMGynPpFLePt3yOD8TskzumeqORCgRGWw==
   dependencies:
-    "@babel/runtime" "^7.28.2"
+    "@babel/runtime" "^7.28.3"
 
-"@mui/utils@^7.3.1":
-  version "7.3.1"
-  resolved "https://registry.yarnpkg.com/@mui/utils/-/utils-7.3.1.tgz#6be110e7a0bb805815873d581abeb1bebc6a2eb9"
-  integrity sha512-/31y4wZqVWa0jzMnzo6JPjxwP6xXy4P3+iLbosFg/mJQowL1KIou0LC+lquWW60FKVbKz5ZUWBg2H3jausa0pw==
+"@mui/utils@^7.3.1", "@mui/utils@^7.3.2":
+  version "7.3.2"
+  resolved "https://registry.yarnpkg.com/@mui/utils/-/utils-7.3.2.tgz#361775d72c557a03115150e8aec4329c7ef14563"
+  integrity sha512-4DMWQGenOdLnM3y/SdFQFwKsCLM+mqxzvoWp9+x2XdEzXapkznauHLiXtSohHs/mc0+5/9UACt1GdugCX2te5g==
   dependencies:
-    "@babel/runtime" "^7.28.2"
-    "@mui/types" "^7.4.5"
+    "@babel/runtime" "^7.28.3"
+    "@mui/types" "^7.4.6"
     "@types/prop-types" "^15.7.15"
     clsx "^2.1.1"
     prop-types "^15.8.1"
