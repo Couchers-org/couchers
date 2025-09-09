@@ -1,14 +1,8 @@
 import { TFunction as TFunctionOriginal } from "i18next";
-import {
-  Trans as nextTrans,
-  useTranslation as nextUseTranslation,
-} from "next-i18next";
+import { useTranslation as nextUseTranslation } from "next-i18next";
 
 import resources from "@/i18n/resources";
 
-export const Trans = nextTrans;
+export { Trans } from "next-i18next";
 export const useTranslation = nextUseTranslation;
-export type TFunction = TFunctionOriginal<
-  (keyof typeof resources)[],
-  undefined
->;
+export type TFunction = TFunctionOriginal<(keyof typeof resources)[]>;

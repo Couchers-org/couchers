@@ -16,8 +16,10 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function LoginsPage() {
+const LoginsPage = () => {
   return <LoginsPageComponent />;
-}
+};
 
 LoginsPage.getLayout = appGetLayout();
+
+export default LoginsPage;

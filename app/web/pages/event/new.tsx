@@ -21,9 +21,11 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function EditEventPage() {
+const EditEventPage = () => {
   // community id is passed as optional GET param
   return <CreateEventPage />;
-}
+};
 
 EditEventPage.getLayout = appGetLayout();
+
+export default EditEventPage;

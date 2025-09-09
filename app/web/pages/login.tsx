@@ -5,12 +5,14 @@ import { translationStaticProps } from "@/i18n/server-side-translations";
 
 export const getStaticProps = translationStaticProps([GLOBAL, AUTH, LANDING]);
 
-export default function LoginPage() {
+const LoginPage = () => {
   return <Login />;
-}
+};
 
 LoginPage.getLayout = appGetLayout({
   isPrivate: false,
   noFooter: true,
   variant: "full-screen",
 });
+
+export default LoginPage;

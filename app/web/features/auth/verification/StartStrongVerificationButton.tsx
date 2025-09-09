@@ -16,13 +16,13 @@ import StyledLink from "@/components/StyledLink";
 import { Trans, useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
 import { InitiateStrongVerificationRes } from "@/proto/account_pb";
-import { tosRoute } from "@/routes";
+import { TOS_ROUTE } from "@/routes";
 import { service } from "@/service";
 
-export default function StartStrongVerificationButton() {
+const StartStrongVerificationButton = () => {
   const { t } = useTranslation([GLOBAL, AUTH]);
 
-  const [open, setOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const router = useRouter();
 
@@ -33,13 +33,13 @@ export default function StartStrongVerificationButton() {
   } = useMutation<InitiateStrongVerificationRes.AsObject, RpcError>({
     mutationFn: () => service.account.initiateStrongVerification(),
     onSuccess: async (data) => {
-      router.push(data.redirectUrl);
+      await router.push(data.redirectUrl);
     },
   });
 
   return (
     <>
-      <Dialog aria-labelledby="strong-verification-start-dialog" open={open}>
+      <Dialog aria-labelledby="strong-verification-start-dialog" open={isOpen}>
         <DialogTitle id="strong-verification-start-dialog">
           {t("auth:strong_verification.title")}
         </DialogTitle>
@@ -63,7 +63,7 @@ export default function StartStrongVerificationButton() {
             <Trans i18nKey="auth:strong_verification.information_text3">
               You can read more about how we and Iris ID process and store your
               data in our{" "}
-              <StyledLink href={tosRoute} target="_blank">
+              <StyledLink href={TOS_ROUTE} target="_blank">
                 Terms of Service
               </StyledLink>
               . As per the{" "}
@@ -78,17 +78,34 @@ export default function StartStrongVerificationButton() {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => startStrongVerification()} loading={isPending}>
+          <Button
+            onClick={() => {
+              startStrongVerification();
+            }}
+            loading={isPending}
+          >
             {t("auth:strong_verification.begin_button")}
           </Button>
-          <Button variant="outlined" onClick={() => setOpen(false)}>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              setIsOpen(false);
+            }}
+          >
             {t("global:cancel")}
           </Button>
         </DialogActions>
       </Dialog>
-      <Button loading={isPending} onClick={() => setOpen(true)}>
+      <Button
+        loading={isPending}
+        onClick={() => {
+          setIsOpen(true);
+        }}
+      >
         {t("auth:strong_verification.start_button")}
       </Button>
     </>
   );
-}
+};
+
+export default StartStrongVerificationButton;

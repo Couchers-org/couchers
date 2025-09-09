@@ -11,7 +11,7 @@ import HostRequestView from "@/features/messages/requests/HostRequestView";
 import RequestsTab from "@/features/messages/requests/RequestsTab";
 import { GLOBAL, MESSAGES, NOTIFICATIONS } from "@/i18n/namespaces";
 import { translationStaticProps } from "@/i18n/server-side-translations";
-import { messageTypeStrings } from "@/routes";
+import { MESSAGE_TYPE_STRINGS } from "@/routes";
 
 export const getStaticPaths: GetStaticPaths = () => ({
   paths: [],
@@ -23,7 +23,7 @@ export const getStaticProps: GetStaticProps = translationStaticProps([
   MESSAGES,
   NOTIFICATIONS,
 ]);
-export default function LeaveReferencePage() {
+const LeaveReferencePage = () => {
   const router = useRouter();
   const slugs =
     typeof router.query.slug === "undefined"
@@ -33,7 +33,7 @@ export default function LeaveReferencePage() {
         : router.query.slug;
   let content: ReactNode;
 
-  const tab = messageTypeStrings.find((valid) => valid === slugs?.[0]);
+  const tab = MESSAGE_TYPE_STRINGS.find((valid) => valid === slugs?.[0]);
 
   if (slugs[0] === "chats") {
     const id = Number.parseInt(slugs?.[1]);
@@ -58,9 +58,11 @@ export default function LeaveReferencePage() {
       {content}
     </>
   );
-}
+};
 
 LeaveReferencePage.getLayout = appGetLayout({
   variant: "full-width",
   noFooter: true,
 });
+
+export default LeaveReferencePage;

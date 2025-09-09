@@ -16,8 +16,10 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function AccountSettingsPage() {
+const AccountSettingsPage = () => {
   return <Settings />;
-}
+};
 
 AccountSettingsPage.getLayout = appGetLayout();
+
+export default AccountSettingsPage;

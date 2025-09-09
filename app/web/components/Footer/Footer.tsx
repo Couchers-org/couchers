@@ -164,7 +164,7 @@ const Footer = ({ bottomMargin }: { bottomMargin?: string }) => {
   const updatedAgoText = Config.commitTimestamp
     ? timeAgoI18n({
         input: Config.commitTimestamp,
-        t: t,
+        t,
       })
     : "unknown";
   const updateAgoLink = GITHUB_UPDATES_URL;

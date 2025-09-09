@@ -16,8 +16,10 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function EventsPage() {
+const EventsPage = () => {
   return <EventsPageComponent />;
-}
+};
 
 EventsPage.getLayout = appGetLayout();
+
+export default EventsPage;

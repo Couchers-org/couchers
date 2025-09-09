@@ -16,8 +16,10 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function ModPage() {
+const ModPage = () => {
   return <ModPageComponent />;
-}
+};
 
 ModPage.getLayout = appGetLayout();
+
+export default ModPage;

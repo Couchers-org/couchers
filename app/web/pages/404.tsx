@@ -18,10 +18,12 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => {
   };
 };
 
-export default function Custom404() {
+const Custom404 = () => {
   return <NotFoundPage />;
-}
+};
 
 Custom404.getLayout = appGetLayout({
   isPrivate: false,
 });
+
+export default Custom404;

@@ -82,6 +82,7 @@ export default tseslint.config([
       "proto/**",
       ".next/**",
       "public/service-worker.js",
+      "next-env.d.ts",
     ],
   },
   // Next config needs compatibility layer for new ESLint versions

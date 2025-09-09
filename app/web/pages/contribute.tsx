@@ -4,8 +4,10 @@ import { GLOBAL } from "@/i18n/namespaces";
 import { translationStaticProps } from "@/i18n/server-side-translations";
 
 export const getStaticProps = translationStaticProps([GLOBAL]);
-export default function ContributePage() {
+const ContributePage = () => {
   return <Contribute />;
-}
+};
 
 ContributePage.getLayout = appGetLayout();
+
+export default ContributePage;

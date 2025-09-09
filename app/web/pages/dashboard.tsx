@@ -24,11 +24,13 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
 });
 
 // This page is (invisibly) rewritten to /landing if there is no couchers-sesh header
-export default function HomePage() {
+const DashboardPage = () => {
   return <Dashboard />;
-}
+};
 
-HomePage.getLayout = appGetLayout({
+DashboardPage.getLayout = appGetLayout({
   isPrivate: true,
   variant: "full-width",
 });
+
+export default DashboardPage;

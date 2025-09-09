@@ -2,7 +2,7 @@ import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 import { appGetLayout } from "@/components/AppRoute";
-import LandingPage from "@/features/landing/LandingPage";
+import Landing from "@/features/landing/LandingPage";
 import {
   AUTH,
   DASHBOARD,
@@ -22,12 +22,14 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function HomePage() {
-  return <LandingPage />;
-}
+const LandingPage = () => {
+  return <Landing />;
+};
 
-HomePage.getLayout = appGetLayout({
+LandingPage.getLayout = appGetLayout({
   isPrivate: false,
   variant: "full-screen",
   bottomMargin: "80px",
 });
+
+export default LandingPage;

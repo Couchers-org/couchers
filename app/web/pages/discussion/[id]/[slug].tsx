@@ -24,13 +24,15 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function DiscussionPage() {
+const DiscussionPage = () => {
   const router = useRouter();
 
   const parsedId = Number.parseInt(stringOrFirstString(router.query.id) ?? "");
   if (isNaN(parsedId)) return <NotFoundPage />;
 
   return <DiscussionPageComponent discussionId={parsedId} />;
-}
+};
 
 DiscussionPage.getLayout = appGetLayout();
+
+export default DiscussionPage;

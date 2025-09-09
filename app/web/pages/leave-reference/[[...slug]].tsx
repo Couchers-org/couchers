@@ -27,7 +27,7 @@ const LeaveReferencePage = () => {
   // leave-reference/surfed|hosted/:userId/:hostRequestId/:step?
   const slug = router.query.slug;
 
-  if (!slug?.[0] || !slug?.[1]) return <NotFoundPage />;
+  if (!slug?.[0] || !slug[1]) return <NotFoundPage />;
   const referenceType = slug[0];
 
   const parsedReferenceType = REFERENCE_TYPE_ROUTE_STRINGS.find(
@@ -40,11 +40,11 @@ const LeaveReferencePage = () => {
   let step: string | undefined = undefined;
   let hostRequestId = undefined;
   if (parsedReferenceType === "friend") {
-    step = slug?.[2] ? slug[2] : REFERENCE_STEP_STRINGS[1];
+    step = slug[2] ? slug[2] : REFERENCE_STEP_STRINGS[1];
   } else {
-    hostRequestId = slug?.[2];
+    hostRequestId = slug[2];
     if (!hostRequestId) return <NotFoundPage />;
-    step = slug?.[3] ? slug[3] : REFERENCE_STEP_STRINGS[0];
+    step = slug[3] ? slug[3] : REFERENCE_STEP_STRINGS[0];
   }
   const parsedStep = REFERENCE_STEP_STRINGS.find((s) => s === step);
 

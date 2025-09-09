@@ -16,8 +16,10 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function CompletePasswordResetPage() {
+const CompletePasswordResetPage = () => {
   return <CompleteStrongVerification />;
-}
+};
 
 CompletePasswordResetPage.getLayout = appGetLayout();
+
+export default CompletePasswordResetPage;

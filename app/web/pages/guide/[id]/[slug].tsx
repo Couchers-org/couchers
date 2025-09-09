@@ -25,11 +25,10 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function PagePage() {
+const PagePage = () => {
   const router = useRouter();
 
-  if (!process.env.NEXT_PUBLIC_IS_COMMUNITIES_PART2_ENABLED)
-    return <NotFoundPage />;
+  if (!Config.isCommunitiesPart2Enabled) return <NotFoundPage />;
 
   const parsedId = Number.parseInt(stringOrFirstString(router.query.id) ?? "");
   if (isNaN(parsedId)) return <NotFoundPage />;
@@ -42,6 +41,8 @@ export default function PagePage() {
       pageSlug={slug}
     />
   );
-}
+};
 
 PagePage.getLayout = appGetLayout();
+
+export default PagePage;

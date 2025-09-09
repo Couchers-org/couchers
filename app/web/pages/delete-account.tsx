@@ -5,8 +5,10 @@ import { translationStaticProps } from "@/i18n/server-side-translations";
 
 export const getStaticProps = translationStaticProps([GLOBAL, AUTH]);
 
-export default function ConfirmDeleteAccountPage() {
+const ConfirmDeleteAccountPage = () => {
   return <ConfirmDeleteAccount />;
-}
+};
 
 ConfirmDeleteAccountPage.getLayout = appGetLayout({ isPrivate: false });
+
+export default ConfirmDeleteAccountPage;

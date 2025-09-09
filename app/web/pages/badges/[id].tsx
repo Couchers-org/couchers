@@ -24,10 +24,12 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function BadgesPage() {
+const BadgesPage = () => {
   const router = useRouter();
   const id = stringOrFirstString(router.query.id);
   return !id ? <NotFoundPage /> : <BadgesPageComponent badgeId={id} />;
-}
+};
 
 BadgesPage.getLayout = appGetLayout();
+
+export default BadgesPage;

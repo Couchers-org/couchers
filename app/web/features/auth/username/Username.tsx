@@ -1,4 +1,5 @@
 import { Typography } from "@mui/material";
+
 import { Trans, useTranslation } from "@/i18n";
 import { AUTH } from "@/i18n/namespaces";
 
@@ -7,7 +8,7 @@ interface UsernameProps {
   className?: string;
 }
 
-export default function Username({ className, username }: UsernameProps) {
+const Username = ({ className, username }: UsernameProps) => {
   const { t } = useTranslation(AUTH);
 
   return (
@@ -31,4 +32,6 @@ export default function Username({ className, username }: UsernameProps) {
       </Typography>
     </div>
   );
-}
+};
+
+export default Username;

@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { sessionCookieName } from "./appConstants";
 import { allLanguages } from "./i18n/allLanguages";
 
-function getBrowserLocale(
+const getBrowserLocale = (
   acceptLanguage: string | undefined,
-): string | undefined {
+): string | undefined => {
   if (!acceptLanguage) return undefined;
 
   // Parse Accept-Language header
@@ -28,9 +28,9 @@ function getBrowserLocale(
   }
 
   return undefined;
-}
+};
 
-export function middleware(request: NextRequest) {
+export const middleware = (request: NextRequest) => {
   if (
     request.cookies.get(sessionCookieName) &&
     request.nextUrl.pathname === "/"
@@ -65,7 +65,7 @@ export function middleware(request: NextRequest) {
   }
 
   return response;
-}
+};
 
 export const config = {
   matcher: [

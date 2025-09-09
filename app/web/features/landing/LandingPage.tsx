@@ -17,11 +17,11 @@ import MapSection from "./MapSection";
 import SocialProof from "./SocialProof";
 import WhyCouchersSection from "./WhyCouchersSection";
 
-const StyledSpacer = styled("div")(({ theme }) => ({
+const StyledSpacer = styled("div")(() => ({
   height: "3.5rem",
 }));
 
-export default function LandingPage() {
+const Landing = () => {
   const { authState } = useAuthContext();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const router = useRouter();
@@ -93,4 +93,6 @@ export default function LandingPage() {
       )}
     </>
   );
-}
+};
+
+export default Landing;

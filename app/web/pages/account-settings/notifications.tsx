@@ -16,8 +16,10 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function EditNotificationSettingsPage() {
+const EditNotificationSettingsPage = () => {
   return <EditNotificationSettingsPageComponent />;
-}
+};
 
 EditNotificationSettingsPage.getLayout = appGetLayout();
+
+export default EditNotificationSettingsPage;

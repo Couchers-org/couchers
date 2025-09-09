@@ -68,6 +68,7 @@ export const configUtils = <const P extends string>(prefix: P) => {
         NOMINATIM_URL: Type.String(),
         VERSION: Type.String(),
         IS_COMMUNITIES_PART2_ENABLED: Type.Boolean(),
+        RECAPTCHA_SITE_KEY: Type.String(),
       }),
       prefix,
     ),

@@ -16,8 +16,10 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function BadgesPage() {
+const BadgesPage = () => {
   return <BadgesPageComponent />;
-}
+};
 
 BadgesPage.getLayout = appGetLayout();
+
+export default BadgesPage;

@@ -6,7 +6,7 @@ import StyledLink from "@/components/StyledLink";
 import { useAuthContext } from "@/features/auth/AuthProvider";
 import { Trans, useTranslation } from "@/i18n";
 import { usePersistedState } from "@/platform/usePersistedState";
-import { tosRoute } from "@/routes";
+import { TOS_ROUTE } from "@/routes";
 import { theme } from "@/theme";
 import { useIsMounted } from "@/utils/hooks";
 
@@ -34,7 +34,7 @@ const StyledCloseButton = styled(IconButton)(({ theme }) => ({
   right: theme.spacing(1),
 }));
 
-export default function CookieBanner() {
+const CookieBanner = () => {
   const { t } = useTranslation();
   // since we are using localStorage, make sure don't render unless mounted
   // or there will be hydration mismatches
@@ -44,12 +44,14 @@ export default function CookieBanner() {
 
   if (auth.authState.authenticated) return null;
 
-  //specifically not using our snackbar, which is designed for alerts
+  // specifically not using our snackbar, which is designed for alerts
   return isMounted && !hasSeen ? (
     <StyledWrapper aria-live="polite">
       <StyledCloseButton
         aria-label={t("close")}
-        onClick={() => setHasSeen(true)}
+        onClick={() => {
+          setHasSeen(true);
+        }}
       >
         <CloseIcon />
       </StyledCloseButton>
@@ -60,7 +62,7 @@ export default function CookieBanner() {
             website. If you continue to use this site, we will assume that you
             are happy with it. You can read more about our
             <StyledLink
-              href={tosRoute}
+              href={TOS_ROUTE}
               sx={{ color: theme.palette.secondary.light }}
             >
               Terms of Service
@@ -71,4 +73,6 @@ export default function CookieBanner() {
       </div>
     </StyledWrapper>
   ) : null;
-}
+};
+
+export default CookieBanner;

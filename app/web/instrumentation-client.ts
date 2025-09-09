@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention, n/no-process-env */
 import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({

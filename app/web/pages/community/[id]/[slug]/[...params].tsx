@@ -7,7 +7,7 @@ import NotFoundPage from "@/features/NotFoundPage";
 import CommunityPageComponent from "@/features/communities/CommunityPage";
 import { COMMUNITIES, GLOBAL, NOTIFICATIONS } from "@/i18n/namespaces";
 import nextI18nextConfig from "@/next-i18next.config";
-import { communityTabs } from "@/routes";
+import { COMMUNITY_TABS } from "@/routes";
 import stringOrFirstString from "@/utils/stringOrFirstString";
 
 export const getStaticPaths: GetStaticPaths = () => ({
@@ -25,7 +25,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function CommunityPage() {
+const CommunityPage = () => {
   const router = useRouter();
 
   const parsedId = Number.parseInt(stringOrFirstString(router.query.id) ?? "");
@@ -35,18 +35,20 @@ export default function CommunityPage() {
   let parsedTab = undefined;
   if (tab) {
     // if the tab isn't blank and isn't valid, 404
-    parsedTab = communityTabs.find((valid) => tab === valid);
+    parsedTab = COMMUNITY_TABS.find((valid) => tab === valid);
     if (!parsedTab) return <NotFoundPage />;
   }
-  const edit = router.query.params?.[1] === "edit";
+  const isEdit = router.query.params?.[1] === "edit";
 
   return (
     <CommunityPageComponent
       communityId={parsedId}
       tab={parsedTab}
-      edit={edit}
+      isEdit={isEdit}
     />
   );
-}
+};
 
 CommunityPage.getLayout = appGetLayout();
+
+export default CommunityPage;

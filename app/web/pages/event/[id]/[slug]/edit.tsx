@@ -24,13 +24,15 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function EditEventPage() {
+const EditEventPage = () => {
   const router = useRouter();
 
   const parsedId = Number.parseInt(stringOrFirstString(router.query.id) ?? "");
   if (isNaN(parsedId)) return <NotFoundPage />;
 
   return <EditEventPageComponent eventId={parsedId} />;
-}
+};
 
 EditEventPage.getLayout = appGetLayout();
+
+export default EditEventPage;

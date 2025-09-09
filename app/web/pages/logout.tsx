@@ -15,8 +15,10 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     )),
   },
 });
-export default function LogoutPage() {
+const LogoutPage = () => {
   return <Logout />;
-}
+};
 
 LogoutPage.getLayout = appGetLayout({ isPrivate: false });
+
+export default LogoutPage;

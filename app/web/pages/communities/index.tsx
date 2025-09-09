@@ -21,8 +21,10 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function CommunitiesRoute() {
+const CommunitiesRoute = () => {
   return <CommunitiesPage />;
-}
+};
 
 CommunitiesRoute.getLayout = appGetLayout();
+
+export default CommunitiesRoute;

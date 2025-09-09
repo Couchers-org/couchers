@@ -16,8 +16,10 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function DonatePage() {
+const DonatePage = () => {
   return <Donations />;
-}
+};
 
 DonatePage.getLayout = appGetLayout({ variant: "full-width" });
+
+export default DonatePage;

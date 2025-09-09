@@ -16,8 +16,10 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function ConfirmEmailPage() {
+const ConfirmEmailPage = () => {
   return <ConfirmChangeEmail />;
-}
+};
 
 ConfirmEmailPage.getLayout = appGetLayout({ isPrivate: false });
+
+export default ConfirmEmailPage;

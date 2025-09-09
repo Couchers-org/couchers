@@ -26,7 +26,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
 
 // Using optional catch all route [[...params]] doesn't work here when deployed only
 // - maybe because of the other dynamic parts of the path...
-export default function CommunityPage() {
+const CommunityPage = () => {
   const router = useRouter();
 
   const parsedId = Number.parseInt(stringOrFirstString(router.query.id) ?? "");
@@ -36,9 +36,11 @@ export default function CommunityPage() {
     <CommunityPageComponent
       communityId={parsedId}
       tab={undefined}
-      edit={undefined}
+      isEdit={undefined}
     />
   );
-}
+};
 
 CommunityPage.getLayout = appGetLayout();
+
+export default CommunityPage;

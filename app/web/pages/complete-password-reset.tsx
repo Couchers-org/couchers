@@ -16,11 +16,13 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function CompletePasswordResetPage() {
+const CompletePasswordResetPage = () => {
   return <CompleteResetPassword />;
-}
+};
 
 CompletePasswordResetPage.getLayout = appGetLayout({
   isPrivate: false,
   variant: "full-screen",
 });
+
+export default CompletePasswordResetPage;

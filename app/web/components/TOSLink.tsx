@@ -2,18 +2,20 @@ import { styled } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import Link from "next/link";
 
-import { tosRoute } from "@/routes";
+import { TOS_ROUTE } from "@/routes";
 
 const StyledLink = styled(Link)(({ theme }) => ({
   color: theme.palette.primary.main,
   textDecoration: "underline",
 }));
 
-export default function TOSLink() {
+const TOSLink = () => {
   const { t } = useTranslation("global");
   return (
-    <StyledLink href={tosRoute} target="_blank">
+    <StyledLink href={TOS_ROUTE} target="_blank">
       {t("terms_of_service")}
     </StyledLink>
   );
-}
+};
+
+export default TOSLink;
