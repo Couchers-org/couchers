@@ -28,7 +28,7 @@ export interface FuzzySpecT {
   translationKey: Parameters<TFunction<"global">>[0];
 }
 
-export function timeAgoI18n({
+export const timeAgoI18n = ({
   input,
   t,
   fuzzy = undefined,
@@ -36,7 +36,7 @@ export function timeAgoI18n({
   input: Date | string;
   t: TFunction<"global">;
   fuzzy?: FuzzySpecT;
-}) {
+}) => {
   const date = new Date(input);
   const diffMillis = Date.now() - date.getTime();
 
@@ -81,4 +81,4 @@ export function timeAgoI18n({
   return t("relative_time.x_years_ago", {
     date: (diffMillis / YEAR_MILLIS).toFixed(),
   });
-}
+};

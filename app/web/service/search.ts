@@ -44,7 +44,7 @@ export interface UserSearchFilters {
   smokesAtHome?: boolean | undefined;
 }
 
-function constructUserSearchReq(
+const constructUserSearchReq = (
   {
     acceptsKids,
     acceptsLastMinRequests,
@@ -66,7 +66,7 @@ function constructUserSearchReq(
     smokesAtHome,
   }: UserSearchFilters,
   pageToken = "",
-) {
+) => {
   const req = new UserSearchReq();
 
   if (pageToken) {
@@ -159,21 +159,27 @@ function constructUserSearchReq(
   }
 
   return req;
-}
+};
 
-export async function userSearch(filters: UserSearchFilters, pageToken = "") {
+export const userSearch = async (
+  filters: UserSearchFilters,
+  pageToken = "",
+) => {
   const req = constructUserSearchReq(filters, pageToken);
   const response = await client.search.userSearch(req);
   return response.toObject();
-}
+};
 
-export async function userSearchV2(filters: UserSearchFilters, pageToken = "") {
+export const userSearchV2 = async (
+  filters: UserSearchFilters,
+  pageToken = "",
+) => {
   const req = constructUserSearchReq(filters, pageToken);
   const response = await client.search.userSearchV2(req);
   return response.toObject();
-}
+};
 
-export async function eventSearch({
+export const eventSearch = async ({
   pageNumber,
   pageSize,
   pastEvents,
@@ -187,7 +193,7 @@ export async function eventSearch({
   isMyCommunities?: boolean;
   isOnlineOnly?: boolean;
   searchLocation?: GeocodeResult | "";
-}): Promise<EventSearchRes.AsObject> {
+}): Promise<EventSearchRes.AsObject> => {
   const req = new EventSearchReq();
   req.setPageSize(pageSize);
   req.setPageNumber(pageNumber);
@@ -220,4 +226,4 @@ export async function eventSearch({
 
   const res = await client.search.eventSearch(req);
   return res.toObject();
-}
+};

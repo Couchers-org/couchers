@@ -47,44 +47,21 @@ jest.mock("react-gtm-module");
 
 jest.setTimeout(10000);
 
-global.defaultUser = user;
-global.localStorage = createWebStorageMock();
-global.sessionStorage = createWebStorageMock();
-
-// @ts-expect-error Only interested in mocking getRandomValues
-global.crypto = {
-  getRandomValues(array: Uint32Array) {
-    return crypto.randomFillSync(array);
-  },
+const createMatchMedia = (width: number) => {
+  return (query: string) => ({
+    matches: mediaQuery.match(query, { width }),
+    media: "screen",
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    onchange: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  });
 };
 
-const { testkit } = sentryTestkit();
-global.testKit = testkit;
-
-beforeEach(async () => {
-  global.localStorage.clear();
-  global.sessionStorage.clear();
-  jest.restoreAllMocks();
-  await waitFor(() => {
-    expect(i18n.isInitialized).toBe(true);
-  });
-});
-
-Element.prototype.scroll = () => {};
-Element.prototype.scrollIntoView = jest.fn();
-window.scroll = jest.fn();
-// below required by maplibre-gl
-window.URL.createObjectURL = jest.fn();
-window.matchMedia = createMatchMedia(window.innerWidth);
-
-declare global {
-  /* eslint-disable no-var */
-  var defaultUser: typeof user;
-  var testKit: ReturnType<typeof sentryTestkit>["testkit"];
-  /* eslint-enable no-var*/
-}
-
-function createWebStorageMock() {
+/* eslint-disable no-restricted-syntax */
+const createWebStorageMock = function () {
   return {
     clear() {
       this.store = {};
@@ -113,17 +90,42 @@ function createWebStorageMock() {
 
     store: {} as Record<string, string>,
   };
-}
+};
+/* eslint-enable no-restricted-syntax */
 
-function createMatchMedia(width: number) {
-  return (query: string) => ({
-    matches: mediaQuery.match(query, { width }),
-    media: "screen",
-    addListener: jest.fn(),
-    removeListener: jest.fn(),
-    onchange: jest.fn(),
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
+global.defaultUser = user;
+global.localStorage = createWebStorageMock();
+global.sessionStorage = createWebStorageMock();
+
+// @ts-expect-error Only interested in mocking getRandomValues
+global.crypto = {
+  getRandomValues: (array: Uint32Array) => {
+    return crypto.randomFillSync(array);
+  },
+};
+
+const { testkit } = sentryTestkit();
+global.testKit = testkit;
+
+beforeEach(async () => {
+  global.localStorage.clear();
+  global.sessionStorage.clear();
+  jest.restoreAllMocks();
+  await waitFor(() => {
+    expect(i18n.isInitialized).toBe(true);
   });
+});
+
+Element.prototype.scroll = () => {};
+Element.prototype.scrollIntoView = jest.fn();
+window.scroll = jest.fn();
+// below required by maplibre-gl
+window.URL.createObjectURL = jest.fn();
+window.matchMedia = createMatchMedia(window.innerWidth);
+
+declare global {
+  /* eslint-disable no-var */
+  var defaultUser: typeof user;
+  var testKit: ReturnType<typeof sentryTestkit>["testkit"];
+  /* eslint-enable no-var*/
 }

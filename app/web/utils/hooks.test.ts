@@ -72,12 +72,9 @@ describe("useGeocodeQuery hook", () => {
 
   it("gives correct error result", async () => {
     server.use(
-      rest.get(
-        `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`,
-        async (_req, res, ctx) => {
-          return res(ctx.status(500), ctx.text("Generic error"));
-        },
-      ),
+      rest.get(`${Config.nominatimUrl}search`, async (_req, res, ctx) => {
+        return res(ctx.status(500), ctx.text("Generic error"));
+      }),
     );
     const { result } = renderHook(() => useGeocodeQuery());
     expect(result.current).toMatchObject({

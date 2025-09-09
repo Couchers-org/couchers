@@ -8,11 +8,7 @@ import React, { Suspense } from "react";
 import AuthProvider from "@/features/auth/AuthProvider";
 import { theme } from "@/theme";
 
-export default function hookWrapper({
-  children,
-}: {
-  children?: React.ReactNode;
-}) {
+const hookWrapper = ({ children }: { children?: React.ReactNode }) => {
   const client = new QueryClient({
     defaultOptions: {
       queries: {
@@ -35,13 +31,14 @@ export default function hookWrapper({
       </LocalizationProvider>
     </Suspense>
   );
-}
+};
 
+export default hookWrapper;
 /**
  * Test utility function for retrieving the wrapper with the React Query client.
  * Useful for when you need access to the client as well for certain tests.
  */
-export function getHookWrapperWithClient() {
+export const getHookWrapperWithClient = () => {
   const client = new QueryClient({
     defaultOptions: {
       queries: {
@@ -69,4 +66,4 @@ export function getHookWrapperWithClient() {
     client,
     wrapper,
   };
-}
+};

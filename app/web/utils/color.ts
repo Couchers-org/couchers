@@ -1,4 +1,4 @@
-import { decomposeColor } from "@mui/system";
+import { decomposeColor } from "@mui/material";
 
 import log from "@/log";
 

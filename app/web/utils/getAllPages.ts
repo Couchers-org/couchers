@@ -7,16 +7,13 @@ interface GetAllPagesParams<TData extends ObjectWithListValue<TData>, TParams> {
   hasMore: (previousData: TData) => boolean;
   maxPages?: number;
 }
-export default async function getAllPages<
-  TData extends ObjectWithListValue<TData>,
-  TParams,
->({
+const getAllPages = async <TData extends ObjectWithListValue<TData>, TParams>({
   serviceFunction,
   params,
   listKey,
   hasMore,
   maxPages = 10,
-}: GetAllPagesParams<TData, TParams>) {
+}: GetAllPagesParams<TData, TParams>) => {
   let page = 0;
   let previousData = undefined;
   const nestedResults = [];
@@ -30,4 +27,6 @@ export default async function getAllPages<
     }
   }
   return nestedResults.flat(1);
-}
+};
+
+export default getAllPages;

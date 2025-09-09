@@ -2,7 +2,7 @@ import { GetThreadReq, PostReplyReq } from "@/proto/threads_pb";
 
 import client from "./client";
 
-export async function getThread(threadId: number, pageToken?: string) {
+export const getThread = async (threadId: number, pageToken?: string) => {
   const req = new GetThreadReq();
   req.setThreadId(threadId);
   if (pageToken) {
@@ -10,12 +10,12 @@ export async function getThread(threadId: number, pageToken?: string) {
   }
   const response = await client.threads.getThread(req);
   return response.toObject();
-}
+};
 
-export async function postReply(threadId: number, content: string) {
+export const postReply = async (threadId: number, content: string) => {
   const req = new PostReplyReq();
   req.setThreadId(threadId);
   req.setContent(content);
   const response = await client.threads.postReply(req);
   return response.toObject();
-}
+};

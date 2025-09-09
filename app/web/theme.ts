@@ -2,6 +2,7 @@
 import type {} from "@mui/lab/themeAugmentation";
 import { createTheme } from "@mui/material";
 import { ThemeOptions } from "@mui/material/styles";
+// eslint-disable-next-line no-restricted-imports
 import { createBreakpoints } from "@mui/system";
 
 const breakpoints = createBreakpoints({});

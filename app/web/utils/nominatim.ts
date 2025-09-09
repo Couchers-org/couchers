@@ -44,7 +44,7 @@ const ADDRESS_KEYS = [
   "house_number",
 ] as const;
 
-const NOMINATIM_URL = process.env.NEXT_PUBLIC_NOMINATIM_URL ?? "";
+// const NOMINATIM_URL = process.env.NEXT_PUBLIC_NOMINATIM_URL ?? "";
 
 const CASE_CHANGE_RECURSION_DEPTH = 100;
 
@@ -98,7 +98,7 @@ const nominatimResponseTransform = Type.Transform(nominatimResponseSchema)
   );
 
 export const nominatimQuery = async (value: string) => {
-  const url = `${NOMINATIM_URL}search?format=jsonv2&q=${encodeURIComponent(
+  const url = `${Config.nominatimUrl}search?format=jsonv2&q=${encodeURIComponent(
     value,
   )}&addressdetails=1`;
   const fetchOptions = {

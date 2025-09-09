@@ -12,7 +12,7 @@ export interface SearchFilters extends ServiceUserSearchFilters {
 /**
  * Parses a URL search query into an object with all the search filter properties found
  */
-export function parsedQueryToSearchFilters(urlQuery: ParsedUrlQuery) {
+export const parsedQueryToSearchFilters = (urlQuery: ParsedUrlQuery) => {
   const filters: SearchFilters = {};
   Array.from(Object.keys(urlQuery)).forEach((key) => {
     switch (key) {
@@ -66,12 +66,12 @@ export function parsedQueryToSearchFilters(urlQuery: ParsedUrlQuery) {
     }
   });
   return filters;
-}
+};
 
 /**
  * Parses a search filter object into a URL encoded search query
  */
-export function parseSearchFiltersToQuery(filters: SearchFilters) {
+export const parseSearchFiltersToQuery = (filters: SearchFilters) => {
   const entries: [string, string][] = [];
   (Object.entries(filters) as Array<[string, keyof typeof filters]>).forEach(
     ([key, filterValue]) => {
@@ -86,4 +86,4 @@ export function parseSearchFiltersToQuery(filters: SearchFilters) {
   );
   const searchParams = new URLSearchParams(entries);
   return searchParams.toString();
-}
+};

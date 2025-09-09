@@ -13,7 +13,6 @@ import {
   ListEventAttendeesRes,
   ListEventOrganizersRes,
 } from "@/proto/events_pb";
-import { ListNotificationsRes } from "@/proto/notifications_pb";
 import {
   AvailableWriteReferencesRes,
   ReferenceType,
@@ -54,17 +53,19 @@ const liteUserMap: Record<string, LiteUser.AsObject> = {
 };
 
 /* eslint-disable @typescript-eslint/require-await */
-export async function getUser(userId: string): Promise<User.AsObject> {
+export const getUser = async (userId: string): Promise<User.AsObject> => {
   return userMap[userId];
-}
+};
 
-export async function getLiteUser(userId: string): Promise<LiteUser.AsObject> {
+export const getLiteUser = async (
+  userId: string,
+): Promise<LiteUser.AsObject> => {
   return liteUserMap[userId];
-}
+};
 
-export async function getLiteUsers(
+export const getLiteUsers = async (
   ids: number[] | string[],
-): Promise<GetLiteUsersRes.AsObject> {
+): Promise<GetLiteUsersRes.AsObject> => {
   return {
     responsesList: ids.map((id) => ({
       query: "",
@@ -72,10 +73,10 @@ export async function getLiteUsers(
       notFound: false,
     })),
   };
-}
+};
 
-export async function getBlockedUsers(): Promise<GetBlockedUsersRes.AsObject> {
-  return {
+export const getBlockedUsers =
+  async (): Promise<GetBlockedUsersRes.AsObject> => ({
     blockedUsersList: [
       {
         username: liteUser1.username,
@@ -93,89 +94,80 @@ export async function getBlockedUsers(): Promise<GetBlockedUsersRes.AsObject> {
         avatarThumbnailUrl: liteUser3.avatarThumbnailUrl,
       },
     ],
-  };
-}
+  });
 
-export async function listFriends() {
+export const listFriends = async () => {
   const [, user2, user3] = users;
   return [user2.userId, user3.userId];
-}
+};
 
-export async function getGroupChatMessages() {
-  return {
-    lastMessageId: 5,
-    messagesList: messages,
-    noMore: true,
-  };
-}
+export const getGroupChatMessages = async () => ({
+  lastMessageId: 5,
+  messagesList: messages,
+  noMore: true,
+});
 
-export async function listGroupChats() {
-  return {
-    groupChatsList: [
-      {
-        adminUserIdsList: [],
-        groupChatId: 3,
-        isDm: false,
-        lastSeenMessageId: 4,
-        latestMessage: messages[0],
-        memberUserIdsList: [],
-        onlyAdminsInvite: true,
-        title: "groupchattitle",
-        // created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
-        unseenMessageCount: 0,
-        canMessage: true,
-      },
-    ],
-    noMore: true,
-  };
-}
-
-export async function listHostRequests() {
-  return [
+export const listGroupChats = async () => ({
+  groupChatsList: [
     {
-      created: {
-        nanos: 0,
-        seconds: Date.now() / 1000,
-      },
-      fromDate: "2020/12/01",
-      surferUserId: 1,
-      hostRequestId: 1,
-      lastSeenMessageId: 0,
+      adminUserIdsList: [],
+      groupChatId: 3,
+      isDm: false,
+      lastSeenMessageId: 4,
       latestMessage: messages[0],
-      status: HostRequestStatus.HOST_REQUEST_STATUS_PENDING,
-      toDate: "2020/12/06",
-      hostUserId: 2,
+      memberUserIdsList: [],
+      onlyAdminsInvite: true,
+      title: "groupchattitle",
+      // created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
+      unseenMessageCount: 0,
       canMessage: true,
     },
-  ];
-}
+  ],
+  noMore: true,
+});
 
-export async function getAccountInfo() {
-  return {
-    username: "testuser",
-    email: "testuser@test.com",
-    profileComplete: true,
-    myHomeComplete: true,
-    phone: "+46701740605",
-    phoneVerified: true,
-    timezone: "Australia/Melbourne",
-    hasDonated: false,
-    hasStrongVerification: false,
-    birthdateVerificationStatus:
-      BirthdateVerificationStatus.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED,
-    genderVerificationStatus:
-      GenderVerificationStatus.GENDER_VERIFICATION_STATUS_UNVERIFIED,
-    doNotEmail: false,
-    isSuperuser: false,
-    uiLanguagePreference: "en",
-    profilePublicVisibility:
-      ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_NOTHING,
-    isVolunteer: false,
-  };
-}
+export const listHostRequests = async () => [
+  {
+    created: {
+      nanos: 0,
+      seconds: Date.now() / 1000,
+    },
+    fromDate: "2020/12/01",
+    surferUserId: 1,
+    hostRequestId: 1,
+    lastSeenMessageId: 0,
+    latestMessage: messages[0],
+    status: HostRequestStatus.HOST_REQUEST_STATUS_PENDING,
+    toDate: "2020/12/06",
+    hostUserId: 2,
+    canMessage: true,
+  },
+];
 
-export async function getAvailableReferences(): Promise<AvailableWriteReferencesRes.AsObject> {
-  return {
+export const getAccountInfo = async () => ({
+  username: "testuser",
+  email: "testuser@test.com",
+  profileComplete: true,
+  myHomeComplete: true,
+  phone: "+46701740605",
+  phoneVerified: true,
+  timezone: "Australia/Melbourne",
+  hasDonated: false,
+  hasStrongVerification: false,
+  birthdateVerificationStatus:
+    BirthdateVerificationStatus.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED,
+  genderVerificationStatus:
+    GenderVerificationStatus.GENDER_VERIFICATION_STATUS_UNVERIFIED,
+  doNotEmail: false,
+  isSuperuser: false,
+  uiLanguagePreference: "en",
+  profilePublicVisibility:
+    ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_NOTHING,
+  isVolunteer: false,
+});
+
+export const getAvailableReferences =
+  async (): Promise<AvailableWriteReferencesRes.AsObject> => ({
     canWriteFriendReference: true,
     availableWriteReferencesList: [
       {
@@ -183,10 +175,9 @@ export async function getAvailableReferences(): Promise<AvailableWriteReferences
         referenceType: ReferenceType.REFERENCE_TYPE_HOSTED,
       },
     ],
-  };
-}
+  });
 
-export async function getThread(threadId: number) {
+export const getThread = async (threadId: number) => {
   switch (threadId) {
     case 2:
       return {
@@ -212,115 +203,102 @@ export async function getThread(threadId: number) {
     default:
       return { nextPageToken: "", repliesList: [] };
   }
-}
+};
 
-export async function getLanguages() {
-  return {
-    languagesList: [
-      {
-        code: "eng",
-        name: "English",
-      },
-      {
-        code: "fra",
-        name: "French",
-      },
-      {
-        code: "fin",
-        name: "Finnish",
-      },
-      {
-        code: "spa",
-        name: "Spanish",
-      },
-    ],
-  };
-}
+export const getLanguages = async () => ({
+  languagesList: [
+    {
+      code: "eng",
+      name: "English",
+    },
+    {
+      code: "fra",
+      name: "French",
+    },
+    {
+      code: "fin",
+      name: "Finnish",
+    },
+    {
+      code: "spa",
+      name: "Spanish",
+    },
+  ],
+});
 
-export async function getRegions() {
-  return {
-    regionsList: [
-      {
-        alpha3: "USA",
-        name: "United States",
-      },
-      {
-        alpha3: "FRA",
-        name: "France",
-      },
-      {
-        alpha3: "FIN",
-        name: "Finland",
-      },
-      {
-        alpha3: "ESP",
-        name: "Spain",
-      },
-      {
-        alpha3: "AUS",
-        name: "Australia",
-      },
-      {
-        alpha3: "SWE",
-        name: "Sweden",
-      },
-      {
-        alpha3: "CMR",
-        name: "Cameroon",
-      },
-      {
-        alpha3: "JPN",
-        name: "Japan",
-      },
-      {
-        alpha3: "GBR",
-        name: "United Kingdom",
-      },
-    ],
-  };
-}
+export const getRegions = async () => ({
+  regionsList: [
+    {
+      alpha3: "USA",
+      name: "United States",
+    },
+    {
+      alpha3: "FRA",
+      name: "France",
+    },
+    {
+      alpha3: "FIN",
+      name: "Finland",
+    },
+    {
+      alpha3: "ESP",
+      name: "Spain",
+    },
+    {
+      alpha3: "AUS",
+      name: "Australia",
+    },
+    {
+      alpha3: "SWE",
+      name: "Sweden",
+    },
+    {
+      alpha3: "CMR",
+      name: "Cameroon",
+    },
+    {
+      alpha3: "JPN",
+      name: "Japan",
+    },
+    {
+      alpha3: "GBR",
+      name: "United Kingdom",
+    },
+  ],
+});
 
-export async function listCommunityAdmins(): Promise<ListAdminsRes.AsObject> {
-  return {
+export const listCommunityAdmins =
+  async (): Promise<ListAdminsRes.AsObject> => ({
     adminUserIdsList: [2, 3],
     nextPageToken: "",
-  };
-}
+  });
 
-export async function getEventOrganizers(): Promise<ListEventOrganizersRes.AsObject> {
-  return {
+export const getEventOrganizers =
+  async (): Promise<ListEventOrganizersRes.AsObject> => ({
     organizerUserIdsList: [2, 3],
     nextPageToken: "",
-  };
-}
+  });
 
-export async function getEventAttendees(): Promise<ListEventAttendeesRes.AsObject> {
-  return {
+export const getEventAttendees =
+  async (): Promise<ListEventAttendeesRes.AsObject> => ({
     attendeeUserIdsList: [1, 4],
     nextPageToken: "",
-  };
-}
+  });
 
-export async function listNotifications(): Promise<ListNotificationsRes.AsObject> {
-  return notifications;
-}
+export const listNotifications = () => notifications;
 
-export async function getEvents(): Promise<EventSearchRes.AsObject> {
-  return {
-    eventsList: events,
-    totalItems: events.length,
-    nextPageToken: "",
-  };
-}
+export const getEvents = async (): Promise<EventSearchRes.AsObject> => ({
+  eventsList: events,
+  totalItems: events.length,
+  nextPageToken: "",
+});
 
-export async function getMyEvents(
+export const getMyEvents = async (
   creatorUserId?: number,
-): Promise<EventSearchRes.AsObject> {
-  return {
-    eventsList: !creatorUserId
-      ? events
-      : events.filter((event) => event.creatorUserId === creatorUserId),
-    totalItems: events.length,
-    nextPageToken: "",
-  };
-}
+): Promise<EventSearchRes.AsObject> => ({
+  eventsList: !creatorUserId
+    ? events
+    : events.filter((event) => event.creatorUserId === creatorUserId),
+  totalItems: events.length,
+  nextPageToken: "",
+});

@@ -60,13 +60,12 @@ export const configUtils = <const P extends string>(prefix: P) => {
     }),
     schemaWithPrefix(
       Type.Object({
-        API_BASE_URL: Type.String({
-          minLength: 3,
-        }),
+        API_BASE_URL: Type.String(),
         COUCHERS_ENV: couchersEnvSchema,
         CONSOLE_BASE_URL: Type.String(),
         DISPLAY_VERSION: Type.String({ default: "dev" }),
         COMMIT_TIMESTAMP: Type.Optional(Type.Date()),
+        NOMINATIM_URL: Type.String(),
       }),
       prefix,
     ),

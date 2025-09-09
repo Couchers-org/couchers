@@ -17,7 +17,7 @@ import { nominatimQuery } from "@/utils/nominatim";
 // Locations having one of these keys are considered non-regions.
 // https://nominatim.org/release-docs/latest/api/Output/#addressdetails
 
-function useIsMounted() {
+const useIsMounted = () => {
   const isMounted = useRef(false);
 
   useEffect(() => {
@@ -28,12 +28,12 @@ function useIsMounted() {
   }, []);
 
   return isMounted;
-}
+};
 
-function useSafeState<State>(
+const useSafeState = <State>(
   isMounted: MutableRefObject<boolean>,
   initialState: State | (() => State),
-): [State, Dispatch<SetStateAction<State>>] {
+): [State, Dispatch<SetStateAction<State>>] => {
   const [state, setState] = useState(initialState);
 
   const safeSetState = useCallback(
@@ -46,7 +46,7 @@ function useSafeState<State>(
   );
 
   return [state, safeSetState];
-}
+};
 
 export interface GeocodeResult {
   name: string;
@@ -96,15 +96,15 @@ const useGeocodeQuery = () => {
   return { isLoading, error, results, query };
 };
 
-function usePrevious<T>(value: T) {
+const usePrevious = <T>(value: T) => {
   const ref = useRef<T>();
   useEffect(() => {
     ref.current = value;
   }, [value]);
   return ref.current;
-}
+};
 
-function useUnsavedChangesWarning({
+const useUnsavedChangesWarning = ({
   isDirty,
   isSubmitted,
   warningMessage,
@@ -112,7 +112,7 @@ function useUnsavedChangesWarning({
   isDirty: boolean;
   isSubmitted: boolean;
   warningMessage: string;
-}) {
+}) => {
   const router = useRouter();
   // https://github.com/vercel/next.js/issues/2694#issuecomment-732990201
   useEffect(() => {
@@ -136,7 +136,7 @@ function useUnsavedChangesWarning({
       router.events.off("routeChangeStart", handleBrowseAway);
     };
   }, [isDirty, router.events, isSubmitted, warningMessage]);
-}
+};
 
 export {
   useGeocodeQuery,

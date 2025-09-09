@@ -30,29 +30,29 @@ const numNights = (date1: string, date2: string) => {
   return diffDays;
 };
 
-function timestamp2Date(timestamp: Timestamp.AsObject): Date {
+const timestamp2Date = (timestamp: Timestamp.AsObject): Date => {
   return new Date(Math.floor(timestamp.seconds * 1e3 + timestamp.nanos / 1e6));
-}
+};
 
-function duration2pb(duration: Duration) {
+const duration2pb = (duration: Duration) => {
   const d = new DurationPb();
   d.setSeconds(duration.asSeconds());
   d.setNanos(duration.milliseconds() * 1000);
   return d;
-}
+};
 
-function isSameDate(date1: Dayjs, date2: Dayjs): boolean {
+const isSameDate = (date1: Dayjs, date2: Dayjs): boolean => {
   return (
     date1.month() === date2.month() &&
     date1.year() === date2.year() &&
     date1.date() === date2.date()
   );
-}
+};
 
 /** Compares whether date1 is equal to or in the future of date2 */
-function isSameOrFutureDate(date1: Dayjs, date2: Dayjs): boolean {
+const isSameOrFutureDate = (date1: Dayjs, date2: Dayjs): boolean => {
   return isSameDate(date1, date2) || date1.isAfter(date2);
-}
+};
 
 export {
   dateFormatter,

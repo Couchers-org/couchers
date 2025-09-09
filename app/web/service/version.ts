@@ -2,7 +2,7 @@ import { StatusReq } from "@/proto/bugs_pb";
 
 import client from "./client";
 
-export async function status(message = "") {
+export const status = async (message = "") => {
   const req = new StatusReq();
   req.setNonce(message);
   const res = await client.bugs.status(req);
@@ -10,4 +10,4 @@ export async function status(message = "") {
     throw new Error("Backend didn't return right nonce!");
   }
   return res.toObject();
-}
+};

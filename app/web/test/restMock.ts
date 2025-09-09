@@ -1,6 +1,7 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
+// TODO(FB) Fix test config
 process.env = {
   ...process.env,
   NEXT_PUBLIC_NOMINATIM_URL: "http://nominatim.test/",

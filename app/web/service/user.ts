@@ -57,11 +57,11 @@ export type HostingPreferenceData = Omit<
 /**
  * Login user using password
  */
-export async function passwordLogin(
+export const passwordLogin = async (
   username: string,
   password: string,
   rememberDevice: boolean,
-) {
+) => {
   const req = new AuthReq();
   req.setUser(username);
   req.setPassword(password);
@@ -69,18 +69,18 @@ export async function passwordLogin(
 
   const res = await client.auth.authenticate(req);
   return res.toObject();
-}
+};
 
-export async function getAuthState() {
+export const getAuthState = async () => {
   return (await client.auth.getAuthState(new Empty())).toObject();
-}
+};
 
 /**
  * Returns User record of logged in user
  *
  * @returns {Promise<User.AsObject>}
  */
-export async function getCurrentUser(): Promise<User.AsObject> {
+export const getCurrentUser = async (): Promise<User.AsObject> => {
   const req = new PingReq();
 
   const response = await client.api.ping(req);
@@ -92,7 +92,7 @@ export async function getCurrentUser(): Promise<User.AsObject> {
   }
 
   return user;
-}
+};
 
 /**
  * Returns User record by Username or id
@@ -100,7 +100,7 @@ export async function getCurrentUser(): Promise<User.AsObject> {
  * @param {string} user
  * @returns {Promise<User.AsObject>}
  */
-export async function getUser(user: string): Promise<User.AsObject> {
+export const getUser = async (user: string): Promise<User.AsObject> => {
   const userReq = new GetUserReq();
   if (user) {
     userReq.setUser(user);
@@ -109,7 +109,7 @@ export async function getUser(user: string): Promise<User.AsObject> {
   const response = await client.api.getUser(userReq);
 
   return response.toObject();
-}
+};
 
 /**
  * Returns LiteUser record by Username or id
@@ -117,7 +117,7 @@ export async function getUser(user: string): Promise<User.AsObject> {
  * @param {string} user
  * @returns {Promise<LiteUser.AsObject>}
  */
-export async function getLiteUser(user: string) {
+export const getLiteUser = async (user: string) => {
   const userReq = new GetLiteUserReq();
   if (user) {
     userReq.setUser(user);
@@ -126,25 +126,25 @@ export async function getLiteUser(user: string) {
   const response = await client.api.getLiteUser(userReq);
 
   return response.toObject();
-}
+};
 
 /** Returns LiteUsers by ids
  */
-export async function getLiteUsers(userIdsOrUsernames: number[] | string[]) {
+export const getLiteUsers = async (userIdsOrUsernames: number[] | string[]) => {
   const req = new GetLiteUsersReq();
   req.setUsersList(userIdsOrUsernames.map(String));
 
   const response = await client.api.getLiteUsers(req);
 
   return response.toObject();
-}
+};
 
 /**
  * Updates user profile
  */
-export async function updateProfile(
+export const updateProfile = async (
   profile: UpdateUserProfileData,
-): Promise<Empty> {
+): Promise<Empty> => {
   const req = new UpdateProfileReq();
 
   const avatarKey = profile.avatarKey
@@ -203,15 +203,15 @@ export async function updateProfile(
     .setAdditionalInformation(additionalInformation);
 
   return client.api.updateProfile(req);
-}
+};
 
-export function updateAvatar(avatarKey: string) {
+export const updateAvatar = (avatarKey: string) => {
   const req = new UpdateProfileReq();
   req.setAvatarKey(new NullableStringValue().setValue(avatarKey));
   return client.api.updateProfile(req);
-}
+};
 
-export function updateHostingPreference(preferences: HostingPreferenceData) {
+export const updateHostingPreference = (preferences: HostingPreferenceData) => {
   const req = new UpdateProfileReq();
 
   const maxGuests = preferences.maxGuests
@@ -298,11 +298,9 @@ export function updateHostingPreference(preferences: HostingPreferenceData) {
     .setAboutPlace(aboutPlace);
 
   return client.api.updateProfile(req);
-}
+};
 
 /**
  * Logout user
  */
-export function logout() {
-  return client.auth.deauthenticate(new Empty());
-}
+export const logout = () => client.auth.deauthenticate(new Empty());

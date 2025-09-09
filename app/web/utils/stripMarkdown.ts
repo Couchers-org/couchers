@@ -8,7 +8,7 @@ interface StripMarkdownOptions {
   useImgAltText?: boolean; // replace images with alt-text, if present (default: true)
 }
 
-export default function stripMarkdown(
+const stripMarkdown = (
   md: string,
   {
     listUnicodeChar,
@@ -21,7 +21,7 @@ export default function stripMarkdown(
     stripListLeaders: true,
     useImgAltText: true,
   },
-) {
+) => {
   let output = md || "";
 
   // Remove horizontal rules (stripListHeaders conflict with this rule, which is why it has been moved to the top)
@@ -82,4 +82,6 @@ export default function stripMarkdown(
     return md;
   }
   return output;
-}
+};
+
+export default stripMarkdown;
