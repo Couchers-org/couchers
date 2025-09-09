@@ -28,7 +28,7 @@ beforeEach(() => {
 });
 
 describe("while loading", () => {
-  it("returns loading with no errors", async () => {
+  it("returns loading with no errors", () => {
     const { result } = renderHook(() => useUserByUsername("funnydog"), {
       wrapper,
     });
@@ -45,14 +45,16 @@ describe("while loading", () => {
 
 describe("when user has loaded", () => {
   beforeEach(() => {
-    //these tests get userId 2, the mock implementation only supports fetch by id
+    // these tests get userId 2, the mock implementation only supports fetch by id
     getUserMock.mockResolvedValueOnce({ userId: 2, username: "funnydog" });
   });
   it("returns the user data with no errors", async () => {
     const { result } = renderHook(() => useUserByUsername("funnydog"), {
       wrapper,
     });
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
 
     expect(result.current).toEqual({
       data: users[1],
@@ -72,7 +74,9 @@ describe("when user has loaded", () => {
       wrapper,
     });
 
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
 
     expect(result.current).toMatchObject({
       data: undefined,
@@ -91,7 +95,7 @@ describe("cached data", () => {
   const sharedClientWrapper = ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={sharedClient}>{children}</QueryClientProvider>
   );
-  beforeEach(async () => {
+  beforeEach(() => {
     sharedClient.clear();
     sharedClient.setQueryData(["username2Id", "funnydog"], {
       userId: 2,
@@ -105,7 +109,7 @@ describe("cached data", () => {
     });
   });
 
-  it("is used instead of refetching", async () => {
+  it("is used instead of refetching", () => {
     const { result } = renderHook(() => useUserByUsername("funnydog"), {
       wrapper: sharedClientWrapper,
     });
@@ -115,12 +119,12 @@ describe("cached data", () => {
     expect(result.current.isLoading).toBe(false);
   });
 
-  it("is invalidated when requested, userid2user map not invalidated", async () => {
+  it("is invalidated when requested, userid2user map not invalidated", () => {
     renderHook(() => useUserByUsername("funnydog", true), {
       wrapper: sharedClientWrapper,
     });
 
-    expect(getUserMock).toBeCalledTimes(1);
+    expect(getUserMock).toHaveBeenCalledTimes(1);
   });
 
   it("is returned when stale if subsequent refetch queries fail", async () => {
@@ -130,7 +134,9 @@ describe("cached data", () => {
       wrapper: sharedClientWrapper,
     });
 
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
 
     expect(result.current).toMatchObject({
       data: {

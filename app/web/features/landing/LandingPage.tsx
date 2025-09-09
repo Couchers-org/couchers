@@ -31,10 +31,10 @@ const Landing = () => {
   // component definitely gets cleared here when redirected to the landing page
   const queryClient = useQueryClient();
   useEffect(() => {
-    if (!authState.authenticated) {
+    if (!authState.isAuthenticated) {
       queryClient.clear();
     }
-  }, [queryClient, authState.authenticated]);
+  }, [queryClient, authState.isAuthenticated]);
 
   return (
     <>
@@ -67,7 +67,7 @@ const Landing = () => {
       <Container component="section" maxWidth="lg">
         <CouchersMission />
       </Container>
-      {isMobile && !authState.authenticated && (
+      {isMobile && !authState.isAuthenticated && (
         <Box
           sx={{
             position: "fixed",

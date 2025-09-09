@@ -3,12 +3,11 @@ import { RpcError } from "grpc-web";
 
 import { pingInterval } from "@/appConstants";
 import { useAuthContext } from "@/features/auth/AuthProvider";
+import { PingRes } from "@/proto/api_pb";
 import { service } from "@/service";
 
-import { PingRes } from "../proto/api_pb";
-
-export default function useNotifications() {
-  const { authenticated, jailed } = useAuthContext().authState;
+const useNotifications = () => {
+  const { isAuthenticated, isJailed } = useAuthContext().authState;
 
   const { data, isPending, isError, error } = useQuery<
     PingRes.AsObject,
@@ -16,8 +15,10 @@ export default function useNotifications() {
   >({
     queryKey: ["ping"],
     queryFn: () => service.api.ping(),
-    enabled: authenticated && !jailed,
+    enabled: isAuthenticated && !isJailed,
     refetchInterval: pingInterval,
   });
   return { data, error, isError, isPending };
-}
+};
+
+export default useNotifications;

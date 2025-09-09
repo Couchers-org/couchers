@@ -1,4 +1,5 @@
-interface Language {
+// TODO(FB) Move to sensible place
+export interface Language {
   name: string;
   flagIconCode: string;
 }
@@ -7,7 +8,7 @@ interface LanguageMap {
   [key: string]: Language;
 }
 
-export const LANGUAGE_MAP: LanguageMap = {
+export const LANGUAGE_MAP = {
   ca: {
     name: "Catalan",
     flagIconCode: "CAT",
@@ -96,4 +97,4 @@ export const LANGUAGE_MAP: LanguageMap = {
     name: "Chinese (Traditional)",
     flagIconCode: "CN",
   },
-};
+} satisfies LanguageMap;

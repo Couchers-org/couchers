@@ -10,7 +10,7 @@ import Alert from "@/components/Alert";
 import CircularProgress from "@/components/CircularProgress";
 import { useTranslation } from "@/i18n";
 import { PROFILE } from "@/i18n/namespaces";
-import Sentry from "@/platform/sentry";
+import { Sentry } from "@/platform/sentry";
 import { service } from "@/service";
 import { ImageInputValues } from "@/service/api";
 
@@ -93,7 +93,7 @@ const StyledInput = styled("input")(() => ({
   display: "none",
 }));
 
-export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
+export const ImageInput = (props: AvatarInputProps | RectImgInputProps) => {
   const { className, control, id, initialPreviewSrc, name } = props;
 
   const { t } = useTranslation([PROFILE]);
@@ -221,6 +221,6 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
       </FlexWrapper>
     </StyledWrapper>
   );
-}
+};
 
 export default ImageInput;

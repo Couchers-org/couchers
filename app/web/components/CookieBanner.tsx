@@ -42,7 +42,7 @@ const CookieBanner = () => {
   const auth = useAuthContext();
   const [hasSeen, setHasSeen] = usePersistedState("hasSeenCookieBanner", false);
 
-  if (auth.authState.authenticated) return null;
+  if (auth.authState.isAuthenticated) return null;
 
   // specifically not using our snackbar, which is designed for alerts
   return isMounted && !hasSeen ? (

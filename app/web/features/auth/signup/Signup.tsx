@@ -11,7 +11,7 @@ import { useAuthContext } from "@/features/auth/AuthProvider";
 import { Trans, useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
 import { useIsNativeEmbed } from "@/platform/nativeLink";
-import Sentry from "@/platform/sentry";
+import { Sentry } from "@/platform/sentry";
 import CouchersTextLogo from "@/resources/CouchersTextLogo";
 import { DASHBOARD_ROUTE, LOGIN_ROUTE, SIGNUP_ROUTE } from "@/routes";
 import { service } from "@/service";
@@ -40,7 +40,7 @@ const Signup = () => {
   const router = useRouter();
 
   const { authState, authActions } = useAuthContext();
-  const isAuthenticated = authState.authenticated;
+  const isAuthenticated = authState.isAuthenticated;
   const error = authState.error;
   const [isLoading, setIsLoading] = useState(false);
 
@@ -61,7 +61,7 @@ const Signup = () => {
       if (urlToken) {
         setIsLoading(true);
         try {
-          await authActions.updateSignupState(
+          authActions.updateSignupState(
             await service.auth.signupFlowEmailToken(urlToken),
           );
         } catch (err) {

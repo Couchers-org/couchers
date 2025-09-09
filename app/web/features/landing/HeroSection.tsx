@@ -6,18 +6,18 @@ import Alert from "@/components/Alert";
 import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "@/components/HtmlMeta";
 import MapAnimation from "@/components/MapAnimation";
+import { useAuthContext } from "@/features/auth/AuthProvider";
+import SignupFormContent from "@/features/auth/signup/SignupFormContent";
 import CouchersIntroduction from "@/features/landing/CouchersIntroduction";
 import { useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
 import { useIsNativeEmbed } from "@/platform/nativeLink";
-import Sentry from "@/platform/sentry";
+import { Sentry } from "@/platform/sentry";
 import { SIGNUP_ROUTE } from "@/routes";
 import { service } from "@/service";
 import isGrpcError from "@/service/utils/isGrpcError";
 import stringOrFirstString from "@/utils/stringOrFirstString";
-
-import { useAuthContext } from "../auth/AuthProvider";
-import SignupFormContent from "../auth/signup/SignupFormContent";
+import useStablePush from "@/utils/useStablePush";
 
 const StyledContent = styled("div")(({ theme }) => ({
   display: "flex",
@@ -36,7 +36,7 @@ const StyledMobileEmbed = styled("div")(({ theme }) => ({
   margin: theme.spacing(3),
 }));
 
-export default function HeroSection() {
+const HeroSection = () => {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const router = useRouter();
   const { authState, authActions } = useAuthContext();
@@ -44,7 +44,9 @@ export default function HeroSection() {
   const urlToken = stringOrFirstString(router.query.token);
   const isNativeEmbed = useIsNativeEmbed();
 
-  const [loading, setLoading] = useState(false);
+  const push = useStablePush();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     authActions.clearError();
@@ -55,9 +57,9 @@ export default function HeroSection() {
   }, [authState.error]);
 
   useEffect(() => {
-    (async () => {
+    void (async () => {
       if (urlToken) {
-        setLoading(true);
+        setIsLoading(true);
         try {
           authActions.updateSignupState(
             await service.auth.signupFlowEmailToken(urlToken),
@@ -71,15 +73,13 @@ export default function HeroSection() {
           authActions.authError(
             isGrpcError(err) ? err.message : t("global:error.fatal_message"),
           );
-          router.push(SIGNUP_ROUTE);
+          await push(SIGNUP_ROUTE);
           return;
         }
-        setLoading(false);
+        setIsLoading(false);
       }
     })();
-    // next-router-mock router isn't memoized, so putting router in the dependencies
-    // causes infinite looping in tests
-  }, [urlToken, authActions, t]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [urlToken, authActions, t, push]);
 
   if (isNativeEmbed) {
     return (
@@ -89,7 +89,7 @@ export default function HeroSection() {
             {error}
           </Alert>
         )}
-        {loading ? <CenteredSpinner /> : <SignupFormContent />}
+        {isLoading ? <CenteredSpinner /> : <SignupFormContent />}
       </StyledMobileEmbed>
     );
   }
@@ -103,4 +103,6 @@ export default function HeroSection() {
       </StyledContent>
     </>
   );
-}
+};
+
+export default HeroSection;

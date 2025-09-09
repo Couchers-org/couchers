@@ -28,7 +28,7 @@ beforeEach(() => {
 });
 
 describe("while queries are loading", () => {
-  it("returns loading with no errors", async () => {
+  it("returns loading with no errors", () => {
     const { result } = renderHook(() => useUsers([1, 2, 3]), {
       wrapper,
     });
@@ -50,7 +50,9 @@ describe("useUser (singular)", () => {
       wrapper,
     });
 
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
 
     expect(getUserMock).toHaveBeenCalledTimes(1);
     expect(result.current).toEqual({
@@ -101,7 +103,9 @@ describe("when useUsers has loaded", () => {
       wrapper,
     });
 
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
 
     expect(getUserMock).toHaveBeenCalledTimes(3);
     expect(result.current).toEqual({
@@ -130,7 +134,9 @@ describe("when useUsers has loaded", () => {
       wrapper,
     });
 
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
 
     expect(result.current).toMatchObject({
       data: new Map([
@@ -152,7 +158,9 @@ describe("when useUsers has loaded", () => {
     const { result } = renderHook(() => useUsers([1, 2, 3]), {
       wrapper,
     });
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
 
     expect(result.current).toMatchObject({
       data: new Map([
@@ -179,14 +187,14 @@ describe("cached data", () => {
   const sharedClientWrapper = ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={sharedClient}>{children}</QueryClientProvider>
   );
-  beforeEach(async () => {
+  beforeEach(() => {
     sharedClient.clear();
     sharedClient.setQueryData(userKey(1), users[0]);
     sharedClient.setQueryData(userKey(2), users[1]);
     sharedClient.setQueryData(userKey(3), users[2]);
   });
 
-  it("is used instead of refetching", async () => {
+  it("is used instead of refetching", () => {
     const { result } = renderHook(() => useUsers([1, 2, 3]), {
       wrapper: sharedClientWrapper,
     });
@@ -200,15 +208,17 @@ describe("cached data", () => {
     renderHook(() => useUsers([1, 2, 3], true), {
       wrapper: sharedClientWrapper,
     });
-    await waitFor(() =>
+    await waitFor(() => {
       expect(spy).toHaveBeenCalledWith(
         expect.objectContaining({
           refetchType: "active",
           predicate: expect.any(Function),
         }),
-      ),
-    );
-    await waitFor(() => expect(getUserMock).toBeCalledTimes(3));
+      );
+    });
+    await waitFor(() => {
+      expect(getUserMock).toHaveBeenCalledTimes(3);
+    });
   });
 
   it("is returned when stale if subsequent refetch queries fail", async () => {
@@ -218,7 +228,9 @@ describe("cached data", () => {
       wrapper: sharedClientWrapper,
     });
 
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
 
     expect(result.current).toMatchObject({
       data: new Map([
@@ -243,15 +255,17 @@ describe("cached data", () => {
       wrapper: sharedClientWrapper,
     });
     // v5: assert invalidate was called and only one refetch cycle occurred
-    await waitFor(() =>
+    await waitFor(() => {
       expect(spy).toHaveBeenCalledWith(
         expect.objectContaining({
           refetchType: "active",
           predicate: expect.any(Function),
         }),
-      ),
-    );
-    await waitFor(() => expect(getUserMock).toHaveBeenCalledTimes(3));
+      );
+    });
+    await waitFor(() => {
+      expect(getUserMock).toHaveBeenCalledTimes(3);
+    });
 
     // ensure no more invalidations/refetches after first cycle
     expect(spy).toHaveBeenCalledTimes(1);
@@ -276,25 +290,29 @@ describe("cached data", () => {
     );
 
     // v5: assert invalidate was called and only one refetch cycle occurred
-    await waitFor(() =>
+    await waitFor(() => {
       expect(spy).toHaveBeenCalledWith(
         expect.objectContaining({
           refetchType: "active",
           predicate: expect.any(Function),
         }),
-      ),
-    );
+      );
+    });
     // v5: assert by fetch calls instead of internal state
-    await waitFor(() => expect(getUserMock).toHaveBeenCalledTimes(3));
+    await waitFor(() => {
+      expect(getUserMock).toHaveBeenCalledTimes(3);
+    });
 
     expect(getUserMock).toHaveBeenCalledTimes(3);
     getUserMock.mockClear();
-    act(() => result.current.setIds([1, 2]));
+    act(() => {
+      result.current.setIds([1, 2]);
+    });
 
-    expect(getUserMock).toBeCalledTimes(2);
+    expect(getUserMock).toHaveBeenCalledTimes(2);
   });
 
-  it("returns isRefetching as true when new IDs are being added", async () => {
+  it("returns isRefetching as true when new IDs are being added", () => {
     const { result } = renderHook(
       () => {
         const [ids, setIds] = useState([1, 2, 3]);
@@ -306,7 +324,9 @@ describe("cached data", () => {
       },
     );
 
-    act(() => result.current.setIds([1, 2, 3, 4]));
+    act(() => {
+      result.current.setIds([1, 2, 3, 4]);
+    });
 
     expect(result.current).toMatchObject({
       users: expect.objectContaining({

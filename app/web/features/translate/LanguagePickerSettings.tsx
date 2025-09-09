@@ -1,21 +1,19 @@
 import { Link, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 
+import Button from "@/components/Button";
 import { useTranslation } from "@/i18n";
 import { LANGUAGE_MAP } from "@/i18n/constants";
 import { GLOBAL } from "@/i18n/namespaces";
-import { translateJobURL, translateRoute } from "@/routes";
+import { TRANSLATE_JOB_URL, TRANSLATE_ROUTE } from "@/routes";
 
-import Button from "../../components/Button";
 import LanguagePickerSelect from "./LanguagePickerSelect";
 
 interface ChangeLanguageProps {
   className?: string;
 }
 
-export default function LanguagePickerSettings({
-  className,
-}: ChangeLanguageProps) {
+const LanguagePickerSettings = ({ className }: ChangeLanguageProps) => {
   const { t } = useTranslation([GLOBAL]);
   const router = useRouter();
   const { locale } = router;
@@ -27,7 +25,7 @@ export default function LanguagePickerSettings({
       </Typography>
       <>
         <Typography variant="body1">
-          {`${t("global:language_preference.current_preferred_language")}`}
+          {t("global:language_preference.current_preferred_language")}
           <strong>{LANGUAGE_MAP[locale || "en"]?.name}</strong>
         </Typography>
         <Typography
@@ -37,7 +35,7 @@ export default function LanguagePickerSettings({
           }}
         >
           <Link
-            href={translateJobURL}
+            href={TRANSLATE_JOB_URL}
             target="_blank"
             rel="noreferrer noopener"
             underline="hover"
@@ -52,11 +50,13 @@ export default function LanguagePickerSettings({
             marginBottom: "16px",
           }}
         >
-          <Button onClick={() => router.push(translateRoute)}>
+          <Button onClick={() => router.push(TRANSLATE_ROUTE)}>
             {t("global:language_preference.translation_progress.view_progress")}
           </Button>
         </Typography>
       </>
     </div>
   );
-}
+};
+
+export default LanguagePickerSettings;

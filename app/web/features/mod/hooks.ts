@@ -10,7 +10,7 @@ import {
   modUserKey,
   newUsersListKey,
 } from "@/features/queryKeys";
-import { userStaleTime } from "@/features/userQueries/constants";
+import { USER_STALE_TIME } from "@/features/userQueries/constants";
 import { ListUserIdsRes, UserDetails } from "@/proto/admin_pb";
 import { User } from "@/proto/api_pb";
 import { service } from "@/service";
@@ -39,25 +39,25 @@ export const useNewUsers = () => {
   return { ...query, userIds };
 };
 
-export default function useUserWithDetails(user: string) {
+const useUserWithDetails = (user: string) => {
   const query = useQuery<User.AsObject, RpcError>({
     queryFn: () => service.admin.getUser(user),
     queryKey: [modUserKey(user)],
-    staleTime: userStaleTime,
+    staleTime: USER_STALE_TIME,
   });
 
   const detailsQuery = useQuery<UserDetails.AsObject, RpcError>({
     queryFn: () => service.admin.getUserDetails(user),
     queryKey: [modUserDetailsKey(user)],
-    staleTime: userStaleTime,
+    staleTime: USER_STALE_TIME,
   });
 
   const errors = [];
   if (query.error?.message) {
-    errors.push(query.error?.message || "");
+    errors.push(query.error.message || "");
   }
   if (detailsQuery.error?.message) {
-    errors.push(detailsQuery.error?.message || "");
+    errors.push(detailsQuery.error.message || "");
   }
 
   const error = errors.join("\n");
@@ -73,4 +73,6 @@ export default function useUserWithDetails(user: string) {
     isFetching,
     isLoading,
   };
-}
+};
+
+export default useUserWithDetails;

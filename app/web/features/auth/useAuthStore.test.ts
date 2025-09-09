@@ -4,9 +4,9 @@ import { StatusCode } from "grpc-web";
 
 import { usePersistedState } from "@/platform/usePersistedState";
 import { service } from "@/service";
+import wrapper from "@/test/hookWrapper";
+import { addDefaultUser } from "@/test/utils";
 
-import wrapper from "../../test/hookWrapper";
-import { addDefaultUser } from "../../test/utils";
 import useAuthStore from "./useAuthStore";
 
 const getUserMock = service.user.getUser as jest.Mock;
@@ -26,7 +26,9 @@ describe("usePersistedState hook", () => {
     const value = { test: "Test string" };
     const { result } = renderHook(() => usePersistedState("key", { test: "" }));
     expect(result.current[0]).toStrictEqual({ test: "" });
-    act(() => result.current[1](value));
+    act(() => {
+      result.current[1](value);
+    });
     expect(result.current[0]).toStrictEqual(value);
     expect(localStorage.getItem("key")).toBe(JSON.stringify(value));
     const { result: result2 } = renderHook(() =>
@@ -41,7 +43,9 @@ describe("usePersistedState hook", () => {
       usePersistedState("key", { test: "" }, "sessionStorage"),
     );
     expect(result.current[0]).toStrictEqual({ test: "" });
-    act(() => result.current[1](value));
+    act(() => {
+      result.current[1](value);
+    });
     expect(result.current[0]).toStrictEqual(value);
     expect(sessionStorage.getItem("key")).toBe(JSON.stringify(value));
     const { result: result2 } = renderHook(() =>
@@ -55,18 +59,24 @@ describe("usePersistedState hook", () => {
       usePersistedState("key", { test: "" }, "sessionStorage"),
     );
     expect(result.current[0]).toStrictEqual({ test: "" });
-    act(() => result.current[2]());
+    act(() => {
+      result.current[2]();
+    });
     expect(result.current[0]).toStrictEqual(undefined);
     expect(sessionStorage.getItem("key")).toBe(null);
   });
 });
 
 describe("useAuthStore hook", () => {
-  it("sets and clears an error", async () => {
+  it("sets and clears an error", () => {
     const { result } = renderHook(() => useAuthStore(), { wrapper });
-    act(() => result.current.authActions.authError("error1"));
+    act(() => {
+      result.current.authActions.authError("error1");
+    });
     expect(result.current.authState.error).toBe("error1");
-    act(() => result.current.authActions.clearError());
+    act(() => {
+      result.current.authActions.clearError();
+    });
     expect(result.current.authState.error).toBeNull();
   });
 
@@ -74,9 +84,9 @@ describe("useAuthStore hook", () => {
     logoutMock.mockResolvedValue(new Empty());
     addDefaultUser();
     const { result } = renderHook(() => useAuthStore(), { wrapper });
-    expect(result.current.authState.authenticated).toBe(true);
+    expect(result.current.authState.isAuthenticated).toBe(true);
     await act(() => result.current.authActions.logout());
-    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.isAuthenticated).toBe(false);
     expect(result.current.authState.error).toBeNull();
     expect(result.current.authState.userId).toBeNull();
   });
@@ -85,7 +95,7 @@ describe("useAuthStore hook", () => {
     logoutMock.mockResolvedValue(new Empty());
     addDefaultUser();
     const { result } = renderHook(() => useAuthStore(), { wrapper });
-    expect(result.current.authState.authenticated).toBe(true);
+    expect(result.current.authState.isAuthenticated).toBe(true);
     sessionStorage.setItem("test key", "test value");
     expect(sessionStorage.length).toBe(1);
     await act(() => result.current.authActions.logout());
@@ -100,7 +110,7 @@ describe("passwordLogin action", () => {
     const { result } = renderHook(() => useAuthStore(), {
       wrapper,
     });
-    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.isAuthenticated).toBe(false);
     await act(() =>
       result.current.authActions.passwordLogin({
         password: "pass",
@@ -108,7 +118,7 @@ describe("passwordLogin action", () => {
         rememberDevice: true,
       }),
     );
-    expect(result.current.authState.authenticated).toBe(true);
+    expect(result.current.authState.isAuthenticated).toBe(true);
   });
   it("sets error correctly for login fail", async () => {
     passwordLoginMock.mockRejectedValue({
@@ -116,7 +126,7 @@ describe("passwordLogin action", () => {
       message: "Invalid username or password.",
     });
     const { result } = renderHook(() => useAuthStore(), { wrapper });
-    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.isAuthenticated).toBe(false);
     await act(() =>
       result.current.authActions.passwordLogin({
         password: "pass",
@@ -124,7 +134,7 @@ describe("passwordLogin action", () => {
         rememberDevice: true,
       }),
     );
-    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.isAuthenticated).toBe(false);
     expect(result.current.authState.error).toBe(
       "Invalid username or password.",
     );
@@ -132,34 +142,34 @@ describe("passwordLogin action", () => {
 });
 
 describe("firstLogin action", () => {
-  it("sets state correctly", async () => {
+  it("sets state correctly", () => {
     const { result } = renderHook(() => useAuthStore(), { wrapper });
     expect(result.current.authState.error).toBe(null);
     expect(result.current.authState.userId).toBe(null);
-    expect(result.current.authState.jailed).toBe(false);
-    expect(result.current.authState.authenticated).toBe(false);
-    await act(() =>
+    expect(result.current.authState.isJailed).toBe(false);
+    expect(result.current.authState.isAuthenticated).toBe(false);
+    act(() => {
       result.current.authActions.firstLogin({
         userId: 55,
         jailed: false,
-      }),
-    );
+      });
+    });
     expect(result.current.authState.error).toBe(null);
     expect(result.current.authState.userId).toBe(55);
-    expect(result.current.authState.jailed).toBe(false);
-    expect(result.current.authState.authenticated).toBe(true);
+    expect(result.current.authState.isJailed).toBe(false);
+    expect(result.current.authState.isAuthenticated).toBe(true);
   });
 });
 
 describe("updateSignupState action", () => {
-  it("sets state correctly if in progress", async () => {
+  it("sets state correctly if in progress", () => {
     const { result } = renderHook(() => useAuthStore(), { wrapper });
     expect(result.current.authState.error).toBe(null);
     expect(result.current.authState.userId).toBe(null);
-    expect(result.current.authState.jailed).toBe(false);
-    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.isJailed).toBe(false);
+    expect(result.current.authState.isAuthenticated).toBe(false);
     expect(result.current.authState.flowState).toBe(null);
-    await act(() =>
+    act(() => {
       result.current.authActions.updateSignupState({
         flowToken: "dummy-token",
         needBasic: false,
@@ -167,23 +177,23 @@ describe("updateSignupState action", () => {
         needFeedback: false,
         needVerifyEmail: true,
         needAcceptCommunityGuidelines: true,
-      }),
-    );
+      });
+    });
     expect(result.current.authState.error).toBe(null);
     expect(result.current.authState.userId).toBe(null);
-    expect(result.current.authState.jailed).toBe(false);
-    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.isJailed).toBe(false);
+    expect(result.current.authState.isAuthenticated).toBe(false);
     expect(result.current.authState.flowState?.flowToken).toBe("dummy-token");
   });
 
-  it("sets state correctly if success", async () => {
+  it("sets state correctly if success", () => {
     const { result } = renderHook(() => useAuthStore(), { wrapper });
     expect(result.current.authState.error).toBe(null);
     expect(result.current.authState.userId).toBe(null);
-    expect(result.current.authState.jailed).toBe(false);
-    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.isJailed).toBe(false);
+    expect(result.current.authState.isAuthenticated).toBe(false);
     expect(result.current.authState.flowState).toBe(null);
-    await act(() =>
+    act(() => {
       result.current.authActions.updateSignupState({
         flowToken: "",
         authRes: {
@@ -195,12 +205,12 @@ describe("updateSignupState action", () => {
         needFeedback: false,
         needVerifyEmail: false,
         needAcceptCommunityGuidelines: false,
-      }),
-    );
+      });
+    });
     expect(result.current.authState.error).toBe(null);
     expect(result.current.authState.userId).toBe(51);
-    expect(result.current.authState.jailed).toBe(false);
-    expect(result.current.authState.authenticated).toBe(true);
+    expect(result.current.authState.isJailed).toBe(false);
+    expect(result.current.authState.isAuthenticated).toBe(true);
     expect(result.current.authState.flowState).toBe(null);
   });
 });
@@ -211,8 +221,8 @@ describe("updateJailStatus action", () => {
     addDefaultUser();
     const { result } = renderHook(() => useAuthStore(), { wrapper });
     await act(() => result.current.authActions.updateJailStatus());
-    expect(result.current.authState.jailed).toBe(true);
-    expect(result.current.authState.authenticated).toBe(true);
+    expect(result.current.authState.isJailed).toBe(true);
+    expect(result.current.authState.isAuthenticated).toBe(true);
   });
   it("sets jailed to false for non-jailed user", async () => {
     getIsJailedMock.mockResolvedValue({ isJailed: false, user: defaultUser });
@@ -220,7 +230,7 @@ describe("updateJailStatus action", () => {
     addDefaultUser();
     const { result } = renderHook(() => useAuthStore(), { wrapper });
     await act(() => result.current.authActions.updateJailStatus());
-    expect(result.current.authState.jailed).toBe(false);
-    expect(result.current.authState.authenticated).toBe(true);
+    expect(result.current.authState.isJailed).toBe(false);
+    expect(result.current.authState.isAuthenticated).toBe(true);
   });
 });

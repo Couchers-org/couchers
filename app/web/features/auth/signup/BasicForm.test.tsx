@@ -2,6 +2,7 @@ import { render, renderHook, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { StatusCode } from "grpc-web";
 
+import { useAuthContext } from "@/features/auth/AuthProvider";
 import { service } from "@/service";
 import wrapper from "@/test/hookWrapper";
 import i18n from "@/test/i18n";
@@ -11,7 +12,6 @@ import {
   mockConsoleError,
 } from "@/test/utils";
 
-import { useAuthContext } from "../AuthProvider";
 import BasicForm from "./BasicForm";
 
 const { t } = i18n;
@@ -38,7 +38,7 @@ describe("basic signup form", () => {
 
   it("cannot be submitted empty", async () => {
     const { result } = renderHook(() => useAuthContext(), { wrapper });
-    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.isAuthenticated).toBe(false);
     expect(result.current.authState.flowState).toBe(null);
 
     render(<BasicForm />, { wrapper });
@@ -50,16 +50,16 @@ describe("basic signup form", () => {
     );
 
     await waitFor(() => {
-      expect(startSignupMock).not.toBeCalled();
+      expect(startSignupMock).not.toHaveBeenCalled();
     });
 
-    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.isAuthenticated).toBe(false);
     expect(result.current.authState.flowState).toBe(null);
   });
 
   it("cannot be submitted without email", async () => {
     const { result } = renderHook(() => useAuthContext(), { wrapper });
-    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.isAuthenticated).toBe(false);
     expect(result.current.authState.flowState).toBe(null);
 
     render(<BasicForm />, { wrapper });
@@ -75,16 +75,16 @@ describe("basic signup form", () => {
     );
 
     await waitFor(() => {
-      expect(startSignupMock).not.toBeCalled();
+      expect(startSignupMock).not.toHaveBeenCalled();
     });
 
-    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.isAuthenticated).toBe(false);
     expect(result.current.authState.flowState).toBe(null);
   });
 
   it("cannot be submitted without name", async () => {
     const { result } = renderHook(() => useAuthContext(), { wrapper });
-    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.isAuthenticated).toBe(false);
     expect(result.current.authState.flowState).toBe(null);
 
     render(<BasicForm />, { wrapper });
@@ -100,17 +100,17 @@ describe("basic signup form", () => {
     );
 
     await waitFor(() => {
-      expect(startSignupMock).not.toBeCalled();
+      expect(startSignupMock).not.toHaveBeenCalled();
     });
 
-    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.isAuthenticated).toBe(false);
     expect(result.current.authState.flowState).toBe(null);
   });
 
   it("submits when filled in", async () => {
     startSignupMock.mockResolvedValue(stateAfterStart);
     const { result } = renderHook(() => useAuthContext(), { wrapper });
-    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.isAuthenticated).toBe(false);
     expect(result.current.authState.flowState).toBe(null);
 
     render(<BasicForm />, { wrapper });
@@ -131,7 +131,7 @@ describe("basic signup form", () => {
     );
 
     await waitFor(() => {
-      expect(startSignupMock).toBeCalledWith(
+      expect(startSignupMock).toHaveBeenCalledWith(
         "Frodo",
         "frodo@couchers.org.invalid",
       );

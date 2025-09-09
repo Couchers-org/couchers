@@ -11,7 +11,7 @@ import {
 } from "react";
 
 import { Coordinates } from "@/features/search/utils/constants";
-import sentry from "@/platform/sentry";
+import { Sentry } from "@/platform/sentry";
 import { nominatimQuery } from "@/utils/nominatim";
 
 // Locations having one of these keys are considered non-regions.
@@ -80,7 +80,7 @@ const useGeocodeQuery = () => {
       try {
         setResults(await nominatimQuery(value));
       } catch (e) {
-        sentry.captureException(e, {
+        Sentry.captureException(e, {
           tags: {
             hook: "useGeocodeQuery",
           },

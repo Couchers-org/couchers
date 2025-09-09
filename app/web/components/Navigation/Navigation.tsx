@@ -19,7 +19,7 @@ import { GlobalMessage } from "@/components/GlobalMessage";
 import { CloseIcon, MenuIcon } from "@/components/Icons";
 import ExternalNavButton from "@/components/Navigation/ExternalNavButton";
 import { useAuthContext } from "@/features/auth/AuthProvider";
-import { PushNotificationBanner } from "@/features/notifications/PushNotificationBanner";
+import PushNotificationBanner from "@/features/notifications/PushNotificationBanner";
 import LanguagePickerSelect from "@/features/translate/LanguagePickerSelect";
 import useNotifications from "@/features/useNotifications";
 import { GLOBAL } from "@/i18n/namespaces";
@@ -296,7 +296,7 @@ const Navigation = () => {
   const drawerItems = (
     <div>
       <List>
-        {(authState.authenticated && isMounted
+        {(authState.isAuthenticated && isMounted
           ? loggedInDrawerMenu
           : loggedOutDrawerMenu)(t, pingData).map(
           ({ name, route, notificationCount, externalLink }) => (
@@ -396,10 +396,10 @@ const Navigation = () => {
               </StyledDrawer>
             </>
           )}
-          <CouchersLogo isLoggedIn={authState.authenticated} />
+          <CouchersLogo isLoggedIn={authState.isAuthenticated} />
           {!isMobile && (
             <StyledFlexbox>
-              {(authState.authenticated && isMounted
+              {(authState.isAuthenticated && isMounted
                 ? loggedInNavMenu
                 : loggedOutNavMenu)(t, pingData).map(
                 ({ name, route, notificationCount, externalLink }) =>
@@ -423,7 +423,7 @@ const Navigation = () => {
           )}
         </StyledNav>
         <StyledMenuContainer>
-          {authState.authenticated && isMounted ? (
+          {authState.isAuthenticated && isMounted ? (
             <LoggedInMenu
               menuOpen={isMenuOpen}
               notificationCount={pingData?.unseenNotificationCount}

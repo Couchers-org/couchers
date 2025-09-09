@@ -2,22 +2,19 @@ import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef } from "react";
 
 import { userKey } from "@/features/queryKeys";
-import { userStaleTime } from "@/features/userQueries/constants";
+import { USER_STALE_TIME } from "@/features/userQueries/constants";
 import { service } from "@/service";
 import { arrayEq } from "@/utils/arrayEq";
 
-export default function useUsers(
-  ids: (number | undefined)[],
-  invalidate = false,
-) {
+const useUsers = (ids: (number | undefined)[], invalidate = false) => {
   const queryClient = useQueryClient();
   const idsRef = useRef(ids);
   const handleInvalidation = useCallback(() => {
     if (invalidate) {
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         predicate: (query) =>
           query.queryKey[0] === userKey()[0] &&
-          !!idsRef.current.includes(query.queryKey[1] as number),
+          idsRef.current.includes(query.queryKey[1] as number),
         // tells v5 to immediately refetch active observers after invalidation
         refetchType: "active",
       });
@@ -27,7 +24,7 @@ export default function useUsers(
     handleInvalidation();
   }, [handleInvalidation]);
 
-  //arrays use reference equality, so you can't use ids in useEffect directly
+  // arrays use reference equality, so you can't use ids in useEffect directly
   useEffect(() => {
     if (!arrayEq(idsRef.current, ids)) {
       idsRef.current = ids;
@@ -41,14 +38,14 @@ export default function useUsers(
       .map((id) => ({
         queryFn: () => service.user.getUser(id.toString()),
         queryKey: userKey(id),
-        staleTime: userStaleTime,
+        staleTime: USER_STALE_TIME,
       })),
   });
 
   const errors = queries
     .map((query) =>
-      query.error && typeof (query.error as Error).message === "string"
-        ? (query.error as Error).message
+      query.error && typeof query.error.message === "string"
+        ? query.error.message
         : undefined,
     )
     .filter((e): e is string => typeof e === "string");
@@ -72,9 +69,11 @@ export default function useUsers(
     isLoading: isPending,
     isRefetching,
   };
-}
+};
 
-export function useUser(id: number | undefined, invalidate = false) {
+export default useUsers;
+
+export const useUser = (id: number | undefined, invalidate = false) => {
   const result = useUsers([id], invalidate);
   return {
     data: result.data?.get(id),
@@ -83,4 +82,4 @@ export function useUser(id: number | undefined, invalidate = false) {
     isFetching: result.isFetching,
     isLoading: result.isLoading,
   };
-}
+};

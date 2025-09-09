@@ -28,10 +28,10 @@ const Jail = () => {
   const { t } = useTranslation(AUTH);
 
   const { authState, authActions } = useAuthContext();
-  const isJailed = authState.jailed;
+  const isJailed = authState.isJailed;
   const authError = authState.error;
-  const isAuthLoading = authState.loading;
-  const isAuthenticated = authState.authenticated;
+  const isAuthLoading = authState.isLoading;
+  const isAuthenticated = authState.isAuthenticated;
 
   const [isLoading, setIsLoading] = useState(false);
   const [jailInfo, setJailInfo] = useState<null | JailInfoRes.AsObject>(null);

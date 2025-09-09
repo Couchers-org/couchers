@@ -6,19 +6,18 @@ import CustomColorSwitch from "@/components/CustomColorSwitch";
 import StyledLink from "@/components/StyledLink";
 import { doAntibot } from "@/features/antibot/antibot";
 import { useAuthContext } from "@/features/auth/AuthProvider";
-import { useTranslation } from "@/i18n";
-import { AUTH, GLOBAL } from "@/i18n/namespaces";
-import Sentry from "@/platform/sentry";
-import { resetPasswordRoute } from "@/routes";
-import isGrpcError from "@/service/utils/isGrpcError";
-import { lowercaseAndTrimField } from "@/utils/validation";
-
 import {
   StyledButton,
   StyledForm,
   StyledInputLabel,
   StyledTextField,
-} from "../useAuthStyles";
+} from "@/features/auth/useAuthStyles";
+import { useTranslation } from "@/i18n";
+import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import { Sentry } from "@/platform/sentry";
+import { RESET_PASSWORD_ROUTE } from "@/routes";
+import isGrpcError from "@/service/utils/isGrpcError";
+import { lowercaseAndTrimField } from "@/utils/validation";
 
 const StyledFormControlLabel = styled(FormControlLabel)(({ theme }) => ({
   display: "block",
@@ -38,11 +37,10 @@ const StyledLoginOptions = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function LoginForm() {
+const LoginForm = () => {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authState, authActions } = useAuthContext();
-  const authLoading = authState.loading;
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { handleSubmit, register, control } = useForm<{
     username: string;
@@ -50,34 +48,35 @@ export default function LoginForm() {
     rememberDevice: boolean;
   }>();
 
-  const onSubmit = handleSubmit(
-    async (data: {
-      username: string;
-      password: string;
-      rememberDevice: boolean;
-    }) => {
-      setLoading(true);
-      authActions.clearError();
-      doAntibot("login");
-      try {
-        authActions.passwordLogin({
-          username: lowercaseAndTrimField(data.username),
-          password: data.password,
-          rememberDevice: data.rememberDevice,
-        });
-      } catch (e) {
-        Sentry.captureException(e, {
-          tags: {
-            featureArea: "auth/login",
-          },
-        });
-        authActions.authError(
-          isGrpcError(e) ? e.message : t("global:error.fatal_message"),
-        );
-      }
-      setLoading(false);
-    },
-  );
+  const onSubmit = () =>
+    handleSubmit(
+      async (data: {
+        username: string;
+        password: string;
+        rememberDevice: boolean;
+      }) => {
+        setIsLoading(true);
+        authActions.clearError();
+        await doAntibot("login");
+        try {
+          await authActions.passwordLogin({
+            username: lowercaseAndTrimField(data.username),
+            password: data.password,
+            rememberDevice: data.rememberDevice,
+          });
+        } catch (e) {
+          Sentry.captureException(e, {
+            tags: {
+              featureArea: "auth/login",
+            },
+          });
+          authActions.authError(
+            isGrpcError(e) ? e.message : t("global:error.fatal_message"),
+          );
+        }
+        setIsLoading(false);
+      },
+    );
 
   return (
     <>
@@ -117,20 +116,22 @@ export default function LoginForm() {
                   <CustomColorSwitch
                     size="small"
                     checked={field.value}
-                    onClick={() => field.onChange(!field.value)}
-                    isLoading={loading}
+                    onClick={() => {
+                      field.onChange(!field.value);
+                    }}
+                    isLoading={isLoading}
                   />
                 }
                 label={t("auth:login_page.form.remember_me")}
               />
             )}
           />
-          <StyledLink href={resetPasswordRoute}>
+          <StyledLink href={RESET_PASSWORD_ROUTE}>
             {t("auth:login_page.form.forgot_password")}
           </StyledLink>
         </StyledLoginOptions>
         <StyledButton
-          loading={loading || authLoading}
+          loading={isLoading || authState.isLoading}
           onClick={onSubmit}
           type="submit"
           variant="contained"
@@ -141,4 +142,6 @@ export default function LoginForm() {
       </StyledForm>
     </>
   );
-}
+};
+
+export default LoginForm;

@@ -80,8 +80,8 @@ const AppRoute = ({
   const pageWrapperRef = useRef<HTMLDivElement>(null);
   const { pathname } = router;
   const { authState, authActions } = useAuthContext();
-  const isAuthenticated = authState.authenticated;
-  const isJailed = authState.jailed;
+  const isAuthenticated = authState.isAuthenticated;
+  const isJailed = authState.isJailed;
 
   const isNativeEmbed = useIsNativeEmbed();
 

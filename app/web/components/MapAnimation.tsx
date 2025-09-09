@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 
 import { useTranslation } from "@/i18n";
 import { LANDING } from "@/i18n/namespaces";
-import Sentry from "@/platform/sentry";
+import { Sentry } from "@/platform/sentry";
 import { theme } from "@/theme";
 
 import Alert from "./Alert";
 
-const AnimationContainer = styled("div")(({ theme }) => ({
+const AnimationContainer = styled("div")(() => ({
   width: "595px",
   height: "524px",
   display: "flex",
@@ -23,7 +23,7 @@ const AnimationContainer = styled("div")(({ theme }) => ({
   },
 }));
 
-const Attribution = styled(Typography)(({ theme }) => ({
+const Attribution = styled(Typography)(() => ({
   position: "absolute",
   bottom: 8,
   right: 10,
@@ -34,9 +34,9 @@ const Attribution = styled(Typography)(({ theme }) => ({
   zIndex: 2,
 }));
 
-export default function MapAnimation() {
+const MapAnimation = () => {
   const { t } = useTranslation([LANDING]);
-  const [animationData, setAnimationData] = useState(null);
+  const [animationData, setAnimationData] = useState<unknown>(null);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export default function MapAnimation() {
             },
           );
         }
-        return res.json();
+        return res.json() as unknown;
       })
       .then(setAnimationData)
       .catch(setError);
@@ -115,4 +115,6 @@ export default function MapAnimation() {
       )}
     </AnimationContainer>
   );
-}
+};
+
+export default MapAnimation;

@@ -5,7 +5,7 @@ import Alert from "@/components/Alert";
 import CustomColorSwitch from "@/components/CustomColorSwitch";
 import { Trans, useTranslation } from "@/i18n";
 import { NOTIFICATIONS } from "@/i18n/namespaces";
-import Sentry from "@/platform/sentry";
+import { Sentry } from "@/platform/sentry";
 import { theme } from "@/theme";
 
 import PushNotificationDenied from "./PushNotificationDenied";
@@ -15,17 +15,17 @@ import {
   turnPushNotificationsOn,
 } from "./utils/helpers";
 
-const StyledAlert = styled(Alert)(({ theme }) => ({
+const StyledAlert = styled(Alert)(() => ({
   marginBottom: theme.spacing(3),
   marginTop: theme.spacing(2),
 }));
 
-const StyledTitleBox = styled("div")(({ theme }) => ({
+const StyledTitleBox = styled("div")(() => ({
   display: "flex",
   alignItems: "center",
 }));
 
-export default function PushNotificationSettings() {
+const PushNotificationSettings = () => {
   const { t } = useTranslation([NOTIFICATIONS]);
   const isNotificationSupported = typeof Notification !== "undefined";
 
@@ -53,26 +53,30 @@ export default function PushNotificationSettings() {
       setIsLoading(false);
     };
 
-    checkPushEnabledWrap();
+    void checkPushEnabledWrap();
   }, [t]);
 
-  const turnPushNotificationsOnWrap = async () => {
-    setIsLoading(true);
-    const result = await turnPushNotificationsOn(setShouldPromptAllow);
-    if (!result.success) {
-      setErrorMessage(result.errorMessage);
-    } else {
-      setIsPushEnabled(true);
-    }
-    setIsLoading(false);
+  const turnPushNotificationsOnWrap = () => {
+    void (async () => {
+      setIsLoading(true);
+      const result = await turnPushNotificationsOn(setShouldPromptAllow);
+      if (!result.success) {
+        setErrorMessage(result.errorMessage);
+      } else {
+        setIsPushEnabled(true);
+      }
+      setIsLoading(false);
+    })();
   };
 
-  const turnPushNotificationsOffWrap = async () => {
-    setIsLoading(true);
-    if (await turnPushNotificationsOff()) {
-      setIsPushEnabled(false);
-    }
-    setIsLoading(false);
+  const turnPushNotificationsOffWrap = () => {
+    void (async () => {
+      setIsLoading(true);
+      if (await turnPushNotificationsOff()) {
+        setIsPushEnabled(false);
+      }
+      setIsLoading(false);
+    })();
   };
 
   return (
@@ -123,4 +127,6 @@ export default function PushNotificationSettings() {
       </Typography>
     </div>
   );
-}
+};
+
+export default PushNotificationSettings;

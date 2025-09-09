@@ -3,11 +3,10 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 
 import { blockedUsersKey, friendIdsKey, userKey } from "@/features/queryKeys";
-import Sentry from "@/platform/sentry";
+import { Sentry } from "@/platform/sentry";
+import { LiteUser, User } from "@/proto/api_pb";
 import { BlockedUser, GetBlockedUsersRes } from "@/proto/blocking_pb";
 import { service } from "@/service";
-
-import { LiteUser, User } from "../../../../proto/api_pb";
 
 const useUnblockUser = () => {
   const queryClient = useQueryClient();
@@ -21,7 +20,7 @@ const useUnblockUser = () => {
     mutationFn: ({ username }) => service.blocking.unblockUser({ username }),
     onMutate: async ({ username }) => {
       await queryClient.cancelQueries({ queryKey: [blockedUsersKey] });
-      await queryClient.removeQueries({ queryKey: ["liteUsers"] });
+      queryClient.removeQueries({ queryKey: ["liteUsers"] });
 
       const previousBlockedUsers =
         queryClient.getQueryData<GetBlockedUsersRes.AsObject>([blockedUsersKey])
@@ -58,8 +57,8 @@ const useUnblockUser = () => {
         },
       });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [friendIdsKey] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [friendIdsKey] });
     },
   });
 
@@ -86,7 +85,7 @@ const useBlockUser = () => {
     onMutate: async ({ avatarThumbnailUrl, name, username, userId }) => {
       await queryClient.cancelQueries({ queryKey: [blockedUsersKey] });
       await queryClient.cancelQueries({ queryKey: [friendIdsKey] });
-      await queryClient.removeQueries({ queryKey: ["liteUsers"] });
+      queryClient.removeQueries({ queryKey: ["liteUsers"] });
 
       const currentBlockedUsers =
         queryClient.getQueryData<GetBlockedUsersRes.AsObject>([blockedUsersKey])
@@ -121,7 +120,7 @@ const useBlockUser = () => {
       }
     },
     onError: (
-      err,
+      _err,
       user,
       context: { previousBlockedUsers?: BlockedUser.AsObject[] } | undefined,
     ) => {
@@ -129,7 +128,7 @@ const useBlockUser = () => {
         queryClient.setQueryData<GetBlockedUsersRes.AsObject>(
           [blockedUsersKey],
           {
-            blockedUsersList: context?.previousBlockedUsers,
+            blockedUsersList: context.previousBlockedUsers,
           },
         );
       }
@@ -183,8 +182,8 @@ const useRemoveFriend = () => {
         queryClient.setQueryData([friendIdsKey], context.previousFriendIds);
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [friendIdsKey] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [friendIdsKey] });
     },
   });
 

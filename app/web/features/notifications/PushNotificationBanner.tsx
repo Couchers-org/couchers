@@ -5,6 +5,7 @@ import { Trans } from "react-i18next";
 import { useAuthContext } from "@/features/auth/AuthProvider";
 import { useTranslation } from "@/i18n";
 import { NOTIFICATIONS } from "@/i18n/namespaces";
+import log from "@/log";
 import { usePersistedState } from "@/platform/usePersistedState";
 import { theme } from "@/theme";
 
@@ -19,53 +20,55 @@ const Wrapper = styled("div")({
   width: "100%",
 });
 
-export function PushNotificationBanner() {
+const PushNotificationBanner = () => {
   const { t } = useTranslation([NOTIFICATIONS]);
   // the epoch value of the last time this banner was dismissed
   const [lastDismissedEpoch, setLastDismissedEpoch] = usePersistedState<
     number | null
   >("notification_banner.dismissed", null);
-  const [bannerVisible, setBannerVisible] = useState<boolean>(false);
+  const [isBannerVisible, setIsBannerVisible] = useState<boolean>(false);
   const [shouldPromptAllow, setShouldPromptAllow] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const {
-    authState: { authenticated },
+    authState: { isAuthenticated },
   } = useAuthContext();
 
   useEffect(() => {
     const checkPush = async () => {
-      if (!authenticated) return;
+      if (!isAuthenticated) return;
       try {
         if (!(await checkPushEnabled())) {
-          setBannerVisible(
+          setIsBannerVisible(
             !lastDismissedEpoch ||
               new Date().getTime() - lastDismissedEpoch > TIME_BETWEEN_NAGS_MS,
           );
         }
       } catch (error) {
-        console.error("Error checking for push notification state:", error);
+        log.error("Error checking for push notification state:", error);
       }
     };
 
-    checkPush();
-  }, [authenticated, lastDismissedEpoch]);
+    void checkPush();
+  }, [isAuthenticated, lastDismissedEpoch]);
 
   const dismiss = () => {
     setLastDismissedEpoch(new Date().getTime());
-    setBannerVisible(false);
+    setIsBannerVisible(false);
   };
 
-  const turnPushNotificationsOnWrap = async () => {
-    const result = await turnPushNotificationsOn(setShouldPromptAllow);
-    if (!result.success) {
-      setErrorMessage(t(result.errorMessage));
-    } else {
-      setBannerVisible(false);
-    }
+  const turnPushNotificationsOnWrap = () => {
+    void (async () => {
+      const result = await turnPushNotificationsOn(setShouldPromptAllow);
+      if (!result.success) {
+        setErrorMessage(t(result.errorMessage));
+      } else {
+        setIsBannerVisible(false);
+      }
+    })();
   };
 
-  if (!bannerVisible) return null;
+  if (!isBannerVisible) return null;
 
   if (errorMessage) {
     return (
@@ -97,4 +100,6 @@ export function PushNotificationBanner() {
       </Wrapper>
     </Alert>
   );
-}
+};
+
+export default PushNotificationBanner;

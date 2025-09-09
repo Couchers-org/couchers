@@ -27,7 +27,7 @@ declare module "@mui/material/styles" {
   }
 }
 
-const themeOptions: ThemeOptions = {
+const themeOptions = {
   components: {
     MuiCssBaseline: {
       styleOverrides: {
@@ -117,7 +117,7 @@ const themeOptions: ThemeOptions = {
     navPaddingSmUp: `${navBarHeightSmUp}rem`,
     navPaddingXs: `${navBarHeightXs}rem`,
   },
-  spacing: spacing,
+  spacing,
   typography: {
     allVariants: {
       lineHeight: 1.5,
@@ -189,6 +189,6 @@ const themeOptions: ThemeOptions = {
       fontSize: "1rem", // 16px
     },
   },
-};
+} satisfies ThemeOptions;
 
 export const theme = createTheme(themeOptions);

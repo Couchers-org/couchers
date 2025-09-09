@@ -107,10 +107,9 @@ const StyledEditLocationMap = styled(EditLocationMap)(({ theme }) => ({
   width: "100%",
 }));
 
-export default function AccountForm() {
+const AccountForm = () => {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authState, authActions } = useAuthContext();
-  const authLoading = authState.loading;
 
   const {
     control,
@@ -125,7 +124,7 @@ export default function AccountForm() {
     shouldUnregister: false,
   });
 
-  const mutation = useMutation<void, RpcError, SignupAccountInputs>({
+  const mutation = useMutation<undefined, RpcError, SignupAccountInputs>({
     mutationFn: async ({
       username,
       password,
@@ -137,9 +136,9 @@ export default function AccountForm() {
       location,
     }) => {
       const state = await service.auth.signupFlowAccount({
-        flowToken: authState.flowState!.flowToken,
+        flowToken: authState.flowState?.flowToken || "",
         username: lowercaseAndTrimField(username),
-        password: password,
+        password,
         birthdate: birthdate.format().split("T")[0],
         gender,
         acceptTOS,
@@ -154,20 +153,21 @@ export default function AccountForm() {
     },
   });
 
-  const submit = handleSubmit(
-    (data: SignupAccountInputs) => {
-      mutation.mutate({
-        ...data,
-        username: lowercaseAndTrimField(data.username),
-      });
-    },
-    () => {
-      //location won't focus on error, so scroll to the top
-      if (errors.location) window.scroll({ top: 0, behavior: "smooth" });
-    },
-  );
+  const submit = () =>
+    handleSubmit(
+      (data: SignupAccountInputs) => {
+        mutation.mutate({
+          ...data,
+          username: lowercaseAndTrimField(data.username),
+        });
+      },
+      () => {
+        // location won't focus on error, so scroll to the top
+        if (errors.location) window.scroll({ top: 0, behavior: "smooth" });
+      },
+    );
 
-  const acceptTOS = watch("acceptTOS");
+  const didAcceptTOS = watch("acceptTOS");
 
   const usernameInputRef = useRef<HTMLInputElement>();
 
@@ -181,7 +181,7 @@ export default function AccountForm() {
   return (
     <>
       {errors.location && (
-        <Alert severity="error">{errors.location?.message || ""}</Alert>
+        <Alert severity="error">{errors.location.message || ""}</Alert>
       )}
       {mutation.error && (
         <Alert severity="error">{mutation.error.message || ""}</Alert>
@@ -199,11 +199,11 @@ export default function AccountForm() {
             },
             required: t("auth:account_form.username.required_error"),
             validate: async (username: string) => {
-              const valid = await service.auth.validateUsername(
+              const isValid = await service.auth.validateUsername(
                 lowercaseAndTrimField(username),
               );
               return (
-                valid || t("auth:account_form.username.username_taken_error")
+                isValid || t("auth:account_form.username.username_taken_error")
               );
             },
           })}
@@ -213,8 +213,8 @@ export default function AccountForm() {
             if (!usernameInputRef.current) el?.focus();
             if (el) usernameInputRef.current = el;
           }}
-          helperText={errors?.username?.message ?? " "}
-          error={!!errors?.username?.message}
+          helperText={errors.username?.message ?? " "}
+          error={!!errors.username?.message}
           autoComplete="username"
         />
         <StyledInputLabel htmlFor="password">
@@ -231,8 +231,8 @@ export default function AccountForm() {
           variant="outlined"
           type="password"
           fullWidth
-          helperText={errors?.password?.message ?? " "}
-          error={!!errors?.password?.message}
+          helperText={errors.password?.message ?? " "}
+          error={!!errors.password?.message}
           autoComplete="new-password"
         />
         <StyledInputLabel htmlFor="birthdate">
@@ -240,15 +240,15 @@ export default function AccountForm() {
         </StyledInputLabel>
         <StyledDatepicker
           control={control}
-          error={!!errors?.birthdate?.message}
-          helperText={errors?.birthdate?.message}
+          error={!!errors.birthdate?.message}
+          helperText={errors.birthdate?.message}
           id="birthdate"
           variant="outlined"
           rules={{
             required: t("auth:account_form.birthday.required_error"),
             validate: (stringBirthDate: string) => {
               const birthDate = dayjs(stringBirthDate);
-              const age = Math.abs(dayjs().diff(birthDate, "year")); // confirmed dayjs does the difference correctyly by counting months and days
+              const age = Math.abs(dayjs().diff(birthDate, "year")); // confirmed dayjs does the difference correctly by counting months and days
 
               if (age < 18) {
                 return t("auth:account_form.birthday.too_young_error");
@@ -316,7 +316,7 @@ export default function AccountForm() {
           {t("auth:account_form.hosting_status.field_label")}
         </StyledInputLabel>
         <StyledFormControl variant="outlined">
-          {errors?.hostingStatus?.message && (
+          {errors.hostingStatus?.message && (
             <FormHelperText error>
               {errors.hostingStatus.message}
             </FormHelperText>
@@ -344,6 +344,7 @@ export default function AccountForm() {
                   HostingStatus.HOSTING_STATUS_CANT_HOST,
                 ]}
                 optionLabelMap={{
+                  // eslint-disable-next-line @typescript-eslint/naming-convention
                   "": "",
                   [HostingStatus.HOSTING_STATUS_CAN_HOST]: t(
                     "auth:account_form.hosting_status.can_host",
@@ -392,8 +393,8 @@ export default function AccountForm() {
                   label={t("auth:account_form.gender.non_binary")}
                 />
               </RadioGroup>
-              <FormHelperText error={!!errors?.gender?.message}>
-                {errors?.gender?.message ?? " "}
+              <FormHelperText error={!!errors.gender?.message}>
+                {errors.gender?.message ?? " "}
               </FormHelperText>
             </FormControl>
           )}
@@ -430,8 +431,8 @@ export default function AccountForm() {
         <StyledButton
           onClick={submit}
           type="submit"
-          loading={authLoading || mutation.isPending}
-          disabled={!acceptTOS}
+          loading={authState.isLoading || mutation.isPending}
+          disabled={!didAcceptTOS}
           fullWidth
         >
           {t("global:sign_up")}
@@ -439,4 +440,6 @@ export default function AccountForm() {
       </StyledForm>
     </>
   );
-}
+};
+
+export default AccountForm;

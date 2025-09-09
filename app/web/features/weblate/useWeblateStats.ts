@@ -1,20 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
 
-import Sentry from "@/platform/sentry";
+import log from "@/log";
+import { Sentry } from "@/platform/sentry";
 
 interface WeblateLanguage {
   code: string;
   name: string;
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   translated_percent: number;
 }
 
 const fetchWeblateStats = async (): Promise<WeblateLanguage[]> => {
   try {
+    // TODO(FB) Get rid of hard-coded URL
     const response = await fetch(
       "https://cdn.couchers.org/api/projects/couchers/languages/",
       {
         headers: {
-          Accept: "application/json",
+          accept: "application/json",
         },
       },
     );
@@ -30,10 +33,10 @@ const fetchWeblateStats = async (): Promise<WeblateLanguage[]> => {
       );
     }
 
-    const languages: WeblateLanguage[] = await response.json();
-    return languages || [];
+    const languages = ((await response.json()) || []) as WeblateLanguage[];
+    return languages;
   } catch (error) {
-    console.error("Error fetching Weblate stats:", error);
+    log.error("Error fetching Weblate stats:", error);
     return [];
   }
 };

@@ -23,7 +23,7 @@ const StyledImg = styled("img")(({ theme }) => ({
 const NotFoundPage = () => {
   const { t } = useTranslation(GLOBAL);
   const {
-    authState: { authenticated },
+    authState: { isAuthenticated },
   } = useAuthContext();
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
@@ -40,7 +40,9 @@ const NotFoundPage = () => {
           <Trans t={t} i18nKey="not_found_text_2">
             Do you just want to
             <StyledLink
-              href={!authenticated || !isMounted ? BASE_ROUTE : DASHBOARD_ROUTE}
+              href={
+                !isAuthenticated || !isMounted ? BASE_ROUTE : DASHBOARD_ROUTE
+              }
             >
               go home?
             </StyledLink>

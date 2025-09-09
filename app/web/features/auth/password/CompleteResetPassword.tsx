@@ -61,7 +61,7 @@ const CompleteResetPassword = () => {
     string
   >({
     mutationFn: (newPassword) =>
-      service.account.CompletePasswordResetV2(
+      service.account.completePasswordResetV2(
         resetToken as string,
         newPassword,
       ),
@@ -77,7 +77,7 @@ const CompleteResetPassword = () => {
       mutate(newPassword);
     });
 
-  if (authState.authenticated) {
+  if (authState.isAuthenticated) {
     return (
       <StyledContainer>
         <Alert severity="error">
@@ -143,7 +143,7 @@ const CompleteResetPassword = () => {
         <Button
           loading={isPending}
           type="submit"
-          disabled={isPending || !isResetTokenOk || authState.authenticated}
+          disabled={isPending || !isResetTokenOk || authState.isAuthenticated}
         >
           {t("global:submit")}
         </Button>

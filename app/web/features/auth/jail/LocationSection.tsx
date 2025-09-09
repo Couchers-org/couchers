@@ -10,7 +10,7 @@ import EditLocationMap, {
 import TextBody from "@/components/TextBody";
 import { useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
-import Sentry from "@/platform/sentry";
+import { Sentry } from "@/platform/sentry";
 import { service } from "@/service";
 import isGrpcError from "@/service/utils/isGrpcError";
 
@@ -23,12 +23,9 @@ interface LocationSectionProps {
   className?: string;
 }
 
-export default function LocationSection({
-  updateJailed,
-  className,
-}: LocationSectionProps) {
+const LocationSection = ({ updateJailed, className }: LocationSectionProps) => {
   const { t } = useTranslation([AUTH, GLOBAL]);
-  const [completed, setCompleted] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
   const [error, setError] = useState("");
 
   const { control, handleSubmit } = useForm<LocationInfo>({
@@ -45,8 +42,8 @@ export default function LocationSection({
         if (!info.isJailed) {
           updateJailed();
         } else {
-          //if user is no longer jailed, this component will be unmounted anyway
-          setCompleted(true);
+          // if user is no longer jailed, this component will be unmounted anyway
+          setIsCompleted(true);
         }
       }
     } catch (e) {
@@ -94,12 +91,12 @@ export default function LocationSection({
         />
 
         <TextBody>
-          <Button onClick={save} disabled={completed}>
-            {!completed
+          <Button onClick={save} disabled={isCompleted}>
+            {!isCompleted
               ? t("auth:jail.location_section.submit_button.active_text")
               : t("auth:jail.location_section.submit_button.inactive_text")}
           </Button>
-          {completed && (
+          {isCompleted && (
             <Button component="a" onClick={save}>
               {t("auth:jail.location_section.resubmit_button_text")}
             </Button>
@@ -108,4 +105,6 @@ export default function LocationSection({
       </div>
     </>
   );
-}
+};
+
+export default LocationSection;

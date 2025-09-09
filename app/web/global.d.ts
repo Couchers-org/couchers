@@ -1,4 +1,5 @@
 interface Window {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   ReactNativeWebView?: {
     injectedObjectJson: () => string;
     postMessage: (message: string) => void;

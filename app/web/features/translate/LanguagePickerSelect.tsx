@@ -14,6 +14,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
+import Image from "next/image";
 import { useRouter } from "next/router";
 // we'll use this to reload the components w/ changed languages
 import { useState } from "react";
@@ -25,7 +26,7 @@ import { useWeblateStats } from "@/features/weblate/useWeblateStats";
 import { useTranslation } from "@/i18n";
 import { LANGUAGE_MAP } from "@/i18n/constants";
 import { GLOBAL } from "@/i18n/namespaces";
-import { translateRoute } from "@/routes";
+import { TRANSLATE_ROUTE } from "@/routes";
 import { service } from "@/service";
 import { theme } from "@/theme";
 
@@ -53,13 +54,13 @@ type LanguagePickerSelectProps = {
   displayMode?: "round" | "rect";
 };
 
-export default function LanguagePickerSelect({
+const LanguagePickerSelect = ({
   displayMode = "round",
-}: LanguagePickerSelectProps) {
+}: LanguagePickerSelectProps) => {
   const router = useRouter();
   const { asPath, locale, pathname } = router;
   const { authState } = useAuthContext();
-  const isAuthenticated = authState.authenticated;
+  const isAuthenticated = authState.isAuthenticated;
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t } = useTranslation([GLOBAL]);
@@ -73,22 +74,22 @@ export default function LanguagePickerSelect({
       service.account.changeLanguage(newLanguage),
   });
 
-  const handleChange = async (event: SelectChangeEvent<unknown>) => {
+  const handleChange = (event: SelectChangeEvent<unknown>) => {
     const newLocale = event.target.value as string;
 
     if (isAuthenticated) {
-      await changeLanguageMutation(newLocale);
+      changeLanguageMutation(newLocale);
     }
 
     // Push new route with updated locale, keep the current asPath for display
-    router.push({ pathname }, asPath, { locale: newLocale });
+    void router.push({ pathname }, asPath, { locale: newLocale });
   };
 
   const handleTranslationProgressClick = (e: React.MouseEvent) => {
     e.stopPropagation();
 
     setIsOpen(false);
-    router.push(translateRoute);
+    void router.push(TRANSLATE_ROUTE);
   };
 
   const renderFlag = (flagCode: string, percent?: number) => {
@@ -108,7 +109,7 @@ export default function LanguagePickerSelect({
     }
 
     return (
-      <img
+      <Image
         alt={`${flagCode} flag`}
         src={`https://cdn.couchers.org/img/language-icons/${flagCode}.svg`}
         style={{ width: 25, ...commonStyles }}
@@ -118,11 +119,7 @@ export default function LanguagePickerSelect({
   // Languages with < 20% translated are hidden
   // Languages with < 80% translated are greyed out
   const availableLanguages = languages
-    ?.filter(
-      (language) =>
-        LANGUAGE_MAP[language.code.replace("_", "-")] &&
-        language.translated_percent > HIDDEN_CUTOFF,
-    )
+    ?.filter((language) => language.translated_percent > HIDDEN_CUTOFF)
     // sort by translated percent with the >= 80 grouped at the top, then sorted alphabetically by code
     .sort((a, b) => {
       if (
@@ -247,8 +244,12 @@ export default function LanguagePickerSelect({
               IconComponent={ExpandMoreOutlinedIcon}
               disabled={isLoading}
               open={isOpen}
-              onOpen={() => setIsOpen(true)}
-              onClose={() => setIsOpen(false)}
+              onOpen={() => {
+                setIsOpen(true);
+              }}
+              onClose={() => {
+                setIsOpen(false);
+              }}
             >
               {menuItems}
               <Box
@@ -283,8 +284,12 @@ export default function LanguagePickerSelect({
               onChange={handleChange}
               disabled={isLoading}
               open={isOpen}
-              onOpen={() => setIsOpen(true)}
-              onClose={() => setIsOpen(false)}
+              onOpen={() => {
+                setIsOpen(true);
+              }}
+              onClose={() => {
+                setIsOpen(false);
+              }}
             >
               {menuItems}
               <Box
@@ -315,4 +320,6 @@ export default function LanguagePickerSelect({
       </Box>
     </>
   );
-}
+};
+
+export default LanguagePickerSelect;

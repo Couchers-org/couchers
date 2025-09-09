@@ -6,18 +6,18 @@ import { liteUserKey, liteUsersKey } from "@/features/queryKeys";
 import { GetLiteUsersRes, LiteUser } from "@/proto/api_pb";
 import { service } from "@/service";
 
-import { userStaleTime } from "./constants";
+import { USER_STALE_TIME } from "./constants";
 
 // React Query typically retains the last successful data until the next successful fetch
 // if ids is `[]`, then `data` is `undefined`
-function useLiteUsers(ids: (number | undefined)[] | undefined) {
+const useLiteUsers = (ids: (number | undefined)[] | undefined) => {
   const nonFalseyIds = ids?.filter((id) => id !== undefined);
   // remove duplicate IDs from this list
   const uniqueIds = Array.from(new Set(nonFalseyIds));
   const query = useQuery<GetLiteUsersRes.AsObject, RpcError>({
     queryKey: liteUsersKey(uniqueIds),
     queryFn: async () => await service.user.getLiteUsers(uniqueIds),
-    staleTime: userStaleTime,
+    staleTime: USER_STALE_TIME,
     enabled: uniqueIds.length > 0,
   });
 
@@ -26,8 +26,8 @@ function useLiteUsers(ids: (number | undefined)[] | undefined) {
     query.isLoading || isDataUndefined
       ? undefined
       : new Map(
-          query?.data?.responsesList.map((response) => [
-            response?.user?.userId,
+          query.data.responsesList.map((response) => [
+            response.user?.userId,
             response.user,
           ]),
         );
@@ -36,10 +36,10 @@ function useLiteUsers(ids: (number | undefined)[] | undefined) {
     ...query,
     data: usersById,
   };
-}
+};
 
 // Like above, but returns users in a list of the same size in same order
-function useLiteUsersList(ids: (number | undefined)[] | undefined) {
+const useLiteUsersList = (ids: (number | undefined)[] | undefined) => {
   const liteUsersMap = useLiteUsers(ids);
   const usersList = ids
     ?.map((id) => liteUsersMap.data?.get(id))
@@ -50,14 +50,14 @@ function useLiteUsersList(ids: (number | undefined)[] | undefined) {
     usersById: liteUsersMap.data,
     data: usersList,
   };
-}
+};
 
 // React Query typically retains the last successful data until the next successful fetch
-function useLiteUser(id: number | undefined) {
+const useLiteUser = (id: number | undefined) => {
   const query = useQuery<LiteUser.AsObject, RpcError>({
     queryKey: liteUserKey(id),
     queryFn: () => service.user.getLiteUser(id?.toString() || ""),
-    staleTime: userStaleTime,
+    staleTime: USER_STALE_TIME,
     enabled: id !== undefined,
     retry: (failureCount, error) => {
       // don't retry if the user isn't found
@@ -68,6 +68,6 @@ function useLiteUser(id: number | undefined) {
   });
 
   return query;
-}
+};
 
 export { useLiteUser, useLiteUsers, useLiteUsersList };

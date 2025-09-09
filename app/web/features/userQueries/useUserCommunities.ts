@@ -5,7 +5,7 @@ import { userCommunitiesKey } from "@/features/queryKeys";
 import { ListUserCommunitiesRes } from "@/proto/communities_pb";
 import { service } from "@/service";
 
-export default function useUserCommunities() {
+const useUserCommunities = () => {
   return useInfiniteQuery<ListUserCommunitiesRes.AsObject, RpcError>({
     queryKey: [userCommunitiesKey],
     queryFn: ({ pageParam }) => {
@@ -17,4 +17,6 @@ export default function useUserCommunities() {
     getNextPageParam: (lastPage) =>
       lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
   });
-}
+};
+
+export default useUserCommunities;

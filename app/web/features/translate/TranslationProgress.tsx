@@ -14,10 +14,14 @@ import React from "react";
 import CatalanFlagIcon from "@/components/Icons/CatalanFlagIcon";
 import { useWeblateStats } from "@/features/weblate/useWeblateStats";
 import { useTranslation } from "@/i18n";
-import { LANGUAGE_MAP } from "@/i18n/constants";
 import { GLOBAL } from "@/i18n/namespaces";
-import { translateJobURL } from "@/routes";
+import { TRANSLATE_JOB_URL } from "@/routes";
 import { theme } from "@/theme";
+import {
+  getLanguageCodeFromWeblateLanguage,
+  getLanguageFromCode,
+  getLanguageFromWeblateLanguage,
+} from "@/utils/language";
 
 import {
   ALMOST_DONE_CUTOFF,
@@ -120,7 +124,7 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
   },
 }));
 
-export default function TranslationProgress() {
+const TranslationProgress = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t } = useTranslation([GLOBAL]);
 
@@ -171,7 +175,7 @@ export default function TranslationProgress() {
 
   // Filter and sort languages
   const availableLanguages = languages
-    .filter((language) => LANGUAGE_MAP[language.code.replace("_", "-")])
+    .filter((language) => !!getLanguageFromWeblateLanguage(language))
     .sort((a, b) => b.translated_percent - a.translated_percent); // Sort by completion percentage
 
   return (
@@ -188,7 +192,7 @@ export default function TranslationProgress() {
           {t("global:language_preference.translation_progress.description")}
         </Typography>
         <Link
-          href={translateJobURL}
+          href={TRANSLATE_JOB_URL}
           target="_blank"
           rel="noreferrer noopener"
           underline="hover"
@@ -206,8 +210,8 @@ export default function TranslationProgress() {
       </Box>
 
       {availableLanguages.map((language) => {
-        const languageCode = language.code.replace("_", "-");
-        const languageInfo = LANGUAGE_MAP[languageCode];
+        const languageCode = getLanguageCodeFromWeblateLanguage(language);
+        const languageInfo = getLanguageFromCode(languageCode);
         const percent = language.translated_percent;
 
         if (!languageInfo) return null;
@@ -323,4 +327,6 @@ export default function TranslationProgress() {
       })}
     </Box>
   );
-}
+};
+
+export default TranslationProgress;

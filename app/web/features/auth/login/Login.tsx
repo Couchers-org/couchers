@@ -38,7 +38,7 @@ const StyledFormWrapper = styled("div")(({ theme }) => ({
 const Login = () => {
   const { t } = useTranslation([AUTH, GLOBAL, LANDING]);
   const { authState } = useAuthContext();
-  const isAuthenticated = authState.authenticated;
+  const isAuthenticated = authState.isAuthenticated;
   const error = authState.error;
 
   const router = useRouter();

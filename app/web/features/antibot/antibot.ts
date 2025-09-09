@@ -1,23 +1,23 @@
-import Sentry from "@/platform/sentry";
+import { Sentry } from "@/platform/sentry";
 import { service } from "@/service";
 
-export async function doAntibot(action: string) {
-  if (!process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
+export const doAntibot = async (action: string) => {
+  if (!Config.recaptchaSiteKey) {
     return;
   }
   try {
     const token = await window.grecaptcha.enterprise.execute(
-      process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
-      { action: action },
+      Config.recaptchaSiteKey,
+      { action },
     );
     await service.auth.antibot(token, action);
   } catch (e) {
     Sentry.captureException(e, {
       tags: {
         component: "antibot",
-        action: action,
+        action,
         userAgent: navigator.userAgent,
       },
     });
   }
-}
+};

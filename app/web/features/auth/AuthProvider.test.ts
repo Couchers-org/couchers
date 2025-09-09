@@ -3,11 +3,11 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 
 import { service } from "@/service";
+import * as client from "@/service/client";
+import wrapper from "@/test/hookWrapper";
 import i18n from "@/test/i18n";
+import { addDefaultUser } from "@/test/utils";
 
-import * as client from "../../service/client";
-import wrapper from "../../test/hookWrapper";
-import { addDefaultUser } from "../../test/utils";
 import { useAuthContext } from "./AuthProvider";
 import { JAILED_ERROR_MESSAGE, LOGGED_OUT_ERROR_MESSAGE } from "./constants";
 
@@ -23,7 +23,7 @@ describe("AuthProvider", () => {
     logoutMock.mockResolvedValue(new Empty());
     addDefaultUser();
 
-    //mock out setUnauthenticatedErrorHandler to set our own handler var
+    // mock out setUnauthenticatedErrorHandler to set our own handler var
     const initialHandler = async () => {};
     let handler: (e: RpcError) => Promise<void> = initialHandler;
     const mockSetHandler = jest.fn((fn: (e: RpcError) => Promise<void>) => {
@@ -37,11 +37,11 @@ describe("AuthProvider", () => {
       wrapper,
     });
 
-    expect(mockSetHandler).toBeCalled();
+    expect(mockSetHandler).toHaveBeenCalled();
     await act(async () => {
       await handler({ message: LOGGED_OUT_ERROR_MESSAGE } as RpcError);
     });
-    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.isAuthenticated).toBe(false);
     expect(result.current.authState.error).toBe(t("auth:logged_out_message"));
   });
 
@@ -49,7 +49,7 @@ describe("AuthProvider", () => {
     getIsJailedMock.mockResolvedValue({ isJailed: true });
     addDefaultUser();
 
-    //mock out setUnauthenticatedErrorHandler to set our own handler var
+    // mock out setUnauthenticatedErrorHandler to set our own handler var
     const initialHandler = async () => {};
     let handler: (e: RpcError) => Promise<void> = initialHandler;
     const mockSetHandler = jest.fn((fn: (e: RpcError) => Promise<void>) => {
@@ -63,11 +63,11 @@ describe("AuthProvider", () => {
       wrapper,
     });
 
-    expect(mockSetHandler).toBeCalled();
+    expect(mockSetHandler).toHaveBeenCalled();
     await act(async () => {
       await handler({ message: JAILED_ERROR_MESSAGE } as RpcError);
     });
-    expect(result.current.authState.authenticated).toBe(true);
-    expect(result.current.authState.jailed).toBe(true);
+    expect(result.current.authState.isAuthenticated).toBe(true);
+    expect(result.current.authState.isJailed).toBe(true);
   });
 });

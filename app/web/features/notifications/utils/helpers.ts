@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { listNotificationsQueryKey } from "@/features/queryKeys";
-import Sentry from "@/platform/sentry";
+import log from "@/log";
+import { Sentry } from "@/platform/sentry";
 import { ListNotificationsRes } from "@/proto/notifications_pb";
 import { service } from "@/service";
 import {
@@ -49,12 +50,18 @@ export const onPushNotificationPermissionGranted =
 
         const registration = await navigator.serviceWorker.getRegistration();
 
+        if (!registration) {
+          return {
+            success: false,
+            errorMessage: "Failed to get service worker registration",
+          };
+        }
+
         // Subscribe to push notifications via the PushManager
-        const subscription: PushSubscription =
-          await registration!.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: vapidPublicKey,
-          });
+        const subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: vapidPublicKey,
+        });
 
         await registerPushNotificationSubscription(subscription);
 
@@ -77,7 +84,7 @@ export const onPushNotificationPermissionGranted =
         };
       }
     } catch (error) {
-      console.error("Error subscribing to push notifications", error);
+      log.error("Error subscribing to push notifications", error);
 
       Sentry.captureException(error, {
         tags: {
@@ -106,7 +113,7 @@ export const getCurrentSubscription = async () => {
     );
   }
 
-  return registration?.pushManager.getSubscription();
+  return registration.pushManager.getSubscription();
 };
 
 export const checkPushEnabled = async () => {
@@ -161,8 +168,8 @@ export const useMarkAllNotificationsSeen = () => {
       await service.notifications.markAllNotificationsSeen(
         latestNotificationId,
       ),
-    onMutate: () => {
-      queryClient.cancelQueries({
+    onMutate: async () => {
+      await queryClient.cancelQueries({
         queryKey: [listNotificationsQueryKey],
       });
 
@@ -216,8 +223,8 @@ export const useMarkSingleNotificationIsSeen = () => {
       isSeen: boolean;
     }) =>
       await service.notifications.markNotificationSeen(notificationId, isSeen),
-    onMutate: ({ notificationId, isSeen }) => {
-      queryClient.cancelQueries({
+    onMutate: async ({ notificationId, isSeen }) => {
+      await queryClient.cancelQueries({
         queryKey: [listNotificationsQueryKey],
       });
 
@@ -231,7 +238,7 @@ export const useMarkSingleNotificationIsSeen = () => {
         notificationsList: previousData?.notificationsList
           ? previousData.notificationsList.map((notification) =>
               notification.notificationId === notificationId
-                ? { ...notification, isSeen: isSeen }
+                ? { ...notification, isSeen }
                 : notification,
             )
           : [],

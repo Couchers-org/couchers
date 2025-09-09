@@ -9,7 +9,7 @@ import mockLiteUsers from "@/test/fixtures/liteUsers.json";
 import { getLiteUser, getLiteUsers } from "@/test/serviceMockDefaults";
 import { mockConsoleError } from "@/test/utils";
 
-import { userStaleTime } from "./constants";
+import { USER_STALE_TIME } from "./constants";
 import { useLiteUser, useLiteUsers } from "./useLiteUsers";
 
 jest.mock("service");
@@ -17,7 +17,7 @@ jest.mock("service");
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: userStaleTime,
+      staleTime: USER_STALE_TIME,
       retry: (failureCount, error) => {
         // don't retry if the user isn't found
         return (
@@ -58,7 +58,9 @@ describe("useLiteUsers & useLiteUser", () => {
 
       expect(result.current.isLoading).toBe(true);
       expect(result.current.data).toBeUndefined();
-      await waitFor(() => expect(result.current.isLoading).toBe(false));
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
     });
 
     it("Should return users map when loading is complete", async () => {
@@ -68,9 +70,11 @@ describe("useLiteUsers & useLiteUser", () => {
         wrapper,
       });
 
-      await waitFor(() => expect(mockGetLiteUsers).toHaveBeenCalledTimes(1));
+      await waitFor(() => {
+        expect(mockGetLiteUsers).toHaveBeenCalledTimes(1);
+      });
 
-      await waitFor(() =>
+      await waitFor(() => {
         expect(result.current).toEqual(
           expect.objectContaining({
             data: mockLiteUsersMap,
@@ -80,8 +84,8 @@ describe("useLiteUsers & useLiteUser", () => {
             isLoading: false,
             isRefetching: false,
           }),
-        ),
-      );
+        );
+      });
     });
 
     it("Should filter out undefined ids", async () => {
@@ -93,7 +97,9 @@ describe("useLiteUsers & useLiteUser", () => {
         wrapper,
       });
 
-      await waitFor(() => expect(result.current.isLoading).toBe(false));
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
 
       expect(mockGetLiteUsers).toHaveBeenCalledWith([1, 3]);
     });
@@ -105,15 +111,20 @@ describe("useLiteUsers & useLiteUser", () => {
 
       const { result } = renderHook(() => useLiteUsers([1, 2, 3]), { wrapper });
 
-      await waitFor(() => expect(result.current.isLoading).toBe(false), {
-        timeout: 5000,
-      });
+      await waitFor(
+        () => {
+          expect(result.current.isLoading).toBe(false);
+        },
+        {
+          timeout: 5000,
+        },
+      );
 
       expect(result.current.error).toBe(error);
       expect(result.current.data).toBeUndefined();
     });
 
-    it("Should not run the query when ids is an empty array", async () => {
+    it("Should not run the query when ids is an empty array", () => {
       const ids: number[] = [];
 
       renderHook(() => useLiteUsers(ids), { wrapper });
@@ -129,7 +140,9 @@ describe("useLiteUsers & useLiteUser", () => {
         wrapper,
       });
 
-      await waitFor(() => expect(result.current.isLoading).toBe(false));
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
 
       expect(mockGetLiteUsers).not.toHaveBeenCalled();
     });
@@ -142,7 +155,9 @@ describe("useLiteUsers & useLiteUser", () => {
         wrapper,
       });
 
-      await waitFor(() => expect(result.current.isLoading).toBe(false));
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
 
       // Check that the hook has the expected data and `getLiteUsers` was called
       expect(result.current.data).toBeDefined();
@@ -167,7 +182,9 @@ describe("useLiteUsers & useLiteUser", () => {
         wrapper,
       });
 
-      await waitFor(() => expect(result.current.isLoading).toBe(false));
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
 
       // Confirm that initial data was loaded
       expect(result.current.isStale).toBe(false);
@@ -178,7 +195,7 @@ describe("useLiteUsers & useLiteUser", () => {
       mockGetLiteUsers.mockResolvedValueOnce(getLiteUsers(ids));
 
       // Invalidate the query to mark the data as stale
-      queryClient.invalidateQueries({ queryKey: liteUsersKey(ids) });
+      await queryClient.invalidateQueries({ queryKey: liteUsersKey(ids) });
 
       // Trigger a rerender that should cause a refetch due to stale data
       rerender();
@@ -187,7 +204,9 @@ describe("useLiteUsers & useLiteUser", () => {
       expect(result.current.isStale).toBe(true);
       expect(result.current.isRefetching).toBe(true);
 
-      await waitFor(() => expect(result.current.isLoading).toBe(false));
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
 
       // Confirm that the data has been updated after the refetch
       expect(result.current.isStale).toBe(false);
@@ -203,7 +222,9 @@ describe("useLiteUsers & useLiteUser", () => {
         wrapper,
       });
 
-      await waitFor(() => expect(result.current.isLoading).toBe(false));
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
       // Confirm that initial data was loaded
       expect(result.current.isStale).toBe(false);
       expect(result.current.data).toEqual(mockLiteUsersMap);
@@ -213,19 +234,26 @@ describe("useLiteUsers & useLiteUser", () => {
       mockGetLiteUsers.mockRejectedValue(new RpcError(500, "Some error", {}));
 
       // Invalidate the query to mark the data as stale
-      queryClient.invalidateQueries({ queryKey: liteUsersKey(ids) });
+      await queryClient.invalidateQueries({ queryKey: liteUsersKey(ids) });
 
       // Trigger a rerender that should cause a refetch due to stale data
       rerender();
 
       // Confirm that initial data is marked as stale and refetching
-      await waitFor(() => expect(result.current.isStale).toBe(true));
+      await waitFor(() => {
+        expect(result.current.isStale).toBe(true);
+      });
       expect(result.current.isRefetching).toBe(true);
 
       // Confirm that the stale data from cache has been returned and isError is true
-      await waitFor(() => expect(result.current.isError).toBe(true), {
-        timeout: 5000,
-      });
+      await waitFor(
+        () => {
+          expect(result.current.isError).toBe(true);
+        },
+        {
+          timeout: 5000,
+        },
+      );
       expect(result.current.data).toEqual(mockLiteUsersMap);
       expect(mockGetLiteUsers).toHaveBeenCalledTimes(3);
     });
@@ -247,7 +275,9 @@ describe("useLiteUsers & useLiteUser", () => {
       expect(result.current.isLoading).toBe(true);
       expect(result.current.data).toBeUndefined();
 
-      await waitFor(() => expect(result.current.isLoading).toBe(false));
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
     });
 
     it("Should return user when loading is complete", async () => {
@@ -257,7 +287,9 @@ describe("useLiteUsers & useLiteUser", () => {
         wrapper,
       });
 
-      await waitFor(() => expect(result.current.isLoading).toBe(false));
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
       expect(mockGetLiteUser).toHaveBeenCalledTimes(1);
 
       expect(result.current).toEqual(
@@ -281,9 +313,14 @@ describe("useLiteUsers & useLiteUser", () => {
         wrapper,
       });
 
-      await waitFor(() => expect(result.current.isLoading).toBe(false), {
-        timeout: 5000,
-      });
+      await waitFor(
+        () => {
+          expect(result.current.isLoading).toBe(false);
+        },
+        {
+          timeout: 5000,
+        },
+      );
       expect(result.current.error).toBe(error);
       expect(result.current.isError).toBe(true);
       expect(result.current.data).toBeUndefined();
@@ -294,7 +331,9 @@ describe("useLiteUsers & useLiteUser", () => {
         wrapper,
       });
 
-      await waitFor(() => expect(result.current.isLoading).toBe(false));
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
 
       expect(mockGetLiteUser).not.toHaveBeenCalled();
     });
@@ -307,7 +346,9 @@ describe("useLiteUsers & useLiteUser", () => {
         wrapper,
       });
 
-      await waitFor(() => expect(result.current.isLoading).toBe(false));
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
 
       // Check that the hook has the expected data and `getLiteUser` was called
       expect(result.current.data).toEqual(mockLiteUsers[0]);
@@ -332,7 +373,9 @@ describe("useLiteUsers & useLiteUser", () => {
       });
 
       // Confirm that initial data was loaded
-      await waitFor(() => expect(result.current.isLoading).toBe(false));
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
       expect(result.current.isStale).toBe(false);
       expect(result.current.data).toEqual(mockLiteUsers[1]);
       expect(mockGetLiteUser).toHaveBeenCalledTimes(1);
@@ -341,7 +384,7 @@ describe("useLiteUsers & useLiteUser", () => {
       mockGetLiteUser.mockResolvedValueOnce(getLiteUser("2"));
 
       // Invalidate the query to mark the data as stale
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: liteUserKey(2),
       });
 
@@ -353,7 +396,9 @@ describe("useLiteUsers & useLiteUser", () => {
       expect(result.current.isRefetching).toBe(true);
 
       // Wait for the refetch to complete
-      await waitFor(() => expect(result.current.isLoading).toBe(false));
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
 
       // Confirm that the data has been updated after the refetch
       expect(result.current.isStale).toBe(false);
@@ -370,7 +415,9 @@ describe("useLiteUsers & useLiteUser", () => {
       });
 
       // Wait for the initial fetch to complete
-      await waitFor(() => expect(result.current.isLoading).toBe(false));
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
 
       // Confirm that initial data was loaded
       expect(result.current.isStale).toBe(false);
@@ -381,7 +428,7 @@ describe("useLiteUsers & useLiteUser", () => {
       mockGetLiteUser.mockRejectedValue(new RpcError(500, "Some error", {}));
 
       // Invalidate the query to mark the data as stale
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: liteUserKey(1),
       });
 
@@ -393,10 +440,17 @@ describe("useLiteUsers & useLiteUser", () => {
       expect(result.current.isRefetching).toBe(true);
 
       // Confirm that the stale data from cache has been returned and isError is true
-      await waitFor(() => expect(result.current.isStale).toBe(true));
-      await waitFor(() => expect(result.current.isError).toBe(true), {
-        timeout: 5000,
+      await waitFor(() => {
+        expect(result.current.isStale).toBe(true);
       });
+      await waitFor(
+        () => {
+          expect(result.current.isError).toBe(true);
+        },
+        {
+          timeout: 5000,
+        },
+      );
       expect(result.current.data).toEqual(mockLiteUsers[0]);
       expect(mockGetLiteUser).toHaveBeenCalledTimes(3);
     });
