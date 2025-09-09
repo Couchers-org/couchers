@@ -25,13 +25,13 @@ import dayjs from "@/utils/dayjs";
 
 type DurationChoice = "1h" | "8h" | "1d" | "1w" | "1m" | "forever";
 
-export default function MuteDialog({
+const MuteDialog = ({
   groupChatId,
   ...props
-}: DialogProps & { groupChatId: number }) {
+}: DialogProps & { groupChatId: number }) => {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
   const queryClient = useQueryClient();
-  const muteMutation = useMutation<void, RpcError, DurationChoice>({
+  const muteMutation = useMutation<unknown, RpcError, DurationChoice>({
     mutationFn: async (duration) => {
       let d;
       if (duration === "1h") d = dayjs.duration({ hours: 1 });
@@ -45,12 +45,12 @@ export default function MuteDialog({
         forever: !d,
       });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [GROUP_CHATS_LIST_KEY] });
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [GROUP_CHATS_LIST_KEY] });
+      await queryClient.invalidateQueries({
         queryKey: [groupChatKey(groupChatId)],
       });
-      if (props.onClose) props.onClose({}, "escapeKeyDown");
+      props.onClose?.({}, "escapeKeyDown");
     },
   });
 
@@ -58,7 +58,11 @@ export default function MuteDialog({
     undefined,
   );
 
-  const handleSubmit = () => (selected ? muteMutation.mutate(selected) : null);
+  const handleSubmit = () => {
+    if (selected) {
+      muteMutation.mutate(selected);
+    }
+  };
 
   return (
     <Dialog {...props} aria-labelledby="mute-dialog-title">
@@ -73,7 +77,7 @@ export default function MuteDialog({
           <RadioGroup
             aria-labelledby="mute-dialog-title"
             value={selected ?? null}
-            onChange={(e, val) => {
+            onChange={(_, val) => {
               setSelected(val as DurationChoice);
             }}
           >
@@ -113,9 +117,7 @@ export default function MuteDialog({
       <DialogActions>
         <Button
           variant="outlined"
-          onClick={() =>
-            props.onClose ? props.onClose({}, "escapeKeyDown") : null
-          }
+          onClick={() => props.onClose?.({}, "escapeKeyDown")}
           loading={muteMutation.isPending}
         >
           {t("global:cancel")}
@@ -130,4 +132,6 @@ export default function MuteDialog({
       </DialogActions>
     </Dialog>
   );
-}
+};
+
+export default MuteDialog;

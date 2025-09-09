@@ -66,7 +66,7 @@ interface InfiniteMessageLoaderProps {
   children: ReactNode;
 }
 
-export default function InfiniteMessageLoader({
+const InfiniteMessageLoader = ({
   earliestMessageId,
   latestMessage,
   fetchNextPage,
@@ -75,7 +75,7 @@ export default function InfiniteMessageLoader({
   isError,
   className,
   children,
-}: InfiniteMessageLoaderProps) {
+}: InfiniteMessageLoaderProps) => {
   const { authState } = useAuthContext();
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -113,7 +113,9 @@ export default function InfiniteMessageLoader({
       scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
     };
     window.addEventListener("resize", updateMessagePosition);
-    return () => { window.removeEventListener("resize", updateMessagePosition); };
+    return () => {
+      window.removeEventListener("resize", updateMessagePosition);
+    };
   }, []);
 
   //* * Scroll to the bottom after sending own new message  **//
@@ -146,4 +148,6 @@ export default function InfiniteMessageLoader({
       {children}
     </StyledWrapper>
   );
-}
+};
+
+export default InfiniteMessageLoader;

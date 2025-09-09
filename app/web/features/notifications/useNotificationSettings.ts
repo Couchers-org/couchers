@@ -5,7 +5,7 @@ import { NOTIFICATION_SETTINGS_QUERY_KEY } from "@/features/queryKeys";
 import { GetNotificationSettingsRes } from "@/proto/notifications_pb";
 import { service } from "@/service";
 
-export default function useNotificationSettings() {
+const useNotificationSettings = () => {
   const notificationSettingsQuery = useQuery<
     GetNotificationSettingsRes.AsObject,
     RpcError
@@ -15,4 +15,6 @@ export default function useNotificationSettings() {
   });
 
   return notificationSettingsQuery;
-}
+};
+
+export default useNotificationSettings;

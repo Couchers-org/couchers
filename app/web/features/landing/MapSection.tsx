@@ -6,6 +6,7 @@ import { useTranslation } from "@/i18n";
 import { LANDING } from "@/i18n/namespaces";
 import { theme } from "@/theme";
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const StaticMap = dynamic(() => import("@/components/StaticMap"), {
   loading: () => <CenteredSpinner />,
   ssr: false,

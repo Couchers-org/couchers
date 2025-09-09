@@ -7,10 +7,10 @@ import { MARK_LAST_SEEN_TIMEOUT } from "./constants";
 
 export type MarkLastSeenVariables = number;
 
-export default function useMarkLastSeen(
+const useMarkLastSeen = (
   markLastSeenMutate: UseMutateFunction<Empty, Error, MarkLastSeenVariables>,
   lastSeenMessageId?: number,
-) {
+) => {
   const maxMessageIdRef = useRef(0);
   // Sync with latest lastSeenMessageId so anything below that ID doesn't get tried again.
   // Needed since lastSeenMessageId comes from react query which is initially
@@ -40,4 +40,6 @@ export default function useMarkLastSeen(
   };
 
   return { markLastSeen };
-}
+};
+
+export default useMarkLastSeen;

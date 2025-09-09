@@ -38,11 +38,11 @@ export interface GroupChatSendFieldProps {
   currentUserId: number;
 }
 
-export default function GroupChatSendField({
+const GroupChatSendField = ({
   sendMutation,
   chatId,
   currentUserId,
-}: GroupChatSendFieldProps) {
+}: GroupChatSendFieldProps) => {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
 
   const { mutate: handleSend, isPending } = sendMutation;
@@ -56,7 +56,7 @@ export default function GroupChatSendField({
       "sessionStorage",
     );
 
-  const onSubmit = handleSubmit(async (data: MessageFormData) => {
+  const onSubmit = handleSubmit((data: MessageFormData) => {
     handleSend(data.text.trimEnd());
     clearPersistedMessage();
     reset({ text: "" });
@@ -65,14 +65,14 @@ export default function GroupChatSendField({
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Enter" && event.ctrlKey) {
       event.preventDefault();
-      onSubmit();
+      void onSubmit();
     }
   };
 
   const { onChange: textOnChange, ...textRegisterRest } = register("text");
 
   return (
-    <StyledForm onSubmit={onSubmit}>
+    <StyledForm onSubmit={() => void onSubmit()}>
       <TextField
         id="group-chat-message-field"
         {...textRegisterRest}
@@ -83,7 +83,7 @@ export default function GroupChatSendField({
         onKeyDown={handleKeyDown}
         onChange={(event) => {
           setPersistedMessage(event.target.value);
-          textOnChange(event);
+          void textOnChange(event);
         }}
         maxRows={4}
         size="small"
@@ -101,4 +101,6 @@ export default function GroupChatSendField({
       </StyledButton>
     </StyledForm>
   );
-}
+};
+
+export default GroupChatSendField;

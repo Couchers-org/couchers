@@ -65,14 +65,14 @@ const AdminListItem = ({
   const handleError = (error: RpcError) => {
     setError(error.message);
   };
-  const invalidate = () => {
-    queryClient.invalidateQueries({
+  const invalidate = async () => {
+    await queryClient.invalidateQueries({
       queryKey: [groupChatMessagesKey(groupChatId)],
     });
-    queryClient.invalidateQueries({
+    await queryClient.invalidateQueries({
       queryKey: [GROUP_CHATS_LIST_KEY],
     });
-    queryClient.invalidateQueries({
+    await queryClient.invalidateQueries({
       queryKey: [groupChatKey(groupChatId)],
     });
   };
@@ -83,7 +83,7 @@ const AdminListItem = ({
     onError: handleError,
     onMutate: clearError,
 
-    onSuccess: () => {
+    onSuccess: async () => {
       const previousGroupChat = queryClient.getQueryData<GroupChat.AsObject>([
         "groupChat",
         groupChatId,
@@ -96,7 +96,7 @@ const AdminListItem = ({
         ...previousGroupChat,
         adminUserIdsList: newAdminUserIdsList,
       });
-      invalidate();
+      await invalidate();
     },
   });
   const removeAdmin = useMutation({
@@ -105,7 +105,7 @@ const AdminListItem = ({
     onError: handleError,
     onMutate: clearError,
 
-    onSuccess: () => {
+    onSuccess: async () => {
       const previousGroupChat = queryClient.getQueryData<GroupChat.AsObject>(
         groupChatKey(groupChatId),
       );
@@ -117,7 +117,7 @@ const AdminListItem = ({
         ...previousGroupChat,
         adminUserIdsList: newAdminUserIdsList,
       });
-      invalidate();
+      await invalidate();
     },
   });
 
@@ -183,21 +183,18 @@ interface AdminsDialogProps extends DialogProps {
   groupChat?: GroupChat.AsObject;
 }
 
-export default function AdminsDialog({
-  groupChat,
-  ...props
-}: AdminsDialogProps) {
+const AdminsDialog = ({ groupChat, ...props }: AdminsDialogProps) => {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
   const [error, setError] = useState("");
 
   const nonAdminIds = groupChat?.memberUserIdsList.filter(
-    (id) => !groupChat?.adminUserIdsList.includes(id),
+    (id) => !groupChat.adminUserIdsList.includes(id),
   );
 
   const currentUserId = useAuthContext().authState.userId;
   const admins = useLiteUsers(groupChat?.adminUserIdsList ?? []);
   const nonAdmins = useLiteUsers(nonAdminIds ?? []);
-  const onClose = props?.onClose;
+  const onClose = props.onClose;
   const isOpen = props.open;
 
   useEffect(() => {
@@ -274,10 +271,12 @@ export default function AdminsDialog({
         </>
       )}
       <DialogActions>
-        <Button onClick={() => (onClose ? onClose({}, "escapeKeyDown") : null)}>
+        <Button onClick={() => onClose?.({}, "escapeKeyDown")}>
           {t("global:ok")}
         </Button>
       </DialogActions>
     </Dialog>
   );
-}
+};
+
+export default AdminsDialog;

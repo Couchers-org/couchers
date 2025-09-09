@@ -91,12 +91,12 @@ const sendMessageMock = service.conversations.sendMessage as MockedService<
 // const leaveGroupChatMock = service.conversations
 //   .leaveGroupChat as MockedService<typeof service.conversations.leaveGroupChat>;
 
-function renderGroupChatView() {
+const renderGroupChatView = () => {
   const { client, wrapper } = getHookWrapperWithClient();
   render(<GroupChatView chatId={1} />, { wrapper });
 
   return client;
-}
+};
 
 describe("GroupChatView", () => {
   beforeEach(() => {
@@ -136,15 +136,15 @@ describe("GroupChatView", () => {
         const user = await getLiteUser(message.authorUserId.toString());
 
         expect(
-          await messageElement.findByRole("heading", { name: user?.name }),
+          await messageElement.findByRole("heading", { name: user.name }),
         ).toBeVisible();
         expect(messageElement.getByText(message.text.text)).toBeVisible();
 
         // avatar assertion
-        if (user?.avatarUrl !== "") {
+        if (user.avatarUrl !== "") {
           // checks that an image is rendered if an avatar exists
           expect(
-            messageElement.getByRole("img", { name: user?.name }),
+            messageElement.getByRole("img", { name: user.name }),
           ).toBeVisible();
         } else {
           // "Funny Dog" is the only user without an image, so check initials are rendered
@@ -215,7 +215,7 @@ describe("GroupChatView", () => {
       expect(getGroupChatMock).toHaveBeenCalledTimes(1);
       expect(getGroupChatMessagesMock).toHaveBeenCalledTimes(1);
 
-      await act(async () => {
+      act(() => {
         jest.advanceTimersByTime(GROUP_CHAT_REFETCH_INTERVAL);
       });
 
@@ -320,7 +320,9 @@ describe("GroupChatView", () => {
     const sendButton = screen.getByRole("button", { name: t("global:send") });
     await user.click(sendButton);
 
-    await waitFor(() => { expect(sendMessageMock).toHaveBeenCalledTimes(1); });
+    await waitFor(() => {
+      expect(sendMessageMock).toHaveBeenCalledTimes(1);
+    });
     expect(sendMessageMock).toHaveBeenCalledWith(1, "Sounds good");
     expect(getGroupChatMock).toHaveBeenCalledTimes(2);
     expect(getGroupChatMessagesMock).toHaveBeenCalledTimes(2);
@@ -394,7 +396,7 @@ describe("GroupChatView", () => {
     sessionStorage.setItem("messages.1.1", JSON.stringify("Not ready to se-"));
     renderGroupChatView();
     await screen.findByRole("heading", { level: 1, name: "Test group chat" });
-    expect(await screen.getByDisplayValue("Not ready to se-")).toBeVisible();
+    expect(screen.getByDisplayValue("Not ready to se-")).toBeVisible();
   });
 
   it("clears message draft state from sessionStorage", async () => {
@@ -416,7 +418,7 @@ describe("GroupChatView", () => {
       ...baseGroupChatMockResponse,
       muteInfo: {
         muted: true,
-        mutedUntil: Timestamp.fromDate(new Date(Date() + 10000)).toObject(),
+        mutedUntil: Timestamp.fromDate(new Date(Date.now() + 10000)).toObject(),
       },
     });
     muteChatMock.mockResolvedValue(new Empty());
@@ -435,7 +437,10 @@ describe("GroupChatView", () => {
     screen.getByText(t("messages:chat_view.mute.unmute_button_label")).click();
 
     await waitFor(() => {
-      expect(muteChatMock).toBeCalledWith({ groupChatId: 1, unmute: true });
+      expect(muteChatMock).toHaveBeenCalledWith({
+        groupChatId: 1,
+        unmute: true,
+      });
       expect(muteIcon).not.toBeVisible();
     });
   });
@@ -468,7 +473,10 @@ describe("GroupChatView", () => {
       .click();
 
     await waitFor(() => {
-      expect(muteChatMock).toBeCalledWith({ groupChatId: 1, forever: true });
+      expect(muteChatMock).toHaveBeenCalledWith({
+        groupChatId: 1,
+        forever: true,
+      });
     });
 
     // Manually update the query data to reflect the muted state
@@ -476,7 +484,7 @@ describe("GroupChatView", () => {
       ...baseGroupChatMockResponse,
       muteInfo: {
         muted: true,
-        mutedUntil: Timestamp.fromDate(new Date(Date() + 10000)).toObject(),
+        mutedUntil: Timestamp.fromDate(new Date(Date.now() + 10000)).toObject(),
       },
     });
 

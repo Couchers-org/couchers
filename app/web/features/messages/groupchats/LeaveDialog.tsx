@@ -22,22 +22,22 @@ import { useTranslation } from "@/i18n";
 import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
 import { service } from "@/service";
 
-export default function LeaveDialog({
+const LeaveDialog = ({
   groupChatId,
   ...props
-}: DialogProps & { groupChatId: number }) {
+}: DialogProps & { groupChatId: number }) => {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
   const queryClient = useQueryClient();
   const leaveGroupChatMutation = useMutation<Empty, RpcError>({
     mutationFn: () => service.conversations.leaveGroupChat(groupChatId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: [groupChatMessagesKey(groupChatId)],
       });
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: [GROUP_CHATS_LIST_KEY],
       });
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: [groupChatKey(groupChatId)],
       });
       if (props.onClose) props.onClose({}, "escapeKeyDown");
@@ -71,9 +71,7 @@ export default function LeaveDialog({
           {t("global:yes")}
         </Button>
         <Button
-          onClick={() =>
-            props.onClose ? props.onClose({}, "escapeKeyDown") : null
-          }
+          onClick={() => props.onClose?.({}, "escapeKeyDown")}
           loading={leaveGroupChatMutation.isPending}
         >
           {t("global:no")}
@@ -81,4 +79,6 @@ export default function LeaveDialog({
       </DialogActions>
     </Dialog>
   );
-}
+};
+
+export default LeaveDialog;

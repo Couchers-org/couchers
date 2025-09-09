@@ -53,7 +53,7 @@ interface CreateGroupChatFormData {
   users: User.AsObject[];
 }
 
-export default function CreateGroupChat({ className }: { className?: string }) {
+const CreateGroupChat = ({ className }: { className?: string }) => {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
 
   // handle redirects which want to create a new message with someone
@@ -81,8 +81,8 @@ export default function CreateGroupChat({ className }: { className?: string }) {
   } = useMutation<number, RpcError, CreateGroupChatFormData>({
     mutationFn: ({ title, users }) =>
       service.conversations.createGroupChat(title, users),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: [GROUP_CHATS_LIST_KEY],
       });
       resetForm();
@@ -128,7 +128,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
           true
         }
       >
-        <form onSubmit={onSubmit}>
+        <form onSubmit={() => void onSubmit()}>
           <DialogTitle id="create-dialog-title">
             {isGroup
               ? t("messages:create_chat.group_title")
@@ -165,11 +165,11 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                       <StyledAutocomplete
                         id="users-autocomplete"
                         isOptionEqualToValue={(friend, value) => {
-                          return friend?.name === value?.name;
+                          return friend.name === value.name;
                         }}
                         onChange={(_, newValue) => {
                           field.onChange(newValue);
-                          setIsGroup((newValue?.length ?? 0) > 1);
+                          setIsGroup(newValue.length > 1);
                         }}
                         multiple
                         loading={friends.isLoading}
@@ -178,15 +178,14 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                           "messages:create_chat.no_friends_found_message",
                         )}
                         getOptionLabel={(friend) => {
-                          const friendHasNameKey =
-                            typeof friend === "object" && friend !== null;
+                          const hasFriendNameKey = typeof friend === "object";
 
-                          return friendHasNameKey
+                          return hasFriendNameKey
                             ? friend.name
                             : t("messages:create_chat.user_load_error_message");
                         }}
                         label={t("messages:create_chat.friends_input_label")}
-                        value={field.value ?? []}
+                        value={field.value}
                       />
                     );
                   }}
@@ -218,4 +217,6 @@ export default function CreateGroupChat({ className }: { className?: string }) {
       </Dialog>
     </>
   );
-}
+};
+
+export default CreateGroupChat;

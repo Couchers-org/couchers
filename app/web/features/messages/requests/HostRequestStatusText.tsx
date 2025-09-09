@@ -11,11 +11,11 @@ interface HostRequestStatusTextProps {
   isPast: boolean;
 }
 
-export default function HostRequestStatusText({
+const HostRequestStatusText = ({
   isHost,
   requestStatus,
   isPast,
-}: HostRequestStatusTextProps) {
+}: HostRequestStatusTextProps) => {
   const { t } = useTranslation(MESSAGES);
 
   let statusText = "";
@@ -69,4 +69,6 @@ export default function HostRequestStatusText({
       {statusText}
     </Typography>
   );
-}
+};
+
+export default HostRequestStatusText;

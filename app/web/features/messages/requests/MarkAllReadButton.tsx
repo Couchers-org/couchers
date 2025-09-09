@@ -26,11 +26,11 @@ const MarkAsReadIconStyled = styled(DoneAllIcon)(({ theme }) => ({
   fontSize: theme.typography.body1.fontSize,
 }));
 
-export default function MarkAllReadButton({
+const MarkAllReadButton = ({
   type,
 }: {
   type: "chats" | "hosting" | "surfing";
-}) {
+}) => {
   const { t } = useTranslation(MESSAGES);
   const queryClient = useQueryClient();
   const markAll = useMutation({
@@ -43,7 +43,7 @@ export default function MarkAllReadButton({
           hasMore: (previousData) => !previousData.noMore,
         });
         await Promise.all(
-          data.map<void>((chat) =>
+          data.map((chat) =>
             chat.latestMessage &&
             chat.lastSeenMessageId < chat.latestMessage.messageId
               ? service.conversations.markLastSeenGroupChat(
@@ -64,7 +64,7 @@ export default function MarkAllReadButton({
           hasMore: (previousData) => !previousData.noMore,
         });
         await Promise.all(
-          data.map<void>((request) =>
+          data.map((request) =>
             request.latestMessage &&
             request.lastSeenMessageId < request.latestMessage.messageId
               ? service.requests.markLastRequestSeen(
@@ -77,11 +77,11 @@ export default function MarkAllReadButton({
       }
     },
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: [hostRequestsListKey()],
       });
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: [GROUP_CHATS_LIST_KEY],
       });
     },
@@ -108,4 +108,6 @@ export default function MarkAllReadButton({
       </MarkAsReadButtonStyled>
     </>
   );
-}
+};
+
+export default MarkAllReadButton;

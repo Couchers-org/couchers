@@ -27,12 +27,11 @@ const RootContainer = styled("div", {
     }),
 
     ...(isCurrentUser && !isLoading && { justifyContent: "flex-end" }),
-
     ...(!isCurrentUser && !isLoading && { justifyContent: "flex-start" }),
   }),
 );
 
-const StyledAvatar = styled(Avatar)(({ theme }) => ({
+const StyledAvatar = styled(Avatar)(() => ({
   height: 40,
   width: 40,
 }));
@@ -72,7 +71,7 @@ const StyledCard = styled(Card, {
   }),
 );
 
-const StyledLeftOfMessage = styled("div")(({ theme }) => ({
+const StyledLeftOfMessage = styled("div")(() => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
@@ -111,15 +110,11 @@ const StyledFooter = styled("div")(({ theme }) => ({
 
 export interface MessageProps {
   message: Message.AsObject;
-  onVisible?(): void;
+  onVisible?: () => void;
   className?: string;
 }
 
-export default function MessageView({
-  className,
-  message,
-  onVisible,
-}: MessageProps) {
+const MessageView = ({ className, message, onVisible }: MessageProps) => {
   const { t } = useTranslation(MESSAGES);
 
   const { data: author, isLoading: isAuthorLoading } = useLiteUser(
@@ -143,11 +138,8 @@ export default function MessageView({
     >
       {author && !isCurrentUser && (
         <StyledLeftOfMessage>
-          {author && !isAuthorLoading && <StyledAvatar user={author} />}
-          {isAuthorLoading && (
-            <Skeleton variant="rounded" width={40} height={40} />
-          )}
-          {!author && !isAuthorLoading && <StyledAvatar />}
+          <StyledAvatar user={author} />
+          <StyledAvatar />
           <FlagButton
             contentRef={`chat/message/${message.messageId}`}
             authorUser={author.userId}
@@ -156,7 +148,7 @@ export default function MessageView({
       )}
       <StyledCard isLoading={isLoading} isCurrentUser={isCurrentUser}>
         <StyledHeader>
-          {author && !isAuthorLoading && (
+          {author && (
             <StyledNameTypography variant="h5">
               {author.name}
             </StyledNameTypography>
@@ -167,8 +159,8 @@ export default function MessageView({
               {t("unknown_user")}
             </StyledNameTypography>
           )}
-          {!isCurrentUser && (
-            <TimeInterval date={timestamp2Date(message.time!)} />
+          {!isCurrentUser && message.time && (
+            <TimeInterval date={timestamp2Date(message.time)} />
           )}
         </StyledHeader>
 
@@ -181,9 +173,9 @@ export default function MessageView({
           </TextBody>
         </StyledMessageBody>
 
-        {isCurrentUser && (
+        {isCurrentUser && message.time && (
           <StyledFooter>
-            <TimeInterval date={timestamp2Date(message.time!)} />
+            <TimeInterval date={timestamp2Date(message.time)} />
           </StyledFooter>
         )}
       </StyledCard>
@@ -194,4 +186,6 @@ export default function MessageView({
       {!author && !isAuthorLoading && <StyledAvatar />}
     </RootContainer>
   );
-}
+};
+
+export default MessageView;

@@ -14,7 +14,7 @@ export interface TimeIntervalProps {
   className?: string;
 }
 
-export default function TimeInterval({ date, className }: TimeIntervalProps) {
+const TimeInterval = ({ date, className }: TimeIntervalProps) => {
   const { t } = useTranslation(GLOBAL);
 
   return (
@@ -24,4 +24,6 @@ export default function TimeInterval({ date, className }: TimeIntervalProps) {
       </Typography>
     </Root>
   );
-}
+};
+
+export default TimeInterval;

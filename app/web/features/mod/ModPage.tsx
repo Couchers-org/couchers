@@ -9,7 +9,7 @@ import { GLOBAL, MOD, PROFILE } from "@/i18n/namespaces";
 
 import { useNewUsers } from "./hooks";
 
-export default function ModPage() {
+const ModPage = () => {
   const { t } = useTranslation([GLOBAL, MOD, PROFILE]);
 
   const { userIds, error, hasNextPage, isFetchingNextPage, fetchNextPage } =
@@ -36,4 +36,6 @@ export default function ModPage() {
       )}
     </>
   );
-}
+};
+
+export default ModPage;

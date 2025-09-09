@@ -32,7 +32,7 @@ describe("useUpdateNotificationSettings", () => {
     expect(result.current.status).toBe("idle");
   });
 
-  it("Should call the service and invalidate the query on success", async () => {
+  it("Should call the service and invalidate the query on success", () => {
     const mockData = {
       topic: "password",
       action: "change",
@@ -46,13 +46,13 @@ describe("useUpdateNotificationSettings", () => {
       {}, // Mocked successful response
     );
 
-    jest.spyOn(queryClient, "invalidateQueries");
+    const invalidateQueriesMock = jest.spyOn(queryClient, "invalidateQueries");
 
     const { result } = renderHook(() => useUpdateNotificationSettings(), {
       wrapper,
     });
 
-    await act(async () => {
+    act(() => {
       result.current.updateNotificationSettings({
         preferenceData: mockData,
         setMutationError: jest.fn(),
@@ -62,7 +62,7 @@ describe("useUpdateNotificationSettings", () => {
     expect(
       service.notifications.setNotificationSettingsPreference,
     ).toHaveBeenCalledWith(mockData);
-    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
+    expect(invalidateQueriesMock).toHaveBeenCalledWith({
       queryKey: [NOTIFICATION_SETTINGS_QUERY_KEY],
     });
   });
@@ -83,7 +83,7 @@ describe("useUpdateNotificationSettings", () => {
       wrapper,
     });
 
-    await act(async () => {
+    act(() => {
       result.current.updateNotificationSettings({
         preferenceData: {
           topic: "password",

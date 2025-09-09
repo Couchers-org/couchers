@@ -29,10 +29,10 @@ interface GroupChatSettingsData {
   onlyAdminsInvite: boolean;
 }
 
-export default function GroupChatSettingsDialog({
+const GroupChatSettingsDialog = ({
   groupChat,
   ...props
-}: DialogProps & { groupChat: GroupChat.AsObject }) {
+}: DialogProps & { groupChat: GroupChat.AsObject }) => {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
   const { register, handleSubmit } = useForm<GroupChatSettingsData>();
 
@@ -45,14 +45,14 @@ export default function GroupChatSettingsDialog({
         onlyAdminsInvite,
       ),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: [groupChatMessagesKey(groupChat.groupChatId)],
       });
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: [GROUP_CHATS_LIST_KEY],
       });
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: [groupChatKey(groupChat.groupChatId)],
       });
       if (props.onClose) props.onClose({}, "escapeKeyDown");
@@ -69,9 +69,9 @@ export default function GroupChatSettingsDialog({
         {t("messages:group_chat_settings_dialog.title")}
       </DialogTitle>
       <DialogContent>
-        <form onSubmit={onSubmit}>
+        <form onSubmit={() => void onSubmit()}>
           {mutation.error && (
-            <Alert severity={"error"}>{mutation.error?.message}</Alert>
+            <Alert severity={"error"}>{mutation.error.message}</Alert>
           )}
           <TextField
             id="group-chat-settings-chat-title"
@@ -98,14 +98,12 @@ export default function GroupChatSettingsDialog({
         <Button onClick={onSubmit} loading={mutation.isPending}>
           {t("global:save")}
         </Button>
-        <Button
-          onClick={() =>
-            props.onClose ? props.onClose({}, "escapeKeyDown") : null
-          }
-        >
+        <Button onClick={() => props.onClose?.({}, "escapeKeyDown")}>
           {t("global:cancel")}
         </Button>
       </DialogActions>
     </Dialog>
   );
-}
+};
+
+export default GroupChatSettingsDialog;

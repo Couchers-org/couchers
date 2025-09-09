@@ -45,12 +45,12 @@ const MemberListItem = ({
       </TextBody>
     </StyledMemberListItemContainer>
   );
-}
+};
 
-export default function MembersDialog({
+const MembersDialog = ({
   groupChat,
   ...props
-}: DialogProps & { groupChat?: GroupChat.AsObject }) {
+}: DialogProps & { groupChat?: GroupChat.AsObject }) => {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
   const members = useLiteUsers(groupChat?.memberUserIdsList ?? []);
 
@@ -79,14 +79,12 @@ export default function MembersDialog({
         </List>
       </DialogContent>
       <DialogActions>
-        <Button
-          onClick={() =>
-            props.onClose ? props.onClose({}, "escapeKeyDown") : null
-          }
-        >
+        <Button onClick={() => props.onClose?.({}, "escapeKeyDown")}>
           {t("global:ok")}
         </Button>
       </DialogActions>
     </Dialog>
   );
-}
+};
+
+export default MembersDialog;

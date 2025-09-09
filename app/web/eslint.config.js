@@ -264,15 +264,25 @@ export default tseslint.config([
           selector: "import",
           format: ["PascalCase", "camelCase"],
         },
-        // Allow "&" styling for styled components
+        // Allow some styling property names
         {
           selector: "objectLiteralProperty",
           filter: {
-            regex: "^&",
+            regex: "^&|^.Mui|^aria-|^Webkit",
             match: true,
           },
           format: null,
         },
+        // Allow MUI styling for styled components
+        {
+          selector: "objectLiteralProperty",
+          filter: {
+            regex: "^.Mui",
+            match: true,
+          },
+          format: null,
+        },
+
         ...baseNamingConventions,
       ],
       "react/function-component-definition": [
@@ -296,6 +306,7 @@ export default tseslint.config([
       "jest/consistent-test-it": ["warn", { fn: "it" }],
       "@typescript-eslint/no-unsafe-assignment": "off",
       "@typescript-eslint/no-unsafe-return": "off",
+      "@typescript-eslint/require-await": "off",
 
       "@typescript-eslint/naming-convention": [
         "off",

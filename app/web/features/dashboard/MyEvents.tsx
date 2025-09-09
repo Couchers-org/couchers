@@ -68,7 +68,7 @@ const StyledButtonContainer = styled("div")(() => ({
 
 const PAGE_SIZE = 2;
 
-export default function MyEvents() {
+const MyEvents = () => {
   const { t } = useTranslation([COMMUNITIES, DASHBOARD]);
   const isBelowSm = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -93,7 +93,7 @@ export default function MyEvents() {
       ) : hasAtLeastOnePage(data, "eventsList") ? (
         <>
           <StyledCardContainer
-            fetchNext={isBelowSm ? fetchNextPage : undefined}
+            fetchNext={isBelowSm ? () => void fetchNextPage() : undefined}
             hasMore={hasNextPage}
             isFetching={isFetching}
           >
@@ -128,4 +128,6 @@ export default function MyEvents() {
       )}
     </StyledWrapper>
   );
-}
+};
+
+export default MyEvents;

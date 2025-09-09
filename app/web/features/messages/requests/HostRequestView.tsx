@@ -15,6 +15,8 @@ import HeaderButton from "@/components/HeaderButton";
 import { BackIcon } from "@/components/Icons";
 import PageTitle from "@/components/PageTitle";
 import { useAuthContext } from "@/features/auth/AuthProvider";
+import { requestStatusToTransKey } from "@/features/messages/constants";
+import ChatContent from "@/features/messages/groupchats/ChatContent";
 import HostRequestSendField from "@/features/messages/requests/HostRequestSendField";
 import useMarkLastSeen from "@/features/messages/useMarkLastSeen";
 import {
@@ -33,8 +35,6 @@ import { service } from "@/service";
 import { theme } from "@/theme";
 import { firstName } from "@/utils/names";
 
-import { requestStatusToTransKey } from "@/features/messages/constants";
-import ChatContent from "@/features/messages/groupchats/ChatContent";
 import HostRequestUserSummarySection from "./HostRequestUserSummarySection";
 
 const StyledHeader = styled("div")(({ theme }) => ({
@@ -94,11 +94,7 @@ const StyledFooter = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function HostRequestView({
-  hostRequestId,
-}: {
-  hostRequestId: number;
-}) {
+const HostRequestView = ({ hostRequestId }: { hostRequestId: number }) => {
   const { t } = useTranslation(MESSAGES);
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -163,22 +159,22 @@ export default function HostRequestView({
       : undefined;
 
   if (isRequestPast) {
-    title = title + ` (${t("host_request_status.past")})`;
+    title = `${title || ""} (${t("host_request_status.past")})`;
   }
 
   const queryClient = useQueryClient();
   const sendMutation = useMutation<string | undefined, RpcError, string>({
     mutationFn: (text: string) =>
       service.requests.sendHostRequestMessage(hostRequestId, text),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: hostRequestMessagesKey(hostRequestId),
       });
-      queryClient.invalidateQueries({ queryKey: hostRequestsListKey() });
+      await queryClient.invalidateQueries({ queryKey: hostRequestsListKey() });
     },
   });
   const respondMutation = useMutation<
-    void,
+    unknown,
     RpcError,
     Required<RespondHostRequestReq.AsObject>
   >({
@@ -189,22 +185,22 @@ export default function HostRequestView({
         req.text,
       ),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: hostRequestKey(hostRequest?.hostRequestId),
       });
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: hostRequestMessagesKey(hostRequestId),
       });
-      queryClient.invalidateQueries({ queryKey: hostRequestsListKey() });
+      await queryClient.invalidateQueries({ queryKey: hostRequestsListKey() });
     },
   });
 
   const { mutate: markLastRequestSeen } = useMutation({
     mutationFn: (messageId: number) =>
       service.requests.markLastRequestSeen(hostRequestId, messageId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: hostRequestKey(hostRequestId),
       });
     },
@@ -216,7 +212,9 @@ export default function HostRequestView({
 
   const router = useRouter();
 
-  const handleBack = () => { router.back(); };
+  const handleBack = () => {
+    router.back();
+  };
 
   const hasError =
     respondMutation.error || sendMutation.error || hostRequestError;
@@ -260,9 +258,9 @@ export default function HostRequestView({
         isLoading={isMessagesLoading}
         messages={messagesRes}
         hostRequest={hostRequest}
-        fetchNextPage={fetchNextPage}
+        fetchNextPage={() => void fetchNextPage()}
         isFetchingNextPage={isFetchingNextPage}
-        hasNextPage={!!hasNextPage}
+        hasNextPage={hasNextPage}
         markLastSeen={markLastSeen}
         isError={!!messagesError}
       />
@@ -277,4 +275,6 @@ export default function HostRequestView({
       </StyledFooter>
     </StyledPageWrapper>
   );
-}
+};
+
+export default HostRequestView;

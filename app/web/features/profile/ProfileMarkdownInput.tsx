@@ -19,7 +19,7 @@ interface ProfileMarkdownInputProps {
   placeholder?: string;
 }
 
-export default function ProfileMarkdownInput({
+const ProfileMarkdownInput = ({
   className,
   control,
   defaultValue = "",
@@ -30,7 +30,7 @@ export default function ProfileMarkdownInput({
   description,
   helperText,
   placeholder,
-}: ProfileMarkdownInputProps) {
+}: ProfileMarkdownInputProps) => {
   return (
     <div className={className}>
       <Typography variant="h2" id={`${id}-label`}>
@@ -52,4 +52,6 @@ export default function ProfileMarkdownInput({
       />
     </div>
   );
-}
+};
+
+export default ProfileMarkdownInput;

@@ -2,15 +2,15 @@ import { Skeleton, styled } from "@mui/material";
 import React from "react";
 
 import TextBody from "@/components/TextBody";
+import { controlMessage, messageTargetId } from "@/features/messages/utils";
 import { useLiteUser } from "@/features/userQueries/useLiteUsers";
 import { useTranslation } from "@/i18n";
 import { MESSAGES } from "@/i18n/namespaces";
 import { theme } from "@/theme";
-
 import { timestamp2Date } from "@/utils/date";
 import { firstName } from "@/utils/names";
 import useOnVisibleEffect from "@/utils/useOnVisibleEffect";
-import { controlMessage, messageTargetId } from "@/features/messages/utils";
+
 import { MessageProps, messageElementId } from "./MessageView";
 import TimeInterval from "./TimeInterval";
 
@@ -30,11 +30,11 @@ const StyledSkeleton = styled(Skeleton)(() => ({
   minWidth: 100,
 }));
 
-export default function ControlMessageView({
+const ControlMessageView = ({
   message,
   onVisible,
   className,
-}: MessageProps) {
+}: MessageProps) => {
   const { t } = useTranslation(MESSAGES);
   const { data: author, isLoading: isAuthorLoading } = useLiteUser(
     message.authorUserId,
@@ -53,9 +53,11 @@ export default function ControlMessageView({
       ref={ref}
       id={messageElementId(message.messageId)}
     >
-      <StyledTimestamp>
-        <TimeInterval date={timestamp2Date(message.time!)} />
-      </StyledTimestamp>
+      {message.time && (
+        <StyledTimestamp>
+          <TimeInterval date={timestamp2Date(message.time)} />
+        </StyledTimestamp>
+      )}
 
       <StyledBodyWrapper>
         {!isAuthorLoading && !isTargetLoading ? (
@@ -63,7 +65,7 @@ export default function ControlMessageView({
             {controlMessage({
               message,
               user: authorName,
-              target_user: targetName,
+              targetUser: targetName,
               t,
             })}
           </TextBody>
@@ -73,4 +75,6 @@ export default function ControlMessageView({
       </StyledBodyWrapper>
     </StyledWrapper>
   );
-}
+};
+
+export default ControlMessageView;

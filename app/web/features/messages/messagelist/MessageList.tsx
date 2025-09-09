@@ -33,15 +33,15 @@ const ControlMessageWrapper = styled(ControlMessageView)(() => ({
 
 export interface MessageListProps {
   messages: Array<Message.AsObject>;
-  markLastSeen(messageId: number): void;
+  markLastSeen: (messageId: number) => void;
   className?: string;
 }
 
-export default function MessageList({
+const MessageList = ({
   markLastSeen,
   messages,
   className,
-}: MessageListProps) {
+}: MessageListProps) => {
   const { t } = useTranslation(MESSAGES);
 
   return (
@@ -51,13 +51,17 @@ export default function MessageList({
           isControlMessage(message) ? (
             <ControlMessageWrapper
               key={message.messageId}
-              onVisible={() => { markLastSeen(message.messageId); }}
+              onVisible={() => {
+                markLastSeen(message.messageId);
+              }}
               message={message}
             />
           ) : (
             <MessageWrapper
               key={message.messageId}
-              onVisible={() => { markLastSeen(message.messageId); }}
+              onVisible={() => {
+                markLastSeen(message.messageId);
+              }}
               message={message}
             />
           ),
@@ -67,4 +71,6 @@ export default function MessageList({
       )}
     </List>
   );
-}
+};
+
+export default MessageList;

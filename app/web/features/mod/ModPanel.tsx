@@ -21,18 +21,18 @@ const StyledDivider = styled(Divider)(({ theme }) => ({
   marginTop: theme.spacing(3),
 }));
 
-const StyledStrongStatus = styled("b")(({ theme }) => ({
+const StyledStrongStatus = styled("b")(() => ({
   color: "red",
   textTransform: "uppercase",
 }));
 
-const WrappingPre = styled("pre")(({ theme }) => ({
+const WrappingPre = styled("pre")(() => ({
   textWrap: "wrap",
   whiteSpace: "pre-wrap",
   wordWrap: "break-word",
 }));
 
-export default function ModPanel({ userDetails }: ModPanelProps) {
+const ModPanel = ({ userDetails }: ModPanelProps) => {
   const { t } = useTranslation([GLOBAL, MOD]);
   return (
     <StyledWrapper>
@@ -127,4 +127,6 @@ export default function ModPanel({ userDetails }: ModPanelProps) {
       )}
     </StyledWrapper>
   );
-}
+};
+
+export default ModPanel;

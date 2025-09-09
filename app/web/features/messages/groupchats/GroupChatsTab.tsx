@@ -37,14 +37,14 @@ const StyledGroupChatListItem = styled(GroupChatListItem)(() => ({
   paddingInline: theme.spacing(2),
 }));
 
-export default function GroupChatsTab() {
+const GroupChatsTab = () => {
   const { t } = useTranslation(MESSAGES);
   const { data: notifications } = useNotifications();
   const unseenMessageCount = notifications?.unseenMessageCount;
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    queryClient.invalidateQueries({
+    void queryClient.invalidateQueries({
       queryKey: [GROUP_CHATS_LIST_KEY],
     });
   }, [unseenMessageCount, queryClient]);
@@ -105,4 +105,6 @@ export default function GroupChatsTab() {
       )}
     </StyledWrapper>
   );
-}
+};
+
+export default GroupChatsTab;

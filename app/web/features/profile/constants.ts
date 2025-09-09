@@ -9,8 +9,8 @@ import {
 } from "@/proto/api_pb";
 import { ReferenceType } from "@/proto/references_pb";
 
-export const referencesQueryStaleTime = 10 * 60 * 1000;
-export const contactLink = "mailto:support@couchers.org";
+export const REFERENCES_QUERY_STALE_TIME = 10 * 60 * 1000;
+export const CONTACT_LINK = "mailto:support@couchers.org";
 
 export const referencesFilterLabels = (t: TFunction) => ({
   [ReferenceType.REFERENCE_TYPE_FRIEND]: t(

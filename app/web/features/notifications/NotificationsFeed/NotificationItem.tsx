@@ -13,14 +13,13 @@ import { useState } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 
 import IconButton from "@/components/IconButton";
+import { mapNotificationFeedTypeToIcon } from "@/features/notifications/utils/constants";
 import { useTranslation } from "@/i18n";
 import { GLOBAL } from "@/i18n/namespaces";
 import { Notification } from "@/proto/notifications_pb";
 import { theme } from "@/theme";
 import { timestamp2Date } from "@/utils/date";
 import { timeAgoI18n } from "@/utils/timeAgo";
-
-import { mapNotificationFeedTypeToIcon } from "@/features/notifications/utils/constants";
 
 interface NotificationItemProps {
   notification: Notification.AsObject;
@@ -61,7 +60,7 @@ const AvatarWrapper = styled(Box)(({ theme }) => ({
   justifyContent: "center",
 }));
 
-const BottomRightIconWrapper = styled(Box)(({ theme }) => ({
+const BottomRightIconWrapper = styled(Box)(() => ({
   position: "absolute",
   bottom: -2,
   right: -2,
@@ -79,7 +78,7 @@ const NotificationItem = ({
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const [markUnreadMenuAnchorEl, setMarkUnseedMenuAnchorEl] =
+  const [markUnreadMenuAnchorEl, setMarkUnreadMenuAnchorEl] =
     useState<HTMLButtonElement | null>(null);
 
   const isMarkUnreadMenuOpen = Boolean(markUnreadMenuAnchorEl);
@@ -91,7 +90,7 @@ const NotificationItem = ({
       notificationId: notification.notificationId,
       isSeen: true,
     });
-    router.push(notification.url);
+    void router.push(notification.url);
     onClose();
   };
 
@@ -99,19 +98,19 @@ const NotificationItem = ({
     event: React.MouseEvent<HTMLButtonElement>,
   ) => {
     event.stopPropagation();
-    setMarkUnseedMenuAnchorEl(event.currentTarget);
+    setMarkUnreadMenuAnchorEl(event.currentTarget);
   };
 
   const handleMarkUnreadMenuClose = (
     event: React.MouseEvent<HTMLDivElement>,
   ) => {
     event.stopPropagation();
-    setMarkUnseedMenuAnchorEl(null);
+    setMarkUnreadMenuAnchorEl(null);
   };
 
   const handleMarkItemUnread = (event: React.MouseEvent<HTMLLIElement>) => {
     event.stopPropagation();
-    setMarkUnseedMenuAnchorEl(null);
+    setMarkUnreadMenuAnchorEl(null);
     onMarkIsSeen({
       notificationId: notification.notificationId,
       isSeen: false,
@@ -148,12 +147,14 @@ const NotificationItem = ({
             wordBreak: "break-word",
           }}
         />
-        <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>
-          {timeAgoI18n({
-            input: timestamp2Date(notification.created!),
-            t,
-          })}
-        </Typography>
+        {notification.created && (
+          <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>
+            {timeAgoI18n({
+              input: timestamp2Date(notification.created),
+              t,
+            })}
+          </Typography>
+        )}
       </FlexColumn>
       {!notification.isSeen && (
         <Circle

@@ -12,6 +12,7 @@ import {
   VerifiedUser,
 } from "@mui/icons-material";
 import { Box } from "@mui/material";
+import { ReactElement } from "react";
 
 import {
   AccountSecurityIcon,
@@ -27,7 +28,8 @@ import {
 } from "@/components/Icons";
 import { theme } from "@/theme";
 
-const mapNotificationSettingsTypeToIcon: { [key: string]: JSX.Element } = {
+const mapNotificationSettingsTypeToIcon: { [key: string]: ReactElement } = {
+  /* eslint-disable @typescript-eslint/naming-convention */
   account_security: <AccountSecurityIcon fontSize="large" color="action" />,
   account_settings: <AccountSettingsIcon fontSize="large" color="action" />,
   other_notifications: (
@@ -40,9 +42,11 @@ const mapNotificationSettingsTypeToIcon: { [key: string]: JSX.Element } = {
   host_request: <CouchFilledIcon fontSize="large" color="action" />,
   discussion: <CommentIcon fontSize="large" color="action" />,
   reply: <SegmentIcon fontSize="large" color="action" />,
+  /* eslint-enable @typescript-eslint/naming-convention */
 };
 
-const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
+const mapNotificationFeedTypeToIcon: { [key: string]: ReactElement } = {
+  /* eslint-disable @typescript-eslint/naming-convention */
   account_deletion: (
     <Box
       sx={{
@@ -420,6 +424,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
       />
     </Box>
   ),
+  /* eslint-enable @typescript-eslint/naming-convention */
 };
 
 export { mapNotificationFeedTypeToIcon, mapNotificationSettingsTypeToIcon };

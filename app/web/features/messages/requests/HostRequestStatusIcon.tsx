@@ -10,10 +10,10 @@ interface HostRequestStatusIconProps extends AvatarProps {
   hostRequest: HostRequest.AsObject;
 }
 
-export default function HostRequestStatusIcon({
+const HostRequestStatusIcon = ({
   hostRequest,
   ...props
-}: HostRequestStatusIconProps) {
+}: HostRequestStatusIconProps) => {
   const s = hostRequest.status;
   let icon = null;
   let color = null;
@@ -30,10 +30,10 @@ export default function HostRequestStatusIcon({
   } else if (s === HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED) {
     icon = <CrossIcon fontSize="inherit" />;
     color = "gray";
-  } else if (s === HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED) {
+  } else {
     icon = <CheckIcon fontSize="inherit" />;
     color = "green";
-  } else throw new Error(`Unhandled host request case: ${s}`);
+  }
 
   return (
     <Avatar
@@ -45,4 +45,6 @@ export default function HostRequestStatusIcon({
       {icon}
     </Avatar>
   );
-}
+};
+
+export default HostRequestStatusIcon;

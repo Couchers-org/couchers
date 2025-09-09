@@ -54,7 +54,7 @@ const ChatContent = ({
       latestMessage={messages.pages[0].messagesList[0]}
       fetchNextPage={fetchNextPage}
       isFetchingNextPage={isFetchingNextPage}
-      hasNextPage={!!hasNextPage}
+      hasNextPage={hasNextPage}
       isError={isError}
     >
       <MessageList

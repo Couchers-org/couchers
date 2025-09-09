@@ -22,7 +22,7 @@ import { LIST_NOTIFICATIONS_QUERY_KEY } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, NOTIFICATIONS } from "@/i18n/namespaces";
 import { ListNotificationsRes } from "@/proto/notifications_pb";
-import { notificationSETTINGS_ROUTE } from "@/routes";
+import { NOTIFICATION_SETTINGS_ROUTE } from "@/routes";
 import { service } from "@/service";
 import { theme } from "@/theme";
 
@@ -47,7 +47,7 @@ const NotificationsListWrapper = styled("div")(({ theme }) => ({
   flexDirection: "column",
 }));
 
-const StyledHeader = styled("div")(({ theme }) => ({
+const StyledHeader = styled("div")(() => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
@@ -99,16 +99,14 @@ const NotificationsFeed = ({
   } = useMarkSingleNotificationIsSeen();
 
   const handleNotificationSettingsClick = () => {
-    router.push(notificationSETTINGS_ROUTE);
+    void router.push(NOTIFICATION_SETTINGS_ROUTE);
     onClose();
   };
 
-  const handleMarkAllReadClick = async (
-    event: React.MouseEvent<HTMLLIElement>,
-  ) => {
+  const handleMarkAllReadClick = (event: React.MouseEvent<HTMLLIElement>) => {
     event.stopPropagation();
 
-    const latestNotificationId = data?.notificationsList?.[0]?.notificationId;
+    const latestNotificationId = data?.notificationsList[0]?.notificationId;
 
     if (!latestNotificationId) return;
 

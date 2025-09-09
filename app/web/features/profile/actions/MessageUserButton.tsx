@@ -8,40 +8,39 @@ import useAccountInfo from "@/features/auth/useAccountInfo";
 import { useTranslation } from "@/i18n";
 import { PROFILE } from "@/i18n/namespaces";
 import { User } from "@/proto/api_pb";
+import { routeToCreateMessage, routeToGroupChat } from "@/routes";
 import { service } from "@/service";
 
-import { routeToCreateMessage, routeToGroupChat } from "@/routes";
-
-export default function MessageUserButton({
+const MessageUserButton = ({
   user,
   setMutationError,
 }: {
   user: User.AsObject;
   setMutationError: (value: string) => void;
-}) {
+}) => {
   const { t } = useTranslation(PROFILE);
   const router = useRouter();
   const { mutate, isPending } = useMutation<number | false>({
     mutationFn: () => service.conversations.getDirectMessage(user.userId),
 
-    onMutate() {
+    onMutate: () => {
       setMutationError("");
     },
-    onError(e) {
+    onError: (e) => {
       setMutationError(e.message);
     },
-    onSuccess(data) {
+    onSuccess: async (data) => {
       if (!data) {
         // no existing thread
-        router.push(routeToCreateMessage(user.username));
+        await router.push(routeToCreateMessage(user.username));
       } else {
         // has thread
-        router.push(routeToGroupChat(data));
+        await router.push(routeToGroupChat(data));
       }
     },
   });
 
-  const [showCantMessageDialog, setShowCantMessageDialog] =
+  const [shouldShowCantMessageDialog, setShouldShowCantMessageDialog] =
     useState<boolean>(false);
 
   const { data: accountInfo, isLoading: isAccountInfoLoading } =
@@ -49,7 +48,7 @@ export default function MessageUserButton({
 
   const onClick = () => {
     if (!accountInfo?.profileComplete) {
-      setShowCantMessageDialog(true);
+      setShouldShowCantMessageDialog(true);
     } else {
       mutate();
     }
@@ -58,8 +57,10 @@ export default function MessageUserButton({
   return (
     <>
       <ProfileIncompleteDialog
-        open={showCantMessageDialog}
-        onClose={() => { setShowCantMessageDialog(false); }}
+        open={shouldShowCantMessageDialog}
+        onClose={() => {
+          setShouldShowCantMessageDialog(false);
+        }}
         attempted_action="send_message"
       />
       <Button
@@ -71,4 +72,6 @@ export default function MessageUserButton({
       </Button>
     </>
   );
-}
+};
+
+export default MessageUserButton;

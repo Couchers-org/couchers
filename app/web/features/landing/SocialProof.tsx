@@ -26,7 +26,7 @@ const SocialProof = () => {
     const fetchSignupInfo = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/public/signup-page-info`,
+          `${Config.apiBaseUrl}/public/signup-page-info`,
         );
 
         if (!response.ok) {

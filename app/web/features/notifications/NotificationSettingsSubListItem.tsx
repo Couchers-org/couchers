@@ -47,12 +47,12 @@ const StyledListItem = styled(ListItem)<ListItemProps>(({ theme }) => ({
   },
 }));
 
-export default function NotificationSettingsSubListItem({
+const NotificationSettingsSubListItem = ({
   topic,
   action,
   email,
   push,
-}: NotificationSettingsSubListItemProps) {
+}: NotificationSettingsSubListItemProps) => {
   const { t } = useTranslation([GLOBAL, NOTIFICATIONS], {
     keyPrefix:
       "notifications:notification_settings.edit_preferences.item_descriptions",
@@ -121,10 +121,7 @@ export default function NotificationSettingsSubListItem({
           {mutationError || t("global:error.unknown")}
         </Alert>
       )}
-      <StyledDescriptionText>
-        {/** @ts-ignore - I spent hours on this type with no luck*/}
-        {t(`${topic}.${action}`)}
-      </StyledDescriptionText>
+      <StyledDescriptionText>{t(`${topic}.${action}`)}</StyledDescriptionText>
       <List component="div" disablePadding>
         <StyledListItem component="button">
           <ListItemIcon>
@@ -155,4 +152,6 @@ export default function NotificationSettingsSubListItem({
       </List>
     </>
   );
-}
+};
+
+export default NotificationSettingsSubListItem;

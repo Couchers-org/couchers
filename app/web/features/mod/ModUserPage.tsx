@@ -19,7 +19,7 @@ import ModPanel from "./ModPanel";
 import useUserWithDetails from "./hooks";
 import { ModUserDetails } from "./useModUserDetails";
 
-const StyledBanDelBanner = styled("h1")(({ theme }) => ({
+const StyledBanDelBanner = styled("h1")(() => ({
   marginBottom: "0",
   color: "red",
   textAlign: "center",
@@ -39,7 +39,7 @@ const AdminActions = ({ username }: { username: string }) => {
       </Button>
     </>
   );
-}
+};
 
 const BanDeleteBanner = ({
   userDetails,
@@ -64,15 +64,15 @@ const BanDeleteBanner = ({
       {status ? `☠️ ${status} ☠️` : t("mod:title")}
     </StyledBanDelBanner>
   );
-}
+};
 
-export default function ModUserPage({
+const ModUserPage = ({
   username,
   tab = "about",
 }: {
   username: string;
   tab?: UserTab;
-}) {
+}) => {
   const router = useRouter();
 
   const { user, userDetails, isLoading, error } = useUserWithDetails(username);
@@ -100,7 +100,7 @@ export default function ModUserPage({
                   </TabPanel>
                 }
                 onTabChange={(newTab) => {
-                  router.push(routeToModUser(user.username, newTab));
+                  void router.push(routeToModUser(user.username, newTab));
                 }}
               />
             </StyledProfileRoot>
@@ -109,4 +109,6 @@ export default function ModUserPage({
       ) : null}
     </>
   );
-}
+};
+
+export default ModUserPage;

@@ -81,7 +81,7 @@ const StyledCannotMessageText = styled("div")(({ theme }) => ({
   textAlign: "center",
 }));
 
-export default function GroupChatView({ chatId }: { chatId: number }) {
+const GroupChatView = ({ chatId }: { chatId: number }) => {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
 
   const queryClient = useQueryClient();
@@ -89,7 +89,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
   useEffect(() => {
     const scrollIntoView = () => {
       if (/Firefox/i.test(navigator.userAgent)) {
-        document?.activeElement?.scrollIntoView({ behavior: "smooth" });
+        document.activeElement?.scrollIntoView({ behavior: "smooth" });
       }
     };
 
@@ -109,7 +109,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
   });
 
   // for title text
-  const currentUserId = useAuthContext().authState.userId!;
+  const currentUserId = useAuthContext().authState.userId || 0;
   const groupChatMembersQuery = useLiteUsers(
     groupChat?.memberUserIdsList ?? [],
   );
@@ -137,10 +137,12 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
 
   const sendMutation = useMutation<Empty, RpcError, string>({
     mutationFn: (text) => service.conversations.sendMessage(chatId, text),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: groupChatMessagesKey(chatId) });
-      queryClient.invalidateQueries({ queryKey: [GROUP_CHATS_LIST_KEY] });
-      queryClient.invalidateQueries({ queryKey: groupChatKey(chatId) });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: groupChatMessagesKey(chatId),
+      });
+      await queryClient.invalidateQueries({ queryKey: [GROUP_CHATS_LIST_KEY] });
+      await queryClient.invalidateQueries({ queryKey: groupChatKey(chatId) });
     },
   });
 
@@ -151,8 +153,8 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
   >({
     mutationFn: (messageId) =>
       service.conversations.markLastSeenGroupChat(chatId, messageId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: groupChatKey(chatId) });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: groupChatKey(chatId) });
     },
   });
   const { markLastSeen } = useMarkLastSeen(
@@ -196,9 +198,9 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
             isHostRequest={false}
             isLoading={isMessagesLoading}
             messages={messagesRes}
-            fetchNextPage={fetchNextPage}
+            fetchNextPage={() => void fetchNextPage()}
             isFetchingNextPage={isFetchingNextPage}
-            hasNextPage={!!hasNextPage}
+            hasNextPage={hasNextPage}
             markLastSeen={markLastSeen}
             isError={!!messagesError}
           />
@@ -219,4 +221,6 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
       )}
     </>
   );
-}
+};
+
+export default GroupChatView;

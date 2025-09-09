@@ -6,8 +6,8 @@ import { Trans, useTranslation } from "@/i18n";
 import { MESSAGES } from "@/i18n/namespaces";
 import { HostRequestStatus } from "@/proto/conversations_pb";
 import {
+  HOW_TO_RESPOND_REQUEST_GUIDE_URL,
   HOW_TO_WRITE_REQUEST_GUIDE_URL,
-  howToRespondRequestGuideUrl,
 } from "@/routes";
 
 const StyledHelpTextContainer = styled("div")(({ theme }) => ({
@@ -17,7 +17,7 @@ const StyledHelpTextContainer = styled("div")(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 
-export default function HostRequestGuideLinks({
+const HostRequestGuideLinks = ({
   isPast,
   isHost,
   status,
@@ -25,7 +25,7 @@ export default function HostRequestGuideLinks({
   isPast: boolean;
   isHost: boolean;
   status: HostRequestStatus;
-}) {
+}) => {
   const { t } = useTranslation([MESSAGES]);
 
   const isHostPending =
@@ -41,7 +41,7 @@ export default function HostRequestGuideLinks({
       <StyledHelpTextContainer>
         <Typography variant="body1">
           <Trans i18nKey="messages:host_pending_request_help_text">
-            <StyledLink variant="body1" href={howToRespondRequestGuideUrl}>
+            <StyledLink variant="body1" href={HOW_TO_RESPOND_REQUEST_GUIDE_URL}>
               Things to consider
             </StyledLink>{" "}
             before responding.
@@ -73,4 +73,6 @@ export default function HostRequestGuideLinks({
   } else {
     return null;
   }
-}
+};
+
+export default HostRequestGuideLinks;

@@ -7,7 +7,7 @@ import { HostRequestStatus } from "@/proto/conversations_pb";
 
 import FieldButton from "./FieldButton";
 
-export default function HostRequestRespondButtons({
+const HostRequestRespondButtons = ({
   isHost,
   status,
   isLoading,
@@ -17,7 +17,7 @@ export default function HostRequestRespondButtons({
   status: HostRequestStatus;
   isLoading: boolean;
   handleStatus: (status: HostRequestStatus) => () => void;
-}) {
+}) => {
   const { t } = useTranslation([MESSAGES, GLOBAL]);
 
   const handleAccept = handleStatus(
@@ -59,7 +59,9 @@ export default function HostRequestRespondButtons({
             {(setIsOpen) => (
               <FieldButton
                 isLoading={isLoading}
-                callback={() => { setIsOpen(true); }}
+                callback={() => {
+                  setIsOpen(true);
+                }}
               >
                 {t("messages:close_request_button_text")}
               </FieldButton>
@@ -95,7 +97,9 @@ export default function HostRequestRespondButtons({
             {(setIsOpen) => (
               <FieldButton
                 isLoading={isLoading}
-                callback={() => { setIsOpen(true); }}
+                callback={() => {
+                  setIsOpen(true);
+                }}
               >
                 {t("global:cancel")}
               </FieldButton>
@@ -105,4 +109,6 @@ export default function HostRequestRespondButtons({
       </>
     );
   }
-}
+};
+
+export default HostRequestRespondButtons;

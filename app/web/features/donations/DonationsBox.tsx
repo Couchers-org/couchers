@@ -187,7 +187,7 @@ const AmountGrid = (props: PropsWithChildren) => {
     ));
 
   return <StyledAmountGrid>{subGrids}</StyledAmountGrid>;
-}
+};
 
 const StyledSubmitButton = styled(Button)(() => ({
   backgroundColor: theme.palette.primary.main,
@@ -215,18 +215,19 @@ export interface DonationFormData {
   recurring: "monthly" | "one-off";
 }
 
-export default function DonationsBox() {
+const DonationsBox = () => {
   const { t } = useTranslation(DONATIONS);
   const stripePromise = useMemo(async () => {
     const stripe = await import("@stripe/stripe-js");
-    return stripe.loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY);
+    return stripe.loadStripe(Config.stripeKey);
   }, []);
 
   const [isPredefinedAmount, setIsPredefinedAmount] = useState(true);
 
   const router = useRouter();
-  const [success] = useState(!!router.query["success"]);
-  const [cancelled] = useState(!!router.query["cancelled"]);
+
+  const isSuccess = !!router.query["success"];
+  const isCancelled = !!router.query["cancelled"];
 
   const {
     control,
@@ -247,26 +248,28 @@ export default function DonationsBox() {
     error,
     isPending,
     mutate: initiateDonation,
-  } = useMutation<void, RpcError, DonationFormData>({
+  } = useMutation<unknown, RpcError, DonationFormData>({
     mutationFn: async ({ amount, recurring }) => {
       if (!checkForValidAmount(amount)) {
         throw Error(t("donations_box.amount_validation_error"));
       }
       const source = router.query.utm_source as string;
-      const stripe = (await stripePromise)!;
+      const stripe = await stripePromise;
+
+      if (!stripe) {
+        throw Error("Failed to get stripe instance");
+      }
 
       const sessionId = await service.donations.initiateDonation(
         amount,
         recurring === "monthly",
         source,
       );
+
       // When the customer clicks on the button, redirect them to Checkout.
-      const result = await stripe.redirectToCheckout({
+      await stripe.redirectToCheckout({
         sessionId,
       });
-      if (result.error) {
-        throw Error(result.error.message);
-      }
     },
 
     onSuccess: () => {
@@ -300,14 +303,14 @@ export default function DonationsBox() {
     }).format(val);
 
   return (
-    <StyledForm onSubmit={onSubmit}>
+    <StyledForm onSubmit={() => void onSubmit()}>
       {error && <Alert severity="error">{error.message}</Alert>}
-      {success && (
+      {isSuccess && (
         <Alert severity="success">
           {t("donations_box.alert.success_message")}
         </Alert>
       )}
-      {cancelled && (
+      {isCancelled && (
         <Alert severity="warning">
           {t("donations_box.alert.warning_message")}
         </Alert>
@@ -327,7 +330,9 @@ export default function DonationsBox() {
               id="recurring"
               aria-label={t("donations_box.recurrence_aria_label")}
               name="recurring-radio"
-              onChange={(_, value) => { field.onChange(value); }}
+              onChange={(_, value) => {
+                field.onChange(value);
+              }}
               value={field.value}
             >
               <StyledLabelledRadioButton
@@ -339,8 +344,8 @@ export default function DonationsBox() {
                 label={t("donations_box.one_time_button_label")}
               />
             </StyledRadioGroup>
-            <FormHelperText error={!!errors?.recurring?.message}>
-              {errors?.recurring?.message}
+            <FormHelperText error={!!errors.recurring?.message}>
+              {errors.recurring?.message}
             </FormHelperText>
           </StyledFormGroup>
         )}
@@ -375,7 +380,7 @@ export default function DonationsBox() {
                 <StyledAmountInput
                   {...field}
                   isActive={!isPredefinedAmount}
-                  value={Number(field.value)}
+                  value={field.value}
                   ref={customAmountInput}
                   type="number"
                   min="1"
@@ -404,12 +409,18 @@ export default function DonationsBox() {
           t={t}
           i18nKey="donations_box.helper_text"
           components={{
+            // eslint-disable-next-line @typescript-eslint/naming-convention
             2: (
               <StyledLink
                 href="#"
-                onClick={async (e) => {
+                onClick={(e) => {
                   e.preventDefault();
-                  router.push(await service.donations.getDonationPortalLink());
+
+                  void (async () => {
+                    await router.push(
+                      await service.donations.getDonationPortalLink(),
+                    );
+                  })();
                 }}
               />
             ),
@@ -421,4 +432,6 @@ export default function DonationsBox() {
       </StyledSubmitButton>
     </StyledForm>
   );
-}
+};
+
+export default DonationsBox;

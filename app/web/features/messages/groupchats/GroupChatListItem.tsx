@@ -43,12 +43,12 @@ export interface GroupChatListItemProps extends ListItemProps {
   groupChat: GroupChat.AsObject;
 }
 
-export default function GroupChatListItem({
+const GroupChatListItem = ({
   groupChat,
   className,
-}: GroupChatListItemProps) {
+}: GroupChatListItemProps) => {
   const { t } = useTranslation(MESSAGES);
-  const currentUserId = useAuthContext().authState.userId!;
+  const currentUserId = useAuthContext().authState.userId || 0;
   const latestMessageAuthorId = groupChat.latestMessage?.authorUserId;
 
   const isUnread =
@@ -64,7 +64,8 @@ export default function GroupChatListItem({
   // the avatar is of the latest message author (if it's not the logged in user),
   // otherwise any user that's not the logged in user, otherwise logged in user
   const avatarUserId =
-    latestMessageAuthorId !== null && latestMessageAuthorId !== currentUserId
+    latestMessageAuthorId !== undefined &&
+    latestMessageAuthorId !== currentUserId
       ? latestMessageAuthorId
       : (groupChat.memberUserIdsList.find((id) => id !== currentUserId) ??
         currentUserId);
@@ -88,7 +89,7 @@ export default function GroupChatListItem({
     );
     text = controlMessage({
       user: authorName,
-      target_user: targetName,
+      targetUser: targetName,
       t,
       message: groupChat.latestMessage,
     });
@@ -133,4 +134,6 @@ export default function GroupChatListItem({
       />
     </ListItemButton>
   );
-}
+};
+
+export default GroupChatListItem;

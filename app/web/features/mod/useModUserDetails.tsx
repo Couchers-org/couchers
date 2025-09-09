@@ -2,6 +2,7 @@ import * as React from "react";
 
 import { UserDetails } from "@/proto/admin_pb";
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const ModUserDetailsContext = React.createContext<UserDetails.AsObject>(
   {} as UserDetails.AsObject,
 );
@@ -12,18 +13,17 @@ interface ModUserDetailsProps {
   userDetails: UserDetails.AsObject;
 }
 
-export const ModUserDetails = ({ children, userDetails }: ModUserDetailsProps) => {
+export const ModUserDetails = ({
+  children,
+  userDetails,
+}: ModUserDetailsProps) => {
   return (
     <ModUserDetailsContext.Provider value={userDetails}>
       {children}
     </ModUserDetailsContext.Provider>
   );
-}
+};
 
-export function useModUserDetails() {
-  const modUserDetails = React.useContext(ModUserDetailsContext);
-  if (modUserDetails === null) {
-    throw new Error("No ModUserDetailsContext provided!");
-  }
-  return modUserDetails;
-}
+export const useModUserDetails = () => {
+  return React.useContext(ModUserDetailsContext);
+};

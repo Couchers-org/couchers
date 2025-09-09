@@ -6,13 +6,13 @@ import Markdown from "@/components/Markdown";
 import Landscape from "@/features/donations/resources/landscape.jpeg";
 import { DONATIONS, GLOBAL } from "@/i18n/namespaces";
 import CouchersLogo from "@/resources/CouchersLogo";
-import { foundationRoute, latestFinancialsURL } from "@/routes";
+import { FOUNDATION_ROUTE, LATEST_FINANCIALS_URL } from "@/routes";
 import { theme } from "@/theme";
 
 import DonationsBox from "./DonationsBox";
 import { BENEFACTOR_EMAIL } from "./constants";
 
-const LATEST_FINANCIALS_YEAR = latestFinancialsURL.slice(-4);
+const LATEST_FINANCIALS_YEAR = LATEST_FINANCIALS_URL.slice(-4);
 
 const StyledBanner = styled("div")(() => ({
   position: "relative",
@@ -102,7 +102,7 @@ const StyledBenefactorText = styled("div")(() => ({
   gap: theme.spacing(3),
 }));
 
-export default function Donations() {
+const Donations = () => {
   const { t } = useTranslation([GLOBAL, DONATIONS]);
 
   return (
@@ -128,14 +128,16 @@ export default function Donations() {
               <Trans
                 i18nKey="donations:donations_info"
                 components={{
+                  // eslint-disable-next-line @typescript-eslint/naming-convention
                   1: (
                     <Link
                       key={"foundation-route-link"}
-                      href={foundationRoute}
+                      href={FOUNDATION_ROUTE}
                       underline="hover"
                     />
                   ),
                 }}
+                // eslint-disable-next-line @typescript-eslint/naming-convention
                 values={{ legal_name: t("global:legal_name") }}
               />
             </Typography>
@@ -144,6 +146,7 @@ export default function Donations() {
                 t={t}
                 i18nKey="donations:benefactor_contact"
                 components={{
+                  // eslint-disable-next-line @typescript-eslint/naming-convention
                   1: (
                     <Link
                       href={`mailto:${BENEFACTOR_EMAIL}`}
@@ -166,7 +169,7 @@ export default function Donations() {
           </Typography>
           <Markdown source={t("donations:donations_text2")} />
           <Typography variant="body1">
-            <Link href={latestFinancialsURL} underline="hover">
+            <Link href={LATEST_FINANCIALS_URL} underline="hover">
               {t("donations:donations_use_explainer", {
                 year: LATEST_FINANCIALS_YEAR,
               })}
@@ -176,4 +179,6 @@ export default function Donations() {
       </StyledBody>
     </>
   );
-}
+};
+
+export default Donations;

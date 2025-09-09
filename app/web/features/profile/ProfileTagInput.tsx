@@ -153,7 +153,7 @@ const StyledAutocompleteOption = styled("li")(() => ({
   backgroundCOlor: "yellow",
 }));
 
-export default function ProfileTagInput({
+const ProfileTagInput = ({
   onChange,
   value = [],
   options,
@@ -161,16 +161,16 @@ export default function ProfileTagInput({
   id,
   className,
   inputFieldProps,
-}: ProfileTagInputProps) {
+}: ProfileTagInputProps) => {
   const { t } = useTranslation(PROFILE);
 
-  const [open, setOpen] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   const anchorEl = useRef<null | HTMLButtonElement>(null);
   const [pendingValue, setPendingValue] = useState<string[]>([]);
 
   const handleClick = () => {
     setPendingValue(value);
-    setOpen(true);
+    setIsOpen(true);
   };
 
   const handleClose = (
@@ -181,7 +181,7 @@ export default function ProfileTagInput({
       return;
     }
     onChange(null, pendingValue);
-    setOpen(false);
+    setIsOpen(false);
   };
 
   const handleRemove = (tag: string) => {
@@ -191,7 +191,7 @@ export default function ProfileTagInput({
     );
   };
 
-  const popperId = open ? id : undefined;
+  const popperId = isOpen ? id : undefined;
 
   return (
     <>
@@ -212,7 +212,9 @@ export default function ProfileTagInput({
                 tag,
               })}
               edge="start"
-              onClick={() => { handleRemove(tag); }}
+              onClick={() => {
+                handleRemove(tag);
+              }}
               size="small"
               sx={{
                 color: "common.white",
@@ -229,10 +231,10 @@ export default function ProfileTagInput({
           </StyledTagWrapper>
         ))}
       </StyledTagsContainer>
-      {open && anchorEl.current && (
+      {isOpen && anchorEl.current && (
         <StyledPopper
           id={popperId}
-          open={open}
+          open={isOpen}
           anchorEl={anchorEl.current}
           placement="bottom-start"
         >
@@ -240,13 +242,16 @@ export default function ProfileTagInput({
             <Typography>
               <Trans
                 components={{
+                  // eslint-disable-next-line @typescript-eslint/naming-convention
                   support_link: (
                     <Link
                       href="mailto:support@couchers.org"
                       target="_blank"
                       rel="noopener noreferrer"
                       underline="hover"
-                      onMouseDown={(e) => { e.preventDefault(); }}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                      }}
                     />
                   ),
                 }}
@@ -263,6 +268,7 @@ export default function ProfileTagInput({
               let uniqueValues: Set<string>;
               if (Array.isArray(newValue) && newValue.length) {
                 // For some reason I came across situations when there were undefined values in this array.
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                 newValue = newValue.filter((element) => element !== undefined);
 
                 uniqueValues = new Set(newValue);
@@ -289,10 +295,8 @@ export default function ProfileTagInput({
               .concat(pendingValue.filter((item) => options.indexOf(item) < 0))
               .sort((a, b) => -b.localeCompare(a))}
             renderOption={(props, option, { selected }) => {
-              const { key, ...rest } = props;
-
               return (
-                <StyledAutocompleteOption key={key} {...rest}>
+                <StyledAutocompleteOption {...props}>
                   <StyledCheckbox
                     color="primary"
                     size="small"
@@ -312,4 +316,6 @@ export default function ProfileTagInput({
       )}
     </>
   );
-}
+};
+
+export default ProfileTagInput;

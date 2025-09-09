@@ -26,31 +26,31 @@ import { User } from "@/proto/api_pb";
 import { GroupChat } from "@/proto/conversations_pb";
 import { service } from "@/service";
 
-export default function InviteDialog({
+const InviteDialog = ({
   groupChat,
   ...props
-}: DialogProps & { groupChat: GroupChat.AsObject }) {
+}: DialogProps & { groupChat: GroupChat.AsObject }) => {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
   const friends = useFriendList();
   const { control, handleSubmit } = useForm<{
     selected: User.AsObject[];
   }>();
   const friendsNotInChat = friends.data?.filter(
-    (friend) => !groupChat.memberUserIdsList.includes(friend?.userId ?? 0),
+    (friend) => !groupChat.memberUserIdsList.includes(friend.userId),
   );
 
   const queryClient = useQueryClient();
   const mutation = useMutation<Empty[], RpcError, User.AsObject[]>({
     mutationFn: (users: User.AsObject[]) =>
       service.conversations.inviteToGroupChat(groupChat.groupChatId, users),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: [groupChatMessagesKey(groupChat.groupChatId)],
       });
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: [GROUP_CHATS_LIST_KEY],
       });
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: [groupChatKey(groupChat.groupChatId)],
       });
       if (props.onClose) props.onClose({}, "escapeKeyDown");
@@ -67,7 +67,7 @@ export default function InviteDialog({
         {t("messages:invite_dialog.title")}
       </DialogTitle>
       <DialogContent>
-        <form onSubmit={onSubmit}>
+        <form onSubmit={() => void onSubmit()}>
           {(mutation.error || !!friends.errors.length) && (
             <Alert severity={"error"}>
               {mutation.error?.message || friends.errors.join("\n")}
@@ -87,12 +87,7 @@ export default function InviteDialog({
                 value={field.value}
                 loading={friends.isLoading}
                 options={friendsNotInChat ?? []}
-                getOptionLabel={(friend) => {
-                  return (
-                    friend?.name ??
-                    t("messages:invite_dialog.selected.option_load_error_text")
-                  );
-                }}
+                getOptionLabel={(friend) => friend.name}
                 noOptionsText={t(
                   "messages:invite_dialog.selected.no_options_text",
                 )}
@@ -108,14 +103,12 @@ export default function InviteDialog({
         <Button onClick={onSubmit} loading={mutation.isPending}>
           {t("messages:invite_dialog.invite_button_label")}
         </Button>
-        <Button
-          onClick={() =>
-            props.onClose ? props.onClose({}, "escapeKeyDown") : null
-          }
-        >
+        <Button onClick={() => props.onClose?.({}, "escapeKeyDown")}>
           {t("global:cancel")}
         </Button>
       </DialogActions>
     </Dialog>
   );
-}
+};
+
+export default InviteDialog;

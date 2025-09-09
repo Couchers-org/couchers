@@ -43,10 +43,10 @@ export interface HostRequestListItemProps {
   className?: string;
 }
 
-export default function HostRequestListItem({
+const HostRequestListItem = ({
   hostRequest,
   className,
-}: HostRequestListItemProps) {
+}: HostRequestListItemProps) => {
   const { t } = useTranslation(MESSAGES);
   const { authState } = useAuthContext();
   const isHost = authState.userId === hostRequest.hostUserId;
@@ -59,11 +59,11 @@ export default function HostRequestListItem({
   // define the latest message author's name and
   // control message target to use in short message preview
   const authorName =
-    hostRequest?.latestMessage?.authorUserId === authState.userId
+    hostRequest.latestMessage?.authorUserId === authState.userId
       ? firstName(currentUser?.name) || ""
       : firstName(otherUser?.name) || "";
 
-  const targetName = hostRequest?.latestMessage
+  const targetName = hostRequest.latestMessage
     ? messageTargetId(hostRequest.latestMessage) === authState.userId
       ? firstName(currentUser?.name) || ""
       : firstName(otherUser?.name) || ""
@@ -75,7 +75,7 @@ export default function HostRequestListItem({
       ? controlMessage({
           message: hostRequest.latestMessage,
           user: authorName,
-          target_user: targetName,
+          targetUser: targetName,
           t,
         })
       : // if it's a normal message, show "<User's Name>: <The message>"
@@ -84,7 +84,7 @@ export default function HostRequestListItem({
         }`
     : "";
 
-  const isPast = dayjs(hostRequest?.toDate).isBefore(dayjs().format("L"));
+  const isPast = dayjs(hostRequest.toDate).isBefore(dayjs().format("L"));
 
   return (
     <ListItem
@@ -132,4 +132,6 @@ export default function HostRequestListItem({
       />
     </ListItem>
   );
-}
+};
+
+export default HostRequestListItem;

@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { ReactChildren } from "react";
+import { PropsWithChildren } from "react";
 
 import { useTranslation } from "@/i18n";
 import {
@@ -16,7 +16,7 @@ jest.mock("platform/sentry", () => ({
 
 jest.mock("i18n", () => ({
   useTranslation: jest.fn(),
-  Trans: ({ children }: { children: ReactChildren }) => children, // Mock the Trans component to return its children
+  Trans: ({ children }: PropsWithChildren) => children, // Mock the Trans component to return its children
 }));
 
 jest.mock("service/notifications", () => ({
@@ -120,29 +120,29 @@ describe("PushNotificationSettings Component", () => {
     });
   });
 
-  it.skip("Displays error message when push notifications are not supported", async () => {
-    // TOD: Need to somehow mock no navigator.PushManager or window.PushManager key
-    const mockChangeDefaultToGranted = {
-      requestPermission: jest.fn().mockImplementation(() => {
-        return "granted";
-      }),
-      permission: "default",
-    };
+  // it("Displays error message when push notifications are not supported", async () => {
+  //   // TODO: Need to somehow mock no navigator.PushManager or window.PushManager key
+  //   const mockChangeDefaultToGranted = {
+  //     requestPermission: jest.fn().mockImplementation(() => {
+  //       return "granted";
+  //     }),
+  //     permission: "default",
+  //   };
 
-    Object.assign(global.Notification, mockChangeDefaultToGranted);
+  //   Object.assign(global.Notification, mockChangeDefaultToGranted);
 
-    render(<PushNotificationSettings />, { wrapper });
+  //   render(<PushNotificationSettings />, { wrapper });
 
-    fireEvent.click(document.querySelector("input[type='checkbox']")!);
+  //   fireEvent.click(document.querySelector("input[type='checkbox']")!);
 
-    await waitFor(() => {
-      expect(
-        screen.getByText(
-          "notification_settings.push_notifications.error_unsupported",
-        ),
-      ).toBeInTheDocument();
-    });
-  });
+  //   await waitFor(() => {
+  //     expect(
+  //       screen.getByText(
+  //         "notification_settings.push_notifications.error_unsupported",
+  //       ),
+  //     ).toBeInTheDocument();
+  //   });
+  // });
 
   it("Displays error when permission is denied", async () => {
     const mockDenied = {

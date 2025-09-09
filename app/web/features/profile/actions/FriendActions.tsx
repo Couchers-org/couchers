@@ -9,10 +9,7 @@ interface FriendActionsProps {
   setMutationError: SetMutationError;
 }
 
-export default function FriendActions({
-  user,
-  setMutationError,
-}: FriendActionsProps) {
+const FriendActions = ({ user, setMutationError }: FriendActionsProps) => {
   if (user.friends === User.FriendshipStatus.NOT_FRIENDS) {
     return (
       <AddFriendButton
@@ -20,10 +17,7 @@ export default function FriendActions({
         setMutationError={setMutationError}
       />
     );
-  } else if (
-    user.pendingFriendRequest &&
-    !user.pendingFriendRequest.sent
-  ) {
+  } else if (user.pendingFriendRequest && !user.pendingFriendRequest.sent) {
     return (
       <PendingFriendReqButton
         friendRequest={user.pendingFriendRequest}
@@ -33,4 +27,6 @@ export default function FriendActions({
   } else {
     return null;
   }
-}
+};
+
+export default FriendActions;

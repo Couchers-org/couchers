@@ -102,35 +102,33 @@ const getGroupKey = (
   return topicName;
 };
 
-export default function EditNotificationSettingsPage() {
+const EditNotificationSettingsPage = () => {
   const { t } = useTranslation(NOTIFICATIONS, {
     keyPrefix: "notification_settings.edit_preferences",
   });
   const { data, isLoading, isError } = useNotificationSettings();
   const [groups, setGroups] = useState<GroupsByType>({});
-  const [areGroupsLoading, setAreGroupsLoading] = useState<boolean>(true);
-  const [allExpanded, setAllExpanded] = useState<boolean>(false);
+  const [isLoadingGroups, setIsLoadingGroups] = useState<boolean>(true);
+  const [isAllExpanded, setIsAllExpanded] = useState<boolean>(false);
 
   useEffect(() => {
     if (!data) {
       return;
     }
 
-    const computedGroups = data?.groupsList.reduce<GroupsByType>(
+    const computedGroups = data.groupsList.reduce<GroupsByType>(
       (acc, group) => {
         group.topicsList.forEach((topic) => {
-          const items = topic?.itemsList;
-          if (!items) return;
+          const items = topic.itemsList;
 
           items.forEach((subTopic) => {
-            if (!subTopic?.userEditable) return;
+            if (!subTopic.userEditable) return;
 
             const key = getGroupKey(
               group.heading,
               subTopic.action,
               topic.topic,
             );
-            acc[key] ||= [];
             acc[key].push({ ...subTopic, topic: topic.topic });
           });
         });
@@ -141,11 +139,11 @@ export default function EditNotificationSettingsPage() {
     );
 
     setGroups(computedGroups);
-    setAreGroupsLoading(false);
+    setIsLoadingGroups(false);
   }, [data]);
 
   const handleToggleAll = () => {
-    setAllExpanded(!allExpanded);
+    setIsAllExpanded(!isAllExpanded);
   };
 
   const renderNotificationListItems = () =>
@@ -156,7 +154,7 @@ export default function EditNotificationSettingsPage() {
           key={key}
           items={groups[key]}
           type={key as NotificationType}
-          isExpanded={allExpanded}
+          isExpanded={isAllExpanded}
         />
       ));
 
@@ -172,9 +170,9 @@ export default function EditNotificationSettingsPage() {
           variant="outlined"
           size="small"
           onClick={handleToggleAll}
-          startIcon={allExpanded ? <ExpandLess /> : <ExpandMore />}
+          startIcon={isAllExpanded ? <ExpandLess /> : <ExpandMore />}
         >
-          {allExpanded ? t("collapse_all") : t("expand_all")}
+          {isAllExpanded ? t("collapse_all") : t("expand_all")}
         </StyledButton>
       </StyledHeaderContainer>
       {isError && (
@@ -182,7 +180,7 @@ export default function EditNotificationSettingsPage() {
           <Typography>{t("error_loading")}</Typography>
         </Snackbar>
       )}
-      {!isLoading && !areGroupsLoading ? (
+      {!isLoading && !isLoadingGroups ? (
         <StyledAccordionContainer>
           {renderNotificationListItems()}
         </StyledAccordionContainer>
@@ -191,4 +189,6 @@ export default function EditNotificationSettingsPage() {
       )}
     </StyledNotificationSettingsContainer>
   );
-}
+};
+
+export default EditNotificationSettingsPage;

@@ -26,7 +26,7 @@ const CouchersIntroduction = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const routeToSignupPage = () => {
-    router.push(SIGNUP_ROUTE);
+    void router.push(SIGNUP_ROUTE);
   };
 
   return (

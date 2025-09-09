@@ -45,6 +45,7 @@ describe("MarkAllReadButton", () => {
     mutableStore.requests = [...defaultRequests];
     // naive implementations rely on id = array index + 1
     listGroupChatsMock.mockImplementation(
+      // eslint-disable-next-line @typescript-eslint/require-await
       async (lastMessageId = 0, number = 1) => {
         const chats = [
           ...mutableStore.chats.slice(lastMessageId, lastMessageId + number),
@@ -57,6 +58,7 @@ describe("MarkAllReadButton", () => {
       },
     );
     listHostRequestsMock.mockImplementation(
+      // eslint-disable-next-line @typescript-eslint/require-await
       async ({ lastRequestId = 0, count = 1 }) => {
         const requests = [
           ...mutableStore.requests.slice(lastRequestId, lastRequestId + count),
@@ -69,11 +71,13 @@ describe("MarkAllReadButton", () => {
       },
     );
     markLastRequestSeenMock.mockImplementation(
+      // eslint-disable-next-line @typescript-eslint/require-await
       async (hostRequestId, messageId) => {
         mutableStore.requests[hostRequestId - 1].lastSeenMessageId = messageId;
         return new Empty();
       },
     );
+    // eslint-disable-next-line @typescript-eslint/require-await
     markLastSeenGroupChatMock.mockImplementation(async (chatId, messageId) => {
       mutableStore.chats[chatId - 1].lastSeenMessageId = messageId;
       return new Empty();
@@ -91,8 +95,8 @@ describe("MarkAllReadButton", () => {
     );
 
     await waitFor(() => {
-      expect(markLastSeenGroupChatMock).toBeCalledTimes(1);
-      expect(markLastSeenGroupChatMock).toBeCalledWith(2, 2);
+      expect(markLastSeenGroupChatMock).toHaveBeenCalledTimes(1);
+      expect(markLastSeenGroupChatMock).toHaveBeenCalledWith(2, 2);
       expect(mutableStore).toMatchObject({
         chats: [
           { lastSeenMessageId: 1 },
@@ -113,8 +117,8 @@ describe("MarkAllReadButton", () => {
     );
 
     await waitFor(() => {
-      expect(markLastRequestSeenMock).toBeCalledTimes(1);
-      expect(markLastRequestSeenMock).toBeCalledWith(2, 2);
+      expect(markLastRequestSeenMock).toHaveBeenCalledTimes(1);
+      expect(markLastRequestSeenMock).toHaveBeenCalledWith(2, 2);
       expect(mutableStore).toMatchObject({
         requests: [
           { lastSeenMessageId: 1 },

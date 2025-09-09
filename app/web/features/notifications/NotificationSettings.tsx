@@ -4,9 +4,9 @@ import Link from "next/link";
 import Button from "@/components/Button";
 import { useTranslation } from "@/i18n";
 import { NOTIFICATIONS } from "@/i18n/namespaces";
-import { notificationSETTINGS_ROUTE } from "@/routes";
+import { NOTIFICATION_SETTINGS_ROUTE } from "@/routes";
 
-export default function NotificationSettings() {
+const NotificationSettings = () => {
   const { t } = useTranslation([NOTIFICATIONS]);
 
   return (
@@ -14,9 +14,11 @@ export default function NotificationSettings() {
       <Typography variant="h2" gutterBottom>
         {t("notification_settings.title")}
       </Typography>
-      <Button component={Link} href={notificationSETTINGS_ROUTE}>
+      <Button component={Link} href={NOTIFICATION_SETTINGS_ROUTE}>
         {t("notification_settings.go_to_button")}
       </Button>
     </div>
   );
-}
+};
+
+export default NotificationSettings;

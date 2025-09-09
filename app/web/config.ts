@@ -70,6 +70,7 @@ export const configUtils = <const P extends string>(prefix: P) => {
         IS_COMMUNITIES_PART2_ENABLED: Type.Boolean(),
         RECAPTCHA_SITE_KEY: Type.String(),
         IS_VERIFICATION_ENABLED: Type.Boolean(),
+        STRIPE_KEY: Type.String(),
       }),
       prefix,
     ),

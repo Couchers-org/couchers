@@ -17,7 +17,7 @@ import { numNights } from "@/utils/date";
 import dayjs from "@/utils/dayjs";
 import truncateTextEllipsis from "@/utils/truncateTextEllipsis";
 
-const StyledRequestedDatesWrapper = styled("div")(({ theme }) => ({
+const StyledRequestedDatesWrapper = styled("div")(() => ({
   display: "flex",
   "& > *": {
     margin: 0,

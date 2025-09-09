@@ -6,9 +6,9 @@ export interface ModVisibleComponentProps {
   children: ReactNode;
 }
 
-export default function ModVisibleComponent({
-  children,
-}: ModVisibleComponentProps) {
+const ModVisibleComponent = ({ children }: ModVisibleComponentProps) => {
   const { data: accountInfo } = useAccountInfo();
   return accountInfo?.isSuperuser ? children : null;
-}
+};
+
+export default ModVisibleComponent;

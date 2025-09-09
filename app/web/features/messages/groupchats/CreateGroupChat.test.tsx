@@ -34,7 +34,9 @@ describe("CreateGroupChat with query string", () => {
       ),
     ).toBeVisible();
 
-    await waitFor(() => { expect(screen.getByText(users[0].name)).toBeVisible(); });
+    await waitFor(() => {
+      expect(screen.getByText(users[0].name)).toBeVisible();
+    });
     expect(
       screen.queryByRole("heading", {
         name: t("messages:create_chat.dm_title"),
@@ -50,7 +52,7 @@ describe("CreateGroupChat without router state", () => {
     render(<CreateGroupChat />, { wrapper });
   });
 
-  it("doesn't initially show the create dialog", async () => {
+  it("doesn't initially show the create dialog", () => {
     expect(
       screen.getByLabelText(t("messages:create_chat.friends_input_label")),
     ).not.toBeVisible();

@@ -1,7 +1,8 @@
 import React from "react";
 
-export default function CopyOnClick({ text }: { text: string }) {
+const CopyOnClick = ({ text }: { text: string }) => {
   return (
-    <span onClick={() => navigator.clipboard.writeText(text)}>{text}</span>
+    <span onClick={() => void navigator.clipboard.writeText(text)}>{text}</span>
   );
-}
+};
+export default CopyOnClick;

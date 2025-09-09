@@ -7,7 +7,7 @@ import { service } from "@/service";
 import { NotificationPreferenceData } from "@/service/notifications";
 import { SetMutationError } from "@/utils/setMutationError";
 
-export default function useUpdateNotificationSettings() {
+const useUpdateNotificationSettings = () => {
   const queryClient = useQueryClient();
   const {
     mutate: updateNotificationSettings,
@@ -32,8 +32,8 @@ export default function useUpdateNotificationSettings() {
     onMutate: ({ setMutationError }) => {
       setMutationError(null);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: [NOTIFICATION_SETTINGS_QUERY_KEY],
       });
     },
@@ -47,4 +47,6 @@ export default function useUpdateNotificationSettings() {
     isSuccess,
     status,
   };
-}
+};
+
+export default useUpdateNotificationSettings;
