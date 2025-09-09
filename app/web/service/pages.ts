@@ -10,14 +10,14 @@ import {
 
 import client from "./client";
 
-export async function createPlace(
+export const createPlace = async (
   title: string,
   content: string,
   address: string,
   lat: number,
   lng: number,
   photoKey?: string,
-) {
+) => {
   const req = new CreatePlaceReq();
   req.setTitle(title);
   req.setContent(content);
@@ -31,16 +31,16 @@ export async function createPlace(
   const response = await client.pages.createPlace(req);
 
   return response.toObject();
-}
+};
 
-export async function createGuide(
+export const createGuide = async (
   title: string,
   content: string,
   parentCommunityId: number,
   address: string,
   lat?: number,
   lng?: number,
-) {
+) => {
   const req = new CreateGuideReq();
   req.setTitle(title);
   req.setContent(content);
@@ -55,14 +55,14 @@ export async function createGuide(
   const response = await client.pages.createGuide(req);
 
   return response.toObject();
-}
+};
 
-export async function getPage(pageId: number) {
+export const getPage = async (pageId: number) => {
   const req = new GetPageReq();
   req.setPageId(pageId);
   const response = await client.pages.getPage(req);
   return response.toObject();
-}
+};
 
 interface UpdatePageInput {
   content?: string;
@@ -70,12 +70,12 @@ interface UpdatePageInput {
   title?: string;
   photoKey?: string;
 }
-export async function updatePage({
+export const updatePage = async ({
   content,
   pageId,
   title,
   photoKey,
-}: UpdatePageInput) {
+}: UpdatePageInput) => {
   const req = new UpdatePageReq();
 
   if (photoKey) {
@@ -91,4 +91,4 @@ export async function updatePage({
   }
   const response = await client.pages.updatePage(req);
   return response.toObject();
-}
+};

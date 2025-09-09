@@ -14,7 +14,7 @@ import {
 
 import client from "./client";
 
-export async function listHostRequests({
+export const listHostRequests = async ({
   lastRequestId = 0,
   count = 10,
   type = "all",
@@ -24,7 +24,7 @@ export async function listHostRequests({
   count?: number;
   type?: "all" | "hosting" | "surfing";
   onlyActive?: boolean;
-}) {
+}) => {
   const req = new ListHostRequestsReq();
   req.setOnlyActive(onlyActive);
   req.setOnlyReceived(type === "hosting");
@@ -35,16 +35,16 @@ export async function listHostRequests({
   const response = await client.requests.listHostRequests(req);
 
   return response.toObject();
-}
+};
 
-export async function getHostRequest(id: number) {
+export const getHostRequest = async (id: number) => {
   const req = new GetHostRequestReq();
   req.setHostRequestId(id);
   const response = await client.requests.getHostRequest(req);
   return response.toObject();
-}
+};
 
-export async function sendHostRequestMessage(id: number, text: string) {
+export const sendHostRequestMessage = async (id: number, text: string) => {
   const req = new SendHostRequestMessageReq();
   req.setHostRequestId(id);
   req.setText(text);
@@ -53,25 +53,25 @@ export async function sendHostRequestMessage(id: number, text: string) {
   const messageId = response.getJsPbMessageId();
 
   return messageId;
-}
+};
 
-export async function respondHostRequest(
+export const respondHostRequest = async (
   id: number,
   status: HostRequestStatus,
   text: string,
-) {
+) => {
   const req = new RespondHostRequestReq();
   req.setHostRequestId(id);
   req.setStatus(status);
   req.setText(text);
   await client.requests.respondHostRequest(req);
-}
+};
 
-export async function getHostRequestMessages(
+export const getHostRequestMessages = async (
   id: number,
   lastMessageId = 0,
   count = 20,
-) {
+) => {
   const req = new GetHostRequestMessagesReq();
   req.setHostRequestId(id);
   req.setLastMessageId(lastMessageId);
@@ -80,14 +80,14 @@ export async function getHostRequestMessages(
   const response = await client.requests.getHostRequestMessages(req);
 
   return response.toObject();
-}
+};
 
 export type CreateHostRequestWrapper = Omit<
   Required<CreateHostRequestReq.AsObject>,
   "toDate" | "fromDate"
 > & { toDate: Dayjs; fromDate: Dayjs; stayType: number };
 
-export async function createHostRequest(data: CreateHostRequestWrapper) {
+export const createHostRequest = async (data: CreateHostRequestWrapper) => {
   const req = new CreateHostRequestReq();
   req.setHostUserId(data.hostUserId);
   req.setFromDate(data.fromDate.format().split("T")[0]);
@@ -97,18 +97,21 @@ export async function createHostRequest(data: CreateHostRequestWrapper) {
   const response = await client.requests.createHostRequest(req);
 
   return response.getHostRequestId();
-}
+};
 
-export function markLastRequestSeen(hostRequestId: number, messageId: number) {
+export const markLastRequestSeen = (
+  hostRequestId: number,
+  messageId: number,
+) => {
   const req = new MarkLastSeenHostRequestReq();
   req.setHostRequestId(hostRequestId);
   req.setLastSeenMessageId(messageId);
 
   return client.requests.markLastSeenHostRequest(req);
-}
+};
 
-export async function getResponseRate(userId: number) {
+export const getResponseRate = async (userId: number) => {
   const req = new GetResponseRateReq();
   req.setUserId(userId);
   return (await client.requests.getResponseRate(req)).toObject();
-}
+};

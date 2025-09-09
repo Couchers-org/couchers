@@ -3,11 +3,11 @@ import { ReportBugReq, ScreenResolution } from "@/proto/bugs_pb";
 
 import client from "./client";
 
-export async function reportBug({
+export const reportBug = async ({
   description,
   results,
   subject,
-}: BugReportFormData) {
+}: BugReportFormData) => {
   const req = new ReportBugReq();
 
   const screenResolution = new ScreenResolution();
@@ -17,11 +17,11 @@ export async function reportBug({
   req.setSubject(subject);
   req.setDescription(description);
   req.setResults(results);
-  req.setFrontendVersion(process.env.NEXT_PUBLIC_VERSION);
+  req.setFrontendVersion(Config.version);
   req.setUserAgent(navigator.userAgent);
   req.setScreenResolution(screenResolution);
   req.setPage(window.location.href);
 
   const res = await client.bugs.reportBug(req);
   return res.toObject();
-}
+};

@@ -38,7 +38,7 @@ export const setUnauthenticatedErrorHandler = (
   unauthenticatedErrorHandler = f;
 };
 
-const authInterceptor: UnaryInterceptor<unknown, unknown> = {
+export const authInterceptor: UnaryInterceptor<unknown, unknown> = {
   intercept: async (request, invoker) => {
     try {
       return await invoker(request);
@@ -51,7 +51,7 @@ const authInterceptor: UnaryInterceptor<unknown, unknown> = {
   },
 };
 
-const timeoutInterceptor: UnaryInterceptor<unknown, unknown> = {
+export const timeoutInterceptor: UnaryInterceptor<unknown, unknown> = {
   intercept: async (request, invoker) => {
     const deadline = Date.now() + GRPC_TIMEOUT;
     const metadata = request.getMetadata();

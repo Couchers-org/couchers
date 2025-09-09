@@ -20,23 +20,23 @@ export interface NotificationPreferenceData {
   enabled: boolean;
 }
 
-export async function getNotificationSettings() {
+export const getNotificationSettings = async () => {
   const res = await client.notifications.getNotificationSettings(
     new GetNotificationSettingsReq(),
   );
   return res.toObject();
-}
+};
 
-export async function setNotificationSettings(enableDoNotEmail: boolean) {
+export const setNotificationSettings = async (enableDoNotEmail: boolean) => {
   const req = new SetNotificationSettingsReq();
   req.setEnableDoNotEmail(enableDoNotEmail);
   const res = await client.notifications.setNotificationSettings(req);
   return res.toObject();
-}
+};
 
-export async function setNotificationSettingsPreference(
+export const setNotificationSettingsPreference = async (
   preferenceData: NotificationPreferenceData,
-) {
+) => {
   const req = new SetNotificationSettingsReq();
   const preference = new SingleNotificationPreference();
   preference.setTopic(preferenceData.topic);
@@ -48,16 +48,16 @@ export async function setNotificationSettingsPreference(
   const res = await client.notifications.setNotificationSettings(req);
 
   return res.toObject();
-}
+};
 
-export async function getVapidPublicKey() {
+export const getVapidPublicKey = async () => {
   const res = await client.notifications.getVapidPublicKey(new Empty());
   return res.toObject();
-}
+};
 
-export async function registerPushNotificationSubscription(
+export const registerPushNotificationSubscription = async (
   subscription: PushSubscription,
-) {
+) => {
   const req = new RegisterPushNotificationSubscriptionReq();
   req.setFullSubscriptionJson(JSON.stringify(subscription));
   req.setUserAgent(navigator.userAgent);
@@ -65,17 +65,17 @@ export async function registerPushNotificationSubscription(
     await client.notifications.registerPushNotificationSubscription(req);
 
   return res.toObject();
-}
+};
 
-export async function sendTestPushNotification() {
+export const sendTestPushNotification = async () => {
   await client.notifications.sendTestPushNotification(new Empty());
-}
+};
 
-export async function listNotifications({
+export const listNotifications = async ({
   onlyUnread = false,
 }: {
   onlyUnread: boolean;
-}) {
+}) => {
   const req = new ListNotificationsReq();
 
   if (onlyUnread) {
@@ -84,23 +84,23 @@ export async function listNotifications({
 
   const res = await client.notifications.listNotifications(req);
   return res.toObject();
-}
+};
 
-export async function markAllNotificationsSeen(
+export const markAllNotificationsSeen = async (
   lastestNotificationId: Notification.AsObject["notificationId"],
-) {
+) => {
   const req = new MarkAllNotificationsSeenReq();
 
   req.setLatestNotificationId(lastestNotificationId);
 
   const res = await client.notifications.markAllNotificationsSeen(req);
   return res.toObject();
-}
+};
 
-export async function markNotificationSeen(
+export const markNotificationSeen = async (
   notificationId: Notification.AsObject["notificationId"],
   setSeen: boolean = true,
-) {
+) => {
   const req = new MarkNotificationSeenReq();
 
   if (!notificationId) {
@@ -117,4 +117,4 @@ export async function markNotificationSeen(
 
   const res = await client.notifications.markNotificationSeen(req);
   return res.toObject();
-}
+};

@@ -4,11 +4,11 @@ import { InitiateDonationReq } from "@/proto/donations_pb";
 
 import client from "./client";
 
-export async function initiateDonation(
+export const initiateDonation = async (
   amount: number,
   recurring: boolean,
   source?: string,
-) {
+) => {
   const req = new InitiateDonationReq();
 
   req.setAmount(amount);
@@ -20,9 +20,9 @@ export async function initiateDonation(
 
   const res = await client.donations.initiateDonation(req);
   return res.getStripeCheckoutSessionId();
-}
+};
 
-export async function getDonationPortalLink() {
+export const getDonationPortalLink = async () => {
   const res = await client.donations.getDonationPortalLink(new Empty());
   return res.getStripePortalUrl();
-}
+};

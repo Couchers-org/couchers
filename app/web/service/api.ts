@@ -1,5 +1,6 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 
+import log from "@/log";
 import {
   CancelFriendRequestReq,
   ListBadgeUsersReq,
@@ -17,54 +18,53 @@ import {
   SERVER_ERROR,
 } from "./constants";
 
-export function cancelFriendRequest(friendRequestId: number) {
+export const cancelFriendRequest = (friendRequestId: number) => {
   const req = new CancelFriendRequestReq();
   req.setFriendRequestId(friendRequestId);
   return client.api.cancelFriendRequest(req);
-}
+};
 
-export async function listFriends() {
+export const listFriends = async () => {
   const req = new Empty();
-
   const response = await client.api.listFriends(req);
   return response.toObject().userIdsList;
-}
+};
 
-export async function listFriendRequests() {
+export const listFriendRequests = async () => {
   const req = new Empty();
-
   const response = await client.api.listFriendRequests(req);
   return response.toObject();
-}
+};
 
-export function removeFriend(friendId: number) {
+export const removeFriend = (friendId: number) => {
   const req = new RemoveFriendReq();
   req.setUserId(friendId);
   return client.api.removeFriend(req);
-}
+};
 
-export function respondFriendRequest(friendRequestId: number, accept: boolean) {
+export const respondFriendRequest = (
+  friendRequestId: number,
+  accept: boolean,
+) => {
   const req = new RespondFriendRequestReq();
-
   req.setFriendRequestId(friendRequestId);
   req.setAccept(accept);
-
   return client.api.respondFriendRequest(req);
-}
+};
 
-export function sendFriendRequest(userId: number) {
+export const sendFriendRequest = (userId: number) => {
   const req = new SendFriendRequestReq();
   req.setUserId(userId);
   return client.api.sendFriendRequest(req);
-}
+};
 
-export async function ping() {
+export const ping = async () => {
   const req = new PingReq();
   const response = await client.api.ping(req);
-
   return response.toObject();
-}
+};
 
+/* eslint-disable @typescript-eslint/naming-convention */
 export interface ImageInputValues {
   file: File;
   filename: string;
@@ -72,8 +72,9 @@ export interface ImageInputValues {
   thumbnail_url: string;
   full_url: string;
 }
+/* eslint-enable @typescript-eslint/naming-convention */
 
-export async function uploadFile(file: File): Promise<ImageInputValues> {
+export const uploadFile = async (file: File): Promise<ImageInputValues> => {
   const urlResponse = await client.api.initiateMediaUpload(new Empty());
   const uploadURL = urlResponse.getUploadUrl();
 
@@ -83,8 +84,8 @@ export async function uploadFile(file: File): Promise<ImageInputValues> {
   const uploadResponse = await fetch(uploadURL, {
     method: "POST",
     body: requestBody,
-  }).catch((e) => {
-    console.error(e);
+  }).catch((e: unknown) => {
+    log.error(e);
     throw new Error(FETCH_FAILED);
   });
 
@@ -94,15 +95,18 @@ export async function uploadFile(file: File): Promise<ImageInputValues> {
     throw new Error(`${SERVER_ERROR}: ${uploadResponse.statusText}`);
   }
 
-  const responseJson = await uploadResponse.json().catch((e) => {
-    console.error(e);
-    throw new Error(`${INTERNAL_ERROR}: ${e.message}`);
-  });
+  const responseJson = (await uploadResponse.json().catch((e: unknown) => {
+    log.error(e);
+    if (e instanceof Error) {
+      throw new Error(`${INTERNAL_ERROR}: ${e.message}`);
+    }
+    throw new Error(`${INTERNAL_ERROR}: Unknown error`);
+  })) as ImageInputValues;
   return {
     ...responseJson,
     file: file,
   };
-}
+};
 
 export interface ListBadgeUsersInput {
   badgeId: string;
@@ -110,11 +114,11 @@ export interface ListBadgeUsersInput {
   pageToken?: string;
 }
 
-export async function listBadgeUsers({
+export const listBadgeUsers = async ({
   badgeId,
   pageSize,
   pageToken,
-}: ListBadgeUsersInput) {
+}: ListBadgeUsersInput) => {
   const req = new ListBadgeUsersReq();
   req.setBadgeId(badgeId);
   if (pageSize) {
@@ -126,4 +130,4 @@ export async function listBadgeUsers({
 
   const res = await client.api.listBadgeUsers(req);
   return res.toObject();
-}
+};

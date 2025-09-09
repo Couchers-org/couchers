@@ -1,18 +1,20 @@
 #!/usr/bin/env node
-
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
+import log from "@/log.js";
+import { getErrorMessage } from "@/utils/error.js";
+
 import {
   findEnJsonFiles,
   validateLanguageCode,
-} from "./create-translation-files.js";
+} from "./createTranslationFiles.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
 
-function deleteTranslationFile(filePath, languageCode) {
+const deleteTranslationFile = (filePath: string, languageCode: string) => {
   const targetPath = filePath.replace("en.json", `${languageCode}.json`);
 
   if (fs.existsSync(targetPath)) {
@@ -23,24 +25,17 @@ function deleteTranslationFile(filePath, languageCode) {
     console.log(`⚠️  File not found: ${targetPath}`);
     return false;
   }
-}
+};
 
-function removeFromAllLanguages(languageCode) {
-  const allLanguagesPath = path.join(
-    __dirname,
-    "..",
-    "i18n",
-    "allLanguages.js",
-  );
+const removeFromAllLanguages = (languageCode: string) => {
+  const allLanguagesPath = path.join(dirname, "..", "i18n", "allLanguages.js");
 
   try {
-    let content = fs.readFileSync(allLanguagesPath, "utf8");
+    const content = fs.readFileSync(allLanguagesPath, "utf8");
 
     // Check if language exists
     if (!content.includes(`"${languageCode}"`)) {
-      console.log(
-        `⚠️  Language "${languageCode}" not found in allLanguages.js`,
-      );
+      log.warn(`⚠️  Language "${languageCode}" not found in allLanguages.js`);
       return false;
     }
 
@@ -52,23 +47,25 @@ function removeFromAllLanguages(languageCode) {
 
     // Write back to file
     fs.writeFileSync(allLanguagesPath, updatedLines.join("\n"));
-    console.log(`✅ Removed "${languageCode}" from allLanguages.js`);
+    log.info(`✅ Removed "${languageCode}" from allLanguages.js`);
     return true;
   } catch (error) {
-    console.error(`❌ Failed to remove from allLanguages.js: ${error.message}`);
+    log.error(
+      `❌ Failed to remove from allLanguages.js: ${getErrorMessage(error)}`,
+    );
     return false;
   }
-}
+};
 
-function removeFromConstants(languageCode) {
-  const constantsPath = path.join(__dirname, "..", "i18n", "constants.ts");
+const removeFromConstants = (languageCode: string) => {
+  const constantsPath = path.join(dirname, "..", "i18n", "constants.ts");
 
   try {
-    let content = fs.readFileSync(constantsPath, "utf8");
+    const content = fs.readFileSync(constantsPath, "utf8");
 
     // Check if language exists
     if (!content.includes(`${languageCode}: {`)) {
-      console.log(`⚠️  Language "${languageCode}" not found in constants.ts`);
+      log.warn(`⚠️  Language "${languageCode}" not found in constants.ts`);
       return false;
     }
 
@@ -79,7 +76,7 @@ function removeFromConstants(languageCode) {
     );
 
     if (languageStart === -1) {
-      console.log(
+      log.warn(
         `⚠️  Language "${languageCode}" entry not found in constants.ts`,
       );
       return false;
@@ -99,17 +96,19 @@ function removeFromConstants(languageCode) {
 
     // Write back to file
     fs.writeFileSync(constantsPath, lines.join("\n"));
-    console.log(`✅ Removed "${languageCode}" from constants.ts`);
+    log.info(`✅ Removed "${languageCode}" from constants.ts`);
     return true;
   } catch (error) {
-    console.error(`❌ Failed to remove from constants.ts: ${error.message}`);
+    log.error(
+      `❌ Failed to remove from constants.ts: ${getErrorMessage(error)}`,
+    );
     return false;
   }
-}
+};
 
-function removeFromNativeAllLanguages(languageCode) {
+const removeFromNativeAllLanguages = (languageCode: string) => {
   const nativeAllLanguagesPath = path.join(
-    __dirname,
+    dirname,
     "..",
     "..",
     "native",
@@ -118,11 +117,11 @@ function removeFromNativeAllLanguages(languageCode) {
   );
 
   try {
-    let content = fs.readFileSync(nativeAllLanguagesPath, "utf8");
+    const content = fs.readFileSync(nativeAllLanguagesPath, "utf8");
 
     // Check if language exists
     if (!content.includes(`"${languageCode}"`)) {
-      console.log(
+      log.warn(
         `⚠️  Language "${languageCode}" not found in native allLanguages.js`,
       );
       return false;
@@ -136,34 +135,34 @@ function removeFromNativeAllLanguages(languageCode) {
 
     // Write back to file
     fs.writeFileSync(nativeAllLanguagesPath, updatedLines.join("\n"));
-    console.log(`✅ Removed "${languageCode}" from native allLanguages.js`);
+    log.info(`✅ Removed "${languageCode}" from native allLanguages.js`);
     return true;
   } catch (error) {
-    console.error(
-      `❌ Failed to remove from native allLanguages.js: ${error.message}`,
+    log.error(
+      `❌ Failed to remove from native allLanguages.js: ${getErrorMessage(error)}`,
     );
     return false;
   }
-}
+};
 
-function main() {
+const main = () => {
   try {
     const languageCode = process.argv[2];
 
     // Validate language code
     validateLanguageCode(languageCode);
 
-    console.log(`🗑️  Deleting translation files for language: ${languageCode}`);
+    log.info(`🗑️  Deleting translation files for language: ${languageCode}`);
 
     // Find all en.json files to determine which translation files to delete
     const enJsonFiles = findEnJsonFiles(".");
 
     if (enJsonFiles.length === 0) {
-      console.log("⚠️  No en.json files found in the current directory tree.");
+      log.warn("⚠️  No en.json files found in the current directory tree.");
       return;
     }
 
-    console.log(
+    log.info(
       `📁 Found ${enJsonFiles.length} translation files to process...\n`,
     );
 
@@ -175,11 +174,11 @@ function main() {
       }
     }
 
-    console.log(
+    log.info(
       `\n🎉 Successfully deleted ${deletedCount} translation files for ${languageCode}!`,
     );
 
-    console.log("\n🔧 Removing language from translation system...");
+    log.info("\n🔧 Removing language from translation system...");
 
     // Remove from allLanguages.js
     const removedFromAllLanguages = removeFromAllLanguages(languageCode);
@@ -190,24 +189,24 @@ function main() {
     // Remove from native allLanguages.js
     const removedFromNative = removeFromNativeAllLanguages(languageCode);
 
-    console.log("\n📋 Summary:");
+    log.info("\n📋 Summary:");
     if (removedFromAllLanguages && removedFromConstants && removedFromNative) {
-      console.log("✅ Language successfully removed from translation system!");
+      log.info("✅ Language successfully removed from translation system!");
     } else {
-      console.log(
+      log.warn(
         "⚠️  Some files may not have contained the language or had issues.",
       );
     }
 
-    console.log("\n🎯 Language deletion complete!");
-    console.log(
+    log.info("\n🎯 Language deletion complete!");
+    log.info(
       "Note: You may need to restart your development server for changes to take effect.",
     );
   } catch (error) {
-    console.error(error.message);
+    log.error(getErrorMessage(error));
     process.exit(1);
   }
-}
+};
 
 // Run the script if called directly
 if (import.meta.url === `file://${process.argv[1]}`) {

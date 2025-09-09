@@ -10,23 +10,23 @@ import { User } from "@/proto/api_pb";
 
 import client from "./client";
 
-export async function getUser(user: string): Promise<User.AsObject> {
+export const getUser = async (user: string): Promise<User.AsObject> => {
   const req = new GetUserReq();
   if (user) {
     req.setUser(user);
   }
   return (await client.admin.getUser(req)).toObject();
-}
+};
 
-export async function getUserDetails(
+export const getUserDetails = async (
   user: string,
-): Promise<UserDetails.AsObject> {
+): Promise<UserDetails.AsObject> => {
   const req = new GetUserDetailsReq();
   if (user) {
     req.setUser(user);
   }
   return (await client.admin.getUserDetails(req)).toObject();
-}
+};
 
 interface ListUserIdsInput {
   startTime: Date;
@@ -35,12 +35,12 @@ interface ListUserIdsInput {
   pageToken?: string;
 }
 
-export async function listUserIds({
+export const listUserIds = async ({
   startTime,
   endTime,
   pageSize,
   pageToken,
-}: ListUserIdsInput) {
+}: ListUserIdsInput) => {
   const req = new ListUserIdsReq();
   req.setStartTime(Timestamp.fromDate(startTime));
   req.setEndTime(Timestamp.fromDate(endTime));
@@ -51,4 +51,4 @@ export async function listUserIds({
     req.setPageToken(pageToken);
   }
   return (await client.admin.listUserIds(req)).toObject();
-}
+};

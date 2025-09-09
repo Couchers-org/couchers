@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import log from "@/log";
+
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
 
 // Valid i18n language codes (ISO 639-1 and common variants)
 // Add more as needed
@@ -252,7 +253,9 @@ const VALID_LANGUAGE_CODES = [
   "ar-SL",
   "ar-SN",
   "ar-TG",
-];
+] as const;
+
+type LanguageCode = (typeof VALID_LANGUAGE_CODES)[number];
 
 // Language names mapping for common languages - add more as needed
 const LANGUAGE_NAMES = {
@@ -341,9 +344,6 @@ const LANGUAGE_NAMES = {
   da: "Danish",
   no: "Norwegian",
   fi: "Finnish",
-  sv: "Swedish",
-  is: "Icelandic",
-  fo: "Faroese",
   nb: "Norwegian Bokmål",
   nn: "Norwegian Nynorsk",
 };
@@ -437,25 +437,14 @@ const FLAG_CODES = {
   fi: "FI",
   nb: "NO",
   nn: "NO",
-};
+} as const;
 
-function validateLanguageCode(code) {
-  if (!code) {
-    throw new Error(
-      "❌ No language code provided. Usage: yarn create-translation-files <language-code>",
-    );
-  }
+type FlagCode = (typeof FLAG_CODES)[keyof typeof FLAG_CODES];
 
-  if (!VALID_LANGUAGE_CODES.includes(code)) {
-    throw new Error(
-      `❌ Invalid language code: "${code}". Please provide a valid ISO 639-1 language code or common variant.`,
-    );
-  }
+const isLanguageCode = (code: string): code is LanguageCode =>
+  !(VALID_LANGUAGE_CODES as readonly string[]).includes(code);
 
-  return true;
-}
-
-function findEnJsonFiles(dir, baseDir = "") {
+const findEnJsonFiles = (dir: string, baseDir = ""): string[] => {
   const files = [];
 
   try {
@@ -485,17 +474,20 @@ function findEnJsonFiles(dir, baseDir = "") {
         files.push(relativePath);
       }
     }
-  } catch (error) {
+  } catch (error: unknown) {
     // Skip directories we can't read
-    console.warn(
-      `⚠️  Warning: Could not read directory ${dir}: ${error.message}`,
+    log.warn(
+      `⚠️  Warning: Could not read directory ${dir}: ${error instanceof Error ? error.message : "Unknown error"}`,
     );
   }
 
   return files;
-}
+};
 
-function createTranslationFile(filePath, languageCode) {
+const createTranslationFile = (
+  filePath: string,
+  languageCode: LanguageCode,
+) => {
   const targetPath = filePath.replace(
     "en.json",
     `${languageCode.replace("-", "_")}.json`,
@@ -510,36 +502,31 @@ function createTranslationFile(filePath, languageCode) {
   // Create the translation file if it doesn't exist
   if (!fs.existsSync(targetPath)) {
     fs.writeFileSync(targetPath, "{\n}\n");
-    console.log(`✅ Created: ${targetPath}`);
+    log.info(`✅ Created: ${targetPath}`);
   }
-}
+};
 
-function getLanguageName(code) {
+const getLanguageName = (code: LanguageCode): string => {
   // Handle variants like 'es-419', 'fr-CA', etc.
-  const baseCode = code.split("-")[0];
-  return LANGUAGE_NAMES[baseCode] || LANGUAGE_NAMES[code] || code;
-}
-
-function getFlagCode(code) {
-  // Handle variants like 'es-419', 'fr-CA', etc.
-  const baseCode = code.split("-")[0];
-  return FLAG_CODES[baseCode] || FLAG_CODES[code] || null;
-}
-
-function addToAllLanguages(languageCode) {
-  const allLanguagesPath = path.join(
-    __dirname,
-    "..",
-    "i18n",
-    "allLanguages.js",
+  return (
+    (LANGUAGE_NAMES as Record<string, FlagCode>)[code.substring(0, 2)] ?? code
   );
+};
+
+const getFlagCode = (code: LanguageCode): FlagCode | undefined => {
+  // Handle variants like 'es-419', 'fr-CA', etc.
+  return (FLAG_CODES as Record<string, FlagCode>)[code.substring(0, 2)];
+};
+
+const addToAllLanguages = (languageCode: LanguageCode) => {
+  const allLanguagesPath = path.join(dirname, "..", "i18n", "allLanguages.js");
 
   try {
-    let content = fs.readFileSync(allLanguagesPath, "utf8");
+    const content = fs.readFileSync(allLanguagesPath, "utf8");
 
     // Check if language already exists
     if (content.includes(`"${languageCode}"`)) {
-      console.log(
+      log.warn(
         `⚠️  Language "${languageCode}" already exists in allLanguages.js`,
       );
       return false;
@@ -578,25 +565,29 @@ function addToAllLanguages(languageCode) {
 
     // Write back to file
     fs.writeFileSync(allLanguagesPath, lines.join("\n"));
-    console.log(`✅ Added "${languageCode}" to allLanguages.js`);
+    log.info(`✅ Added "${languageCode}" to allLanguages.js`);
     return true;
-  } catch (error) {
-    console.error(`❌ Failed to add to allLanguages.js: ${error.message}`);
+  } catch (error: unknown) {
+    log.error(
+      `❌ Failed to add to allLanguages.js:${error instanceof Error ? error.message : "Unknown error"}`,
+    );
     return false;
   }
-}
+};
 
-function addToConstants(languageCode, languageName, flagCode) {
-  const constantsPath = path.join(__dirname, "..", "i18n", "constants.ts");
+const addToConstants = (
+  languageCode: LanguageCode,
+  languageName: string,
+  flagCode: FlagCode | undefined,
+) => {
+  const constantsPath = path.join(dirname, "..", "i18n", "constants.ts");
 
   try {
-    let content = fs.readFileSync(constantsPath, "utf8");
+    const content = fs.readFileSync(constantsPath, "utf8");
 
     // Check if language already exists
     if (content.includes(`${languageCode}: {`)) {
-      console.log(
-        `⚠️  Language "${languageCode}" already exists in constants.ts`,
-      );
+      log.warn(`⚠️  Language "${languageCode}" already exists in constants.ts`);
       return false;
     }
 
@@ -632,7 +623,7 @@ function addToConstants(languageCode, languageName, flagCode) {
     const newEntry = [
       `${indent}${languageCode}: {`,
       `${indent}  name: "${languageName}",`,
-      `${indent}  flagIconCode: "${flagCode || "XX"}",`,
+      `${indent}  flagIconCode: "${flagCode ?? "XX"}",`,
       `${indent}},`,
     ];
 
@@ -643,33 +634,45 @@ function addToConstants(languageCode, languageName, flagCode) {
 
     // Write back to file
     fs.writeFileSync(constantsPath, lines.join("\n"));
-    console.log(`✅ Added "${languageCode}" to constants.ts`);
+    log.info(`✅ Added "${languageCode}" to constants.ts`);
     return true;
   } catch (error) {
-    console.error(`❌ Failed to add to constants.ts: ${error.message}`);
+    log.error(
+      `❌ Failed to add to constants.ts: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
     return false;
   }
-}
+};
 
-function main() {
+const main = () => {
   try {
     const languageCode = process.argv[2];
 
-    // Validate language code
-    validateLanguageCode(languageCode);
+    if (!languageCode) {
+      throw new Error(
+        "❌ No language code provided. Usage: yarn create-translation-files <language-code>",
+      );
+    }
 
-    console.log(`🚀 Creating translation files for language: ${languageCode}`);
-    console.log(`📝 Language name: ${getLanguageName(languageCode)}`);
+    // Validate language code
+    if (!isLanguageCode(languageCode)) {
+      throw new Error(
+        `❌ Invalid language code: "${languageCode}". Please provide a valid ISO 639-1 language code or common variant.`,
+      );
+    }
+
+    log.info(`🚀 Creating translation files for language: ${languageCode}`);
+    log.info(`📝 Language name: ${getLanguageName(languageCode)}`);
 
     // Find all en.json files
     const enJsonFiles = findEnJsonFiles(".");
 
     if (enJsonFiles.length === 0) {
-      console.log("⚠️  No en.json files found in the current directory tree.");
+      log.warn("⚠️  No en.json files found in the current directory tree.");
       return;
     }
 
-    console.log(`📁 Found ${enJsonFiles.length} en.json files to process...\n`);
+    log.info(`📁 Found ${enJsonFiles.length} en.json files to process...\n`);
 
     // Create translation files
     let createdCount = 0;
@@ -678,7 +681,7 @@ function main() {
       createdCount++;
     }
 
-    console.log(
+    log.info(
       `\n🎉 Successfully created ${createdCount} translation files for ${languageCode}!`,
     );
 
@@ -686,46 +689,50 @@ function main() {
     const flagCode = getFlagCode(languageCode);
     const languageName = getLanguageName(languageCode);
 
-    console.log("\n🔧 Adding language to translation system...");
+    log.info("\n🔧 Adding language to translation system...");
 
     // Add to allLanguages.js
-    const addedToAllLanguages = addToAllLanguages(languageCode);
+    const didAddToAllLanguages = addToAllLanguages(languageCode);
 
     // Add to constants.ts
-    const addedToConstants = addToConstants(
+    const didAddToConstants = addToConstants(
       languageCode,
       languageName,
       flagCode,
     );
 
-    console.log("\n📋 Summary:");
-    if (addedToAllLanguages && addedToConstants) {
-      console.log("✅ Language successfully added to translation system!");
+    log.info("\n📋 Summary:");
+    if (didAddToAllLanguages && didAddToConstants) {
+      log.info("✅ Language successfully added to translation system!");
     } else {
-      console.log(
+      log.warn(
         "⚠️  Some files may already contain the language or had issues.",
       );
     }
 
     if (!flagCode) {
-      console.log(
+      log.warn(
         `⚠️  No flag code found for "${languageCode}". You may want to update the flag code in constants.ts manually.`,
       );
     }
 
-    console.log("\n🎯 Next steps:");
-    console.log("1. Start translating the created files!");
-    console.log("2. Test the translations in your application.");
-    console.log("3. Update the flag code in constants.ts if needed.");
-  } catch (error) {
-    console.error(error.message);
+    log.info("\n🎯 Next steps:");
+    log.info("1. Start translating the created files!");
+    log.info("2. Test the translations in your application.");
+    log.info("3. Update the flag code in constants.ts if needed.");
+  } catch (error: unknown) {
+    log.error(error instanceof Error ? error.message : "Unknown error");
     process.exit(1);
   }
-}
+};
 
 // Run the script if called directly
 if (import.meta.url === `file://${process.argv[1]}`) {
   main();
 }
 
-export { createTranslationFile, findEnJsonFiles, validateLanguageCode };
+export {
+  createTranslationFile,
+  findEnJsonFiles,
+  isLanguageCode as validateLanguageCode,
+};

@@ -47,10 +47,10 @@ export interface WriteFriendReferenceInput extends WriteReferenceBaseInput {
 
 type GetReferencesGivenInput = GetReferencesBaseInput;
 
-export async function getReferencesGivenByUser({
+export const getReferencesGivenByUser = async ({
   userId,
   pageToken = "0",
-}: GetReferencesGivenInput) {
+}: GetReferencesGivenInput) => {
   const req = new ListReferencesReq();
   req.setFromUserId(userId);
   req.setReferenceTypeFilterList([]);
@@ -59,17 +59,17 @@ export async function getReferencesGivenByUser({
 
   const res = await client.references.listReferences(req);
   return res.toObject();
-}
+};
 
 interface GetReferencesReceivedInput extends GetReferencesBaseInput {
   referenceType: Exclude<ReferenceTypeState, "given">;
 }
 
-export async function getReferencesReceivedForUser({
+export const getReferencesReceivedForUser = async ({
   userId,
   pageToken = "0",
   referenceType,
-}: GetReferencesReceivedInput) {
+}: GetReferencesReceivedInput) => {
   const req = new ListReferencesReq();
   req.setToUserId(userId);
   req.setReferenceTypeFilterList(
@@ -80,25 +80,25 @@ export async function getReferencesReceivedForUser({
 
   const res = await client.references.listReferences(req);
   return res.toObject();
-}
+};
 
-export async function getAvailableReferences({
+export const getAvailableReferences = async ({
   userId,
-}: GetAvailableReferencesInput) {
+}: GetAvailableReferencesInput) => {
   const req = new AvailableWriteReferencesReq();
   req.setToUserId(userId);
 
   const res = await client.references.availableWriteReferences(req);
   return res.toObject();
-}
+};
 
-export async function writeHostRequestReference({
+export const writeHostRequestReference = async ({
   hostRequestId,
   text,
   wasAppropriate,
   rating,
   privateText,
-}: WriteHostRequestReferenceInput) {
+}: WriteHostRequestReferenceInput) => {
   const req = new WriteHostRequestReferenceReq();
   req.setHostRequestId(hostRequestId);
   req.setText(text);
@@ -111,14 +111,14 @@ export async function writeHostRequestReference({
 
   const res = await client.references.writeHostRequestReference(req);
   return res.toObject();
-}
+};
 
-export async function writeFriendRequestReference({
+export const writeFriendRequestReference = async ({
   toUserId,
   text,
   wasAppropriate,
   rating,
-}: WriteFriendReferenceInput) {
+}: WriteFriendReferenceInput) => {
   const req = new WriteFriendReferenceReq();
   req.setToUserId(toUserId);
   req.setText(text);
@@ -127,23 +127,23 @@ export async function writeFriendRequestReference({
 
   const res = await client.references.writeFriendReference(req);
   return res.toObject();
-}
+};
 
-export async function listPendingReferencesToWrite() {
+export const listPendingReferencesToWrite = async () => {
   const res = await client.references.listPendingReferencesToWrite(new Empty());
   return res.toObject();
-}
+};
 
-export async function indicateDidntMeetup({
+export const indicateDidntMeetup = async ({
   hostRequestId,
   reasonDidntMeetup,
 }: {
   hostRequestId: HostRequest.AsObject["hostRequestId"];
   reasonDidntMeetup: string;
-}) {
+}) => {
   const req = new HostRequestIndicateDidntMeetupReq();
   req.setHostRequestId(hostRequestId);
   req.setReasonDidntMeetup(reasonDidntMeetup);
   const res = await client.references.hostRequestIndicateDidntMeetup(req);
   return res.toObject();
-}
+};

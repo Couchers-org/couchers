@@ -66,6 +66,7 @@ export const configUtils = <const P extends string>(prefix: P) => {
         DISPLAY_VERSION: Type.String({ default: "dev" }),
         COMMIT_TIMESTAMP: Type.Optional(Type.Date()),
         NOMINATIM_URL: Type.String(),
+        VERSION: Type.String(),
       }),
       prefix,
     ),

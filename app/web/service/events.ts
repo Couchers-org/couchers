@@ -25,11 +25,11 @@ import {
 
 import client from "./client";
 
-export async function listCommunityEvents(
+export const listCommunityEvents = async (
   communityId: number,
   pageToken?: string,
   pageSize?: number,
-) {
+) => {
   const req = new ListEventsReq();
   req.setCommunityId(communityId);
   if (pageToken) {
@@ -41,26 +41,26 @@ export async function listCommunityEvents(
 
   const res = await client.communities.listEvents(req);
   return res.toObject();
-}
+};
 
-export async function getEvent(eventId: number) {
+export const getEvent = async (eventId: number) => {
   const req = new GetEventReq();
   req.setEventId(eventId);
   const res = await client.events.getEvent(req);
   return res.toObject();
-}
+};
 
-export function cancelEvent(eventId: number) {
+export const cancelEvent = (eventId: number) => {
   const req = new CancelEventReq();
   req.setEventId(eventId);
   return client.events.cancelEvent(req);
-}
+};
 
-export function requestCommunityInvite(eventId: number) {
+export const requestCommunityInvite = (eventId: number) => {
   const req = new RequestCommunityInviteReq();
   req.setEventId(eventId);
   return client.events.requestCommunityInvite(req);
-}
+};
 
 interface ListEventUsersInput {
   eventId: number;
@@ -68,11 +68,11 @@ interface ListEventUsersInput {
   pageToken?: string;
 }
 
-export async function listEventOrganizers({
+export const listEventOrganizers = async ({
   eventId,
   pageSize,
   pageToken,
-}: ListEventUsersInput) {
+}: ListEventUsersInput) => {
   const req = new ListEventOrganizersReq();
   req.setEventId(eventId);
   if (pageSize) {
@@ -83,13 +83,13 @@ export async function listEventOrganizers({
   }
   const res = await client.events.listEventOrganizers(req);
   return res.toObject();
-}
+};
 
-export async function listEventAttendees({
+export const listEventAttendees = async ({
   eventId,
   pageSize,
   pageToken,
-}: ListEventUsersInput) {
+}: ListEventUsersInput) => {
   const req = new ListEventAttendeesReq();
   req.setEventId(eventId);
   if (pageSize) {
@@ -100,21 +100,21 @@ export async function listEventAttendees({
   }
   const res = await client.events.listEventAttendees(req);
   return res.toObject();
-}
+};
 
-export async function setEventAttendance({
+export const setEventAttendance = async ({
   attendanceState,
   eventId,
 }: {
   attendanceState: AttendanceState;
   eventId: number;
-}) {
+}) => {
   const req = new SetEventAttendanceReq();
   req.setEventId(eventId);
   req.setAttendanceState(attendanceState);
   const res = await client.events.setEventAttendance(req);
   return res.toObject();
-}
+};
 
 interface EventInput {
   content: string;
@@ -140,7 +140,7 @@ interface OfflineEventInput extends EventInput {
 
 export type CreateEventInput = OnlineEventInput | OfflineEventInput;
 
-export async function createEvent(input: CreateEventInput) {
+export const createEvent = async (input: CreateEventInput) => {
   const req = new CreateEventReq();
   req.setTitle(input.title);
   req.setContent(input.content);
@@ -170,7 +170,7 @@ export async function createEvent(input: CreateEventInput) {
 
   const res = await client.events.createEvent(req);
   return res.toObject();
-}
+};
 
 export interface UpdateOnlineEventInput
   extends Partial<Omit<OnlineEventInput, "parentCommunityId">> {
@@ -185,7 +185,7 @@ export type UpdateEventInput = (
   | UpdateOfflineEventInput
 ) & { eventId: number; shouldNotify: boolean };
 
-export async function updateEvent(input: UpdateEventInput) {
+export const updateEvent = async (input: UpdateEventInput) => {
   const req = new UpdateEventReq();
   req.setEventId(input.eventId);
   if (input.title) {
@@ -225,7 +225,7 @@ export async function updateEvent(input: UpdateEventInput) {
 
   const res = await client.events.updateEvent(req);
   return res.toObject();
-}
+};
 
 export interface ListAllEventsInput {
   pastEvents: boolean;
@@ -234,12 +234,12 @@ export interface ListAllEventsInput {
   showCancelled?: boolean;
 }
 
-export async function listAllEvents({
+export const listAllEvents = async ({
   pastEvents = false,
   pageSize,
   pageToken,
   showCancelled,
-}: ListAllEventsInput) {
+}: ListAllEventsInput) => {
   const req = new ListAllEventsReq();
 
   req.setPast(pastEvents);
@@ -256,7 +256,7 @@ export async function listAllEvents({
 
   const res = await client.events.listAllEvents(req);
   return res.toObject();
-}
+};
 
 export interface ListMyEventsInput {
   pageNumber?: number;
@@ -266,13 +266,13 @@ export interface ListMyEventsInput {
   showCancelled?: boolean;
 }
 
-export async function listMyEvents({
+export const listMyEvents = async ({
   pageNumber,
   pageSize,
   pageToken,
   pastEvents,
   showCancelled,
-}: ListMyEventsInput) {
+}: ListMyEventsInput) => {
   const req = new ListMyEventsReq();
   req.setAttending(true);
   req.setOrganizing(true);
@@ -295,20 +295,20 @@ export async function listMyEvents({
 
   const res = await client.events.listMyEvents(req);
   return res.toObject();
-}
+};
 
-export async function inviteEventOrganizer(eventId: number, userId: number) {
+export const inviteEventOrganizer = async (eventId: number, userId: number) => {
   const req = new InviteEventOrganizerReq();
   req.setEventId(eventId);
   req.setUserId(userId);
   const res = await client.events.inviteEventOrganizer(req);
   return res.toObject();
-}
+};
 
-export async function removeEventOrganizer(eventId: number, userId: number) {
+export const removeEventOrganizer = async (eventId: number, userId: number) => {
   const req = new RemoveEventOrganizerReq();
   req.setEventId(eventId);
   req.setUserId(new Int64Value().setValue(userId));
   const res = await client.events.removeEventOrganizer(req);
   return res.toObject();
-}
+};

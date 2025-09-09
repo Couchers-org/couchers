@@ -15,7 +15,7 @@ import {
 
 import client from "./client";
 
-export async function startSignup(name: string, email: string) {
+export const startSignup = async (name: string, email: string) => {
   const req = new SignupFlowReq();
   const basic = new SignupBasic();
   basic.setName(name);
@@ -23,7 +23,7 @@ export async function startSignup(name: string, email: string) {
   req.setBasic(basic);
   const res = await client.auth.signupFlow(req);
   return res.toObject();
-}
+};
 
 interface AccountSignupData {
   flowToken: string;
@@ -40,7 +40,7 @@ interface AccountSignupData {
   radius: number;
 }
 
-export async function signupFlowAccount({
+export const signupFlowAccount = async ({
   flowToken,
   username,
   password,
@@ -53,7 +53,7 @@ export async function signupFlowAccount({
   lat,
   lng,
   radius,
-}: AccountSignupData) {
+}: AccountSignupData) => {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
   const account = new SignupAccount();
@@ -73,9 +73,9 @@ export async function signupFlowAccount({
   req.setAccount(account);
   const res = await client.auth.signupFlow(req);
   return res.toObject();
-}
+};
 
-export function contributorFormFromObject(form: ContributorFormPb.AsObject) {
+export const contributorFormFromObject = (form: ContributorFormPb.AsObject) => {
   const formData = new ContributorFormPb();
   formData
     .setIdeas(form.ideas)
@@ -85,76 +85,76 @@ export function contributorFormFromObject(form: ContributorFormPb.AsObject) {
     .setContributeWaysList(form.contributeWaysList)
     .setExpertise(form.expertise);
   return formData;
-}
+};
 
-export async function signupFlowFeedback(
+export const signupFlowFeedback = async (
   flowToken: string,
   form: ContributorFormPb.AsObject,
-) {
+) => {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
   const formData = contributorFormFromObject(form);
   req.setFeedback(formData);
   const res = await client.auth.signupFlow(req);
   return res.toObject();
-}
+};
 
-export async function signupFlowEmailToken(emailToken: string) {
+export const signupFlowEmailToken = async (emailToken: string) => {
   const req = new SignupFlowReq();
   req.setEmailToken(emailToken);
   const res = await client.auth.signupFlow(req);
   return res.toObject();
-}
+};
 
-export async function signupFlowCommunityGuidelines(
+export const signupFlowCommunityGuidelines = async (
   flowToken: string,
   accept: boolean,
-) {
+) => {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
   req.setAcceptCommunityGuidelines(new BoolValue().setValue(accept));
   const res = await client.auth.signupFlow(req);
   return res.toObject();
-}
+};
 
-export async function signupFlowResendVerificationEmail(flowToken: string) {
+export const signupFlowResendVerificationEmail = async (flowToken: string) => {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
   req.setResendVerificationEmail(true);
   const res = await client.auth.signupFlow(req);
   return res.toObject();
-}
+};
 
-export async function validateUsername(username: string) {
+export const validateUsername = async (username: string) => {
   const req = new UsernameValidReq();
   req.setUsername(username);
   const res = await client.auth.usernameValid(req);
   return res.getValid();
-}
+};
 
-export async function unsubscribe(payload: string, sig: string) {
+export const unsubscribe = async (payload: string, sig: string) => {
   const req = new UnsubscribeReq();
   req.setPayload(payload);
   req.setSig(sig);
   const res = await client.auth.unsubscribe(req);
   return res.toObject();
-}
+};
 
-export async function confirmDeleteAccount(token: string) {
+export const confirmDeleteAccount = async (token: string) => {
   const req = new ConfirmDeleteAccountReq();
   req.setToken(token);
   await client.auth.confirmDeleteAccount(req);
-}
+};
 
-export async function recoverAccount(token: string) {
+export const recoverAccount = async (token: string) => {
   const req = new RecoverAccountReq();
   req.setToken(token);
   await client.auth.recoverAccount(req);
-}
+};
 
-export async function antibot(token: string, action: string) {
+export const antibot = async (token: string, action: string) => {
   const req = new AntiBotReq();
   req.setToken(token);
   req.setAction(action);
   return await client.auth.antiBot(req);
-}
+};
