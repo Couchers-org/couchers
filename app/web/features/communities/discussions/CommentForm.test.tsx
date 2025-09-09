@@ -34,11 +34,11 @@ describe("Comment form", () => {
   it("renders the comment form successfully", async () => {
     renderCommentForm();
 
-    //can't check if visible, since this renders collapsed
+    // can't check if visible, since this renders collapsed
     expect(screen.getByTestId("comment-999-comment-form")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: t("communities:comment") }),
-    ).toBeInTheDocument(); //can't check if visible, since this renders collapsed
+    ).toBeInTheDocument(); // can't check if visible, since this renders collapsed
   });
 
   it("submits valid comment without issue", async () => {
@@ -49,7 +49,7 @@ describe("Comment form", () => {
 
     const commentInput = (await screen.findByLabelText(
       t("communities:write_comment_a11y_label"),
-    )) as HTMLInputElement;
+    ));
 
     user.type(commentInput, newComment);
 
@@ -62,7 +62,7 @@ describe("Comment form", () => {
 
     user.click(screen.getByRole("button", { name: t("communities:comment") }));
 
-    await waitFor(() => expect(postReplyMock).toHaveBeenCalledTimes(1));
+    await waitFor(() => { expect(postReplyMock).toHaveBeenCalledTimes(1); });
   });
 
   it("cannot be submitted empty", async () => {
@@ -86,11 +86,11 @@ describe("Comment form", () => {
 
     const commentInput = (await screen.findByLabelText(
       t("communities:write_comment_a11y_label"),
-    )) as HTMLInputElement;
+    ));
 
     user.type(commentInput, "   ");
 
-    await waitFor(() => expect(commentInput).toHaveValue("   "));
+    await waitFor(() => { expect(commentInput).toHaveValue("   "); });
 
     user.click(screen.getByRole("button", { name: t("communities:comment") }));
 

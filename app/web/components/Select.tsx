@@ -10,9 +10,7 @@ import React, { forwardRef } from "react";
 
 import { theme } from "@/theme";
 
-const Select = forwardRef(function Select<
-  T extends Record<string | number, string>,
->(
+const Select = forwardRef((
   {
     id,
     className,
@@ -35,7 +33,7 @@ const Select = forwardRef(function Select<
     onChange?: (event: SelectChangeEvent<T>) => void;
   },
   ref: React.Ref<HTMLSelectElement>,
-) {
+) => {
   const OptionComponent: React.ElementType = menuItems ? MenuItem : "option";
 
   return (

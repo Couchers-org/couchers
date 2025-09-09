@@ -24,7 +24,7 @@ export default function CancelEventDialog({
 }: DialogProps & { eventId: number }) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const queryClient = useQueryClient();
-  const cancelEventMutation = useMutation<Empty, RpcError, void>({
+  const cancelEventMutation = useMutation<Empty, RpcError>({
     mutationFn: () => service.events.cancelEvent(eventId),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -34,7 +34,7 @@ export default function CancelEventDialog({
     },
   });
 
-  const handleCancelEvent = () => cancelEventMutation.mutate();
+  const handleCancelEvent = () => { cancelEventMutation.mutate(); };
 
   return (
     <Dialog {...props} aria-labelledby="cancel-event-dialog-title">

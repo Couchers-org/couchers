@@ -206,13 +206,13 @@ describe("EditNotificationSettingsPage", () => {
     fireEvent.click(emailSwitch);
 
     await waitFor(() =>
-      expect(mockMutate).toHaveBeenCalledWith(
+      { expect(mockMutate).toHaveBeenCalledWith(
         {
           preferenceData: { ...preferenceData, enabled: true },
           setMutationError: expect.any(Function),
         },
         expect.any(Object),
-      ),
+      ); },
     );
   });
 

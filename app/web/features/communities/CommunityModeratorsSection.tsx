@@ -53,13 +53,13 @@ export default function CommunityModeratorsSection({
       {hasNextPage && (
         <>
           <StyledLoadMoreModeratorsButton
-            onClick={() => setIsModeratorsDialogOpen(true)}
+            onClick={() => { setIsModeratorsDialogOpen(true); }}
           >
             {t("communities:see_all_moderators")}
           </StyledLoadMoreModeratorsButton>
           <CommunityModeratorsDialog
             community={community}
-            onClose={() => setIsModeratorsDialogOpen(false)}
+            onClose={() => { setIsModeratorsDialogOpen(false); }}
             open={isModeratorsDialogOpen}
           />
         </>

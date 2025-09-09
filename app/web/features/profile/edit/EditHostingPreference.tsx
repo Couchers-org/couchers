@@ -8,8 +8,8 @@ import {
   SleepingArrangement,
   SmokingLocation,
   User,
-} from "../../../proto/api_pb";
-import { HostingPreferenceData } from "../../../service/user";
+} from "@/proto/api_pb";
+import { HostingPreferenceData } from "@/service/user";
 import EditHostingPreferenceForm from "./EditHostingPreferenceForm";
 import { DEFAULT_ABOUT_HOME_HEADINGS } from "./constants";
 

@@ -25,7 +25,7 @@ jest.mock("@mui/x-date-pickers", () => {
 });
 
 const serviceFn = jest.fn();
-function TestComponent({ event }: { event?: Event.AsObject }) {
+const TestComponent = ({ event }: { event?: Event.AsObject }) => {
   const { error, mutate, isPending } = useMutation<
     Event.AsObject,
     RpcError,
@@ -225,7 +225,7 @@ describe("Event form", () => {
 
     const virtualEventCheckbox = screen.getByLabelText(
       t("communities:virtual_event"),
-    ) as HTMLInputElement;
+    );
 
     await user.click(virtualEventCheckbox);
 
@@ -251,7 +251,7 @@ describe("Event form", () => {
 
     const titleInput = screen.getByLabelText(
       t("global:title"),
-    ) as HTMLInputElement;
+    );
 
     await user.type(titleInput, "Test event");
 
@@ -287,7 +287,7 @@ describe("Event form", () => {
 
     const virtualEventCheckbox = screen.getByLabelText(
       t("communities:virtual_event"),
-    ) as HTMLInputElement;
+    );
 
     await user.click(virtualEventCheckbox);
 
@@ -375,7 +375,7 @@ describe("Event form", () => {
 
     const eventLinkInput = (await screen.findByLabelText(
       t("communities:event_link"),
-    )) as HTMLInputElement;
+    ));
 
     await user.type(eventLinkInput, "https://couchers.org/social");
 
@@ -405,7 +405,7 @@ describe("Event form", () => {
 
     const titleInput = screen.getByLabelText(
       t("global:title"),
-    ) as HTMLInputElement;
+    );
 
     await user.type(titleInput, "Test event");
 

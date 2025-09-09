@@ -18,11 +18,11 @@ const StyledFriendItem = styled("div")(({ theme }) => ({
   padding: `0 ${theme.spacing(1)}`,
 }));
 
-function FriendSummaryView({
+const FriendSummaryView = ({
   children,
   friend,
   isProfileLink,
-}: FriendSummaryViewProps) {
+}: FriendSummaryViewProps) => {
   return friend ? (
     <>
       <StyledFriendItem data-testid={FRIEND_ITEM_TEST_ID}>

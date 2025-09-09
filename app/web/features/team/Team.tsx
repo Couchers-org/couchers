@@ -22,33 +22,34 @@ import PageTitle from "@/components/PageTitle";
 import StyledLink from "@/components/StyledLink";
 import { useTranslation } from "@/i18n";
 import { GLOBAL } from "@/i18n/namespaces";
-import { volunteerRoute } from "@/routes";
+import { VOLUNTEER_ROUTE } from "@/routes";
+import { theme } from "@/theme";
 
 import TeamData from "./team.json";
 
-const SpacerDiv = styled("div")(({ theme }) => ({
+const SpacerDiv = styled("div")(() => ({
   height: theme.spacing(4),
 }));
 
-const TeamMemberCard = styled(Card)(({ theme }) => ({
+const TeamMemberCard = styled(Card)(() => ({
   height: "100%",
 }));
 
-const TeamMembedCardContent = styled(CardContent)(({ theme }) => ({
+const TeamMembedCardContent = styled(CardContent)(() => ({
   display: "flex",
 }));
 
-const DetailDiv = styled("div")(({ theme }) => ({
+const DetailDiv = styled("div")(() => ({
   padding: theme.spacing(1, 2),
   flex: "1 1 0%",
 }));
 
-const StyledAvatar = styled(MuiAvatar)(({ theme }) => ({
+const StyledAvatar = styled(MuiAvatar)(() => ({
   width: theme.typography.pxToRem(96),
   height: theme.typography.pxToRem(96),
 }));
 
-export default function Team() {
+const Team = () => {
   const { t } = useTranslation([GLOBAL]);
 
   return (
@@ -72,7 +73,7 @@ export default function Team() {
             component={Link}
             variant="contained"
             color="secondary"
-            href={volunteerRoute}
+            href={VOLUNTEER_ROUTE}
           >
             {t("team.join_the_team")}
           </Button>
@@ -89,7 +90,15 @@ export default function Team() {
           sx={{ width: "100%" }}
         >
           {TeamData.map(
-            ({ name, director, board_position, role, location, img, link }) => (
+            ({
+              name,
+              director,
+              board_position: boardPosition,
+              role,
+              location,
+              img,
+              link,
+            }) => (
               <Grid key={name} size={{ xs: 12, md: 6, lg: 4 }}>
                 <TeamMemberCard elevation={director ? 3 : 1}>
                   <TeamMembedCardContent>
@@ -103,7 +112,7 @@ export default function Team() {
                       </Typography>
                       {director && (
                         <Typography variant="h2" component="h3">
-                          {board_position}
+                          {boardPosition}
                         </Typography>
                       )}
                       <Typography variant="h3">{role}</Typography>
@@ -155,7 +164,7 @@ export default function Team() {
             component={Link}
             variant="contained"
             color="secondary"
-            href={volunteerRoute}
+            href={VOLUNTEER_ROUTE}
           >
             {t("team.join_our_team")}
           </Button>
@@ -163,4 +172,6 @@ export default function Team() {
       </Container>
     </>
   );
-}
+};
+
+export default Team;

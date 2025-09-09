@@ -13,8 +13,8 @@ import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
 import { service } from "@/service";
 import { theme } from "@/theme";
 
-import { PostReplyRes } from "../../../proto/threads_pb";
-import { threadKey } from "../../queryKeys";
+import { PostReplyRes } from "@/proto/threads_pb";
+import { threadKey } from "@/features/queryKeys";
 
 const StyledForm = styled("form")(() => ({
   display: "flex",
@@ -44,10 +44,8 @@ interface CommentData {
   content: string;
 }
 
-function InternalCommentForm(
-  { hideable = false, onClose, shown = false, threadId }: CommentFormProps,
-  ref: React.ForwardedRef<HTMLFormElement>,
-) {
+const InternalCommentForm = ({ hideable = false, onClose, shown = false, threadId }: CommentFormProps,
+  ref: React.ForwardedRef<HTMLFormElement>) => {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const {
     control,

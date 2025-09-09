@@ -70,7 +70,7 @@ export default function EventOrganizers({ event }: EventOrganizersProps) {
         emptyState={t("communities:no_organizers")}
         error={organizerIdsError}
         hasNextPage={hasNextPage}
-        onSeeAllClick={() => setIsDialogOpen(true)}
+        onSeeAllClick={() => { setIsDialogOpen(true); }}
         userIds={organizerIds}
         title={t("communities:organizers")}
         getUserMenuItems={(user) =>
@@ -91,14 +91,14 @@ export default function EventOrganizers({ event }: EventOrganizersProps) {
       <EventOrganizersDialog
         eventId={event.eventId}
         open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
+        onClose={() => { setIsDialogOpen(false); }}
       />
 
       <RemoveAsCoOrganizerDialog
         username={organizerToRemove?.name ?? ""}
         eventName={event.title ?? ""}
         open={isCoOrganizerDialogOpen}
-        onClose={() => setIsCoOrganizerDialogOpen(false)}
+        onClose={() => { setIsCoOrganizerDialogOpen(false); }}
         onSubmit={() => {
           if (organizerToRemove) {
             removeAsEventOrganizer(organizerToRemove.userId);

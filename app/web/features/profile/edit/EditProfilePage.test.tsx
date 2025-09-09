@@ -106,9 +106,9 @@ describe("Edit profile", () => {
     );
 
     await waitFor(() =>
-      expect(
+      { expect(
         screen.getByText(t("profile:profile_changes_saved_message")),
-      ).toBeInTheDocument(),
+      ).toBeInTheDocument(); },
     );
   });
 
@@ -160,9 +160,9 @@ describe("Edit profile", () => {
     );
 
     await waitFor(() =>
-      expect(
+      { expect(
         screen.getByText(t("profile:profile_changes_saved_message")),
-      ).toBeInTheDocument(),
+      ).toBeInTheDocument(); },
     );
   });
 

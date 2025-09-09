@@ -1,7 +1,7 @@
 import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
 
-import { useReferencesReceived } from "../hooks/referencesHooks";
-import { useProfileUser } from "../hooks/useProfileUser";
+import { useReferencesReceived } from "@/features/profile/hooks/referencesHooks";
+import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
 import { ReferenceTypeState } from "./References";
 import ReferencesView from "./ReferencesView";
 

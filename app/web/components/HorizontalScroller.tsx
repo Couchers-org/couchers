@@ -2,7 +2,7 @@ import { styled, useMediaQuery, useTheme } from "@mui/material";
 import { Breakpoint } from "@mui/material/styles";
 import React, { ReactNode } from "react";
 
-import useOnVisibleEffect from "../utils/useOnVisibleEffect";
+import useOnVisibleEffect from "@/utils/useOnVisibleEffect";
 import CircularProgress from "./CircularProgress";
 
 interface CustomWrapperProps {
@@ -35,7 +35,7 @@ const StyledLoaderContainer = styled("div")(({ theme }) => ({
 }));
 
 interface HorizontalScrollerProps {
-  //horizontal scroller will only apply at this breakpoint and below
+  // horizontal scroller will only apply at this breakpoint and below
   breakpoint?: Breakpoint;
   fetchNext?: () => void;
   isFetching?: boolean;

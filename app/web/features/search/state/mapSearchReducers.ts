@@ -4,14 +4,14 @@ import { HostingStatus, User } from "@/proto/api_pb";
 import { UserSearchFilters } from "@/service/search";
 import { GeocodeResult } from "@/utils/hooks";
 
-import { FilterOptions } from "../SearchPage";
+import { FilterOptions } from "@/features/search/SearchPage";
 import {
   Coordinates,
   DEFAULT_AGE_MAX,
   DEFAULT_AGE_MIN,
   MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
-} from "../utils/constants";
-import { getHasActiveFilters } from "../utils/mapUtils";
+} from "@/features/search/utils/constants";
+import { getHasActiveFilters } from "@/features/search/utils/mapUtils";
 
 /** WHY USE A REDUCER FOR OUR MAP STATE?
  * Mostly we use react-query for state management, which stores api responses as is in the browser cache.
@@ -439,7 +439,7 @@ const mapSearchReducer = (
       const center = action.payload.center;
       const bbox = action.payload.bbox;
       const didZoomBelowThreshold =
-        zoom! < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
+        zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
         state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
 
       // If we zoom out below the threshold, reset the state to initial

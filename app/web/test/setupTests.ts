@@ -2,6 +2,7 @@
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
+import { Value } from "@sinclair/typebox/value";
 import "@testing-library/jest-dom";
 import { waitFor } from "@testing-library/react";
 import crypto from "crypto";
@@ -9,9 +10,19 @@ import mediaQuery from "css-mediaquery";
 import sentryTestkit from "sentry-testkit";
 import "whatwg-fetch";
 
+// eslint-disable-next-line no-restricted-imports
+import { configUtils } from "@/config";
 import i18n from "@/test/i18n";
 
 import user from "./fixtures/defaultUser.json";
+
+// TODO(FB) Remove redundancy with next.config.ts
+const envVarPrefix = "NEXT_PUBLIC_";
+
+const utils = configUtils(envVarPrefix);
+const parsedEnv = Value.Parse(utils.schema, envVarPrefix);
+
+Object.assign(Config, utils.getStringReplacements(parsedEnv));
 
 jest.mock("service");
 jest.mock("next/router", () => {

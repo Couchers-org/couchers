@@ -171,7 +171,7 @@ describe("Event page", () => {
       screen.getByRole("button", { name: t("communities:previous_page") }),
     );
 
-    await waitFor(() => expect(mockRouter.back).toBeCalled());
+    await waitFor(() => { expect(mockRouter.back).toBeCalled(); });
   });
 
   it("shows the 'edit event' button if the user has edit permission", async () => {
@@ -259,7 +259,7 @@ describe("Event page", () => {
 
       const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-      //@TODO this should be awaited but doesn't work. Try again after more package upgrades
+      // @TODO this should be awaited but doesn't work. Try again after more package upgrades
       user.click(attendanceMenuButton);
       const leaveEventOption = await screen.findByRole("menuitem", {
         name: t("communities:not_going_to_event"),

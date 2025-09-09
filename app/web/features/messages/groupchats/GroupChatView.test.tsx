@@ -320,7 +320,7 @@ describe("GroupChatView", () => {
     const sendButton = screen.getByRole("button", { name: t("global:send") });
     await user.click(sendButton);
 
-    await waitFor(() => expect(sendMessageMock).toHaveBeenCalledTimes(1));
+    await waitFor(() => { expect(sendMessageMock).toHaveBeenCalledTimes(1); });
     expect(sendMessageMock).toHaveBeenCalledWith(1, "Sounds good");
     expect(getGroupChatMock).toHaveBeenCalledTimes(2);
     expect(getGroupChatMessagesMock).toHaveBeenCalledTimes(2);

@@ -4,8 +4,8 @@ import { RpcError } from "grpc-web";
 import { UserSearchV2Res } from "@/proto/search_pb";
 import { service } from "@/service";
 
-import { FilterOptions } from "../SearchPage";
-import { MapSearchState } from "../state/mapSearchReducers";
+import { FilterOptions } from "@/features/search/SearchPage";
+import { MapSearchState } from "@/features/search/state/mapSearchReducers";
 
 const calculateCurrentRange = ({
   pageNumber,

@@ -13,9 +13,9 @@ import { service } from "@/service";
 import type { UpdateEventInput } from "@/service/events";
 import dayjs, { TIME_FORMAT } from "@/utils/dayjs";
 
-import { Event } from "../../../proto/events_pb";
-import { routeToEvent } from "../../../routes";
-import { communityEventsBaseKey, eventKey } from "../../queryKeys";
+import { Event } from "@/proto/events_pb";
+import { routeToEvent } from "@/routes";
+import { communityEventsBaseKey, eventKey } from "@/features/queryKeys";
 import EventForm, { CreateEventVariables } from "./EventForm";
 import { useEvent } from "./hooks";
 

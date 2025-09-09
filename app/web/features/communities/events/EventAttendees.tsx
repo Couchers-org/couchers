@@ -107,7 +107,7 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
         emptyState={t("communities:no_attendees")}
         error={error}
         hasNextPage={hasNextPage}
-        onSeeAllClick={() => setIsDialogOpen(true)}
+        onSeeAllClick={() => { setIsDialogOpen(true); }}
         userIds={attendeesIds}
         title={t("communities:attendees")}
         getUserMenuItems={
@@ -117,13 +117,13 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
       <EventAttendeesDialog
         eventId={event.eventId}
         open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
+        onClose={() => { setIsDialogOpen(false); }}
       />
       <MakeCoOrganizerDialog
         username={userToPromote?.name ?? ""}
         eventName={event.title ?? ""}
         open={isCoOrganizerDialogOpen}
-        onClose={() => setIsCoOrganizerDialogOpen(false)}
+        onClose={() => { setIsCoOrganizerDialogOpen(false); }}
         onSubmit={() => {
           if (userToPromote) {
             makeEventOrganizer(userToPromote.userId);

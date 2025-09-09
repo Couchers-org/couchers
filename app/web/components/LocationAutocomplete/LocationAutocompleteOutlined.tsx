@@ -54,10 +54,10 @@ const StyledClearIcon = styled(Clear)(({ theme }) => ({
   width: "18px",
 }));
 
-const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
+const LocationAutocompleteOutlined = forwardRef((
   props: LocationAutocompleteOutlinedProps,
   ref,
-) {
+) => {
   const {
     className,
     defaultValue = "",
@@ -93,7 +93,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
   }, [hasSearchValue]);
 
   const handleChange = (
-    _event: SyntheticEvent<Element, Event>,
+    _event: SyntheticEvent,
     newValue: NonNullable<string | GeocodeResult> | null,
     reason: AutocompleteChangeReason,
   ) => {
@@ -109,7 +109,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
   };
 
   const handleInputChange = (
-    _event: React.SyntheticEvent<Element, Event>,
+    _event: React.SyntheticEvent,
     newValue: string,
   ) => {
     if (inputValue !== newValue) {
@@ -175,7 +175,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
       loading={isLoading}
       options={options || []}
       open={isOpen}
-      onClose={() => setIsOpen(false)}
+      onClose={() => { setIsOpen(false); }}
       getOptionLabel={(option) => {
         return geocodeResult2String(option, shouldShowFullDisplayName);
       }}

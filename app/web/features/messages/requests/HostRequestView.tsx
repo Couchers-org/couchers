@@ -33,8 +33,8 @@ import { service } from "@/service";
 import { theme } from "@/theme";
 import { firstName } from "@/utils/names";
 
-import { requestStatusToTransKey } from "../constants";
-import ChatContent from "../groupchats/ChatContent";
+import { requestStatusToTransKey } from "@/features/messages/constants";
+import ChatContent from "@/features/messages/groupchats/ChatContent";
 import HostRequestUserSummarySection from "./HostRequestUserSummarySection";
 
 const StyledHeader = styled("div")(({ theme }) => ({
@@ -216,7 +216,7 @@ export default function HostRequestView({
 
   const router = useRouter();
 
-  const handleBack = () => router.back();
+  const handleBack = () => { router.back(); };
 
   const hasError =
     respondMutation.error || sendMutation.error || hostRequestError;

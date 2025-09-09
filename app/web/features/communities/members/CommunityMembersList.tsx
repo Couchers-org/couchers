@@ -12,8 +12,8 @@ import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
 import { Community } from "@/proto/communities_pb";
 
-import { SectionTitle } from "../CommunityPage";
-import { useListMembers } from "../hooks";
+import { SectionTitle } from "@/features/communities/CommunityPage";
+import { useListMembers } from "@/features/communities/hooks";
 
 const PaginationWrapper = styled("div")(({ theme }) => ({
   display: "flex",

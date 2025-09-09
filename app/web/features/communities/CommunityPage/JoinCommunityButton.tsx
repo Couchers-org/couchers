@@ -8,7 +8,7 @@ import { COMMUNITIES } from "@/i18n/namespaces";
 import { Community } from "@/proto/communities_pb";
 import { service } from "@/service";
 
-import { communityKey } from "../../queryKeys";
+import { communityKey } from "@/features/queryKeys";
 
 export default function JoinCommunityButton({
   community,
@@ -59,7 +59,7 @@ export default function JoinCommunityButton({
       <Button
         loading={isLoading}
         variant={community.member ? "outlined" : "contained"}
-        onClick={() => (community.member ? leave.mutate() : join.mutate())}
+        onClick={() => { community.member ? leave.mutate() : join.mutate(); }}
       >
         {community.member
           ? t("communities:leave_community")

@@ -169,9 +169,9 @@ describe("Event attendees", () => {
       );
 
       await waitFor(() =>
-        expect(
+        { expect(
           dialog.queryByTestId(USER_TITLE_SKELETON_TEST_ID),
-        ).not.toBeInTheDocument(),
+        ).not.toBeInTheDocument(); },
       );
     });
 

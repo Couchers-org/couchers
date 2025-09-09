@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import { reactQueryRetries } from "@/appConstants";
 
 export const queryClient = new QueryClient({
-  //grpc-web has built in timeout, so better not use the default exponential backoff
+  // grpc-web has built in timeout, so better not use the default exponential backoff
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
@@ -21,9 +21,9 @@ interface ReactQueryClientProviderProps {
   children: React.ReactNode;
 }
 
-export function ReactQueryClientProvider({
+export const ReactQueryClientProvider = ({
   children,
-}: ReactQueryClientProviderProps) {
+}: ReactQueryClientProviderProps) => {
   useEffect(() => {
     const asyncStoragePersister = createAsyncStoragePersister({
       storage: localStorage,

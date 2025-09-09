@@ -7,10 +7,10 @@ import { useTranslation } from "@/i18n";
 import { MESSAGES } from "@/i18n/namespaces";
 import { theme } from "@/theme";
 
-import { timestamp2Date } from "../../../utils/date";
-import { firstName } from "../../../utils/names";
-import useOnVisibleEffect from "../../../utils/useOnVisibleEffect";
-import { controlMessage, messageTargetId } from "../utils";
+import { timestamp2Date } from "@/utils/date";
+import { firstName } from "@/utils/names";
+import useOnVisibleEffect from "@/utils/useOnVisibleEffect";
+import { controlMessage, messageTargetId } from "@/features/messages/utils";
 import { MessageProps, messageElementId } from "./MessageView";
 import TimeInterval from "./TimeInterval";
 

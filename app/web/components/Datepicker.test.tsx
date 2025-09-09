@@ -6,7 +6,7 @@ import { useTranslation } from "@/i18n";
 import i18n from "@/test/i18n";
 import dayjs, { Dayjs } from "@/utils/dayjs";
 
-import wrapper from "../test/hookWrapper";
+import wrapper from "@/test/hookWrapper";
 import Datepicker from "./Datepicker";
 
 const { t } = i18n;
@@ -22,7 +22,7 @@ jest.mock("@mui/x-date-pickers", () => {
 const Form = ({ setDate }: { setDate: (date: Dayjs) => void }) => {
   const { t } = useTranslation();
   const { control, handleSubmit } = useForm();
-  const onSubmit = handleSubmit((data) => setDate(data.datefield));
+  const onSubmit = handleSubmit((data) => { setDate(data.datefield); });
   return (
     <form onSubmit={onSubmit}>
       <Datepicker

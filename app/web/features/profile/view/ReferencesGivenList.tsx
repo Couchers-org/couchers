@@ -1,7 +1,7 @@
 import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
 
-import { useReferencesGiven } from "../hooks/referencesHooks";
-import { useProfileUser } from "../hooks/useProfileUser";
+import { useReferencesGiven } from "@/features/profile/hooks/referencesHooks";
+import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
 import ReferencesView from "./ReferencesView";
 
 export default function ReferencesGivenList() {

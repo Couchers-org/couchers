@@ -37,7 +37,7 @@ export default function ReportButton({
       {isMenuLink ? (
         <Typography
           aria-label={t("report.label")}
-          onClick={() => setIsDialogOpen(true)}
+          onClick={() => { setIsDialogOpen(true); }}
           sx={{
             color: theme.palette.text.secondary,
             cursor: "pointer",
@@ -52,7 +52,7 @@ export default function ReportButton({
       ) : (
         <StyledReportButton
           aria-label={t("report.label")}
-          onClick={() => setIsDialogOpen(true)}
+          onClick={() => { setIsDialogOpen(true); }}
           startIcon={<BugIcon />}
           variant="contained"
           color="primary"
@@ -62,7 +62,7 @@ export default function ReportButton({
       )}
       <ReportDialog
         open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
+        onClose={() => { setIsDialogOpen(false); }}
       />
     </>
   );

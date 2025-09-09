@@ -42,7 +42,7 @@ import { GetThreadRes } from "@/proto/threads_pb";
 import { routeToCommunity } from "@/routes";
 import { service } from "@/service";
 
-import { Discussion } from "../../proto/discussions_pb";
+import { Discussion } from "@/proto/discussions_pb";
 
 export const useCommunity = (
   id: number,
@@ -84,7 +84,7 @@ export const useCommunity = (
   };
 };
 
-//0 for communityId lists all communities
+// 0 for communityId lists all communities
 export const useListSubCommunities = (communityId: number) =>
   useInfiniteQuery<ListCommunitiesRes.AsObject, RpcError>({
     queryKey: subCommunitiesKey(communityId),
@@ -180,10 +180,10 @@ export const useListMembers = ({
   pageSize: number;
 }) =>
   useInfiniteQuery<ListMembersRes.AsObject, RpcError>({
-    queryKey: [...communityMembersKey(communityId!), pageSize],
+    queryKey: [...communityMembersKey(communityId), pageSize],
     queryFn: ({ pageParam }) =>
       service.communities.listMembers({
-        communityId: communityId,
+        communityId,
         pageSize,
         pageToken: pageParam as string | undefined,
       }),

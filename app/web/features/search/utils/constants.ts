@@ -4,9 +4,9 @@ import { SearchUser } from "@/proto/search_pb";
 import { firstName } from "@/utils/names";
 
 const aboutText = (user: SearchUser.AsObject, t: TFunction) => {
-  const missingAbout = user.profileSnippet.length === 0;
+  const isMissingAbout = user.profileSnippet.length === 0;
 
-  return missingAbout
+  return isMissingAbout
     ? t("search:search_result.missing_about_description", {
         name: firstName(user.name),
       })

@@ -100,7 +100,7 @@ describe("contributor form", () => {
     expect(screen.getByRole("alert")).toBeVisible();
     expect(screen.getByRole("alert")).toHaveTextContent("Network error?");
     expect(screen.queryByText(SUCCESS_MSG)).not.toBeInTheDocument();
-    expect(screen.getByLabelText(IDEAS_LABEL) as HTMLInputElement).toHaveValue(
+    expect(screen.getByLabelText(IDEAS_LABEL)).toHaveValue(
       "I have great ideas",
     );
     expect(processForm).toHaveBeenCalledWith({

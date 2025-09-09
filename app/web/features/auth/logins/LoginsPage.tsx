@@ -110,7 +110,7 @@ export default function LoginsPage() {
       <StyledButton
         color="secondary"
         loading={logoutAllIsLoading}
-        onClick={() => logoutAll()}
+        onClick={() => { logoutAll(); }}
       >
         {t("auth:active_logins.log_out_of_all_session")}
       </StyledButton>

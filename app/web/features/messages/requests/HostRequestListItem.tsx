@@ -56,8 +56,8 @@ export default function HostRequestListItem({
   );
   const isUnread =
     hostRequest.lastSeenMessageId !== hostRequest.latestMessage?.messageId;
-  //define the latest message author's name and
-  //control message target to use in short message preview
+  // define the latest message author's name and
+  // control message target to use in short message preview
   const authorName =
     hostRequest?.latestMessage?.authorUserId === authState.userId
       ? firstName(currentUser?.name) || ""
@@ -69,7 +69,7 @@ export default function HostRequestListItem({
       : firstName(otherUser?.name) || ""
     : "";
 
-  //text is the control message text or message text, truncated
+  // text is the control message text or message text, truncated
   const latestMessageText = hostRequest.latestMessage
     ? isControlMessage(hostRequest.latestMessage)
       ? controlMessage({
@@ -78,7 +78,7 @@ export default function HostRequestListItem({
           target_user: targetName,
           t,
         })
-      : //if it's a normal message, show "<User's Name>: <The message>"
+      : // if it's a normal message, show "<User's Name>: <The message>"
         `${capitalize(authorName)}: ${
           hostRequest.latestMessage.text?.text || ""
         }`

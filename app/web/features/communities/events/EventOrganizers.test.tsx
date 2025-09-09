@@ -165,9 +165,9 @@ describe("Event organizers", () => {
       );
 
       await waitFor(() =>
-        expect(
+        { expect(
           dialog.queryByTestId(USER_TITLE_SKELETON_TEST_ID),
-        ).not.toBeInTheDocument(),
+        ).not.toBeInTheDocument(); },
       );
     });
 
@@ -203,11 +203,11 @@ describe("Event organizers", () => {
       );
 
       await waitFor(() =>
-        expect(
+        { expect(
           screen.queryByRole("button", {
             name: t("communities:load_more_organizers"),
           }),
-        ).not.toBeInTheDocument(),
+        ).not.toBeInTheDocument(); },
       );
     });
 

@@ -26,7 +26,7 @@ export default function TOSSection({
     if (!info.isJailed) {
       updateJailed();
     } else {
-      //if user is no longer jailed, this component will be unmounted anyway
+      // if user is no longer jailed, this component will be unmounted anyway
       setLoading(false);
       setCompleted(true);
     }

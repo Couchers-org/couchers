@@ -62,7 +62,7 @@ export default function NewPlaceForm() {
     },
   });
 
-  const onSubmit = handleSubmit((data: NewPlaceInputs) => createPlace(data));
+  const onSubmit = handleSubmit((data: NewPlaceInputs) => { createPlace(data); });
 
   return (
     <>

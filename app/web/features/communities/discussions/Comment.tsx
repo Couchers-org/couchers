@@ -23,7 +23,7 @@ import { timestamp2Date } from "@/utils/date";
 import hasAtLeastOnePage from "@/utils/hasAtLeastOnePage";
 import { timeAgo } from "@/utils/timeAgo";
 
-import { useThread } from "../hooks";
+import { useThread } from "@/features/communities/hooks";
 import CommentForm from "./CommentForm";
 
 const StyledCommentContainer = styled(Card)(() => ({
@@ -198,7 +198,7 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
           {topLevel && (
             <CommentForm
               hideable
-              onClose={() => setShowCommentForm(false)}
+              onClose={() => { setShowCommentForm(false); }}
               ref={commentFormRef}
               shown={showCommentForm}
               threadId={comment.threadId}

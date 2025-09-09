@@ -3,7 +3,7 @@ import React from "react";
 
 import Linkify from "./Linkify";
 
-test("renders links as anchor tags with correct href attributes", () => {
+it("renders links as anchor tags with correct href attributes", () => {
   const testMessages = [
     {
       text: "I really do all my shopping on amazon.es.",

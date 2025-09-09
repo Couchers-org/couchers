@@ -54,28 +54,28 @@ export default function GroupChatListItem({
   const isUnread =
     groupChat.lastSeenMessageId !== groupChat.latestMessage?.messageId;
 
-  //It is possible the last message is sent by someone who has left
-  //so include it just in case
+  // It is possible the last message is sent by someone who has left
+  // so include it just in case
   const groupChatMembersQuery = useLiteUsers([
     ...groupChat.memberUserIdsList,
     latestMessageAuthorId,
   ]);
 
-  //the avatar is of the latest message author (if it's not the logged in user),
-  //otherwise any user that's not the logged in user, otherwise logged in user
+  // the avatar is of the latest message author (if it's not the logged in user),
+  // otherwise any user that's not the logged in user, otherwise logged in user
   const avatarUserId =
     latestMessageAuthorId !== null && latestMessageAuthorId !== currentUserId
       ? latestMessageAuthorId
       : (groupChat.memberUserIdsList.find((id) => id !== currentUserId) ??
         currentUserId);
-  //title is the chat title, or all the member's names except current user joined together
+  // title is the chat title, or all the member's names except current user joined together
   const title = groupChatTitleText(
     groupChat,
     groupChatMembersQuery,
     currentUserId,
     t,
   );
-  //text is the control message text or message text
+  // text is the control message text or message text
   let text = "";
   const authorName = firstName(
     groupChatMembersQuery.data?.get(groupChat.latestMessage?.authorUserId)

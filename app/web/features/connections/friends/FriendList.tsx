@@ -9,7 +9,7 @@ import { theme } from "@/theme";
 import FriendItem from "./FriendItem";
 import FriendTile from "./FriendTile";
 
-function FriendList({
+const FriendList = ({
   errors,
   friends,
   isLoading,
@@ -17,7 +17,7 @@ function FriendList({
   errors: string[];
   friends: LiteUser.AsObject[] | undefined;
   isLoading: boolean;
-}) {
+}) => {
   const { t } = useTranslation([GLOBAL, CONNECTIONS]);
 
   const [error, setError] = useState<Error | null>(null);

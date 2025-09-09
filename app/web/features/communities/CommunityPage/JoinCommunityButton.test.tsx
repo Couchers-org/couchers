@@ -22,7 +22,7 @@ const leaveCommunityMock = service.communities.leaveCommunity as MockedService<
   typeof service.communities.leaveCommunity
 >;
 
-function View() {
+const View = () => {
   const community = useCommunity(2);
   return community.data ? (
     <JoinCommunityButton community={community.data} />

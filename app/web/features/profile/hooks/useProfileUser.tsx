@@ -12,10 +12,10 @@ interface ProfileUserProviderProps {
   user: User.AsObject;
 }
 
-export function ProfileUserProvider({
+export const ProfileUserProvider = ({
   children,
   user,
-}: ProfileUserProviderProps) {
+}: ProfileUserProviderProps) => {
   return (
     <ProfileUserContext.Provider value={user}>
       {children}

@@ -56,7 +56,7 @@ export default function BasicForm({
         sanitizedEmail,
       );
       doAntibot("signup");
-      return authActions.updateSignupState(state);
+      authActions.updateSignupState(state);
     },
     onSettled() {
       window.scroll({ top: 0, behavior: "smooth" });

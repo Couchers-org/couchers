@@ -21,8 +21,8 @@ import {
   WriteHostRequestReferenceInput,
 } from "@/service/references";
 
-import type { ReferenceTypeState } from "../view/References";
-import type { ListReferencesInfiniteQueryResult } from "../view/ReferencesView";
+import type { ReferenceTypeState } from "@/features/profile/view/References";
+import type { ListReferencesInfiniteQueryResult } from "@/features/profile/view/ReferencesView";
 
 export function useReferencesGiven(
   user: User.AsObject,

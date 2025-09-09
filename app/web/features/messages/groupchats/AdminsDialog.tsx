@@ -43,7 +43,7 @@ const StyledMemberListItemContainer = styled(ListItem)(() => ({
   justifyContent: "flex-start",
 }));
 
-function AdminListItem({
+const AdminListItem = ({
   groupChatId,
   member,
   memberIsAdmin,
@@ -53,14 +53,14 @@ function AdminListItem({
   member: LiteUser.AsObject;
   memberIsAdmin: boolean;
   setError: (value: string) => void;
-}) {
+}) => {
   const { t } = useTranslation(MESSAGES);
 
   const isCurrentUser = useAuthContext().authState.userId === member.userId;
 
   const queryClient = useQueryClient();
-  const clearError = () => setError("");
-  const handleError = (error: RpcError) => setError(error.message);
+  const clearError = () => { setError(""); };
+  const handleError = (error: RpcError) => { setError(error.message); };
   const invalidate = () => {
     queryClient.invalidateQueries({
       queryKey: [groupChatMessagesKey(groupChatId)],
@@ -117,13 +117,13 @@ function AdminListItem({
     },
   });
 
-  const handleMakeAdmin = () => makeAdmin.mutate();
-  const handleRemoveAdmin = () => removeAdmin.mutate();
+  const handleMakeAdmin = () => { makeAdmin.mutate(); };
+  const handleRemoveAdmin = () => { removeAdmin.mutate(); };
 
   return (
     <StyledMemberListItemContainer dense>
       {
-        //TODO: Colours
+        // TODO: Colours
         memberIsAdmin ? (
           isCurrentUser ? (
             <ConfirmationDialogWrapper
@@ -136,7 +136,7 @@ function AdminListItem({
                   aria-label={t("admins_dialog.remove_admin.action_a11y_label")}
                   size="small"
                   loading={removeAdmin.isPending}
-                  onClick={() => setIsOpen(true)}
+                  onClick={() => { setIsOpen(true); }}
                 >
                   <CloseIcon />
                 </IconButton>

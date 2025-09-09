@@ -15,8 +15,8 @@ import { routeToCommunity, routeToNewEvent } from "@/routes";
 import { theme } from "@/theme";
 import hasAtLeastOnePage from "@/utils/hasAtLeastOnePage";
 
-import { SectionTitle } from "../CommunityPage";
-import { useListCommunityEvents } from "../hooks";
+import { SectionTitle } from "@/features/communities/CommunityPage";
+import { useListCommunityEvents } from "@/features/communities/hooks";
 import EventCard from "./EventCard";
 
 const StyledLoadMoreButton = styled("div")(() => ({

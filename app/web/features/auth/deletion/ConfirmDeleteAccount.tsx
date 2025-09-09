@@ -31,7 +31,7 @@ export default function ConfirmDeleteAccount() {
       if (token === undefined) {
         throw Error(t("auth:delete_account.missing_token"));
       }
-      return await service.auth.confirmDeleteAccount(token);
+      await service.auth.confirmDeleteAccount(token);
     },
 
     onSuccess: () => {
@@ -55,7 +55,7 @@ export default function ConfirmDeleteAccount() {
           {t("auth:delete_account.confirm.account_deleted")}
         </Alert>
       )}
-      <Button onClick={() => mutate({ token })} loading={isPending}>
+      <Button onClick={() => { mutate({ token }); }} loading={isPending}>
         {t("auth:delete_account.confirm.button_text")}
       </Button>
     </>

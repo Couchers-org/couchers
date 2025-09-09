@@ -96,8 +96,7 @@ interface EventFormProps {
   mutate: UseMutateFunction<
     Event.AsObject,
     RpcError,
-    CreateEventVariables,
-    unknown
+    CreateEventVariables
   >;
   isMutationLoading: boolean;
   title: string;

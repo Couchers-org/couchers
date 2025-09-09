@@ -28,7 +28,7 @@ const StyledVerticalStyleContainer = styled("div")(({ theme }) => ({
     gap: theme.spacing(2),
     padding: theme.spacing(2),
 
-    //break out of page padding
+    // break out of page padding
     left: "50%",
     marginLeft: "-50vw",
     marginRight: "-50vw",

@@ -18,9 +18,9 @@ import { routeToCommunity } from "@/routes";
 import { service } from "@/service";
 import { theme } from "@/theme";
 
-import { Community } from "../../proto/communities_pb";
-import { Page } from "../../proto/pages_pb";
-import { communityKey } from "../queryKeys";
+import { Community } from "@/proto/communities_pb";
+import { Page } from "@/proto/pages_pb";
+import { communityKey } from "@/features/queryKeys";
 import CommunityBase from "./CommunityBase";
 
 const StyledForm = styled("form")(() => ({

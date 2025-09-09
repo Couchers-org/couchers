@@ -67,15 +67,15 @@ export default function DeleteStrongVerificationDataButton() {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => deleteData()} loading={isPending}>
+          <Button onClick={() => { deleteData(); }} loading={isPending}>
             {t("auth:strong_verification.delete_my_data_button")}
           </Button>
-          <Button variant="outlined" onClick={() => setOpen(false)}>
+          <Button variant="outlined" onClick={() => { setOpen(false); }}>
             {t("global:cancel")}
           </Button>
         </DialogActions>
       </Dialog>
-      <Button loading={isPending} onClick={() => setOpen(true)}>
+      <Button loading={isPending} onClick={() => { setOpen(true); }}>
         {t("auth:strong_verification.delete_button")}
       </Button>
     </>

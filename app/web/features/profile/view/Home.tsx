@@ -73,7 +73,7 @@ export default function Home({ user }: HomeProps) {
           />
           <LabelAndText
             label={t("profile:edit_home_questions.accept_smoking")}
-            text={`${smokingLocationLabels(t)[user.smokingAllowed]}`}
+            text={smokingLocationLabels(t)[user.smokingAllowed]}
           />
         </StyledInfoColumn>
         <StyledInfoColumn>
@@ -82,7 +82,7 @@ export default function Home({ user }: HomeProps) {
           </Typography>
           <LabelAndText
             label={t("profile:home_info_headings.space")}
-            text={`${sleepingArrangementLabels(t)[user.sleepingArrangement]}`}
+            text={sleepingArrangementLabels(t)[user.sleepingArrangement]}
           />
           <LabelAndText
             label={t("profile:home_info_headings.parking")}

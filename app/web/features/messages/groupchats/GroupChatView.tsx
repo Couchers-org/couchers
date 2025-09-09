@@ -108,7 +108,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
     refetchInterval: GROUP_CHAT_REFETCH_INTERVAL,
   });
 
-  //for title text
+  // for title text
   const currentUserId = useAuthContext().authState.userId!;
   const groupChatMembersQuery = useLiteUsers(
     groupChat?.memberUserIdsList ?? [],

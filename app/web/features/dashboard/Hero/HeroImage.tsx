@@ -57,7 +57,7 @@ const HeroImage: React.FC<HeroImageProps> = ({
     .map(({ width, fileName }) => `${fileName} ${width}w`)
     .join(", ");
 
-  const primarySrc = `${imageWidths[imageWidths.length - 1].fileName}`;
+  const primarySrc = imageWidths[imageWidths.length - 1].fileName;
 
   return (
     <ImageOuterContainer>

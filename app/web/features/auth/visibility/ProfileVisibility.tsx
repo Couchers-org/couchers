@@ -96,7 +96,7 @@ export default function ProfileVisibility({
               <RadioGroup
                 {...field}
                 row
-                onChange={(event, newValue) => field.onChange(Number(newValue))}
+                onChange={(event, newValue) => { field.onChange(Number(newValue)); }}
                 sx={{ marginBlockStart: 1 }}
               >
                 {choices.map(([setting, translationKey]) => (

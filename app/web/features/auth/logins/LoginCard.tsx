@@ -42,7 +42,7 @@ export default function LoginsPage({
 
   const lastSeenDisplay = timeAgoI18n({
     input: timestamp2Date(session.lastSeen!),
-    t: t,
+    t,
   });
   const createdDisplay = dateTimeFormatter(locale).format(
     timestamp2Date(session.created!),
@@ -131,7 +131,7 @@ export default function LoginsPage({
       </CardContent>
       {!session.isCurrentSession && (
         <CardActions>
-          <Button onClick={() => logOutThisSession()} loading={isPending}>
+          <Button onClick={() => { logOutThisSession(); }} loading={isPending}>
             {t("auth:active_logins.log_out_of_session")}
           </Button>
         </CardActions>

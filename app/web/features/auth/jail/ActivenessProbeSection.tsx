@@ -52,7 +52,7 @@ export default function ActivenessProbeSection({
       <FormControl variant="standard" component="fieldset">
         <RadioGroup
           value={isSelected}
-          onChange={(e, val) => setIsSelected(val === "true")}
+          onChange={(e, val) => { setIsSelected(val === "true"); }}
         >
           <FormControlLabel
             value={true}

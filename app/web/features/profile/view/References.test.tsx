@@ -10,8 +10,8 @@ import i18n from "@/test/i18n";
 import { getLiteUser, getLiteUsers } from "@/test/serviceMockDefaults";
 import { MockedService } from "@/test/utils";
 
-import { referenceBadgeLabel } from "../constants";
-import { ProfileUserProvider } from "../hooks/useProfileUser";
+import { referenceBadgeLabel } from "@/features/profile/constants";
+import { ProfileUserProvider } from "@/features/profile/hooks/useProfileUser";
 import { REFERENCE_LIST_ITEM_TEST_ID } from "./ReferenceListItem";
 import References from "./References";
 
@@ -89,7 +89,7 @@ describe("References", () => {
       const reference = within(referenceListItems[i]);
 
       expect(reference.getByRole("heading")).toHaveTextContent(
-        new RegExp(user!.name, "i"),
+        new RegExp(user.name, "i"),
       );
       expect(reference.getByText(references[i].text)).toBeVisible();
       // Reference type badge

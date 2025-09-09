@@ -256,7 +256,7 @@ export default function FlagButton({
           </DialogContent>
           <DialogActions>
             <Button
-              onClick={() => handleClose({}, "button")}
+              onClick={() => { handleClose({}, "button"); }}
               variant="outlined"
               sx={{
                 color: theme.palette.common.black,

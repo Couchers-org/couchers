@@ -23,7 +23,7 @@ const missions = [
 ];
 
 describe("CouchersMission", () => {
-  test.each(missions)(
+  it.each(missions)(
     "renders the component correctly with bubble mission clicked: %s",
     async (mission) => {
       render(<CouchersMission />);

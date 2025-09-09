@@ -29,7 +29,7 @@ import { GLOBAL } from "@/i18n/namespaces";
 import { PingRes } from "@/proto/api_pb";
 import { theme } from "@/theme";
 
-import { AccessibleDialogProps } from "../Dialog";
+import { AccessibleDialogProps } from "@/components/Dialog";
 
 export type LoggedInMenuLinkItem = {
   type: "link";
@@ -118,13 +118,13 @@ const styledMenuItem = <C extends React.ComponentType<React.ComponentProps<C>>>(
 const StyledMenuItemLink = styledMenuItem(MuiLink);
 const StyledMenuItemDialog = styledMenuItem(Button);
 
-function LinkMenuItemView({
+const LinkMenuItemView = ({
   externalLink,
   route,
   closeMenu,
   name,
   notificationCount,
-}: LoggedInMenuLinkItem & { closeMenu: () => unknown }) {
+}: LoggedInMenuLinkItem & { closeMenu: () => unknown }) => {
   const linkContent = (
     <span style={{ display: "flex", alignItems: "center" }}>
       {notificationCount ? (
@@ -174,11 +174,11 @@ function LinkMenuItemView({
   );
 }
 
-function DialogMenuItemView({
+const DialogMenuItemView = ({
   name,
   dialogComponent: DialogComponent,
   dialogLabel,
-}: LoggedInMenuDialogItem & { closeMenu: () => unknown }) {
+}: LoggedInMenuDialogItem & { closeMenu: () => unknown }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
@@ -192,14 +192,14 @@ function DialogMenuItemView({
       </StyledMenuItemDialog>
       <DialogComponent
         open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
+        onClose={() => { setIsDialogOpen(false); }}
         aria-labelledby={dialogLabel}
       />
     </>
   );
 }
 
-function MenuItemView(props: LoggedInMenuItem & { closeMenu: () => unknown }) {
+const MenuItemView = (props: LoggedInMenuItem & { closeMenu: () => unknown }) => {
   return (
     <MenuItem
       hasNotification={props.type === "link" && !!props.notificationCount}
@@ -282,7 +282,7 @@ export default function LoggedInMenu({
       <StyledMenuButton
         aria-controls="navigation-menu"
         aria-haspopup="true"
-        onClick={() => setMenuOpen((prevMenuOpen: boolean) => !prevMenuOpen)}
+        onClick={() => { setMenuOpen((prevMenuOpen: boolean) => !prevMenuOpen); }}
         ref={menuRef}
       >
         <MenuIcon sx={{ color: theme.palette.text.primary }} />
@@ -292,7 +292,7 @@ export default function LoggedInMenu({
         id="navigation-menu"
         open={menuOpen}
         anchorEl={menuRef.current}
-        onClose={() => setMenuOpen(false)}
+        onClose={() => { setMenuOpen(false); }}
         anchorOrigin={{
           vertical: "bottom",
           horizontal: "right",

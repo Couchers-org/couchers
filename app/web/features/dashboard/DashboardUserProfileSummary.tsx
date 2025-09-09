@@ -13,7 +13,7 @@ import { theme } from "@/theme";
 
 import MinimalUserProfileCard from "./MinimalUserProfileCard";
 
-function DashboardUserProfileSummaryActions() {
+const DashboardUserProfileSummaryActions = () => {
   const { t } = useTranslation([DASHBOARD]);
   return (
     <>

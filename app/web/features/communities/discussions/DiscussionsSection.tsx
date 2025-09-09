@@ -14,7 +14,7 @@ import { composingDiscussionHash, routeToCommunity } from "@/routes";
 import { theme } from "@/theme";
 import hasAtLeastOnePage from "@/utils/hasAtLeastOnePage";
 
-import { SectionTitle } from "../CommunityPage";
+import { SectionTitle } from "@/features/communities/CommunityPage";
 import DiscussionCard from "./DiscussionCard";
 
 const StyledLoadMoreButton = styled("div")(() => ({

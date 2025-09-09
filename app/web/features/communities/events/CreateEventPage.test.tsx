@@ -77,7 +77,7 @@ describe("Create event page", () => {
 
     const titleInput = (await screen.findByLabelText(
       t("global:title"),
-    )) as HTMLInputElement;
+    ));
 
     await user.type(titleInput, "Test event");
 
@@ -125,7 +125,7 @@ describe("Create event page", () => {
 
     const virtualEventCheckBox = screen.getByLabelText(
       t("communities:virtual_event"),
-    ) as HTMLInputElement;
+    );
 
     await user.click(virtualEventCheckBox);
 
@@ -133,7 +133,7 @@ describe("Create event page", () => {
 
     const eventLinkInput = (await screen.findByLabelText(
       t("communities:event_link"),
-    )) as HTMLInputElement;
+    ));
 
     await user.type(eventLinkInput, "https://couchers.org/social");
 
@@ -178,7 +178,7 @@ describe("Create event page", () => {
 
     const titleInput = (await screen.findByLabelText(
       t("global:title"),
-    )) as HTMLInputElement;
+    ));
 
     await user.type(titleInput, "Test event");
 
@@ -226,7 +226,7 @@ describe("Create event page", () => {
 
     const locationInput = screen.getByLabelText(
       t("communities:location"),
-    ) as HTMLInputElement;
+    );
 
     await user.type(locationInput, "tes{enter}");
 
@@ -271,7 +271,7 @@ describe("Create event page", () => {
 
     const titleInput = (await screen.findByLabelText(
       t("global:title"),
-    )) as HTMLInputElement;
+    ));
 
     await user.type(titleInput, "Test event");
 
@@ -319,7 +319,7 @@ describe("Create event page", () => {
 
     const locationInput = screen.getByLabelText(
       t("communities:location"),
-    ) as HTMLInputElement;
+    );
 
     await user.type(locationInput, "tes{enter}");
 

@@ -247,16 +247,16 @@ describe("Signup", () => {
       const checkboxes = await screen.findAllByLabelText(
         t("auth:community_guidelines_form.guideline.checkbox_label"),
       );
-      checkboxes.forEach(async (checkbox) => await user.click(checkbox));
+      checkboxes.forEach(async (checkbox) => { await user.click(checkbox); });
       const button = await screen.findByRole("button", {
         name: t("global:submit"),
       });
 
-      await waitFor(() => expect(button).not.toBeDisabled());
+      await waitFor(() => { expect(button).not.toBeDisabled(); });
 
       await user.click(button);
 
-      await waitFor(() => expect(mockRouter.pathname).toBe(DASHBOARD_ROUTE));
+      await waitFor(() => { expect(mockRouter.pathname).toBe(DASHBOARD_ROUTE); });
 
       expect(TagManager.dataLayer).toHaveBeenCalledTimes(1);
       expect(TagManager.dataLayer).toHaveBeenCalledWith({

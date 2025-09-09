@@ -56,7 +56,7 @@ interface CreateGroupChatFormData {
 export default function CreateGroupChat({ className }: { className?: string }) {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
 
-  //handle redirects which want to create a new message with someone
+  // handle redirects which want to create a new message with someone
   const router = useRouter();
   const createMessageToUsername = stringOrFirstString(router.query.to);
   const [isOpen, setIsOpen] = useState(!!createMessageToUsername);
@@ -91,7 +91,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
   });
 
   const onSubmit = handleSubmit(({ title, users }: CreateGroupChatFormData) =>
-    createGroupChat({ title, users }),
+    { createGroupChat({ title, users }); },
   );
 
   const handleClose = () => {
@@ -106,7 +106,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
 
   return (
     <>
-      <ListItemButton onClick={() => setIsOpen(true)} className={className}>
+      <ListItemButton onClick={() => { setIsOpen(true); }} className={className}>
         <ListItemAvatar>
           <Avatar>
             <AddIcon />
@@ -119,7 +119,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
         open={isOpen}
         onClose={handleClose}
         keepMounted={
-          //prevents the form state being lost
+          // prevents the form state being lost
           true
         }
       >

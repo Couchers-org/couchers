@@ -68,7 +68,7 @@ export default function MapSearch({
 
   const { query, isLoading, results, error } = useGeocodeQuery();
 
-  //create a dummy search options if there are no results
+  // create a dummy search options if there are no results
   const searchOptions = isLoading
     ? []
     : results && results.length === 0
@@ -96,7 +96,7 @@ export default function MapSearch({
     const searchOption = results?.find((o) => value === o.name);
 
     if (!searchOption) {
-      //createOption is when enter is pressed on user-entered string
+      // createOption is when enter is pressed on user-entered string
       if (reason === "createOption") {
         query(value);
         setOpen(true);
@@ -122,10 +122,10 @@ export default function MapSearch({
           options={searchOptions?.map((o) => o.name) || []}
           loading={isLoading}
           open={open}
-          onBlur={() => setOpen(false)}
+          onBlur={() => { setOpen(false); }}
           inputProps={inputFieldProps}
           error={inputFieldError?.message}
-          onInputChange={(e, v) => setValue(v)}
+          onInputChange={(e, v) => { setValue(v); }}
           onChange={(e, v, reason) => {
             setValue(v);
             searchSubmit(v, reason);

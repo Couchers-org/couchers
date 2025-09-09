@@ -26,10 +26,10 @@ interface LocationAutocompleteProps {
   shouldDisableRegions?: boolean;
 }
 
-const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
+const LocationAutocomplete = React.forwardRef((
   props: LocationAutocompleteProps,
   ref,
-) {
+) => {
   const {
     className,
     control,
@@ -125,12 +125,12 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
       loading={isLoading}
       options={options || []}
       open={isOpen}
-      onClose={() => setIsOpen(false)}
+      onClose={() => { setIsOpen(false); }}
       value={controller.field.value}
       getOptionLabel={(option: GeocodeResult | string) => {
         return geocodeResult2String(option, shouldShowFullDisplayName);
       }}
-      onInputChange={(_e, value) => handleChange(value)}
+      onInputChange={(_e, value) => { handleChange(value); }}
       onChange={(_e, value, reason) => {
         handleChange(value);
         searchSubmit(value, reason);
@@ -144,7 +144,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
       endAdornment={
         <IconButton
           aria-label={t("location_autocomplete.search_location_button")}
-          onClick={() => searchSubmit(controller.field.value, "createOption")}
+          onClick={() => { searchSubmit(controller.field.value, "createOption"); }}
           size="small"
         >
           <SearchIcon />

@@ -12,7 +12,7 @@ const StyledGrid = styled(Grid)({
   },
 });
 
-function FriendsTab() {
+const FriendsTab = () => {
   const { errors, isLoading, data: friends, refetchFriends } = useFriendList();
 
   return (

@@ -84,7 +84,7 @@ export default function Avatar({
               alt={user.name}
               src={
                 !!highRes
-                  ? (user as UserWithAvatarUrl).avatarUrl
+                  ? (user).avatarUrl
                   : (user as UserWithAvatarThumbnailUrl).avatarThumbnailUrl
               }
             >
@@ -96,7 +96,7 @@ export default function Avatar({
             alt={user.name}
             src={
               !!highRes
-                ? (user as UserWithAvatarUrl).avatarUrl
+                ? (user).avatarUrl
                 : (user as UserWithAvatarThumbnailUrl).avatarThumbnailUrl
             }
           >

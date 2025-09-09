@@ -7,7 +7,7 @@ import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
 import { newEventRoute } from "@/routes";
 import { theme } from "@/theme";
 
-import DiscoverEventsList from "../events/DiscoverEventsList";
+import DiscoverEventsList from "./DiscoverEventsList";
 import MyEventsList from "./MyEventsList";
 
 const StyledHeaderRow = styled("div")(() => ({

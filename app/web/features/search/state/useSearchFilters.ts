@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
+import { FilterOptions } from "@/features/search/SearchPage";
 import { HostingStatus, SleepingArrangement } from "@/proto/api_pb";
 
-import { FilterOptions } from "../SearchPage";
 import { useMapSearchState } from "./mapSearchContext";
 import { initialState } from "./mapSearchReducers";
 
@@ -32,7 +32,7 @@ interface LocalSearchFilters {
   sleepingArrangement: SleepingArrangement;
 }
 
-export function useSearchFilters() {
+export const useSearchFilters = () => {
   const { filters: stateFilters } = useMapSearchState();
 
   const [filters, setFilters] = useState<FilterOptions>(stateFilters);
@@ -59,6 +59,6 @@ export function useSearchFilters() {
     resetFilters,
     updateFilter,
   };
-}
+};
 
 export type { LocalSearchFilters };

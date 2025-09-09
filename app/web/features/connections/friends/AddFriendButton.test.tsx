@@ -15,7 +15,7 @@ const sendFriendRequestMock = service.api.sendFriendRequest as jest.Mock<
   ReturnType<typeof service.api.sendFriendRequest>
 >;
 
-function TestComponent() {
+const TestComponent = () => {
   const [mutationError, setMutationError] = useState("");
 
   return (

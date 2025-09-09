@@ -105,7 +105,7 @@ export default function MarkdownInput({
 
     if (imageUpload) {
       uploadButton!.type = "button";
-      //class stolen from tui source code
+      // class stolen from tui source code
       uploadButton!.className = "toastui-editor-toolbar-icons image";
       uploadButton!.setAttribute("aria-label", INSERT_IMAGE);
       uploadButton!.style.margin = "0";
@@ -128,11 +128,11 @@ export default function MarkdownInput({
     fieldRef.current = new ToastUIEditor({
       el: rootEl.current!,
       events: {
-        blur: () => fieldOnBlur.current(),
+        blur: () => { fieldOnBlur.current(); },
         change: () =>
-          fieldOnChange.current(
+          { fieldOnChange.current(
             (fieldRef.current as ToastUIEditor).getMarkdown(),
-          ),
+          ); },
       },
       initialEditType: "wysiwyg",
       initialValue: initialDefaultValue.current ?? "",
@@ -181,9 +181,9 @@ export default function MarkdownInput({
       {imageUpload && (
         <UploadImage
           open={imageDialogOpen}
-          onClose={() => setImageDialogOpen(false)}
+          onClose={() => { setImageDialogOpen(false); }}
           emitter={
-            (fieldRef.current as ToastUIEditor | undefined)?.eventEmitter
+            (fieldRef.current)?.eventEmitter
           }
         />
       )}

@@ -28,7 +28,7 @@ export default function NewComment({ onComment }: NewCommentProps) {
             maxRows={5}
             multiline
             fullWidth
-            onChange={(e) => setComment(e.target.value)}
+            onChange={(e) => { setComment(e.target.value); }}
             value={comment}
             margin="normal"
           />
@@ -36,7 +36,7 @@ export default function NewComment({ onComment }: NewCommentProps) {
             <Button component={Link} href="https://www.markdowntutorial.com/">
               Formatting?
             </Button>
-            <Button component={Link} onClick={() => setIsPreview(!isPreview)}>
+            <Button component={Link} onClick={() => { setIsPreview(!isPreview); }}>
               Preview?
             </Button>
           </Box>

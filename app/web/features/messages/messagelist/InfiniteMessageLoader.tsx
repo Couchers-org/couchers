@@ -106,17 +106,17 @@ export default function InfiniteMessageLoader({
     scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
   }, []);
 
-  //**  Keep place or keep at bottom on window resize (i.e. keyboard popup on mobile (hopefully)) **//
+  //* *  Keep place or keep at bottom on window resize (i.e. keyboard popup on mobile (hopefully)) **//
   useEffect(() => {
     const updateMessagePosition = () => {
       if (!scrollRef.current) return;
       scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
     };
     window.addEventListener("resize", updateMessagePosition);
-    return () => window.removeEventListener("resize", updateMessagePosition);
+    return () => { window.removeEventListener("resize", updateMessagePosition); };
   }, []);
 
-  //** Scroll to the bottom after sending own new message  **//
+  //* * Scroll to the bottom after sending own new message  **//
   const savedMessageId = useRef(latestMessage?.messageId);
   useLayoutEffect(() => {
     if (!scrollRef.current) return;

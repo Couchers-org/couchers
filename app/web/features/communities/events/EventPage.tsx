@@ -33,8 +33,8 @@ import { theme } from "@/theme";
 import { timestamp2Date } from "@/utils/date";
 import dayjs from "@/utils/dayjs";
 
-import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
-import CommentTree from "../discussions/CommentTree";
+import { eventAttendeesBaseKey, eventKey } from "@/features/queryKeys";
+import CommentTree from "@/features/communities/discussions/CommentTree";
 import AttendanceMenu from "./AttendanceMenu";
 import CancelEventDialog from "./CancelEventDialog";
 import EventOrganizers from "./EventOrganizers";
@@ -246,7 +246,7 @@ export default function EventPage({
             />
             <StyledHeader>
               <StyledBackButton
-                onClick={() => router.back()}
+                onClick={() => { router.back(); }}
                 aria-label={t("communities:previous_page")}
               >
                 <BackIcon />
@@ -295,7 +295,7 @@ export default function EventPage({
                       {t("communities:edit_event")}
                     </Button>
                     <StyledCancelButton
-                      onClick={() => setCancelDialogIsOpen(true)}
+                      onClick={() => { setCancelDialogIsOpen(true); }}
                       variant="contained"
                       color="primary"
                       disabled={event.isCancelled || isPastEvent}
@@ -304,11 +304,11 @@ export default function EventPage({
                     </StyledCancelButton>
                     <CancelEventDialog
                       open={cancelDialogIsOpen}
-                      onClose={() => setCancelDialogIsOpen(false)}
+                      onClose={() => { setCancelDialogIsOpen(false); }}
                       eventId={eventId}
                     />
                     <Button
-                      onClick={() => setInviteCommunityDialogIsOpen(true)}
+                      onClick={() => { setInviteCommunityDialogIsOpen(true); }}
                       variant="contained"
                       color="secondary"
                       disabled={event.isCancelled || isPastEvent}
@@ -316,9 +316,9 @@ export default function EventPage({
                       {t("communities:invite_community_dialog_buttons.open")}
                     </Button>
                     <InviteCommunityDialog
-                      afterSuccess={() => setShowInviteCommunitySuccess(true)}
+                      afterSuccess={() => { setShowInviteCommunitySuccess(true); }}
                       open={inviteCommunityDialogIsOpen}
-                      onClose={() => setInviteCommunityDialogIsOpen(false)}
+                      onClose={() => { setInviteCommunityDialogIsOpen(false); }}
                       eventId={eventId}
                     />
                   </>
@@ -327,7 +327,7 @@ export default function EventPage({
                 <AttendanceMenu
                   loading={isSetEventAttendanceLoading}
                   onChangeAttendanceState={(attendanceState) =>
-                    setEventAttendance(attendanceState)
+                    { setEventAttendance(attendanceState); }
                   }
                   attendanceState={event.attendanceState}
                   id="event-page-attendance"

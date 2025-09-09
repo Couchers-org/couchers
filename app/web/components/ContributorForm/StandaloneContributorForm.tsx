@@ -24,7 +24,7 @@ export default function StandaloneContributorForm() {
     data,
     isLoading: queryLoading,
     error: queryError,
-  } = useQuery<GetContributorFormInfoRes.AsObject, Error>({
+  } = useQuery<GetContributorFormInfoRes.AsObject>({
     queryKey: [contributorFormInfoQueryKey],
     queryFn: service.account.getContributorFormInfo,
   });
@@ -52,7 +52,7 @@ export default function StandaloneContributorForm() {
           >
             {ALREADY_FILLED_IN}
           </Typography>
-          <Button onClick={() => setFillState("fillAgain")}>
+          <Button onClick={() => { setFillState("fillAgain"); }}>
             {FILL_IN_AGAIN}
           </Button>
         </>

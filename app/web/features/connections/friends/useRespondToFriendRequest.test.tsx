@@ -60,17 +60,17 @@ describe("useRespondToFriendRequest hook", () => {
       });
     });
 
-    await waitFor(() => expect(setMutationError).toHaveBeenCalledTimes(1));
+    await waitFor(() => { expect(setMutationError).toHaveBeenCalledTimes(1); });
     expect(setMutationError).toHaveBeenCalledWith("");
     await waitFor(() =>
-      expect(spy).toHaveBeenCalledWith(
+      { expect(spy).toHaveBeenCalledWith(
         expect.objectContaining({ queryKey: ["friendIds"] }),
-      ),
+      ); },
     );
     await waitFor(() =>
-      expect(spy).toHaveBeenCalledWith(
+      { expect(spy).toHaveBeenCalledWith(
         expect.objectContaining({ queryKey: friendRequestKey("received") }),
-      ),
+      ); },
     );
   });
 
@@ -97,7 +97,7 @@ describe("useRespondToFriendRequest hook", () => {
       });
     });
 
-    await waitFor(() => expect(setMutationError).toHaveBeenCalledTimes(2));
+    await waitFor(() => { expect(setMutationError).toHaveBeenCalledTimes(2); });
     expect(setMutationError).toHaveBeenLastCalledWith("API error");
 
     expect(spy).not.toHaveBeenCalled();

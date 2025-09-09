@@ -20,9 +20,9 @@ import { service } from "@/service";
 import { theme } from "@/theme";
 import { dateFormatter, timestamp2Date } from "@/utils/date";
 
-import CommunityBase from "../CommunityBase";
-import CommunityPageSubHeader from "../CommunityPage/CommunityPageSubHeader";
-import PageHeader from "../PageHeader";
+import CommunityBase from "@/features/communities/CommunityBase";
+import CommunityPageSubHeader from "@/features/communities/CommunityPage/CommunityPageSubHeader";
+import PageHeader from "@/features/communities/PageHeader";
 import CommentTree from "./CommentTree";
 
 const StyledPageHeader = styled(PageHeader)(() => ({
@@ -115,7 +115,7 @@ export default function DiscussionPage({
                 <StyledDiscussionBodyWrapper>
                   <StyledDiscussionHeader>
                     <HeaderButton
-                      onClick={() => router.back()}
+                      onClick={() => { router.back(); }}
                       aria-label={t("communities:previous_page")}
                     >
                       <BackIcon />

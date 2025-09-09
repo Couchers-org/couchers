@@ -20,7 +20,7 @@ import { theme } from "@/theme";
 import { timestamp2Date } from "@/utils/date";
 import { timeAgoI18n } from "@/utils/timeAgo";
 
-import { mapNotificationFeedTypeToIcon } from "../utils/constants";
+import { mapNotificationFeedTypeToIcon } from "@/features/notifications/utils/constants";
 
 interface NotificationItemProps {
   notification: Notification.AsObject;

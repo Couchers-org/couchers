@@ -15,7 +15,7 @@ import { theme } from "@/theme";
 import { timestamp2Date } from "@/utils/date";
 import { timeAgo } from "@/utils/timeAgo";
 
-import getContentSummary from "../getContentSummary";
+import getContentSummary from "@/features/communities/getContentSummary";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   "&:hover": {

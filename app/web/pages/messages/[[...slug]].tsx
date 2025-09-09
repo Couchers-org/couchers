@@ -33,17 +33,17 @@ const LeaveReferencePage = () => {
         : router.query.slug;
   let content: ReactNode;
 
-  const tab = MESSAGE_TYPE_STRINGS.find((valid) => valid === slugs?.[0]);
+  const tab = MESSAGE_TYPE_STRINGS.find((valid) => valid === slugs[0]);
 
   if (slugs[0] === "chats") {
-    const id = Number.parseInt(slugs?.[1]);
+    const id = Number.parseInt(slugs[1]);
     if (isNaN(id)) {
       content = <GroupChatsTab />;
     } else {
       content = <GroupChatView chatId={id} />;
     }
   } else if (slugs[0] === "request") {
-    const id = Number.parseInt(slugs?.[1]);
+    const id = Number.parseInt(slugs[1]);
     if (isNaN(id)) {
       return <NotFoundPage />;
     } else {

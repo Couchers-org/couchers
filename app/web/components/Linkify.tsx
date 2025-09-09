@@ -18,7 +18,7 @@ interface LinkifyProps {
   isCurrentUser: boolean;
 }
 
-function Linkify({ text, isCurrentUser }: LinkifyProps) {
+const Linkify = ({ text, isCurrentUser }: LinkifyProps) => {
   const nonCapturingRegex = urlRegex();
   const parts = text.split(nonCapturingRegex);
 

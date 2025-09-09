@@ -43,7 +43,7 @@ describe("MarkAllReadButton", () => {
   beforeEach(() => {
     mutableStore.chats = [...defaultChats];
     mutableStore.requests = [...defaultRequests];
-    //naive implementations rely on id = array index + 1
+    // naive implementations rely on id = array index + 1
     listGroupChatsMock.mockImplementation(
       async (lastMessageId = 0, number = 1) => {
         const chats = [
@@ -142,7 +142,7 @@ describe("MarkAllReadButton", () => {
   });
 });
 
-//id must = array index + 1
+// id must = array index + 1
 const defaultChats: GroupChat.AsObject[] = [
   {
     ...chat,

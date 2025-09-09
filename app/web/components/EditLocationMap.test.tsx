@@ -75,11 +75,11 @@ describe("Edit location map", () => {
         { wrapper },
       );
       await waitFor(() =>
-        expect(
+        { expect(
           screen.getByText(
             t("global:components.edit_location_map.display_location_label"),
           ),
-        ).toHaveAttribute("data-shrink", "false"),
+        ).toHaveAttribute("data-shrink", "false"); },
       );
     });
 
@@ -97,11 +97,11 @@ describe("Edit location map", () => {
         { wrapper },
       );
       await waitFor(() =>
-        expect(
+        { expect(
           screen.getByText(
             t("global:components.edit_location_map.display_location_label"),
           ),
-        ).toHaveAttribute("data-shrink", "true"),
+        ).toHaveAttribute("data-shrink", "true"); },
       );
     });
 

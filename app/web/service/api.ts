@@ -104,7 +104,7 @@ export const uploadFile = async (file: File): Promise<ImageInputValues> => {
   })) as ImageInputValues;
   return {
     ...responseJson,
-    file: file,
+    file,
   };
 };
 

@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 
 import { Dayjs } from "@/utils/dayjs";
 
-import wrapper from "../test/hookWrapper";
+import wrapper from "@/test/hookWrapper";
 import Timepicker from "./Timepicker";
 
 jest.mock("@mui/x-date-pickers", () => {
@@ -17,7 +17,7 @@ jest.mock("@mui/x-date-pickers", () => {
 
 const Form = ({ setTime }: { setTime: (time: Dayjs | null) => void }) => {
   const { control, handleSubmit } = useForm();
-  const onSubmit = handleSubmit((data) => setTime(data.timefield));
+  const onSubmit = handleSubmit((data) => { setTime(data.timefield); });
   return (
     <form onSubmit={onSubmit}>
       <Timepicker

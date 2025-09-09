@@ -19,10 +19,10 @@ const deleteTranslationFile = (filePath: string, languageCode: string) => {
 
   if (fs.existsSync(targetPath)) {
     fs.unlinkSync(targetPath);
-    console.log(`🗑️  Deleted: ${targetPath}`);
+    log.info(`🗑️  Deleted: ${targetPath}`);
     return true;
   } else {
-    console.log(`⚠️  File not found: ${targetPath}`);
+    log.info(`⚠️  File not found: ${targetPath}`);
     return false;
   }
 };
@@ -51,7 +51,7 @@ const removeFromAllLanguages = (languageCode: string) => {
     return true;
   } catch (error) {
     log.error(
-      `❌ Failed to remove from allLanguages.ts: ${getErrorMessage(error)}`,
+      `❌ Failed to remove from allLanguages.ts: ${getErrorMessage(error) || ""}`,
     );
     return false;
   }
@@ -100,7 +100,7 @@ const removeFromConstants = (languageCode: string) => {
     return true;
   } catch (error) {
     log.error(
-      `❌ Failed to remove from constants.ts: ${getErrorMessage(error)}`,
+      `❌ Failed to remove from constants.ts: ${getErrorMessage(error) || ""}`,
     );
     return false;
   }
@@ -139,7 +139,7 @@ const removeFromNativeAllLanguages = (languageCode: string) => {
     return true;
   } catch (error) {
     log.error(
-      `❌ Failed to remove from native allLanguages.ts: ${getErrorMessage(error)}`,
+      `❌ Failed to remove from native allLanguages.ts: ${getErrorMessage(error) || ""}`,
     );
     return false;
   }
@@ -181,16 +181,20 @@ const main = () => {
     log.info("\n🔧 Removing language from translation system...");
 
     // Remove from allLanguages.ts
-    const removedFromAllLanguages = removeFromAllLanguages(languageCode);
+    const isRemovedFromAllLanguages = removeFromAllLanguages(languageCode);
 
     // Remove from constants.ts
-    const removedFromConstants = removeFromConstants(languageCode);
+    const isRemovedFromConstants = removeFromConstants(languageCode);
 
     // Remove from native allLanguages.ts
-    const removedFromNative = removeFromNativeAllLanguages(languageCode);
+    const isRemovedFromNative = removeFromNativeAllLanguages(languageCode);
 
     log.info("\n📋 Summary:");
-    if (removedFromAllLanguages && removedFromConstants && removedFromNative) {
+    if (
+      isRemovedFromAllLanguages &&
+      isRemovedFromConstants &&
+      isRemovedFromNative
+    ) {
       log.info("✅ Language successfully removed from translation system!");
     } else {
       log.warn(

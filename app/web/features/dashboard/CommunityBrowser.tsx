@@ -72,9 +72,9 @@ export default function CommunityBrowser() {
 
   const globalCommunityQuery = useCommunity(1);
 
-  //react-query doesn't have useInfiniteQueries
-  //as a workaround, cache query results
-  //and only show "Load more" for last column
+  // react-query doesn't have useInfiniteQueries
+  // as a workaround, cache query results
+  // and only show "Load more" for last column
   const query = useListSubCommunities(
     selected?.[selected.length - 1]?.communityId || 1,
   );
@@ -86,7 +86,7 @@ export default function CommunityBrowser() {
   >([]);
 
   const handleClick = (community: Community.AsObject, level: number) => {
-    //if the last column is clicked
+    // if the last column is clicked
     if (level === selected.length) {
       setCachedQueryResults([
         ...cachedQueryResults,
@@ -98,8 +98,8 @@ export default function CommunityBrowser() {
       setSelected([...selected.slice(0, level), community]);
     } else {
       if (community.communityId === selected[level].communityId) {
-        //a previously selected item is clicked, so unselect it
-        //treat level = 0 as a special case
+        // a previously selected item is clicked, so unselect it
+        // treat level = 0 as a special case
         if (level === 0) {
           setSelected([]);
         } else {
@@ -107,7 +107,7 @@ export default function CommunityBrowser() {
         }
         setCachedQueryResults(cachedQueryResults.slice(0, level));
       } else {
-        //a previously unselected item is clicked
+        // a previously unselected item is clicked
         setSelected([...selected.slice(0, Math.max(level, 0)), community]);
         setCachedQueryResults(cachedQueryResults.slice(0, level + 1));
       }
@@ -122,7 +122,7 @@ export default function CommunityBrowser() {
             key={index}
             parent={selected?.[index - 1] ?? globalCommunityQuery.data}
             communities={query.data}
-            handleClick={(community) => handleClick(community, index)}
+            handleClick={(community) => { handleClick(community, index); }}
             selected={selected[index]?.communityId}
           />
         ))}
@@ -140,7 +140,7 @@ export default function CommunityBrowser() {
                 (page) => page.communitiesList,
               )}
               handleClick={(community) =>
-                handleClick(community, selected.length)
+                { handleClick(community, selected.length); }
               }
             />
             {query.hasNextPage && (
@@ -161,7 +161,7 @@ export default function CommunityBrowser() {
   );
 }
 
-function BrowserColumn({
+const BrowserColumn = ({
   parent,
   communities,
   handleClick,
@@ -171,7 +171,7 @@ function BrowserColumn({
   communities: Community.AsObject[];
   handleClick: (community: Community.AsObject) => void;
   selected?: number;
-}) {
+}) => {
   const { t } = useTranslation([DASHBOARD]);
 
   return (
@@ -209,7 +209,7 @@ function BrowserColumn({
           <StyledListItem
             key={community.communityId}
             component="button"
-            onClick={() => handleClick(community)}
+            onClick={() => { handleClick(community); }}
             aria-selected={community.communityId === selected}
           >
             <StyledListItemText

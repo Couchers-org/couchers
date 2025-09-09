@@ -112,7 +112,7 @@ describe("Discussion page", () => {
     postReplyMock.mockResolvedValue({
       threadId: 999,
     });
-    getAccountInfoMock.mockImplementation(getAccountInfo); //ModVisibleCompobnent calls this in Comment.tsx
+    getAccountInfoMock.mockImplementation(getAccountInfo); // ModVisibleCompobnent calls this in Comment.tsx
   });
 
   it("renders the discussion successfully", async () => {
@@ -173,7 +173,7 @@ describe("Discussion page", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     await waitFor(() =>
-      expect(screen.getAllByTestId(COMMENT_TEST_ID)).toHaveLength(8),
+      { expect(screen.getAllByTestId(COMMENT_TEST_ID)).toHaveLength(8); },
     );
 
     const commentCards = screen
@@ -370,7 +370,7 @@ describe("Discussion page", () => {
         t("communities:write_comment_a11y_label"),
       );
 
-      await waitFor(() => expect(commentInput).toBeVisible());
+      await waitFor(() => { expect(commentInput).toBeVisible(); });
 
       user.type(commentInput, newComment);
 
@@ -408,7 +408,7 @@ describe("Discussion page", () => {
         t("communities:write_comment_a11y_label"),
       );
 
-      await waitFor(() => expect(commentInput).toBeVisible());
+      await waitFor(() => { expect(commentInput).toBeVisible(); });
 
       user.type(commentInput, "new comment");
 
@@ -461,7 +461,7 @@ describe("Discussion page", () => {
         t("communities:write_comment_a11y_label"),
       );
 
-      await waitFor(() => expect(commentInput).toBeVisible());
+      await waitFor(() => { expect(commentInput).toBeVisible(); });
 
       user.type(commentInput, newComment);
 

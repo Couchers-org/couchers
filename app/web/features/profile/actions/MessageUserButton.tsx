@@ -10,7 +10,7 @@ import { PROFILE } from "@/i18n/namespaces";
 import { User } from "@/proto/api_pb";
 import { service } from "@/service";
 
-import { routeToCreateMessage, routeToGroupChat } from "../../../routes";
+import { routeToCreateMessage, routeToGroupChat } from "@/routes";
 
 export default function MessageUserButton({
   user,
@@ -21,7 +21,7 @@ export default function MessageUserButton({
 }) {
   const { t } = useTranslation(PROFILE);
   const router = useRouter();
-  const { mutate, isPending } = useMutation<number | false, Error>({
+  const { mutate, isPending } = useMutation<number | false>({
     mutationFn: () => service.conversations.getDirectMessage(user.userId),
 
     onMutate() {
@@ -32,10 +32,10 @@ export default function MessageUserButton({
     },
     onSuccess(data) {
       if (!data) {
-        //no existing thread
+        // no existing thread
         router.push(routeToCreateMessage(user.username));
       } else {
-        //has thread
+        // has thread
         router.push(routeToGroupChat(data));
       }
     },
@@ -59,7 +59,7 @@ export default function MessageUserButton({
     <>
       <ProfileIncompleteDialog
         open={showCantMessageDialog}
-        onClose={() => setShowCantMessageDialog(false)}
+        onClose={() => { setShowCantMessageDialog(false); }}
         attempted_action="send_message"
       />
       <Button

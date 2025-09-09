@@ -20,11 +20,11 @@ export interface AccessibleDialogProps extends Omit<DialogProps, "className"> {
   "aria-labelledby": string;
 }
 
-export function Dialog(props: AccessibleDialogProps) {
+export const Dialog = (props: AccessibleDialogProps) => {
   return <MuiDialog {...props} fullWidth maxWidth="sm" scroll="body" />;
 }
 
-export function DialogActions(props: Omit<DialogActionsProps, "className">) {
+export const DialogActions = (props: Omit<DialogActionsProps, "className">) => {
   return (
     <MuiDialogActions
       {...props}
@@ -39,7 +39,7 @@ export function DialogActions(props: Omit<DialogActionsProps, "className">) {
   );
 }
 
-export function DialogContent(props: Omit<DialogContentProps, "className">) {
+export const DialogContent = (props: Omit<DialogContentProps, "className">) => {
   return (
     <MuiDialogContent
       {...props}
@@ -53,7 +53,7 @@ export function DialogContent(props: Omit<DialogContentProps, "className">) {
   );
 }
 
-export function DialogContentText(props: DialogContentTextProps) {
+export const DialogContentText = (props: DialogContentTextProps) => {
   return (
     <MuiDialogContentText
       {...props}
@@ -66,11 +66,11 @@ interface DialogTitleProps extends Omit<MuiDialogTitleProps, "className"> {
   onClose?: () => void;
 }
 
-export function DialogTitle({
+export const DialogTitle = ({
   children,
   onClose,
   ...dialogTitleProps
-}: DialogTitleProps) {
+}: DialogTitleProps) => {
   return (
     <MuiDialogTitle
       {...dialogTitleProps}

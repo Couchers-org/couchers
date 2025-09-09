@@ -42,7 +42,7 @@ describe("when the listFriends query succeeds", () => {
       wrapper,
     });
 
-    await waitFor(() => expect(getLiteUsersMock).toHaveBeenCalledTimes(1));
+    await waitFor(() => { expect(getLiteUsersMock).toHaveBeenCalledTimes(1); });
     expect(result.current).toEqual({
       data: [users[1], users[2]],
       friendIds: [users[1].userId, users[2].userId],
@@ -61,12 +61,12 @@ describe("when the listFriends query succeeds", () => {
     });
 
     await waitFor(() =>
-      expect(result.current).toMatchObject({
+      { expect(result.current).toMatchObject({
         data: [],
         errors: [],
         isError: false,
         isLoading: true,
-      }),
+      }); },
     );
   });
 

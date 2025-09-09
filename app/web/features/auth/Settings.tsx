@@ -60,10 +60,10 @@ export default function Settings() {
             <NotificationSettings />
           </MarginWrapper>
           <MarginWrapper>
-            <StrongVerification accountInfo={accountInfo!} />
+            <StrongVerification accountInfo={accountInfo} />
           </MarginWrapper>
           <MarginWrapper>
-            <ChangePhone accountInfo={accountInfo!} />
+            <ChangePhone accountInfo={accountInfo} />
           </MarginWrapper>
           <MarginWrapper>
             <ChangeEmail email={accountInfo.email} />

@@ -5,8 +5,8 @@ import wrapper from "@/test/hookWrapper";
 import i18n from "@/test/i18n";
 import { addDefaultUser } from "@/test/utils";
 
-import { hostingStatusLabels, meetupStatusLabels } from "../constants";
-import { ProfileUserProvider } from "../hooks/useProfileUser";
+import { hostingStatusLabels, meetupStatusLabels } from "@/features/profile/constants";
+import { ProfileUserProvider } from "@/features/profile/hooks/useProfileUser";
 import UserOverview from "./UserOverview";
 
 const { t } = i18n;

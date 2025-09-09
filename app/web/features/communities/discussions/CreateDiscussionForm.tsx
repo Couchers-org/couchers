@@ -9,7 +9,7 @@ import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
 import { theme } from "@/theme";
 
-import { CreateDiscussionInput, useNewDiscussionMutation } from "../hooks";
+import { CreateDiscussionInput, useNewDiscussionMutation } from "@/features/communities/hooks";
 
 const StyledWrapper = styled(Card)(() => ({
   "& > :not(:last-child)": {

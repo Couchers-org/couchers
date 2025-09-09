@@ -22,7 +22,7 @@ jest.mock("@mui/x-date-pickers", () => {
 
 const onValidSubmit = jest.fn();
 
-function TestForm({ event }: { event?: Event.AsObject }) {
+const TestForm = ({ event }: { event?: Event.AsObject }) => {
   const {
     control,
     handleSubmit,
@@ -169,9 +169,9 @@ describe("Event time changer", () => {
     expect(onValidSubmit).not.toHaveBeenCalled();
 
     await waitFor(() =>
-      expect(endDateErrorText).toHaveTextContent(
+      { expect(endDateErrorText).toHaveTextContent(
         t("communities:date_required"),
-      ),
+      ); },
     );
 
     const startDateErrorText = await screen.findByTestId(
@@ -215,9 +215,9 @@ describe("Event time changer", () => {
     const endDateErrorText = await screen.findByTestId("endDate-helper-text");
 
     await waitFor(() =>
-      expect(endDateErrorText).toHaveTextContent(
+      { expect(endDateErrorText).toHaveTextContent(
         t("communities:past_date_error"),
-      ),
+      ); },
     );
   });
 
@@ -280,7 +280,7 @@ describe("Event time changer", () => {
 
     const endDateErrorText = screen.queryByTestId("endDate-helper-text");
 
-    await waitFor(() => expect(endDateErrorText).toBeEmptyDOMElement());
+    await waitFor(() => { expect(endDateErrorText).toBeEmptyDOMElement(); });
 
     const endTimeGroup = await screen.findByRole("group", {
       name: t("communities:end_time"),

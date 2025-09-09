@@ -12,7 +12,7 @@ export default function useFriendRequests(
     data: friendRequestLists,
     isLoading: isFriendReqLoading,
     error,
-  } = useQuery<FriendRequest.AsObject[], Error>({
+  } = useQuery<FriendRequest.AsObject[]>({
     queryKey: [friendRequestKey(friendRequestType)],
     queryFn: async () => {
       const friendRequests = await service.api.listFriendRequests();

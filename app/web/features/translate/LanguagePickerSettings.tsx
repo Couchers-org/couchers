@@ -3,9 +3,9 @@ import { useRouter } from "next/router";
 
 import Button from "@/components/Button";
 import { useTranslation } from "@/i18n";
-import { LANGUAGE_MAP } from "@/i18n/constants";
 import { GLOBAL } from "@/i18n/namespaces";
 import { TRANSLATE_JOB_URL, TRANSLATE_ROUTE } from "@/routes";
+import { getLanguageFromCode } from "@/utils/language";
 
 import LanguagePickerSelect from "./LanguagePickerSelect";
 
@@ -26,7 +26,7 @@ const LanguagePickerSettings = ({ className }: ChangeLanguageProps) => {
       <>
         <Typography variant="body1">
           {t("global:language_preference.current_preferred_language")}
-          <strong>{LANGUAGE_MAP[locale || "en"]?.name}</strong>
+          <strong>{getLanguageFromCode(locale || "en")?.name || <></>}</strong>
         </Typography>
         <Typography
           variant="body1"

@@ -7,10 +7,7 @@ import { updateHostingPreference, updateProfile } from "./user";
 
 jest.mock("./client");
 
-const updateProfileMock = client.api.updateProfile as jest.Mock<
-  ReturnType<typeof client.api.updateProfile>,
-  Parameters<typeof client.api.updateProfile>
->;
+const updateProfileMock = jest.spyOn(client.api, "updateProfile");
 
 beforeEach(() => {
   updateProfileMock.mockResolvedValue(new Empty());

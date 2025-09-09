@@ -15,7 +15,7 @@ import FriendSummaryView from "./FriendSummaryView";
 import FriendTile from "./FriendTile";
 import { useUnblockUser } from "./hooks";
 
-function BlockedUsersList({ refetchFriends }: { refetchFriends: () => void }) {
+const BlockedUsersList = ({ refetchFriends }: { refetchFriends: () => void }) => {
   const { t } = useTranslation([CONNECTIONS]);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -101,9 +101,9 @@ function BlockedUsersList({ refetchFriends }: { refetchFriends: () => void }) {
               )}
               isLoading={isUnblocking}
               onConfirm={() =>
-                handleUnblockUserConfirm({
+                { handleUnblockUserConfirm({
                   username: user.username,
-                })
+                }); }
               }
             />
           </FriendSummaryView>

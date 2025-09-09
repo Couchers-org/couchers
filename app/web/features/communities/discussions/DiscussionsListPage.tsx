@@ -92,7 +92,7 @@ export default function DiscussionsListPage({
       <Collapse in={!isCreatingNewPost}>
         <StyledNewPostButtonContainer>
           <StyledCreateResourceButton
-            onClick={() => setIsCreatingNewPost(true)}
+            onClick={() => { setIsCreatingNewPost(true); }}
           >
             {t("communities:new_post_label")}
           </StyledCreateResourceButton>
@@ -102,8 +102,8 @@ export default function DiscussionsListPage({
       <Collapse in={isCreatingNewPost}>
         <CreateDiscussionForm
           communityId={community.communityId}
-          onCancel={() => setIsCreatingNewPost(false)}
-          onPostSuccess={() => setIsCreatingNewPost(false)}
+          onCancel={() => { setIsCreatingNewPost(false); }}
+          onPostSuccess={() => { setIsCreatingNewPost(false); }}
         />
       </Collapse>
       <StyledDiscussionsContainer>

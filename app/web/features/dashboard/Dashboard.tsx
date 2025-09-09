@@ -9,7 +9,7 @@ import { useTranslation } from "@/i18n";
 import { DASHBOARD, GLOBAL } from "@/i18n/namespaces";
 import { theme } from "@/theme";
 
-import dashboardNews from "../../dashboardNews.json";
+import dashboardNews from "@/dashboardNews.json";
 import CommunitiesSection from "./CommunitiesSection";
 import DashboardUserProfileSummary from "./DashboardUserProfileSummary";
 import Hero from "./Hero";

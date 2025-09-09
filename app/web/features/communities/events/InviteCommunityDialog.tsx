@@ -26,7 +26,7 @@ export default function InviteCommunityDialog({
 }: DialogProps & { eventId: number; afterSuccess: () => void }) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const queryClient = useQueryClient();
-  const inviteCommunityMutation = useMutation<Empty, RpcError, void>({
+  const inviteCommunityMutation = useMutation<Empty, RpcError>({
     mutationFn: () => service.events.RequestCommunityInvite(eventId),
     onSuccess: () => {
       afterSuccess();
@@ -37,7 +37,7 @@ export default function InviteCommunityDialog({
     },
   });
 
-  const inviteCommunity = () => inviteCommunityMutation.mutate();
+  const inviteCommunity = () => { inviteCommunityMutation.mutate(); };
 
   return (
     <Dialog {...props} aria-labelledby="invite-community-dialog-title">

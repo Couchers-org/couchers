@@ -18,10 +18,10 @@ interface RespondToFriendRequestActionProps {
   setMutationError: SetMutationError;
 }
 
-function RespondToFriendRequestAction({
+const RespondToFriendRequestAction = ({
   friendRequest,
   setMutationError,
-}: RespondToFriendRequestActionProps) {
+}: RespondToFriendRequestActionProps) => {
   const { isPending, isSuccess, reset, respondToFriendRequest } =
     useRespondToFriendRequest();
 
@@ -65,7 +65,7 @@ function RespondToFriendRequestAction({
   ) : null;
 }
 
-function FriendRequestsReceived() {
+const FriendRequestsReceived = () => {
   const isMounted = useIsMounted();
   const [mutationError, setMutationError] = useSafeState(isMounted, "");
   const { data, isLoading, isError, errors } = useFriendRequests("received");

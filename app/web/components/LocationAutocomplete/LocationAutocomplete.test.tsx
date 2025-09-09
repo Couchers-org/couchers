@@ -65,7 +65,7 @@ describe("LocationAutocomplete component", () => {
     const onChange = jest.fn();
     renderForm("", onChange);
 
-    const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+    const input = (await screen.findByLabelText(LABEL));
     expect(input).toBeVisible();
 
     const user = userEvent.setup();
@@ -112,7 +112,7 @@ describe("LocationAutocomplete component", () => {
     const onChange = jest.fn();
     renderForm("", onChange);
 
-    const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+    const input = (await screen.findByLabelText(LABEL));
     expect(input).toBeVisible();
 
     const user = userEvent.setup();
@@ -132,7 +132,7 @@ describe("LocationAutocomplete component", () => {
     const onChange = jest.fn();
     renderForm("", onChange);
 
-    const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+    const input = (await screen.findByLabelText(LABEL));
     expect(input).toBeVisible();
 
     const user = userEvent.setup();
@@ -160,7 +160,7 @@ describe("LocationAutocomplete component", () => {
       onChange,
     );
 
-    const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+    const input = (await screen.findByLabelText(LABEL));
     expect(input).toBeVisible();
     expect(input).toHaveValue("test location");
 
@@ -192,7 +192,7 @@ describe("LocationAutocomplete component", () => {
 
     renderForm("", () => {});
 
-    const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+    const input = (await screen.findByLabelText(LABEL));
     expect(input).toBeVisible();
 
     const user = userEvent.setup();
@@ -224,7 +224,7 @@ describe("LocationAutocomplete component", () => {
     );
     renderForm("", () => {}, false, true);
 
-    const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+    const input = (await screen.findByLabelText(LABEL));
 
     const user = userEvent.setup();
 

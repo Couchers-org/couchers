@@ -157,7 +157,7 @@ const SocialProof = () => {
                 {t("landing:last_signup", {
                   timeAgo: timeAgoI18n({
                     input: signupInfo.lastSignup,
-                    t: t,
+                    t,
                   }),
                 })}
               </Typography>

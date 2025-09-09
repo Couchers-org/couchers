@@ -21,7 +21,7 @@ interface Props {
 
 export const ReferencesLastActiveLabels = ({ user }: Props) => {
   const { t } = useTranslation(PROFILE);
-  //workaround for not being able to type timeAgoI18n properly
+  // workaround for not being able to type timeAgoI18n properly
   const { t: tGlobal } = useTranslation(GLOBAL);
   return (
     <>

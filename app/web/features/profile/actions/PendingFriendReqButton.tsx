@@ -17,10 +17,10 @@ interface PendingFriendReqButtonProps {
 export const RESPOND_TO_FRIEND_REQUEST_MENU_ID =
   "respond-to-friend-request-actions-menu";
 
-function PendingFriendReqButton({
+const PendingFriendReqButton = ({
   friendRequest,
   setMutationError,
-}: PendingFriendReqButtonProps) {
+}: PendingFriendReqButtonProps) => {
   const [isOpen, setIsOpen] = useState({
     accepted: false,
     declined: false,

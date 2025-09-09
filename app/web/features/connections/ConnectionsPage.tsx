@@ -18,7 +18,7 @@ const StyledLabelWrapper = styled("span")({
   paddingRight: "1.8rem", // visually compensate for NotificationBadge's right offset
 });
 
-function FriendsNotification() {
+const FriendsNotification = () => {
   const { data } = useNotifications();
   const { t } = useTranslation([CONNECTIONS]);
 
@@ -39,7 +39,7 @@ const labels = {
 
 type ConnectionType = keyof typeof labels;
 
-function ConnectionsPage({ type }: { type: "friends" }) {
+const ConnectionsPage = ({ type }: { type: "friends" }) => {
   const router = useRouter();
   const connectionType = type in labels ? (type as ConnectionType) : "friends";
   const { t } = useTranslation([CONNECTIONS]);

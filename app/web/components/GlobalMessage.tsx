@@ -12,7 +12,7 @@ interface GlobalMessageData {
 
 const TIME_BETWEEN_CHECKS_MS = 300_000; // 5 min
 
-export function GlobalMessage() {
+export const GlobalMessage = () => {
   // data from the global message file
   const [data, setData] = usePersistedState<GlobalMessageData | null>(
     "globalmessage.data",
@@ -55,7 +55,7 @@ export function GlobalMessage() {
 
   const dismiss = () => {
     if (!data) return;
-    setDismissedEpoch(data!.epoch);
+    setDismissedEpoch(data.epoch);
   };
 
   return data && data.epoch && data.epoch != dismissedEpoch ? (

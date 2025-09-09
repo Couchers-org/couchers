@@ -93,7 +93,7 @@ export default function MarkAllReadButton({
       <MarkAsReadButtonStyled
         loading={markAll.isPending}
         variant="text"
-        onClick={() => markAll.mutate()}
+        onClick={() => { markAll.mutate(); }}
         sx={{ color: theme.palette.text.primary }}
       >
         <MarkAsReadIconStyled />

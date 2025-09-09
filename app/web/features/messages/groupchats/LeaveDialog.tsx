@@ -28,7 +28,7 @@ export default function LeaveDialog({
 }: DialogProps & { groupChatId: number }) {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
   const queryClient = useQueryClient();
-  const leaveGroupChatMutation = useMutation<Empty, RpcError, void>({
+  const leaveGroupChatMutation = useMutation<Empty, RpcError>({
     mutationFn: () => service.conversations.leaveGroupChat(groupChatId),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -44,7 +44,7 @@ export default function LeaveDialog({
     },
   });
 
-  const handleLeaveGroupChat = () => leaveGroupChatMutation.mutate();
+  const handleLeaveGroupChat = () => { leaveGroupChatMutation.mutate(); };
 
   return (
     <Dialog {...props} aria-labelledby="leave-dialog-title">

@@ -59,7 +59,7 @@ export default function HostRequestRespondButtons({
             {(setIsOpen) => (
               <FieldButton
                 isLoading={isLoading}
-                callback={() => setIsOpen(true)}
+                callback={() => { setIsOpen(true); }}
               >
                 {t("messages:close_request_button_text")}
               </FieldButton>
@@ -69,7 +69,7 @@ export default function HostRequestRespondButtons({
       </>
     );
   } else {
-    //user is the surfer
+    // user is the surfer
     const canConfirm =
       status === HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED;
 
@@ -95,7 +95,7 @@ export default function HostRequestRespondButtons({
             {(setIsOpen) => (
               <FieldButton
                 isLoading={isLoading}
-                callback={() => setIsOpen(true)}
+                callback={() => { setIsOpen(true); }}
               >
                 {t("global:cancel")}
               </FieldButton>

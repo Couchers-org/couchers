@@ -22,7 +22,7 @@ export default function FriendActions({
     );
   } else if (
     user.pendingFriendRequest &&
-    user.pendingFriendRequest.sent === false
+    !user.pendingFriendRequest.sent
   ) {
     return (
       <PendingFriendReqButton

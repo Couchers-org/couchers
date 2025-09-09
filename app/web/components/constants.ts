@@ -1,6 +1,6 @@
-//these come from https://github.com/unicode-org/cldr-json/tree/master/cldr-json/cldr-dates-modern/main
-//but really https://stackoverflow.com/a/9893752
-//all D and M have been replaced with DD and MM, because otherwise keyboard input is buggy
+// these come from https://github.com/unicode-org/cldr-json/tree/master/cldr-json/cldr-dates-modern/main
+// but really https://stackoverflow.com/a/9893752
+// all D and M have been replaced with DD and MM, because otherwise keyboard input is buggy
 export const dateFormats = {
   "af-ZA": "YYYY/MM/DD",
   "am-ET": "DD/MM/YYYY",

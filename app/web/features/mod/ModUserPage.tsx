@@ -26,7 +26,7 @@ const StyledBanDelBanner = styled("h1")(({ theme }) => ({
   textTransform: "uppercase",
 }));
 
-function AdminActions({ username }: { username: string }) {
+const AdminActions = ({ username }: { username: string }) => {
   const { t } = useTranslation([GLOBAL, MOD]);
   return (
     <>
@@ -41,11 +41,11 @@ function AdminActions({ username }: { username: string }) {
   );
 }
 
-function BanDeleteBanner({
+const BanDeleteBanner = ({
   userDetails,
 }: {
   userDetails: UserDetails.AsObject;
-}) {
+}) => {
   const { t } = useTranslation(MOD);
   let status = "";
   if (userDetails.banned || userDetails.deleted) {

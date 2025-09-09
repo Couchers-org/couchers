@@ -18,7 +18,7 @@ import { routeToGroupChat } from "@/routes";
 import { service } from "@/service";
 import { theme } from "@/theme";
 
-import useNotifications from "../../useNotifications";
+import useNotifications from "@/features/useNotifications";
 
 const StyledWrapper = styled("div")(() => ({
   padding: theme.spacing(0, 2),
@@ -30,12 +30,12 @@ const StyledList = styled(List)(() => ({
 
 const StyledCreateGroupChatListItem = styled(CreateGroupChat)(() => ({
   marginInline: `-${theme.spacing(2)}`,
-  paddingInline: `${theme.spacing(2)}`,
+  paddingInline: theme.spacing(2),
 }));
 
 const StyledGroupChatListItem = styled(GroupChatListItem)(() => ({
   marginInline: `-${theme.spacing(2)}`,
-  paddingInline: `${theme.spacing(2)}`,
+  paddingInline: theme.spacing(2),
 }));
 
 export default function GroupChatsTab() {

@@ -22,7 +22,7 @@ export default function Timezone({ className, timezone }: TimezoneProps) {
           t={t}
           i18nKey="account_settings_page.timezone_section.description"
           values={{
-            timezone: timezone,
+            timezone,
             time: dayjs().tz(timezone).format("LT"),
           }}
         >

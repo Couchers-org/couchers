@@ -95,7 +95,7 @@ const SearchControls = ({
         drawerWidth={drawerWidth}
         isDualView={mapView === MapViews.mapAndList}
         isMobile={isMobile}
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => { e.stopPropagation(); }}
       >
         <CenterAligner>
           {!isMobile && (

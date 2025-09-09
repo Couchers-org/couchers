@@ -47,32 +47,32 @@ describe("Community browser", () => {
   it("has correct display logic", async () => {
     render(<CommunityBrowser />, { wrapper: hookWrapper });
 
-    //initial display
+    // initial display
     const button11 = await screen.findByRole("button", { name: "11" });
     expect(button11).toBeVisible();
     expect(screen.getByRole("link", { name: "Global" })).toBeVisible();
 
     const user = userEvent.setup();
 
-    //clicking down the tree
+    // clicking down the tree
     await user.click(button11);
     const button111 = await screen.findByRole("button", { name: "111" });
     expect(button111).toBeVisible();
     await user.click(button111);
     expect(await screen.findByRole("button", { name: "1111" })).toBeVisible();
 
-    //switching the previous column
+    // switching the previous column
     const button112 = screen.getByRole("button", { name: "112" });
     await user.click(button112);
     expect(await screen.findByRole("button", { name: "1121" })).toBeVisible();
 
-    //deselecting the previous column
+    // deselecting the previous column
     await user.click(button112);
     expect(
       screen.queryByRole("button", { name: "1121" }),
     ).not.toBeInTheDocument();
 
-    //switching the first column
+    // switching the first column
     const button12 = screen.getByRole("button", { name: "12" });
     await user.click(button12);
     const button121 = await screen.findByRole("button", { name: "121" });
@@ -81,7 +81,7 @@ describe("Community browser", () => {
     await user.click(button121);
     expect(await screen.findByRole("button", { name: "1211" })).toBeVisible();
 
-    //deselect the first column
+    // deselect the first column
     await user.click(button12);
     expect(button121).not.toBeInTheDocument();
   });

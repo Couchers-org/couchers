@@ -25,7 +25,7 @@ import { theme } from "@/theme";
 import {
   useMarkAllNotificationsSeen,
   useMarkSingleNotificationIsSeen,
-} from "../utils/helpers";
+} from "@/features/notifications/utils/helpers";
 import NotificationItem from "./NotificationItem";
 
 interface NotificationsFeedProps {
@@ -241,7 +241,7 @@ const NotificationsFeed = ({
                 ? theme.palette.primary.light
                 : undefined
             }
-            onClick={() => handleNotificationsFilterChange("all")}
+            onClick={() => { handleNotificationsFilterChange("all"); }}
             sx={{
               cursor: "pointer",
               "&:hover": {
@@ -261,7 +261,7 @@ const NotificationsFeed = ({
                 ? theme.palette.primary.light
                 : undefined
             }
-            onClick={() => handleNotificationsFilterChange("unread")}
+            onClick={() => { handleNotificationsFilterChange("unread"); }}
             sx={{
               cursor: "pointer",
 

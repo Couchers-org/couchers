@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { LayerProps } from "react-map-gl/maplibre";
 
 import { theme } from "@/theme";

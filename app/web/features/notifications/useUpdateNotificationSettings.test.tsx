@@ -96,6 +96,6 @@ describe("useUpdateNotificationSettings", () => {
     });
 
     expect(setMutationError).toHaveBeenCalledWith("Test error message");
-    await waitFor(() => expect(result.current.isError).toBe(true));
+    await waitFor(() => { expect(result.current.isError).toBe(true); });
   });
 });

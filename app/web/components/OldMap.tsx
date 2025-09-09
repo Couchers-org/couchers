@@ -10,7 +10,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { SEARCH } from "../i18n/namespaces";
+import { SEARCH } from "@/i18n/namespaces";
 
 const URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -91,7 +91,7 @@ export default function Map({
         center: initialCenter,
         container: containerRef.current,
         hash: hash ? "loc" : false,
-        interactive: interactive,
+        interactive,
         style: "https://cdn.couchers.org/maps/couchers-basemap-style-v1.json",
         transformRequest,
         zoom: initialZoom,
@@ -105,12 +105,12 @@ export default function Map({
       }
 
       if (onUpdate) {
-        map.on("moveend", () => onUpdate(map.getCenter(), map.getZoom()));
+        map.on("moveend", () => { onUpdate(map.getCenter(), map.getZoom()); });
       }
 
       postMapInitialize?.(map);
     } catch {
-      //probably no webgl
+      // probably no webgl
       console.warn("Couldn't initialize maplibre gl");
       setNoMap(true);
     }

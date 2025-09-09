@@ -36,7 +36,7 @@ export default function useRespondToFriendRequest() {
       ]);
 
       if (cachedUser) {
-        if (accept === true) {
+        if (accept) {
           queryClient.setQueryData<User.AsObject>(
             userKey(friendRequest.userId),
             {

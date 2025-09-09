@@ -106,14 +106,14 @@ const SubmitReference = ({
       const formData: WriteHostRequestReferenceInput =
         referenceData.wasAppropriate === "true"
           ? {
-              hostRequestId: hostRequestId,
+              hostRequestId,
               wasAppropriate: true,
               text: referenceData.text,
               rating: referenceData.rating,
               privateText: referenceData.privateText,
             }
           : {
-              hostRequestId: hostRequestId,
+              hostRequestId,
               wasAppropriate: false,
               text: referenceData.text,
               rating: referenceData.rating,

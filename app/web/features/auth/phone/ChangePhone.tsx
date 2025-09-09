@@ -238,7 +238,7 @@ export default function ChangePhone({
               <Button
                 fullWidth={!isMdOrWider}
                 loading={isRemoveLoading}
-                onClick={() => removePhone()}
+                onClick={() => { removePhone(); }}
               >
                 {t("auth:change_phone.remove_button_text")}
               </Button>

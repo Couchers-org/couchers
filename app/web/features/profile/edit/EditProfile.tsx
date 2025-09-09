@@ -326,7 +326,7 @@ export default function EditProfileForm() {
 
   useUnsavedChangesWarning({
     isDirty: isDirty || isUploading,
-    isSubmitted: isSubmitted,
+    isSubmitted,
     warningMessage: isUploading
       ? t("profile:image_uploading_warning")
       : t("profile:unsaved_changes_warning"),
@@ -730,7 +730,7 @@ export default function EditProfileForm() {
                           )}
                           name="pronouns"
                           value={field.value}
-                          onChange={(_, value) => field.onChange(value)}
+                          onChange={(_, value) => { field.onChange(value); }}
                         >
                           <FormControlLabel
                             value={t("profile:pronouns.woman")}
@@ -749,7 +749,7 @@ export default function EditProfileForm() {
                               <TextField
                                 variant="standard"
                                 onChange={(event) =>
-                                  field.onChange(event.target.value)
+                                  { field.onChange(event.target.value); }
                                 }
                                 value={other}
                               />
@@ -773,7 +773,7 @@ export default function EditProfileForm() {
                     render={({ field }) => (
                       <ProfileTagInput
                         inputFieldProps={field}
-                        onChange={(_, value) => field.onChange(value)}
+                        onChange={(_, value) => { field.onChange(value); }}
                         value={field.value}
                         options={Object.values(languages)}
                         label={t(
@@ -915,7 +915,7 @@ export default function EditProfileForm() {
                     render={({ field }) => (
                       <ProfileTagInput
                         inputFieldProps={field}
-                        onChange={(_, values) => field.onChange(values)}
+                        onChange={(_, values) => { field.onChange(values); }}
                         value={field.value}
                         options={Object.values(regions)}
                         label={t(
@@ -937,7 +937,7 @@ export default function EditProfileForm() {
                     render={({ field }) => (
                       <ProfileTagInput
                         inputFieldProps={field}
-                        onChange={(_, values) => field.onChange(values)}
+                        onChange={(_, values) => { field.onChange(values); }}
                         value={field.value}
                         options={Object.values(regions)}
                         label={t("profile:edit_profile_headings.regions_lived")}
@@ -952,7 +952,7 @@ export default function EditProfileForm() {
             {showSuccessToast && (
               <Snackbar
                 severity="success"
-                onClose={() => setShowSuccessToast(false)}
+                onClose={() => { setShowSuccessToast(false); }}
               >
                 {t("profile:profile_changes_saved_message")}
               </Snackbar>
@@ -1010,7 +1010,7 @@ export default function EditProfileForm() {
               </List>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setShowIncompleteProfileDialog(false)}>
+              <Button onClick={() => { setShowIncompleteProfileDialog(false); }}>
                 {t("profile:incomplete_dialog.continue_editing")}
               </Button>
               <Button onClick={onSubmit}>

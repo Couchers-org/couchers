@@ -34,7 +34,7 @@ describe("CreateGroupChat with query string", () => {
       ),
     ).toBeVisible();
 
-    await waitFor(() => expect(screen.getByText(users[0].name)).toBeVisible());
+    await waitFor(() => { expect(screen.getByText(users[0].name)).toBeVisible(); });
     expect(
       screen.queryByRole("heading", {
         name: t("messages:create_chat.dm_title"),

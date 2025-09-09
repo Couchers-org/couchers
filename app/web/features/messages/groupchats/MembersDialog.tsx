@@ -29,13 +29,13 @@ const StyledMemberListItemContainer = styled(ListItem)(() => ({
   justifyContent: "flex-start",
 }));
 
-function MemberListItem({
+const MemberListItem = ({
   member,
   memberIsAdmin,
 }: {
   member: LiteUser.AsObject;
   memberIsAdmin: boolean;
-}) {
+}) => {
   return (
     <StyledMemberListItemContainer dense>
       <StyledAvatar user={member} />

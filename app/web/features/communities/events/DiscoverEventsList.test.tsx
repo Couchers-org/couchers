@@ -16,9 +16,7 @@ import DiscoverEventsList from "./DiscoverEventsList";
 
 const { t } = i18n;
 
-const mockEventSearch = service.search.EventSearch as jest.MockedFunction<
-  typeof service.search.EventSearch
->;
+const mockEventSearch = service.search.EventSearch;
 
 jest.mock("utils/hooks", () => ({
   ...jest.requireActual("utils/hooks"),

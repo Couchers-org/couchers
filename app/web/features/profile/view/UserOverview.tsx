@@ -16,7 +16,7 @@ import { GLOBAL, PROFILE } from "@/i18n/namespaces";
 import { HostingStatus, MeetupStatus } from "@/proto/api_pb";
 import { routeToUser } from "@/routes";
 
-import { useProfileUser } from "../hooks/useProfileUser";
+import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
 import { Badges } from "./Badges";
 import { ReferencesLastActiveLabels, ResponseRateLabel } from "./userLabels";
 

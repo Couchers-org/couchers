@@ -64,7 +64,7 @@ describe("Edit event page", () => {
 
     const virtualEventCheckBox = screen.getByLabelText(
       t("communities:virtual_event"),
-    ) as HTMLInputElement;
+    );
 
     await user.click(virtualEventCheckBox);
 
@@ -72,7 +72,7 @@ describe("Edit event page", () => {
 
     const eventLinkInput = (await screen.findByLabelText(
       t("communities:event_link"),
-    )) as HTMLInputElement;
+    ));
 
     await user.type(eventLinkInput, "https://couchers.org/amsterdam-social");
 

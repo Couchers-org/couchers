@@ -12,7 +12,7 @@ function useFriendList() {
     error: listFriendsError,
     isLoading,
     refetch: refetchFriends,
-  } = useQuery<number[], Error>({
+  } = useQuery<number[]>({
     queryKey: [friendIdsKey],
     queryFn: service.api.listFriends,
   });
@@ -35,7 +35,7 @@ function useFriendList() {
   return {
     data: friendIds ? data : undefined,
     friendIds,
-    errors: errors,
+    errors,
     isError: !!listFriendsError || isLiteUserError,
     isLoading: isLoading || isLiteUsersLoading,
     refetchFriends,

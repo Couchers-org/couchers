@@ -53,7 +53,7 @@ describe("LanguagePickerSelect", () => {
     expect(select).toBeInTheDocument();
 
     const user = userEvent.setup();
-    user.click(select);
+    await user.click(select);
 
     const listBox = await screen.findByRole("listbox");
 

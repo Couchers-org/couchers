@@ -48,7 +48,7 @@ it("timeAgo function", () => {
         : t(`relative_time.${tInput[0]}`, { date: tInput[1] });
 
     const date = new Date(now - millis);
-    const timeString = timeAgoI18n({ input: date, t: t });
+    const timeString = timeAgoI18n({ input: date, t });
     expect(timeString).toBe(expectedValue);
   });
 });

@@ -83,11 +83,11 @@ export default function CommunityPageSubHeader({
           ariaLabel={t("communities:community_tabs_a11y_label")}
           setValue={(newTab) =>
             router.push(
-              `${routeToCommunity(
+              routeToCommunity(
                 community.communityId,
                 community.slug,
                 newTab === "overview" ? undefined : newTab,
-              )}`,
+              ),
             )
           }
           labels={communityTabBarLabels}

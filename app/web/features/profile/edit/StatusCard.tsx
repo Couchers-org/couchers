@@ -136,7 +136,7 @@ export default function StatusCardGroup<T extends string | number>({
           <StatusCard
             key={option.value}
             selected={selectedValue === option.value}
-            onClick={() => onSelect(option.value)}
+            onClick={() => { onSelect(option.value); }}
           >
             <StatusCardContent>
               {option.icon}

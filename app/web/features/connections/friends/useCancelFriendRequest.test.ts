@@ -54,16 +54,16 @@ describe("useCancelFriendRequest hook", () => {
       });
     });
 
-    await waitFor(() => expect(setMutationError).toHaveBeenCalledTimes(1));
+    await waitFor(() => { expect(setMutationError).toHaveBeenCalledTimes(1); });
     expect(setMutationError).toHaveBeenCalledWith("");
     // assert that invalidateQueries was called on the expected key
     await waitFor(() =>
-      expect(spy).toHaveBeenCalledWith(
+      { expect(spy).toHaveBeenCalledWith(
         expect.objectContaining({
           queryKey: friendRequestKey("sent"),
           exact: true,
         }),
-      ),
+      ); },
     );
   });
 
@@ -84,7 +84,7 @@ describe("useCancelFriendRequest hook", () => {
       });
     });
 
-    await waitFor(() => expect(setMutationError).toHaveBeenCalledTimes(2));
+    await waitFor(() => { expect(setMutationError).toHaveBeenCalledTimes(2); });
     expect(setMutationError).toHaveBeenLastCalledWith("API error");
     // No invalidation expected; data remains in cache
     expect(client.getQueryData(friendRequestKey("sent"))).toBeDefined();

@@ -18,19 +18,19 @@ interface ColorProps {
 const marks = [
   {
     value: 0,
-    label: `${NEGATIVE}`,
+    label: NEGATIVE,
   },
   {
     value: 0.33,
-    label: `${NEUTRAL}`,
+    label: NEUTRAL,
   },
   {
     value: 0.67,
-    label: `${POSITIVE}`,
+    label: POSITIVE,
   },
   {
     value: 1,
-    label: `${AMAZING}`,
+    label: AMAZING,
   },
 ];
 

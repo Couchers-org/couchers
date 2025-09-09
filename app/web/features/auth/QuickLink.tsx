@@ -11,7 +11,7 @@ import { AUTH, GLOBAL } from "@/i18n/namespaces";
 import { service } from "@/service";
 import stringOrFirstString from "@/utils/stringOrFirstString";
 
-import { UnsubscribeRes } from "../../proto/auth_pb";
+import { UnsubscribeRes } from "@/proto/auth_pb";
 
 export interface UnsubscribeParams {
   payload?: string;
@@ -51,8 +51,8 @@ export default function QuickLink() {
           })}
         </Alert>
       )}
-      {isSuccess && <Alert severity="success">{data!.response}</Alert>}
-      <Button onClick={() => unsubscribe({ payload, sig })} loading={isPending}>
+      {isSuccess && <Alert severity="success">{data.response}</Alert>}
+      <Button onClick={() => { unsubscribe({ payload, sig }); }} loading={isPending}>
         {t("auth:quick_links.button_text")}
       </Button>
     </>

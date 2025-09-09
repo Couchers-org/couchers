@@ -1,16 +1,13 @@
 import { LngLatLike } from "maplibre-gl";
 
+import { FilterOptions } from "@/features/search/SearchPage";
+import { Coordinates } from "@/features/search/utils/constants";
 import { GeocodeResult } from "@/utils/hooks";
 
-import { FilterOptions } from "../SearchPage";
-import { useMapSearchDispatch } from "../state/mapSearchContext";
-import {
-  MapSearchState,
-  mapSearchActionTypes,
-} from "../state/mapSearchReducers";
-import { Coordinates } from "../utils/constants";
+import { useMapSearchDispatch } from "./mapSearchContext";
+import { MapSearchState, mapSearchActionTypes } from "./mapSearchReducers";
 
-function useMapSearchActions() {
+const useMapSearchActions = () => {
   const dispatch = useMapSearchDispatch();
 
   const setMapQueryArea = (
@@ -88,7 +85,7 @@ function useMapSearchActions() {
     });
 
     document
-      .getElementById(`search-result-${userId}`)
+      .getElementById(`search-result-${userId ?? ""}`)
       ?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -123,6 +120,6 @@ function useMapSearchActions() {
     setSelectedUserId,
     setShowSearchThisAreaButton,
   };
-}
+};
 
 export { useMapSearchActions };

@@ -173,7 +173,7 @@ const StyledAmountInput = styled("input", {
   },
 }));
 
-function AmountGrid(props: PropsWithChildren) {
+const AmountGrid = (props: PropsWithChildren) => {
   const children = React.Children.toArray(props.children);
   const subGrids = new Array(children.length / SUB_GRID_ITEM_AMOUNT)
     .fill(0)
@@ -327,7 +327,7 @@ export default function DonationsBox() {
               id="recurring"
               aria-label={t("donations_box.recurrence_aria_label")}
               name="recurring-radio"
-              onChange={(_, value) => field.onChange(value)}
+              onChange={(_, value) => { field.onChange(value); }}
               value={field.value}
             >
               <StyledLabelledRadioButton

@@ -105,8 +105,8 @@ export default function ContributorForm({
         .setContribute(contribute)
         .setContributeWaysList(
           Object.entries(data.contributeWays).reduce<string[]>(
-            //contributeWays is an object of "ways" as keys, and "checked" booleans as values
-            //this reduces it to an array of the "ways" which were keys with "true" as a value
+            // contributeWays is an object of "ways" as keys, and "checked" booleans as values
+            // this reduces it to an array of the "ways" which were keys with "true" as a value
             (previous, [contributeWay, checked]) =>
               checked ? [...previous, contributeWay] : previous,
             [],
@@ -196,7 +196,7 @@ export default function ContributorForm({
                   sx={{ marginBlockEnd: theme.spacing(3) }}
                   row
                   name="contribute-radio"
-                  onChange={(e, value) => field.onChange(value)}
+                  onChange={(e, value) => { field.onChange(value); }}
                   value={field.value}
                 >
                   {CONTRIBUTE_OPTIONS.map((option) => (
@@ -230,7 +230,7 @@ export default function ContributorForm({
                           <Checkbox
                             {...field}
                             checked={field.value}
-                            onChange={(e, checked) => field.onChange(checked)}
+                            onChange={(e, checked) => { field.onChange(checked); }}
                           />
                         }
                         label={description}

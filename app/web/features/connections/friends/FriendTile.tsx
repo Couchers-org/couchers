@@ -27,14 +27,14 @@ const StyledHeader = styled(Typography)(({ theme }) => ({
   marginLeft: theme.spacing(1),
 }));
 
-function FriendTile({
+const FriendTile = ({
   children,
   errorMessage,
   hasData,
   isLoading,
   noDataMessage,
   title,
-}: FriendTileProps) {
+}: FriendTileProps) => {
   return (
     <Card>
       <StyledContainer>

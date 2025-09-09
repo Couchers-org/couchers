@@ -80,7 +80,7 @@ export default function UserSummary({
   menuItems,
 }: UserSummaryProps) {
   const headlineComponentWithRef = React.forwardRef(
-    function HeadlineComponentWithRef(props, ref) {
+    (props, ref) => {
       return React.createElement(headlineComponent, { ...props, ref });
     },
   );

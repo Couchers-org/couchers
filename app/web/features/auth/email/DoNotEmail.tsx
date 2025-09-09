@@ -10,7 +10,7 @@ import { Trans, useTranslation } from "@/i18n";
 import { AUTH } from "@/i18n/namespaces";
 import { service } from "@/service";
 
-import { GetNotificationSettingsRes } from "../../../proto/notifications_pb";
+import { GetNotificationSettingsRes } from "@/proto/notifications_pb";
 
 interface DoNotEmailFormData {
   doNotEmailEnabled: boolean;

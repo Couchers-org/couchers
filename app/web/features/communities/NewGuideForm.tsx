@@ -54,7 +54,7 @@ export default function NewGuideForm() {
     },
   });
 
-  const onSubmit = handleSubmit((data: NewGuideInputs) => createGuide(data));
+  const onSubmit = handleSubmit((data: NewGuideInputs) => { createGuide(data); });
 
   return (
     <>

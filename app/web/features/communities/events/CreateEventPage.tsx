@@ -16,8 +16,8 @@ import { theme } from "@/theme";
 import dayjs, { TIME_FORMAT } from "@/utils/dayjs";
 import stringOrFirstString from "@/utils/stringOrFirstString";
 
-import { Event } from "../../../proto/events_pb";
-import { communityEventsBaseKey } from "../../queryKeys";
+import { Event } from "@/proto/events_pb";
+import { communityEventsBaseKey } from "@/features/queryKeys";
 import EventForm, { CreateEventVariables } from "./EventForm";
 
 export default function CreateEventPage() {

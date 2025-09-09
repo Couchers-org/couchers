@@ -12,7 +12,7 @@ interface ModUserDetailsProps {
   userDetails: UserDetails.AsObject;
 }
 
-export function ModUserDetails({ children, userDetails }: ModUserDetailsProps) {
+export const ModUserDetails = ({ children, userDetails }: ModUserDetailsProps) => {
   return (
     <ModUserDetailsContext.Provider value={userDetails}>
       {children}

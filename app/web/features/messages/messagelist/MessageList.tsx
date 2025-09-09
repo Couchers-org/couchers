@@ -51,13 +51,13 @@ export default function MessageList({
           isControlMessage(message) ? (
             <ControlMessageWrapper
               key={message.messageId}
-              onVisible={() => markLastSeen(message.messageId)}
+              onVisible={() => { markLastSeen(message.messageId); }}
               message={message}
             />
           ) : (
             <MessageWrapper
               key={message.messageId}
-              onVisible={() => markLastSeen(message.messageId)}
+              onVisible={() => { markLastSeen(message.messageId); }}
               message={message}
             />
           ),

@@ -30,7 +30,7 @@ export default function RecoverAccount() {
       if (token === undefined) {
         throw Error(t("auth:delete_account.missing_token"));
       }
-      return await service.auth.recoverAccount(token);
+      await service.auth.recoverAccount(token);
     },
   });
 
@@ -50,7 +50,7 @@ export default function RecoverAccount() {
           {t("auth:delete_account.recover.success")}
         </Alert>
       )}
-      <Button onClick={() => mutate({ token })} loading={isPending}>
+      <Button onClick={() => { mutate({ token }); }} loading={isPending}>
         {t("auth:delete_account.recover.button_text")}
       </Button>
     </>

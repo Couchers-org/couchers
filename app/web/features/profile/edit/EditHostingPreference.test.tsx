@@ -7,8 +7,8 @@ import wrapper from "@/test/hookWrapper";
 import i18n from "@/test/i18n";
 import { getUser } from "@/test/serviceMockDefaults";
 
-import { ParkingDetails } from "../../../proto/api_pb";
-import { MockedService, addDefaultUser } from "../../../test/utils";
+import { ParkingDetails } from "@/proto/api_pb";
+import { MockedService, addDefaultUser } from "@/test/utils";
 import EditHostingPreference from "./EditHostingPreference";
 
 const { t } = i18n;
@@ -59,9 +59,9 @@ describe("EditHostingPreference", () => {
       await screen.findByRole("button", { name: t("global:save_changes") }),
     );
     await waitFor(() =>
-      expect(
+      { expect(
         screen.getByText(t("profile:hosting_preferences_success_message")),
-      ).toBeInTheDocument(),
+      ).toBeInTheDocument(); },
     );
   });
 
@@ -113,7 +113,7 @@ describe("EditHostingPreference", () => {
 
     const lastMinuteField = screen.getByLabelText(
       t("profile:home_info_headings.last_minute"),
-    ) as HTMLInputElement;
+    );
     expect(lastMinuteField).toBeChecked();
 
     // Check that free text input fields are pre-filled with existing values
@@ -204,19 +204,19 @@ describe("EditHostingPreference", () => {
     expect(
       screen.getByLabelText(
         t("profile:edit_home_questions.accept_smoking"),
-      ) as HTMLSelectElement,
+      ),
     ).toHaveValue("1");
 
     expect(
       screen.getByLabelText(
         t("profile:home_info_headings.parking_details"),
-      ) as HTMLSelectElement,
+      ),
     ).toHaveValue("3");
 
     expect(
       screen.getByLabelText(
         t("profile:home_info_headings.space"),
-      ) as HTMLSelectElement,
+      ),
     ).toHaveValue("2");
   });
 
@@ -264,7 +264,7 @@ describe("EditHostingPreference", () => {
 
     const hasHousematesDetailsField = (await screen.findByLabelText(
       t("profile:home_info_headings.housemate_details"),
-    )) as HTMLInputElement;
+    ));
 
     expect(hasHousematesCheckbox).toBeChecked();
 
@@ -282,7 +282,7 @@ describe("EditHostingPreference", () => {
 
     const hasChildrenDetailsField = (await screen.findByLabelText(
       t("profile:home_info_headings.kid_details"),
-    )) as HTMLInputElement;
+    ));
 
     expect(hasChildrenCheckbox).toBeChecked();
 
@@ -300,7 +300,7 @@ describe("EditHostingPreference", () => {
 
     const hasPetsDetailsField = (await screen.findByLabelText(
       t("profile:home_info_headings.pet_details"),
-    )) as HTMLInputElement;
+    ));
 
     expect(hasPetsCheckbox).toBeChecked();
 
@@ -318,7 +318,7 @@ describe("EditHostingPreference", () => {
 
     const hasParkingAvailableDetailsField = (await screen.findByLabelText(
       t("profile:home_info_headings.parking_details"),
-    )) as HTMLSelectElement;
+    ));
 
     expect(hasParkingAvailableCheckbox).toBeChecked();
 

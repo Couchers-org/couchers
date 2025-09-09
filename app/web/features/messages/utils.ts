@@ -29,7 +29,7 @@ export function controlMessage({
   user: string;
   target_user?: string;
   message: Message.AsObject;
-  t: TFunction<"messages", undefined>;
+  t: TFunction<"messages">;
 }) {
   const userCap = user.charAt(0).toUpperCase() + user.slice(1);
   if (message.chatCreated) {
@@ -69,7 +69,7 @@ export function groupChatTitleText(
   groupChat: GroupChat.AsObject,
   groupChatMembersQuery: ReturnType<typeof useLiteUsers>,
   currentUserId: number,
-  t: TFunction<"messages", undefined>,
+  t: TFunction<"messages">,
 ) {
   return groupChat.title
     ? groupChat.title

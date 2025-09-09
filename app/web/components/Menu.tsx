@@ -32,8 +32,8 @@ export default function Menu(props: Omit<MenuProps, "className">) {
   return <MuiMenu {...props} />;
 }
 
-//forwarding ref is necessary because Menu
-//injects refs into MenuItems
+// forwarding ref is necessary because Menu
+// injects refs into MenuItems
 
 export const MenuItem = React.forwardRef(
   (props: MenuItemProps, ref: React.ForwardedRef<HTMLLIElement>) => {

@@ -1,5 +1,5 @@
 import { BoxProps, Slider, Typography, styled, useTheme } from "@mui/material";
-import { Feature, GeoJsonProperties, Geometry } from "geojson";
+import { Feature } from "geojson";
 import {
   GeoJSONSource,
   LngLat,
@@ -18,7 +18,7 @@ import TextField from "@/components/TextField";
 import { SignupAccountInputs } from "@/features/auth/signup/AccountForm";
 import { EditProfileFormValues } from "@/features/profile/edit/EditProfile";
 
-import { GLOBAL } from "../i18n/namespaces";
+import { GLOBAL } from "@/i18n/namespaces";
 
 const StyledWrapper = styled("div")<{ grow?: boolean }>(({ grow }) => ({
   margin: "auto",
@@ -97,15 +97,15 @@ export default function EditLocationMap({
 
     if (e.type === "touchstart") {
       const handleTouchMove = (e: MapMouseEvent | MapTouchEvent) =>
-        onCircleMove(e);
+        { onCircleMove(e); };
       map.current.on("touchmove", handleTouchMove);
       map.current.once("touchend", (e) =>
-        handleCoordinateMoved(e, handleTouchMove),
+        { handleCoordinateMoved(e, handleTouchMove); },
       );
     } else {
-      const handleMove = (e: MapMouseEvent | MapTouchEvent) => onCircleMove(e);
+      const handleMove = (e: MapMouseEvent | MapTouchEvent) => { onCircleMove(e); };
       map.current.on("mousemove", handleMove);
-      map.current.once("mouseup", (e) => handleCoordinateMoved(e, handleMove));
+      map.current.once("mouseup", (e) => { handleCoordinateMoved(e, handleMove); });
     }
   };
 
@@ -261,7 +261,7 @@ export default function EditLocationMap({
 
     const onCircleTouch = (
       e: MapTouchEvent & {
-        features?: Feature<Geometry, GeoJsonProperties>[] | undefined;
+        features?: Feature[] | undefined;
       },
     ) => {
       if (e.points.length !== 1) return;
@@ -352,7 +352,7 @@ export default function EditLocationMap({
               ? error
               : t("components.edit_location_map.location_publicly_visible")
           }
-          onFocus={() => setShrinkLabel(true)}
+          onFocus={() => { setShrinkLabel(true); }}
           onBlur={() => !location.current.address && setShrinkLabel(false)}
           sx={{ marginTop: 2 }}
         />
@@ -368,12 +368,12 @@ interface RadiusSliderProps {
   t: (key: string, options?: { radius?: number }) => string;
 }
 
-function RadiusSlider({
+const RadiusSlider = ({
   commit,
   initialRadius,
   redrawMap,
   t,
-}: RadiusSliderProps) {
+}: RadiusSliderProps) => {
   const [radius, setRadius] = useState(initialRadius);
   return (
     <>
@@ -393,12 +393,12 @@ function RadiusSlider({
         min={userLocationMinRadius}
         max={userLocationMaxRadius}
         onChange={(_, value) => {
-          setRadius(value as number);
-          commit({ radius: value as number }, false);
+          setRadius(value);
+          commit({ radius: value }, false);
           redrawMap();
         }}
         onChangeCommitted={(_, value) => {
-          commit({ radius: value as number });
+          commit({ radius: value });
           redrawMap();
         }}
       />
@@ -412,7 +412,7 @@ function extractLngLat(loc: ApproximateLocation): LngLat {
 
 function pointGeoJson(
   coords: LngLat,
-): GeoJSON.FeatureCollection<GeoJSON.Geometry> {
+): GeoJSON.FeatureCollection {
   return {
     features: [
       {
@@ -431,12 +431,12 @@ function pointGeoJson(
 function circleGeoJson(
   coords: LngLat,
   radius: number,
-): GeoJSON.FeatureCollection<GeoJSON.Geometry> {
+): GeoJSON.FeatureCollection {
   return {
     features: [
       {
         geometry: {
-          //create a circle of 60 points
+          // create a circle of 60 points
           coordinates: [
             [
               ...Array(60)

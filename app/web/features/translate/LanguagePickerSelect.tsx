@@ -24,11 +24,14 @@ import Snackbar from "@/components/Snackbar";
 import { useAuthContext } from "@/features/auth/AuthProvider";
 import { useWeblateStats } from "@/features/weblate/useWeblateStats";
 import { useTranslation } from "@/i18n";
-import { LANGUAGE_MAP } from "@/i18n/constants";
 import { GLOBAL } from "@/i18n/namespaces";
 import { TRANSLATE_ROUTE } from "@/routes";
 import { service } from "@/service";
 import { theme } from "@/theme";
+import {
+  getLanguageCodeFromWeblateLanguage,
+  getLanguageFromCode,
+} from "@/utils/language";
 
 import { ALMOST_DONE_CUTOFF, HIDDEN_CUTOFF } from "./constants";
 
@@ -137,9 +140,14 @@ const LanguagePickerSelect = ({
 
   const menuItems: React.ReactNode[] | undefined = isLoading
     ? []
-    : availableLanguages?.map((language) => {
-        // language.code has underscore, we need to change to hyphen
-        const languageCode = language.code.replace("_", "-");
+    : availableLanguages?.map((weblateLanguage) => {
+        const languageCode =
+          getLanguageCodeFromWeblateLanguage(weblateLanguage);
+        const language = getLanguageFromCode(languageCode);
+
+        if (!language) {
+          return <></>;
+        }
 
         return (
           <MenuItem
@@ -166,14 +174,14 @@ const LanguagePickerSelect = ({
               <Stack direction="row">
                 <ListItemIcon>
                   {renderFlag(
-                    LANGUAGE_MAP[languageCode].flagIconCode,
-                    language.translated_percent,
+                    language.flagIconCode,
+                    weblateLanguage.translated_percent,
                   )}
                 </ListItemIcon>
                 <ListItemText
                   sx={{
                     opacity:
-                      language.translated_percent < ALMOST_DONE_CUTOFF
+                      weblateLanguage.translated_percent < ALMOST_DONE_CUTOFF
                         ? 0.4
                         : 1,
                     fontWeight: "bold",
@@ -196,7 +204,14 @@ const LanguagePickerSelect = ({
   // renderValue function for what should be rendered after a selection is made
   const renderValue = (value: unknown) => {
     const selected = value as string;
-    const selectedDisplay = (
+
+    const language = getLanguageFromCode(selected);
+
+    if (!language) {
+      return <></>;
+    }
+
+    return (
       <Box
         sx={{
           display: "flex",
@@ -207,11 +222,10 @@ const LanguagePickerSelect = ({
           fontWeight: "bold",
         }}
       >
-        {renderFlag(LANGUAGE_MAP[selected].flagIconCode)}
+        {renderFlag(language.flagIconCode)}
         {selected.toUpperCase()}
       </Box>
     );
-    return selectedDisplay;
   };
 
   return (

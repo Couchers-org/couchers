@@ -7,9 +7,11 @@ import {
   parsedQueryToSearchFilters,
 } from "./searchFilters";
 
-function overrideConsoleWarn() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let originalConsoleWarn: (message?: any, ...optionalParams: any[]) => void;
+const overrideConsoleWarn = () => {
+  let originalConsoleWarn: (
+    message?: unknown,
+    ...optionalParams: unknown[]
+  ) => void;
   beforeEach(() => {
     originalConsoleWarn = log.warn;
     log.warn = jest.fn();
@@ -17,7 +19,7 @@ function overrideConsoleWarn() {
   afterEach(() => {
     log.warn = originalConsoleWarn;
   });
-}
+};
 
 describe("parsedQueryToSearchFilters", () => {
   overrideConsoleWarn();

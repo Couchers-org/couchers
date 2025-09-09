@@ -12,7 +12,7 @@ const StyledWrapper = styled("div")(({ theme }) => ({
   width: "100%",
   marginBottom: theme.spacing(1),
   [theme.breakpoints.down("lg")]: {
-    //break out of page margins
+    // break out of page margins
     left: "50%",
     marginLeft: "-50vw",
     marginRight: "-50vw",
@@ -42,8 +42,8 @@ export default function PageHeader({
     );
   }
 
-  //display a map if there's no image
-  //if no location, just display a zoomed out map of the world
+  // display a map if there's no image
+  // if no location, just display a zoomed out map of the world
   const zoom = page.location ? 13 : 1;
   const lngLat = new LngLat(page.location?.lng ?? 0, page.location?.lat ?? 0);
 

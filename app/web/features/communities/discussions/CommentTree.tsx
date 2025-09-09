@@ -8,7 +8,7 @@ import { COMMUNITIES } from "@/i18n/namespaces";
 import { theme } from "@/theme";
 import hasAtLeastOnePage from "@/utils/hasAtLeastOnePage";
 
-import { useThread } from "../hooks";
+import { useThread } from "@/features/communities/hooks";
 import Comment from "./Comment";
 import CommentForm from "./CommentForm";
 
@@ -22,7 +22,7 @@ const StyledCommentsListContainer = styled("div")(({ theme }) => ({
   marginBlockStart: theme.spacing(2),
   marginBlockEnd: theme.spacing(6),
   [theme.breakpoints.down("sm")]: {
-    //break out of page padding
+    // break out of page padding
     left: "50%",
     marginLeft: "-50vw",
     marginRight: "-50vw",

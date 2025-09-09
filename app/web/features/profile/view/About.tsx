@@ -7,7 +7,7 @@ import { useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
 import { User } from "@/proto/api_pb";
 
-import { useRegions } from "../hooks/useRegions";
+import { useRegions } from "@/features/profile/hooks/useRegions";
 import { AgeGenderLanguagesLabels, RemainingAboutLabels } from "./userLabels";
 
 interface AboutProps {

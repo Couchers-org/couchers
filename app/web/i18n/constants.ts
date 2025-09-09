@@ -8,6 +8,7 @@ interface LanguageMap {
   [key: string]: Language;
 }
 
+/* eslint-disable @typescript-eslint/naming-convention */
 export const LANGUAGE_MAP = {
   ca: {
     name: "Catalan",
@@ -98,3 +99,4 @@ export const LANGUAGE_MAP = {
     flagIconCode: "CN",
   },
 } satisfies LanguageMap;
+/* eslint-enable @typescript-eslint/naming-convention */

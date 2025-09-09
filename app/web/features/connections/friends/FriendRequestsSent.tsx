@@ -21,12 +21,12 @@ interface CancelFriendRequestActionProps {
   userId: number;
 }
 
-function CancelFriendRequestAction({
+const CancelFriendRequestAction = ({
   friendRequestId,
   state,
   setMutationError,
   userId,
-}: CancelFriendRequestActionProps) {
+}: CancelFriendRequestActionProps) => {
   const { cancelFriendRequest, isPending, isSuccess, reset } =
     useCancelFriendRequest();
 
@@ -50,7 +50,7 @@ function CancelFriendRequestAction({
   ) : null;
 }
 
-function FriendRequestsSent() {
+const FriendRequestsSent = () => {
   const isMounted = useIsMounted();
   const [mutationError, setMutationError] = useSafeState(isMounted, "");
   const { data, isLoading, isError, errors } = useFriendRequests("sent");

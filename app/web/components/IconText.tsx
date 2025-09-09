@@ -17,7 +17,7 @@ const StyledLabel = styled("div")(({ theme }) => ({
 }));
 
 interface IconTextProps {
-  icon: OverridableComponent<SvgIconTypeMap<unknown, "svg">>;
+  icon: OverridableComponent<SvgIconTypeMap<unknown>>;
   text: ReactNode;
 }
 

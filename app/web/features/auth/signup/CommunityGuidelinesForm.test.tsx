@@ -71,7 +71,7 @@ describe("community guidelines signup form", () => {
       expect(signupFlowCommunityGuidelinesMock).not.toBeCalled();
       await user.click(checkbox);
     });
-    await waitFor(() => expect(button).not.toBeDisabled());
+    await waitFor(() => { expect(button).not.toBeDisabled(); });
     await user.click(button);
 
     await waitFor(() => {
@@ -100,7 +100,7 @@ describe("community guidelines signup form", () => {
     checkboxes.forEach(async (checkbox) => {
       await user.click(checkbox);
     });
-    await waitFor(() => expect(button).not.toBeDisabled());
+    await waitFor(() => { expect(button).not.toBeDisabled(); });
 
     expect(
       screen.queryByText("All checkboxes are required"),
@@ -110,7 +110,7 @@ describe("community guidelines signup form", () => {
 
     await user.click(lastCheckbox);
 
-    await waitFor(() => expect(button).toBeDisabled());
+    await waitFor(() => { expect(button).toBeDisabled(); });
 
     expect(screen.getByText("All checkboxes are required")).toBeVisible();
   });

@@ -212,7 +212,7 @@ export default function ProfileTagInput({
                 tag,
               })}
               edge="start"
-              onClick={() => handleRemove(tag)}
+              onClick={() => { handleRemove(tag); }}
               size="small"
               sx={{
                 color: "common.white",
@@ -246,7 +246,7 @@ export default function ProfileTagInput({
                       target="_blank"
                       rel="noopener noreferrer"
                       underline="hover"
-                      onMouseDown={(e) => e.preventDefault()}
+                      onMouseDown={(e) => { e.preventDefault(); }}
                     />
                   ),
                 }}

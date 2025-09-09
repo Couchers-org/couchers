@@ -123,9 +123,9 @@ describe("Community info page", () => {
       await user.click(editLink);
 
       await waitFor(() =>
-        expect(mockRouter.pathname).toBe(
+        { expect(mockRouter.pathname).toBe(
           routeToEditCommunityPage(community.communityId, community.slug),
-        ),
+        ); },
       );
     });
   });
@@ -244,11 +244,11 @@ describe("Community info page", () => {
         }),
       );
       await waitFor(() =>
-        expect(
+        { expect(
           adminDialog.queryByRole("link", {
             name: getProfileLinkA11yLabel(thirdAdmin.name),
           }),
-        ).not.toBeInTheDocument(),
+        ).not.toBeInTheDocument(); },
       );
       expect(adminDialog.queryByRole(thirdAdmin.name)).not.toBeInTheDocument();
     });
@@ -264,11 +264,11 @@ describe("Community info page", () => {
       );
 
       await waitFor(() =>
-        expect(
+        { expect(
           screen.queryByRole("button", {
             name: t("communities:load_more_moderators"),
           }),
-        ).not.toBeInTheDocument(),
+        ).not.toBeInTheDocument(); },
       );
     });
 
@@ -289,11 +289,11 @@ describe("Community info page", () => {
       );
 
       await waitFor(() =>
-        expect(
+        { expect(
           screen.queryByRole("button", {
             name: t("communities:load_more_moderators"),
           }),
-        ).not.toBeInTheDocument(),
+        ).not.toBeInTheDocument(); },
       );
     });
   });

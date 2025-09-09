@@ -53,9 +53,9 @@ export default function Markdown({
   const viewer = useRef<ToastUIEditorViewer>();
   useEffect(() => {
     let sanitizedSource = increaseMarkdownHeaderLevel(source, topHeaderLevel);
-    //remove all html except <br>
+    // remove all html except <br>
     sanitizedSource = sanitizedSource.replace(/<(?!br)([^>]+)>/gi, "");
-    //change images ![]() to links []()
+    // change images ![]() to links []()
     sanitizedSource = sanitizedSource.replace(
       allowImages === "couchers"
         ? new RegExp(

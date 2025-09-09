@@ -4,10 +4,8 @@ import {
 } from "@mui/material";
 import React, { ForwardedRef } from "react";
 
-function _CircularProgress(
-  { className, ...otherProps }: CircularProgressProps,
-  ref: ForwardedRef<HTMLElement>,
-) {
+const _CircularProgress = ({ className, ...otherProps }: CircularProgressProps,
+  ref: ForwardedRef<HTMLElement>) => {
   return (
     <MuiCircularProgress {...otherProps} className={className} ref={ref} />
   );

@@ -27,7 +27,7 @@ const Banner = styled(Chip)(({ theme }) => ({
   color: theme.palette.common.white,
 }));
 
-export function EnvironmentBanner() {
+export const EnvironmentBanner = () => {
   const theme = useTheme();
   const isBelowSm = useMediaQuery(theme.breakpoints.down("md"));
   const [isShown, setIsShown] = useState(
@@ -39,7 +39,7 @@ export function EnvironmentBanner() {
       label={`This is a preview build of the app.${
         !isBelowSm ? " It uses a separate database to the production app." : ""
       }`}
-      onDelete={() => setIsShown(false)}
+      onDelete={() => { setIsShown(false); }}
     />
   ) : null;
 }

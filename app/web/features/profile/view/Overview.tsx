@@ -22,7 +22,7 @@ import {
 } from "@/routes";
 import { theme } from "@/theme";
 
-import { useProfileUser } from "../hooks/useProfileUser";
+import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
 import AdminPanelUserButton from "./AdminPanelUserButton";
 import ProfileReportFlagButton from "./ProfileReportFlagButton";
 
@@ -43,7 +43,7 @@ const getEditTab = (tab: UserTab): EditUserTab | undefined => {
   }
 };
 
-function LoggedInUserActions({ tab }: { tab: UserTab }) {
+const LoggedInUserActions = ({ tab }: { tab: UserTab }) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   return (
     <>
@@ -74,11 +74,11 @@ function LoggedInUserActions({ tab }: { tab: UserTab }) {
   );
 }
 
-function DefaultActions({
+const DefaultActions = ({
   setIsRequesting,
 }: {
   setIsRequesting: (value: boolean) => void;
-}) {
+}) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
   const disableHosting =
@@ -104,7 +104,7 @@ function DefaultActions({
     <>
       <ProfileIncompleteDialog
         open={showCantRequestDialog}
-        onClose={() => setShowCantRequestDialog(false)}
+        onClose={() => { setShowCantRequestDialog(false); }}
         attempted_action="send_request"
       />
       <Button

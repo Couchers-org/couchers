@@ -112,7 +112,7 @@ interface SliderThumbComponentProps extends React.HTMLAttributes<unknown> {
   children?: React.ReactNode;
 }
 
-function SliderThumbComponent(props: SliderThumbComponentProps) {
+const SliderThumbComponent = (props: SliderThumbComponentProps) => {
   const { children, ...other } = props;
   return (
     <SliderThumb {...other}>

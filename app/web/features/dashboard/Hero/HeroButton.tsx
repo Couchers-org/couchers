@@ -5,8 +5,8 @@ import Link from "next/link";
 import Button from "@/components/Button";
 import { DASHBOARD } from "@/i18n/namespaces";
 
-import { searchRoute } from "../../../routes";
-import { theme } from "../../../theme";
+import { searchRoute } from "@/routes";
+import { theme } from "@/theme";
 import useHeroBackgroundTheme from "./useHeroBackgroundTheme";
 
 const StyledButtonContainer = styled("div")(({ theme }) => ({
