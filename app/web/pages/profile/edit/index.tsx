@@ -16,8 +16,10 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function EditProfilePage() {
+const EditProfilePage = () => {
   return <EditProfilePageComponent tab="about" />;
-}
+};
 
 EditProfilePage.getLayout = appGetLayout({ noFooter: true });
+
+export default EditProfilePage;

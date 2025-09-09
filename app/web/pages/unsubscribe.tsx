@@ -7,8 +7,10 @@ import { translationStaticProps } from "@/i18n/server-side-translations";
 
 export const getStaticProps = translationStaticProps([GLOBAL, AUTH]);
 
-export default function UnsubscribePage() {
+const UnsubscribePage = () => {
   return <QuickLink />;
-}
+};
 
 UnsubscribePage.getLayout = appGetLayout({ isPrivate: false });
+
+export default UnsubscribePage;

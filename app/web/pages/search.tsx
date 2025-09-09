@@ -16,7 +16,7 @@ export const getStaticProps: GetStaticProps = translationStaticProps([
   NOTIFICATIONS,
 ]);
 
-export default function SearchPage() {
+const SearchPage = () => {
   const router = useRouter();
 
   const location = router.query.location as string;
@@ -27,7 +27,7 @@ export default function SearchPage() {
         (status) => Number(status) as HostingStatus,
       )
     : undefined;
-  const showEmptyProfile =
+  const shouldShowEmptyProfile =
     router.query.showEmptyProfile !== undefined
       ? router.query.showEmptyProfile === "false"
         ? false
@@ -40,14 +40,16 @@ export default function SearchPage() {
       initialBbox={bbox as Coordinates | undefined}
       initialFilters={{
         ...(hostingStatus && { hostingStatus }),
-        ...(showEmptyProfile !== undefined && {
-          showEmptyProfile: Boolean(showEmptyProfile),
+        ...(shouldShowEmptyProfile !== undefined && {
+          showEmptyProfile: shouldShowEmptyProfile,
         }),
       }}
     >
       <SearchPageComponent />
     </MapSearchProvider>
   );
-}
+};
 
 SearchPage.getLayout = appGetLayout({ noFooter: true, variant: "no-overflow" });
+
+export default SearchPage;

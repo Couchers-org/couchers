@@ -16,8 +16,10 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function FeaturePreviewPage() {
+const FeaturePreviewPage = () => {
   return <FeaturePreview />;
-}
+};
 
 FeaturePreviewPage.getLayout = appGetLayout();
+
+export default FeaturePreviewPage;

@@ -16,8 +16,10 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function ProfilePage() {
+const ProfilePage = () => {
   return <ProfilePageComponent />;
-}
+};
 
 ProfilePage.getLayout = appGetLayout();
+
+export default ProfilePage;

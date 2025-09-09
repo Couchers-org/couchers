@@ -14,11 +14,14 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     )),
   },
 });
-export default function PasswordResetPage() {
+
+const PasswordResetPage = () => {
   return <ResetPassword />;
-}
+};
 
 PasswordResetPage.getLayout = appGetLayout({
   isPrivate: false,
   variant: "full-screen",
 });
+
+export default PasswordResetPage;

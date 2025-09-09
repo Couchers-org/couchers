@@ -14,7 +14,7 @@ import {
   PROFILE,
 } from "@/i18n/namespaces";
 import nextI18nextConfig from "@/next-i18next.config";
-import { userTabs } from "@/routes";
+import { USER_TABS } from "@/routes";
 import stringOrFirstString from "@/utils/stringOrFirstString";
 
 export const getStaticPaths: GetStaticPaths = () => ({
@@ -32,7 +32,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function UserPage() {
+const UserPage = () => {
   const router = useRouter();
 
   // first element of slug is the username
@@ -41,11 +41,13 @@ export default function UserPage() {
   const tab = router.query.slug?.[1];
   let parsedTab = undefined;
   if (tab) {
-    parsedTab = userTabs.find((valid) => tab === valid);
+    parsedTab = USER_TABS.find((valid) => tab === valid);
     if (!parsedTab) return <NotFoundPage />;
   }
 
   return <UserPageComponent username={username} tab={parsedTab} />;
-}
+};
 
 UserPage.getLayout = appGetLayout();
+
+export default UserPage;

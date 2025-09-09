@@ -1,23 +1,23 @@
 import { useEffect, useState } from "react";
 
-export function getReactNativeWebView(): typeof window.ReactNativeWebView {
-  if (window && window.ReactNativeWebView) {
+export const getReactNativeWebView = () => {
+  if (window.ReactNativeWebView) {
     return window.ReactNativeWebView;
   }
-}
+};
 
-export function isNativeEmbed(): boolean {
+export const isNativeEmbed = (): boolean => {
   return !!getReactNativeWebView();
-}
+};
 
-export function getNativeData() {
+export const getNativeData = () => {
   const webview = getReactNativeWebView();
   if (webview && webview.injectedObjectJson()) {
-    return JSON.parse(webview.injectedObjectJson());
+    return JSON.parse(webview.injectedObjectJson()) as unknown;
   }
-}
+};
 
-export function useIsNativeEmbed(): boolean {
+export const useIsNativeEmbed = (): boolean => {
   const [isNative, setIsNative] = useState(false);
 
   useEffect(() => {
@@ -25,21 +25,19 @@ export function useIsNativeEmbed(): boolean {
   }, []);
 
   return isNative;
-}
+};
 
 type MessageType = "sendState" | "clearState";
 
-export function sendToNative(type: MessageType, data: any) {
+export const sendToNative = (type: MessageType, data: unknown) => {
   if (!isNativeEmbed()) return;
-  getReactNativeWebView()!.postMessage(
-    JSON.stringify({ type: type, data: data }),
-  );
-}
+  getReactNativeWebView()?.postMessage(JSON.stringify({ type, data }));
+};
 
-export function sendState<T>(key: string, value: T) {
-  sendToNative("sendState", { key: key, value: value });
-}
+export const sendState = (key: string, value: unknown) => {
+  sendToNative("sendState", { key, value });
+};
 
-export function clearState(key: string) {
-  sendToNative("clearState", { key: key });
-}
+export const clearState = (key: string) => {
+  sendToNative("clearState", { key });
+};

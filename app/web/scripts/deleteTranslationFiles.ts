@@ -28,14 +28,14 @@ const deleteTranslationFile = (filePath: string, languageCode: string) => {
 };
 
 const removeFromAllLanguages = (languageCode: string) => {
-  const allLanguagesPath = path.join(dirname, "..", "i18n", "allLanguages.js");
+  const allLanguagesPath = path.join(dirname, "..", "i18n", "allLanguages.ts");
 
   try {
     const content = fs.readFileSync(allLanguagesPath, "utf8");
 
     // Check if language exists
     if (!content.includes(`"${languageCode}"`)) {
-      log.warn(`⚠️  Language "${languageCode}" not found in allLanguages.js`);
+      log.warn(`⚠️  Language "${languageCode}" not found in allLanguages.ts`);
       return false;
     }
 
@@ -47,11 +47,11 @@ const removeFromAllLanguages = (languageCode: string) => {
 
     // Write back to file
     fs.writeFileSync(allLanguagesPath, updatedLines.join("\n"));
-    log.info(`✅ Removed "${languageCode}" from allLanguages.js`);
+    log.info(`✅ Removed "${languageCode}" from allLanguages.ts`);
     return true;
   } catch (error) {
     log.error(
-      `❌ Failed to remove from allLanguages.js: ${getErrorMessage(error)}`,
+      `❌ Failed to remove from allLanguages.ts: ${getErrorMessage(error)}`,
     );
     return false;
   }
@@ -113,7 +113,7 @@ const removeFromNativeAllLanguages = (languageCode: string) => {
     "..",
     "native",
     "i18n",
-    "allLanguages.js",
+    "allLanguages.ts",
   );
 
   try {
@@ -122,7 +122,7 @@ const removeFromNativeAllLanguages = (languageCode: string) => {
     // Check if language exists
     if (!content.includes(`"${languageCode}"`)) {
       log.warn(
-        `⚠️  Language "${languageCode}" not found in native allLanguages.js`,
+        `⚠️  Language "${languageCode}" not found in native allLanguages.ts`,
       );
       return false;
     }
@@ -135,11 +135,11 @@ const removeFromNativeAllLanguages = (languageCode: string) => {
 
     // Write back to file
     fs.writeFileSync(nativeAllLanguagesPath, updatedLines.join("\n"));
-    log.info(`✅ Removed "${languageCode}" from native allLanguages.js`);
+    log.info(`✅ Removed "${languageCode}" from native allLanguages.ts`);
     return true;
   } catch (error) {
     log.error(
-      `❌ Failed to remove from native allLanguages.js: ${getErrorMessage(error)}`,
+      `❌ Failed to remove from native allLanguages.ts: ${getErrorMessage(error)}`,
     );
     return false;
   }
@@ -180,13 +180,13 @@ const main = () => {
 
     log.info("\n🔧 Removing language from translation system...");
 
-    // Remove from allLanguages.js
+    // Remove from allLanguages.ts
     const removedFromAllLanguages = removeFromAllLanguages(languageCode);
 
     // Remove from constants.ts
     const removedFromConstants = removeFromConstants(languageCode);
 
-    // Remove from native allLanguages.js
+    // Remove from native allLanguages.ts
     const removedFromNative = removeFromNativeAllLanguages(languageCode);
 
     log.info("\n📋 Summary:");

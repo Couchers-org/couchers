@@ -16,12 +16,14 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function SignupPage() {
+const SignupPage = () => {
   return <Signup />;
-}
+};
 
 SignupPage.getLayout = appGetLayout({
   isPrivate: false,
   noFooter: true,
   variant: "full-screen",
 });
+
+export default SignupPage;

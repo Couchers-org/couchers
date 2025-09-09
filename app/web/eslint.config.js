@@ -76,7 +76,13 @@ const baseNamingConventions = [
 
 export default tseslint.config([
   {
-    ignores: ["node_modules/**/*", ".yarn/**/*", "proto/**", ".next/**"],
+    ignores: [
+      "node_modules/**/*",
+      ".yarn/**/*",
+      "proto/**",
+      ".next/**",
+      "public/service-worker.js",
+    ],
   },
   // Next config needs compatibility layer for new ESLint versions
   compat.config({
@@ -177,6 +183,8 @@ export default tseslint.config([
           prefix: "@",
         },
       ],
+
+      "object-shorthand": "warn",
 
       "no-useless-rename": "warn",
 

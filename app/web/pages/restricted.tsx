@@ -15,8 +15,10 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function RestrictedPage() {
+const RestrictedPage = () => {
   return <Jail />;
-}
+};
 
 RestrictedPage.getLayout = appGetLayout();
+
+export default RestrictedPage;

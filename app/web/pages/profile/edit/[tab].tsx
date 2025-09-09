@@ -7,7 +7,7 @@ import NotFoundPage from "@/features/NotFoundPage";
 import EditProfilePageComponent from "@/features/profile/edit/EditProfilePage";
 import { GLOBAL, NOTIFICATIONS, PROFILE } from "@/i18n/namespaces";
 import nextI18nextConfig from "@/next-i18next.config";
-import { editUserTabs } from "@/routes";
+import { EDIT_USER_TABS } from "@/routes";
 
 export const getStaticPaths: GetStaticPaths = () => ({
   paths: [],
@@ -24,14 +24,16 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function EditProfilePage() {
+const EditProfilePage = () => {
   const router = useRouter();
 
   const tab = router.query.tab;
-  const parsedTab = editUserTabs.find((valid) => tab === valid);
+  const parsedTab = EDIT_USER_TABS.find((valid) => tab === valid);
   if (!parsedTab) return <NotFoundPage />;
 
   return <EditProfilePageComponent tab={parsedTab} />;
-}
+};
 
 EditProfilePage.getLayout = appGetLayout({ noFooter: true });
+
+export default EditProfilePage;

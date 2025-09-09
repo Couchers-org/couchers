@@ -65,20 +65,20 @@ export type UserTab = (typeof USER_TABS)[number];
 export type EditUserTab = (typeof EDIT_USER_TABS)[number];
 
 const PROFILE_BASE_ROUTE = "/profile";
-export function routeToProfile(tab?: UserTab) {
+export const routeToProfile = (tab?: UserTab) => {
   return `${PROFILE_BASE_ROUTE}${tab ? `/${tab}` : ""}`;
-}
+};
 
-export function routeToEditProfile(tab?: EditUserTab) {
+export const routeToEditProfile = (tab?: EditUserTab) => {
   return `${PROFILE_BASE_ROUTE}/edit${tab ? `/${tab}` : ""}`;
-}
+};
 
 // user
 const USER_BASE_ROUTE = "/user";
 
-export function routeToUser(username: string, tab?: UserTab) {
+export const routeToUser = (username: string, tab?: UserTab) => {
   return `${USER_BASE_ROUTE}/${username}${tab ? `/${tab}` : ""}`;
-}
+};
 
 export const MESSAGES_ROUTE = "/messages";
 export const MESSAGE_TYPE_STRINGS = ["chats", "hosting", "surfing"] as const;
@@ -189,14 +189,14 @@ export const BADGES_ROUTE = "/badges";
 export const routeToBadge = (id: string) => `${BADGES_ROUTE}/${id}`;
 
 export const STRONG_VERIFICATION_URL = `${Config.consoleBaseUrl}/strong-verification`;
-export function adminPanelUserLink(username: string) {
+export const adminPanelUserLink = (username: string) => {
   return `${Config.consoleBaseUrl}/admin/user/${username}`;
-}
+};
 
 // mod
-export function routeToModUser(username: string, tab?: UserTab) {
+export const routeToModUser = (username: string, tab?: UserTab) => {
   return `/mod/user/${username}${tab ? `/${tab}` : ""}`;
-}
+};
 
 export const HOW_TO_RESPOND_REQUEST_GUIDE_URL =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1715125658-what-are-some-things-i-should-think-about-before-responding-to-a-request";

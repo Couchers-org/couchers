@@ -16,11 +16,13 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function TOSPage() {
+const TOSPage = () => {
   return <TOS />;
-}
+};
 
 TOSPage.getLayout = appGetLayout({
   isPrivate: false,
   variant: "full-screen",
 });
+
+export default TOSPage;

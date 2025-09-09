@@ -67,6 +67,7 @@ export const configUtils = <const P extends string>(prefix: P) => {
         COMMIT_TIMESTAMP: Type.Optional(Type.Date()),
         NOMINATIM_URL: Type.String(),
         VERSION: Type.String(),
+        IS_COMMUNITIES_PART2_ENABLED: Type.Boolean(),
       }),
       prefix,
     ),

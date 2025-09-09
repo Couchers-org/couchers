@@ -16,8 +16,10 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function TranslationPageComponent() {
+const TranslationPageComponent = () => {
   return <TranslationPage />;
-}
+};
 
 TranslationPageComponent.getLayout = appGetLayout({ isPrivate: false });
+
+export default TranslationPageComponent;

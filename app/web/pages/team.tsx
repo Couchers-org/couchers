@@ -16,10 +16,12 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export default function TeamPage() {
+const TeamPage = () => {
   return <Team />;
-}
+};
 
 TeamPage.getLayout = appGetLayout({
   isPrivate: false,
 });
+
+export default TeamPage;

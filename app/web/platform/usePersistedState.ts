@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 
+import log from "@/log";
 import {
   clearState as nativeLinkClearState,
   sendState,
@@ -7,37 +8,38 @@ import {
 
 type StorageType = "localStorage" | "sessionStorage";
 
-export function usePersistedState<T>(
+export const usePersistedState = <T>(
   key: string,
   defaultValue: T,
   storage: StorageType = "localStorage",
-): [T | undefined, (value: T) => void, () => void] {
+): [T | undefined, (value: T) => void, () => void] => {
   // in ssr, window doesn't exist, just use default
   const saved =
     typeof window !== "undefined" ? window[storage].getItem(key) : null;
-  const [_state, _setState] = useState<T | undefined>(
-    saved !== null ? JSON.parse(saved) : defaultValue,
+  const [hiddenState, setHiddenState] = useState<T | undefined>(
+    saved !== null ? (JSON.parse(saved) as T) : defaultValue,
   );
+
   const setState = useCallback(
     (value: T) => {
       if (value === undefined) {
-        console.warn(`${key} can't be stored as undefined, casting to null.`);
+        log.warn(`${key} can't be stored as undefined, casting to null.`);
       }
       const v = value === undefined ? null : value;
       window[storage].setItem(key, JSON.stringify(v));
       sendState(key, v);
-      _setState(value);
+      setHiddenState(value);
     },
     [key, storage],
   );
   const clearState = useCallback(() => {
     window[storage].removeItem(key);
     nativeLinkClearState(key);
-    _setState(undefined);
+    setHiddenState(undefined);
   }, [key, storage]);
-  return [_state, setState, clearState];
-}
+  return [hiddenState, setState, clearState];
+};
 
-export function clearStorage() {
+export const clearStorage = () => {
   window.sessionStorage.clear();
-}
+};

@@ -15,7 +15,7 @@ export interface CouchersLogoProps {
   className?: string;
 }
 
-export default function CouchersTextLogo({ className }: CouchersLogoProps) {
+const CouchersTextLogo = ({ className }: CouchersLogoProps) => {
   return (
     <Link href={BASE_ROUTE}>
       <Logo
@@ -47,4 +47,6 @@ export default function CouchersTextLogo({ className }: CouchersLogoProps) {
       </Logo>
     </Link>
   );
-}
+};
+
+export default CouchersTextLogo;
