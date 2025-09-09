@@ -1,7 +1,7 @@
-import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
-
 import { useReferencesReceived } from "@/features/profile/hooks/referencesHooks";
 import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
+import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
+
 import { ReferenceTypeState } from "./References";
 import ReferencesView from "./ReferencesView";
 
@@ -9,9 +9,9 @@ interface ReferencesReceivedListProps {
   referenceType: Exclude<ReferenceTypeState, "given">;
 }
 
-export default function ReferencesReceivedList({
+const ReferencesReceivedList = ({
   referenceType,
-}: ReferencesReceivedListProps) {
+}: ReferencesReceivedListProps) => {
   const user = useProfileUser();
   const referencesReceivedQuery = useReferencesReceived(user, referenceType);
 
@@ -32,4 +32,6 @@ export default function ReferencesReceivedList({
       referencesQuery={referencesReceivedQuery}
     />
   );
-}
+};
+
+export default ReferencesReceivedList;

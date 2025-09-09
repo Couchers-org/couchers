@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
 
-import { notificationSettingsQueryKey } from "@/features/queryKeys";
+import { NOTIFICATION_SETTINGS_QUERY_KEY } from "@/features/queryKeys";
 import { GetNotificationSettingsRes } from "@/proto/notifications_pb";
 import { service } from "@/service";
 
@@ -10,7 +10,7 @@ export default function useNotificationSettings() {
     GetNotificationSettingsRes.AsObject,
     RpcError
   >({
-    queryKey: [notificationSettingsQueryKey],
+    queryKey: [NOTIFICATION_SETTINGS_QUERY_KEY],
     queryFn: service.notifications.getNotificationSettings,
   });
 

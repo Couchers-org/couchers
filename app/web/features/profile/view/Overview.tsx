@@ -11,22 +11,22 @@ import { useAuthContext } from "@/features/auth/AuthProvider";
 import useAccountInfo from "@/features/auth/useAccountInfo";
 import FriendActions from "@/features/profile/actions/FriendActions";
 import MessageUserButton from "@/features/profile/actions/MessageUserButton";
+import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
 import UserOverview from "@/features/profile/view/UserOverview";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
 import { HostingStatus } from "@/proto/api_pb";
 import {
+  CONNECTIONS_ROUTE,
   EditUserTab,
   UserTab,
-  connectionsRoute,
   routeToEditProfile,
 } from "@/routes";
 import { theme } from "@/theme";
 
-import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
 import AdminPanelUserButton from "./AdminPanelUserButton";
 import ProfileReportFlagButton from "./ProfileReportFlagButton";
 
-const StyledModButtons = styled("div")(({ theme }) => ({
+const StyledModButtons = styled("div")(() => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
@@ -66,13 +66,13 @@ const LoggedInUserActions = ({ tab }: { tab: UserTab }) => {
             backgroundColor: "#3135390A",
           },
         }}
-        href={connectionsRoute}
+        href={CONNECTIONS_ROUTE}
       >
         {t("profile:my_connections")}
       </Button>
     </>
   );
-}
+};
 
 const DefaultActions = ({
   setIsRequesting,
@@ -81,20 +81,20 @@ const DefaultActions = ({
 }) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
-  const disableHosting =
+  const shouldDisableHosting =
     user.hostingStatus === HostingStatus.HOSTING_STATUS_CANT_HOST;
 
   const [mutationError, setMutationError] = useState("");
-  const [showCantRequestDialog, setShowCantRequestDialog] =
+  const [shouldShowCantRequestDialog, setShouldShowCantRequestDialog] =
     useState<boolean>(false);
 
   const { data: accountInfo, isLoading: isAccountInfoLoading } =
     useAccountInfo();
 
   const requestButton = () => {
-    doAntibot("host_request");
+    void doAntibot("host_request");
     if (!accountInfo?.profileComplete) {
-      setShowCantRequestDialog(true);
+      setShouldShowCantRequestDialog(true);
     } else {
       setIsRequesting(true);
     }
@@ -103,15 +103,17 @@ const DefaultActions = ({
   return (
     <>
       <ProfileIncompleteDialog
-        open={showCantRequestDialog}
-        onClose={() => { setShowCantRequestDialog(false); }}
+        open={shouldShowCantRequestDialog}
+        onClose={() => {
+          setShouldShowCantRequestDialog(false);
+        }}
         attempted_action="send_request"
       />
       <Button
         onClick={requestButton}
-        disabled={isAccountInfoLoading || disableHosting}
+        disabled={isAccountInfoLoading || shouldDisableHosting}
       >
-        {disableHosting
+        {shouldDisableHosting
           ? t("global:hosting_status.cant_host")
           : t("profile:actions.request")}
       </Button>
@@ -131,14 +133,14 @@ const DefaultActions = ({
       {mutationError && <Alert severity="error">{mutationError}</Alert>}
     </>
   );
-}
+};
 
 export interface OverviewProps {
   setIsRequesting: (value: boolean) => void;
   tab: UserTab;
 }
 
-export default function Overview({ setIsRequesting, tab }: OverviewProps) {
+export const Overview = ({ setIsRequesting, tab }: OverviewProps) => {
   const currentUserId = useAuthContext().authState.userId;
   const user = useProfileUser();
 
@@ -154,4 +156,4 @@ export default function Overview({ setIsRequesting, tab }: OverviewProps) {
       }
     />
   );
-}
+};

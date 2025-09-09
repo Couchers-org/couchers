@@ -1,11 +1,10 @@
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
 
-import { UserSearchV2Res } from "@/proto/search_pb";
-import { service } from "@/service";
-
 import { FilterOptions } from "@/features/search/SearchPage";
 import { MapSearchState } from "@/features/search/state/mapSearchReducers";
+import { UserSearchV2Res } from "@/proto/search_pb";
+import { service } from "@/service";
 
 const calculateCurrentRange = ({
   pageNumber,
@@ -30,11 +29,11 @@ const calculateCurrentRange = ({
   return `${startRange}-${endRange}`;
 };
 
-export function useUserSearch(
+export const useUserSearch = (
   searchParams: FilterOptions,
   mapSearchState: MapSearchState,
-) {
-  const meetsSearchCriteria =
+) => {
+  const doesMeetSearchCriteria =
     mapSearchState.hasActiveFilters ||
     mapSearchState.search.bbox !== undefined ||
     mapSearchState.search.query !== undefined ||
@@ -60,7 +59,7 @@ export function useUserSearch(
   });
 
   // React-query will keep the previously fetched data in the cache, so return undefined if we don't meet the search criteria
-  const users = !meetsSearchCriteria
+  const users = !doesMeetSearchCriteria
     ? undefined
     : data?.pages[mapSearchState.pageNumber - 1]?.resultsList || [];
 
@@ -98,4 +97,4 @@ export function useUserSearch(
     currentRange,
     totalItems,
   };
-}
+};

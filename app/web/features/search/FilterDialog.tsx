@@ -12,8 +12,9 @@ import {
   ToggleButtonGroup,
   Tooltip,
   Typography,
+  styled,
+  useMediaQuery,
 } from "@mui/material";
-import { styled, useMediaQuery } from "@mui/system";
 
 import CustomColorSwitch from "@/components/CustomColorSwitch";
 import { Dialog, DialogTitle } from "@/components/Dialog";
@@ -29,6 +30,7 @@ import {
   SleepingArrangement,
 } from "@/proto/api_pb";
 import { theme } from "@/theme";
+import { emptyFunction } from "@/utils/function";
 
 import { FilterOptions } from "./SearchPage";
 import { useMapSearchActions } from "./state/useMapSearchActions";
@@ -122,7 +124,7 @@ const SliderThumbComponent = (props: SliderThumbComponentProps) => {
       <span className="thumb-bar" />
     </SliderThumb>
   );
-}
+};
 
 const FilterDialog = ({
   filters,
@@ -148,14 +150,14 @@ const FilterDialog = ({
     updateFilter({ acceptsLastMinRequests: !filters.acceptsLastMinRequests });
   };
 
-  const handleAgeRangeChange = (event: Event, newValue: number | number[]) => {
+  const handleAgeRangeChange = (_event: Event, newValue: number | number[]) => {
     if (Array.isArray(newValue)) {
       updateFilter({ ageMin: newValue[0], ageMax: newValue[1] });
     }
   };
 
   const handleDrinkingAllowedChange = (
-    event: React.MouseEvent<HTMLElement>,
+    _event: React.MouseEvent<HTMLElement>,
     newDrinkingAllowed: boolean | undefined,
   ) => {
     updateFilter({ drinkingAllowed: newDrinkingAllowed });
@@ -179,14 +181,14 @@ const FilterDialog = ({
   };
 
   const handleHostingStatusChange = (
-    event: React.MouseEvent<HTMLElement>,
+    _event: React.MouseEvent<HTMLElement>,
     newHostingStatus: HostingStatus[],
   ) => {
     updateFilter({ hostingStatus: newHostingStatus });
   };
 
   const handleMeetupStatusChange = (
-    event: React.MouseEvent<HTMLElement>,
+    _event: React.MouseEvent<HTMLElement>,
     newMeetupStatus: Exclude<
       MeetupStatus,
       | MeetupStatus.MEETUP_STATUS_UNKNOWN
@@ -201,14 +203,14 @@ const FilterDialog = ({
   };
 
   const handleSleepingArrangementChange = (
-    event: React.MouseEvent<HTMLElement>,
+    _event: React.MouseEvent<HTMLElement>,
     newSleepingArrangement: SleepingArrangementOptions[],
   ) => {
     updateFilter({ sleepingArrangement: newSleepingArrangement });
   };
 
   const handleSmokesAtHomeChange = (
-    event: React.MouseEvent<HTMLElement>,
+    _event: React.MouseEvent<HTMLElement>,
     newSmokesAtHome: boolean | undefined,
   ) => {
     updateFilter({ smokesAtHome: newSmokesAtHome });
@@ -228,7 +230,7 @@ const FilterDialog = ({
     <StyledDialog
       aria-labelledby={t("search:filter_dialog.desktop_title")}
       open={isOpen}
-      onClose={() => {}}
+      onClose={emptyFunction}
       title={t("search:filter_dialog.desktop_title")}
     >
       <DialogTitle id="filter-dialog-title">

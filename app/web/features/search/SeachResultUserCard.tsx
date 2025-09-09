@@ -1,5 +1,4 @@
-import { Tooltip, Typography, styled } from "@mui/material";
-import { FlexboxProps, useMediaQuery } from "@mui/system";
+import { Tooltip, Typography, styled, useMediaQuery } from "@mui/material";
 import { TFunction } from "i18next";
 import LinesEllipsis from "react-lines-ellipsis";
 
@@ -39,7 +38,7 @@ const StyledCard = styled("div", {
   width: "100%",
 }));
 
-const StyledTopContent = styled("div")(({ theme }) => ({
+const StyledTopContent = styled("div")(() => ({
   display: "flex",
   alignItems: "flex-start",
   gap: theme.spacing(2),
@@ -47,7 +46,7 @@ const StyledTopContent = styled("div")(({ theme }) => ({
   flexShrink: 0,
 }));
 
-const StyledBottomContent = styled("div")(({ theme }) => ({
+const StyledBottomContent = styled("div")(() => ({
   display: "flex",
   flexDirection: "column",
   flexGrow: 1,
@@ -70,8 +69,8 @@ const StyledOpenInNewIcon = styled(OpenInNewIcon)(() => ({
 }));
 
 const FlexRow = styled("div")<{
-  alignItems?: FlexboxProps["alignItems"];
-  justifyContent?: FlexboxProps["justifyContent"];
+  alignItems?: string;
+  justifyContent?: string;
 }>(({ alignItems, justifyContent }) => ({
   display: "flex",
   alignItems: alignItems || "flex-start",
@@ -80,14 +79,14 @@ const FlexRow = styled("div")<{
   overflow: "hidden",
 }));
 
-const FlexColumn = styled("div")(({ theme }) => ({
+const FlexColumn = styled("div")(() => ({
   display: "flex",
   flexDirection: "column",
   width: "100%",
   overflow: "hidden",
 }));
 
-const UserDetailsRow = styled("div")(({ theme }) => ({
+const UserDetailsRow = styled("div")(() => ({
   display: "flex",
   alignItems: "center",
   color: theme.palette.grey[600],
@@ -97,7 +96,7 @@ const UserDetailsRow = styled("div")(({ theme }) => ({
   width: "100%",
 }));
 
-const HaikuContainer = styled("div")(({ theme }) => ({
+const HaikuContainer = styled("div")(() => ({
   display: "flex",
   flexDirection: "column",
   justifyContent: "center", // vertical centering
@@ -117,10 +116,10 @@ const generateAboutText = (
   t: TFunction,
   isMobile: boolean,
 ) => {
-  const missingAbout = user.profileSnippet.length === 0;
+  const isMissingAbout = user.profileSnippet.length === 0;
   const hasPhoto = user.avatarUrl.length > 0;
 
-  if (missingAbout && !hasPhoto) {
+  if (isMissingAbout && !hasPhoto) {
     return (
       <HaikuContainer>
         <Typography
@@ -174,7 +173,9 @@ const SearchResultUserCard = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 sx={{ fontSize: "1.1rem", overflow: "hidden" }}
-                onClick={(e) => { e.stopPropagation(); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
               >
                 <Typography
                   variant="h2"
@@ -195,7 +196,9 @@ const SearchResultUserCard = ({
               href={routeToUser(user.username)}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={(e) => { e.stopPropagation(); }}
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
             >
               <Tooltip title={t("profile:open_profile_new_tab")}>
                 <StyledOpenInNewIcon

@@ -109,13 +109,13 @@ const StyledTitle = styled(Typography)(() => ({
   lineHeight: "1.125",
 }));
 
-function createBreadcrumbs({
+const createBreadcrumbs = ({
   slug,
   frontmatter,
 }: {
   slug: Array<string>;
   frontmatter: MarkdownPageFrontmatter;
-}) {
+}) => {
   const crumbs = [{ key: "root", value: "Couchers.org", path: "/" }];
   if (slug.length > 2 && slug[0] == "blog") {
     // this is fragile, but basically hides the date from the blog crumbs
@@ -146,13 +146,13 @@ function createBreadcrumbs({
     }
   }
   return crumbs;
-}
+};
 
 const MarkdownPage = ({ slug, frontmatter, content }: MarkdownPageProps) => {
-  const subtitle = !!frontmatter.subtitle
+  const subtitle = frontmatter.subtitle
     ? mkd.renderInline(frontmatter.subtitle)
     : null;
-  const bustitle = !!frontmatter.bustitle
+  const bustitle = frontmatter.bustitle
     ? mkd.renderInline(frontmatter.bustitle)
     : null;
 

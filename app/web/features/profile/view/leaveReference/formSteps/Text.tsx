@@ -140,6 +140,7 @@ const Text = ({
         <Trans
           i18nKey="profile:leave_reference.by_writing_thoughtful"
           components={{
+            // eslint-disable-next-line @typescript-eslint/naming-convention
             1: (
               <StyledLink href={HELP_CENTER_HOW_TO_LEAVE_GOOD_REFERENCE_URL} />
             ),

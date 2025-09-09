@@ -4,7 +4,7 @@ import { RpcError } from "grpc-web";
 import { useState } from "react";
 
 import EllipsisMenu from "@/components/EllipsisMenu";
-import { blockedUsersKey } from "@/features/queryKeys";
+import { BLOCKED_USERS_KEY } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { CONNECTIONS } from "@/i18n/namespaces";
 import { BlockedUser, GetBlockedUsersRes } from "@/proto/blocking_pb";
@@ -15,7 +15,11 @@ import FriendSummaryView from "./FriendSummaryView";
 import FriendTile from "./FriendTile";
 import { useUnblockUser } from "./hooks";
 
-const BlockedUsersList = ({ refetchFriends }: { refetchFriends: () => void }) => {
+const BlockedUsersList = ({
+  refetchFriends,
+}: {
+  refetchFriends: () => void;
+}) => {
   const { t } = useTranslation([CONNECTIONS]);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -27,7 +31,10 @@ const BlockedUsersList = ({ refetchFriends }: { refetchFriends: () => void }) =>
   const { data, error, isPending } = useQuery<
     GetBlockedUsersRes.AsObject,
     RpcError
-  >({ queryKey: [blockedUsersKey], queryFn: service.blocking.getBlockedUsers });
+  >({
+    queryKey: [BLOCKED_USERS_KEY],
+    queryFn: service.blocking.getBlockedUsers,
+  });
 
   const { unblockUserMutation, isUnblocking } = useUnblockUser();
 
@@ -100,17 +107,17 @@ const BlockedUsersList = ({ refetchFriends }: { refetchFriends: () => void }) =>
                 },
               )}
               isLoading={isUnblocking}
-              onConfirm={() =>
-                { handleUnblockUserConfirm({
+              onConfirm={() => {
+                handleUnblockUserConfirm({
                   username: user.username,
-                }); }
-              }
+                });
+              }}
             />
           </FriendSummaryView>
         ))}
       </FriendTile>
     </>
   );
-}
+};
 
 export default BlockedUsersList;

@@ -12,9 +12,7 @@ export interface AdminPanelUserButtonProps {
   username: string;
 }
 
-export default function AdminPanelUserButton({
-  username,
-}: AdminPanelUserButtonProps) {
+const AdminPanelUserButton = ({ username }: AdminPanelUserButtonProps) => {
   const { t } = useTranslation(PROFILE);
   const router = useRouter();
 
@@ -22,7 +20,7 @@ export default function AdminPanelUserButton({
     <ModVisibleComponent>
       <IconButton
         aria-label={t("view_in_admin_console")}
-        onClick={() => router.push(adminPanelUserLink(username))}
+        onClick={() => void router.push(adminPanelUserLink(username))}
         color="primary"
         size="large"
       >
@@ -30,4 +28,6 @@ export default function AdminPanelUserButton({
       </IconButton>
     </ModVisibleComponent>
   );
-}
+};
+
+export default AdminPanelUserButton;

@@ -17,7 +17,7 @@ import {
   InfoIcon,
   LocationIcon,
 } from "@/components/Icons";
-import { activeLoginsKey } from "@/features/queryKeys";
+import { ACTIVE_LOGINS_KEY } from "@/features/queryKeys";
 import { Trans } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
 import { ActiveSession } from "@/proto/account_pb";
@@ -63,7 +63,7 @@ export default function LoginsPage({
 
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [activeLoginsKey],
+        queryKey: [ACTIVE_LOGINS_KEY],
       });
     },
   });
@@ -131,7 +131,12 @@ export default function LoginsPage({
       </CardContent>
       {!session.isCurrentSession && (
         <CardActions>
-          <Button onClick={() => { logOutThisSession(); }} loading={isPending}>
+          <Button
+            onClick={() => {
+              logOutThisSession();
+            }}
+            loading={isPending}
+          >
             {t("auth:active_logins.log_out_of_session")}
           </Button>
         </CardActions>

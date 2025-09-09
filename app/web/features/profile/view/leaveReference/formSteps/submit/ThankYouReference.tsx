@@ -5,7 +5,7 @@ import Button from "@/components/Button";
 import StyledLink from "@/components/StyledLink";
 import { Trans, useTranslation } from "@/i18n";
 import { PROFILE } from "@/i18n/namespaces";
-import { DASHBOARD_ROUTE, donationsRoute } from "@/routes";
+import { DASHBOARD_ROUTE, DONATIONS_ROUTE } from "@/routes";
 import { theme } from "@/theme";
 
 const ThankYouReference = () => {
@@ -24,7 +24,7 @@ const ThankYouReference = () => {
         <Trans i18nKey="profile:leave_reference.thank_you_donation_prompt">
           Consider{" "}
           <StyledLink
-            href={`${donationsRoute}?utm_source=leave-reference-thank-you`}
+            href={`${DONATIONS_ROUTE}?utm_source=leave-reference-thank-you`}
             sx={{ fontWeight: 600 }}
           >
             making a donation

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
 
-import { notificationSettingsQueryKey } from "@/features/queryKeys";
+import { NOTIFICATION_SETTINGS_QUERY_KEY } from "@/features/queryKeys";
 import { GetNotificationSettingsRes } from "@/proto/notifications_pb";
 import { service } from "@/service";
 import { NotificationPreferenceData } from "@/service/notifications";
@@ -34,7 +34,7 @@ export default function useUpdateNotificationSettings() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [notificationSettingsQueryKey],
+        queryKey: [NOTIFICATION_SETTINGS_QUERY_KEY],
       });
     },
   });

@@ -6,7 +6,7 @@ import React from "react";
 
 import Alert from "@/components/Alert";
 import Button from "@/components/Button";
-import { accountInfoQueryKey } from "@/features/queryKeys";
+import { ACCOUNT_INFO_QUERY_KEY } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { DASHBOARD } from "@/i18n/namespaces";
 import { GetAccountInfoRes } from "@/proto/account_pb";
@@ -22,7 +22,7 @@ export default function DashboardBanners() {
   const { t } = useTranslation([DASHBOARD]);
 
   const { data, error } = useQuery<GetAccountInfoRes.AsObject, RpcError>({
-    queryKey: [accountInfoQueryKey],
+    queryKey: [ACCOUNT_INFO_QUERY_KEY],
     queryFn: service.account.getAccountInfo,
   });
 

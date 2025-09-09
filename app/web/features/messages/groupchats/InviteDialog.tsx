@@ -16,9 +16,9 @@ import {
 } from "@/components/Dialog";
 import useFriendList from "@/features/connections/friends/useFriendList";
 import {
+  GROUP_CHATS_LIST_KEY,
   groupChatKey,
   groupChatMessagesKey,
-  groupChatsListKey,
 } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
@@ -48,7 +48,7 @@ export default function InviteDialog({
         queryKey: [groupChatMessagesKey(groupChat.groupChatId)],
       });
       queryClient.invalidateQueries({
-        queryKey: [groupChatsListKey],
+        queryKey: [GROUP_CHATS_LIST_KEY],
       });
       queryClient.invalidateQueries({
         queryKey: [groupChatKey(groupChat.groupChatId)],

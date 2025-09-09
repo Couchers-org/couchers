@@ -1,6 +1,8 @@
-import { render, screen, within } from "@testing-library/react";
+import { Queries, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
+import { referenceBadgeLabel } from "@/features/profile/constants";
+import { ProfileUserProvider } from "@/features/profile/hooks/useProfileUser";
 import { ReferenceType } from "@/proto/references_pb";
 import { service } from "@/service";
 import references from "@/test/fixtures/references.json";
@@ -10,8 +12,6 @@ import i18n from "@/test/i18n";
 import { getLiteUser, getLiteUsers } from "@/test/serviceMockDefaults";
 import { MockedService } from "@/test/utils";
 
-import { referenceBadgeLabel } from "@/features/profile/constants";
-import { ProfileUserProvider } from "@/features/profile/hooks/useProfileUser";
 import { REFERENCE_LIST_ITEM_TEST_ID } from "./ReferenceListItem";
 import References from "./References";
 
@@ -33,18 +33,20 @@ const getAvailableReferencesMock = service.references
   typeof service.references.getAvailableReferences
 >;
 
-function assertDateBadgeIsVisible(reference: ReturnType<typeof within>) {
+const assertDateBadgeIsVisible = <T extends Queries>(
+  reference: ReturnType<typeof within<T>>,
+) => {
   expect(reference.getByText(/\w{3} \d{4}/)).toBeVisible();
-}
+};
 
-function renderReferences() {
+const renderReferences = () => {
   render(
     <ProfileUserProvider user={users[0]}>
       <References />
     </ProfileUserProvider>,
     { wrapper },
   );
-}
+};
 
 const [
   friendReference,
@@ -188,7 +190,7 @@ describe("References", () => {
         REFERENCE_LIST_ITEM_TEST_ID,
       );
 
-      references.forEach(async (referenceElement, i) => {
+      void references.map(async (referenceElement, i) => {
         const reference = within(referenceElement);
         const user = await getLiteUser(referencesList[i].fromUserId.toString());
         expect(reference.getByRole("heading")).toHaveTextContent(user.name);

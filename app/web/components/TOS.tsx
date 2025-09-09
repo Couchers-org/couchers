@@ -6,7 +6,7 @@ import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "@/components/HtmlMeta";
 import Markdown from "@/components/Markdown";
 import PageTitle from "@/components/PageTitle";
-import { tosQueryKey } from "@/features/queryKeys";
+import { TOS_QUERY_KEY } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { GLOBAL } from "@/i18n/namespaces";
 import { GetTermsOfServiceRes } from "@/proto/resources_pb";
@@ -24,7 +24,7 @@ export default function TOS() {
     GetTermsOfServiceRes.AsObject,
     RpcError
   >({
-    queryKey: [tosQueryKey],
+    queryKey: [TOS_QUERY_KEY],
     queryFn: () => service.resources.getTermsOfService(),
   });
 

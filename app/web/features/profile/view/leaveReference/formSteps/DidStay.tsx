@@ -257,6 +257,7 @@ const DidStay = ({
             values={{ name: user.name }}
             components={{
               strong: <strong />,
+              // eslint-disable-next-line @typescript-eslint/naming-convention
               2: (
                 <StyledLink href={HELP_CENTER_REPORT_CONTENT_URL} target="#" />
               ),

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { friendIdsKey } from "@/features/queryKeys";
+import { FRIEND_IDS_KEY } from "@/features/queryKeys";
 import { useLiteUsersList } from "@/features/userQueries/useLiteUsers";
 import { service } from "@/service";
 
@@ -13,7 +13,7 @@ function useFriendList() {
     isLoading,
     refetch: refetchFriends,
   } = useQuery<number[]>({
-    queryKey: [friendIdsKey],
+    queryKey: [FRIEND_IDS_KEY],
     queryFn: service.api.listFriends,
   });
 

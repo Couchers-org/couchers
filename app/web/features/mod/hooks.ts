@@ -6,9 +6,9 @@ import {
 import { RpcError } from "grpc-web";
 
 import {
+  NEW_USERS_LIST_KEY,
   modUserDetailsKey,
   modUserKey,
-  newUsersListKey,
 } from "@/features/queryKeys";
 import { USER_STALE_TIME } from "@/features/userQueries/constants";
 import { ListUserIdsRes, UserDetails } from "@/proto/admin_pb";
@@ -20,10 +20,10 @@ export const useNewUsers = () => {
     ListUserIdsRes.AsObject,
     RpcError,
     InfiniteData<ListUserIdsRes.AsObject>,
-    [typeof newUsersListKey],
+    [typeof NEW_USERS_LIST_KEY],
     string
   >({
-    queryKey: [newUsersListKey],
+    queryKey: [NEW_USERS_LIST_KEY],
     queryFn: ({ pageParam }) =>
       service.admin.listUserIds({
         startTime: new Date(1970, 0, 0, 0, 0, 1),

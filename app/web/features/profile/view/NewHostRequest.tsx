@@ -1,6 +1,5 @@
 import { CardActions, Skeleton, Typography, styled } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import dayjs from "dayjs";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
@@ -13,7 +12,7 @@ import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
 import { useLiteUser } from "@/features/userQueries/useLiteUsers";
 import { Trans, useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
-import { howToWriteRequestGuideUrl } from "@/routes";
+import { HOW_TO_WRITE_REQUEST_GUIDE_URL } from "@/routes";
 import { service } from "@/service";
 import { CreateHostRequestWrapper } from "@/service/requests";
 import { theme } from "@/theme";
@@ -61,10 +60,10 @@ interface NewHostRequestProps {
   setIsRequesting: (value: boolean) => void;
 }
 
-export default function NewHostRequest({
+const NewHostRequest = ({
   setIsRequestSuccess,
   setIsRequesting,
-}: NewHostRequestProps) {
+}: NewHostRequestProps) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
 
@@ -81,7 +80,7 @@ export default function NewHostRequest({
     defaultValues: { hostUserId: user.userId },
   });
 
-  const textField = watch("text") ?? "";
+  const textField = watch("text");
 
   const { error, mutate } = useMutation({
     mutationFn: (data: CreateHostRequestWrapper) => {
@@ -94,20 +93,19 @@ export default function NewHostRequest({
     },
   });
 
-  const { isLoading: hostLoading, error: hostError } = useLiteUser(user.userId);
+  const { isLoading: isHostLoading, error: hostError } = useLiteUser(
+    user.userId,
+  );
 
-  const onSubmit = handleSubmit((data) => {
-    mutate(data);
-    reset();
-  });
+  const onSubmit = () =>
+    handleSubmit((data) => {
+      mutate(data);
+      reset();
+    });
 
   const watchFromDate = watch("fromDate", undefined);
   useEffect(() => {
-    if (
-      watchFromDate &&
-      getValues("toDate") &&
-      isSameOrFutureDate(watchFromDate, getValues("toDate"))
-    ) {
+    if (isSameOrFutureDate(watchFromDate, getValues("toDate"))) {
       setValue("toDate", watchFromDate.add(1, "day"));
     }
   });
@@ -115,7 +113,7 @@ export default function NewHostRequest({
   return (
     <>
       <StyledTitle variant="h1">
-        {hostLoading ? (
+        {isHostLoading ? (
           <Skeleton width="100" />
         ) : (
           t("profile:request_form.send_request", { name: user.name })
@@ -123,7 +121,7 @@ export default function NewHostRequest({
       </StyledTitle>
       {error && <Alert severity="error">{error.message}</Alert>}
       {hostError ? (
-        <Alert severity={"error"}>{hostError?.message}</Alert>
+        <Alert severity={"error"}>{hostError.message}</Alert>
       ) : (
         <form onSubmit={onSubmit}>
           <StyledRequestRow>
@@ -131,7 +129,7 @@ export default function NewHostRequest({
               <StyledDatepicker
                 control={control}
                 error={!!errors.fromDate}
-                helperText={errors?.fromDate?.message}
+                helperText={errors.fromDate?.message}
                 id="from-date"
                 label={t("profile:request_form.arrival_date")}
                 name="fromDate"
@@ -144,10 +142,10 @@ export default function NewHostRequest({
               <StyledDatepicker
                 control={control}
                 error={!!errors.toDate}
-                helperText={errors?.toDate?.message}
+                helperText={errors.toDate?.message}
                 id="to-date"
                 label={t("profile:request_form.departure_date")}
-                minDate={watchFromDate ? watchFromDate.add(1, "day") : dayjs()}
+                minDate={watchFromDate.add(1, "day")}
                 name="toDate"
                 defaultValue={null}
                 rules={{
@@ -159,7 +157,7 @@ export default function NewHostRequest({
           </StyledRequestRow>
           <StyledHelpText variant="body1">
             <Trans i18nKey="profile:request_form.guide_link_help_text">
-              <StyledLink variant="body1" href={howToWriteRequestGuideUrl}>
+              <StyledLink variant="body1" href={HOW_TO_WRITE_REQUEST_GUIDE_URL}>
                 Read our guide
               </StyledLink>{" "}
               on how to write a request that will get accepted.
@@ -195,7 +193,11 @@ export default function NewHostRequest({
             }
           />
           <StyledSendActions>
-            <Button onClick={() => { setIsRequesting(false); }}>
+            <Button
+              onClick={() => {
+                setIsRequesting(false);
+              }}
+            >
               {t("global:cancel")}
             </Button>
             <Button type="submit" onClick={onSubmit}>
@@ -206,4 +208,6 @@ export default function NewHostRequest({
       )}
     </>
   );
-}
+};
+
+export default NewHostRequest;

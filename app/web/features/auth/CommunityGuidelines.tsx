@@ -16,7 +16,7 @@ import { Controller, useForm } from "react-hook-form";
 import Alert from "@/components/Alert";
 import Button from "@/components/Button";
 import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
-import { communityGuidelinesQueryKey } from "@/features/queryKeys";
+import { COMMUNITY_GUIDELINES_QUERY_KEY } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
 import { Sentry } from "@/platform/sentry";
@@ -66,7 +66,7 @@ const CommunityGuidelines = ({
     error: loadError,
     isLoading,
   } = useQuery<GetCommunityGuidelinesRes.AsObject, RpcError>({
-    queryKey: [communityGuidelinesQueryKey],
+    queryKey: [COMMUNITY_GUIDELINES_QUERY_KEY],
     queryFn: () => service.resources.getCommunityGuidelines(),
   });
 

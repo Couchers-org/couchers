@@ -19,9 +19,9 @@ import { AddIcon, CloseIcon } from "@/components/Icons";
 import TextBody from "@/components/TextBody";
 import { useAuthContext } from "@/features/auth/AuthProvider";
 import {
+  GROUP_CHATS_LIST_KEY,
   groupChatKey,
   groupChatMessagesKey,
-  groupChatsListKey,
 } from "@/features/queryKeys";
 import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
 import { useTranslation } from "@/i18n";
@@ -59,14 +59,18 @@ const AdminListItem = ({
   const isCurrentUser = useAuthContext().authState.userId === member.userId;
 
   const queryClient = useQueryClient();
-  const clearError = () => { setError(""); };
-  const handleError = (error: RpcError) => { setError(error.message); };
+  const clearError = () => {
+    setError("");
+  };
+  const handleError = (error: RpcError) => {
+    setError(error.message);
+  };
   const invalidate = () => {
     queryClient.invalidateQueries({
       queryKey: [groupChatMessagesKey(groupChatId)],
     });
     queryClient.invalidateQueries({
-      queryKey: [groupChatsListKey],
+      queryKey: [GROUP_CHATS_LIST_KEY],
     });
     queryClient.invalidateQueries({
       queryKey: [groupChatKey(groupChatId)],
@@ -117,8 +121,12 @@ const AdminListItem = ({
     },
   });
 
-  const handleMakeAdmin = () => { makeAdmin.mutate(); };
-  const handleRemoveAdmin = () => { removeAdmin.mutate(); };
+  const handleMakeAdmin = () => {
+    makeAdmin.mutate();
+  };
+  const handleRemoveAdmin = () => {
+    removeAdmin.mutate();
+  };
 
   return (
     <StyledMemberListItemContainer dense>
@@ -136,7 +144,9 @@ const AdminListItem = ({
                   aria-label={t("admins_dialog.remove_admin.action_a11y_label")}
                   size="small"
                   loading={removeAdmin.isPending}
-                  onClick={() => { setIsOpen(true); }}
+                  onClick={() => {
+                    setIsOpen(true);
+                  }}
                 >
                   <CloseIcon />
                 </IconButton>
@@ -167,7 +177,7 @@ const AdminListItem = ({
       <TextBody noWrap>{member.name}</TextBody>
     </StyledMemberListItemContainer>
   );
-}
+};
 
 interface AdminsDialogProps extends DialogProps {
   groupChat?: GroupChat.AsObject;

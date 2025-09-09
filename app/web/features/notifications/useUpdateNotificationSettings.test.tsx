@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { RpcError, StatusCode } from "grpc-web";
 
-import { notificationSettingsQueryKey } from "@/features/queryKeys";
+import { NOTIFICATION_SETTINGS_QUERY_KEY } from "@/features/queryKeys";
 import { service } from "@/service";
 
 import useUpdateNotificationSettings from "./useUpdateNotificationSettings";
@@ -63,7 +63,7 @@ describe("useUpdateNotificationSettings", () => {
       service.notifications.setNotificationSettingsPreference,
     ).toHaveBeenCalledWith(mockData);
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
-      queryKey: [notificationSettingsQueryKey],
+      queryKey: [NOTIFICATION_SETTINGS_QUERY_KEY],
     });
   });
 
@@ -96,6 +96,8 @@ describe("useUpdateNotificationSettings", () => {
     });
 
     expect(setMutationError).toHaveBeenCalledWith("Test error message");
-    await waitFor(() => { expect(result.current.isError).toBe(true); });
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
   });
 });

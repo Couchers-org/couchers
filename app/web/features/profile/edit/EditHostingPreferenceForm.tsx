@@ -6,6 +6,13 @@ import {
   Typography,
   styled,
 } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Controller, UseFormReturn, useForm } from "react-hook-form";
+
+import Alert from "@/components/Alert";
+import Button from "@/components/Button";
+import Select from "@/components/Select";
+import Snackbar from "@/components/Snackbar";
 import ProfileMarkdownInput from "@/features/profile/ProfileMarkdownInput";
 import ProfileTextInput from "@/features/profile/ProfileTextInput";
 import {
@@ -21,16 +28,9 @@ import {
   SleepingArrangement,
   SmokingLocation,
 } from "@/proto/api_pb";
-import React, { useEffect, useState } from "react";
-import { Controller, UseFormReturn, useForm } from "react-hook-form";
-import { HostingPreferenceData } from "@/service;
+import { HostingPreferenceData } from "@/service";
 import { theme } from "@/theme";
 import { useUnsavedChangesWarning } from "@/utils/hooks";
-
-import Alert from "@/components/Alert";
-import Button from "@/components/Button";
-import Select from "@/components/Select";
-import Snackbar from "@/components/Snackbar";
 
 import { DEFAULT_ABOUT_HOME_HEADINGS } from "./constants";
 
@@ -45,12 +45,6 @@ interface HostingPreferenceCheckboxProps {
 const StyledAlert = styled(Alert)(() => ({
   marginBottom: theme.spacing(3),
 }));
-
-const StyledHostingPreferenceCheckbox = styled(HostingPreferenceCheckbox)(
-  () => ({
-    display: "block",
-  }),
-);
 
 const styledField = <C extends React.ComponentType<React.ComponentProps<C>>>(
   component: C,
@@ -132,7 +126,7 @@ const StickySaveBar = styled(Box)(({ theme }) => ({
   gap: theme.spacing(2),
 }));
 
-const SaveButton = styled(Button)(({ theme }) => ({
+const SaveButton = styled(Button)(() => ({
   minWidth: 200,
   borderRadius: 22,
   fontSize: "1rem",
@@ -191,13 +185,13 @@ const KeyText = styled(Typography)(({ theme }) => ({
   lineHeight: 1.4,
 }));
 
-function HostingPreferenceCheckbox({
+const HostingPreferenceCheckbox = ({
   className,
   label,
   name,
   register,
   checked,
-}: HostingPreferenceCheckboxProps) {
+}: HostingPreferenceCheckboxProps) => {
   return (
     <FormControl variant="standard" className={className} margin="dense">
       <FormControlLabel
@@ -208,23 +202,25 @@ function HostingPreferenceCheckbox({
       />
     </FormControl>
   );
-}
+};
 
-export default function HostingPreferenceForm({
-  user,
-}: {
-  user: HostingPreferenceData;
-}) {
+const StyledHostingPreferenceCheckbox = styled(HostingPreferenceCheckbox)(
+  () => ({
+    display: "block",
+  }),
+);
+
+const HostingPreferenceForm = ({ user }: { user: HostingPreferenceData }) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
 
   const {
     updateHostingPreferences,
     reset: resetUpdate,
-    isPending: updateIsLoading,
-    isError: updateError,
+    isPending: isUpdateLoading,
+    isError: isUpdateError,
   } = useUpdateHostingPreferences();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [shouldShowSuccessToast, setShouldShowSuccessToast] = useState(false);
 
   const {
     control,
@@ -241,18 +237,18 @@ export default function HostingPreferenceForm({
     defaultValues: user,
   });
 
-  const lastMinute = watch("lastMinute");
-  const acceptsKids = watch("acceptsKids");
-  const acceptsPets = watch("acceptsPets");
-  const drinkingAllowed = watch("drinkingAllowed");
+  const isLastMinute = watch("lastMinute");
+  const doesAcceptKids = watch("acceptsKids");
+  const doesAcceptPets = watch("acceptsPets");
+  const isDrinkingAllowed = watch("drinkingAllowed");
   const hasHousemates = watch("hasHousemates");
   const hasKids = watch("hasKids");
   const hasPets = watch("hasPets");
-  const wheelchairAccessible = watch("wheelchairAccessible");
-  const campingOk = watch("campingOk");
+  const isWheelchairAccessible = watch("wheelchairAccessible");
+  const isCampingOk = watch("campingOk");
   const hasParkingAvailable = watch("parking");
-  const drinksAtHome = watch("drinksAtHome");
-  const smokesAtHome = watch("smokesAtHome");
+  const doesDrinkAtHome = watch("drinksAtHome");
+  const doesSmokeAtHome = watch("smokesAtHome");
 
   useEffect(() => {
     if (!hasHousemates) {
@@ -307,7 +303,7 @@ export default function HostingPreferenceForm({
           // Reset form dirty state to hide save bar
           const currentValues = getValues();
           reset(currentValues, { keepValues: true, keepDirty: false });
-          setShowSuccessToast(true);
+          setShouldShowSuccessToast(true);
         },
         // Scroll to top on submission error
         onError: () => {
@@ -319,13 +315,13 @@ export default function HostingPreferenceForm({
 
   return (
     <>
-      {updateError && (
+      {isUpdateError && (
         <StyledAlert severity="error">
           {errorMessage || "Unknown error"}
         </StyledAlert>
       )}
 
-      <form onSubmit={onSubmit}>
+      <form onSubmit={(e) => void onSubmit(e)}>
         {/* Hosting Preferences Section */}
         <ProfileSection>
           <SectionTitle>
@@ -340,25 +336,25 @@ export default function HostingPreferenceForm({
               label={t("profile:home_info_headings.last_minute")}
               name="lastMinute"
               register={register}
-              checked={!!lastMinute}
+              checked={isLastMinute}
             />
             <StyledHostingPreferenceCheckbox
               label={t("profile:edit_home_questions.accept_kids")}
               name="acceptsKids"
               register={register}
-              checked={!!acceptsKids}
+              checked={doesAcceptKids}
             />
             <StyledHostingPreferenceCheckbox
               label={t("profile:edit_home_questions.accept_pets")}
               name="acceptsPets"
               register={register}
-              checked={!!acceptsPets}
+              checked={doesAcceptPets}
             />
             <StyledHostingPreferenceCheckbox
               label={t("profile:edit_home_questions.accept_drinking")}
               name="drinkingAllowed"
               register={register}
-              checked={!!drinkingAllowed}
+              checked={isDrinkingAllowed}
             />
           </CheckboxGrid>
 
@@ -373,8 +369,8 @@ export default function HostingPreferenceForm({
               label={t("profile:home_info_headings.max_guests")}
               type="number"
               slotProps={{ input: { inputProps: { min: 1, max: 10 } } }}
-              error={!!errors?.maxGuests?.message}
-              helperText={errors?.maxGuests?.message}
+              error={!!errors.maxGuests?.message}
+              helperText={errors.maxGuests?.message}
             />
           </FieldGroup>
 
@@ -385,7 +381,9 @@ export default function HostingPreferenceForm({
               render={({ field }) => (
                 <StyledSelect
                   {...field}
-                  onChange={(event) => field.onChange(event.target.value)}
+                  onChange={(event) => {
+                    field.onChange(event.target.value);
+                  }}
                   label={t("profile:edit_home_questions.accept_smoking")}
                   value={field.value}
                   id="smokingAllowed"
@@ -427,7 +425,9 @@ export default function HostingPreferenceForm({
               render={({ field }) => (
                 <>
                   <StyledSelect
-                    onChange={(event) => field.onChange(event.target.value)}
+                    onChange={(event) => {
+                      field.onChange(event.target.value);
+                    }}
                     id="sleepingArrangement"
                     label={t("profile:home_info_headings.space")}
                     value={field.value}
@@ -495,7 +495,7 @@ export default function HostingPreferenceForm({
                   label={t("profile:home_info_headings.has_housemates")}
                   name="hasHousemates"
                   register={register}
-                  checked={!!hasHousemates}
+                  checked={hasHousemates}
                 />
                 {hasHousemates && (
                   <StyledProfileTextInput
@@ -514,7 +514,7 @@ export default function HostingPreferenceForm({
                   label={t("profile:home_info_headings.has_kids")}
                   name="hasKids"
                   register={register}
-                  checked={!!hasKids}
+                  checked={hasKids}
                 />
                 {hasKids && (
                   <StyledProfileTextInput
@@ -533,7 +533,7 @@ export default function HostingPreferenceForm({
                   label={t("profile:home_info_headings.has_pets")}
                   name="hasPets"
                   register={register}
-                  checked={!!hasPets}
+                  checked={hasPets}
                 />
                 {hasPets && (
                   <StyledProfileTextInput
@@ -560,7 +560,7 @@ export default function HostingPreferenceForm({
                   label={t("profile:home_info_headings.wheelchair")}
                   name="wheelchairAccessible"
                   register={register}
-                  checked={!!wheelchairAccessible}
+                  checked={isWheelchairAccessible}
                 />
               </CheckboxItem>
               <CheckboxItem>
@@ -568,7 +568,7 @@ export default function HostingPreferenceForm({
                   label={t("profile:edit_home_questions.accept_camping")}
                   name="campingOk"
                   register={register}
-                  checked={!!campingOk}
+                  checked={isCampingOk}
                 />
               </CheckboxItem>
               <CheckboxItem>
@@ -576,7 +576,7 @@ export default function HostingPreferenceForm({
                   label={t("profile:home_info_headings.parking")}
                   name="parking"
                   register={register}
-                  checked={!!hasParkingAvailable}
+                  checked={hasParkingAvailable}
                 />
                 {hasParkingAvailable && (
                   <Controller
@@ -585,7 +585,9 @@ export default function HostingPreferenceForm({
                     render={({ field }) => (
                       <StyledSelect
                         label={t("profile:home_info_headings.parking_details")}
-                        onChange={(event) => field.onChange(event.target.value)}
+                        onChange={(event) => {
+                          field.onChange(event.target.value);
+                        }}
                         value={field.value}
                         id="parkingDetails"
                         options={[
@@ -614,13 +616,13 @@ export default function HostingPreferenceForm({
                 label={t("profile:home_info_headings.host_drinking")}
                 name="drinksAtHome"
                 register={register}
-                checked={!!drinksAtHome}
+                checked={doesDrinkAtHome}
               />
               <StyledHostingPreferenceCheckbox
                 label={t("profile:home_info_headings.host_smoking")}
                 name="smokesAtHome"
                 register={register}
-                checked={!!smokesAtHome}
+                checked={doesSmokeAtHome}
               />
             </CheckboxGrid>
           </FieldGroup>
@@ -674,10 +676,12 @@ export default function HostingPreferenceForm({
           </FieldGroup>
         </ProfileSection>
 
-        {showSuccessToast && (
+        {shouldShowSuccessToast && (
           <Snackbar
             severity="success"
-            onClose={() => setShowSuccessToast(false)}
+            onClose={() => {
+              setShouldShowSuccessToast(false);
+            }}
           >
             {t("profile:hosting_preferences_success_message")}
           </Snackbar>
@@ -692,8 +696,8 @@ export default function HostingPreferenceForm({
               type="submit"
               variant="contained"
               color="primary"
-              loading={updateIsLoading}
-              disabled={!formState.isDirty || updateIsLoading}
+              loading={isUpdateLoading}
+              disabled={isUpdateLoading}
               onClick={onSubmit}
             >
               {t("global:save_changes")}
@@ -703,4 +707,6 @@ export default function HostingPreferenceForm({
       </form>
     </>
   );
-}
+};
+
+export default HostingPreferenceForm;

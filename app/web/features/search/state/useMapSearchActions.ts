@@ -16,20 +16,20 @@ const useMapSearchActions = () => {
     didCrossSearchThreshold?: boolean,
   ) => {
     dispatch({
-      type: mapSearchActionTypes.SET_MAP_QUERY_AREA,
+      type: mapSearchActionTypes.setMapQueryArea,
       payload: { bbox, zoom, didCrossSearchThreshold },
     });
   };
 
   const clearKeywordInputValue = () => {
     dispatch({
-      type: mapSearchActionTypes.CLEAR_KEYWORD_INPUT_VALUE,
+      type: mapSearchActionTypes.clearKeywordInputValue,
     });
   };
 
   const setKeywordInputValue = (keyword: string) => {
     dispatch({
-      type: mapSearchActionTypes.SET_KEYWORD_INPUT_VALUE,
+      type: mapSearchActionTypes.setKeywordInputValue,
       payload: { keyword },
     });
   };
@@ -44,21 +44,21 @@ const useMapSearchActions = () => {
     zoom: number | undefined;
   }) => {
     dispatch({
-      type: mapSearchActionTypes.SET_SEARCH_INPUT_VALUE,
+      type: mapSearchActionTypes.setSearchInputValue,
       payload: { location, center, zoom },
     });
   };
 
   const setSearchFilters = (newFilters: FilterOptions) => {
     dispatch({
-      type: mapSearchActionTypes.SET_FILTERS,
+      type: mapSearchActionTypes.setFilters,
       payload: newFilters,
     });
   };
 
   const clearSearchInputValue = (bbox: Coordinates | undefined) => {
     dispatch({
-      type: mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE,
+      type: mapSearchActionTypes.clearSearchInputValue,
       payload: { bbox },
     });
   };
@@ -73,14 +73,14 @@ const useMapSearchActions = () => {
     zoom?: MapSearchState["uiOnly"]["zoom"];
   }) => {
     dispatch({
-      type: mapSearchActionTypes.SET_MOVE_MAP_UI_ONLY,
+      type: mapSearchActionTypes.setMoveMapUiOnly,
       payload: { bbox, center, zoom },
     });
   };
 
   const setSelectedUserId = (userId: number | undefined) => {
     dispatch({
-      type: mapSearchActionTypes.SET_SELECTED_USER_ID,
+      type: mapSearchActionTypes.setSelectedUserId,
       payload: { userId },
     });
 
@@ -90,19 +90,19 @@ const useMapSearchActions = () => {
   };
 
   const clearSearchFilters = () => {
-    dispatch({ type: mapSearchActionTypes.RESET_FILTERS });
+    dispatch({ type: mapSearchActionTypes.resetFilters });
   };
 
   const setPageNumber = (pageNumber: number) => {
     dispatch({
-      type: mapSearchActionTypes.SET_PAGE_NUMBER,
+      type: mapSearchActionTypes.setPageNumber,
       payload: { pageNumber },
     });
   };
 
   const setShowSearchThisAreaButton = (showSearchThisAreaButton: boolean) => {
     dispatch({
-      type: mapSearchActionTypes.SET_SHOW_SEARCH_THIS_AREA_BUTTON,
+      type: mapSearchActionTypes.setShowSearchThisAreaButton,
       payload: { showSearchThisAreaButton },
     });
   };

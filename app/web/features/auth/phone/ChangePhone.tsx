@@ -16,7 +16,7 @@ import Alert from "@/components/Alert";
 import Button from "@/components/Button";
 import StyledLink from "@/components/StyledLink";
 import TextField from "@/components/TextField";
-import { accountInfoQueryKey } from "@/features/queryKeys";
+import { ACCOUNT_INFO_QUERY_KEY } from "@/features/queryKeys";
 import { AUTH } from "@/i18n/namespaces";
 import { GetAccountInfoRes } from "@/proto/account_pb";
 import { howToDonateUrl } from "@/routes";
@@ -74,7 +74,7 @@ export default function ChangePhone({
     mutationFn: ({ phone }) => service.account.changePhone(phone),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [accountInfoQueryKey],
+        queryKey: [ACCOUNT_INFO_QUERY_KEY],
       });
       resetChangeForm();
       resetVerify();
@@ -102,7 +102,7 @@ export default function ChangePhone({
     mutationFn: ({ code }) => service.account.verifyPhone(code),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [accountInfoQueryKey],
+        queryKey: [ACCOUNT_INFO_QUERY_KEY],
       });
       resetVerifyForm();
       resetChange();
@@ -120,7 +120,7 @@ export default function ChangePhone({
     mutationFn: () => service.account.removePhone(),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [accountInfoQueryKey],
+        queryKey: [ACCOUNT_INFO_QUERY_KEY],
       });
       resetChangeForm();
       resetVerifyForm();
@@ -238,7 +238,9 @@ export default function ChangePhone({
               <Button
                 fullWidth={!isMdOrWider}
                 loading={isRemoveLoading}
-                onClick={() => { removePhone(); }}
+                onClick={() => {
+                  removePhone();
+                }}
               >
                 {t("auth:change_phone.remove_button_text")}
               </Button>

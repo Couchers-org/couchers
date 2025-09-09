@@ -3,9 +3,11 @@ import { PropsWithChildren } from "react";
 
 import { UserTab } from "@/routes";
 
-export default function UserTabContext({
+const UserTabContext = ({
   children,
   tab = "about",
-}: PropsWithChildren<{ tab: UserTab }>) {
+}: PropsWithChildren<{ tab: UserTab }>) => {
   return <TabContext value={tab}>{children}</TabContext>;
-}
+};
+
+export default UserTabContext;

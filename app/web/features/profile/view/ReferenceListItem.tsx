@@ -39,16 +39,16 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
   flexDirection: "column",
 }));
 
-const StyledReferencesBodyContainer = styled("div")(({ theme }) => ({
+const StyledReferencesBodyContainer = styled("div")(() => ({
   display: "flex",
   width: "100%",
 }));
 
-export default function ReferenceListItem({
+const ReferenceListItem = ({
   isReceived,
   user,
   reference,
-}: ReferenceListItemProps) {
+}: ReferenceListItemProps) => {
   const {
     t,
     i18n: { language: locale },
@@ -76,4 +76,6 @@ export default function ReferenceListItem({
       </StyledReferencesBodyContainer>
     </StyledListItem>
   );
-}
+};
+
+export default ReferenceListItem;

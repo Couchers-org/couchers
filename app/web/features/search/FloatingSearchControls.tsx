@@ -39,12 +39,12 @@ interface FloatingSearchNavigationProps {
   ) => void;
 }
 
-const StyledControlsWrapper = styled("div")(({ theme }) => ({
+const StyledControlsWrapper = styled("div")(() => ({
   display: "flex",
   alignItems: "center",
 }));
 
-const StyledButtonsContainer = styled("div")(({ theme }) => ({
+const StyledButtonsContainer = styled("div")(() => ({
   display: "flex",
   position: "relative",
   fontSize: " 14px",
@@ -91,7 +91,7 @@ const StyledLocationAutocompleteOutlined = styled(LocationAutocompleteOutlined)(
   sharedInputStyles,
 );
 
-const StyledTextField = styled(TextField)(({ theme }) => ({
+const StyledTextField = styled(TextField)(() => ({
   ...sharedInputStyles(),
 
   "& .MuiInputBase-input": {
@@ -100,7 +100,7 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   },
 }));
 
-const StyledSelect = styled(Select)(({ theme }) => ({
+const StyledSelect = styled(Select)(() => ({
   backgroundColor: "white",
   borderRadius: "100px",
   border: "none",
@@ -260,54 +260,55 @@ const FloatingSearchControls = ({
                 onChange={handleKeywordChange}
                 value={keyword}
                 onKeyDown={handleKeyWordEnterPress}
-                InputProps={
-                  keyword.length < 1
-                    ? {}
-                    : {
-                        endAdornment: (
-                          <>
-                            <InputAdornment
-                              position="end"
-                              sx={{
-                                marginRight:
-                                  query === "" ? theme.spacing(1) : 0,
-                              }}
-                            >
-                              <IconButton
-                                aria-label={t(
-                                  "search:form.keywords.search_this_keyword_a11y_label",
-                                )}
-                                onClick={handleKeywordSubmit}
-                                size="small"
-                                sx={{ marginRight: theme.spacing(1) }}
-                              >
-                                <SearchIcon />
-                              </IconButton>
-                              <IconButton
-                                aria-label={t(
-                                  "search:form.keywords.clear_field_action_a11y_label",
-                                )}
-                                onClick={handleClearKeyword}
-                                size="small"
+                slotProps={{
+                  input:
+                    keyword.length < 1
+                      ? {}
+                      : {
+                          endAdornment: (
+                            <>
+                              <InputAdornment
+                                position="end"
                                 sx={{
-                                  backgroundColor: alpha(
-                                    theme.palette.primary.light,
-                                    0.2,
-                                  ), // Adjust opacity as needed
+                                  marginRight:
+                                    query === "" ? theme.spacing(1) : 0,
                                 }}
                               >
-                                <Clear
+                                <IconButton
+                                  aria-label={t(
+                                    "search:form.keywords.search_this_keyword_a11y_label",
+                                  )}
+                                  onClick={handleKeywordSubmit}
+                                  size="small"
+                                  sx={{ marginRight: theme.spacing(1) }}
+                                >
+                                  <SearchIcon />
+                                </IconButton>
+                                <IconButton
+                                  aria-label={t(
+                                    "search:form.keywords.clear_field_action_a11y_label",
+                                  )}
+                                  onClick={handleClearKeyword}
+                                  size="small"
                                   sx={{
-                                    color: theme.palette.primary.main,
-                                    fontSize: "20px",
+                                    backgroundColor: alpha(
+                                      theme.palette.primary.light,
+                                      0.2,
+                                    ), // Adjust opacity as needed
                                   }}
-                                />
-                              </IconButton>
-                            </InputAdornment>
-                          </>
-                        ),
-                      }
-                }
+                                >
+                                  <Clear
+                                    sx={{
+                                      color: theme.palette.primary.main,
+                                      fontSize: "20px",
+                                    }}
+                                  />
+                                </IconButton>
+                              </InputAdornment>
+                            </>
+                          ),
+                        },
+                }}
               />
             )}
 
@@ -347,9 +348,7 @@ const FloatingSearchControls = ({
                 onClick={handleClearSearchFilters}
                 size="small"
                 sx={{
-                  ...(hasActiveFilters && {
-                    backgroundColor: alpha(theme.palette.primary.light, 0.2), // Adjust opacity as needed
-                  }),
+                  backgroundColor: alpha(theme.palette.primary.light, 0.2), // Adjust opacity as needed
                 }}
               >
                 <StyledClearIcon hasActiveFilters={hasActiveFilters} />

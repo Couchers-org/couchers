@@ -28,14 +28,14 @@ interface MapSearchResultsListProps {
   users: SearchUser.AsObject[] | undefined;
 }
 
-const DrawerContainer = styled("div")(({ theme }) => ({
+const DrawerContainer = styled("div")(() => ({
   height: "100%",
   width: "100%",
   display: "flex",
   flexDirection: "column",
 }));
 
-const SpinnerWrapper = styled("div")(({ theme }) => ({
+const SpinnerWrapper = styled("div")(() => ({
   paddingTop: theme.spacing(8),
 }));
 
@@ -63,7 +63,7 @@ const MapSearchResultsList = ({
     shouldSearchByUserId,
   } = useMapSearchState();
 
-  const meetsSearchCriteria =
+  const doesMeetSearchCriteria =
     hasActiveFilters ||
     bbox !== undefined ||
     query !== undefined ||
@@ -94,12 +94,11 @@ const MapSearchResultsList = ({
             currentRange={currentRange}
             onSetMapView={onSetMapView}
             onUserCardClick={onUserCardClick}
-            showAlert={!isLoading && !meetsSearchCriteria}
+            showAlert={!doesMeetSearchCriteria}
             showTopSpace={
               !isMobile &&
               (mapView === MapViews.listOnly ||
-                (mapView === MapViews.mapAndList &&
-                  drawerWidth > window.innerWidth / 2))
+                drawerWidth > window.innerWidth / 2)
             }
             totalItems={totalItems}
             users={users}

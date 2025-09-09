@@ -1,9 +1,5 @@
 import { LngLatLike } from "maplibre-gl";
 
-import { HostingStatus, User } from "@/proto/api_pb";
-import { UserSearchFilters } from "@/service/search";
-import { GeocodeResult } from "@/utils/hooks";
-
 import { FilterOptions } from "@/features/search/SearchPage";
 import {
   Coordinates,
@@ -12,6 +8,9 @@ import {
   MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
 } from "@/features/search/utils/constants";
 import { getHasActiveFilters } from "@/features/search/utils/mapUtils";
+import { HostingStatus, User } from "@/proto/api_pb";
+import { UserSearchFilters } from "@/service/search";
+import { GeocodeResult } from "@/utils/hooks";
 
 /** WHY USE A REDUCER FOR OUR MAP STATE?
  * Mostly we use react-query for state management, which stores api responses as is in the browser cache.
@@ -26,19 +25,19 @@ import { getHasActiveFilters } from "@/features/search/utils/mapUtils";
  */
 
 // The action types for the map search reducer
-enum mapSearchActionTypes {
-  SET_INITIAL_STATE = "SET_INITIAL_STATE",
-  SET_MAP_QUERY_AREA = "SET_MAP_QUERY_AREA",
-  CLEAR_KEYWORD_INPUT_VALUE = "CLEAR_KEYWORD_INPUT_VALUE",
-  SET_KEYWORD_INPUT_VALUE = "SET_KEYWORD_INPUT_VALUE",
-  SET_SEARCH_INPUT_VALUE = "SET_SEARCH_INPUT_VALUE",
-  CLEAR_SEARCH_INPUT_VALUE = "CLEAR_SEARCH_INPUT_VALUE",
-  SET_FILTERS = "SET_FILTERS",
-  RESET_FILTERS = "RESET_FILTERS",
-  SET_MOVE_MAP_UI_ONLY = "SET_MOVE_MAP_UI_ONLY",
-  SET_PAGE_NUMBER = "SET_PAGE_NUMBER",
-  SET_SELECTED_USER_ID = "SET_SELECTED_USER_ID",
-  SET_SHOW_SEARCH_THIS_AREA_BUTTON = "SET_SHOW_SEARCH_THIS_AREA_BUTTON",
+enum MapSearchActionTypes {
+  setInitialState = "SET_INITIAL_STATE",
+  setMapQueryArea = "SET_MAP_QUERY_AREA",
+  clearKeywordInputValue = "CLEAR_KEYWORD_INPUT_VALUE",
+  setKeywordInputValue = "SET_KEYWORD_INPUT_VALUE",
+  setSearchInputValue = "SET_SEARCH_INPUT_VALUE",
+  clearSearchInputValue = "CLEAR_SEARCH_INPUT_VALUE",
+  setFilters = "SET_FILTERS",
+  resetFilters = "RESET_FILTERS",
+  setMoveMapUiOnly = "SET_MOVE_MAP_UI_ONLY",
+  setPageNumber = "SET_PAGE_NUMBER",
+  setSelectedUserId = "SET_SELECTED_USER_ID",
+  setShowSearchThisAreaButton = "SET_SHOW_SEARCH_THIS_AREA_BUTTON",
 }
 
 // Overall format of the map search state
@@ -52,7 +51,7 @@ type MapSearchState = {
   };
   selectedUserId: User.AsObject["userId"] | undefined;
   shouldSearchByUserId: boolean;
-  showSearchThisAreaButton: boolean;
+  shouldShowSearchThisAreaButton: boolean;
   uiOnly: {
     bbox: Coordinates | undefined;
     center: LngLatLike | undefined;
@@ -63,16 +62,16 @@ type MapSearchState = {
 // The action types for the map search reducer
 type MapSearchAction =
   | {
-      type: mapSearchActionTypes.CLEAR_KEYWORD_INPUT_VALUE;
+      type: MapSearchActionTypes.clearKeywordInputValue;
     }
   | {
-      type: mapSearchActionTypes.SET_KEYWORD_INPUT_VALUE;
+      type: MapSearchActionTypes.setKeywordInputValue;
       payload: {
         keyword: string;
       };
     }
   | {
-      type: mapSearchActionTypes.SET_SEARCH_INPUT_VALUE;
+      type: MapSearchActionTypes.setSearchInputValue;
       payload: {
         location: GeocodeResult | undefined;
         zoom: MapSearchState["uiOnly"]["zoom"] | undefined;
@@ -80,7 +79,7 @@ type MapSearchAction =
       };
     }
   | {
-      type: mapSearchActionTypes.SET_MAP_QUERY_AREA;
+      type: MapSearchActionTypes.setMapQueryArea;
       payload: {
         bbox: MapSearchState["search"]["bbox"];
         zoom?: MapSearchState["uiOnly"]["zoom"] | undefined;
@@ -88,11 +87,11 @@ type MapSearchAction =
       };
     }
   | {
-      type: mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE;
+      type: MapSearchActionTypes.clearSearchInputValue;
       payload: { bbox: MapSearchState["search"]["bbox"] };
     }
   | {
-      type: mapSearchActionTypes.SET_MOVE_MAP_UI_ONLY;
+      type: MapSearchActionTypes.setMoveMapUiOnly;
       payload: {
         bbox?: MapSearchState["uiOnly"]["bbox"];
         center?: MapSearchState["uiOnly"]["center"];
@@ -100,24 +99,24 @@ type MapSearchAction =
       };
     }
   | {
-      type: mapSearchActionTypes.SET_FILTERS;
+      type: MapSearchActionTypes.setFilters;
       payload: FilterOptions;
     }
   | {
-      type: mapSearchActionTypes.SET_PAGE_NUMBER;
+      type: MapSearchActionTypes.setPageNumber;
       payload: { pageNumber: MapSearchState["pageNumber"] };
     }
-  | { type: mapSearchActionTypes.RESET_FILTERS }
+  | { type: MapSearchActionTypes.resetFilters }
   | {
-      type: mapSearchActionTypes.SET_SELECTED_USER_ID;
+      type: MapSearchActionTypes.setSelectedUserId;
       payload: {
         userId: User.AsObject["userId"] | undefined;
       };
     }
   | {
-      type: mapSearchActionTypes.SET_SHOW_SEARCH_THIS_AREA_BUTTON;
+      type: MapSearchActionTypes.setShowSearchThisAreaButton;
       payload: {
-        showSearchThisAreaButton: MapSearchState["showSearchThisAreaButton"];
+        showSearchThisAreaButton: MapSearchState["shouldShowSearchThisAreaButton"];
       };
     };
 
@@ -147,7 +146,7 @@ const initialState: MapSearchState = {
   },
   selectedUserId: undefined,
   shouldSearchByUserId: false,
-  showSearchThisAreaButton: false,
+  shouldShowSearchThisAreaButton: false,
   uiOnly: {
     bbox: undefined,
     center: undefined,
@@ -162,18 +161,18 @@ const mapSearchReducer = (
   // State is read-only. Don’t modify any objects or arrays in state directly 🚩.
   // Instead, always return new objects from your reducer ✅.
   switch (action.type) {
-    case mapSearchActionTypes.CLEAR_KEYWORD_INPUT_VALUE:
-      const meetsCriteriaAfterKeywordClear =
+    case MapSearchActionTypes.clearKeywordInputValue: {
+      const doesMeetCriteriaAfterKeywordClear =
         state.hasActiveFilters ||
         state.search.bbox !== undefined ||
         state.shouldSearchByUserId;
 
-      const defaultFiltersActive =
+      const hasDefaultFiltersActive =
         state.filters.showEmptyProfile ||
         (state.filters.hostingStatus?.includes(
           HostingStatus.HOSTING_STATUS_CAN_HOST,
         ) &&
-          state.filters.hostingStatus?.includes(
+          state.filters.hostingStatus.includes(
             HostingStatus.HOSTING_STATUS_MAYBE,
           ) &&
           !state.filters.hostingStatus.includes(
@@ -182,7 +181,7 @@ const mapSearchReducer = (
 
       return {
         ...state,
-        ...(defaultFiltersActive && {
+        ...(hasDefaultFiltersActive && {
           hasActiveFilters: false,
           filters: {
             ...state.filters,
@@ -196,12 +195,13 @@ const mapSearchReducer = (
         },
         pageNumber: initialState.pageNumber,
         shouldSearchByUserId: state.selectedUserId !== undefined,
-        showSearchThisAreaButton:
-          !meetsCriteriaAfterKeywordClear &&
+        shouldShowSearchThisAreaButton:
+          !doesMeetCriteriaAfterKeywordClear &&
           state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
       };
+    }
 
-    case mapSearchActionTypes.SET_KEYWORD_INPUT_VALUE:
+    case MapSearchActionTypes.setKeywordInputValue:
       return {
         ...state,
         search: {
@@ -211,21 +211,23 @@ const mapSearchReducer = (
         },
         selectedUserId: initialState.selectedUserId,
         pageNumber: initialState.pageNumber,
-        showSearchThisAreaButton: initialState.showSearchThisAreaButton,
+        shouldShowSearchThisAreaButton:
+          initialState.shouldShowSearchThisAreaButton,
         shouldSearchByUserId: initialState.shouldSearchByUserId,
       };
-    case mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE:
-      const meetsCriteriaAfterSearchClear =
+    case MapSearchActionTypes.clearSearchInputValue: {
+      const doesMeetCriteriaAfterSearchClear =
         state.hasActiveFilters ||
         state.search.query !== undefined ||
         state.shouldSearchByUserId;
 
-      const areDefaultFiltersActive =
+      const hasDefaultFiltersActive =
         state.filters.showEmptyProfile ||
-        (state.filters.hostingStatus?.includes(
-          HostingStatus.HOSTING_STATUS_CAN_HOST,
-        ) &&
-          state.filters.hostingStatus?.includes(
+        (state.filters.hostingStatus &&
+          state.filters.hostingStatus.includes(
+            HostingStatus.HOSTING_STATUS_CAN_HOST,
+          ) &&
+          state.filters.hostingStatus.includes(
             HostingStatus.HOSTING_STATUS_MAYBE,
           ) &&
           !state.filters.hostingStatus.includes(
@@ -234,7 +236,7 @@ const mapSearchReducer = (
 
       return {
         ...state,
-        ...(areDefaultFiltersActive && {
+        ...(hasDefaultFiltersActive && {
           hasActiveFilters: false,
           filters: {
             ...state.filters,
@@ -248,14 +250,14 @@ const mapSearchReducer = (
         },
         pageNumber: initialState.pageNumber,
         shouldSearchByUserId: state.selectedUserId !== undefined,
-        showSearchThisAreaButton:
-          !meetsCriteriaAfterSearchClear &&
+        shouldShowSearchThisAreaButton:
+          !doesMeetCriteriaAfterSearchClear &&
           state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
       };
+    }
 
-    case mapSearchActionTypes.SET_SEARCH_INPUT_VALUE:
+    case MapSearchActionTypes.setSearchInputValue: {
       // We get a location when user searches search input
-
       const { center: newCenter, location, zoom: newZoom } = action.payload;
       const locationBbox = location?.bbox;
 
@@ -280,7 +282,7 @@ const mapSearchReducer = (
         },
         selectedUserId: initialState.selectedUserId,
         shouldSearchByUserId: initialState.shouldSearchByUserId,
-        showSearchThisAreaButton: initialState.showSearchThisAreaButton,
+        showSearchThisAreaButton: initialState.shouldShowSearchThisAreaButton,
         uiOnly: {
           ...state.uiOnly,
           bbox: locationBbox,
@@ -293,11 +295,13 @@ const mapSearchReducer = (
         ...updatedState,
         hasActiveFilters: getHasActiveFilters(updatedState, initialState),
       };
+    }
 
-    case mapSearchActionTypes.SET_MAP_QUERY_AREA: {
+    case MapSearchActionTypes.setMapQueryArea: {
       const didCrossSearchThreshold = action.payload.didCrossSearchThreshold;
       const didZoomBelowThreshold =
-        action.payload.zoom! < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
+        (action.payload.zoom || MAX_MAP_ZOOM_LEVEL_FOR_SEARCH) <
+          MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
         state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
 
       // If we zoom out below the threshold, reset the state to initial
@@ -325,7 +329,8 @@ const mapSearchReducer = (
         },
         selectedUserId: initialState.selectedUserId,
         pageNumber: initialState.pageNumber,
-        showSearchThisAreaButton: initialState.showSearchThisAreaButton,
+        shouldShowSearchThisAreaButton:
+          initialState.shouldShowSearchThisAreaButton,
         shouldSearchByUserId: initialState.shouldSearchByUserId,
         uiOnly: {
           ...state.uiOnly,
@@ -333,7 +338,7 @@ const mapSearchReducer = (
         },
       };
     }
-    case mapSearchActionTypes.SET_FILTERS:
+    case MapSearchActionTypes.setFilters: {
       const updatedFilters = { ...state.filters };
 
       for (const key in action.payload) {
@@ -416,15 +421,16 @@ const mapSearchReducer = (
         pageNumber: initialState.pageNumber,
         shouldSearchByUserId: initialState.shouldSearchByUserId,
       };
+    }
 
-    case mapSearchActionTypes.SET_PAGE_NUMBER:
+    case MapSearchActionTypes.setPageNumber:
       return {
         ...state,
         pageNumber: action.payload.pageNumber,
         shouldSearchByUserId: initialState.shouldSearchByUserId,
       };
 
-    case mapSearchActionTypes.RESET_FILTERS:
+    case MapSearchActionTypes.resetFilters:
       return {
         ...state,
         filters: initialState.filters,
@@ -434,8 +440,8 @@ const mapSearchReducer = (
         shouldSearchByUserId: initialState.shouldSearchByUserId,
       };
 
-    case mapSearchActionTypes.SET_MOVE_MAP_UI_ONLY:
-      const zoom = action.payload.zoom!;
+    case MapSearchActionTypes.setMoveMapUiOnly: {
+      const zoom = action.payload.zoom || 0;
       const center = action.payload.center;
       const bbox = action.payload.bbox;
       const didZoomBelowThreshold =
@@ -453,19 +459,19 @@ const mapSearchReducer = (
           ...state.uiOnly,
           bbox: bbox ?? state.uiOnly.bbox,
           center: center ?? state.uiOnly.center,
-          zoom: zoom ?? state.uiOnly.zoom,
+          zoom,
         },
         shouldSearchByUserId: initialState.shouldSearchByUserId,
-        showSearchThisAreaButton:
+        shouldShowSearchThisAreaButton:
           zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH
-            ? initialState.showSearchThisAreaButton
-            : state.showSearchThisAreaButton,
+            ? initialState.shouldShowSearchThisAreaButton
+            : state.shouldShowSearchThisAreaButton,
       };
-
-    case mapSearchActionTypes.SET_SELECTED_USER_ID:
+    }
+    case MapSearchActionTypes.setSelectedUserId: {
       const currentSelectedUserId = state.selectedUserId;
 
-      const meetsCriteriaAfterSelectedUserIdClear =
+      const doesMeetCriteriaAfterSelectedUserIdClear =
         state.hasActiveFilters ||
         state.search.bbox !== undefined ||
         state.search.query !== undefined;
@@ -479,22 +485,24 @@ const mapSearchReducer = (
         shouldSearchByUserId:
           currentSelectedUserId !== action.payload.userId &&
           action.payload.userId !== undefined &&
-          !meetsCriteriaAfterSelectedUserIdClear,
-        showSearchThisAreaButton:
-          !meetsCriteriaAfterSelectedUserIdClear &&
+          !doesMeetCriteriaAfterSelectedUserIdClear,
+        shouldShowSearchThisAreaButton:
+          !doesMeetCriteriaAfterSelectedUserIdClear &&
           state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
       };
+    }
 
-    case mapSearchActionTypes.SET_SHOW_SEARCH_THIS_AREA_BUTTON:
+    case MapSearchActionTypes.setShowSearchThisAreaButton:
       return {
         ...state,
-        showSearchThisAreaButton: action.payload.showSearchThisAreaButton,
+        shouldShowSearchThisAreaButton: action.payload.showSearchThisAreaButton,
       };
-
-    default:
-      throw Error("Unknown action: " + action);
   }
 };
 
-export { initialState, mapSearchActionTypes, mapSearchReducer };
+export {
+  initialState,
+  MapSearchActionTypes as mapSearchActionTypes,
+  mapSearchReducer,
+};
 export type { MapSearchAction, MapSearchState };

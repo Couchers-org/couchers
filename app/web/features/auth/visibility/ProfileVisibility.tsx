@@ -13,7 +13,7 @@ import { Controller, useForm } from "react-hook-form";
 
 import Alert from "@/components/Alert";
 import Button from "@/components/Button";
-import { accountInfoQueryKey } from "@/features/queryKeys";
+import { ACCOUNT_INFO_QUERY_KEY } from "@/features/queryKeys";
 import { Trans, useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
 import { GetAccountInfoRes, ProfilePublicVisibility } from "@/proto/account_pb";
@@ -47,7 +47,7 @@ export default function ProfileVisibility({
     mutationFn: (choice) => service.account.setProfilePublicVisibility(choice),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [accountInfoQueryKey],
+        queryKey: [ACCOUNT_INFO_QUERY_KEY],
       });
     },
   });
@@ -96,7 +96,9 @@ export default function ProfileVisibility({
               <RadioGroup
                 {...field}
                 row
-                onChange={(event, newValue) => { field.onChange(Number(newValue)); }}
+                onChange={(event, newValue) => {
+                  field.onChange(Number(newValue));
+                }}
                 sx={{ marginBlockStart: 1 }}
               >
                 {choices.map(([setting, translationKey]) => (

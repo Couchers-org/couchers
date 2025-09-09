@@ -11,7 +11,7 @@ import { useTranslation } from "next-i18next";
 import Alert from "@/components/Alert";
 import Button from "@/components/Button";
 import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
-import { activeLoginsKey } from "@/features/queryKeys";
+import { ACTIVE_LOGINS_KEY } from "@/features/queryKeys";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
 import { ListActiveSessionsRes } from "@/proto/account_pb";
 import { service } from "@/service";
@@ -50,10 +50,10 @@ export default function LoginsPage() {
     ListActiveSessionsRes.AsObject,
     RpcError,
     InfiniteData<ListActiveSessionsRes.AsObject>,
-    [typeof activeLoginsKey],
+    [typeof ACTIVE_LOGINS_KEY],
     string
   >({
-    queryKey: [activeLoginsKey],
+    queryKey: [ACTIVE_LOGINS_KEY],
     queryFn: ({ pageParam }) => service.account.listActiveSessions(pageParam),
     initialPageParam: "0",
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
@@ -72,7 +72,7 @@ export default function LoginsPage() {
 
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [activeLoginsKey],
+        queryKey: [ACTIVE_LOGINS_KEY],
       });
     },
   });
@@ -110,7 +110,9 @@ export default function LoginsPage() {
       <StyledButton
         color="secondary"
         loading={logoutAllIsLoading}
-        onClick={() => { logoutAll(); }}
+        onClick={() => {
+          logoutAll();
+        }}
       >
         {t("auth:active_logins.log_out_of_all_session")}
       </StyledButton>

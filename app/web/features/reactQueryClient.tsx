@@ -1,8 +1,7 @@
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { persistQueryClient } from "@tanstack/react-query-persist-client";
-import { useEffect } from "react";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 
 import { reactQueryRetries } from "@/appConstants";
 
@@ -24,23 +23,22 @@ interface ReactQueryClientProviderProps {
 export const ReactQueryClientProvider = ({
   children,
 }: ReactQueryClientProviderProps) => {
-  useEffect(() => {
-    const asyncStoragePersister = createAsyncStoragePersister({
-      storage: localStorage,
-      throttleTime: 100,
-    });
-
-    persistQueryClient({
-      maxAge: 14 * 24 * 60 * 60 * 1000,
-      persister: asyncStoragePersister,
-      queryClient,
-    });
-  }, []);
+  // useEffect(() => {
+  const asyncStoragePersister = createAsyncStoragePersister({
+    storage: localStorage,
+    throttleTime: 100,
+  });
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{
+        persister: asyncStoragePersister,
+        maxAge: 14 * 24 * 60 * 60 * 1000,
+      }}
+    >
       {children}
       <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   );
-}
+};

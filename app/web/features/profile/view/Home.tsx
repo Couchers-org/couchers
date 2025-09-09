@@ -33,7 +33,7 @@ interface HomeProps {
   user: User.AsObject;
 }
 
-export default function Home({ user }: HomeProps) {
+const Home = ({ user }: HomeProps) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
 
   return (
@@ -96,20 +96,20 @@ export default function Home({ user }: HomeProps) {
             label={t("profile:home_info_headings.has_housemates")}
             text={`${booleanConversion(t, user.hasHousemates?.value)}${
               user.housemateDetails?.value
-                ? `, ${user.housemateDetails?.value}`
+                ? `, ${user.housemateDetails.value}`
                 : ""
             }`}
           />
           <LabelAndText
             label={t("profile:home_info_headings.has_kids")}
             text={`${booleanConversion(t, user.hasKids?.value)}${
-              user.kidDetails?.value ? `, ${user.kidDetails?.value}` : ""
+              user.kidDetails?.value ? `, ${user.kidDetails.value}` : ""
             }`}
           />
           <LabelAndText
             label={t("profile:home_info_headings.has_pets")}
             text={`${booleanConversion(t, user.hasPets?.value)}${
-              user.petDetails?.value ? `, ${user.petDetails?.value}` : ""
+              user.petDetails?.value ? `, ${user.petDetails.value}` : ""
             }`}
           />
           <LabelAndText
@@ -137,7 +137,7 @@ export default function Home({ user }: HomeProps) {
           <Typography variant="h1">
             {t("profile:home_info_headings.local_area")}
           </Typography>
-          <Markdown source={user.area?.value} />
+          <Markdown source={user.area.value} />
           <StyledSpacedDivider />
         </>
       )}
@@ -146,7 +146,7 @@ export default function Home({ user }: HomeProps) {
           <Typography variant="h1">
             {t("profile:home_info_headings.sleeping_arrangement")}
           </Typography>
-          <Markdown source={user.sleepingDetails?.value} />
+          <Markdown source={user.sleepingDetails.value} />
           <StyledSpacedDivider />
         </>
       )}
@@ -155,7 +155,7 @@ export default function Home({ user }: HomeProps) {
           <Typography variant="h1">
             {t("profile:home_info_headings.house_rules")}
           </Typography>
-          <Markdown source={user.houseRules?.value} />
+          <Markdown source={user.houseRules.value} />
           <StyledSpacedDivider />
         </>
       )}
@@ -164,9 +164,11 @@ export default function Home({ user }: HomeProps) {
           <Typography variant="h1">
             {t("profile:heading.additional_information_section")}
           </Typography>
-          <Markdown source={user.otherHostInfo?.value} />
+          <Markdown source={user.otherHostInfo.value} />
         </>
       )}
     </>
   );
-}
+};
+
+export default Home;

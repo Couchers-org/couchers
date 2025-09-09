@@ -1,10 +1,10 @@
-import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
-
 import { useReferencesGiven } from "@/features/profile/hooks/referencesHooks";
 import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
+import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
+
 import ReferencesView from "./ReferencesView";
 
-export default function ReferencesGivenList() {
+const ReferencesGivenList = () => {
   const user = useProfileUser();
   const referencesGivenQuery = useReferencesGiven(user);
 
@@ -22,4 +22,6 @@ export default function ReferencesGivenList() {
       referenceUsers={referenceUsers}
     />
   );
-}
+};
+
+export default ReferencesGivenList;

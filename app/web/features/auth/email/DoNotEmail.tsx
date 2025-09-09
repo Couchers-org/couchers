@@ -5,12 +5,11 @@ import { RpcError } from "grpc-web";
 import Alert from "@/components/Alert";
 import Button from "@/components/Button";
 import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
-import { doNotEmailQueryKey } from "@/features/queryKeys";
+import { DO_NOT_EMAIL_QUERY_KEY } from "@/features/queryKeys";
 import { Trans, useTranslation } from "@/i18n";
 import { AUTH } from "@/i18n/namespaces";
-import { service } from "@/service";
-
 import { GetNotificationSettingsRes } from "@/proto/notifications_pb";
+import { service } from "@/service";
 
 interface DoNotEmailFormData {
   doNotEmailEnabled: boolean;
@@ -25,7 +24,7 @@ export default function DoNotEmail() {
     GetNotificationSettingsRes.AsObject,
     RpcError
   >({
-    queryKey: [doNotEmailQueryKey],
+    queryKey: [DO_NOT_EMAIL_QUERY_KEY],
     queryFn: service.notifications.getNotificationSettings,
   });
 
@@ -38,7 +37,7 @@ export default function DoNotEmail() {
       service.notifications.setNotificationSettings(doNotEmailEnabled),
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [doNotEmailQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [DO_NOT_EMAIL_QUERY_KEY] });
     },
   });
 

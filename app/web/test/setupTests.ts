@@ -135,8 +135,8 @@ window.URL.createObjectURL = jest.fn();
 window.matchMedia = createMatchMedia(window.innerWidth);
 
 declare global {
-  /* eslint-disable no-var */
+   
   var defaultUser: typeof user;
   var testKit: ReturnType<typeof sentryTestkit>["testkit"];
-  /* eslint-enable no-var*/
+   
 }

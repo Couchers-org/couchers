@@ -15,14 +15,14 @@ const StyledContainer = styled("div")(({ theme }) => ({
 export const Badges = ({ user }: Props) => {
   const { badges } = useBadges();
 
-  if (badges === undefined || user.badgesList === undefined) {
+  if (badges === undefined) {
     return <></>;
   }
 
   return (
     <StyledContainer>
-      {(user.badgesList || []).map((badgeId) => {
-        const badge = (badges || {})[badgeId];
+      {user.badgesList.map((badgeId) => {
+        const badge = badges[badgeId];
         return <Badge key={badge.id} badge={badge} />;
       })}
     </StyledContainer>

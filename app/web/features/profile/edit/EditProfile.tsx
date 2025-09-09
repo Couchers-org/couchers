@@ -34,7 +34,7 @@ import useCurrentUser from "@/features/userQueries/useCurrentUser";
 import { Trans, useTranslation } from "@/i18n";
 import { AUTH, GLOBAL, PROFILE } from "@/i18n/namespaces";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "@/proto/api_pb";
-import { howToMakeGreatProfileUrl } from "@/routes";
+import { HOW_TO_MAKE_GREAT_PROFILE_URL } from "@/routes";
 import { UpdateUserProfileData, service } from "@/service/index";
 import { theme } from "@/theme";
 import {
@@ -170,7 +170,7 @@ const StickySaveBar = styled(Box)(({ theme }) => ({
   gap: theme.spacing(2),
 }));
 
-const SaveButton = styled(Button)(({ theme }) => ({
+const SaveButton = styled(Button)(() => ({
   minWidth: 200,
   borderRadius: 22,
   fontSize: "1rem",
@@ -221,13 +221,13 @@ const StyledRadioGroup = styled(RadioGroup)(() => ({
   },
 }));
 
-export default function EditProfileForm() {
+const EditProfileForm = () => {
   const { t } = useTranslation([GLOBAL, AUTH, PROFILE]);
   const {
     updateUserProfile,
     reset: resetUpdate,
-    isPending: updateIsLoading,
-    isError: updateError,
+    isPending: isUpdateLoading,
+    isError: isUpdateError,
   } = useUpdateUserProfile();
   const { data: user } = useCurrentUser();
   const isMounted = useIsMounted();
@@ -235,9 +235,11 @@ export default function EditProfileForm() {
     isMounted,
     null,
   );
-  const [showIncompleteProfileDialog, setShowIncompleteProfileDialog] =
-    useState(false);
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [
+    shouldShowIncompleteProfileDialog,
+    setShouldShowIncompleteProfileDialog,
+  ] = useState(false);
+  const [shouldShowSuccessToast, setShouldShowSuccessToast] = useState(false);
 
   const [isUploading, setIsUploading] = useState(false);
 
@@ -322,7 +324,7 @@ export default function EditProfileForm() {
     }
   }, [user, reset, languages, regions]);
 
-  const aboutMeField = watch("aboutMe") ?? "";
+  const aboutMeField = watch("aboutMe");
 
   useUnsavedChangesWarning({
     isDirty: isDirty || isUploading,
@@ -364,7 +366,7 @@ export default function EditProfileForm() {
             // Reset form dirty state to hide save bar
             const currentValues = getValues();
             reset(currentValues, { keepValues: true, keepDirty: false });
-            setShowSuccessToast(true);
+            setShouldShowSuccessToast(true);
           },
         },
         {
@@ -375,36 +377,39 @@ export default function EditProfileForm() {
         },
       );
 
-      if (showIncompleteProfileDialog) {
-        setShowIncompleteProfileDialog(false);
+      if (shouldShowIncompleteProfileDialog) {
+        setShouldShowIncompleteProfileDialog(false);
       }
     },
     // All field validation errors should scroll to their respective field
     // Except the avatar, so this scrolls to top on avatar validation error
-    (errors) =>
-      errors.avatarKey && window.scroll({ top: 0, behavior: "smooth" }),
+    (errors) => {
+      if (errors.avatarKey) {
+        window.scroll({ top: 0, behavior: "smooth" });
+      }
+    },
   );
 
   const handleSubmitButtonClick = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (aboutMeField.length < ABOUT_ME_MIN_LENGTH || !user?.avatarUrl) {
-      setShowIncompleteProfileDialog(true);
+      setShouldShowIncompleteProfileDialog(true);
     } else {
-      onSubmit();
+      void onSubmit();
     }
   };
 
   return (
     <>
-      {updateError && (
+      {isUpdateError && (
         <Alert severity="error">
           {errorMessage || t("global:error.unknown")}
         </Alert>
       )}
       {errors.avatarKey && (
         <Alert severity="error">
-          {errors.avatarKey?.message || t("global:error.unknown")}
+          {errors.avatarKey.message || t("global:error.unknown")}
         </Alert>
       )}
       {!user?.avatarUrl && (
@@ -418,7 +423,10 @@ export default function EditProfileForm() {
             <Typography>
               <Trans i18nKey="profile:edit_profile_helper_text">
                 Looking for some inspiration on where to start?{" "}
-                <StyledLink variant="body1" href={howToMakeGreatProfileUrl}>
+                <StyledLink
+                  variant="body1"
+                  href={HOW_TO_MAKE_GREAT_PROFILE_URL}
+                >
                   Check out our guide on creating an awesome profile
                 </StyledLink>
                 .
@@ -448,10 +456,9 @@ export default function EditProfileForm() {
                     onUploading={setIsUploading}
                     onSuccess={async (data) => {
                       await service.user.updateAvatar(data.key);
-                      if (user)
-                        queryClient.invalidateQueries({
-                          queryKey: userKey(user.userId),
-                        });
+                      await queryClient.invalidateQueries({
+                        queryKey: userKey(user.userId),
+                      });
                     }}
                   />
                 </AvatarImageWrapper>
@@ -730,7 +737,9 @@ export default function EditProfileForm() {
                           )}
                           name="pronouns"
                           value={field.value}
-                          onChange={(_, value) => { field.onChange(value); }}
+                          onChange={(_, value) => {
+                            field.onChange(value);
+                          }}
                         >
                           <FormControlLabel
                             value={t("profile:pronouns.woman")}
@@ -748,9 +757,9 @@ export default function EditProfileForm() {
                             label={
                               <TextField
                                 variant="standard"
-                                onChange={(event) =>
-                                  { field.onChange(event.target.value); }
-                                }
+                                onChange={(event) => {
+                                  field.onChange(event.target.value);
+                                }}
                                 value={other}
                               />
                             }
@@ -762,29 +771,29 @@ export default function EditProfileForm() {
                 />
               </FieldGroup>
 
-              {languages && (
-                <FieldGroup>
-                  <Controller
-                    control={control}
-                    defaultValue={user.languageAbilitiesList.map(
-                      (ability) => languages[ability.code],
-                    )}
-                    name="fluentLanguages"
-                    render={({ field }) => (
-                      <ProfileTagInput
-                        inputFieldProps={field}
-                        onChange={(_, value) => { field.onChange(value); }}
-                        value={field.value}
-                        options={Object.values(languages)}
-                        label={t(
-                          "profile:edit_profile_headings.languages_spoken",
-                        )}
-                        id="fluentLanguages"
-                      />
-                    )}
-                  />
-                </FieldGroup>
-              )}
+              <FieldGroup>
+                <Controller
+                  control={control}
+                  defaultValue={user.languageAbilitiesList.map(
+                    (ability) => languages[ability.code],
+                  )}
+                  name="fluentLanguages"
+                  render={({ field }) => (
+                    <ProfileTagInput
+                      inputFieldProps={field}
+                      onChange={(_, value) => {
+                        field.onChange(value);
+                      }}
+                      value={field.value}
+                      options={Object.values(languages)}
+                      label={t(
+                        "profile:edit_profile_headings.languages_spoken",
+                      )}
+                      id="fluentLanguages"
+                    />
+                  )}
+                />
+              </FieldGroup>
 
               <FieldGroup>
                 <StyledProfileTextInput
@@ -821,6 +830,7 @@ export default function EditProfileForm() {
                 <Trans
                   i18nKey="profile:edit_profile_headings.about_me_subtitle"
                   components={{
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
                     1: (
                       <StyledLink
                         variant="body1"
@@ -894,65 +904,65 @@ export default function EditProfileForm() {
             </ProfileSection>
 
             {/* Travel Experience Section */}
-            {regions && (
-              <ProfileSection>
-                <SectionTitle>
-                  {t("profile:edit_profile_headings.travel_experience")}
-                </SectionTitle>
-                <SectionSubtitle>
-                  {t(
-                    "profile:edit_profile_headings.travel_experience_subtitle",
+            <ProfileSection>
+              <SectionTitle>
+                {t("profile:edit_profile_headings.travel_experience")}
+              </SectionTitle>
+              <SectionSubtitle>
+                {t("profile:edit_profile_headings.travel_experience_subtitle")}
+              </SectionSubtitle>
+
+              <FieldGroup>
+                <Controller
+                  control={control}
+                  defaultValue={user.regionsVisitedList.map(
+                    (region) => regions[region],
                   )}
-                </SectionSubtitle>
+                  name="regionsVisited"
+                  render={({ field }) => (
+                    <ProfileTagInput
+                      inputFieldProps={field}
+                      onChange={(_, values) => {
+                        field.onChange(values);
+                      }}
+                      value={field.value}
+                      options={Object.values(regions)}
+                      label={t("profile:edit_profile_headings.regions_visited")}
+                      id="regions-visited"
+                    />
+                  )}
+                />
+              </FieldGroup>
 
-                <FieldGroup>
-                  <Controller
-                    control={control}
-                    defaultValue={user.regionsVisitedList.map(
-                      (region) => regions[region],
-                    )}
-                    name="regionsVisited"
-                    render={({ field }) => (
-                      <ProfileTagInput
-                        inputFieldProps={field}
-                        onChange={(_, values) => { field.onChange(values); }}
-                        value={field.value}
-                        options={Object.values(regions)}
-                        label={t(
-                          "profile:edit_profile_headings.regions_visited",
-                        )}
-                        id="regions-visited"
-                      />
-                    )}
-                  />
-                </FieldGroup>
+              <FieldGroup>
+                <Controller
+                  control={control}
+                  defaultValue={user.regionsLivedList.map(
+                    (region) => regions[region],
+                  )}
+                  name="regionsLived"
+                  render={({ field }) => (
+                    <ProfileTagInput
+                      inputFieldProps={field}
+                      onChange={(_, values) => {
+                        field.onChange(values);
+                      }}
+                      value={field.value}
+                      options={Object.values(regions)}
+                      label={t("profile:edit_profile_headings.regions_lived")}
+                      id="regions-lived"
+                    />
+                  )}
+                />
+              </FieldGroup>
+            </ProfileSection>
 
-                <FieldGroup>
-                  <Controller
-                    control={control}
-                    defaultValue={user.regionsLivedList.map(
-                      (region) => regions[region],
-                    )}
-                    name="regionsLived"
-                    render={({ field }) => (
-                      <ProfileTagInput
-                        inputFieldProps={field}
-                        onChange={(_, values) => { field.onChange(values); }}
-                        value={field.value}
-                        options={Object.values(regions)}
-                        label={t("profile:edit_profile_headings.regions_lived")}
-                        id="regions-lived"
-                      />
-                    )}
-                  />
-                </FieldGroup>
-              </ProfileSection>
-            )}
-
-            {showSuccessToast && (
+            {shouldShowSuccessToast && (
               <Snackbar
                 severity="success"
-                onClose={() => { setShowSuccessToast(false); }}
+                onClose={() => {
+                  setShouldShowSuccessToast(false);
+                }}
               >
                 {t("profile:profile_changes_saved_message")}
               </Snackbar>
@@ -963,15 +973,14 @@ export default function EditProfileForm() {
           </form>
 
           {/* Sticky Save Bar */}
-          {user && (isDirty || isUploading) && (
+          {(isDirty || isUploading) && (
             <StickySaveBar>
               <SaveButton
                 type="submit"
                 variant="contained"
                 color="primary"
-                loading={updateIsLoading || isUploading}
-                disabled={!isDirty || updateIsLoading || isUploading}
-                onClick={handleSubmitButtonClick}
+                loading={isUpdateLoading || isUploading}
+                disabled={!isDirty || isUpdateLoading || isUploading}
               >
                 {t("global:save_changes")}
               </SaveButton>
@@ -981,7 +990,7 @@ export default function EditProfileForm() {
           <Dialog
             aria-labelledby={t("profile:incomplete_dialog.title")}
             maxWidth="xs"
-            open={showIncompleteProfileDialog}
+            open={shouldShowIncompleteProfileDialog}
             data-testid="incomplete-profile-dialog"
           >
             <DialogTitle>{t("profile:incomplete_dialog.title")}</DialogTitle>
@@ -1010,7 +1019,11 @@ export default function EditProfileForm() {
               </List>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => { setShowIncompleteProfileDialog(false); }}>
+              <Button
+                onClick={() => {
+                  setShouldShowIncompleteProfileDialog(false);
+                }}
+              >
                 {t("profile:incomplete_dialog.continue_editing")}
               </Button>
               <Button onClick={onSubmit}>
@@ -1024,4 +1037,6 @@ export default function EditProfileForm() {
       )}
     </>
   );
-}
+};
+
+export default EditProfileForm;

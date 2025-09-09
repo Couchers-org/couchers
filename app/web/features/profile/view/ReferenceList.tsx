@@ -19,11 +19,11 @@ const ReferencesList = styled(List)(({ theme }) => ({
   overflow: "hidden",
 }));
 
-export default function ReferenceList({
+const ReferenceList = ({
   isReceived,
   referencePages,
   referenceUsers,
-}: ReferenceListProps) {
+}: ReferenceListProps) => {
   return (
     <ReferencesList>
       {referencePages
@@ -45,4 +45,6 @@ export default function ReferenceList({
         .flat()}
     </ReferencesList>
   );
-}
+};
+
+export default ReferenceList;

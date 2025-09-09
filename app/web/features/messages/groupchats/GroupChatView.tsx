@@ -18,9 +18,9 @@ import useMarkLastSeen, {
 } from "@/features/messages/useMarkLastSeen";
 import { groupChatTitleText } from "@/features/messages/utils";
 import {
+  GROUP_CHATS_LIST_KEY,
   groupChatKey,
   groupChatMessagesKey,
-  groupChatsListKey,
 } from "@/features/queryKeys";
 import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
 import { useTranslation } from "@/i18n";
@@ -139,7 +139,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
     mutationFn: (text) => service.conversations.sendMessage(chatId, text),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: groupChatMessagesKey(chatId) });
-      queryClient.invalidateQueries({ queryKey: [groupChatsListKey] });
+      queryClient.invalidateQueries({ queryKey: [GROUP_CHATS_LIST_KEY] });
       queryClient.invalidateQueries({ queryKey: groupChatKey(chatId) });
     },
   });

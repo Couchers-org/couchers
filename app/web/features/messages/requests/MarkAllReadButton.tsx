@@ -4,7 +4,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "@/components/Button";
 import { DoneAllIcon } from "@/components/Icons";
 import Snackbar from "@/components/Snackbar";
-import { groupChatsListKey, hostRequestsListKey } from "@/features/queryKeys";
+import {
+  GROUP_CHATS_LIST_KEY,
+  hostRequestsListKey,
+} from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { MESSAGES } from "@/i18n/namespaces";
 import { service } from "@/service";
@@ -79,7 +82,7 @@ export default function MarkAllReadButton({
         queryKey: [hostRequestsListKey()],
       });
       queryClient.invalidateQueries({
-        queryKey: [groupChatsListKey],
+        queryKey: [GROUP_CHATS_LIST_KEY],
       });
     },
   });
@@ -93,7 +96,9 @@ export default function MarkAllReadButton({
       <MarkAsReadButtonStyled
         loading={markAll.isPending}
         variant="text"
-        onClick={() => { markAll.mutate(); }}
+        onClick={() => {
+          markAll.mutate();
+        }}
         sx={{ color: theme.palette.text.primary }}
       >
         <MarkAsReadIconStyled />

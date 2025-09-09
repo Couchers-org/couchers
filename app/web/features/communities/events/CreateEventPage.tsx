@@ -7,8 +7,10 @@ import Button from "@/components/Button";
 import HtmlMeta from "@/components/HtmlMeta";
 import ProfileIncompleteDialog from "@/components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import useAccountInfo from "@/features/auth/useAccountInfo";
+import { COMMUNITY_EVENTS_BASE_KEY } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
+import { Event } from "@/proto/events_pb";
 import { DASHBOARD_ROUTE, routeToEvent } from "@/routes";
 import { service } from "@/service";
 import type { CreateEventInput } from "@/service/events";
@@ -16,8 +18,6 @@ import { theme } from "@/theme";
 import dayjs, { TIME_FORMAT } from "@/utils/dayjs";
 import stringOrFirstString from "@/utils/stringOrFirstString";
 
-import { Event } from "@/proto/events_pb";
-import { communityEventsBaseKey } from "@/features/queryKeys";
 import EventForm, { CreateEventVariables } from "./EventForm";
 
 export default function CreateEventPage() {
@@ -97,8 +97,8 @@ export default function CreateEventPage() {
       queryClient.invalidateQueries({
         queryKey: [
           context?.parentCommunityId
-            ? [communityEventsBaseKey, context.parentCommunityId]
-            : communityEventsBaseKey,
+            ? [COMMUNITY_EVENTS_BASE_KEY, context.parentCommunityId]
+            : COMMUNITY_EVENTS_BASE_KEY,
         ],
       });
       router.push(routeToEvent(event.eventId, event.slug));

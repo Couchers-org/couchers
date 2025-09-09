@@ -14,9 +14,9 @@ import {
   DialogTitle,
 } from "@/components/Dialog";
 import {
+  GROUP_CHATS_LIST_KEY,
   groupChatKey,
   groupChatMessagesKey,
-  groupChatsListKey,
 } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
@@ -35,7 +35,7 @@ export default function LeaveDialog({
         queryKey: [groupChatMessagesKey(groupChatId)],
       });
       queryClient.invalidateQueries({
-        queryKey: [groupChatsListKey],
+        queryKey: [GROUP_CHATS_LIST_KEY],
       });
       queryClient.invalidateQueries({
         queryKey: [groupChatKey(groupChatId)],
@@ -44,7 +44,9 @@ export default function LeaveDialog({
     },
   });
 
-  const handleLeaveGroupChat = () => { leaveGroupChatMutation.mutate(); };
+  const handleLeaveGroupChat = () => {
+    leaveGroupChatMutation.mutate();
+  };
 
   return (
     <Dialog {...props} aria-labelledby="leave-dialog-title">

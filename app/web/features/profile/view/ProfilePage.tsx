@@ -31,7 +31,7 @@ const StyledWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function ProfilePage({ tab = "about" }: { tab?: UserTab }) {
+const ProfilePage = ({ tab = "about" }: { tab?: UserTab }) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const router = useRouter();
 
@@ -55,7 +55,7 @@ export default function ProfilePage({ tab = "about" }: { tab?: UserTab }) {
             <UserCard
               tab={tab}
               onTabChange={(newTab) => {
-                router.push(routeToProfile(newTab));
+                void router.push(routeToProfile(newTab));
               }}
             />
           </StyledWrapper>
@@ -63,4 +63,6 @@ export default function ProfilePage({ tab = "about" }: { tab?: UserTab }) {
       ) : null}
     </>
   );
-}
+};
+
+export default ProfilePage;

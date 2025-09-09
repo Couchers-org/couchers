@@ -56,11 +56,11 @@ const FlagButtonWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function ProfileReportFlagButton({
+const ProfileReportFlagButton = ({
   contentRef,
   authorUser,
   profileUser,
-}: ProfileReportFlagButtonProps) {
+}: ProfileReportFlagButtonProps) => {
   const { t } = useTranslation(GLOBAL);
   const router = useRouter();
 
@@ -117,7 +117,7 @@ export default function ProfileReportFlagButton({
   const { blockUserMutation, error: blockUserError } = useBlockUser();
 
   const handleClose = (
-    event: unknown,
+    _event: unknown,
     reason: "backdropClick" | "escapeKeyDown" | "button",
   ) => {
     if (reason !== "button") return;
@@ -127,48 +127,55 @@ export default function ProfileReportFlagButton({
     setIsOpen(false);
   };
 
-  const onSubmit = handleSubmit((data) => {
-    // Use English version to send to backend
-    const reasonMap: Record<string, string> = {
-      [t("report.flag.reason.dating")]: t("report.flag.reason.dating", {
-        lng: "en",
-      }),
-      [t("report.flag.reason.sexualized")]: t("report.flag.reason.sexualized", {
-        lng: "en",
-      }),
-      [t("report.flag.reason.safety")]: t("report.flag.reason.safety", {
-        lng: "en",
-      }),
-      [t("report.flag.reason.scam")]: t("report.flag.reason.scam", {
-        lng: "en",
-      }),
-      [t("report.flag.reason.spam")]: t("report.flag.reason.spam", {
-        lng: "en",
-      }),
-      [t("report.flag.reason.external")]: t("report.flag.reason.external", {
-        lng: "en",
-      }),
-      [t("report.flag.reason.harassment")]: t("report.flag.reason.harassment", {
-        lng: "en",
-      }),
-      [t("report.flag.reason.guidelines_breach")]: t(
-        "report.flag.reason.guidelines_breach",
-        { lng: "en" },
-      ),
-      [t("report.flag.reason.other")]: t("report.flag.reason.other", {
-        lng: "en",
-      }),
-    };
+  const onSubmit = () =>
+    handleSubmit((data) => {
+      // Use English version to send to backend
+      const reasonMap: Record<string, string> = {
+        [t("report.flag.reason.dating")]: t("report.flag.reason.dating", {
+          lng: "en",
+        }),
+        [t("report.flag.reason.sexualized")]: t(
+          "report.flag.reason.sexualized",
+          {
+            lng: "en",
+          },
+        ),
+        [t("report.flag.reason.safety")]: t("report.flag.reason.safety", {
+          lng: "en",
+        }),
+        [t("report.flag.reason.scam")]: t("report.flag.reason.scam", {
+          lng: "en",
+        }),
+        [t("report.flag.reason.spam")]: t("report.flag.reason.spam", {
+          lng: "en",
+        }),
+        [t("report.flag.reason.external")]: t("report.flag.reason.external", {
+          lng: "en",
+        }),
+        [t("report.flag.reason.harassment")]: t(
+          "report.flag.reason.harassment",
+          {
+            lng: "en",
+          },
+        ),
+        [t("report.flag.reason.guidelines_breach")]: t(
+          "report.flag.reason.guidelines_breach",
+          { lng: "en" },
+        ),
+        [t("report.flag.reason.other")]: t("report.flag.reason.other", {
+          lng: "en",
+        }),
+      };
 
-    if (data.reason !== "" || data.description !== "") {
-      reportContent({ ...data, reason: reasonMap[data.reason] });
-    }
+      if (data.reason !== "" || data.description !== "") {
+        reportContent({ ...data, reason: reasonMap[data.reason] });
+      }
 
-    if (shouldBlockField) {
-      blockUserMutation(profileUser);
-      router.push(DASHBOARD_ROUTE);
-    }
-  });
+      if (shouldBlockField) {
+        blockUserMutation(profileUser);
+        void router.push(DASHBOARD_ROUTE);
+      }
+    });
 
   const handleFlagButtonClick = (event: { preventDefault: () => void }) => {
     event.preventDefault();
@@ -268,9 +275,9 @@ export default function ProfileReportFlagButton({
                   </Select>
                 )}
               />
-              {errors?.reason && (
-                <FormHelperText error={!!errors?.reason}>
-                  {errors?.reason?.message}
+              {errors.reason && (
+                <FormHelperText error={!!errors.reason}>
+                  {errors.reason.message}
                 </FormHelperText>
               )}
             </FormControl>
@@ -291,9 +298,9 @@ export default function ProfileReportFlagButton({
                 <TextField
                   id="content-report-description"
                   {...field}
-                  error={!!errors?.description?.message}
+                  error={!!errors.description?.message}
                   helperText={
-                    !errors?.description?.message
+                    !errors.description?.message
                       ? t("report.flag.description_helper")
                       : undefined
                   }
@@ -337,7 +344,9 @@ export default function ProfileReportFlagButton({
           </DialogContent>
           <DialogActions>
             <Button
-              onClick={() => { handleClose({}, "button"); }}
+              onClick={() => {
+                handleClose({}, "button");
+              }}
               variant="outlined"
               sx={{
                 color: theme.palette.common.black,
@@ -367,4 +376,6 @@ export default function ProfileReportFlagButton({
       </Dialog>
     </>
   );
-}
+};
+
+export default ProfileReportFlagButton;

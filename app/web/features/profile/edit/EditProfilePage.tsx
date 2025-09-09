@@ -11,9 +11,9 @@ import PageTitle from "@/components/PageTitle";
 import TabBar from "@/components/TabBar";
 import {
   EditUserTab,
+  SETTINGS_ROUTE,
   routeToEditProfile,
   routeToProfile,
-  settingsRoute,
 } from "@/routes";
 import { theme } from "@/theme";
 
@@ -41,7 +41,7 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const TabPanelStyled = styled(TabPanel)(({ theme }) => ({
+const TabPanelStyled = styled(TabPanel)(() => ({
   padding: 0,
 }));
 
@@ -69,11 +69,7 @@ const BackButton = styled(IconButton)(({ theme }) => ({
   },
 }));
 
-export default function EditProfilePage({
-  tab = "about",
-}: {
-  tab?: EditUserTab;
-}) {
+const EditProfilePage = ({ tab = "about" }: { tab?: EditUserTab }) => {
   const { t } = useTranslation();
   const router = useRouter();
 
@@ -83,7 +79,7 @@ export default function EditProfilePage({
       <HeaderContainer>
         <LeftHeader>
           <BackButton
-            onClick={() => router.push(routeToProfile())}
+            onClick={() => void router.push(routeToProfile())}
             aria-label={t("global:back")}
           >
             <BackIcon />
@@ -94,7 +90,7 @@ export default function EditProfilePage({
           component={Link}
           variant="contained"
           color="primary"
-          href={settingsRoute}
+          href={SETTINGS_ROUTE}
         >
           {t("global:nav.account_settings")}
         </Button>
@@ -103,7 +99,9 @@ export default function EditProfilePage({
         <DetailsCard>
           <TabContext value={tab}>
             <TabBar
-              setValue={(newTab) => router.push(routeToEditProfile(newTab))}
+              setValue={(newTab) =>
+                void router.push(routeToEditProfile(newTab))
+              }
               labels={{
                 about: (
                   <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -163,4 +161,6 @@ export default function EditProfilePage({
       </Root>
     </>
   );
-}
+};
+
+export default EditProfilePage;

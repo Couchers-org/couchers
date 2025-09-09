@@ -14,7 +14,7 @@ interface PreviousNextPaginationProps {
   onNextClick: () => void;
 }
 
-const StyledPaginationButton = styled(Button)(({ theme }) => ({
+const StyledPaginationButton = styled(Button)(() => ({
   minWidth: "110px",
   height: "35px",
   fontSize: "1rem",

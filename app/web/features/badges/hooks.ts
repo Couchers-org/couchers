@@ -5,14 +5,14 @@ import {
 } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
 
-import { badgeUsersKey, badgesKey } from "@/features/queryKeys";
+import { BADGES_KEY, badgeUsersKey } from "@/features/queryKeys";
 import { ListBadgeUsersRes } from "@/proto/api_pb";
 import { Badge } from "@/proto/resources_pb";
 import { service } from "@/service";
 
 export const useBadges = () => {
   const { data, ...rest } = useQuery({
-    queryKey: [badgesKey],
+    queryKey: [BADGES_KEY],
     queryFn: async () => {
       const result = await service.resources.getBadges();
       return result.badgesList.reduce(

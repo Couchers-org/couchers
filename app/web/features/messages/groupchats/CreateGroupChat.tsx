@@ -23,7 +23,7 @@ import {
 import { AddIcon } from "@/components/Icons";
 import TextField from "@/components/TextField";
 import useFriendList from "@/features/connections/friends/useFriendList";
-import { groupChatsListKey } from "@/features/queryKeys";
+import { GROUP_CHATS_LIST_KEY } from "@/features/queryKeys";
 import useUserByUsername from "@/features/userQueries/useUserByUsername";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
@@ -83,16 +83,16 @@ export default function CreateGroupChat({ className }: { className?: string }) {
       service.conversations.createGroupChat(title, users),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [groupChatsListKey],
+        queryKey: [GROUP_CHATS_LIST_KEY],
       });
       resetForm();
       setIsOpen(false);
     },
   });
 
-  const onSubmit = handleSubmit(({ title, users }: CreateGroupChatFormData) =>
-    { createGroupChat({ title, users }); },
-  );
+  const onSubmit = handleSubmit(({ title, users }: CreateGroupChatFormData) => {
+    createGroupChat({ title, users });
+  });
 
   const handleClose = () => {
     setIsOpen(false);
@@ -106,7 +106,12 @@ export default function CreateGroupChat({ className }: { className?: string }) {
 
   return (
     <>
-      <ListItemButton onClick={() => { setIsOpen(true); }} className={className}>
+      <ListItemButton
+        onClick={() => {
+          setIsOpen(true);
+        }}
+        className={className}
+      >
         <ListItemAvatar>
           <Avatar>
             <AddIcon />

@@ -11,12 +11,12 @@ import {
   hostingStatusLabels,
   meetupStatusLabels,
 } from "@/features/profile/constants";
+import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
 import { HostingStatus, MeetupStatus } from "@/proto/api_pb";
 import { routeToUser } from "@/routes";
 
-import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
 import { Badges } from "./Badges";
 import { ReferencesLastActiveLabels, ResponseRateLabel } from "./userLabels";
 
@@ -86,10 +86,10 @@ type UserOverviewProps = {
 
 // @todo: move this into /components and decouple it from features/profile because it's used
 //        from the dashboard as well
-export default function UserOverview({
+const UserOverview = ({
   showHostAndMeetAvailability,
   actions,
-}: UserOverviewProps) {
+}: UserOverviewProps) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
 
@@ -142,7 +142,7 @@ export default function UserOverview({
         <Divider spacing={3} />
       )}
 
-      {process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED && (
+      {Config.isVerificationEnabled && (
         <>
           <BarWithHelp
             value={user.communityStanding || 0}
@@ -162,4 +162,6 @@ export default function UserOverview({
       </StyledInfo>
     </StyledCard>
   );
-}
+};
+
+export default UserOverview;

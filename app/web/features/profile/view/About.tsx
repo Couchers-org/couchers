@@ -3,11 +3,11 @@ import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 
 import Divider from "@/components/Divider";
 import Markdown from "@/components/Markdown";
+import { useRegions } from "@/features/profile/hooks/useRegions";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
 import { User } from "@/proto/api_pb";
 
-import { useRegions } from "@/features/profile/hooks/useRegions";
 import { AgeGenderLanguagesLabels, RemainingAboutLabels } from "./userLabels";
 
 interface AboutProps {
@@ -22,7 +22,7 @@ const StyledDivider = styled(Divider)(({ theme }) => ({
   marginTop: theme.spacing(3),
 }));
 
-export default function About({ user }: AboutProps) {
+const About = ({ user }: AboutProps) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const theme = useTheme();
   const { regions } = useRegions();
@@ -82,6 +82,7 @@ export default function About({ user }: AboutProps) {
       <Typography variant="h1">{t("profile:heading.map_section")}</Typography>
       <ComposableMap projection="geoEqualEarth">
         <Geographies geography={"/regions.json"}>
+          {/* eslint-disable @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */}
           {({ geographies }) =>
             geographies.map((geo) => {
               let color = theme.palette.grey[200];
@@ -101,4 +102,6 @@ export default function About({ user }: AboutProps) {
       </ComposableMap>
     </StyledWrapper>
   );
-}
+};
+
+export default About;

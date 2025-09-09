@@ -15,9 +15,9 @@ import {
 } from "@/components/Dialog";
 import TextField from "@/components/TextField";
 import {
+  GROUP_CHATS_LIST_KEY,
   groupChatKey,
   groupChatMessagesKey,
-  groupChatsListKey,
 } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
@@ -50,7 +50,7 @@ export default function GroupChatSettingsDialog({
         queryKey: [groupChatMessagesKey(groupChat.groupChatId)],
       });
       queryClient.invalidateQueries({
-        queryKey: [groupChatsListKey],
+        queryKey: [GROUP_CHATS_LIST_KEY],
       });
       queryClient.invalidateQueries({
         queryKey: [groupChatKey(groupChat.groupChatId)],

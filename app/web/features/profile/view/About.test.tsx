@@ -20,9 +20,9 @@ beforeEach(() => {
   getRegionsMock.mockImplementation(getRegions);
 });
 
-function renderAbout(user?: User.AsObject) {
+const renderAbout = (user?: User.AsObject) => {
   return render(<About user={user || defaultUser} />, { wrapper });
-}
+};
 describe("About (user)", () => {
   it("displays both visited and lived regions", async () => {
     renderAbout();
@@ -37,7 +37,7 @@ describe("About (user)", () => {
     ).toBe(1);
   });
 
-  it("should display age and gender without verification icons when unspecified ", async () => {
+  it("should display age and gender without verification icons when unspecified ", () => {
     renderAbout({
       ...defaultUser,
       genderVerificationStatus: 0,
@@ -49,7 +49,7 @@ describe("About (user)", () => {
     const errorIcon = screen.queryByTestId("error-icon");
     expect(errorIcon).toBeNull();
   });
-  it("should display age and gender without verification icons when unverified", async () => {
+  it("should display age and gender without verification icons when unverified", () => {
     renderAbout({
       ...defaultUser,
       genderVerificationStatus: 1,
@@ -62,7 +62,7 @@ describe("About (user)", () => {
     expect(errorIcon).toBeNull();
   });
 
-  it("should display verification ticks when verified", async () => {
+  it("should display verification ticks when verified", () => {
     renderAbout({
       ...defaultUser,
       genderVerificationStatus: 2,
@@ -75,7 +75,7 @@ describe("About (user)", () => {
     expect(errorIcon).toBeNull();
   });
 
-  it("should display error icons when mismatched", async () => {
+  it("should display error icons when mismatched", () => {
     renderAbout({
       ...defaultUser,
       genderVerificationStatus: 3,

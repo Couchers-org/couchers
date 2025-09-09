@@ -7,15 +7,15 @@ import Button from "@/components/Button";
 import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "@/components/HtmlMeta";
 import NotFoundPage from "@/features/NotFoundPage";
+import { COMMUNITY_EVENTS_BASE_KEY, eventKey } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
+import { Event } from "@/proto/events_pb";
+import { routeToEvent } from "@/routes";
 import { service } from "@/service";
 import type { UpdateEventInput } from "@/service/events";
 import dayjs, { TIME_FORMAT } from "@/utils/dayjs";
 
-import { Event } from "@/proto/events_pb";
-import { routeToEvent } from "@/routes";
-import { communityEventsBaseKey, eventKey } from "@/features/queryKeys";
 import EventForm, { CreateEventVariables } from "./EventForm";
 import { useEvent } from "./hooks";
 
@@ -99,8 +99,8 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
       queryClient.invalidateQueries({
         queryKey: [
           context?.parentCommunityId
-            ? [communityEventsBaseKey, context.parentCommunityId]
-            : communityEventsBaseKey,
+            ? [COMMUNITY_EVENTS_BASE_KEY, context.parentCommunityId]
+            : COMMUNITY_EVENTS_BASE_KEY,
         ],
       });
       router.push(routeToEvent(updatedEvent.eventId, updatedEvent.slug));

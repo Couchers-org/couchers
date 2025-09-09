@@ -11,13 +11,13 @@ const Test = () => {
   return <>{tab?.value}</>;
 };
 
-function renderTest(tab: UserTab) {
+const renderTest = (tab: UserTab) => {
   render(
     <UserTabContext tab={tab}>
       <Test />
     </UserTabContext>,
   );
-}
+};
 
 describe("UserTabContext", () => {
   it("accepts 'home' as tab parameter from url path", () => {

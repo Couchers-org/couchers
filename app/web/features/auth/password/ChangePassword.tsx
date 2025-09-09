@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import Alert from "@/components/Alert";
 import Button from "@/components/Button";
 import TextField from "@/components/TextField";
-import { accountInfoQueryKey } from "@/features/queryKeys";
+import { ACCOUNT_INFO_QUERY_KEY } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
 import { service } from "@/service";
@@ -62,7 +62,7 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
       service.account.changePassword(oldPassword, newPassword),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [accountInfoQueryKey],
+        queryKey: [ACCOUNT_INFO_QUERY_KEY],
       });
       resetForm();
     },

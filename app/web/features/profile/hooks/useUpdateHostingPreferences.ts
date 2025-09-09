@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+
 import { useAuthContext } from "@/features/auth/AuthProvider";
 import { userKey } from "@/features/queryKeys";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { HostingPreferenceData, service } from "@/service;
+import { HostingPreferenceData, service } from "@/service";
 import { SetMutationError } from "@/utils/setMutationError";
 
 interface UpdateHostingPreferencesVariables {
@@ -11,7 +12,7 @@ interface UpdateHostingPreferencesVariables {
   onSuccess?: () => void;
 }
 
-export default function useUpdateHostingPreferences() {
+const useUpdateHostingPreferences = () => {
   const queryClient = useQueryClient();
   const userId = useAuthContext().authState.userId;
   const {
@@ -26,11 +27,11 @@ export default function useUpdateHostingPreferences() {
     onError: (error, { setMutationError }) => {
       setMutationError(error.message);
     },
-    onMutate: async ({ setMutationError }) => {
+    onMutate: ({ setMutationError }) => {
       setMutationError(null);
     },
-    onSuccess: (_, { onSuccess }) => {
-      queryClient.invalidateQueries({ queryKey: userKey(userId ?? 0) });
+    onSuccess: async (_, { onSuccess }) => {
+      await queryClient.invalidateQueries({ queryKey: userKey(userId ?? 0) });
       onSuccess?.();
     },
   });
@@ -42,4 +43,6 @@ export default function useUpdateHostingPreferences() {
     isError,
     status,
   };
-}
+};
+
+export default useUpdateHostingPreferences;

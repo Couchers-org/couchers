@@ -45,11 +45,11 @@ const StyledCard = styled(Card)(({ theme }) => ({
   marginBottom: theme.spacing(1),
 }));
 
-export default function ReferenceOverview({
+const ReferenceOverview = ({
   referenceData,
 }: {
   referenceData: ReferenceContextFormData;
-}) {
+}) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -113,4 +113,6 @@ export default function ReferenceOverview({
       )}
     </>
   );
-}
+};
+
+export default ReferenceOverview;

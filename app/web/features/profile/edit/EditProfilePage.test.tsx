@@ -34,7 +34,7 @@ const uploadFileMock = service.api.uploadFile as jest.MockedFunction<
   typeof service.api.uploadFile
 >;
 
-const renderPage = async () => {
+const renderPage = () => {
   act(() => render(<EditProfilePage />, { wrapper }));
 };
 
@@ -87,16 +87,14 @@ describe("Edit profile", () => {
 
     // Check if incomplete profile dialog appears and handle it
     try {
-      const incompleteDialog = await screen.findByTestId(
-        "incomplete-profile-dialog",
-        {},
-      );
-      if (incompleteDialog) {
-        const saveAnywayButton = await screen.findByRole("button", {
-          name: t("profile:incomplete_dialog.save_anyway"),
-        });
-        await user.click(saveAnywayButton);
-      }
+      expect(
+        await screen.findByTestId("incomplete-profile-dialog", {}),
+      ).toBeInTheDocument();
+
+      const saveAnywayButton = await screen.findByRole("button", {
+        name: t("profile:incomplete_dialog.save_anyway"),
+      });
+      await user.click(saveAnywayButton);
     } catch {
       // Dialog didn't appear, which is fine
     }
@@ -105,11 +103,11 @@ describe("Edit profile", () => {
       expect.objectContaining({ aboutMe: aboutMeText }),
     );
 
-    await waitFor(() =>
-      { expect(
+    await waitFor(() => {
+      expect(
         screen.getByText(t("profile:profile_changes_saved_message")),
-      ).toBeInTheDocument(); },
-    );
+      ).toBeInTheDocument();
+    });
   });
 
   it(`should not submit the default headings for the '${t(
@@ -159,11 +157,11 @@ describe("Edit profile", () => {
       }),
     );
 
-    await waitFor(() =>
-      { expect(
+    await waitFor(() => {
+      expect(
         screen.getByText(t("profile:profile_changes_saved_message")),
-      ).toBeInTheDocument(); },
-    );
+      ).toBeInTheDocument();
+    });
   });
 
   it("Should not update profile automatically if the user has not filled out aboutMe section besides default headers", async () => {
@@ -176,7 +174,7 @@ describe("Edit profile", () => {
       thingsILike: "",
     }));
 
-    await renderPage();
+    renderPage();
 
     const user = userEvent.setup();
 

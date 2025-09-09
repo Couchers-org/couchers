@@ -47,7 +47,7 @@ export type FilterOptions = {
   smokesAtHome?: boolean | undefined;
 };
 
-const SearchPageContainer = styled("div")(({ theme }) => ({
+const SearchPageContainer = styled("div")(() => ({
   display: "flex",
   flexDirection: "column",
   height: "100%",
@@ -56,7 +56,7 @@ const SearchPageContainer = styled("div")(({ theme }) => ({
 /**
  * Search page, creates the state, obtains the users, renders all its sub-components
  */
-export default function SearchPage() {
+const SearchPage = () => {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const mapRef = useRef<MapRef | null>(null);
 
@@ -102,12 +102,12 @@ export default function SearchPage() {
   } = useUserSearch(searchParams, mapSearchState);
 
   const handleLoadPreviousPage = () => {
-    fetchPreviousPage();
+    void fetchPreviousPage();
     setPageNumber(mapSearchState.pageNumber - 1);
   };
 
   const handleLoadNextPage = () => {
-    fetchNextPage();
+    void fetchNextPage();
     setPageNumber(mapSearchState.pageNumber + 1);
   };
 
@@ -197,4 +197,6 @@ export default function SearchPage() {
       </MapProvider>
     </SearchPageContainer>
   );
-}
+};
+
+export default SearchPage;

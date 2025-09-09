@@ -10,7 +10,7 @@ import PageTitle from "@/components/PageTitle";
 import TabBar from "@/components/TabBar";
 import useNotifications from "@/features/useNotifications";
 import { CONNECTIONS } from "@/i18n/namespaces";
-import { connectionsRoute } from "@/routes";
+import { CONNECTIONS_ROUTE } from "@/routes";
 
 import { FriendsTab } from "./friends";
 
@@ -27,7 +27,7 @@ const FriendsNotification = () => {
       {t("connections:friends")}
     </NotificationBadge>
   );
-}
+};
 
 const labels = {
   friends: (
@@ -53,7 +53,7 @@ const ConnectionsPage = ({ type }: { type: "friends" }) => {
           ariaLabel="Tabs for different connection types"
           setValue={(newType) =>
             router.push(
-              `${connectionsRoute}/${newType !== "friends" ? newType : ""}`,
+              `${CONNECTIONS_ROUTE}/${newType !== "friends" ? newType : ""}`,
             )
           }
           labels={labels}
@@ -64,6 +64,6 @@ const ConnectionsPage = ({ type }: { type: "friends" }) => {
       </TabContext>
     </>
   );
-}
+};
 
 export default ConnectionsPage;

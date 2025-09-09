@@ -10,15 +10,14 @@ import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
 import TextBody from "@/components/TextBody";
 import CreateGroupChat from "@/features/messages/groupchats/CreateGroupChat";
 import GroupChatListItem from "@/features/messages/groupchats/GroupChatListItem";
-import { groupChatsListKey } from "@/features/queryKeys";
+import { GROUP_CHATS_LIST_KEY } from "@/features/queryKeys";
+import useNotifications from "@/features/useNotifications";
 import { useTranslation } from "@/i18n";
 import { MESSAGES } from "@/i18n/namespaces";
 import { ListGroupChatsRes } from "@/proto/conversations_pb";
 import { routeToGroupChat } from "@/routes";
 import { service } from "@/service";
 import { theme } from "@/theme";
-
-import useNotifications from "@/features/useNotifications";
 
 const StyledWrapper = styled("div")(() => ({
   padding: theme.spacing(0, 2),
@@ -46,7 +45,7 @@ export default function GroupChatsTab() {
 
   useEffect(() => {
     queryClient.invalidateQueries({
-      queryKey: [groupChatsListKey],
+      queryKey: [GROUP_CHATS_LIST_KEY],
     });
   }, [unseenMessageCount, queryClient]);
 
@@ -58,7 +57,7 @@ export default function GroupChatsTab() {
     fetchNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery<ListGroupChatsRes.AsObject, RpcError>({
-    queryKey: [groupChatsListKey],
+    queryKey: [GROUP_CHATS_LIST_KEY],
     queryFn: ({ pageParam: lastMessageId }) =>
       service.conversations.listGroupChats(lastMessageId as number | undefined),
     getNextPageParam: (lastPage) =>

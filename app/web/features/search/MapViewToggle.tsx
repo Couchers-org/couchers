@@ -18,7 +18,7 @@ const MapViewToggle = ({ mapView, onMapViewChange }: MapViewToggleProps) => {
     event: React.MouseEvent<HTMLElement>,
     newMapView: MapViewOptions,
   ) => {
-    event?.preventDefault();
+    event.preventDefault();
 
     onMapViewChange(newMapView);
   };

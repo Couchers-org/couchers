@@ -17,7 +17,7 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/components/Dialog";
-import { groupChatKey, groupChatsListKey } from "@/features/queryKeys";
+import { GROUP_CHATS_LIST_KEY, groupChatKey } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
 import { service } from "@/service";
@@ -46,7 +46,7 @@ export default function MuteDialog({
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [groupChatsListKey] });
+      queryClient.invalidateQueries({ queryKey: [GROUP_CHATS_LIST_KEY] });
       queryClient.invalidateQueries({
         queryKey: [groupChatKey(groupChatId)],
       });
@@ -73,7 +73,9 @@ export default function MuteDialog({
           <RadioGroup
             aria-labelledby="mute-dialog-title"
             value={selected ?? null}
-            onChange={(e, val) => { setSelected(val as DurationChoice); }}
+            onChange={(e, val) => {
+              setSelected(val as DurationChoice);
+            }}
           >
             <FormControlLabel
               value="1h"

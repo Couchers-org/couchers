@@ -3,7 +3,7 @@ import { RpcError, StatusCode } from "grpc-web";
 import { useEffect } from "react";
 
 import { reactQueryRetries } from "@/appConstants";
-import { userKey, username2Id } from "@/features/queryKeys";
+import { USERNAME_2_ID, userKey } from "@/features/queryKeys";
 import {
   USERNAME_2_ID_STALE_TIME,
   USER_STALE_TIME,
@@ -27,7 +27,7 @@ const useUserByUsername = (username: string, invalidate = false) => {
         username: user.username,
       };
     },
-    queryKey: [username2Id, username],
+    queryKey: [USERNAME_2_ID, username],
     retry: (failureCount, error) => {
       // don't retry if the user isn't found
       return (

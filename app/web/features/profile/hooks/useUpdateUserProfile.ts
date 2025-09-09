@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 
 import { useAuthContext } from "@/features/auth/AuthProvider";
-import { accountInfoQueryKey, userKey } from "@/features/queryKeys";
+import { ACCOUNT_INFO_QUERY_KEY, userKey } from "@/features/queryKeys";
 import { UpdateUserProfileData, service } from "@/service/index";
 import { SetMutationError } from "@/utils/setMutationError";
 
@@ -12,7 +12,7 @@ interface UpdateUserProfileVariables {
   onSuccess?: () => void;
 }
 
-export default function useUpdateUserProfile() {
+const useUpdateUserProfile = () => {
   const queryClient = useQueryClient();
   const userId = useAuthContext().authState.userId;
   const {
@@ -29,12 +29,16 @@ export default function useUpdateUserProfile() {
     onMutate: ({ setMutationError }) => {
       setMutationError(null);
     },
-    onSuccess: (_, { onSuccess }) => {
-      queryClient.invalidateQueries({ queryKey: userKey(userId ?? 0) });
-      queryClient.invalidateQueries({ queryKey: [accountInfoQueryKey] });
+    onSuccess: async (_, { onSuccess }) => {
+      await queryClient.invalidateQueries({ queryKey: userKey(userId ?? 0) });
+      await queryClient.invalidateQueries({
+        queryKey: [ACCOUNT_INFO_QUERY_KEY],
+      });
       onSuccess?.();
     },
   });
 
   return { reset, updateUserProfile, isPending, isError, status };
-}
+};
+
+export default useUpdateUserProfile;

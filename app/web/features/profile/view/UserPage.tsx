@@ -36,13 +36,13 @@ export const StyledProfileRoot = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function UserPage({
+const UserPage = ({
   username,
   tab = "about",
 }: {
   username: string;
   tab?: UserTab;
-}) {
+}) => {
   const { t } = useTranslation(PROFILE);
   const router = useRouter();
 
@@ -74,7 +74,7 @@ export default function UserPage({
             <UserCard
               tab={tab}
               onTabChange={(newTab) => {
-                router.push(routeToUser(user.username, newTab));
+                void router.push(routeToUser(user.username, newTab));
               }}
               top={
                 <Collapse in={isRequesting}>
@@ -90,4 +90,6 @@ export default function UserPage({
       ) : null}
     </>
   );
-}
+};
+
+export default UserPage;

@@ -209,8 +209,8 @@ const SearchResultListContent = ({
       <UserCardsWrapper>
         {users?.map((user) => (
           <StyledCardWrapper
-            key={user?.userId}
-            id={`search-result-${user?.userId}`}
+            key={user.userId}
+            id={`search-result-${user.userId}`}
           >
             <SearchResultUserCard
               isHighlighted={selectedUserId === user.userId}

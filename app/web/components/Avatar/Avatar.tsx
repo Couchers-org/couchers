@@ -42,7 +42,7 @@ const StyledWrapper = styled("div")<{
   ...(grow && { height: 0, paddingTop: "min(18rem, 100%)", width: "100%" }),
 }));
 
-const StyledLink = styled(Link)(({ theme }) => ({
+const StyledLink = styled(Link)(() => ({
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
@@ -57,7 +57,7 @@ const StyledMuiAvatar = styled(MuiAvatar)(() => ({
   maxHeight: "18rem",
 }));
 
-export default function Avatar({
+const Avatar = ({
   user,
   highRes,
   grow,
@@ -65,7 +65,7 @@ export default function Avatar({
   isProfileLink = true,
   openInNewTab = false,
   ...otherProps
-}: AvatarPropsHighRes | AvatarPropsLowRes) {
+}: AvatarPropsHighRes | AvatarPropsLowRes) => {
   return (
     <StyledWrapper
       isDefaultSize={!className}
@@ -83,8 +83,8 @@ export default function Avatar({
             <StyledMuiAvatar
               alt={user.name}
               src={
-                !!highRes
-                  ? (user).avatarUrl
+                highRes
+                  ? user.avatarUrl
                   : (user as UserWithAvatarThumbnailUrl).avatarThumbnailUrl
               }
             >
@@ -95,8 +95,8 @@ export default function Avatar({
           <StyledMuiAvatar
             alt={user.name}
             src={
-              !!highRes
-                ? (user).avatarUrl
+              highRes
+                ? user.avatarUrl
                 : (user as UserWithAvatarThumbnailUrl).avatarThumbnailUrl
             }
           >
@@ -110,4 +110,6 @@ export default function Avatar({
       )}
     </StyledWrapper>
   );
-}
+};
+
+export default Avatar;

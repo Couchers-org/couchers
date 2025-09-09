@@ -1,4 +1,4 @@
-import { Box, Paper, styled, Typography } from "@mui/material";
+import { Box, Paper, Typography, styled } from "@mui/material";
 import React from "react";
 
 interface StatusOption<T> {
@@ -120,12 +120,12 @@ const StatusDescription = styled(Typography)(({ theme }) => ({
   },
 }));
 
-export default function StatusCardGroup<T extends string | number>({
+const StatusCardGroup = <T extends string | number>({
   title,
   options,
   selectedValue,
   onSelect,
-}: StatusCardGroupProps<T>) {
+}: StatusCardGroupProps<T>) => {
   return (
     <Box>
       <Typography variant="h3" gutterBottom>
@@ -136,7 +136,9 @@ export default function StatusCardGroup<T extends string | number>({
           <StatusCard
             key={option.value}
             selected={selectedValue === option.value}
-            onClick={() => { onSelect(option.value); }}
+            onClick={() => {
+              onSelect(option.value);
+            }}
           >
             <StatusCardContent>
               {option.icon}
@@ -152,4 +154,6 @@ export default function StatusCardGroup<T extends string | number>({
       </StatusCardContainer>
     </Box>
   );
-}
+};
+
+export default StatusCardGroup;

@@ -1,42 +1,42 @@
 import { ReferenceType } from "@/proto/references_pb";
 
 // profiles/users
-export const languagesKey = "languages";
-export const regionsKey = "regions";
-export const badgesKey = "badges";
-export const blockedUserIdsKey = "blockedUserIds";
-export const blockedUsersKey = "blockedUsers";
-export const friendIdsKey = "friendIds";
-export const contributorFormInfoQueryKey = "contributorFormInfo";
-export const accountInfoQueryKey = "accountInfo";
-export const signupInfoQueryKey = "signupInfo";
-export const doNotEmailQueryKey = "doNotEmail";
-export const tosQueryKey = "tos";
-export const communityGuidelinesQueryKey = "communityGuidelines";
-export const notificationSettingsQueryKey = "notificationSettings";
-export const listNotificationsQueryKey = "listNotifications";
-export const username2Id = "username2Id";
+export const LANGUAGES_KEY = "languages";
+export const REGIONS_KEY = "regions";
+export const BADGES_KEY = "badges";
+export const BLOCKED_USER_IDS_KEY = "blockedUserIds";
+export const BLOCKED_USERS_KEY = "blockedUsers";
+export const FRIEND_IDS_KEY = "friendIds";
+export const CONTRIBUTOR_FORM_INFO_QUERY_KEY = "contributorFormInfo";
+export const ACCOUNT_INFO_QUERY_KEY = "accountInfo";
+export const SIGNUP_INFO_QUERY_KEY = "signupInfo";
+export const DO_NOT_EMAIL_QUERY_KEY = "doNotEmail";
+export const TOS_QUERY_KEY = "tos";
+export const COMMUNITY_GUIDELINES_QUERY_KEY = "communityGuidelines";
+export const NOTIFICATION_SETTINGS_QUERY_KEY = "notificationSettings";
+export const LIST_NOTIFICATIONS_QUERY_KEY = "listNotifications";
+export const USERNAME_2_ID = "username2Id";
 
-export function userKey(userId?: number) {
+export const userKey = (userId?: number) => {
   return userId === undefined ? ["user"] : ["user", userId];
-}
+};
 
-export function modUserKey(user?: string) {
+export const modUserKey = (user?: string) => {
   return user === undefined ? "modUser" : ["modUser", user];
-}
-export function modUserDetailsKey(user?: string) {
+};
+export const modUserDetailsKey = (user?: string) => {
   return user === undefined ? "modUserDetails" : ["modUserDetails", user];
-}
+};
 
-export function liteUserKey(userId?: number) {
+export const liteUserKey = (userId?: number) => {
   return userId === undefined ? ["liteUser"] : ["liteUser", userId];
-}
+};
 
 export const liteUsersKey = (ids: number[] | string[]) => ["liteUsers", ...ids];
 
-export const referencesGivenKey = "referencesGiven";
+export const REFERENCES_GIVEN_KEY = "referencesGiven";
 
-export const referencesReceivedBaseKey = "referencesReceived";
+export const REFERENCES_RECEIVED_BASE_KEY = "referencesReceived";
 export interface ReferencesReceivedKeyInputs {
   userId: number;
   type: ReferenceType | "all";
@@ -45,7 +45,7 @@ export const referencesReceivedKey = ({
   userId,
   type,
 }: ReferencesReceivedKeyInputs) => [
-  referencesReceivedBaseKey,
+  REFERENCES_RECEIVED_BASE_KEY,
   { type, userId },
 ];
 
@@ -100,9 +100,9 @@ export const communityNearbyUsersKey = (communityId: number) => [
   communityId,
 ];
 
-export const communityEventsBaseKey = "communityEvents";
+export const COMMUNITY_EVENTS_BASE_KEY = "communityEvents";
 export const communityEventsKey = (communityId: number, type: QueryType) => [
-  communityEventsBaseKey,
+  COMMUNITY_EVENTS_BASE_KEY,
   communityId,
   { type },
 ];
@@ -116,15 +116,15 @@ export interface EventUsersInput {
   type: QueryType;
 }
 
-export const eventOrganizersBaseKey = "eventOrganizers";
+export const EVENT_ORGANIZERS_BASE_KEY = "eventOrganizers";
 export const eventOrganizersKey = ({ eventId, type }: EventUsersInput) => [
-  eventOrganizersBaseKey,
+  EVENT_ORGANIZERS_BASE_KEY,
   eventId,
   ...(type === "summary" ? ["summary"] : []),
 ];
-export const eventAttendeesBaseKey = "eventAttendees";
+export const EVENT_ATTENDEES_BASE_KEY = "eventAttendees";
 export const eventAttendeesKey = ({ eventId, type }: EventUsersInput) => [
-  eventAttendeesBaseKey,
+  EVENT_ATTENDEES_BASE_KEY,
   eventId,
   { type },
 ];
@@ -136,7 +136,7 @@ export const discussionKey = (discussionId: number) => [
 export const threadKey = (threadId: number) => ["thread", threadId];
 
 // messaging
-export const groupChatsListKey = "groupChatsList";
+export const GROUP_CHATS_LIST_KEY = "groupChatsList";
 export const groupChatKey = (groupChatId: number) => ["groupChat", groupChatId];
 export const groupChatMessagesKey = (groupChatId: number) => [
   "groupChatMessages",
@@ -157,9 +157,9 @@ export const searchQueryKey = (query?: string) =>
   query ? ["search", query] : ["search"];
 
 // User
-export const userCommunitiesKey = "userCommunities";
+export const USER_COMMUNITIES_KEY = "userCommunities";
 export const myEventsKey = (type: EventsType) => ["myEvents", { type }];
-export const activeLoginsKey = "activeLogins";
+export const ACTIVE_LOGINS_KEY = "activeLogins";
 
 // Badges
 export interface BadgeUsersInput {
@@ -171,4 +171,4 @@ export const badgeUsersKey = ({ badgeId }: BadgeUsersInput) => [
 ];
 
 // mod
-export const newUsersListKey = "newUsersList";
+export const NEW_USERS_LIST_KEY = "newUsersList";

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { listNotificationsQueryKey } from "@/features/queryKeys";
+import { LIST_NOTIFICATIONS_QUERY_KEY } from "@/features/queryKeys";
 import log from "@/log";
 import { Sentry } from "@/platform/sentry";
 import { ListNotificationsRes } from "@/proto/notifications_pb";
@@ -170,12 +170,12 @@ export const useMarkAllNotificationsSeen = () => {
       ),
     onMutate: async () => {
       await queryClient.cancelQueries({
-        queryKey: [listNotificationsQueryKey],
+        queryKey: [LIST_NOTIFICATIONS_QUERY_KEY],
       });
 
       const previousData =
         queryClient.getQueryData<ListNotificationsRes.AsObject>([
-          listNotificationsQueryKey,
+          LIST_NOTIFICATIONS_QUERY_KEY,
         ]);
 
       const newData: ListNotificationsRes.AsObject = {
@@ -191,7 +191,7 @@ export const useMarkAllNotificationsSeen = () => {
 
       if (previousData) {
         queryClient.setQueryData<ListNotificationsRes.AsObject>(
-          [listNotificationsQueryKey],
+          [LIST_NOTIFICATIONS_QUERY_KEY],
           newData,
         );
       }
@@ -225,12 +225,12 @@ export const useMarkSingleNotificationIsSeen = () => {
       await service.notifications.markNotificationSeen(notificationId, isSeen),
     onMutate: async ({ notificationId, isSeen }) => {
       await queryClient.cancelQueries({
-        queryKey: [listNotificationsQueryKey],
+        queryKey: [LIST_NOTIFICATIONS_QUERY_KEY],
       });
 
       const previousData =
         queryClient.getQueryData<ListNotificationsRes.AsObject>([
-          listNotificationsQueryKey,
+          LIST_NOTIFICATIONS_QUERY_KEY,
         ]);
 
       const newData: ListNotificationsRes.AsObject = {
@@ -247,7 +247,7 @@ export const useMarkSingleNotificationIsSeen = () => {
 
       if (previousData) {
         queryClient.setQueryData<ListNotificationsRes.AsObject>(
-          [listNotificationsQueryKey],
+          [LIST_NOTIFICATIONS_QUERY_KEY],
           newData,
         );
       }

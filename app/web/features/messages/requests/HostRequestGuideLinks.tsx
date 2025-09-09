@@ -6,8 +6,8 @@ import { Trans, useTranslation } from "@/i18n";
 import { MESSAGES } from "@/i18n/namespaces";
 import { HostRequestStatus } from "@/proto/conversations_pb";
 import {
+  HOW_TO_WRITE_REQUEST_GUIDE_URL,
   howToRespondRequestGuideUrl,
-  howToWriteRequestGuideUrl,
 } from "@/routes";
 
 const StyledHelpTextContainer = styled("div")(({ theme }) => ({
@@ -54,7 +54,7 @@ export default function HostRequestGuideLinks({
       <StyledHelpTextContainer>
         <Typography variant="body1">
           <Trans i18nKey="messages:surfer_declined_request_help_text">
-            <StyledLink variant="body1" href={howToWriteRequestGuideUrl}>
+            <StyledLink variant="body1" href={HOW_TO_WRITE_REQUEST_GUIDE_URL}>
               Read our guide
             </StyledLink>{" "}
             on how to write a request that will get accepted.

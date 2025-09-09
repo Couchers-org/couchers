@@ -1,4 +1,5 @@
 import { FlatCompat } from "@eslint/eslintrc";
+import eslint from "@eslint/js";
 import stylisticPlugin from "@stylistic/eslint-plugin";
 import eslintParser from "@typescript-eslint/parser";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
@@ -19,7 +20,7 @@ const compat = new FlatCompat({
   baseDirectory: import.meta.dirname,
 });
 
-const boolPrefixes = ["is", "should", "has", "can", "did", "will"];
+const boolPrefixes = ["is", "should", "has", "can", "did", "will", "does"];
 
 const baseNamingConventions = [
   {
@@ -94,8 +95,9 @@ export default tseslint.config([
       },
     },
   }),
-  tseslint.configs.strictTypeChecked,
   reactPlugin.configs.flat.recommended,
+  eslint.configs.recommended,
+  tseslint.configs.strictTypeChecked,
   {
     languageOptions: {
       parser: eslintParser,
@@ -123,6 +125,8 @@ export default tseslint.config([
       // Console logs should only be used for debugging.
       // Use custom logging function for actual logging
       "no-console": "warn",
+
+      "no-constant-condition": ["warn", { checkLoops: "allExceptWhileTrue" }],
 
       "@typescript-eslint/no-empty-function": "warn",
 

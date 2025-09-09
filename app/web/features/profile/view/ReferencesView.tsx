@@ -30,13 +30,13 @@ interface ReferencesViewProps {
   referenceUsers: ReturnType<typeof useLiteUsers>["data"];
 }
 
-const SeeMoreReferencesButtonContainer = styled("div")(({ theme }) => ({
+const SeeMoreReferencesButtonContainer = styled("div")(() => ({
   display: "flex",
   justifyContent: "center",
   width: "100%",
 }));
 
-export default function ReferencesView({
+const ReferencesView = ({
   isReceived,
   isReferenceUsersLoading,
   referencesQuery: {
@@ -48,7 +48,7 @@ export default function ReferencesView({
     isLoading: isReferencesLoading,
   },
   referenceUsers,
-}: ReferencesViewProps) {
+}: ReferencesViewProps) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
 
   return (
@@ -83,4 +83,6 @@ export default function ReferencesView({
       )}
     </>
   );
-}
+};
+
+export default ReferencesView;

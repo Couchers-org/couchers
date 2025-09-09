@@ -32,7 +32,7 @@ const clearMapFeatureState = (mapRef: React.RefObject<MapRef>) => {
 
 const setMapFeatureState = (
   mapRef: React.RefObject<MapRef>,
-  id: string,
+  id: number,
   selected: boolean,
 ) => {
   mapRef.current?.setFeatureState(

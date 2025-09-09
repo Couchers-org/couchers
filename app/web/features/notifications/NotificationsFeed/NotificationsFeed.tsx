@@ -14,18 +14,18 @@ import { useState } from "react";
 
 import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
 import Pill from "@/components/Pill";
-import { listNotificationsQueryKey } from "@/features/queryKeys";
-import { useTranslation } from "@/i18n";
-import { GLOBAL, NOTIFICATIONS } from "@/i18n/namespaces";
-import { ListNotificationsRes } from "@/proto/notifications_pb";
-import { notificationSettingsRoute } from "@/routes";
-import { service } from "@/service";
-import { theme } from "@/theme";
-
 import {
   useMarkAllNotificationsSeen,
   useMarkSingleNotificationIsSeen,
 } from "@/features/notifications/utils/helpers";
+import { LIST_NOTIFICATIONS_QUERY_KEY } from "@/features/queryKeys";
+import { useTranslation } from "@/i18n";
+import { GLOBAL, NOTIFICATIONS } from "@/i18n/namespaces";
+import { ListNotificationsRes } from "@/proto/notifications_pb";
+import { notificationSETTINGS_ROUTE } from "@/routes";
+import { service } from "@/service";
+import { theme } from "@/theme";
+
 import NotificationItem from "./NotificationItem";
 
 interface NotificationsFeedProps {
@@ -80,7 +80,7 @@ const NotificationsFeed = ({
     ListNotificationsRes.AsObject,
     RpcError
   >({
-    queryKey: [listNotificationsQueryKey],
+    queryKey: [LIST_NOTIFICATIONS_QUERY_KEY],
     queryFn: () =>
       service.notifications.listNotifications({
         onlyUnread: notificationsFilter === "unread",
@@ -99,7 +99,7 @@ const NotificationsFeed = ({
   } = useMarkSingleNotificationIsSeen();
 
   const handleNotificationSettingsClick = () => {
-    router.push(notificationSettingsRoute);
+    router.push(notificationSETTINGS_ROUTE);
     onClose();
   };
 
@@ -241,7 +241,9 @@ const NotificationsFeed = ({
                 ? theme.palette.primary.light
                 : undefined
             }
-            onClick={() => { handleNotificationsFilterChange("all"); }}
+            onClick={() => {
+              handleNotificationsFilterChange("all");
+            }}
             sx={{
               cursor: "pointer",
               "&:hover": {
@@ -261,7 +263,9 @@ const NotificationsFeed = ({
                 ? theme.palette.primary.light
                 : undefined
             }
-            onClick={() => { handleNotificationsFilterChange("unread"); }}
+            onClick={() => {
+              handleNotificationsFilterChange("unread");
+            }}
             sx={{
               cursor: "pointer",
 

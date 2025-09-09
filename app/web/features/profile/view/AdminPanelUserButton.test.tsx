@@ -39,7 +39,7 @@ const baseAccountInfo = {
 describe("AdminPanelUserButton", () => {
   beforeEach(() => {
     setErrorMock.mockClear();
-    process.env.NEXT_PUBLIC_CONSOLE_BASE_URL = "http://localhost:3000";
+    Config.consoleBaseUrl = "http://localhost:3000";
   });
 
   it("shows the button if the user is a superuser", async () => {
@@ -64,7 +64,9 @@ describe("AdminPanelUserButton", () => {
     const user = userEvent.setup();
 
     await user.click(button);
-    await waitFor(() => { expect(mockRouter.pathname).toBe("/admin/user/test"); });
+    await waitFor(() => {
+      expect(mockRouter.pathname).toBe("/admin/user/test");
+    });
   });
 
   it("hides the button if the user is not a superuser", async () => {

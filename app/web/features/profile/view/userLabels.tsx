@@ -89,27 +89,27 @@ export const ResponseRateLabel = ({ user }: Props) => {
     rateText = t("response_rate_text_some");
     timeText = t("response_time_text_some", {
       p33: dayjs
-        .duration(user.some.responseTimeP33!.seconds, "second")
+        .duration(user.some.responseTimeP33?.seconds || 0, "second")
         .humanize(),
     });
   } else if (user.most) {
     rateText = t("response_rate_text_most");
     timeText = t("response_time_text_most", {
       p33: dayjs
-        .duration(user.most.responseTimeP33!.seconds, "second")
+        .duration(user.most.responseTimeP33?.seconds || 0, "second")
         .humanize(),
       p66: dayjs
-        .duration(user.most.responseTimeP66!.seconds, "second")
+        .duration(user.most.responseTimeP33?.seconds || 0, "second")
         .humanize(),
     });
   } else if (user.almostAll) {
     rateText = t("response_rate_text_almost_all");
     timeText = t("response_time_text_almost_all", {
       p33: dayjs
-        .duration(user.almostAll.responseTimeP33!.seconds, "second")
+        .duration(user.almostAll.responseTimeP33?.seconds || 0, "second")
         .humanize(),
       p66: dayjs
-        .duration(user.almostAll.responseTimeP66!.seconds, "second")
+        .duration(user.almostAll.responseTimeP33?.seconds || 0, "second")
         .humanize(),
     });
   }

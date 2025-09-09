@@ -1,9 +1,10 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+
 import useUpdateUserProfile from "@/features/profile/hooks/useUpdateUserProfile";
 import useCurrentUser from "@/features/userQueries/useCurrentUser";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { LanguageAbility, User } from "@/proto/api_pb";
-import { service, UpdateUserProfileData } from "@/service;
+import { UpdateUserProfileData, service } from "@/service";
 import wrapper from "@/test/hookWrapper";
 import { addDefaultUser } from "@/test/utils";
 
@@ -45,7 +46,7 @@ describe("updateUserProfile action", () => {
       pronouns,
       thingsILike,
     } = defaultUser;
-    /* eslint-disable sort-keys */
+
     const newUserProfileData: UpdateUserProfileData = {
       // Unchanged data
       aboutMe,
@@ -84,19 +85,19 @@ describe("updateUserProfile action", () => {
         ],
       },
     };
-    /* eslint-enable sort-keys */
+
     updateProfileMock.mockResolvedValue(new Empty());
 
     const { result } = renderHook(() => useUpdateUserProfile(), {
       wrapper,
     });
 
-    act(() =>
+    act(() => {
       result.current.updateUserProfile({
         profileData: newUserProfileData,
         setMutationError: () => null,
-      }),
-    );
+      });
+    });
 
     await waitFor(() => result.current.status === "success");
 
@@ -118,7 +119,7 @@ describe("updateUserProfile action", () => {
       { wrapper },
     );
 
-    act(() =>
+    act(() => {
       result.current.mutate.updateUserProfile({
         profileData: {
           ...defaultUser,
@@ -130,11 +131,11 @@ describe("updateUserProfile action", () => {
           avatarKey: defaultUser.avatarUrl,
         },
         setMutationError: setError,
-      }),
-    );
+      });
+    });
     await waitFor(() => result.current.mutate.status === "error");
 
-    expect(setError).toBeCalledWith("API error");
-    expect(setError).toBeCalledTimes(2);
+    expect(setError).toHaveBeenCalledWith("API error");
+    expect(setError).toHaveBeenCalledTimes(2);
   });
 });

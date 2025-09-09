@@ -6,7 +6,7 @@ import Alert from "@/components/Alert";
 import Button from "@/components/Button";
 import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
 import ContributorForm from "@/components/ContributorForm";
-import { contributorFormInfoQueryKey } from "@/features/queryKeys";
+import { CONTRIBUTOR_FORM_INFO_QUERY_KEY } from "@/features/queryKeys";
 import { GetContributorFormInfoRes } from "@/proto/account_pb";
 import { ContributorForm as ContributorFormPb } from "@/proto/auth_pb";
 import { service } from "@/service";
@@ -25,14 +25,14 @@ export default function StandaloneContributorForm() {
     isLoading: queryLoading,
     error: queryError,
   } = useQuery<GetContributorFormInfoRes.AsObject>({
-    queryKey: [contributorFormInfoQueryKey],
+    queryKey: [CONTRIBUTOR_FORM_INFO_QUERY_KEY],
     queryFn: service.account.getContributorFormInfo,
   });
 
   const handleSubmit = async (form: ContributorFormPb.AsObject) => {
     await service.account.fillContributorForm(form);
     queryClient.invalidateQueries({
-      queryKey: [contributorFormInfoQueryKey],
+      queryKey: [CONTRIBUTOR_FORM_INFO_QUERY_KEY],
     });
     setFillState("success");
   };
@@ -52,7 +52,11 @@ export default function StandaloneContributorForm() {
           >
             {ALREADY_FILLED_IN}
           </Typography>
-          <Button onClick={() => { setFillState("fillAgain"); }}>
+          <Button
+            onClick={() => {
+              setFillState("fillAgain");
+            }}
+          >
             {FILL_IN_AGAIN}
           </Button>
         </>

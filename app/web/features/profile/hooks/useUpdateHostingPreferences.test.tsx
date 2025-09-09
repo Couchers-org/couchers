@@ -1,11 +1,12 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+
 import useUpdateHostingPreferences from "@/features/profile/hooks/useUpdateHostingPreferences";
 import useCurrentUser from "@/features/userQueries/useCurrentUser";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { User } from "@/proto/api_pb";
-import { HostingPreferenceData, service } from "@/service;
+import { HostingPreferenceData, service } from "@/service";
 import wrapper from "@/test/hookWrapper";
-import { addDefaultUser, MockedService } from "@/test/utils";
+import { MockedService, addDefaultUser } from "@/test/utils";
 
 jest.mock("features/userQueries/useCurrentUser");
 
@@ -70,12 +71,12 @@ describe("useUpdateHostingPreference hook", () => {
       wrapper,
     });
 
-    act(() =>
+    act(() => {
       result.current.updateHostingPreferences({
         preferenceData: newHostingPreferenceData,
         setMutationError: () => null,
-      }),
-    );
+      });
+    });
 
     await waitFor(() => result.current.status === "success");
 
@@ -96,16 +97,16 @@ describe("useUpdateHostingPreference hook", () => {
       wrapper,
     });
 
-    act(() =>
+    act(() => {
       result.current.updateHostingPreferences({
         preferenceData: newHostingPreferenceData,
         setMutationError: setError,
-      }),
-    );
+      });
+    });
 
     await waitFor(() => result.current.status === "error");
 
-    expect(setError).toBeCalledWith("API error");
-    expect(setError).toBeCalledTimes(2);
+    expect(setError).toHaveBeenCalledWith("API error");
+    expect(setError).toHaveBeenCalledTimes(2);
   });
 });

@@ -30,7 +30,7 @@ interface MapViewProps {
   users: SearchUser.AsObject[] | undefined;
 }
 
-const MapLoadingContainer = styled("div")(({ theme }) => ({
+const MapLoadingContainer = styled("div")(() => ({
   position: "absolute",
   backgroundColor: "rgba(255, 255, 255, 0.7)",
   width: "100%",
@@ -84,7 +84,7 @@ const MapView = ({
     search: { bbox: searchQueryBbox, query },
     hasActiveFilters,
     selectedUserId,
-    showSearchThisAreaButton,
+    shouldShowSearchThisAreaButton,
     shouldSearchByUserId,
     uiOnly: { zoom },
   } = useMapSearchState();
@@ -96,14 +96,16 @@ const MapView = ({
     setShowSearchThisAreaButton,
   } = useMapSearchActions();
 
-  const meetsSearchCriteria =
+  const doesMeetSearchCriteria =
     hasActiveFilters ||
     searchQueryBbox !== undefined ||
     query !== undefined ||
     shouldSearchByUserId;
 
   // If zoomed in, has a location searched or has active filters, use the memoized pins form api query in SearchPage
-  const pinsSource = meetsSearchCriteria ? memoizedPins : zoomedOutDataSource;
+  const pinsSource = doesMeetSearchCriteria
+    ? memoizedPins
+    : zoomedOutDataSource;
 
   const handleSearchThisAreaClick = () => {
     const bbox = getMapBounds(mapRef);
@@ -111,34 +113,36 @@ const MapView = ({
   };
 
   const handleClick = useCallback(
-    async (ev: MapLayerMouseEvent) => {
+    (ev: MapLayerMouseEvent) => {
       const features = mapRef.current?.queryRenderedFeatures(ev.point);
       const feature = features ? features[0] : undefined;
 
       if (!feature) return;
 
-      const layerId = feature?.layer.id;
-      const isCluster = feature?.properties.cluster;
+      const layerId = feature.layer.id;
+      const isCluster = feature.properties.cluster as boolean;
 
       clearMapFeatureState(mapRef);
 
       if (isCluster) {
-        const source = mapRef.current?.getSource(
-          USERS_SOURCE_ID,
-        ) as GeoJSONSource;
+        void (async () => {
+          const source = mapRef.current?.getSource(
+            USERS_SOURCE_ID,
+          ) as GeoJSONSource;
 
-        let newZoom = await source.getClusterExpansionZoom(
-          feature.properties.cluster_id,
-        );
+          let newZoom = await source.getClusterExpansionZoom(
+            feature.properties.cluster_id as number,
+          );
 
-        // prevent it from hyper zooming rapidly
-        if (newZoom - zoom > 6) {
-          newZoom = zoom + 6;
-        }
+          // prevent it from hyper zooming rapidly
+          if (newZoom - zoom > 6) {
+            newZoom = zoom + 6;
+          }
 
-        onZoomIn(newZoom, ev.lngLat);
+          onZoomIn(newZoom, ev.lngLat);
+        })();
       } else if (layerId === UNCLUSTERED_LAYER_ID) {
-        const userId = feature.properties.id;
+        const userId = feature.properties.id as number;
 
         if (selectedUserId === userId) {
           setMapFeatureState(mapRef, userId, false);
@@ -154,17 +158,18 @@ const MapView = ({
     [mapRef, onZoomIn, selectedUserId, setSelectedUserId, zoom],
   );
 
-  const handleLoad = async () => {
-    await loadMapUserPins(mapRef);
-
-    // Zoom into initial bbox
-    if (searchQueryBbox) {
-      mapRef.current?.fitBounds(searchQueryBbox, {
-        padding: 20,
-        maxZoom: 12,
-        duration: 2000,
-      });
-    }
+  const handleLoad = () => {
+    void (async () => {
+      await loadMapUserPins(mapRef);
+      // Zoom into initial bbox
+      if (searchQueryBbox) {
+        mapRef.current?.fitBounds(searchQueryBbox, {
+          padding: 20,
+          maxZoom: 12,
+          duration: 2000,
+        });
+      }
+    })();
   };
 
   const handleMapMove = debounce(() => {
@@ -192,7 +197,7 @@ const MapView = ({
           <CenteredSpinner minHeight="100%" />
         </MapLoadingContainer>
       )}
-      {showSearchThisAreaButton && (
+      {shouldShowSearchThisAreaButton && (
         <SearchThisAreaButton
           isDrawerExpanded={isDrawerExpanded}
           onClick={handleSearchThisAreaClick}

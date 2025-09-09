@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { regionsKey } from "@/features/queryKeys";
+import { REGIONS_KEY } from "@/features/queryKeys";
 import { service } from "@/service";
 
 export const useRegions = () => {
   const { data, ...rest } = useQuery({
-    queryKey: [regionsKey],
+    queryKey: [REGIONS_KEY],
     queryFn: () =>
       service.resources.getRegions().then((result) =>
         result.regionsList.reduce(

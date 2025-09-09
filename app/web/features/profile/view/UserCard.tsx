@@ -60,7 +60,7 @@ const StyledNumReferences = styled("div")(({ theme }) => ({
   padding: theme.spacing(1),
 }));
 
-export default function UserCard({
+const UserCard = ({
   top,
   onTabChange,
   tab,
@@ -70,7 +70,7 @@ export default function UserCard({
   onTabChange: (tab: UserTab) => void;
   tab: UserTab;
   modPanel?: ReactNode;
-}) {
+}) => {
   const { t } = useTranslation([PROFILE, GLOBAL]);
   const user = useProfileUser();
   const { data: accountInfo } = useAccountInfo();
@@ -97,4 +97,6 @@ export default function UserCard({
       </UserTabContext>
     </StyledDetailsCard>
   );
-}
+};
+
+export default UserCard;

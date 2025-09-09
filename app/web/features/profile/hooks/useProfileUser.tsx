@@ -2,6 +2,7 @@ import * as React from "react";
 
 import { User } from "@/proto/api_pb";
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const ProfileUserContext = React.createContext<User.AsObject>(
   {} as User.AsObject,
 );
@@ -21,12 +22,10 @@ export const ProfileUserProvider = ({
       {children}
     </ProfileUserContext.Provider>
   );
-}
+};
 
-export function useProfileUser() {
-  const profileUser = React.useContext(ProfileUserContext);
-  if (profileUser === null) {
-    throw new Error("No ProfileUserContext provided!");
-  }
-  return profileUser;
-}
+const useProfileUser = () => {
+  return React.useContext(ProfileUserContext);
+};
+
+export default useProfileUser;
