@@ -162,6 +162,10 @@ export default tseslint.config([
               message:
                 "Please don't import from @mui/system, use @mui/material instead",
             },
+            {
+              group: ["console", "node:console"],
+              message: "Please use @/log for logging",
+            },
           ],
         },
       ],
@@ -177,6 +181,7 @@ export default tseslint.config([
       "no-useless-rename": "warn",
 
       "react/react-in-jsx-scope": "off",
+      "react/hook-use-state": "warn",
 
       // Enforce arrow functions
       "no-restricted-syntax": [

@@ -2,15 +2,18 @@ import { useRouter } from "next/router";
 
 import { useAuthContext } from "@/features/auth/AuthProvider";
 import { useUser } from "@/features/userQueries/useUsers";
-import { loginRoute } from "@/routes";
+import log from "@/log";
+import { LOGIN_ROUTE } from "@/routes";
 
-export default function useCurrentUser() {
+const useCurrentUser = () => {
   const authState = useAuthContext().authState;
   const userQuery = useUser(authState.userId ?? undefined);
   const router = useRouter();
   if (!authState.userId) {
-    console.error("No user id available to get current user.");
-    if (typeof window !== "undefined") router.push(loginRoute);
+    log.error("No user id available to get current user.");
+    if (typeof window !== "undefined") void router.push(LOGIN_ROUTE);
   }
   return userQuery;
-}
+};
+
+export default useCurrentUser;

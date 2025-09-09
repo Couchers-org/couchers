@@ -7,18 +7,18 @@ import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "@/components/HtmlMeta";
 import Redirect from "@/components/Redirect";
 import StyledLink from "@/components/StyledLink";
+import { useAuthContext } from "@/features/auth/AuthProvider";
 import { Trans, useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
 import { useIsNativeEmbed } from "@/platform/nativeLink";
 import Sentry from "@/platform/sentry";
 import CouchersTextLogo from "@/resources/CouchersTextLogo";
-import { DASHBOARD_ROUTE, SIGNUP_ROUTE, loginRoute } from "@/routes";
+import { DASHBOARD_ROUTE, LOGIN_ROUTE, SIGNUP_ROUTE } from "@/routes";
 import { service } from "@/service";
 import isGrpcError from "@/service/utils/isGrpcError";
 import { theme } from "@/theme";
 import stringOrFirstString from "@/utils/stringOrFirstString";
 
-import { useAuthContext } from "../AuthProvider";
 import SignupFormContent from "./SignupFormContent";
 
 const StyledMobileEmbed = styled("div")(({ theme }) => ({
@@ -35,15 +35,14 @@ const StyledFormWrapper = styled("div")(({ theme }) => ({
   marginTop: theme.spacing(2),
 }));
 
-export default function Signup() {
+const Signup = () => {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const router = useRouter();
 
   const { authState, authActions } = useAuthContext();
-  const authenticated = authState.authenticated;
+  const isAuthenticated = authState.authenticated;
   const error = authState.error;
-
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const urlToken = stringOrFirstString(router.query.token);
 
@@ -58,11 +57,11 @@ export default function Signup() {
   }, [authState.error]);
 
   useEffect(() => {
-    (async () => {
+    void (async () => {
       if (urlToken) {
-        setLoading(true);
+        setIsLoading(true);
         try {
-          authActions.updateSignupState(
+          await authActions.updateSignupState(
             await service.auth.signupFlowEmailToken(urlToken),
           );
         } catch (err) {
@@ -74,10 +73,10 @@ export default function Signup() {
           authActions.authError(
             isGrpcError(err) ? err.message : t("global:error.fatal_message"),
           );
-          router.push(SIGNUP_ROUTE);
+          await router.push(SIGNUP_ROUTE);
           return;
         }
-        setLoading(false);
+        setIsLoading(false);
       }
     })();
     // next-router-mock router isn't memoized, so putting router in the dependencies
@@ -92,14 +91,14 @@ export default function Signup() {
             {error}
           </Alert>
         )}
-        {loading ? <CenteredSpinner /> : <SignupFormContent />}
+        {isLoading ? <CenteredSpinner /> : <SignupFormContent />}
       </StyledMobileEmbed>
     );
   }
 
   return (
     <>
-      {authenticated && <Redirect to={DASHBOARD_ROUTE} />}
+      {isAuthenticated && <Redirect to={DASHBOARD_ROUTE} />}
       <HtmlMeta title={t("global:sign_up")} />
       <Container
         component="section"
@@ -120,15 +119,17 @@ export default function Signup() {
               {error}
             </Alert>
           )}
-          {loading ? <CenteredSpinner /> : <SignupFormContent />}
+          {isLoading ? <CenteredSpinner /> : <SignupFormContent />}
           <Typography sx={{ marginTop: theme.spacing(2) }}>
             <Trans i18nKey="auth:basic_sign_up_form.existing_user_prompt">
               Already have an account?{" "}
-              <StyledLink href={loginRoute}>Log in</StyledLink>
+              <StyledLink href={LOGIN_ROUTE}>Log in</StyledLink>
             </Trans>
           </Typography>
         </StyledFormWrapper>
       </Container>
     </>
   );
-}
+};
+
+export default Signup;

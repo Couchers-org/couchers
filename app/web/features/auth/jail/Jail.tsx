@@ -14,7 +14,7 @@ import TOSSection from "@/features/auth/jail/TOSSection";
 import { useTranslation } from "@/i18n";
 import { AUTH } from "@/i18n/namespaces";
 import { JailInfoRes } from "@/proto/jail_pb";
-import { loginRoute } from "@/routes";
+import { LOGIN_ROUTE } from "@/routes";
 import { service } from "@/service";
 
 import ActivenessProbeSection from "./ActivenessProbeSection";
@@ -24,33 +24,33 @@ const StyledContainer = styled("div")(({ theme }) => ({
   marginBottom: theme.spacing(4),
 }));
 
-export default function Jail() {
+const Jail = () => {
   const { t } = useTranslation(AUTH);
 
   const { authState, authActions } = useAuthContext();
   const isJailed = authState.jailed;
   const authError = authState.error;
-  const authLoading = authState.loading;
+  const isAuthLoading = authState.loading;
   const isAuthenticated = authState.authenticated;
 
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [jailInfo, setJailInfo] = useState<null | JailInfoRes.AsObject>(null);
 
   useEffect(() => {
-    (async () => {
-      //just in case the store is stale
-      authActions.updateJailStatus();
-      setLoading(true);
+    void (async () => {
+      // just in case the store is stale
+      await authActions.updateJailStatus();
+      setIsLoading(true);
       setJailInfo(await service.jail.getJailInfo());
-      setLoading(false);
+      setIsLoading(false);
     })();
   }, [authActions]);
 
   const updateJailed = () => {
-    authActions.updateJailStatus();
+    void authActions.updateJailStatus();
   };
 
-  if (!isAuthenticated) return <Redirect to={loginRoute} />;
+  if (!isAuthenticated) return <Redirect to={LOGIN_ROUTE} />;
 
   return (
     <>
@@ -61,7 +61,7 @@ export default function Jail() {
       <StyledContainer>
         <TextBody>{t("jail.description")}</TextBody>
       </StyledContainer>
-      <Backdrop open={loading || authLoading}>
+      <Backdrop open={isLoading || isAuthLoading}>
         <CenteredSpinner />
       </Backdrop>
       {jailInfo?.hasNotAcceptedTos && (
@@ -94,4 +94,6 @@ export default function Jail() {
       )}
     </>
   );
-}
+};
+
+export default Jail;

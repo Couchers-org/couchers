@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
 
-import { loginRoute } from "@/routes";
+import { LOGIN_ROUTE } from "@/routes";
 import { service } from "@/service";
 import wrapper from "@/test/hookWrapper";
 import i18n from "@/test/i18n";
@@ -18,10 +18,10 @@ const confirmChangeEmailMock = service.account
   typeof service.account.confirmChangeEmail
 >;
 
-function renderPage() {
+const renderPage = () => {
   mockRouter.setCurrentUrl("?token=Em4iLR3seTtok3n");
   render(<ConfirmChangeEmail />, { wrapper });
-}
+};
 
 describe("ConfirmChangeEmail", () => {
   it("shows the loading state on initial load", async () => {
@@ -36,7 +36,7 @@ describe("ConfirmChangeEmail", () => {
   });
 
   describe("when the change email completes successfully", () => {
-    beforeEach(async () => {
+    beforeEach(() => {
       confirmChangeEmailMock.mockResolvedValue(new Empty());
       renderPage();
     });
@@ -60,7 +60,7 @@ describe("ConfirmChangeEmail", () => {
         await screen.findByRole("link", { name: t("auth:login_prompt") }),
       );
 
-      expect(mockRouter.pathname).toBe(loginRoute);
+      expect(mockRouter.pathname).toBe(LOGIN_ROUTE);
     });
   });
 

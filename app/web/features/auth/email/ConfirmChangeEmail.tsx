@@ -9,11 +9,11 @@ import Alert from "@/components/Alert";
 import StyledLink from "@/components/StyledLink";
 import { useTranslation } from "@/i18n";
 import { AUTH } from "@/i18n/namespaces";
-import { loginRoute } from "@/routes";
+import { LOGIN_ROUTE } from "@/routes";
 import { service } from "@/service";
 import stringOrFirstString from "@/utils/stringOrFirstString";
 
-export default function ConfirmChangeEmail() {
+const ConfirmChangeEmail = () => {
   const { t } = useTranslation(AUTH);
 
   const router = useRouter();
@@ -43,7 +43,7 @@ export default function ConfirmChangeEmail() {
       <Alert severity="success">
         {t("change_email_confirmation.success_message")}
       </Alert>
-      <StyledLink href={loginRoute}>{t("login_prompt")}</StyledLink>
+      <StyledLink href={LOGIN_ROUTE}>{t("login_prompt")}</StyledLink>
     </>
   ) : (
     error && (
@@ -54,4 +54,6 @@ export default function ConfirmChangeEmail() {
       </Alert>
     )
   );
-}
+};
+
+export default ConfirmChangeEmail;

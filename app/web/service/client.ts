@@ -1,6 +1,5 @@
-import { Request, RpcError, StatusCode } from "grpc-web";
+import { RpcError, StatusCode, UnaryInterceptor } from "grpc-web";
 
-import config from "@/config";
 import { AccountPromiseClient } from "@/proto/account_grpc_web_pb";
 import { AdminPromiseClient } from "@/proto/admin_grpc_web_pb";
 import { APIPromiseClient } from "@/proto/api_grpc_web_pb";
@@ -26,60 +25,46 @@ import { ThreadsPromiseClient } from "@/proto/threads_grpc_web_pb";
 
 import isGrpcError from "./utils/isGrpcError";
 
-const URL = (config.NEXT_PUBLIC_API_BASE_URL ||
-  process.env.EXPO_PUBLIC_API_BASE_URL)!;
-const IS_PROD =
-  (process.env.NEXT_PUBLIC_COUCHERS_ENV ||
-    process.env.EXPO_PUBLIC_COUCHERS_ENV) === "prod";
+const URL = Config.apiBaseUrl;
+const isProd = Config.couchersEnv === "prod";
 
-export const grpcTimeout = 10000; // milliseconds
+export const GRPC_TIMEOUT = 10000; // milliseconds
 
-let _unauthenticatedErrorHandler: (
-  e: RpcError,
-) => Promise<void> = async () => {};
+let unauthenticatedErrorHandler: ((e: RpcError) => Promise<void>) | undefined;
+
 export const setUnauthenticatedErrorHandler = (
   f: (e: RpcError) => Promise<void>,
 ) => {
-  _unauthenticatedErrorHandler = f;
+  unauthenticatedErrorHandler = f;
 };
 
-export class AuthInterceptor {
-  async intercept(request: unknown, invoker: (request: unknown) => unknown) {
-    let response;
+const authInterceptor: UnaryInterceptor<unknown, unknown> = {
+  intercept: async (request, invoker) => {
     try {
-      response = await invoker(request);
+      return await invoker(request);
     } catch (e) {
       if (isGrpcError(e) && e.code === StatusCode.UNAUTHENTICATED) {
-        _unauthenticatedErrorHandler(e);
-      } else {
-        throw e;
+        await unauthenticatedErrorHandler?.(e);
       }
+      throw e;
     }
-    return response;
-  }
-}
+  },
+};
 
-class TimeoutInterceptor {
-  async intercept(
-    request: Request<unknown, unknown>,
-    invoker: (request: unknown) => unknown,
-  ) {
-    const deadline = Date.now() + grpcTimeout;
+const timeoutInterceptor: UnaryInterceptor<unknown, unknown> = {
+  intercept: async (request, invoker) => {
+    const deadline = Date.now() + GRPC_TIMEOUT;
     const metadata = request.getMetadata();
     metadata.deadline = deadline.toString();
     const response = await invoker(request);
     return response;
-  }
-}
-
-const authInterceptor = new AuthInterceptor();
-const timeoutInterceptor = new TimeoutInterceptor();
+  },
+};
 
 const opts = {
   unaryInterceptors: [authInterceptor, timeoutInterceptor],
-  // this modifies the behaviour on the API so that it will send cookies on the requests
+  // this modifies the behavior on the API so that it will send cookies on the requests
   withCredentials: true,
-  // / TODO: streaming interceptor for auth https://grpc.io/blog/grpc-web-interceptor/
 };
 
 const client = {
@@ -107,34 +92,16 @@ const client = {
   threads: new ThreadsPromiseClient(URL, null, opts),
 };
 
-if (!IS_PROD && typeof window !== "undefined") {
-  // @ts-ignore
-  const grpcWebTools = window.__GRPCWEB_DEVTOOLS__ || (() => {});
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    __GRPCWEB_DEVTOOLS__: ((params: unknown[]) => void) | undefined;
+  }
+}
 
-  grpcWebTools([
-    client.account,
-    client.admin,
-    client.api,
-    client.auth,
-    client.blocking,
-    client.bugs,
-    client.communities,
-    client.conversations,
-    client.discussions,
-    client.donations,
-    client.events,
-    client.groups,
-    client.jail,
-    client.notifications,
-    client.pages,
-    client.public,
-    client.references,
-    client.reporting,
-    client.requests,
-    client.resources,
-    client.search,
-    client.threads,
-  ]);
+if (!isProd && typeof window !== "undefined") {
+  const grpcWebTools = window.__GRPCWEB_DEVTOOLS__;
+  grpcWebTools?.(Object.values(client));
 }
 
 export default client;

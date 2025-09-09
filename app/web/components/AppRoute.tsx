@@ -9,7 +9,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import Footer from "@/components/Footer";
 import { useAuthContext } from "@/features/auth/AuthProvider";
 import { useIsNativeEmbed } from "@/platform/nativeLink";
-import { jailRoute, loginRoute } from "@/routes";
+import { JAIL_ROUTE, LOGIN_ROUTE } from "@/routes";
 import { theme } from "@/theme";
 
 import Navigation from "./Navigation";
@@ -68,13 +68,13 @@ const ContentWrapper = styled(Container, {
   }),
 }));
 
-export default function AppRoute({
+const AppRoute = ({
   children,
   isPrivate,
   noFooter = false,
   variant = "standard",
   bottomMargin,
-}: AppRouteProps) {
+}: AppRouteProps) => {
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const pageWrapperRef = useRef<HTMLDivElement>(null);
@@ -85,18 +85,23 @@ export default function AppRoute({
 
   const isNativeEmbed = useIsNativeEmbed();
 
-  //there must be the same loading state on auth'd pages on server and client
-  //for hydration matching, so we will display a loader until mounted.
+  // there must be the same loading state on auth'd pages on server and client
+  // for hydration matching, so we will display a loader until mounted.
   const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => setIsMounted(true), []);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated && isPrivate) {
       authActions.authError("Please log in.");
-      router.push({ pathname: loginRoute, query: { from: location.pathname } });
+      void router.push({
+        pathname: LOGIN_ROUTE,
+        query: { from: location.pathname },
+      });
     }
-    if (isAuthenticated && isJailed && isPrivate && pathname !== jailRoute) {
-      router.push(jailRoute);
+    if (isAuthenticated && isJailed && isPrivate && pathname !== JAIL_ROUTE) {
+      void router.push(JAIL_ROUTE);
     }
   }, [isAuthenticated, isJailed, isPrivate, authActions, router, pathname]);
 
@@ -145,15 +150,16 @@ export default function AppRoute({
       {!isPrivate && !isNativeEmbed && <CookieBanner />}
     </ErrorBoundary>
   );
-}
+};
 
-const appGetLayout = ({
+export const appGetLayout = ({
   isPrivate = true,
   noFooter = false,
   variant = "standard",
   bottomMargin,
 }: Partial<AppRouteProps> = {}) => {
-  return function AppLayout(page: ReactNode) {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const AppLayout = (page: ReactNode) => {
     return (
       <AppRoute
         isPrivate={isPrivate}
@@ -165,6 +171,8 @@ const appGetLayout = ({
       </AppRoute>
     );
   };
+
+  return AppLayout;
 };
 
-export { appGetLayout };
+export default AppRoute;

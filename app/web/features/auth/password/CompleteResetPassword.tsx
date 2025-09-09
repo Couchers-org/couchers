@@ -13,7 +13,7 @@ import TextField from "@/components/TextField";
 import { useAuthContext } from "@/features/auth/AuthProvider";
 import { useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
-import { loginRoute } from "@/routes";
+import { LOGIN_ROUTE } from "@/routes";
 import { service } from "@/service";
 import { theme } from "@/theme";
 import stringOrFirstString from "@/utils/stringOrFirstString";
@@ -42,7 +42,7 @@ const StyledTextField = styled(TextField)(() => ({
   },
 }));
 
-export default function CompleteResetPassword() {
+const CompleteResetPassword = () => {
   const { authState } = useAuthContext();
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { handleSubmit, register } = useForm<{
@@ -67,14 +67,15 @@ export default function CompleteResetPassword() {
       ),
   });
 
-  const onSubmit = handleSubmit(({ newPassword, newPasswordCheck }) => {
-    if (newPassword !== newPasswordCheck) {
-      alert(t("auth:change_password_form.password_mismatch_error"));
-      return;
-    }
+  const onSubmit = () =>
+    handleSubmit(({ newPassword, newPasswordCheck }) => {
+      if (newPassword !== newPasswordCheck) {
+        alert(t("auth:change_password_form.password_mismatch_error"));
+        return;
+      }
 
-    mutate(newPassword);
-  });
+      mutate(newPassword);
+    });
 
   if (authState.authenticated) {
     return (
@@ -109,7 +110,7 @@ export default function CompleteResetPassword() {
           <Alert severity="success">
             {t("auth:change_password_form.reset_password_success")}
           </Alert>
-          <StyledLink href={loginRoute}>{t("auth:login_prompt")}</StyledLink>
+          <StyledLink href={LOGIN_ROUTE}>{t("auth:login_prompt")}</StyledLink>
         </>
       )}
 
@@ -149,4 +150,6 @@ export default function CompleteResetPassword() {
       </StyledForm>
     </StyledContainer>
   );
-}
+};
+
+export default CompleteResetPassword;

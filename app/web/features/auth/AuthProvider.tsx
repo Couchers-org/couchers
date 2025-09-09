@@ -4,24 +4,26 @@ import React, { Context, ReactNode, useContext, useEffect } from "react";
 
 import { useTranslation } from "@/i18n";
 import { AUTH } from "@/i18n/namespaces";
-import { jailRoute, loginRoute } from "@/routes";
+import { JAIL_ROUTE, LOGIN_ROUTE } from "@/routes";
 import { setUnauthenticatedErrorHandler } from "@/service/client";
+import { emptyAsyncFunction } from "@/utils/function";
 import useStablePush from "@/utils/useStablePush";
 
 import { JAILED_ERROR_MESSAGE } from "./constants";
 import useAuthStore, { AuthStoreType } from "./useAuthStore";
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export const AuthContext = React.createContext<null | AuthStoreType>(null);
 
-function useAppContext<T>(context: Context<T | null>) {
+const useAppContext = <T,>(context: Context<T | null>) => {
   const contextValue = useContext(context);
   if (contextValue === null) {
     throw Error("No context provided!");
   }
   return contextValue;
-}
+};
 
-export default function AuthProvider({ children }: { children: ReactNode }) {
+const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { t } = useTranslation(AUTH);
   const store = useAuthStore();
   const router = useRouter();
@@ -38,22 +40,24 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
         if (!isJailRouteException) {
           // if the user is jailed, redirect them to the jail route
-          push(jailRoute);
+          await push(JAIL_ROUTE);
         }
       } else {
         // completely logged out
         await store.authActions.logout();
         store.authActions.authError(t("logged_out_message"));
-        push(loginRoute);
+        await push(LOGIN_ROUTE);
       }
     });
 
     return () => {
-      setUnauthenticatedErrorHandler(async () => {});
+      setUnauthenticatedErrorHandler(emptyAsyncFunction);
     };
   }, [store.authActions, push, t, router.pathname]);
 
   return <AuthContext.Provider value={store}>{children}</AuthContext.Provider>;
-}
+};
 
 export const useAuthContext = () => useAppContext(AuthContext);
+
+export default AuthProvider;

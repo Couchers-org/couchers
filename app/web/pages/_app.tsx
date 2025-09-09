@@ -30,7 +30,7 @@ type AppWithLayoutProps = Omit<AppProps, "Component"> & {
 };
 
 /* eslint-disable @typescript-eslint/naming-convention */
-function MyApp({ Component, pageProps }: AppWithLayoutProps) {
+const MyApp = ({ Component, pageProps }: AppWithLayoutProps) => {
   const getLayout = Component.getLayout;
 
   useEffect(() => {
@@ -99,6 +99,6 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
       </LocalizationProvider>
     </StyledEngineProvider>
   );
-}
+};
 
 export default appWithTranslation(MyApp, nextI18nextConfig);
