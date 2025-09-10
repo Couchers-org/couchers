@@ -13,7 +13,7 @@ interface RespondToFriendRequestVariables {
   setMutationError: SetMutationError;
 }
 
-export default function useRespondToFriendRequest() {
+const useRespondToFriendRequest = () => {
   const queryClient = useQueryClient();
   const {
     mutate: respondToFriendRequest,
@@ -62,21 +62,23 @@ export default function useRespondToFriendRequest() {
         queryClient.setQueryData(userKey(friendRequest.userId), cachedUser);
       }
     },
-    onSuccess: (_, { friendRequest }) => {
-      queryClient.invalidateQueries({
+    onSuccess: async (_, { friendRequest }) => {
+      await queryClient.invalidateQueries({
         queryKey: ["friendIds"],
       });
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: friendRequestKey("received"),
       });
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: userKey(friendRequest.userId),
       });
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: ["ping"],
       });
     },
   });
 
   return { isPending, isSuccess, reset, respondToFriendRequest };
-}
+};
+
+export default useRespondToFriendRequest;

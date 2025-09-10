@@ -27,3 +27,8 @@ export type RecursiveCamelToSnakeCase<T> = T extends object
         >]: RecursiveCamelToSnakeCase<T[K]>;
       }
   : T;
+
+// Get all keys of type V from object type T
+export type KeysWithType<T, V> = {
+  [K in keyof T]: T[K] extends V ? K : never;
+}[keyof T];

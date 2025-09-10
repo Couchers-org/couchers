@@ -8,7 +8,7 @@ import CommunityBrowser from "@/features/dashboard/CommunityBrowser";
 import { Trans, useTranslation } from "@/i18n";
 import { DASHBOARD, GLOBAL } from "@/i18n/namespaces";
 import {
-  communityCreationFormURL,
+  communityCreationFormUrl,
   helpCenterCommunityBuilderURL,
 } from "@/routes";
 
@@ -72,7 +72,7 @@ const CommunitiesPage = () => {
         <Trans i18nKey="dashboard:community_missing">
           {`Is your country or city missing? `}
           <MuiLink
-            href={communityCreationFormURL(accountInfo?.username)}
+            href={communityCreationFormUrl(accountInfo?.username)}
             target="_blank"
             rel="noreferrer noopener"
             underline="hover"

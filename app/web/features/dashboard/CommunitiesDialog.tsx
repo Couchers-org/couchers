@@ -3,13 +3,13 @@ import CommunityBrowser from "@/features/dashboard/CommunityBrowser";
 import { useTranslation } from "@/i18n";
 import { DASHBOARD } from "@/i18n/namespaces";
 
-export default function CommunitiesDialog({
+const CommunitiesDialog = ({
   isOpen,
   onClose,
 }: {
   isOpen: boolean;
   onClose: () => void;
-}) {
+}) => {
   const { t } = useTranslation([DASHBOARD]);
   return (
     <Dialog
@@ -25,4 +25,6 @@ export default function CommunitiesDialog({
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export default CommunitiesDialog;

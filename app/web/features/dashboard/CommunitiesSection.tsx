@@ -5,18 +5,18 @@ import useAccountInfo from "@/features/auth/useAccountInfo";
 import CommunitiesList from "@/features/dashboard/CommunitiesList";
 import { Trans, useTranslation } from "@/i18n";
 import { DASHBOARD, GLOBAL } from "@/i18n/namespaces";
-import { communityCreationFormURL } from "@/routes";
+import { communityCreationFormUrl } from "@/routes";
 import { theme } from "@/theme";
 
 const StyledBrowseCommunitiesLink = styled(StyledLink)(() => ({
   verticalAlign: "baseline",
 }));
 
-const StyledCreateCommunityText = styled(Typography)(() => ({
+const StyledCreateCommunityText = styled("p")(() => ({
   paddingBlockStart: theme.spacing(2),
 }));
 
-export default function CommunitiesSection() {
+const CommunitiesSection = () => {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
   const { data: accountInfo } = useAccountInfo();
 
@@ -40,11 +40,16 @@ export default function CommunitiesSection() {
         </Trans>
       </Typography>
       <CommunitiesList />
-      <StyledCreateCommunityText variant="body1" paragraph>
+
+      <Typography variant="body1" component="p">
+        awga
+      </Typography>
+
+      <Typography variant="body1" component={StyledCreateCommunityText}>
         <Trans i18nKey="dashboard:your_communities_helper_text2">
           {`Don't see your community? `}
           <MuiLink
-            href={communityCreationFormURL(accountInfo?.username)}
+            href={communityCreationFormUrl(accountInfo?.username)}
             target="_blank"
             rel="noreferrer noopener"
             underline="hover"
@@ -52,7 +57,9 @@ export default function CommunitiesSection() {
             Get it started!
           </MuiLink>
         </Trans>
-      </StyledCreateCommunityText>
+      </Typography>
     </>
   );
-}
+};
+
+export default CommunitiesSection;

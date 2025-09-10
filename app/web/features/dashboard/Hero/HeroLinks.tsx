@@ -45,7 +45,7 @@ const makeStyledTab = <C extends React.ComponentType<React.ComponentProps<C>>>(
 const StyledDefaultTab = makeStyledTab(Typography);
 const StyledLinkTab = makeStyledTab(StyledLink);
 
-export default function HeroLinks() {
+const HeroLinks = () => {
   const { t } = useTranslation(DASHBOARD);
 
   return (
@@ -65,4 +65,6 @@ export default function HeroLinks() {
       </StyledLinksContainer>
     </>
   );
-}
+};
+
+export default HeroLinks;

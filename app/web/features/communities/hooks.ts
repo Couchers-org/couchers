@@ -9,7 +9,6 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
-import { useRouter } from "next/router";
 import { useEffect } from "react";
 
 import {
@@ -38,11 +37,11 @@ import {
   ListNearbyUsersRes,
   ListPlacesRes,
 } from "@/proto/communities_pb";
+import { Discussion } from "@/proto/discussions_pb";
 import { GetThreadRes } from "@/proto/threads_pb";
 import { routeToCommunity } from "@/routes";
 import { service } from "@/service";
-
-import { Discussion } from "@/proto/discussions_pb";
+import useStablePush from "@/utils/useStablePush";
 
 export const useCommunity = (
   id: number,
@@ -62,7 +61,7 @@ export const useCommunity = (
     enabled: !!id,
   });
 
-  const router = useRouter();
+  const push = useStablePush();
 
   useEffect(() => {
     if (!queryResult.isSuccess) {
@@ -74,9 +73,9 @@ export const useCommunity = (
     // guarantee the most recent slug is used if the community was loaded from url params
     // if no slug was provided in the url, then also redirect to page with slug in url
     if (!id && slug !== communitySlug && typeof window !== "undefined") {
-      router.push(routeToCommunity(communityId, slug));
+      void push(routeToCommunity(communityId, slug));
     }
-  }, [queryResult, router, id, communitySlug]);
+  }, [queryResult, id, communitySlug, push]);
 
   return {
     ...queryResult,
@@ -94,7 +93,6 @@ export const useListSubCommunities = (communityId: number) =>
         pageParam as string | undefined,
       ),
     initialPageParam: undefined,
-    enabled: communityId !== undefined,
     getNextPageParam: (lastPage) =>
       lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
   });
@@ -214,11 +212,11 @@ interface UseListCommunityEventsInput {
   type: QueryType;
 }
 
-export function useListCommunityEvents({
+export const useListCommunityEvents = ({
   communityId,
   pageSize,
   type,
-}: UseListCommunityEventsInput) {
+}: UseListCommunityEventsInput) => {
   return useInfiniteQuery<ListEventsRes.AsObject, RpcError>({
     queryKey: communityEventsKey(communityId, type),
     queryFn: ({ pageParam }) =>
@@ -230,7 +228,7 @@ export function useListCommunityEvents({
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     initialPageParam: undefined,
   });
-}
+};
 
 // Discussions
 export interface CreateDiscussionInput {
@@ -244,9 +242,9 @@ export const useNewDiscussionMutation = (onSuccess?: () => void) => {
   return useMutation<Discussion.AsObject, RpcError, CreateDiscussionInput>({
     mutationFn: ({ title, content, ownerCommunityId }) =>
       service.discussions.createDiscussion(title, content, ownerCommunityId),
-    onSuccess(_, { ownerCommunityId }) {
+    onSuccess: async (_, { ownerCommunityId }) => {
       onSuccess?.();
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: communityDiscussionsKey(ownerCommunityId),
       });
     },

@@ -53,20 +53,21 @@ const MyEventsList = () => {
 
   const [pageNumber, setPageNumber] = useState(1);
   const [eventType, setEventType] = useState<EventsType>("upcoming");
-  const [showCancelled, setShowCancelled] = useState<boolean>(false);
+  const [shouldShowCancelled, setShouldShowCancelled] =
+    useState<boolean>(false);
 
   const { data, error, isLoading } = useListMyEvents({
     pastEvents: eventType === "past",
     pageSize,
     pageNumber,
-    showCancelled,
+    showCancelled: shouldShowCancelled,
   });
 
-  const hasEvents = data && data.eventsList && data.eventsList.length > 0;
-  const numPages = Math.ceil((data?.totalItems ?? 0) / pageSize) ?? 1;
+  const hasEvents = data && data.eventsList.length > 0;
+  const numPages = Math.ceil((data?.totalItems ?? 0) / pageSize);
 
   const handlePageNumberChange = (
-    event: React.ChangeEvent<unknown>,
+    _event: React.ChangeEvent<unknown>,
     value: number,
   ) => {
     setPageNumber(value);
@@ -82,7 +83,7 @@ const MyEventsList = () => {
   };
 
   const handleFilterShowCancelledClick = () => {
-    setShowCancelled(!showCancelled);
+    setShouldShowCancelled(!shouldShowCancelled);
     setPageNumber(1);
   };
 
@@ -97,7 +98,7 @@ const MyEventsList = () => {
           {t("communities:past")}
         </StyledFilterTag>
         <StyledFilterTag
-          isSelected={showCancelled}
+          isSelected={shouldShowCancelled}
           variant="body2"
           onClick={handleFilterShowCancelledClick}
         >
@@ -109,7 +110,7 @@ const MyEventsList = () => {
       )}
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading && <CenteredSpinner minHeight="theme.spacing(20)" />}
-      {hasEvents && !isLoading && (
+      {hasEvents && (
         <>
           <EventsList events={data.eventsList} />
           <StyledPagination

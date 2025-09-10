@@ -21,7 +21,7 @@ export interface EventUsersProps {
   emptyState: string;
   error: RpcError | null;
   hasNextPage?: boolean;
-  onSeeAllClick?(): void;
+  onSeeAllClick?: () => void;
   userIds: number[] | undefined;
   title: string;
   getUserMenuItems?: (
@@ -29,7 +29,7 @@ export interface EventUsersProps {
   ) => EllipsisMenuItem[] | undefined;
 }
 
-export default function EventUsers({
+const EventUsers = ({
   emptyState,
   error,
   hasNextPage,
@@ -37,7 +37,7 @@ export default function EventUsers({
   userIds,
   title,
   getUserMenuItems,
-}: EventUsersProps) {
+}: EventUsersProps) => {
   const { t } = useTranslation([COMMUNITIES]);
 
   return (
@@ -60,4 +60,6 @@ export default function EventUsers({
       />
     </StyledWrapper>
   );
-}
+};
+
+export default EventUsers;

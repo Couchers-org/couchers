@@ -32,10 +32,8 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
   const { removeFriendMutation, isPending: isRemoving } = useRemoveFriend();
 
   const removeFriend = (userId: number) => {
-    if (userId !== undefined) {
-      removeFriendMutation({ friendId: userId, onError });
-      handleDialogClose();
-    }
+    removeFriendMutation({ friendId: userId, onError });
+    handleDialogClose();
   };
 
   const handleBlockUser = () => {
@@ -104,7 +102,7 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
           dialogTitle={t("connections:remove_friend_confirmation_dialog.title")}
           isLoading={isRemoving}
           onConfirm={handleConfirmRemoveFriend}
-          isOpen={openDialog === "remove-friend"}
+          isOpen={true}
           onClose={handleDialogClose}
         />
       )}
@@ -122,7 +120,7 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
           })}
           isLoading={isBlocking}
           onConfirm={handleConfirmBlockUser}
-          isOpen={openDialog === "block-user"}
+          isOpen={true}
           onClose={handleDialogClose}
         />
       )}

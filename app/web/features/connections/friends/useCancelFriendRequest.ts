@@ -13,7 +13,7 @@ interface CancelFriendRequestVariables {
   setMutationError: SetMutationError;
 }
 
-export default function useCancelFriendRequest() {
+const useCancelFriendRequest = () => {
   const queryClient = useQueryClient();
   const {
     mutate: cancelFriendRequest,
@@ -27,15 +27,15 @@ export default function useCancelFriendRequest() {
     onError: (error, { setMutationError }) => {
       setMutationError(error.message);
     },
-    onMutate: async ({ setMutationError }) => {
+    onMutate: ({ setMutationError }) => {
       setMutationError("");
     },
-    onSuccess: (_, { userId }) => {
-      queryClient.invalidateQueries({
+    onSuccess: async (_, { userId }) => {
+      await queryClient.invalidateQueries({
         queryKey: friendRequestKey("sent"),
         exact: true,
       });
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: userKey(userId),
         exact: true,
       });
@@ -43,4 +43,6 @@ export default function useCancelFriendRequest() {
   });
 
   return { cancelFriendRequest, isPending, isSuccess, reset };
-}
+};
+
+export default useCancelFriendRequest;

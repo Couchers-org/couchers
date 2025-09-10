@@ -4,9 +4,9 @@ import Link from "next/link";
 
 import Button from "@/components/Button";
 import { DASHBOARD } from "@/i18n/namespaces";
-
-import { searchRoute } from "@/routes";
+import { SEARCH_ROUTE } from "@/routes";
 import { theme } from "@/theme";
+
 import useHeroBackgroundTheme from "./useHeroBackgroundTheme";
 
 const StyledButtonContainer = styled("div")(({ theme }) => ({
@@ -15,7 +15,7 @@ const StyledButtonContainer = styled("div")(({ theme }) => ({
   margin: theme.spacing(6, 0),
 }));
 
-export default function HeroButton() {
+const HeroButton = () => {
   const { t } = useTranslation(DASHBOARD);
 
   // because this component is over an image background and has a special button, we adjust the theme
@@ -27,7 +27,7 @@ export default function HeroButton() {
         <ThemeProvider theme={heroTheme}>
           <Button
             component={Link}
-            href={searchRoute}
+            href={SEARCH_ROUTE}
             variant="contained"
             size="large"
             sx={{
@@ -44,4 +44,6 @@ export default function HeroButton() {
       </StyledEngineProvider>
     </StyledButtonContainer>
   );
-}
+};
+
+export default HeroButton;

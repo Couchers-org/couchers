@@ -5,9 +5,7 @@ import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
 import { FriendRequest } from "@/proto/api_pb";
 import { service } from "@/service";
 
-export default function useFriendRequests(
-  friendRequestType: FriendRequestType,
-) {
+const useFriendRequests = (friendRequestType: FriendRequestType) => {
   const {
     data: friendRequestLists,
     isLoading: isFriendReqLoading,
@@ -21,13 +19,6 @@ export default function useFriendRequests(
         : friendRequests.receivedList;
     },
   });
-
-  console.log(
-    "DATA",
-    friendRequestLists,
-    "isFriendReqLoading",
-    isFriendReqLoading,
-  );
 
   const userIds = (friendRequestLists ?? []).map(
     (friendReq) => friendReq.userId,
@@ -62,4 +53,6 @@ export default function useFriendRequests(
     isError: !!errors.length,
     isLoading,
   };
-}
+};
+
+export default useFriendRequests;

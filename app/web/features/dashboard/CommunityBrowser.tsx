@@ -22,7 +22,7 @@ import { Community } from "@/proto/communities_pb";
 import { routeToCommunity } from "@/routes";
 import { theme } from "@/theme";
 
-const OuterWrapper = styled("div")(({ theme }) => ({
+const OuterWrapper = styled("div")(() => ({
   display: "flex",
   flexDirection: "row",
   alignItems: "flex-start",
@@ -33,21 +33,21 @@ const OuterWrapper = styled("div")(({ theme }) => ({
   overflow: "hidden",
 }));
 
-const InnerWrapper = styled("div")(({ theme }) => ({
+const InnerWrapper = styled("div")(() => ({
   overflow: "auto",
   maxHeight: "60vh",
   display: "flex",
 }));
 
-const StyledList = styled(List)(({ theme }) => ({
+const StyledList = styled(List)(() => ({
   minWidth: "10rem",
 }));
 
-const StyledLoader = styled("div")(({ theme }) => ({
+const StyledLoader = styled("div")(() => ({
   margin: theme.spacing("auto", 2),
 }));
 
-const StyledListItem = styled(ListItem)<ListItemProps>(({ theme }) => ({
+const StyledListItem = styled(ListItem)<ListItemProps>(() => ({
   background: "transparent",
   border: "none",
   "&:hover": {
@@ -58,15 +58,15 @@ const StyledListItem = styled(ListItem)<ListItemProps>(({ theme }) => ({
   },
 }));
 
-const StyledDivider = styled(Divider)(({ theme }) => ({
+const StyledDivider = styled(Divider)(() => ({
   margin: theme.spacing(0, 1),
 }));
 
-const StyledListItemText = styled(ListItemText)(({ theme }) => ({
+const StyledListItemText = styled(ListItemText)(() => ({
   color: theme.palette.text.primary,
 }));
 
-export default function CommunityBrowser() {
+const CommunityBrowser = () => {
   const { t } = useTranslation([DASHBOARD]);
   const [selected, setSelected] = useState<Community.AsObject[]>([]);
 
@@ -76,7 +76,7 @@ export default function CommunityBrowser() {
   // as a workaround, cache query results
   // and only show "Load more" for last column
   const query = useListSubCommunities(
-    selected?.[selected.length - 1]?.communityId || 1,
+    selected[selected.length - 1]?.communityId || 1,
   );
   const [cachedQueryResults, setCachedQueryResults] = useState<
     {
@@ -88,10 +88,14 @@ export default function CommunityBrowser() {
   const handleClick = (community: Community.AsObject, level: number) => {
     // if the last column is clicked
     if (level === selected.length) {
+      if (!query.data) {
+        return;
+      }
+
       setCachedQueryResults([
         ...cachedQueryResults,
         {
-          data: query.data!.pages.flatMap((page) => page.communitiesList),
+          data: query.data.pages.flatMap((page) => page.communitiesList),
           hasMore: query.hasNextPage,
         },
       ]);
@@ -120,9 +124,11 @@ export default function CommunityBrowser() {
         {cachedQueryResults.map((query, index) => (
           <BrowserColumn
             key={index}
-            parent={selected?.[index - 1] ?? globalCommunityQuery.data}
+            parent={selected[index - 1] ?? globalCommunityQuery.data}
             communities={query.data}
-            handleClick={(community) => { handleClick(community, index); }}
+            handleClick={(community) => {
+              handleClick(community, index);
+            }}
             selected={selected[index]?.communityId}
           />
         ))}
@@ -134,14 +140,14 @@ export default function CommunityBrowser() {
           <div>
             <BrowserColumn
               parent={
-                selected?.[selected.length - 1] ?? globalCommunityQuery.data
+                selected[selected.length - 1] ?? globalCommunityQuery.data
               }
               communities={query.data.pages.flatMap(
                 (page) => page.communitiesList,
               )}
-              handleClick={(community) =>
-                { handleClick(community, selected.length); }
-              }
+              handleClick={(community) => {
+                handleClick(community, selected.length);
+              }}
             />
             {query.hasNextPage && (
               <Button
@@ -154,12 +160,12 @@ export default function CommunityBrowser() {
             )}
           </div>
         ) : (
-          <Alert severity="error">{query?.error?.message || ""}</Alert>
+          <Alert severity="error">{query.error?.message || ""}</Alert>
         )}
       </InnerWrapper>
     </OuterWrapper>
   );
-}
+};
 
 const BrowserColumn = ({
   parent,
@@ -196,9 +202,11 @@ const BrowserColumn = ({
       {communities.length === 0 ? (
         <StyledListItem>
           <StyledListItemText
-            primaryTypographyProps={{
-              className: "emptyState",
-              variant: "body2",
+            slotProps={{
+              primary: {
+                className: "emptyState",
+                variant: "body2",
+              },
             }}
           >
             {t("dashboard:no_sub_communities")}
@@ -209,13 +217,17 @@ const BrowserColumn = ({
           <StyledListItem
             key={community.communityId}
             component="button"
-            onClick={() => { handleClick(community); }}
+            onClick={() => {
+              handleClick(community);
+            }}
             aria-selected={community.communityId === selected}
           >
             <StyledListItemText
-              primaryTypographyProps={{
-                className:
-                  community.communityId === selected ? "selected" : undefined,
+              slotProps={{
+                primary: {
+                  className:
+                    community.communityId === selected ? "selected" : undefined,
+                },
               }}
             >
               {community.name}
@@ -225,4 +237,6 @@ const BrowserColumn = ({
       )}
     </StyledList>
   );
-}
+};
+
+export default CommunityBrowser;

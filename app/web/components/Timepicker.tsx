@@ -1,36 +1,50 @@
 import { TimePicker } from "@mui/x-date-pickers";
 import React, { useMemo } from "react";
-import { Control, Controller, UseControllerProps } from "react-hook-form";
+import {
+  Control,
+  Controller,
+  FieldValues,
+  Path,
+  RegisterOptions,
+} from "react-hook-form";
 
 import { useTranslation } from "@/i18n";
 import { GLOBAL } from "@/i18n/namespaces";
 import { theme } from "@/theme";
 import { Dayjs } from "@/utils/dayjs";
+import { KeysWithType } from "@/utils/types";
 
-interface TimepickerProps {
+type DayjsPath<T> = Extract<KeysWithType<T, Dayjs>, Path<T>>;
+
+interface TimepickerProps<
+  TFieldValues extends FieldValues,
+  TName extends DayjsPath<TFieldValues> = DayjsPath<TFieldValues>,
+> {
   className?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  control: Control<any>;
-  defaultValue?: Dayjs | null;
+  control: Control<TFieldValues>;
+  defaultValue?: TFieldValues[TName];
   error: boolean;
   helperText: React.ReactNode;
   id: string;
-  rules?: UseControllerProps["rules"];
+  rules?: RegisterOptions<TFieldValues, TName>;
   label?: string;
-  name: string;
-  onPostChange?(time: Dayjs | null): void;
+  name: TName;
+  onPostChange?: (time: TFieldValues[TName]) => void;
   testId?: string;
 }
 
-function uses24HourClock(locale: string = navigator.language): boolean {
+const uses24HourClock = (locale: string = navigator.language): boolean => {
   const formatted = new Intl.DateTimeFormat(locale, {
     hour: "numeric",
     hour12: undefined,
   }).format(new Date(2020, 0, 1, 23, 0));
   return formatted.includes("23");
-}
+};
 
-const Timepicker = ({
+const Timepicker = <
+  TFieldValues extends FieldValues,
+  TName extends DayjsPath<TFieldValues> = DayjsPath<TFieldValues>,
+>({
   className,
   control,
   defaultValue,
@@ -42,7 +56,7 @@ const Timepicker = ({
   name,
   onPostChange,
   testId,
-}: TimepickerProps) => {
+}: TimepickerProps<TFieldValues, TName>) => {
   const { t } = useTranslation([GLOBAL]);
   const locale = navigator.language;
   const is24HourClock = useMemo(() => uses24HourClock(locale), [locale]);
@@ -62,7 +76,9 @@ const Timepicker = ({
           value={field.value}
           onChange={(time: Dayjs | null) => {
             field.onChange(time);
-            onPostChange?.(time);
+            if (time) {
+              onPostChange?.(time as TFieldValues[TName]);
+            }
           }}
           format={format}
           slotProps={{
@@ -74,11 +90,13 @@ const Timepicker = ({
                 <span data-testid={`${name}-helper-text`}>{helperText}</span>
               ),
               variant: "standard",
+              /* eslint-disable @typescript-eslint/naming-convention */
               InputProps: {
                 className,
                 "aria-label": t("global:change_time"),
               },
               InputLabelProps: { shrink: true },
+              /* eslint-enable @typescript-eslint/naming-convention */
               sx: {
                 "& .MuiOutlinedInput-root": {
                   backgroundColor: theme.palette.primary.main,

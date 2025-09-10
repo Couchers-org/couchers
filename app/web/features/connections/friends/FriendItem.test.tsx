@@ -22,7 +22,7 @@ describe("FriendItem", () => {
 
     const user = userEvent.setup();
 
-    user.click(screen.getByTestId("friend-item-more-options"));
+    await user.click(screen.getByTestId("friend-item-more-options"));
 
     const removeMenuItems = await screen.findAllByTestId(
       "friend-item-remove-friend",

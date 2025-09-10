@@ -28,11 +28,11 @@ const FriendsTab = () => {
           <FriendRequestsSent />
         </StyledGrid>
         <StyledGrid size={{ xs: 12, md: 6 }}>
-          <BlockedUsersList refetchFriends={refetchFriends} />
+          <BlockedUsersList refetchFriends={() => refetchFriends} />
         </StyledGrid>
       </Grid>
     </Grid>
   );
-}
+};
 
 export default FriendsTab;

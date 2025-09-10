@@ -15,10 +15,11 @@ import { useTranslation } from "@/i18n";
 import { COMMUNITIES } from "@/i18n/namespaces";
 import { Event } from "@/proto/events_pb";
 import { routeToEvent } from "@/routes";
+import { theme } from "@/theme";
 import { timestamp2Date } from "@/utils/date";
 import dayjs from "@/utils/dayjs";
 
-const StyledCard = styled(Card)(({ theme }) => ({
+const StyledCard = styled(Card)(() => ({
   margin: 0,
   "&:not(:first-of-type)": {
     margin: theme.spacing(2, 0),
@@ -30,7 +31,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-const StyledLink = styled(Link)(({ theme }) => ({
+const StyledLink = styled(Link)(() => ({
   display: "flex",
   width: "100%",
   height: theme.spacing(20),
@@ -42,7 +43,7 @@ const StyledLink = styled(Link)(({ theme }) => ({
   },
 }));
 
-const StyledCardContent = styled(CardContent)(({ theme }) => ({
+const StyledCardContent = styled(CardContent)(() => ({
   width: "75%",
   display: "flex",
   flexDirection: "column",
@@ -57,7 +58,7 @@ const Row = styled("div")({
   justifyContent: "space-between",
 });
 
-const Title = styled(Typography)(({ theme }) => ({
+const Title = styled(Typography)(() => ({
   display: "-webkit-box",
   WebkitLineClamp: 2,
   WebkitBoxOrient: "vertical",
@@ -68,21 +69,21 @@ const Title = styled(Typography)(({ theme }) => ({
   paddingRight: theme.spacing(2),
 }));
 
-const Tags = styled("div")(({ theme }) => ({
+const Tags = styled("div")(() => ({
   minWidth: theme.spacing(15),
   [theme.breakpoints.down("sm")]: {
     minWidth: theme.spacing(10),
   },
 }));
 
-const EventInfo = styled("div")(({ theme }) => ({
+const EventInfo = styled("div")(() => ({
   display: "flex",
   justifyContent: "flex-end",
   flexDirection: "column",
   fontSize: ".85rem",
 }));
 
-const Attendees = styled("div")(({ theme }) => ({
+const Attendees = styled("div")(() => ({
   display: "flex",
   alignItems: "flex-end",
   justifyContent: "flex-end",
@@ -91,7 +92,7 @@ const Attendees = styled("div")(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-const FlagWrapper = styled("div")(({ theme }) => ({
+const FlagWrapper = styled("div")(() => ({
   display: "flex",
   alignItems: "flex-end",
   cursor: "pointer",
@@ -102,7 +103,7 @@ const FlagWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-const CancelledPill = styled(Pill)(({ theme }) => ({
+const CancelledPill = styled(Pill)(() => ({
   backgroundColor: theme.palette.error.main,
   color: theme.palette.common.white,
 }));
@@ -116,7 +117,9 @@ const LongEventCard = ({
 }) => {
   const { t } = useTranslation([COMMUNITIES]);
 
-  const startTime = dayjs(timestamp2Date(event.startTime!)).format("llll");
+  const startTime = dayjs(
+    timestamp2Date(event.startTime ?? { seconds: 0, nanos: 0 }),
+  ).format("llll");
   const isCreatedByMe = event.creatorUserId === userId;
   const isOnline = event.onlineInformation?.link !== undefined;
   const isCancelled = event.isCancelled;

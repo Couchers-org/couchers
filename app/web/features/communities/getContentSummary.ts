@@ -1,12 +1,12 @@
 import stripMarkdown from "@/utils/stripMarkdown";
 
-export default function getContentSummary({
+const getContentSummary = ({
   maxLength,
   originalContent,
 }: {
   maxLength: number;
   originalContent?: string;
-}) {
+}) => {
   if (originalContent) {
     const strippedText = stripMarkdown(originalContent.replace("\n", " "));
     return strippedText.length > maxLength
@@ -14,4 +14,6 @@ export default function getContentSummary({
       : strippedText;
   }
   return "";
-}
+};
+
+export default getContentSummary;

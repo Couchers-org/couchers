@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import PageTitle from "@/components/PageTitle";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
-import { newEventRoute } from "@/routes";
+import { NEW_EVENT_ROUTE } from "@/routes";
 import { theme } from "@/theme";
 
 import DiscoverEventsList from "./DiscoverEventsList";
@@ -42,7 +42,10 @@ const EventsPage = () => {
     <div>
       <StyledHeaderRow>
         <PageTitle>{t("communities:events_title")}</PageTitle>
-        <StyledButton size="small" onClick={() => router.push(newEventRoute)}>
+        <StyledButton
+          size="small"
+          onClick={() => void router.push(NEW_EVENT_ROUTE)}
+        >
           {t("communities:create_new_event")}
         </StyledButton>
       </StyledHeaderRow>

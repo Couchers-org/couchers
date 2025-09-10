@@ -39,11 +39,11 @@ const DashboardUserProfileSummaryActions = () => {
       </Button>
     </>
   );
-}
+};
 
-export default function DashboardUserProfileSummary() {
+const DashboardUserProfileSummary = () => {
   const { data: user, error, isLoading } = useCurrentUser();
-  const desktopMode = useMediaQuery((theme: Theme) =>
+  const isDesktopMode = useMediaQuery((theme: Theme) =>
     theme.breakpoints.up("sm"),
   );
   return (
@@ -52,7 +52,7 @@ export default function DashboardUserProfileSummary() {
       {isLoading ? (
         <CenteredSpinner />
       ) : user ? (
-        desktopMode ? (
+        isDesktopMode ? (
           <ProfileUserProvider user={user}>
             <UserOverview
               actions={<DashboardUserProfileSummaryActions />}
@@ -65,4 +65,6 @@ export default function DashboardUserProfileSummary() {
       ) : null}
     </>
   );
-}
+};
+
+export default DashboardUserProfileSummary;

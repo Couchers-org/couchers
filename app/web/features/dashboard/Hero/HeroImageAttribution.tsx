@@ -31,7 +31,7 @@ const authorUrl =
 const unsplashUrl =
   "https://unsplash.com/?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText";
 
-export default function HeroImageAttribution() {
+const HeroImageAttribution = () => {
   // because this component is over an image background, we need to use a theme that overrides some styles
   const heroBackgroundTheme = useHeroBackgroundTheme();
 
@@ -65,4 +65,6 @@ export default function HeroImageAttribution() {
       </ThemeProvider>
     </StyledEngineProvider>
   );
-}
+};
+
+export default HeroImageAttribution;

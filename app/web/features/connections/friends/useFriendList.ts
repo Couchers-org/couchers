@@ -4,7 +4,7 @@ import { FRIEND_IDS_KEY } from "@/features/queryKeys";
 import { useLiteUsersList } from "@/features/userQueries/useLiteUsers";
 import { service } from "@/service";
 
-function useFriendList() {
+const useFriendList = () => {
   const errors = [];
 
   const {
@@ -40,6 +40,6 @@ function useFriendList() {
     isLoading: isLoading || isLiteUsersLoading,
     refetchFriends,
   };
-}
+};
 
 export default useFriendList;

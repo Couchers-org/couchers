@@ -9,7 +9,7 @@ import CustomColorSwitch from "@/components/CustomColorSwitch";
 import TextBody from "@/components/TextBody";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES } from "@/i18n/namespaces";
-import { newEventRoute } from "@/routes";
+import { NEW_EVENT_ROUTE } from "@/routes";
 import { theme } from "@/theme";
 import hasAtLeastOnePage from "@/utils/hasAtLeastOnePage";
 
@@ -65,20 +65,17 @@ interface EventsTabProps {
   tabTitle: string;
 }
 
-export default function EventsTab({
-  pastEvents = false,
-  tabTitle,
-}: EventsTabProps) {
+const EventsTab = ({ pastEvents = false, tabTitle }: EventsTabProps) => {
   const { t } = useTranslation([COMMUNITIES]);
   const router = useRouter();
 
-  const [showCancelled, setShowCancelled] = useState(false);
+  const [shouldShowCancelled, setShouldShowCancelled] = useState(false);
 
   const { data, error, hasNextPage, fetchNextPage, isLoading } =
-    useListAllEvents({ pastEvents, showCancelled });
+    useListAllEvents({ pastEvents, showCancelled: shouldShowCancelled });
 
   const handleShowCancelledClick = () => {
-    setShowCancelled(!showCancelled);
+    setShouldShowCancelled(!shouldShowCancelled);
   };
 
   return (
@@ -87,7 +84,7 @@ export default function EventsTab({
       <FormControlLabel
         control={
           <CustomColorSwitch
-            checked={showCancelled}
+            checked={shouldShowCancelled}
             onClick={handleShowCancelledClick}
           />
         }
@@ -95,7 +92,7 @@ export default function EventsTab({
       />
       {error && <Alert severity="error">{error.message}</Alert>}
       {!pastEvents && (
-        <Button onClick={() => router.push(newEventRoute)}>
+        <Button onClick={() => router.push(NEW_EVENT_ROUTE)}>
           {t("communities:create_an_event")}
         </Button>
       )}
@@ -132,4 +129,6 @@ export default function EventsTab({
       )}
     </StyledWrapper>
   );
-}
+};
+
+export default EventsTab;

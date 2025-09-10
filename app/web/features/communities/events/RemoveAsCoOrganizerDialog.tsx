@@ -16,15 +16,15 @@ export const REMOVE_AS_CO_ORGANIZER_DIALOG_LABEL_ID = "make-co-organizer";
 type RemoveAsCoOrganizerDialogProps = {
   username: string;
   eventName: string;
-} & DialogProps;
+} & Omit<DialogProps, "onSubmit"> & { onSubmit: () => unknown };
 
-export default function RemoveAsCoOrganizerDialog({
+const RemoveAsCoOrganizerDialog = ({
   onClose,
   onSubmit,
   username,
   eventName,
   open,
-}: RemoveAsCoOrganizerDialogProps) {
+}: RemoveAsCoOrganizerDialogProps) => {
   const { t } = useTranslation([COMMUNITIES]);
 
   return (
@@ -47,7 +47,7 @@ export default function RemoveAsCoOrganizerDialog({
         <DialogActions>
           <Button
             variant="outlined"
-            onClick={() => (onClose ? onClose({}, "escapeKeyDown") : null)}
+            onClick={() => onClose?.({}, "escapeKeyDown")}
           >
             {t("global:cancel")}
           </Button>
@@ -56,4 +56,6 @@ export default function RemoveAsCoOrganizerDialog({
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export default RemoveAsCoOrganizerDialog;

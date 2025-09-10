@@ -1,5 +1,4 @@
-import { Typography, styled } from "@mui/material";
-import { Box } from "@mui/system";
+import { Box, Typography, styled } from "@mui/material";
 import { useState } from "react";
 
 import Alert from "@/components/Alert";
@@ -8,12 +7,11 @@ import CursorPagination from "@/components/CursorPagination";
 import { PersonIcon } from "@/components/Icons";
 import TextBody from "@/components/TextBody";
 import UsersList from "@/components/UsersList";
+import { SectionTitle } from "@/features/communities/CommunityPage";
+import { useListMembers } from "@/features/communities/hooks";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
 import { Community } from "@/proto/communities_pb";
-
-import { SectionTitle } from "@/features/communities/CommunityPage";
-import { useListMembers } from "@/features/communities/hooks";
 
 const PaginationWrapper = styled("div")(({ theme }) => ({
   display: "flex",
@@ -22,21 +20,21 @@ const PaginationWrapper = styled("div")(({ theme }) => ({
   marginTop: theme.spacing(2),
 }));
 
-export default function CommunityMembersList({
+const CommunityMembersList = ({
   communityId,
   memberCount,
 }: {
   communityId: Community.AsObject["communityId"];
   memberCount?: Community.AsObject["memberCount"];
-}) {
+}) => {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
-  const PAGE_SIZE = 20;
+  const pageSize = 20;
 
   const [pageNumber, setPageNumber] = useState(1);
 
   const { data, isFetching, isLoading, error, fetchNextPage } = useListMembers({
     communityId,
-    pageSize: PAGE_SIZE,
+    pageSize,
   });
 
   const currentPage = data?.pages && data.pages[pageNumber - 1];
@@ -46,7 +44,7 @@ export default function CommunityMembersList({
   };
 
   const handleNextPageClick = () => {
-    fetchNextPage();
+    void fetchNextPage();
     setPageNumber(pageNumber + 1);
   };
 
@@ -63,7 +61,7 @@ export default function CommunityMembersList({
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading && <CenteredSpinner />}
       <Box sx={{ width: "450px" }}>
-        {data?.pages && data?.pages.length > 0 && (
+        {data?.pages && data.pages.length > 0 && (
           <UsersList userIds={currentPage?.memberUserIdsList} titleIsLink />
         )}
       </Box>
@@ -81,4 +79,6 @@ export default function CommunityMembersList({
       )}
     </>
   );
-}
+};
+
+export default CommunityMembersList;

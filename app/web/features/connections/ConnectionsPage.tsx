@@ -51,11 +51,7 @@ const ConnectionsPage = ({ type }: { type: "friends" }) => {
       <TabContext value={connectionType}>
         <TabBar
           ariaLabel="Tabs for different connection types"
-          setValue={(newType) =>
-            router.push(
-              `${CONNECTIONS_ROUTE}/${newType !== "friends" ? newType : ""}`,
-            )
-          }
+          setValue={(_newType) => void router.push(`${CONNECTIONS_ROUTE}/}`)}
           labels={labels}
         />
         <TabPanel value="friends">

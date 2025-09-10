@@ -29,11 +29,11 @@ export interface UseEventUsersInput {
 
 export const SUMMARY_QUERY_PAGE_SIZE = 5;
 
-export function useEventOrganizers({
+export const useEventOrganizers = ({
   enabled = true,
   eventId,
   type,
-}: UseEventUsersInput) {
+}: UseEventUsersInput) => {
   const query = useInfiniteQuery<ListEventOrganizersRes.AsObject, RpcError>({
     queryKey: eventOrganizersKey({ eventId, type }),
     queryFn: ({ pageParam }) =>
@@ -51,13 +51,13 @@ export function useEventOrganizers({
   );
 
   return { ...query, organizerIds };
-}
+};
 
-export function useEventAttendees({
+export const useEventAttendees = ({
   enabled = true,
   eventId,
   type,
-}: UseEventUsersInput) {
+}: UseEventUsersInput) => {
   const query = useInfiniteQuery<ListEventAttendeesRes.AsObject, RpcError>({
     queryKey: eventAttendeesKey({ eventId, type }),
     queryFn: ({ pageParam }) =>
@@ -77,9 +77,9 @@ export function useEventAttendees({
     ...query,
     attendeesIds,
   };
-}
+};
 
-export function useEvent({ eventId }: { eventId: number }) {
+export const useEvent = ({ eventId }: { eventId: number }) => {
   const isValidEventId = eventId > 0;
 
   const eventQuery = useQuery<Event.AsObject, RpcError>({
@@ -93,13 +93,13 @@ export function useEvent({ eventId }: { eventId: number }) {
     eventId,
     isValidEventId,
   };
-}
+};
 
-export function useListAllEvents({
+export const useListAllEvents = ({
   pastEvents,
   pageSize,
   showCancelled,
-}: Omit<ListAllEventsInput, "pageToken">) {
+}: Omit<ListAllEventsInput, "pageToken">) => {
   return useInfiniteQuery<ListAllEventsRes.AsObject, RpcError>({
     queryKey: [eventsKey(pastEvents ? "past" : "upcoming"), showCancelled],
     queryFn: ({ pageParam }) =>
@@ -112,14 +112,14 @@ export function useListAllEvents({
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     initialPageParam: undefined,
   });
-}
+};
 
-export function useListMyEvents({
+export const useListMyEvents = ({
   pastEvents,
   pageNumber,
   pageSize,
   showCancelled,
-}: Omit<ListMyEventsInput, "pageToken">) {
+}: Omit<ListMyEventsInput, "pageToken">) => {
   return useQuery<ListMyEventsRes.AsObject, RpcError>({
     queryKey: [
       myEventsKey(pastEvents ? "past" : "upcoming"),
@@ -135,9 +135,9 @@ export function useListMyEvents({
         showCancelled,
       }),
   });
-}
+};
 
-export function useEventSearch({
+export const useEventSearch = ({
   pageNumber,
   pageSize,
   pastEvents,
@@ -151,7 +151,7 @@ export function useEventSearch({
   isMyCommunities?: boolean;
   isOnlineOnly?: boolean;
   searchLocation?: GeocodeResult | "";
-}) {
+}) => {
   return useQuery<EventSearchRes.AsObject, RpcError>({
     queryKey: [
       "searchEvents",
@@ -162,7 +162,7 @@ export function useEventSearch({
       searchLocation,
     ],
     queryFn: () =>
-      service.search.EventSearch({
+      service.search.eventSearch({
         pageNumber,
         pageSize,
         pastEvents,
@@ -171,4 +171,4 @@ export function useEventSearch({
         searchLocation,
       }),
   });
-}
+};

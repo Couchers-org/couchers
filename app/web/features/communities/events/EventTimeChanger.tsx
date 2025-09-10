@@ -23,10 +23,12 @@ const StyledContainer = styled("div")(() => ({
   },
 }));
 
-function splitTimestampToDateAndTime(timestamp?: Timestamp.AsObject): {
+const splitTimestampToDateAndTime = (
+  timestamp?: Timestamp.AsObject,
+): {
   date?: Dayjs;
   time?: Dayjs;
-} {
+} => {
   if (timestamp) {
     const dayjsDate = dayjs(timestamp2Date(timestamp));
     return {
@@ -35,7 +37,7 @@ function splitTimestampToDateAndTime(timestamp?: Timestamp.AsObject): {
     };
   }
   return {};
-}
+};
 
 interface EventTimeChangerProps
   extends Pick<
@@ -47,14 +49,14 @@ interface EventTimeChangerProps
   errors: UseFormReturn<CreateEventData>["formState"]["errors"];
 }
 
-export default function EventTimeChanger({
+const EventTimeChanger = ({
   control,
   dirtyFields,
   errors,
   event,
   getValues,
   setValue,
-}: EventTimeChangerProps) {
+}: EventTimeChangerProps) => {
   const { t } = useTranslation([COMMUNITIES]);
 
   const { date: eventStartDate, time: eventStartTime } =
@@ -95,7 +97,7 @@ export default function EventTimeChanger({
       <StyledContainer>
         <Datepicker
           control={control}
-          defaultValue={eventStartDate ?? null}
+          defaultValue={eventStartDate}
           error={!!errors.startDate?.message}
           helperText={errors.startDate?.message}
           id="startDate"
@@ -122,27 +124,19 @@ export default function EventTimeChanger({
           control={control}
           name="startTime"
           onPostChange={handleStartTimeChange}
-          defaultValue={eventStartTime || null}
+          defaultValue={eventStartTime}
           rules={{
             required: t("communities:time_required"),
             pattern: {
               message: t("communities:invalid_time"),
               value: TIME_PATTERN,
             },
-            validate: (time: Dayjs) => {
+            validate: (time) => {
               if (event && !dirtyFields.startTime) {
                 return true;
               }
 
               const startDate = getValues("startDate");
-
-              if (!startDate) {
-                return t("communities:date_required");
-              }
-
-              if (!time) {
-                return t("communities:time_required");
-              }
 
               const startDateTime = startDate
                 .hour(time.hour())
@@ -164,7 +158,7 @@ export default function EventTimeChanger({
       <StyledContainer>
         <Datepicker
           control={control}
-          defaultValue={eventEndDate ?? null}
+          defaultValue={eventEndDate}
           error={!!errors.endDate?.message}
           helperText={errors.endDate?.message || ""}
           id="endDate"
@@ -172,7 +166,7 @@ export default function EventTimeChanger({
           name="endDate"
           rules={{
             required: t("communities:date_required"),
-            validate: (date) => {
+            validate: (date: Dayjs) => {
               if (event && !dirtyFields.endDate) {
                 return true;
               }
@@ -197,14 +191,14 @@ export default function EventTimeChanger({
           control={control}
           name="endTime"
           onPostChange={handleEndTimeChange}
-          defaultValue={eventEndTime || null}
+          defaultValue={eventEndTime}
           rules={{
             required: t("communities:time_required"),
             pattern: {
               message: t("communities:invalid_time"),
               value: TIME_PATTERN,
             },
-            validate: (time: Dayjs) => {
+            validate: (time) => {
               if (event && !dirtyFields.endTime) {
                 return true;
               }
@@ -212,14 +206,6 @@ export default function EventTimeChanger({
               const startTime = getValues("startTime");
               const startDate = getValues("startDate");
               const endDate = getValues("endDate");
-
-              if (!startTime || !time) {
-                return t("communities:time_required");
-              }
-
-              if (!startDate || !endDate) {
-                return t("communities:date_required");
-              }
 
               const startDateTime = startDate
                 .hour(startTime.hour())
@@ -247,4 +233,6 @@ export default function EventTimeChanger({
       </StyledContainer>
     </>
   );
-}
+};
+
+export default EventTimeChanger;

@@ -30,9 +30,9 @@ const listCommunityEventsMock = service.events
 >;
 const [firstEvent, secondEvent, thirdEvent] = events;
 
-function renderEventsSection() {
+const renderEventsSection = () => {
   render(<EventsSection community={community} />, { wrapper });
-}
+};
 
 describe("Events section", () => {
   beforeEach(() => {

@@ -32,7 +32,7 @@ const StyledCommunityLink = styled(StyledLink)(() => ({
   },
 }));
 
-export default function CommunitiesList({ all = false }: { all?: boolean }) {
+const CommunitiesList = ({ all = false }: { all?: boolean }) => {
   const { t } = useTranslation([DASHBOARD]);
   const userCommunities = useUserCommunities();
   const allCommunities = useListSubCommunities(0);
@@ -89,4 +89,6 @@ export default function CommunitiesList({ all = false }: { all?: boolean }) {
       )}
     </div>
   );
-}
+};
+
+export default CommunitiesList;

@@ -19,7 +19,7 @@ const getBlockedUsersMock = service.blocking
 describe("BlockedUsersList", () => {
   it("shows a loading indicator when blocked users are loading", async () => {
     // Use a controlled deferred to make loading state visible, then resolve
-    function createDeferred<T>() {
+    const createDeferred = <T,>() => {
       let resolve!: (value: T | PromiseLike<T>) => void;
       let reject!: (reason?: unknown) => void;
       const promise = new Promise<T>((res, rej) => {
@@ -27,7 +27,7 @@ describe("BlockedUsersList", () => {
         reject = rej;
       });
       return { promise, resolve, reject };
-    }
+    };
 
     const deferred = createDeferred<ReturnType<typeof getBlockedUsers>>();
     // @ts-expect-error: mocking service to return our deferred
@@ -81,7 +81,7 @@ describe("BlockedUsersList", () => {
       wrapper,
     });
 
-    const user = await userEvent.setup();
+    const user = userEvent.setup();
 
     expect(await screen.findByText(liteUsers[1].name)).toBeVisible();
 

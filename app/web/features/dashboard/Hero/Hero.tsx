@@ -2,6 +2,7 @@ import { Container, styled } from "@mui/material";
 import { useTranslation } from "next-i18next";
 
 import { DASHBOARD } from "@/i18n/namespaces";
+import { theme } from "@/theme";
 
 import HeroButton from "./HeroButton";
 import HeroImage from "./HeroImage";
@@ -11,7 +12,7 @@ import HeroSearch from "./HeroSearch";
 
 // Photo by Mesut Kaya on Unsplash - https://unsplash.com/photos/eOcyhe5-9sQ
 
-const StyledContainer = styled(Container)(({ theme }) => ({
+const StyledContainer = styled(Container)(() => ({
   zIndex: 1,
   position: "relative",
   display: "flex",
@@ -23,11 +24,11 @@ const StyledContainer = styled(Container)(({ theme }) => ({
   },
 }));
 
-const StyledOuterContainer = styled("div")(({ theme }) => ({
+const StyledOuterContainer = styled("div")(() => ({
   position: "relative",
 }));
 
-export default function Hero() {
+const Hero = () => {
   const { t } = useTranslation(DASHBOARD);
 
   return (
@@ -60,4 +61,6 @@ export default function Hero() {
       />
     </StyledOuterContainer>
   );
-}
+};
+
+export default Hero;

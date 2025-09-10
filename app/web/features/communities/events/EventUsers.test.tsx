@@ -21,7 +21,7 @@ const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
   typeof service.user.getLiteUsers
 >;
 
-function renderEventUsers(props: Partial<EventUsersProps> = {}) {
+const renderEventUsers = (props: Partial<EventUsersProps> = {}) => {
   const defaultProps: EventUsersProps = {
     emptyState: "There aren't any users for this event yet!",
     error: null,
@@ -29,7 +29,7 @@ function renderEventUsers(props: Partial<EventUsersProps> = {}) {
     title: "Users",
   };
   render(<EventUsers {...defaultProps} {...props} />, { wrapper });
-}
+};
 
 describe("Event users", () => {
   beforeEach(() => {

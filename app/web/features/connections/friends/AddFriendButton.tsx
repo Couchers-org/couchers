@@ -18,10 +18,10 @@ interface AddFriendButtonProps {
   userId: number;
 }
 
-export default function AddFriendButton({
+const AddFriendButton = ({
   setMutationError,
   userId,
-}: AddFriendButtonProps) {
+}: AddFriendButtonProps) => {
   const queryClient = useQueryClient();
   const { t } = useTranslation([CONNECTIONS]);
   const { isPending, mutate: sendFriendRequest } = useMutation<
@@ -32,7 +32,7 @@ export default function AddFriendButton({
     mutationFn: ({ userId }) => service.api.sendFriendRequest(userId),
     onMutate: async ({ setMutationError }) => {
       setMutationError("");
-      doAntibot("friend_request");
+      await doAntibot("friend_request");
 
       await queryClient.cancelQueries({
         queryKey: userKey(userId),
@@ -58,8 +58,8 @@ export default function AddFriendButton({
       }
     },
 
-    onSuccess: (_, { userId }) => {
-      queryClient.invalidateQueries({
+    onSuccess: async (_, { userId }) => {
+      await queryClient.invalidateQueries({
         queryKey: userKey(userId),
       });
     },
@@ -76,4 +76,6 @@ export default function AddFriendButton({
       {t("connections:add_friend")}
     </Button>
   );
-}
+};
+
+export default AddFriendButton;

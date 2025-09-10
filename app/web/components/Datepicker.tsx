@@ -1,9 +1,16 @@
 import { InputProps } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
-import { Control, Controller, UseControllerProps } from "react-hook-form";
+import {
+  Control,
+  Controller,
+  FieldValues,
+  Path,
+  RegisterOptions,
+} from "react-hook-form";
 
 import { useTranslation } from "@/i18n";
 import dayjs, { Dayjs } from "@/utils/dayjs";
+import { KeysWithType } from "@/utils/types";
 
 import { dateFormats } from "./constants";
 
@@ -13,27 +20,46 @@ const getLocaleFormat = () => {
     : "DD/MM/YYYY";
 };
 
-interface DatepickerProps {
+type DayjsPath<T> = Extract<KeysWithType<T, Dayjs>, Path<T>>;
+
+interface DatepickerProps<
+  TFieldValues extends FieldValues,
+  TName extends DayjsPath<TFieldValues> = DayjsPath<TFieldValues>,
+> {
   className?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  control: Control<any>;
-  defaultValue?: Dayjs | null;
+  control: Control<TFieldValues>;
+  defaultValue?: TFieldValues[TName];
   error: boolean;
   helperText: React.ReactNode;
   id: string;
-  rules?: UseControllerProps["rules"];
+  rules?: RegisterOptions<TFieldValues, TName>;
   label?: string;
-  name: string;
+  name: TName;
   minDate?: Dayjs;
   maxDate?: Dayjs;
   openTo?: "year" | "month" | "day";
-  onPostChange?(date: Dayjs | null): void;
+  onPostChange?: (date: TFieldValues[TName]) => void;
   testId?: string;
   variant?: "standard" | "outlined" | "filled";
   inputProps?: InputProps;
 }
 
-const Datepicker = ({
+//  className?: string;
+//   control: Control<TFieldValues>;
+//   defaultValue?: TFieldValues[TName];
+//   error: boolean;
+//   helperText: React.ReactNode;
+//   id: string;
+//   rules?: RegisterOptions<TFieldValues, TName>;
+//   label?: string;
+//   name: TName;
+//   onPostChange?: (time: TFieldValues[TName]) => void;
+//   testId?: string;
+
+const Datepicker = <
+  TFieldValues extends FieldValues,
+  TName extends DayjsPath<TFieldValues> = DayjsPath<TFieldValues>,
+>({
   className,
   control,
   defaultValue,
@@ -50,7 +76,7 @@ const Datepicker = ({
   testId,
   variant = "standard",
   inputProps = {},
-}: DatepickerProps) => {
+}: DatepickerProps<TFieldValues, TName>) => {
   const { t } = useTranslation();
   return (
     <Controller
@@ -66,9 +92,11 @@ const Datepicker = ({
           value={field.value}
           minDate={minDate}
           maxDate={maxDate}
-          onChange={(date) => {
+          onChange={(date: Dayjs | null) => {
             field.onChange(date);
-            onPostChange?.(date);
+            if (date) {
+              onPostChange?.(date as TFieldValues[TName]);
+            }
           }}
           openTo={openTo}
           views={["year", "month", "day"]}
@@ -82,12 +110,14 @@ const Datepicker = ({
                 <span data-testid={`${name}-helper-text`}>{helperText}</span>
               ),
               variant,
+              /* eslint-disable @typescript-eslint/naming-convention */
               InputLabelProps: { shrink: true },
               InputProps: {
-                ...(inputProps || {}),
+                ...inputProps,
                 className,
                 "aria-label": t("components.datepicker.change_date"),
               },
+              /* eslint-enable @typescript-eslint/naming-convention */
             },
           }}
         />

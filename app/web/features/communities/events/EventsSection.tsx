@@ -8,6 +8,8 @@ import HorizontalScroller from "@/components/HorizontalScroller";
 import { CalendarIcon } from "@/components/Icons";
 import StyledLink from "@/components/StyledLink";
 import TextBody from "@/components/TextBody";
+import { SectionTitle } from "@/features/communities/CommunityPage";
+import { useListCommunityEvents } from "@/features/communities/hooks";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
 import { Community } from "@/proto/communities_pb";
@@ -15,8 +17,6 @@ import { routeToCommunity, routeToNewEvent } from "@/routes";
 import { theme } from "@/theme";
 import hasAtLeastOnePage from "@/utils/hasAtLeastOnePage";
 
-import { SectionTitle } from "@/features/communities/CommunityPage";
-import { useListCommunityEvents } from "@/features/communities/hooks";
 import EventCard from "./EventCard";
 
 const StyledLoadMoreButton = styled("div")(() => ({
@@ -59,11 +59,7 @@ const StyledSelfCenteredButton = styled(Button)(() => ({
   justifySelf: "center",
 }));
 
-export default function EventsSection({
-  community,
-}: {
-  community: Community.AsObject;
-}) {
+const EventsSection = ({ community }: { community: Community.AsObject }) => {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const router = useRouter();
 
@@ -116,4 +112,6 @@ export default function EventsSection({
       </StyledSelfCenteredButton>
     </StyledSection>
   );
-}
+};
+
+export default EventsSection;

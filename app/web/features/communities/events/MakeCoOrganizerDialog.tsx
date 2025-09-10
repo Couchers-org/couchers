@@ -16,15 +16,15 @@ export const MAKE_CO_ORGANIZER_DIALOG_LABEL_ID = "make-co-organizer";
 type MakeCoOrganizerDialogProps = {
   username: string;
   eventName: string;
-} & DialogProps;
+} & Omit<DialogProps, "onSubmit"> & { onSubmit: () => unknown };
 
-export default function MakeCoOrganizerDialog({
+const MakeCoOrganizerDialog = ({
   onClose,
   onSubmit,
   username,
   eventName,
   open,
-}: MakeCoOrganizerDialogProps) {
+}: MakeCoOrganizerDialogProps) => {
   const { t } = useTranslation([COMMUNITIES]);
 
   return (
@@ -42,13 +42,15 @@ export default function MakeCoOrganizerDialog({
         <DialogActions>
           <Button
             variant="outlined"
-            onClick={() => (onClose ? onClose({}, "escapeKeyDown") : null)}
+            onClick={() => onClose?.({}, "escapeKeyDown")}
           >
             {t("global:cancel")}
           </Button>
-          <Button onClick={onSubmit}>{t("global:confirm")}</Button>
+          <Button onClick={() => onSubmit()}>{t("global:confirm")}</Button>
         </DialogActions>
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export default MakeCoOrganizerDialog;

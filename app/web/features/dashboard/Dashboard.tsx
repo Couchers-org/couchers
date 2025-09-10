@@ -4,18 +4,18 @@ import Divider from "@/components/Divider";
 import HtmlMeta from "@/components/HtmlMeta";
 import PageTitle from "@/components/PageTitle";
 import StyledLink from "@/components/StyledLink";
+import dashboardNews from "@/dashboardNews.json";
 import DashboardBanners from "@/features/dashboard/DashboardBanners";
 import { useTranslation } from "@/i18n";
 import { DASHBOARD, GLOBAL } from "@/i18n/namespaces";
 import { theme } from "@/theme";
 
-import dashboardNews from "@/dashboardNews.json";
 import CommunitiesSection from "./CommunitiesSection";
 import DashboardUserProfileSummary from "./DashboardUserProfileSummary";
 import Hero from "./Hero";
 import MyEvents from "./MyEvents";
 
-export default function Dashboard() {
+const Dashboard = () => {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
 
   return (
@@ -73,4 +73,6 @@ export default function Dashboard() {
       </Container>
     </>
   );
-}
+};
+
+export default Dashboard;

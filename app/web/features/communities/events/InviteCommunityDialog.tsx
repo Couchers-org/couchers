@@ -16,28 +16,30 @@ import {
 import { eventKey } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
-import { howToInviteCommunityUrl } from "@/routes";
+import { HOW_TO_INVITE_COMMUNITY_URL } from "@/routes";
 import { service } from "@/service";
 
-export default function InviteCommunityDialog({
+const InviteCommunityDialog = ({
   eventId,
   afterSuccess,
   ...props
-}: DialogProps & { eventId: number; afterSuccess: () => void }) {
+}: DialogProps & { eventId: number; afterSuccess: () => void }) => {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const queryClient = useQueryClient();
   const inviteCommunityMutation = useMutation<Empty, RpcError>({
-    mutationFn: () => service.events.RequestCommunityInvite(eventId),
-    onSuccess: () => {
+    mutationFn: () => service.events.requestCommunityInvite(eventId),
+    onSuccess: async () => {
       afterSuccess();
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: eventKey(eventId),
       });
       if (props.onClose) props.onClose({}, "escapeKeyDown");
     },
   });
 
-  const inviteCommunity = () => { inviteCommunityMutation.mutate(); };
+  const inviteCommunity = () => {
+    inviteCommunityMutation.mutate();
+  };
 
   return (
     <Dialog {...props} aria-labelledby="invite-community-dialog-title">
@@ -47,7 +49,7 @@ export default function InviteCommunityDialog({
       <DialogContent>
         {inviteCommunityMutation.error && (
           <Alert severity="error">
-            {inviteCommunityMutation.error?.message}
+            {inviteCommunityMutation.error.message}
           </Alert>
         )}
         <DialogContentText>
@@ -58,7 +60,7 @@ export default function InviteCommunityDialog({
             key={"link_invite_community"}
             target="_blank"
             rel="noreferrer"
-            href={howToInviteCommunityUrl}
+            href={HOW_TO_INVITE_COMMUNITY_URL}
             underline="hover"
           >
             {t("communities:invite_community_dialog.link")}
@@ -73,9 +75,7 @@ export default function InviteCommunityDialog({
           {t("communities:invite_community_dialog_buttons.confirm")}
         </Button>
         <Button
-          onClick={() =>
-            props.onClose ? props.onClose({}, "escapeKeyDown") : null
-          }
+          onClick={() => props.onClose?.({}, "escapeKeyDown")}
           loading={inviteCommunityMutation.isPending}
         >
           {t("communities:invite_community_dialog_buttons.close")}
@@ -83,4 +83,6 @@ export default function InviteCommunityDialog({
       </DialogActions>
     </Dialog>
   );
-}
+};
+
+export default InviteCommunityDialog;

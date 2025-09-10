@@ -18,7 +18,7 @@ const StyledAlert = styled(MuiAlert)(() => ({
   marginBottom: theme.spacing(2),
 }));
 
-export default function DashboardBanners() {
+const DashboardBanners = () => {
   const { t } = useTranslation([DASHBOARD]);
 
   const { data, error } = useQuery<GetAccountInfoRes.AsObject, RpcError>({
@@ -28,7 +28,7 @@ export default function DashboardBanners() {
 
   return (
     <>
-      {error && <Alert severity="error">{error?.message}</Alert>}
+      {error && <Alert severity="error">{error.message}</Alert>}
       {data && (
         <>
           {!data.profileComplete && (
@@ -75,4 +75,6 @@ export default function DashboardBanners() {
       )}
     </>
   );
-}
+};
+
+export default DashboardBanners;
