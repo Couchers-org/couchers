@@ -55,9 +55,7 @@ const LeaveDialog = ({
       </DialogTitle>
       <DialogContent>
         {leaveGroupChatMutation.error && (
-          <Alert severity="error">
-            {leaveGroupChatMutation.error?.message}
-          </Alert>
+          <Alert severity="error">{leaveGroupChatMutation.error.message}</Alert>
         )}
         <DialogContentText>
           {t("messages:leave_chat_dialog.message")}

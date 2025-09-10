@@ -1,7 +1,9 @@
 import {
   Autocomplete as MuiAutocomplete,
   AutocompleteProps as MuiAutocompleteProps,
+  Theme,
 } from "@mui/material";
+import { SystemStyleObject } from "@mui/system";
 import React from "react";
 import { ControllerRenderProps } from "react-hook-form";
 
@@ -17,7 +19,7 @@ export type AutocompleteProps<
   FreeSolo extends boolean | undefined,
 > = Omit<
   MuiAutocompleteProps<T, Multiple, DisableClearable, FreeSolo>,
-  "renderInput"
+  "renderInput" | "sx"
 > & {
   id: string;
   error?: string;
@@ -26,12 +28,13 @@ export type AutocompleteProps<
   placeholder?: string;
   helperText?: string;
   variant?: "filled" | "standard" | "outlined" | undefined;
+  sx?: SystemStyleObject<Theme>;
   inputProps?:
     | ControllerRenderProps<SignupAccountInputs, "location">
     | ControllerRenderProps<EditProfileFormValues, "location">;
 };
 
-export default function Autocomplete<
+const Autocomplete = <
   T,
   Multiple extends boolean | undefined,
   DisableClearable extends boolean | undefined,
@@ -48,7 +51,7 @@ export default function Autocomplete<
   inputProps,
   sx,
   ...otherProps
-}: AutocompleteProps<T, Multiple, DisableClearable, FreeSolo>) {
+}: AutocompleteProps<T, Multiple, DisableClearable, FreeSolo>) => {
   return (
     <MuiAutocomplete
       {...otherProps}
@@ -65,8 +68,8 @@ export default function Autocomplete<
           label={label}
           placeholder={placeholder}
           helperText={error || helperText}
-          InputProps={
-            endAdornment
+          slotProps={{
+            input: endAdornment
               ? {
                   ...params.InputProps,
                   endAdornment: (
@@ -76,10 +79,12 @@ export default function Autocomplete<
                     </>
                   ),
                 }
-              : params.InputProps
-          }
+              : params.InputProps,
+          }}
         />
       )}
     ></MuiAutocomplete>
   );
-}
+};
+
+export default Autocomplete;

@@ -1,4 +1,4 @@
-import { createTheme, Theme, useTheme } from "@mui/material";
+import { Theme, createTheme, useTheme } from "@mui/material";
 import { useMemo } from "react";
 
 const getTheme = (theme: Theme) =>
@@ -31,8 +31,10 @@ const getTheme = (theme: Theme) =>
 /**
  * Hook that returns a modified theme that adapts text to be over the hero image background
  */
-export default function useHeroBackgroundTheme(): Theme {
+const useHeroBackgroundTheme = (): Theme => {
   const theme = useTheme();
   const imageOverlayTheme = useMemo(() => getTheme(theme), [theme]);
   return imageOverlayTheme;
-}
+};
+
+export default useHeroBackgroundTheme;

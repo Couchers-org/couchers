@@ -17,7 +17,7 @@ const StyledSearchBoxContainer = styled("form")(() => ({
   backgroundColor: theme.palette.background.paper,
 }));
 
-export default function HeroSearch() {
+const HeroSearch = () => {
   const { t } = useTranslation(DASHBOARD);
   const router = useRouter();
   const searchInputId = "hero-search-input";
@@ -64,7 +64,7 @@ export default function HeroSearch() {
               bbox: newBbox,
               showEmptyProfile: false,
             });
-            router.push(searchRouteWithSearchQuery);
+            void router.push(searchRouteWithSearchQuery);
           }
         }}
         fieldError={errors.location?.message}
@@ -72,4 +72,6 @@ export default function HeroSearch() {
       />
     </StyledSearchBoxContainer>
   );
-}
+};
+
+export default HeroSearch;

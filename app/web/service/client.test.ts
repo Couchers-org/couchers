@@ -5,7 +5,7 @@ import { authInterceptor, setUnauthenticatedErrorHandler } from "./client";
 describe("AuthInterceptor", () => {
   it("returns a successful response", async () => {
     const invokerMock = jest.fn(
-      // eslint-disable-next-line @typescript-eslint/require-await
+       
       async () =>
         ({ test: "test" }) as unknown as UnaryResponse<unknown, unknown>,
     );

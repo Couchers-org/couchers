@@ -31,17 +31,17 @@ const StyledAccordion = styled(Accordion)(({ theme }) => ({
   boxShadow: "none",
 }));
 
-const StyledAccordionSummary = styled(AccordionSummary)(({ theme }) => ({
+const StyledAccordionSummary = styled(AccordionSummary)(() => ({
   "& .MuiAccordionSummary-content": {
     alignItems: "center",
   },
 }));
 
-export default function NotificationSettingsListItem({
+const NotificationSettingsListItem = ({
   items,
   type,
   isExpanded = false,
-}: NotificationSettingsListItemProps) {
+}: NotificationSettingsListItemProps) => {
   const notificationType =
     type as `notifications:notification_settings.edit_preferences.list_items.${NotificationType}`;
 
@@ -83,4 +83,6 @@ export default function NotificationSettingsListItem({
       <AccordionDetails>{renderItems()}</AccordionDetails>
     </StyledAccordion>
   );
-}
+};
+
+export default NotificationSettingsListItem;

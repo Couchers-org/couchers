@@ -50,10 +50,10 @@ const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
   typeof useCurrentUser
 >;
 
-function renderUserPage(username: string) {
+const renderUserPage = (username: string) => {
   mockRouter.setCurrentUrl(routeToUser(username));
   render(<UserPage username={username} tab="about" />, { wrapper });
-}
+};
 
 describe("User page", () => {
   beforeAll(() => {
@@ -250,7 +250,7 @@ describe("User page", () => {
 
         await user.click(blockCheckbox);
 
-        const checkedCheckBox = await screen.getByTestId("CheckBoxIcon");
+        const checkedCheckBox = screen.getByTestId("CheckBoxIcon");
 
         expect(emptyCheckBox).not.toBeVisible();
         expect(checkedCheckBox).toBeVisible();

@@ -132,10 +132,10 @@ export const parkingDetailsLabels = (t: TFunction) => ({
   [ParkingDetails.PARKING_DETAILS_UNKNOWN]: t("profile:unspecified_info"),
 });
 
-export function booleanConversion(t: TFunction, value: boolean | undefined) {
+export const booleanConversion = (t: TFunction, value: boolean | undefined) => {
   return value === undefined
     ? t("profile:info_unanswered")
     : value
       ? t("global:yes")
       : t("global:no");
-}
+};

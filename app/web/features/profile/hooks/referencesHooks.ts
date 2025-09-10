@@ -110,7 +110,7 @@ export const useWriteHostReference = (userId: number) => {
       await queryClient.invalidateQueries({
         predicate: ({ queryKey }) =>
           queryKey[0] === REFERENCES_RECEIVED_BASE_KEY &&
-          (queryKey[1] as ReferencesReceivedKeyInputs)?.userId === userId,
+          (queryKey[1] as ReferencesReceivedKeyInputs).userId === userId,
       });
     },
   });
@@ -140,7 +140,7 @@ export const useWriteFriendReference = (userId: number) => {
       await queryClient.invalidateQueries({
         predicate: ({ queryKey }) =>
           queryKey[0] === REFERENCES_RECEIVED_BASE_KEY &&
-          (queryKey[1] as ReferencesReceivedKeyInputs)?.userId === userId,
+          (queryKey[1] as ReferencesReceivedKeyInputs).userId === userId,
       });
     },
   });

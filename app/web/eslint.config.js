@@ -268,7 +268,7 @@ export default tseslint.config([
         {
           selector: "objectLiteralProperty",
           filter: {
-            regex: "^&|^.Mui|^aria-|^Webkit",
+            regex: "^&|^.Mui|^aria-|^Webkit|^\\$:",
             match: true,
           },
           format: null,

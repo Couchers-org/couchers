@@ -1,12 +1,15 @@
 import { render, screen } from "@testing-library/react";
 
+import {
+  hostingStatusLabels,
+  meetupStatusLabels,
+} from "@/features/profile/constants";
+import { ProfileUserProvider } from "@/features/profile/hooks/useProfileUser";
 import { HostingStatus, MeetupStatus } from "@/proto/api_pb";
 import wrapper from "@/test/hookWrapper";
 import i18n from "@/test/i18n";
 import { addDefaultUser } from "@/test/utils";
 
-import { hostingStatusLabels, meetupStatusLabels } from "@/features/profile/constants";
-import { ProfileUserProvider } from "@/features/profile/hooks/useProfileUser";
 import UserOverview from "./UserOverview";
 
 const { t } = i18n;
@@ -81,12 +84,10 @@ describe("UserOverview", () => {
     });
 
     it("should display the community and verification scores when the feature flag is enabled", () => {
-      const previousEnvValueVerificationEnabled =
-        process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED;
-      process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED = "true";
-      const previousEnvValuePostBetaEnabled =
-        process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED;
-      process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED = "true";
+      const previousEnvValueVerificationEnabled = Config.isVerificationEnabled;
+      Config.isVerificationEnabled = true;
+      const previousEnvValuePostBetaEnabled = Config.isPostBetaEnabled;
+      Config.isPostBetaEnabled = true;
 
       const expectedLabelCommunity = t("global:community_standing");
       const expectedLabelVerification = t("global:verification_score");
@@ -100,10 +101,8 @@ describe("UserOverview", () => {
       expect(screen.getByText(expectedLabelCommunity)).toBeInTheDocument();
       expect(screen.getByText(expectedLabelVerification)).toBeInTheDocument();
 
-      process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED =
-        previousEnvValueVerificationEnabled;
-      process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED =
-        previousEnvValuePostBetaEnabled;
+      Config.isVerificationEnabled = previousEnvValueVerificationEnabled;
+      Config.isPostBetaEnabled = previousEnvValuePostBetaEnabled;
     });
 
     it("should render the action buttons", () => {

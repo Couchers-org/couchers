@@ -71,6 +71,7 @@ export const configUtils = <const P extends string>(prefix: P) => {
         RECAPTCHA_SITE_KEY: Type.String(),
         IS_VERIFICATION_ENABLED: Type.Boolean(),
         STRIPE_KEY: Type.String(),
+        IS_POST_BETA_ENABLED: Type.Boolean(),
       }),
       prefix,
     ),

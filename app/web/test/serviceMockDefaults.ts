@@ -52,7 +52,7 @@ const liteUserMap: Record<string, LiteUser.AsObject> = {
   funnykid: liteUser3,
 };
 
-/* eslint-disable @typescript-eslint/require-await */
+ 
 export const getUser = async (userId: string): Promise<User.AsObject> => {
   return userMap[userId];
 };

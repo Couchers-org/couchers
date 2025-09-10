@@ -20,16 +20,16 @@ interface LocationAutocompleteProps {
   id?: string;
   variant?: "filled" | "standard" | "outlined" | undefined;
   name: string;
-  onChange?(value: GeocodeResult | ""): void;
+  onChange?: (value: GeocodeResult | "") => void;
   required?: string;
   shouldShowFullDisplayName?: boolean;
   shouldDisableRegions?: boolean;
 }
 
-const LocationAutocomplete = React.forwardRef((
-  props: LocationAutocompleteProps,
-  ref,
-) => {
+const LocationAutocomplete = React.forwardRef<
+  HTMLDivElement,
+  LocationAutocompleteProps
+>((props: LocationAutocompleteProps, ref) => {
   const {
     className,
     control,
@@ -49,9 +49,9 @@ const LocationAutocomplete = React.forwardRef((
 
   const { t } = useTranslation(GLOBAL);
 
-  const controller = useController({
+  const controller = useController<{ [key: string]: GeocodeResult | "" }>({
     name,
-    defaultValue: defaultValue ?? "",
+    defaultValue,
     control,
     rules: {
       required,
@@ -61,7 +61,7 @@ const LocationAutocomplete = React.forwardRef((
             ? true
             : t("location_autocomplete.select_location_hint"),
         isSpecific: (value) =>
-          !value?.isRegion || !shouldDisableRegions
+          !value || !value.isRegion || !shouldDisableRegions
             ? true
             : t("location_autocomplete.more_specific"),
       },
@@ -79,7 +79,11 @@ const LocationAutocomplete = React.forwardRef((
   const handleChange = (value: GeocodeResult | string | null) => {
     // workaround - autocomplete seems to call onChange with the string value on mount
     // this line prevents needing to reselect the location even if there are no changes
-    if (value === controller.field.value?.simplifiedName) return;
+    if (
+      value ===
+      (!controller.field.value ? "" : controller.field.value.simplifiedName)
+    )
+      return;
 
     controller.field.onChange(value ?? "");
   };
@@ -125,12 +129,16 @@ const LocationAutocomplete = React.forwardRef((
       loading={isLoading}
       options={options || []}
       open={isOpen}
-      onClose={() => { setIsOpen(false); }}
+      onClose={() => {
+        setIsOpen(false);
+      }}
       value={controller.field.value}
       getOptionLabel={(option: GeocodeResult | string) => {
-        return geocodeResult2String(option, shouldShowFullDisplayName);
+        return geocodeResultToString(option, shouldShowFullDisplayName);
       }}
-      onInputChange={(_e, value) => { handleChange(value); }}
+      onInputChange={(_e, value) => {
+        handleChange(value);
+      }}
       onChange={(_e, value, reason) => {
         handleChange(value);
         searchSubmit(value, reason);
@@ -144,7 +152,9 @@ const LocationAutocomplete = React.forwardRef((
       endAdornment={
         <IconButton
           aria-label={t("location_autocomplete.search_location_button")}
-          onClick={() => { searchSubmit(controller.field.value, "createOption"); }}
+          onClick={() => {
+            searchSubmit(controller.field.value, "createOption");
+          }}
           size="small"
         >
           <SearchIcon />
@@ -157,7 +167,12 @@ const LocationAutocomplete = React.forwardRef((
   );
 });
 
-function geocodeResult2String(option: GeocodeResult | string, full: boolean) {
+LocationAutocomplete.displayName = "LocationAutocomplete";
+
+const geocodeResultToString = (
+  option: GeocodeResult | string,
+  full: boolean,
+) => {
   if (typeof option === "string") {
     return option;
   }
@@ -165,6 +180,6 @@ function geocodeResult2String(option: GeocodeResult | string, full: boolean) {
     return option.name;
   }
   return option.simplifiedName;
-}
+};
 
 export default LocationAutocomplete;

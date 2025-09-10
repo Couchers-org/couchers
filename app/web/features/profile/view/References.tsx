@@ -72,7 +72,6 @@ const References = () => {
             variant="standard"
             displayEmpty
             inputProps={{
-              // eslint-disable-next-line @typescript-eslint/naming-convention
               "aria-label": t("profile:references_filter_a11y_label"),
             }}
             onChange={handleChange}

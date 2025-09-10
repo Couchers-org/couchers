@@ -24,8 +24,6 @@ export const ProfileUserProvider = ({
   );
 };
 
-const useProfileUser = () => {
+export const useProfileUser = () => {
   return React.useContext(ProfileUserContext);
 };
-
-export default useProfileUser;
