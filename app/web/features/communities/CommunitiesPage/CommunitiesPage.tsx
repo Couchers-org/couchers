@@ -8,8 +8,8 @@ import CommunityBrowser from "@/features/dashboard/CommunityBrowser";
 import { Trans, useTranslation } from "@/i18n";
 import { DASHBOARD, GLOBAL } from "@/i18n/namespaces";
 import {
+  HELP_CENTER_COMMUNITY_BUILDER_URL,
   communityCreationFormUrl,
-  helpCenterCommunityBuilderURL,
 } from "@/routes";
 
 const HeaderRow = styled("div")(({ theme }) => ({
@@ -26,7 +26,11 @@ const Subtitle = styled(Typography)(({ theme }) => ({
   paddingBottom: theme.spacing(1),
 }));
 
-const StyledTypography = styled(Typography)(({ theme }) => ({
+// const StyledTypography = styled(Typography)(({ theme }) => ({
+//   paddingBlockEnd: theme.spacing(1),
+// }));
+
+const StyledParagraph = styled("p")(({ theme }) => ({
   paddingBlockEnd: theme.spacing(1),
 }));
 
@@ -45,14 +49,14 @@ const CommunitiesPage = () => {
       <Subtitle variant="h2">
         {t("dashboard:communities_welcome_title")}
       </Subtitle>
-      <StyledTypography variant="body1" paragraph>
+      <Typography variant="body1" component={StyledParagraph}>
         <Trans i18nKey="dashboard:communities_intro" />
-      </StyledTypography>
-      <StyledTypography variant="body1" paragraph>
+      </Typography>
+      <Typography variant="body1" component={StyledParagraph}>
         <Trans i18nKey="dashboard:community_builder">
           {`Want to be an ambassador for your community and help it grow? Become a `}
           <MuiLink
-            href={helpCenterCommunityBuilderURL}
+            href={HELP_CENTER_COMMUNITY_BUILDER_URL}
             target="_blank"
             rel="noreferrer noopener"
             underline="hover"
@@ -60,15 +64,15 @@ const CommunitiesPage = () => {
             Community Builder!
           </MuiLink>
         </Trans>
-      </StyledTypography>
+      </Typography>
 
       <Subtitle variant="h2">{t("dashboard:all_communities_section")}</Subtitle>
 
-      <StyledTypography variant="body1" paragraph>
+      <Typography variant="body1" component={StyledParagraph}>
         <Trans i18nKey="dashboard:all_communities_intro" />
-      </StyledTypography>
+      </Typography>
 
-      <StyledTypography variant="body1" paragraph>
+      <Typography variant="body1" component={StyledParagraph}>
         <Trans i18nKey="dashboard:community_missing">
           {`Is your country or city missing? `}
           <MuiLink
@@ -81,7 +85,7 @@ const CommunitiesPage = () => {
           </MuiLink>
           {` to request it!`}
         </Trans>
-      </StyledTypography>
+      </Typography>
 
       <CommunityBrowser />
     </>

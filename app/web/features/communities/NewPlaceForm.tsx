@@ -23,7 +23,7 @@ type NewPlaceInputs = {
   photoKey?: string;
 };
 
-export default function NewPlaceForm() {
+const NewPlaceForm = () => {
   const {
     control,
     register,
@@ -53,8 +53,8 @@ export default function NewPlaceForm() {
     }: NewPlaceInputs) =>
       service.pages.createPlace(title, content, address, lat, lng, photoKey),
 
-    onSuccess: (page) => {
-      router.push(
+    onSuccess: async (page) => {
+      await router.push(
         page.type === PageType.PAGE_TYPE_PLACE
           ? routeToPlace(page.pageId, page.slug)
           : routeToGuide(page.pageId, page.slug),
@@ -62,22 +62,24 @@ export default function NewPlaceForm() {
     },
   });
 
-  const onSubmit = handleSubmit((data: NewPlaceInputs) => { createPlace(data); });
+  const onSubmit = handleSubmit((data: NewPlaceInputs) => {
+    createPlace(data);
+  });
 
   return (
     <>
-      {createError && <Alert severity="error">{createError?.message}</Alert>}
+      {createError && <Alert severity="error">{createError.message}</Alert>}
       {isCreateLoading ? (
         <CenteredSpinner />
       ) : (
-        <form onSubmit={onSubmit}>
+        <form onSubmit={() => void onSubmit()}>
           <TextField
             id="new-place-title"
             {...register("title", {
               required: "Enter a page title",
             })}
             label="Place Title"
-            helperText={errors?.title?.message}
+            helperText={errors.title?.message}
           />
           <ImageInput
             type="rect"
@@ -118,4 +120,6 @@ export default function NewPlaceForm() {
       )}
     </>
   );
-}
+};
+
+export default NewPlaceForm;

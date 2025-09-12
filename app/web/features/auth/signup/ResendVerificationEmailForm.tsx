@@ -9,19 +9,23 @@ import { Trans, useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
 import { service } from "@/service";
 
-export default function ResendVerificationEmailForm() {
+const ResendVerificationEmailForm = () => {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authActions, authState } = useAuthContext();
 
-  const [resent, setResent] = useState<boolean>(false);
+  const [isResent, setIsResent] = useState<boolean>(false);
 
   const mutation = useMutation({
     mutationFn: async () => {
+      if (!authState.flowState) {
+        return;
+      }
+
       const state = await service.auth.signupFlowResendVerificationEmail(
-        authState.flowState!.flowToken,
+        authState.flowState.flowToken,
       );
       authActions.updateSignupState(state);
-      setResent(true);
+      setIsResent(true);
     },
   });
 
@@ -34,14 +38,14 @@ export default function ResendVerificationEmailForm() {
         {t("auth:sign_up_completed_prompt")}
       </Typography>
       <Typography variant="body1">
-        {!resent ? (
+        {!isResent ? (
           <Trans i18nKey="auth:sign_up_resend_verification_email_help">
-            Didn't receive the email? Click{" "}
+            Didn&apos;t receive the email? Click{" "}
             <StyledLink
               href="#"
               onClick={(e) => {
                 e.preventDefault();
-                mutation.mutateAsync();
+                void mutation.mutateAsync();
               }}
             >
               here to resend the verification link
@@ -54,4 +58,6 @@ export default function ResendVerificationEmailForm() {
       </Typography>
     </>
   );
-}
+};
+
+export default ResendVerificationEmailForm;

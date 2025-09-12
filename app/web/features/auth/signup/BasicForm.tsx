@@ -30,10 +30,7 @@ interface BasicFormProps {
   successCallback?: () => void;
 }
 
-export default function BasicForm({
-  submitText,
-  successCallback,
-}: BasicFormProps) {
+const BasicForm = ({ submitText, successCallback }: BasicFormProps) => {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authActions } = useAuthContext();
 
@@ -47,7 +44,7 @@ export default function BasicForm({
     shouldUnregister: false,
   });
 
-  const mutation = useMutation<void, RpcError, SignupBasicInputs>({
+  const mutation = useMutation<unknown, RpcError, SignupBasicInputs>({
     mutationFn: async (data) => {
       const sanitizedEmail = lowercaseAndTrimField(data.email);
       const sanitizedName = data.name.trim();
@@ -55,13 +52,13 @@ export default function BasicForm({
         sanitizedName,
         sanitizedEmail,
       );
-      doAntibot("signup");
+      await doAntibot("signup");
       authActions.updateSignupState(state);
     },
-    onSettled() {
+    onSettled: () => {
       window.scroll({ top: 0, behavior: "smooth" });
     },
-    onSuccess() {
+    onSuccess: () => {
       if (successCallback !== undefined) {
         successCallback();
       }
@@ -79,7 +76,7 @@ export default function BasicForm({
       {mutation.error && (
         <Alert severity="error">{mutation.error.message || ""}</Alert>
       )}
-      <form onSubmit={onSubmit}>
+      <form onSubmit={() => void onSubmit()}>
         <StyledInputLabel htmlFor="name">
           {t("auth:basic_form.name.field_label")}
         </StyledInputLabel>
@@ -100,8 +97,8 @@ export default function BasicForm({
             if (!nameInputRef.current) el?.focus();
             if (el) nameInputRef.current = el;
           }}
-          helperText={errors?.name?.message ?? " "}
-          error={!!errors?.name?.message}
+          helperText={errors.name?.message ?? " "}
+          error={!!errors.name?.message}
           autoComplete="name"
         />
         <StyledInputLabel htmlFor="email">
@@ -120,8 +117,8 @@ export default function BasicForm({
           name="email"
           placeholder="you@couchers.org"
           variant="outlined"
-          helperText={errors?.email?.message ?? " "}
-          error={!!errors?.email?.message}
+          helperText={errors.email?.message ?? " "}
+          error={!!errors.email?.message}
           autoComplete="email"
         />
         <StyledButton
@@ -135,4 +132,6 @@ export default function BasicForm({
       </form>
     </>
   );
-}
+};
+
+export default BasicForm;

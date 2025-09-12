@@ -9,7 +9,7 @@ interface TimezoneProps {
   timezone: string;
 }
 
-export default function Timezone({ className, timezone }: TimezoneProps) {
+const Timezone = ({ className, timezone }: TimezoneProps) => {
   const { t } = useTranslation(AUTH);
 
   return (
@@ -38,4 +38,6 @@ export default function Timezone({ className, timezone }: TimezoneProps) {
       </Typography>
     </div>
   );
-}
+};
+
+export default Timezone;

@@ -12,6 +12,7 @@ import HtmlMeta from "@/components/HtmlMeta";
 import Markdown from "@/components/Markdown";
 import PageTitle from "@/components/PageTitle";
 import TextBody from "@/components/TextBody";
+import log from "@/log";
 import { Discussion } from "@/proto/discussions_pb";
 import { Group } from "@/proto/groups_pb";
 import { Page } from "@/proto/pages_pb";
@@ -25,117 +26,125 @@ import {
 import { service } from "@/service";
 import isGrpcError from "@/service/utils/isGrpcError";
 
-export default function GroupPage({
+const GroupPage = ({
   groupId,
   groupSlug,
 }: {
   groupId: number;
   groupSlug?: string;
-}) {
+}) => {
   const { t } = useTranslation(["communities", "global"]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [group, setGroup] = useState<Group.AsObject | null>(null);
 
-  const [adminsLoading, setAdminsLoading] = useState(false);
+  const [isAdminsLoading, setIsAdminsLoading] = useState(false);
   const [admins, setAdmins] = useState<number[] | null>(null);
 
-  const [membersLoading, setMembersLoading] = useState(false);
+  const [isMembersLoading, setIsMembersLoading] = useState(false);
   const [members, setMembers] = useState<number[] | null>(null);
 
-  const [placesLoading, setPlacesLoading] = useState(false);
+  const [isPlacesLoading, setIsPlacesLoading] = useState(false);
   const [places, setPlaces] = useState<Array<Page.AsObject> | null>(null);
 
-  const [guidesLoading, setGuidesLoading] = useState(false);
+  const [isGuidesLoading, setIsGuidesLoading] = useState(false);
   const [guides, setGuides] = useState<Array<Page.AsObject> | null>(null);
 
-  const [discussionsLoading, setDiscussionsLoading] = useState(false);
+  const [isDiscussionsLoading, setIsDiscussionsLoading] = useState(false);
   const [discussions, setDiscussions] =
     useState<Array<Discussion.AsObject> | null>(null);
 
   const handleJoin = async () => {
-    await service.groups.joinGroup(group!.groupId);
+    if (!group?.groupId) {
+      return;
+    }
+
+    await service.groups.joinGroup(group.groupId);
   };
 
   const handleLeave = async () => {
-    await service.groups.leaveGroup(group!.groupId);
+    if (!group?.groupId) {
+      return;
+    }
+
+    await service.groups.leaveGroup(group.groupId);
   };
 
   const router = useRouter();
 
   useEffect(() => {
     if (!groupId) return;
-    (async () => {
-      setLoading(true);
+    void (async () => {
+      setIsLoading(true);
       try {
         const group = await service.groups.getGroup(groupId);
         setGroup(group);
         if (group.slug !== groupSlug) {
           // if the address is wrong, redirect to the right place
-          router.push(routeToGroup(group.groupId, group.slug));
+          await router.push(routeToGroup(group.groupId, group.slug));
         }
       } catch (e) {
-        console.error(e);
+        log.error(e);
         setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
       }
-      setLoading(false);
+      setIsLoading(false);
 
-      setAdminsLoading(true);
+      setIsAdminsLoading(true);
       try {
-        const res = await service.groups.listAdmins(Number(groupId));
+        const res = await service.groups.listAdmins(groupId);
         setAdmins(res.adminUserIdsList.length ? res.adminUserIdsList : null);
       } catch (e) {
-        console.error(e);
+        log.error(e);
         setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
       }
-      setAdminsLoading(false);
+      setIsAdminsLoading(false);
 
-      setMembersLoading(true);
+      setIsMembersLoading(true);
       try {
-        const res = await service.groups.listMembers(Number(groupId));
+        const res = await service.groups.listMembers(groupId);
         setMembers(res.memberUserIdsList.length ? res.memberUserIdsList : null);
       } catch (e) {
-        console.error(e);
+        log.error(e);
         setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
       }
-      setMembersLoading(false);
+      setIsMembersLoading(false);
 
-      setPlacesLoading(true);
+      setIsPlacesLoading(true);
       try {
-        const res = await service.groups.listPlaces(Number(groupId));
+        const res = await service.groups.listPlaces(groupId);
         setPlaces(res.placesList.length ? res.placesList : null);
       } catch (e) {
-        console.error(e);
+        log.error(e);
         setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
       }
-      setPlacesLoading(false);
+      setIsPlacesLoading(false);
 
-      setGuidesLoading(true);
+      setIsGuidesLoading(true);
       try {
-        const res = await service.groups.listGuides(Number(groupId));
+        const res = await service.groups.listGuides(groupId);
         setGuides(res.guidesList.length ? res.guidesList : null);
       } catch (e) {
-        console.error(e);
+        log.error(e);
         setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
       }
-      setGuidesLoading(false);
+      setIsGuidesLoading(false);
 
-      setDiscussionsLoading(true);
+      setIsDiscussionsLoading(true);
       try {
-        const res = await service.groups.listDiscussions(Number(groupId));
+        const res = await service.groups.listDiscussions(groupId);
         setDiscussions(res.discussionsList.length ? res.discussionsList : null);
       } catch (e) {
-        console.error(e);
+        log.error(e);
         setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
       }
-      setDiscussionsLoading(false);
+      setIsDiscussionsLoading(false);
     })();
   }, [groupId, groupSlug, router, t]);
 
   return (
     <>
       {error && <Alert severity="error">{error}</Alert>}
-      {loading ? (
+      {isLoading ? (
         <CenteredSpinner />
       ) : group ? (
         <>
@@ -194,21 +203,23 @@ export default function GroupPage({
             You <b>{group.admin ? "are" : "are not"}</b> an admin of this group.
           </p>
           <p>
-            Last edited at {group.mainPage!.lastEdited?.seconds} by{" "}
-            {group.mainPage!.lastEditorUserId}
+            Last edited at {group.mainPage?.lastEdited?.seconds} by{" "}
+            {group.mainPage?.lastEditorUserId}
           </p>
           <p>
             Created at {group.created?.seconds} by{" "}
-            {group.mainPage!.creatorUserId}
+            {group.mainPage?.creatorUserId}
           </p>
-          <Markdown source={group.mainPage!.content} />
+          {group.mainPage?.content && (
+            <Markdown source={group.mainPage.content} />
+          )}
           <p>
-            You <b>{group.mainPage!.canEdit ? "can" : "cannot"}</b> edit this
+            You <b>{group.mainPage?.canEdit ? "can" : "cannot"}</b> edit this
             page.
           </p>
           <h1>Admins</h1>
           <p>Total {group.adminCount} admins.</p>
-          {adminsLoading ? (
+          {isAdminsLoading ? (
             <CenteredSpinner />
           ) : admins ? (
             admins.map((admin) => {
@@ -224,7 +235,7 @@ export default function GroupPage({
           )}
           <h1>Members</h1>
           <p>Total {group.memberCount} members.</p>
-          {membersLoading ? (
+          {isMembersLoading ? (
             <CenteredSpinner />
           ) : members ? (
             members.map((member) => {
@@ -239,7 +250,7 @@ export default function GroupPage({
             <p>This group has no members.</p>
           )}
           <h1>Places</h1>
-          {placesLoading ? (
+          {isPlacesLoading ? (
             <CenteredSpinner />
           ) : places ? (
             places.map((place) => {
@@ -256,7 +267,7 @@ export default function GroupPage({
             <p>This group contains no places.</p>
           )}
           <h1>Guides</h1>
-          {guidesLoading ? (
+          {isGuidesLoading ? (
             <CenteredSpinner />
           ) : guides ? (
             guides.map((guide) => {
@@ -273,7 +284,7 @@ export default function GroupPage({
             <p>This group contains no guides.</p>
           )}
           <h1>Discussions</h1>
-          {discussionsLoading ? (
+          {isDiscussionsLoading ? (
             <CenteredSpinner />
           ) : discussions ? (
             discussions.map((discussion) => {
@@ -294,11 +305,13 @@ export default function GroupPage({
           ) : (
             <p>This group contains no discussions.</p>
           )}
-          <CommentBox threadId={group.mainPage!.thread!.threadId} />
+          <CommentBox threadId={group.mainPage?.thread?.threadId ?? 0} />
         </>
       ) : (
         <TextBody>Error</TextBody>
       )}
     </>
   );
-}
+};
+
+export default GroupPage;

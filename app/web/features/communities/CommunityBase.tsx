@@ -9,7 +9,9 @@ import { COMMUNITIES } from "@/i18n/namespaces";
 import { Community } from "@/proto/communities_pb";
 
 interface CommunityBaseProps {
-  children(communityParams: { community: Community.AsObject }): React.ReactNode;
+  children: (communityParams: {
+    community: Community.AsObject;
+  }) => React.ReactNode;
   communityId: number;
 }
 
@@ -20,10 +22,7 @@ const StyledWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function CommunityBase({
-  children,
-  communityId,
-}: CommunityBaseProps) {
+const CommunityBase = ({ children, communityId }: CommunityBaseProps) => {
   const { t } = useTranslation([COMMUNITIES]);
 
   const {
@@ -47,4 +46,6 @@ export default function CommunityBase({
     );
 
   return <StyledWrapper>{children({ community })}</StyledWrapper>;
-}
+};
+
+export default CommunityBase;

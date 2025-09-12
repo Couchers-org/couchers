@@ -21,11 +21,11 @@ interface CommunityModeratorsDialogProps {
 
 export const DIALOG_LABEL_ID = "moderator-title";
 
-export default function CommunityModeratorsDialog({
+const CommunityModeratorsDialog = ({
   community,
   onClose,
   open = false,
-}: CommunityModeratorsDialogProps) {
+}: CommunityModeratorsDialogProps) => {
   const { t } = useTranslation([COMMUNITIES]);
   const { adminIds, error, fetchNextPage, isFetchingNextPage, hasNextPage } =
     useListAdmins(community.communityId, "all");
@@ -47,4 +47,6 @@ export default function CommunityModeratorsDialog({
       )}
     </Dialog>
   );
-}
+};
+
+export default CommunityModeratorsDialog;

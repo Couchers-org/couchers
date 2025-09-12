@@ -25,11 +25,11 @@ const updatePageMock = service.pages.updatePage as jest.MockedFunction<
   typeof service.pages.updatePage
 >;
 
-function renderEditCommunityPage() {
+const renderEditCommunityPage = () => {
   mockRouter.setCurrentUrl(routeToEditCommunityPage(2, "amsterdam"));
   const { wrapper } = getHookWrapperWithClient();
   render(<EditCommunityInfoPage communityId={2} />, { wrapper });
-}
+};
 
 describe("Edit community page", () => {
   beforeEach(() => {

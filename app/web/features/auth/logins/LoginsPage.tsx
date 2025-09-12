@@ -35,7 +35,7 @@ const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
   marginBottom: theme.spacing(1),
 }));
 
-export default function LoginsPage() {
+const LoginsPage = () => {
   const { t } = useTranslation([GLOBAL, AUTH]);
   const queryClient = useQueryClient();
 
@@ -63,15 +63,15 @@ export default function LoginsPage() {
 
   const {
     error: logoutAllError,
-    isPending: logoutAllIsLoading,
+    isPending: isLogoutAllLoading,
     mutate: logoutAll,
   } = useMutation({
     mutationFn: async () => {
       await service.account.logOutOtherSessions(true);
     },
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: [ACTIVE_LOGINS_KEY],
       });
     },
@@ -87,17 +87,21 @@ export default function LoginsPage() {
       </Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
       {logoutAllError && (
-        <Alert severity="error">{logoutAllError?.message}</Alert>
+        <Alert severity="error">{logoutAllError.message}</Alert>
       )}
       {isLoading ? (
         <CenteredSpinner />
       ) : (
-        sessions.map((session) => (
-          <LoginCard
-            key={timestamp2Date(session.created!).toString()}
-            session={session}
-          />
-        ))
+        sessions.map((session) =>
+          session.created ? (
+            <LoginCard
+              key={timestamp2Date(session.created).toString()}
+              session={session}
+            />
+          ) : (
+            <></>
+          ),
+        )
       )}
       {hasNextPage && (
         <StyledButton
@@ -109,7 +113,7 @@ export default function LoginsPage() {
       )}
       <StyledButton
         color="secondary"
-        loading={logoutAllIsLoading}
+        loading={isLogoutAllLoading}
         onClick={() => {
           logoutAll();
         }}
@@ -118,4 +122,6 @@ export default function LoginsPage() {
       </StyledButton>
     </StyledLoginsContainer>
   );
-}
+};
+
+export default LoginsPage;

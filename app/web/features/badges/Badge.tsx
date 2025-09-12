@@ -15,7 +15,7 @@ const StyledTooltip = styled(Tooltip)(({ theme }) => ({
   },
 }));
 
-export default function Badge({ badge }: BadgeProps) {
+const Badge = ({ badge }: BadgeProps) => {
   return (
     <StyledTooltip title={badge.description}>
       <Chip
@@ -26,4 +26,6 @@ export default function Badge({ badge }: BadgeProps) {
       />
     </StyledTooltip>
   );
-}
+};
+
+export default Badge;

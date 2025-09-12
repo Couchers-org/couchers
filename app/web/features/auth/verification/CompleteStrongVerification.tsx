@@ -7,9 +7,10 @@ import HtmlMeta from "@/components/HtmlMeta";
 import PageTitle from "@/components/PageTitle";
 import { useTranslation } from "@/i18n";
 import { AUTH } from "@/i18n/namespaces";
+import log from "@/log";
 import stringOrFirstString from "@/utils/stringOrFirstString";
 
-export default function CompleteStrongVerification() {
+const CompleteStrongVerification = () => {
   const { t } = useTranslation(AUTH);
 
   const router = useRouter();
@@ -17,7 +18,7 @@ export default function CompleteStrongVerification() {
     router.query.verification_attempt_token,
   );
 
-  console.info("Captured token", verificationAttemptToken);
+  log.info("Captured token", verificationAttemptToken);
 
   return (
     <>
@@ -89,4 +90,6 @@ export default function CompleteStrongVerification() {
       </Container>
     </>
   );
-}
+};
+
+export default CompleteStrongVerification;

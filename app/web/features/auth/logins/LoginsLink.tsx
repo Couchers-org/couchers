@@ -4,9 +4,9 @@ import Link from "next/link";
 import Button from "@/components/Button";
 import { useTranslation } from "@/i18n";
 import { AUTH } from "@/i18n/namespaces";
-import { loginsSETTINGS_ROUTE } from "@/routes";
+import { LOGINS_SETTINGS_ROUTE } from "@/routes";
 
-export default function LoginsLink() {
+const LoginsLink = () => {
   const { t } = useTranslation(AUTH);
 
   return (
@@ -17,9 +17,11 @@ export default function LoginsLink() {
       <Typography variant="body1" gutterBottom>
         {t("active_logins.settings_page_text")}
       </Typography>
-      <Button component={Link} href={loginsSETTINGS_ROUTE}>
+      <Button component={Link} href={LOGINS_SETTINGS_ROUTE}>
         {t("active_logins.settings_page_link")}
       </Button>
     </div>
   );
-}
+};
+
+export default LoginsLink;

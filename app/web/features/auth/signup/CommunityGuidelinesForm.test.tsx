@@ -66,16 +66,20 @@ describe("community guidelines signup form", () => {
     });
     const user = userEvent.setup();
 
-    checkboxes.forEach(async (checkbox) => {
-      expect(button).toBeDisabled();
-      expect(signupFlowCommunityGuidelinesMock).not.toBeCalled();
-      await user.click(checkbox);
+    await Promise.all(
+      checkboxes.map(async (checkbox) => {
+        expect(button).toBeDisabled();
+        expect(signupFlowCommunityGuidelinesMock).not.toHaveBeenCalled();
+        await user.click(checkbox);
+      }),
+    );
+    await waitFor(() => {
+      expect(button).not.toBeDisabled();
     });
-    await waitFor(() => { expect(button).not.toBeDisabled(); });
     await user.click(button);
 
     await waitFor(() => {
-      expect(signupFlowCommunityGuidelinesMock).toBeCalledWith(
+      expect(signupFlowCommunityGuidelinesMock).toHaveBeenCalledWith(
         "dummy-token",
         true,
       );
@@ -97,10 +101,14 @@ describe("community guidelines signup form", () => {
     const user = userEvent.setup();
 
     const button = screen.getByRole("button", { name: t("global:submit") });
-    checkboxes.forEach(async (checkbox) => {
-      await user.click(checkbox);
+    await Promise.all(
+      checkboxes.map(async (checkbox) => {
+        await user.click(checkbox);
+      }),
+    );
+    await waitFor(() => {
+      expect(button).not.toBeDisabled();
     });
-    await waitFor(() => { expect(button).not.toBeDisabled(); });
 
     expect(
       screen.queryByText("All checkboxes are required"),
@@ -110,7 +118,9 @@ describe("community guidelines signup form", () => {
 
     await user.click(lastCheckbox);
 
-    await waitFor(() => { expect(button).toBeDisabled(); });
+    await waitFor(() => {
+      expect(button).toBeDisabled();
+    });
 
     expect(screen.getByText("All checkboxes are required")).toBeVisible();
   });

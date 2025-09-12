@@ -19,15 +19,17 @@ interface TitleWithIconProps {
   variant?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 }
 
-export default function TitleWithIcon({
+const TitleWithIcon = ({
   icon,
   children,
   variant = "h1",
-}: TitleWithIconProps) {
+}: TitleWithIconProps) => {
   return (
     <StyledWrapper>
       {icon}
       <StyledText variant={variant}>{children}</StyledText>
     </StyledWrapper>
   );
-}
+};
+
+export default TitleWithIcon;

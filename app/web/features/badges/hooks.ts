@@ -33,7 +33,7 @@ export const useBadges = () => {
   };
 };
 
-export function useBadgeUsers(badgeId: string) {
+export const useBadgeUsers = (badgeId: string) => {
   const query = useInfiniteQuery<
     ListBadgeUsersRes.AsObject,
     RpcError,
@@ -52,4 +52,4 @@ export function useBadgeUsers(badgeId: string) {
     ...query,
     badgeUserIds,
   };
-}
+};

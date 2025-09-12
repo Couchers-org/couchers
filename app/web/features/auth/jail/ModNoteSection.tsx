@@ -12,11 +12,11 @@ interface ModNoteSectionProps {
   className?: string;
 }
 
-export default function ModNoteSection({
+const ModNoteSection = ({
   pendingModNotes,
   updateJailed,
   className,
-}: ModNoteSectionProps) {
+}: ModNoteSectionProps) => {
   const { t } = useTranslation([AUTH, GLOBAL]);
 
   return (
@@ -36,4 +36,6 @@ export default function ModNoteSection({
       ))}
     </div>
   );
-}
+};
+
+export default ModNoteSection;

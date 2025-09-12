@@ -5,7 +5,7 @@ import PageTitle from "@/components/PageTitle";
 
 import NewGuideForm from "./NewGuideForm";
 
-export default function NewGuidePage() {
+const NewGuidePage = () => {
   return (
     <>
       <HtmlMeta title={"Create a new guide"} />
@@ -13,4 +13,6 @@ export default function NewGuidePage() {
       <NewGuideForm />
     </>
   );
-}
+};
+
+export default NewGuidePage;

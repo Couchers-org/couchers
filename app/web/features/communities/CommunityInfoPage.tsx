@@ -20,9 +20,7 @@ interface CommunityInfoPageProps {
   community: Community.AsObject;
 }
 
-export default function CommunityInfoPage({
-  community,
-}: CommunityInfoPageProps) {
+const CommunityInfoPage = ({ community }: CommunityInfoPageProps) => {
   const { t } = useTranslation([COMMUNITIES, GLOBAL]);
 
   return (
@@ -52,4 +50,6 @@ export default function CommunityInfoPage({
       <CommunityModeratorsSection community={community} />
     </>
   );
-}
+};
+
+export default CommunityInfoPage;

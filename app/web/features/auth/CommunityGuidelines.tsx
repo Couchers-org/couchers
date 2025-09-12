@@ -27,7 +27,7 @@ import { getErrorMessage } from "@/utils/error";
 import { useIsMounted, useSafeState } from "@/utils/hooks";
 
 interface CommunityGuidelinesProps {
-  onSubmit: (accept: boolean) => Promise<void>;
+  onSubmit: (accept: boolean) => Promise<unknown>;
   className?: string;
   title?: TypographyVariant;
 }

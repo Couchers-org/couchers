@@ -20,9 +20,12 @@ import AccountForm from "./AccountForm";
 const { t } = i18n;
 
 jest.mock("@mui/x-date-pickers", () => {
+  const originalModule = jest.requireActual<
+    typeof import("@mui/x-date-pickers")
+  >("@mui/x-date-pickers");
   return {
-    ...jest.requireActual("@mui/x-date-pickers"),
-    DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
+    ...originalModule,
+    DatePicker: originalModule.DesktopDatePicker,
   };
 });
 

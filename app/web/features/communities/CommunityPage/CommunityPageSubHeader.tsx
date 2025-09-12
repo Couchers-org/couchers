@@ -24,13 +24,13 @@ const StyledBreadcrumbs = styled(Breadcrumbs)(() => ({
   },
 }));
 
-export default function CommunityPageSubHeader({
+const CommunityPageSubHeader = ({
   community,
   tab,
 }: {
   community: Community.AsObject;
   tab: CommunityTab;
-}) {
+}) => {
   const { t } = useTranslation([COMMUNITIES]);
 
   const router = useRouter();
@@ -59,7 +59,7 @@ export default function CommunityPageSubHeader({
                 <Typography
                   variant="body1"
                   color="textPrimary"
-                  key={`breadcrumb-${communityParent?.communityId}`}
+                  key={`breadcrumb-${communityParent.communityId}`}
                 >
                   {communityParent.name}
                 </Typography>
@@ -69,7 +69,7 @@ export default function CommunityPageSubHeader({
                     communityParent.communityId,
                     communityParent.slug,
                   )}
-                  key={`breadcrumb-${communityParent?.communityId}`}
+                  key={`breadcrumb-${communityParent.communityId}`}
                 >
                   {communityParent.name}
                 </StyledLink>
@@ -82,7 +82,7 @@ export default function CommunityPageSubHeader({
         <TabBar
           ariaLabel={t("communities:community_tabs_a11y_label")}
           setValue={(newTab) =>
-            router.push(
+            void router.push(
               routeToCommunity(
                 community.communityId,
                 community.slug,
@@ -95,4 +95,6 @@ export default function CommunityPageSubHeader({
       </TabContext>
     </>
   );
-}
+};
+
+export default CommunityPageSubHeader;

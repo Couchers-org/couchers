@@ -21,7 +21,7 @@ const StyledLoadMoreButton = styled("div")(() => ({
   width: "100%",
 }));
 
-export default function InfoPageSection({ community }: InfoPageSectionProps) {
+const InfoPageSection = ({ community }: InfoPageSectionProps) => {
   const { t } = useTranslation([COMMUNITIES]);
 
   return (
@@ -40,4 +40,6 @@ export default function InfoPageSection({ community }: InfoPageSectionProps) {
       </StyledLoadMoreButton>
     </section>
   );
-}
+};
+
+export default InfoPageSection;

@@ -56,15 +56,18 @@ const SignupFormContent = () => {
           <Trans
             i18nKey="landing:signup_description"
             values={{
+              // eslint-disable-next-line @typescript-eslint/naming-convention
               user_count: signupInfo?.userCount
                 ? signupInfo.userCount.toLocaleString()
                 : "56k+",
             }}
             components={{
+              // eslint-disable-next-line @typescript-eslint/naming-convention
               2: <Link href={BASE_ROUTE} underline="hover" />,
             }}
           >
             Travel, host, and connect with{" "}
+            {/* eslint-disable-next-line @typescript-eslint/naming-convention */}
             {{ user_count: signupInfo?.userCount || "56k" }} members.{" "}
             <StyledLink href={BASE_ROUTE}>Learn more about us</StyledLink>.
           </Trans>

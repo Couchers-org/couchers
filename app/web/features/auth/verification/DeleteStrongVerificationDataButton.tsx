@@ -17,11 +17,11 @@ import { useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
 import { service } from "@/service";
 
-export default function DeleteStrongVerificationDataButton() {
+const DeleteStrongVerificationDataButton = () => {
   const { t } = useTranslation([GLOBAL, AUTH]);
 
-  const [open, setOpen] = useState(false);
-  const [deleted, setDeleted] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isDeleted, setIsDeleted] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -29,12 +29,12 @@ export default function DeleteStrongVerificationDataButton() {
     error,
     isPending,
     mutate: deleteData,
-  } = useMutation<void, RpcError>({
+  } = useMutation<unknown, RpcError>({
     mutationFn: () => service.account.deleteStrongVerificationData(),
     onSuccess: () => {
-      setOpen(false);
-      setDeleted(true);
-      queryClient.invalidateQueries({
+      setIsOpen(false);
+      setIsDeleted(true);
+      void queryClient.invalidateQueries({
         queryKey: [ACCOUNT_INFO_QUERY_KEY],
       });
     },
@@ -42,12 +42,12 @@ export default function DeleteStrongVerificationDataButton() {
 
   return (
     <>
-      {deleted && (
+      {isDeleted && (
         <Snackbar severity="success">
           <>{t("auth:strong_verification.delete_success")}</>
         </Snackbar>
       )}
-      <Dialog aria-labelledby="strong-verification-start-dialog" open={open}>
+      <Dialog aria-labelledby="strong-verification-start-dialog" open={isOpen}>
         <DialogTitle id="strong-verification-start-dialog">
           {t("auth:strong_verification.delete_data_title")}
         </DialogTitle>
@@ -78,7 +78,7 @@ export default function DeleteStrongVerificationDataButton() {
           <Button
             variant="outlined"
             onClick={() => {
-              setOpen(false);
+              setIsOpen(false);
             }}
           >
             {t("global:cancel")}
@@ -88,11 +88,13 @@ export default function DeleteStrongVerificationDataButton() {
       <Button
         loading={isPending}
         onClick={() => {
-          setOpen(true);
+          setIsOpen(true);
         }}
       >
         {t("auth:strong_verification.delete_button")}
       </Button>
     </>
   );
-}
+};
+
+export default DeleteStrongVerificationDataButton;

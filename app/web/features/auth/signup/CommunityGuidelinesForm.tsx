@@ -7,13 +7,17 @@ import { useAuthContext } from "@/features/auth/AuthProvider";
 import CommunityGuidelines from "@/features/auth/CommunityGuidelines";
 import { service } from "@/service";
 
-export default function CommunityGuidelinesForm() {
+const CommunityGuidelinesForm = () => {
   const { authActions, authState } = useAuthContext();
 
-  const mutation = useMutation<void, RpcError, boolean>({
+  const mutation = useMutation<unknown, RpcError, boolean>({
     mutationFn: async (accept) => {
+      if (!authState.flowState) {
+        return;
+      }
+
       const state = await service.auth.signupFlowCommunityGuidelines(
-        authState.flowState!.flowToken,
+        authState.flowState.flowToken,
         accept,
       );
       TagManager.dataLayer({
@@ -21,15 +25,16 @@ export default function CommunityGuidelinesForm() {
           event: "sign_up",
           signupMethod: "email",
           userId: state.authRes?.userId || -1,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
           "gtm.elementUrl": `${window.location.hostname}${window.location.pathname}`,
         },
       });
       authActions.updateSignupState(state);
     },
-    onMutate() {
+    onMutate: () => {
       authActions.clearError();
     },
-    onSettled() {
+    onSettled: () => {
       window.scroll({ top: 0, behavior: "smooth" });
     },
   });
@@ -44,4 +49,6 @@ export default function CommunityGuidelinesForm() {
       />
     </>
   );
-}
+};
+
+export default CommunityGuidelinesForm;

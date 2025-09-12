@@ -30,32 +30,30 @@ const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
 >;
 const [, firstAdmin, secondAdmin, thirdAdmin] = users;
 
-async function assertAdminsShown(
-  element: typeof screen | ReturnType<typeof within>,
-) {
+const assertAdminsShown = async (rootElement: HTMLElement = document.body) => {
   expect(
-    await element.findByRole("link", {
+    await within(rootElement).findByRole("link", {
       name: getProfileLinkA11yLabel(firstAdmin.name),
     }),
   ).toBeVisible();
   expect(
-    element.getByText(`${firstAdmin.name}, ${firstAdmin.age}`),
+    within(rootElement).getByText(`${firstAdmin.name}, ${firstAdmin.age}`),
   ).toBeVisible();
   expect(
-    element.getByRole("link", {
+    within(rootElement).getByRole("link", {
       name: getProfileLinkA11yLabel(secondAdmin.name),
     }),
   ).toBeVisible();
   expect(
-    element.getByText(`${secondAdmin.name}, ${secondAdmin.age}`),
+    within(rootElement).getByText(`${secondAdmin.name}, ${secondAdmin.age}`),
   ).toBeVisible();
-}
+};
 
 describe("Community info page", () => {
   beforeEach(() => {
     getLiteUsersMock.mockImplementation(getLiteUsers);
     listAdminsMock.mockImplementation(listCommunityAdmins);
-    process.env.NEXT_PUBLIC_MEDIA_BASE_URL = "http://mymedia.com";
+    Config.mediaBaseUrl = "http://mymedia.com";
   });
 
   afterEach(() => {
@@ -88,7 +86,7 @@ describe("Community info page", () => {
       }),
     ).toBeVisible();
 
-    await assertAdminsShown(screen);
+    await assertAdminsShown();
 
     // Shouldn't show "see all moderators" button since the page already shows
     // everyone in this case
@@ -122,11 +120,11 @@ describe("Community info page", () => {
 
       await user.click(editLink);
 
-      await waitFor(() =>
-        { expect(mockRouter.pathname).toBe(
+      await waitFor(() => {
+        expect(mockRouter.pathname).toBe(
           routeToEditCommunityPage(community.communityId, community.slug),
-        ); },
-      );
+        );
+      });
     });
   });
 
@@ -159,20 +157,22 @@ describe("Community info page", () => {
           name: t("communities:see_all_moderators"),
         }),
       );
-      const adminDialog = within(
-        await screen.findByRole("dialog", {
-          name: t("communities:community_moderators"),
-        }),
-      );
+
+      const adminDialog = await screen.findByRole("dialog", {
+        name: t("communities:community_moderators"),
+      });
+
+      const withinAdminDialog = within(adminDialog);
 
       expect(
-        adminDialog.getByRole("heading", {
+        withinAdminDialog.getByRole("heading", {
           name: t("communities:community_moderators"),
         }),
       ).toBeVisible();
+
       await assertAdminsShown(adminDialog);
       expect(
-        adminDialog.getByRole("button", {
+        withinAdminDialog.getByRole("button", {
           name: t("communities:load_more_moderators"),
         }),
       ).toBeVisible();
@@ -221,19 +221,19 @@ describe("Community info page", () => {
         }),
       );
 
-      const adminDialog = within(
-        await screen.findByRole("dialog", {
-          name: t("communities:community_moderators"),
-        }),
-      );
-      assertAdminsShown(adminDialog);
+      const adminDialog = await screen.findByRole("dialog", {
+        name: t("communities:community_moderators"),
+      });
+
+      const withinAdminDialog = within(adminDialog);
+      await assertAdminsShown(adminDialog);
       expect(
-        await adminDialog.findByRole("link", {
+        await withinAdminDialog.findByRole("link", {
           name: getProfileLinkA11yLabel(thirdAdmin.name),
         }),
       ).toBeVisible();
       expect(
-        adminDialog.getByText(`${thirdAdmin.name}, ${thirdAdmin.age}`),
+        withinAdminDialog.getByText(`${thirdAdmin.name}, ${thirdAdmin.age}`),
       ).toBeVisible();
 
       // Check it doesn't affect the underlying page
@@ -243,14 +243,16 @@ describe("Community info page", () => {
           name: t("communities:community_moderators"),
         }),
       );
-      await waitFor(() =>
-        { expect(
-          adminDialog.queryByRole("link", {
+      await waitFor(() => {
+        expect(
+          withinAdminDialog.queryByRole("link", {
             name: getProfileLinkA11yLabel(thirdAdmin.name),
           }),
-        ).not.toBeInTheDocument(); },
-      );
-      expect(adminDialog.queryByRole(thirdAdmin.name)).not.toBeInTheDocument();
+        ).not.toBeInTheDocument();
+      });
+      expect(
+        withinAdminDialog.queryByRole(thirdAdmin.name),
+      ).not.toBeInTheDocument();
     });
 
     it("closes the dialog by clicking the backdrop", async () => {
@@ -263,13 +265,13 @@ describe("Community info page", () => {
         }),
       );
 
-      await waitFor(() =>
-        { expect(
+      await waitFor(() => {
+        expect(
           screen.queryByRole("button", {
             name: t("communities:load_more_moderators"),
           }),
-        ).not.toBeInTheDocument(); },
-      );
+        ).not.toBeInTheDocument();
+      });
     });
 
     it("closes the dialog by pressing the escape key", async () => {
@@ -288,13 +290,13 @@ describe("Community info page", () => {
         }),
       );
 
-      await waitFor(() =>
-        { expect(
+      await waitFor(() => {
+        expect(
           screen.queryByRole("button", {
             name: t("communities:load_more_moderators"),
           }),
-        ).not.toBeInTheDocument(); },
-      );
+        ).not.toBeInTheDocument();
+      });
     });
   });
 });

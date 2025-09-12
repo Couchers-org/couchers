@@ -26,13 +26,13 @@ const StyledWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function PageHeader({
+const PageHeader = ({
   page,
   className,
 }: {
   page: Page.AsObject;
   className?: string;
-}) {
+}) => {
   if (page.photoUrl) {
     return (
       <StyledWrapper
@@ -52,4 +52,6 @@ export default function PageHeader({
       <Map grow interactive={false} initialCenter={lngLat} initialZoom={zoom} />
     </StyledWrapper>
   );
-}
+};
+
+export default PageHeader;

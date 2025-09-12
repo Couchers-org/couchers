@@ -24,9 +24,12 @@ import Signup from "./Signup";
 const { t } = i18n;
 
 jest.mock("@mui/x-date-pickers", () => {
+  const originalModule = jest.requireActual<
+    typeof import("@mui/x-date-pickers")
+  >("@mui/x-date-pickers");
   return {
-    ...jest.requireActual("@mui/x-date-pickers"),
-    DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
+    ...originalModule,
+    DatePicker: originalModule.DesktopDatePicker,
   };
 });
 
@@ -247,16 +250,24 @@ describe("Signup", () => {
       const checkboxes = await screen.findAllByLabelText(
         t("auth:community_guidelines_form.guideline.checkbox_label"),
       );
-      checkboxes.forEach(async (checkbox) => { await user.click(checkbox); });
+      await Promise.all(
+        checkboxes.map(async (checkbox) => {
+          await user.click(checkbox);
+        }),
+      );
       const button = await screen.findByRole("button", {
         name: t("global:submit"),
       });
 
-      await waitFor(() => { expect(button).not.toBeDisabled(); });
+      await waitFor(() => {
+        expect(button).not.toBeDisabled();
+      });
 
       await user.click(button);
 
-      await waitFor(() => { expect(mockRouter.pathname).toBe(DASHBOARD_ROUTE); });
+      await waitFor(() => {
+        expect(mockRouter.pathname).toBe(DASHBOARD_ROUTE);
+      });
 
       expect(TagManager.dataLayer).toHaveBeenCalledTimes(1);
       expect(TagManager.dataLayer).toHaveBeenCalledWith({
@@ -433,7 +444,7 @@ describe("Signup", () => {
     expect(
       await screen.findByLabelText(t("auth:account_form.username.field_label")),
     ).toBeVisible();
-    expect(signupFlowEmailTokenMock).toBeCalledWith("fakeEmailToken");
+    expect(signupFlowEmailTokenMock).toHaveBeenCalledWith("fakeEmailToken");
     const { result } = renderHook(() => useAuthStore(), { wrapper });
     expect(result.current.authState.flowState?.needVerifyEmail).toBe(false);
   });

@@ -13,10 +13,10 @@ type StrongVerificationProps = {
   className?: string;
 };
 
-export default function StrongVerification({
+const StrongVerification = ({
   className,
   accountInfo,
-}: StrongVerificationProps) {
+}: StrongVerificationProps) => {
   const { t } = useTranslation(AUTH);
 
   return (
@@ -61,4 +61,6 @@ export default function StrongVerification({
       )}
     </div>
   );
-}
+};
+
+export default StrongVerification;

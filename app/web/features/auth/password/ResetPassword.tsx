@@ -32,7 +32,7 @@ const StyledTextField = styled(TextField)(() => ({
   },
 }));
 
-export default function ResetPassword() {
+const ResetPassword = () => {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { handleSubmit, register } = useForm<{ userId: string }>();
 
@@ -54,7 +54,7 @@ export default function ResetPassword() {
       <HtmlMeta title={t("auth:reset_password")} />
       <PageTitle>{t("auth:reset_password")}</PageTitle>
       {error && <Alert severity="error">{error.message}</Alert>}
-      <StyledForm onSubmit={onSubmit}>
+      <StyledForm onSubmit={() => void onSubmit()}>
         <StyledTextField
           id="userId"
           {...register("userId", { required: true })}
@@ -74,4 +74,6 @@ export default function ResetPassword() {
       </StyledForm>
     </StyledMain>
   );
-}
+};
+
+export default ResetPassword;

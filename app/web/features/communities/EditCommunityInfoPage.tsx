@@ -12,15 +12,15 @@ import MarkdownInput from "@/components/MarkdownInput";
 import PageTitle from "@/components/PageTitle";
 import Redirect from "@/components/Redirect";
 import Snackbar from "@/components/Snackbar";
+import { communityKey } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
+import { Community } from "@/proto/communities_pb";
+import { Page } from "@/proto/pages_pb";
 import { routeToCommunity } from "@/routes";
 import { service } from "@/service";
 import { theme } from "@/theme";
 
-import { Community } from "@/proto/communities_pb";
-import { Page } from "@/proto/pages_pb";
-import { communityKey } from "@/features/queryKeys";
 import CommunityBase from "./CommunityBase";
 
 const StyledForm = styled("form")(() => ({
@@ -45,11 +45,7 @@ interface UpdatePageData {
   communityPhotoKey?: string;
 }
 
-export default function EditCommunityPage({
-  communityId,
-}: {
-  communityId: number;
-}) {
+const EditCommunityPage = ({ communityId }: { communityId: number }) => {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -75,7 +71,7 @@ export default function EditCommunityPage({
       });
     },
 
-    onSuccess(newPageData, { communityId }) {
+    onSuccess: async (newPageData, { communityId }) => {
       queryClient.setQueryData<Community.AsObject | undefined>(
         communityKey(+communityId),
         (community) =>
@@ -86,16 +82,18 @@ export default function EditCommunityPage({
               }
             : undefined,
       );
-      queryClient.invalidateQueries({ queryKey: communityKey(+communityId) });
+      await queryClient.invalidateQueries({
+        queryKey: communityKey(+communityId),
+      });
     },
   });
 
   const onSubmit = handleSubmit(
-    (data) => {
+    async (data) => {
       updatePage(data);
       const currentPath = router.asPath;
       const newPath = currentPath.replace("/edit", "");
-      router.push(newPath);
+      await router.push(newPath);
     },
     (errors) => {
       if (errors.communityPhotoKey) {
@@ -116,7 +114,7 @@ export default function EditCommunityPage({
                 {error?.message || errors.communityPhotoKey?.message || ""}
               </Alert>
             )}
-            <StyledForm onSubmit={onSubmit}>
+            <StyledForm onSubmit={() => void onSubmit()}>
               <ImageInput
                 alt={t("communities:community_image_input_alt")}
                 control={control}
@@ -172,4 +170,6 @@ export default function EditCommunityPage({
       }}
     </CommunityBase>
   );
-}
+};
+
+export default EditCommunityPage;

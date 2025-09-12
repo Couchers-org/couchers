@@ -14,39 +14,40 @@ import Badge from "@/features/badges/Badge";
 import { useBadges } from "@/features/badges/hooks";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
+import { theme } from "@/theme";
 
 import BadgeUserList from "./BadgeUserList";
 
-const BadgeListItem = styled("div")(({ theme }) => ({
+const BadgeListItem = styled("div")(() => ({
   [theme.breakpoints.down("md")]: {
     display: "inline-block",
   },
 }));
 
-const StyledDivider = styled(Divider)<DividerProps>(({ theme }) => ({
+const StyledDivider = styled(Divider)<DividerProps>(() => ({
   margin: theme.spacing(2),
 }));
 
-const FlexDiv = styled("div")(({ theme }) => ({
+const FlexDiv = styled("div")(() => ({
   display: "flex",
   gap: theme.spacing(2),
   alignItems: "start",
 }));
 
-const ParentFlexDiv = styled(FlexDiv)(({ theme }) => ({
+const ParentFlexDiv = styled(FlexDiv)(() => ({
   [theme.breakpoints.down("md")]: {
     flexDirection: "column",
     gap: theme.spacing(0),
   },
 }));
 
-const ContentDiv = styled("div")(({ theme }) => ({
+const ContentDiv = styled("div")(() => ({
   padding: theme.spacing(2),
   alignSelf: "stretch",
   width: "100%",
 }));
 
-const CenteredDiv = styled(ContentDiv)(({ theme }) => ({
+const CenteredDiv = styled(ContentDiv)(() => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -56,7 +57,7 @@ export interface BadgesPageProps {
   badgeId?: string;
 }
 
-export default function BadgesPage({ badgeId = undefined }: BadgesPageProps) {
+const BadgesPage = ({ badgeId = undefined }: BadgesPageProps) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const { badges, isLoading: isBadgesLoading } = useBadges();
   const theme = useTheme();
@@ -112,4 +113,6 @@ export default function BadgesPage({ badgeId = undefined }: BadgesPageProps) {
       </ParentFlexDiv>
     </>
   );
-}
+};
+
+export default BadgesPage;

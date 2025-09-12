@@ -26,20 +26,24 @@ interface ModNoteCardProps {
   updateJailed: () => void;
 }
 
-export default function ModNoteCard({ note, updateJailed }: ModNoteCardProps) {
+const ModNoteCard = ({ note, updateJailed }: ModNoteCardProps) => {
   const {
     t,
     i18n: { language: locale },
   } = useTranslation([AUTH, GLOBAL]);
-  const [acknowledged, setAcknowledged] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isAcknowledged, setIsAcknowledged] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  if (!note.created) {
+    return <></>;
+  }
 
   const formattedTime = dateFormatter(locale).format(
-    timestamp2Date(note.created!),
+    timestamp2Date(note.created),
   );
 
   const acknowledge = async () => {
-    setLoading(true);
+    setIsLoading(true);
     const info = await service.jail.acknowledgePendingModNote(
       note.noteId,
       true,
@@ -48,8 +52,8 @@ export default function ModNoteCard({ note, updateJailed }: ModNoteCardProps) {
       updateJailed();
     } else {
       // if user is no longer jailed, this component will be unmounted anyway
-      setLoading(false);
-      setAcknowledged(true);
+      setIsLoading(false);
+      setIsAcknowledged(true);
     }
   };
 
@@ -63,11 +67,17 @@ export default function ModNoteCard({ note, updateJailed }: ModNoteCardProps) {
       <StyledNoteCard>
         <Markdown source={note.noteContent} topHeaderLevel={3} />
       </StyledNoteCard>
-      <Button loading={loading} onClick={acknowledge} disabled={acknowledged}>
-        {acknowledged
+      <Button
+        loading={isLoading}
+        onClick={acknowledge}
+        disabled={isAcknowledged}
+      >
+        {isAcknowledged
           ? t("global:thanks")
           : t("auth:jail.mod_note_section.acknowledge")}
       </Button>
     </StyledNoteContainer>
   );
-}
+};
+
+export default ModNoteCard;

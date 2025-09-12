@@ -33,7 +33,7 @@ const StyledForm = styled("form")(() => ({
   },
 }));
 
-export default function ChangePassword({ className }: ChangePasswordProps) {
+const ChangePassword = ({ className }: ChangePasswordProps) => {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
@@ -60,8 +60,8 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
   } = useMutation<Empty, RpcError, ChangePasswordVariables>({
     mutationFn: ({ oldPassword, newPassword }) =>
       service.account.changePassword(oldPassword, newPassword),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: [ACCOUNT_INFO_QUERY_KEY],
       });
       resetForm();
@@ -81,7 +81,7 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
           {t("auth:change_password_form.password_changed_success")}
         </Alert>
       )}
-      <StyledForm onSubmit={onSubmit}>
+      <StyledForm onSubmit={() => void onSubmit()}>
         <TextField
           {...register("oldPassword", { required: true })}
           id="oldPassword"
@@ -119,4 +119,6 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
       </StyledForm>
     </div>
   );
-}
+};
+
+export default ChangePassword;

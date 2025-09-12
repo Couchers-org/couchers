@@ -2,22 +2,27 @@ import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { useForm } from "react-hook-form";
 
+import wrapper from "@/test/hookWrapper";
 import { Dayjs } from "@/utils/dayjs";
 
-import wrapper from "@/test/hookWrapper";
 import Timepicker from "./Timepicker";
 
 jest.mock("@mui/x-date-pickers", () => {
+  const originalModule = jest.requireActual<
+    typeof import("@mui/x-date-pickers")
+  >("@mui/x-date-pickers");
   return {
-    ...jest.requireActual("@mui/x-date-pickers"),
-    DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
-    TimePicker: jest.requireActual("@mui/x-date-pickers").DesktopTimePicker,
+    ...originalModule,
+    DatePicker: originalModule.DesktopDatePicker,
+    TimePicker: originalModule.DesktopTimePicker,
   };
 });
 
 const Form = ({ setTime }: { setTime: (time: Dayjs | null) => void }) => {
   const { control, handleSubmit } = useForm();
-  const onSubmit = handleSubmit((data) => { setTime(data.timefield); });
+  const onSubmit = handleSubmit((data) => {
+    setTime(data.timefield);
+  });
   return (
     <form onSubmit={onSubmit}>
       <Timepicker

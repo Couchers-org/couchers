@@ -30,26 +30,12 @@ const StyledCard = styled(Card)(({ theme }) => ({
   marginBottom: theme.spacing(1),
 }));
 
-export default function LoginsPage({
-  session,
-}: {
-  session: ActiveSession.AsObject;
-}) {
+const LoginsPage = ({ session }: { session: ActiveSession.AsObject }) => {
   const {
     t,
     i18n: { language: locale },
   } = useTranslation([GLOBAL, AUTH]);
 
-  const lastSeenDisplay = timeAgoI18n({
-    input: timestamp2Date(session.lastSeen!),
-    t,
-  });
-  const createdDisplay = dateTimeFormatter(locale).format(
-    timestamp2Date(session.created!),
-  );
-  const expiryDisplay = dateFormatter(locale).format(
-    timestamp2Date(session.expiry!),
-  );
   const queryClient = useQueryClient();
 
   const {
@@ -58,21 +44,43 @@ export default function LoginsPage({
     mutate: logOutThisSession,
   } = useMutation({
     mutationFn: async () => {
-      await service.account.logOutSession(session.created!);
+      if (!session.created) {
+        return;
+      }
+
+      await service.account.logOutSession(session.created);
     },
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: [ACTIVE_LOGINS_KEY],
       });
     },
   });
+
+  if (!session.lastSeen || !session.created || !session.expiry) {
+    return <></>;
+  }
+
+  const lastSeenDisplay = timeAgoI18n({
+    input: timestamp2Date(session.lastSeen),
+    t,
+  });
+
+  const createdDisplay = dateTimeFormatter(locale).format(
+    timestamp2Date(session.created),
+  );
+
+  const expiryDisplay = dateFormatter(locale).format(
+    timestamp2Date(session.expiry),
+  );
 
   return (
     <StyledCard>
       <CardContent>
         <Typography variant="h2">
           <Trans t={t} i18nKey="auth:active_logins.login_header">
+            {/* eslint-disable-next-line @typescript-eslint/naming-convention */}
             Login on {{ login_datetime: createdDisplay }}
           </Trans>
         </Typography>
@@ -83,6 +91,7 @@ export default function LoginsPage({
             <Trans
               t={t}
               i18nKey="auth:active_logins.location"
+              // eslint-disable-next-line @typescript-eslint/naming-convention
               values={{ approximate_location: session.approximateLocation }}
             >
               {`Near `}
@@ -96,6 +105,7 @@ export default function LoginsPage({
             <Trans
               t={t}
               i18nKey="auth:active_logins.last_activity"
+              // eslint-disable-next-line @typescript-eslint/naming-convention
               values={{ last_activity_ago: lastSeenDisplay }}
             >
               Last activity <strong>{lastSeenDisplay}</strong>
@@ -108,6 +118,7 @@ export default function LoginsPage({
             <Trans
               t={t}
               i18nKey="auth:active_logins.expiry"
+              // eslint-disable-next-line @typescript-eslint/naming-convention
               values={{ expiry_datetime: expiryDisplay }}
             >
               {`Expires on `}
@@ -143,4 +154,6 @@ export default function LoginsPage({
       )}
     </StyledCard>
   );
-}
+};
+
+export default LoginsPage;

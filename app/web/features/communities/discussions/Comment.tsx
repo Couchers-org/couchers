@@ -22,7 +22,7 @@ import { Reply } from "@/proto/threads_pb";
 import { theme } from "@/theme";
 import { timestamp2Date } from "@/utils/date";
 import hasAtLeastOnePage from "@/utils/hasAtLeastOnePage";
-import { timeAgo } from "@/utils/timeAgo";
+import { timeAgoI18n } from "@/utils/timeAgo";
 
 import CommentForm from "./CommentForm";
 
@@ -97,7 +97,7 @@ interface CommentProps {
   topLevel?: boolean;
 }
 
-export default function Comment({ topLevel = false, comment }: CommentProps) {
+const Comment = ({ topLevel = false, comment }: CommentProps) => {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const { data: user, isLoading: isUserLoading } = useLiteUser(
     comment.authorUserId,
@@ -112,22 +112,26 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
     isFetchingNextPage,
   } = useThread(comment.threadId, { enabled: topLevel });
   const isCommentsRefetching = !isCommentsLoading && isCommentsFetching;
-  const showLoadMoreButton = topLevel && hasNextPage;
+  const shouldShowLoadMoreButton = topLevel && hasNextPage;
 
-  const [showCommentForm, setShowCommentForm] = useState(false);
+  const [shouldShowCommentForm, setShouldShowCommentForm] = useState(false);
   const commentFormRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if (showCommentForm && commentFormRef.current) {
+    if (shouldShowCommentForm && commentFormRef.current) {
       commentFormRef.current.scrollIntoView({
         behavior: "smooth",
         block: "center",
       });
     }
-  }, [showCommentForm]);
+  }, [shouldShowCommentForm]);
 
-  const replyDate = timestamp2Date(comment.createdTime!);
-  const postedTime = timeAgo(replyDate);
+  if (!comment.createdTime) {
+    return <></>;
+  }
+
+  const replyDate = timestamp2Date(comment.createdTime);
+  const postedTime = timeAgoI18n({ input: replyDate, t });
 
   return (
     <>
@@ -163,7 +167,7 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
         {topLevel && (
           <StyledReplyButton
             onClick={() => {
-              setShowCommentForm(true);
+              setShouldShowCommentForm(true);
             }}
           >
             {t("global:reply")}
@@ -174,12 +178,12 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
         <CenteredSpinner />
       ) : (
         <StyledNestedCommentsContainer>
-          {!showLoadMoreButton && isCommentsRefetching && (
+          {!shouldShowLoadMoreButton && isCommentsRefetching && (
             <CircularProgress data-testid={REFETCH_LOADING_TEST_ID} />
           )}
           {hasAtLeastOnePage(comments, "repliesList") && (
             <>
-              {showLoadMoreButton && (
+              {shouldShowLoadMoreButton && (
                 <StyledLoadEarlierRepliesButton
                   loading={isFetchingNextPage}
                   onClick={() => fetchNextPage()}
@@ -199,10 +203,10 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
             <CommentForm
               canBeHidden
               onClose={() => {
-                setShowCommentForm(false);
+                setShouldShowCommentForm(false);
               }}
               ref={commentFormRef}
-              shown={showCommentForm}
+              shown={shouldShowCommentForm}
               threadId={comment.threadId}
             />
           )}
@@ -210,4 +214,6 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
       )}
     </>
   );
-}
+};
+
+export default Comment;

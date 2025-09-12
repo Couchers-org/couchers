@@ -16,12 +16,13 @@ const { t } = i18n;
 jest.mock("components/MarkdownInput");
 
 jest.mock("@mui/x-date-pickers", () => {
+  const originalModule = jest.requireActual<
+    typeof import("@mui/x-date-pickers")
+  >("@mui/x-date-pickers");
   return {
-    ...jest.requireActual("@mui/x-date-pickers"),
-    /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-    DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
-    TimePicker: jest.requireActual("@mui/x-date-pickers").DesktopTimePicker,
-    /* eslint-enable @typescript-eslint/no-unsafe-member-access */
+    ...originalModule,
+    DatePicker: originalModule.DesktopDatePicker,
+    TimePicker: originalModule.DesktopTimePicker,
   };
 });
 

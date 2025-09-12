@@ -26,9 +26,9 @@ interface CommunityModeratorsSectionProps {
   community: Community.AsObject;
 }
 
-export default function CommunityModeratorsSection({
+const CommunityModeratorsSection = ({
   community,
-}: CommunityModeratorsSectionProps) {
+}: CommunityModeratorsSectionProps) => {
   const { t } = useTranslation([COMMUNITIES]);
   const { adminIds, error, hasNextPage } = useListAdmins(
     community.communityId,
@@ -53,17 +53,23 @@ export default function CommunityModeratorsSection({
       {hasNextPage && (
         <>
           <StyledLoadMoreModeratorsButton
-            onClick={() => { setIsModeratorsDialogOpen(true); }}
+            onClick={() => {
+              setIsModeratorsDialogOpen(true);
+            }}
           >
             {t("communities:see_all_moderators")}
           </StyledLoadMoreModeratorsButton>
           <CommunityModeratorsDialog
             community={community}
-            onClose={() => { setIsModeratorsDialogOpen(false); }}
+            onClose={() => {
+              setIsModeratorsDialogOpen(false);
+            }}
             open={isModeratorsDialogOpen}
           />
         </>
       )}
     </StyledSection>
   );
-}
+};
+
+export default CommunityModeratorsSection;

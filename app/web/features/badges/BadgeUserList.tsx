@@ -10,7 +10,7 @@ export interface BadgeUserListProps {
   badgeId: string;
 }
 
-export default function BadgeUserList({ badgeId }: BadgeUserListProps) {
+const BadgeUserList = ({ badgeId }: BadgeUserListProps) => {
   const { t } = useTranslation([PROFILE]);
 
   const { badgeUserIds, hasNextPage, isFetchingNextPage, fetchNextPage } =
@@ -31,4 +31,6 @@ export default function BadgeUserList({ badgeId }: BadgeUserListProps) {
       }
     />
   );
-}
+};
+
+export default BadgeUserList;

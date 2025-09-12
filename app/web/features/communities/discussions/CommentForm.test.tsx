@@ -18,12 +18,12 @@ const postReplyMock = service.threads.postReply as MockedService<
   typeof service.threads.postReply
 >;
 
-function renderCommentForm() {
+const renderCommentForm = () => {
   mockRouter.setCurrentUrl(
     `${DISCUSSION_BASE_ROUTE}/1/what-is-there-to-do-in-amsterdam`,
   );
   render(<CommentForm threadId={999} shown={true} />, { wrapper });
-}
+};
 
 describe("Comment form", () => {
   beforeAll(() => {
@@ -51,7 +51,7 @@ describe("Comment form", () => {
       t("communities:write_comment_a11y_label"),
     );
 
-    user.type(commentInput, newComment);
+    await user.type(commentInput, newComment);
 
     await waitFor(
       () => {
@@ -60,7 +60,9 @@ describe("Comment form", () => {
       { timeout: 2000 },
     );
 
-    user.click(screen.getByRole("button", { name: t("communities:comment") }));
+    await user.click(
+      screen.getByRole("button", { name: t("communities:comment") }),
+    );
 
     await waitFor(() => {
       expect(postReplyMock).toHaveBeenCalledTimes(1);
@@ -76,7 +78,9 @@ describe("Comment form", () => {
 
     const user = userEvent.setup();
 
-    user.click(screen.getByRole("button", { name: t("communities:comment") }));
+    await user.click(
+      screen.getByRole("button", { name: t("communities:comment") }),
+    );
 
     expect(postReplyMock).not.toHaveBeenCalled();
   });
@@ -90,13 +94,15 @@ describe("Comment form", () => {
       t("communities:write_comment_a11y_label"),
     );
 
-    user.type(commentInput, "   ");
+    await user.type(commentInput, "   ");
 
     await waitFor(() => {
       expect(commentInput).toHaveValue("   ");
     });
 
-    user.click(screen.getByRole("button", { name: t("communities:comment") }));
+    await user.click(
+      screen.getByRole("button", { name: t("communities:comment") }),
+    );
 
     expect(postReplyMock).not.toHaveBeenCalled();
   });

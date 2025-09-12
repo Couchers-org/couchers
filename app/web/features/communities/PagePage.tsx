@@ -1,4 +1,5 @@
 import { useTranslation } from "next-i18next";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 
@@ -9,12 +10,13 @@ import HtmlMeta from "@/components/HtmlMeta";
 import Markdown from "@/components/Markdown";
 import PageTitle from "@/components/PageTitle";
 import TextBody from "@/components/TextBody";
+import log from "@/log";
 import { Page, PageType } from "@/proto/pages_pb";
 import { routeToGuide, routeToPlace } from "@/routes";
 import { service } from "@/service";
 import isGrpcError from "@/service/utils/isGrpcError";
 
-export default function PagePage({
+const PagePage = ({
   pageType,
   pageId,
   pageSlug,
@@ -22,9 +24,9 @@ export default function PagePage({
   pageType: PageType;
   pageId: number;
   pageSlug?: string;
-}) {
+}) => {
   const { t } = useTranslation(["communities", "global"]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [page, setPage] = useState<Page.AsObject | null>(null);
 
@@ -32,8 +34,8 @@ export default function PagePage({
 
   useEffect(() => {
     if (!pageId) return;
-    (async () => {
-      setLoading(true);
+    void (async () => {
+      setIsLoading(true);
       try {
         const page = await service.pages.getPage(pageId);
         if (
@@ -41,7 +43,7 @@ export default function PagePage({
           (page.type !== pageType && typeof window !== "undefined")
         ) {
           // if the address is wrong, redirect to the right place
-          router.push(
+          await router.push(
             pageType === PageType.PAGE_TYPE_PLACE
               ? routeToPlace(page.pageId, page.slug)
               : routeToGuide(page.pageId, page.slug),
@@ -50,30 +52,30 @@ export default function PagePage({
           setPage(page);
         }
       } catch (e) {
-        console.error(e);
+        log.error(e);
         setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
       }
-      setLoading(false);
+      setIsLoading(false);
     })();
   }, [pageType, pageId, pageSlug, router, t]);
 
   return (
     <>
       {error && <Alert severity="error">{error}</Alert>}
-      {loading ? (
+      {isLoading ? (
         <CenteredSpinner />
       ) : page ? (
         <>
           <HtmlMeta title={page.title} />
-          {page.photoUrl && <img src={page.photoUrl} alt="" />}
+          {page.photoUrl && <Image src={page.photoUrl} alt="" />}
           <PageTitle>{page.title}</PageTitle>
           <p>
             Owner:{" "}
             {page.ownerUserId !== 0
-              ? "user " + page.ownerUserId
+              ? `user ${page.ownerUserId}`
               : page.ownerCommunityId !== 0
-                ? "community " + page.ownerCommunityId
-                : "group " + page.ownerGroupId}
+                ? `community ${page.ownerCommunityId}`
+                : `group ${page.ownerGroupId}`}
           </p>
           <p>
             Last edited at {page.lastEdited?.seconds} by {page.lastEditorUserId}
@@ -82,18 +84,20 @@ export default function PagePage({
             Created at {page.created?.seconds} by {page.creatorUserId}
           </p>
           <p>
-            Address: {page.address} (coords: {page.location!.lat},{" "}
-            {page.location!.lng})
+            Address: {page.address} (coords: {page.location?.lat ?? ""},{" "}
+            {page.location?.lng ?? ""})
           </p>
           <Markdown source={page.content} />
           <p>
             You <b>{page.canEdit ? "can" : "cannot"}</b> edit this page.
           </p>
-          <CommentBox threadId={page.thread!.threadId} />
+          <CommentBox threadId={page.thread?.threadId ?? 0} />
         </>
       ) : (
         <TextBody>Error</TextBody>
       )}
     </>
   );
-}
+};
+
+export default PagePage;

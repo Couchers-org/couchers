@@ -21,7 +21,7 @@ type NewGuideInputs = {
   lng?: number;
 };
 
-export default function NewGuideForm() {
+const NewGuideForm = () => {
   const {
     control,
     register,
@@ -45,8 +45,8 @@ export default function NewGuideForm() {
       // TODO: parent community ID
       service.pages.createGuide(title, content, 1, address, lat, lng),
 
-    onSuccess: (page) => {
-      router.push(
+    onSuccess: async (page) => {
+      await router.push(
         page.type === PageType.PAGE_TYPE_PLACE
           ? routeToPlace(page.pageId, page.slug)
           : routeToGuide(page.pageId, page.slug),
@@ -54,22 +54,24 @@ export default function NewGuideForm() {
     },
   });
 
-  const onSubmit = handleSubmit((data: NewGuideInputs) => { createGuide(data); });
+  const onSubmit = handleSubmit((data: NewGuideInputs) => {
+    createGuide(data);
+  });
 
   return (
     <>
-      {createError && <Alert severity="error">{createError?.message}</Alert>}
+      {createError && <Alert severity="error">{createError.message}</Alert>}
       {isCreateLoading ? (
         <CenteredSpinner />
       ) : (
-        <form onSubmit={onSubmit}>
+        <form onSubmit={() => void onSubmit()}>
           <TextField
             id="new-page-title"
             {...register("title", {
               required: "Enter a page title",
             })}
             label="Page Title"
-            helperText={errors?.title?.message}
+            helperText={errors.title?.message}
           />
           <ProfileMarkdownInput
             id="content"
@@ -104,4 +106,6 @@ export default function NewGuideForm() {
       )}
     </>
   );
-}
+};
+
+export default NewGuideForm;

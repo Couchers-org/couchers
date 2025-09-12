@@ -24,10 +24,10 @@ type ProfileVisibilityProps = {
   className?: string;
 };
 
-export default function ProfileVisibility({
+const ProfileVisibility = ({
   className,
   accountInfo,
-}: ProfileVisibilityProps) {
+}: ProfileVisibilityProps) => {
   const { t } = useTranslation([GLOBAL, AUTH]);
 
   const { handleSubmit, reset, control } = useForm<{
@@ -45,8 +45,8 @@ export default function ProfileVisibility({
     ProfilePublicVisibility
   >({
     mutationFn: (choice) => service.account.setProfilePublicVisibility(choice),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: [ACCOUNT_INFO_QUERY_KEY],
       });
     },
@@ -61,18 +61,6 @@ export default function ProfileVisibility({
       ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_MAP_ONLY,
       "auth:profile_visibility.visiblility_options.map_only",
     ],
-    // [
-    //   ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_LIMITED,
-    //   "auth:profile_visibility.visiblility_options.limited",
-    // ],
-    // [
-    //   ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_MOST,
-    //   "auth:profile_visibility.visiblility_options.most",
-    // ],
-    // [
-    //   ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_FULL,
-    //   "auth:profile_visibility.visiblility_options.full_profile",
-    // ],
   ];
 
   useEffect(() => {
@@ -86,7 +74,7 @@ export default function ProfileVisibility({
         {t("auth:profile_visibility.choose")}
       </Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
-      <form onSubmit={onSubmit}>
+      <form onSubmit={() => void onSubmit()}>
         <Controller
           control={control}
           name="choice"
@@ -96,7 +84,7 @@ export default function ProfileVisibility({
               <RadioGroup
                 {...field}
                 row
-                onChange={(event, newValue) => {
+                onChange={(_event, newValue) => {
                   field.onChange(Number(newValue));
                 }}
                 sx={{ marginBlockStart: 1 }}
@@ -110,6 +98,7 @@ export default function ProfileVisibility({
                       <Trans
                         t={t}
                         i18nKey={translationKey}
+                        // eslint-disable-next-line @typescript-eslint/naming-convention
                         components={{ "1": <strong /> }}
                       />
                     }
@@ -130,4 +119,6 @@ export default function ProfileVisibility({
       </form>
     </div>
   );
-}
+};
+
+export default ProfileVisibility;

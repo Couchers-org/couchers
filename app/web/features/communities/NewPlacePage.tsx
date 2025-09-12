@@ -5,7 +5,7 @@ import PageTitle from "@/components/PageTitle";
 
 import NewPlaceForm from "./NewPlaceForm";
 
-export default function NewPlacePage() {
+const NewPlacePage = () => {
   return (
     <>
       <HtmlMeta title={"Create a new place"} />
@@ -13,4 +13,6 @@ export default function NewPlacePage() {
       <NewPlaceForm />
     </>
   );
-}
+};
+
+export default NewPlacePage;

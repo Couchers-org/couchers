@@ -19,7 +19,7 @@ import TextField from "@/components/TextField";
 import { ACCOUNT_INFO_QUERY_KEY } from "@/features/queryKeys";
 import { AUTH } from "@/i18n/namespaces";
 import { GetAccountInfoRes } from "@/proto/account_pb";
-import { howToDonateUrl } from "@/routes";
+import { HOW_TO_DONATE_URL } from "@/routes";
 import { service } from "@/service";
 import { theme } from "@/theme";
 
@@ -46,10 +46,7 @@ type ChangePhoneProps = {
   className?: string;
 };
 
-export default function ChangePhone({
-  className,
-  accountInfo,
-}: ChangePhoneProps) {
+const ChangePhone = ({ className, accountInfo }: ChangePhoneProps) => {
   const { t } = useTranslation([AUTH]);
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
@@ -72,8 +69,8 @@ export default function ChangePhone({
     reset: resetChange,
   } = useMutation<Empty, RpcError, ChangePhoneFormData>({
     mutationFn: ({ phone }) => service.account.changePhone(phone),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: [ACCOUNT_INFO_QUERY_KEY],
       });
       resetChangeForm();
@@ -100,8 +97,8 @@ export default function ChangePhone({
     reset: resetVerify,
   } = useMutation<Empty, RpcError, VerifyPhoneFormData>({
     mutationFn: ({ code }) => service.account.verifyPhone(code),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: [ACCOUNT_INFO_QUERY_KEY],
       });
       resetVerifyForm();
@@ -118,8 +115,8 @@ export default function ChangePhone({
     reset: resetRemove,
   } = useMutation<Empty, RpcError>({
     mutationFn: () => service.account.removePhone(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: [ACCOUNT_INFO_QUERY_KEY],
       });
       resetChangeForm();
@@ -154,15 +151,17 @@ export default function ChangePhone({
             <Trans
               i18nKey="auth:change_phone.need_to_donate"
               components={{
-                2: <StyledLink href={howToDonateUrl} />,
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                2: <StyledLink href={HOW_TO_DONATE_URL} />,
               }}
             >
-              You need to <StyledLink href={howToDonateUrl}>donate</StyledLink>
+              You need to{" "}
+              <StyledLink href={HOW_TO_DONATE_URL}>donate</StyledLink>
               before you can complete phone verification.
             </Trans>
           </Typography>
         ) : (
-          <StyledForm onSubmit={onChangeSubmit}>
+          <StyledForm onSubmit={() => void onChangeSubmit()}>
             <Typography variant="body1">
               {t("auth:change_phone.no_phone_description")}
             </Typography>
@@ -188,7 +187,7 @@ export default function ChangePhone({
       ) : (
         <>
           {!accountInfo.phoneVerified ? (
-            <StyledForm onSubmit={onVerifySubmit}>
+            <StyledForm onSubmit={() => void onVerifySubmit()}>
               <Typography variant="body1">
                 <Trans
                   t={t}
@@ -208,8 +207,8 @@ export default function ChangePhone({
                     validatePhoneCode(code) ||
                     t("auth:change_phone.wrong_code"),
                 })}
-                helperText={verifyFormErrors?.code?.message ?? " "}
-                error={!!verifyFormErrors?.code?.message}
+                helperText={verifyFormErrors.code?.message ?? " "}
+                error={!!verifyFormErrors.code?.message}
                 label={t("auth:change_phone.code_label")}
                 fullWidth={!isMdOrWider}
               />
@@ -246,7 +245,7 @@ export default function ChangePhone({
               </Button>
             </>
           )}
-          <StyledForm onSubmit={onChangeSubmit}>
+          <StyledForm onSubmit={() => void onChangeSubmit()}>
             <Typography variant="body1">
               {t("auth:change_phone.change_to_different_description")}
             </Typography>
@@ -273,4 +272,6 @@ export default function ChangePhone({
       )}
     </div>
   );
-}
+};
+
+export default ChangePhone;

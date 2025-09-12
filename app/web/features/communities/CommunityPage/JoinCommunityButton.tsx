@@ -3,23 +3,22 @@ import { RpcError } from "grpc-web";
 
 import Button from "@/components/Button";
 import Snackbar from "@/components/Snackbar";
+import { communityKey } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES } from "@/i18n/namespaces";
 import { Community } from "@/proto/communities_pb";
 import { service } from "@/service";
 
-import { communityKey } from "@/features/queryKeys";
-
-export default function JoinCommunityButton({
+const JoinCommunityButton = ({
   community,
 }: {
   community: Community.AsObject;
-}) {
+}) => {
   const { t } = useTranslation([COMMUNITIES]);
   const queryClient = useQueryClient();
-  const join = useMutation<void, RpcError>({
+  const join = useMutation<unknown, RpcError>({
     mutationFn: () => service.communities.joinCommunity(community.communityId),
-    onSuccess() {
+    onSuccess: async () => {
       queryClient.setQueryData<Community.AsObject | undefined>(
         communityKey(community.communityId),
         (prevData) =>
@@ -30,14 +29,14 @@ export default function JoinCommunityButton({
               }
             : undefined,
       );
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: communityKey(community.communityId),
       });
     },
   });
-  const leave = useMutation<void, RpcError>({
+  const leave = useMutation<unknown, RpcError>({
     mutationFn: () => service.communities.leaveCommunity(community.communityId),
-    onSuccess() {
+    onSuccess: async () => {
       queryClient.setQueryData<Community.AsObject | undefined>(
         communityKey(community.communityId),
         (prevData) =>
@@ -48,7 +47,7 @@ export default function JoinCommunityButton({
               }
             : undefined,
       );
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: communityKey(community.communityId),
       });
     },
@@ -59,7 +58,13 @@ export default function JoinCommunityButton({
       <Button
         loading={isLoading}
         variant={community.member ? "outlined" : "contained"}
-        onClick={() => { community.member ? leave.mutate() : join.mutate(); }}
+        onClick={() => {
+          if (community.member) {
+            leave.mutate();
+          } else {
+            join.mutate();
+          }
+        }}
       >
         {community.member
           ? t("communities:leave_community")
@@ -72,4 +77,6 @@ export default function JoinCommunityButton({
       )}
     </>
   );
-}
+};
+
+export default JoinCommunityButton;
