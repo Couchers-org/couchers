@@ -22,6 +22,7 @@ from couchers.models import (
     User,
 )
 from couchers.notifications.notify import notify
+from couchers.notifications.utils import user_has_unseen_notifications
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.servicers.api import user_model_to_pb
 from couchers.sql import couchers_select as select
@@ -187,22 +188,24 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
             msg = f"{message.author.name} sent a message in {group_chat.title}"
 
         for user_id in user_ids_to_notify:
-            notify(
-                session,
-                user_id=user_id,
-                topic_action="chat:message",
-                key=message.conversation_id,
-                data=notification_data_pb2.ChatMessage(
-                    author=user_model_to_pb(
-                        message.author,
-                        session,
-                        make_background_user_context(user_id=user_id),
+            key = str(message.conversation_id)
+            if not user_has_unseen_notifications(session, user_id, key):
+                notify(
+                    session,
+                    user_id=user_id,
+                    topic_action="chat:message",
+                    key=key,
+                    data=notification_data_pb2.ChatMessage(
+                        author=user_model_to_pb(
+                            message.author,
+                            session,
+                            make_background_user_context(user_id=user_id),
+                        ),
+                        message=msg,
+                        text=message.text,
+                        group_chat_id=message.conversation_id,
                     ),
-                    message=msg,
-                    text=message.text,
-                    group_chat_id=message.conversation_id,
-                ),
-            )
+                )
 
 
 def _add_message_to_subscription(session, subscription, **kwargs):

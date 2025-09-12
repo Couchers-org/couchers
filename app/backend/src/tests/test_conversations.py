@@ -1564,12 +1564,12 @@ def test_chat_notifications(db):
 
     # now check notifs...
     expected_notifs = [
-        (user1, "user1", [3, 4, 5, 6, 7, 8]),
-        (user2, "user2", [1, 2, 3, 4, 5, 6]),
-        (user3, "user3", []),  # notifs off
-        (user4, "user4", [1, 2, 6, 7, 8]),
-        (user5, "user5", [3, 4, 5, 6, 7, 8]),
-        (user6, "user6", [4, 5, 6, 7]),
+        (user1, "user1", [3]),
+        (user2, "user2", [1]),
+        (user3, "user3", []),
+        (user4, "user4", [1]),
+        (user5, "user5", [3]),
+        (user6, "user6", [4]),
     ]
 
     with session_scope() as session:
@@ -1595,6 +1595,57 @@ def test_chat_notifications(db):
             print(contents)
 
             assert [f"Test message {i}" for i in expected_msgs] == contents, f"Wrong messages for {label}"
+
+
+def test_no_more_notifications_if_previous_message_is_unread(db):
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    make_friends(user1, user2)
+
+    with conversations_session(token1) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
+        ).group_chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="First"))
+
+    while process_job():
+        pass
+
+    key = str(group_chat_id)
+    with session_scope() as session:
+        previous_notifications = (
+            session.execute(
+                select(Notification)
+                .where(Notification.user_id == user2.id)
+                .where(Notification.topic_action == NotificationTopicAction.chat__message)
+                .where(Notification.key == key)
+            )
+            .scalars()
+            .all()
+        )
+
+    with conversations_session(token1) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Second"))
+
+    while process_job():
+        pass
+
+    with session_scope() as session:
+        latest_notifications = (
+            session.execute(
+                select(Notification)
+                .where(Notification.user_id == user2.id)
+                .where(Notification.topic_action == NotificationTopicAction.chat__message)
+                .where(Notification.key == key)
+            )
+            .scalars()
+            .all()
+        )
+
+    assert len(latest_notifications) == len(previous_notifications), (
+        "Extra chat:message notification created while previous one still unread"
+    )
 
 
 def test_incomplete_profile(db):
