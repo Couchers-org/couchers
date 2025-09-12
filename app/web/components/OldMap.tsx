@@ -1,18 +1,16 @@
-import "maplibre-gl/dist/maplibre-gl.css";
-
-import { styled, Typography } from "@mui/material";
+import { Typography, styled } from "@mui/material";
 import {
   LngLat,
   Map as MaplibreMap,
   NavigationControl,
   RequestParameters,
 } from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { SEARCH } from "@/i18n/namespaces";
-
-const URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+import log from "@/log";
 
 const StyledWrapper = styled("div")<{ grow?: boolean }>(({ grow }) => ({
   position: "relative",
@@ -48,7 +46,7 @@ export interface MapProps {
   scrollZoom?: boolean;
 }
 
-export default function Map({
+const Map = ({
   initialCenter,
   initialZoom,
   grow,
@@ -59,9 +57,9 @@ export default function Map({
   className,
   scrollZoom = true,
   ...otherProps
-}: MapProps) {
+}: MapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [noMap, setNoMap] = useState(false);
+  const [isNoMap, setIsNoMap] = useState(false);
   const { t } = useTranslation([SEARCH]);
 
   /*
@@ -69,7 +67,7 @@ export default function Map({
   Those APIs will return an error if the session cookie is not set as these APIs are secure and not public.
   */
   const transformRequest = (url: string): RequestParameters => {
-    if (url.startsWith(URL)) {
+    if (url.startsWith(Config.apiBaseUrl)) {
       return {
         credentials: "include",
         url,
@@ -105,14 +103,16 @@ export default function Map({
       }
 
       if (onUpdate) {
-        map.on("moveend", () => { onUpdate(map.getCenter(), map.getZoom()); });
+        map.on("moveend", () => {
+          onUpdate(map.getCenter(), map.getZoom());
+        });
       }
 
       postMapInitialize?.(map);
     } catch {
       // probably no webgl
-      console.warn("Couldn't initialize maplibre gl");
-      setNoMap(true);
+      log.warn("Couldn't initialize maplibre gl");
+      setIsNoMap(true);
     }
 
     return () => {
@@ -125,7 +125,7 @@ export default function Map({
   return (
     <StyledWrapper className={className} grow={grow} {...otherProps}>
       <StyledMap ref={containerRef}>
-        {noMap && (
+        {isNoMap && (
           <StyledNoMapText>
             <Typography variant="body1">{t("no_map_support")}</Typography>
           </StyledNoMapText>
@@ -133,4 +133,6 @@ export default function Map({
       </StyledMap>
     </StyledWrapper>
   );
-}
+};
+
+export default Map;

@@ -17,6 +17,7 @@ import React, {
 
 import Avatar from "@/components/Avatar";
 import Button from "@/components/Button";
+import { AccessibleDialogProps } from "@/components/Dialog";
 import IconButton from "@/components/IconButton";
 import { MenuIcon } from "@/components/Icons";
 import Menu, { MenuItem } from "@/components/Menu";
@@ -28,8 +29,6 @@ import { useTranslation } from "@/i18n";
 import { GLOBAL } from "@/i18n/namespaces";
 import { PingRes } from "@/proto/api_pb";
 import { theme } from "@/theme";
-
-import { AccessibleDialogProps } from "@/components/Dialog";
 
 export type LoggedInMenuLinkItem = {
   type: "link";
@@ -50,7 +49,7 @@ export type LoggedInMenuDialogItem = {
 
 export type LoggedInMenuItem = LoggedInMenuLinkItem | LoggedInMenuDialogItem;
 
-const StyledMenu = styled(Menu)(({ theme }) => ({
+const StyledMenu = styled(Menu)(() => ({
   "& .MuiPaper-root": {
     boxShadow: theme.shadows[1],
     minWidth: "12rem",
@@ -61,7 +60,7 @@ const StyledMenu = styled(Menu)(({ theme }) => ({
   },
 }));
 
-const StyledMenuButton = styled(Button)(({ theme }) => ({
+const StyledMenuButton = styled(Button)(() => ({
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
@@ -76,13 +75,13 @@ const StyledMenuButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const StyledAvatar = styled(Avatar)(({ theme }) => ({
+const StyledAvatar = styled(Avatar)(() => ({
   height: "2rem",
   width: "2rem",
   marginLeft: theme.spacing(1),
 }));
 
-const StyledBadge = styled(Badge)(({ theme }) => ({
+const StyledBadge = styled(Badge)(() => ({
   "& .MuiBadge-badge": {
     right: "-4px",
     top: "4px",
@@ -172,10 +171,11 @@ const LinkMenuItemView = ({
       )}
     </>
   );
-}
+};
 
 const DialogMenuItemView = ({
   name,
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   dialogComponent: DialogComponent,
   dialogLabel,
 }: LoggedInMenuDialogItem & { closeMenu: () => unknown }) => {
@@ -192,14 +192,18 @@ const DialogMenuItemView = ({
       </StyledMenuItemDialog>
       <DialogComponent
         open={isDialogOpen}
-        onClose={() => { setIsDialogOpen(false); }}
+        onClose={() => {
+          setIsDialogOpen(false);
+        }}
         aria-labelledby={dialogLabel}
       />
     </>
   );
-}
+};
 
-const MenuItemView = (props: LoggedInMenuItem & { closeMenu: () => unknown }) => {
+const MenuItemView = (
+  props: LoggedInMenuItem & { closeMenu: () => unknown },
+) => {
   return (
     <MenuItem
       hasNotification={props.type === "link" && !!props.notificationCount}
@@ -212,13 +216,13 @@ const MenuItemView = (props: LoggedInMenuItem & { closeMenu: () => unknown }) =>
       )}
     </MenuItem>
   );
-}
+};
 
-const NotificationMenuItemWrapper = styled("div")(({ theme }) => ({
+const NotificationMenuItemWrapper = styled("div")(() => ({
   marginRight: theme.spacing(4),
 }));
 
-export default function LoggedInMenu({
+const LoggedInMenu = ({
   menuOpen,
   notificationCount,
   setMenuOpen,
@@ -228,7 +232,7 @@ export default function LoggedInMenu({
   notificationCount: PingRes.AsObject["unseenNotificationCount"] | undefined;
   setMenuOpen: Dispatch<SetStateAction<boolean>>;
   items: LoggedInMenuItem[];
-}) {
+}) => {
   const menuRef = React.useRef<HTMLButtonElement>(null);
   const { data: user } = useCurrentUser();
   const { t } = useTranslation([GLOBAL]);
@@ -282,7 +286,9 @@ export default function LoggedInMenu({
       <StyledMenuButton
         aria-controls="navigation-menu"
         aria-haspopup="true"
-        onClick={() => { setMenuOpen((prevMenuOpen: boolean) => !prevMenuOpen); }}
+        onClick={() => {
+          setMenuOpen((prevMenuOpen: boolean) => !prevMenuOpen);
+        }}
         ref={menuRef}
       >
         <MenuIcon sx={{ color: theme.palette.text.primary }} />
@@ -292,7 +298,9 @@ export default function LoggedInMenu({
         id="navigation-menu"
         open={menuOpen}
         anchorEl={menuRef.current}
-        onClose={() => { setMenuOpen(false); }}
+        onClose={() => {
+          setMenuOpen(false);
+        }}
         anchorOrigin={{
           vertical: "bottom",
           horizontal: "right",
@@ -310,4 +318,6 @@ export default function LoggedInMenu({
       </StyledMenu>
     </>
   );
-}
+};
+
+export default LoggedInMenu;

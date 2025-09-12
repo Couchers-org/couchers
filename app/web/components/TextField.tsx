@@ -1,7 +1,7 @@
 import {
-  styled,
   TextField as MuiTextField,
   TextFieldProps,
+  styled,
 } from "@mui/material";
 import { BaseTextFieldProps } from "@mui/material/TextField";
 import React, { forwardRef } from "react";
@@ -44,7 +44,7 @@ const TextField = forwardRef<
         name={name}
         variant={variant}
         helperText={
-          <span data-testid={`${name}-helper-text`}>{helperText}</span>
+          <span data-testid={`${name || ""}-helper-text`}>{helperText}</span>
         }
         multiline={otherProps.multiline !== undefined}
         className={className}

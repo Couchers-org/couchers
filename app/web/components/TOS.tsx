@@ -18,7 +18,7 @@ const StyledWrapper = styled("div")(({ theme }) => ({
   padding: theme.spacing(2),
 }));
 
-export default function TOS() {
+const TOS = () => {
   const { t } = useTranslation(GLOBAL);
   const { data, error, isLoading } = useQuery<
     GetTermsOfServiceRes.AsObject,
@@ -40,7 +40,9 @@ export default function TOS() {
     <StyledWrapper>
       <HtmlMeta title={t("terms_of_service")} />
       <PageTitle>{t("terms_of_service")}</PageTitle>
-      <Markdown source={data?.termsOfService} />
+      <Markdown source={data.termsOfService} />
     </StyledWrapper>
   ) : null;
-}
+};
+
+export default TOS;

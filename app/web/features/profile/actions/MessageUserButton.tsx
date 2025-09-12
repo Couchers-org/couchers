@@ -61,7 +61,7 @@ const MessageUserButton = ({
         onClose={() => {
           setShouldShowCantMessageDialog(false);
         }}
-        attempted_action="send_message"
+        attemptedAction="send_message"
       />
       <Button
         loading={isPending}

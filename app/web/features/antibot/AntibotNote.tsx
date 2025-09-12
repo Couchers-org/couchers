@@ -1,6 +1,6 @@
 import StyledLink from "@/components/StyledLink";
 
-export default function AntibotNote() {
+const AntibotNote = () => {
   return (
     <>
       This site is protected by reCAPTCHA and the Google{" "}
@@ -14,4 +14,6 @@ export default function AntibotNote() {
       apply.
     </>
   );
-}
+};
+
+export default AntibotNote;

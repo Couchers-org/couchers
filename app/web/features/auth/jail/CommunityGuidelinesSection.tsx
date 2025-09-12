@@ -13,10 +13,10 @@ interface CommunityGuidelinesSectionProps {
   className?: string;
 }
 
-export default function CommunityGuidelinesSection({
+const CommunityGuidelinesSection = ({
   updateJailed,
   className,
-}: CommunityGuidelinesSectionProps) {
+}: CommunityGuidelinesSectionProps) => {
   const handleSubmit = async (accept: boolean) => {
     const info = await service.jail.setAcceptedCommunityGuidelines(accept);
     if (!info.isJailed) {
@@ -31,4 +31,6 @@ export default function CommunityGuidelinesSection({
       onSubmit={handleSubmit}
     />
   );
-}
+};
+
+export default CommunityGuidelinesSection;

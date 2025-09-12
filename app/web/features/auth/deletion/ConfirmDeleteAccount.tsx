@@ -8,7 +8,7 @@ import HtmlMeta from "@/components/HtmlMeta";
 import PageTitle from "@/components/PageTitle";
 import { useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
-import { logoutRoute } from "@/routes";
+import { LOGOUT_ROUTE } from "@/routes";
 import { service } from "@/service";
 import stringOrFirstString from "@/utils/stringOrFirstString";
 
@@ -16,14 +16,14 @@ export interface ConfirmDeleteAccountParams {
   token?: string;
 }
 
-export default function ConfirmDeleteAccount() {
+const ConfirmDeleteAccount = () => {
   const { t } = useTranslation([AUTH, GLOBAL]);
 
   const router = useRouter();
   const token = stringOrFirstString(router.query.token);
 
   const { error, isPending, isSuccess, mutate } = useMutation<
-    void,
+    unknown,
     RpcError,
     ConfirmDeleteAccountParams
   >({
@@ -35,7 +35,7 @@ export default function ConfirmDeleteAccount() {
     },
 
     onSuccess: () => {
-      router.push(logoutRoute);
+      void router.push(LOGOUT_ROUTE);
     },
   });
 
@@ -55,9 +55,16 @@ export default function ConfirmDeleteAccount() {
           {t("auth:delete_account.confirm.account_deleted")}
         </Alert>
       )}
-      <Button onClick={() => { mutate({ token }); }} loading={isPending}>
+      <Button
+        onClick={() => {
+          mutate({ token });
+        }}
+        loading={isPending}
+      >
         {t("auth:delete_account.confirm.button_text")}
       </Button>
     </>
   );
-}
+};
+
+export default ConfirmDeleteAccount;

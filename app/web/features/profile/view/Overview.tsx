@@ -107,7 +107,7 @@ const DefaultActions = ({
         onClose={() => {
           setShouldShowCantRequestDialog(false);
         }}
-        attempted_action="send_request"
+        attemptedAction="send_request"
       />
       <Button
         onClick={requestButton}

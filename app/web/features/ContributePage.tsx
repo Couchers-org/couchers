@@ -7,7 +7,7 @@ import PageTitle from "@/components/PageTitle";
 import { useTranslation } from "@/i18n";
 import { GLOBAL } from "@/i18n/namespaces";
 
-export default function ContributePage() {
+const ContributePage = () => {
   const { t } = useTranslation([GLOBAL]);
   return (
     <>
@@ -24,4 +24,6 @@ export default function ContributePage() {
       <StandaloneContributorForm />
     </>
   );
-}
+};
+
+export default ContributePage;

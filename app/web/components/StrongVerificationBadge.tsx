@@ -11,7 +11,7 @@ const StyledSpan = styled("span")(({ theme }) => ({
   marginLeft: theme.spacing(0.5),
 }));
 
-export default function StrongVerificationBadge() {
+const StrongVerificationBadge = () => {
   const { t } = useTranslation(GLOBAL);
 
   return (
@@ -25,4 +25,6 @@ export default function StrongVerificationBadge() {
       </Tooltip>
     </StyledSpan>
   );
-}
+};
+
+export default StrongVerificationBadge;

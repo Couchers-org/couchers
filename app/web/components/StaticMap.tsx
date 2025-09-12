@@ -18,8 +18,6 @@ import {
 import { loadMapUserPins } from "@/features/search/utils/mapUtils";
 import { theme } from "@/theme";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
 const MapWrapper = styled("div")(({ theme }) => ({
   height: 500,
   width: "100%",
@@ -38,7 +36,7 @@ const StaticMap = () => {
 
   const onLoad = () => {
     if (mapRef.current) {
-      loadMapUserPins(mapRef);
+      void loadMapUserPins(mapRef);
     }
   };
 
@@ -71,7 +69,7 @@ const StaticMap = () => {
           id={USERS_SOURCE_ID}
           cluster={true}
           clusterRadius={50}
-          data={API_BASE_URL + "/geojson/public-users"}
+          data={Config.apiBaseUrl + "/geojson/public-users"}
           promoteId="id"
           type={"geojson"}
         >

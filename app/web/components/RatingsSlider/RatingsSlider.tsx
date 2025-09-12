@@ -94,7 +94,7 @@ const StyledSlider = styled(Slider, {
   },
 }));
 
-export default function RatingsSlider({ value, onChange }: SliderProps) {
+const RatingsSlider = ({ value, onChange }: SliderProps) => {
   return (
     <StyledSlider
       aria-label={RATINGS_SLIDER}
@@ -106,9 +106,11 @@ export default function RatingsSlider({ value, onChange }: SliderProps) {
       marks={marks}
       valueLabelDisplay="on"
       valueLabelFormat={() => <SliderLabel value={value} />}
-      onChange={(event, value) => {
+      onChange={(_event, value) => {
         onChange(value);
       }}
     />
   );
-}
+};
+
+export default RatingsSlider;

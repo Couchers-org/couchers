@@ -30,10 +30,7 @@ interface DeleteAccountProps {
   className?: string;
 }
 
-export default function DeleteAccount({
-  className,
-  username,
-}: DeleteAccountProps) {
+const DeleteAccount = ({ className, username }: DeleteAccountProps) => {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
@@ -54,13 +51,13 @@ export default function DeleteAccount({
     mutate: deleteAccount,
   } = useMutation<Empty, RpcError, DeleteAccountForm>({
     mutationFn: ({ confirmUsername, reason }) => {
-      const confirm =
+      const isConfirm =
         lowercaseAndTrimField(confirmUsername) ===
         lowercaseAndTrimField(username);
-      if (!confirm) {
+      if (!isConfirm) {
         throw Error(t("auth:delete_account.request.username_mismatch"));
       }
-      return service.account.deleteAccount(confirm, reason);
+      return service.account.deleteAccount(isConfirm, reason);
     },
     onSuccess: () => {
       resetForm();
@@ -84,7 +81,7 @@ export default function DeleteAccount({
             {t("auth:delete_account.request.success_message")}
           </Alert>
         )}
-        <StyledForm onSubmit={onSubmit}>
+        <StyledForm onSubmit={() => void onSubmit()}>
           <Typography variant="subtitle1">
             <Trans
               t={t}
@@ -125,4 +122,6 @@ export default function DeleteAccount({
       </>
     </div>
   );
-}
+};
+
+export default DeleteAccount;

@@ -15,7 +15,7 @@ interface SliderLabelProps {
   value: number | undefined;
 }
 
-export default function SliderLabel({ value }: SliderLabelProps) {
+const SliderLabel = ({ value }: SliderLabelProps) => {
   if (value === undefined) {
     return <QuestionMark />;
   }
@@ -36,4 +36,6 @@ export default function SliderLabel({ value }: SliderLabelProps) {
   } else {
     return <ExtremelySatisfiedIcon />;
   }
-}
+};
+
+export default SliderLabel;

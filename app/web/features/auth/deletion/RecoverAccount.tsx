@@ -15,14 +15,14 @@ export interface RecoverAccountParams {
   token?: string;
 }
 
-export default function RecoverAccount() {
+const RecoverAccount = () => {
   const { t } = useTranslation([AUTH, GLOBAL]);
 
   const router = useRouter();
   const token = stringOrFirstString(router.query.token);
 
   const { error, isPending, isSuccess, mutate } = useMutation<
-    void,
+    unknown,
     RpcError,
     RecoverAccountParams
   >({
@@ -50,9 +50,16 @@ export default function RecoverAccount() {
           {t("auth:delete_account.recover.success")}
         </Alert>
       )}
-      <Button onClick={() => { mutate({ token }); }} loading={isPending}>
+      <Button
+        onClick={() => {
+          mutate({ token });
+        }}
+        loading={isPending}
+      >
         {t("auth:delete_account.recover.button_text")}
       </Button>
     </>
   );
-}
+};
+
+export default RecoverAccount;

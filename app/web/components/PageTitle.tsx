@@ -2,7 +2,7 @@ import { Typography, TypographyProps } from "@mui/material";
 
 import { theme } from "@/theme";
 
-export default function PageTitle(props: TypographyProps) {
+const PageTitle = (props: TypographyProps) => {
   return (
     <Typography
       {...props}
@@ -11,4 +11,6 @@ export default function PageTitle(props: TypographyProps) {
       variant="h1"
     />
   );
-}
+};
+
+export default PageTitle;

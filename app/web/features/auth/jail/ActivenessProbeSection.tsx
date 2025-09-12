@@ -19,10 +19,10 @@ interface ActivenessProbeSectionProps {
   className?: string;
 }
 
-export default function ActivenessProbeSection({
+const ActivenessProbeSection = ({
   updateJailed,
   className,
-}: ActivenessProbeSectionProps) {
+}: ActivenessProbeSectionProps) => {
   const { t } = useTranslation([AUTH, GLOBAL]);
 
   const [isSelected, setIsSelected] = useState<boolean | undefined>(undefined);
@@ -52,7 +52,9 @@ export default function ActivenessProbeSection({
       <FormControl variant="standard" component="fieldset">
         <RadioGroup
           value={isSelected}
-          onChange={(e, val) => { setIsSelected(val === "true"); }}
+          onChange={(_, val) => {
+            setIsSelected(val === "true");
+          }}
         >
           <FormControlLabel
             value={true}
@@ -83,4 +85,6 @@ export default function ActivenessProbeSection({
       </Button>
     </div>
   );
-}
+};
+
+export default ActivenessProbeSection;

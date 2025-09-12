@@ -6,13 +6,12 @@ interface NotificationBadgeProps {
   count?: number;
 }
 
-export default function NotificationBadge({
-  children,
-  count,
-}: NotificationBadgeProps) {
+const NotificationBadge = ({ children, count }: NotificationBadgeProps) => {
   return (
     <Badge badgeContent={count} color="primary" sx={{ right: "-0.8rem" }}>
       {children}
     </Badge>
   );
-}
+};
+
+export default NotificationBadge;

@@ -12,23 +12,23 @@ import {
 import StyledLink from "@/components/StyledLink";
 import { Trans, useTranslation } from "@/i18n";
 import { DASHBOARD } from "@/i18n/namespaces";
-import { howToCompleteProfileUrl, routeToEditProfile } from "@/routes";
+import { HOW_TO_COMPLETE_PROFILE_URL, routeToEditProfile } from "@/routes";
 
 export interface ProfileIncompleteDialogProps {
   open: boolean;
   onClose: () => void;
-  attempted_action: "create_event" | "send_message" | "send_request";
+  attemptedAction: "create_event" | "send_message" | "send_request";
 }
 
-export default function ProfileIncompleteDialog({
+const ProfileIncompleteDialog = ({
   open,
   onClose,
-  attempted_action,
-}: ProfileIncompleteDialogProps) {
+  attemptedAction,
+}: ProfileIncompleteDialogProps) => {
   const { t } = useTranslation([DASHBOARD]);
 
-  const action_text = t(
-    `dashboard:complete_profile_dialog.actions.${attempted_action}`,
+  const actionText = t(
+    `dashboard:complete_profile_dialog.actions.${attemptedAction}`,
   );
 
   return (
@@ -43,7 +43,8 @@ export default function ProfileIncompleteDialog({
       <DialogContent>
         <DialogContentText>
           <Trans i18nKey="dashboard:complete_profile_dialog.description_1">
-            Before you can {{ action_name: action_text }}, you must{" "}
+            {/* eslint-disable-next-line @typescript-eslint/naming-convention */}
+            Before you can {{ action_name: actionText }}, you must{" "}
             <strong>write a bit about yourself</strong> in your profile and{" "}
             <strong>upload a profile photo</strong>.
           </Trans>
@@ -52,7 +53,7 @@ export default function ProfileIncompleteDialog({
           <Trans i18nKey="dashboard:complete_profile_dialog.description_2">
             This helps build a trusted community and reduce spam. For more
             information,{" "}
-            <StyledLink href={howToCompleteProfileUrl}>
+            <StyledLink href={HOW_TO_COMPLETE_PROFILE_URL}>
               please refer to this help page
             </StyledLink>
             . Thank you for your help!
@@ -69,4 +70,6 @@ export default function ProfileIncompleteDialog({
       </DialogActions>
     </Dialog>
   );
-}
+};
+
+export default ProfileIncompleteDialog;

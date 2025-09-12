@@ -1,7 +1,8 @@
 import { Alert as MuiAlert, Snackbar as MuiSnackbar } from "@mui/material";
 import { ReactNode, useState } from "react";
 
-import { grpcErrorStrings, ObscureGrpcErrorMessages } from "@/appConstants";
+import { ObscureGrpcErrorMessages, grpcErrorStrings } from "@/appConstants";
+import { emptyFunction } from "@/utils/function";
 
 export interface SnackbarProps {
   children: ReactNode;
@@ -9,12 +10,12 @@ export interface SnackbarProps {
   severity: "success" | "error";
 }
 
-export default function Snackbar({
+const Snackbar = ({
   children,
-  onClose = () => {},
+  onClose = emptyFunction,
   severity,
-}: SnackbarProps) {
-  const [open, setOpen] = useState(true);
+}: SnackbarProps) => {
+  const [isOpen, setIsOpen] = useState(true);
 
   const oldErrorKey =
     typeof children === "string"
@@ -27,9 +28,9 @@ export default function Snackbar({
   return (
     <MuiSnackbar
       autoHideDuration={8000}
-      open={open}
+      open={isOpen}
       onClose={() => {
-        setOpen(false);
+        setIsOpen(false);
         onClose();
       }}
       anchorOrigin={{ vertical: "top", horizontal: "center" }}
@@ -43,4 +44,6 @@ export default function Snackbar({
       </MuiAlert>
     </MuiSnackbar>
   );
-}
+};
+
+export default Snackbar;

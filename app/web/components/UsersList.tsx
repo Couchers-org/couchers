@@ -39,14 +39,14 @@ export interface UsersListProps {
  *
  * The end of the list will show `endChildren` if the list is not empty (this is a good place to add a "load more" button)
  */
-export default function UsersList({
+const UsersList = ({
   userIds,
   emptyListChildren,
   endChildren,
   error,
   titleIsLink = false,
   getUserMenuItems,
-}: UsersListProps) {
+}: UsersListProps) => {
   const {
     data: users,
     isLoading: isLoadingLiteUsers,
@@ -98,4 +98,6 @@ export default function UsersList({
   };
 
   return <ContainingDiv>{inner()}</ContainingDiv>;
-}
+};
+
+export default UsersList;

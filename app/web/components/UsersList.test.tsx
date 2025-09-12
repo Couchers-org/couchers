@@ -55,7 +55,7 @@ describe("UsersList", () => {
     render(
       <UsersList
         userIds={undefined}
-        endChildren={<>I'm at the end!</>}
+        endChildren={<>I&apos;m at the end!</>}
         emptyListChildren={<>I show up when the map is empty!</>}
       />,
       { wrapper },
@@ -77,7 +77,7 @@ describe("UsersList", () => {
     render(
       <UsersList
         userIds={[2]}
-        endChildren={<>I'm at the end!</>}
+        endChildren={<>I&apos;m at the end!</>}
         emptyListChildren={<>I show up when the map is empty!</>}
       />,
       { wrapper },
@@ -132,7 +132,7 @@ describe("UsersList", () => {
     render(
       <UsersList
         userIds={[2, 99]}
-        endChildren={<>I'm at the end!</>}
+        endChildren={<>I&apos;m at the end!</>}
         emptyListChildren={<>I show up when the map is empty!</>}
       />,
       { wrapper },
@@ -173,7 +173,7 @@ describe("UsersList", () => {
     render(
       <UsersList
         userIds={[]}
-        endChildren={<>I'm at the end!</>}
+        endChildren={<>I&apos;m at the end!</>}
         emptyListChildren={<>I show up when the map is empty!</>}
       />,
       { wrapper },
@@ -197,7 +197,7 @@ describe("UsersList", () => {
     render(
       <UsersList
         userIds={[99, 102]}
-        endChildren={<>I'm at the end!</>}
+        endChildren={<>I&apos;m at the end!</>}
         emptyListChildren={<>I show up when the map is empty!</>}
       />,
       { wrapper },

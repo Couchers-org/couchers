@@ -48,7 +48,7 @@ describe("ChangeEmail", () => {
   describe("if the user has a password", () => {
     beforeEach(async () => {
       getAccountInfoMock.mockResolvedValue(accountInfo);
-      await render(<ChangeEmail {...accountInfo} />, { wrapper });
+      render(<ChangeEmail {...accountInfo} />, { wrapper });
     });
 
     it("shows the full change email form", async () => {
@@ -145,7 +145,7 @@ describe("ChangeEmail", () => {
   it("shows an error alert if the change password request failed", async () => {
     jest.spyOn(console, "error").mockReturnValue(undefined);
     changeEmailMock.mockRejectedValue(new Error("Invalid email"));
-    await render(<ChangeEmail {...accountInfo} />, { wrapper });
+    render(<ChangeEmail {...accountInfo} />, { wrapper });
 
     const user = userEvent.setup();
 

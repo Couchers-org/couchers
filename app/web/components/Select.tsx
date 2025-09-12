@@ -6,11 +6,11 @@ import {
   SelectChangeEvent,
   SelectProps,
 } from "@mui/material";
-import React, { forwardRef } from "react";
+import React, { ReactNode } from "react";
 
 import { theme } from "@/theme";
 
-const Select = forwardRef((
+const Select = <T extends Record<string, ReactNode>>(
   {
     id,
     className,
@@ -34,6 +34,7 @@ const Select = forwardRef((
   },
   ref: React.Ref<HTMLSelectElement>,
 ) => {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   const OptionComponent: React.ElementType = menuItems ? MenuItem : "option";
 
   return (
@@ -88,6 +89,10 @@ const Select = forwardRef((
           id,
         }}
       >
+        {/* {options.map((option) => (
+          <OptionComponent value={option} key={option} />
+        ))} */}
+
         {options.map((option) => (
           <OptionComponent value={option} key={option}>
             {optionLabelMap[option]}
@@ -96,6 +101,8 @@ const Select = forwardRef((
       </MuiSelect>
     </FormControl>
   );
-});
+};
+
+Select.displayName = "Select";
 
 export default Select;

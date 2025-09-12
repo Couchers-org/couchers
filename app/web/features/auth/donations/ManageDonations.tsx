@@ -10,13 +10,13 @@ type ManageDonationsProps = {
   className?: string;
 };
 
-export default function ManageDonations({ className }: ManageDonationsProps) {
+const ManageDonations = ({ className }: ManageDonationsProps) => {
   const { t } = useTranslation([DONATIONS]);
 
   const router = useRouter();
 
   const goToPortal = async () => {
-    router.push(await service.donations.getDonationPortalLink());
+    await router.push(await service.donations.getDonationPortalLink());
   };
 
   return (
@@ -32,4 +32,6 @@ export default function ManageDonations({ className }: ManageDonationsProps) {
       </Typography>
     </div>
   );
-}
+};
+
+export default ManageDonations;

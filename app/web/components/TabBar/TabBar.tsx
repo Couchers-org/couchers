@@ -1,5 +1,5 @@
 import { TabList } from "@mui/lab";
-import { styled, SxProps, Tab } from "@mui/material";
+import { SxProps, Tab, styled } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 
 const StyledTab = styled(Tab)(({ theme }) => ({
@@ -24,14 +24,14 @@ export interface TabBarProps<T extends Record<string, React.ReactNode>> {
   tabListSx?: SxProps;
 }
 
-export default function TabBar<T extends Record<string, React.ReactNode>>({
+const TabBar = <T extends Record<string, React.ReactNode>>({
   ariaLabel,
   setValue,
   labels,
   tabSx,
   tabListSx,
-}: TabBarProps<T>) {
-  const handleChange = (event: React.SyntheticEvent, newValue: keyof T) => {
+}: TabBarProps<T>) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: keyof T) => {
     setValue(newValue);
   };
 
@@ -51,4 +51,6 @@ export default function TabBar<T extends Record<string, React.ReactNode>>({
       ))}
     </TabList>
   );
-}
+};
+
+export default TabBar;

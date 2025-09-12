@@ -1,4 +1,6 @@
-import { SxProps, Typography, styled } from "@mui/material";
+import { Theme, Typography, styled } from "@mui/material";
+// eslint-disable-next-line no-restricted-imports
+import { SystemStyleObject } from "@mui/system";
 
 import { theme } from "@/theme";
 
@@ -21,17 +23,16 @@ export interface PillProps {
   color?: string;
   onClick?: () => void;
   variant?: "rounded";
-  sx?: SxProps;
+  sx?: SystemStyleObject<Theme>;
 }
 
-export default function Pill({
+const Pill = ({
   children,
   backgroundColor = theme.palette.grey[200],
   color = theme.palette.text.primary,
   onClick,
-  variant = "rounded",
   sx,
-}: PillProps) {
+}: PillProps) => {
   const handleClick = () => {
     if (onClick) {
       onClick();
@@ -43,14 +44,14 @@ export default function Pill({
       sx={{
         backgroundColor,
         color,
-        ...(variant === "rounded" && {
-          borderRadius: theme.shape.borderRadius * 6,
-        }),
-        ...(sx || {}),
+        borderRadius: theme.shape.borderRadius * 6,
+        ...sx,
       }}
       onClick={handleClick}
     >
       {children}
     </StyledPill>
   );
-}
+};
+
+export default Pill;

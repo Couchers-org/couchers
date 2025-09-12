@@ -34,7 +34,7 @@ const MarginWrapper = styled("div")(({ theme }) => ({
   margin: theme.spacing(4, 0),
 }));
 
-export default function Settings() {
+const Settings = () => {
   const { t } = useTranslation(AUTH);
 
   const {
@@ -110,4 +110,6 @@ export default function Settings() {
       ) : null}
     </>
   );
-}
+};
+
+export default Settings;

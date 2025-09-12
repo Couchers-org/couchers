@@ -21,10 +21,10 @@ jest.mock("@mui/x-date-pickers", () => {
 const Form = ({ setTime }: { setTime: (time: Dayjs | null) => void }) => {
   const { control, handleSubmit } = useForm();
   const onSubmit = handleSubmit((data) => {
-    setTime(data.timefield);
+    setTime(data.timefield as Dayjs);
   });
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={() => void onSubmit()}>
       <Timepicker
         control={control}
         error={false}

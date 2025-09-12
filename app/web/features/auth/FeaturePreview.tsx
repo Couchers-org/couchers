@@ -12,7 +12,7 @@ const MarginWrapper = styled("div")(({ theme }) => ({
   margin: theme.spacing(4, 0),
 }));
 
-export default function FeaturePreview() {
+const FeaturePreview = () => {
   const { t } = useTranslation(AUTH);
 
   const { error: accountInfoError, isLoading: isAccountInfoLoading } =
@@ -53,4 +53,6 @@ export default function FeaturePreview() {
       )}
     </>
   );
-}
+};
+
+export default FeaturePreview;

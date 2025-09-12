@@ -117,7 +117,7 @@ const CreateEventPage = () => {
       <ProfileIncompleteDialog
         open={!isAccountInfoLoading && !accountInfo?.profileComplete}
         onClose={() => void router.push(DASHBOARD_ROUTE)}
-        attempted_action="create_event"
+        attemptedAction="create_event"
       />
       <EventForm
         error={error}

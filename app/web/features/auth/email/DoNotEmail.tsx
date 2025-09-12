@@ -15,7 +15,7 @@ interface DoNotEmailFormData {
   doNotEmailEnabled: boolean;
 }
 
-export default function DoNotEmail() {
+const DoNotEmail = () => {
   const { t } = useTranslation(AUTH);
 
   const queryClient = useQueryClient();
@@ -36,12 +36,14 @@ export default function DoNotEmail() {
     mutationFn: ({ doNotEmailEnabled }) =>
       service.notifications.setNotificationSettings(doNotEmailEnabled),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [DO_NOT_EMAIL_QUERY_KEY] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: [DO_NOT_EMAIL_QUERY_KEY],
+      });
     },
   });
 
-  const toggleDoNotEmail = async () => {
+  const toggleDoNotEmail = () => {
     if (!data) return;
     mutation.mutate({
       doNotEmailEnabled: !data.doNotEmailEnabled,
@@ -74,7 +76,9 @@ export default function DoNotEmail() {
           </Typography>
           <Typography variant="body1">
             <Button
-              onClick={() => toggleDoNotEmail()}
+              onClick={() => {
+                toggleDoNotEmail();
+              }}
               loading={mutation.isPending}
             >
               {data.doNotEmailEnabled
@@ -86,4 +90,6 @@ export default function DoNotEmail() {
       )}
     </div>
   );
-}
+};
+
+export default DoNotEmail;

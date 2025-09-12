@@ -30,7 +30,7 @@ interface ChangeEmailProps {
   className?: string;
 }
 
-export default function ChangeEmail({ className, email }: ChangeEmailProps) {
+const ChangeEmail = ({ className, email }: ChangeEmailProps) => {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
@@ -79,7 +79,7 @@ export default function ChangeEmail({ className, email }: ChangeEmailProps) {
             {t("auth:change_email_form.success_message")}
           </Alert>
         )}
-        <StyledForm onSubmit={onSubmit}>
+        <StyledForm onSubmit={() => void onSubmit()}>
           <TextField
             id="currentPassword"
             {...register("currentPassword", { required: true })}
@@ -105,4 +105,6 @@ export default function ChangeEmail({ className, email }: ChangeEmailProps) {
       </>
     </div>
   );
-}
+};
+
+export default ChangeEmail;

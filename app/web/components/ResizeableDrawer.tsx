@@ -28,7 +28,7 @@ const DrawerContentWrapper = styled("div")(() => ({
   position: "relative",
 }));
 
-const StyledDragger = styled("div")(({ theme }) => ({
+const StyledDragger = styled("div")(() => ({
   width: "8px",
   borderLeft: `1px solid ${theme.palette.divider}`,
   backgroundColor: theme.palette.grey[50],
@@ -38,7 +38,7 @@ const StyledDragger = styled("div")(({ theme }) => ({
   position: "relative",
 }));
 
-const ScrollableContent = styled("div")(({ theme }) => ({
+const ScrollableContent = styled("div")(() => ({
   overflowY: "auto",
   overflowX: "hidden",
   height: "100%",
@@ -52,12 +52,12 @@ const FlexColumn = styled("div")({
   width: "100%",
 });
 
-export default function ResizeableDrawer({
+const ResizeableDrawer = ({
   children,
   nonScrollableChildren,
   onDrawerWidthChange,
   showDragger,
-}: ResizeableDrawerProps) {
+}: ResizeableDrawerProps) => {
   const { t } = useTranslation([GLOBAL]);
 
   const [isExpanded, setIsExpanded] = React.useState(false);
@@ -66,7 +66,7 @@ export default function ResizeableDrawer({
     setIsExpanded(!isExpanded);
 
     onDrawerWidthChange(
-      isExpanded ? DEFAULT_DRAWER_WIDTH : Math.floor(window?.innerWidth * 0.6),
+      isExpanded ? DEFAULT_DRAWER_WIDTH : Math.floor(window.innerWidth * 0.6),
     );
   };
 
@@ -126,4 +126,6 @@ export default function ResizeableDrawer({
       )}
     </DrawerContentWrapper>
   );
-}
+};
+
+export default ResizeableDrawer;

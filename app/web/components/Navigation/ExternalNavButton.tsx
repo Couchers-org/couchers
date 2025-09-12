@@ -1,4 +1,4 @@
-import { styled, Typography, TypographyProps } from "@mui/material";
+import { Typography, TypographyProps, styled } from "@mui/material";
 
 interface ExternalNavButtonProps {
   route: string;
@@ -20,11 +20,11 @@ const StyledTypography = styled(Typography)(() => ({
   marginTop: 0,
 }));
 
-export default function ExternalNavButton({
+const ExternalNavButton = ({
   route,
   label,
   labelVariant,
-}: ExternalNavButtonProps) {
+}: ExternalNavButtonProps) => {
   return (
     <StyledLink href={route} target="_blank" rel="noreferrer noopener">
       <StyledTypography variant={labelVariant} noWrap>
@@ -32,4 +32,6 @@ export default function ExternalNavButton({
       </StyledTypography>
     </StyledLink>
   );
-}
+};
+
+export default ExternalNavButton;

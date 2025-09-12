@@ -4,8 +4,8 @@ import {
   Skeleton,
   Tooltip,
   Typography,
+  styled,
 } from "@mui/material";
-import { styled } from "@mui/system";
 import React, { useState } from "react";
 
 import Avatar from "@/components/Avatar";
@@ -15,10 +15,11 @@ import StyledLink from "@/components/StyledLink";
 import { LiteUser } from "@/proto/api_pb";
 import { BlockedUser } from "@/proto/blocking_pb";
 import { routeToUser } from "@/routes";
+import { theme } from "@/theme";
 
 import StrongVerificationBadge from "./StrongVerificationBadge";
 
-const StyledWrapper = styled("div")(({ theme }) => ({
+const StyledWrapper = styled("div")(() => ({
   display: "flex",
   padding: 0,
   width: "100%",
@@ -26,14 +27,14 @@ const StyledWrapper = styled("div")(({ theme }) => ({
   wordBreak: "break-word",
 }));
 
-const StyledOpenInNewIcon = styled(OpenInNewIcon)(({ theme }) => ({
+const StyledOpenInNewIcon = styled(OpenInNewIcon)(() => ({
   display: "block",
   marginInlineStart: theme.spacing(0.5),
   height: "1.25rem",
   width: "1.25rem",
 }));
 
-const StyledListItemText = styled(ListItemText)(({ theme }) => ({
+const StyledListItemText = styled(ListItemText)(() => ({
   display: "grid",
   gap: theme.spacing(0.25),
   margin: 0,
@@ -69,7 +70,7 @@ export interface UserSummaryProps {
   menuItems?: EllipsisMenuItem[];
 }
 
-export default function UserSummary({
+const UserSummary = ({
   children,
   smallAvatar = false,
   nameOnly = false,
@@ -78,12 +79,13 @@ export default function UserSummary({
   titleIsLink = false,
   isProfileLink = true,
   menuItems,
-}: UserSummaryProps) {
-  const headlineComponentWithRef = React.forwardRef(
-    (props, ref) => {
-      return React.createElement(headlineComponent, { ...props, ref });
-    },
-  );
+}: UserSummaryProps) => {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const HeadlineComponentWithRef = React.forwardRef((props, ref) => {
+    return React.createElement(headlineComponent, { ...props, ref });
+  });
+
+  HeadlineComponentWithRef.displayName = "HeadlineComponent";
 
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
     null,
@@ -114,7 +116,7 @@ export default function UserSummary({
   const title = (
     <Tooltip title={user?.name} arrow placement="top">
       <Typography
-        component={headlineComponentWithRef}
+        component={HeadlineComponentWithRef}
         variant="h2"
         noWrap={nameOnly}
         sx={{ marginTop: "auto", fontSize: "1.2rem" }}
@@ -128,10 +130,8 @@ export default function UserSummary({
           <>
             {nameOnly
               ? nameValue
-              : `${nameValue}${user && "age" in user ? `, ${user.age}` : ""}`}
-            {user &&
-            "hasStrongVerification" in user &&
-            user.hasStrongVerification ? (
+              : `${nameValue}${"age" in user ? `, ${user.age}` : ""}`}
+            {"hasStrongVerification" in user && user.hasStrongVerification ? (
               <StrongVerificationBadge />
             ) : null}
           </>
@@ -174,7 +174,7 @@ export default function UserSummary({
           <>
             {!nameOnly && (
               <Tooltip
-                title={(user as LiteUser.AsObject)?.city}
+                title={(user as LiteUser.AsObject).city}
                 arrow
                 placement="top"
               >
@@ -194,7 +194,7 @@ export default function UserSummary({
 
       {menuItems && (
         <EllipsisMenu
-          idName={`${user?.username}-summary-menu`}
+          idName={`${user?.username || ""}-summary-menu`}
           isMenuOpen={!!menuAnchorEl}
           menuAnchorEl={menuAnchorEl}
           onMenuOpen={handleMenuOpen}
@@ -204,4 +204,6 @@ export default function UserSummary({
       )}
     </StyledWrapper>
   );
-}
+};
+
+export default UserSummary;

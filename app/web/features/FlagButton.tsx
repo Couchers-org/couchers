@@ -29,11 +29,7 @@ export interface FlagButtonProps {
   className?: string;
 }
 
-export default function FlagButton({
-  contentRef,
-  authorUser,
-  className,
-}: FlagButtonProps) {
+const FlagButton = ({ contentRef, authorUser, className }: FlagButtonProps) => {
   const { t } = useTranslation(GLOBAL);
 
   const [isOpen, setIsOpen] = useState(false);
@@ -81,7 +77,7 @@ export default function FlagButton({
   });
 
   const handleClose = (
-    event: unknown,
+    _event: unknown,
     reason: "backdropClick" | "escapeKeyDown" | "button",
   ) => {
     if (reason !== "button") return;
@@ -158,7 +154,7 @@ export default function FlagButton({
         <DialogTitle id="content-reporter">
           {t("report.flag.title")}
         </DialogTitle>
-        <form onSubmit={onSubmit}>
+        <form onSubmit={() => void onSubmit()}>
           <DialogContent>
             {error && <Alert severity="error">{error.message}</Alert>}
             <DialogContentText>{t("report.flag.explainer")}</DialogContentText>
@@ -233,9 +229,9 @@ export default function FlagButton({
                 <TextField
                   id="content-report-description"
                   {...field}
-                  error={!!errors?.description?.message}
+                  error={!!errors.description?.message}
                   helperText={
-                    !errors?.description?.message
+                    !errors.description?.message
                       ? t("report.flag.description_helper")
                       : undefined
                   }
@@ -256,7 +252,9 @@ export default function FlagButton({
           </DialogContent>
           <DialogActions>
             <Button
-              onClick={() => { handleClose({}, "button"); }}
+              onClick={() => {
+                handleClose({}, "button");
+              }}
               variant="outlined"
               sx={{
                 color: theme.palette.common.black,
@@ -285,4 +283,6 @@ export default function FlagButton({
       </Dialog>
     </>
   );
-}
+};
+
+export default FlagButton;
