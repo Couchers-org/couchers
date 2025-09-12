@@ -1,14 +1,25 @@
-import { alpha, Container, styled, Typography } from "@mui/material";
+import {
+  alpha,
+  Box,
+  Container,
+  Skeleton,
+  styled,
+  Typography,
+} from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
+import Avatar from "components/Avatar";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Redirect from "components/Redirect";
 import StyledLink from "components/StyledLink";
+import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useIsNativeEmbed } from "platform/nativeLink";
 import Sentry from "platform/sentry";
+import { GetInviteCodeInfoRes } from "proto/auth_pb";
 import { useEffect, useState } from "react";
 import CouchersTextLogo from "resources/CouchersTextLogo";
 import { dashboardRoute, loginRoute, signupRoute } from "routes";
@@ -45,6 +56,7 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
 
   const urlToken = stringOrFirstString(router.query.token);
+  const inviteCode = stringOrFirstString(router.query.code);
 
   const isNativeEmbed = useIsNativeEmbed();
 
@@ -83,6 +95,29 @@ export default function Signup() {
     // causes infinite looping in tests
   }, [urlToken, authActions, t]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const {
+    data: inviteInfo,
+    error: inviteInfoError,
+    isPending: isInvitePending,
+  } = useQuery<GetInviteCodeInfoRes.AsObject, RpcError>({
+    queryKey: ["inviteCodeInfo", inviteCode],
+    queryFn: () => service.auth.getInviteCodeInfo(inviteCode!),
+    enabled: !!inviteCode,
+    retry: false,
+    staleTime: 1000 * 60 * 60, // 1h; invite creator data rarely changes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
+
+  const inviter = inviteInfo
+    ? {
+        username: inviteInfo.username,
+        name: inviteInfo.name || inviteInfo.username,
+        avatarUrl: inviteInfo.avatarUrl,
+      }
+    : null;
+  const inviteError = inviteInfoError?.message ?? null;
+
   if (isNativeEmbed) {
     return (
       <StyledMobileEmbed>
@@ -91,7 +126,53 @@ export default function Signup() {
             {error}
           </Alert>
         )}
-        {loading ? <CenteredSpinner /> : <SignupFormContent />}
+        {inviter && inviteError && (
+          <Alert severity="info" sx={{ width: "100%" }}>
+            {t("global:error_loading_invite_codes")}
+          </Alert>
+        )}
+        {inviteCode && !inviteError && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1.5,
+              padding: 1.25,
+              border: `1px solid ${theme.palette.divider}`,
+              borderRadius: 2,
+              backgroundColor: theme.palette.background.paper,
+              mb: 2,
+            }}
+          >
+            {inviter && !isInvitePending && (
+              <>
+                <Avatar
+                  user={{
+                    username: inviter.username,
+                    name: inviter.name,
+                    avatarUrl: inviter.avatarUrl || "",
+                  }}
+                  highRes
+                />
+                <Typography>
+                  {t("global:invited_you", { name: inviter.name })}
+                </Typography>
+              </>
+            )}
+
+            {inviter && isInvitePending && (
+              <>
+                <Skeleton variant="circular" sx={{ width: 48, height: 48 }} />
+                <Skeleton variant="text" sx={{ width: "60%" }} />
+              </>
+            )}
+          </Box>
+        )}
+        {loading ? (
+          <CenteredSpinner />
+        ) : (
+          <SignupFormContent inviteCode={inviteCode || undefined} />
+        )}
       </StyledMobileEmbed>
     );
   }
@@ -119,7 +200,53 @@ export default function Signup() {
               {error}
             </Alert>
           )}
-          {loading ? <CenteredSpinner /> : <SignupFormContent />}
+          {inviteError && (
+            <Alert severity="error" sx={{ width: "100%" }}>
+              {t("global:error_loading_invite_codes")}
+            </Alert>
+          )}
+          {inviteCode && !inviteError && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                padding: 1.25,
+                border: `1px solid ${theme.palette.divider}`,
+                borderRadius: 2,
+                backgroundColor: theme.palette.background.paper,
+                mb: 2,
+              }}
+            >
+              {inviter && !isInvitePending && (
+                <>
+                  <Avatar
+                    user={{
+                      username: inviter.username,
+                      name: inviter.name,
+                      avatarUrl: inviter.avatarUrl || "",
+                    }}
+                    highRes
+                  />
+                  <Typography>
+                    {t("global:invited_you", { name: inviter.name })}
+                  </Typography>
+                </>
+              )}
+
+              {isInvitePending && (
+                <>
+                  <Skeleton variant="circular" sx={{ width: 48, height: 48 }} />
+                  <Skeleton variant="text" sx={{ width: "60%" }} />
+                </>
+              )}
+            </Box>
+          )}
+          {loading ? (
+            <CenteredSpinner />
+          ) : (
+            <SignupFormContent inviteCode={inviteCode || undefined} />
+          )}
           <Typography sx={{ marginTop: theme.spacing(2) }}>
             <Trans i18nKey="auth:basic_sign_up_form.existing_user_prompt">
               Already have an account?{" "}

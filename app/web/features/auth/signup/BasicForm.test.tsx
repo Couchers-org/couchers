@@ -45,7 +45,7 @@ describe("basic signup form", () => {
     );
 
     await waitFor(() => {
-      expect(startSignupMock).not.toBeCalled();
+      expect(startSignupMock).not.toHaveBeenCalled();
     });
 
     expect(result.current.authState.authenticated).toBe(false);
@@ -70,7 +70,7 @@ describe("basic signup form", () => {
     );
 
     await waitFor(() => {
-      expect(startSignupMock).not.toBeCalled();
+      expect(startSignupMock).not.toHaveBeenCalled();
     });
 
     expect(result.current.authState.authenticated).toBe(false);
@@ -95,7 +95,7 @@ describe("basic signup form", () => {
     );
 
     await waitFor(() => {
-      expect(startSignupMock).not.toBeCalled();
+      expect(startSignupMock).not.toHaveBeenCalled();
     });
 
     expect(result.current.authState.authenticated).toBe(false);
@@ -126,9 +126,10 @@ describe("basic signup form", () => {
     );
 
     await waitFor(() => {
-      expect(startSignupMock).toBeCalledWith(
+      expect(startSignupMock).toHaveBeenCalledWith(
         "Frodo",
         "frodo@couchers.org.invalid",
+        undefined,
       );
     });
   });

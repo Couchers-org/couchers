@@ -12,10 +12,16 @@
   "title": "title",
   "update": "Update",
   "create": "Create",
+  "created": "Created",
   "terms_of_service": "Terms of Service",
   "required": "Required",
   "accept": "Accept",
   "continue": "Continue",
+  "disable": "Disable",
+  "disabled": "Disabled",
+  "uses": "Uses",
+  "no_invite_codes": "No invite codes yet",
+  "error_loading_invite_codes": "Couldn't get invite code details",
   "thanks": "Thanks!",
   "community_standing": "Community Standing",
   "community_standing_description": "Calculated from various factors such as references and community engagement.",
@@ -28,6 +34,8 @@
   "cancel": "Cancel",
   "submit": "Submit",
   "confirm": "Confirm",
+  "copy": "Copy",
+  "copied": "Copied to clipboard",
   "load_more": "Load more",
   "read_more": "Read more",
   "next": "Next",
@@ -127,6 +135,7 @@
     "default_title": "Couchers.org",
     "default_description": "Share your world, discover theirs. Authentic local experiences, built on trust and genuine connection—not transactions."
   },
+  "invited_you": "{{name}} invited you to join Couchers!",
   "error": {
     "fatal_message": "This shouldn't have happened. Please contact us and tell us what you were doing to help us prevent this error in the future.",
     "unknown": "Unknown error",
@@ -188,7 +197,23 @@
     "legal_more": "Legal & More",
     "contact_us": "Contact Us",
     "built_with": "Open Source",
-    "landing_page": "Landing Page"
+    "landing_page": "Landing Page",
+    "invite_members": "Invite members"
+  },
+  "invites": {
+    "title": "Invite members",
+    "create": "Create invite",
+    "disable": "Disable",
+    "share_link": "Copy share link",
+    "instructions": "Create an invite link to share with friends and community. Disable codes you no longer use.",
+    "uses_suffix": "completed signups",
+    "banner": {
+      "invited_you": "{{name}} invited you to join Couchers!",
+      "inviter_fallback": "{{username}} invited you to join Couchers!"
+    },
+    "error": {
+      "fetch_invite_info": "Couldn't get invite code details"
+    }
   },
   "contribute_title": "Sign up to contribute",
   "reply": "Reply",
@@ -257,6 +282,7 @@
     "pt-BR": "Portuguese (Brazil)",
     "ru": "Russian",
     "sv": "Swedish",
+    "tr": "Turkish",
     "uk": "Ukrainian",
     "zh-Hans": "Chinese (Simplified)",
     "zh-Hant": "Chinese (Traditional)"
