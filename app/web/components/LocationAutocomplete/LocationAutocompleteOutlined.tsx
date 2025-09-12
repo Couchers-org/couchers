@@ -7,7 +7,7 @@ import {
   alpha,
   styled,
 } from "@mui/material";
-import { SyntheticEvent, forwardRef, useEffect, useState } from "react";
+import { SyntheticEvent, useEffect, useState } from "react";
 
 import IconButton from "@/components/IconButton";
 import { SearchIcon } from "@/components/Icons";
@@ -54,9 +54,8 @@ const StyledClearIcon = styled(Clear)(({ theme }) => ({
   width: "18px",
 }));
 
-const LocationAutocompleteOutlined = forwardRef((
+const LocationAutocompleteOutlined = (
   props: LocationAutocompleteOutlinedProps,
-  ref,
 ) => {
   const {
     className,
@@ -133,7 +132,6 @@ const LocationAutocompleteOutlined = forwardRef((
       value={selected}
       inputValue={inputValue}
       id={id}
-      ref={ref}
       renderInput={(params) => (
         <TextField
           {...params}
@@ -175,7 +173,9 @@ const LocationAutocompleteOutlined = forwardRef((
       loading={isLoading}
       options={options || []}
       open={isOpen}
-      onClose={() => { setIsOpen(false); }}
+      onClose={() => {
+        setIsOpen(false);
+      }}
       getOptionLabel={(option) => {
         return geocodeResult2String(option, shouldShowFullDisplayName);
       }}
@@ -197,9 +197,12 @@ const LocationAutocompleteOutlined = forwardRef((
       }}
     />
   );
-});
+};
 
-function geocodeResult2String(option: GeocodeResult | string, full: boolean) {
+const geocodeResult2String = (
+  option: GeocodeResult | string,
+  full: boolean,
+) => {
   if (typeof option === "string") {
     return option;
   }
@@ -207,6 +210,6 @@ function geocodeResult2String(option: GeocodeResult | string, full: boolean) {
     return option.name;
   }
   return option.simplifiedName;
-}
+};
 
 export default LocationAutocompleteOutlined;

@@ -1,15 +1,16 @@
 import dynamic from "next/dynamic";
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const Markdown = dynamic(() => import("@/components/MarkdownNoSSR"), {
   ssr: false,
 });
 
 export default Markdown;
 
-export function increaseMarkdownHeaderLevel(
+export const increaseMarkdownHeaderLevel = (
   source: string,
   topHeaderLevel: number,
-) {
+) => {
   let convertedSource = source;
   for (let i = 6; i >= 1; i--) {
     // loop through each header level, and add extra # as necessary
@@ -21,4 +22,4 @@ export function increaseMarkdownHeaderLevel(
   }
   // take out the ~ markers (line start only)
   return convertedSource.replace(/^~#/gm, "#");
-}
+};

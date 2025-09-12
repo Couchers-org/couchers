@@ -1,18 +1,18 @@
 import React, { PropsWithChildren } from "react";
 
 import ErrorFallback from "@/components/ErrorFallback";
-import Sentry, { SentryErrorBoundaryProps } from "@/platform/sentry";
+import { Sentry, SentryErrorBoundaryProps } from "@/platform/sentry";
 
 interface ErrorBoundaryProps
   extends Omit<SentryErrorBoundaryProps, "beforeCapture" | "fallback"> {
   isFatal?: boolean;
 }
 
-export default function ErrorBoundary({
+const ErrorBoundary = ({
   isFatal = false,
   children,
   ...otherProps
-}: PropsWithChildren<ErrorBoundaryProps>) {
+}: PropsWithChildren<ErrorBoundaryProps>) => {
   return (
     <Sentry.ErrorBoundary
       beforeCapture={(scope) => {
@@ -24,4 +24,6 @@ export default function ErrorBoundary({
       {children}
     </Sentry.ErrorBoundary>
   );
-}
+};
+
+export default ErrorBoundary;

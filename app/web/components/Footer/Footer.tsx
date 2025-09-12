@@ -302,6 +302,7 @@ const Footer = ({ bottomMargin }: { bottomMargin?: string }) => {
               i18nKey="footer.version_info"
               values={{
                 version: versionText,
+                // eslint-disable-next-line @typescript-eslint/naming-convention
                 updated_ago: updatedAgoText,
               }}
             >

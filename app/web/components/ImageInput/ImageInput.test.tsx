@@ -14,19 +14,14 @@ import {
 import wrapper from "@/test/hookWrapper";
 import i18n from "@/test/i18n";
 import { server } from "@/test/restMock";
-import {
-  MockedService,
-  assertErrorAlert,
-  mockConsoleError,
-} from "@/test/utils";
+import { assertErrorAlert, mockConsoleError } from "@/test/utils";
 
 import ImageInput from "./ImageInput";
 
 const { t } = i18n;
 
-const uploadFileMock = service.api.uploadFile as MockedService<
-  typeof service.api.uploadFile
->;
+const uploadFileMock = jest.spyOn(service.api, "uploadFile");
+
 const submitForm = jest.fn();
 const onSuccessMock = jest.fn(() => Promise.resolve());
 
@@ -58,7 +53,7 @@ describe.each`
       } = useForm<{ imageInput: File }>();
       const onSubmit = handleSubmit((data) => submitForm(data));
       return (
-        <form onSubmit={onSubmit}>
+        <form onSubmit={() => void onSubmit()}>
           {errors.imageInput && <p>{errors.imageInput.message}</p>}
           {type === "avatar" ? (
             <ImageInput
@@ -122,7 +117,7 @@ describe.each`
       expect(uploadFileMock).toHaveBeenCalledTimes(1);
     });
 
-    expect(onSuccessMock).toBeCalledWith({
+    expect(onSuccessMock).toHaveBeenCalledWith({
       file: MOCK_FILE,
       filename: MOCK_FILE.name,
       key: MOCK_KEY,
@@ -225,9 +220,7 @@ describe.each`
 
     // Start upload
     await user.upload(
-      within(form).getByLabelText(
-        t("profile:select_an_image"),
-      ),
+      within(form).getByLabelText(t("profile:select_an_image")),
       MOCK_FILE,
     );
 
@@ -263,8 +256,11 @@ describe("ImageInput http error tests", () => {
       );
     };
     render(<View />, { wrapper });
-    const uploadFile = jest.requireActual("service").service.api.uploadFile;
-    uploadFileMock.mockImplementation(uploadFile);
+
+    uploadFileMock.mockRestore();
+
+    // const uploadFile = jest.requireActual("service").service.api.uploadFile;
+    // uploadFileMock.mockImplementation(uploadFile);
     const initiateMediaUploadMock = jest.spyOn(
       client.api,
       "initiateMediaUpload",

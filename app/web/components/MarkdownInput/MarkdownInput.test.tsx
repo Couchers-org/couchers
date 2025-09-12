@@ -25,11 +25,13 @@ const uploadFileMock = service.api.uploadFile as MockedService<
   typeof service.api.uploadFile
 >;
 
-const Form = ({ submit }: { submit(value: string): void }) => {
-  const { control, handleSubmit } = useForm();
-  const onSubmit = handleSubmit(({ value }) => { submit(value); });
+const Form = ({ submit }: { submit: (value: string) => void }) => {
+  const { control, handleSubmit } = useForm<{ value: string }>();
+  const onSubmit = handleSubmit(({ value }) => {
+    submit(value);
+  });
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={() => void onSubmit()}>
       <h1 id="form-header">Form</h1>
       <MarkdownInput
         control={control}
@@ -74,6 +76,8 @@ describe("MarkdownInput", () => {
     );
     await waitForElementToBeRemoved(dialog);
     await user.click(screen.getByRole("button", { name: "Submit" }));
-    await waitFor(() => { expect(onSubmit).toHaveBeenCalledWith("![](full.jpg)"); });
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith("![](full.jpg)");
+    });
   });
 });

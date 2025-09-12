@@ -1,6 +1,6 @@
 import { SvgIcon, SvgIconProps } from "@mui/material";
 
-export default function BlueSkyIcon(props: SvgIconProps) {
+const BlueSkyIcon = (props: SvgIconProps) => {
   return (
     <SvgIcon {...props} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
       <svg
@@ -15,4 +15,6 @@ export default function BlueSkyIcon(props: SvgIconProps) {
       </svg>
     </SvgIcon>
   );
-}
+};
+
+export default BlueSkyIcon;

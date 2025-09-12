@@ -13,13 +13,13 @@ interface HtmlMetaProps {
   noSuffix?: boolean;
 }
 
-export default function HtmlMeta({
+const HtmlMeta = ({
   title,
   sharingTitle,
   description,
   shareImage = HTML_META_DEFAULT_SHARE_IMAGE,
   noSuffix,
-}: HtmlMetaProps) {
+}: HtmlMetaProps) => {
   const { t } = useTranslation(GLOBAL);
   return (
     <Head>
@@ -88,4 +88,6 @@ export default function HtmlMeta({
       />
     </Head>
   );
-}
+};
+
+export default HtmlMeta;

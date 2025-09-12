@@ -27,14 +27,11 @@ interface UploadImageProps {
   onClose: () => void;
 }
 
-export default function UploadImage({
-  emitter,
-  open,
-  onClose,
-}: UploadImageProps) {
+const UploadImage = ({ emitter, open, onClose }: UploadImageProps) => {
   const { t } = useTranslation(GLOBAL);
   const alt = useRef("");
   const { control } = useForm();
+  // eslint-disable-next-line @typescript-eslint/require-await
   const handleSuccess = async (data: ImageInputValues) => {
     emitter?.emit("command", "addImage", {
       imageUrl: data.full_url,
@@ -68,4 +65,6 @@ export default function UploadImage({
       </DialogActions>
     </Dialog>
   );
-}
+};
+
+export default UploadImage;

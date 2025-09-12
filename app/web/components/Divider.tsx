@@ -1,4 +1,6 @@
-import { Divider as MuiDivider, SxProps } from "@mui/material";
+import { Divider as MuiDivider, Theme } from "@mui/material";
+// eslint-disable-next-line no-restricted-imports
+import { SystemStyleObject } from "@mui/system";
 import React from "react";
 
 import { theme } from "@/theme";
@@ -6,10 +8,10 @@ import { theme } from "@/theme";
 export interface DividerProps {
   className?: string;
   spacing?: number;
-  sx?: SxProps;
+  sx?: SystemStyleObject<Theme>;
 }
 
-export default function Divider({ className, spacing = 2, sx }: DividerProps) {
+const Divider = ({ className, spacing = 2, sx }: DividerProps) => {
   return (
     <MuiDivider
       className={className}
@@ -20,4 +22,6 @@ export default function Divider({ className, spacing = 2, sx }: DividerProps) {
       }}
     />
   );
-}
+};
+
+export default Divider;

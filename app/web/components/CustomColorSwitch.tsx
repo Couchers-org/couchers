@@ -61,20 +61,21 @@ const StyledSwitch = styled(Switch, {
     : {}),
 }));
 
-export default function CustomColorSwitch({
+const CustomColorSwitch = ({
   checked,
   onClick,
   size = "medium",
   status,
   isLoading = false,
   customColor = theme.palette.secondary.main, // renamed to customColor to avoid conflict with MUI Switch color
-}: CustomSwitchProps) {
+}: CustomSwitchProps) => {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   const Icon = () => (
     <StyledCircle
       size={size}
@@ -109,4 +110,6 @@ export default function CustomColorSwitch({
       status={status}
     />
   );
-}
+};
+
+export default CustomColorSwitch;

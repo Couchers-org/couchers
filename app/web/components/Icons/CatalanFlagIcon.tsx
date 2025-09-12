@@ -1,6 +1,6 @@
 import { SvgIcon, SvgIconProps } from "@mui/material";
 
-export default function CatalanFlagIcon(props: SvgIconProps) {
+const CatalanFlagIcon = (props: SvgIconProps) => {
   return (
     <SvgIcon viewBox="0 0 12 9" {...props}>
       <rect width="12" height="9" fill="#FCDD09" />
@@ -10,4 +10,6 @@ export default function CatalanFlagIcon(props: SvgIconProps) {
       <rect x="0" y="7" width="12" height="1" fill="#DA121A" />
     </SvgIcon>
   );
-}
+};
+
+export default CatalanFlagIcon;

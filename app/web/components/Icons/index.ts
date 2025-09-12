@@ -1,4 +1,3 @@
-/* eslint-disable simple-import-sort/exports */
 // Please keep alphabetical order :)
 export { default as AccountSecurityIcon } from "@mui/icons-material/VerifiedUser";
 export { default as AccountSettingsIcon } from "@mui/icons-material/SettingsApplications";
@@ -73,4 +72,3 @@ export { default as VeryDissatisfiedIcon } from "@mui/icons-material/MoodBadOutl
 export { default as VerySatisfiedIcon } from "@mui/icons-material/MoodOutlined";
 export { default as VerifiedUser } from "@mui/icons-material/VerifiedUser";
 export { default as WorkIcon } from "@mui/icons-material/WorkOutlined";
-/* eslint-enable simple-import-sort/exports */

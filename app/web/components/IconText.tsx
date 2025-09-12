@@ -21,7 +21,8 @@ interface IconTextProps {
   text: ReactNode;
 }
 
-export default function IconText({ icon, text }: IconTextProps) {
+const IconText = ({ icon, text }: IconTextProps) => {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   const Icon = icon;
   return (
     <StyledWrapper>
@@ -35,4 +36,6 @@ export default function IconText({ icon, text }: IconTextProps) {
       )}
     </StyledWrapper>
   );
-}
+};
+
+export default IconText;

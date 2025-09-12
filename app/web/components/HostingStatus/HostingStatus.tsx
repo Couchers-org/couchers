@@ -8,7 +8,7 @@ import { useTranslation } from "@/i18n";
 import { GLOBAL } from "@/i18n/namespaces";
 import { HostingStatus as THostingStatus } from "@/proto/api_pb";
 
-const StyledHostingAbilityContainer = styled("div")(({ theme }) => ({
+const StyledHostingAbilityContainer = styled("div")(() => ({
   alignItems: "center",
   display: "flex",
 }));
@@ -17,7 +17,7 @@ export interface HostingStatusProps {
   hostingStatus?: THostingStatus;
 }
 
-export default function HostingStatus({ hostingStatus }: HostingStatusProps) {
+const HostingStatus = ({ hostingStatus }: HostingStatusProps) => {
   const { t } = useTranslation([GLOBAL]);
 
   return (
@@ -32,4 +32,6 @@ export default function HostingStatus({ hostingStatus }: HostingStatusProps) {
       )}
     </StyledHostingAbilityContainer>
   );
-}
+};
+
+export default HostingStatus;

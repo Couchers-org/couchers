@@ -21,8 +21,6 @@ import {
 } from "@/features/search/utils/mapLayers";
 import { theme } from "@/theme";
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
 interface MapProps {
   grow?: boolean;
   hash?: boolean;
@@ -63,7 +61,7 @@ const Map = ({
     }
   };
 
-  const handleMapClick = async (event: MapLayerMouseEvent) => {
+  const handleMapClick = (event: MapLayerMouseEvent) => {
     onClick(event);
   };
 
@@ -111,7 +109,7 @@ const Map = ({
     Those APIs will return an error if the session cookie is not set as these APIs are secure and not public.
     */
   const transformRequest = (url: string): RequestParameters => {
-    if (url.startsWith(API_BASE_URL)) {
+    if (url.startsWith(Config.apiBaseUrl)) {
       return {
         credentials: "include",
         url,

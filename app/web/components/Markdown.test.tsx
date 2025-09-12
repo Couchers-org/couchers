@@ -22,7 +22,9 @@ describe("markdown header level increase", () => {
     ${"#h1\n##h2\n###h3\n####h4\n#####h5\n######h6"} | ${4}     | ${"####h1\n#####h2\n######h3\n######h4\n######h5\n######h6"}
     ${"#h1\n##h2\n###h3\n####h4\n#####h5\n######h6"} | ${5}     | ${"#####h1\n######h2\n######h3\n######h4\n######h5\n######h6"}
   `("increases to h$topLevel for $source", ({ source, topLevel, result }) => {
-    expect(increaseMarkdownHeaderLevel(source, topLevel)).toBe(result);
+    expect(
+      increaseMarkdownHeaderLevel(source as string, topLevel as number),
+    ).toBe(result);
   });
 });
 
@@ -58,7 +60,7 @@ describe("Markdown widget", () => {
 
   it("doesn't convert markdown image to link for allowed domain for allowImages='couchers'", () => {
     const mediaURL = "https://mymedia.com";
-    process.env.NEXT_PUBLIC_MEDIA_BASE_URL = mediaURL;
+    Config.mediaBaseUrl = mediaURL;
     render(
       <div data-testid="allowed">
         <Markdown
@@ -79,7 +81,7 @@ describe("Markdown widget", () => {
 
   it("does convert markdown image to link for allowed domain for allowImages='none'", () => {
     const mediaURL = "https://mymedia.com";
-    process.env.NEXT_PUBLIC_MEDIA_BASE_URL = mediaURL;
+    Config.mediaBaseUrl = mediaURL;
     render(
       <div data-testid="not-allowed">
         <Markdown
@@ -100,7 +102,7 @@ describe("Markdown widget", () => {
 
   it("does convert markdown image to link for non-allowed domain for allowImages='couchers'", () => {
     const mediaURL = "https://mymedia.com";
-    process.env.NEXT_PUBLIC_MEDIA_BASE_URL = mediaURL;
+    Config.mediaBaseUrl = mediaURL;
     render(
       <div data-testid="not-allowed">
         <Markdown

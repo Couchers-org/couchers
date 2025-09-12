@@ -1,6 +1,7 @@
 import { Alert as MuiAlert } from "@mui/material";
 import React, { useEffect } from "react";
 
+import log from "@/log";
 import { usePersistedState } from "@/platform/usePersistedState";
 
 interface GlobalMessageData {
@@ -32,24 +33,22 @@ export const GlobalMessage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(
-          process.env.NEXT_PUBLIC_GLOBAL_MESSAGE_URL,
-        );
+        const response = await fetch(Config.globalMessageUrl);
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        setData(await response.json());
+        setData((await response.json()) as GlobalMessageData | null);
         setLastCheck(new Date().getTime());
       } catch (error) {
-        console.error("Error fetching global message:", error);
+        log.error("Error fetching global message:", error);
       }
     };
     if (
       !lastCheck ||
       new Date().getTime() - lastCheck > TIME_BETWEEN_CHECKS_MS
     ) {
-      fetchData();
+      void fetchData();
     }
   }, [setData, setLastCheck, lastCheck]);
 
@@ -60,7 +59,8 @@ export const GlobalMessage = () => {
 
   return data && data.epoch && data.epoch != dismissedEpoch ? (
     <MuiAlert severity={data.severity} onClose={dismiss}>
+      {/* eslint-disable-next-line @typescript-eslint/naming-convention */}
       <span dangerouslySetInnerHTML={{ __html: data.message }} />
     </MuiAlert>
   ) : null;
-}
+};

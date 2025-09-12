@@ -1,6 +1,6 @@
 import { SvgIcon, SvgIconProps } from "@mui/material";
 
-export default function NotificationNewIcon(props: SvgIconProps) {
+const NotificationNewIcon = (props: SvgIconProps) => {
   return (
     <SvgIcon {...props} viewBox="0 0 37 37" xmlns="http://www.w3.org/2000/svg">
       <svg
@@ -21,4 +21,6 @@ export default function NotificationNewIcon(props: SvgIconProps) {
       </svg>
     </SvgIcon>
   );
-}
+};
+
+export default NotificationNewIcon;

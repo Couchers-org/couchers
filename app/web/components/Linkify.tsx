@@ -23,7 +23,7 @@ const Linkify = ({ text, isCurrentUser }: LinkifyProps) => {
   const parts = text.split(nonCapturingRegex);
 
   const result = parts.map((part, i) => {
-    if (!part || !part.match) {
+    if (!part) {
       return null;
     }
     if (part.match(nonCapturingRegex)) {
@@ -50,6 +50,6 @@ const Linkify = ({ text, isCurrentUser }: LinkifyProps) => {
   });
 
   return <>{result}</>;
-}
+};
 
 export default Linkify;

@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { LngLat, Map as MaplibreMap } from "maplibre-gl";
+import { LngLat, Map as MaplibreMap, Source } from "maplibre-gl";
 import { useEffect } from "react";
 
 import MapUI from "@/components/OldMap";
@@ -15,28 +15,33 @@ const { t } = i18n;
 jest.mock("components/OldMap");
 jest.mock("maplibre-gl");
 
-const getCanvasMock = MaplibreMap.prototype.getCanvas as jest.Mock;
+const getCanvasMock = jest.spyOn(MaplibreMap.prototype, "getCanvas");
 const MapMock = MapUI as jest.Mock;
-const wrapMock = LngLat.prototype.wrap as jest.Mock;
-const getSourceMock = MaplibreMap.prototype.getSource as jest.Mock;
+const wrapMock = jest.spyOn(LngLat.prototype, "wrap");
+const getSourceMock = jest.spyOn(MaplibreMap.prototype, "getSource");
 
 describe("Edit location map", () => {
   beforeEach(() => {
-    getCanvasMock.mockImplementation(() => ({
-      style: {
-        set cursor(value: string) {},
-      },
-    }));
+    getCanvasMock.mockImplementation(
+      () =>
+        ({
+          style: {
+            // eslint-disable-next-line no-restricted-syntax
+            set cursor(_value: string) {},
+          },
+        }) as HTMLCanvasElement,
+    );
     getSourceMock.mockImplementation(() => {
       return {
         setData: jest.fn(),
-      };
+      } as unknown as Source;
     });
 
     wrapMock.mockReturnThis();
 
     MapMock.mockImplementation(({ postMapInitialize }) => {
       useEffect(() => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         postMapInitialize?.(
           new MaplibreMap({
             container: document.createElement("div"),
@@ -74,13 +79,13 @@ describe("Edit location map", () => {
         />,
         { wrapper },
       );
-      await waitFor(() =>
-        { expect(
+      await waitFor(() => {
+        expect(
           screen.getByText(
             t("global:components.edit_location_map.display_location_label"),
           ),
-        ).toHaveAttribute("data-shrink", "false"); },
-      );
+        ).toHaveAttribute("data-shrink", "false");
+      });
     });
 
     it("is shrunk when there is a default location", async () => {
@@ -96,13 +101,13 @@ describe("Edit location map", () => {
         />,
         { wrapper },
       );
-      await waitFor(() =>
-        { expect(
+      await waitFor(() => {
+        expect(
           screen.getByText(
             t("global:components.edit_location_map.display_location_label"),
           ),
-        ).toHaveAttribute("data-shrink", "true"); },
-      );
+        ).toHaveAttribute("data-shrink", "true");
+      });
     });
 
     it("is shrunk again when being populated from a search result", async () => {

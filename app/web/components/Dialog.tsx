@@ -10,19 +10,23 @@ import {
   DialogContentText as MuiDialogContentText,
   DialogTitle as MuiDialogTitle,
   DialogTitleProps as MuiDialogTitleProps,
+  Theme,
 } from "@mui/material";
+// eslint-disable-next-line no-restricted-imports
+import { SystemStyleObject } from "@mui/system";
 import React from "react";
 
 import IconButton from "@/components/IconButton";
 import { theme } from "@/theme";
 
 export interface AccessibleDialogProps extends Omit<DialogProps, "className"> {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   "aria-labelledby": string;
 }
 
 export const Dialog = (props: AccessibleDialogProps) => {
   return <MuiDialog {...props} fullWidth maxWidth="sm" scroll="body" />;
-}
+};
 
 export const DialogActions = (props: Omit<DialogActionsProps, "className">) => {
   return (
@@ -37,7 +41,7 @@ export const DialogActions = (props: Omit<DialogActionsProps, "className">) => {
       }}
     />
   );
-}
+};
 
 export const DialogContent = (props: Omit<DialogContentProps, "className">) => {
   return (
@@ -51,16 +55,18 @@ export const DialogContent = (props: Omit<DialogContentProps, "className">) => {
       }}
     />
   );
-}
+};
 
-export const DialogContentText = (props: DialogContentTextProps) => {
+export const DialogContentText = (
+  props: Omit<DialogContentTextProps, "sx"> & { sx?: SystemStyleObject<Theme> },
+) => {
   return (
     <MuiDialogContentText
       {...props}
       sx={{ padding: theme.spacing(2), ...props.sx }}
     />
   );
-}
+};
 
 interface DialogTitleProps extends Omit<MuiDialogTitleProps, "className"> {
   onClose?: () => void;
@@ -98,4 +104,4 @@ export const DialogTitle = ({
       {children}
     </MuiDialogTitle>
   );
-}
+};

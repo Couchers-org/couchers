@@ -30,16 +30,16 @@ const Banner = styled(Chip)(({ theme }) => ({
 export const EnvironmentBanner = () => {
   const theme = useTheme();
   const isBelowSm = useMediaQuery(theme.breakpoints.down("md"));
-  const [isShown, setIsShown] = useState(
-    process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod",
-  );
+  const [isShown, setIsShown] = useState(Config.couchersEnv !== "prod");
 
   return isShown ? (
     <Banner
       label={`This is a preview build of the app.${
         !isBelowSm ? " It uses a separate database to the production app." : ""
       }`}
-      onDelete={() => { setIsShown(false); }}
+      onDelete={() => {
+        setIsShown(false);
+      }}
     />
   ) : null;
-}
+};

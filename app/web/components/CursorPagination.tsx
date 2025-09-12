@@ -13,13 +13,13 @@ interface CursorPaginationProps {
   isLoading?: boolean;
 }
 
-export default function CursorPagination({
+const CursorPagination = ({
   hasPreviousPage,
   hasNextPage,
   onPrevious,
   onNext,
   isLoading = false,
-}: CursorPaginationProps) {
+}: CursorPaginationProps) => {
   const { t } = useTranslation([GLOBAL]);
 
   return (
@@ -44,4 +44,6 @@ export default function CursorPagination({
       </Stack>
     </Box>
   );
-}
+};
+
+export default CursorPagination;

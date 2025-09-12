@@ -3,6 +3,7 @@ import { Breakpoint } from "@mui/material/styles";
 import React, { ReactNode } from "react";
 
 import useOnVisibleEffect from "@/utils/useOnVisibleEffect";
+
 import CircularProgress from "./CircularProgress";
 
 interface CustomWrapperProps {
@@ -29,7 +30,7 @@ const StyledWrapper = styled("div")<CustomWrapperProps>(
   }),
 );
 
-const StyledLoaderContainer = styled("div")(({ theme }) => ({
+const StyledLoaderContainer = styled("div")(() => ({
   display: "flex",
   alignItems: "center",
 }));
@@ -44,14 +45,14 @@ interface HorizontalScrollerProps {
   children?: ReactNode;
 }
 
-export default function HorizontalScroller({
+const HorizontalScroller = ({
   breakpoint = "xs",
   fetchNext,
   isFetching,
   hasMore,
   className,
   children,
-}: HorizontalScrollerProps) {
+}: HorizontalScrollerProps) => {
   const { ref: loaderRef } = useOnVisibleEffect(fetchNext);
 
   const theme = useTheme();
@@ -71,4 +72,6 @@ export default function HorizontalScroller({
       )}
     </StyledWrapper>
   );
-}
+};
+
+export default HorizontalScroller;

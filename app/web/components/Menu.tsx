@@ -1,8 +1,8 @@
 import {
+  MenuProps,
   Menu as MuiMenu,
   MenuItem as MuiMenuItem,
   MenuItemProps as MuiMenuItemProps,
-  MenuProps,
   styled,
 } from "@mui/material";
 import React from "react";
@@ -28,9 +28,11 @@ const StyledMenuItem = styled(MuiMenuItem, {
   }),
 }));
 
-export default function Menu(props: Omit<MenuProps, "className">) {
+const Menu = (props: Omit<MenuProps, "className">) => {
   return <MuiMenu {...props} />;
-}
+};
+
+export default Menu;
 
 // forwarding ref is necessary because Menu
 // injects refs into MenuItems

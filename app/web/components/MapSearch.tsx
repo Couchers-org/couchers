@@ -8,12 +8,13 @@ import { useTranslation } from "react-i18next";
 import { SignupAccountInputs } from "@/features/auth/signup/AccountForm";
 import { EditProfileFormValues } from "@/features/profile/edit/EditProfile";
 import { GLOBAL } from "@/i18n/namespaces";
+import { theme } from "@/theme";
 import { useGeocodeQuery } from "@/utils/hooks";
 
 import Autocomplete from "./Autocomplete";
 import { SearchIcon } from "./Icons";
 
-const StyledBox = styled(Box)(({ theme }) => ({
+const StyledBox = styled(Box)(() => ({
   "& *": {
     opacity: 1,
   },
@@ -37,7 +38,7 @@ const StyledBox = styled(Box)(({ theme }) => ({
   zIndex: 1,
 }));
 
-const StyledForm = styled("div")(({ theme }) => ({
+const StyledForm = styled("div")(() => ({
   display: "flex",
   alignItems: "center",
   width: "100%",
@@ -56,13 +57,13 @@ interface MapSearchProps {
   inputFieldError?: FieldError;
 }
 
-export default function MapSearch({
+const MapSearch = ({
   setError,
   setResult,
   inputFieldProps,
   inputFieldError,
-}: MapSearchProps) {
-  const [open, setOpen] = useState(false);
+}: MapSearchProps) => {
+  const [isOpen, setIsOpen] = useState(false);
   const [value, setValue] = useState("");
   const { t } = useTranslation([GLOBAL]);
 
@@ -85,12 +86,12 @@ export default function MapSearch({
 
   useEffect(() => {
     setError(error || "");
-    if (error) setOpen(false);
+    if (error) setIsOpen(false);
   }, [error, setError]);
 
   const searchSubmit = (value: string, reason: AutocompleteChangeReason) => {
     if (reason === "blur") {
-      setOpen(false);
+      setIsOpen(false);
       return;
     }
     const searchOption = results?.find((o) => value === o.name);
@@ -98,8 +99,8 @@ export default function MapSearch({
     if (!searchOption) {
       // createOption is when enter is pressed on user-entered string
       if (reason === "createOption") {
-        query(value);
-        setOpen(true);
+        void query(value);
+        setIsOpen(true);
       }
     } else {
       setResult(
@@ -107,7 +108,7 @@ export default function MapSearch({
         searchOption.name,
         searchOption.simplifiedName,
       );
-      setOpen(false);
+      setIsOpen(false);
     }
   };
 
@@ -121,12 +122,16 @@ export default function MapSearch({
           size="small"
           options={searchOptions?.map((o) => o.name) || []}
           loading={isLoading}
-          open={open}
-          onBlur={() => { setOpen(false); }}
+          open={isOpen}
+          onBlur={() => {
+            setIsOpen(false);
+          }}
           inputProps={inputFieldProps}
           error={inputFieldError?.message}
-          onInputChange={(e, v) => { setValue(v); }}
-          onChange={(e, v, reason) => {
+          onInputChange={(_, v) => {
+            setValue(v);
+          }}
+          onChange={(_, v, reason) => {
             setValue(v);
             searchSubmit(v, reason);
           }}
@@ -159,4 +164,6 @@ export default function MapSearch({
       </StyledForm>
     </StyledBox>
   );
-}
+};
+
+export default MapSearch;
