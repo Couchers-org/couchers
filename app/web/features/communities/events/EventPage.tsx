@@ -13,7 +13,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
-import { eventImagePlaceholderUrl } from "@/appConstants";
+import { EVENT_IMAGE_PLACEHOLDER_URL } from "@/appConstants";
 import Alert from "@/components/Alert";
 import Button from "@/components/Button";
 import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
@@ -89,7 +89,7 @@ const StyledCoverPhoto = styled("img")((props) => ({
     height: 200,
   },
   width: "100%",
-  objectFit: props.src === eventImagePlaceholderUrl ? "contain" : "cover",
+  objectFit: props.src === EVENT_IMAGE_PLACEHOLDER_URL ? "contain" : "cover",
   marginBlockStart: theme.spacing(2),
 }));
 
@@ -242,7 +242,7 @@ const EventPage = ({
         event && (
           <>
             <StyledCoverPhoto
-              src={event.photoUrl || eventImagePlaceholderUrl}
+              src={event.photoUrl || EVENT_IMAGE_PLACEHOLDER_URL}
               alt=""
               data-testid="event-cover-photo"
             />

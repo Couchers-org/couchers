@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RpcError, StatusCode } from "grpc-web";
 import { useEffect } from "react";
 
-import { reactQueryRetries } from "@/appConstants";
+import { REACT_QUERY_RETRIES } from "@/appConstants";
 import { USERNAME_2_ID, userKey } from "@/features/queryKeys";
 import {
   USERNAME_2_ID_STALE_TIME,
@@ -31,7 +31,8 @@ const useUserByUsername = (username: string, invalidate = false) => {
     retry: (failureCount, error) => {
       // don't retry if the user isn't found
       return (
-        error.code !== StatusCode.NOT_FOUND && failureCount <= reactQueryRetries
+        error.code !== StatusCode.NOT_FOUND &&
+        failureCount <= REACT_QUERY_RETRIES
       );
     },
     staleTime: USERNAME_2_ID_STALE_TIME,

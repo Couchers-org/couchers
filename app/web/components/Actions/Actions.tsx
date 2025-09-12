@@ -11,6 +11,8 @@ const StyledWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function Actions({ children }: { children: ReactNode }) {
+const Actions = ({ children }: { children: ReactNode }) => {
   return <StyledWrapper>{children}</StyledWrapper>;
-}
+};
+
+export default Actions;

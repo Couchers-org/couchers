@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 
-import { eventImagePlaceholderUrl } from "@/appConstants";
+import { EVENT_IMAGE_PLACEHOLDER_URL } from "@/appConstants";
 import Pill from "@/components/Pill";
 import FlagButton from "@/features/FlagButton";
 import { useTranslation } from "@/i18n";
@@ -129,7 +129,7 @@ const LongEventCard = ({
       <StyledLink href={routeToEvent(event.eventId, event.slug)}>
         <CardMedia
           component="img"
-          image={event.photoUrl || eventImagePlaceholderUrl}
+          image={event.photoUrl || EVENT_IMAGE_PLACEHOLDER_URL}
           title={event.title}
           sx={{
             objectFit: event.photoUrl ? "cover" : "contain",

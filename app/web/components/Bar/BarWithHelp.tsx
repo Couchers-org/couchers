@@ -19,13 +19,13 @@ const StyledWrapper = styled("div")(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 
-export default function BarWithHelp({
+const BarWithHelp = ({
   value,
   label,
   description,
   className,
-}: BarWithHelpProps) {
-  return process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED ? (
+}: BarWithHelpProps) => {
+  return Config.isPostBetaEnabled ? (
     <StyledWrapper className={className}>
       <ScoreBar value={value}>{label}</ScoreBar>
       <Tooltip title={description}>
@@ -39,4 +39,6 @@ export default function BarWithHelp({
       </Tooltip>
     </StyledWrapper>
   ) : null;
-}
+};
+
+export default BarWithHelp;

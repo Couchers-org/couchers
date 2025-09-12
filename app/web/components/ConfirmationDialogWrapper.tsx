@@ -19,13 +19,13 @@ interface ConfirmationDialogWrapperProps {
   onConfirm: () => void;
 }
 
-export default function ConfirmationDialogWrapper({
+const ConfirmationDialogWrapper = ({
   children,
   title,
   message,
   confirmButtonLabel,
   onConfirm,
-}: ConfirmationDialogWrapperProps) {
+}: ConfirmationDialogWrapperProps) => {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const ariaLabel = `${title.replace(/\s+/g, "")}-confirmation-dialog`;
@@ -42,7 +42,12 @@ export default function ConfirmationDialogWrapper({
           <DialogContentText>{message}</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button variant="outlined" onClick={() => { setIsOpen(false); }}>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              setIsOpen(false);
+            }}
+          >
             {t("cancel")}
           </Button>
           <Button onClick={handleConfirm}>
@@ -52,4 +57,6 @@ export default function ConfirmationDialogWrapper({
       </Dialog>
     </>
   );
-}
+};
+
+export default ConfirmationDialogWrapper;

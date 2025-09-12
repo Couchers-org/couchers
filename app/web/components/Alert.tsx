@@ -16,11 +16,7 @@ interface AlertProps extends MuiAlertProps {
   children: string | ReactNode;
 }
 
-export default function Alert({
-  className,
-  children,
-  ...otherProps
-}: AlertProps) {
+const Alert = ({ className, children, ...otherProps }: AlertProps) => {
   const oldErrorKey = Object.keys(grpcErrorStrings).find(
     (oldError): oldError is ObscureGrpcErrorMessages =>
       typeof children === "string" && children.includes(oldError),
@@ -35,4 +31,6 @@ export default function Alert({
       }
     </StyledAlert>
   );
-}
+};
+
+export default Alert;

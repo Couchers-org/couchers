@@ -1,15 +1,20 @@
 import {
-  CircularProgress as MuiCircularProgress,
   CircularProgressProps,
+  CircularProgress as MuiCircularProgress,
 } from "@mui/material";
 import React, { ForwardedRef } from "react";
 
-const _CircularProgress = ({ className, ...otherProps }: CircularProgressProps,
-  ref: ForwardedRef<HTMLElement>) => {
-  return (
-    <MuiCircularProgress {...otherProps} className={className} ref={ref} />
-  );
-}
+const CircularProgress = React.forwardRef(
+  (
+    { className, ...otherProps }: CircularProgressProps,
+    ref: ForwardedRef<HTMLElement>,
+  ) => {
+    return (
+      <MuiCircularProgress {...otherProps} className={className} ref={ref} />
+    );
+  },
+);
 
-const CircularProgress = React.forwardRef(_CircularProgress);
+CircularProgress.displayName = "CircularProgress";
+
 export default CircularProgress;

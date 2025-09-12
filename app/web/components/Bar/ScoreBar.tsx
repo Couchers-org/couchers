@@ -36,11 +36,13 @@ const StyledScoreBarLabel = styled(Typography)(({ theme }) => ({
   fontSize: "0.75rem",
 }));
 
-export default function SearchResult({ value, children }: ScoreBarProps) {
-  return process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED ? (
+const SearchResult = ({ value, children }: ScoreBarProps) => {
+  return Config.isPostBetaEnabled ? (
     <StyledContainer disableGutters>
       <StyledLinearProgress variant="determinate" value={value} />
       <StyledScoreBarLabel noWrap>{children}</StyledScoreBarLabel>
     </StyledContainer>
   ) : null;
-}
+};
+
+export default SearchResult;

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { RpcError, StatusCode } from "grpc-web";
 
-import { reactQueryRetries } from "@/appConstants";
+import { REACT_QUERY_RETRIES } from "@/appConstants";
 import { liteUserKey, liteUsersKey } from "@/features/queryKeys";
 import { GetLiteUsersRes, LiteUser } from "@/proto/api_pb";
 import { service } from "@/service";
@@ -62,7 +62,8 @@ const useLiteUser = (id: number | undefined) => {
     retry: (failureCount, error) => {
       // don't retry if the user isn't found
       return (
-        error.code !== StatusCode.NOT_FOUND && failureCount < reactQueryRetries
+        error.code !== StatusCode.NOT_FOUND &&
+        failureCount < REACT_QUERY_RETRIES
       );
     },
   });

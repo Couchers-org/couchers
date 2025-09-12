@@ -28,7 +28,7 @@ const StyledCard = styled(Card)(() => ({
   fontSize: "1.2em",
 }));
 
-export default function CommentBox({ threadId }: CommentBoxProps) {
+const CommentBox = ({ threadId }: CommentBoxProps) => {
   const { t } = useTranslation();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -117,4 +117,6 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
       <NewComment onComment={(content) => handleComment(threadId, content)} />
     </>
   );
-}
+};
+
+export default CommentBox;

@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { RpcError, StatusCode } from "grpc-web";
 
-import { reactQueryRetries } from "@/appConstants";
+import { REACT_QUERY_RETRIES } from "@/appConstants";
 import { liteUserKey, liteUsersKey } from "@/features/queryKeys";
 import { service } from "@/service";
 import mockLiteUsers from "@/test/fixtures/liteUsers.json";
@@ -22,7 +22,7 @@ const queryClient = new QueryClient({
         // don't retry if the user isn't found
         return (
           (error as RpcError).code !== StatusCode.NOT_FOUND &&
-          failureCount < reactQueryRetries
+          failureCount < REACT_QUERY_RETRIES
         );
       },
     },

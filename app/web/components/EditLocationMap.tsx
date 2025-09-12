@@ -11,7 +11,10 @@ import React, { useRef, useState } from "react";
 import { ControllerRenderProps, FieldError } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
-import { userLocationMaxRadius, userLocationMinRadius } from "@/appConstants";
+import {
+  USER_LOCATION_MAX_RADIUS,
+  USER_LOCATION_MIN_RADIUS,
+} from "@/appConstants";
 import MapSearch from "@/components/MapSearch";
 import Map from "@/components/OldMap";
 import TextField from "@/components/TextField";
@@ -412,8 +415,8 @@ const RadiusSlider = ({
         })}
         value={radius}
         step={5}
-        min={userLocationMinRadius}
-        max={userLocationMaxRadius}
+        min={USER_LOCATION_MIN_RADIUS}
+        max={USER_LOCATION_MAX_RADIUS}
         onChange={(_, value) => {
           setRadius(value);
           commit({ radius: value }, false);

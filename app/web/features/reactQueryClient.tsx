@@ -3,14 +3,14 @@ import { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 
-import { reactQueryRetries } from "@/appConstants";
+import { REACT_QUERY_RETRIES } from "@/appConstants";
 
 export const queryClient = new QueryClient({
   // grpc-web has built in timeout, so better not use the default exponential backoff
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: reactQueryRetries,
+      retry: REACT_QUERY_RETRIES,
       retryDelay: 0,
     },
   },

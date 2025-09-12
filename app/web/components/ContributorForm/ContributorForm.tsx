@@ -69,22 +69,21 @@ const StyledFormLabel = styled(FormLabel)<FormLabelProps>(({ theme }) => ({
   marginBlockEnd: theme.spacing(1),
 }));
 
-export default function ContributorForm({
+const ContributorForm = ({
   processForm,
   autofocus = false,
-}: ContributorFormProps) {
+}: ContributorFormProps) => {
   const {
     control,
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<ContributorInputs>({
     mode: "onBlur",
     shouldUnregister: false,
   });
 
-  const mutation = useMutation<void, RpcError, ContributorInputs>({
+  const mutation = useMutation<unknown, RpcError, ContributorInputs>({
     mutationFn: async (data) => {
       let contribute = ContributeOption.CONTRIBUTE_OPTION_UNSPECIFIED;
       switch (data.contribute) {
@@ -121,7 +120,6 @@ export default function ContributorForm({
     mutation.mutate(data);
   });
 
-  const watchContribute = watch("contribute");
   const ideasInputRef = useRef<HTMLInputElement>();
 
   return (
@@ -132,7 +130,7 @@ export default function ContributorForm({
       {mutation.isSuccess ? (
         <Typography variant="body1">{SUCCESS_MSG}</Typography>
       ) : (
-        <form onSubmit={submit}>
+        <form onSubmit={() => void submit()}>
           <Typography
             variant="body2"
             sx={{
@@ -196,7 +194,9 @@ export default function ContributorForm({
                   sx={{ marginBlockEnd: theme.spacing(3) }}
                   row
                   name="contribute-radio"
-                  onChange={(e, value) => { field.onChange(value); }}
+                  onChange={(_, value) => {
+                    field.onChange(value);
+                  }}
                   value={field.value}
                 >
                   {CONTRIBUTE_OPTIONS.map((option) => (
@@ -211,7 +211,7 @@ export default function ContributorForm({
               </FormControl>
             )}
           />
-          <Collapse in={watchContribute !== undefined}>
+          <Collapse in={true}>
             <FormControl variant="standard" component="fieldset">
               <StyledFormLabel component="legend">
                 {CONTRIBUTE_WAYS_LABEL}
@@ -230,7 +230,9 @@ export default function ContributorForm({
                           <Checkbox
                             {...field}
                             checked={field.value}
-                            onChange={(e, checked) => { field.onChange(checked); }}
+                            onChange={(_, checked) => {
+                              field.onChange(checked);
+                            }}
                           />
                         }
                         label={description}
@@ -239,9 +241,14 @@ export default function ContributorForm({
                   />
                 ))}
               </FormGroup>
-              <FormHelperText error={!!errors?.contributeWays?.message}>
-                {errors?.contributeWays?.message?.toString() ?? " "}
-              </FormHelperText>
+              {!errors.contributeWays?.message && (
+                <>
+                  <FormHelperText error={!!errors.contributeWays?.message}>
+                    {/* eslint-disable-next-line @typescript-eslint/no-base-to-string */}
+                    {errors.contributeWays?.message?.toString()}
+                  </FormHelperText>
+                </>
+              )}
             </FormControl>
             <Typography
               variant="body1"
@@ -255,8 +262,8 @@ export default function ContributorForm({
               id="expertise"
               {...register("expertise")}
               margin="normal"
-              helperText={errors?.expertise?.message ?? EXPERTISE_HELPER}
-              error={!!errors?.expertise?.message}
+              helperText={errors.expertise?.message ?? EXPERTISE_HELPER}
+              error={!!errors.expertise?.message}
               fullWidth
               multiline
               minRows={4}
@@ -293,4 +300,6 @@ export default function ContributorForm({
       )}
     </>
   );
-}
+};
+
+export default ContributorForm;

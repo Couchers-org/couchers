@@ -9,7 +9,7 @@ import {
 import Link from "next/link";
 import { useMemo } from "react";
 
-import { eventImagePlaceholderUrl } from "@/appConstants";
+import { EVENT_IMAGE_PLACEHOLDER_URL } from "@/appConstants";
 import Divider from "@/components/Divider";
 import FlagButton from "@/features/FlagButton";
 import { useTranslation } from "@/i18n";
@@ -101,7 +101,7 @@ const EventCard = ({ event, className }: EventCardProps) => {
     endTime.isSame(startTime, "day") ? "LT" : "llll",
   )}`;
 
-  const eventImageSrc = event.photoUrl || eventImagePlaceholderUrl;
+  const eventImageSrc = event.photoUrl || EVENT_IMAGE_PLACEHOLDER_URL;
 
   return (
     <StyledCard
@@ -118,7 +118,9 @@ const EventCard = ({ event, className }: EventCardProps) => {
             height: { xs: 80, sm: 100, md: 120 },
             backgroundImage: `url(${eventImageSrc})`,
             backgroundSize:
-              eventImageSrc === eventImagePlaceholderUrl ? "contain" : "cover",
+              eventImageSrc === EVENT_IMAGE_PLACEHOLDER_URL
+                ? "contain"
+                : "cover",
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
           }}

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { sessionCookieName } from "./appConstants";
+import { SESSION_COOKIE_NAME } from "./appConstants";
 import { allLanguages } from "./i18n/allLanguages";
 
 const getBrowserLocale = (
@@ -32,7 +32,7 @@ const getBrowserLocale = (
 
 export const middleware = (request: NextRequest) => {
   if (
-    request.cookies.get(sessionCookieName) &&
+    request.cookies.get(SESSION_COOKIE_NAME) &&
     request.nextUrl.pathname === "/"
   ) {
     const url = request.nextUrl.clone();

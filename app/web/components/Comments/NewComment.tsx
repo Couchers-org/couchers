@@ -8,7 +8,7 @@ interface NewCommentProps {
   onComment: (comment: string) => Promise<void>;
 }
 
-export default function NewComment({ onComment }: NewCommentProps) {
+const NewComment = ({ onComment }: NewCommentProps) => {
   const [isPreview, setIsPreview] = useState(false);
   const [comment, setComment] = useState("");
 
@@ -28,7 +28,9 @@ export default function NewComment({ onComment }: NewCommentProps) {
             maxRows={5}
             multiline
             fullWidth
-            onChange={(e) => { setComment(e.target.value); }}
+            onChange={(e) => {
+              setComment(e.target.value);
+            }}
             value={comment}
             margin="normal"
           />
@@ -36,7 +38,12 @@ export default function NewComment({ onComment }: NewCommentProps) {
             <Button component={Link} href="https://www.markdowntutorial.com/">
               Formatting?
             </Button>
-            <Button component={Link} onClick={() => { setIsPreview(!isPreview); }}>
+            <Button
+              component={Link}
+              onClick={() => {
+                setIsPreview(!isPreview);
+              }}
+            >
               Preview?
             </Button>
           </Box>
@@ -47,9 +54,11 @@ export default function NewComment({ onComment }: NewCommentProps) {
           </Grid>
         )}
       </Grid>
-      <Button onClick={handleSubmit} type="submit">
+      <Button onClick={() => void handleSubmit()} type="submit">
         Comment
       </Button>
     </>
   );
-}
+};
+
+export default NewComment;

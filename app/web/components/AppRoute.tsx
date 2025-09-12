@@ -25,10 +25,12 @@ interface AppRouteProps {
 const globalStyles = (
   <GlobalStyles
     styles={{
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       "html, body": {
         margin: 0,
         overflow: "hidden", // Prevents whole-page scrolling
       },
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       "#__next": {
         height: "calc(var(--vh, 1vh) * 100)", // Use the dynamic --vh value from _app
         display: "flex",

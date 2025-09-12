@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
 
-import { pingInterval } from "@/appConstants";
+import { PING_INTERVAL } from "@/appConstants";
 import { useAuthContext } from "@/features/auth/AuthProvider";
 import { PingRes } from "@/proto/api_pb";
 import { service } from "@/service";
@@ -16,7 +16,7 @@ const useNotifications = () => {
     queryKey: ["ping"],
     queryFn: () => service.api.ping(),
     enabled: isAuthenticated && !isJailed,
-    refetchInterval: pingInterval,
+    refetchInterval: PING_INTERVAL,
   });
   return { data, error, isError, isPending };
 };

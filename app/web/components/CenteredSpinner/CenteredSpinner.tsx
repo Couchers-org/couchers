@@ -19,12 +19,12 @@ const StyledCenteredLoaderContainer = styled("div")<StyleProps>(
   }),
 );
 
-export default function CenteredSpinner({
-  minHeight = "auto",
-}: CenteredSpinnerProps) {
+const CenteredSpinner = ({ minHeight = "auto" }: CenteredSpinnerProps) => {
   return (
     <StyledCenteredLoaderContainer minHeight={minHeight}>
       <CircularProgress />
     </StyledCenteredLoaderContainer>
   );
-}
+};
+
+export default CenteredSpinner;

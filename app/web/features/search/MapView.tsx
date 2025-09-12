@@ -4,7 +4,7 @@ import { useCallback, useMemo } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 
 import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
-import Map, { API_BASE_URL } from "@/components/Map";
+import Map from "@/components/Map";
 import { useTranslation } from "@/i18n";
 import { SEARCH } from "@/i18n/namespaces";
 import { SearchUser } from "@/proto/search_pb";
@@ -78,7 +78,7 @@ const MapView = ({
 
   const pins = usersToGeoJSON(users);
   const memoizedPins = useMemo(() => pins, [pins]);
-  const zoomedOutDataSource = API_BASE_URL + "/geojson/users";
+  const zoomedOutDataSource = Config.apiBaseUrl + "/geojson/users";
 
   const {
     search: { bbox: searchQueryBbox, query },

@@ -13,7 +13,7 @@ import { service } from "@/service";
 
 import { ALREADY_FILLED_IN, FILL_IN_AGAIN, SUCCESS_MSG } from "./constants";
 
-export default function StandaloneContributorForm() {
+const StandaloneContributorForm = () => {
   const queryClient = useQueryClient();
 
   const [fillState, setFillState] = useState<
@@ -22,7 +22,7 @@ export default function StandaloneContributorForm() {
 
   const {
     data,
-    isLoading: queryLoading,
+    isLoading: isQueryLoading,
     error: queryError,
   } = useQuery<GetContributorFormInfoRes.AsObject>({
     queryKey: [CONTRIBUTOR_FORM_INFO_QUERY_KEY],
@@ -31,17 +31,17 @@ export default function StandaloneContributorForm() {
 
   const handleSubmit = async (form: ContributorFormPb.AsObject) => {
     await service.account.fillContributorForm(form);
-    queryClient.invalidateQueries({
+    await queryClient.invalidateQueries({
       queryKey: [CONTRIBUTOR_FORM_INFO_QUERY_KEY],
     });
     setFillState("success");
   };
 
-  return queryLoading ? (
+  return isQueryLoading ? (
     <CenteredSpinner />
   ) : (
     <>
-      {queryError && <Alert severity="error">{queryError?.message}</Alert>}
+      {queryError && <Alert severity="error">{queryError.message}</Alert>}
       {data?.filledContributorForm && fillState !== "fillAgain" ? (
         <>
           <Typography
@@ -67,4 +67,6 @@ export default function StandaloneContributorForm() {
       )}
     </>
   );
-}
+};
+
+export default StandaloneContributorForm;

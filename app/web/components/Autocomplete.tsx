@@ -3,6 +3,7 @@ import {
   AutocompleteProps as MuiAutocompleteProps,
   Theme,
 } from "@mui/material";
+// eslint-disable-next-line no-restricted-imports
 import { SystemStyleObject } from "@mui/system";
 import React from "react";
 import { ControllerRenderProps } from "react-hook-form";
