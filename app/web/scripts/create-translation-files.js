@@ -526,6 +526,47 @@ function getFlagCode(code) {
   return FLAG_CODES[baseCode] || FLAG_CODES[code] || null;
 }
 
+function addToResourceLanguageNames(languageCode) {
+  const resourcesEnPath = path.join(
+    __dirname,
+    "..",
+    "resources",
+    "locales",
+    "en.json",
+  );
+
+  try {
+    const raw = fs.readFileSync(resourcesEnPath, "utf8");
+    const json = JSON.parse(raw);
+
+    if (!json.language_names) {
+      json.language_names = {};
+    }
+
+    if (json.language_names[languageCode]) {
+      console.log(
+        `⚠️  language_names already contains "${languageCode}" in resources en.json`,
+      );
+      return false;
+    }
+
+    const displayName = getLanguageName(languageCode);
+    json.language_names[languageCode] = displayName;
+
+    // Write pretty-printed JSON with trailing newline
+    fs.writeFileSync(resourcesEnPath, JSON.stringify(json, null, 2) + "\n");
+    console.log(
+      `✅ Added "${languageCode}": "${displayName}" to en.json translation file`,
+    );
+    return true;
+  } catch (error) {
+    console.error(
+      `❌ Failed to update resources language_names: ${error.message}`,
+    );
+    return false;
+  }
+}
+
 function addToAllLanguages(languageCode) {
   const allLanguagesPath = path.join(
     __dirname,
@@ -698,8 +739,11 @@ function main() {
       flagCode,
     );
 
+    // Also add to web resources language_names
+    const addedToResourceNames = addToResourceLanguageNames(languageCode);
+
     console.log("\n📋 Summary:");
-    if (addedToAllLanguages && addedToConstants) {
+    if (addedToAllLanguages && addedToConstants && addedToResourceNames) {
       console.log("✅ Language successfully added to translation system!");
     } else {
       console.log(
