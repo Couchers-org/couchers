@@ -11,7 +11,7 @@ import * as auth from "./auth";
 // import * as events from "./events";
 // import * as groups from "./groups";
 // import * as jail from "./jail";
-// import * as notifications from "./notifications";
+import * as notifications from "./notifications";
 // import * as pages from "./pages";
 // import * as publicApi from "./public";
 import * as references from "@/service/references";
@@ -37,7 +37,7 @@ export const service = {
   // events,
   // groups,
   // jail,
-  // notifications,
+  notifications,
   // pages,
   // publicApi,
   references,

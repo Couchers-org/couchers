@@ -28,7 +28,9 @@ export default function TabLayout() {
         <Tabs.Screen name="index" options={{ href: null }} />
         <Tabs.Screen name="profile" options={{ href: null }} />
         <Tabs.Screen name="account-settings" options={{ href: null }} />
+        <Tabs.Screen name="events" options={{ href: null }} />
         <Tabs.Screen name="md/[...slug]" options={{ href: null }} />
+        <Tabs.Screen name="[...slug]" options={{ href: null }} />
         <Tabs.Screen
           name="dashboard"
           options={{
@@ -41,20 +43,19 @@ export default function TabLayout() {
             ),
           }}
         />
-        <Tabs.Screen name="messages" options={{ href: null }} />
-
         <Tabs.Screen
-          name="events"
+          name="messages"
           options={{
-            title: "Events",
+            title: "Messages",
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon
-                name={focused ? "calendar" : "calendar-outline"}
+                name={focused ? "chatbubble" : "chatbubble-outline"}
                 color={color}
               />
             ),
           }}
         />
+
         <Tabs.Screen
           name="communities"
           options={{

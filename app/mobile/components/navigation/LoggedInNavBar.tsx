@@ -9,13 +9,19 @@ import { useTranslation } from "react-i18next";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Colors } from "@/constants/Colors";
 import { Link, router } from "expo-router";
+import NotificationFeed from "@/components/notifications/NotificationFeed";
 import { useAuthContext } from "@/features/auth/AuthProvider";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { listNotificationsQueryKey } from "@/features/queryKeys";
+import { service } from "@/service";
+import { theme } from "../../theme";
 
 const NavBar = () => {
   const { t } = useTranslation();
-  const { authActions } = useAuthContext();
+  const { authActions, authState } = useAuthContext();
 
   const [open, setOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
   const colorScheme = useColorScheme();
   const iconColor = Colors[colorScheme ?? "light"].text;
   const styles = useMemo(
@@ -23,13 +29,26 @@ const NavBar = () => {
     [colorScheme]
   );
   const insets = useSafeAreaInsets();
+  const queryClient = useQueryClient();
+  const { data: unreadData } = useQuery({
+    queryKey: [listNotificationsQueryKey, "unread"],
+    queryFn: () =>
+      service.notifications.listNotifications({ onlyUnread: true }),
+  });
+  const unreadCount = unreadData?.notificationsList?.length ?? 0;
 
   const handleDrawerOpen = () => setOpen(true);
   const handleDrawerClose = () => setOpen(false);
 
-  const handleLogout = () => {
-    authActions.logout();
+  const handleLogout = async () => {
+    setOpen(false);
+    setIsNotifOpen(false);
+    await authActions.logout();
+    queryClient.clear();
+    router.replace("/login");
   };
+
+  if (!authState.authenticated) return null;
 
   return (
     <SafeAreaView edges={["top"]} style={styles.safeArea}>
@@ -40,13 +59,35 @@ const NavBar = () => {
             style={styles.logo}
           />
         </Pressable>
-        <Pressable
-          onPress={handleDrawerOpen}
-          style={styles.iconButton}
-          hitSlop={8}
-        >
-          <Ionicons name="menu" size={30} color={iconColor} />
-        </Pressable>
+        <View style={styles.actions}>
+          <Pressable
+            onPress={() => setIsNotifOpen(true)}
+            style={styles.iconButton}
+            hitSlop={8}
+          >
+            <View style={{ position: "relative" }}>
+              <Ionicons
+                name="notifications-outline"
+                size={32}
+                color={iconColor}
+              />
+              {unreadCount > 0 && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>
+                    {unreadCount > 100 ? "100+" : String(unreadCount)}
+                  </Text>
+                </View>
+              )}
+            </View>
+          </Pressable>
+          <Pressable
+            onPress={handleDrawerOpen}
+            style={styles.iconButton}
+            hitSlop={8}
+          >
+            <Ionicons name="menu" size={32} color={iconColor} />
+          </Pressable>
+        </View>
       </View>
 
       <Modal
@@ -61,15 +102,15 @@ const NavBar = () => {
         <View style={[styles.drawer, { paddingTop: insets.top + 16 }]}>
           <View style={styles.drawerHeader}>
             <Pressable onPress={handleDrawerClose} hitSlop={8}>
-              <Ionicons name="close" size={30} color={iconColor} />
+              <Ionicons name="close" size={32} color={iconColor} />
             </Pressable>
           </View>
           <View style={styles.drawerContent}>
             <Link href="/(tabs)/profile" onPress={handleDrawerClose}>
               <Text style={styles.drawerItem}>Profile</Text>
             </Link>
-            <Link href="/(tabs)/messages" onPress={handleDrawerClose}>
-              <Text style={styles.drawerItem}>Messages</Text>
+            <Link href="/(tabs)/events" onPress={handleDrawerClose}>
+              <Text style={styles.drawerItem}>Events</Text>
             </Link>
             <Link href="/(tabs)/account-settings" onPress={handleDrawerClose}>
               <Text style={styles.drawerItem}>Account Settings</Text>
@@ -93,6 +134,11 @@ const NavBar = () => {
           </View>
         </View>
       </Modal>
+
+      <NotificationFeed
+        isOpen={isNotifOpen}
+        onClose={() => setIsNotifOpen(false)}
+      />
     </SafeAreaView>
   );
 };
@@ -108,12 +154,34 @@ const createStyles = (colors: typeof Colors.light) =>
       alignItems: "center",
       justifyContent: "space-between",
     },
+    actions: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+    },
     logo: {
       width: 45,
       height: 45,
     },
     iconButton: {
       padding: 8,
+    },
+    badge: {
+      position: "absolute",
+      top: -2,
+      right: -2,
+      minWidth: 18,
+      height: 18,
+      borderRadius: 9,
+      backgroundColor: theme.palette.primary.main,
+      paddingHorizontal: 4,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    badgeText: {
+      color: colors.background,
+      fontSize: 10,
+      fontWeight: "700",
     },
     backdrop: {
       position: "absolute",

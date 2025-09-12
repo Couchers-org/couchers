@@ -3,7 +3,7 @@ import { useTranslation } from "@/i18n";
 import { GLOBAL } from "@/i18n/namespaces";
 import { clearStorage, usePersistedState } from "@/platform/usePersistedState";
 import { AuthRes, SignupFlowRes } from "@/proto/auth_pb";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { service } from "@/service";
 import isGrpcError from "@/service/utils/isGrpcError";
@@ -142,13 +142,19 @@ export default function useAuthStore() {
     [setAuthenticated, setJailed, setUserId, setFlowState, queryClient]
   );
 
-  // useEffect(() => {
-  //   // if we aren't logged in and are otherwise idle, but auth state changed, check if the cookie is set in the bg
-  //   if (typeof window !== "undefined" && !authenticated && !loading && !error && !checkedAuthStatus) {
-  //     setCheckedAuthStatus(true);
-  //     authActions.checkAuthStatus();
-  //   }
-  // }, [authenticated, checkedAuthStatus, setCheckedAuthStatus, authActions]);
+  useEffect(() => {
+    // if we aren't logged in and are otherwise idle, but auth state changed, check if the cookie is set in the bg
+    if (
+      typeof window !== "undefined" &&
+      !authenticated &&
+      !loading &&
+      !error &&
+      !checkedAuthStatus
+    ) {
+      setCheckedAuthStatus(true);
+      authActions.checkAuthStatus();
+    }
+  }, [authenticated, checkedAuthStatus, setCheckedAuthStatus, authActions]);
 
   return {
     authActions,
