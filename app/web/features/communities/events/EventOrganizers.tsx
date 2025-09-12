@@ -22,7 +22,7 @@ interface EventOrganizersProps {
   event: Event.AsObject;
 }
 
-export default function EventOrganizers({ event }: EventOrganizersProps) {
+const EventOrganizers = ({ event }: EventOrganizersProps) => {
   const { t } = useTranslation([COMMUNITIES]);
   const queryClient = useQueryClient();
 
@@ -57,8 +57,8 @@ export default function EventOrganizers({ event }: EventOrganizersProps) {
   >({
     mutationFn: (userId) =>
       service.events.removeEventOrganizer(event.eventId, userId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: eventOrganizersKey({ eventId: event.eventId, type: "all" }),
       });
     },
@@ -70,7 +70,9 @@ export default function EventOrganizers({ event }: EventOrganizersProps) {
         emptyState={t("communities:no_organizers")}
         error={organizerIdsError}
         hasNextPage={hasNextPage}
-        onSeeAllClick={() => { setIsDialogOpen(true); }}
+        onSeeAllClick={() => {
+          setIsDialogOpen(true);
+        }}
         userIds={organizerIds}
         title={t("communities:organizers")}
         getUserMenuItems={(user) =>
@@ -91,14 +93,18 @@ export default function EventOrganizers({ event }: EventOrganizersProps) {
       <EventOrganizersDialog
         eventId={event.eventId}
         open={isDialogOpen}
-        onClose={() => { setIsDialogOpen(false); }}
+        onClose={() => {
+          setIsDialogOpen(false);
+        }}
       />
 
       <RemoveAsCoOrganizerDialog
         username={organizerToRemove?.name ?? ""}
-        eventName={event.title ?? ""}
+        eventName={event.title}
         open={isCoOrganizerDialogOpen}
-        onClose={() => { setIsCoOrganizerDialogOpen(false); }}
+        onClose={() => {
+          setIsCoOrganizerDialogOpen(false);
+        }}
         onSubmit={() => {
           if (organizerToRemove) {
             removeAsEventOrganizer(organizerToRemove.userId);
@@ -111,4 +117,6 @@ export default function EventOrganizers({ event }: EventOrganizersProps) {
       )}
     </>
   );
-}
+};
+
+export default EventOrganizers;

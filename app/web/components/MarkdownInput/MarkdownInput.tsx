@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { MutableRefObject } from "react";
 import { Control } from "react-hook-form";
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const MarkdownInput = dynamic(
   () => import("@/components/MarkdownInput/MarkdownInputNoSSR"),
   {

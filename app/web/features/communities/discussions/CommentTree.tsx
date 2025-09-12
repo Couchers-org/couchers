@@ -1,14 +1,13 @@
-import { Typography, styled } from "@mui/material";
+import { styled } from "@mui/material";
 
 import Alert from "@/components/Alert";
 import Button from "@/components/Button";
 import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
+import { useThread } from "@/features/communities/hooks";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES } from "@/i18n/namespaces";
-import { theme } from "@/theme";
 import hasAtLeastOnePage from "@/utils/hasAtLeastOnePage";
 
-import { useThread } from "@/features/communities/hooks";
 import Comment from "./Comment";
 import CommentForm from "./CommentForm";
 
@@ -36,7 +35,7 @@ interface CommentTreeProps {
   threadId: number;
 }
 
-export default function CommentTree({ threadId }: CommentTreeProps) {
+const CommentTree = ({ threadId }: CommentTreeProps) => {
   const { t } = useTranslation([COMMUNITIES]);
 
   const {
@@ -76,14 +75,11 @@ export default function CommentTree({ threadId }: CommentTreeProps) {
             })}
         </StyledCommentsListContainer>
       ) : (
-        comments &&
-        !commentsError && (
-          <Typography variant="body1" sx={{ marginBlockEnd: theme.spacing(6) }}>
-            {t("communities:no_comments")}
-          </Typography>
-        )
+        <></>
       )}
       <CommentForm shown threadId={threadId} />
     </>
   );
-}
+};
+
+export default CommentTree;

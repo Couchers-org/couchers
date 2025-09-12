@@ -1,35 +1,48 @@
 import { AutocompleteChangeReason } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import React, { useState } from "react";
-import { Control, useController } from "react-hook-form";
+import { Control, FieldValues, Path, useController } from "react-hook-form";
 
 import Autocomplete from "@/components/Autocomplete";
 import IconButton from "@/components/IconButton";
 import { SearchIcon } from "@/components/Icons";
 import { GLOBAL } from "@/i18n/namespaces";
 import { GeocodeResult, useGeocodeQuery } from "@/utils/hooks";
+import { KeysWithType } from "@/utils/types";
 
-interface LocationAutocompleteProps {
+type GeocodeResultPath<T> = Extract<
+  KeysWithType<T, GeocodeResult | "">,
+  Path<T>
+>;
+
+interface LocationAutocompleteProps<
+  TFieldValues extends FieldValues,
+  TName extends
+    GeocodeResultPath<TFieldValues> = GeocodeResultPath<TFieldValues>,
+> {
   className?: string;
-  control: Control;
-  defaultValue: GeocodeResult | "";
+  control: Control<TFieldValues>;
+  defaultValue: TFieldValues[TName];
   fieldError: string | undefined;
   isFullWidth?: boolean;
   label?: string;
   placeholder?: string;
   id?: string;
   variant?: "filled" | "standard" | "outlined" | undefined;
-  name: string;
-  onChange?: (value: GeocodeResult | "") => void;
+  name: TName;
+  onChange?: (value: TFieldValues[TName]) => void;
   required?: string;
   shouldShowFullDisplayName?: boolean;
   shouldDisableRegions?: boolean;
 }
 
-const LocationAutocomplete = React.forwardRef<
-  HTMLDivElement,
-  LocationAutocompleteProps
->((props: LocationAutocompleteProps, ref) => {
+const LocationAutocomplete = <
+  TFieldValues extends FieldValues,
+  TName extends
+    GeocodeResultPath<TFieldValues> = GeocodeResultPath<TFieldValues>,
+>(
+  props: LocationAutocompleteProps<TFieldValues, TName>,
+) => {
   const {
     className,
     control,
@@ -49,7 +62,7 @@ const LocationAutocomplete = React.forwardRef<
 
   const { t } = useTranslation(GLOBAL);
 
-  const controller = useController<{ [key: string]: GeocodeResult | "" }>({
+  const controller = useController({
     name,
     defaultValue,
     control,
@@ -76,7 +89,7 @@ const LocationAutocomplete = React.forwardRef<
   } = useGeocodeQuery();
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleChange = (value: GeocodeResult | string | null) => {
+  const handleChange = (value: TFieldValues[TName]) => {
     // workaround - autocomplete seems to call onChange with the string value on mount
     // this line prevents needing to reselect the location even if there are no changes
     if (
@@ -89,7 +102,7 @@ const LocationAutocomplete = React.forwardRef<
   };
 
   const searchSubmit = (
-    value: GeocodeResult | string | null,
+    value: TFieldValues[TName],
     reason: AutocompleteChangeReason,
   ) => {
     // just close if the menu is clicked away
@@ -105,7 +118,9 @@ const LocationAutocomplete = React.forwardRef<
         setIsOpen(true);
       }
     } else {
-      onChange?.(value ?? "");
+      if (value) {
+        onChange?.(value as TFieldValues[TName]);
+      }
       setIsOpen(false);
     }
   };
@@ -115,7 +130,6 @@ const LocationAutocomplete = React.forwardRef<
       data-testid="location-autocomplete"
       className={className}
       id={id}
-      ref={ref}
       label={label}
       error={fieldError || geocodeError}
       fullWidth={isFullWidth}
@@ -137,11 +151,11 @@ const LocationAutocomplete = React.forwardRef<
         return geocodeResultToString(option, shouldShowFullDisplayName);
       }}
       onInputChange={(_e, value) => {
-        handleChange(value);
+        handleChange(value as TFieldValues[TName]);
       }}
       onChange={(_e, value, reason) => {
-        handleChange(value);
-        searchSubmit(value, reason);
+        handleChange(value as TFieldValues[TName]);
+        searchSubmit(value as TFieldValues[TName], reason);
       }}
       onKeyDown={(e) => {
         if (e.key === "Enter") {
@@ -165,7 +179,7 @@ const LocationAutocomplete = React.forwardRef<
       multiple={false}
     />
   );
-});
+};
 
 LocationAutocomplete.displayName = "LocationAutocomplete";
 

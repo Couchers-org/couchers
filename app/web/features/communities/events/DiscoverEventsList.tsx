@@ -14,7 +14,11 @@ import { GeocodeResult } from "@/utils/hooks";
 import EventsList from "./EventsList";
 import { useEventSearch } from "./hooks";
 
-const StyledLocationSearch = styled(LocationAutocomplete)(() => ({
+const StyledLocationSearch = styled(
+  LocationAutocomplete<{
+    location: GeocodeResult | "";
+  }>,
+)(() => ({
   marginRight: theme.spacing(2),
   paddingBottom: theme.spacing(2),
 }));
@@ -76,8 +80,8 @@ const DiscoverEventsList = () => {
   // @TODO - Basically just making the form since LocationAutocomplete required the control prop
   // We don't validate or require this field so it's just a dummy form
   // Too much refactoring needed to change existing components to not require the control prop
-  // Might be worth making a new uncontrolled omponent that doesn't require the control prop
-  const { control } = useForm<{ location: GeocodeResult | undefined }>({
+  // Might be worth making a new uncontrolled component that doesn't require the control prop
+  const { control } = useForm<{ location: GeocodeResult | "" }>({
     mode: "onChange",
   });
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
@@ -98,11 +102,11 @@ const DiscoverEventsList = () => {
     searchLocation: locationResult,
   });
 
-  const hasEvents = data && data.eventsList && data.eventsList.length > 0;
-  const numPages = Math.ceil((data?.totalItems ?? 0) / pageSize) ?? 1;
+  const hasEvents = data && data.eventsList.length > 0;
+  const numPages = Math.ceil((data?.totalItems ?? 0) / pageSize);
 
   const handlePageNumberChange = (
-    event: React.ChangeEvent<unknown>,
+    _event: React.ChangeEvent<unknown>,
     value: number,
   ) => {
     setPageNumber(value);
@@ -118,7 +122,9 @@ const DiscoverEventsList = () => {
     setPageNumber(1);
   };
 
-  const handleOnChangeAutocomplete = (newLocationResult: GeocodeResult) => {
+  const handleOnChangeAutocomplete = (
+    newLocationResult: GeocodeResult | "",
+  ) => {
     if (typeof newLocationResult === "object") {
       setLocationResult(newLocationResult);
     } else {
@@ -175,7 +181,7 @@ const DiscoverEventsList = () => {
           <CenteredSpinner />
         </StyledLoadingBox>
       )}
-      {hasEvents && !isLoading && (
+      {hasEvents && (
         <>
           <EventsList events={data.eventsList} isVerticalStyle />
           <StyledPagination

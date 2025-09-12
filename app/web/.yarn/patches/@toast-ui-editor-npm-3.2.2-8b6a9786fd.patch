@@ -1,0 +1,39 @@
+diff --git a/package.json b/package.json
+index 941abe3546bba24c4b0b2851ab0b9d92286aff07..ac115516b677d340733876cc8ca88978f94c9811 100644
+--- a/package.json
++++ b/package.json
+@@ -19,15 +19,23 @@
+   "exports": {
+     ".": {
+       "import": "./dist/esm/index.js",
+-      "require": "./dist/toastui-editor.js"
++      "require": "./dist/toastui-editor.js",
++      "types": "./types/index.d.ts"
+     },
+     "./viewer": {
+       "import": "./dist/esm/indexViewer.js",
+-      "require": "./dist/toastui-editor-viewer.js"
++      "require": "./dist/toastui-editor-viewer.js",
++      "types": "./types/toastui-editor-viewer.d.ts"
++    },
++    "./ui": {
++      "import": "./dist/esm/index.js",
++      "require": "./dist/toastui-editor.js",
++      "types": "./types/ui.d.ts"
+     },
+     "./dist/i18n/*": {
+       "import": "./dist/esm/i18n/*.js",
+-      "require": "./dist/i18n/*.js"
++      "require": "./dist/i18n/*.js",
++      "types": "./types/index.d.ts"
+     },
+     "./dist/toastui-editor-viewer": "./dist/toastui-editor-viewer.js",
+     "./dist/toastui-editor.css": "./dist/toastui-editor.css",
+@@ -39,7 +47,6 @@
+     "./toastui-editor-only.css": "./dist/toastui-editor-only.css",
+     "./toastui-editor-dark.css": "./dist/theme/toastui-editor-dark.css"
+   },
+-  "types": "types/index.d.ts",
+   "files": [
+     "dist/*.js",
+     "dist/*.css",

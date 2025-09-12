@@ -16,14 +16,14 @@ export const ORGANIZERS_DIALOG_LABEL_ID = "organizers";
 interface EventOrganizersDialogProps {
   eventId: number;
   open: boolean;
-  onClose(): void;
+  onClose: () => void;
 }
 
-export default function EventOrganizersDialog({
+const EventOrganizersDialog = ({
   eventId,
   onClose,
   open,
-}: EventOrganizersDialogProps) {
+}: EventOrganizersDialogProps) => {
   const { t } = useTranslation([COMMUNITIES]);
   const {
     error,
@@ -58,4 +58,6 @@ export default function EventOrganizersDialog({
       )}
     </Dialog>
   );
-}
+};
+
+export default EventOrganizersDialog;

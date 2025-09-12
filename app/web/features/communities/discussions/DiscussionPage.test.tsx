@@ -9,7 +9,7 @@ import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 
 import { getProfileLinkA11yLabel } from "@/components/Avatar/constants";
-import { discussionBaseRoute } from "@/routes";
+import { DISCUSSION_BASE_ROUTE } from "@/routes";
 import { service } from "@/service";
 import comments from "@/test/fixtures/comments.json";
 import community from "@/test/fixtures/community.json";
@@ -55,23 +55,23 @@ const getAccountInfoMock = service.account.getAccountInfo as MockedService<
   typeof service.account.getAccountInfo
 >;
 
-function renderDiscussion() {
+const renderDiscussion = () => {
   mockRouter.setCurrentUrl(
-    `${discussionBaseRoute}/1/what-is-there-to-do-in-amsterdam`,
+    `${DISCUSSION_BASE_ROUTE}/1/what-is-there-to-do-in-amsterdam`,
   );
   const { client, wrapper } = getHookWrapperWithClient();
   render(<DiscussionPage discussionId={1} />, { wrapper });
 
   return client;
-}
+};
 
-function getThreadAfterSuccessfulComment({
+const getThreadAfterSuccessfulComment = ({
   newComment,
   threadIdToUpdate,
 }: {
   newComment: string;
   threadIdToUpdate: number;
-}) {
+}) => {
   return async (threadId: number) => {
     const res = await getThread(threadId);
     if (threadId === threadIdToUpdate) {
@@ -92,7 +92,7 @@ function getThreadAfterSuccessfulComment({
     }
     return res;
   };
-}
+};
 
 describe("Discussion page", () => {
   beforeAll(() => {
@@ -172,9 +172,9 @@ describe("Discussion page", () => {
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    await waitFor(() =>
-      { expect(screen.getAllByTestId(COMMENT_TEST_ID)).toHaveLength(8); },
-    );
+    await waitFor(() => {
+      expect(screen.getAllByTestId(COMMENT_TEST_ID)).toHaveLength(8);
+    });
 
     const commentCards = screen
       .getAllByTestId(COMMENT_TEST_ID)
@@ -255,7 +255,7 @@ describe("Discussion page", () => {
 
       const user = userEvent.setup();
 
-      user.click(
+      await user.click(
         await screen.findByRole("button", {
           name: t("communities:load_earlier_comments"),
         }),
@@ -292,7 +292,7 @@ describe("Discussion page", () => {
 
       const user = userEvent.setup();
 
-      user.click(
+      await user.click(
         await screen.findByRole("button", {
           name: t("communities:load_earlier_replies"),
         }),
@@ -319,7 +319,8 @@ describe("Discussion page", () => {
   });
 
   it("goes back to the previous page when the back button is clicked", async () => {
-    mockRouter.back = jest.fn();
+    const backMock = jest.spyOn(mockRouter, "back");
+
     renderDiscussion();
     await screen.findByRole("heading", {
       level: 1,
@@ -328,14 +329,14 @@ describe("Discussion page", () => {
 
     const user = userEvent.setup();
 
-    user.click(
+    await user.click(
       await screen.findByRole("button", {
         name: t("communities:previous_page"),
       }),
     );
 
     await waitFor(() => {
-      expect(mockRouter.back).toBeCalled();
+      expect(backMock).toHaveBeenCalled();
     });
   });
 
@@ -370,9 +371,11 @@ describe("Discussion page", () => {
         t("communities:write_comment_a11y_label"),
       );
 
-      await waitFor(() => { expect(commentInput).toBeVisible(); });
+      await waitFor(() => {
+        expect(commentInput).toBeVisible();
+      });
 
-      user.type(commentInput, newComment);
+      await user.type(commentInput, newComment);
 
       await waitFor(
         () => {
@@ -381,7 +384,7 @@ describe("Discussion page", () => {
         { timeout: 5000 },
       );
 
-      user.click(
+      await user.click(
         discussionCommentForm.getByRole("button", {
           name: t("communities:comment"),
         }),
@@ -408,9 +411,11 @@ describe("Discussion page", () => {
         t("communities:write_comment_a11y_label"),
       );
 
-      await waitFor(() => { expect(commentInput).toBeVisible(); });
+      await waitFor(() => {
+        expect(commentInput).toBeVisible();
+      });
 
-      user.type(commentInput, "new comment");
+      await user.type(commentInput, "new comment");
 
       await waitFor(
         () => {
@@ -419,7 +424,7 @@ describe("Discussion page", () => {
         { timeout: 5000 },
       );
 
-      user.click(
+      await user.click(
         discussionCommentForm.getByRole("button", {
           name: t("communities:comment"),
         }),
@@ -440,7 +445,9 @@ describe("Discussion page", () => {
 
       const user = userEvent.setup();
 
-      user.click(firstComment.getByRole("button", { name: t("global:reply") }));
+      await user.click(
+        firstComment.getByRole("button", { name: t("global:reply") }),
+      );
       const commentFormContainer = screen.getByTestId(
         FIRST_COMMENT_FORM_TEST_ID,
       );
@@ -461,15 +468,17 @@ describe("Discussion page", () => {
         t("communities:write_comment_a11y_label"),
       );
 
-      await waitFor(() => { expect(commentInput).toBeVisible(); });
+      await waitFor(() => {
+        expect(commentInput).toBeVisible();
+      });
 
-      user.type(commentInput, newComment);
+      await user.type(commentInput, newComment);
 
       await waitFor(() => {
         expect(commentInput).toHaveValue(newComment);
       });
 
-      user.click(
+      await user.click(
         within(commentFormContainer).getByRole("button", {
           name: t("communities:comment"),
         }),
@@ -494,7 +503,9 @@ describe("Discussion page", () => {
 
       const user = userEvent.setup();
 
-      user.click(firstComment.getByRole("button", { name: t("global:reply") }));
+      await user.click(
+        firstComment.getByRole("button", { name: t("global:reply") }),
+      );
       // The comment form is opened when the transition container has height as "auto"
       const commentFormContainer = screen.getByTestId(
         FIRST_COMMENT_FORM_TEST_ID,
@@ -504,7 +515,7 @@ describe("Discussion page", () => {
           "auto",
         );
       });
-      user.click(
+      await user.click(
         within(commentFormContainer).getByRole("button", {
           name: t("global:close"),
         }),

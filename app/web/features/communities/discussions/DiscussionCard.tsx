@@ -4,6 +4,7 @@ import { useMemo } from "react";
 
 import Avatar from "@/components/Avatar";
 import FlagButton from "@/features/FlagButton";
+import getContentSummary from "@/features/communities/getContentSummary";
 import CopyOnClick from "@/features/mod/CopyOnClick";
 import ModVisibleComponent from "@/features/mod/ModVisibleComponent";
 import { useLiteUser } from "@/features/userQueries/useLiteUsers";
@@ -13,9 +14,7 @@ import { Discussion } from "@/proto/discussions_pb";
 import { routeToDiscussion } from "@/routes";
 import { theme } from "@/theme";
 import { timestamp2Date } from "@/utils/date";
-import { timeAgo } from "@/utils/timeAgo";
-
-import getContentSummary from "@/features/communities/getContentSummary";
+import { timeAgoI18n } from "@/utils/timeAgo";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   "&:hover": {
@@ -58,20 +57,20 @@ const StyledCommentsCount = styled(Typography)(({ theme }) => ({
 
 export const DISCUSSION_CARD_TEST_ID = "discussion-card";
 
-export default function DiscussionCard({
+const DiscussionCard = ({
   discussion,
   className,
 }: {
   discussion: Discussion.AsObject;
   className?: string;
-}) {
+}) => {
   const { t } = useTranslation([COMMUNITIES]);
   const { data: creator } = useLiteUser(discussion.creatorUserId);
 
   const date = discussion.created
     ? timestamp2Date(discussion.created)
     : undefined;
-  const postedTime = date ? timeAgo(date) : null;
+  const postedTime = date ? timeAgoI18n({ input: date, t }) : null;
   const truncatedContent = useMemo(
     () =>
       getContentSummary({
@@ -133,4 +132,6 @@ export default function DiscussionCard({
       </Link>
     </StyledCard>
   );
-}
+};
+
+export default DiscussionCard;

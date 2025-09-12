@@ -23,7 +23,7 @@ interface EventAttendeesProps {
   event: Event.AsObject;
 }
 
-export default function EventAttendees({ event }: EventAttendeesProps) {
+const EventAttendees = ({ event }: EventAttendeesProps) => {
   const { attendeesIds, error, hasNextPage } = useEventAttendees({
     eventId: event.eventId,
     type: "summary",
@@ -72,8 +72,8 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
   >({
     mutationFn: (userId) =>
       service.events.inviteEventOrganizer(event.eventId, userId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: eventOrganizersKey({ eventId: event.eventId, type: "all" }),
       });
     },
@@ -107,7 +107,9 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
         emptyState={t("communities:no_attendees")}
         error={error}
         hasNextPage={hasNextPage}
-        onSeeAllClick={() => { setIsDialogOpen(true); }}
+        onSeeAllClick={() => {
+          setIsDialogOpen(true);
+        }}
         userIds={attendeesIds}
         title={t("communities:attendees")}
         getUserMenuItems={
@@ -117,13 +119,17 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
       <EventAttendeesDialog
         eventId={event.eventId}
         open={isDialogOpen}
-        onClose={() => { setIsDialogOpen(false); }}
+        onClose={() => {
+          setIsDialogOpen(false);
+        }}
       />
       <MakeCoOrganizerDialog
         username={userToPromote?.name ?? ""}
-        eventName={event.title ?? ""}
+        eventName={event.title}
         open={isCoOrganizerDialogOpen}
-        onClose={() => { setIsCoOrganizerDialogOpen(false); }}
+        onClose={() => {
+          setIsCoOrganizerDialogOpen(false);
+        }}
         onSubmit={() => {
           if (userToPromote) {
             makeEventOrganizer(userToPromote.userId);
@@ -132,8 +138,10 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
         }}
       />
       {mutationError && (
-        <Snackbar severity="error">{mutationError?.message}</Snackbar>
+        <Snackbar severity="error">{mutationError.message}</Snackbar>
       )}
     </>
   );
-}
+};
+
+export default EventAttendees;

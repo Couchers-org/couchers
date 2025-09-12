@@ -18,8 +18,10 @@ jest.mock("components/MarkdownInput");
 jest.mock("@mui/x-date-pickers", () => {
   return {
     ...jest.requireActual("@mui/x-date-pickers"),
+    /* eslint-disable @typescript-eslint/no-unsafe-member-access */
     DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
     TimePicker: jest.requireActual("@mui/x-date-pickers").DesktopTimePicker,
+    /* eslint-enable @typescript-eslint/no-unsafe-member-access */
   };
 });
 
@@ -30,12 +32,12 @@ const updateEventMock = service.events.updateEvent as jest.MockedFunction<
   typeof service.events.updateEvent
 >;
 
-function renderPage() {
+const renderPage = () => {
   mockRouter.setCurrentUrl(routeToEditEvent(1, "weekly-meetup"));
   const { wrapper } = getHookWrapperWithClient();
 
   render(<EditEventPage eventId={1} />, { wrapper });
-}
+};
 
 describe("Edit event page", () => {
   beforeEach(() => {
@@ -68,11 +70,11 @@ describe("Edit event page", () => {
 
     await user.click(virtualEventCheckBox);
 
-    expect(virtualEventCheckBox.checked).toBe(true);
+    expect(virtualEventCheckBox).toBeChecked();
 
-    const eventLinkInput = (await screen.findByLabelText(
+    const eventLinkInput = await screen.findByLabelText(
       t("communities:event_link"),
-    ));
+    );
 
     await user.type(eventLinkInput, "https://couchers.org/amsterdam-social");
 

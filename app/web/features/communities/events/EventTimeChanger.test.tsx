@@ -13,14 +13,17 @@ import EventTimeChanger from "./EventTimeChanger";
 const { t } = i18n;
 
 jest.mock("@mui/x-date-pickers", () => {
+  const originalModule = jest.requireActual<
+    typeof import("@mui/x-date-pickers")
+  >("@mui/x-date-pickers");
   return {
-    ...jest.requireActual("@mui/x-date-pickers"),
-    DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
-    TimePicker: jest.requireActual("@mui/x-date-pickers").DesktopTimePicker,
+    ...originalModule,
+    DatePicker: originalModule.DesktopDatePicker,
+    TimePicker: originalModule.DesktopTimePicker,
   };
 });
 
-const onValidSubmit = jest.fn();
+const onValidSubmit = jest.fn<unknown, [CreateEventData]>();
 
 const TestForm = ({ event }: { event?: Event.AsObject }) => {
   const {
@@ -33,7 +36,7 @@ const TestForm = ({ event }: { event?: Event.AsObject }) => {
   } = useForm<CreateEventData>();
 
   return (
-    <form onSubmit={handleSubmit(onValidSubmit)}>
+    <form onSubmit={() => handleSubmit(onValidSubmit)}>
       <EventTimeChanger
         control={control}
         errors={errors}
@@ -48,7 +51,7 @@ const TestForm = ({ event }: { event?: Event.AsObject }) => {
       </button>
     </form>
   );
-}
+};
 
 describe("Event time changer", () => {
   beforeEach(() => {
@@ -168,11 +171,11 @@ describe("Event time changer", () => {
 
     expect(onValidSubmit).not.toHaveBeenCalled();
 
-    await waitFor(() =>
-      { expect(endDateErrorText).toHaveTextContent(
+    await waitFor(() => {
+      expect(endDateErrorText).toHaveTextContent(
         t("communities:date_required"),
-      ); },
-    );
+      );
+    });
 
     const startDateErrorText = await screen.findByTestId(
       "startDate-helper-text",
@@ -214,11 +217,11 @@ describe("Event time changer", () => {
 
     const endDateErrorText = await screen.findByTestId("endDate-helper-text");
 
-    await waitFor(() =>
-      { expect(endDateErrorText).toHaveTextContent(
+    await waitFor(() => {
+      expect(endDateErrorText).toHaveTextContent(
         t("communities:past_date_error"),
-      ); },
-    );
+      );
+    });
   });
 
   it("should show proper error if endDate is before startDate", async () => {
@@ -280,7 +283,9 @@ describe("Event time changer", () => {
 
     const endDateErrorText = screen.queryByTestId("endDate-helper-text");
 
-    await waitFor(() => { expect(endDateErrorText).toBeEmptyDOMElement(); });
+    await waitFor(() => {
+      expect(endDateErrorText).toBeEmptyDOMElement();
+    });
 
     const endTimeGroup = await screen.findByRole("group", {
       name: t("communities:end_time"),

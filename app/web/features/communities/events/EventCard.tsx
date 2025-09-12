@@ -16,6 +16,7 @@ import { useTranslation } from "@/i18n";
 import { COMMUNITIES } from "@/i18n/namespaces";
 import { Event } from "@/proto/events_pb";
 import { routeToEvent } from "@/routes";
+import { theme } from "@/theme";
 import { timestamp2Date } from "@/utils/date";
 import dayjs from "@/utils/dayjs";
 import stripMarkdown from "@/utils/stripMarkdown";
@@ -33,14 +34,14 @@ const StyledCard = styled(Card, {
   }),
 }));
 
-const Title = styled(Typography)(({ theme }) => ({
+const Title = styled(Typography)(() => ({
   display: "-webkit-box",
   WebkitBoxOrient: "vertical",
   WebkitLineClamp: 2,
   overflow: "hidden",
 }));
 
-const EventTime = styled(Typography)(({ theme }) => ({
+const EventTime = styled(Typography)(() => ({
   display: "-webkit-box",
   WebkitBoxOrient: "vertical",
   WebkitLineClamp: 2,
@@ -50,14 +51,14 @@ const EventTime = styled(Typography)(({ theme }) => ({
   },
 }));
 
-const Content = styled(Typography)(({ theme }) => ({
+const Content = styled("p")(() => ({
   display: "-webkit-box",
   WebkitBoxOrient: "vertical",
   WebkitLineClamp: 5,
   overflow: "hidden",
 }));
 
-const CancelledChip = styled(Chip)(({ theme }) => ({
+const CancelledChip = styled(Chip)(() => ({
   backgroundColor: theme.palette.error.main,
   color: theme.palette.common.white,
   fontWeight: "bold",
@@ -81,16 +82,20 @@ export interface EventCardProps {
   className?: string;
 }
 
-export default function EventCard({ event, className }: EventCardProps) {
+const EventCard = ({ event, className }: EventCardProps) => {
   const { t } = useTranslation([COMMUNITIES]);
-
-  const startTime = dayjs(timestamp2Date(event.startTime!));
-  const endTime = dayjs(timestamp2Date(event.endTime!));
 
   const strippedContent = useMemo(
     () => stripMarkdown(event.content),
     [event.content],
   );
+
+  if (!event.startTime || !event.endTime) {
+    return <></>;
+  }
+
+  const startTime = dayjs(timestamp2Date(event.startTime));
+  const endTime = dayjs(timestamp2Date(event.endTime));
 
   const formattedEventDates = `${startTime.format("llll")} - ${endTime.format(
     endTime.isSame(startTime, "day") ? "LT" : "llll",
@@ -153,9 +158,9 @@ export default function EventCard({ event, className }: EventCardProps) {
           <Divider spacing={1} />
 
           <div>
-            <Content variant="body1" paragraph>
+            <Typography variant="body1" component={Content}>
               {strippedContent}
-            </Content>
+            </Typography>
 
             <Typography variant="body2" color="textSecondary">
               {t("communities:attendees_count", {
@@ -173,4 +178,6 @@ export default function EventCard({ event, className }: EventCardProps) {
       </FlagButtonWrapper>
     </StyledCard>
   );
-}
+};
+
+export default EventCard;

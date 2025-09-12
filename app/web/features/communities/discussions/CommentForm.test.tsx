@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 
-import { discussionBaseRoute } from "@/routes";
+import { DISCUSSION_BASE_ROUTE } from "@/routes";
 import { service } from "@/service";
 import wrapper from "@/test/hookWrapper";
 import i18n from "@/test/i18n";
@@ -20,7 +20,7 @@ const postReplyMock = service.threads.postReply as MockedService<
 
 function renderCommentForm() {
   mockRouter.setCurrentUrl(
-    `${discussionBaseRoute}/1/what-is-there-to-do-in-amsterdam`,
+    `${DISCUSSION_BASE_ROUTE}/1/what-is-there-to-do-in-amsterdam`,
   );
   render(<CommentForm threadId={999} shown={true} />, { wrapper });
 }
@@ -47,9 +47,9 @@ describe("Comment form", () => {
 
     const user = userEvent.setup();
 
-    const commentInput = (await screen.findByLabelText(
+    const commentInput = await screen.findByLabelText(
       t("communities:write_comment_a11y_label"),
-    ));
+    );
 
     user.type(commentInput, newComment);
 
@@ -62,7 +62,9 @@ describe("Comment form", () => {
 
     user.click(screen.getByRole("button", { name: t("communities:comment") }));
 
-    await waitFor(() => { expect(postReplyMock).toHaveBeenCalledTimes(1); });
+    await waitFor(() => {
+      expect(postReplyMock).toHaveBeenCalledTimes(1);
+    });
   });
 
   it("cannot be submitted empty", async () => {
@@ -84,13 +86,15 @@ describe("Comment form", () => {
 
     const user = userEvent.setup();
 
-    const commentInput = (await screen.findByLabelText(
+    const commentInput = await screen.findByLabelText(
       t("communities:write_comment_a11y_label"),
-    ));
+    );
 
     user.type(commentInput, "   ");
 
-    await waitFor(() => { expect(commentInput).toHaveValue("   "); });
+    await waitFor(() => {
+      expect(commentInput).toHaveValue("   ");
+    });
 
     user.click(screen.getByRole("button", { name: t("communities:comment") }));
 

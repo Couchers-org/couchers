@@ -44,18 +44,6 @@ interface DatepickerProps<
   inputProps?: InputProps;
 }
 
-//  className?: string;
-//   control: Control<TFieldValues>;
-//   defaultValue?: TFieldValues[TName];
-//   error: boolean;
-//   helperText: React.ReactNode;
-//   id: string;
-//   rules?: RegisterOptions<TFieldValues, TName>;
-//   label?: string;
-//   name: TName;
-//   onPostChange?: (time: TFieldValues[TName]) => void;
-//   testId?: string;
-
 const Datepicker = <
   TFieldValues extends FieldValues,
   TName extends DayjsPath<TFieldValues> = DayjsPath<TFieldValues>,

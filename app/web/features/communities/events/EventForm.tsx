@@ -90,20 +90,16 @@ export type CreateEventVariables = CreateEventData & {
 };
 
 interface EventFormProps {
-  children(data: { isMutationLoading: boolean }): React.ReactNode;
+  children: (data: { isMutationLoading: boolean }) => React.ReactNode;
   event?: Event.AsObject;
   error: RpcError | null;
-  mutate: UseMutateFunction<
-    Event.AsObject,
-    RpcError,
-    CreateEventVariables
-  >;
+  mutate: UseMutateFunction<Event.AsObject, RpcError, CreateEventVariables>;
   isMutationLoading: boolean;
   title: string;
   isEdit: boolean;
 }
 
-export default function EventForm({
+const EventForm = ({
   children,
   event,
   error,
@@ -111,7 +107,7 @@ export default function EventForm({
   isMutationLoading,
   title,
   isEdit,
-}: EventFormProps) {
+}: EventFormProps) => {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
 
   const {
@@ -125,7 +121,7 @@ export default function EventForm({
   } = useForm<CreateEventData>({ mode: "onBlur" });
 
   const isOnline = watch("isOnline", false);
-  const locationDefaultValue = useRef(
+  const locationDefaultValue: GeocodeResult | "" = useRef(
     event?.offlineInformation
       ? {
           name: event.offlineInformation.address,
@@ -176,7 +172,7 @@ export default function EventForm({
           {error?.message || errors.eventImage?.message || ""}
         </Alert>
       )}
-      <StyledForm onSubmit={onSubmit}>
+      <StyledForm onSubmit={() => void onSubmit()}>
         <TextField
           id="title"
           {...register("title", { required: t("communities:title_required") })}
@@ -219,7 +215,7 @@ export default function EventForm({
               isFullWidth
               label={t("communities:location")}
               required={t("communities:location_required")}
-              showFullDisplayName
+              shouldShowFullDisplayName
             />
           )}
           <StyledIsOnlineCheckboxWrapper>
@@ -269,4 +265,6 @@ export default function EventForm({
       </StyledForm>
     </StyledWrapper>
   );
-}
+};
+
+export default EventForm;

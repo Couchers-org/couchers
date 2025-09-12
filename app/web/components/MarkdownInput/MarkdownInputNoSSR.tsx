@@ -1,14 +1,23 @@
 import { styled } from "@mui/material";
 import ToastUIEditor from "@toast-ui/editor";
 import "@toast-ui/editor/dist/toastui-editor.css";
-import { ToolbarItem } from "@toast-ui/editor/types/ui";
 import { useEffect, useRef, useState } from "react";
 import { useController } from "react-hook-form";
 
 import UploadImage from "@/components/MarkdownInput/UploadImage";
 import { INSERT_IMAGE } from "@/components/MarkdownInput/constants";
+import log from "@/log";
 
 import { MarkdownInputProps } from "./MarkdownInput";
+
+type ToolbarItem = (
+  | string
+  | {
+      name: string;
+      tooltip?: string;
+      el: HTMLElement | null;
+    }
+)[];
 
 const StyledWrapper = styled("div", {
   shouldForwardProp: (prop) => prop !== "isErrorState",
@@ -57,7 +66,7 @@ const StyledErrorText = styled("div")(({ theme }) => ({
   fontSize: "0.875rem",
 }));
 
-export default function MarkdownInput({
+const MarkdownInput = ({
   control,
   defaultValue,
   id,
@@ -68,14 +77,14 @@ export default function MarkdownInput({
   autofocus = false,
   required,
   placeholder,
-}: MarkdownInputProps) {
+}: MarkdownInputProps) => {
   const { field, fieldState } = useController({
     name,
     control,
     defaultValue: defaultValue ?? "",
     rules: {
       required,
-      validate: (value) => {
+      validate: (value: string) => {
         const trimmedValue = value.trim();
         if (trimmedValue.length === 0) {
           return required;
@@ -85,7 +94,7 @@ export default function MarkdownInput({
     },
   });
 
-  const [imageDialogOpen, setImageDialogOpen] = useState(false);
+  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
 
   const initialDefaultValue = useRef(defaultValue);
   const fieldRef = useRef<ToastUIEditor | null>(null); // Separate ref for the editor
@@ -98,41 +107,49 @@ export default function MarkdownInput({
   const fieldOnChange = useRef<typeof field.onChange>(field.onChange);
 
   useEffect(() => {
+    if (!rootEl.current) {
+      return;
+    }
+
     const uploadButton = imageUpload ? document.createElement("button") : null;
     const openDialog = () => {
-      setImageDialogOpen(true);
+      setIsImageDialogOpen(true);
     };
 
-    if (imageUpload) {
-      uploadButton!.type = "button";
+    if (imageUpload && uploadButton) {
+      uploadButton.type = "button";
       // class stolen from tui source code
-      uploadButton!.className = "toastui-editor-toolbar-icons image";
-      uploadButton!.setAttribute("aria-label", INSERT_IMAGE);
-      uploadButton!.style.margin = "0";
-      uploadButton!.addEventListener("click", openDialog);
+      uploadButton.className = "toastui-editor-toolbar-icons image";
+      uploadButton.setAttribute("aria-label", INSERT_IMAGE);
+      uploadButton.style.margin = "0";
+      uploadButton.addEventListener("click", openDialog);
     }
     const toolbarItems: ToolbarItem[] = [
       ["heading", "bold", "italic"],
       ["hr", "quote", "ul", "ol"],
       ["link"],
     ];
+
     if (imageUpload) {
       toolbarItems.push([
         {
           name: "image",
           tooltip: INSERT_IMAGE,
-          el: uploadButton!,
+          el: uploadButton,
         },
       ]);
     }
     fieldRef.current = new ToastUIEditor({
-      el: rootEl.current!,
+      el: rootEl.current,
       events: {
-        blur: () => { fieldOnBlur.current(); },
-        change: () =>
-          { fieldOnChange.current(
+        blur: () => {
+          fieldOnBlur.current();
+        },
+        change: () => {
+          fieldOnChange.current(
             (fieldRef.current as ToastUIEditor).getMarkdown(),
-          ); },
+          );
+        },
       },
       initialEditType: "wysiwyg",
       initialValue: initialDefaultValue.current ?? "",
@@ -153,7 +170,7 @@ export default function MarkdownInput({
       editBox.setAttribute("aria-multiline", "true");
       editBox.setAttribute("role", "textbox");
     } else {
-      console.warn(
+      log.warn(
         "Couldn't locate the markdown input area for accessibility tags",
       );
     }
@@ -162,7 +179,7 @@ export default function MarkdownInput({
       if (resetInputRef) {
         resetInputRef.current = null;
       }
-      if (imageUpload) uploadButton!.removeEventListener("click", openDialog);
+      if (imageUpload) uploadButton?.removeEventListener("click", openDialog);
       (fieldRef.current as ToastUIEditor).destroy();
     };
   }, [
@@ -180,11 +197,11 @@ export default function MarkdownInput({
       <StyledWrapper ref={rootEl} id={id} isErrorState={fieldState.invalid} />
       {imageUpload && (
         <UploadImage
-          open={imageDialogOpen}
-          onClose={() => { setImageDialogOpen(false); }}
-          emitter={
-            (fieldRef.current)?.eventEmitter
-          }
+          open={isImageDialogOpen}
+          onClose={() => {
+            setIsImageDialogOpen(false);
+          }}
+          emitter={fieldRef.current?.eventEmitter}
         />
       )}
       {fieldState.error && (
@@ -194,4 +211,6 @@ export default function MarkdownInput({
       )}
     </>
   );
-}
+};
+
+export default MarkdownInput;

@@ -40,7 +40,7 @@
     "@tanstack/react-query": "^5.85.6",
     "@tanstack/react-query-devtools": "^5.83.0",
     "@tanstack/react-query-persist-client": "^5.85.6",
-    "@toast-ui/editor": "^3.2.2",
+    "@toast-ui/editor": "patch:@toast-ui/editor@npm%3A3.2.2#~/.yarn/patches/@toast-ui-editor-npm-3.2.2-8b6a9786fd.patch",
     "@types/webpack": "^5.28.5",
     "change-case": "^5.4.4",
     "dayjs": "^1.11.18",
@@ -122,5 +122,5 @@
   "resolutions": {
     "@types/react": "^18.3.1"
   },
-  "packageManager": "yarn@1.22.22"
+  "packageManager": "yarn@4.9.4"
 }

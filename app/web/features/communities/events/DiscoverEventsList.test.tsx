@@ -16,7 +16,7 @@ import DiscoverEventsList from "./DiscoverEventsList";
 
 const { t } = i18n;
 
-const mockEventSearch = service.search.EventSearch;
+const mockEventSearch = jest.spyOn(service.search, "eventSearch");
 
 jest.mock("utils/hooks", () => ({
   ...jest.requireActual("utils/hooks"),
@@ -30,7 +30,7 @@ jest.mock("components/LocationAutocomplete", () => {
   }> = (props) => (
     <input
       data-testid="location-autocomplete"
-      value={props.value?.name}
+      value={props.value.name}
       onChange={(e) => {
         props.onChange({
           simplifiedName: e.target.value,
@@ -76,7 +76,7 @@ describe("DiscoverEventsList", () => {
       await screen.findByTestId("location-autocomplete"),
     ).toBeInTheDocument();
     expect(
-      await screen.getByText(t("communities:events_empty_state")),
+      screen.getByText(t("communities:events_empty_state")),
     ).toBeInTheDocument();
   });
 
@@ -118,10 +118,8 @@ describe("DiscoverEventsList", () => {
 
     render(<DiscoverEventsList />, { wrapper });
 
-    const communitiesFilter = await screen.getByText(
-      t("communities:my_communities"),
-    );
-    const onlineFilter = await screen.getByText(t("communities:online"));
+    const communitiesFilter = screen.getByText(t("communities:my_communities"));
+    const onlineFilter = screen.getByText(t("communities:online"));
     expect(communitiesFilter).toBeInTheDocument();
     expect(onlineFilter).toBeInTheDocument();
 

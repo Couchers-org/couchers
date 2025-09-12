@@ -3,28 +3,33 @@ import { userEvent } from "@testing-library/user-event";
 import { useForm } from "react-hook-form";
 
 import { useTranslation } from "@/i18n";
+import wrapper from "@/test/hookWrapper";
 import i18n from "@/test/i18n";
 import dayjs, { Dayjs } from "@/utils/dayjs";
 
-import wrapper from "@/test/hookWrapper";
 import Datepicker from "./Datepicker";
 
 const { t } = i18n;
 
 jest.mock("@mui/x-date-pickers", () => {
+  const originalModule = jest.requireActual<
+    typeof import("@mui/x-date-pickers")
+  >("@mui/x-date-pickers");
   return {
-    ...jest.requireActual("@mui/x-date-pickers"),
-    DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
-    PickersDay: jest.requireActual("@mui/x-date-pickers").DesktopPickersDay,
+    ...originalModule,
+    DatePicker: originalModule.DesktopDatePicker,
+    TimePicker: originalModule.DesktopTimePicker,
   };
 });
 
 const Form = ({ setDate }: { setDate: (date: Dayjs) => void }) => {
   const { t } = useTranslation();
-  const { control, handleSubmit } = useForm();
-  const onSubmit = handleSubmit((data) => { setDate(data.datefield); });
+  const { control, handleSubmit } = useForm<{ datefield: Dayjs }>();
+  const onSubmit = handleSubmit((data) => {
+    setDate(data.datefield);
+  });
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={() => void onSubmit()}>
       <Datepicker
         control={control}
         error={false}
@@ -52,7 +57,7 @@ describe("DatePicker", () => {
   });
 
   it("should submit with proper date for clicking", async () => {
-    let date: Dayjs | undefined = undefined;
+    let date: Dayjs | undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -64,7 +69,7 @@ describe("DatePicker", () => {
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     expect(date).toBeDefined();
-    expect(date!.date).toEqual(dayjs("2021-03-23").date);
+    expect(date?.date()).toEqual(dayjs("2021-03-23").date());
   });
 
   it("selecting today works with timezone US/Eastern", async () => {

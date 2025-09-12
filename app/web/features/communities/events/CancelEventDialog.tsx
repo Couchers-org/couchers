@@ -18,23 +18,25 @@ import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
 import { service } from "@/service";
 
-export default function CancelEventDialog({
+const CancelEventDialog = ({
   eventId,
   ...props
-}: DialogProps & { eventId: number }) {
+}: DialogProps & { eventId: number }) => {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const queryClient = useQueryClient();
   const cancelEventMutation = useMutation<Empty, RpcError>({
     mutationFn: () => service.events.cancelEvent(eventId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: eventKey(eventId),
       });
       if (props.onClose) props.onClose({}, "escapeKeyDown");
     },
   });
 
-  const handleCancelEvent = () => { cancelEventMutation.mutate(); };
+  const handleCancelEvent = () => {
+    cancelEventMutation.mutate();
+  };
 
   return (
     <Dialog {...props} aria-labelledby="cancel-event-dialog-title">
@@ -43,7 +45,7 @@ export default function CancelEventDialog({
       </DialogTitle>
       <DialogContent>
         {cancelEventMutation.error && (
-          <Alert severity="error">{cancelEventMutation.error?.message}</Alert>
+          <Alert severity="error">{cancelEventMutation.error.message}</Alert>
         )}
         <DialogContentText>
           {t("communities:cancel_event_dialog.message")}
@@ -57,9 +59,7 @@ export default function CancelEventDialog({
           {t("global:yes")}
         </Button>
         <Button
-          onClick={() =>
-            props.onClose ? props.onClose({}, "escapeKeyDown") : null
-          }
+          onClick={() => props.onClose?.({}, "escapeKeyDown")}
           loading={cancelEventMutation.isPending}
         >
           {t("global:no")}
@@ -67,4 +67,6 @@ export default function CancelEventDialog({
       </DialogActions>
     </Dialog>
   );
-}
+};
+
+export default CancelEventDialog;

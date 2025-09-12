@@ -19,7 +19,7 @@ import dayjs, { TIME_FORMAT } from "@/utils/dayjs";
 import EventForm, { CreateEventVariables } from "./EventForm";
 import { useEvent } from "./hooks";
 
-export default function EditEventPage({ eventId }: { eventId: number }) {
+const EditEventPage = ({ eventId }: { eventId: number }) => {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const router = useRouter();
 
@@ -59,17 +59,11 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
       updateEventInput = {
         eventId,
         isOnline: data.isOnline,
-        title: data.dirtyFields.title ? data.title : undefined,
-        content: data.dirtyFields.content ? data.content : undefined,
+        title: data.title,
+        content: data.content,
         photoKey: data.dirtyFields.eventImage ? data.eventImage : undefined,
-        startTime:
-          data.dirtyFields.startTime || data.dirtyFields.startDate
-            ? finalStartDate
-            : undefined,
-        endTime:
-          data.dirtyFields.endTime || data.dirtyFields.endDate
-            ? finalEndDate
-            : undefined,
+        startTime: finalStartDate,
+        endTime: finalEndDate,
         shouldNotify: data.dirtyFields.shouldNotify,
       };
 
@@ -87,25 +81,25 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
       return service.events.updateEvent(updateEventInput);
     },
 
-    onMutate({ parentCommunityId }) {
+    onMutate: ({ parentCommunityId }) => {
       return { parentCommunityId };
     },
-    onSuccess(updatedEvent, _, context) {
+    onSuccess: async (updatedEvent, _, context) => {
       queryClient.setQueryData<Event.AsObject>(eventKey(eventId), updatedEvent);
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: eventKey(eventId),
         refetchType: "none",
       });
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: [
-          context?.parentCommunityId
+          context.parentCommunityId
             ? [COMMUNITY_EVENTS_BASE_KEY, context.parentCommunityId]
             : COMMUNITY_EVENTS_BASE_KEY,
         ],
       });
-      router.push(routeToEvent(updatedEvent.eventId, updatedEvent.slug));
+      await router.push(routeToEvent(updatedEvent.eventId, updatedEvent.slug));
     },
-    onSettled() {
+    onSettled: () => {
       window.scroll({ top: 0, behavior: "smooth" });
     },
   });
@@ -141,4 +135,6 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
   ) : (
     <NotFoundPage />
   );
-}
+};
+
+export default EditEventPage;

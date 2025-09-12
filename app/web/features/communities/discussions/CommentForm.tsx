@@ -8,13 +8,12 @@ import { useForm } from "react-hook-form";
 import Alert from "@/components/Alert";
 import Button from "@/components/Button";
 import MarkdownInput, { MarkdownInputProps } from "@/components/MarkdownInput";
+import { threadKey } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
+import { PostReplyRes } from "@/proto/threads_pb";
 import { service } from "@/service";
 import { theme } from "@/theme";
-
-import { PostReplyRes } from "@/proto/threads_pb";
-import { threadKey } from "@/features/queryKeys";
 
 const StyledForm = styled("form")(() => ({
   display: "flex",
@@ -34,8 +33,8 @@ const StyledButtonsContainer = styled("div")(() => ({
 }));
 
 interface CommentFormProps {
-  hideable?: boolean;
-  onClose?(): void;
+  canBeHidden?: boolean;
+  onClose?: () => void;
   shown?: boolean;
   threadId: number;
 }
@@ -44,8 +43,10 @@ interface CommentData {
   content: string;
 }
 
-const InternalCommentForm = ({ hideable = false, onClose, shown = false, threadId }: CommentFormProps,
-  ref: React.ForwardedRef<HTMLFormElement>) => {
+const InternalCommentForm = (
+  { canBeHidden = false, onClose, shown = false, threadId }: CommentFormProps,
+  ref: React.ForwardedRef<HTMLFormElement>,
+) => {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const {
     control,
@@ -64,9 +65,10 @@ const InternalCommentForm = ({ hideable = false, onClose, shown = false, threadI
     reset: resetMutation,
   } = useMutation<PostReplyRes.AsObject, RpcError, CommentData>({
     mutationFn: ({ content }) => service.threads.postReply(threadId, content),
-    onSuccess() {
-      queryClient.invalidateQueries({ queryKey: threadKey(threadId) });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: threadKey(threadId) });
       resetForm();
+
       resetInputRef.current?.();
       resetMutation();
       onClose?.();
@@ -84,7 +86,7 @@ const InternalCommentForm = ({ hideable = false, onClose, shown = false, threadI
 
   return (
     <Collapse data-testid={`comment-${threadId}-comment-form`} in={shown}>
-      <StyledForm onSubmit={onSubmit} ref={ref}>
+      <StyledForm onSubmit={() => void onSubmit()} ref={ref}>
         {error && <Alert severity="error">{error.message}</Alert>}
         <span style={visuallyHidden} id={`comment-${threadId}-reply-label`}>
           {t("communities:write_comment_a11y_label")}
@@ -98,7 +100,7 @@ const InternalCommentForm = ({ hideable = false, onClose, shown = false, threadI
           required={t("communities:fill_out_comment")}
         />
         <StyledButtonsContainer>
-          {hideable && (
+          {canBeHidden && (
             <Button onClick={onClose} variant="outlined">
               {t("global:close")}
             </Button>
@@ -110,7 +112,7 @@ const InternalCommentForm = ({ hideable = false, onClose, shown = false, threadI
       </StyledForm>
     </Collapse>
   );
-}
+};
 
 const CommentForm = React.forwardRef(InternalCommentForm);
 export default CommentForm;

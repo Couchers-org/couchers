@@ -11,6 +11,9 @@ import HtmlMeta from "@/components/HtmlMeta";
 import { BackIcon } from "@/components/Icons";
 import Markdown from "@/components/Markdown";
 import PageTitle from "@/components/PageTitle";
+import CommunityBase from "@/features/communities/CommunityBase";
+import CommunityPageSubHeader from "@/features/communities/CommunityPage/CommunityPageSubHeader";
+import PageHeader from "@/features/communities/PageHeader";
 import { discussionKey } from "@/features/queryKeys";
 import { useLiteUser } from "@/features/userQueries/useLiteUsers";
 import { useTranslation } from "@/i18n";
@@ -20,9 +23,6 @@ import { service } from "@/service";
 import { theme } from "@/theme";
 import { dateFormatter, timestamp2Date } from "@/utils/date";
 
-import CommunityBase from "@/features/communities/CommunityBase";
-import CommunityPageSubHeader from "@/features/communities/CommunityPage/CommunityPageSubHeader";
-import PageHeader from "@/features/communities/PageHeader";
 import CommentTree from "./CommentTree";
 
 const StyledPageHeader = styled(PageHeader)(() => ({
@@ -70,11 +70,7 @@ const StyledCreatorDetailsContainer = styled("div")(() => ({
 
 export const CREATOR_TEST_ID = "creator";
 
-export default function DiscussionPage({
-  discussionId,
-}: {
-  discussionId: number;
-}) {
+const DiscussionPage = ({ discussionId }: { discussionId: number }) => {
   const {
     t,
     i18n: { language: locale },
@@ -115,7 +111,9 @@ export default function DiscussionPage({
                 <StyledDiscussionBodyWrapper>
                   <StyledDiscussionHeader>
                     <HeaderButton
-                      onClick={() => { router.back(); }}
+                      onClick={() => {
+                        router.back();
+                      }}
                       aria-label={t("communities:previous_page")}
                     >
                       <BackIcon />
@@ -141,9 +139,10 @@ export default function DiscussionPage({
                       ) : (
                         <Typography variant="body2">
                           {t("communities:created_at")}
-                          {dateFormatter(locale).format(
-                            timestamp2Date(discussion.created!),
-                          )}
+                          {discussion.created &&
+                            dateFormatter(locale).format(
+                              timestamp2Date(discussion.created),
+                            )}
                         </Typography>
                       )}
                     </StyledCreatorDetailsContainer>
@@ -151,7 +150,7 @@ export default function DiscussionPage({
                   <Typography variant="h2">
                     {t("communities:comments")}
                   </Typography>
-                  <CommentTree threadId={discussion.thread!.threadId} />
+                  <CommentTree threadId={discussion.thread?.threadId || 0} />
                 </StyledDiscussionBodyWrapper>
               </>
             )}
@@ -160,4 +159,6 @@ export default function DiscussionPage({
       )}
     </>
   );
-}
+};
+
+export default DiscussionPage;

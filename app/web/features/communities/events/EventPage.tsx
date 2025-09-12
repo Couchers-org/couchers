@@ -149,25 +149,25 @@ const StyledDiscussionContainer = styled("div")(() => ({
   marginBlockEnd: theme.spacing(5),
 }));
 
-function getEventTimeString(
+const getEventTimeString = (
   startTime: Timestamp.AsObject,
   endTime: Timestamp.AsObject,
-) {
+) => {
   const start = dayjs(timestamp2Date(startTime));
   const end = dayjs(timestamp2Date(endTime));
 
   return `${start.format("LLLL")} to ${end.format(
     end.isSame(start, "day") ? "LT" : "LLLL",
   )}`;
-}
+};
 
-export default function EventPage({
+const EventPage = ({
   eventId,
   eventSlug,
 }: {
   eventId: number;
   eventSlug: string;
-}) {
+}) => {
   const { t } = useTranslation([COMMUNITIES]);
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -189,22 +189,24 @@ export default function EventPage({
         eventId,
       });
     },
-    onSuccess(updatedEvent) {
+    onSuccess: async (updatedEvent) => {
       queryClient.setQueryData<Event.AsObject>(eventKey(eventId), updatedEvent);
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: eventKey(eventId),
         refetchType: "none",
       });
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: [EVENT_ATTENDEES_BASE_KEY, eventId],
       });
     },
   });
 
-  const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
-  const [showInviteCommunitySuccess, setShowInviteCommunitySuccess] =
-    useState(false);
-  const [inviteCommunityDialogIsOpen, setInviteCommunityDialogIsOpen] =
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+  const [
+    shouldShowInviteCommunitySuccess,
+    setShouldShowInviteCommunitySuccess,
+  ] = useState(false);
+  const [isInviteCommunityDialogOpen, setIsInviteCommunityDialogOpen] =
     useState(false);
 
   const isPastEvent = event?.endTime
@@ -213,7 +215,7 @@ export default function EventPage({
 
   useEffect(() => {
     if (event?.slug && event.slug !== eventSlug) {
-      router.replace(routeToEvent(event.eventId, event.slug));
+      void router.replace(routeToEvent(event.eventId, event.slug));
     }
   }, [event, eventSlug, router]);
 
@@ -229,7 +231,7 @@ export default function EventPage({
           {eventError?.message || setEventAttendanceError?.message || ""}
         </Alert>
       )}
-      {showInviteCommunitySuccess && (
+      {shouldShowInviteCommunitySuccess && (
         <Snackbar severity="success">
           {t("communities:invite_community_dialog.toast_success")}
         </Snackbar>
@@ -298,7 +300,7 @@ export default function EventPage({
                     </Button>
                     <StyledCancelButton
                       onClick={() => {
-                        setCancelDialogIsOpen(true);
+                        setIsCancelDialogOpen(true);
                       }}
                       variant="contained"
                       color="primary"
@@ -307,15 +309,15 @@ export default function EventPage({
                       {t("communities:cancel_event")}
                     </StyledCancelButton>
                     <CancelEventDialog
-                      open={cancelDialogIsOpen}
+                      open={isCancelDialogOpen}
                       onClose={() => {
-                        setCancelDialogIsOpen(false);
+                        setIsCancelDialogOpen(false);
                       }}
                       eventId={eventId}
                     />
                     <Button
                       onClick={() => {
-                        setInviteCommunityDialogIsOpen(true);
+                        setIsInviteCommunityDialogOpen(true);
                       }}
                       variant="contained"
                       color="secondary"
@@ -325,11 +327,11 @@ export default function EventPage({
                     </Button>
                     <InviteCommunityDialog
                       afterSuccess={() => {
-                        setShowInviteCommunitySuccess(true);
+                        setShouldShowInviteCommunitySuccess(true);
                       }}
-                      open={inviteCommunityDialogIsOpen}
+                      open={isInviteCommunityDialogOpen}
                       onClose={() => {
-                        setInviteCommunityDialogIsOpen(false);
+                        setIsInviteCommunityDialogOpen(false);
                       }}
                       eventId={eventId}
                     />
@@ -350,7 +352,9 @@ export default function EventPage({
               <StyledEventTimeContainer>
                 <StyledCalendarIcon />
                 <Typography variant="body1">
-                  {getEventTimeString(event.startTime!, event.endTime!)}
+                  {event.startTime &&
+                    event.endTime &&
+                    getEventTimeString(event.startTime, event.endTime)}
                 </Typography>
               </StyledEventTimeContainer>
             </StyledHeader>
@@ -368,11 +372,13 @@ export default function EventPage({
               <Typography variant="h2">
                 {t("communities:event_discussion")}
               </Typography>
-              <CommentTree threadId={event.thread!.threadId} />
+              {event.thread && <CommentTree threadId={event.thread.threadId} />}
             </StyledDiscussionContainer>
           </>
         )
       )}
     </>
   );
-}
+};
+
+export default EventPage;

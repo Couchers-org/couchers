@@ -17,10 +17,13 @@ const { t } = i18n;
 jest.mock("components/MarkdownInput");
 
 jest.mock("@mui/x-date-pickers", () => {
+  const originalModule = jest.requireActual<
+    typeof import("@mui/x-date-pickers")
+  >("@mui/x-date-pickers");
   return {
-    ...jest.requireActual("@mui/x-date-pickers"),
-    DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
-    TimePicker: jest.requireActual("@mui/x-date-pickers").DesktopTimePicker,
+    ...originalModule,
+    DatePicker: originalModule.DesktopDatePicker,
+    TimePicker: originalModule.DesktopTimePicker,
   };
 });
 
@@ -75,9 +78,7 @@ describe("Create event page", () => {
     render(<CreateEventPage />, { wrapper });
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    const titleInput = (await screen.findByLabelText(
-      t("global:title"),
-    ));
+    const titleInput = await screen.findByLabelText(t("global:title"));
 
     await user.type(titleInput, "Test event");
 
@@ -129,11 +130,11 @@ describe("Create event page", () => {
 
     await user.click(virtualEventCheckBox);
 
-    expect(virtualEventCheckBox.checked).toBe(true);
+    expect(virtualEventCheckBox).toBeChecked();
 
-    const eventLinkInput = (await screen.findByLabelText(
+    const eventLinkInput = await screen.findByLabelText(
       t("communities:event_link"),
-    ));
+    );
 
     await user.type(eventLinkInput, "https://couchers.org/social");
 
@@ -176,9 +177,7 @@ describe("Create event page", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    const titleInput = (await screen.findByLabelText(
-      t("global:title"),
-    ));
+    const titleInput = await screen.findByLabelText(t("global:title"));
 
     await user.type(titleInput, "Test event");
 
@@ -224,9 +223,7 @@ describe("Create event page", () => {
 
     expect(endTimeGroup).toHaveTextContent("02:00 am");
 
-    const locationInput = screen.getByLabelText(
-      t("communities:location"),
-    );
+    const locationInput = screen.getByLabelText(t("communities:location"));
 
     await user.type(locationInput, "tes{enter}");
 
@@ -269,9 +266,7 @@ describe("Create event page", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    const titleInput = (await screen.findByLabelText(
-      t("global:title"),
-    ));
+    const titleInput = await screen.findByLabelText(t("global:title"));
 
     await user.type(titleInput, "Test event");
 
@@ -317,9 +312,7 @@ describe("Create event page", () => {
 
     expect(endTimeGroup).toHaveTextContent("02:00 am");
 
-    const locationInput = screen.getByLabelText(
-      t("communities:location"),
-    );
+    const locationInput = screen.getByLabelText(t("communities:location"));
 
     await user.type(locationInput, "tes{enter}");
 
@@ -388,8 +381,8 @@ describe("Create event page", () => {
   });
 });
 
-function renderPageWithState(state?: { communityId: number }) {
+const renderPageWithState = (state?: { communityId: number }) => {
   mockRouter.setCurrentUrl(routeToNewEvent(state?.communityId));
   const { wrapper } = getHookWrapperWithClient();
   render(<CreateEventPage />, { wrapper });
-}
+};

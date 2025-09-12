@@ -12,6 +12,7 @@ import Button from "@/components/Button";
 import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
 import Markdown from "@/components/Markdown";
 import FlagButton from "@/features/FlagButton";
+import { useThread } from "@/features/communities/hooks";
 import CopyOnClick from "@/features/mod/CopyOnClick";
 import ModVisibleComponent from "@/features/mod/ModVisibleComponent";
 import { useLiteUser } from "@/features/userQueries/useLiteUsers";
@@ -23,7 +24,6 @@ import { timestamp2Date } from "@/utils/date";
 import hasAtLeastOnePage from "@/utils/hasAtLeastOnePage";
 import { timeAgo } from "@/utils/timeAgo";
 
-import { useThread } from "@/features/communities/hooks";
 import CommentForm from "./CommentForm";
 
 const StyledCommentContainer = styled(Card)(() => ({
@@ -197,8 +197,10 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
           )}
           {topLevel && (
             <CommentForm
-              hideable
-              onClose={() => { setShowCommentForm(false); }}
+              canBeHidden
+              onClose={() => {
+                setShowCommentForm(false);
+              }}
               ref={commentFormRef}
               shown={showCommentForm}
               threadId={comment.threadId}

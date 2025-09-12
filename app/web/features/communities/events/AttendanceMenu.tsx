@@ -14,7 +14,7 @@ const StyledMenuListItem = styled(MenuItem)(() => ({
   gap: theme.spacing(2),
 }));
 
-export default function AttendanceMenu({
+const AttendanceMenu = ({
   loading,
   onChangeAttendanceState,
   attendanceState,
@@ -26,11 +26,11 @@ export default function AttendanceMenu({
   attendanceState: AttendanceState;
   id: string;
   disabled: boolean;
-}) {
+}) => {
   const { t } = useTranslation([COMMUNITIES]);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+  const isOpen = Boolean(anchorEl);
   const isAttending =
     attendanceState === AttendanceState.ATTENDANCE_STATE_GOING;
 
@@ -57,9 +57,9 @@ export default function AttendanceMenu({
     <>
       <Button
         id={buttonId}
-        aria-controls={open ? menuId : undefined}
+        aria-controls={isOpen ? menuId : undefined}
         aria-haspopup="true"
-        aria-expanded={open ? "true" : undefined}
+        aria-expanded={isOpen ? "true" : undefined}
         onClick={handleClick}
         loading={loading}
         variant={isAttending ? "outlined" : "contained"}
@@ -75,17 +75,19 @@ export default function AttendanceMenu({
           ? t("communities:going_to_event")
           : t("communities:join_event")}
 
-        {isAttending && (open ? <ExpandLessIcon /> : <ExpandMoreIcon />)}
+        {isAttending && (isOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />)}
       </Button>
 
       <Menu
         id={menuId}
         anchorEl={anchorEl}
-        open={open}
+        open={isOpen}
         onClose={handleClose}
-        aria-hidden={!open}
-        MenuListProps={{
-          "aria-labelledby": buttonId,
+        aria-hidden={!isOpen}
+        slotProps={{
+          list: {
+            "aria-labelledby": buttonId,
+          },
         }}
         anchorOrigin={{
           vertical: "bottom",
@@ -121,4 +123,6 @@ export default function AttendanceMenu({
       </Menu>
     </>
   );
-}
+};
+
+export default AttendanceMenu;

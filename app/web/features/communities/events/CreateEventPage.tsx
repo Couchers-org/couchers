@@ -20,7 +20,7 @@ import stringOrFirstString from "@/utils/stringOrFirstString";
 
 import EventForm, { CreateEventVariables } from "./EventForm";
 
-export default function CreateEventPage() {
+const CreateEventPage = () => {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const router = useRouter();
 
@@ -88,22 +88,22 @@ export default function CreateEventPage() {
       return service.events.createEvent(createEventInput);
     },
 
-    onMutate({ parentCommunityId }) {
+    onMutate: ({ parentCommunityId }) => {
       return {
         parentCommunityId: parentCommunityId ?? urlCommunityId,
       };
     },
-    onSuccess(event, __, context) {
-      queryClient.invalidateQueries({
+    onSuccess: async (event, _, context) => {
+      await queryClient.invalidateQueries({
         queryKey: [
-          context?.parentCommunityId
+          context.parentCommunityId
             ? [COMMUNITY_EVENTS_BASE_KEY, context.parentCommunityId]
             : COMMUNITY_EVENTS_BASE_KEY,
         ],
       });
-      router.push(routeToEvent(event.eventId, event.slug));
+      await router.push(routeToEvent(event.eventId, event.slug));
     },
-    onSettled() {
+    onSettled: () => {
       window.scroll({ top: 0, behavior: "smooth" });
     },
   });
@@ -116,7 +116,7 @@ export default function CreateEventPage() {
       <HtmlMeta title={t("communities:create_event_page_title")} />
       <ProfileIncompleteDialog
         open={!isAccountInfoLoading && !accountInfo?.profileComplete}
-        onClose={() => router.push(DASHBOARD_ROUTE)}
+        onClose={() => void router.push(DASHBOARD_ROUTE)}
         attempted_action="create_event"
       />
       <EventForm
@@ -143,4 +143,6 @@ export default function CreateEventPage() {
       </EventForm>
     </>
   );
-}
+};
+
+export default CreateEventPage;

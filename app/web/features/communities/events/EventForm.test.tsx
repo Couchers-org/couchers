@@ -17,14 +17,18 @@ const { t } = i18n;
 jest.mock("components/MarkdownInput");
 
 jest.mock("@mui/x-date-pickers", () => {
+  const originalModule = jest.requireActual<
+    typeof import("@mui/x-date-pickers")
+  >("@mui/x-date-pickers");
   return {
-    ...jest.requireActual("@mui/x-date-pickers"),
-    DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
-    TimePicker: jest.requireActual("@mui/x-date-pickers").DesktopTimePicker,
+    ...originalModule,
+    DatePicker: originalModule.DesktopDatePicker,
+    TimePicker: originalModule.DesktopTimePicker,
   };
 });
 
 const serviceFn = jest.fn();
+
 const TestComponent = ({ event }: { event?: Event.AsObject }) => {
   const { error, mutate, isPending } = useMutation<
     Event.AsObject,
@@ -46,16 +50,16 @@ const TestComponent = ({ event }: { event?: Event.AsObject }) => {
       {() => <button type="submit">{t("global:create")}</button>}
     </EventForm>
   );
-}
+};
 
-function renderForm(event?: Event.AsObject) {
+const renderForm = (event?: Event.AsObject) => {
   render(<TestComponent event={event} />, { wrapper });
-}
+};
 
-function assertFieldVisibleWithValue(field: HTMLElement, value: string) {
+const assertFieldVisibleWithValue = (field: HTMLElement, value: string) => {
   expect(field).toBeVisible();
   expect(field).toHaveValue(value);
-}
+};
 
 describe("Event form", () => {
   beforeAll(() => {
@@ -229,7 +233,7 @@ describe("Event form", () => {
 
     await user.click(virtualEventCheckbox);
 
-    expect(virtualEventCheckbox.checked).toBe(true);
+    expect(virtualEventCheckbox).toBeChecked();
 
     await act(async () =>
       user.click(screen.getByRole("button", { name: t("global:create") })),
@@ -249,9 +253,7 @@ describe("Event form", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    const titleInput = screen.getByLabelText(
-      t("global:title"),
-    );
+    const titleInput = screen.getByLabelText(t("global:title"));
 
     await user.type(titleInput, "Test event");
 
@@ -291,7 +293,7 @@ describe("Event form", () => {
 
     await user.click(virtualEventCheckbox);
 
-    expect(virtualEventCheckbox.checked).toBe(true);
+    expect(virtualEventCheckbox).toBeChecked();
 
     const eventLinkInput = await screen.findByLabelText(
       t("communities:event_link"),
@@ -317,7 +319,9 @@ describe("Event form", () => {
     expect(serviceFn).toHaveBeenCalledTimes(1);
 
     // Verify the submitted data contains the expected values
-    const submittedData = serviceFn.mock.calls[0][0];
+    const submittedData = (
+      serviceFn.mock.calls[0] as CreateEventVariables[]
+    )[0];
     expect(submittedData.title).toBe("Test event");
     expect(submittedData.isOnline).toBe(true);
     expect(submittedData.link).toBe("https://couchers.org/social");
@@ -373,9 +377,9 @@ describe("Event form", () => {
 
     await user.click(screen.getByLabelText(t("communities:virtual_event")));
 
-    const eventLinkInput = (await screen.findByLabelText(
+    const eventLinkInput = await screen.findByLabelText(
       t("communities:event_link"),
-    ));
+    );
 
     await user.type(eventLinkInput, "https://couchers.org/social");
 
@@ -403,9 +407,7 @@ describe("Event form", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    const titleInput = screen.getByLabelText(
-      t("global:title"),
-    );
+    const titleInput = screen.getByLabelText(t("global:title"));
 
     await user.type(titleInput, "Test event");
 
@@ -468,10 +470,12 @@ describe("Event form", () => {
     expect(serviceFn).toHaveBeenCalledTimes(1);
 
     // Verify the submitted data contains the expected values
-    const submittedData = serviceFn.mock.calls[0][0];
+    const submittedData = (
+      serviceFn.mock.calls[0] as CreateEventVariables[]
+    )[0];
     expect(submittedData.title).toBe("Test event");
     expect(submittedData.isOnline).toBe(false);
-    expect(submittedData.location.name).toBe(
+    expect(submittedData.location?.name).toBe(
       "test city, test county, test country",
     );
     expect(submittedData.content).toBe("sick social!");

@@ -56,11 +56,11 @@ const StyledNewPostButtonContainer = styled("div")(() => ({
   minHeight: theme.typography.pxToRem(40),
 }));
 
-export default function DiscussionsListPage({
+const DiscussionsListPage = ({
   community,
 }: {
   community: Community.AsObject;
-}) {
+}) => {
   const { t } = useTranslation([COMMUNITIES]);
 
   const hash = typeof window !== "undefined" ? window.location.hash : "";
@@ -72,7 +72,7 @@ export default function DiscussionsListPage({
     isFetching: isDiscussionsFetching,
     error: discussionsError,
     data: discussions,
-    hasNextPage: discussionsHasNextPage,
+    hasNextPage: hasDiscussionsNextPage,
     fetchNextPage,
   } = useListDiscussions(community.communityId);
 
@@ -92,7 +92,9 @@ export default function DiscussionsListPage({
       <Collapse in={!isCreatingNewPost}>
         <StyledNewPostButtonContainer>
           <StyledCreateResourceButton
-            onClick={() => { setIsCreatingNewPost(true); }}
+            onClick={() => {
+              setIsCreatingNewPost(true);
+            }}
           >
             {t("communities:new_post_label")}
           </StyledCreateResourceButton>
@@ -102,8 +104,12 @@ export default function DiscussionsListPage({
       <Collapse in={isCreatingNewPost}>
         <CreateDiscussionForm
           communityId={community.communityId}
-          onCancel={() => { setIsCreatingNewPost(false); }}
-          onPostSuccess={() => { setIsCreatingNewPost(false); }}
+          onCancel={() => {
+            setIsCreatingNewPost(false);
+          }}
+          onPostSuccess={() => {
+            setIsCreatingNewPost(false);
+          }}
         />
       </Collapse>
       <StyledDiscussionsContainer>
@@ -115,13 +121,13 @@ export default function DiscussionsListPage({
             .map((discussion) => (
               <DiscussionCard
                 discussion={discussion}
-                key={`discussioncard-${discussion.thread!.threadId}`}
+                key={`discussioncard-${discussion.thread?.threadId || 0}`}
               />
             ))
         ) : (
           <TextBody>{t("communities:discussions_empty_state")}</TextBody>
         )}
-        {discussionsHasNextPage && (
+        {hasDiscussionsNextPage && (
           <StyledLoadMoreButton>
             <Button onClick={() => fetchNextPage()}>
               {t("communities:see_more_discussions_label")}
@@ -131,4 +137,6 @@ export default function DiscussionsListPage({
       </StyledDiscussionsContainer>
     </>
   );
-}
+};
+
+export default DiscussionsListPage;

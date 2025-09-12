@@ -1,6 +1,6 @@
 import { styled } from "@mui/material";
-import ToastUIEditorViewer from "@toast-ui/editor/dist/toastui-editor-viewer";
 import "@toast-ui/editor/dist/toastui-editor-viewer.css";
+import ToastUIEditorViewer from "@toast-ui/editor/viewer";
 import { useEffect, useRef } from "react";
 
 import { increaseMarkdownHeaderLevel } from "@/components/Markdown";
@@ -43,15 +43,19 @@ const StyledRoot = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function Markdown({
+const Markdown = ({
   className,
   source,
   topHeaderLevel = 2,
   allowImages = "none",
-}: MarkdownProps) {
+}: MarkdownProps) => {
   const rootEl = useRef<HTMLDivElement>(null);
   const viewer = useRef<ToastUIEditorViewer>();
   useEffect(() => {
+    if (!rootEl.current) {
+      return;
+    }
+
     let sanitizedSource = increaseMarkdownHeaderLevel(source, topHeaderLevel);
     // remove all html except <br>
     sanitizedSource = sanitizedSource.replace(/<(?!br)([^>]+)>/gi, "");
@@ -59,16 +63,14 @@ export default function Markdown({
     sanitizedSource = sanitizedSource.replace(
       allowImages === "couchers"
         ? new RegExp(
-            `!(?=\\[.*]\\((?!${escapeRegExp(
-              process.env.NEXT_PUBLIC_MEDIA_BASE_URL,
-            )}).*\\))`,
+            `!(?=\\[.*]\\((?!${escapeRegExp(Config.mediaBaseUrl)}).*\\))`,
             "gi",
           )
         : /!(?=\[.*]\(.*\))/gi,
       "",
     );
     viewer.current = new ToastUIEditorViewer({
-      el: rootEl.current!,
+      el: rootEl.current,
       initialValue: sanitizedSource,
       extendedAutolinks: true,
     });
@@ -76,4 +78,6 @@ export default function Markdown({
   }, [source, topHeaderLevel, allowImages]);
 
   return <StyledRoot className={className} ref={rootEl} />;
-}
+};
+
+export default Markdown;

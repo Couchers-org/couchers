@@ -6,6 +6,8 @@ import Button from "@/components/Button";
 import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
 import { CalendarIcon } from "@/components/Icons";
 import TextBody from "@/components/TextBody";
+import { SectionTitle } from "@/features/communities/CommunityPage";
+import { useListCommunityEvents } from "@/features/communities/hooks";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES } from "@/i18n/namespaces";
 import { Community } from "@/proto/communities_pb";
@@ -13,8 +15,6 @@ import { routeToNewEvent } from "@/routes";
 import { theme } from "@/theme";
 import hasAtLeastOnePage from "@/utils/hasAtLeastOnePage";
 
-import { SectionTitle } from "@/features/communities/CommunityPage";
-import { useListCommunityEvents } from "@/features/communities/hooks";
 import LongEventCard from "./LongEventCard";
 
 interface CommunityEventsListProps {
@@ -33,9 +33,7 @@ const StyledCreateResourceButton = styled(Button)(() => ({
   margin: theme.spacing(2, 0),
 }));
 
-export default function CommunityEventsList({
-  community,
-}: CommunityEventsListProps) {
+const CommunityEventsList = ({ community }: CommunityEventsListProps) => {
   const { t } = useTranslation([COMMUNITIES]);
   const router = useRouter();
 
@@ -87,4 +85,6 @@ export default function CommunityEventsList({
       )}
     </>
   );
-}
+};
+
+export default CommunityEventsList;

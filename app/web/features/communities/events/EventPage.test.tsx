@@ -5,7 +5,7 @@ import mockRouter from "next-router-mock";
 import useCurrentUser from "@/features/userQueries/useCurrentUser";
 import { User } from "@/proto/api_pb";
 import { AttendanceState } from "@/proto/events_pb";
-import { eventBaseRoute } from "@/routes";
+import { EVENT_BASE_ROUTE } from "@/routes";
 import { service } from "@/service";
 import events from "@/test/fixtures/events.json";
 import users from "@/test/fixtures/users.json";
@@ -58,10 +58,10 @@ const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
   typeof service.user.getLiteUsers
 >;
 
-function renderEventPage(id = 1, slug = "weekly-meetup") {
-  mockRouter.setCurrentUrl(`${eventBaseRoute}/${id}/${slug}`);
+const renderEventPage = (id = 1, slug = "weekly-meetup") => {
+  mockRouter.setCurrentUrl(`${EVENT_BASE_ROUTE}/${id}/${slug}`);
   render(<EventPage eventId={id} eventSlug={slug} />, { wrapper: hookWrapper });
-}
+};
 
 describe("Event page", () => {
   beforeEach(() => {
@@ -160,18 +160,22 @@ describe("Event page", () => {
 
   // no way to test "back" with
   it("goes back to the previous page when the back button is clicked", async () => {
-    mockRouter.back = jest.fn();
+    // mockRouter.back = jest.fn();
+    const backMock = jest.spyOn(mockRouter, "back");
+    // const
+
     renderEventPage();
     await screen.findByRole("heading", { name: events[0].title });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    // @TODO should be awaited but doesn't work, try again after more package upgrades
-    user.click(
+    await user.click(
       screen.getByRole("button", { name: t("communities:previous_page") }),
     );
 
-    await waitFor(() => { expect(mockRouter.back).toBeCalled(); });
+    await waitFor(() => {
+      expect(backMock).toHaveBeenCalled();
+    });
   });
 
   it("shows the 'edit event' button if the user has edit permission", async () => {
@@ -187,7 +191,7 @@ describe("Event page", () => {
     renderEventPage();
 
     expect(
-      await screen.queryByRole("button", { name: t("communities:edit_event") }),
+      screen.queryByRole("button", { name: t("communities:edit_event") }),
     ).not.toBeInTheDocument();
   });
 
@@ -215,7 +219,7 @@ describe("Event page", () => {
         attendanceState: AttendanceState.ATTENDANCE_STATE_NOT_GOING,
       });
       listEventAttendeesMock.mockImplementation(async () => {
-        return { ...getEventAttendees(), attendeeUserIdsList: [4] };
+        return { ...(await getEventAttendees()), attendeeUserIdsList: [4] };
       });
       renderEventPage();
 
@@ -259,12 +263,11 @@ describe("Event page", () => {
 
       const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-      // @TODO this should be awaited but doesn't work. Try again after more package upgrades
-      user.click(attendanceMenuButton);
+      await user.click(attendanceMenuButton);
       const leaveEventOption = await screen.findByRole("menuitem", {
         name: t("communities:not_going_to_event"),
       });
-      user.click(leaveEventOption);
+      await user.click(leaveEventOption);
 
       await assertErrorAlert(errorMessage);
     });

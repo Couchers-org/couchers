@@ -6,15 +6,15 @@ import Button from "@/components/Button";
 import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
 import { EmailIcon } from "@/components/Icons";
 import TextBody from "@/components/TextBody";
+import { SectionTitle } from "@/features/communities/CommunityPage";
 import { useListDiscussions } from "@/features/communities/hooks";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES } from "@/i18n/namespaces";
 import { Community } from "@/proto/communities_pb";
-import { composingDiscussionHash, routeToCommunity } from "@/routes";
+import { COMPOSING_DISCUSSION_HASH, routeToCommunity } from "@/routes";
 import { theme } from "@/theme";
 import hasAtLeastOnePage from "@/utils/hasAtLeastOnePage";
 
-import { SectionTitle } from "@/features/communities/CommunityPage";
 import DiscussionCard from "./DiscussionCard";
 
 const StyledLoadMoreButton = styled("div")(() => ({
@@ -47,18 +47,18 @@ const StyledDiscussionsContainer = styled("div")(() => ({
   paddingBlockEnd: theme.spacing(5),
 }));
 
-export default function DiscussionsSection({
+const DiscussionsSection = ({
   community,
 }: {
   community: Community.AsObject;
-}) {
+}) => {
   const { t } = useTranslation([COMMUNITIES]);
 
   const {
     isLoading: isDiscussionsLoading,
     error: discussionsError,
     data: discussions,
-    hasNextPage: discussionsHasNextPage,
+    hasNextPage: hasDiscussionsNextPage,
   } = useListDiscussions(community.communityId);
 
   return (
@@ -79,7 +79,7 @@ export default function DiscussionsSection({
           community.communityId,
           community.slug,
           "discussions",
-        )}#${composingDiscussionHash}`}
+        )}#${COMPOSING_DISCUSSION_HASH}`}
       >
         {t("communities:new_post_label")}
       </StyledCreateResourceButton>
@@ -92,13 +92,13 @@ export default function DiscussionsSection({
             .map((discussion) => (
               <DiscussionCard
                 discussion={discussion}
-                key={`discussioncard-${discussion.thread!.threadId}`}
+                key={`discussioncard-${discussion.thread?.threadId || 0}`}
               />
             ))
         ) : (
           <TextBody>{t("communities:discussions_empty_state")}</TextBody>
         )}
-        {discussionsHasNextPage && (
+        {hasDiscussionsNextPage && (
           <StyledLoadMoreButton>
             <MuiLink
               component={Link}
@@ -116,4 +116,6 @@ export default function DiscussionsSection({
       </StyledDiscussionsContainer>
     </section>
   );
-}
+};
+
+export default DiscussionsSection;

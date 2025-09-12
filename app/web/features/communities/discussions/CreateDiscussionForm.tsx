@@ -5,11 +5,13 @@ import Alert from "@/components/Alert";
 import Button from "@/components/Button";
 import MarkdownInput from "@/components/MarkdownInput";
 import TextField from "@/components/TextField";
+import {
+  CreateDiscussionInput,
+  useNewDiscussionMutation,
+} from "@/features/communities/hooks";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
 import { theme } from "@/theme";
-
-import { CreateDiscussionInput, useNewDiscussionMutation } from "@/features/communities/hooks";
 
 const StyledWrapper = styled(Card)(() => ({
   "& > :not(:last-child)": {
@@ -43,17 +45,17 @@ const StyledCancelButton = styled(Button)(() => ({
 
 export interface CreateDiscussionFormProps {
   communityId: number;
-  onCancel?(): void;
-  onPostSuccess?(): void;
+  onCancel?: () => void;
+  onPostSuccess?: () => void;
 }
 
 type CreateDiscussionData = Omit<CreateDiscussionInput, "ownerCommunityId">;
 
-export default function CreateDiscussionForm({
+const CreateDiscussionForm = ({
   communityId,
   onCancel,
   onPostSuccess,
-}: CreateDiscussionFormProps) {
+}: CreateDiscussionFormProps) => {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const {
     control,
@@ -64,18 +66,18 @@ export default function CreateDiscussionForm({
     mode: "onBlur",
   });
 
+  const handleSuccess = () => {
+    resetForm();
+    resetMutation();
+    onPostSuccess?.();
+  };
+
   const {
     error,
     isPending,
     mutate: createDiscussion,
     reset: resetMutation,
   } = useNewDiscussionMutation(handleSuccess);
-
-  function handleSuccess() {
-    resetForm();
-    resetMutation();
-    onPostSuccess?.();
-  }
 
   const handleCancel = () => {
     onCancel?.();
@@ -93,7 +95,7 @@ export default function CreateDiscussionForm({
         {t("communities:create_new_discussion_title")}
       </StyledTitle>
       {error && <Alert severity="error">{error.message}</Alert>}
-      <StyledForm onSubmit={onSubmit}>
+      <StyledForm onSubmit={() => void onSubmit()}>
         <TextField
           id="title"
           {...register("title", { required: true })}
@@ -120,4 +122,6 @@ export default function CreateDiscussionForm({
       </StyledForm>
     </StyledWrapper>
   );
-}
+};
+
+export default CreateDiscussionForm;

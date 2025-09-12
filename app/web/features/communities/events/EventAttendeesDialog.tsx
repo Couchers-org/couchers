@@ -16,14 +16,14 @@ export const ATTENDEES_DIALOG_LABEL_ID = "attendees";
 interface EventAttendeesDialogProps {
   eventId: number;
   open: boolean;
-  onClose(): void;
+  onClose: () => void;
 }
 
-export default function EventAttendeesDialog({
+const EventAttendeesDialog = ({
   eventId,
   onClose,
   open,
-}: EventAttendeesDialogProps) {
+}: EventAttendeesDialogProps) => {
   const { t } = useTranslation([COMMUNITIES]);
   const {
     error,
@@ -58,4 +58,6 @@ export default function EventAttendeesDialog({
       )}
     </Dialog>
   );
-}
+};
+
+export default EventAttendeesDialog;

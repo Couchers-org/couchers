@@ -72,6 +72,7 @@ export const configUtils = <const P extends string>(prefix: P) => {
         IS_VERIFICATION_ENABLED: Type.Boolean(),
         STRIPE_KEY: Type.String(),
         IS_POST_BETA_ENABLED: Type.Boolean(),
+        MEDIA_BASE_URL: Type.String(),
       }),
       prefix,
     ),
