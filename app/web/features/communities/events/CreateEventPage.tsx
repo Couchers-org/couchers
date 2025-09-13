@@ -69,7 +69,7 @@ const CreateEventPage = () => {
           endTime: finalEndDate,
           // TODO: not hardcode this and allow user to specify community ID?
           parentCommunityId: 1,
-          link: data.link,
+          link: data.link ?? "",
         };
       } else {
         createEventInput = {

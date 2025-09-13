@@ -5,7 +5,6 @@ import {
   useTheme,
 } from "@mui/material";
 import React, { ForwardedRef, forwardRef } from "react";
-import { isAsyncFunction } from "util/types";
 
 import CircularProgress from "@/components/CircularProgress";
 import { Sentry } from "@/platform/sentry";
@@ -62,7 +61,7 @@ const InternalButton = (
       return;
     }
 
-    if (!isAsyncFunction(onClick)) {
+    if (onClick.constructor.name !== "AsyncFunction") {
       return onClick(event);
     }
 

@@ -22,7 +22,7 @@ interface LocationAutocompleteProps<
 > {
   className?: string;
   control: Control<TFieldValues>;
-  defaultValue: TFieldValues[TName];
+  defaultValue?: TFieldValues[TName];
   fieldError: string | undefined;
   isFullWidth?: boolean;
   label?: string;

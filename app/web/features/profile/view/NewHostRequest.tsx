@@ -36,7 +36,7 @@ const StyledDateRow = styled("div")(() => ({
   width: "72%",
 }));
 
-const StyledDatepicker = styled(Datepicker)(() => ({
+const StyledDatepicker = styled(Datepicker<CreateHostRequestWrapper>)(() => ({
   marginBottom: theme.spacing(2),
 }));
 
@@ -133,10 +133,10 @@ const NewHostRequest = ({
                 id="from-date"
                 label={t("profile:request_form.arrival_date")}
                 name="fromDate"
-                defaultValue={null}
+                defaultValue={undefined}
                 rules={{
                   required: t("profile:request_form.arrival_date_empty"),
-                  validate: (stringDate) => stringDate !== "",
+                  // validate: (stringDate) => stringDate !== "",
                 }}
               />
               <StyledDatepicker
@@ -147,10 +147,10 @@ const NewHostRequest = ({
                 label={t("profile:request_form.departure_date")}
                 minDate={watchFromDate.add(1, "day")}
                 name="toDate"
-                defaultValue={null}
+                defaultValue={undefined}
                 rules={{
                   required: t("profile:request_form.departure_date_empty"),
-                  validate: (stringDate) => stringDate !== "",
+                  // validate: (stringDate) => stringDate !== "",
                 }}
               />
             </StyledDateRow>

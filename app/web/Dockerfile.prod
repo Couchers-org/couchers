@@ -4,7 +4,7 @@ ARG environment=development
 WORKDIR /app
 
 # disable next.js telemetry
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 ARG version
 ENV NEXT_PUBLIC_VERSION=$version
@@ -22,7 +22,7 @@ ENV NEXT_PUBLIC_COMMIT_TIMESTAMP=$commit_timestamp
 COPY package.json yarn.lock ./
 
 RUN corepack enable
-RUN yarn install --frozen-lockfile
+RUN yarn install --immutable
 
 COPY . .
 
@@ -39,7 +39,7 @@ RUN yarn injectsourcemaps
 FROM node:20-slim AS runner
 
 WORKDIR /app
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs

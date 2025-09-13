@@ -1,11 +1,27 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import type { Config } from "jest";
+import { Value } from "@sinclair/typebox/value";
+import type { Config as JestConfig } from "jest";
 import nextJest from "next/jest";
+import { createDefaultPreset } from "ts-jest";
+
+import { configUtils } from "./config";
+
+const tsJestTransformCfg = createDefaultPreset().transform;
 
 // Providing the path to your Next.js app which will enable loading next.config.js and .env files
 const createJestConfig = nextJest({ dir: "./" });
 
-const customJestConfig: Config = {
+const envVarPrefix = "NEXT_PUBLIC_";
+
+const utils = configUtils(envVarPrefix);
+
+// eslint-disable-next-line n/no-process-env
+const parsedEnv = Value.Parse(utils.schema, process.env);
+
+const config = {};
+Object.assign(config, utils.getStringReplacements(parsedEnv));
+
+const customJestConfig: JestConfig = {
   verbose: true, // Shows detailed test results
   collectCoverageFrom: [
     "**/*.{js,jsx,ts,tsx}",
@@ -16,6 +32,11 @@ const customJestConfig: Config = {
     "!.next/**",
     "!**/*.coverage/**",
   ],
+  globals: {
+    Config: config,
+  },
+  extensionsToTreatAsEsm: [".ts", ".tsx"],
+
   moduleNameMapper: {
     // Handle CSS imports (with CSS modules)
     // https://jestjs.io/docs/webpack#mocking-css-modules
@@ -39,19 +60,11 @@ const customJestConfig: Config = {
   // <rootDir> instead of . - https://github.com/tannerlinsley/react-query/issues/2339
   // @TODO(NA) ^^ Fixed in react-query v4, but we are still on v3. Remove this when we upgrade.
   moduleDirectories: ["node_modules", "<rootDir>"],
+  transform: tsJestTransformCfg,
   reporters: ["default", "jest-junit"],
   setupFilesAfterEnv: ["./test/setupTests.ts"],
   testPathIgnorePatterns: ["<rootDir>/node_modules/", "<rootDir>/.next/"],
   testEnvironment: "jsdom",
-  transform: {
-    // Use babel-jest to transpile tests with the next/babel preset
-    // https://jestjs.io/docs/configuration#transform-objectstring-pathtotransformer--pathtotransformer-object
-    "^.+\\.(js|jsx|ts|tsx)$": ["babel-jest", { presets: ["next/babel"] }],
-  },
-  transformIgnorePatterns: [
-    "/node_modules/",
-    "^.+\\.module\\.(css|sass|scss)$",
-  ],
   resetMocks: true,
 };
 

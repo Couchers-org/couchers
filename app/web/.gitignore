@@ -59,3 +59,10 @@ requirements.lock
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

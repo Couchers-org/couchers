@@ -19,7 +19,7 @@ const getMarkdownPageBySlug = async (
   slug: Array<string>,
 ): Promise<MarkdownPageProps> => {
   const md = (await import(
-    `markdown/${slug.join("/")}.md`
+    `@/markdown/${slug.join("/")}.md`
   )) as FrontmatterMarkdownLoaderOutput;
 
   return {
@@ -31,7 +31,7 @@ const getMarkdownPageBySlug = async (
 
 export const getStaticPaths: GetStaticPaths = () => ({
   paths: getAllMarkdownPathsWithLocales(),
-  fallback: false,
+  fallback: true,
 });
 
 export const getStaticProps: GetStaticProps = async ({ locale, params }) => ({

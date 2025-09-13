@@ -7,6 +7,7 @@ import { NextConfig } from "next";
 import webpack from "webpack";
 
 import { CamelCaseConfigWithoutPrefix, configUtils } from "./config";
+import nextI18NextConfig from "./next-i18next.config";
 import { redirects } from "./redirects";
 
 const envVarPrefix = "NEXT_PUBLIC_";
@@ -24,6 +25,8 @@ declare global {
 
 const parsedEnv = Value.Parse(utils.schema, process.env);
 
+const stringReplacements = utils.getStringReplacements(parsedEnv);
+
 const nextConfig: NextConfig = {
   assetPrefix: process.env.ASSET_PREFIX,
   reactStrictMode: true,
@@ -33,16 +36,16 @@ const nextConfig: NextConfig = {
       config.plugins = [];
     }
 
-    config.plugins.push(
-      new webpack.DefinePlugin(utils.getStringReplacements(parsedEnv)),
-    );
+    config.plugins.push(new webpack.DefinePlugin(stringReplacements));
 
     config.module?.rules?.push({
       test: /\.md$/,
       loader: "frontmatter-markdown-loader",
     });
+
     return config;
   },
+  i18n: nextI18NextConfig.i18n,
   /* eslint-disable @typescript-eslint/require-await */
   redirects: async () => redirects,
   headers: async () => [

@@ -140,7 +140,7 @@ export interface OverviewProps {
   tab: UserTab;
 }
 
-export const Overview = ({ setIsRequesting, tab }: OverviewProps) => {
+const Overview = ({ setIsRequesting, tab }: OverviewProps) => {
   const currentUserId = useAuthContext().authState.userId;
   const user = useProfileUser();
 
@@ -157,3 +157,5 @@ export const Overview = ({ setIsRequesting, tab }: OverviewProps) => {
     />
   );
 };
+
+export default Overview;

@@ -6,16 +6,16 @@ import {
   SelectChangeEvent,
   SelectProps,
 } from "@mui/material";
-import React, { ReactNode } from "react";
+import React from "react";
 
 import { theme } from "@/theme";
 
-const Select = <T extends Record<string, ReactNode>>(
+const Select = <T extends string | number>(
   {
     id,
     className,
     native = true,
-    menuItems = false,
+    shouldUseMenuItems = false,
     optionLabelMap,
     label,
     variant = "outlined",
@@ -24,18 +24,18 @@ const Select = <T extends Record<string, ReactNode>>(
     ...otherProps
   }: Omit<SelectProps, "children"> & {
     id: string;
-    options: Extract<keyof T, string | number>[];
-    value?: T extends undefined
-      ? string | number | number[]
-      : keyof T | Array<keyof T>;
-    menuItems?: boolean;
-    optionLabelMap: T;
+    options: T[];
+    value?: T | Array<T>;
+    shouldUseMenuItems?: boolean;
+    optionLabelMap: Partial<Record<T, string>>;
     onChange?: (event: SelectChangeEvent<T>) => void;
   },
   ref: React.Ref<HTMLSelectElement>,
 ) => {
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const OptionComponent: React.ElementType = menuItems ? MenuItem : "option";
+  const OptionComponent: React.ElementType = shouldUseMenuItems
+    ? MenuItem
+    : "option";
 
   return (
     <FormControl

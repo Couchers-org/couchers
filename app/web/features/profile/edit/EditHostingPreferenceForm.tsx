@@ -62,7 +62,16 @@ const styledField = <C extends React.ComponentType<React.ComponentProps<C>>>(
 };
 
 const StyledProfileTextInput = styledField(ProfileTextInput);
-const StyledSelect = styledField(Select);
+const StyledSmokingSelect = styledField(
+  Select<(typeof SmokingLocation)[keyof typeof SmokingLocation]>,
+);
+const StyledSleepingSelect = styledField(
+  Select<(typeof SleepingArrangement)[keyof typeof SleepingArrangement]>,
+);
+const StyledParkingSelect = styledField(
+  Select<(typeof ParkingDetails)[keyof typeof ParkingDetails]>,
+);
+
 const StyledProfileMarkdownInput = styledField(ProfileMarkdownInput);
 
 const ProfileSection = styled(Box)(({ theme }) => ({
@@ -379,7 +388,7 @@ const HostingPreferenceForm = ({ user }: { user: HostingPreferenceData }) => {
               control={control}
               name="smokingAllowed"
               render={({ field }) => (
-                <StyledSelect
+                <StyledSmokingSelect
                   {...field}
                   onChange={(event) => {
                     field.onChange(event.target.value);
@@ -424,7 +433,7 @@ const HostingPreferenceForm = ({ user }: { user: HostingPreferenceData }) => {
               name="sleepingArrangement"
               render={({ field }) => (
                 <>
-                  <StyledSelect
+                  <StyledSleepingSelect
                     onChange={(event) => {
                       field.onChange(event.target.value);
                     }}
@@ -583,7 +592,7 @@ const HostingPreferenceForm = ({ user }: { user: HostingPreferenceData }) => {
                     control={control}
                     name="parkingDetails"
                     render={({ field }) => (
-                      <StyledSelect
+                      <StyledParkingSelect
                         label={t("profile:home_info_headings.parking_details")}
                         onChange={(event) => {
                           field.onChange(event.target.value);

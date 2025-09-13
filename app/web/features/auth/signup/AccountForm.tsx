@@ -38,7 +38,6 @@ import {
   USERNAME_VALIDATION_PATTERN,
   lowercaseAndTrimField,
   validatePassword,
-  validatePastDate,
 } from "@/utils/validation";
 
 export type SignupAccountInputs = {
@@ -76,7 +75,9 @@ const StyledFormLabel = styled(FormLabel)<FormLabelProps>(({ theme }) => ({
   },
 }));
 
-const StyledSelect = styled(Select)(({ theme }) => ({
+const StyledSelect = styled(
+  Select<(typeof HostingStatus)[keyof typeof HostingStatus]>,
+)(({ theme }) => ({
   marginBottom: theme.spacing(2),
   marginTop: 0,
   width: "100%",
@@ -86,15 +87,17 @@ const StyledSelect = styled(Select)(({ theme }) => ({
   },
 }));
 
-const StyledDatepicker = styled(Datepicker)(({ theme }) => ({
-  marginBottom: theme.spacing(2),
-  marginTop: 0,
-  width: "100%",
+const StyledDatepicker = styled(Datepicker<SignupAccountInputs>)(
+  ({ theme }) => ({
+    marginBottom: theme.spacing(2),
+    marginTop: 0,
+    width: "100%",
 
-  "& .MuiInputBase-input": {
-    backgroundColor: theme.palette.common.white,
-  },
-}));
+    "& .MuiInputBase-input": {
+      backgroundColor: theme.palette.common.white,
+    },
+  }),
+);
 
 const StyledFormControl = styled(FormControl)(({ theme }) => ({
   marginBottom: theme.spacing(2),
@@ -246,7 +249,7 @@ const AccountForm = () => {
           variant="outlined"
           rules={{
             required: t("auth:account_form.birthday.required_error"),
-            validate: (stringBirthDate: string) => {
+            validate: (stringBirthDate) => {
               const birthDate = dayjs(stringBirthDate);
               const age = Math.abs(dayjs().diff(birthDate, "year")); // confirmed dayjs does the difference correctly by counting months and days
 
@@ -258,16 +261,17 @@ const AccountForm = () => {
                 return t("auth:account_form.birthday.not_real_date_error");
               }
 
-              if (!validatePastDate(stringBirthDate) || !stringBirthDate) {
-                return t("auth:account_form.birthday.validation_error");
-              }
+              // TODO(FB) Remove or re-add
+              // if (!validatePastDate(stringBirthDate) || !stringBirthDate) {
+              //   return t("auth:account_form.birthday.validation_error");
+              // }
 
               return true; // Validation passes
             },
           }}
           minDate={dayjs().subtract(120, "years")}
           maxDate={dayjs().subtract(18, "years")}
-          defaultValue={null}
+          defaultValue={undefined}
           openTo="year"
           name="birthdate"
           onPostChange={handleBirthdateChange}
@@ -338,14 +342,12 @@ const AccountForm = () => {
                 id="hosting-status"
                 fullWidth
                 options={[
-                  "",
+                  HostingStatus.HOSTING_STATUS_UNSPECIFIED,
                   HostingStatus.HOSTING_STATUS_CAN_HOST,
                   HostingStatus.HOSTING_STATUS_MAYBE,
                   HostingStatus.HOSTING_STATUS_CANT_HOST,
                 ]}
                 optionLabelMap={{
-                  // eslint-disable-next-line @typescript-eslint/naming-convention
-                  "": "",
                   [HostingStatus.HOSTING_STATUS_CAN_HOST]: t(
                     "auth:account_form.hosting_status.can_host",
                   ),

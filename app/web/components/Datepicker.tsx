@@ -20,7 +20,7 @@ const getLocaleFormat = () => {
     : "DD/MM/YYYY";
 };
 
-type DayjsPath<T> = Extract<KeysWithType<T, Dayjs>, Path<T>>;
+type DayjsPath<T> = Extract<KeysWithType<T, Dayjs | undefined>, Path<T>>;
 
 interface DatepickerProps<
   TFieldValues extends FieldValues,

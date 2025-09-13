@@ -210,7 +210,7 @@ const EventForm = ({
             <LocationAutocomplete
               control={control}
               name="location"
-              defaultValue={locationDefaultValue}
+              defaultValue={locationDefaultValue || undefined}
               fieldError={errors.location?.message}
               isFullWidth
               label={t("communities:location")}

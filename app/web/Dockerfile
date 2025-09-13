@@ -22,7 +22,7 @@ ENV NEXT_PUBLIC_COMMIT_TIMESTAMP=$commit_timestamp
 COPY package.json yarn.lock ./
 
 RUN corepack enable
-RUN yarn install --frozen-lockfile
+RUN yarn install --immutable
 
 COPY . .
 
