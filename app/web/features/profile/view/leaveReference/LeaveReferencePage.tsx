@@ -58,7 +58,7 @@ export default function LeaveReferencePage({
   step?: ReferenceStep;
 }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
-  const isBelowMedium = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { data: hasGivenRes } = useQuery({
     queryKey: [hasGivenHostRequestReferenceKey, hostRequestId],
@@ -145,7 +145,7 @@ export default function LeaveReferencePage({
   return (
     <StyledRoot>
       <ProfileUserProvider user={user!}>
-        {!isBelowMedium && <UserOverview showHostAndMeetAvailability={false} />}
+        {!isMobile && <UserOverview showHostAndMeetAvailability={false} />}
         <StyledFormWrapper>
           <ReferenceForm
             hostRequestId={hostRequestId}
