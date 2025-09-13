@@ -1,10 +1,12 @@
 import { styled, useMediaQuery } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import ReferenceForm from "features/profile/view/leaveReference/ReferenceForm";
 import UserOverview from "features/profile/view/UserOverview";
+import { hasGivenHostRequestReferenceKey } from "features/queryKeys";
 import { useUser } from "features/userQueries/useUsers";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
@@ -12,6 +14,7 @@ import { User } from "proto/api_pb";
 import { ReferenceType } from "proto/references_pb";
 import React from "react";
 import { ReferenceStep, referenceTypeRoute } from "routes";
+import { service } from "service";
 import { ReferenceTypeStrings } from "service/references";
 import { theme } from "theme";
 
@@ -57,6 +60,13 @@ export default function LeaveReferencePage({
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const isBelowMedium = useMediaQuery(theme.breakpoints.down("md"));
 
+  const { data: hasGivenRes } = useQuery({
+    queryKey: [hasGivenHostRequestReferenceKey, hostRequestId],
+    queryFn: () =>
+      service.references.hasGivenHostRequestReference(hostRequestId!),
+    enabled: !!hostRequestId,
+  });
+
   const {
     data: user,
     isLoading: isUserLoading,
@@ -68,7 +78,9 @@ export default function LeaveReferencePage({
     error: availableReferencesError,
   } = useListAvailableReferences(userId);
 
-  if (!(referenceType in ReferenceTypeStrings)) {
+  const referenceTypeValid = referenceType in ReferenceTypeStrings;
+
+  if (!referenceTypeValid) {
     return (
       <Alert severity="error">
         {t("profile:leave_reference.invalid_reference_type")}
@@ -76,44 +88,73 @@ export default function LeaveReferencePage({
     );
   }
 
+  if (userError || availableReferencesError) {
+    return (
+      <Alert severity="error">
+        {userError || availableReferencesError?.message || ""}
+      </Alert>
+    );
+  }
+  if (isUserLoading || isAvailableReferencesLoading) {
+    return <CenteredSpinner />;
+  }
+
+  // Compute availability booleans
+  const isFriendType =
+    referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND];
+  const canWriteFriendRef = !!availableReferences?.canWriteFriendReference;
+  const isFriendsWithUser = user?.friends === User.FriendshipStatus.FRIENDS;
+  const canWriteFriendReferenceForUser =
+    isFriendType && canWriteFriendRef && isFriendsWithUser;
+
+  const canWriteHostRequestReference =
+    !!hostRequestId &&
+    !!availableReferences?.availableWriteReferencesList?.some(
+      ({ hostRequestId: availableId }) => availableId === hostRequestId,
+    );
+
+  const canWriteReference =
+    canWriteFriendReferenceForUser || canWriteHostRequestReference;
+
+  if (isFriendType && !isFriendsWithUser) {
+    return (
+      <Alert severity="error">
+        {t("profile:leave_reference.friend_reference_requires_friendship")}
+      </Alert>
+    );
+  }
+
+  const alreadyWroteThisStay = !!hostRequestId && !!hasGivenRes?.hasGiven;
+
+  if (alreadyWroteThisStay) {
+    return (
+      <Alert severity="info">
+        {t("profile:leave_reference.already_wrote_reference_for_stay")}
+      </Alert>
+    );
+  }
+
+  if (!canWriteReference) {
+    return (
+      <Alert severity="error">
+        {t("profile:leave_reference.reference_type_not_available")}
+      </Alert>
+    );
+  }
+
   return (
-    <>
-      {(userError || availableReferencesError) && (
-        <Alert severity="error">
-          {userError || availableReferencesError?.message || ""}
-        </Alert>
-      )}
-      {(isUserLoading || isAvailableReferencesLoading) && <CenteredSpinner />}
-      {availableReferences &&
-        user &&
-        ((referenceType ===
-          referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND] &&
-          availableReferences.canWriteFriendReference &&
-          user.friends === User.FriendshipStatus.FRIENDS) ||
-        (hostRequestId &&
-          availableReferences.availableWriteReferencesList.find(
-            ({ hostRequestId: availableId }) => availableId === hostRequestId,
-          )) ? (
-          <StyledRoot>
-            <ProfileUserProvider user={user}>
-              {!isBelowMedium && (
-                <UserOverview showHostAndMeetAvailability={false} />
-              )}
-              <StyledFormWrapper>
-                <ReferenceForm
-                  hostRequestId={hostRequestId}
-                  referenceType={referenceType}
-                  userId={userId}
-                  step={step}
-                />
-              </StyledFormWrapper>
-            </ProfileUserProvider>
-          </StyledRoot>
-        ) : (
-          <Alert severity="error">
-            {t("profile:leave_reference.reference_type_not_available")}
-          </Alert>
-        ))}
-    </>
+    <StyledRoot>
+      <ProfileUserProvider user={user!}>
+        {!isBelowMedium && <UserOverview showHostAndMeetAvailability={false} />}
+        <StyledFormWrapper>
+          <ReferenceForm
+            hostRequestId={hostRequestId}
+            referenceType={referenceType}
+            userId={userId}
+            step={step}
+          />
+        </StyledFormWrapper>
+      </ProfileUserProvider>
+    </StyledRoot>
   );
 }

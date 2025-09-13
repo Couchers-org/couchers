@@ -36,6 +36,9 @@ service References {
   rpc ListPendingReferencesToWrite(google.protobuf.Empty) returns (ListPendingReferencesToWriteRes) {
     // Returns a list of references that you should write about others, e.g. after surfing or hosting
   }
+
+  // Returns whether the current user has already written a host-request reference for the given request id
+  rpc HasGivenHostRequestReference(HasGivenHostRequestReferenceReq) returns (HasGivenHostRequestReferenceRes) {}
 }
 
 enum ReferenceType {
@@ -120,4 +123,12 @@ message AvailableWriteReferencesRes {
 
 message ListPendingReferencesToWriteRes {
   repeated AvailableWriteReferenceType pending_references = 1;
+}
+
+message HasGivenHostRequestReferenceReq {
+  int64 host_request_id = 1;
+}
+
+message HasGivenHostRequestReferenceRes {
+  bool has_given = 1;
 }

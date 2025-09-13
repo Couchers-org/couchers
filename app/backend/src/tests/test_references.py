@@ -765,6 +765,56 @@ def test_WriteHostRequestReference_private_text(db, push_collector):
     )
 
 
+def test_HasGivenHostRequestReference(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    # user1 writes; RPC returns True
+    with session_scope() as session:
+        hr1 = create_host_request(session, user1.id, user2.id, timedelta(days=7))
+    with references_session(token1) as api:
+        api.WriteHostRequestReference(
+            references_pb2.WriteHostRequestReferenceReq(
+                host_request_id=hr1, text="Great stay!", was_appropriate=True, rating=0.9
+            )
+        )
+        res = api.HasGivenHostRequestReference(
+            references_pb2.HasGivenHostRequestReferenceReq(host_request_id=hr1)
+        )
+        assert res.has_given is True
+
+    # false: no reference written yet
+    with session_scope() as session:
+        hr2 = create_host_request(session, user1.id, user2.id, timedelta(days=7))
+    with references_session(token1) as api:
+        res = api.HasGivenHostRequestReference(
+            references_pb2.HasGivenHostRequestReferenceReq(host_request_id=hr2)
+        )
+        assert res.has_given is False
+
+    # false: other user wrote a reference
+    with session_scope() as session:
+        hr3 = create_host_request(session, user1.id, user2.id, timedelta(days=7))
+    with references_session(token2) as api:
+        api.WriteHostRequestReference(
+            references_pb2.WriteHostRequestReferenceReq(
+                host_request_id=hr3, text="Lovely guest!", was_appropriate=True, rating=0.95
+            )
+        )
+    with references_session(token1) as api:
+        res = api.HasGivenHostRequestReference(
+            references_pb2.HasGivenHostRequestReferenceReq(host_request_id=hr3)
+        )
+        assert res.has_given is False
+
+    # false: nonexistent host request id
+    with references_session(token1) as api:
+        res = api.HasGivenHostRequestReference(
+            references_pb2.HasGivenHostRequestReferenceReq(host_request_id=999999)
+        )
+        assert res.has_given is False
+
+
 def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()

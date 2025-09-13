@@ -9,12 +9,17 @@ import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import Link from "next/link";
-import { User } from "proto/api_pb";
 import { ReferenceType } from "proto/references_pb";
 import React, { useState } from "react";
-import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
+import {
+  hostingRequestsRoute,
+  leaveReferenceBaseRoute,
+  referenceTypeRoute,
+  surfingRequestsRoute,
+} from "routes";
 import { theme } from "theme";
 
+import { User } from "../../../proto/api_pb";
 import ReferencesGivenList from "./ReferencesGivenList";
 import ReferencesReceivedList from "./ReferencesReceivedList";
 
@@ -45,7 +50,7 @@ const StyledButtonContainer = styled("div")(({ theme }) => ({
   },
   display: "flex",
   width: "100%",
-  justifyContent: "flex-end",
+  justifyContent: "space-between",
   marginInlineEnd: theme.spacing(2),
   marginTop: theme.spacing(1),
 }));
@@ -55,6 +60,21 @@ export default function References() {
   const [referenceType, setReferenceType] = useState<ReferenceTypeState>("all");
   const { userId, friends } = useProfileUser();
   const { data: availableReferences } = useListAvailableReferences(userId);
+
+  const hasPendingHostRefs =
+    (availableReferences?.availableWriteReferencesList?.length ?? 0) > 0;
+
+  // Determine if there are pending host-request references to write, and their type
+  // Makes an assumption that there will never be more than one pending host-request reference for this user at a time
+  const pendingHostRequestRefForThisUser =
+    availableReferences?.availableWriteReferencesList?.[0];
+  const pendingHostRequestReferenceButtonLabel =
+    pendingHostRequestRefForThisUser?.referenceType ===
+    ReferenceType.REFERENCE_TYPE_SURFED
+      ? t("profile:write_host_request_reference", { type: "Surfer" })
+      : t("profile:write_host_request_reference", {
+          type: "Host",
+        });
 
   const handleChange = (event: SelectChangeEvent<ReferenceTypeState>) => {
     setReferenceType(event.target.value as ReferenceTypeState);
@@ -88,18 +108,36 @@ export default function References() {
             })}
           </Select>
         </StyledHeaderContainer>
-        {availableReferences?.canWriteFriendReference &&
-          friends === User.FriendshipStatus.FRIENDS && (
-            <StyledButtonContainer>
+
+        <StyledButtonContainer>
+          {hasPendingHostRefs &&
+            availableReferences?.availableWriteReferencesList &&
+            availableReferences.availableWriteReferencesList.length > 0 && (
+              <Button
+                component={Link}
+                startIcon={<AddIcon />}
+                href={
+                  pendingHostRequestRefForThisUser?.referenceType ===
+                  ReferenceType.REFERENCE_TYPE_SURFED
+                    ? surfingRequestsRoute
+                    : hostingRequestsRoute
+                }
+                variant="outlined"
+              >
+                {pendingHostRequestReferenceButtonLabel}
+              </Button>
+            )}
+          {availableReferences?.canWriteFriendReference &&
+            friends === User.FriendshipStatus.FRIENDS && (
               <Button
                 component={Link}
                 startIcon={<AddIcon />}
                 href={`${leaveReferenceBaseRoute}/${referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]}/${userId}`}
               >
-                {t("profile:write_reference")}
+                {t("profile:write_friend_reference")}
               </Button>
-            </StyledButtonContainer>
-          )}
+            )}
+        </StyledButtonContainer>
       </StyledHeaderParentContainer>
       {referenceType !== "given" ? (
         <ReferencesReceivedList referenceType={referenceType} />

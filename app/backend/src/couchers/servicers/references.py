@@ -419,3 +419,15 @@ class References(references_pb2_grpc.ReferencesServicer):
                 )
             ],
         )
+
+    def HasGivenHostRequestReference(self, request, context, session):
+        # True if a reference exists for this host_request written by current user
+        has_given = (
+            session.execute(
+                select(Reference)
+                .where(Reference.host_request_id == request.host_request_id)
+                .where(Reference.from_user_id == context.user_id)
+            ).scalar_one_or_none()
+            is not None
+        )
+        return references_pb2.HasGivenHostRequestReferenceRes(has_given=has_given)

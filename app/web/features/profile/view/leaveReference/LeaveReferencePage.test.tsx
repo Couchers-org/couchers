@@ -5,6 +5,7 @@ import {
   within,
 } from "@testing-library/react";
 import mockRouter from "next-router-mock";
+import { HasGivenHostRequestReferenceRes } from "proto/references_pb";
 import { leaveReferenceBaseRoute, ReferenceStep } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
@@ -22,6 +23,10 @@ const getAvailableReferencesMock = service.references
 >;
 const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
+>;
+const hasGivenMock = service.references
+  .hasGivenHostRequestReference as unknown as jest.MockedFunction<
+  (hostRequestId: number) => Promise<HasGivenHostRequestReferenceRes.AsObject>
 >;
 
 function renderLeaveFriendReferencePage(
@@ -82,6 +87,7 @@ describe("LeaveReferencePage", () => {
   beforeEach(() => {
     getUserMock.mockImplementation(getUser);
     getAvailableReferencesMock.mockImplementation(getAvailableReferences);
+    hasGivenMock.mockResolvedValue({ hasGiven: false });
   });
 
   describe("When the reference type is invalid", () => {
@@ -138,7 +144,39 @@ describe("LeaveReferencePage", () => {
         expect(getAvailableReferencesMock).toHaveBeenCalledWith({ userId: 1 });
       });
 
-      it("Returns an error", async () => {
+      it("Returns a not-friends error", async () => {
+        const errorAlert = await screen.findByRole("alert");
+        expect(
+          within(errorAlert).getByText(
+            t("profile:leave_reference.friend_reference_requires_friendship"),
+          ),
+        ).toBeVisible();
+      });
+
+      it("does not show the form", () => {
+        expect(
+          screen.queryByRole("heading", {
+            name: "You met with Funny Cat current User",
+          }),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    describe("when friend reference is unavailable", () => {
+      beforeEach(() => {
+        getAvailableReferencesMock.mockResolvedValue({
+          canWriteFriendReference: false,
+          availableWriteReferencesList: [],
+        } as unknown as ReturnType<typeof getAvailableReferences>);
+        renderLeaveFriendReferencePage("friend", 5);
+      });
+
+      it("verifies the review type", async () => {
+        expect(getAvailableReferencesMock).toHaveBeenCalledTimes(1);
+        expect(getAvailableReferencesMock).toHaveBeenCalledWith({ userId: 5 });
+      });
+
+      it("Returns the fallback error", async () => {
         const errorAlert = await screen.findByRole("alert");
         expect(
           within(errorAlert).getByText(
@@ -150,7 +188,7 @@ describe("LeaveReferencePage", () => {
       it("does not show the form", () => {
         expect(
           screen.queryByRole("heading", {
-            name: "You met with Funny Cat current User",
+            name: "You met with Friendly Cow",
           }),
         ).not.toBeInTheDocument();
       });
@@ -204,6 +242,57 @@ describe("LeaveReferencePage", () => {
             name: "You met with Funny Cat current User",
           }),
         ).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe("hasGivenHostRequestReference", () => {
+    describe("hasGivenHostRequestReference returns true", () => {
+      beforeEach(() => {
+        hasGivenMock.mockResolvedValue({ hasGiven: true });
+        // Ensure available references don't interfere
+        getAvailableReferencesMock.mockResolvedValue({
+          canWriteFriendReference: false,
+          availableWriteReferencesList: [],
+        } as unknown as ReturnType<typeof getAvailableReferences>);
+        renderLeaveRequestReferencePage("hosted", 5, 1);
+      });
+
+      it("calls hasGivenHostRequestReference with hostRequestId", async () => {
+        expect(hasGivenMock).toHaveBeenCalledTimes(1);
+        expect(hasGivenMock).toHaveBeenCalledWith(1);
+      });
+
+      it("shows the already-wrote info alert and hides the form", async () => {
+        const alert = await screen.findByRole("alert");
+        expect(
+          within(alert).getByText(
+            t("profile:leave_reference.already_wrote_reference_for_stay"),
+          ),
+        ).toBeVisible();
+
+        expect(
+          screen.queryByText("Did you host Friendly Cow?"),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    describe("hasGivenHostRequestReference returns false", () => {
+      beforeEach(() => {
+        hasGivenMock.mockResolvedValue({ hasGiven: false });
+        renderLeaveRequestReferencePage("hosted", 5, 1);
+      });
+
+      it("does not show the already-wrote alert and renders the form", async () => {
+        expect(
+          screen.queryByText(
+            t("profile:leave_reference.already_wrote_reference_for_stay"),
+          ),
+        ).not.toBeInTheDocument();
+
+        expect(
+          await screen.findByText("Did you host Friendly Cow?"),
+        ).toBeVisible();
       });
     });
   });
