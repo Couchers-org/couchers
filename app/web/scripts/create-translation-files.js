@@ -98,6 +98,7 @@ const VALID_LANGUAGE_CODES = [
   "en-GB",
   "en-CA",
   "en-AU",
+  "en-CORP", // Corporate American -- for testing
   "es-419",
   "es-MX",
   "es-AR",
@@ -671,7 +672,7 @@ function addToConstants(languageCode, languageName, flagCode) {
     // Create the new language entry
     const indent = "  ";
     const newEntry = [
-      `${indent}${languageCode}: {`,
+      `${indent}"${languageCode}": {`,
       `${indent}  name: "${languageName}",`,
       `${indent}  flagIconCode: "${flagCode || "XX"}",`,
       `${indent}},`,
