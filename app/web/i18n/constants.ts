@@ -24,6 +24,10 @@ export const LANGUAGE_MAP: LanguageMap = {
     name: "English",
     flagIconCode: "GB",
   },
+  "en-CORP": {
+    name: "American (Corporate)",
+    flagIconCode: "USA",
+  },
   es: {
     name: "Spanish (Spain)",
     flagIconCode: "ES",
