@@ -248,7 +248,7 @@
   "references_filter_a11y_label": "Show references: ",
   "see_more_references": "See more references",
   "write_reference": "Write Reference",
-  "write_host_request_reference": "Write {{type}} Reference",
+  "have_pending_reference_text": "You have a pending reference to write for this user",
   "write_friend_reference": "Write Friend Reference",
   "last_active_false": "Unknown",
   "languages_fluent_false": "Not given",

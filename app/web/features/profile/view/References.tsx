@@ -3,6 +3,7 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Button from "components/Button";
 import { AddIcon } from "components/Icons";
 import { MenuItem } from "components/Menu";
+import StyledLink from "components/StyledLink";
 import { referencesFilterLabels } from "features/profile/constants";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
@@ -11,12 +12,7 @@ import { GLOBAL, PROFILE } from "i18n/namespaces";
 import Link from "next/link";
 import { ReferenceType } from "proto/references_pb";
 import React, { useState } from "react";
-import {
-  hostingRequestsRoute,
-  leaveReferenceBaseRoute,
-  referenceTypeRoute,
-  surfingRequestsRoute,
-} from "routes";
+import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
 import { theme } from "theme";
 
 import { User } from "../../../proto/api_pb";
@@ -45,14 +41,17 @@ const StyledHeaderContainer = styled("div")(({ theme }) => ({
 }));
 
 const StyledButtonContainer = styled("div")(({ theme }) => ({
-  "& > button": {
-    marginInline: theme.spacing(2),
-  },
-  display: "flex",
+  display: "grid",
+  gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
   width: "100%",
-  justifyContent: "space-between",
+  columnGap: theme.spacing(2),
+  justifyItems: "start",
+  alignItems: "start",
   marginInlineEnd: theme.spacing(2),
   marginTop: theme.spacing(1),
+  "& > .MuiButton-root": {
+    justifySelf: "end",
+  },
 }));
 
 export default function References() {
@@ -66,15 +65,8 @@ export default function References() {
 
   // Determine if there are pending host-request references to write, and their type
   // Makes an assumption that there will never be more than one pending host-request reference for this user at a time
-  const pendingHostRequestRefForThisUser =
+  const pendingHostRequestForThisUser =
     availableReferences?.availableWriteReferencesList?.[0];
-  const pendingHostRequestReferenceButtonLabel =
-    pendingHostRequestRefForThisUser?.referenceType ===
-    ReferenceType.REFERENCE_TYPE_SURFED
-      ? t("profile:write_host_request_reference", { type: "Surfer" })
-      : t("profile:write_host_request_reference", {
-          type: "Host",
-        });
 
   const handleChange = (event: SelectChangeEvent<ReferenceTypeState>) => {
     setReferenceType(event.target.value as ReferenceTypeState);
@@ -110,23 +102,13 @@ export default function References() {
         </StyledHeaderContainer>
 
         <StyledButtonContainer>
-          {hasPendingHostRefs &&
-            availableReferences?.availableWriteReferencesList &&
-            availableReferences.availableWriteReferencesList.length > 0 && (
-              <Button
-                component={Link}
-                startIcon={<AddIcon />}
-                href={
-                  pendingHostRequestRefForThisUser?.referenceType ===
-                  ReferenceType.REFERENCE_TYPE_SURFED
-                    ? surfingRequestsRoute
-                    : hostingRequestsRoute
-                }
-                variant="outlined"
-              >
-                {pendingHostRequestReferenceButtonLabel}
-              </Button>
-            )}
+          {hasPendingHostRefs && (
+            <StyledLink
+              href={`${leaveReferenceBaseRoute}/${referenceTypeRoute[pendingHostRequestForThisUser!.referenceType!]}/${userId}/${pendingHostRequestForThisUser?.hostRequestId}`}
+            >
+              {t("profile:have_pending_reference_text")}
+            </StyledLink>
+          )}
           {availableReferences?.canWriteFriendReference &&
             friends === User.FriendshipStatus.FRIENDS && (
               <Button
