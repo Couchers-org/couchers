@@ -24,7 +24,7 @@ City: {{ user.city }}
 |{% for _ in entries[0].keys() %} --- |{% endfor %}
 
 {% for entry in entries %}
-|{% for value in entry.values() %} {{ value | join(', ') if value is iterable else value }} |{% endfor %}
+|{% for value in entry.values() %} {{ value | join(', ') if value is iterable and value is not string else value }} |{% endfor %}
 
 {% endfor %}
 
