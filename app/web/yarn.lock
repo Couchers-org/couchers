@@ -1127,10 +1127,10 @@
     "@emnapi/runtime" "^1.4.3"
     "@tybys/wasm-util" "^0.10.0"
 
-"@next/bundle-analyzer@^15.5.2":
-  version "15.5.2"
-  resolved "https://registry.yarnpkg.com/@next/bundle-analyzer/-/bundle-analyzer-15.5.2.tgz#c18a7fbe8775d7edf437e0a6808959a70c8fa69d"
-  integrity sha512-UWOFpy/NK5iSeIP0mgdq4VqGB4/z37uq5v5dEtvzmY/BlaPO6m4EtFUaH6RVI0w2wG5sh0TG86i/cA5wcaJtgg==
+"@next/bundle-analyzer@^15.5.3":
+  version "15.5.3"
+  resolved "https://registry.yarnpkg.com/@next/bundle-analyzer/-/bundle-analyzer-15.5.3.tgz#6017a4d17cbf668feb4d915223b9c6578f77f509"
+  integrity sha512-l2NxnWHP2gWHbomAlz/wFnN2jNCx/dpr7P/XWeOLhULiyKkXSac8O8SjxRO/8FNhr2l4JNtWVKk82Uya4cZYTw==
   dependencies:
     webpack-bundle-analyzer "4.10.1"
 
