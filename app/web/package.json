@@ -36,7 +36,6 @@
     "@mui/x-date-pickers": "^8.10.0",
     "@sentry/nextjs": "^10.5.0",
     "@sentry/react": "^10.8.0",
-    "@sinclair/typebox": "^0.34.41",
     "@stripe/stripe-js": "^7.8.0",
     "@tanstack/query-async-storage-persister": "^5.85.6",
     "@tanstack/react-query": "^5.85.6",
@@ -71,7 +70,8 @@
     "react-phone-number-input": "^3.4.12",
     "react-simple-maps": "^3.0.0",
     "seamless-scroll-polyfill": "^2.1.8",
-    "sharp": "^0.34.3"
+    "sharp": "^0.34.3",
+    "zod": "^4.1.8"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",

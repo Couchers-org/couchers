@@ -3436,13 +3436,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sinclair/typebox@npm:^0.34.41":
-  version: 0.34.41
-  resolution: "@sinclair/typebox@npm:0.34.41"
-  checksum: 10c0/0fb61fc2f90c25e30b19b0096eb8ab3ccef401d3e2acfce42168ff0ee877ba5981c8243fa6b1035ac756cde95316724e978b2837dd642d7e4e095de03a999c90
-  languageName: node
-  linkType: hard
-
 "@sinonjs/commons@npm:^3.0.0":
   version: 3.0.1
   resolution: "@sinonjs/commons@npm:3.0.1"
@@ -14080,7 +14073,6 @@ __metadata:
     "@sentry/cli": "npm:^2.50.0"
     "@sentry/nextjs": "npm:^10.5.0"
     "@sentry/react": "npm:^10.8.0"
-    "@sinclair/typebox": "npm:^0.34.41"
     "@stripe/stripe-js": "npm:^7.8.0"
     "@stylistic/eslint-plugin": "npm:^5.3.1"
     "@tanstack/query-async-storage-persister": "npm:^5.85.6"
@@ -14164,6 +14156,7 @@ __metadata:
     vitest: "npm:^3.2.4"
     webpack: "npm:^5.101.3"
     whatwg-fetch: "npm:^3.6.20"
+    zod: "npm:^4.1.8"
   languageName: unknown
   linkType: soft
 
@@ -14591,5 +14584,12 @@ __metadata:
   version: 0.1.0
   resolution: "yocto-queue@npm:0.1.0"
   checksum: 10c0/dceb44c28578b31641e13695d200d34ec4ab3966a5729814d5445b194933c096b7ced71494ce53a0e8820685d1d010df8b2422e5bf2cdea7e469d97ffbea306f
+  languageName: node
+  linkType: hard
+
+"zod@npm:^4.1.8":
+  version: 4.1.8
+  resolution: "zod@npm:4.1.8"
+  checksum: 10c0/5eae39da09d7bd0564a30dfd2348811e4e2e7dd15955d8f3444f8e196f35e5422b1482eda234b722fafb0738f4a8b718adb042b860936bfdd2cc19cdbdac8a9a
   languageName: node
   linkType: hard

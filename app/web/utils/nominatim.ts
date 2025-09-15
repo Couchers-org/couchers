@@ -1,8 +1,6 @@
-// import { NominatimPlace } from "./types";
-import { Static, TOptional, TString, Type } from "@sinclair/typebox";
-import { Value } from "@sinclair/typebox/value";
-import { camelCase, snakeCase } from "change-case/keys";
+import { camelCase } from "change-case/keys";
 import { LngLat } from "maplibre-gl";
+import z from "zod";
 
 import { RecursiveSnakeToCamelCase } from "@/utils/types";
 
@@ -44,57 +42,42 @@ const ADDRESS_KEYS = [
   "house_number",
 ] as const;
 
-// const NOMINATIM_URL = process.env.NEXT_PUBLIC_NOMINATIM_URL ?? "";
-
 const CASE_CHANGE_RECURSION_DEPTH = 100;
 
-const nominatimPlaceSchema = Type.Object(
+const nominatimPlaceSchema = z.object(
   /* eslint-disable @typescript-eslint/naming-convention */
   {
-    address: Type.Object(
+    address: z.object(
       ADDRESS_KEYS.reduce(
         (prev, key) => {
-          prev[key] = Type.Optional(Type.String());
+          prev[key] = z.string().optional();
           return prev;
         },
-        {} as Record<(typeof ADDRESS_KEYS)[number], TOptional<TString>>,
+        {} as Record<(typeof ADDRESS_KEYS)[number], z.ZodOptional<z.ZodString>>,
       ),
     ),
 
-    bounding_box: Type.Tuple([
-      Type.Number(),
-      Type.Number(),
-      Type.Number(),
-      Type.Number(),
-    ]),
-    category: Type.Optional(Type.String()),
-    display_name: Type.String(),
-    icon: Type.Optional(Type.String()),
-    lat: Type.String(),
-    lon: Type.String(),
-    importance: Type.Optional(Type.Number()),
-    place_id: Type.Optional(Type.Number()),
+    bounding_box: z.tuple([z.number(), z.number(), z.number(), z.number()]),
+    category: z.string().optional(),
+    display_name: z.string(),
+    icon: z.string().optional(),
+    lat: z.string(),
+    lon: z.string(),
+    importance: z.number().optional(),
+    place_id: z.number().optional(),
     /* eslint-enable @typescript-eslint/naming-convention */
   },
 );
 
-type NominatimPlaceInternal = Static<typeof nominatimPlaceSchema>;
+type NominatimPlaceInternal = z.infer<typeof nominatimPlaceSchema>;
 
 export type NominatimPlace = RecursiveSnakeToCamelCase<NominatimPlaceInternal>;
 
-const nominatimResponseSchema = Type.Array(nominatimPlaceSchema);
-
-const nominatimResponseTransform = Type.Transform(nominatimResponseSchema)
-  .Decode((val) =>
-    val.map(
-      (key) => camelCase(key, CASE_CHANGE_RECURSION_DEPTH) as NominatimPlace,
-    ),
-  )
-  .Encode((val) =>
-    val.map(
-      (key) =>
-        snakeCase(key, CASE_CHANGE_RECURSION_DEPTH) as NominatimPlaceInternal,
-    ),
+const nominatimResponseSchema = z
+  .array(nominatimPlaceSchema)
+  .transform(
+    (input) =>
+      camelCase(input, CASE_CHANGE_RECURSION_DEPTH) as NominatimPlace[],
   );
 
 export const nominatimQuery = async (value: string) => {
@@ -112,10 +95,7 @@ export const nominatimQuery = async (value: string) => {
 
   if (!response.ok) throw Error(await response.text());
 
-  const nominatimResults = Value.Decode(
-    nominatimResponseTransform,
-    Value.Parse(nominatimResponseSchema, await response.json()),
-  );
+  const nominatimResults = nominatimResponseSchema.parse(await response.json());
 
   if (nominatimResults.length === 0) {
     return [];

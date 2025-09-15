@@ -1,10 +1,9 @@
 /* eslint-disable n/no-process-env */
 import bundleAnalyzer from "@next/bundle-analyzer";
 import { withSentryConfig } from "@sentry/nextjs";
-import { Static } from "@sinclair/typebox";
-import { Value } from "@sinclair/typebox/value";
 import { NextConfig } from "next";
 import webpack from "webpack";
+import z from "zod";
 
 import { CamelCaseConfigWithoutPrefix, configUtils } from "./config";
 import nextI18NextConfig from "./next-i18next.config";
@@ -14,7 +13,7 @@ const envVarPrefix = "NEXT_PUBLIC_";
 
 const utils = configUtils(envVarPrefix);
 
-type RawConfig = Static<typeof utils.schema>;
+type RawConfig = z.infer<typeof utils.schema>;
 
 type Config = CamelCaseConfigWithoutPrefix<RawConfig, typeof envVarPrefix>;
 
@@ -23,9 +22,11 @@ declare global {
   const Config: Config;
 }
 
-const parsedEnv = Value.Parse(utils.schema, process.env);
+let stringReplacements: Record<string, string> = {};
 
-const stringReplacements = utils.getStringReplacements(parsedEnv);
+const parsedEnv = utils.schema.parse(process.env);
+
+stringReplacements = utils.getStringReplacements(parsedEnv);
 
 const nextConfig: NextConfig = {
   assetPrefix: process.env.ASSET_PREFIX,
