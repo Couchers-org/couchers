@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { Value } from "@sinclair/typebox/value";
 import type { Config as JestConfig } from "jest";
 import nextJest from "next/jest";
 import { createDefaultPreset } from "ts-jest";
+import z from "zod";
 
 import { configUtils } from "./config";
 
@@ -15,11 +15,33 @@ const envVarPrefix = "NEXT_PUBLIC_";
 
 const utils = configUtils(envVarPrefix);
 
-// eslint-disable-next-line n/no-process-env
-const parsedEnv = Value.Parse(utils.schema, process.env);
+type RawConfig = z.infer<typeof utils.schema>;
 
-const config = {};
-Object.assign(config, utils.getStringReplacements(parsedEnv));
+// eslint-disable-next-line n/no-process-env
+const envVars = process.env;
+
+// TODO(FB) Consider moving to .env file
+const defaultValues: {
+  [K in keyof RawConfig]?: string;
+} = {
+  NODE_ENV: "development",
+  NEXT_PUBLIC_COUCHERS_ENV: "dev",
+  NEXT_PUBLIC_DISPLAY_VERSION: "",
+  NEXT_PUBLIC_STRIPE_KEY: "fake-key",
+  NEXT_PUBLIC_MEDIA_BASE_URL: "localhost",
+  NEXT_PUBLIC_GLOBAL_MESSAGE_URL: "localhost",
+  NEXT_PUBLIC_CONSOLE_BASE_URL: "localhost",
+  NEXT_PUBLIC_NOMINATIM_URL: "localhost",
+};
+
+Object.entries(defaultValues).forEach(([key, value]) => {
+  if (!envVars[key]) {
+    envVars[key] = value;
+  }
+});
+
+// eslint-disable-next-line n/no-process-env
+const parsedEnv = utils.schema.parse(process.env);
 
 const customJestConfig: JestConfig = {
   verbose: true, // Shows detailed test results
@@ -33,7 +55,7 @@ const customJestConfig: JestConfig = {
     "!**/*.coverage/**",
   ],
   globals: {
-    Config: config,
+    Config: utils.getStringReplacements(parsedEnv),
   },
   extensionsToTreatAsEsm: [".ts", ".tsx"],
 

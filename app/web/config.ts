@@ -38,21 +38,11 @@ const envSchema = z.enum(["development", "test", "production"]);
 
 const couchersEnvSchema = z.enum(["dev", "preview", "prod"]);
 
-const dateStringSchema = z
-  .string()
-  .refine((val) => !val || !isNaN(new Date(val).getTime()), {
-    message: "Invalid date time string",
-  })
-  .transform((val) => (val ? new Date(val) : undefined));
-
-const boolStringSchema = z
-  .enum(["true", "false", ""])
-  .transform((value) => value === "true");
-
-// TODO(FB) Fix schema allowing undefined
-const nonEmptyStringSchema = z
-  .string()
-  .transform((val) => (val === "" ? undefined : val));
+const boolStringSchema = z.preprocess((val) => {
+  if (val === "true") return true;
+  if (val === "false") return false;
+  return val;
+}, z.boolean());
 
 /* eslint-disable @typescript-eslint/naming-convention */
 export const configUtils = <const P extends string>(prefix: P) => {
@@ -60,21 +50,21 @@ export const configUtils = <const P extends string>(prefix: P) => {
     NODE_ENV: envSchema,
     ...objectWithPrefixedProperties(
       {
-        API_BASE_URL: nonEmptyStringSchema,
+        API_BASE_URL: z.string(),
         COUCHERS_ENV: couchersEnvSchema,
-        CONSOLE_BASE_URL: nonEmptyStringSchema,
-        DISPLAY_VERSION: nonEmptyStringSchema.default("dev"),
-        COMMIT_TIMESTAMP: dateStringSchema.optional(),
-        COMMIT_SHA: nonEmptyStringSchema.optional(),
-        NOMINATIM_URL: nonEmptyStringSchema,
-        VERSION: nonEmptyStringSchema.optional(),
+        CONSOLE_BASE_URL: z.string(),
+        DISPLAY_VERSION: z.string().default("dev"),
+        COMMIT_TIMESTAMP: z.iso.datetime().optional(),
+        COMMIT_SHA: z.string().optional(),
+        NOMINATIM_URL: z.string(),
+        VERSION: z.string().optional(),
         IS_COMMUNITIES_PART2_ENABLED: boolStringSchema.default(false),
-        RECAPTCHA_SITE_KEY: nonEmptyStringSchema.optional(),
+        RECAPTCHA_SITE_KEY: z.string().optional(),
         IS_VERIFICATION_ENABLED: boolStringSchema.default(false),
-        STRIPE_KEY: nonEmptyStringSchema,
+        STRIPE_KEY: z.string(),
         IS_POST_BETA_ENABLED: boolStringSchema.default(false),
-        MEDIA_BASE_URL: nonEmptyStringSchema,
-        GLOBAL_MESSAGE_URL: nonEmptyStringSchema,
+        MEDIA_BASE_URL: z.string(),
+        GLOBAL_MESSAGE_URL: z.string(),
       },
       prefix,
     ),

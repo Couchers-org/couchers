@@ -24,9 +24,25 @@ declare global {
 
 let stringReplacements: Record<string, string> = {};
 
-const parsedEnv = utils.schema.parse(process.env);
+const isNextJS = !!process.env.NEXT_RUNTIME;
 
-stringReplacements = utils.getStringReplacements(parsedEnv);
+// Only parse env variables if we're running with Next.js, so we don't fail when running tests etc.
+if (isNextJS) {
+  const processedEnvVariables: Record<string, string | undefined> = {};
+
+  Object.entries(process.env).forEach(([key, value]) => {
+    // Treat empty strings as undefined
+    if (value === "") {
+      processedEnvVariables[key] = undefined;
+    } else {
+      processedEnvVariables[key] = value;
+    }
+  });
+
+  const parsedEnv = utils.schema.parse(processedEnvVariables);
+
+  stringReplacements = utils.getStringReplacements(parsedEnv);
+}
 
 const nextConfig: NextConfig = {
   assetPrefix: process.env.ASSET_PREFIX,

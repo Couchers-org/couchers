@@ -19,7 +19,8 @@ ENV NEXT_PUBLIC_COMMIT_SHA=$commit_sha
 ARG commit_timestamp
 ENV NEXT_PUBLIC_COMMIT_TIMESTAMP=$commit_timestamp
 
-COPY package.json yarn.lock ./
+COPY package.json yarn.lock .yarnrc.yml ./
+COPY .yarn/patches .yarn/patches/
 
 RUN corepack enable
 RUN yarn install --immutable
