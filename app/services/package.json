@@ -7,10 +7,10 @@
     "node": "20.x"
   },
   "scripts": {
-    "test": "tsx index.ts",
-    "pb:generate": "buf generate ../proto",
-    "gen": "tsx scripts/generate.ts"
+    "pb:generate": "tsx scripts/generate.ts",
+    "postinstall": "yarn pb:generate"
   },
+  "main": "./generated/index.ts",
   "dependencies": {
     "@connectrpc/connect": "^2.1.0",
     "@connectrpc/connect-web": "^2.1.0",

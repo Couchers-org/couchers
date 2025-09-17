@@ -532,7 +532,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@couchers/services@workspace:services":
+"@couchers/services@workspace:^, @couchers/services@workspace:services":
   version: 0.0.0-use.local
   resolution: "@couchers/services@workspace:services"
   dependencies:
@@ -554,6 +554,7 @@ __metadata:
   resolution: "@couchers/web@workspace:web"
   dependencies:
     "@babel/core": "npm:^7.28.0"
+    "@couchers/services": "workspace:^"
     "@emotion/react": "npm:^11.14.0"
     "@emotion/styled": "npm:^11.14.1"
     "@mui/icons-material": "npm:^7.3.1"

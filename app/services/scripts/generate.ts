@@ -1,15 +1,115 @@
-import { Project } from "ts-morph";
+import { execSync } from "child_process";
+import { readFile, readdir } from "fs/promises";
+import path from "path";
+import { Project, VariableDeclarationKind } from "ts-morph";
+import { fileURLToPath } from "url";
+
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
+
+const protoDir = path.resolve(dirname, "../../proto");
+
+const sourceDir = path.resolve(dirname, "../generated/buf");
+
+const bufBinPath = path.resolve(
+  dirname,
+  "../../node_modules/@bufbuild/buf/bin/buf",
+);
+
+execSync(`${bufBinPath} generate ${protoDir}`);
+
+const files = await readdir(sourceDir, { withFileTypes: true });
 
 const project = new Project();
-const file = project.createSourceFile("output.ts", "", { overwrite: true });
 
-file.addInterface({
-  name: "Person",
-  isExported: true,
-  properties: [
-    { name: "name", type: "string" },
-    { name: "age", type: "number" },
+const file = project.createSourceFile(`generated/index.ts`, "", {
+  overwrite: true,
+});
+
+const services: [string, string][] = [];
+
+await files.reduce<Promise<void>>(async (prev, sourceFile) => {
+  await prev;
+
+  if (sourceFile.isDirectory()) {
+    return;
+  }
+
+  const truncatedFileName = sourceFile.name.slice(0, -6);
+  const fileContent = await readFile(
+    path.resolve(sourceFile.parentPath, sourceFile.name),
+    "utf-8",
+  );
+
+  const namePattern = /export const (.*): GenService<{/;
+  const regexMatch = fileContent.match(namePattern);
+
+  const serviceName = regexMatch?.[1];
+
+  if (!serviceName) {
+    return;
+  }
+
+  services.push([truncatedFileName, serviceName]);
+}, Promise.resolve());
+
+file.addImportDeclarations([
+  {
+    namedImports: ["createClient"],
+    moduleSpecifier: "@connectrpc/connect",
+  },
+  {
+    namedImports: ["createConnectTransport"],
+    moduleSpecifier: "@connectrpc/connect-web",
+  },
+]);
+
+services.forEach(([truncatedFileName, serviceName]) => {
+  file.addImportDeclarations([
+    {
+      namedImports: [
+        serviceName.charAt(0).toUpperCase() + serviceName.slice(1),
+      ],
+      moduleSpecifier: `./buf/${truncatedFileName}_pb`,
+    },
+  ]);
+});
+
+file.addVariableStatement({
+  declarations: [
+    {
+      name: "createServiceClients",
+      initializer: (writer) => {
+        writer
+          .write("(baseUrl: string) => {")
+          .indent(() => {
+            writer.writeLine(
+              `const transport = createConnectTransport({ baseUrl });`,
+            );
+
+            services.forEach(([truncatedFileName, serviceName]) => {
+              writer.writeLine(
+                `const ${truncatedFileName}Client = createClient(${serviceName}, transport)`,
+              );
+            });
+
+            writer
+              .write("return {")
+              .indent(() => {
+                services.forEach(([truncatedFileName]) => {
+                  writer.writeLine(
+                    `${truncatedFileName}: ${truncatedFileName}Client,`,
+                  );
+                });
+              })
+              .write("}");
+          })
+          .write("}");
+      },
+    },
   ],
+  isExported: true,
+  declarationKind: VariableDeclarationKind.Const,
 });
 
 file.saveSync();
