@@ -15,7 +15,8 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "types": ["jest"],
+    "types": ["jest"]
   },
-  "exclude": ["node_modules", ".next", "mobile", "native"],
+  "include": ["web", "services"],
+  "exclude": ["node_modules", ".next", "generated"]
 }

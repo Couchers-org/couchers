@@ -52,7 +52,6 @@ const liteUserMap: Record<string, LiteUser.AsObject> = {
   funnykid: liteUser3,
 };
 
- 
 export const getUser = async (userId: string): Promise<User.AsObject> => {
   return userMap[userId];
 };
@@ -285,7 +284,7 @@ export const getEventAttendees =
     nextPageToken: "",
   });
 
-export const listNotifications = () => notifications;
+export const listNotifications = async () => notifications;
 
 export const getEvents = async (): Promise<EventSearchRes.AsObject> => ({
   eventsList: events,

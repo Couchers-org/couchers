@@ -13,9 +13,13 @@ import unusedImportsPlugin from "eslint-plugin-unused-imports";
 import { defineConfig } from "eslint/config";
 import path from "path";
 import tseslint from "typescript-eslint";
+import { fileURLToPath } from "url";
+
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
 
 const compat = new FlatCompat({
-  baseDirectory: import.meta.dirname,
+  baseDirectory: dirname,
 });
 
 const boolPrefixes = ["is", "should", "has", "can", "did", "will", "does"];
@@ -97,6 +101,8 @@ export default defineConfig([
 
       "./mobile",
       "./native",
+
+      "eslint.config.js",
     ],
   },
   // Next config needs compatibility layer for new ESLint versions
@@ -104,7 +110,7 @@ export default defineConfig([
     extends: ["next/core-web-vitals"],
     settings: {
       next: {
-        rootDir: path.resolve(import.meta.dirname, "./web"),
+        rootDir: path.resolve(dirname, "./web"),
       },
     },
   }),
@@ -117,7 +123,7 @@ export default defineConfig([
       parserOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
-        tsconfigRootDir: import.meta.dirname,
+        tsconfigRootDir: dirname,
         projectService: true,
       },
     },
@@ -126,8 +132,8 @@ export default defineConfig([
         typescript: {
           alwaysTryTypes: true,
           project: [
-            path.resolve(import.meta.dirname, "./tsconfig.json"),
-            path.resolve(import.meta.dirname, "./*/tsconfig.json"),
+            path.resolve(dirname, "./tsconfig.json"),
+            path.resolve(dirname, "./*/tsconfig.json"),
           ],
           noWarnOnMultipleProjects: true,
         },
@@ -251,11 +257,6 @@ export default defineConfig([
       ],
 
       "n/no-process-env": "warn",
-
-      // "@next/next/no-html-link-for-pages": [
-      //   "error",
-      //   path.resolve(import.meta.dirname, "./web/pages/"),
-      // ],
     },
   },
   {

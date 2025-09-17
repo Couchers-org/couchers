@@ -7,10 +7,13 @@
   },
   "type": "module",
   "scripts": {
-    "lint": "yarn workspaces foreach -A run lint"
+    "lint": "yarn workspaces foreach -A run lint",
+    "typecheck": "yarn workspaces foreach -A run typecheck",
+    "tsc": "tsc"
   },
   "workspaces": [
-    "web"
+    "web",
+    "services"
   ],
   "devDependencies": {
     "@stylistic/eslint-plugin": "^5.3.1",

@@ -13,8 +13,8 @@ import CompletePasswordReset from "./CompleteResetPassword";
 const { t } = i18n;
 
 const CompletePasswordResetMock = service.account
-  .CompletePasswordResetV2 as MockedService<
-  typeof service.account.CompletePasswordResetV2
+  .completePasswordResetV2 as MockedService<
+  typeof service.account.completePasswordResetV2
 >;
 
 jest.mock("next/router", () => ({

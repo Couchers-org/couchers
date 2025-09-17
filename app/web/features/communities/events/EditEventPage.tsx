@@ -92,7 +92,7 @@ const EditEventPage = ({ eventId }: { eventId: number }) => {
       });
       await queryClient.invalidateQueries({
         queryKey: [
-          context.parentCommunityId
+          context?.parentCommunityId
             ? [COMMUNITY_EVENTS_BASE_KEY, context.parentCommunityId]
             : COMMUNITY_EVENTS_BASE_KEY,
         ],
