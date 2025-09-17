@@ -2,6 +2,7 @@
 import bundleAnalyzer from "@next/bundle-analyzer";
 import { withSentryConfig } from "@sentry/nextjs";
 import { NextConfig } from "next";
+import path from "path";
 import webpack from "webpack";
 import z from "zod";
 
@@ -63,6 +64,7 @@ const nextConfig: NextConfig = {
     return config;
   },
   i18n: nextI18NextConfig.i18n,
+  outputFileTracingRoot: path.join(__dirname),
   /* eslint-disable @typescript-eslint/require-await */
   redirects: async () => redirects,
   headers: async () => [

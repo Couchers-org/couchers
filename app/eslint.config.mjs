@@ -1,5 +1,6 @@
 import { FlatCompat } from "@eslint/eslintrc";
 import eslint from "@eslint/js";
+import nextPlugin from "@next/eslint-plugin-next";
 import stylisticPlugin from "@stylistic/eslint-plugin";
 import eslintParser from "@typescript-eslint/parser";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
@@ -9,12 +10,9 @@ import nPlugin from "eslint-plugin-n";
 import noRelativeImportPlugin from "eslint-plugin-no-relative-import-paths";
 import reactPlugin from "eslint-plugin-react";
 import unusedImportsPlugin from "eslint-plugin-unused-imports";
-import { dirname } from "path";
+import { defineConfig } from "eslint/config";
+import path from "path";
 import tseslint from "typescript-eslint";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const compat = new FlatCompat({
   baseDirectory: import.meta.dirname,
@@ -75,15 +73,30 @@ const baseNamingConventions = [
   },
 ];
 
-export default tseslint.config([
+export default defineConfig([
   {
     ignores: [
       "node_modules/**/*",
       ".yarn/**/*",
-      "proto/**",
-      ".next/**",
-      "public/service-worker.js",
-      "next-env.d.ts",
+      ".vscode/**/*",
+      ".devcontainer",
+      "./backend",
+      "./client",
+      "./data",
+      "./deployment",
+      "./media",
+      "./nginx",
+      "./prometheus",
+      "./proxy",
+      "./proto",
+      "./test-results",
+      "web/proto/**",
+      "web/.next/**",
+      "web/public/service-worker.js",
+      "web/next-env.d.ts",
+
+      "./mobile",
+      "./native",
     ],
   },
   // Next config needs compatibility layer for new ESLint versions
@@ -91,7 +104,7 @@ export default tseslint.config([
     extends: ["next/core-web-vitals"],
     settings: {
       next: {
-        rootDir: ".",
+        rootDir: path.resolve(import.meta.dirname, "./web"),
       },
     },
   }),
@@ -104,9 +117,20 @@ export default tseslint.config([
       parserOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
-        project: true,
-        tsconfigRootDir: __dirname,
+        tsconfigRootDir: import.meta.dirname,
         projectService: true,
+      },
+    },
+    settings: {
+      "import/resolver": {
+        typescript: {
+          alwaysTryTypes: true,
+          project: [
+            path.resolve(import.meta.dirname, "./tsconfig.json"),
+            path.resolve(import.meta.dirname, "./*/tsconfig.json"),
+          ],
+          noWarnOnMultipleProjects: true,
+        },
       },
     },
     plugins: {
@@ -116,6 +140,7 @@ export default tseslint.config([
       n: nPlugin,
       jest: jestPlugin,
       stylistic: stylisticPlugin,
+      "@next": nextPlugin,
     },
     rules: {
       // Add a space after comments for consistency.
@@ -136,6 +161,7 @@ export default tseslint.config([
 
       "@typescript-eslint/no-unused-vars": "off",
       "unused-imports/no-unused-imports": "warn",
+
       // Unused variables can be prefixed with an underscore to ignore
       // this warning. Use e.g. if you don't need the first parameter(s)
       // of a function
@@ -225,6 +251,11 @@ export default tseslint.config([
       ],
 
       "n/no-process-env": "warn",
+
+      // "@next/next/no-html-link-for-pages": [
+      //   "error",
+      //   path.resolve(import.meta.dirname, "./web/pages/"),
+      // ],
     },
   },
   {
@@ -296,7 +327,7 @@ export default tseslint.config([
   },
   {
     // Be a bit more lenient for tests
-    files: ["**/*.test.{ts,tsx}", "test/**/*"],
+    files: ["**/*.test.{ts,tsx}", "**/*/test/**/*"],
     rules: {
       "@typescript-eslint/no-empty-function": "off",
       "@typescript-eslint/ban-ts-comment": "off",
@@ -308,14 +339,8 @@ export default tseslint.config([
       "@typescript-eslint/no-unsafe-return": "off",
       "@typescript-eslint/require-await": "off",
 
-      "@typescript-eslint/naming-convention": [
-        "off",
-        {
-          selector: "property",
-          format: null,
-        },
-        ...baseNamingConventions,
-      ],
+      // TODO(FB) Enforce some naming conventions in tests
+      "@typescript-eslint/naming-convention": ["off"],
     },
   },
   eslintConfigPrettier,

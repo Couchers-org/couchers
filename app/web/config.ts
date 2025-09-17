@@ -57,7 +57,7 @@ export const configUtils = <const P extends string>(prefix: P) => {
         COMMIT_TIMESTAMP: z.iso.datetime().optional(),
         COMMIT_SHA: z.string().optional(),
         NOMINATIM_URL: z.string(),
-        VERSION: z.string().optional(),
+        VERSION: z.string().default("unknown"),
         IS_COMMUNITIES_PART2_ENABLED: boolStringSchema.default(false),
         RECAPTCHA_SITE_KEY: z.string().optional(),
         IS_VERIFICATION_ENABLED: boolStringSchema.default(false),

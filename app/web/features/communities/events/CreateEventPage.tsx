@@ -69,7 +69,7 @@ const CreateEventPage = () => {
           endTime: finalEndDate,
           // TODO: not hardcode this and allow user to specify community ID?
           parentCommunityId: 1,
-          link: data.link ?? "",
+          link: data.link,
         };
       } else {
         createEventInput = {
@@ -96,7 +96,7 @@ const CreateEventPage = () => {
     onSuccess: async (event, _, context) => {
       await queryClient.invalidateQueries({
         queryKey: [
-          context.parentCommunityId
+          context?.parentCommunityId
             ? [COMMUNITY_EVENTS_BASE_KEY, context.parentCommunityId]
             : COMMUNITY_EVENTS_BASE_KEY,
         ],
