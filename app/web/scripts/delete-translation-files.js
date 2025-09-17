@@ -146,6 +146,38 @@ function removeFromNativeAllLanguages(languageCode) {
   }
 }
 
+function removeFromResourceLanguageNames(languageCode) {
+  const resourcesEnPath = path.join(
+    __dirname,
+    "..",
+    "resources",
+    "locales",
+    "en.json",
+  );
+
+  try {
+    const raw = fs.readFileSync(resourcesEnPath, "utf8");
+    const json = JSON.parse(raw);
+
+    if (!json.language_names || !json.language_names[languageCode]) {
+      console.log(
+        `⚠️  language_names does not contain "${languageCode}" in resources en.json`,
+      );
+      return false;
+    }
+
+    delete json.language_names[languageCode];
+    fs.writeFileSync(resourcesEnPath, JSON.stringify(json, null, 2) + "\n");
+    console.log(`✅ Removed "${languageCode}" from resources language_names`);
+    return true;
+  } catch (error) {
+    console.error(
+      `❌ Failed to update resources language_names: ${error.message}`,
+    );
+    return false;
+  }
+}
+
 function main() {
   try {
     const languageCode = process.argv[2];
@@ -189,9 +221,16 @@ function main() {
 
     // Remove from native allLanguages.js
     const removedFromNative = removeFromNativeAllLanguages(languageCode);
+    const removedFromResourceNames =
+      removeFromResourceLanguageNames(languageCode);
 
     console.log("\n📋 Summary:");
-    if (removedFromAllLanguages && removedFromConstants && removedFromNative) {
+    if (
+      removedFromAllLanguages &&
+      removedFromConstants &&
+      removedFromNative &&
+      removedFromResourceNames
+    ) {
       console.log("✅ Language successfully removed from translation system!");
     } else {
       console.log(
