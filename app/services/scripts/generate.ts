@@ -55,8 +55,8 @@ await files.reduce<Promise<void>>(async (prev, sourceFile) => {
 
 file.addImportDeclarations([
   {
-    namedImports: ["createClient"],
-    moduleSpecifier: "@connectrpc/connect",
+    defaultImport: "createClient",
+    moduleSpecifier: "../client",
   },
   {
     namedImports: ["createConnectTransport"],

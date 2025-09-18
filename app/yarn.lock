@@ -478,7 +478,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@bufbuild/protobuf@npm:2.8.0":
+"@bufbuild/protobuf@npm:2.8.0, @bufbuild/protobuf@npm:^2.8.0":
   version: 2.8.0
   resolution: "@bufbuild/protobuf@npm:2.8.0"
   checksum: 10c0/970faf0b58fd10c3c650224fda51f471b0f2005222fb33b43e6f8894478bc905b5a3bc0577cd7539afd7d2493fa6a6e588b89e67bdabd2750acf26cb40da237f
@@ -537,6 +537,7 @@ __metadata:
   resolution: "@couchers/services@workspace:services"
   dependencies:
     "@bufbuild/buf": "npm:^1.57.2"
+    "@bufbuild/protobuf": "npm:^2.8.0"
     "@bufbuild/protoc-gen-es": "npm:^2.8.0"
     "@connectrpc/connect": "npm:^2.1.0"
     "@connectrpc/connect-web": "npm:^2.1.0"
