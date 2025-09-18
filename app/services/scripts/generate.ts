@@ -56,7 +56,11 @@ await files.reduce<Promise<void>>(async (prev, sourceFile) => {
 file.addImportDeclarations([
   {
     defaultImport: "createClient",
-    moduleSpecifier: "../client",
+    moduleSpecifier: "@/client",
+  },
+  {
+    namedImports: ["UnauthenticatedCallback", "createAuthInterceptor"],
+    moduleSpecifier: "@/authInterceptor",
   },
   {
     namedImports: ["createConnectTransport"],
@@ -81,10 +85,16 @@ file.addVariableStatement({
       name: "createServiceClients",
       initializer: (writer) => {
         writer
-          .write("(baseUrl: string) => {")
+          .write(
+            "(baseUrl: string, unauthenticatedCallback: UnauthenticatedCallback, defaultTimeoutMs: number | undefined = undefined) => {",
+          )
           .indent(() => {
             writer.writeLine(
-              `const transport = createConnectTransport({ baseUrl });`,
+              `const authInterceptor = createAuthInterceptor(unauthenticatedCallback);`,
+            );
+
+            writer.writeLine(
+              `const transport = createConnectTransport({ baseUrl, defaultTimeoutMs, interceptors: [authInterceptor] });`,
             );
 
             services.forEach(([truncatedFileName, serviceName]) => {

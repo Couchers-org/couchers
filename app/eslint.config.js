@@ -11,12 +11,19 @@ import noRelativeImportPlugin from "eslint-plugin-no-relative-import-paths";
 import reactPlugin from "eslint-plugin-react";
 import unusedImportsPlugin from "eslint-plugin-unused-imports";
 import { defineConfig } from "eslint/config";
+import fs from "fs";
 import path from "path";
 import tseslint from "typescript-eslint";
 import { fileURLToPath } from "url";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
+
+const pkgPath = path.resolve(process.cwd(), "package.json");
+const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+
+/** @type {string[]} */
+const workspaces = Array.isArray(pkg.workspaces) ? pkg.workspaces : [];
 
 const compat = new FlatCompat({
   baseDirectory: dirname,
@@ -212,15 +219,6 @@ export default defineConfig([
           ],
         },
       ],
-      // Force absolute imports except from same folder
-      "no-relative-import-paths/no-relative-import-paths": [
-        "warn",
-        {
-          allowSameFolder: true,
-          prefix: "@",
-        },
-      ],
-
       "object-shorthand": "warn",
 
       "no-useless-rename": "warn",
@@ -259,6 +257,20 @@ export default defineConfig([
       "n/no-process-env": "warn",
     },
   },
+  ...workspaces.map((workspace) => ({
+    files: [`${workspace}/**/*.{ts,tsx}`],
+    rules: {
+      // Force absolute imports except from same folder
+      "no-relative-import-paths/no-relative-import-paths": [
+        "warn",
+        {
+          allowSameFolder: true,
+          rootDir: workspace,
+          prefix: "@",
+        },
+      ],
+    },
+  })),
   {
     // Naming conventions
     // Stylistic rule that isn't handled by prettier
