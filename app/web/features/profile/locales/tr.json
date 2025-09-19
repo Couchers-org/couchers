@@ -1,2 +1,20 @@
 {
+  "actions": {
+    "back_to_dashboard": "Göstergeye geri dön",
+    "message_label": "Mesaj",
+    "accept_friend_label": "Kabul et",
+    "decline_friend_label": "Reddet",
+    "request": "İstek"
+  },
+  "heading": {
+    "about_me": "Benim hakkımda",
+    "age_gender": "Yaş / Cinsiyet",
+    "community_standing": "Topluluk İtibarı",
+    "edit": "Düzenle",
+    "edit_profile": "Profili düzenle",
+    "education": "Eğitim",
+    "home": "Evim"
+  },
+  "active": "Aktif",
+  "my_connections": "Kişilerim"
 }
