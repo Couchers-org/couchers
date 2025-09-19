@@ -765,11 +765,11 @@ def test_WriteHostRequestReference_private_text(db, push_collector):
     )
 
 
-def test_HasGivenHostRequestReference(db):
+def test_GetHostRequestReferenceStatus(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    # user1 writes; RPC returns True
+    # user1 writes; RPC returns has_given True
     with session_scope() as session:
         hr1 = create_host_request(session, user1.id, user2.id, timedelta(days=7))
     with references_session(token1) as api:
@@ -778,14 +778,14 @@ def test_HasGivenHostRequestReference(db):
                 host_request_id=hr1, text="Great stay!", was_appropriate=True, rating=0.9
             )
         )
-        res = api.HasGivenHostRequestReference(references_pb2.HasGivenHostRequestReferenceReq(host_request_id=hr1))
+        res = api.GetHostRequestReferenceStatus(references_pb2.GetHostRequestReferenceStatusReq(host_request_id=hr1))
         assert res.has_given is True
 
     # false: no reference written yet
     with session_scope() as session:
         hr2 = create_host_request(session, user1.id, user2.id, timedelta(days=7))
     with references_session(token1) as api:
-        res = api.HasGivenHostRequestReference(references_pb2.HasGivenHostRequestReferenceReq(host_request_id=hr2))
+        res = api.GetHostRequestReferenceStatus(references_pb2.GetHostRequestReferenceStatusReq(host_request_id=hr2))
         assert res.has_given is False
 
     # false: other user wrote a reference
@@ -798,13 +798,56 @@ def test_HasGivenHostRequestReference(db):
             )
         )
     with references_session(token1) as api:
-        res = api.HasGivenHostRequestReference(references_pb2.HasGivenHostRequestReferenceReq(host_request_id=hr3))
+        res = api.GetHostRequestReferenceStatus(references_pb2.GetHostRequestReferenceStatusReq(host_request_id=hr3))
         assert res.has_given is False
 
     # false: nonexistent host request id
     with references_session(token1) as api:
-        res = api.HasGivenHostRequestReference(references_pb2.HasGivenHostRequestReferenceReq(host_request_id=999999))
+        res = api.GetHostRequestReferenceStatus(references_pb2.GetHostRequestReferenceStatusReq(host_request_id=999999))
         assert res.has_given is False
+
+    # Additional status flags
+    with session_scope() as session:
+        # expired (too old)
+        hr_expired = create_host_request(session, user2.id, user1.id, timedelta(days=20))
+        # current user (host) indicated didn't meet up
+        hr_didnt_stay_host = create_host_request(
+            session, user2.id, user1.id, timedelta(days=10), host_reason_didnt_meetup=""
+        )
+        # other user (surfer) indicated didn't meet up
+        hr_other_didnt_stay = create_host_request(
+            session, user2.id, user1.id, timedelta(days=10), surfer_reason_didnt_meetup="No show"
+        )
+
+    # expired: is_expired true, can_write false, didnt_stay false
+    with references_session(token1) as api:
+        res = api.GetHostRequestReferenceStatus(
+            references_pb2.GetHostRequestReferenceStatusReq(host_request_id=hr_expired)
+        )
+        assert res.has_given is False
+        assert res.is_expired is True
+        assert res.can_write is False
+        assert res.didnt_stay is False
+
+    # current user indicated didn't meet up: didnt_stay true, can_write false, not expired
+    with references_session(token1) as api:
+        res = api.GetHostRequestReferenceStatus(
+            references_pb2.GetHostRequestReferenceStatusReq(host_request_id=hr_didnt_stay_host)
+        )
+        assert res.has_given is False
+        assert res.is_expired is False
+        assert res.didnt_stay is True
+        assert res.can_write is False
+
+    # other party indicated didn't meet up: didnt_stay false, can_write true (within window), not expired
+    with references_session(token1) as api:
+        res = api.GetHostRequestReferenceStatus(
+            references_pb2.GetHostRequestReferenceStatusReq(host_request_id=hr_other_didnt_stay)
+        )
+        assert res.has_given is False
+        assert res.is_expired is False
+        assert res.didnt_stay is False
+        assert res.can_write is True
 
 
 def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):

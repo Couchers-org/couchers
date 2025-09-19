@@ -5,7 +5,7 @@ import {
   within,
 } from "@testing-library/react";
 import mockRouter from "next-router-mock";
-import { HasGivenHostRequestReferenceRes } from "proto/references_pb";
+import { GetHostRequestReferenceStatusRes } from "proto/references_pb";
 import { leaveReferenceBaseRoute, ReferenceStep } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
@@ -24,9 +24,9 @@ const getAvailableReferencesMock = service.references
 const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
 >;
-const hasGivenMock = service.references
-  .hasGivenHostRequestReference as unknown as jest.MockedFunction<
-  (hostRequestId: number) => Promise<HasGivenHostRequestReferenceRes.AsObject>
+const getHostRequestReferenceStatusMock = service.references
+  .getHostRequestReferenceStatus as unknown as jest.MockedFunction<
+  (hostRequestId: number) => Promise<GetHostRequestReferenceStatusRes.AsObject>
 >;
 
 function renderLeaveFriendReferencePage(
@@ -87,7 +87,12 @@ describe("LeaveReferencePage", () => {
   beforeEach(() => {
     getUserMock.mockImplementation(getUser);
     getAvailableReferencesMock.mockImplementation(getAvailableReferences);
-    hasGivenMock.mockResolvedValue({ hasGiven: false });
+    getHostRequestReferenceStatusMock.mockResolvedValue({
+      hasGiven: false,
+      canWrite: false,
+      isExpired: false,
+      didntStay: false,
+    });
   });
 
   describe("When the reference type is invalid", () => {
@@ -246,10 +251,15 @@ describe("LeaveReferencePage", () => {
     });
   });
 
-  describe("hasGivenHostRequestReference", () => {
+  describe("getHostRequestReferenceStatus", () => {
     describe("hasGivenHostRequestReference returns true", () => {
       beforeEach(() => {
-        hasGivenMock.mockResolvedValue({ hasGiven: true });
+        getHostRequestReferenceStatusMock.mockResolvedValue({
+          hasGiven: true,
+          canWrite: false,
+          isExpired: false,
+          didntStay: false,
+        });
         // Ensure available references don't interfere
         getAvailableReferencesMock.mockResolvedValue({
           canWriteFriendReference: false,
@@ -258,9 +268,9 @@ describe("LeaveReferencePage", () => {
         renderLeaveRequestReferencePage("hosted", 5, 1);
       });
 
-      it("calls hasGivenHostRequestReference with hostRequestId", async () => {
-        expect(hasGivenMock).toHaveBeenCalledTimes(1);
-        expect(hasGivenMock).toHaveBeenCalledWith(1);
+      it("calls getHostRequestReferenceStatus with hostRequestId", async () => {
+        expect(getHostRequestReferenceStatusMock).toHaveBeenCalledTimes(1);
+        expect(getHostRequestReferenceStatusMock).toHaveBeenCalledWith(1);
       });
 
       it("shows the already-wrote info alert and hides the form", async () => {
@@ -277,9 +287,14 @@ describe("LeaveReferencePage", () => {
       });
     });
 
-    describe("hasGivenHostRequestReference returns false", () => {
+    describe("getHostRequestReferenceStatus returns false", () => {
       beforeEach(() => {
-        hasGivenMock.mockResolvedValue({ hasGiven: false });
+        getHostRequestReferenceStatusMock.mockResolvedValue({
+          hasGiven: false,
+          canWrite: false,
+          isExpired: false,
+          didntStay: false,
+        });
         renderLeaveRequestReferencePage("hosted", 5, 1);
       });
 

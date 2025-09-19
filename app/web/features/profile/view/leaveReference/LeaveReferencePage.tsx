@@ -60,10 +60,10 @@ export default function LeaveReferencePage({
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const { data: hasGivenRes } = useQuery({
+  const { data: statusRes } = useQuery({
     queryKey: [hasGivenHostRequestReferenceKey, hostRequestId],
     queryFn: () =>
-      service.references.hasGivenHostRequestReference(hostRequestId!),
+      service.references.getHostRequestReferenceStatus(hostRequestId!),
     enabled: !!hostRequestId,
   });
 
@@ -124,12 +124,31 @@ export default function LeaveReferencePage({
     );
   }
 
-  const alreadyWroteThisStay = !!hostRequestId && !!hasGivenRes?.hasGiven;
+  const alreadyWroteThisStay = !!hostRequestId && !!statusRes?.hasGiven;
+
+  const isExpired = !!hostRequestId && !!statusRes && statusRes.isExpired;
+  const didntStay = !!hostRequestId && !!statusRes && statusRes.didntStay;
 
   if (alreadyWroteThisStay) {
     return (
       <Alert severity="info">
         {t("profile:leave_reference.already_wrote_reference_for_stay")}
+      </Alert>
+    );
+  }
+
+  if (!!hostRequestId && didntStay) {
+    return (
+      <Alert severity="error">
+        {t("profile:leave_reference.cant_write_reference_didnt_stay")}
+      </Alert>
+    );
+  }
+
+  if (!!hostRequestId && isExpired) {
+    return (
+      <Alert severity="error">
+        {t("profile:leave_reference.cant_write_reference_expired")}
       </Alert>
     );
   }

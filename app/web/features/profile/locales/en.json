@@ -188,6 +188,8 @@
     "reason_didnt_meetup": "Why didn't you meet up? (Optional)",
     "reference_submit_heading": "Please review your reference",
     "reference_type_not_available": "This reference type is not available for this user.",
+    "cant_write_reference_didnt_stay": "You cannot write a reference as you indicated you didn't stay with this user.",
+    "cant_write_reference_expired": "The time to write a reference has passed (after 14 days).",
     "required": "This step is required.",
     "text_explanation": "Leave a reference and let people know how your experience was with this person. This will help others know what to expect with this person in the future.",
     "text_explanation_hosted_surfed": "The reference you type below will be shared with {{name}} after they write a reference for you, or after 14 days. It will also be visible for the rest of the Couchers.org community to see.",
