@@ -1,2 +1,17 @@
 {
+  "no_friends": "Arkadaş yok",
+  "add_friend": "Arkadaş ekle",
+  "blocked_list_title": "Engelli kullanıcılar",
+  "block_user": "Kullanıcıyı engelle",
+  "block_user_confirmation_dialog": {
+    "title": "{{name}}'yı engellemek istediğine emin misin?",
+    "message": "Bu kullanıcıdan gelecek mesaj ve istekler engellenecek, senin profilin, etkinliklerin ve yorumların bu kişiye görünmeyecek. Onu engellediğin hakkında bilgilendirilmeyecekler.",
+    "confirm": "Engelle"
+  },
+  "my_connections": "Kişilerim",
+  "friends": "Arkadaşlar",
+  "friend_list_title": "Arkadaşların",
+  "friend_requests": "Arkadaş istekleri",
+  "friend_requests_sent": "Yolladığın arkadaşlık istekleri",
+  "no_blocked_users": "Engelli kullanıcı yok"
 }

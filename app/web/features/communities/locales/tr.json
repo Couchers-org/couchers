@@ -1,2 +1,19 @@
 {
+  "show_cancelled_events": "İptal olmuş etkinlikleri göster",
+  "cancel_event_success_message": "Bu etkinlik başarılı bir şekilde iptal edildi.",
+  "cancel_event_dialog": {
+    "title": "Etkinliği iptal et?",
+    "message": "Bu etkinliği iptal etmek istediğine emin misin?"
+  },
+  "invite_community_dialog": {
+    "title": "Bu etkinlik için bir topluluk daveti iste",
+    "toast_success": "Teşekkürler, isteğin alındı",
+    "link": "Bu özellik hakkında daha fazla bilgi",
+    "message": "Bu etkinliği çevredeki tüm kullanıcılara duyuracak bir bildirim yollamaları için modaretörlerden bu formla istekte bulun."
+  },
+  "invite_community_dialog_buttons": {
+    "open": "Topluluğu davet et"
+  },
+  "cancelled": "İptal edildi",
+  "cancel_event": "Etkinliği iptal et"
 }
