@@ -88,6 +88,6 @@ const PendingFriendReqButton = ({
       )}
     </>
   );
-}
+};
 
 export default PendingFriendReqButton;

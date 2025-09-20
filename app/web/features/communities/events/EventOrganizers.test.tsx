@@ -164,11 +164,11 @@ describe("Event organizers", () => {
         }),
       );
 
-      await waitFor(() =>
-        { expect(
+      await waitFor(() => {
+        expect(
           dialog.queryByTestId(USER_TITLE_SKELETON_TEST_ID),
-        ).not.toBeInTheDocument(); },
-      );
+        ).not.toBeInTheDocument();
+      });
     });
 
     it("should show an error alert in the dialog if getting attendees failed", async () => {
@@ -202,13 +202,13 @@ describe("Event organizers", () => {
         screen.getByRole("dialog", { name: t("communities:organizers") }),
       );
 
-      await waitFor(() =>
-        { expect(
+      await waitFor(() => {
+        expect(
           screen.queryByRole("button", {
             name: t("communities:load_more_organizers"),
           }),
-        ).not.toBeInTheDocument(); },
-      );
+        ).not.toBeInTheDocument();
+      });
     });
 
     it("should remove user as organizer on menu option click", async () => {

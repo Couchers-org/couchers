@@ -35,6 +35,6 @@ const FriendSummaryView = ({
       </StyledFriendItem>
     </>
   ) : null;
-}
+};
 
 export default FriendSummaryView;

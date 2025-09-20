@@ -1,3 +1,4 @@
+import { GetTermsOfServiceRes } from "@couchers/services/generated/bufbuild/resources_pb";
 import { styled } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
@@ -9,8 +10,7 @@ import PageTitle from "@/components/PageTitle";
 import { TOS_QUERY_KEY } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { GLOBAL } from "@/i18n/namespaces";
-import { GetTermsOfServiceRes } from "@/proto/resources_pb";
-import { service } from "@/service";
+import serviceClients from "@/serviceClients";
 
 const StyledWrapper = styled("div")(({ theme }) => ({
   maxWidth: theme.breakpoints.values.lg,
@@ -20,12 +20,9 @@ const StyledWrapper = styled("div")(({ theme }) => ({
 
 const TOS = () => {
   const { t } = useTranslation(GLOBAL);
-  const { data, error, isLoading } = useQuery<
-    GetTermsOfServiceRes.AsObject,
-    RpcError
-  >({
+  const { data, error, isLoading } = useQuery<GetTermsOfServiceRes, RpcError>({
     queryKey: [TOS_QUERY_KEY],
-    queryFn: () => service.resources.getTermsOfService(),
+    queryFn: () => serviceClients.resources.getTermsOfService({}),
   });
 
   if (error) {

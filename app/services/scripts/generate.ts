@@ -9,7 +9,7 @@ const dirname = path.dirname(filename);
 
 const protoDir = path.resolve(dirname, "../../proto");
 
-const sourceDir = path.resolve(dirname, "../generated/buf");
+const sourceDir = path.resolve(dirname, "../generated/bufbuild");
 
 const bufBinPath = path.resolve(
   dirname,
@@ -56,11 +56,11 @@ await files.reduce<Promise<void>>(async (prev, sourceFile) => {
 file.addImportDeclarations([
   {
     defaultImport: "createClient",
-    moduleSpecifier: "@/client",
+    moduleSpecifier: "../client",
   },
   {
     namedImports: ["UnauthenticatedCallback", "createAuthInterceptor"],
-    moduleSpecifier: "@/authInterceptor",
+    moduleSpecifier: "../authInterceptor",
   },
   {
     namedImports: ["createConnectTransport"],
@@ -71,10 +71,14 @@ file.addImportDeclarations([
 services.forEach(([truncatedFileName, serviceName]) => {
   file.addImportDeclarations([
     {
-      namedImports: [
+      // "defaultImport":
+      namespaceImport:
         serviceName.charAt(0).toUpperCase() + serviceName.slice(1),
-      ],
-      moduleSpecifier: `./buf/${truncatedFileName}_pb`,
+      // namedImports: [
+      //   serviceName.charAt(0).toUpperCase() + serviceName.slice(1),
+      // ],
+
+      moduleSpecifier: `./bufbuild/${truncatedFileName}_pb`,
     },
   ]);
 });
@@ -99,7 +103,7 @@ file.addVariableStatement({
 
             services.forEach(([truncatedFileName, serviceName]) => {
               writer.writeLine(
-                `const ${truncatedFileName}Client = createClient(${serviceName}, transport)`,
+                `const ${truncatedFileName}Client = createClient(${serviceName}.${serviceName}, transport)`,
               );
             });
 
@@ -122,4 +126,25 @@ file.addVariableStatement({
   declarationKind: VariableDeclarationKind.Const,
 });
 
+file.addExportDeclaration({
+  namedExports: services.map(([_, serviceName]) => serviceName),
+});
+
+// services.forEach(([truncatedFileName, serviceName]) => {
+//   file.addStatements(
+//     `export * as ${serviceName} from "./bufbuild/${truncatedFileName}_pb"`,
+//   );
+// });
+
 file.saveSync();
+
+// services.forEach(([truncatedFileName, serviceName]) => {
+//   file.addImportDeclarations([
+//     {
+//       namedImports: [
+//         serviceName.charAt(0).toUpperCase() + serviceName.slice(1),
+//       ],
+//       moduleSpecifier: `./bufbuild/${truncatedFileName}_pb`,
+//     },
+//   ]);
+// });

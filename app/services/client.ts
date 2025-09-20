@@ -20,7 +20,7 @@ type ArgMessageShape<Desc extends DescMessage> = {
 };
 
 // The default client doesn't enforce sending required parameters, so we create our own type that does
-type Client<Desc extends DescService> = {
+export type Client<Desc extends DescService> = {
   [P in keyof Desc["method"]]: Desc["method"][P] extends DescMethodUnary<
     infer I,
     infer O

@@ -47,6 +47,6 @@ const FriendList = ({
       </FriendTile>
     </>
   );
-}
+};
 
 export default FriendList;

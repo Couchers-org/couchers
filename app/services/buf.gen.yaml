@@ -1,6 +1,8 @@
 version: v2
 plugins:
   - local: protoc-gen-es
-    out: generated/buf
+    out: generated/bufbuild
     include_imports: true
-    opt: target=ts
+    opt:
+      - target=ts
+      - valid_types=protovalidate_required

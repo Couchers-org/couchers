@@ -257,7 +257,9 @@ export default defineConfig([
       "n/no-process-env": "warn",
     },
   },
-  ...workspaces.map((workspace) => ({
+  // Add all workspaces that don't get referenced by other workspaces here, to enable
+  // absolute imports with @/ prefix
+  ...["web"].map((workspace) => ({
     files: [`${workspace}/**/*.{ts,tsx}`],
     rules: {
       // Force absolute imports except from same folder

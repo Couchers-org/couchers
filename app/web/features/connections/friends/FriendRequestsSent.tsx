@@ -48,7 +48,7 @@ const CancelFriendRequestAction = ({
       )}
     </Box>
   ) : null;
-}
+};
 
 const FriendRequestsSent = () => {
   const isMounted = useIsMounted();
@@ -79,6 +79,6 @@ const FriendRequestsSent = () => {
         ))}
     </FriendTile>
   );
-}
+};
 
 export default FriendRequestsSent;

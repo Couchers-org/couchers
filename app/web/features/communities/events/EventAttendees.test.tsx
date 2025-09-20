@@ -168,11 +168,11 @@ describe("Event attendees", () => {
         }),
       );
 
-      await waitFor(() =>
-        { expect(
+      await waitFor(() => {
+        expect(
           dialog.queryByTestId(USER_TITLE_SKELETON_TEST_ID),
-        ).not.toBeInTheDocument(); },
-      );
+        ).not.toBeInTheDocument();
+      });
     });
 
     it("should show an error alert in the dialog if getting attendees failed", async () => {

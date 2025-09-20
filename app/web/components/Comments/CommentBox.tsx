@@ -8,8 +8,8 @@ import NewComment from "@/components/Comments/NewComment";
 import Markdown from "@/components/Markdown";
 import log from "@/log";
 import { Reply } from "@/proto/threads_pb";
-import { service } from "@/service";
 import isGrpcError from "@/service/utils/isGrpcError";
+import serviceClients from "@/serviceClients";
 
 interface CommentBoxProps {
   threadId: number;
@@ -40,7 +40,9 @@ const CommentBox = ({ threadId }: CommentBoxProps) => {
     void (async () => {
       setIsLoading(true);
       try {
-        const thread = await service.threads.getThread(threadId);
+        const thread = await serviceClients.threads.getThread({
+          threadId: BigInt(threadId),
+        });
         setComments(
           await Promise.all(
             thread.repliesList.map(async (reply) => {
@@ -48,7 +50,7 @@ const CommentBox = ({ threadId }: CommentBoxProps) => {
                 ...reply,
                 replies:
                   reply.numReplies > 0
-                    ? (await service.threads.getThread(reply.threadId))
+                    ? (await serviceClients.threads.getThread(reply.threadId))
                         .repliesList
                     : [],
               };
@@ -64,10 +66,11 @@ const CommentBox = ({ threadId }: CommentBoxProps) => {
   }, [t, threadId]);
 
   const handleComment = async (threadId: number, content: string) => {
-    await service.threads.postReply(threadId, content);
+    await serviceClients.threads.postReply(threadId, content);
     setIsLoading(true);
     try {
-      const thread = await service.threads.getThread(threadId);
+      const thread = await serviceClients.threads.getThread(threadId);
+
       setComments(
         await Promise.all(
           thread.repliesList.map(async (reply) => {
@@ -75,7 +78,7 @@ const CommentBox = ({ threadId }: CommentBoxProps) => {
               ...reply,
               replies:
                 reply.numReplies > 0
-                  ? (await service.threads.getThread(reply.threadId))
+                  ? (await serviceClients.threads.getThread(reply.threadId))
                       .repliesList
                   : [],
             };

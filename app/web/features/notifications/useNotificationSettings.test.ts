@@ -52,11 +52,11 @@ describe("useNotificationSettings", () => {
 
     await waitFor(() => result.current.isSuccess);
 
-    await waitFor(() =>
-      { expect(
+    await waitFor(() => {
+      expect(
         service.notifications.getNotificationSettings,
-      ).toHaveBeenCalledTimes(1); },
-    );
+      ).toHaveBeenCalledTimes(1);
+    });
     expect(result.current.data).toEqual(mockData);
   });
 
@@ -72,11 +72,11 @@ describe("useNotificationSettings", () => {
 
     await waitFor(() => result.current.isError);
 
-    await waitFor(() =>
-      { expect(
+    await waitFor(() => {
+      expect(
         service.notifications.getNotificationSettings,
-      ).toHaveBeenCalledTimes(1); },
-    );
+      ).toHaveBeenCalledTimes(1);
+    });
 
     expect(result.current.error).toEqual(mockError);
   });

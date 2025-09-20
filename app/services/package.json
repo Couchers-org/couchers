@@ -7,10 +7,11 @@
     "node": "20.x"
   },
   "scripts": {
+    "lint": "eslint .",
     "pb:generate": "tsx scripts/generate.ts",
     "postinstall": "yarn pb:generate"
   },
-  "main": "./generated/index.ts",
+  "main": "./index.ts",
   "dependencies": {
     "@connectrpc/connect": "^2.1.0",
     "@connectrpc/connect-web": "^2.1.0",

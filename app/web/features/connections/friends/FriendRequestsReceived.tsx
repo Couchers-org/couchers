@@ -63,7 +63,7 @@ const RespondToFriendRequestAction = ({
       )}
     </Box>
   ) : null;
-}
+};
 
 const FriendRequestsReceived = () => {
   const isMounted = useIsMounted();
@@ -95,6 +95,6 @@ const FriendRequestsReceived = () => {
         ))}
     </FriendTile>
   );
-}
+};
 
 export default FriendRequestsReceived;

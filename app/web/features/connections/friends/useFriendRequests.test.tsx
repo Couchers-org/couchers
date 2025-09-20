@@ -80,7 +80,9 @@ describe("when the listFriendRequests succeeds", () => {
   it("returns the friend requests sent if 'Sent' is passed to the hook", async () => {
     const { result } = renderHook(() => useFriendRequests("sent"), { wrapper });
 
-    await waitFor(() => { expect(getLiteUsersMock).toHaveBeenCalledTimes(1); });
+    await waitFor(() => {
+      expect(getLiteUsersMock).toHaveBeenCalledTimes(1);
+    });
     expect(result.current).toEqual({
       data: [
         {
@@ -101,7 +103,9 @@ describe("when the listFriendRequests succeeds", () => {
     const { result } = renderHook(() => useFriendRequests("received"), {
       wrapper,
     });
-    await waitFor(() => { expect(getLiteUsersMock).toHaveBeenCalledTimes(1); });
+    await waitFor(() => {
+      expect(getLiteUsersMock).toHaveBeenCalledTimes(1);
+    });
     expect(result.current).toEqual({
       data: [
         {
@@ -138,14 +142,14 @@ describe("when the listFriendRequests succeeds", () => {
       },
     );
 
-    await waitFor(() =>
-      { expect(receivedRequests.current).toEqual({
+    await waitFor(() => {
+      expect(receivedRequests.current).toEqual({
         data: [],
         errors: [],
         isError: false,
         isLoading: false,
-      }); },
-    );
+      });
+    });
 
     const { result: sentRequests } = renderHook(
       () => useFriendRequests("sent"),
@@ -153,14 +157,14 @@ describe("when the listFriendRequests succeeds", () => {
         wrapper,
       },
     );
-    await waitFor(() =>
-      { expect(sentRequests.current).toEqual({
+    await waitFor(() => {
+      expect(sentRequests.current).toEqual({
         data: [],
         errors: [],
         isError: false,
         isLoading: false,
-      }); },
-    );
+      });
+    });
   });
 
   it("returns isError as true with the error if the getLiteUsers query failed", async () => {
@@ -170,7 +174,9 @@ describe("when the listFriendRequests succeeds", () => {
     const { result } = renderHook(() => useFriendRequests("received"), {
       wrapper,
     });
-    await waitFor(() => { expect(getLiteUsersMock).toHaveBeenCalledTimes(1); });
+    await waitFor(() => {
+      expect(getLiteUsersMock).toHaveBeenCalledTimes(1);
+    });
     expect(result.current).toEqual({
       data: [],
       errors: ["Error fetching users"],
