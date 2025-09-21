@@ -11,7 +11,9 @@
     "pb:generate": "tsx scripts/generate.ts",
     "postinstall": "yarn pb:generate"
   },
-  "main": "./index.ts",
+  "exports": {
+    ".": "./index.ts"
+  },
   "dependencies": {
     "@connectrpc/connect": "^2.1.0",
     "@connectrpc/connect-web": "^2.1.0",

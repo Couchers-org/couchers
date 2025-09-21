@@ -1,3 +1,4 @@
+import { Reporting } from "@couchers/services";
 import { FormControl, IconButton, InputLabel, Select } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -20,7 +21,6 @@ import TextField from "@/components/TextField";
 import { useTranslation } from "@/i18n";
 import { GLOBAL } from "@/i18n/namespaces";
 import { service } from "@/service";
-import { ReportInput } from "@/service/reporting";
 import { theme } from "@/theme";
 
 export interface FlagButtonProps {
@@ -39,7 +39,7 @@ const FlagButton = ({ contentRef, authorUser, className }: FlagButtonProps) => {
     reset: resetForm,
     formState: { errors },
     watch,
-  } = useForm<ReportInput>();
+  } = useForm<Reporting.ReportReq>();
 
   const reason = watch("reason");
   const description = watch("description");
@@ -68,7 +68,7 @@ const FlagButton = ({ contentRef, authorUser, className }: FlagButtonProps) => {
     isPending,
     mutate: reportContent,
     reset: resetMutation,
-  } = useMutation<Empty, RpcError, ReportInput>({
+  } = useMutation<Empty, RpcError, Reporting.ReportReq>({
     mutationFn: (formData) =>
       service.reporting.reportContent({ ...formData, contentRef, authorUser }),
     onSuccess: () => {

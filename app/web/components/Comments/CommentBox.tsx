@@ -8,8 +8,8 @@ import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
 import NewComment from "@/components/Comments/NewComment";
 import Markdown from "@/components/Markdown";
 import log from "@/log";
-import isGrpcError from "@/service/utils/isGrpcError";
 import serviceClients from "@/serviceClients";
+import { useErrorMessage } from "@/utils/error";
 
 interface CommentBoxProps {
   threadId: bigint;
@@ -26,9 +26,9 @@ const StyledCard = styled(Card)(() => ({
 
 const CommentBox = ({ threadId }: CommentBoxProps) => {
   const { t } = useTranslation();
+  const { errorMessage, setError } = useErrorMessage(t);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const [comments, setComments] = useState<CommentThread[]>([]);
 
@@ -62,11 +62,11 @@ const CommentBox = ({ threadId }: CommentBoxProps) => {
         setComments(replies);
       } catch (e) {
         log.error(e);
-        setError(isGrpcError(e) ? e.message : t("error.fatal_message"));
+        setError(e);
       }
       setIsLoading(false);
     })();
-  }, [t, threadId]);
+  }, [setError, t, threadId]);
 
   const handleComment = async (threadId: bigint, content: string) => {
     await serviceClients.threads.postReply({
@@ -98,13 +98,13 @@ const CommentBox = ({ threadId }: CommentBoxProps) => {
       );
     } catch (e) {
       log.error(e);
-      setError(isGrpcError(e) ? e.message : t("error.fatal_message"));
+      setError(e);
     }
     setIsLoading(false);
   };
   return (
     <>
-      {error && <Alert severity="error">{error}</Alert>}
+      {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
       {isLoading && <CenteredSpinner />}
       {comments.map((comment) => (
         <>

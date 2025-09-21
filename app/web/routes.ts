@@ -96,7 +96,7 @@ export const routeToHostRequest = (id: number) => `${HOST_REQUEST_ROUTE}/${id}`;
 export const LEAVE_REFERENCE_BASE_ROUTE = "/leave-reference";
 export const routeToLeaveReference = (
   referenceType: ReferenceTypeRouteStrings,
-  userId: number,
+  userId: bigint,
   hostRequestId?: number,
 ) =>
   `${LEAVE_REFERENCE_BASE_ROUTE}/${referenceType}/${userId}/${hostRequestId ?? ""}`;
@@ -138,30 +138,30 @@ export const JAIL_ROUTE = "/restricted";
 export const TOS_ROUTE = "/terms";
 
 const PLACE_BASE_ROUTE = "/place";
-export const routeToPlace = (id: number, slug: string) =>
+export const routeToPlace = (id: bigint, slug: string) =>
   `${PLACE_BASE_ROUTE}/${id}/${slug}`;
 export const NEW_PLACE_ROUTE = `${PLACE_BASE_ROUTE}/new`;
 
 const GUIDE_BASE_ROUTE = "/guide";
-export const routeToGuide = (id: number, slug: string) =>
+export const routeToGuide = (id: bigint, slug: string) =>
   `${GUIDE_BASE_ROUTE}/${id}/${slug}`;
 export const NEW_GUIDE_ROUTE = `${GUIDE_BASE_ROUTE}/new`;
 
 const GROUP_BASE_ROUTE = "/group";
-export const routeToGroup = (id: number, slug: string) =>
+export const routeToGroup = (id: bigint, slug: string) =>
   `${GROUP_BASE_ROUTE}/${id}/${slug}`;
 
 export const DISCUSSION_BASE_ROUTE = "/discussion";
-export const routeToDiscussion = (id: number, slug: string) =>
+export const routeToDiscussion = (id: bigint, slug: string) =>
   `${DISCUSSION_BASE_ROUTE}/${id}/${slug}`;
 
 export const EVENT_BASE_ROUTE = "/event";
 export const NEW_EVENT_ROUTE = `${EVENT_BASE_ROUTE}/new`;
 export const routeToNewEvent = (communityId?: number) =>
   `${NEW_EVENT_ROUTE}${communityId ? `?communityId=${communityId}` : ""}`;
-export const routeToEvent = (id: number, slug: string) =>
+export const routeToEvent = (id: bigint, slug: string) =>
   `${EVENT_BASE_ROUTE}/${id}/${slug}`;
-export const routeToEditEvent = (id: number, slug: string) =>
+export const routeToEditEvent = (id: bigint, slug: string) =>
   `${routeToEvent(id, slug)}/edit`;
 
 const COMMUNITY_BASE_ROUTE = "/community";
@@ -175,11 +175,11 @@ export const COMMUNITY_TABS = [
 export type CommunityTab = (typeof COMMUNITY_TABS)[number];
 
 export const routeToCommunity = (
-  id: number,
+  id: bigint,
   slug: string,
   page?: CommunityTab,
 ) => `${COMMUNITY_BASE_ROUTE}/${id}/${slug}${page ? `/${page}` : ""}`;
-export const routeToEditCommunityPage = (id: number, slug: string) =>
+export const routeToEditCommunityPage = (id: bigint, slug: string) =>
   `${routeToCommunity(id, slug, "info")}/edit`;
 
 export const COMPOSING_DISCUSSION_HASH = "new";

@@ -1,15 +1,13 @@
-import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
 import React, { Context, ReactNode, useContext, useEffect } from "react";
 
 import { useTranslation } from "@/i18n";
 import { AUTH } from "@/i18n/namespaces";
 import { JAIL_ROUTE, LOGIN_ROUTE } from "@/routes";
-import { setUnauthenticatedErrorHandler } from "@/service/client";
+import { setUnauthenticatedCallback } from "@/serviceClients";
 import { emptyAsyncFunction } from "@/utils/function";
 import useStablePush from "@/utils/useStablePush";
 
-import { JAILED_ERROR_MESSAGE } from "./constants";
 import useAuthStore, { AuthStoreType } from "./useAuthStore";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -31,9 +29,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const push = useStablePush();
 
   useEffect(() => {
-    setUnauthenticatedErrorHandler(async (e: RpcError) => {
-      // the backend will return "Permission denied" if you're just jailed, and "Unauthorized" otherwise
-      if (e.message === JAILED_ERROR_MESSAGE) {
+    setUnauthenticatedCallback(async (isJailed) => {
+      if (isJailed) {
         const isJailRouteException = router.pathname.includes("delete-account");
 
         await store.authActions.updateJailStatus();
@@ -51,7 +48,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => {
-      setUnauthenticatedErrorHandler(emptyAsyncFunction);
+      setUnauthenticatedCallback(emptyAsyncFunction);
     };
   }, [store.authActions, push, t, router.pathname]);
 

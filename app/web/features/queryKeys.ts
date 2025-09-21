@@ -17,7 +17,7 @@ export const NOTIFICATION_SETTINGS_QUERY_KEY = "notificationSettings";
 export const LIST_NOTIFICATIONS_QUERY_KEY = "listNotifications";
 export const USERNAME_2_ID = "username2Id";
 
-export const userKey = (userId?: number) => {
+export const userKey = (userId?: bigint) => {
   return userId === undefined ? ["user"] : ["user", userId];
 };
 

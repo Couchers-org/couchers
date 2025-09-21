@@ -11,8 +11,8 @@ import TextBody from "@/components/TextBody";
 import { useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
 import { Sentry } from "@/platform/sentry";
-import { service } from "@/service";
-import isGrpcError from "@/service/utils/isGrpcError";
+import serviceClients from "@/serviceClients";
+import { useErrorMessage } from "@/utils/error";
 
 interface LocationInfo {
   location: ApproximateLocation;
@@ -26,7 +26,7 @@ interface LocationSectionProps {
 const LocationSection = ({ updateJailed, className }: LocationSectionProps) => {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const [isCompleted, setIsCompleted] = useState(false);
-  const [error, setError] = useState("");
+  const { errorMessage, setError } = useErrorMessage(t);
 
   const { control, handleSubmit } = useForm<LocationInfo>({
     defaultValues: { location: {} },
@@ -38,8 +38,13 @@ const LocationSection = ({ updateJailed, className }: LocationSectionProps) => {
       if (address === "") {
         setError(t("auth:location.validation_error"));
       } else {
-        const info = await service.jail.setLocation(address, lat, lng, radius);
-        if (!info.isJailed) {
+        const info = await serviceClients.jail.setLocation({
+          city: address,
+          lat,
+          lng,
+          radius,
+        });
+        if (!info.jailed) {
           updateJailed();
         } else {
           // if user is no longer jailed, this component will be unmounted anyway
@@ -52,7 +57,8 @@ const LocationSection = ({ updateJailed, className }: LocationSectionProps) => {
           featureArea: "auth/jail/locationField",
         },
       });
-      setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
+
+      setError(e);
     }
   });
 
@@ -65,7 +71,7 @@ const LocationSection = ({ updateJailed, className }: LocationSectionProps) => {
         <Alert severity="warning">
           {t("auth:jail.location_section.explanation")}
         </Alert>
-        {error && <Alert severity="error">{error}</Alert>}
+        {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
         <Controller
           name="location"
           control={control}

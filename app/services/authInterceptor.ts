@@ -14,7 +14,7 @@ export const createAuthInterceptor =
       return await next(req);
     } catch (e) {
       if (e instanceof ConnectError && e.code === Code.Unauthenticated) {
-        unauthenticatedCallback(e.message === JAILED_ERROR_MESSAGE);
+        unauthenticatedCallback(e.rawMessage === JAILED_ERROR_MESSAGE);
       }
       throw e;
     }

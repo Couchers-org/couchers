@@ -12,7 +12,7 @@ import { useTranslation } from "@/i18n";
 import { PROFILE } from "@/i18n/namespaces";
 import { Sentry } from "@/platform/sentry";
 import { service } from "@/service";
-import { ImageInputValues } from "@/service/api";
+import { ImageInputValues } from "@/serviceClients";
 
 import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from "./constants";
 

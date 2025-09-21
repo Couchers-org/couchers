@@ -14,8 +14,7 @@ import { useIsNativeEmbed } from "@/platform/nativeLink";
 import { Sentry } from "@/platform/sentry";
 import CouchersTextLogo from "@/resources/CouchersTextLogo";
 import { DASHBOARD_ROUTE, LOGIN_ROUTE, SIGNUP_ROUTE } from "@/routes";
-import { service } from "@/service";
-import isGrpcError from "@/service/utils/isGrpcError";
+import serviceClients from "@/serviceClients";
 import { theme } from "@/theme";
 import stringOrFirstString from "@/utils/stringOrFirstString";
 
@@ -62,7 +61,7 @@ const Signup = () => {
         setIsLoading(true);
         try {
           authActions.updateSignupState(
-            await service.auth.signupFlowEmailToken(urlToken),
+            await serviceClients.auth.signupFlow({ emailToken: urlToken }),
           );
         } catch (err) {
           Sentry.captureException(err, {
@@ -70,9 +69,8 @@ const Signup = () => {
               component: "auth/signup/Signup",
             },
           });
-          authActions.authError(
-            isGrpcError(err) ? err.message : t("global:error.fatal_message"),
-          );
+
+          authActions.authError(err);
           await router.push(SIGNUP_ROUTE);
           return;
         }

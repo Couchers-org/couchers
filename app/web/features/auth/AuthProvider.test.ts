@@ -1,15 +1,14 @@
+import { UnauthenticatedCallback } from "@couchers/services";
 import { act, renderHook } from "@testing-library/react";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { RpcError } from "grpc-web";
 
 import { service } from "@/service";
-import * as client from "@/service/client";
+import * as serviceClientsModule from "@/serviceClients";
 import wrapper from "@/test/hookWrapper";
 import i18n from "@/test/i18n";
 import { addDefaultUser } from "@/test/utils";
 
 import { useAuthContext } from "./AuthProvider";
-import { JAILED_ERROR_MESSAGE, LOGGED_OUT_ERROR_MESSAGE } from "./constants";
 
 const { t } = i18n;
 
@@ -25,12 +24,14 @@ describe("AuthProvider", () => {
 
     // mock out setUnauthenticatedErrorHandler to set our own handler var
     const initialHandler = async () => {};
-    let handler: (e: RpcError) => Promise<void> = initialHandler;
-    const mockSetHandler = jest.fn((fn: (e: RpcError) => Promise<void>) => {
+    let handler: UnauthenticatedCallback = initialHandler;
+
+    const mockSetHandler = jest.fn((fn: UnauthenticatedCallback) => {
       handler = fn;
     });
+
     jest
-      .spyOn(client, "setUnauthenticatedErrorHandler")
+      .spyOn(serviceClientsModule, "setUnauthenticatedCallback")
       .mockImplementation(mockSetHandler);
 
     const { result } = renderHook(() => useAuthContext(), {
@@ -39,7 +40,7 @@ describe("AuthProvider", () => {
 
     expect(mockSetHandler).toHaveBeenCalled();
     await act(async () => {
-      await handler({ message: LOGGED_OUT_ERROR_MESSAGE } as RpcError);
+      await handler(false);
     });
     expect(result.current.authState.isAuthenticated).toBe(false);
     expect(result.current.authState.error).toBe(t("auth:logged_out_message"));
@@ -51,12 +52,14 @@ describe("AuthProvider", () => {
 
     // mock out setUnauthenticatedErrorHandler to set our own handler var
     const initialHandler = async () => {};
-    let handler: (e: RpcError) => Promise<void> = initialHandler;
-    const mockSetHandler = jest.fn((fn: (e: RpcError) => Promise<void>) => {
+    let handler: UnauthenticatedCallback = initialHandler;
+
+    const mockSetHandler = jest.fn((fn: UnauthenticatedCallback) => {
       handler = fn;
     });
+
     jest
-      .spyOn(client, "setUnauthenticatedErrorHandler")
+      .spyOn(serviceClientsModule, "setUnauthenticatedCallback")
       .mockImplementation(mockSetHandler);
 
     const { result } = renderHook(() => useAuthContext(), {
@@ -65,7 +68,7 @@ describe("AuthProvider", () => {
 
     expect(mockSetHandler).toHaveBeenCalled();
     await act(async () => {
-      await handler({ message: JAILED_ERROR_MESSAGE } as RpcError);
+      await handler(true);
     });
     expect(result.current.authState.isAuthenticated).toBe(true);
     expect(result.current.authState.isJailed).toBe(true);

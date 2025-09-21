@@ -1,21 +1,21 @@
+import {
+  IMAGE_TOO_LARGE,
+  INTERNAL_ERROR,
+  SERVER_ERROR,
+} from "@couchers/services";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { StatusCode } from "grpc-web";
 import { useForm } from "react-hook-form";
 
-import { InitiateMediaUploadRes } from "@/proto/api_pb";
 import { service } from "@/service";
-import client from "@/service/client";
-import {
-  IMAGE_TOO_LARGE,
-  INTERNAL_ERROR,
-  SERVER_ERROR,
-} from "@/service/constants";
+import serviceClients from "@/serviceClients";
 import wrapper from "@/test/hookWrapper";
 import i18n from "@/test/i18n";
 import { server } from "@/test/restMock";
 import { assertErrorAlert, mockConsoleError } from "@/test/utils";
 
+import { InitiateMediaUploadRes } from "../../../services/generated/bufbuild/api_pb";
 import ImageInput from "./ImageInput";
 
 const { t } = i18n;
@@ -262,11 +262,11 @@ describe("ImageInput http error tests", () => {
     // const uploadFile = jest.requireActual("service").service.api.uploadFile;
     // uploadFileMock.mockImplementation(uploadFile);
     const initiateMediaUploadMock = jest.spyOn(
-      client.api,
+      serviceClients.api,
       "initiateMediaUpload",
     );
     initiateMediaUploadMock.mockResolvedValue({
-      getUploadUrl: () => "https://example.com/upload",
+      uploadUrl: "https://example.com/upload",
     } as InitiateMediaUploadRes);
     mockConsoleError();
   });

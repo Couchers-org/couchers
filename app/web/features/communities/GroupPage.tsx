@@ -1,3 +1,4 @@
+import { Discussions, Groups, Pages } from "@couchers/services";
 import { Breadcrumbs } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import Link from "next/link";
@@ -13,9 +14,6 @@ import Markdown from "@/components/Markdown";
 import PageTitle from "@/components/PageTitle";
 import TextBody from "@/components/TextBody";
 import log from "@/log";
-import { Discussion } from "@/proto/discussions_pb";
-import { Group } from "@/proto/groups_pb";
-import { Page } from "@/proto/pages_pb";
 import {
   routeToCommunity,
   routeToDiscussion,
@@ -23,43 +21,52 @@ import {
   routeToGuide,
   routeToPlace,
 } from "@/routes";
-import { service } from "@/service";
-import isGrpcError from "@/service/utils/isGrpcError";
+import serviceClients from "@/serviceClients";
+import { useErrorMessage } from "@/utils/error";
 
 const GroupPage = ({
   groupId,
   groupSlug,
 }: {
-  groupId: number;
+  groupId: bigint;
   groupSlug?: string;
 }) => {
   const { t } = useTranslation(["communities", "global"]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [group, setGroup] = useState<Group.AsObject | null>(null);
+  const { errorMessage, setError } = useErrorMessage(t);
+
+  const [group, setGroup] = useState<Groups.Group | undefined>();
 
   const [isAdminsLoading, setIsAdminsLoading] = useState(false);
-  const [admins, setAdmins] = useState<number[] | null>(null);
+  const [admins, setAdmins] = useState<bigint[] | undefined>();
 
   const [isMembersLoading, setIsMembersLoading] = useState(false);
-  const [members, setMembers] = useState<number[] | null>(null);
+  const [members, setMembers] = useState<bigint[] | undefined>();
 
   const [isPlacesLoading, setIsPlacesLoading] = useState(false);
-  const [places, setPlaces] = useState<Array<Page.AsObject> | null>(null);
+  const [places, setPlaces] = useState<Pages.Page[] | undefined>();
 
   const [isGuidesLoading, setIsGuidesLoading] = useState(false);
-  const [guides, setGuides] = useState<Array<Page.AsObject> | null>(null);
+  const [guides, setGuides] = useState<Pages.Page[] | undefined>();
 
   const [isDiscussionsLoading, setIsDiscussionsLoading] = useState(false);
-  const [discussions, setDiscussions] =
-    useState<Array<Discussion.AsObject> | null>(null);
+  const [discussions, setDiscussions] = useState<
+    Discussions.Discussion[] | undefined
+  >();
+
+  useEffect(() => {
+    if (!errorMessage) {
+      return;
+    }
+    log.error(errorMessage);
+  }, [errorMessage]);
 
   const handleJoin = async () => {
     if (!group?.groupId) {
       return;
     }
 
-    await service.groups.joinGroup(group.groupId);
+    await serviceClients.groups.joinGroup({ groupId: group.groupId });
   };
 
   const handleLeave = async () => {
@@ -67,83 +74,82 @@ const GroupPage = ({
       return;
     }
 
-    await service.groups.leaveGroup(group.groupId);
+    await serviceClients.groups.leaveGroup({ groupId: group.groupId });
   };
 
   const router = useRouter();
 
   useEffect(() => {
     if (!groupId) return;
+
     void (async () => {
       setIsLoading(true);
       try {
-        const group = await service.groups.getGroup(groupId);
+        const group = await serviceClients.groups.getGroup({
+          groupId,
+        });
         setGroup(group);
+
         if (group.slug !== groupSlug) {
           // if the address is wrong, redirect to the right place
-          await router.push(routeToGroup(group.groupId, group.slug));
+          await router.push(routeToGroup(groupId, group.slug));
         }
       } catch (e) {
-        log.error(e);
-        setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
+        setError(e);
       }
       setIsLoading(false);
 
       setIsAdminsLoading(true);
       try {
-        const res = await service.groups.listAdmins(groupId);
-        setAdmins(res.adminUserIdsList.length ? res.adminUserIdsList : null);
+        const res = await serviceClients.groups.listAdmins({ groupId });
+        setAdmins(res.adminUserIds.length ? res.adminUserIds : undefined);
       } catch (e) {
-        log.error(e);
-        setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
+        setError(e);
       }
       setIsAdminsLoading(false);
 
       setIsMembersLoading(true);
       try {
-        const res = await service.groups.listMembers(groupId);
-        setMembers(res.memberUserIdsList.length ? res.memberUserIdsList : null);
+        const res = await serviceClients.groups.listMembers({ groupId });
+        setMembers(res.memberUserIds.length ? res.memberUserIds : undefined);
       } catch (e) {
-        log.error(e);
-        setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
+        setError(e);
       }
       setIsMembersLoading(false);
 
       setIsPlacesLoading(true);
       try {
-        const res = await service.groups.listPlaces(groupId);
-        setPlaces(res.placesList.length ? res.placesList : null);
+        const res = await serviceClients.groups.listPlaces({ groupId });
+
+        setPlaces(res.places.length ? res.places : undefined);
       } catch (e) {
         log.error(e);
-        setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
       }
       setIsPlacesLoading(false);
 
       setIsGuidesLoading(true);
       try {
-        const res = await service.groups.listGuides(groupId);
-        setGuides(res.guidesList.length ? res.guidesList : null);
+        const res = await serviceClients.groups.listGuides({ groupId });
+        setGuides(res.guides.length ? res.guides : undefined);
       } catch (e) {
-        log.error(e);
-        setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
+        setError(e);
       }
       setIsGuidesLoading(false);
 
       setIsDiscussionsLoading(true);
       try {
-        const res = await service.groups.listDiscussions(groupId);
-        setDiscussions(res.discussionsList.length ? res.discussionsList : null);
+        const res = await serviceClients.groups.listDiscussions({ groupId });
+        setDiscussions(res.discussions.length ? res.discussions : undefined);
       } catch (e) {
-        log.error(e);
-        setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
+        setError(e);
       }
       setIsDiscussionsLoading(false);
     })();
-  }, [groupId, groupSlug, router, t]);
+  }, [groupId, groupSlug, router, setError, t]);
 
   return (
     <>
-      {error && <Alert severity="error">{error}</Alert>}
+      {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
       {isLoading ? (
         <CenteredSpinner />
       ) : group ? (
@@ -151,31 +157,31 @@ const GroupPage = ({
           <HtmlMeta title={`${group.name} Group Page`} />
           <PageTitle>{group.name} Group Page</PageTitle>
           <Breadcrumbs aria-label="breadcrumb">
-            {group.parentsList
-              .filter((parent) => !!parent.community || !!parent.group)
+            {group.parents
+              .map((parent) => parent.parent)
               .map((parent) => {
-                if (parent.community) {
+                if (parent.case === "community") {
                   return (
                     <Link
-                      key={parent.community.communityId}
+                      key={parent.value.communityId}
                       href={routeToCommunity(
-                        parent.community.communityId,
-                        parent.community.slug,
+                        parent.value.communityId,
+                        parent.value.slug,
                       )}
                     >
-                      {parent.community.name}
+                      {parent.value.name}
                     </Link>
                   );
-                } else if (parent.group) {
+                } else if (parent.case === "group") {
                   return (
                     <Link
-                      key={parent.group.groupId}
+                      key={parent.value.groupId}
                       href={routeToGroup(
-                        parent.group.groupId,
-                        parent.group.slug,
+                        parent.value.groupId,
+                        parent.value.slug,
                       )}
                     >
-                      {parent.group.name}
+                      {parent.value.name}
                     </Link>
                   );
                 } else {
@@ -305,7 +311,10 @@ const GroupPage = ({
           ) : (
             <p>This group contains no discussions.</p>
           )}
-          <CommentBox threadId={group.mainPage?.thread?.threadId ?? 0} />
+
+          {group.mainPage?.thread?.threadId && (
+            <CommentBox threadId={group.mainPage.thread.threadId} />
+          )}
         </>
       ) : (
         <TextBody>Error</TextBody>

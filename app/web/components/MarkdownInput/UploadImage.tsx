@@ -13,7 +13,7 @@ import ImageInput from "@/components/ImageInput";
 import TextField from "@/components/TextField";
 import { useTranslation } from "@/i18n";
 import { GLOBAL } from "@/i18n/namespaces";
-import { ImageInputValues } from "@/service/api";
+import { ImageInputValues } from "@/serviceClients";
 
 import {
   IMAGE_DESCRIPTION,

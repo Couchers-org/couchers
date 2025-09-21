@@ -1,3 +1,4 @@
+import { Pages } from "@couchers/services";
 import { useTranslation } from "next-i18next";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -11,24 +12,24 @@ import Markdown from "@/components/Markdown";
 import PageTitle from "@/components/PageTitle";
 import TextBody from "@/components/TextBody";
 import log from "@/log";
-import { Page, PageType } from "@/proto/pages_pb";
 import { routeToGuide, routeToPlace } from "@/routes";
-import { service } from "@/service";
-import isGrpcError from "@/service/utils/isGrpcError";
+import serviceClients from "@/serviceClients";
+import { useErrorMessage } from "@/utils/error";
 
 const PagePage = ({
   pageType,
   pageId,
   pageSlug,
 }: {
-  pageType: PageType;
-  pageId: number;
+  pageType: Pages.PageType;
+  pageId: bigint;
   pageSlug?: string;
 }) => {
   const { t } = useTranslation(["communities", "global"]);
+  const { errorMessage, setError } = useErrorMessage(t);
+
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [page, setPage] = useState<Page.AsObject | null>(null);
+  const [page, setPage] = useState<Pages.Page | null>(null);
 
   const router = useRouter();
 
@@ -37,14 +38,15 @@ const PagePage = ({
     void (async () => {
       setIsLoading(true);
       try {
-        const page = await service.pages.getPage(pageId);
+        const page = await serviceClients.pages.getPage({ pageId });
+
         if (
           page.slug !== pageSlug ||
           (page.type !== pageType && typeof window !== "undefined")
         ) {
           // if the address is wrong, redirect to the right place
           await router.push(
-            pageType === PageType.PAGE_TYPE_PLACE
+            pageType === Pages.PageType.PLACE
               ? routeToPlace(page.pageId, page.slug)
               : routeToGuide(page.pageId, page.slug),
           );
@@ -53,15 +55,15 @@ const PagePage = ({
         }
       } catch (e) {
         log.error(e);
-        setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
+        setError(e);
       }
       setIsLoading(false);
     })();
-  }, [pageType, pageId, pageSlug, router, t]);
+  }, [pageType, pageId, pageSlug, router, t, setError]);
 
   return (
     <>
-      {error && <Alert severity="error">{error}</Alert>}
+      {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
       {isLoading ? (
         <CenteredSpinner />
       ) : page ? (
@@ -71,11 +73,12 @@ const PagePage = ({
           <PageTitle>{page.title}</PageTitle>
           <p>
             Owner:{" "}
-            {page.ownerUserId !== 0
-              ? `user ${page.ownerUserId}`
-              : page.ownerCommunityId !== 0
-                ? `community ${page.ownerCommunityId}`
-                : `group ${page.ownerGroupId}`}
+            {page.owner.case === "ownerUserId" && page.owner.value !== 0n
+              ? `user ${page.owner.value}`
+              : page.owner.case === "ownerCommunityId" &&
+                  page.owner.value !== 0n
+                ? `community ${page.owner.value}`
+                : `group ${page.owner.value || 0n}`}
           </p>
           <p>
             Last edited at {page.lastEdited?.seconds} by {page.lastEditorUserId}
@@ -91,7 +94,9 @@ const PagePage = ({
           <p>
             You <b>{page.canEdit ? "can" : "cannot"}</b> edit this page.
           </p>
-          <CommentBox threadId={page.thread?.threadId ?? 0} />
+          {page.thread?.threadId && (
+            <CommentBox threadId={page.thread.threadId} />
+          )}
         </>
       ) : (
         <TextBody>Error</TextBody>

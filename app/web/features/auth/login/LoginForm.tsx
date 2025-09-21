@@ -16,7 +16,7 @@ import { useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
 import { Sentry } from "@/platform/sentry";
 import { RESET_PASSWORD_ROUTE } from "@/routes";
-import isGrpcError from "@/service/utils/isGrpcError";
+import { getErrorMessage } from "@/utils/error";
 import { lowercaseAndTrimField } from "@/utils/validation";
 
 const StyledFormControlLabel = styled(FormControlLabel)(({ theme }) => ({
@@ -70,9 +70,11 @@ const LoginForm = () => {
               featureArea: "auth/login",
             },
           });
-          authActions.authError(
-            isGrpcError(e) ? e.message : t("global:error.fatal_message"),
-          );
+
+          const errorMessage = getErrorMessage(e, t);
+          if (errorMessage) {
+            authActions.authError(errorMessage);
+          }
         }
         setIsLoading(false);
       },

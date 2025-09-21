@@ -1,3 +1,4 @@
+import { Resources } from "@couchers/services";
 import {
   Avatar,
   Checkbox,
@@ -20,9 +21,7 @@ import { COMMUNITY_GUIDELINES_QUERY_KEY } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
 import { Sentry } from "@/platform/sentry";
-import { GetCommunityGuidelinesRes } from "@/proto/resources_pb";
-import { service } from "@/service";
-import isGrpcError from "@/service/utils/isGrpcError";
+import serviceClients from "@/serviceClients";
 import { getErrorMessage } from "@/utils/error";
 import { useIsMounted, useSafeState } from "@/utils/hooks";
 
@@ -59,15 +58,15 @@ const CommunityGuidelines = ({
   const { t } = useTranslation([AUTH, GLOBAL]);
   const isMounted = useIsMounted();
   const [isCompleted, setIsCompleted] = useSafeState(isMounted, false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | undefined>();
 
   const {
     data,
     error: loadError,
     isLoading,
-  } = useQuery<GetCommunityGuidelinesRes.AsObject, RpcError>({
+  } = useQuery<Resources.GetCommunityGuidelinesRes, RpcError>({
     queryKey: [COMMUNITY_GUIDELINES_QUERY_KEY],
-    queryFn: () => service.resources.getCommunityGuidelines(),
+    queryFn: () => serviceClients.resources.getCommunityGuidelines({}),
   });
 
   const { control, handleSubmit, formState } = useForm({
@@ -87,11 +86,8 @@ const CommunityGuidelines = ({
             component: "component/communityGuidelines",
           },
         });
-        if (isGrpcError(e)) {
-          setError(
-            isGrpcError(e) ? e.message : t("global:error.fatal_message"),
-          );
-        }
+
+        setError(getErrorMessage(e, t));
       }
     });
 
@@ -120,9 +116,9 @@ const CommunityGuidelines = ({
         {error && <Alert severity="error">{error}</Alert>}
 
         <StyledGrid>
-          {data.communityGuidelinesList.map(
+          {data.communityGuidelines.map(
             ({ title, guideline, iconSvg }, index) => {
-              const errorMessage = getErrorMessage(errors[`ok${index}`]);
+              const errorMessage = getErrorMessage(errors[`ok${index}`], t);
 
               return (
                 <React.Fragment key={index}>

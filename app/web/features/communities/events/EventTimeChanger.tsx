@@ -1,14 +1,14 @@
+import { Timestamp, timestampDate } from "@bufbuild/protobuf/wkt";
+import { Events } from "@couchers/services";
 import { styled } from "@mui/material";
-import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { UseFormReturn } from "react-hook-form";
 
 import Datepicker from "@/components/Datepicker";
 import Timepicker from "@/components/Timepicker";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES } from "@/i18n/namespaces";
-import { Event } from "@/proto/events_pb";
 import { theme } from "@/theme";
-import { isSameOrFutureDate, timestamp2Date } from "@/utils/date";
+import { isSameOrFutureDate } from "@/utils/date";
 import dayjs, { Dayjs } from "@/utils/dayjs";
 import { TIME_PATTERN } from "@/utils/validation";
 
@@ -24,13 +24,13 @@ const StyledContainer = styled("div")(() => ({
 }));
 
 const splitTimestampToDateAndTime = (
-  timestamp?: Timestamp.AsObject,
+  timestamp?: Timestamp,
 ): {
   date?: Dayjs;
   time?: Dayjs;
 } => {
   if (timestamp) {
-    const dayjsDate = dayjs(timestamp2Date(timestamp));
+    const dayjsDate = dayjs(timestampDate(timestamp));
     return {
       date: dayjsDate.startOf("day"),
       time: dayjsDate,
@@ -45,7 +45,7 @@ interface EventTimeChangerProps
     "control" | "getValues" | "setValue" | "register"
   > {
   dirtyFields: UseFormReturn<CreateEventData>["formState"]["dirtyFields"];
-  event?: Event.AsObject;
+  event?: Events.Event;
   errors: UseFormReturn<CreateEventData>["formState"]["errors"];
 }
 

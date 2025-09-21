@@ -485,6 +485,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@bufbuild/protobuf@npm:^2.9.0":
+  version: 2.9.0
+  resolution: "@bufbuild/protobuf@npm:2.9.0"
+  checksum: 10c0/fe46723c12204c00ff1f4eefb3636a7e7ad9e3c87736ed92e9de77aad6f29edae9b903a1517bb0cd8d1b24da46934ab1ae7acebc04c151b8f3a6151b7583f20f
+  languageName: node
+  linkType: hard
+
 "@bufbuild/protoc-gen-es@npm:^2.8.0":
   version: 2.8.0
   resolution: "@bufbuild/protoc-gen-es@npm:2.8.0"
@@ -555,6 +562,8 @@ __metadata:
   resolution: "@couchers/web@workspace:web"
   dependencies:
     "@babel/core": "npm:^7.28.0"
+    "@bufbuild/protobuf": "npm:^2.9.0"
+    "@connectrpc/connect": "npm:^2.1.0"
     "@couchers/services": "workspace:^"
     "@emotion/react": "npm:^11.14.0"
     "@emotion/styled": "npm:^11.14.1"

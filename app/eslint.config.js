@@ -172,6 +172,8 @@ export default defineConfig([
       // can be bypassed by adding "void" in front of call
       "@typescript-eslint/no-floating-promises": ["warn", { ignoreVoid: true }],
 
+      "@typescript-eslint/array-type": ["warn", { default: "array" }],
+
       "@typescript-eslint/no-unused-vars": "off",
       "unused-imports/no-unused-imports": "warn",
 

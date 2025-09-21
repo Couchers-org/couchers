@@ -24,6 +24,8 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@bufbuild/protobuf": "^2.9.0",
+    "@connectrpc/connect": "^2.1.0",
     "@couchers/services": "workspace:^",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",

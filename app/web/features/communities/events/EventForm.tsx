@@ -1,3 +1,4 @@
+import { Events } from "@couchers/services";
 import { Checkbox, FormControlLabel, Typography, styled } from "@mui/material";
 import { UseMutateFunction } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
@@ -14,7 +15,6 @@ import TextField from "@/components/TextField";
 import { Coordinates } from "@/features/search/utils/constants";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
-import { Event } from "@/proto/events_pb";
 import { theme } from "@/theme";
 import { Dayjs } from "@/utils/dayjs";
 import type { GeocodeResult } from "@/utils/hooks";
@@ -68,7 +68,7 @@ interface BaseEventData {
   isOnline: boolean;
   shouldNotify: boolean;
   eventImage?: string;
-  parentCommunityId?: number;
+  parentCommunityId?: bigint;
   link?: string;
   location?: GeocodeResult;
 }
@@ -80,7 +80,7 @@ interface OfflineEventData extends BaseEventData {
 interface OnlineEventData extends BaseEventData {
   isOnline: true;
   link: string;
-  parentCommunityId: number;
+  parentCommunityId: bigint;
 }
 
 export type CreateEventData = OfflineEventData | OnlineEventData;
@@ -91,9 +91,9 @@ export type CreateEventVariables = CreateEventData & {
 
 interface EventFormProps {
   children: (data: { isMutationLoading: boolean }) => React.ReactNode;
-  event?: Event.AsObject;
+  event?: Events.Event;
   error: RpcError | null;
-  mutate: UseMutateFunction<Event.AsObject, RpcError, CreateEventVariables>;
+  mutate: UseMutateFunction<Events.Event, RpcError, CreateEventVariables>;
   isMutationLoading: boolean;
   title: string;
   isEdit: boolean;
@@ -122,14 +122,11 @@ const EventForm = ({
 
   const isOnline = watch("isOnline", false);
   const locationDefaultValue: GeocodeResult | "" = useRef(
-    event?.offlineInformation
+    event?.mode.case === "offlineInformation"
       ? {
-          name: event.offlineInformation.address,
-          simplifiedName: event.offlineInformation.address,
-          location: new LngLat(
-            event.offlineInformation.lng,
-            event.offlineInformation.lat,
-          ),
+          name: event.mode.value.address,
+          simplifiedName: event.mode.value.address,
+          location: new LngLat(event.mode.value.lng, event.mode.value.lat),
           bbox: [0, 0, 0, 0] as Coordinates,
         }
       : ("" as const),
@@ -199,7 +196,11 @@ const EventForm = ({
               {...register("link", {
                 required: t("communities:link_required"),
               })}
-              defaultValue={event?.onlineInformation?.link}
+              defaultValue={
+                event?.mode.case === "onlineInformation"
+                  ? event.mode.value
+                  : undefined
+              }
               error={!!errors.link?.message}
               helperText={errors.link?.message || ""}
               fullWidth
@@ -223,7 +224,7 @@ const EventForm = ({
               control={
                 <Checkbox
                   {...register("isOnline")}
-                  defaultChecked={!!event?.onlineInformation}
+                  defaultChecked={event?.mode.case === "onlineInformation"}
                   name="isOnline"
                 />
               }

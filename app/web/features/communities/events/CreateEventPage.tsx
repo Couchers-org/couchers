@@ -1,3 +1,5 @@
+import { timestampFromDate } from "@bufbuild/protobuf/wkt";
+import { Events } from "@couchers/services";
 import { Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
@@ -10,10 +12,8 @@ import useAccountInfo from "@/features/auth/useAccountInfo";
 import { COMMUNITY_EVENTS_BASE_KEY } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
-import { Event } from "@/proto/events_pb";
 import { DASHBOARD_ROUTE, routeToEvent } from "@/routes";
-import { service } from "@/service";
-import type { CreateEventInput } from "@/service/events";
+import serviceClients from "@/serviceClients";
 import { theme } from "@/theme";
 import dayjs, { TIME_FORMAT } from "@/utils/dayjs";
 import stringOrFirstString from "@/utils/stringOrFirstString";
@@ -28,10 +28,14 @@ const CreateEventPage = () => {
     typeof window !== "undefined"
       ? stringOrFirstString(router.query.communityId)
       : undefined;
-  const urlCommunityId =
-    urlCommunityIdString && !isNaN(Number.parseInt(urlCommunityIdString))
-      ? Number.parseInt(urlCommunityIdString)
-      : undefined;
+
+  const parsedUrlCommunityId = urlCommunityIdString
+    ? Number.parseInt(urlCommunityIdString)
+    : NaN;
+
+  const urlCommunityId = !isNaN(parsedUrlCommunityId)
+    ? BigInt(parsedUrlCommunityId)
+    : undefined;
 
   const queryClient = useQueryClient();
   const {
@@ -39,13 +43,15 @@ const CreateEventPage = () => {
     error,
     isPending,
   } = useMutation<
-    Event.AsObject,
+    Events.Event,
     RpcError,
     CreateEventVariables,
-    { parentCommunityId?: number }
+    { parentCommunityId?: bigint }
   >({
     mutationFn: (data) => {
-      let createEventInput: CreateEventInput;
+      let createEventInput: Partial<
+        Parameters<typeof serviceClients.events.createEvent>[0]
+      >;
       const startTime = dayjs(data.startTime, TIME_FORMAT);
       const endTime = dayjs(data.endTime, TIME_FORMAT);
       const finalStartDate = data.startDate
@@ -61,31 +67,39 @@ const CreateEventPage = () => {
 
       if (data.isOnline) {
         createEventInput = {
-          isOnline: data.isOnline,
+          mode: {
+            case: "onlineInformation",
+            value: {
+              link: data.link,
+            },
+          },
           title: data.title,
           content: data.content,
           photoKey: data.eventImage,
-          startTime: finalStartDate,
-          endTime: finalEndDate,
+          startTime: timestampFromDate(finalStartDate),
+          endTime: timestampFromDate(finalEndDate),
           // TODO: not hardcode this and allow user to specify community ID?
-          parentCommunityId: 1,
-          link: data.link,
+          parentCommunityId: 1n,
         };
       } else {
         createEventInput = {
-          isOnline: data.isOnline,
+          mode: {
+            case: "offlineInformation",
+            value: {
+              lat: data.location.location.lat,
+              lng: data.location.location.lng,
+              address: data.location.name,
+            },
+          },
           title: data.title,
           content: data.content,
           photoKey: data.eventImage,
-          startTime: finalStartDate,
-          endTime: finalEndDate,
-          address: data.location.name,
-          lat: data.location.location.lat,
-          lng: data.location.location.lng,
+          startTime: timestampFromDate(finalStartDate),
+          endTime: timestampFromDate(finalEndDate),
           parentCommunityId: urlCommunityId,
         };
       }
-      return service.events.createEvent(createEventInput);
+      return serviceClients.events.createEvent(createEventInput);
     },
 
     onMutate: ({ parentCommunityId }) => {
