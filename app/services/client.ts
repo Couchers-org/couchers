@@ -19,6 +19,9 @@ type ArgMessageShape<Desc extends DescMessage> = {
     : Key]: MessageShape<Desc>[Key];
 };
 
+// TODO(FB) Use as soon as we use 'optional' in our .proto files to distinguish required and optional
+// fields
+
 // The default client doesn't enforce sending required parameters, so we create our own type that does
 export type Client<Desc extends DescService> = {
   [P in keyof Desc["method"]]: Desc["method"][P] extends DescMethodUnary<

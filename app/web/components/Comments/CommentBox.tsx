@@ -1,3 +1,4 @@
+import { Threads } from "@couchers/services";
 import { Card, styled } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import React, { useEffect, useState } from "react";
@@ -7,19 +8,14 @@ import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
 import NewComment from "@/components/Comments/NewComment";
 import Markdown from "@/components/Markdown";
 import log from "@/log";
-import { Reply } from "@/proto/threads_pb";
 import isGrpcError from "@/service/utils/isGrpcError";
 import serviceClients from "@/serviceClients";
 
 interface CommentBoxProps {
-  threadId: number;
+  threadId: bigint;
 }
 
-// Reply with more Reply objects as children
-interface MultiLevelReply extends Reply.AsObject {
-  replies: Array<Reply.AsObject>;
-  // page token, etc? not sure what's needed for react query
-}
+type CommentThread = Threads.Reply & { replies: Threads.Reply[] };
 
 const StyledCard = styled(Card)(() => ({
   border: "1px solid",
@@ -34,29 +30,36 @@ const CommentBox = ({ threadId }: CommentBoxProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const [comments, setComments] = useState<Array<MultiLevelReply>>([]);
+  const [comments, setComments] = useState<CommentThread[]>([]);
 
   useEffect(() => {
     void (async () => {
       setIsLoading(true);
       try {
         const thread = await serviceClients.threads.getThread({
-          threadId: BigInt(threadId),
+          threadId,
         });
-        setComments(
-          await Promise.all(
-            thread.repliesList.map(async (reply) => {
-              return {
-                ...reply,
-                replies:
-                  reply.numReplies > 0
-                    ? (await serviceClients.threads.getThread(reply.threadId))
-                        .repliesList
-                    : [],
-              };
-            }),
-          ),
+
+        const replies = await Promise.all(
+          thread.replies.map<Promise<CommentThread>>(async (reply) => {
+            let replies: Threads.Reply[] = [];
+
+            if (reply.numReplies) {
+              replies = (
+                await serviceClients.threads.getThread({
+                  threadId: reply.threadId,
+                })
+              ).replies;
+            }
+
+            return {
+              ...reply,
+              replies,
+            };
+          }),
         );
+
+        setComments(replies);
       } catch (e) {
         log.error(e);
         setError(isGrpcError(e) ? e.message : t("error.fatal_message"));
@@ -65,21 +68,29 @@ const CommentBox = ({ threadId }: CommentBoxProps) => {
     })();
   }, [t, threadId]);
 
-  const handleComment = async (threadId: number, content: string) => {
-    await serviceClients.threads.postReply(threadId, content);
+  const handleComment = async (threadId: bigint, content: string) => {
+    await serviceClients.threads.postReply({
+      threadId,
+      content,
+    });
     setIsLoading(true);
     try {
-      const thread = await serviceClients.threads.getThread(threadId);
+      const thread = await serviceClients.threads.getThread({
+        threadId,
+      });
 
       setComments(
         await Promise.all(
-          thread.repliesList.map(async (reply) => {
+          thread.replies.map(async (reply) => {
             return {
               ...reply,
               replies:
                 reply.numReplies > 0
-                  ? (await serviceClients.threads.getThread(reply.threadId))
-                      .repliesList
+                  ? (
+                      await serviceClients.threads.getThread({
+                        threadId: reply.threadId,
+                      })
+                    ).replies
                   : [],
             };
           }),

@@ -55,8 +55,8 @@ await files.reduce<Promise<void>>(async (prev, sourceFile) => {
 
 file.addImportDeclarations([
   {
-    defaultImport: "createClient",
-    moduleSpecifier: "../client",
+    namedImports: ["createClient"],
+    moduleSpecifier: "@connectrpc/connect",
   },
   {
     namedImports: ["UnauthenticatedCallback", "createAuthInterceptor"],
@@ -71,12 +71,8 @@ file.addImportDeclarations([
 services.forEach(([truncatedFileName, serviceName]) => {
   file.addImportDeclarations([
     {
-      // "defaultImport":
       namespaceImport:
         serviceName.charAt(0).toUpperCase() + serviceName.slice(1),
-      // namedImports: [
-      //   serviceName.charAt(0).toUpperCase() + serviceName.slice(1),
-      // ],
 
       moduleSpecifier: `./bufbuild/${truncatedFileName}_pb`,
     },
@@ -130,21 +126,4 @@ file.addExportDeclaration({
   namedExports: services.map(([_, serviceName]) => serviceName),
 });
 
-// services.forEach(([truncatedFileName, serviceName]) => {
-//   file.addStatements(
-//     `export * as ${serviceName} from "./bufbuild/${truncatedFileName}_pb"`,
-//   );
-// });
-
 file.saveSync();
-
-// services.forEach(([truncatedFileName, serviceName]) => {
-//   file.addImportDeclarations([
-//     {
-//       namedImports: [
-//         serviceName.charAt(0).toUpperCase() + serviceName.slice(1),
-//       ],
-//       moduleSpecifier: `./bufbuild/${truncatedFileName}_pb`,
-//     },
-//   ]);
-// });
