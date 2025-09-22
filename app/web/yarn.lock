@@ -1999,10 +1999,10 @@
   dependencies:
     "@tanstack/query-core" "5.87.1"
 
-"@tanstack/react-query-devtools@^5.83.0":
-  version "5.85.5"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-query-devtools/-/react-query-devtools-5.85.5.tgz#ac9fb87ff86b986ea59d4735369999c865ba82dd"
-  integrity sha512-6Ol6Q+LxrCZlQR4NoI5181r+ptTwnlPG2t7H9Sp3klxTBhYGunONqcgBn2YKRPsaKiYM8pItpKMdMXMEINntMQ==
+"@tanstack/react-query-devtools@^5.85.6":
+  version "5.85.6"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query-devtools/-/react-query-devtools-5.85.6.tgz#8df79fed553d3e729f4cd93362b250c0aaf898f7"
+  integrity sha512-A6rE39FypFV7eonefk4fxC/vuV/7YJMAcQT94CFAvCpiw65QZX8MOuUpdLBeG1cXajy4Pj8T8sEWHigccntJqg==
   dependencies:
     "@tanstack/query-devtools" "5.84.0"
 
