@@ -65,7 +65,7 @@
     "react-phone-number-input": "^3.4.12",
     "react-simple-maps": "^3.0.0",
     "seamless-scroll-polyfill": "^2.1.8",
-    "sharp": "^0.34.3"
+    "sharp": "^0.34.4"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
