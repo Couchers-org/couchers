@@ -56,7 +56,7 @@
       "forgot_password": "Mot de passe oublié ?",
       "remember_me": "Se souvenir de moi",
       "username_field_label": "Mail/Nom d'utilisateur",
-      "no_password_login_prompt": "Verifiez vos mails pour obtenir le lien de connexion ! :)"
+      "no_password_login_prompt": "Vérifiez vos mails pour obtenir le lien de connexion ! :)"
     },
     "no_account_prompt": "Pas encore de compte ? <2>Rejoignez-nous</2>"
   },

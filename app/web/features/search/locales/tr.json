@@ -1,2 +1,21 @@
 {
+  "error_loading_users": "Kullanıcıları yüklemede hata oluştu",
+  "filter_dialog": {
+    "search_here_button": "Bu bölgede arama yap",
+    "desktop_title": "Filtreler",
+    "mobile_title": "Ara"
+  },
+  "last_active_options": {
+    "any": "Herhangi biri",
+    "last_week": "Geçen hafta",
+    "last_month": "Geçen ay",
+    "last_3_months": "Son 3 ay",
+    "last_6_months": "Son 6 ay",
+    "last_year": "Geçen yıl"
+  },
+  "form": {
+    "location_field_label": "Yakın konum",
+    "missing_location_validation_error": "Bu filtreyi kullanmak için bir konum belirle"
+  },
+  "choose_search_criteria": "Aramaya bir konum yaz veya bir filtre uygula."
 }

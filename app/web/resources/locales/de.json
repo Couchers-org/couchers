@@ -261,7 +261,9 @@
         "uk": "Ukrainisch",
         "zh-Hant": "Chinesisch (Traditionell)",
         "nl": "Niederländisch",
-        "ca": "Katalan"
+        "ca": "Katalan",
+        "tr": "Türkisch",
+        "en-CORP": "Amerikanisch (Unternehmenssprache)"
     },
     "back": "Zurück",
     "save_changes": "Änderungen speichern",
