@@ -13,8 +13,22 @@
     "edit": "Düzenle",
     "edit_profile": "Profili düzenle",
     "education": "Eğitim",
-    "home": "Evim"
+    "home": "Evim",
+    "languages_fluent": "Akıcı diller",
+    "last_active": "En son aktiflik",
+    "local_time": "Yerel zaman",
+    "who_section": "Ben kimim",
+    "hobbies_section": "Boş vaktimde neler yaparım",
+    "additional_information_section": "Daha fazla bilgi",
+    "travel_section": "'ya gitti",
+    "age_verification_mismatch": "Doğrulanmış doğum tarihi ile kullanıcının verdiği doğum tarihi uymamakta",
+    "gender_verification_verified": "Bu kullanıcı cinsiyetini doğruladı"
   },
   "active": "Aktif",
-  "my_connections": "Kişilerim"
+  "my_connections": "Kişilerim",
+  "cancel": "İptal et",
+  "helper_text": {
+    "missing_profile_photo": "Lütfen profilini tamamlamak için bir fotoğraf ekle."
+  },
+  "section_tabs_a11y_label": "kullanıcı detayları için sekmeler"
 }
