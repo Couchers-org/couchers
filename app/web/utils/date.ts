@@ -1,6 +1,5 @@
 // format a date
 import { Duration as DurationPb } from "google-protobuf/google/protobuf/duration_pb";
-import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 
 import { Dayjs, Duration } from "./dayjs";
 import { DAY_MILLIS } from "./timeAgo";
@@ -30,10 +29,6 @@ const numNights = (date1: string, date2: string) => {
   return diffDays;
 };
 
-const timestamp2Date = (timestamp: Timestamp.AsObject): Date => {
-  return new Date(Math.floor(timestamp.seconds * 1e3 + timestamp.nanos / 1e6));
-};
-
 const duration2pb = (duration: Duration) => {
   const d = new DurationPb();
   d.setSeconds(duration.asSeconds());
@@ -61,5 +56,4 @@ export {
   isSameOrFutureDate,
   monthFormatter,
   numNights,
-  timestamp2Date,
 };

@@ -1,3 +1,5 @@
+import { create } from "@bufbuild/protobuf";
+import { Events, Search } from "@couchers/services";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
 
@@ -9,20 +11,11 @@ import {
   eventsKey,
   myEventsKey,
 } from "@/features/queryKeys";
-import {
-  Event,
-  ListAllEventsRes,
-  ListEventAttendeesRes,
-  ListEventOrganizersRes,
-  ListMyEventsRes,
-} from "@/proto/events_pb";
-import { EventSearchRes } from "@/proto/search_pb";
-import { service } from "@/service";
-import type { ListAllEventsInput, ListMyEventsInput } from "@/service/events";
+import serviceClients from "@/serviceClients";
 import { GeocodeResult } from "@/utils/hooks";
 
 export interface UseEventUsersInput {
-  eventId: number;
+  eventId: bigint;
   type: QueryType;
   enabled?: boolean;
 }
@@ -34,10 +27,10 @@ export const useEventOrganizers = ({
   eventId,
   type,
 }: UseEventUsersInput) => {
-  const query = useInfiniteQuery<ListEventOrganizersRes.AsObject, RpcError>({
+  const query = useInfiniteQuery<Events.ListEventOrganizersRes, RpcError>({
     queryKey: eventOrganizersKey({ eventId, type }),
     queryFn: ({ pageParam }) =>
-      service.events.listEventOrganizers({
+      serviceClients.events.listEventOrganizers({
         eventId,
         pageSize: type === "summary" ? SUMMARY_QUERY_PAGE_SIZE : undefined,
         pageToken: pageParam as string | undefined,
@@ -46,9 +39,7 @@ export const useEventOrganizers = ({
     enabled,
     initialPageParam: undefined,
   });
-  const organizerIds = query.data?.pages.flatMap(
-    (res) => res.organizerUserIdsList,
-  );
+  const organizerIds = query.data?.pages.flatMap((res) => res.organizerUserIds);
 
   return { ...query, organizerIds };
 };
@@ -58,10 +49,10 @@ export const useEventAttendees = ({
   eventId,
   type,
 }: UseEventUsersInput) => {
-  const query = useInfiniteQuery<ListEventAttendeesRes.AsObject, RpcError>({
+  const query = useInfiniteQuery<Events.ListEventAttendeesRes, RpcError>({
     queryKey: eventAttendeesKey({ eventId, type }),
     queryFn: ({ pageParam }) =>
-      service.events.listEventAttendees({
+      serviceClients.events.listEventAttendees({
         eventId,
         pageSize: type === "summary" ? SUMMARY_QUERY_PAGE_SIZE : undefined,
         pageToken: pageParam as string | undefined,
@@ -71,7 +62,7 @@ export const useEventAttendees = ({
     initialPageParam: undefined,
   });
   const attendeesIds = query.data?.pages.flatMap(
-    (data) => data.attendeeUserIdsList,
+    (data) => data.attendeeUserIds,
   );
   return {
     ...query,
@@ -79,12 +70,12 @@ export const useEventAttendees = ({
   };
 };
 
-export const useEvent = ({ eventId }: { eventId: number }) => {
+export const useEvent = ({ eventId }: { eventId: bigint }) => {
   const isValidEventId = eventId > 0;
 
-  const eventQuery = useQuery<Event.AsObject, RpcError>({
+  const eventQuery = useQuery<Events.Event, RpcError>({
     queryKey: eventKey(eventId),
-    queryFn: () => service.events.getEvent(eventId),
+    queryFn: () => serviceClients.events.getEvent({ eventId }),
     enabled: isValidEventId,
   });
 
@@ -95,45 +86,47 @@ export const useEvent = ({ eventId }: { eventId: number }) => {
   };
 };
 
-export const useListAllEvents = ({
-  pastEvents,
-  pageSize,
-  showCancelled,
-}: Omit<ListAllEventsInput, "pageToken">) => {
-  return useInfiniteQuery<ListAllEventsRes.AsObject, RpcError>({
-    queryKey: [eventsKey(pastEvents ? "past" : "upcoming"), showCancelled],
+export const useListAllEvents = (
+  params: Omit<Events.ListAllEventsReq, "pageToken">,
+) => {
+  return useInfiniteQuery<Events.ListAllEventsRes, RpcError>({
+    queryKey: [
+      eventsKey(params.past ? "past" : "upcoming"),
+      params.includeCancelled,
+    ],
     queryFn: ({ pageParam }) =>
-      service.events.listAllEvents({
-        pastEvents,
-        pageSize,
-        pageToken: pageParam as string | undefined,
-        showCancelled,
+      serviceClients.events.listAllEvents({
+        ...params,
+        pageToken: pageParam as string,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     initialPageParam: undefined,
   });
 };
 
-export const useListMyEvents = ({
-  pastEvents,
-  pageNumber,
-  pageSize,
-  showCancelled,
-}: Omit<ListMyEventsInput, "pageToken">) => {
-  return useQuery<ListMyEventsRes.AsObject, RpcError>({
+export const useListMyEvents = (
+  params: Omit<Events.ListMyEventsReq, "pageToken">,
+) => {
+  return useQuery<Events.ListMyEventsRes, RpcError>({
     queryKey: [
-      myEventsKey(pastEvents ? "past" : "upcoming"),
-      pageNumber,
-      showCancelled,
+      myEventsKey(params.past ? "past" : "upcoming"),
+      params.pagination.case === "pageNumber" ? params.pagination.value : 0,
+      params.includeCancelled,
     ],
-    queryFn: ({ pageParam }) =>
-      service.events.listMyEvents({
-        pastEvents,
-        pageNumber,
-        pageSize,
-        pageToken: pageParam as string | undefined,
-        showCancelled,
-      }),
+
+    queryFn: ({ pageParam }) => {
+      if (pageParam) {
+        return serviceClients.events.listMyEvents({
+          ...params,
+          pagination: {
+            case: "pageToken",
+            value: pageParam as string,
+          },
+        });
+      }
+
+      return serviceClients.events.listMyEvents(params);
+    },
   });
 };
 
@@ -150,9 +143,9 @@ export const useEventSearch = ({
   pastEvents?: boolean;
   isMyCommunities?: boolean;
   isOnlineOnly?: boolean;
-  searchLocation?: GeocodeResult | "";
+  searchLocation: GeocodeResult | "";
 }) => {
-  return useQuery<EventSearchRes.AsObject, RpcError>({
+  return useQuery<Search.EventSearchRes, RpcError>({
     queryKey: [
       "searchEvents",
       isMyCommunities,
@@ -161,14 +154,42 @@ export const useEventSearch = ({
       pastEvents,
       searchLocation,
     ],
-    queryFn: () =>
-      service.search.eventSearch({
-        pageNumber,
+    queryFn: () => {
+      const request = create(Search.EventSearchReqSchema, {
+        pagination: {
+          case: "pageNumber",
+          value: pageNumber,
+        },
         pageSize,
-        pastEvents,
-        isMyCommunities,
-        isOnlineOnly,
-        searchLocation,
-      }),
+        past: pastEvents,
+        myCommunities: isMyCommunities,
+        onlineStatus: {
+          case: isOnlineOnly ? "onlyOnline" : "onlyOffline",
+          value: true,
+        },
+      }) as Search.EventSearchReqValid;
+
+      if (searchLocation) {
+        // If it's a region (i.e. "France" or "United States") use query search by name
+        // This will search for events in the region by that name
+        if (searchLocation.isRegion) {
+          request.query = searchLocation.name;
+        } else {
+          // Otherwise use rectangle search so we get the area around a city
+          // This is because if you search a small town, you might want to search around it too
+          request.searchIn = {
+            case: "searchInRectangle",
+            value: create(Search.RectAreaSchema, {
+              latMin: searchLocation.bbox[1] || 0,
+              latMax: searchLocation.bbox[3] || 0,
+              lngMin: searchLocation.bbox[0] || 0,
+              lngMax: searchLocation.bbox[2] || 0,
+            }) as Search.RectArea,
+          };
+        }
+      }
+
+      return serviceClients.search.eventSearch(request);
+    },
   });
 };

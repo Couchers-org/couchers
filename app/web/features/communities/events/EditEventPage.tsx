@@ -1,3 +1,5 @@
+import { timestampFromDate } from "@bufbuild/protobuf/wkt";
+import { Events } from "@couchers/services";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
@@ -10,16 +12,14 @@ import NotFoundPage from "@/features/NotFoundPage";
 import { COMMUNITY_EVENTS_BASE_KEY, eventKey } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
-import { Event } from "@/proto/events_pb";
 import { routeToEvent } from "@/routes";
-import { service } from "@/service";
-import type { UpdateEventInput } from "@/service/events";
+import serviceClients from "@/serviceClients";
 import dayjs, { TIME_FORMAT } from "@/utils/dayjs";
 
 import EventForm, { CreateEventVariables } from "./EventForm";
 import { useEvent } from "./hooks";
 
-const EditEventPage = ({ eventId }: { eventId: number }) => {
+const EditEventPage = ({ eventId }: { eventId: bigint }) => {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const router = useRouter();
 
@@ -36,13 +36,12 @@ const EditEventPage = ({ eventId }: { eventId: number }) => {
     error,
     isPending,
   } = useMutation<
-    Event.AsObject,
+    Events.Event,
     RpcError,
     CreateEventVariables,
-    { parentCommunityId?: number }
+    { parentCommunityId?: bigint }
   >({
     mutationFn: (data) => {
-      let updateEventInput: UpdateEventInput;
       const startTime = dayjs(data.startTime, TIME_FORMAT);
       const endTime = dayjs(data.endTime, TIME_FORMAT);
       const finalStartDate = data.startDate
@@ -56,36 +55,43 @@ const EditEventPage = ({ eventId }: { eventId: number }) => {
         .add(endTime.get("minute"), "minute")
         .toDate();
 
-      updateEventInput = {
+      const updateEventInput: Parameters<
+        typeof serviceClients.events.updateEvent
+      >["0"] = {
         eventId,
-        isOnline: data.isOnline,
         title: data.title,
         content: data.content,
         photoKey: data.dirtyFields.eventImage ? data.eventImage : undefined,
-        startTime: finalStartDate,
-        endTime: finalEndDate,
+        startTime: timestampFromDate(finalStartDate),
+        endTime: timestampFromDate(finalEndDate),
         shouldNotify: data.dirtyFields.shouldNotify,
       };
 
       if (data.isOnline) {
-        updateEventInput = Object.assign(updateEventInput, {
-          link: data.dirtyFields.link ? data.link : undefined,
-        });
+        updateEventInput.mode = {
+          case: "onlineInformation",
+          value: {
+            link: data.dirtyFields.link ? data.link : undefined,
+          },
+        };
       } else if (data.dirtyFields.location) {
-        updateEventInput = Object.assign(updateEventInput, {
-          address: data.location.name,
-          lat: data.location.location.lat,
-          lng: data.location.location.lng,
-        });
+        updateEventInput.mode = {
+          case: "offlineInformation",
+          value: {
+            address: data.location.name,
+            lat: data.location.location.lat,
+            lng: data.location.location.lng,
+          },
+        };
       }
-      return service.events.updateEvent(updateEventInput);
+      return serviceClients.events.updateEvent(updateEventInput);
     },
 
     onMutate: ({ parentCommunityId }) => {
       return { parentCommunityId };
     },
     onSuccess: async (updatedEvent, _, context) => {
-      queryClient.setQueryData<Event.AsObject>(eventKey(eventId), updatedEvent);
+      queryClient.setQueryData(eventKey(eventId), updatedEvent);
       await queryClient.invalidateQueries({
         queryKey: eventKey(eventId),
         refetchType: "none",

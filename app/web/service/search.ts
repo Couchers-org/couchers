@@ -1,24 +1,13 @@
-import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
-import {
-  BoolValue,
-  StringValue,
-  UInt32Value,
-} from "google-protobuf/google/protobuf/wrappers_pb";
+import { create } from "@bufbuild/protobuf";
+import { timestampFromDate } from "@bufbuild/protobuf/wkt";
+import { API, Search } from "@couchers/services";
 
 import {
   Coordinates,
   DEFAULT_AGE_MAX,
   DEFAULT_AGE_MIN,
-  SleepingArrangementOptions,
 } from "@/features/search/utils/constants";
-import { HostingStatus, MeetupStatus } from "@/proto/api_pb";
-import {
-  EventSearchReq,
-  EventSearchRes,
-  RectArea,
-  UserSearchReq,
-} from "@/proto/search_pb";
-import client from "@/service/client";
+import serviceClients from "@/serviceClients";
 import { GeocodeResult } from "@/utils/hooks";
 
 export interface UserSearchFilters {
@@ -33,14 +22,14 @@ export interface UserSearchFilters {
   lastActive?: number; // within x days
   hasReferences?: boolean;
   hasStrongVerification?: boolean;
-  hostingStatus?: HostingStatus[];
-  meetupStatus?: MeetupStatus[];
+  hostingStatus?: API.HostingStatus[];
+  meetupStatus?: API.MeetupStatus[];
   numGuests?: number;
   showEmptyProfile?: boolean;
   pageNumber?: number;
   pageSize?: number;
-  selectedUserId?: number;
-  sleepingArrangement?: SleepingArrangementOptions[];
+  selectedUserId?: bigint;
+  sleepingArrangement?: API.SleepingArrangement[];
   smokesAtHome?: boolean | undefined;
 }
 
@@ -67,96 +56,74 @@ const constructUserSearchReq = (
   }: UserSearchFilters,
   pageToken = "",
 ) => {
-  const req = new UserSearchReq();
+  const req = create(
+    Search.UserSearchReqSchema,
+    {},
+  ) as Search.UserSearchReqValid;
 
-  if (pageToken) {
-    req.setPageToken(pageToken);
-  }
-
-  if (acceptsKids) {
-    req.setAcceptsKids(new BoolValue().setValue(acceptsKids));
-  }
-
-  if (acceptsLastMinRequests) {
-    req.setLastMinute(new BoolValue().setValue(acceptsLastMinRequests));
-  }
-
-  if (acceptsPets) {
-    req.setAcceptsPets(new BoolValue().setValue(acceptsPets));
-  }
-
-  if (drinkingAllowed !== undefined) {
-    req.setDrinkingAllowed(new BoolValue().setValue(drinkingAllowed));
-  }
-
-  if (query) {
-    req.setQuery(new StringValue().setValue(query));
-  }
+  req.pageToken = pageToken;
+  req.acceptsKids = acceptsKids;
+  req.lastMinute = acceptsLastMinRequests;
+  req.acceptsPets = acceptsPets;
+  req.drinkingAllowed = drinkingAllowed;
+  req.query = query;
 
   if (bbox !== undefined && bbox.join() !== "0,0,0,0") {
-    const rectAreaSearch = new RectArea();
+    const rect = create(Search.RectAreaSchema) as Search.RectArea;
+    rect.lngMin = bbox[0];
+    rect.latMin = bbox[1];
+    rect.lngMax = bbox[2];
+    rect.latMax = bbox[3];
 
-    rectAreaSearch.setLngMin(bbox[0]);
-    rectAreaSearch.setLatMin(bbox[1]);
-    rectAreaSearch.setLngMax(bbox[2]);
-    rectAreaSearch.setLatMax(bbox[3]);
-
-    req.setSearchInRectangle(rectAreaSearch);
+    req.searchIn = {
+      case: "searchInRectangle",
+      value: rect,
+    };
   }
 
   if (lastActive) {
-    const timestamp = new Timestamp();
-    timestamp.fromDate(new Date(Date.now() - 1000 * 60 * 60 * 24 * lastActive));
-    req.setLastActive(timestamp);
-  }
-
-  if (showEmptyProfile !== undefined) {
-    req.setProfileCompleted(
-      showEmptyProfile
-        ? undefined
-        : new BoolValue().setValue(!showEmptyProfile),
+    req.lastActive = timestampFromDate(
+      new Date(Date.now() - 1000 * 60 * 60 * 24 * lastActive),
     );
   }
 
-  if (hasReferences) {
-    req.setOnlyWithReferences(hasReferences);
+  req.profileCompleted = !(showEmptyProfile ?? true) || undefined;
+
+  if (hasReferences !== undefined) {
+    req.onlyWithReferences = hasReferences;
   }
 
-  if (hasStrongVerification) {
-    req.setOnlyWithStrongVerification(hasStrongVerification);
+  if (hasStrongVerification !== undefined) {
+    req.onlyWithStrongVerification = hasStrongVerification;
   }
 
-  if (hostingStatus && hostingStatus.length > 0) {
-    req.setHostingStatusFilterList(hostingStatus);
+  if (hostingStatus?.length) {
+    req.hostingStatusFilter = hostingStatus;
   }
 
-  if (meetupStatus && meetupStatus.length > 0) {
-    req.setMeetupStatusFilterList(meetupStatus);
+  if (meetupStatus?.length) {
+    req.meetupStatusFilter = meetupStatus;
   }
 
   if (ageMin && ageMin !== DEFAULT_AGE_MIN) {
-    req.setAgeMin(new UInt32Value().setValue(ageMin));
+    req.ageMin = ageMin;
   }
 
   if (ageMax && ageMax !== DEFAULT_AGE_MAX) {
-    req.setAgeMax(new UInt32Value().setValue(ageMax));
+    req.ageMax = ageMax;
   }
 
-  if (numGuests) {
-    req.setGuests(new UInt32Value().setValue(numGuests));
-  }
+  req.guests = numGuests || undefined;
 
   if (selectedUserId !== undefined) {
-    req.addExactlyUserIds(selectedUserId);
+    req.exactlyUserIds.push(selectedUserId);
   }
 
-  if (sleepingArrangement && sleepingArrangement.length > 0) {
-    req.setSleepingArrangementFilterList(sleepingArrangement);
+  if (sleepingArrangement?.length) {
+    req.sleepingArrangementFilter = sleepingArrangement;
   }
 
-  if (smokesAtHome !== undefined) {
-    req.setSmokesAtHome(new BoolValue().setValue(smokesAtHome));
-  }
+  req.smokesAtHome = smokesAtHome;
 
   return req;
 };
@@ -166,8 +133,7 @@ export const userSearch = async (
   pageToken = "",
 ) => {
   const req = constructUserSearchReq(filters, pageToken);
-  const response = await client.search.userSearch(req);
-  return response.toObject();
+  return serviceClients.search.userSearch(req);
 };
 
 export const userSearchV2 = async (
@@ -175,8 +141,7 @@ export const userSearchV2 = async (
   pageToken = "",
 ) => {
   const req = constructUserSearchReq(filters, pageToken);
-  const response = await client.search.userSearchV2(req);
-  return response.toObject();
+  return serviceClients.search.userSearchV2(req);
 };
 
 export const eventSearch = async ({
@@ -193,37 +158,47 @@ export const eventSearch = async ({
   isMyCommunities?: boolean;
   isOnlineOnly?: boolean;
   searchLocation?: GeocodeResult | "";
-}): Promise<EventSearchRes.AsObject> => {
-  const req = new EventSearchReq();
-  req.setPageSize(pageSize);
-  req.setPageNumber(pageNumber);
+}): Promise<Search.EventSearchReqValid> => {
+  const req = create(Search.EventSearchReqSchema) as Search.EventSearchReqValid;
+
+  req.pageSize = pageSize;
+  req.pagination = {
+    case: "pageNumber",
+    value: pageNumber,
+  };
 
   if (pastEvents !== undefined) {
-    req.setPast(pastEvents);
+    req.past = pastEvents;
   }
-  if (typeof searchLocation !== "string") {
-    // If it's a region (i.e. "France" or "United States") use query search by name
-    // This will search for events in the region by that name
-    if (searchLocation?.isRegion) {
-      req.setQuery(new StringValue().setValue(searchLocation.name));
+
+  if (searchLocation) {
+    if (searchLocation.isRegion) {
+      req.query = searchLocation.name;
     } else {
       // Otherwise use rectangle search so we get the area around a city
       // This is because if you search a small town, you might want to search around it too
-      const location = new RectArea();
-      location.setLatMin(searchLocation?.bbox[1] || 0);
-      location.setLatMax(searchLocation?.bbox[3] || 0);
-      location.setLngMin(searchLocation?.bbox[0] || 0);
-      location.setLngMax(searchLocation?.bbox[2] || 0);
-      req.setSearchInRectangle(location);
+      req.searchIn = {
+        case: "searchInRectangle",
+        value: create(Search.RectAreaSchema, {
+          latMin: searchLocation.bbox[1] || 0,
+          latMax: searchLocation.bbox[3] || 0,
+          lngMin: searchLocation.bbox[0] || 0,
+          lngMax: searchLocation.bbox[2] || 0,
+        }) as Search.RectArea,
+      };
     }
   }
+
   if (isMyCommunities !== undefined) {
-    req.setMyCommunities(isMyCommunities);
-  }
-  if (isOnlineOnly !== undefined) {
-    req.setOnlyOnline(isOnlineOnly);
+    req.myCommunities = isMyCommunities;
   }
 
-  const res = await client.search.eventSearch(req);
-  return res.toObject();
+  if (isOnlineOnly !== undefined) {
+    req.onlineStatus = {
+      case: "onlyOnline",
+      value: isOnlineOnly,
+    };
+  }
+
+  return serviceClients.search.eventSearch(req);
 };
