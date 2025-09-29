@@ -12,5 +12,28 @@
   "mark_all_read_button_text": "Hepsini okundu işaretle",
   "messages_page": {
     "title": "Mesajlar"
+  },
+  "chat_view": {
+    "invalid_id_error": "Geçersiz sohbet ID'si.",
+    "back_button": {
+      "a11y_label": "Geri"
+    },
+    "actions_menu": {
+      "a11y_label": "Daha fazla sohbet seçeneği göster",
+      "items": {
+        "invite_members": "Sohbete davet et",
+        "show_all_members": "Sohbet üyeleri",
+        "manage_admins": "Sohbet yöneticilerini yönet",
+        "chat_settings": "Sohbet ayarları",
+        "leave_chat": "Sohbetten ayrıl"
+      }
+    },
+    "mute": {
+      "1_hour_label": "1 saat",
+      "8_hours_label": "8 saat",
+      "1_week_label": "1 hafta",
+      "1_month_label": "1 ay",
+      "forever_label": "Ben sessizden çıkarana dek"
+    }
   }
 }
