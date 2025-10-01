@@ -13,5 +13,12 @@
   "friend_list_title": "Arkadaşların",
   "friend_requests": "Arkadaş istekleri",
   "friend_requests_sent": "Yolladığın arkadaşlık istekleri",
-  "no_blocked_users": "Engelli kullanıcı yok"
+  "no_blocked_users": "Engelli kullanıcı yok",
+  "remove_friend_confirmation_dialog": {
+    "title": "Arkadaşı çıkar",
+    "confirm": "Çıkar"
+  },
+  "unblock_user_confirmation_dialog": {
+    "confirm": "Engeli kaldır"
+  }
 }

@@ -36,6 +36,7 @@
     "gender_verification_verified": "This user has verified their gender",
     "gender_verification_mismatch": "User provided gender does not match verified gender"
   },
+  "edit": "Edit Profile",
   "helper_text": {
     "characters_remaining": "<bold>Please write at least {{count}} characters to unlock messaging and requests.</bold> Genuine profiles build a community of trust. The more you share, the easier it is to connect!",
     "missing_profile_photo": "Please add a photo to complete your profile."

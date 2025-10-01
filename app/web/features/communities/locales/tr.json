@@ -15,5 +15,12 @@
     "open": "Topluluğu davet et"
   },
   "cancelled": "İptal edildi",
-  "cancel_event": "Etkinliği iptal et"
+  "cancel_event": "Etkinliği iptal et",
+  "edit_info_page_success_message": "Topluluk sayfası başarılı bir şekilde güncellendi.",
+  "community_tabs_a11y_label": "Topluluk alt sayfaları için sekmeler",
+  "create_new_discussion_title": "Yeni gönderi oluştur",
+  "edit_event": "Etkinliği düzenle",
+  "edit_info_page_title": "Yerel bilgi düzenle",
+  "find_host": "Ev sahibi ara",
+  "finished": "Bitti"
 }
