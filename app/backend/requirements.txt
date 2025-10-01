@@ -65,7 +65,7 @@ googleapis-common-protos==1.66.0
     #   opentelemetry-exporter-otlp-proto-http
 greenlet==3.1.1
     # via sqlalchemy
-grpcio==1.74.0
+grpcio==1.75.1
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -239,6 +239,7 @@ stripe==12.5.0
 typing-extensions==4.12.2
     # via
     #   alembic
+    #   grpcio
     #   opentelemetry-sdk
     #   sqlalchemy
     #   stripe
