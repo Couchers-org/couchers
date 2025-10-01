@@ -1,2 +1,34 @@
 {
+  "actions": {
+    "back_to_dashboard": "Göstergeye geri dön",
+    "message_label": "Mesaj",
+    "accept_friend_label": "Kabul et",
+    "decline_friend_label": "Reddet",
+    "request": "İstek"
+  },
+  "heading": {
+    "about_me": "Benim hakkımda",
+    "age_gender": "Yaş / Cinsiyet",
+    "community_standing": "Topluluk İtibarı",
+    "edit": "Düzenle",
+    "edit_profile": "Profili düzenle",
+    "education": "Eğitim",
+    "home": "Evim",
+    "languages_fluent": "Akıcı diller",
+    "last_active": "En son aktiflik",
+    "local_time": "Yerel zaman",
+    "who_section": "Ben kimim",
+    "hobbies_section": "Boş vaktimde neler yaparım",
+    "additional_information_section": "Daha fazla bilgi",
+    "travel_section": "'ya gitti",
+    "age_verification_mismatch": "Doğrulanmış doğum tarihi ile kullanıcının verdiği doğum tarihi uymamakta",
+    "gender_verification_verified": "Bu kullanıcı cinsiyetini doğruladı"
+  },
+  "active": "Aktif",
+  "my_connections": "Kişilerim",
+  "cancel": "İptal et",
+  "helper_text": {
+    "missing_profile_photo": "Lütfen profilini tamamlamak için bir fotoğraf ekle."
+  },
+  "section_tabs_a11y_label": "kullanıcı detayları için sekmeler"
 }

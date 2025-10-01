@@ -49,7 +49,7 @@
   },
   "close_request_dialog_title": "Завершить переписку?",
   "past_request_help_text": "Этот запрос уже в прошлом, вы все еще можете отправлять сообщения, но не можете вносить другие изменения.",
-  "host_pending_request_help_text": "Что учесть</0> перед ответом.",
+  "host_pending_request_help_text": "<0>Что учесть</0> перед ответом.",
   "surfer_declined_request_help_text": "<0>Прочитайте наше руководство</0> о том, как написать запрос, который будет принят.",
   "group_chats_tab": {
     "no_chats_message": "Пока нет групповых чатов",

@@ -1,2 +1,33 @@
 {
+    "unread": "Okunmamışlar",
+    "error_loading": "Bildirimleri yüklemede bir hata oluştu",
+    "error_updating_notifications": "Bildirimleri güncellemede bir hata oluştu",
+    "mark_unread": "Okunmadı işaretle",
+    "mark_all_read": "Hepsini okundu işaretle",
+    "no_new_notifications": "Yeni bildirim yok",
+    "notification_settings": {
+        "title": "Bildirim ayarları",
+        "edit_in_console": "Bildirim ayarlarını <2>bu sayfada</2> değiştirebilirsin. Yakında buraya taşınacak.",
+        "go_to_button": "Bildirim ayarlarını yönet",
+        "edit_preferences": {
+            "title": "Bildirim Ayarları",
+            "description": "Aşağıda yaptığın herhangi bir değişiklik otomatik olarak kaydoluyor. Lütfen unutmayın ki hesabınız hakkında önemli bildirimler ve tercih ettiğiniz bildirim ayarları dışındaki içerikler hakkında bildirim almaya devam edebilirsiniz.",
+            "list_heading": "Alabileceğin bildirimler",
+            "list_items": {
+                "account_settings": "Hesap ayarları",
+                "chat": "Mesajlar",
+                "friend_request": "Arkadaş istekleri",
+                "host_request": "Ev sahibi istekleri",
+                "reference": "Referanslar",
+                "discussion": "Tartışmalar",
+                "reply": "Yanıtlar"
+            },
+            "item_descriptions": {
+                "host_request": {
+                    "reminder": "Bekleyen bir ev sahibi isteğine henüz yanıt vermediniz."
+                }
+            }
+        }
+    },
+    "all": "Hepsi"
 }

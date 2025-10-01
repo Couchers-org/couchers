@@ -41,7 +41,7 @@ def _get_user_host_requests_in_past_time_interval(session, user_id) -> list[dict
         session.execute(
             select(
                 Conversation.created.label("created"),
-                HostRequest.host_user_id.label("host id"),
+                HostRequest.host_user_id.label("host ID"),
                 User.username.label("host username"),
                 User.city.label("host city"),
             )
@@ -60,9 +60,10 @@ def _get_user_friend_requests_in_past_time_interval(session, user_id) -> list[di
         session.execute(
             select(
                 FriendRelationship.time_sent,
-                User.id.label("to_user (ID)"),
-                User.username.label("to_user (username)"),
+                User.id.label("recipient ID"),
+                User.username.label("recipient username"),
                 FriendRelationship.status,
+                User.city.label("recipient city"),
             )
             .join(User, FriendRelationship.to_user_id == User.id)
             .where(FriendRelationship.from_user_id == user_id)
@@ -82,6 +83,7 @@ def _get_user_initiated_chats_in_past_time_interval(session, user_id) -> list[di
                 GroupChat.title,
                 GroupChat.is_dm,
                 func.array_agg(User.username).label("participants"),
+                func.array_agg(User.city).label("participants cities"),
             )
             .join(Conversation, GroupChat.conversation_id == Conversation.id)
             .join(GroupChatSubscription, Conversation.id == GroupChatSubscription.group_chat_id)
@@ -90,6 +92,7 @@ def _get_user_initiated_chats_in_past_time_interval(session, user_id) -> list[di
             .where(Conversation.created >= now() - RATE_LIMIT_INTERVAL)
             .where(GroupChatSubscription.left == None)
             .group_by(Conversation.id, Conversation.created, GroupChat.title, GroupChat.is_dm)
+            .where(User.id != user_id)
         )
         .mappings()
         .all()
