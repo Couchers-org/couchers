@@ -12,7 +12,21 @@
         "edit_preferences": {
             "title": "Bildirim Ayarları",
             "description": "Aşağıda yaptığın herhangi bir değişiklik otomatik olarak kaydoluyor. Lütfen unutmayın ki hesabınız hakkında önemli bildirimler ve tercih ettiğiniz bildirim ayarları dışındaki içerikler hakkında bildirim almaya devam edebilirsiniz.",
-            "list_heading": "Alabileceğin bildirimler"
+            "list_heading": "Alabileceğin bildirimler",
+            "list_items": {
+                "account_settings": "Hesap ayarları",
+                "chat": "Mesajlar",
+                "friend_request": "Arkadaş istekleri",
+                "host_request": "Ev sahibi istekleri",
+                "reference": "Referanslar",
+                "discussion": "Tartışmalar",
+                "reply": "Yanıtlar"
+            },
+            "item_descriptions": {
+                "host_request": {
+                    "reminder": "Bekleyen bir ev sahibi isteğine henüz yanıt vermediniz."
+                }
+            }
         }
     },
     "all": "Hepsi"

@@ -17,5 +17,9 @@
       "success_message": "Couchers.org'a bağış yaptığın için teşekkürler, desteğine minnettarız! Yakında bir email alacaksın."
     },
     "helper_text": "Bağışını tamamlamak için, harcama yöneticimiz olan Stripe'a yönlendirileceksin.Herhangi bir zaman, var olan bir bağışı değiştirmek veya iptal etmek için <2>buraya tıklayarak bağış portalımıza gidebilirsin</2>."
+  },
+  "donations_recurrence_explainer": "Aylık bir bağış geleceği planlamamıza ve faaliyetlerimizi istikrarlı bir şekilde devam ettirmemize yardımcı oluyor.",
+  "settings_fragment": {
+    "button_text": "Bağış yönetim portalına git"
   }
 }
