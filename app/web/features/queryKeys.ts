@@ -54,6 +54,8 @@ export const availableWriteReferencesKey = (userId: number) => [
   { userId },
 ];
 
+export const hasGivenHostRequestReferenceKey = "hasGivenHostRequestReference";
+
 export type FriendRequestType = "sent" | "received";
 export const friendRequestKey = (type: FriendRequestType) => [
   "friendRequests",

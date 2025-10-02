@@ -2,6 +2,7 @@ import type { ReferenceTypeState } from "features/profile/view/References";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {
   AvailableWriteReferencesReq,
+  GetHostRequestReferenceStatusReq,
   HostRequestIndicateDidntMeetupReq,
   ListReferencesReq,
   WriteFriendReferenceReq,
@@ -130,6 +131,13 @@ export async function writeFriendRequestReference({
 
 export async function listPendingReferencesToWrite() {
   const res = await client.references.listPendingReferencesToWrite(new Empty());
+  return res.toObject();
+}
+
+export async function getHostRequestReferenceStatus(hostRequestId: number) {
+  const req = new GetHostRequestReferenceStatusReq();
+  req.setHostRequestId(hostRequestId);
+  const res = await client.references.getHostRequestReferenceStatus(req);
   return res.toObject();
 }
 
