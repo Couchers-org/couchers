@@ -2,10 +2,10 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { PropsWithChildren } from "react";
 
 import { useTranslation } from "@/i18n";
-import {
-  getVapidPublicKey,
-  registerPushNotificationSubscription,
-} from "@/service/notifications";
+// import {
+// getVapidPublicKey,
+// registerPushNotificationSubscription,
+// } from "@/service/notifications";
 import wrapper from "@/test/hookWrapper";
 
 import PushNotificationSettings from "./PushNotificationSettings";
@@ -19,9 +19,15 @@ jest.mock("i18n", () => ({
   Trans: ({ children }: PropsWithChildren) => children, // Mock the Trans component to return its children
 }));
 
+const mockGetVapidPublicKey = jest.fn();
+const mockRegisterPushNotificationSubscription = jest.fn(() =>
+  Promise.resolve(),
+);
+
 jest.mock("service/notifications", () => ({
-  getVapidPublicKey: jest.fn(),
-  registerPushNotificationSubscription: jest.fn(() => Promise.resolve()),
+  getVapidPublicKey: mockGetVapidPublicKey,
+  registerPushNotificationSubscription:
+    mockRegisterPushNotificationSubscription,
 }));
 
 // Mock Service Worker API
@@ -181,7 +187,7 @@ describe("PushNotificationSettings Component", () => {
     Object.assign(global.Notification, mockGranted);
     const mockUnsubscribe = jest.fn();
 
-    (getVapidPublicKey as jest.Mock).mockResolvedValue({
+    mockGetVapidPublicKey.mockResolvedValue({
       vapidPublicKey: "mockedVapidPublicKey",
     });
 
@@ -221,9 +227,10 @@ describe("PushNotificationSettings Component", () => {
 
     const mockSubscribe = jest.fn();
 
-    (getVapidPublicKey as jest.Mock).mockResolvedValue({
+    mockGetVapidPublicKey.mockResolvedValue({
       vapidPublicKey: "mockedVapidPublicKey",
     });
+
     mockServiceWorker.getRegistration.mockResolvedValue({
       pushManager: {
         getSubscription: jest.fn().mockResolvedValue(null),
@@ -237,7 +244,7 @@ describe("PushNotificationSettings Component", () => {
 
     await waitFor(() => {
       expect(mockSubscribe).toHaveBeenCalled();
-      expect(registerPushNotificationSubscription).toHaveBeenCalled();
+      expect(mockRegisterPushNotificationSubscription).toHaveBeenCalled();
     });
   });
 });

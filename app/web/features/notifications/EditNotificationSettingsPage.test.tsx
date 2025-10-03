@@ -1,8 +1,9 @@
+import { Notifications } from "@couchers/services";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useTranslation } from "next-i18next";
 
-import { NotificationPreferenceData } from "@/service/notifications";
+// import { NotificationPreferenceData } from "@/service/notifications";
 
 import EditNotificationSettingsPage from "./EditNotificationSettingsPage";
 import NotificationSettingsSubListItem from "./NotificationSettingsSubListItem";
@@ -183,7 +184,10 @@ describe("EditNotificationSettingsPage", () => {
   });
 
   it("Should call updateNotificationSettings on switch click with opposite value", async () => {
-    const preferenceData: NotificationPreferenceData = {
+    const preferenceData: Omit<
+      Notifications.SingleNotificationPreference,
+      "$typeName"
+    > = {
       topic: "host_request",
       action: "host_request",
       deliveryMethod: "push",

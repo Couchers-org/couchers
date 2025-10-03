@@ -5,10 +5,7 @@ import log from "@/log";
 import { Sentry } from "@/platform/sentry";
 import { ListNotificationsRes } from "@/proto/notifications_pb";
 import { service } from "@/service";
-import {
-  getVapidPublicKey,
-  registerPushNotificationSubscription,
-} from "@/service/notifications";
+import serviceClients from "@/serviceClients";
 import { arrayBufferToBase64 } from "@/utils/arrayBufferToBase64";
 
 interface PushNotificationPermissionSuccessResponse {
@@ -31,7 +28,8 @@ export const onPushNotificationPermissionGranted =
       if ("serviceWorker" in navigator && "PushManager" in window) {
         const existingPushSubscription = await getCurrentSubscription();
         const p256dhKey = existingPushSubscription?.getKey("p256dh");
-        const { vapidPublicKey } = await getVapidPublicKey();
+        const { vapidPublicKey } =
+          await serviceClients.notifications.getVapidPublicKey({});
 
         if (existingPushSubscription && p256dhKey) {
           const publicKey = arrayBufferToBase64(p256dhKey);
@@ -63,7 +61,12 @@ export const onPushNotificationPermissionGranted =
           applicationServerKey: vapidPublicKey,
         });
 
-        await registerPushNotificationSubscription(subscription);
+        await serviceClients.notifications.registerPushNotificationSubscription(
+          {
+            userAgent: navigator.userAgent,
+            fullSubscriptionJson: JSON.stringify(subscription),
+          },
+        );
 
         return { success: true };
       } else {

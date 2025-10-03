@@ -14,8 +14,7 @@ import { AUTH, GLOBAL } from "@/i18n/namespaces";
 import { useIsNativeEmbed } from "@/platform/nativeLink";
 import { Sentry } from "@/platform/sentry";
 import { SIGNUP_ROUTE } from "@/routes";
-import { service } from "@/service";
-import isGrpcError from "@/service/utils/isGrpcError";
+import serviceClients from "@/serviceClients";
 import stringOrFirstString from "@/utils/stringOrFirstString";
 import useStablePush from "@/utils/useStablePush";
 
@@ -62,7 +61,7 @@ const HeroSection = () => {
         setIsLoading(true);
         try {
           authActions.updateSignupState(
-            await service.auth.signupFlowEmailToken(urlToken),
+            await serviceClients.auth.signupFlow({ emailToken: urlToken }),
           );
         } catch (err) {
           Sentry.captureException(err, {
@@ -70,9 +69,8 @@ const HeroSection = () => {
               component: "auth/signup/Signup",
             },
           });
-          authActions.authError(
-            isGrpcError(err) ? err.message : t("global:error.fatal_message"),
-          );
+
+          authActions.authError(err);
           await push(SIGNUP_ROUTE);
           return;
         }

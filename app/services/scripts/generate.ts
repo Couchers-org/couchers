@@ -4,6 +4,8 @@ import path from "path";
 import { Project, VariableDeclarationKind } from "ts-morph";
 import { fileURLToPath } from "url";
 
+import { generateServiceWrapper } from "../codegen/serviceWrapper";
+
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
@@ -20,7 +22,9 @@ execSync(`${bufBinPath} generate ${protoDir}`);
 
 const files = await readdir(sourceDir, { withFileTypes: true });
 
-const project = new Project();
+const project = new Project({
+  tsConfigFilePath: path.resolve(dirname, "../tsconfig.json"),
+});
 
 const file = project.createSourceFile(`generated/index.ts`, "", {
   overwrite: true,
@@ -69,6 +73,8 @@ file.addImportDeclarations([
 ]);
 
 services.forEach(([truncatedFileName, serviceName]) => {
+  generateServiceWrapper(truncatedFileName, serviceName, project);
+
   file.addImportDeclarations([
     {
       namespaceImport:

@@ -549,6 +549,7 @@ __metadata:
     "@connectrpc/connect": "npm:^2.1.0"
     "@connectrpc/connect-web": "npm:^2.1.0"
     "@types/node": "npm:^24.5.1"
+    change-case: "npm:^5.4.4"
     eslint: "npm:^9.35.0"
     make-dir-cli: "npm:^4.0.0"
     node-fetch: "npm:^3.3.2"

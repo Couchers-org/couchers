@@ -1,3 +1,4 @@
+import { Notifications } from "@couchers/services";
 import { MailOutline } from "@mui/icons-material";
 import {
   List,
@@ -15,7 +16,7 @@ import Alert from "@/components/Alert";
 import CustomColorSwitch from "@/components/CustomColorSwitch";
 import { NotificationNewIcon } from "@/components/Icons";
 import { GLOBAL, NOTIFICATIONS } from "@/i18n/namespaces";
-import { NotificationPreferenceData } from "@/service/notifications";
+// import { NotificationPreferenceData } from "@/service/notifications";
 import { theme } from "@/theme";
 
 import useUpdateNotificationSettings from "./useUpdateNotificationSettings";
@@ -66,7 +67,10 @@ const NotificationSettingsSubListItem = ({
 
   const handlePushSwitchClick = () => {
     setIsPushLoading(true);
-    const updatedItem: NotificationPreferenceData = {
+    const updatedItem: Omit<
+      Notifications.SingleNotificationPreference,
+      "$typeName"
+    > = {
       topic,
       action,
       deliveryMethod: "push",
@@ -90,7 +94,10 @@ const NotificationSettingsSubListItem = ({
   };
 
   const handleEmailSwitchClick = () => {
-    const updatedItem: NotificationPreferenceData = {
+    const updatedItem: Omit<
+      Notifications.SingleNotificationPreference,
+      "$typeName"
+    > = {
       topic,
       action,
       deliveryMethod: "email",
