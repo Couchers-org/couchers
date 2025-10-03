@@ -34,6 +34,14 @@
       "1_week_label": "1 hafta",
       "1_month_label": "1 ay",
       "forever_label": "Ben sessizden çıkarana dek"
+    },
+    "muted_icon": {
+      "a11y_label": "Sessiz"
+    }
+  },
+  "admins_dialog": {
+    "step_down_confirmation_dialog": {
+      "message": "Bu sohbetin yöneticisi olmaktan vazgeçmek istediğine emin misin? Başka bir yönetici seni tekrardan yönetici olarak eklemediği sürece tekrardan bu sohbetin yöneticisi olamayacaksın."
     }
   }
 }

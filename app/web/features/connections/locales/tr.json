@@ -16,9 +16,11 @@
   "no_blocked_users": "Engelli kullanıcı yok",
   "remove_friend_confirmation_dialog": {
     "title": "Arkadaşı çıkar",
-    "confirm": "Çıkar"
+    "confirm": "Çıkar",
+    "message": "{{name}}'yı çıkarmak istediğine emin misin? Bu eylemi geri alınamaz."
   },
   "unblock_user_confirmation_dialog": {
     "confirm": "Engeli kaldır"
-  }
+  },
+  "unblock_user": "Kullanıcının engelini kaldır"
 }

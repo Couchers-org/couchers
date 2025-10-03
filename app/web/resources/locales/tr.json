@@ -22,5 +22,7 @@
     "verification_score": "Doğrulama Puanı",
     "send": "Yolla",
     "cancel": "İptal et",
-    "confirm": "Onayla"
+    "confirm": "Onayla",
+    "read_more": "Daha fazla oku",
+    "disabled": "Devre dışı"
 }
