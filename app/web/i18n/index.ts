@@ -1,4 +1,4 @@
-import resources from "i18n/resources";
+import type resources from "i18n/resources";
 import { TFunction as TFunctionOriginal } from "i18next";
 import {
   Trans as nextTrans,

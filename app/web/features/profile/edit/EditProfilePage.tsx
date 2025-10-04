@@ -5,9 +5,9 @@ import IconButton from "components/IconButton";
 import { BackIcon, CouchIcon, PersonIcon } from "components/Icons";
 import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
+import { useTranslation } from "i18n";
 import { useRouter } from "next/router";
 import React from "react";
-import { useTranslation } from "react-i18next";
 import {
   EditUserTab,
   routeToEditProfile,

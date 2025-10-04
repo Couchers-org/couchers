@@ -5,8 +5,8 @@ import {
   DialogContent,
   DialogTitle,
 } from "components/Dialog";
+import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
-import { useTranslation } from "react-i18next";
 
 interface ConnectionActionDialogProps {
   dialogConfirm: string;

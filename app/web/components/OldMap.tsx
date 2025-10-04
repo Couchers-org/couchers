@@ -1,6 +1,7 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import { styled, Typography } from "@mui/material";
+import { useTranslation } from "i18n";
 import {
   LngLat,
   Map as MaplibreMap,
@@ -8,7 +9,6 @@ import {
   RequestParameters,
 } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 
 import { SEARCH } from "../i18n/namespaces";
 

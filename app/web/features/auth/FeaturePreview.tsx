@@ -2,8 +2,8 @@ import { Alert as MuiAlert, styled, Typography } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
+import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
-import { useTranslation } from "react-i18next";
 
 import useAccountInfo from "./useAccountInfo";
 
