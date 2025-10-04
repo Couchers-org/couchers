@@ -1,3 +1,4 @@
+import { Edit } from "@mui/icons-material";
 import { Alert, Theme, useMediaQuery } from "@mui/material";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -16,10 +17,14 @@ function DashboardUserProfileSummaryActions() {
   const { t } = useTranslation([DASHBOARD]);
   return (
     <>
-      <Button component={Link} color="primary" href={routeToEditProfile()}>
+      <Button
+        component={Link}
+        color="primary"
+        href={routeToEditProfile()}
+        startIcon={<Edit fontSize="small" sx={{ color: "common.white" }} />}
+      >
         {t("dashboard:profile_summary_edit")}
       </Button>
-
       <Button
         component={Link}
         variant="outlined"

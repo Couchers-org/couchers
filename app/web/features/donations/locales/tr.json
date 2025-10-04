@@ -1,2 +1,26 @@
 {
+  "donate": "bağış yap",
+  "donations_banner": {
+    "title": "Amacımıza destek olmak için yardımlarınız gerekli",
+    "body": "Kanepe sörfünün geleceğini inşa etme fırsatın var"
+  },
+  "donations_box": {
+    "monthly_button_label": "Aylık",
+    "one_time_button_label": "Tek seferlik",
+    "validation_message": "Bu alan gerekli",
+    "action_button_label": "İleri",
+    "recurrence_aria_label": "Tekrar eden",
+    "title": "Bağış Miktarı",
+    "amount_validation_error": "Sadece tam sayılar, lütfen.",
+    "alert": {
+      "warning_message": "Ödeme iptal edildi.",
+      "success_message": "Couchers.org'a bağış yaptığın için teşekkürler, desteğine minnettarız! Yakında bir email alacaksın."
+    },
+    "helper_text": "Bağışını tamamlamak için, harcama yöneticimiz olan Stripe'a yönlendirileceksin.Herhangi bir zaman, var olan bir bağışı değiştirmek veya iptal etmek için <2>buraya tıklayarak bağış portalımıza gidebilirsin</2>."
+  },
+  "donations_recurrence_explainer": "Aylık bir bağış geleceği planlamamıza ve faaliyetlerimizi istikrarlı bir şekilde devam ettirmemize yardımcı oluyor.",
+  "settings_fragment": {
+    "button_text": "Bağış yönetim portalına git"
+  },
+  "donations_use_explainer": "{{ year }}'a ait finansal tablomuza bakın."
 }

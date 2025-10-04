@@ -20,6 +20,7 @@ import {
   Typography,
 } from "@mui/material";
 import Button from "components/Button";
+import FlipCard from "components/FlipCard";
 import HtmlMeta from "components/HtmlMeta";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
@@ -46,7 +47,11 @@ export default function WhatIsCouchSurfingPage() {
       >
         <Box component="section" sx={{ py: 6 }}>
           <Container maxWidth="lg" sx={{ px: { xs: 0, md: 3 } }}>
-            <Grid container spacing={{ xs: 1, md: 4 }} alignItems="center">
+            <Grid
+              container
+              spacing={{ xs: 1, md: 4 }}
+              alignItems={{ xs: "flex-start", md: "flex-start" }}
+            >
               <Grid
                 size={{ xs: 12, md: 5 }}
                 sx={{
@@ -91,78 +96,18 @@ export default function WhatIsCouchSurfingPage() {
                       fontWeight: "bold",
                       textAlign: { xs: "center", md: "right" },
                       mb: { xs: 1, md: 1.5 },
-                      position: "relative",
                     }}
                   >
                     {t("what_is_cs.title")}
                   </Typography>
-                  <Box>
-                    <Stack
-                      direction="row"
-                      spacing={2}
-                      alignItems="center"
-                      sx={{ mb: 1 }}
-                    >
-                      <Box sx={{ color: theme.palette.primary.main }}>
-                        <WeekendOutlined sx={{ fontSize: 36 }} />
-                      </Box>
-                      <Typography variant="h3">
-                        {t("what_is_cs.host_title")}
-                      </Typography>
-                    </Stack>
-                    <List sx={{ listStyle: "disc", pl: 3 }}>
-                      <ListItem sx={{ display: "list-item", p: 0, mb: 1 }}>
-                        {t("what_is_cs.host_points.one")}
-                      </ListItem>
-                      <ListItem sx={{ display: "list-item", p: 0, mb: 1 }}>
-                        {t("what_is_cs.host_points.two")}
-                      </ListItem>
-                      <ListItem sx={{ display: "list-item", p: 0, mb: 1 }}>
-                        {t("what_is_cs.host_points.three")}
-                      </ListItem>
-                    </List>
-                  </Box>
-
-                  <Stack
-                    direction="row"
-                    spacing={2}
-                    alignItems="center"
-                    sx={{ mb: 1 }}
+                  <Typography sx={{ fontSize: { xs: "1rem", md: "1.25rem" } }}>
+                    {t("what_is_cs.description_1")}
+                  </Typography>
+                  <Typography
+                    sx={{ mt: 1, fontSize: { xs: "1rem", md: "1.25rem" } }}
                   >
-                    <Box sx={{ color: theme.palette.primary.main }}>
-                      <TravelExploreOutlined sx={{ fontSize: 36 }} />
-                    </Box>
-                    <Typography variant="h3">
-                      {t("what_is_cs.traveler_title")}
-                    </Typography>
-                  </Stack>
-                  <List sx={{ listStyle: "disc", pl: 3 }}>
-                    <ListItem sx={{ display: "list-item", p: 0, mb: 1 }}>
-                      {t("what_is_cs.traveler_points.one")}
-                    </ListItem>
-                    <ListItem sx={{ display: "list-item", p: 0, mb: 1 }}>
-                      {t("what_is_cs.traveler_points.two")}
-                    </ListItem>
-                    <ListItem sx={{ display: "list-item", p: 0, mb: 1 }}>
-                      {t("what_is_cs.traveler_points.three")}
-                    </ListItem>
-                  </List>
-                  <Stack
-                    direction={{ xs: "column", sm: "row" }}
-                    spacing={2}
-                    sx={{
-                      mt: 3,
-                      justifyContent: { xs: "flex-start", md: "flex-end" },
-                    }}
-                  >
-                    <Button
-                      variant="contained"
-                      size="large"
-                      onClick={() => router.push(signupRoute)}
-                    >
-                      {t("what_is_cs.get_started")}
-                    </Button>
-                  </Stack>
+                    {t("what_is_cs.description_2")}
+                  </Typography>
                 </Box>
               </Grid>
             </Grid>
@@ -315,224 +260,164 @@ export default function WhatIsCouchSurfingPage() {
             </Box>
           </Container>
         </Box>
-
         <Box component="section" sx={{ py: 6 }}>
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 6 }}>
-              <Box
-                sx={{
-                  border: `1px solid ${theme.palette.grey[200]}`,
-                  borderRadius: 3,
-                  p: 3,
-                }}
+              <FlipCard
+                icon={<SecurityOutlined sx={{ fontSize: 40 }} />}
+                title={t("what_is_cs.is_it_safe.title")}
               >
-                <Stack
-                  direction="row"
-                  spacing={2}
-                  alignItems="center"
-                  sx={{ mb: 1 }}
-                >
-                  <Box sx={{ color: theme.palette.primary.main }}>
-                    <SecurityOutlined sx={{ fontSize: 36 }} />
-                  </Box>
-                  <Typography variant="h3">
-                    {t("what_is_cs.is_it_safe.title")}
-                  </Typography>
-                </Stack>
-                <List sx={{ listStyle: "disc", pl: 3 }}>
-                  <ListItem sx={{ display: "list-item", p: 0, mb: 1 }}>
-                    <Trans
-                      ns={GLOBAL}
-                      i18nKey="what_is_cs.is_it_safe.points.trust"
-                      components={{ bold: <b /> }}
-                    />
-                  </ListItem>
-                  <ListItem sx={{ display: "list-item", p: 0, mb: 1 }}>
-                    <Trans
-                      ns={GLOBAL}
-                      i18nKey="what_is_cs.is_it_safe.points.verification"
-                      components={{ bold: <b /> }}
-                    />
-                  </ListItem>
-                  <ListItem sx={{ display: "list-item", p: 0, mb: 1 }}>
-                    <Trans
-                      ns={GLOBAL}
-                      i18nKey="what_is_cs.is_it_safe.points.moderation"
-                      components={{ bold: <b /> }}
-                    />
-                  </ListItem>
-                </List>
-              </Box>
+                <Typography sx={{ mb: 2 }}>
+                  {t("what_is_cs.is_it_safe.description_1")}
+                </Typography>
+                <Typography sx={{ mb: 2 }}>
+                  {t("what_is_cs.is_it_safe.description_2")}
+                </Typography>
+                <Typography>
+                  {t("what_is_cs.is_it_safe.description_3")}
+                </Typography>
+              </FlipCard>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
-              <Box
-                sx={{
-                  border: `1px solid ${theme.palette.grey[200]}`,
-                  borderRadius: 3,
-                  p: 3,
-                }}
+              <FlipCard
+                icon={<GroupAddOutlined sx={{ fontSize: 40 }} />}
+                title={t("what_is_cs.get_involved_title")}
               >
-                <Stack
-                  direction="row"
-                  spacing={2}
-                  alignItems="center"
-                  sx={{ mb: 1 }}
-                >
-                  <Box sx={{ color: theme.palette.primary.main }}>
-                    <GroupAddOutlined sx={{ fontSize: 36 }} />
-                  </Box>
-                  <Typography variant="h3">
-                    {t("what_is_cs.get_involved_title")}
-                  </Typography>
-                </Stack>
-
-                <Box
-                  sx={{
-                    maxWidth: { xs: "100vw", md: 560 },
-                    width: { xs: "100vw", md: "auto" },
-                    ml: { xs: -1, md: 0 },
-                    mr: { xs: -1, md: 0 },
-                    textAlign: { xs: "left", md: "right" },
-                  }}
-                >
-                  <List sx={{ textAlign: { xs: "left", md: "right" } }}>
-                    <ListItem
+                <List>
+                  <ListItem
+                    sx={{
+                      p: 0,
+                      mb: 3,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      columnGap: 1,
+                    }}
+                  >
+                    <ListItemIcon
                       sx={{
-                        p: 0,
-                        mb: 3,
-                        justifyContent: "flex-end",
-                        alignItems: "center",
-                        columnGap: 1,
+                        minWidth: 36,
+                        color: theme.palette.primary.main,
                       }}
                     >
-                      <ListItemIcon
-                        sx={{
-                          minWidth: 36,
-                          color: theme.palette.primary.main,
-                        }}
-                      >
-                        <WeekendOutlined
-                          sx={{ fontSize: { xs: 22, md: 28 } }}
-                        />
-                      </ListItemIcon>
-                      <Typography
-                        component="span"
-                        sx={{
-                          fontSize: { xs: "1.0625rem", md: "1.2rem" },
-                        }}
-                      >
-                        {t("what_is_cs.actions.host")}
-                      </Typography>
-                    </ListItem>
-                    <ListItem
+                      <WeekendOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
+                    </ListItemIcon>
+                    <Typography
+                      component="span"
                       sx={{
-                        p: 0,
-                        mb: 3,
-                        justifyContent: "flex-end",
-                        alignItems: "center",
-                        columnGap: 1,
+                        fontSize: { xs: "1.0625rem", md: "1.2rem" },
                       }}
                     >
-                      <ListItemIcon
-                        sx={{
-                          minWidth: 36,
-                          color: theme.palette.primary.main,
-                        }}
-                      >
-                        <TravelExploreOutlined
-                          sx={{ fontSize: { xs: 22, md: 28 } }}
-                        />
-                      </ListItemIcon>
-                      <Typography
-                        component="span"
-                        sx={{
-                          fontSize: { xs: "1.0625rem", md: "1.2rem" },
-                        }}
-                      >
-                        {t("what_is_cs.actions.surf")}
-                      </Typography>
-                    </ListItem>
-                    <ListItem
+                      {t("what_is_cs.actions.host")}
+                    </Typography>
+                  </ListItem>
+                  <ListItem
+                    sx={{
+                      p: 0,
+                      mb: 3,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      columnGap: 1,
+                    }}
+                  >
+                    <ListItemIcon
                       sx={{
-                        p: 0,
-                        mb: 3,
-                        justifyContent: "flex-end",
-                        alignItems: "center",
-                        columnGap: 1,
+                        minWidth: 36,
+                        color: theme.palette.primary.main,
                       }}
                     >
-                      <ListItemIcon
-                        sx={{
-                          minWidth: 36,
-                          color: theme.palette.primary.main,
-                        }}
-                      >
-                        <EventOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
-                      </ListItemIcon>
-                      <Typography
-                        component="span"
-                        sx={{
-                          fontSize: { xs: "1.0625rem", md: "1.2rem" },
-                        }}
-                      >
-                        {t("what_is_cs.actions.attend_events")}
-                      </Typography>
-                    </ListItem>
-                    <ListItem
+                      <TravelExploreOutlined
+                        sx={{ fontSize: { xs: 22, md: 28 } }}
+                      />
+                    </ListItemIcon>
+                    <Typography
+                      component="span"
                       sx={{
-                        p: 0,
-                        mb: 3,
-                        justifyContent: "flex-end",
-                        alignItems: "center",
-                        columnGap: 1,
+                        fontSize: { xs: "1.0625rem", md: "1.2rem" },
                       }}
                     >
-                      <ListItemIcon
-                        sx={{
-                          minWidth: 36,
-                          color: theme.palette.primary.main,
-                        }}
-                      >
-                        <GroupOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
-                      </ListItemIcon>
-                      <Typography
-                        component="span"
-                        sx={{
-                          fontSize: { xs: "1.0625rem", md: "1.2rem" },
-                        }}
-                      >
-                        {t("what_is_cs.actions.find_people")}
-                      </Typography>
-                    </ListItem>
-                    <ListItem
+                      {t("what_is_cs.actions.surf")}
+                    </Typography>
+                  </ListItem>
+                  <ListItem
+                    sx={{
+                      p: 0,
+                      mb: 3,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      columnGap: 1,
+                    }}
+                  >
+                    <ListItemIcon
                       sx={{
-                        p: 0,
-                        mb: 3,
-                        justifyContent: "flex-end",
-                        alignItems: "center",
-                        columnGap: 1,
+                        minWidth: 36,
+                        color: theme.palette.primary.main,
                       }}
                     >
-                      <ListItemIcon
-                        sx={{
-                          minWidth: 36,
-                          color: theme.palette.primary.main,
-                        }}
-                      >
-                        <ForumOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
-                      </ListItemIcon>
-                      <Typography
-                        component="span"
-                        sx={{
-                          fontSize: { xs: "1.0625rem", md: "1.2rem" },
-                        }}
-                      >
-                        {t("what_is_cs.actions.join_discussions")}
-                      </Typography>
-                    </ListItem>
-                  </List>
-                </Box>
-              </Box>
+                      <EventOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
+                    </ListItemIcon>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: { xs: "1.0625rem", md: "1.2rem" },
+                      }}
+                    >
+                      {t("what_is_cs.actions.attend_events")}
+                    </Typography>
+                  </ListItem>
+                  <ListItem
+                    sx={{
+                      p: 0,
+                      mb: 3,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      columnGap: 1,
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 36,
+                        color: theme.palette.primary.main,
+                      }}
+                    >
+                      <GroupOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
+                    </ListItemIcon>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: { xs: "1.0625rem", md: "1.2rem" },
+                      }}
+                    >
+                      {t("what_is_cs.actions.find_people")}
+                    </Typography>
+                  </ListItem>
+                  <ListItem
+                    sx={{
+                      p: 0,
+                      mb: 3,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      columnGap: 1,
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 36,
+                        color: theme.palette.primary.main,
+                      }}
+                    >
+                      <ForumOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
+                    </ListItemIcon>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: { xs: "1.0625rem", md: "1.2rem" },
+                      }}
+                    >
+                      {t("what_is_cs.actions.join_discussions")}
+                    </Typography>
+                  </ListItem>
+                </List>
+              </FlipCard>
             </Grid>
           </Grid>
         </Box>

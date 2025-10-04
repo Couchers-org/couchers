@@ -18,7 +18,7 @@ from couchers.notifications.notify import notify
 from couchers.servicers.api import user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.tasks import maybe_send_reference_report_email
-from couchers.utils import Timestamp_from_datetime
+from couchers.utils import Timestamp_from_datetime, now
 from proto import notification_data_pb2, references_pb2, references_pb2_grpc
 
 MAX_PAGINATION_LENGTH = 100
@@ -418,4 +418,47 @@ class References(references_pb2_grpc.ReferencesServicer):
                     session, context
                 )
             ],
+        )
+
+    def GetHostRequestReferenceStatus(self, request, context, session):
+        # Compute has_given (whether current user already wrote a reference for this host request)
+        has_given = (
+            session.execute(
+                select(Reference)
+                .where(Reference.host_request_id == request.host_request_id)
+                .where(Reference.from_user_id == context.user_id)
+            ).scalar_one_or_none()
+            is not None
+        )
+
+        host_request = session.execute(
+            select(HostRequest)
+            .where(HostRequest.conversation_id == request.host_request_id)
+            .where(or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id))
+        ).scalar_one_or_none()
+
+        can_write = False
+        is_expired = False
+        didnt_stay = False
+
+        if host_request is not None:
+            # Compute expired from end_time_to_write_reference
+            if host_request.end_time_to_write_reference is not None:
+                is_expired = host_request.end_time_to_write_reference < now()
+
+            # Block only if current user indicated didn't meet up
+            didnt_stay = (
+                (host_request.surfer_reason_didnt_meetup is not None)
+                if host_request.surfer_user_id == context.user_id
+                else (host_request.host_reason_didnt_meetup is not None)
+            )
+
+            # You can write only if: host_request allows it, you didn't already give one, and you didn't indicate didn't meet up
+            can_write = bool(host_request.can_write_reference) and (not has_given) and (not didnt_stay)
+
+        return references_pb2.GetHostRequestReferenceStatusRes(
+            has_given=has_given,
+            can_write=can_write,
+            is_expired=is_expired,
+            didnt_stay=didnt_stay,
         )

@@ -4,11 +4,11 @@
   "expand": "Expand",
   "retract": "Retract",
   "couchers": "Couchers.org",
+  "learn_more": "Learn more",
   "legal_name": "Couchers, Inc.",
   "login": "Log in",
   "sign_up": "Sign up",
   "join_us": "Join us",
-  "learn_more": "Learn more",
   "title": "title",
   "update": "Update",
   "create": "Create",
@@ -51,7 +51,7 @@
   "language_preference": {
     "current_preferred_language": "Your language preferences is currently ",
     "form_title": "Language",
-    "help_translate": "Help translate couchers into your language.",
+    "help_translate": "Help translate Couchers into your language.",
     "select_language": "Select language",
     "success_message": "Your change has been saved.",
     "error_loading_languages": "Failed to load language options. Please try again later.",
@@ -251,6 +251,8 @@
   },
   "what_is_cs": {
     "title": "What is couch surfing?",
+    "description_1": "Couch surfing is a concept where some members (called hosts) put up a posting on the platform saying they are open to hosting other members (called surfers) that are coming to visit their city.",
+    "description_2": "It's like having a friend in another city and going to visit them, but you meet the friend for the first time you get there!",
     "get_involved_title": "What can I do on Couchers.org?",
     "get_started": "Get started",
     "timeline_title": "A quick history of couch surfing",
@@ -264,18 +266,7 @@
       "today_year": "Today",
       "today_text": "The next chapter: modern, safer, nonprofit couch surfing — built by and for the community."
     },
-    "traveler_title": "As a traveler",
-    "traveler_points": {
-      "one": "Stay with a local instead of a hotel or hostel",
-      "two": "See favorite neighborhood spots, not just the highlights",
-      "three": "Share a meal or story and make real friends"
-    },
-    "host_title": "As a host",
-    "host_points": {
-      "one": "Welcome travelers into your home or your time",
-      "two": "Show off hidden gems and share your culture",
-      "three": "Bring the world to your doorstep — no suitcase required"
-    },
+
     "actions": {
       "host": "Host a traveler visiting your city",
       "surf": "Surf with a local while traveling",
@@ -313,12 +304,10 @@
     "bottom_cta_subtitle": "Join Couchers.org and be part of a global community built on hospitality and connection.",
     "join_couchers": "Join Couchers.org",
     "is_it_safe": {
-      "title": "Is it safe?",
-      "points": {
-        "trust": "<bold>Community-driven trust system –</bold> Every member has a profile with references and reviews from people they’ve met, so you can see real experiences before deciding to connect.",
-        "verification": "<bold>Verification & identity checks –</bold> Members can choose strong verification (ID, phone, email) to confirm they are who they say they are, giving an extra layer of confidence.",
-        "moderation": "<bold>Active moderation & safety tools –</bold> A moderation team monitors reports, and you can block or report anyone at any time. Safety tips and guidelines are built into the platform so you’re always in control of your experience."
-      }
+      "title": "How safe is Couch surfing?",
+      "description_1": "While all travel and all interaction with strangers carries some risk, couch surfing is a lot safer than many people at first imagine. ",
+      "description_2": "Our community is built on trust between members via references after stays, and our active moderation team takes every report seriously and diligently counters bad actors that do not abide by our Community Guidelines. ",
+      "description_3": "Additionally, the Couchers platform includes tools such as various forms of verification (like Strong Verification with a biometric passport) that add an additional level of safety. Always have a backup in case plans fall through, and trust your instincts!"
     }
   },
   "team": {
@@ -335,9 +324,11 @@
   },
   "error_loading_languages": "Failed to load language options",
   "language_names": {
+    "ca": "Catalan",
     "cs": "Czech",
     "de": "German",
     "en": "English",
+    "en-CORP": "American (Corporate)",
     "es": "Spanish (Spain)",
     "es-419": "Spanish",
     "fr": "French (France)",
@@ -352,8 +343,10 @@
     "pt-BR": "Portuguese (Brazil)",
     "ru": "Russian",
     "sv": "Swedish",
+    "tr": "Turkish",
     "uk": "Ukrainian",
     "zh-Hans": "Chinese (Simplified)",
     "zh-Hant": "Chinese (Traditional)"
-  }
+  },
+  "tap_press_to_flip": " Tap / press to flip"
 }

@@ -31,5 +31,50 @@
         "edit_location_map": {
             "press_enter_to_search": "Druk op enter om te zoeken"
         }
-    }
+    },
+    "join_us": "Doe mee",
+    "cookie_message": "Ja, wij gebruiken ook cookies. Hiermee zorgen we dat jij onze site zo goed mogelijk kunt gebruiken. Als je doorgaat, zal je merken hoe fijn het is. Echt, heus. Lees meer over onze cookies en andere dingen in onze <1>servicevoorwaarden</1>.",
+    "read_more": "Meer lezen",
+    "next": "Volgende",
+    "previous": "Vorige",
+    "mod": "Moderator",
+    "hosting_status": {
+        "any": "Elke",
+        "can_host": "Kan hosten",
+        "maybe": "Kan misschien hosten",
+        "cant_host": "Kan niet hosten",
+        "unspecified_info": "Onbekend"
+    },
+    "language_preference": {
+        "current_preferred_language": "Jouw taalvoorkeur is op dit moment ",
+        "form_title": "Taal",
+        "help_translate": "Help bij het vertalen van Couchers.",
+        "success_message": "Jouw wijziging is opgeslagen.",
+        "select_language": "Taal uitkiezen"
+    },
+    "title": "titel",
+    "create": "maken",
+    "terms_of_service": "Servicevoorwaarden",
+    "required": "Verplicht",
+    "accept": "Accepteren",
+    "continue": "Doorgaan",
+    "thanks": "Thanks!",
+    "community_standing": "Community status",
+    "community_standing_description": "Berekend op basis van verschillende dingen, zoals referenties en betrokkenheid.",
+    "verification_score": "Verificatie-score",
+    "verification_score_description": "Berekend op basis van aanbevelingen door andere gebruikers",
+    "edit": "Bewerken",
+    "save": "Opslaan",
+    "send": "Verzenden",
+    "save_changes": "Wijzigingen opslaan",
+    "cancel": "Annuleren",
+    "created": "gemaakt",
+    "disable": "Uitschakelen",
+    "disabled": "Uitgeschakeld",
+    "no_invite_codes": "Nog geen invite codes",
+    "submit": "Sturen",
+    "confirm": "Bevestigen",
+    "copy": "Kopiëren",
+    "copied": "Gekopieerd",
+    "update": "updaten"
 }
