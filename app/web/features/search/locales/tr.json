@@ -20,7 +20,8 @@
     "host_filters": {
       "age": {
         "field_label": "Ev Sahibi Yaşı",
-        "min_age": "Minimum yaş"
+        "min_age": "Minimum yaş",
+        "max_age": "Maksimum yaş"
       },
       "hosting_status_field_label": "Ev sahipliği durumu",
       "meetup_status_field_label": "Buluşma durumu",
@@ -39,6 +40,9 @@
     },
     "general_filters": {
       "accepts_last_minute_requests": "Son dakika isteklerini kabul ediyor"
+    },
+    "rules": {
+      "title": "Kurallar"
     }
   },
   "choose_search_criteria": "Aramaya bir konum yaz veya bir filtre uygula."

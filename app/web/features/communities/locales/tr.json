@@ -22,5 +22,7 @@
   "edit_event": "Etkinliği düzenle",
   "edit_info_page_title": "Yerel bilgi düzenle",
   "find_host": "Ev sahibi ara",
-  "finished": "Bitti"
+  "finished": "Bitti",
+  "comments_count": "{{count}} | Yorum",
+  "community_image_input_alt": "Topluluk görsel girişi"
 }
