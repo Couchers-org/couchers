@@ -1,24 +1,104 @@
+/* eslint-disable no-console */
 import { camelCase } from "change-case";
 import {
   CodeBlockWriter,
   EnumDeclaration,
-  ExportedDeclarations,
-  ImportSpecifierStructure,
   Node,
-  OptionalKind,
   Project,
-  PropertySignature,
+  SourceFile,
   SyntaxKind,
   TypeAliasDeclaration,
+  VariableDeclaration,
+  VariableDeclarationKind,
 } from "ts-morph";
 
-const emptyTypeName = "_Empty";
+const generateServiceClientGenerator = (
+  serviceName: string,
+  file: SourceFile,
+  serviceSpecDeclaration: VariableDeclaration,
+) => {
+  const functionSpecs = serviceSpecDeclaration
+    .getChildAtIndex(2)
+    .getChildAtIndex(2)
+    .getChildAtIndex(0)
+    .getChildAtIndex(1)
+    .getChildrenOfKind(SyntaxKind.PropertySignature);
+
+  file.addVariableStatement({
+    declarations: [
+      {
+        name: `create${serviceName}Client`,
+        initializer: (writer) => {
+          writer
+            .write("(transport: Transport) => {")
+            .indent(() => {
+              writer.writeLine(
+                `const client = createClient(${serviceName}, transport)`,
+              );
+
+              functionSpecs.forEach((functionSpec) => {
+                const syntaxList = functionSpec
+                  .getChildAtIndex(3)
+                  .getChildAtIndexIfKindOrThrow(1, SyntaxKind.SyntaxList);
+
+                const extractFunctionSpecComponent = (
+                  component: "input" | "output",
+                ) => {
+                  const identifier = syntaxList
+                    .getChildAtIndex(component === "input" ? 1 : 2)
+                    .getChildAtIndex(2)
+                    .getChildAtIndexIfKindOrThrow(1, SyntaxKind.Identifier);
+
+                  const typeName = identifier.getText().slice(0, -6);
+
+                  if (typeName === "Empty") {
+                    return undefined;
+                  }
+
+                  return typeName;
+                };
+
+                const input = extractFunctionSpecComponent("input");
+                const output = extractFunctionSpecComponent("output");
+
+                writer.writeLine(
+                  `const ${functionSpec.getName()} = async (${input ? `input: ${input}` : ""}) ${output ? `: Promise<${output}>` : ""}=> {`,
+                );
+
+                writer
+                  .indent(() => {
+                    writer.writeLine(
+                      `return await client.${functionSpec.getName()}(${input ? "input" : "{}"} as any) as any;`,
+                    );
+                  })
+                  .writeLine("};");
+              });
+
+              writer
+                .writeLine("return {")
+                .indent(() => {
+                  functionSpecs.forEach((spec) => {
+                    writer.writeLine(`${spec.getName()},`);
+                  });
+                })
+                .writeLine("};");
+            })
+            .write("}");
+        },
+      },
+    ],
+    isExported: true,
+    declarationKind: VariableDeclarationKind.Const,
+  });
+};
 
 export const generateServiceWrapper = (
   serviceFilename: string,
   serviceName: string,
   project: Project,
 ) => {
+  console.log(`${serviceName}:\n`);
+
   const source = project.getSourceFile(
     `generated/bufbuild/${serviceFilename}_pb.ts`,
   );
@@ -36,161 +116,26 @@ export const generateServiceWrapper = (
     },
   );
 
+  const disabledEslintRules = [
+    "@typescript-eslint/no-explicit-any",
+    "@typescript-eslint/no-unsafe-argument",
+    "@typescript-eslint/no-unsafe-return",
+  ];
+
+  file.addStatements(`/* eslint-disable ${disabledEslintRules.join(",")}*/`);
+
   const exportedDeclarations = source.getExportedDeclarations();
-
-  const extractServiceFunctions = (exports: ExportedDeclarations[]) => {
-    exports.forEach((decl) => {
-      const l = decl.getChildAtIndex(2);
-
-      const typeRef = l.asKind(SyntaxKind.TypeReference);
-
-      if (!typeRef) {
-        return;
-      }
-
-      const syntaxList = typeRef
-        .getChildAtIndex(2)
-        .asKind(SyntaxKind.SyntaxList);
-
-      if (!syntaxList) {
-        return;
-      }
-
-      const typeLiteral = syntaxList
-        .getChildAtIndex(0)
-        .asKind(SyntaxKind.TypeLiteral);
-
-      if (!typeLiteral) {
-        return;
-      }
-
-      const syntaxList2 = typeLiteral
-        .getChildAtIndex(1)
-        .asKind(SyntaxKind.SyntaxList);
-
-      if (!syntaxList2) {
-        return;
-      }
-
-      syntaxList2.getChildren().forEach((child) => {
-        const sig = child.asKind(SyntaxKind.PropertySignature);
-
-        if (!sig) {
-          return;
-        }
-
-        // const funcName = sig.getName();
-
-        const syntaxList = sig
-          .getChildAtIndex(3)
-          .asKind(SyntaxKind.TypeLiteral)
-          ?.getChildAtIndex(1)
-          .asKind(SyntaxKind.SyntaxList);
-
-        if (!syntaxList) {
-          return;
-        }
-
-        const extractFunctionSignature = (signature: PropertySignature) => {
-          const t = signature
-            .getChildAtIndex(2)
-            .getChildAtIndex(1)
-            .asKind(SyntaxKind.Identifier);
-
-          // console.log(t?.getText());
-        };
-
-        const input = syntaxList
-          .getChildAtIndex(1)
-          .asKind(SyntaxKind.PropertySignature);
-        const output = syntaxList
-          .getChildAtIndex(2)
-          .asKind(SyntaxKind.PropertySignature);
-
-        if (input) {
-          extractFunctionSignature(input);
-        }
-
-        // extractFunctionSignature(output);
-
-        // console.log(`Input: ${input?.getText()}, Output: ${output?.getText()}`);
-        // syntaxList.getChildren().forEach((child) => {
-        //   console.log(child.getKindName());
-
-        //   // console.log(child.getChildAtIndex(2).getKindName());
-
-        //   // const input = child
-        //   //   .getChildAtIndex(1)
-        //   //   .asKind(SyntaxKind.PropertySignature);
-
-        //   // console.log(input?.getKindName());
-        //   // const output = child
-        //   //   .getChildAtIndex(2)
-        //   //   .asKind(SyntaxKind.PropertySignature);
-
-        //   // console.log(
-        //   //   `Input: ${input?.getName()}, Output: ${output?.getName()}`,
-        //   // );
-        // });
-
-        // funcSchema.getChildren().forEach((child) => {
-        //   console.log(child.getKind());
-        // });
-
-        // console.log(sig.getName());
-
-        // sig.getChildren().forEach((child) => {
-        //   console.log(child.getKind());
-        // });
-
-        // console.log(child.getKind());
-      });
-
-      // syntaxList.getChildren().forEach((child) => {
-      //   console.log(child.getKind());
-      // });
-      // console.log(syntaxList.getText());
-
-      // syntaxList.getChildren().forEach((child) => {
-      //   console.log(child);
-      // });
-
-      // typeRef.getChildren().forEach((child) => {
-      //   console.log(`Child! ${child.getKind()}`);
-      // });
-
-      // console.log(typeRef.getFullText());
-
-      // l.asKind(SyntaxKind.)
-
-      // decl.forEachChild((child) => {
-      //   console.log("_________");
-      //   console.log(child.getText());
-      //   console.log("_________\n\n");
-      // });
-
-      // console.log("decl");
-
-      // console.log(decl.getKind());
-
-      // // console.log(decl)
-
-      // if (decl.isKind(SyntaxKind.FunctionDeclaration)) {
-      //   console.log(`Func`);
-      // }
-
-      // if (decl.isKind(SyntaxKind.ExportAssignment)) {
-      //   console.log("Export ass!");
-      // }
-    });
-  };
 
   const exportedEnums: EnumDeclaration[] = [];
   const exportedTypes: TypeAliasDeclaration[] = [];
 
+  let serviceSpecDeclaration: VariableDeclaration | undefined;
+
   exportedDeclarations.entries().forEach(([key, val]) => {
     if (key === serviceName) {
-      extractServiceFunctions(val);
+      serviceSpecDeclaration = val[0].asKindOrThrow(
+        SyntaxKind.VariableDeclaration,
+      );
       return;
     }
 
@@ -206,7 +151,7 @@ export const generateServiceWrapper = (
     }
 
     // Filter out the 'xValid' types, which are redundant
-    // TODO(FB) This could technically filter out poorly named non-request types,
+    // TODO(FB) This could theoretically filter out poorly named non-request types,
     // consider making this more robust
     if (
       typeAlias.getName().endsWith("ReqValid") ||
@@ -218,95 +163,47 @@ export const generateServiceWrapper = (
     exportedTypes.push(typeAlias);
   });
 
+  if (!serviceSpecDeclaration) {
+    throw new Error("No service spec found");
+  }
+
   source.getImportDeclarations().forEach((importDeclaration) => {
     const structure = importDeclaration.getStructure();
 
-    if (!structure.moduleSpecifier.endsWith("_pb")) {
+    if (
+      !structure.moduleSpecifier.endsWith("_pb") ||
+      structure.moduleSpecifier.startsWith("./google/api/")
+    ) {
       return;
     }
 
     structure.moduleSpecifier = structure.moduleSpecifier.slice(0, -3);
 
-    const newNamedImports = (
-      structure.namedImports as OptionalKind<ImportSpecifierStructure>[]
-    ).filter(
-      (namedImport) =>
-        !namedImport.name.startsWith("file_") &&
-        !namedImport.name.endsWith("Schema"),
-    );
+    const newImports = importDeclaration
+      .getNamedImports()
+      .filter((i) => !i.getName().startsWith("file_"))
+      .map((i) => {
+        const structure = i.getStructure();
 
-    const importFile = importDeclaration.getModuleSpecifierSourceFile();
-
-    if (!importFile) {
-      // TODO(FB) Handle properly
-      throw new Error();
-    }
-
-    const exportedDeclarations = importFile.getExportedDeclarations();
-
-    importDeclaration.getNamedImports().forEach((namedImport) => {
-      // namedImport.
-
-      const exportedType = exportedDeclarations
-        .get(namedImport.getName())?.[0]
-        .asKind(SyntaxKind.TypeAliasDeclaration);
-
-      if (!exportedType) {
-        return;
-      }
-
-      const intersectionType = exportedType.getChildrenOfKind(
-        SyntaxKind.IntersectionType,
-      )[0];
-
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (!intersectionType) {
-        return;
-      }
-
-      const propertyCount = intersectionType
-        .getTypeNodes()[1]
-        .getChildAtIndexIfKind(1, SyntaxKind.SyntaxList)
-        ?.getChildrenOfKind(SyntaxKind.PropertySignature).length;
-
-      if (propertyCount === undefined) {
-        return;
-      }
-
-      if (!propertyCount) {
-        const importIdentifier = namedImport.getChildAtIndexIfKind(
-          0,
-          SyntaxKind.Identifier,
-        );
-
-        if (!importIdentifier) {
-          return;
+        if (structure.name.endsWith("Schema")) {
+          structure.name = structure.name.slice(0, -6);
         }
 
-        newNamedImports.splice(
-          newNamedImports.findIndex((i) => i.name === namedImport.getName()),
-          1,
-        );
+        return structure;
+      });
 
-        importIdentifier.findReferencesAsNodes().forEach((node) => {
-          node.replaceWithText(emptyTypeName);
-        });
-      }
-    });
-
-    if (!newNamedImports.length) {
+    if (!newImports.length) {
       return;
     }
 
-    structure.namedImports = newNamedImports;
+    structure.namedImports = newImports;
 
     file.addImportDeclaration(structure);
   });
 
   file.addImportDeclaration({
-    moduleSpecifier: "../..",
-    namedImports: ["Timestamp", "Duration"],
-    isTypeOnly: true,
+    moduleSpecifier: `../bufbuild/${serviceFilename}_pb`,
+    namedImports: [serviceName],
   });
 
   exportedEnums.forEach((enumDeclaration) => {
@@ -315,6 +212,15 @@ export const generateServiceWrapper = (
     enumStructure.members?.forEach((member) => {
       member.name = camelCase(member.name);
     });
+
+    const underscoreIndex = enumStructure.name.lastIndexOf("_");
+
+    if (underscoreIndex !== -1) {
+      const newName = enumStructure.name.substring(underscoreIndex + 1);
+
+      enumStructure.name = newName;
+      enumDeclaration.rename(newName);
+    }
 
     file.addEnum(enumStructure);
   });
@@ -360,33 +266,12 @@ export const generateServiceWrapper = (
         case SyntaxKind.UnionType:
         case SyntaxKind.PropertySignature:
           break;
-
-        // case SyntaxKind.TypeReference:
-        //   if (node.getText() === "Timestamp") {
-        //     // Convert timestamps to dates
-        //     newTypeWriter.write("Date");
-        //   } else {
-        //     newTypeWriter.write(node.getFullText());
-        //   }
-        //   return;
-
         case SyntaxKind.JSDoc:
           return;
 
         default:
           newTypeWriter.write(node.getFullText());
           return;
-      }
-
-      // Remove all references to empty types
-      if (
-        children.find(
-          (child) =>
-            child.getKind() === SyntaxKind.TypeReference &&
-            child.getText() === emptyTypeName,
-        )
-      ) {
-        return;
       }
 
       children.forEach((child) => {
@@ -428,13 +313,21 @@ export const generateServiceWrapper = (
 
     if (!props.length) {
       type.findReferencesAsNodes().forEach((node) => {
-        node.replaceWithText(emptyTypeName);
+        node
+          .getParentIfKind(SyntaxKind.TypeReference)
+          ?.getParentIfKind(SyntaxKind.PropertySignature)
+          ?.remove();
       });
     }
   });
 
   exportedTypes.forEach(reconstructType);
 
+  generateServiceClientGenerator(serviceName, file, serviceSpecDeclaration);
+
+  file.fixMissingImports();
+
+  file.fixUnusedIdentifiers();
   file.formatText();
   file.saveSync();
 };
