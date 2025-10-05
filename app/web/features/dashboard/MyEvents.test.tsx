@@ -90,13 +90,13 @@ describe("My events", () => {
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
       expect(screen.getAllByRole("link")).toHaveLength(2);
 
-      const seeMoreEventsButton = screen.getByRole("button", {
-        name: t("communities:see_more_events_label"),
+      const loadMoreButton = screen.getByRole("button", {
+        name: t("dashboard:load_more"),
       });
 
       const user = userEvent.setup();
 
-      await user.click(seeMoreEventsButton);
+      await user.click(loadMoreButton);
 
       expect(await screen.findAllByRole("link")).toHaveLength(3);
       expect(listMyEventsMock).toHaveBeenCalledTimes(2);
