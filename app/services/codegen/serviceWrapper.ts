@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { camelCase } from "change-case";
 import {
   CodeBlockWriter,
@@ -97,16 +96,9 @@ export const generateServiceWrapper = (
   serviceName: string,
   project: Project,
 ) => {
-  console.log(`${serviceName}:\n`);
-
-  const source = project.getSourceFile(
+  const source = project.getSourceFileOrThrow(
     `generated/bufbuild/${serviceFilename}_pb.ts`,
   );
-
-  if (!source) {
-    console.log("Failed to load file!");
-    return;
-  }
 
   const file = project.createSourceFile(
     `generated/serviceWrappers/${serviceFilename}.ts`,

@@ -57,32 +57,8 @@ await files.reduce<Promise<void>>(async (prev, sourceFile) => {
   services.push([truncatedFileName, serviceName]);
 }, Promise.resolve());
 
-file.addImportDeclarations([
-  {
-    namedImports: ["createClient"],
-    moduleSpecifier: "@connectrpc/connect",
-  },
-  {
-    namedImports: ["UnauthenticatedCallback", "createAuthInterceptor"],
-    moduleSpecifier: "../authInterceptor",
-  },
-  {
-    namedImports: ["createConnectTransport"],
-    moduleSpecifier: "@connectrpc/connect-web",
-  },
-]);
-
 services.forEach(([truncatedFileName, serviceName]) => {
   generateServiceWrapper(truncatedFileName, serviceName, project);
-
-  file.addImportDeclarations([
-    {
-      namespaceImport:
-        serviceName.charAt(0).toUpperCase() + serviceName.slice(1),
-
-      moduleSpecifier: `./bufbuild/${truncatedFileName}_pb`,
-    },
-  ]);
 });
 
 file.addVariableStatement({
@@ -105,7 +81,7 @@ file.addVariableStatement({
 
             services.forEach(([truncatedFileName, serviceName]) => {
               writer.writeLine(
-                `const ${truncatedFileName}Client = createClient(${serviceName}.${serviceName}, transport)`,
+                `const ${truncatedFileName}Client = create${serviceName}Client(transport)`,
               );
             });
 
@@ -128,8 +104,6 @@ file.addVariableStatement({
   declarationKind: VariableDeclarationKind.Const,
 });
 
-file.addExportDeclaration({
-  namedExports: services.map(([_, serviceName]) => serviceName),
-});
+file.fixMissingImports();
 
 file.saveSync();

@@ -12,7 +12,8 @@
     "postinstall": "yarn pb:generate"
   },
   "exports": {
-    ".": "./index.ts"
+    ".": "./index.ts",
+    "./*": "./generated/serviceWrappers/*"
   },
   "dependencies": {
     "@connectrpc/connect": "^2.1.0",
