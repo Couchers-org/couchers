@@ -65,7 +65,7 @@ googleapis-common-protos==1.66.0
     #   opentelemetry-exporter-otlp-proto-http
 greenlet==3.1.1
     # via sqlalchemy
-grpcio==1.74.0
+grpcio==1.75.1
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -173,7 +173,7 @@ pluggy==1.5.0
     #   pytest-cov
 pre-commit==4.2.0
     # via -r requirements.in
-prometheus-client==0.22.0
+prometheus-client==0.23.1
     # via -r requirements.in
 propcache==0.2.1
     # via
@@ -210,17 +210,17 @@ pyyaml==6.0.2
     # via
     #   -r requirements.in
     #   pre-commit
-requests==2.32.4
+requests==2.32.5
     # via
     #   -r requirements.in
     #   geoip2
     #   opentelemetry-exporter-otlp-proto-http
     #   stripe
-ruff==0.12.7
+ruff==0.13.2
     # via -r requirements.in
 s3transfer==0.13.0
     # via boto3
-sentry-sdk==2.27.0
+sentry-sdk==2.39.0
     # via -r requirements.in
 shapely==2.1.1
     # via -r requirements.in
@@ -239,6 +239,7 @@ stripe==12.5.0
 typing-extensions==4.12.2
     # via
     #   alembic
+    #   grpcio
     #   opentelemetry-sdk
     #   sqlalchemy
     #   stripe
