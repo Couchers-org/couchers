@@ -11,11 +11,12 @@
     "introduction_title": "Yabancı olarak tanışın, arkadaş olarak ayrılın",
     "signup_description": "Seyahat et, ev sahipliği yap ve {{ user_count }} kadar üyemizle bağlan. <2>Bizim hakkımızda daha fazla öğren<2>.",
     "what_couchsurfing_description": "Couchers.org yolcular ve yerliler arasında gerçek etkileşim oluşturmak için yapılan bir topluluk ve platformdur, kanepe sörfü üzerine kurulmuş—ücretsiz, paraya ayalı olmayan konaklamalar ve buluşmalar için—aynı anda da güveni ve güvenliği öne koyuyoruz.",
-    "couchers_mission_title": "Ne için mücadele edecek ediyoruz",
+    "couchers_mission_title": "Ne için mücadele ediyoruz",
     "nonprofit_title": "Kâr amacı gütmeyen",
     "free_forever_title": "Sonsuza dek ücretsiz",
     "free_forever_description": "Kimse couchers.org'a üye olup kullanmak için para ödemek zorunda olmamalı.",
     "free_forever_why": "Kullanım için ödeme talep etmek, kabul edilemez bir giriş engelidir. Couch surfing'e para dahil edildiğinde, insanlar yanlış beklentiler geliştirebilir.",
     "authentic_title": "Otantik & gerçek",
-    "open_source_title": "Açık kaynak"
+    "open_source_title": "Açık kaynak",
+    "map_section_title": "Küresel tooluluğumuzu keşfedin"
 }

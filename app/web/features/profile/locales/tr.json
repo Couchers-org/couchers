@@ -22,7 +22,8 @@
     "additional_information_section": "Daha fazla bilgi",
     "travel_section": "'ya gitti",
     "age_verification_mismatch": "Doğrulanmış doğum tarihi ile kullanıcının verdiği doğum tarihi uymamakta",
-    "gender_verification_verified": "Bu kullanıcı cinsiyetini doğruladı"
+    "gender_verification_verified": "Bu kullanıcı cinsiyetini doğruladı",
+    "occupation": "Meslek"
   },
   "active": "Aktif",
   "my_connections": "Kişilerim",

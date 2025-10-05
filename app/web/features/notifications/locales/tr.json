@@ -20,11 +20,15 @@
                 "host_request": "Ev sahibi istekleri",
                 "reference": "Referanslar",
                 "discussion": "Tartışmalar",
-                "reply": "Yanıtlar"
+                "reply": "Yanıtlar",
+                "event": "Etkinlikler"
             },
             "item_descriptions": {
                 "host_request": {
                     "reminder": "Bekleyen bir ev sahibi isteğine henüz yanıt vermediniz."
+                },
+                "reference": {
+                    "receive_hosted": "Sana ev sahipliği yapmış biri tarafından referans aldığında"
                 }
             }
         }

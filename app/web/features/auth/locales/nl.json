@@ -29,7 +29,9 @@
     "old_password": "Huidige wachtwoord",
     "confirm_password": "Bevestig wachtwoord",
     "new_password": "Nieuw wachtwoord",
-    "password_mismatch_error": "De wachtwoorden komen niet overeen."
+    "password_mismatch_error": "De wachtwoorden komen niet overeen.",
+    "reset_password_error": "Error bij het resetten van je wachtwoord: {{message}}",
+    "reset_password_success": "Je wachtwoord is succesvol gewijzigd!"
   },
   "login_page": {
     "form": {
@@ -64,7 +66,9 @@
     "birthday": {
       "field_label": "Verjaardag",
       "validation_error": "Moet een datum in het verleden zijn.",
-      "required_error": "Vul je geboortedatum in"
+      "required_error": "Vul je geboortedatum in",
+      "not_real_date_error": "Vul een geldige geboortedatum in",
+      "too_young_error": "Je moet 18 jaar of ouder zijn om Couchers te mogen gebruiken"
     },
     "hosting_status": {
       "field_label": "Hosting status",
@@ -105,5 +109,16 @@
   "location": {
     "field_label": "Jouw locatie",
     "validation_error": "Selecteer een geldige locatie."
+  },
+  "community_guidelines_form": {
+    "header": "Community richtlijnen",
+    "guideline": {
+      "checkbox_label": "Okay, ik begrijp het",
+      "required_error": "Je moet alles aanvinken om verder te gaan"
+    }
+  },
+  "feedback_form": {
+    "header": "Jouw mening telt",
+    "skip_step_text": "Geen zin in? <2>Sla dan deze stap over</2>"
   }
 }
