@@ -2,8 +2,10 @@ import { camelCase } from "change-case";
 import {
   CodeBlockWriter,
   EnumDeclaration,
+  Identifier,
   Node,
   Project,
+  ReferenceFindableNode,
   SourceFile,
   SyntaxKind,
   TypeAliasDeclaration,
@@ -67,7 +69,7 @@ const generateServiceClientGenerator = (
                 writer
                   .indent(() => {
                     writer.writeLine(
-                      `return await client.${functionSpec.getName()}(${input ? "input" : "{}"} as any) as any;`,
+                      `${output ? "return " : ""}await client.${functionSpec.getName()}(${input ? "input" : "{}"} as any) ${output ? "as any" : ""};`,
                     );
                   })
                   .writeLine("};");
@@ -88,6 +90,27 @@ const generateServiceClientGenerator = (
     ],
     isExported: true,
     declarationKind: VariableDeclarationKind.Const,
+  });
+};
+
+const removeReferences = (referenceNode: ReferenceFindableNode) => {
+  referenceNode.findReferencesAsNodes().forEach((node) => {
+    const parent = node.getParent();
+
+    switch (parent?.getKind()) {
+      case SyntaxKind.TypeReference:
+        {
+          parent.getParentIfKind(SyntaxKind.PropertySignature)?.remove();
+        }
+        break;
+      case SyntaxKind.ImportSpecifier:
+        {
+          parent.asKind(SyntaxKind.ImportSpecifier)?.remove();
+        }
+        break;
+      default:
+        break;
+    }
   });
 };
 
@@ -260,7 +283,6 @@ export const generateServiceWrapper = (
           break;
         case SyntaxKind.JSDoc:
           return;
-
         default:
           newTypeWriter.write(node.getFullText());
           return;
@@ -281,35 +303,18 @@ export const generateServiceWrapper = (
     });
   };
 
-  // Filter out all empty message types and replace references to them with '_Empty'
+  // Filter out all empty message types
   exportedTypes.forEach((type) => {
-    const intersectionType = type.getChildAtIndexIfKind(
-      5,
-      SyntaxKind.IntersectionType,
-    );
+    // Get only intersection types (messages are always intersection types), then get the second type of the intersection
+    // (the actual message properties) and count the properties it has
+    const addedPropertyCount = type
+      .getChildAtIndexIfKind(5, SyntaxKind.IntersectionType)
+      ?.getTypeNodes()[1]
+      .getChildAtIndexIfKind(1, SyntaxKind.SyntaxList)
+      ?.getChildrenOfKind(SyntaxKind.PropertySignature).length;
 
-    if (!intersectionType) {
-      // We only care about messages, which are always intersection types
-      return;
-    }
-
-    const objProps = intersectionType
-      .getTypeNodes()[1]
-      .getChildAtIndexIfKind(1, SyntaxKind.SyntaxList);
-
-    if (!objProps) {
-      return;
-    }
-
-    const props = objProps.getChildrenOfKind(SyntaxKind.PropertySignature);
-
-    if (!props.length) {
-      type.findReferencesAsNodes().forEach((node) => {
-        node
-          .getParentIfKind(SyntaxKind.TypeReference)
-          ?.getParentIfKind(SyntaxKind.PropertySignature)
-          ?.remove();
-      });
+    if (addedPropertyCount === 0) {
+      removeReferences(type);
     }
   });
 
@@ -318,8 +323,19 @@ export const generateServiceWrapper = (
   generateServiceClientGenerator(serviceName, file, serviceSpecDeclaration);
 
   file.fixMissingImports();
-
   file.fixUnusedIdentifiers();
+
+  file.getImportDeclarations().forEach((importDeclaration) => {
+    importDeclaration.getNamedImports().forEach((nameImport) => {
+      if (
+        nameImport.getNameNode().getSymbol()?.getAliasedSymbol()?.getName() ===
+        "unknown"
+      ) {
+        removeReferences(nameImport.getNameNode() as Identifier);
+      }
+    });
+  });
+
   file.formatText();
   file.saveSync();
 };
