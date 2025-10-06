@@ -102,7 +102,7 @@
     "prettier": "3.4.2",
     "sentry-testkit": "^6.2.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.3",
     "webpack": "^5.101.3",
     "whatwg-fetch": "^3.6.20"
   },
