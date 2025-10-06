@@ -1,0 +1,51 @@
+# VCS / IDE
+.git
+.github
+.vscode
+.idea
+
+# Dependencies / logs
+node_modules
+npm-debug.log*
+yarn-error.log*
+
+# Caches
+.expo
+.expo-shared
+.cache
+tmp
+temp
+
+# Web/Build outputs
+web-build
+**/build
+**/dist
+
+# Tests/coverage (optional)
+coverage
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
+.env.*
+*.keystore
+*.jks
+*.p8
+*.p12
+*.mobileprovision
+*.key
+*.pem
+
+.env.local
+submit/
+proto/**
+
+# Ignore native directories (if you are using EAS Build)
+/android
+/ios
+
+# Ignore test coverage reports
+/coverage

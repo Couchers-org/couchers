@@ -1,0 +1,26 @@
+const allLanguages = [
+  "ca",
+  "cs",
+  "de",
+  "en",
+  "es",
+  "es-419",
+  "fr",
+  "fr-CA",
+  "hi",
+  "it",
+  "ja",
+  "nb-NO",
+  "nl",
+  "pl",
+  "pt",
+  "pt-BR",
+  "ru",
+  "sv",
+  "tr",
+  "uk",
+  "zh-Hans",
+  "zh-Hant",
+];
+
+module.exports = { allLanguages };
