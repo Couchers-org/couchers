@@ -279,6 +279,7 @@
         "enabled_message": "Your profile is currently visible on the team page",
         "disabled_message": "Your profile is currently hidden from the team page"
       }
+    }
   },
   "push_notification_banner": {
     "message": "Don't miss requests, responses or messages; can we send you push notifications?",
