@@ -33,6 +33,7 @@ from couchers.models import (
     RegionVisited,
     Thread,
     User,
+    Volunteer,
 )
 from couchers.servicers.api import hostingstatus2sql
 from couchers.servicers.auth import create_session
@@ -185,6 +186,21 @@ def add_dummy_users():
                         text=message["message"],
                     )
                 )
+
+        session.commit()
+
+        for volunteer in data["volunteers"]:
+            new_volunteer = Volunteer(
+                user_id=session.execute(select(User).where(User.username == volunteer["username"])).scalar_one().id,
+                role=volunteer["role"],
+                started_volunteering=volunteer["started_volunteering"],
+                stopped_volunteering=volunteer["stopped_volunteering"],
+                link_type=volunteer["link_type"],
+                link_text=volunteer["link_text"],
+                link_url=volunteer["link_url"],
+            )
+
+            session.add(new_volunteer)
 
         session.commit()
 
