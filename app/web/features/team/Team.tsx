@@ -18,11 +18,11 @@ export default function Team() {
   return (
     <>
       <HtmlMeta title="The Team" />
-      <Container maxWidth="md">
+      <Container maxWidth="lg">
         <PageTitle>{t("team.title")}</PageTitle>
         <Typography
           sx={{
-            marginBottom: "16px",
+            marginBottom: theme.spacing(2),
           }}
         >
           {t("team.description")}
@@ -30,6 +30,8 @@ export default function Team() {
         <Typography
           sx={{
             marginBottom: "16px",
+            display: "flex",
+            justifyContent: "center",
           }}
         >
           <Button
@@ -37,6 +39,7 @@ export default function Team() {
             variant="contained"
             color="secondary"
             href={volunteerRoute}
+            size="large"
           >
             {t("team.join_the_team")}
           </Button>
@@ -47,11 +50,12 @@ export default function Team() {
         variant={"current"}
       />
 
-      <Container maxWidth="md">
+      <Container maxWidth="lg">
         <Typography
           variant="h2"
           sx={{
-            marginTop: theme.spacing(10),
+            marginTop: theme.spacing(4),
+            textAlign: "center",
           }}
         >
           {t("team.past_members")}
@@ -61,20 +65,22 @@ export default function Team() {
         volunteers={volunteers.data?.pastVolunteersList}
         variant={"past"}
       />
-      <Container maxWidth="md">
+      <Container maxWidth="lg">
         <Typography variant="h2" component="h2">
           {t("team.have_skills_contribute")}
         </Typography>
         <Typography
           sx={{
-            marginBottom: "16px",
+            marginBottom: theme.spacing(2),
           }}
         >
           {t("team.fill_form_description")}
         </Typography>
         <Typography
           sx={{
-            marginBottom: "16px",
+            marginBottom: theme.spacing(2),
+            display: "flex",
+            justifyContent: "center",
           }}
         >
           <Button
@@ -82,6 +88,7 @@ export default function Team() {
             variant="contained"
             color="secondary"
             href={volunteerRoute}
+            size="large"
           >
             {t("team.join_our_team")}
           </Button>

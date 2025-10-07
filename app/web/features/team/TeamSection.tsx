@@ -42,7 +42,7 @@ const StyledSection = styled("section")(() => ({
   display: "flex",
   flexFlow: "column nowrap",
   gap: theme.spacing(6),
-  margin: theme.spacing(10, 0),
+  margin: theme.spacing(4, 0),
 }));
 
 const StyledGrid = styled(Grid)(() => ({
