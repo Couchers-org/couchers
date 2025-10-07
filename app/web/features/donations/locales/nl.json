@@ -10,7 +10,7 @@
     "recurrence_aria_label": "periodiek",
     "title": "Donatie",
     "amount_validation_error": "Alleen hele getalen, alsjeblieft.",
-    "action_button_label": "Doorgaan",
+    "action_button_label": "Volgende",
     "validation_message": "Dit veld is verplicht"
   }
 }

@@ -3,6 +3,7 @@ const allLanguages = [
   "cs",
   "de",
   "en",
+  "en-CORP",
   "es",
   "es-419",
   "fr",

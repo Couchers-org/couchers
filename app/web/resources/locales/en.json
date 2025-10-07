@@ -12,10 +12,16 @@
   "title": "title",
   "update": "Update",
   "create": "Create",
+  "created": "Created",
   "terms_of_service": "Terms of Service",
   "required": "Required",
   "accept": "Accept",
   "continue": "Continue",
+  "disable": "Disable",
+  "disabled": "Disabled",
+  "uses": "Uses",
+  "no_invite_codes": "No invite codes yet",
+  "error_loading_invite_codes": "Couldn't get invite code details",
   "thanks": "Thanks!",
   "community_standing": "Community Standing",
   "community_standing_description": "Calculated from various factors such as references and community engagement.",
@@ -28,6 +34,8 @@
   "cancel": "Cancel",
   "submit": "Submit",
   "confirm": "Confirm",
+  "copy": "Copy",
+  "copied": "Copied to clipboard",
   "load_more": "Load more",
   "read_more": "Read more",
   "next": "Next",
@@ -44,7 +52,7 @@
   "language_preference": {
     "current_preferred_language": "Your language preferences is currently ",
     "form_title": "Language",
-    "help_translate": "Help translate couchers into your language.",
+    "help_translate": "Help translate Couchers into your language.",
     "select_language": "Select language",
     "success_message": "Your change has been saved.",
     "error_loading_languages": "Failed to load language options. Please try again later.",
@@ -127,6 +135,7 @@
     "default_title": "Couchers.org",
     "default_description": "Share your world, discover theirs. Authentic local experiences, built on trust and genuine connection—not transactions."
   },
+  "invited_you": "{{name}} invited you to join Couchers!",
   "error": {
     "fatal_message": "This shouldn't have happened. Please contact us and tell us what you were doing to help us prevent this error in the future.",
     "unknown": "Unknown error",
@@ -188,7 +197,23 @@
     "legal_more": "Legal & More",
     "contact_us": "Contact Us",
     "built_with": "Open Source",
-    "landing_page": "Landing Page"
+    "landing_page": "Landing Page",
+    "invite_members": "Invite members"
+  },
+  "invites": {
+    "title": "Invite members",
+    "create": "Create invite",
+    "disable": "Disable",
+    "share_link": "Copy share link",
+    "instructions": "Create an invite link to share with friends and community. Disable codes you no longer use.",
+    "uses_suffix": "completed signups",
+    "banner": {
+      "invited_you": "{{name}} invited you to join Couchers!",
+      "inviter_fallback": "{{username}} invited you to join Couchers!"
+    },
+    "error": {
+      "fetch_invite_info": "Couldn't get invite code details"
+    }
   },
   "contribute_title": "Sign up to contribute",
   "reply": "Reply",
@@ -227,7 +252,7 @@
   },
   "team": {
     "title": "The Team",
-    "description": "We are all couch surfers and skilled professionals who want to build an improved, safer and more inclusive platform that can support and sustainably grow the couch surfing community and bring its values to the world. If you feel the same way and want to contribute, then we'd love to talk to you. ",
+    "description": "We are passionate couch surfers and skilled professionals committed to creating an improved, safer, and more inclusive platform. We are building this platform to support and sustainably grow the couch surfing community while sharing its values with the world. If you share our sentiments and want to contribute, we would love to hear from you.",
     "join_the_team": "Join the team",
     "join_our_team": "Join our team",
     "current_members": "Current Members",
@@ -247,14 +272,13 @@
     "ui_ux_designer": "UI/UX Designer",
     "translations_lead": "Translations Lead",
     "have_skills_contribute": "Have skills you want to contribute?",
-    "fill_form_description": "Couchers.org is a community project, built by folks like you for the benefit of the global couch surfing community. If you would like to be a part of this great new project, or leave your feedback on our ideas, click the button below and fill out the short form.",
+    "fill_form_description": "Couchers.org is a community-driven project, developed by people like you for the benefit of the global couch surfing community. If you’re interested in joining this exciting initiative, please click the button below and complete the brief form.",
     "volunteer_settings": {
       "show_on_team_page": {
         "title": "Show my volunteer profile on the team page",
         "enabled_message": "Your profile is currently visible on the team page",
         "disabled_message": "Your profile is currently hidden from the team page"
       }
-    }
   },
   "push_notification_banner": {
     "message": "Don't miss requests, responses or messages; can we send you push notifications?",
@@ -266,6 +290,7 @@
     "cs": "Czech",
     "de": "German",
     "en": "English",
+    "en-CORP": "American (Corporate)",
     "es": "Spanish (Spain)",
     "es-419": "Spanish",
     "fr": "French (France)",
@@ -280,6 +305,7 @@
     "pt-BR": "Portuguese (Brazil)",
     "ru": "Russian",
     "sv": "Swedish",
+    "tr": "Turkish",
     "uk": "Ukrainian",
     "zh-Hans": "Chinese (Simplified)",
     "zh-Hant": "Chinese (Traditional)"

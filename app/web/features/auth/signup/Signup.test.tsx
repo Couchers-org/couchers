@@ -46,6 +46,9 @@ const signupFlowEmailTokenMock = service.auth
 const validateUsernameMock = service.auth.validateUsername as MockedService<
   typeof service.auth.validateUsername
 >;
+const getInviteCodeInfoMock = service.auth.getInviteCodeInfo as MockedService<
+  typeof service.auth.getInviteCodeInfo
+>;
 
 const View = () => {
   return <Signup />;
@@ -263,6 +266,79 @@ describe("Signup", () => {
         },
       });
     });
+  });
+
+  it("passes inviteCode to startSignup when code is present in URL", async () => {
+    window.localStorage.setItem(
+      "auth.flowState",
+      JSON.stringify({
+        flowToken: "token",
+        needBasic: true,
+        needAccount: true,
+        needAcceptCommunityGuidelines: true,
+        needFeedback: false,
+        needVerifyEmail: false,
+      }),
+    );
+
+    getInviteCodeInfoMock.mockResolvedValue({
+      name: "Invite User",
+      username: "inviteuser",
+      avatarUrl: "",
+      url: "https://couchers.org/invite?code=INV12345",
+    });
+    mockRouter.setCurrentUrl(`${signupRoute}?code=INV12345`);
+
+    startSignupMock.mockResolvedValue({
+      flowToken: "token",
+      needBasic: false,
+      needAccount: true,
+      needAcceptCommunityGuidelines: true,
+      needFeedback: false,
+      needVerifyEmail: false,
+    });
+
+    render(<View />, { wrapper });
+    const user = userEvent.setup();
+
+    await user.type(
+      await screen.findByLabelText(t("auth:basic_form.name.field_label")),
+      "Test user",
+    );
+    await user.type(
+      screen.getByLabelText(t("auth:basic_form.email.field_label")),
+      "test@example.com{enter}",
+    );
+
+    await waitFor(() => {
+      expect(startSignupMock).toHaveBeenCalledWith(
+        "Test user",
+        "test@example.com",
+        "INV12345",
+      );
+    });
+  });
+
+  it("shows inviter banner when invite code info loads", async () => {
+    mockRouter.setCurrentUrl(`${signupRoute}?code=CODE123`);
+    getInviteCodeInfoMock.mockResolvedValue({
+      name: "Alice",
+      username: "alice",
+      avatarUrl: "",
+      url: "https://couchers.org/invite?code=CODE123",
+    });
+    render(<View />, { wrapper });
+
+    expect(
+      await screen.findByText(t("global:invited_you", { name: "Alice" })),
+    ).toBeVisible();
+  });
+
+  it("does not show inviter banner if no inviteCode is present", async () => {
+    render(<View />, { wrapper });
+    expect(
+      screen.queryByText(t("global:invited_you", { name: expect.any(String) })),
+    ).toBeNull();
   });
 
   it("displays the basic form if it is needed", async () => {

@@ -9,7 +9,9 @@ import {
   ChangeLanguagePreferenceReq,
   ChangePasswordV2Req,
   ChangePhoneReq,
+  CreateInviteCodeReq,
   DeleteAccountReq,
+  DisableInviteCodeReq,
   FillContributorFormReq,
   ListActiveSessionsReq,
   LogOutOtherSessionsReq,
@@ -200,4 +202,20 @@ export function updateVolunteerInfo(info: UpdateVolunteerInfoParams) {
 
 export async function getMyVolunteerInfo() {
   return (await client.account.getMyVolunteerInfo(new Empty())).toObject();
+}
+
+export async function createInviteCode() {
+  const res = await client.account.createInviteCode(new CreateInviteCodeReq());
+  return res.toObject();
+}
+
+export async function disableInviteCode(code: string) {
+  const req = new DisableInviteCodeReq();
+  req.setCode(code);
+  await client.account.disableInviteCode(req);
+}
+
+export async function listInviteCodes() {
+  const res = await client.account.listInviteCodes(new Empty());
+  return res.toObject();
 }

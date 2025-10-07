@@ -55,6 +55,8 @@ export const availableWriteReferencesKey = (userId: number) => [
   { userId },
 ];
 
+export const hasGivenHostRequestReferenceKey = "hasGivenHostRequestReference";
+
 export type FriendRequestType = "sent" | "received";
 export const friendRequestKey = (type: FriendRequestType) => [
   "friendRequests",
@@ -161,6 +163,7 @@ export const searchQueryKey = (query?: string) =>
 export const userCommunitiesKey = "userCommunities";
 export const myEventsKey = (type: EventsType) => ["myEvents", { type }];
 export const activeLoginsKey = "activeLogins";
+export const inviteCodesKey = "inviteCodes";
 
 // Badges
 export interface BadgeUsersInput {
