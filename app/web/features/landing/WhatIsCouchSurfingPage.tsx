@@ -1,5 +1,4 @@
 import {
-  ChevronRightRounded,
   EventOutlined,
   ForumOutlined,
   GroupAddOutlined,
@@ -20,22 +19,20 @@ import {
   Typography,
 } from "@mui/material";
 import Button from "components/Button";
-import FlipCard from "components/FlipCard";
 import HtmlMeta from "components/HtmlMeta";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { useRef, useState } from "react";
-import { signupRoute } from "routes";
+import { communityGuidelinesURL, signupRoute } from "routes";
 import { theme } from "theme";
 
+import StyledLink from "../../components/StyledLink";
 import CompareTable from "./CompareTable";
+import HistoryTimeline from "./HistoryTimeline";
 
 export default function WhatIsCouchSurfingPage() {
   const router = useRouter();
   const { t } = useTranslation([GLOBAL]);
-  const timelineRef = useRef<HTMLDivElement | null>(null);
-  const [timelineNudge, setTimelineNudge] = useState(true);
 
   return (
     <>
@@ -71,7 +68,6 @@ export default function WhatIsCouchSurfingPage() {
                   }}
                 />
               </Grid>
-
               <Grid
                 size={{ xs: 12, md: 7 }}
                 sx={{
@@ -113,217 +109,110 @@ export default function WhatIsCouchSurfingPage() {
             </Grid>
           </Container>
         </Box>
-
-        <Box
-          component="section"
-          sx={{
-            py: 6,
-            bgcolor: theme.palette.grey[50],
-            position: "relative",
-            left: "50%",
-            right: "50%",
-            marginLeft: "-50vw",
-            marginRight: "-50vw",
-            width: "100vw",
-          }}
-        >
-          <Container maxWidth="lg">
-            <Typography
-              variant="h2"
-              sx={{
-                mb: 2,
-                textAlign: "center",
-                fontSize: { xs: "1.5rem", md: "2rem" },
-              }}
-            >
-              {t("what_is_cs.timeline_title")}
-            </Typography>
-            <Box
-              sx={{
-                position: "relative",
-                overflowX: "auto",
-                pb: 2,
-                "@keyframes pulseDot": {
-                  "0%, 100%": { transform: "scale(1)", opacity: 1 },
-                  "50%": { transform: "scale(1.08)", opacity: 0.9 },
-                },
-                "@keyframes nudgeRight": {
-                  "0%": { transform: "translateX(0)" },
-                  "50%": { transform: "translateX(6px)" },
-                  "100%": { transform: "translateX(0)" },
-                },
-              }}
-              ref={timelineRef}
-              onScroll={(e) =>
-                setTimelineNudge(
-                  (e.currentTarget as HTMLDivElement).scrollLeft === 0,
-                )
-              }
-            >
-              <Box
-                sx={{
-                  display: { xs: timelineNudge ? "block" : "none", md: "none" },
-                  pointerEvents: "none",
-                  position: "absolute",
-                  top: 0,
-                  right: 0,
-                  bottom: 0,
-                  width: 48,
-                  background: `linear-gradient(to right, transparent, ${theme.palette.grey[50]})`,
-                  zIndex: 1,
-                }}
-              />
-              <Box
-                sx={{
-                  display: { xs: timelineNudge ? "flex" : "none", md: "none" },
-                  position: "absolute",
-                  right: 8,
-                  bottom: 6,
-                  alignItems: "center",
-                  gap: 0.5,
-                  color: theme.palette.text.secondary,
-                  zIndex: 2,
-                }}
-              >
-                <ChevronRightRounded
-                  sx={{
-                    fontSize: 18,
-                    animation: "nudgeRight 1.4s ease-in-out infinite",
-                  }}
-                />
-              </Box>
-              <Stack
-                direction="row"
-                spacing={4}
-                sx={{ position: "relative", minWidth: 720, px: 2, py: 3 }}
-                alignItems="flex-start"
-              >
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: 28,
-                    left: 0,
-                    right: 0,
-                    height: 2,
-                    bgcolor: theme.palette.grey[200],
-                  }}
-                />
-                {[
-                  {
-                    year: t("what_is_cs.timeline.early_2000s_year"),
-                    text: t("what_is_cs.timeline.early_2000s_text"),
-                  },
-                  {
-                    year: t("what_is_cs.timeline.2010s_year"),
-                    text: t("what_is_cs.timeline.2010s_text"),
-                  },
-                  {
-                    year: t("what_is_cs.timeline.2020_year"),
-                    text: t("what_is_cs.timeline.2020_text"),
-                  },
-                  {
-                    year: t("what_is_cs.timeline.today_year"),
-                    text: t("what_is_cs.timeline.today_text"),
-                  },
-                ].map((m, i) => (
-                  <Stack
-                    key={m.year}
-                    alignItems="center"
-                    sx={{ minWidth: 180 }}
-                  >
-                    <Box
-                      sx={{
-                        width: 12,
-                        height: 12,
-                        borderRadius: 10,
-                        bgcolor: theme.palette.primary.main,
-                        boxShadow: `${theme.palette.primary.light} 0 0 0 3px`,
-                        animation: `pulseDot 3.2s ease-in-out ${i * 0.15}s infinite`,
-                      }}
-                    />
-                    <Typography variant="h3" sx={{ mt: 1 }}>
-                      {m.year}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: theme.palette.text.secondary,
-                        textAlign: "center",
-                        mt: 0.5,
-                      }}
-                    >
-                      {m.text}
-                    </Typography>
-                  </Stack>
-                ))}
-              </Stack>
-            </Box>
-          </Container>
-        </Box>
+        <HistoryTimeline />
         <Box component="section" sx={{ py: 6 }}>
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 6 }}>
-              <FlipCard
-                icon={<SecurityOutlined sx={{ fontSize: 40 }} />}
-                title={t("what_is_cs.is_it_safe.title")}
+              <Box
+                sx={{
+                  border: `1px solid ${theme.palette.grey[200]}`,
+                  borderRadius: 3,
+                  p: 3,
+                  height: "100%",
+                  background: theme.palette.background.paper,
+                }}
               >
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  alignItems="center"
+                  sx={{ mb: 2 }}
+                >
+                  <SecurityOutlined
+                    sx={{ fontSize: 36, color: theme.palette.primary.main }}
+                  />
+                  <Typography
+                    variant="h3"
+                    sx={{
+                      fontSize: { xs: "1.25rem", md: "1.4rem" },
+                      fontWeight: 600,
+                    }}
+                  >
+                    {t("what_is_cs.is_it_safe.title")}
+                  </Typography>
+                </Stack>
                 <Typography sx={{ mb: 2 }}>
                   {t("what_is_cs.is_it_safe.description_1")}
                 </Typography>
                 <Typography sx={{ mb: 2 }}>
-                  {t("what_is_cs.is_it_safe.description_2")}
+                  <Trans
+                    ns={GLOBAL}
+                    i18nKey="what_is_cs.is_it_safe.description_2"
+                    components={{
+                      guidelines: (
+                        <StyledLink
+                          href={communityGuidelinesURL}
+                          target="_blank"
+                        />
+                      ),
+                    }}
+                  />
                 </Typography>
                 <Typography>
                   {t("what_is_cs.is_it_safe.description_3")}
                 </Typography>
-              </FlipCard>
+              </Box>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
-              <FlipCard
-                icon={<GroupAddOutlined sx={{ fontSize: 40 }} />}
-                title={t("what_is_cs.get_involved_title")}
+              <Box
+                sx={{
+                  border: `1px solid ${theme.palette.grey[200]}`,
+                  borderRadius: 3,
+                  p: 3,
+                  height: "100%",
+                  background: theme.palette.background.paper,
+                }}
               >
-                <List>
-                  <ListItem
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  alignItems="center"
+                  sx={{ mb: 2 }}
+                >
+                  <GroupAddOutlined
+                    sx={{ fontSize: 36, color: theme.palette.primary.main }}
+                  />
+                  <Typography
+                    variant="h3"
                     sx={{
-                      p: 0,
-                      mb: 3,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      columnGap: 1,
+                      fontSize: { xs: "1.25rem", md: "1.4rem" },
+                      fontWeight: 600,
                     }}
                   >
+                    {t("what_is_cs.get_involved_title")}
+                  </Typography>
+                </Stack>
+                <List>
+                  <ListItem
+                    sx={{ p: 0, mb: 2, columnGap: 1, alignItems: "center" }}
+                  >
                     <ListItemIcon
-                      sx={{
-                        minWidth: 36,
-                        color: theme.palette.primary.main,
-                      }}
+                      sx={{ minWidth: 36, color: theme.palette.primary.main }}
                     >
                       <WeekendOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
                     </ListItemIcon>
                     <Typography
                       component="span"
-                      sx={{
-                        fontSize: { xs: "1.0625rem", md: "1.2rem" },
-                      }}
+                      sx={{ fontSize: { xs: "1.0625rem", md: "1.15rem" } }}
                     >
                       {t("what_is_cs.actions.host")}
                     </Typography>
                   </ListItem>
                   <ListItem
-                    sx={{
-                      p: 0,
-                      mb: 3,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      columnGap: 1,
-                    }}
+                    sx={{ p: 0, mb: 2, columnGap: 1, alignItems: "center" }}
                   >
                     <ListItemIcon
-                      sx={{
-                        minWidth: 36,
-                        color: theme.palette.primary.main,
-                      }}
+                      sx={{ minWidth: 36, color: theme.palette.primary.main }}
                     >
                       <TravelExploreOutlined
                         sx={{ fontSize: { xs: 22, md: 28 } }}
@@ -331,93 +220,58 @@ export default function WhatIsCouchSurfingPage() {
                     </ListItemIcon>
                     <Typography
                       component="span"
-                      sx={{
-                        fontSize: { xs: "1.0625rem", md: "1.2rem" },
-                      }}
+                      sx={{ fontSize: { xs: "1.0625rem", md: "1.15rem" } }}
                     >
                       {t("what_is_cs.actions.surf")}
                     </Typography>
                   </ListItem>
                   <ListItem
-                    sx={{
-                      p: 0,
-                      mb: 3,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      columnGap: 1,
-                    }}
+                    sx={{ p: 0, mb: 2, columnGap: 1, alignItems: "center" }}
                   >
                     <ListItemIcon
-                      sx={{
-                        minWidth: 36,
-                        color: theme.palette.primary.main,
-                      }}
+                      sx={{ minWidth: 36, color: theme.palette.primary.main }}
                     >
                       <EventOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
                     </ListItemIcon>
                     <Typography
                       component="span"
-                      sx={{
-                        fontSize: { xs: "1.0625rem", md: "1.2rem" },
-                      }}
+                      sx={{ fontSize: { xs: "1.0625rem", md: "1.15rem" } }}
                     >
                       {t("what_is_cs.actions.attend_events")}
                     </Typography>
                   </ListItem>
                   <ListItem
-                    sx={{
-                      p: 0,
-                      mb: 3,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      columnGap: 1,
-                    }}
+                    sx={{ p: 0, mb: 2, columnGap: 1, alignItems: "center" }}
                   >
                     <ListItemIcon
-                      sx={{
-                        minWidth: 36,
-                        color: theme.palette.primary.main,
-                      }}
+                      sx={{ minWidth: 36, color: theme.palette.primary.main }}
                     >
                       <GroupOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
                     </ListItemIcon>
                     <Typography
                       component="span"
-                      sx={{
-                        fontSize: { xs: "1.0625rem", md: "1.2rem" },
-                      }}
+                      sx={{ fontSize: { xs: "1.0625rem", md: "1.15rem" } }}
                     >
                       {t("what_is_cs.actions.find_people")}
                     </Typography>
                   </ListItem>
                   <ListItem
-                    sx={{
-                      p: 0,
-                      mb: 3,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      columnGap: 1,
-                    }}
+                    sx={{ p: 0, mb: 0, columnGap: 1, alignItems: "center" }}
                   >
                     <ListItemIcon
-                      sx={{
-                        minWidth: 36,
-                        color: theme.palette.primary.main,
-                      }}
+                      sx={{ minWidth: 36, color: theme.palette.primary.main }}
                     >
                       <ForumOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
                     </ListItemIcon>
                     <Typography
                       component="span"
-                      sx={{
-                        fontSize: { xs: "1.0625rem", md: "1.2rem" },
-                      }}
+                      sx={{ fontSize: { xs: "1.0625rem", md: "1.15rem" } }}
                     >
                       {t("what_is_cs.actions.join_discussions")}
                     </Typography>
                   </ListItem>
                 </List>
-              </FlipCard>
+              </Box>
             </Grid>
           </Grid>
         </Box>
@@ -486,7 +340,21 @@ export default function WhatIsCouchSurfingPage() {
                     sx={{ mb: 0.5 }}
                   >
                     <LightbulbOutlined
-                      sx={{ fontSize: 18, color: theme.palette.primary.main }}
+                      className="tip-lightbulb"
+                      sx={{
+                        fontSize: 20,
+                        color: theme.palette.primary.main,
+                        transition:
+                          "color .3s, filter .3s, transform .35s cubic-bezier(.4,1.6,.4,1)",
+                        transformOrigin: "60% 40%",
+                        "&:hover, &:focus-visible": {
+                          color: theme.palette.warning.main,
+                          filter:
+                            "drop-shadow(0 0 4px rgba(255,193,7,.65)) drop-shadow(0 0 8px rgba(255,193,7,.35))",
+                          transform: "scale(1.15) rotate(-5deg)",
+                          outline: "none",
+                        },
+                      }}
                     />
                     <Typography sx={{ color: theme.palette.text.secondary }}>
                       {t("what_is_cs.tip_label")}

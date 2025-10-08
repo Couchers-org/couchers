@@ -251,8 +251,8 @@
   },
   "what_is_cs": {
     "title": "What is couch surfing?",
-    "description_1": "Couch surfing is a concept where some members (called hosts) put up a posting on the platform saying they are open to hosting other members (called surfers) that are coming to visit their city.",
-    "description_2": "It's like having a friend in another city and going to visit them, but you meet the friend for the first time you get there!",
+    "description_1": "Couch surfing is a concept where some members (called hosts) post on the platform, stating they are open to hosting other members (called surfers) who are visiting their city.",
+    "description_2": "It’s like having a friend in another city and going to visit them, but you meet the friend for the first time once you get there!",
     "get_involved_title": "What can I do on Couchers.org?",
     "get_started": "Get started",
     "timeline_title": "A quick history of couch surfing",
@@ -305,9 +305,9 @@
     "join_couchers": "Join Couchers.org",
     "is_it_safe": {
       "title": "How safe is Couch surfing?",
-      "description_1": "While all travel and all interaction with strangers carries some risk, couch surfing is a lot safer than many people at first imagine. ",
-      "description_2": "Our community is built on trust between members via references after stays, and our active moderation team takes every report seriously and diligently counters bad actors that do not abide by our Community Guidelines. ",
-      "description_3": "Additionally, the Couchers platform includes tools such as various forms of verification (like Strong Verification with a biometric passport) that add an additional level of safety. Always have a backup in case plans fall through, and trust your instincts!"
+      "description_1": "While all travel and interaction with strangers carries some risk, couch surfing is a lot safer than many people initially imagine.",
+      "description_2": "Our community is built on trust between members, established through references following stays. Our active moderation team takes every report seriously and diligently counters bad actors who do not abide by our <guidelines>Community Guidelines</guidelines>.",
+      "description_3": "Additionally, the Couchers platform includes tools such as various forms of verification (like Strong Verification with a biometric passport) that add an additional level of safety. It’s important to always have an alternative plan ready in case things don’t go as expected, and to trust your instincts!"
     }
   },
   "team": {
