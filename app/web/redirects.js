@@ -8,7 +8,7 @@ module.exports = {
     {
       source: "/volunteer/form",
       destination:
-        "https://forms.monday.com/forms/f87fe22951e9328f4ee1578d339cb927?r=use1",
+        "https://forms.monday.com/forms/0354e14aa52a37757e9b5ecf2419fef9?r=use1",
       permanent: false,
     },
     {

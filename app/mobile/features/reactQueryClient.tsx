@@ -1,0 +1,42 @@
+import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { persistQueryClient } from "@tanstack/react-query-persist-client";
+import { reactQueryRetries } from "@/appConstants";
+import { useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+export const queryClient = new QueryClient({
+  //grpc-web has built in timeout, so better not use the default exponential backoff
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: reactQueryRetries,
+      retryDelay: 0,
+    },
+  },
+});
+
+interface ReactQueryClientProviderProps {
+  children: React.ReactNode;
+}
+
+export function ReactQueryClientProvider({
+  children,
+}: ReactQueryClientProviderProps) {
+  useEffect(() => {
+    const asyncStoragePersister = createAsyncStoragePersister({
+      storage: AsyncStorage,
+      throttleTime: 100,
+    });
+
+    persistQueryClient({
+      maxAge: 14 * 24 * 60 * 60 * 1000,
+      persister: asyncStoragePersister,
+      queryClient,
+    });
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+}
