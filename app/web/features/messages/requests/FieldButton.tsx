@@ -18,12 +18,14 @@ const FieldButton = ({
   disabled,
   isLoading,
   isSubmit,
+  variant = "contained",
 }: {
   children: string;
   callback: () => void;
   disabled?: boolean;
   isLoading: boolean;
   isSubmit?: boolean;
+  variant?: "text" | "outlined" | "contained";
 }) => {
   return (
     <StyledButton
@@ -32,7 +34,7 @@ const FieldButton = ({
       loading={isLoading}
       onClick={callback}
       type={isSubmit ? "submit" : "button"}
-      variant="contained"
+      variant={variant}
     >
       {children}
     </StyledButton>
