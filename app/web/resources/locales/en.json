@@ -255,8 +255,31 @@
     "description": "We are passionate couch surfers and skilled professionals committed to creating an improved, safer, and more inclusive platform. We are building this platform to support and sustainably grow the couch surfing community while sharing its values with the world. If you share our sentiments and want to contribute, we would love to hear from you.",
     "join_the_team": "Join the team",
     "join_our_team": "Join our team",
+    "current_members": "Current Members",
+    "past_members": "Past Members",
+    "board_member": "Board Member",
+    "co_founder_president": "Co-founder, President & Chairman",
+    "co_founder": "Co-Founder",
+    "secretary": "Secretary",
+    "treasurer": "Treasurer",
+    "community_coordinator": "Community Coordinator",
+    "developer": "Developer",
+    "frontend_developer": "Frontend Developer",
+    "lead_frontend_developer": "Lead Frontend Developer",
+    "backend_developer": "Backend Developer",
+    "lead_backend_developer": "Lead Backend Developer",
+    "full_stack_backend_developer": "Full Stack Developer",
+    "ui_ux_designer": "UI/UX Designer",
+    "translations_lead": "Translations Lead",
     "have_skills_contribute": "Have skills you want to contribute?",
-    "fill_form_description": "Couchers.org is a community-driven project, developed by people like you for the benefit of the global couch surfing community. If you’re interested in joining this exciting initiative, please click the button below and complete the brief form."
+    "fill_form_description": "Couchers.org is a community-driven project, developed by people like you for the benefit of the global couch surfing community. If you’re interested in joining this exciting initiative, please click the button below and complete the brief form.",
+    "volunteer_settings": {
+      "show_on_team_page": {
+        "title": "Show my volunteer profile on the team page",
+        "enabled_message": "Your profile is currently visible on the team page",
+        "disabled_message": "Your profile is currently hidden from the team page"
+      }
+    }
   },
   "push_notification_banner": {
     "message": "Don't miss requests, responses or messages; can we send you push notifications?",
