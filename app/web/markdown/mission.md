@@ -15,7 +15,7 @@ Couchers.org exists to create genuine real-world connections and community. By e
 
 ### Non-profit
 
-Profit will not be extracted from our organization, platform or community by any individual or organization. All funds, efforts, and decisions will be directed towards the mission.
+Profit will not be extracted from our organization, platform or community by any individual or organization. All funds, efforts, and decisions will be dedicated towards fulfilling the mission.
 
 #### Why?
 

@@ -4,9 +4,9 @@ crumb: Plan
 type: general
 ---
 
-We are working on building a platform that works for the whole community. We've talked to a lot of people from the inception of the platform, and put a lot of thought into identifying the [main issues with Couchsurfing&#8482;](issues) so we can fix them and build something better.
+We have built and continue to expand a platform that works for the whole community. We have talked to a lot of people since the inception of the platform, and put a lot of thought into identifying the [main issues with Couchsurfing&#8482;](issues). Our goal is to continue to address these issues and create something even better.
 
-Primarily we are building something that is:
+We are committed to creating a platform, that is:
 
 - Free for all users forever
 - Managed by the community
@@ -15,11 +15,11 @@ Primarily we are building something that is:
 
 We fundamentally believe that a tool like this can enhance the experiences of its users and the communities that use it if we execute and build it correctly.
 
-We are working on including the best parts from all the other hospitality exchange platforms out there. This includes hosting, surfing, messaging, live hangouts, planned events, trip planning, maps and many more.
+We are committed on incorporating the best parts from existing hospitality exchange platforms out there. This includes hosting, surfing, messaging, live hangouts, organized events, trip planning, maps, and much more.
 
 ## Our plan
 
-These are the key concepts that we are building into the foundation of the platform.
+Here are the core concepts that form the foundation of our platform.
 
 ### [Non-profit structure](/plan/profit-and-incentives) <span class="tag tag-governance">Governance</span>
 
@@ -27,15 +27,15 @@ We are structured as a non-profit. There is no need for investors. We will explo
 
 ### [Community-first with an improved verification system](/plan/communities-and-trust) <span class="tag tag-governance">Governance</span>
 
-We prioritize communities by building them into the foundation of the platform. We open communication channels wherever we can. We will also incorporate an improved verification method to re-institute so members can better trust each other.
+We prioritize communities by building them into the foundation of the platform. We open communication channels wherever we can. We have also incorporated an improved verification system to so members can better trust each other.
 
 ### [Member accountability](/plan/creeps-and-freeloaders) <span class="tag tag-design">Design</span>
 
-The community can be made safer by introducing accountability measures. If everyone is publicly accountable for their behavior, then the community will be able to filter people detrimental to the community. This is important to make the community safer, especially for women. This will also be used to filter freeloaders out of the platform.
+The community is made safer by various accountability measures. When everyone is publicly accountable for their behavior, then the community will be able to filter people detrimental to the community. This is important to make the community safer, especially for women. This is also used to filter freeloaders out of the platform.
 
 ### [An improved review system](/plan/reviews) <span class="tag tag-design">Design</span>
 
-We want reviews to be more accurate reflections of people, letting members know if others are assets to the community or potentially harmful. In order to make people accountable, negative reviews must be destigmatized. While keeping the system simple, we introduce a new score called Community Standing that reflects these ideas better.
+We want reviews to be more accurate reflections of people, letting members know if others are assets to the community or potentially harmful. In order to make people accountable, negative reviews must be destigmatized. While keeping the system simple, we've introduced features like private feedback and safety sections in our reference flow.
 
 ### [Better host matching](/plan/host-matching) <span class="tag tag-design">Design</span>
 
