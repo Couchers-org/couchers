@@ -1,6 +1,10 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import {
+  BoolValue,
+  StringValue,
+} from "google-protobuf/google/protobuf/wrappers_pb";
+import {
   ChangeEmailV2Req,
   ChangeLanguagePreferenceReq,
   ChangePasswordV2Req,
@@ -14,6 +18,7 @@ import {
   LogOutSessionReq,
   ProfilePublicVisibility,
   SetProfilePublicVisibilityReq,
+  UpdateMyVolunteerInfoReq,
   VerifyPhoneReq,
 } from "proto/account_pb";
 import {
@@ -159,6 +164,44 @@ export function setProfilePublicVisibility(setting: ProfilePublicVisibility) {
   const req = new SetProfilePublicVisibilityReq();
   req.setProfilePublicVisibility(setting);
   return client.account.setProfilePublicVisibility(req);
+}
+
+export type UpdateVolunteerInfoParams = {
+  [k in keyof UpdateMyVolunteerInfoReq.AsObject]: Required<UpdateMyVolunteerInfoReq.AsObject>[k]["value"];
+};
+
+export function updateVolunteerInfo(info: UpdateVolunteerInfoParams) {
+  const req = new UpdateMyVolunteerInfoReq();
+
+  if (info.showOnTeamPage !== undefined) {
+    req.setShowOnTeamPage(new BoolValue().setValue(info.showOnTeamPage));
+  }
+
+  if (info.displayName) {
+    req.setDisplayName(new StringValue().setValue(info.displayName));
+  }
+
+  if (info.displayLocation) {
+    req.setDisplayLocation(new StringValue().setValue(info.displayLocation));
+  }
+
+  if (info.linkType) {
+    req.setLinkType(new StringValue().setValue(info.linkType));
+  }
+
+  if (info.linkUrl) {
+    req.setLinkType(new StringValue().setValue(info.linkUrl));
+  }
+
+  if (info.linkText) {
+    req.setLinkType(new StringValue().setValue(info.linkText));
+  }
+
+  return client.account.updateMyVolunteerInfo(req);
+}
+
+export async function getMyVolunteerInfo() {
+  return (await client.account.getMyVolunteerInfo(new Empty())).toObject();
 }
 
 export async function createInviteCode() {
