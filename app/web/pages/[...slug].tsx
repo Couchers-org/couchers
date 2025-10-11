@@ -16,7 +16,7 @@ async function getMarkdownPageBySlug(
 
 export const getStaticPaths: GetStaticPaths = () => ({
   paths: [],
-  fallback: false,
+  fallback: "blocking",
 });
 
 export const getStaticProps: GetStaticProps = async ({ locale, params }) => ({
