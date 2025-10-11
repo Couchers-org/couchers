@@ -65,6 +65,7 @@ export const configUtils = <const P extends string>(prefix: P) => {
         IS_POST_BETA_ENABLED: boolStringSchema.default(false),
         MEDIA_BASE_URL: z.string(),
         GLOBAL_MESSAGE_URL: z.string(),
+        CDN_BASE_URL: z.string(),
       },
       prefix,
     ),

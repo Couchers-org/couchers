@@ -47,15 +47,15 @@ const Hero = () => {
         imageWidths={[
           {
             width: 1024,
-            fileName: "https://cdn.couchers.org/img/hero/1024.jpeg",
+            fileName: `${Config.cdnBaseUrl}/img/hero/1024.jpeg`,
           },
           {
             width: 2048,
-            fileName: "https://cdn.couchers.org/img/hero/2048.jpeg",
+            fileName: `${Config.cdnBaseUrl}/img/hero/2048.jpeg`,
           },
           {
             width: 4096,
-            fileName: "https://cdn.couchers.org/img/hero/4096.jpeg",
+            fileName: `${Config.cdnBaseUrl}/img/hero/4096.jpeg`,
           },
         ]}
       />

@@ -14,7 +14,7 @@ const fetchWeblateStats = async (): Promise<WeblateLanguage[]> => {
   try {
     // TODO(FB) Get rid of hard-coded URL
     const response = await fetch(
-      "https://cdn.couchers.org/api/projects/couchers/languages/",
+      `${Config.cdnBaseUrl}/api/projects/couchers/languages/`,
       {
         headers: {
           accept: "application/json",

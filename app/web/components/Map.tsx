@@ -137,7 +137,7 @@ const Map = ({
           width: grow ? "100%" : "400px",
         }}
         interactive={true}
-        mapStyle="https://cdn.couchers.org/maps/couchers-basemap-style-v1.json"
+        mapStyle={`${Config.cdnBaseUrl}/maps/couchers-basemap-style-v1.json`}
         interactiveLayerIds={clusterLayer.id ? [clusterLayer.id] : []}
         onClick={handleMapClick}
         onLoad={handleMapLoad}

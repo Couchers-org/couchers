@@ -106,8 +106,5 @@
     "typescript": "^5.8.3",
     "webpack": "^5.101.3",
     "whatwg-fetch": "^3.6.20"
-  },
-  "resolutions": {
-    "@types/react": "^18.3.1"
   }
 }

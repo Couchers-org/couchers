@@ -7,17 +7,17 @@ const Document = (props: DocumentProps) => {
   return (
     <Html lang={props.locale ?? "en"}>
       <Head>
-        <link rel="preconnect" href="https://cdn.couchers.org" />
+        <link rel="preconnect" href={Config.cdnBaseUrl} />
         <meta name="theme-color" content={theme.palette.primary.main} />
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/logo512.png" />
         <link
           rel="stylesheet"
-          href="https://cdn.couchers.org/fonts/ubuntu/ubuntu.css"
+          href={`${Config.cdnBaseUrl}/fonts/ubuntu/ubuntu.css`}
         />
         <link
           rel="stylesheet"
-          href="https://cdn.couchers.org/fonts/wordmark/wordmark.css"
+          href={`${Config.cdnBaseUrl}/fonts/wordmark/wordmark.css`}
         />
         {Config.recaptchaSiteKey && (
           <script

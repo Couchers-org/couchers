@@ -90,7 +90,7 @@ const Map = ({
         container: containerRef.current,
         hash: hash ? "loc" : false,
         interactive,
-        style: "https://cdn.couchers.org/maps/couchers-basemap-style-v1.json",
+        style: `${Config.cdnBaseUrl}/maps/couchers-basemap-style-v1.json`,
         transformRequest,
         zoom: initialZoom,
         scrollZoom,

@@ -57,7 +57,7 @@ const StaticMap = () => {
           height: "100%",
           width: "100%",
         }}
-        mapStyle="https://cdn.couchers.org/maps/couchers-basemap-style-v1.json"
+        mapStyle={`${Config.cdnBaseUrl}/maps/couchers-basemap-style-v1.json`}
         interactiveLayerIds={clusterLayer.id ? [clusterLayer.id] : []}
         hash={false}
         ref={mapRef}

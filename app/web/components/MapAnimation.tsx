@@ -40,7 +40,7 @@ const MapAnimation = () => {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    fetch("https://cdn.couchers.org/img/hero/hero-animation.json")
+    fetch(`${Config.cdnBaseUrl}/img/hero/hero-animation.json`)
       .then((res) => {
         if (!res.ok) {
           Sentry.captureException(
