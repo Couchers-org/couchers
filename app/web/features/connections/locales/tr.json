@@ -20,7 +20,9 @@
     "message": "{{name}}'yı çıkarmak istediğine emin misin? Bu eylemi geri alınamaz."
   },
   "unblock_user_confirmation_dialog": {
-    "confirm": "Engeli kaldır"
+    "confirm": "Engeli kaldır",
+    "title": "{{name}}'nın engelini kaldırmak istediğine emin misin?",
+    "message": "Engeli kaldırmak onların senin profilini görmesine ve sana istek yollamalarına izin verecek. Eğer daha önceden arkadaş idiyseniz, arkadaş listene geri dönecekler. Onlara haber verilmeyecek."
   },
   "unblock_user": "Kullanıcının engelini kaldır"
 }
