@@ -376,12 +376,12 @@ export default function WhatIsCouchSurfingPage() {
                 >
                   <Box
                     component="img"
-                    src="/yannic-group.jpg"
+                    src="/what-is-cs-scrapbook.png"
                     alt="Why people love couch surfing"
                     sx={{
                       display: "block",
                       width: "100%",
-                      aspectRatio: "1.5 / 1",
+                      aspectRatio: "1 / 1",
                       objectFit: "cover",
                     }}
                   />
