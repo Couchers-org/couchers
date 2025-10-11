@@ -12,8 +12,7 @@
     "tsc": "tsc"
   },
   "workspaces": [
-    "web",
-    "services"
+    "web"
   ],
   "devDependencies": {
     "@stylistic/eslint-plugin": "^5.3.1",

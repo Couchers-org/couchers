@@ -9,6 +9,7 @@ import {
   styled,
   useMediaQuery,
 } from "@mui/material";
+import Image from "next/image";
 import React from "react";
 
 import CatalanFlagIcon from "@/components/Icons/CatalanFlagIcon";
@@ -78,7 +79,7 @@ const SmallLanguageCard = styled(Card)<{ percent: number }>(
   }),
 );
 
-const FlagImage = styled("img")<{ percent: number }>(({ percent }) => ({
+const FlagImage = styled(Image)<{ percent: number }>(({ percent }) => ({
   width: 32,
   height: 24,
   borderRadius: 4,

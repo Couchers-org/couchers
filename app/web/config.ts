@@ -70,22 +70,23 @@ export const configUtils = <const P extends string>(prefix: P) => {
     ),
   });
 
-  const getStringReplacements = (encoded: z.infer<typeof schema>) =>
-    Object.fromEntries(
+  const getStringReplacements = (encoded: z.infer<typeof schema>) => ({
+    Config: Object.fromEntries(
       Object.entries(encoded).map(([key, value]) => {
         const keyWithoutPrefix = key.startsWith(prefix)
           ? key.substring(prefix.length)
           : key;
 
         const newKey: [string, string] = [
-          `Config.${camelCase(keyWithoutPrefix)}`,
+          camelCase(keyWithoutPrefix),
           // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
           `"${value}"`,
         ];
 
         return newKey;
       }),
-    ) as Record<string, string>;
+    ) as Record<string, string>,
+  });
 
   return { schema, getStringReplacements };
 };

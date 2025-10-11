@@ -17,6 +17,6 @@
     "incremental": true,
     "types": ["jest"]
   },
-  "include": ["web", "services"],
+  "include": ["web", "prettier.config.js"],
   "exclude": ["node_modules", ".next", "generated"]
 }

@@ -20,8 +20,6 @@ import { ReactQueryClientProvider } from "@/features/reactQueryClient";
 import nextI18nextConfig from "@/next-i18next.config";
 import { theme } from "@/theme";
 
-import "./main.css";
-
 type AppWithLayoutProps = Omit<AppProps, "Component"> & {
   // eslint-disable-next-line @typescript-eslint/naming-convention
   Component: AppProps["Component"] & {

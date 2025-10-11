@@ -23,7 +23,8 @@ declare global {
   const Config: Config;
 }
 
-let stringReplacements: Record<string, string> = {};
+// eslint-disable-next-line @typescript-eslint/naming-convention
+let stringReplacements: { Config: { [key: string]: string } } = { Config: {} };
 
 const isNextJS = !!process.env.NEXT_RUNTIME;
 
@@ -59,6 +60,13 @@ const nextConfig: NextConfig = {
     config.module?.rules?.push({
       test: /\.md$/,
       loader: "frontmatter-markdown-loader",
+    });
+
+    // Tell webpack to detect if .js files are CJS or ESM. Needed to import generated proto code
+    // TODO(FB) Remove when new proto codegen is done
+    config.module?.rules?.push({
+      test: /\.js$/,
+      type: "javascript/auto",
     });
 
     return config;

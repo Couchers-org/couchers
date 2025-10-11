@@ -39,6 +39,8 @@ interface StyledMuiSelectProps {
   displayMode?: "round" | "rect";
 }
 
+const flagSize = { width: 25, height: 18.75 };
+
 const StyledSelect = styled(Select, {
   shouldForwardProp: (prop) => prop !== "displayMode",
 })<StyledMuiSelectProps>(({ theme, displayMode }) => ({
@@ -105,7 +107,7 @@ const LanguagePickerSelect = ({
     if (flagCode === "CAT") {
       return (
         <CatalanFlagIcon
-          sx={{ width: 25, height: 18.75, ...commonStyles }}
+          sx={{ ...flagSize, ...commonStyles }}
           aria-label="Catalan flag"
         />
       );
@@ -114,8 +116,12 @@ const LanguagePickerSelect = ({
     return (
       <Image
         alt={`${flagCode} flag`}
+        // fill={true}
+        {...flagSize}
+        // width={25}
+        // fill={true}
         src={`https://cdn.couchers.org/img/language-icons/${flagCode}.svg`}
-        style={{ width: 25, ...commonStyles }}
+        style={{ ...flagSize, ...commonStyles }}
       />
     );
   };

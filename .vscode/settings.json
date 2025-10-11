@@ -6,48 +6,23 @@
     "typescriptreact"
   ],
   "files.insertFinalNewline": true,
+  "editor.formatOnSave": true,
   "[python]": {
     "editor.tabSize": 4,
     "editor.rulers": [120],
     "editor.formatOnSave": false,
-    "editor.formatOnPaste": false,
-    "editor.formatOnType": false,
     "editor.defaultFormatter": null
   },
-  "editor.formatOnSave": false,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
     "source.formatDocument": "explicit"
   },
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true
-  },
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true
-  },
-  "[javascriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true
-  },
-  "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true
-  },
-  "[css]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true
+  "[typescript][typescriptreact][javascript][javascriptreact][json][css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[markdown]": {
     "editor.defaultFormatter": null,
-    "editor.formatOnSave": false,
-    "editor.formatOnType": false
+    "editor.formatOnSave": false
   },
   "typescript.preferences.importModuleSpecifier": "relative",
   "typescript.suggest.autoImports": true,
@@ -57,6 +32,4 @@
   "files.trimTrailingWhitespace": true,
   "eslint.useFlatConfig": true,
   "eslint.workingDirectories": ["app"]
-
-
 }
