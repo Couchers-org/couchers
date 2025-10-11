@@ -84,13 +84,13 @@ const TimelineTab = memo(function TimelineTab({
       <Typography
         variant="h3"
         sx={{
-          mt: 1,
+          mt: active ? 1 : 1.375,
           fontSize: { xs: "1rem", md: "1.1rem" },
           fontWeight: active ? 700 : 500,
           color: active
             ? theme.palette.secondary.main
             : theme.palette.text.primary,
-          transition: "color .25s",
+          transition: "color .25s, margin-top .25s",
         }}
       >
         {year}
@@ -178,6 +178,7 @@ export default function HistoryTimeline() {
         marginLeft: "-50vw",
         marginRight: "-50vw",
         width: "100vw",
+        minHeight: 450,
       }}
     >
       <Container maxWidth="lg">
@@ -291,7 +292,6 @@ export default function HistoryTimeline() {
           aria-labelledby={`timeline-tab-${activeIndex}`}
           aria-label={items[activeIndex].year}
           sx={{
-            mt: 3,
             mx: "auto",
             p: { xs: 2, md: 3 },
             border: `1px solid ${theme.palette.grey[200]}`,

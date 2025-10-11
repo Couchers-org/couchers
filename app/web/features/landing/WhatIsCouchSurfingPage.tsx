@@ -378,11 +378,12 @@ export default function WhatIsCouchSurfingPage() {
                     component="img"
                     src="/what-is-cs-scrapbook.png"
                     alt="Why people love couch surfing"
+                    decoding="async"
+                    loading="lazy"
                     sx={{
                       display: "block",
                       width: "100%",
-                      aspectRatio: "1 / 1",
-                      objectFit: "cover",
+                      height: "auto",
                     }}
                   />
                 </Box>
