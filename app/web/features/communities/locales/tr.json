@@ -24,5 +24,9 @@
   "find_host": "Ev sahibi ara",
   "finished": "Bitti",
   "comments_count": "{{count}} | Yorum",
-  "community_image_input_alt": "Topluluk görsel girişi"
+  "community_image_input_alt": "Topluluk görsel girişi",
+  "upload_helper_text_replace": "Fotoğraf değiştirmek için tıkla",
+  "community_moderators": "Topluluk Mimarları",
+  "discussions_empty_state": "Şu anda herhangi bir tartışma yok.",
+  "discussions_label": "Tartışmalar"
 }
