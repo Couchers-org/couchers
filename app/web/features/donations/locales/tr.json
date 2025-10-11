@@ -20,7 +20,9 @@
   },
   "donations_recurrence_explainer": "Aylık bir bağış geleceği planlamamıza ve faaliyetlerimizi istikrarlı bir şekilde devam ettirmemize yardımcı oluyor.",
   "settings_fragment": {
-    "button_text": "Bağış yönetim portalına git"
+    "button_text": "Bağış yönetim portalına git",
+    "title": "Bağışlarını yönet",
+    "description": "Alttaki butona tıklayarak devamlı bağışını güncelle, iptal et veya eski faturalara bak."
   },
   "donations_use_explainer": "{{ year }}'a ait finansal tablomuza bakın."
 }

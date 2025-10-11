@@ -25,7 +25,10 @@
             },
             "item_descriptions": {
                 "host_request": {
-                    "reminder": "Bekleyen bir ev sahibi isteğine henüz yanıt vermediniz."
+                    "reminder": "Bekleyen bir ev sahibi isteğine henüz yanıt vermediniz.",
+                    "create": "Birisi sana bir ev sahipliği isteği yollayınca",
+                    "accept": "Birisi ev sahipliği isteğini kabul edince",
+                    "confirm": "Birisi ev sahipliği isteğini onayladığında"
                 },
                 "reference": {
                     "receive_hosted": "Sana ev sahipliği yapmış biri tarafından referans aldığında"

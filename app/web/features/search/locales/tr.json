@@ -25,15 +25,21 @@
       },
       "hosting_status_field_label": "Ev sahipliği durumu",
       "meetup_status_field_label": "Buluşma durumu",
-      "complete_profiles_label": "Profilleri tamamla"
+      "complete_profiles_label": "Profilleri tamamla",
+      "last_active_field_label": "En son aktiflik"
     },
     "accommodation_filters": {
       "guests_field_label": "Misafir sayısı",
       "sleeping_arrangement_filters": {
         "private": {
           "label": "Özel alan"
+        },
+        "shared_room": {
+          "label": "Ortak oda"
         }
-      }
+      },
+      "title": "Konaklama filtreleri",
+      "sleeping_arrangement_label": "Uyku düzeni"
     },
     "empty_profile_filters": {
       "title": "Boş profilleri göster"
