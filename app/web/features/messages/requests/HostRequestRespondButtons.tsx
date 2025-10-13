@@ -81,11 +81,6 @@ export default function HostRequestRespondButtons({
 
     return (
       <>
-        {canConfirm && (
-          <FieldButton callback={handleConfirm} isLoading={isLoading}>
-            {t("messages:confirm_request_button_text")}
-          </FieldButton>
-        )}
         {canCancel && (
           <ConfirmationDialogWrapper
             title={t("messages:close_request_dialog_title")}
@@ -96,11 +91,17 @@ export default function HostRequestRespondButtons({
               <FieldButton
                 isLoading={isLoading}
                 callback={() => setIsOpen(true)}
+                variant="outlined"
               >
                 {t("global:cancel")}
               </FieldButton>
             )}
           </ConfirmationDialogWrapper>
+        )}
+        {canConfirm && (
+          <FieldButton callback={handleConfirm} isLoading={isLoading}>
+            {t("messages:confirm_request_button_text")}
+          </FieldButton>
         )}
       </>
     );
