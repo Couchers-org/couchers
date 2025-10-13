@@ -1,9 +1,9 @@
-import { styled, Typography, useMediaQuery } from "@mui/material";
+import { Stack, styled, Typography, useMediaQuery } from "@mui/material";
 import Button from "components/Button";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { signupRoute } from "routes";
+import { signupRoute, whatIsCouchSurfingRoute } from "routes";
 import { theme } from "theme";
 
 const StyledIntroduction = styled("div")(({ theme }) => ({
@@ -26,6 +26,9 @@ const CouchersIntroduction = () => {
 
   const routeToSignupPage = () => {
     router.push(signupRoute);
+  };
+  const routeToLearnMore = () => {
+    router.push(whatIsCouchSurfingRoute);
   };
 
   return (
@@ -70,18 +73,42 @@ const CouchersIntroduction = () => {
         >
           {t("landing:introduction_subtitle2")}
         </Typography>
-        {router.pathname === "/" && !isMobile && (
+        {!isMobile && (
+          <Stack direction="row" spacing={2} sx={{ marginTop: 4 }}>
+            <Button
+              onClick={routeToSignupPage}
+              size="large"
+              color="primary"
+              sx={{
+                width: theme.spacing(20),
+                fontSize: "1.3rem",
+              }}
+            >
+              {t("global:join_us")}
+            </Button>
+            <Button
+              onClick={routeToLearnMore}
+              size="large"
+              variant="outlined"
+              color="primary"
+              sx={{
+                width: theme.spacing(20),
+                fontSize: "1.3rem",
+              }}
+            >
+              {t("global:learn_more")}
+            </Button>
+          </Stack>
+        )}
+        {isMobile && (
           <Button
-            onClick={routeToSignupPage}
-            size="large"
+            onClick={routeToLearnMore}
+            size="medium"
+            variant="text"
             color="primary"
-            sx={{
-              marginTop: 4,
-              width: theme.spacing(20),
-              fontSize: "1.3rem",
-            }}
+            sx={{ mt: 2 }}
           >
-            {t("global:join_us")}
+            {t("global:learn_more")}
           </Button>
         )}
       </>

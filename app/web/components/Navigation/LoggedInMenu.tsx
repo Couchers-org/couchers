@@ -1,12 +1,7 @@
 import { NotificationsOutlined } from "@mui/icons-material";
-import {
-  Badge,
-  styled,
-  Tooltip,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { styled, Tooltip, Typography, useMediaQuery } from "@mui/material";
 import MuiLink from "@mui/material/Link";
+import { Box } from "@mui/system";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
 import IconButton from "components/IconButton";
@@ -73,18 +68,19 @@ const StyledMenuButton = styled(Button)(({ theme }) => ({
     opacity: 0.8,
     backgroundColor: theme.palette.grey[300],
   },
+  [theme.breakpoints.down("lg")]: {
+    padding: theme.spacing(0.75),
+  },
 }));
 
 const StyledAvatar = styled(Avatar)(({ theme }) => ({
   height: "2rem",
   width: "2rem",
   marginLeft: theme.spacing(1),
-}));
-
-const StyledBadge = styled(Badge)(({ theme }) => ({
-  "& .MuiBadge-badge": {
-    right: "-4px",
-    top: "4px",
+  [theme.breakpoints.down("lg")]: {
+    height: "1.75rem",
+    width: "1.75rem",
+    marginLeft: theme.spacing(0.75),
   },
 }));
 
@@ -126,23 +122,26 @@ function LinkMenuItemView({
 }: LoggedInMenuLinkItem & { closeMenu: () => unknown }) {
   const linkContent = (
     <span style={{ display: "flex", alignItems: "center" }}>
-      {notificationCount ? (
-        <StyledBadge color="primary" variant="dot">
-          <Typography noWrap>{name}</Typography>
-        </StyledBadge>
-      ) : (
-        <Typography noWrap>{name}</Typography>
-      )}
-
-      {notificationCount ? (
-        <Typography
-          noWrap
-          variant="subtitle2"
-          sx={{ color: theme.palette.grey[500], fontWeight: "bold" }}
+      <Typography noWrap>{name}</Typography>
+      {notificationCount && (
+        <Box
+          sx={{
+            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.common.white,
+            borderRadius: theme.spacing(10),
+            marginLeft: theme.spacing(0.5),
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "0.75rem",
+            fontWeight: 600,
+            height: theme.spacing(2),
+            width: theme.spacing(2),
+          }}
         >
-          {`${notificationCount} unseen`}
-        </Typography>
-      ) : null}
+          {notificationCount > 99 ? "99+" : notificationCount}
+        </Box>
+      )}
     </span>
   );
 
@@ -262,13 +261,15 @@ export default function LoggedInMenu({
               aria-expanded={isNotificationsFeedOpen ? "true" : undefined}
               sx={{
                 backgroundColor: theme.palette.grey[300],
+                width: { xs: 36, md: 40 }, // Smaller on mobile
+                height: { xs: 36, md: 40 }, // Smaller on mobile
                 "&:hover": {
                   opacity: 0.8,
                   backgroundColor: theme.palette.grey[300],
                 },
               }}
             >
-              <NotificationsOutlined />
+              <NotificationsOutlined sx={{ fontSize: { xs: 20, md: 24 } }} />
             </IconButton>
           </NotificationBadge>
         </NotificationMenuItemWrapper>
@@ -284,7 +285,12 @@ export default function LoggedInMenu({
         onClick={() => setMenuOpen((prevMenuOpen: boolean) => !prevMenuOpen)}
         ref={menuRef}
       >
-        <MenuIcon sx={{ color: theme.palette.text.primary }} />
+        <MenuIcon
+          sx={{
+            color: theme.palette.text.primary,
+            fontSize: { xs: 20, lg: 24 }, // Changed md to lg for consistency
+          }}
+        />
         <StyledAvatar user={user} isProfileLink={false} />
       </StyledMenuButton>
       <StyledMenu
