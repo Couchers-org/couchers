@@ -4929,10 +4929,10 @@ graphql@^16.8.1:
   resolved "https://registry.yarnpkg.com/graphql/-/graphql-16.11.0.tgz#96d17f66370678027fdf59b2d4c20b4efaa8a633"
   integrity sha512-mS1lbMsxgQj6hge1XZ6p7GPhbrtFwUFYi3wRzXAC/FmYnyXMTvvI3td3rjmQ2u8ewXueaSvRPWaEcgVVOT9Jnw==
 
-grpc-web@2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/grpc-web/-/grpc-web-2.0.1.tgz#42ee41dd60d735b08342fbdbd8e0688d79552a97"
-  integrity sha512-jo5b5HKDUlBrCgs0SKleMwQGgYOX0Lhhb4OGyTcVCR1/68IbG4tc/N2RBT6qLNxukeGlebyYGpA9I1dN6HFivQ==
+grpc-web@2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/grpc-web/-/grpc-web-2.0.2.tgz#416164eb747bab5c3054fd58f73b21814f325d83"
+  integrity sha512-bvBP0/d5jyVM3eGxxffJhRLAPpH6eXhJeUzBT+bSIEgUKkG4a/BotEimVeW3phP0WLnsJnkRl8uQdRf2yDLaVA==
 
 gzip-size@^6.0.0:
   version "6.0.0"
