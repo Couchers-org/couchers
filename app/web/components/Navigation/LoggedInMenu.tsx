@@ -68,7 +68,7 @@ const StyledMenuButton = styled(Button)(({ theme }) => ({
     opacity: 0.8,
     backgroundColor: theme.palette.grey[300],
   },
-  [theme.breakpoints.down("md")]: {
+  [theme.breakpoints.down("lg")]: {
     padding: theme.spacing(0.75),
   },
 }));
@@ -77,7 +77,7 @@ const StyledAvatar = styled(Avatar)(({ theme }) => ({
   height: "2rem",
   width: "2rem",
   marginLeft: theme.spacing(1),
-  [theme.breakpoints.down("md")]: {
+  [theme.breakpoints.down("lg")]: {
     height: "1.75rem",
     width: "1.75rem",
     marginLeft: theme.spacing(0.75),
@@ -288,7 +288,7 @@ export default function LoggedInMenu({
         <MenuIcon
           sx={{
             color: theme.palette.text.primary,
-            fontSize: { xs: 20, md: 24 }, // Smaller on mobile
+            fontSize: { xs: 20, lg: 24 }, // Changed md to lg for consistency
           }}
         />
         <StyledAvatar user={user} isProfileLink={false} />
