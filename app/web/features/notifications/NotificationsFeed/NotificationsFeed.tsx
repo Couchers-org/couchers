@@ -4,11 +4,12 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Skeleton,
+  Stack,
   styled,
   Typography,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Pill from "components/Pill";
 import { listNotificationsQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
@@ -79,7 +80,7 @@ const NotificationsFeed = ({
     ListNotificationsRes.AsObject,
     RpcError
   >({
-    queryKey: [listNotificationsQueryKey],
+    queryKey: [listNotificationsQueryKey, notificationsFilter],
     queryFn: () =>
       service.notifications.listNotifications({
         onlyUnread: notificationsFilter === "unread",
@@ -278,7 +279,24 @@ const NotificationsFeed = ({
       </TopContentWrapper>
       <NotificationsListWrapper>
         {(isLoading || isMarkingAllSeen) && !isRefetching ? (
-          <CenteredSpinner />
+          <Stack spacing={1} sx={{ padding: theme.spacing(1) }}>
+            {[1, 2, 3].map((index) => (
+              <Stack
+                key={index}
+                direction="row"
+                spacing={1}
+                alignItems="flex-start"
+                sx={{ p: 1 }}
+              >
+                <Skeleton variant="circular" width={32} height={32} />
+                <Stack spacing={0.5} sx={{ flex: 1 }}>
+                  <Skeleton variant="text" width="60%" height={16} />
+                  <Skeleton variant="text" width="90%" height={14} />
+                  <Skeleton variant="text" width="40%" height={12} />
+                </Stack>
+              </Stack>
+            ))}
+          </Stack>
         ) : (
           <>
             {error && (
