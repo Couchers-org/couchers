@@ -81,13 +81,26 @@ const EventInfo = styled("div")(({ theme }) => ({
   fontSize: ".85rem",
 }));
 
+const ActivityStatsWrapper = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  gap: ".2em",
+  alignItems: "flex-end",
+  justifyContent: "flex-end",
+  fontSize: ".85rem",
+  marginRight: theme.spacing(1),
+}));
+
 const Attendees = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "flex-end",
   justifyContent: "flex-end",
   minWidth: theme.spacing(10),
-  fontSize: ".85rem",
   color: theme.palette.text.secondary,
+}));
+
+const StyledCommentsCount = styled(Typography)(({ theme }) => ({
+  color: theme.palette.primary.main,
 }));
 
 const FlagWrapper = styled("div")(({ theme }) => ({
@@ -167,11 +180,18 @@ const LongEventCard = ({
                 : t("communities:virtual_event_location_placeholder")}
               <div>{startTime}</div>
             </EventInfo>
-            <Attendees>
-              {t("communities:attendees_count", {
-                count: event.goingCount + event.maybeCount,
-              })}
-            </Attendees>
+            <ActivityStatsWrapper>
+              <Attendees>
+                {t("communities:attendees_count", {
+                  count: event.goingCount + event.maybeCount,
+                })}
+              </Attendees>
+              <StyledCommentsCount variant="body2">
+                {t("communities:comments_count", {
+                  count: event.thread?.numResponses,
+                })}
+              </StyledCommentsCount>
+            </ActivityStatsWrapper>
           </Row>
         </StyledCardContent>
       </StyledLink>

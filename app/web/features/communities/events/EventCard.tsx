@@ -74,6 +74,12 @@ const FlagButtonWrapper = styled("div")({
   },
 });
 
+const StyledCommentsCount = styled(Typography)(({ theme }) => ({
+  alignSelf: "flex-end",
+  flexShrink: 0,
+  color: theme.palette.primary.main,
+}));
+
 export const EVENT_CARD_TEST_ID = "event-card";
 export interface EventCardProps {
   event: Event.AsObject;
@@ -161,6 +167,11 @@ export default function EventCard({ event, className }: EventCardProps) {
                 count: event.goingCount + event.maybeCount,
               })}
             </Typography>
+            <StyledCommentsCount variant="body2">
+              {t("communities:comments_count", {
+                count: event.thread?.numResponses,
+              })}
+            </StyledCommentsCount>
           </div>
         </CardContent>
       </Link>
