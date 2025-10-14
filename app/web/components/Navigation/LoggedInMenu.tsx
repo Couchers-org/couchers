@@ -123,7 +123,7 @@ function LinkMenuItemView({
   const linkContent = (
     <span style={{ display: "flex", alignItems: "center" }}>
       <Typography noWrap>{name}</Typography>
-      {notificationCount && (
+      {!!notificationCount && (
         <Box
           sx={{
             backgroundColor: theme.palette.primary.main,
@@ -261,8 +261,8 @@ export default function LoggedInMenu({
               aria-expanded={isNotificationsFeedOpen ? "true" : undefined}
               sx={{
                 backgroundColor: theme.palette.grey[300],
-                width: { xs: 36, md: 40 }, // Smaller on mobile
-                height: { xs: 36, md: 40 }, // Smaller on mobile
+                width: { xs: 36, md: 40 },
+                height: { xs: 36, md: 40 },
                 "&:hover": {
                   opacity: 0.8,
                   backgroundColor: theme.palette.grey[300],
@@ -288,7 +288,7 @@ export default function LoggedInMenu({
         <MenuIcon
           sx={{
             color: theme.palette.text.primary,
-            fontSize: { xs: 20, lg: 24 }, // Changed md to lg for consistency
+            fontSize: { xs: 20, lg: 24 },
           }}
         />
         <StyledAvatar user={user} isProfileLink={false} />
