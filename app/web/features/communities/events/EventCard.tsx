@@ -64,15 +64,15 @@ const CancelledChip = styled(Chip)(({ theme }) => ({
   fontWeight: "bold",
 }));
 
-const FlagButtonWrapper = styled("div")({
+const FlagButtonWrapper = styled("div")(({ theme }) => ({
   display: "flex",
   justifyContent: "flex-end",
-  padding: "8px",
+  padding: theme.spacing(1),
   alignItems: "center",
   "& svg": {
     fontSize: 16,
   },
-});
+}));
 
 const StyledCommentsCount = styled(Typography)(({ theme }) => ({
   alignSelf: "flex-end",
