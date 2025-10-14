@@ -29,7 +29,9 @@ export const sectionLabels = (
     references: (
       <Box display="flex" alignItems="center" gap={1}>
         {t("profile:heading.references")}
-        <StyledNumReferences>{user?.numReferences}</StyledNumReferences>
+        {!!user?.numReferences && (
+          <StyledNumReferences>{user?.numReferences}</StyledNumReferences>
+        )}
       </Box>
     ),
     ...(isSuperuser ? { mod: t("global:mod") } : {}),
