@@ -154,9 +154,6 @@ export default function EventCard({ event, className }: EventCardProps) {
             gutterBottom
             sx={{
               maxWidth: "25em",
-              display: "block",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
             }}
           >
             {event.offlineInformation
