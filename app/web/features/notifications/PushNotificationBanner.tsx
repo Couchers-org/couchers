@@ -19,7 +19,7 @@ const Wrapper = styled("div")({
 });
 
 export function PushNotificationBanner() {
-  const { t } = useTranslation([NOTIFICATIONS]);
+  const { t } = useTranslation(NOTIFICATIONS);
   // the epoch value of the last time this banner was dismissed
   const [lastDismissedEpoch, setLastDismissedEpoch] = usePersistedState<
     number | null
@@ -76,7 +76,7 @@ export function PushNotificationBanner() {
 
   return shouldPromptAllow ? (
     <Alert severity="info" onClose={dismiss}>
-      {t("notification_settings.push_notifications.allow_push")}
+      {t("notifications:notification_settings.push_notifications.allow_push")}
     </Alert>
   ) : (
     <Alert
@@ -85,13 +85,13 @@ export function PushNotificationBanner() {
       sx={{ alignItems: "center", ".MuiAlert-message": { width: "100%" } }}
     >
       <Wrapper>
-        <Trans i18nKey="global:push_notification_banner.message" />
+        <Trans i18nKey="notifications:push_notification_banner.message" />
         <Button
           variant="outlined"
           sx={{ backgroundColor: theme.palette.common.white }}
           onClick={turnPushNotificationsOnWrap}
         >
-          {t("global:push_notification_banner.confirm")}
+          {t("notifications:push_notification_banner.confirm")}
         </Button>
       </Wrapper>
     </Alert>
