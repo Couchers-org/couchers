@@ -181,11 +181,11 @@ describe("LeaveReferencePage", () => {
         expect(getAvailableReferencesMock).toHaveBeenCalledWith({ userId: 5 });
       });
 
-      it("Returns the fallback error", async () => {
+      it("Returns already wrote friend reference error", async () => {
         const errorAlert = await screen.findByRole("alert");
         expect(
           within(errorAlert).getByText(
-            t("profile:leave_reference.reference_type_not_available"),
+            t("profile:leave_reference.already_wrote_friend_reference"),
           ),
         ).toBeVisible();
       });
