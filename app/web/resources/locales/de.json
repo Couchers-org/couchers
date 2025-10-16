@@ -52,7 +52,33 @@
             "join_our_team": "Werde Teil unseres Teams",
             "current_members": "Aktuelle Mitglieder",
             "past_members": "Ehemalige Mitglieder"
-        }
+        },
+        "language_names": {
+            "es": "Spanisch (Spanien)",
+            "es-419": "Spanisch",
+            "fr": "Französisch (Frankreich)",
+            "fr-CA": "Französisch (Kanada)",
+            "hi": "Hindi",
+            "it": "Italienisch",
+            "ja": "Japanisch",
+            "nb-NO": "Norwegisch (Bokmål)",
+            "nl": "Niederländisch",
+            "pl": "Polnisch",
+            "pt-BR": "Portugiesisch (Brasilien)",
+            "ru": "Russisch",
+            "sv": "Schwedisch",
+            "tr": "Türkisch",
+            "uk": "Ukrainisch",
+            "zh-Hans": "Chinesisch (Vereinfacht)",
+            "pt": "Portugiesisch (Portugal)",
+            "en-CORP": "Amerikanisch (Unternehmenssprache)",
+            "en": "Englisch",
+            "ca": "Katalan",
+            "cs": "Tschechisch",
+            "de": "Deutsch",
+            "zh-Hant": "Chinesisch (Traditionell)"
+        },
+        "tap_press_to_flip": " tippen / drücken zum Umdrehen"
     },
     "push_notification_banner": {
         "message": "Verpasse keine Anfragen, Antworten oder Nachrichten; dürfen wir dir Push-Benachrichtigungen senden?",
