@@ -45,7 +45,14 @@
         "join_our_team": "Werde Teil unseres Teams",
         "have_skills_contribute": "Hast du Fähigkeiten, mit denen du beitragen möchtest?",
         "fill_form_description": "Couchers.org ist ein community-basiertes Projekt, das von Menschen wie dir zum Nutzen der globalen Couchsurfer-Community entwickelt wurde. Wenn du Interesse hast, an dieser spannenden Initiative teilzunehmen, klicke bitte auf den untenstehenden Button und fülle das kurze Formular aus.",
-        "description": "Wir sind leidenschaftliche Couchsurfer und erfahrene Fachleute, die sich dafür einsetzen, eine verbesserte, sicherere und inklusivere Plattform zu schaffen. Wir bauen diese Plattform, um die Couchsurfer-Community zu unterstützen und nachhaltig wachsen zu lassen, während wir ihre Werte mit der Welt teilen. Wenn du unsere Überzeugungen teilst und mitwirken möchtest, freuen wir uns, von dir zu hören."
+        "description": "Wir sind leidenschaftliche Couchsurfer und erfahrene Fachleute, die sich dafür einsetzen, eine verbesserte, sicherere und inklusivere Plattform zu schaffen. Wir bauen diese Plattform, um die Couchsurfer-Community zu unterstützen und nachhaltig wachsen zu lassen, während wir ihre Werte mit der Welt teilen. Wenn du unsere Überzeugungen teilst und mitwirken möchtest, freuen wir uns, von dir zu hören.",
+        "team": {
+            "title": "Das Team",
+            "join_the_team": "Dem Team beitreten",
+            "join_our_team": "Werde Teil unseres Teams",
+            "current_members": "Aktuelle Mitglieder",
+            "past_members": "Ehemalige Mitglieder"
+        }
     },
     "push_notification_banner": {
         "message": "Verpasse keine Anfragen, Antworten oder Nachrichten; dürfen wir dir Push-Benachrichtigungen senden?",
@@ -290,5 +297,27 @@
     "uses": "Verwendungen",
     "error_loading_invite_codes": "Details des Einladungscodes konnten nicht abgerufen werden",
     "copy": "Kopieren",
-    "copied": "In die Zwischenablage kopiert"
+    "copied": "In die Zwischenablage kopiert",
+    "what_is_cs": {
+        "get_involved_title": "Was kann ich auf Couchers.org machen?",
+        "title": "Was ist Couchsurfing?",
+        "timeline": {
+            "early_2000s_year": "Frühe 2000er",
+            "2010s_year": "2010er",
+            "2020_year": "2020",
+            "today_year": "Heute"
+        },
+        "why_people_title": "Warum Leute Couchsurfen lieben",
+        "tip_label": "TIPP",
+        "compare_title": "Wie schneidet Couchers.org im Vergleich ab?",
+        "table": {
+            "header_couchers": "Couchers.org",
+            "header_hostel": "Hostel",
+            "header_hotel": "Hotel"
+        },
+        "join_couchers": "Couchers.org beitreten",
+        "is_it_safe": {
+            "title": "Wie sicher ist Couchsurfing?"
+        }
+    }
 }
