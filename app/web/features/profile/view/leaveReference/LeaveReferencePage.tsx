@@ -124,6 +124,14 @@ export default function LeaveReferencePage({
     );
   }
 
+  if (isFriendType && isFriendsWithUser && !canWriteFriendRef) {
+    return (
+      <Alert severity="info">
+        {t("profile:leave_reference.already_wrote_friend_reference")}
+      </Alert>
+    );
+  }
+
   const alreadyWroteThisStay = !!hostRequestId && !!statusRes?.hasGiven;
 
   const isExpired = !!hostRequestId && !!statusRes && statusRes.isExpired;

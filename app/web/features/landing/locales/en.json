@@ -39,6 +39,5 @@
   "map_section_title": "Explore our global community",
   "num_users": "{{numUsers}} members",
   "num_countries": "{{numCountries}}+ countries",
-  "last_signup": "Last signup {{timeAgo}}",
-  "animation_error": "Error loading animation"
+  "last_signup": "Last signup {{timeAgo}}"
 }

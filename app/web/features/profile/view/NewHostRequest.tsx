@@ -194,7 +194,7 @@ export default function NewHostRequest({
             }
           />
           <StyledSendActions>
-            <Button onClick={() => setIsRequesting(false)}>
+            <Button onClick={() => setIsRequesting(false)} variant="outlined">
               {t("global:cancel")}
             </Button>
             <Button type="submit" onClick={onSubmit}>

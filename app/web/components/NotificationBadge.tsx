@@ -11,7 +11,18 @@ export default function NotificationBadge({
   count,
 }: NotificationBadgeProps) {
   return (
-    <Badge badgeContent={count} color="primary" sx={{ right: "-0.8rem" }}>
+    <Badge
+      badgeContent={count}
+      color="primary"
+      sx={{
+        right: "-0.8rem",
+        "& .MuiBadge-badge": {
+          fontSize: { xs: "0.65rem" },
+          minWidth: { xs: 16 },
+          height: { xs: 16 },
+        },
+      }}
+    >
       {children}
     </Badge>
   );

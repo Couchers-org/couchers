@@ -50,6 +50,7 @@ const StyledButtonContainer = styled("div")(({ theme }) => ({
   marginInlineEnd: theme.spacing(2),
   marginTop: theme.spacing(1),
   "& > .MuiButton-root": {
+    gridColumnStart: 2,
     justifySelf: "end",
   },
 }));

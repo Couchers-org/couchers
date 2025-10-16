@@ -145,5 +145,9 @@
         }
       }
     }
+  },
+  "push_notification_banner": {
+    "message": "Don't miss requests, responses or messages; can we send you push notifications?",
+    "confirm": "Yes, please!"
   }
 }
