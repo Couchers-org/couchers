@@ -145,5 +145,9 @@
     "error_loading": "Fehler beim Laden der Benachrichtigungen",
     "mark_unread": "Als ungelesen markieren",
     "mark_all_read": "Alle als gelesen markieren",
-    "no_new_notifications": "Keine neuen Benachrichtigungen"
+    "no_new_notifications": "Keine neuen Benachrichtigungen",
+    "push_notification_banner": {
+        "message": "Verpasse keine Anfragen, Antworten oder Nachrichten; dürfen wir dir Push-Benachrichtigungen senden?",
+        "confirm": "Ja, bitte!"
+    }
 }

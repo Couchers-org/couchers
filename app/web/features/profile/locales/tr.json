@@ -36,5 +36,8 @@
   "helper_text": {
     "missing_profile_photo": "Lütfen profilini tamamlamak için bir fotoğraf ekle."
   },
-  "section_tabs_a11y_label": "kullanıcı detayları için sekmeler"
+  "section_tabs_a11y_label": "kullanıcı detayları için sekmeler",
+  "incomplete_dialog": {
+    "description": "Şunu tamamlayana dek istekler ve mesajlar göndermeyeceksin ve etkinlikler oluşturamayacaksın:"
+  }
 }
