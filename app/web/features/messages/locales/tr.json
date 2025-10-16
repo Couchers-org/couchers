@@ -44,6 +44,9 @@
   "admins_dialog": {
     "step_down_confirmation_dialog": {
       "message": "Bu sohbetin yöneticisi olmaktan vazgeçmek istediğine emin misin? Başka bir yönetici seni tekrardan yönetici olarak eklemediği sürece tekrardan bu sohbetin yöneticisi olamayacaksın."
+    },
+    "remove_admin": {
+      "title": "Yönetici çıkar"
     }
   }
 }

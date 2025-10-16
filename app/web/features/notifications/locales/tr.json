@@ -31,7 +31,8 @@
                     "confirm": "Birisi ev sahipliği isteğini onayladığında"
                 },
                 "reference": {
-                    "receive_hosted": "Sana ev sahipliği yapmış biri tarafından referans aldığında"
+                    "receive_hosted": "Sana ev sahipliği yapmış biri tarafından referans aldığında",
+                    "receive_surfed": "Ev sahipliği yaptığın birinden referans aldığında"
                 }
             }
         }
