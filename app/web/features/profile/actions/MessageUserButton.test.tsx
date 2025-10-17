@@ -70,7 +70,9 @@ describe("MessageUserButton", () => {
 
     await user.click(button);
 
-    await waitFor(() => { expect(mockRouter.pathname).toBe(routeToGroupChat(99)); });
+    await waitFor(() => {
+      expect(mockRouter.pathname).toBe(routeToGroupChat(99));
+    });
   });
 
   it("redirects to chat tab with state if dm doesn't exist", async () => {
@@ -94,9 +96,9 @@ describe("MessageUserButton", () => {
 
     await user.click(button);
 
-    await waitFor(() =>
-      { expect(mockRouter.asPath).toBe(routeToCreateMessage(mockUser.username)); },
-    );
+    await waitFor(() => {
+      expect(mockRouter.asPath).toBe(routeToCreateMessage(mockUser.username));
+    });
   });
 
   it("pops up incomplete profile note if profile is incomplete", async () => {
@@ -120,12 +122,12 @@ describe("MessageUserButton", () => {
 
     await user.click(button);
 
-    await waitFor(async () =>
-      { expect(
+    await waitFor(async () => {
+      expect(
         await screen.findByLabelText(
           t("dashboard:complete_profile_dialog.title"),
         ),
-      ).toBeVisible(); },
-    );
+      ).toBeVisible();
+    });
   });
 });

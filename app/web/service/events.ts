@@ -1,10 +1,4 @@
-import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
-import {
-  Int64Value,
-  StringValue,
-} from "google-protobuf/google/protobuf/wrappers_pb";
-
-import { ListEventsReq } from "@/proto/communities_pb";
+import { ListEventsReq } from "@couchers/services/communities";
 import {
   AttendanceState,
   CancelEventReq,
@@ -21,7 +15,12 @@ import {
   RequestCommunityInviteReq,
   SetEventAttendanceReq,
   UpdateEventReq,
-} from "@/proto/events_pb";
+} from "@couchers/services/events";
+import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
+import {
+  Int64Value,
+  StringValue,
+} from "google-protobuf/google/protobuf/wrappers_pb";
 
 import client from "./client";
 

@@ -1,3 +1,4 @@
+import { Message } from "@couchers/services/conversations";
 import { styled } from "@mui/material";
 import * as React from "react";
 
@@ -6,7 +7,6 @@ import ControlMessageView from "@/features/messages/messagelist/ControlMessageVi
 import { isControlMessage } from "@/features/messages/utils";
 import { useTranslation } from "@/i18n";
 import { MESSAGES } from "@/i18n/namespaces";
-import { Message } from "@/proto/conversations_pb";
 import { theme } from "@/theme";
 
 import MessageView from "./MessageView";

@@ -1,9 +1,9 @@
+import { InitiateMediaUploadRes } from "@couchers/services/api";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { StatusCode } from "grpc-web";
 import { useForm } from "react-hook-form";
 
-import { InitiateMediaUploadRes } from "@/proto/api_pb";
 import { service } from "@/service";
 import client from "@/service/client";
 import {

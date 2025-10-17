@@ -1,9 +1,9 @@
+import { ListNotificationsRes } from "@couchers/services/notifications";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { LIST_NOTIFICATIONS_QUERY_KEY } from "@/features/queryKeys";
 import log from "@/log";
 import { Sentry } from "@/platform/sentry";
-import { ListNotificationsRes } from "@/proto/notifications_pb";
 import { service } from "@/service";
 import {
   getVapidPublicKey,

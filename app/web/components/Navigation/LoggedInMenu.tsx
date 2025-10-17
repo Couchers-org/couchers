@@ -1,3 +1,4 @@
+import { PingRes } from "@couchers/services/api";
 import { NotificationsOutlined } from "@mui/icons-material";
 import {
   Badge,
@@ -27,7 +28,6 @@ import LanguagePickerSelect from "@/features/translate/LanguagePickerSelect";
 import useCurrentUser from "@/features/userQueries/useCurrentUser";
 import { useTranslation } from "@/i18n";
 import { GLOBAL } from "@/i18n/namespaces";
-import { PingRes } from "@/proto/api_pb";
 import { theme } from "@/theme";
 
 export type LoggedInMenuLinkItem = {

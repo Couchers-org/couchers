@@ -1,3 +1,4 @@
+import { GetGroupChatMessagesRes } from "@couchers/services/conversations";
 import { styled } from "@mui/material";
 import {
   useInfiniteQuery,
@@ -25,7 +26,6 @@ import {
 import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
-import { GetGroupChatMessagesRes } from "@/proto/conversations_pb";
 import { service } from "@/service";
 
 import ChatContent from "./ChatContent";

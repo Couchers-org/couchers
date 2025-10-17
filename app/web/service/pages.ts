@@ -1,12 +1,11 @@
-import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
-
 import {
   Coordinate,
   CreateGuideReq,
   CreatePlaceReq,
   GetPageReq,
   UpdatePageReq,
-} from "@/proto/pages_pb";
+} from "@couchers/services/pages";
+import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
 
 import client from "./client";
 

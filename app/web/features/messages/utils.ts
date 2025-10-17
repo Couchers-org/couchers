@@ -1,7 +1,7 @@
+import { GroupChat, Message } from "@couchers/services/conversations";
 import { TFunction } from "i18next";
 
 import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
-import { GroupChat, Message } from "@/proto/conversations_pb";
 import { firstName } from "@/utils/names";
 
 import { requestStatusToTransKey } from "./constants";

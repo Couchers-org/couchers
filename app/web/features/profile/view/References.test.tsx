@@ -1,9 +1,9 @@
+import { ReferenceType } from "@couchers/services/references";
 import { Queries, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { referenceBadgeLabel } from "@/features/profile/constants";
 import { ProfileUserProvider } from "@/features/profile/hooks/useProfileUser";
-import { ReferenceType } from "@/proto/references_pb";
 import { service } from "@/service";
 import references from "@/test/fixtures/references.json";
 import users from "@/test/fixtures/users.json";

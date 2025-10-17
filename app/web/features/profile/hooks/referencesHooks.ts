@@ -1,3 +1,5 @@
+import { User } from "@couchers/services/api";
+import { ListReferencesRes, Reference } from "@couchers/services/references";
 import {
   InfiniteData,
   useInfiniteQuery,
@@ -15,8 +17,6 @@ import {
   ReferencesReceivedKeyInputs,
   availableWriteReferencesKey,
 } from "@/features/queryKeys";
-import { User } from "@/proto/api_pb";
-import { ListReferencesRes, Reference } from "@/proto/references_pb";
 import { service } from "@/service";
 import {
   WriteFriendReferenceInput,

@@ -1,4 +1,4 @@
-import { ReportReq } from "@/proto/reporting_pb";
+import { ReportReq } from "@couchers/services/reporting";
 
 import client from "./client";
 

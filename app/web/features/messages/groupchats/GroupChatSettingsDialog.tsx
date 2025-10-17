@@ -1,3 +1,4 @@
+import { GroupChat } from "@couchers/services/conversations";
 import { Checkbox, DialogProps, FormControlLabel } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -21,7 +22,6 @@ import {
 } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
-import { GroupChat } from "@/proto/conversations_pb";
 import { service } from "@/service";
 
 interface GroupChatSettingsData {

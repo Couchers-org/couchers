@@ -1,3 +1,4 @@
+import { UnsubscribeRes } from "@couchers/services/auth";
 import { useMutation } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
@@ -8,7 +9,6 @@ import HtmlMeta from "@/components/HtmlMeta";
 import PageTitle from "@/components/PageTitle";
 import { useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
-import { UnsubscribeRes } from "@/proto/auth_pb";
 import { service } from "@/service";
 import stringOrFirstString from "@/utils/stringOrFirstString";
 

@@ -1,7 +1,7 @@
+import { HostingStatus, SleepingArrangement } from "@couchers/services/api";
 import { useEffect, useState } from "react";
 
 import { FilterOptions } from "@/features/search/SearchPage";
-import { HostingStatus, SleepingArrangement } from "@/proto/api_pb";
 
 import { useMapSearchState } from "./mapSearchContext";
 import { initialState } from "./mapSearchReducers";

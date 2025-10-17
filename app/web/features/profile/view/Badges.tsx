@@ -1,8 +1,8 @@
+import { User } from "@couchers/services/api";
 import { styled } from "@mui/material";
 
 import Badge from "@/features/badges/Badge";
 import { useBadges } from "@/features/badges/hooks";
-import { User } from "@/proto/api_pb";
 
 interface Props {
   user: User.AsObject;

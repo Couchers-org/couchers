@@ -1,6 +1,3 @@
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
-
 import {
   ChangeEmailV2Req,
   ChangeLanguagePreferenceReq,
@@ -14,13 +11,15 @@ import {
   ProfilePublicVisibility,
   SetProfilePublicVisibilityReq,
   VerifyPhoneReq,
-} from "@/proto/account_pb";
+} from "@couchers/services/account";
 import {
   CompletePasswordResetV2Req,
   ConfirmChangeEmailV2Req,
   ContributorForm as ContributorFormPb,
   ResetPasswordReq,
-} from "@/proto/auth_pb";
+} from "@couchers/services/auth";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 
 import { contributorFormFromObject } from "./auth";
 import client from "./client";

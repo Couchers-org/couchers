@@ -1,9 +1,9 @@
+import { PingRes } from "@couchers/services/api";
 import { useQuery } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
 
 import { PING_INTERVAL } from "@/appConstants";
 import { useAuthContext } from "@/features/auth/AuthProvider";
-import { PingRes } from "@/proto/api_pb";
 import { service } from "@/service";
 
 const useNotifications = () => {

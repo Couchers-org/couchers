@@ -14,9 +14,10 @@ import i18n from "@/test/i18n";
 
 import user from "./fixtures/defaultUser.json";
 
-global.jest = jest;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+global.jest = jest as any;
 
-jest.mock("service");
+// jest.mock("@/service");
 jest.mock("next/router", () => {
   const routerMock = jest.requireActual<{
     events: { on: () => unknown; off: () => unknown; emit: () => unknown };

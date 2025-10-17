@@ -1,3 +1,4 @@
+import { HostingStatus as THostingStatus } from "@couchers/services/api";
 import { Skeleton, styled } from "@mui/material";
 import React from "react";
 
@@ -6,7 +7,6 @@ import { CouchIcon } from "@/components/Icons";
 import { hostingStatusLabels } from "@/features/profile/constants";
 import { useTranslation } from "@/i18n";
 import { GLOBAL } from "@/i18n/namespaces";
-import { HostingStatus as THostingStatus } from "@/proto/api_pb";
 
 const StyledHostingAbilityContainer = styled("div")(() => ({
   alignItems: "center",

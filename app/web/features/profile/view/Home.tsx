@@ -1,3 +1,4 @@
+import { User } from "@couchers/services/api";
 import { Typography, styled } from "@mui/material";
 
 import Divider from "@/components/Divider";
@@ -11,7 +12,6 @@ import {
 } from "@/features/profile/constants";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
-import { User } from "@/proto/api_pb";
 
 const StyledRoot = styled("div")({
   display: "flex",

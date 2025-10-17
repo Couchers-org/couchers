@@ -1,8 +1,8 @@
+import { GetAccountInfoRes } from "@couchers/services/account";
 import { useQuery } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
 
 import { ACCOUNT_INFO_QUERY_KEY } from "@/features/queryKeys";
-import { GetAccountInfoRes } from "@/proto/account_pb";
 import { service } from "@/service";
 
 const useAccountInfo = () => {

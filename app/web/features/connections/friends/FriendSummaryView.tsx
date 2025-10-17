@@ -1,8 +1,8 @@
+import { LiteUser } from "@couchers/services/api";
+import { BlockedUser } from "@couchers/services/blocking";
 import { styled } from "@mui/material";
 
 import UserSummary from "@/components/UserSummary";
-import { LiteUser } from "@/proto/api_pb";
-import { BlockedUser } from "@/proto/blocking_pb";
 
 interface FriendSummaryViewProps {
   children?: React.ReactNode;
@@ -35,6 +35,6 @@ const FriendSummaryView = ({
       </StyledFriendItem>
     </>
   ) : null;
-}
+};
 
 export default FriendSummaryView;

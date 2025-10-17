@@ -1,3 +1,4 @@
+import { Community } from "@couchers/services/communities";
 import { Link as MuiLink, styled } from "@mui/material";
 import Link from "next/link";
 
@@ -10,7 +11,6 @@ import { SectionTitle } from "@/features/communities/CommunityPage";
 import { useListDiscussions } from "@/features/communities/hooks";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES } from "@/i18n/namespaces";
-import { Community } from "@/proto/communities_pb";
 import { COMPOSING_DISCUSSION_HASH, routeToCommunity } from "@/routes";
 import { theme } from "@/theme";
 import hasAtLeastOnePage from "@/utils/hasAtLeastOnePage";

@@ -1,3 +1,4 @@
+import { HostingStatus } from "@couchers/services/api";
 import { Typography, styled } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
@@ -6,7 +7,6 @@ import { useForm } from "react-hook-form";
 import LocationAutocomplete from "@/components/LocationAutocomplete";
 import { Coordinates } from "@/features/search/utils/constants";
 import { DASHBOARD } from "@/i18n/namespaces";
-import { HostingStatus } from "@/proto/api_pb";
 import { routeToSearch } from "@/routes";
 import { theme } from "@/theme";
 import { GeocodeResult } from "@/utils/hooks";

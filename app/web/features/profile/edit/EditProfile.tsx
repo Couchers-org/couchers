@@ -1,3 +1,8 @@
+import {
+  HostingStatus,
+  LanguageAbility,
+  MeetupStatus,
+} from "@couchers/services/api";
 import { Cancel, CheckCircle, Help, InfoOutlined } from "@mui/icons-material";
 import {
   Box,
@@ -33,7 +38,6 @@ import { userKey } from "@/features/queryKeys";
 import useCurrentUser from "@/features/userQueries/useCurrentUser";
 import { Trans, useTranslation } from "@/i18n";
 import { AUTH, GLOBAL, PROFILE } from "@/i18n/namespaces";
-import { HostingStatus, LanguageAbility, MeetupStatus } from "@/proto/api_pb";
 import { HOW_TO_MAKE_GREAT_PROFILE_URL } from "@/routes";
 import { UpdateUserProfileData, service } from "@/service/index";
 import { theme } from "@/theme";
@@ -571,6 +575,7 @@ const EditProfileForm = () => {
                             <CheckCircle
                               sx={{
                                 fontSize: 32,
+
                                 color:
                                   field.value ===
                                   HostingStatus.HOSTING_STATUS_CAN_HOST

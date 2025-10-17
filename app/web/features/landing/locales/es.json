@@ -1,8 +1,8 @@
 {
-    "introduction_title": "La nueva alternativa a Couchsurfing™",
-    "introduction_subtitle": "Gratis para siempre. Dirigido por la comunidad. Sin ánimo de lucro. Moderna.",
-    "signup_header": "Regístrate en Couchers.org hoy",
-    "signup_description": "Únete a {{ user_count }} couchsurfers en la plataforma de couchsurfing de más rápido crecimiento.",
-    "create_an_account": "Crear una cuenta",
-    "signup_continue": "Finalizar registro"
+  "introduction_title": "La nueva alternativa a Couchsurfing™",
+  "introduction_subtitle": "Gratis para siempre. Dirigido por la comunidad. Sin ánimo de lucro. Moderna.",
+  "signup_header": "Regístrate en Couchers.org hoy",
+  "signup_description": "Únete a {{ user_count }} couchsurfers en la plataforma de couchsurfing de más rápido crecimiento.",
+  "create_an_account": "Crear una cuenta",
+  "signup_continue": "Finalizar registro"
 }

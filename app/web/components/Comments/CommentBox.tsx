@@ -1,3 +1,4 @@
+import { Reply } from "@couchers/services/threads";
 import { Card, styled } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import React, { useEffect, useState } from "react";
@@ -7,7 +8,6 @@ import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
 import NewComment from "@/components/Comments/NewComment";
 import Markdown from "@/components/Markdown";
 import log from "@/log";
-import { Reply } from "@/proto/threads_pb";
 import { service } from "@/service";
 import isGrpcError from "@/service/utils/isGrpcError";
 

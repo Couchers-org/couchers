@@ -1,6 +1,5 @@
+import { UserDetails } from "@couchers/services/admin";
 import * as React from "react";
-
-import { UserDetails } from "@/proto/admin_pb";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const ModUserDetailsContext = React.createContext<UserDetails.AsObject>(

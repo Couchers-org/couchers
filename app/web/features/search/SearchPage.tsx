@@ -1,3 +1,4 @@
+import { HostingStatus, MeetupStatus } from "@couchers/services/api";
 import { styled } from "@mui/material";
 import { useMemo, useRef, useState } from "react";
 import { LngLatLike, MapProvider, MapRef } from "react-map-gl/maplibre";
@@ -12,7 +13,6 @@ import {
 } from "@/features/search/utils/constants";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, SEARCH } from "@/i18n/namespaces";
-import { HostingStatus, MeetupStatus } from "@/proto/api_pb";
 
 import MapSearchContent from "./MapSearchContent";
 import SearchControls from "./SearchControls";

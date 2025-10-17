@@ -1,3 +1,4 @@
+import { AttendanceState, Event } from "@couchers/services/events";
 import {
   Card,
   Chip,
@@ -28,7 +29,6 @@ import EventAttendees from "@/features/communities/events/EventAttendees";
 import { EVENT_ATTENDEES_BASE_KEY, eventKey } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES } from "@/i18n/namespaces";
-import { AttendanceState, Event } from "@/proto/events_pb";
 import { routeToEditEvent, routeToEvent } from "@/routes";
 import { service } from "@/service";
 import { theme } from "@/theme";

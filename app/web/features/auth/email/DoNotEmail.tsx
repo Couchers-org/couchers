@@ -1,3 +1,4 @@
+import { GetNotificationSettingsRes } from "@couchers/services/notifications";
 import { Typography } from "@mui/material";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
@@ -8,7 +9,6 @@ import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
 import { DO_NOT_EMAIL_QUERY_KEY } from "@/features/queryKeys";
 import { Trans, useTranslation } from "@/i18n";
 import { AUTH } from "@/i18n/namespaces";
-import { GetNotificationSettingsRes } from "@/proto/notifications_pb";
 import { service } from "@/service";
 
 interface DoNotEmailFormData {

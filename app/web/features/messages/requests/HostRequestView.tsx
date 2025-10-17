@@ -1,3 +1,7 @@
+import {
+  GetHostRequestMessagesRes,
+  RespondHostRequestReq,
+} from "@couchers/services/requests";
 import { Skeleton, styled, useMediaQuery } from "@mui/material";
 import {
   InfiniteData,
@@ -27,10 +31,6 @@ import {
 import { useLiteUser } from "@/features/userQueries/useLiteUsers";
 import { useTranslation } from "@/i18n";
 import { MESSAGES } from "@/i18n/namespaces";
-import {
-  GetHostRequestMessagesRes,
-  RespondHostRequestReq,
-} from "@/proto/requests_pb";
 import { service } from "@/service";
 import { theme } from "@/theme";
 import { firstName } from "@/utils/names";

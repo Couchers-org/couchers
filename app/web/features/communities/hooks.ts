@@ -1,4 +1,18 @@
 import {
+  Community,
+  ListAdminsRes,
+  ListCommunitiesRes,
+  ListDiscussionsRes,
+  ListEventsRes,
+  ListGroupsRes,
+  ListGuidesRes,
+  ListMembersRes,
+  ListNearbyUsersRes,
+  ListPlacesRes,
+} from "@couchers/services/communities";
+import { Discussion } from "@couchers/services/discussions";
+import { GetThreadRes } from "@couchers/services/threads";
+import {
   InfiniteData,
   UseInfiniteQueryOptions,
   UseQueryOptions,
@@ -25,20 +39,6 @@ import {
   subCommunitiesKey,
   threadKey,
 } from "@/features/queryKeys";
-import {
-  Community,
-  ListAdminsRes,
-  ListCommunitiesRes,
-  ListDiscussionsRes,
-  ListEventsRes,
-  ListGroupsRes,
-  ListGuidesRes,
-  ListMembersRes,
-  ListNearbyUsersRes,
-  ListPlacesRes,
-} from "@/proto/communities_pb";
-import { Discussion } from "@/proto/discussions_pb";
-import { GetThreadRes } from "@/proto/threads_pb";
 import { routeToCommunity } from "@/routes";
 import { service } from "@/service";
 import useStablePush from "@/utils/useStablePush";

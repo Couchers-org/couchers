@@ -1,6 +1,5 @@
+import { User } from "@couchers/services/api";
 import * as React from "react";
-
-import { User } from "@/proto/api_pb";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const ProfileUserContext = React.createContext<User.AsObject>(

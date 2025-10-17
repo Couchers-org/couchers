@@ -1,3 +1,4 @@
+import { Community } from "@couchers/services/communities";
 import { styled } from "@mui/material";
 import React from "react";
 
@@ -6,7 +7,6 @@ import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
 import { useCommunity } from "@/features/communities/hooks";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES } from "@/i18n/namespaces";
-import { Community } from "@/proto/communities_pb";
 
 interface CommunityBaseProps {
   children: (communityParams: {

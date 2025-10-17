@@ -1,3 +1,5 @@
+import { UserDetails } from "@couchers/services/admin";
+import { User } from "@couchers/services/api";
 import { Typography, styled } from "@mui/material";
 
 import Divider from "@/components/Divider";
@@ -5,8 +7,6 @@ import LabelAndText from "@/components/LabelAndText";
 import StyledLink from "@/components/StyledLink";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, MOD } from "@/i18n/namespaces";
-import { UserDetails } from "@/proto/admin_pb";
-import { User } from "@/proto/api_pb";
 
 interface ModPanelProps {
   user: User.AsObject;

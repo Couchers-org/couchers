@@ -1,14 +1,14 @@
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-
-import type { ReferenceTypeState } from "@/features/profile/view/References";
 import {
   AvailableWriteReferencesReq,
   HostRequestIndicateDidntMeetupReq,
   ListReferencesReq,
   WriteFriendReferenceReq,
   WriteHostRequestReferenceReq,
-} from "@/proto/references_pb";
-import { HostRequest } from "@/proto/requests_pb";
+} from "@couchers/services/references";
+import { HostRequest } from "@couchers/services/requests";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+
+import type { ReferenceTypeState } from "@/features/profile/view/References";
 
 import client from "./client";
 

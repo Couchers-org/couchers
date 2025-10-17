@@ -1,10 +1,10 @@
+import { GroupChat } from "@couchers/services/conversations";
+import { HostRequest } from "@couchers/services/requests";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 
 import MarkAllReadButton from "@/features/messages/requests/MarkAllReadButton";
-import { GroupChat } from "@/proto/conversations_pb";
-import { HostRequest } from "@/proto/requests_pb";
 import { service } from "@/service";
 import chat from "@/test/fixtures/groupChat.json";
 import request from "@/test/fixtures/hostRequest.json";
@@ -45,7 +45,6 @@ describe("MarkAllReadButton", () => {
     mutableStore.requests = [...defaultRequests];
     // naive implementations rely on id = array index + 1
     listGroupChatsMock.mockImplementation(
-       
       async (lastMessageId = 0, number = 1) => {
         const chats = [
           ...mutableStore.chats.slice(lastMessageId, lastMessageId + number),
@@ -58,7 +57,6 @@ describe("MarkAllReadButton", () => {
       },
     );
     listHostRequestsMock.mockImplementation(
-       
       async ({ lastRequestId = 0, count = 1 }) => {
         const requests = [
           ...mutableStore.requests.slice(lastRequestId, lastRequestId + count),
@@ -71,13 +69,12 @@ describe("MarkAllReadButton", () => {
       },
     );
     markLastRequestSeenMock.mockImplementation(
-       
       async (hostRequestId, messageId) => {
         mutableStore.requests[hostRequestId - 1].lastSeenMessageId = messageId;
         return new Empty();
       },
     );
-     
+
     markLastSeenGroupChatMock.mockImplementation(async (chatId, messageId) => {
       mutableStore.chats[chatId - 1].lastSeenMessageId = messageId;
       return new Empty();

@@ -1,3 +1,4 @@
+import { Reply } from "@couchers/services/threads";
 import {
   Card,
   CircularProgress,
@@ -18,7 +19,6 @@ import ModVisibleComponent from "@/features/mod/ModVisibleComponent";
 import { useLiteUser } from "@/features/userQueries/useLiteUsers";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
-import { Reply } from "@/proto/threads_pb";
 import { theme } from "@/theme";
 import { timestamp2Date } from "@/utils/date";
 import hasAtLeastOnePage from "@/utils/hasAtLeastOnePage";

@@ -1,3 +1,5 @@
+import { LiteUser } from "@couchers/services/api";
+import { BlockedUser } from "@couchers/services/blocking";
 import {
   ListItemAvatar,
   ListItemText,
@@ -12,8 +14,6 @@ import Avatar from "@/components/Avatar";
 import EllipsisMenu, { EllipsisMenuItem } from "@/components/EllipsisMenu";
 import { OpenInNewIcon } from "@/components/Icons";
 import StyledLink from "@/components/StyledLink";
-import { LiteUser } from "@/proto/api_pb";
-import { BlockedUser } from "@/proto/blocking_pb";
 import { routeToUser } from "@/routes";
 import { theme } from "@/theme";
 

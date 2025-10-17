@@ -1,3 +1,4 @@
+import { SearchUser } from "@couchers/services/search";
 import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 import {
   Alert,
@@ -13,7 +14,6 @@ import { RpcError } from "grpc-web";
 import { DEFAULT_DRAWER_WIDTH } from "@/components/ResizeableDrawer";
 import { useTranslation } from "@/i18n";
 import { SEARCH } from "@/i18n/namespaces";
-import { SearchUser } from "@/proto/search_pb";
 import { theme } from "@/theme";
 
 import SearchResultUserCard from "./SeachResultUserCard";

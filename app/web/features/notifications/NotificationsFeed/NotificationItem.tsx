@@ -1,3 +1,4 @@
+import { Notification } from "@couchers/services/notifications";
 import { Circle, MoreHoriz } from "@mui/icons-material";
 import {
   Avatar,
@@ -16,7 +17,6 @@ import IconButton from "@/components/IconButton";
 import { mapNotificationFeedTypeToIcon } from "@/features/notifications/utils/constants";
 import { useTranslation } from "@/i18n";
 import { GLOBAL } from "@/i18n/namespaces";
-import { Notification } from "@/proto/notifications_pb";
 import { theme } from "@/theme";
 import { timestamp2Date } from "@/utils/date";
 import { timeAgoI18n } from "@/utils/timeAgo";

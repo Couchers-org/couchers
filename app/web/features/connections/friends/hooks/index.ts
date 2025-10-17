@@ -1,3 +1,5 @@
+import { LiteUser, User } from "@couchers/services/api";
+import { BlockedUser, GetBlockedUsersRes } from "@couchers/services/blocking";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
@@ -8,8 +10,6 @@ import {
   userKey,
 } from "@/features/queryKeys";
 import { Sentry } from "@/platform/sentry";
-import { LiteUser, User } from "@/proto/api_pb";
-import { BlockedUser, GetBlockedUsersRes } from "@/proto/blocking_pb";
 import { service } from "@/service";
 
 const useUnblockUser = () => {

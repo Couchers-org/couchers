@@ -3,7 +3,15 @@
   "compilerOptions": {
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+    "types": ["jest"],
+    "allowImportingTsExtensions": true
   },
-  "include": ["./**/*.ts", "./**/*.js", "./**/*.tsx", "./.next/types/**/*.ts"]
+  "include": [
+    "./**/*.ts",
+    "./**/*.mts",
+    "./**/*.js",
+    "./**/*.tsx",
+    "./.next/types/**/*.ts"
+  ]
 }

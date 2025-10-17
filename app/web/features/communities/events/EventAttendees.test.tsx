@@ -1,3 +1,4 @@
+import { User } from "@couchers/services/api";
 import {
   render,
   screen,
@@ -9,7 +10,6 @@ import userEvent from "@testing-library/user-event";
 
 import { USER_TITLE_SKELETON_TEST_ID } from "@/components/UserSummary";
 import useCurrentUser from "@/features/userQueries/useCurrentUser";
-import { User } from "@/proto/api_pb";
 import { service } from "@/service";
 import events from "@/test/fixtures/events.json";
 import users from "@/test/fixtures/users.json";
@@ -168,11 +168,11 @@ describe("Event attendees", () => {
         }),
       );
 
-      await waitFor(() =>
-        { expect(
+      await waitFor(() => {
+        expect(
           dialog.queryByTestId(USER_TITLE_SKELETON_TEST_ID),
-        ).not.toBeInTheDocument(); },
-      );
+        ).not.toBeInTheDocument();
+      });
     });
 
     it("should show an error alert in the dialog if getting attendees failed", async () => {

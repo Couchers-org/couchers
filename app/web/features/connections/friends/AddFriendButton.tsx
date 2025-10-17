@@ -1,3 +1,4 @@
+import { User } from "@couchers/services/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useTranslation } from "next-i18next";
@@ -8,7 +9,6 @@ import { PersonAddIcon } from "@/components/Icons";
 import { doAntibot } from "@/features/antibot/antibot";
 import { userKey } from "@/features/queryKeys";
 import { CONNECTIONS } from "@/i18n/namespaces";
-import { User } from "@/proto/api_pb";
 import { service } from "@/service";
 
 import { SetMutationError } from ".";

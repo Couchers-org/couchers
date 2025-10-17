@@ -27,7 +27,7 @@ const View = () => {
   return community.data ? (
     <JoinCommunityButton community={community.data} />
   ) : null;
-}
+};
 
 describe("JoinCommunityButton", () => {
   beforeEach(() => {

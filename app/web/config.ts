@@ -1,7 +1,7 @@
 import { camelCase } from "change-case";
 import z from "zod";
 
-import { SnakeToCamelCase } from "./utils/types";
+import { SnakeToCamelCase } from "./utils/types.ts";
 
 type ObjectWithPrefixedProperties<
   O extends Record<string, z.ZodType>,

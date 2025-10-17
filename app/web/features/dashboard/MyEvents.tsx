@@ -1,3 +1,4 @@
+import { ListMyEventsRes } from "@couchers/services/events";
 import { Typography, styled, useMediaQuery } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
@@ -11,7 +12,6 @@ import EventCard from "@/features/communities/events/EventCard";
 import { myEventsKey } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, DASHBOARD } from "@/i18n/namespaces";
-import { ListMyEventsRes } from "@/proto/events_pb";
 import { service } from "@/service";
 import { theme } from "@/theme";
 import hasAtLeastOnePage from "@/utils/hasAtLeastOnePage";

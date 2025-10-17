@@ -1,8 +1,8 @@
+import { LiteUser } from "@couchers/services/api";
 import { Avatar as MuiAvatar, styled } from "@mui/material";
 import Link from "next/link";
 import React from "react";
 
-import { LiteUser } from "@/proto/api_pb";
 import { routeToUser } from "@/routes";
 
 import { getProfileLinkA11yLabel } from "./constants";

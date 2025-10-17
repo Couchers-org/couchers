@@ -1,3 +1,4 @@
+import { Event } from "@couchers/services/events";
 import {
   Card,
   CardContent,
@@ -13,7 +14,6 @@ import Pill from "@/components/Pill";
 import FlagButton from "@/features/FlagButton";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES } from "@/i18n/namespaces";
-import { Event } from "@/proto/events_pb";
 import { routeToEvent } from "@/routes";
 import { theme } from "@/theme";
 import { timestamp2Date } from "@/utils/date";

@@ -1,3 +1,5 @@
+import { User } from "@couchers/services/api";
+import { ReferenceType } from "@couchers/services/references";
 import { styled, useMediaQuery } from "@mui/material";
 import React from "react";
 
@@ -10,8 +12,6 @@ import ReferenceForm from "@/features/profile/view/leaveReference/ReferenceForm"
 import { useUser } from "@/features/userQueries/useUsers";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
-import { User } from "@/proto/api_pb";
-import { ReferenceType } from "@/proto/references_pb";
 import { REFERENCE_TYPE_ROUTE, ReferenceStep } from "@/routes";
 import { ReferenceTypeStrings } from "@/service/references";
 import { theme } from "@/theme";

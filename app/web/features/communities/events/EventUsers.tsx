@@ -1,3 +1,4 @@
+import { LiteUser } from "@couchers/services/api";
 import { Card, Typography, styled } from "@mui/material";
 import { RpcError } from "grpc-web";
 
@@ -6,7 +7,6 @@ import { EllipsisMenuItem } from "@/components/EllipsisMenu";
 import UsersList from "@/components/UsersList";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES } from "@/i18n/namespaces";
-import { LiteUser } from "@/proto/api_pb";
 import { theme } from "@/theme";
 
 const StyledWrapper = styled(Card)(() => ({

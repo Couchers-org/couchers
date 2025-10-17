@@ -1,3 +1,4 @@
+import { Message } from "@couchers/services/conversations";
 import { Card, CardContent, Skeleton, Typography, styled } from "@mui/material";
 
 import Avatar from "@/components/Avatar";
@@ -9,7 +10,6 @@ import useCurrentUser from "@/features/userQueries/useCurrentUser";
 import { useLiteUser } from "@/features/userQueries/useLiteUsers";
 import { useTranslation } from "@/i18n";
 import { MESSAGES } from "@/i18n/namespaces";
-import { Message } from "@/proto/conversations_pb";
 import { timestamp2Date } from "@/utils/date";
 import useOnVisibleEffect from "@/utils/useOnVisibleEffect";
 

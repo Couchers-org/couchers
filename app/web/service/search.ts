@@ -1,3 +1,10 @@
+import { HostingStatus, MeetupStatus } from "@couchers/services/api";
+import {
+  EventSearchReq,
+  EventSearchRes,
+  RectArea,
+  UserSearchReq,
+} from "@couchers/services/search";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import {
   BoolValue,
@@ -11,13 +18,6 @@ import {
   DEFAULT_AGE_MIN,
   SleepingArrangementOptions,
 } from "@/features/search/utils/constants";
-import { HostingStatus, MeetupStatus } from "@/proto/api_pb";
-import {
-  EventSearchReq,
-  EventSearchRes,
-  RectArea,
-  UserSearchReq,
-} from "@/proto/search_pb";
 import client from "@/service/client";
 import { GeocodeResult } from "@/utils/hooks";
 

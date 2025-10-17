@@ -1,3 +1,4 @@
+import { PostReplyRes } from "@couchers/services/threads";
 import { Collapse, styled } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -11,7 +12,6 @@ import MarkdownInput, { MarkdownInputProps } from "@/components/MarkdownInput";
 import { threadKey } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
-import { PostReplyRes } from "@/proto/threads_pb";
 import { service } from "@/service";
 import { theme } from "@/theme";
 

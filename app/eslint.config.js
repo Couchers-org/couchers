@@ -212,15 +212,6 @@ export default defineConfig([
           ],
         },
       ],
-      // Force absolute imports except from same folder
-      "no-relative-import-paths/no-relative-import-paths": [
-        "warn",
-        {
-          allowSameFolder: true,
-          prefix: "@",
-        },
-      ],
-
       "object-shorthand": "warn",
 
       "no-useless-rename": "warn",
@@ -259,6 +250,22 @@ export default defineConfig([
       "n/no-process-env": "warn",
     },
   },
+  // Add all workspaces that don't get referenced by other workspaces here, to enable
+  // absolute imports with @/ prefix
+  ...["web"].map((workspace) => ({
+    files: [`${workspace}/**/*.{ts,tsx}`],
+    rules: {
+      // Force absolute imports except from same folder
+      "no-relative-import-paths/no-relative-import-paths": [
+        "warn",
+        {
+          allowSameFolder: true,
+          rootDir: workspace,
+          prefix: "@",
+        },
+      ],
+    },
+  })),
   {
     // Naming conventions
     // Stylistic rule that isn't handled by prettier

@@ -1,3 +1,4 @@
+import { HostingStatus, MeetupStatus } from "@couchers/services/api";
 import { render, screen } from "@testing-library/react";
 
 import {
@@ -5,7 +6,6 @@ import {
   meetupStatusLabels,
 } from "@/features/profile/constants";
 import { ProfileUserProvider } from "@/features/profile/hooks/useProfileUser";
-import { HostingStatus, MeetupStatus } from "@/proto/api_pb";
 import wrapper from "@/test/hookWrapper";
 import i18n from "@/test/i18n";
 import { addDefaultUser } from "@/test/utils";

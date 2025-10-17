@@ -1,3 +1,4 @@
+import { GetCommunityGuidelinesRes } from "@couchers/services/resources";
 import {
   Avatar,
   Checkbox,
@@ -20,7 +21,6 @@ import { COMMUNITY_GUIDELINES_QUERY_KEY } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
 import { Sentry } from "@/platform/sentry";
-import { GetCommunityGuidelinesRes } from "@/proto/resources_pb";
 import { service } from "@/service";
 import isGrpcError from "@/service/utils/isGrpcError";
 import { getErrorMessage } from "@/utils/error";

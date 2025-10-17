@@ -1,3 +1,4 @@
+import { User } from "@couchers/services/api";
 import { Typography, styled, useTheme } from "@mui/material";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 
@@ -6,7 +7,6 @@ import Markdown from "@/components/Markdown";
 import { useRegions } from "@/features/profile/hooks/useRegions";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
-import { User } from "@/proto/api_pb";
 
 import { AgeGenderLanguagesLabels, RemainingAboutLabels } from "./userLabels";
 

@@ -1,9 +1,9 @@
+import { FriendRequest } from "@couchers/services/api";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 
 import useCancelFriendRequest from "@/features/connections/friends/useCancelFriendRequest";
 import { friendRequestKey } from "@/features/queryKeys";
-import { FriendRequest } from "@/proto/api_pb";
 import { service } from "@/service";
 import { getHookWrapperWithClient } from "@/test/hookWrapper";
 
@@ -54,17 +54,19 @@ describe("useCancelFriendRequest hook", () => {
       });
     });
 
-    await waitFor(() => { expect(setMutationError).toHaveBeenCalledTimes(1); });
+    await waitFor(() => {
+      expect(setMutationError).toHaveBeenCalledTimes(1);
+    });
     expect(setMutationError).toHaveBeenCalledWith("");
     // assert that invalidateQueries was called on the expected key
-    await waitFor(() =>
-      { expect(spy).toHaveBeenCalledWith(
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith(
         expect.objectContaining({
           queryKey: friendRequestKey("sent"),
           exact: true,
         }),
-      ); },
-    );
+      );
+    });
   });
 
   it("does not invalidate existing queries if the API call failed", async () => {
@@ -84,7 +86,9 @@ describe("useCancelFriendRequest hook", () => {
       });
     });
 
-    await waitFor(() => { expect(setMutationError).toHaveBeenCalledTimes(2); });
+    await waitFor(() => {
+      expect(setMutationError).toHaveBeenCalledTimes(2);
+    });
     expect(setMutationError).toHaveBeenLastCalledWith("API error");
     // No invalidation expected; data remains in cache
     expect(client.getQueryData(friendRequestKey("sent"))).toBeDefined();

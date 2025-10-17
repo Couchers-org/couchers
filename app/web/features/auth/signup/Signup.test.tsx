@@ -1,3 +1,5 @@
+import { HostingStatus } from "@couchers/services/api";
+import { SignupFlowRes } from "@couchers/services/auth";
 import { render, renderHook, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { StatusCode } from "grpc-web";
@@ -7,8 +9,6 @@ import TagManager from "react-gtm-module";
 import { EditLocationMapProps } from "@/components/EditLocationMap";
 import useAuthStore from "@/features/auth/useAuthStore";
 import { hostingStatusLabels } from "@/features/profile/constants";
-import { HostingStatus } from "@/proto/api_pb";
-import { SignupFlowRes } from "@/proto/auth_pb";
 import { DASHBOARD_ROUTE, SIGNUP_ROUTE } from "@/routes";
 import { service } from "@/service";
 import wrapper from "@/test/hookWrapper";

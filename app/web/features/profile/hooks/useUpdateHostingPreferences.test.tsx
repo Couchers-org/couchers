@@ -1,9 +1,9 @@
+import { User } from "@couchers/services/api";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 
 import useUpdateHostingPreferences from "@/features/profile/hooks/useUpdateHostingPreferences";
 import useCurrentUser from "@/features/userQueries/useCurrentUser";
-import { User } from "@/proto/api_pb";
 import { HostingPreferenceData, service } from "@/service";
 import wrapper from "@/test/hookWrapper";
 import { MockedService, addDefaultUser } from "@/test/utils";

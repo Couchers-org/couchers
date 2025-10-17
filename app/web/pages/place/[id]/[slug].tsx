@@ -1,3 +1,4 @@
+import { PageType } from "@couchers/services/pages";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useRouter } from "next/router";
@@ -7,7 +8,6 @@ import NotFoundPage from "@/features/NotFoundPage";
 import PagePageComponent from "@/features/communities/PagePage";
 import { GLOBAL, NOTIFICATIONS } from "@/i18n/namespaces";
 import nextI18NextConfig from "@/next-i18next.config";
-import { PageType } from "@/proto/pages_pb";
 import stringOrFirstString from "@/utils/stringOrFirstString";
 
 export const getStaticPaths: GetStaticPaths = () => ({

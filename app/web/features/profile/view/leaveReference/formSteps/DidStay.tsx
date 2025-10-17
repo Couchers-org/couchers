@@ -1,3 +1,4 @@
+import { ReferenceType } from "@couchers/services/references";
 import { Alert, Box, styled, useMediaQuery } from "@mui/material";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -17,7 +18,6 @@ import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
 import { ReferenceStepProps } from "@/features/profile/view/leaveReference/ReferenceForm";
 import { Trans, useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
-import { ReferenceType } from "@/proto/references_pb";
 import {
   BASE_ROUTE,
   HELP_CENTER_REPORT_CONTENT_URL,

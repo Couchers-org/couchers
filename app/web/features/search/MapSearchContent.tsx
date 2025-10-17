@@ -1,9 +1,9 @@
+import { SearchUser } from "@couchers/services/search";
 import { styled } from "@mui/material";
 import { RpcError } from "grpc-web";
 import { LngLatLike, MapRef } from "react-map-gl/maplibre";
 
 import { DEFAULT_DRAWER_WIDTH } from "@/components/ResizeableDrawer";
-import { SearchUser } from "@/proto/search_pb";
 
 import MapSearchResultsList from "./MapSearchResultsList";
 import MapView from "./MapView";

@@ -1,8 +1,8 @@
+import { Event } from "@couchers/services/events";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useForm } from "react-hook-form";
 
-import { Event } from "@/proto/events_pb";
 import events from "@/test/fixtures/events.json";
 import wrapper from "@/test/hookWrapper";
 import i18n from "@/test/i18n";

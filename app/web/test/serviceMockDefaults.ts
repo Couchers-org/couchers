@@ -1,23 +1,24 @@
-import { ProfilePublicVisibility } from "@/proto/account_pb";
+import { ProfilePublicVisibility } from "@couchers/services/account";
 import {
   BirthdateVerificationStatus,
   GenderVerificationStatus,
   GetLiteUsersRes,
   LiteUser,
   User,
-} from "@/proto/api_pb";
-import { GetBlockedUsersRes } from "@/proto/blocking_pb";
-import { ListAdminsRes } from "@/proto/communities_pb";
-import { HostRequestStatus } from "@/proto/conversations_pb";
+} from "@couchers/services/api";
+import { GetBlockedUsersRes } from "@couchers/services/blocking";
+import { ListAdminsRes } from "@couchers/services/communities";
+import { HostRequestStatus } from "@couchers/services/conversations";
 import {
   ListEventAttendeesRes,
   ListEventOrganizersRes,
-} from "@/proto/events_pb";
+} from "@couchers/services/events";
 import {
   AvailableWriteReferencesRes,
   ReferenceType,
-} from "@/proto/references_pb";
-import { EventSearchRes } from "@/proto/search_pb";
+} from "@couchers/services/references";
+import { EventSearchRes } from "@couchers/services/search";
+
 import comments from "@/test/fixtures/comments.json";
 import events from "@/test/fixtures/events.json";
 import liteUsers from "@/test/fixtures/liteUsers.json";

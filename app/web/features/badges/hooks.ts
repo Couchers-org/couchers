@@ -1,3 +1,5 @@
+import { ListBadgeUsersRes } from "@couchers/services/api";
+import { Badge } from "@couchers/services/resources";
 import {
   InfiniteData,
   useInfiniteQuery,
@@ -6,8 +8,6 @@ import {
 import { RpcError } from "grpc-web";
 
 import { BADGES_KEY, badgeUsersKey } from "@/features/queryKeys";
-import { ListBadgeUsersRes } from "@/proto/api_pb";
-import { Badge } from "@/proto/resources_pb";
 import { service } from "@/service";
 
 export const useBadges = () => {

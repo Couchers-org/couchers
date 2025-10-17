@@ -1,3 +1,4 @@
+import { AuthRes, SignupFlowRes } from "@couchers/services/auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMemo, useRef, useState } from "react";
 
@@ -6,7 +7,6 @@ import { useTranslation } from "@/i18n";
 import { GLOBAL } from "@/i18n/namespaces";
 import { Sentry } from "@/platform/sentry";
 import { clearStorage, usePersistedState } from "@/platform/usePersistedState";
-import { AuthRes, SignupFlowRes } from "@/proto/auth_pb";
 import { service } from "@/service";
 import isGrpcError from "@/service/utils/isGrpcError";
 

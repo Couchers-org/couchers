@@ -1,3 +1,9 @@
+import { HostRequestStatus } from "@couchers/services/conversations";
+import { ReferenceType } from "@couchers/services/references";
+import {
+  HostRequest,
+  RespondHostRequestReq,
+} from "@couchers/services/requests";
 import { ButtonProps, styled } from "@mui/material";
 import { UseMutationResult } from "@tanstack/react-query";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -12,9 +18,6 @@ import { useAuthContext } from "@/features/auth/AuthProvider";
 import { useListAvailableReferences } from "@/features/profile/hooks/referencesHooks";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
-import { HostRequestStatus } from "@/proto/conversations_pb";
-import { ReferenceType } from "@/proto/references_pb";
-import { HostRequest, RespondHostRequestReq } from "@/proto/requests_pb";
 import { REFERENCE_TYPE_ROUTE, routeToLeaveReference } from "@/routes";
 import { theme } from "@/theme";
 

@@ -1,3 +1,4 @@
+import { ActiveSession } from "@couchers/services/account";
 import {
   Card,
   CardActions,
@@ -20,7 +21,6 @@ import {
 import { ACTIVE_LOGINS_KEY } from "@/features/queryKeys";
 import { Trans } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
-import { ActiveSession } from "@/proto/account_pb";
 import { service } from "@/service";
 import { dateFormatter, dateTimeFormatter, timestamp2Date } from "@/utils/date";
 import { timeAgoI18n } from "@/utils/timeAgo";

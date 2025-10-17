@@ -1,3 +1,8 @@
+import {
+  HostingStatus,
+  MeetupStatus,
+  SleepingArrangement,
+} from "@couchers/services/api";
 import { InfoOutlined } from "@mui/icons-material";
 import {
   Box,
@@ -24,11 +29,6 @@ import { CloseIcon } from "@/components/Icons";
 import PlusMinusSelector from "@/components/PlusMinusSelector";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, SEARCH } from "@/i18n/namespaces";
-import {
-  HostingStatus,
-  MeetupStatus,
-  SleepingArrangement,
-} from "@/proto/api_pb";
 import { theme } from "@/theme";
 import { emptyFunction } from "@/utils/function";
 

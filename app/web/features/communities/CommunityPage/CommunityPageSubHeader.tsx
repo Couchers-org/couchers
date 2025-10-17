@@ -1,3 +1,5 @@
+import { Community } from "@couchers/services/communities";
+import { CommunityParent } from "@couchers/services/groups";
 import { TabContext } from "@mui/lab";
 import { Breadcrumbs, Typography, styled } from "@mui/material";
 import { useRouter } from "next/router";
@@ -6,8 +8,6 @@ import StyledLink from "@/components/StyledLink";
 import TabBar from "@/components/TabBar";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES } from "@/i18n/namespaces";
-import { Community } from "@/proto/communities_pb";
-import { CommunityParent } from "@/proto/groups_pb";
 import { CommunityTab, routeToCommunity } from "@/routes";
 
 import JoinCommunityButton from "./JoinCommunityButton";

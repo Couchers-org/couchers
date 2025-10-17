@@ -1,3 +1,4 @@
+import { HostRequest } from "@couchers/services/requests";
 import {
   ListItem,
   ListItemAvatar,
@@ -21,7 +22,6 @@ import useCurrentUser from "@/features/userQueries/useCurrentUser";
 import { useLiteUser } from "@/features/userQueries/useLiteUsers";
 import { useTranslation } from "@/i18n";
 import { MESSAGES } from "@/i18n/namespaces";
-import { HostRequest } from "@/proto/requests_pb";
 import dayjs from "@/utils/dayjs";
 import { firstName } from "@/utils/names";
 

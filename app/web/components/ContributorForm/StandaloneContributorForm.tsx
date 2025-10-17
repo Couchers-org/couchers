@@ -1,3 +1,5 @@
+import { GetContributorFormInfoRes } from "@couchers/services/account";
+import { ContributorForm as ContributorFormPb } from "@couchers/services/auth";
 import { Typography } from "@mui/material";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -7,8 +9,6 @@ import Button from "@/components/Button";
 import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
 import ContributorForm from "@/components/ContributorForm";
 import { CONTRIBUTOR_FORM_INFO_QUERY_KEY } from "@/features/queryKeys";
-import { GetContributorFormInfoRes } from "@/proto/account_pb";
-import { ContributorForm as ContributorFormPb } from "@/proto/auth_pb";
 import { service } from "@/service";
 
 import { ALREADY_FILLED_IN, FILL_IN_AGAIN, SUCCESS_MSG } from "./constants";

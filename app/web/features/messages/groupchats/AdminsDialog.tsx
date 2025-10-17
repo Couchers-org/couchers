@@ -1,3 +1,5 @@
+import { LiteUser } from "@couchers/services/api";
+import { GroupChat } from "@couchers/services/conversations";
 import { DialogProps, List, ListItem, styled } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
@@ -26,8 +28,6 @@ import {
 import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
-import { LiteUser } from "@/proto/api_pb";
-import { GroupChat } from "@/proto/conversations_pb";
 import { service } from "@/service";
 import { theme } from "@/theme";
 

@@ -1,15 +1,12 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-import type { Config as JestConfig } from "jest";
-import nextJest from "next/jest";
-import { createDefaultPreset } from "ts-jest";
+import { Config } from "jest";
+import { createDefaultEsmPreset, createDefaultPreset } from "ts-jest";
 import z from "zod";
 
-import { configUtils } from "./config";
+import { configUtils } from "./config.ts";
 
 const tsJestTransformCfg = createDefaultPreset().transform;
 
 // Providing the path to your Next.js app which will enable loading next.config.js and .env files
-const createJestConfig = nextJest({ dir: "./" });
 
 const envVarPrefix = "NEXT_PUBLIC_";
 
@@ -32,6 +29,7 @@ const defaultValues: {
   NEXT_PUBLIC_GLOBAL_MESSAGE_URL: "localhost",
   NEXT_PUBLIC_CONSOLE_BASE_URL: "localhost",
   NEXT_PUBLIC_NOMINATIM_URL: "localhost",
+  NEXT_PUBLIC_CDN_BASE_URL: "https://cdn.couchers.org",
 };
 
 Object.entries(defaultValues).forEach(([key, value]) => {
@@ -43,8 +41,10 @@ Object.entries(defaultValues).forEach(([key, value]) => {
 // eslint-disable-next-line n/no-process-env
 const parsedEnv = utils.schema.parse(process.env);
 
-const customJestConfig: JestConfig = {
-  verbose: true, // Shows detailed test results
+const config: Config = {
+  ...createDefaultEsmPreset({ useESM: true }),
+  verbose: true,
+  testEnvironment: "jsdom",
   collectCoverageFrom: [
     "**/*.{js,jsx,ts,tsx}",
     "!**/*.d.ts",
@@ -58,7 +58,15 @@ const customJestConfig: JestConfig = {
     Config: utils.getStringReplacements(parsedEnv),
   },
   extensionsToTreatAsEsm: [".ts", ".tsx"],
-
+  // moduleNameMapper: {
+  //   // Mock CSS/SCSS files
+  //   "\\.(css|scss|sass)$": "<rootDir>/__mocks__/styleMock.js",
+  //   // Mock static assets (images, fonts)
+  //   "\\.(jpg|jpeg|png|svg|gif|woff2?|eot|ttf)$":
+  //     "<rootDir>/__mocks__/fileMock.js",
+  //   // Handle path aliases
+  //   "^@/(.*)$": "<rootDir>/$1",
+  // },
   moduleNameMapper: {
     // Handle CSS imports (with CSS modules)
     // https://jestjs.io/docs/webpack#mocking-css-modules
@@ -72,22 +80,21 @@ const customJestConfig: JestConfig = {
     "^.+\\.(png|jpg|jpeg|gif|webp|avif|ico|bmp|svg)$": `<rootDir>/__mocks__/fileMock.js`,
 
     // Handle module aliases
-    "^@/components/(.*)$": "<rootDir>/components/$1",
+    "^@/(.*)$": "<rootDir>/$1",
 
     // Handle next/font
     "next/font/(.*)": `<rootDir>/__mocks__/nextFontMock.js`,
     // Disable server-only
     "server-only": `<rootDir>/__mocks__/empty.js`,
   },
-  // <rootDir> instead of . - https://github.com/tannerlinsley/react-query/issues/2339
-  // @TODO(NA) ^^ Fixed in react-query v4, but we are still on v3. Remove this when we upgrade.
-  moduleDirectories: ["node_modules", "<rootDir>"],
-  transform: tsJestTransformCfg,
   reporters: ["default", "jest-junit"],
   setupFilesAfterEnv: ["./test/setupTests.ts"],
   testPathIgnorePatterns: ["<rootDir>/node_modules/", "<rootDir>/.next/"],
-  testEnvironment: "jsdom",
   resetMocks: true,
+  // transform: {
+  //   "^.+\\.tsx?$": "ts-jest",
+  // },
+  // transform: tsJestTransformCfg,
 };
 
-export default createJestConfig(customJestConfig);
+export default config;

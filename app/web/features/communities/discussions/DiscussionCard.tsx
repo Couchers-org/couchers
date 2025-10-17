@@ -1,3 +1,4 @@
+import { Discussion } from "@couchers/services/discussions";
 import { Card, CardContent, Skeleton, Typography, styled } from "@mui/material";
 import Link from "next/link";
 import { useMemo } from "react";
@@ -10,7 +11,6 @@ import ModVisibleComponent from "@/features/mod/ModVisibleComponent";
 import { useLiteUser } from "@/features/userQueries/useLiteUsers";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES } from "@/i18n/namespaces";
-import { Discussion } from "@/proto/discussions_pb";
 import { routeToDiscussion } from "@/routes";
 import { theme } from "@/theme";
 import { timestamp2Date } from "@/utils/date";

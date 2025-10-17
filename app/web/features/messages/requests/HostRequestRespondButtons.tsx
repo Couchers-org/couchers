@@ -1,9 +1,9 @@
+import { HostRequestStatus } from "@couchers/services/conversations";
 import React from "react";
 
 import ConfirmationDialogWrapper from "@/components/ConfirmationDialogWrapper";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
-import { HostRequestStatus } from "@/proto/conversations_pb";
 
 import FieldButton from "./FieldButton";
 

@@ -1,6 +1,5 @@
+import { InitiateDonationReq } from "@couchers/services/donations";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-
-import { InitiateDonationReq } from "@/proto/donations_pb";
 
 import client from "./client";
 

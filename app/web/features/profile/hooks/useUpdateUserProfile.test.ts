@@ -1,9 +1,9 @@
+import { LanguageAbility, User } from "@couchers/services/api";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 
 import useUpdateUserProfile from "@/features/profile/hooks/useUpdateUserProfile";
 import useCurrentUser from "@/features/userQueries/useCurrentUser";
-import { LanguageAbility, User } from "@/proto/api_pb";
 import { UpdateUserProfileData, service } from "@/service";
 import wrapper from "@/test/hookWrapper";
 import { addDefaultUser } from "@/test/utils";

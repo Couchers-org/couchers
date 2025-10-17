@@ -1,3 +1,4 @@
+import { SearchUser } from "@couchers/services/search";
 import { Tooltip, Typography, styled, useMediaQuery } from "@mui/material";
 import { TFunction } from "i18next";
 import LinesEllipsis from "react-lines-ellipsis";
@@ -9,7 +10,6 @@ import StyledLink from "@/components/StyledLink";
 import { ResponseRateText } from "@/features/profile/view/userLabels";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
-import { SearchUser } from "@/proto/search_pb";
 import { routeToUser } from "@/routes";
 import { theme } from "@/theme";
 import { timestamp2Date } from "@/utils/date";

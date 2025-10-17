@@ -205,15 +205,15 @@ describe("EditNotificationSettingsPage", () => {
 
     fireEvent.click(emailSwitch);
 
-    await waitFor(() =>
-      { expect(mockMutate).toHaveBeenCalledWith(
+    await waitFor(() => {
+      expect(mockMutate).toHaveBeenCalledWith(
         {
           preferenceData: { ...preferenceData, enabled: true },
           setMutationError: expect.any(Function),
         },
         expect.any(Object),
-      ); },
-    );
+      );
+    });
   });
 
   it('Should not render list items with "userEditable" set to false', () => {

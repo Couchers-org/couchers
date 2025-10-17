@@ -1,6 +1,7 @@
+import { HostingStatus, SleepingArrangement } from "@couchers/services/api";
+import { SearchUser } from "@couchers/services/search";
+
 import { TFunction } from "@/i18n";
-import { HostingStatus, SleepingArrangement } from "@/proto/api_pb";
-import { SearchUser } from "@/proto/search_pb";
 import { firstName } from "@/utils/names";
 
 const aboutText = (user: SearchUser.AsObject, t: TFunction) => {

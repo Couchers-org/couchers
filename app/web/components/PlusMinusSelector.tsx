@@ -10,8 +10,12 @@ interface PlusMinusSelectorProps {
 }
 
 const PlusMinusSelector = ({ onChange, value }: PlusMinusSelectorProps) => {
-  const handleDecrease = () => { onChange(Math.max(0, (value ?? 0) - 1)); };
-  const handleIncrease = () => { onChange((value ?? 0) + 1); };
+  const handleDecrease = () => {
+    onChange(Math.max(0, (value ?? 0) - 1));
+  };
+  const handleIncrease = () => {
+    onChange((value ?? 0) + 1);
+  };
 
   return (
     <Box

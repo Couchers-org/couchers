@@ -1,3 +1,4 @@
+import { ParkingDetails } from "@couchers/services/api";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -6,9 +7,8 @@ import { service } from "@/service";
 import wrapper from "@/test/hookWrapper";
 import i18n from "@/test/i18n";
 import { getUser } from "@/test/serviceMockDefaults";
-
-import { ParkingDetails } from "@/proto/api_pb";
 import { MockedService, addDefaultUser } from "@/test/utils";
+
 import EditHostingPreference from "./EditHostingPreference";
 
 const { t } = i18n;
@@ -58,11 +58,11 @@ describe("EditHostingPreference", () => {
     await user.click(
       await screen.findByRole("button", { name: t("global:save_changes") }),
     );
-    await waitFor(() =>
-      { expect(
+    await waitFor(() => {
+      expect(
         screen.getByText(t("profile:hosting_preferences_success_message")),
-      ).toBeInTheDocument(); },
-    );
+      ).toBeInTheDocument();
+    });
   });
 
   it(`should not submit the default headings for the '${t(
@@ -202,21 +202,15 @@ describe("EditHostingPreference", () => {
     );
 
     expect(
-      screen.getByLabelText(
-        t("profile:edit_home_questions.accept_smoking"),
-      ),
+      screen.getByLabelText(t("profile:edit_home_questions.accept_smoking")),
     ).toHaveValue("1");
 
     expect(
-      screen.getByLabelText(
-        t("profile:home_info_headings.parking_details"),
-      ),
+      screen.getByLabelText(t("profile:home_info_headings.parking_details")),
     ).toHaveValue("3");
 
     expect(
-      screen.getByLabelText(
-        t("profile:home_info_headings.space"),
-      ),
+      screen.getByLabelText(t("profile:home_info_headings.space")),
     ).toHaveValue("2");
   });
 
@@ -262,9 +256,9 @@ describe("EditHostingPreference", () => {
       t("profile:home_info_headings.has_housemates"),
     );
 
-    const hasHousematesDetailsField = (await screen.findByLabelText(
+    const hasHousematesDetailsField = await screen.findByLabelText(
       t("profile:home_info_headings.housemate_details"),
-    ));
+    );
 
     expect(hasHousematesCheckbox).toBeChecked();
 
@@ -280,9 +274,9 @@ describe("EditHostingPreference", () => {
       t("profile:home_info_headings.has_kids"),
     );
 
-    const hasChildrenDetailsField = (await screen.findByLabelText(
+    const hasChildrenDetailsField = await screen.findByLabelText(
       t("profile:home_info_headings.kid_details"),
-    ));
+    );
 
     expect(hasChildrenCheckbox).toBeChecked();
 
@@ -298,9 +292,9 @@ describe("EditHostingPreference", () => {
       t("profile:home_info_headings.has_pets"),
     );
 
-    const hasPetsDetailsField = (await screen.findByLabelText(
+    const hasPetsDetailsField = await screen.findByLabelText(
       t("profile:home_info_headings.pet_details"),
-    ));
+    );
 
     expect(hasPetsCheckbox).toBeChecked();
 
@@ -316,9 +310,9 @@ describe("EditHostingPreference", () => {
       t("profile:home_info_headings.parking"),
     );
 
-    const hasParkingAvailableDetailsField = (await screen.findByLabelText(
+    const hasParkingAvailableDetailsField = await screen.findByLabelText(
       t("profile:home_info_headings.parking_details"),
-    ));
+    );
 
     expect(hasParkingAvailableCheckbox).toBeChecked();
 

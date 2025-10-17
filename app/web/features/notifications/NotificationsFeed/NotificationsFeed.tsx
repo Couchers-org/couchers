@@ -1,3 +1,4 @@
+import { ListNotificationsRes } from "@couchers/services/notifications";
 import { Check, MoreHoriz, Settings } from "@mui/icons-material";
 import {
   Alert,
@@ -21,7 +22,6 @@ import {
 import { LIST_NOTIFICATIONS_QUERY_KEY } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, NOTIFICATIONS } from "@/i18n/namespaces";
-import { ListNotificationsRes } from "@/proto/notifications_pb";
 import { NOTIFICATION_SETTINGS_ROUTE } from "@/routes";
 import { service } from "@/service";
 import { theme } from "@/theme";

@@ -1,3 +1,4 @@
+import { LiteUser, User } from "@couchers/services/api";
 import {
   ListItemAvatar,
   ListItemButton,
@@ -27,7 +28,6 @@ import { GROUP_CHATS_LIST_KEY } from "@/features/queryKeys";
 import useUserByUsername from "@/features/userQueries/useUserByUsername";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
-import { LiteUser, User } from "@/proto/api_pb";
 import { service } from "@/service";
 import { theme } from "@/theme";
 import stringOrFirstString from "@/utils/stringOrFirstString";

@@ -1,3 +1,5 @@
+import { GroupChat } from "@couchers/services/conversations";
+import { ListHostRequestsRes } from "@couchers/services/requests";
 import { List, styled } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
@@ -12,8 +14,6 @@ import HostRequestListItem from "@/features/messages/requests/HostRequestListIte
 import { hostRequestsListKey } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { MESSAGES } from "@/i18n/namespaces";
-import { GroupChat } from "@/proto/conversations_pb";
-import { ListHostRequestsRes } from "@/proto/requests_pb";
 import { routeToHostRequest } from "@/routes";
 import { service } from "@/service";
 import { theme } from "@/theme";

@@ -1,9 +1,9 @@
+import { HostRequestStatus } from "@couchers/services/conversations";
+import { HostRequest } from "@couchers/services/requests";
 import { Avatar, AvatarProps } from "@mui/material";
 import React from "react";
 
 import { CheckIcon, CrossIcon, QuestionIcon } from "@/components/Icons";
-import { HostRequestStatus } from "@/proto/conversations_pb";
-import { HostRequest } from "@/proto/requests_pb";
 import { theme } from "@/theme";
 
 interface HostRequestStatusIconProps extends AvatarProps {

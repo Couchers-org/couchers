@@ -1,3 +1,4 @@
+import { User } from "@couchers/services/api";
 import {
   Checkbox,
   FormControl,
@@ -28,7 +29,6 @@ import TextField from "@/components/TextField";
 import { useBlockUser } from "@/features/connections/friends/hooks";
 import { useTranslation } from "@/i18n";
 import { GLOBAL } from "@/i18n/namespaces";
-import { User } from "@/proto/api_pb";
 import { DASHBOARD_ROUTE } from "@/routes";
 import { service } from "@/service";
 import { BlockInput } from "@/service/blocking";

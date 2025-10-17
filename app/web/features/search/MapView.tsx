@@ -1,3 +1,4 @@
+import { SearchUser } from "@couchers/services/search";
 import { Button, debounce, styled } from "@mui/material";
 import { GeoJSONSource, LngLatLike, MapLayerMouseEvent } from "maplibre-gl";
 import { useCallback, useMemo } from "react";
@@ -7,7 +8,6 @@ import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
 import Map from "@/components/Map";
 import { useTranslation } from "@/i18n";
 import { SEARCH } from "@/i18n/namespaces";
-import { SearchUser } from "@/proto/search_pb";
 
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";

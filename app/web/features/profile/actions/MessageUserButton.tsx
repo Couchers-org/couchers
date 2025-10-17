@@ -1,3 +1,4 @@
+import { User } from "@couchers/services/api";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -7,7 +8,6 @@ import ProfileIncompleteDialog from "@/components/ProfileIncompleteDialog/Profil
 import useAccountInfo from "@/features/auth/useAccountInfo";
 import { useTranslation } from "@/i18n";
 import { PROFILE } from "@/i18n/namespaces";
-import { User } from "@/proto/api_pb";
 import { routeToCreateMessage, routeToGroupChat } from "@/routes";
 import { service } from "@/service";
 

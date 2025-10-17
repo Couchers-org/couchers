@@ -1,3 +1,4 @@
+import { AttendanceState } from "@couchers/services/events";
 import { ListItemText, styled } from "@mui/material";
 import { useState } from "react";
 
@@ -6,7 +7,6 @@ import { CheckIcon, ExpandLessIcon, ExpandMoreIcon } from "@/components/Icons";
 import Menu, { MenuItem } from "@/components/Menu";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES } from "@/i18n/namespaces";
-import { AttendanceState } from "@/proto/events_pb";
 import { theme } from "@/theme";
 
 const StyledMenuListItem = styled(MenuItem)(() => ({

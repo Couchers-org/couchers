@@ -1,3 +1,4 @@
+import { PageType } from "@couchers/services/pages";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 import React from "react";
@@ -9,7 +10,6 @@ import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
 import EditLocationMap from "@/components/EditLocationMap";
 import TextField from "@/components/TextField";
 import ProfileMarkdownInput from "@/features/profile/ProfileMarkdownInput";
-import { PageType } from "@/proto/pages_pb";
 import { routeToGuide, routeToPlace } from "@/routes";
 import { service } from "@/service";
 

@@ -1,3 +1,5 @@
+import { Community } from "@couchers/services/communities";
+import { Page } from "@couchers/services/pages";
 import { Typography, styled } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
@@ -15,8 +17,6 @@ import Snackbar from "@/components/Snackbar";
 import { communityKey } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
-import { Community } from "@/proto/communities_pb";
-import { Page } from "@/proto/pages_pb";
 import { routeToCommunity } from "@/routes";
 import { service } from "@/service";
 import { theme } from "@/theme";

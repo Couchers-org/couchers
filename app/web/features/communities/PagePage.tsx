@@ -1,3 +1,4 @@
+import { Page, PageType } from "@couchers/services/pages";
 import { useTranslation } from "next-i18next";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -11,7 +12,6 @@ import Markdown from "@/components/Markdown";
 import PageTitle from "@/components/PageTitle";
 import TextBody from "@/components/TextBody";
 import log from "@/log";
-import { Page, PageType } from "@/proto/pages_pb";
 import { routeToGuide, routeToPlace } from "@/routes";
 import { service } from "@/service";
 import isGrpcError from "@/service/utils/isGrpcError";

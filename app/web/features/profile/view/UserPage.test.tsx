@@ -1,3 +1,4 @@
+import { User } from "@couchers/services/api";
 import {
   render,
   screen,
@@ -10,7 +11,6 @@ import mockRouter from "next-router-mock";
 import React from "react";
 
 import useCurrentUser from "@/features/userQueries/useCurrentUser";
-import { User } from "@/proto/api_pb";
 import { routeToUser } from "@/routes";
 import { service } from "@/service";
 import mockUsers from "@/test/fixtures/users.json";

@@ -1,3 +1,4 @@
+import { ReferenceType } from "@couchers/services/references";
 import { Typography, styled, useMediaQuery } from "@mui/material";
 import { useRouter } from "next/router";
 import { Controller, useForm } from "react-hook-form";
@@ -16,7 +17,6 @@ import {
 import ReferenceStepHeader from "@/features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
 import { useTranslation } from "@/i18n";
 import { PROFILE } from "@/i18n/namespaces";
-import { ReferenceType } from "@/proto/references_pb";
 import {
   HELP_CENTER_HOW_TO_LEAVE_GOOD_REFERENCE_URL,
   LEAVE_REFERENCE_BASE_ROUTE,

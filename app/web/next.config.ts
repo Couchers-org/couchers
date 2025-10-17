@@ -62,13 +62,6 @@ const nextConfig: NextConfig = {
       loader: "frontmatter-markdown-loader",
     });
 
-    // Tell webpack to detect if .js files are CJS or ESM. Needed to import generated proto code
-    // TODO(FB) Remove when new proto codegen is done
-    config.module?.rules?.push({
-      test: /\.js$/,
-      type: "javascript/auto",
-    });
-
     return config;
   },
   i18n: nextI18NextConfig.i18n,
@@ -131,6 +124,7 @@ const nextConfig: NextConfig = {
   ],
   /* eslint-enable @typescript-eslint/require-await */
   output: "standalone",
+  // transpilePackages,
 };
 
 const withBundleAnalyzer = bundleAnalyzer({

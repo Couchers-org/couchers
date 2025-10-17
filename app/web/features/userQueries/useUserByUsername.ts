@@ -1,3 +1,4 @@
+import { User } from "@couchers/services/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RpcError, StatusCode } from "grpc-web";
 import { useEffect } from "react";
@@ -8,7 +9,6 @@ import {
   USERNAME_2_ID_STALE_TIME,
   USER_STALE_TIME,
 } from "@/features/userQueries/constants";
-import { User } from "@/proto/api_pb";
 import { service } from "@/service";
 
 const useUserByUsername = (username: string, invalidate = false) => {

@@ -1,4 +1,8 @@
 import {
+  GetAccountInfoRes,
+  ProfilePublicVisibility,
+} from "@couchers/services/account";
+import {
   FormControl,
   FormControlLabel,
   Radio,
@@ -16,7 +20,6 @@ import Button from "@/components/Button";
 import { ACCOUNT_INFO_QUERY_KEY } from "@/features/queryKeys";
 import { Trans, useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
-import { GetAccountInfoRes, ProfilePublicVisibility } from "@/proto/account_pb";
 import { service } from "@/service";
 
 type ProfileVisibilityProps = {

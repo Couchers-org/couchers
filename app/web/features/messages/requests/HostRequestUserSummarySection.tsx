@@ -1,3 +1,5 @@
+import { LiteUser } from "@couchers/services/api";
+import { HostRequest } from "@couchers/services/requests";
 import {
   Skeleton,
   Tooltip,
@@ -10,8 +12,6 @@ import Avatar from "@/components/Avatar";
 import UserSummary from "@/components/UserSummary";
 import { useTranslation } from "@/i18n";
 import { MESSAGES } from "@/i18n/namespaces";
-import { LiteUser } from "@/proto/api_pb";
-import { HostRequest } from "@/proto/requests_pb";
 import { theme } from "@/theme";
 import { numNights } from "@/utils/date";
 import dayjs from "@/utils/dayjs";

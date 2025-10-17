@@ -1,9 +1,9 @@
+import { GetLiteUsersRes, LiteUser } from "@couchers/services/api";
 import { useQuery } from "@tanstack/react-query";
 import { RpcError, StatusCode } from "grpc-web";
 
 import { REACT_QUERY_RETRIES } from "@/appConstants";
 import { liteUserKey, liteUsersKey } from "@/features/queryKeys";
-import { GetLiteUsersRes, LiteUser } from "@/proto/api_pb";
 import { service } from "@/service";
 
 import { USER_STALE_TIME } from "./constants";

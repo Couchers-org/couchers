@@ -1,7 +1,7 @@
+import { ContributeOption } from "@couchers/services/auth";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { ContributeOption } from "@/proto/auth_pb";
 import wrapper from "@/test/hookWrapper";
 import { mockConsoleError } from "@/test/utils";
 

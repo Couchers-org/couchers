@@ -1,3 +1,4 @@
+import { Community } from "@couchers/services/communities";
 import { Box, Typography, styled } from "@mui/material";
 import { useState } from "react";
 
@@ -11,7 +12,6 @@ import { SectionTitle } from "@/features/communities/CommunityPage";
 import { useListMembers } from "@/features/communities/hooks";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
-import { Community } from "@/proto/communities_pb";
 
 const PaginationWrapper = styled("div")(({ theme }) => ({
   display: "flex",

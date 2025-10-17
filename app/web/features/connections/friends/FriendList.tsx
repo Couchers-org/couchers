@@ -1,9 +1,9 @@
+import { LiteUser } from "@couchers/services/api";
 import { Alert } from "@mui/material";
 import { useState } from "react";
 
 import { useTranslation } from "@/i18n";
 import { CONNECTIONS, GLOBAL } from "@/i18n/namespaces";
-import { LiteUser } from "@/proto/api_pb";
 import { theme } from "@/theme";
 
 import FriendItem from "./FriendItem";
@@ -47,6 +47,6 @@ const FriendList = ({
       </FriendTile>
     </>
   );
-}
+};
 
 export default FriendList;

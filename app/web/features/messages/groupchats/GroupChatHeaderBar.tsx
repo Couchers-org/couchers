@@ -1,3 +1,4 @@
+import { GroupChat } from "@couchers/services/conversations";
 import { Skeleton, styled, useMediaQuery } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
@@ -20,7 +21,6 @@ import { groupChatKey } from "@/features/queryKeys";
 import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, MESSAGES } from "@/i18n/namespaces";
-import { GroupChat } from "@/proto/conversations_pb";
 import { GROUP_CHATS_ROUTE, routeToUser } from "@/routes";
 import { service } from "@/service";
 import { theme } from "@/theme";

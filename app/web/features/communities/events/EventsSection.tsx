@@ -1,3 +1,4 @@
+import { Community } from "@couchers/services/communities";
 import { styled } from "@mui/material";
 import { useRouter } from "next/router";
 
@@ -12,7 +13,6 @@ import { SectionTitle } from "@/features/communities/CommunityPage";
 import { useListCommunityEvents } from "@/features/communities/hooks";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
-import { Community } from "@/proto/communities_pb";
 import { routeToCommunity, routeToNewEvent } from "@/routes";
 import { theme } from "@/theme";
 import hasAtLeastOnePage from "@/utils/hasAtLeastOnePage";

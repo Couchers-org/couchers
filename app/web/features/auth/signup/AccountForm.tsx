@@ -1,3 +1,4 @@
+import { HostingStatus } from "@couchers/services/api";
 import {
   Checkbox,
   FormControl,
@@ -31,7 +32,6 @@ import {
 } from "@/features/auth/useAuthStyles";
 import { Trans, useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
-import { HostingStatus } from "@/proto/api_pb";
 import { service } from "@/service";
 import { theme } from "@/theme";
 import {

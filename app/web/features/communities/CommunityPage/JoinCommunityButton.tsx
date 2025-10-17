@@ -1,3 +1,4 @@
+import { Community } from "@couchers/services/communities";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
 
@@ -6,7 +7,6 @@ import Snackbar from "@/components/Snackbar";
 import { communityKey } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES } from "@/i18n/namespaces";
-import { Community } from "@/proto/communities_pb";
 import { service } from "@/service";
 
 const JoinCommunityButton = ({

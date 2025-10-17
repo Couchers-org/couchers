@@ -1,3 +1,4 @@
+import { InitiateStrongVerificationRes } from "@couchers/services/account";
 import { useMutation } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
@@ -15,7 +16,6 @@ import {
 import StyledLink from "@/components/StyledLink";
 import { Trans, useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
-import { InitiateStrongVerificationRes } from "@/proto/account_pb";
 import { TOS_ROUTE } from "@/routes";
 import { service } from "@/service";
 

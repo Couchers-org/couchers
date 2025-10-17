@@ -1,3 +1,5 @@
+import { ListUserIdsRes, UserDetails } from "@couchers/services/admin";
+import { User } from "@couchers/services/api";
 import {
   InfiniteData,
   useInfiniteQuery,
@@ -11,8 +13,6 @@ import {
   modUserKey,
 } from "@/features/queryKeys";
 import { USER_STALE_TIME } from "@/features/userQueries/constants";
-import { ListUserIdsRes, UserDetails } from "@/proto/admin_pb";
-import { User } from "@/proto/api_pb";
 import { service } from "@/service";
 
 export const useNewUsers = () => {

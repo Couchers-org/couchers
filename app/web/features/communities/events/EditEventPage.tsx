@@ -1,3 +1,4 @@
+import { Event } from "@couchers/services/events";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
@@ -10,7 +11,6 @@ import NotFoundPage from "@/features/NotFoundPage";
 import { COMMUNITY_EVENTS_BASE_KEY, eventKey } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
-import { Event } from "@/proto/events_pb";
 import { routeToEvent } from "@/routes";
 import { service } from "@/service";
 import type { UpdateEventInput } from "@/service/events";

@@ -1,3 +1,4 @@
+import { FriendRequest } from "@couchers/services/api";
 import { Box, IconButton } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import React from "react";
@@ -5,7 +6,6 @@ import React from "react";
 import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
 import { CloseIcon } from "@/components/Icons";
 import { CONNECTIONS } from "@/i18n/namespaces";
-import { FriendRequest } from "@/proto/api_pb";
 import { useIsMounted, useSafeState } from "@/utils/hooks";
 
 import type { SetMutationError } from ".";
@@ -48,7 +48,7 @@ const CancelFriendRequestAction = ({
       )}
     </Box>
   ) : null;
-}
+};
 
 const FriendRequestsSent = () => {
   const isMounted = useIsMounted();
@@ -79,6 +79,6 @@ const FriendRequestsSent = () => {
         ))}
     </FriendTile>
   );
-}
+};
 
 export default FriendRequestsSent;

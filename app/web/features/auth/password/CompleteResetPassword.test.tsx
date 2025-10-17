@@ -1,8 +1,8 @@
+import { AuthRes } from "@couchers/services/auth";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useRouter } from "next/router";
 
-import { AuthRes } from "@/proto/auth_pb";
 import { service } from "@/service";
 import wrapper from "@/test/hookWrapper";
 import i18n from "@/test/i18n";

@@ -1,3 +1,4 @@
+import { Event } from "@couchers/services/events";
 import { styled } from "@mui/material";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { UseFormReturn } from "react-hook-form";
@@ -6,7 +7,6 @@ import Datepicker from "@/components/Datepicker";
 import Timepicker from "@/components/Timepicker";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES } from "@/i18n/namespaces";
-import { Event } from "@/proto/events_pb";
 import { theme } from "@/theme";
 import { isSameOrFutureDate, timestamp2Date } from "@/utils/date";
 import dayjs, { Dayjs } from "@/utils/dayjs";

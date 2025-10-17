@@ -1,10 +1,10 @@
+import { User } from "@couchers/services/api";
 import { Box, Card, Link as MuiLink, Typography } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import Link from "next/link";
 
 import Avatar from "@/components/Avatar";
 import { DASHBOARD } from "@/i18n/namespaces";
-import { User } from "@/proto/api_pb";
 import { routeToProfile } from "@/routes";
 import { theme } from "@/theme";
 

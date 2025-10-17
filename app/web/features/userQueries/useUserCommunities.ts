@@ -1,8 +1,8 @@
+import { ListUserCommunitiesRes } from "@couchers/services/communities";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
 
 import { USER_COMMUNITIES_KEY } from "@/features/queryKeys";
-import { ListUserCommunitiesRes } from "@/proto/communities_pb";
 import { service } from "@/service";
 
 const useUserCommunities = () => {

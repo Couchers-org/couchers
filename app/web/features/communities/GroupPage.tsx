@@ -1,3 +1,6 @@
+import { Discussion } from "@couchers/services/discussions";
+import { Group } from "@couchers/services/groups";
+import { Page } from "@couchers/services/pages";
 import { Breadcrumbs } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import Link from "next/link";
@@ -13,9 +16,6 @@ import Markdown from "@/components/Markdown";
 import PageTitle from "@/components/PageTitle";
 import TextBody from "@/components/TextBody";
 import log from "@/log";
-import { Discussion } from "@/proto/discussions_pb";
-import { Group } from "@/proto/groups_pb";
-import { Page } from "@/proto/pages_pb";
 import {
   routeToCommunity,
   routeToDiscussion,

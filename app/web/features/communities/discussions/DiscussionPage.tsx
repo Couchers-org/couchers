@@ -1,3 +1,4 @@
+import { Discussion } from "@couchers/services/discussions";
 import { Skeleton, Typography, styled } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
@@ -18,7 +19,6 @@ import { discussionKey } from "@/features/queryKeys";
 import { useLiteUser } from "@/features/userQueries/useLiteUsers";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
-import { Discussion } from "@/proto/discussions_pb";
 import { service } from "@/service";
 import { theme } from "@/theme";
 import { dateFormatter, timestamp2Date } from "@/utils/date";

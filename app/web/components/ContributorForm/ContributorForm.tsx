@@ -1,4 +1,8 @@
 import {
+  ContributeOption,
+  ContributorForm as ContributorFormPb,
+} from "@couchers/services/auth";
+import {
   Checkbox,
   Collapse,
   FormControl,
@@ -20,10 +24,6 @@ import { Controller, useForm } from "react-hook-form";
 import Alert from "@/components/Alert";
 import Button from "@/components/Button";
 import TextField from "@/components/TextField";
-import {
-  ContributeOption,
-  ContributorForm as ContributorFormPb,
-} from "@/proto/auth_pb";
 import { theme } from "@/theme";
 
 import {

@@ -1,3 +1,4 @@
+import { ModNote } from "@couchers/services/account";
 import { Card, Typography, styled } from "@mui/material";
 import { useState } from "react";
 
@@ -5,7 +6,6 @@ import Button from "@/components/Button";
 import Markdown from "@/components/Markdown";
 import { Trans, useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
-import { ModNote } from "@/proto/account_pb";
 import { service } from "@/service";
 import { theme } from "@/theme";
 import { dateFormatter, timestamp2Date } from "@/utils/date";

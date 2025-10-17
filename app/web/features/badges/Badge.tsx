@@ -1,6 +1,6 @@
+import { Badge as BadgeType } from "@couchers/services/resources";
 import { Chip, Tooltip, styled } from "@mui/material";
 
-import { Badge as BadgeType } from "@/proto/resources_pb";
 import { routeToBadge } from "@/routes";
 
 export interface BadgeProps {

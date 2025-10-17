@@ -1,3 +1,4 @@
+import { ListGroupChatsRes } from "@couchers/services/conversations";
 import { List, styled } from "@mui/material";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
@@ -14,7 +15,6 @@ import { GROUP_CHATS_LIST_KEY } from "@/features/queryKeys";
 import useNotifications from "@/features/useNotifications";
 import { useTranslation } from "@/i18n";
 import { MESSAGES } from "@/i18n/namespaces";
-import { ListGroupChatsRes } from "@/proto/conversations_pb";
 import { routeToGroupChat } from "@/routes";
 import { service } from "@/service";
 import { theme } from "@/theme";

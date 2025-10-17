@@ -1,3 +1,4 @@
+import { HostingStatus, MeetupStatus } from "@couchers/services/api";
 import { Card, CardActions, Link, Typography, styled } from "@mui/material";
 import React from "react";
 
@@ -14,7 +15,6 @@ import {
 import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
-import { HostingStatus, MeetupStatus } from "@/proto/api_pb";
 import { routeToUser } from "@/routes";
 
 import { Badges } from "./Badges";

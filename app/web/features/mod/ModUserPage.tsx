@@ -1,3 +1,4 @@
+import { UserDetails } from "@couchers/services/admin";
 import { TabPanel } from "@mui/lab";
 import { Button, styled } from "@mui/material";
 import Link from "next/link";
@@ -12,7 +13,6 @@ import UserOverview from "@/features/profile/view/UserOverview";
 import { StyledProfileRoot } from "@/features/profile/view/UserPage";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, MOD } from "@/i18n/namespaces";
-import { UserDetails } from "@/proto/admin_pb";
 import { UserTab, adminPanelUserLink, routeToModUser } from "@/routes";
 
 import ModPanel from "./ModPanel";

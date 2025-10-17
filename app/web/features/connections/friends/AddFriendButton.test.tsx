@@ -24,7 +24,7 @@ const TestComponent = () => {
       <AddFriendButton userId={2} setMutationError={setMutationError} />
     </>
   );
-}
+};
 
 afterEach(() => {
   jest.restoreAllMocks();

@@ -58,6 +58,6 @@ const FriendTile = ({
       </StyledContainer>
     </Card>
   );
-}
+};
 
 export default FriendTile;

@@ -1,3 +1,4 @@
+import { Event } from "@couchers/services/events";
 import { Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
@@ -10,7 +11,6 @@ import useAccountInfo from "@/features/auth/useAccountInfo";
 import { COMMUNITY_EVENTS_BASE_KEY } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
-import { Event } from "@/proto/events_pb";
 import { DASHBOARD_ROUTE, routeToEvent } from "@/routes";
 import { service } from "@/service";
 import type { CreateEventInput } from "@/service/events";

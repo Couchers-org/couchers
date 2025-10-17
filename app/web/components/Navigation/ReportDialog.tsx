@@ -1,3 +1,4 @@
+import { ReportBugRes } from "@couchers/services/bugs";
 import { DialogProps, styled } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
@@ -17,7 +18,6 @@ import Snackbar from "@/components/Snackbar";
 import StyledLink from "@/components/StyledLink";
 import TextField from "@/components/TextField";
 import { useTranslation } from "@/i18n";
-import { ReportBugRes } from "@/proto/bugs_pb";
 import { HELP_CENTER_REPORT_CONTENT_URL } from "@/routes";
 import { service } from "@/service";
 import { theme } from "@/theme";

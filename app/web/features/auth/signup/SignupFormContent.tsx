@@ -1,3 +1,4 @@
+import { GetSignupPageInfoRes } from "@couchers/services/public";
 import { Link, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -7,7 +8,6 @@ import { useAuthContext } from "@/features/auth/AuthProvider";
 import { Trans, useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
 import log from "@/log";
-import { GetSignupPageInfoRes } from "@/proto/public_pb";
 import { BASE_ROUTE, TOS_ROUTE } from "@/routes";
 
 import AccountForm from "./AccountForm";

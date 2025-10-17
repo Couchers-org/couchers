@@ -1,3 +1,4 @@
+import { JailInfoRes } from "@couchers/services/jail";
 import { Backdrop, styled } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
@@ -13,7 +14,6 @@ import LocationSection from "@/features/auth/jail/LocationSection";
 import TOSSection from "@/features/auth/jail/TOSSection";
 import { useTranslation } from "@/i18n";
 import { AUTH } from "@/i18n/namespaces";
-import { JailInfoRes } from "@/proto/jail_pb";
 import { LOGIN_ROUTE } from "@/routes";
 import { service } from "@/service";
 

@@ -1,3 +1,4 @@
+import { GetAccountInfoRes } from "@couchers/services/account";
 import { Alert as MuiAlert, Typography, styled } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
@@ -9,7 +10,6 @@ import Button from "@/components/Button";
 import { ACCOUNT_INFO_QUERY_KEY } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { DASHBOARD } from "@/i18n/namespaces";
-import { GetAccountInfoRes } from "@/proto/account_pb";
 import { routeToEditProfile } from "@/routes";
 import { service } from "@/service";
 import { theme } from "@/theme";

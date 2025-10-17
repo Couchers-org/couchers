@@ -1,6 +1,3 @@
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-
-import log from "@/log";
 import {
   CancelFriendRequestReq,
   ListBadgeUsersReq,
@@ -8,7 +5,10 @@ import {
   RemoveFriendReq,
   RespondFriendRequestReq,
   SendFriendRequestReq,
-} from "@/proto/api_pb";
+} from "@couchers/services/api";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+
+import log from "@/log";
 
 import client from "./client";
 import {

@@ -1,3 +1,4 @@
+import { Message } from "@couchers/services/conversations";
 import { styled } from "@mui/material";
 import {
   ReactNode,
@@ -10,7 +11,6 @@ import {
 import CircularProgress from "@/components/CircularProgress";
 import { useAuthContext } from "@/features/auth/AuthProvider";
 import { messageElementId } from "@/features/messages/messagelist/MessageView";
-import { Message } from "@/proto/conversations_pb";
 import { theme } from "@/theme";
 import useOnVisibleEffect from "@/utils/useOnVisibleEffect";
 

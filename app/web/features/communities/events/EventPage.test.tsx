@@ -1,10 +1,10 @@
+import { User } from "@couchers/services/api";
+import { AttendanceState } from "@couchers/services/events";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 
 import useCurrentUser from "@/features/userQueries/useCurrentUser";
-import { User } from "@/proto/api_pb";
-import { AttendanceState } from "@/proto/events_pb";
 import { EVENT_BASE_ROUTE } from "@/routes";
 import { service } from "@/service";
 import events from "@/test/fixtures/events.json";

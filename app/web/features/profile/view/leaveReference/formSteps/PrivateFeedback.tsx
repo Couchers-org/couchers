@@ -1,3 +1,4 @@
+import { ReferenceType } from "@couchers/services/references";
 import {
   Card,
   CardContent,
@@ -27,7 +28,6 @@ import {
 import ReferenceStepHeader from "@/features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
-import { ReferenceType } from "@/proto/references_pb";
 import {
   HELP_CENTER_PRIVATE_FEEDBACK_URL,
   LEAVE_REFERENCE_BASE_ROUTE,

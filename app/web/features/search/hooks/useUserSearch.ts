@@ -1,9 +1,9 @@
+import { UserSearchV2Res } from "@couchers/services/search";
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
 
 import { FilterOptions } from "@/features/search/SearchPage";
 import { MapSearchState } from "@/features/search/state/mapSearchReducers";
-import { UserSearchV2Res } from "@/proto/search_pb";
 import { service } from "@/service";
 
 const calculateCurrentRange = ({

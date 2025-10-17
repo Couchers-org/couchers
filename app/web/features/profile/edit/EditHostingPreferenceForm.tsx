@@ -1,4 +1,9 @@
 import {
+  ParkingDetails,
+  SleepingArrangement,
+  SmokingLocation,
+} from "@couchers/services/api";
+import {
   Box,
   Checkbox,
   FormControl,
@@ -23,11 +28,6 @@ import {
 import useUpdateHostingPreferences from "@/features/profile/hooks/useUpdateHostingPreferences";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
-import {
-  ParkingDetails,
-  SleepingArrangement,
-  SmokingLocation,
-} from "@/proto/api_pb";
 import { HostingPreferenceData } from "@/service";
 import { theme } from "@/theme";
 import { useUnsavedChangesWarning } from "@/utils/hooks";

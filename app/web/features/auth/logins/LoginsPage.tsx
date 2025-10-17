@@ -1,3 +1,4 @@
+import { ListActiveSessionsRes } from "@couchers/services/account";
 import { ButtonProps, Typography, styled } from "@mui/material";
 import {
   InfiniteData,
@@ -13,7 +14,6 @@ import Button from "@/components/Button";
 import CenteredSpinner from "@/components/CenteredSpinner/CenteredSpinner";
 import { ACTIVE_LOGINS_KEY } from "@/features/queryKeys";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
-import { ListActiveSessionsRes } from "@/proto/account_pb";
 import { service } from "@/service";
 import { timestamp2Date } from "@/utils/date";
 

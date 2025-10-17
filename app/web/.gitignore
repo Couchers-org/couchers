@@ -33,9 +33,6 @@ yarn-error.log*
 # vercel
 .vercel
 
-# typescript
-*.tsbuildinfo
-
 proto/**
 
 junit.xml

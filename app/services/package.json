@@ -1,0 +1,33 @@
+{
+  "name": "@couchers/services",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "pb:download": "download https://develop--protos.preview.couchershq.org/ts.tar.gz | tar xz",
+    "wrappers:generate": "tsx scripts/generateWrappers.ts",
+    "postinstall": "yarn pb:download"
+  },
+  "exports": {
+    "./*": {
+      "import": "./dist/esm/*_pb.js",
+      "require": "./dist/cjs/*_pb.js",
+      "types": "./proto/*_pb.d.ts"
+    }
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-node-resolve": "^16.0.2",
+    "@rollup/plugin-typescript": "^12.1.4",
+    "download-cli": "^1.1.1",
+    "glob": "^11.0.3",
+    "rollup": "^4.52.4",
+    "rollup-plugin-dts": "^6.2.3",
+    "ts-morph": "^27.0.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}

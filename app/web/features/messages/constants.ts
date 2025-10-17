@@ -1,4 +1,4 @@
-import { HostRequestStatus } from "@/proto/conversations_pb";
+import { HostRequestStatus } from "@couchers/services/conversations";
 
 export const requestStatusToTransKey = {
   [HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED]:

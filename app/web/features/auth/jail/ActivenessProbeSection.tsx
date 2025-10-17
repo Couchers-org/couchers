@@ -1,3 +1,4 @@
+import { ActivenessProbeResponse } from "@couchers/services/jail";
 import {
   FormControl,
   FormControlLabel,
@@ -10,7 +11,6 @@ import React, { useState } from "react";
 import Button from "@/components/Button";
 import { useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
-import { ActivenessProbeResponse } from "@/proto/jail_pb";
 import { service } from "@/service";
 import { theme } from "@/theme";
 

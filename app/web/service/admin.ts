@@ -1,12 +1,11 @@
-import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
-
 import {
   GetUserDetailsReq,
   GetUserReq,
   ListUserIdsReq,
   UserDetails,
-} from "@/proto/admin_pb";
-import { User } from "@/proto/api_pb";
+} from "@couchers/services/admin";
+import { User } from "@couchers/services/api";
+import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 
 import client from "./client";
 

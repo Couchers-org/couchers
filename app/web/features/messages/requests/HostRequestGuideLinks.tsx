@@ -1,10 +1,10 @@
+import { HostRequestStatus } from "@couchers/services/conversations";
 import { Typography, styled } from "@mui/material";
 import React from "react";
 
 import StyledLink from "@/components/StyledLink";
 import { Trans, useTranslation } from "@/i18n";
 import { MESSAGES } from "@/i18n/namespaces";
-import { HostRequestStatus } from "@/proto/conversations_pb";
 import {
   HOW_TO_RESPOND_REQUEST_GUIDE_URL,
   HOW_TO_WRITE_REQUEST_GUIDE_URL,

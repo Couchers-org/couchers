@@ -1,3 +1,4 @@
+import { HostingStatus, User } from "@couchers/services/api";
 import { LngLatLike } from "maplibre-gl";
 
 import { FilterOptions } from "@/features/search/SearchPage";
@@ -8,7 +9,6 @@ import {
   MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
 } from "@/features/search/utils/constants";
 import { getHasActiveFilters } from "@/features/search/utils/mapUtils";
-import { HostingStatus, User } from "@/proto/api_pb";
 import { UserSearchFilters } from "@/service/search";
 import { GeocodeResult } from "@/utils/hooks";
 

@@ -1,3 +1,4 @@
+import { Event } from "@couchers/services/events";
 import { Checkbox, FormControlLabel, Typography, styled } from "@mui/material";
 import { UseMutateFunction } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
@@ -14,7 +15,6 @@ import TextField from "@/components/TextField";
 import { Coordinates } from "@/features/search/utils/constants";
 import { useTranslation } from "@/i18n";
 import { COMMUNITIES, GLOBAL } from "@/i18n/namespaces";
-import { Event } from "@/proto/events_pb";
 import { theme } from "@/theme";
 import { Dayjs } from "@/utils/dayjs";
 import type { GeocodeResult } from "@/utils/hooks";

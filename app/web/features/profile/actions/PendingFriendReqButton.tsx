@@ -1,3 +1,4 @@
+import { FriendRequest } from "@couchers/services/api";
 import { useTranslation } from "next-i18next";
 import React, { useRef, useState } from "react";
 
@@ -7,7 +8,6 @@ import Menu, { MenuItem } from "@/components/Menu";
 import type { SetMutationError } from "@/features/connections/friends";
 import useRespondToFriendRequest from "@/features/connections/friends/useRespondToFriendRequest";
 import { PROFILE } from "@/i18n/namespaces";
-import { FriendRequest } from "@/proto/api_pb";
 
 interface PendingFriendReqButtonProps {
   friendRequest: FriendRequest.AsObject;
@@ -88,6 +88,6 @@ const PendingFriendReqButton = ({
       )}
     </>
   );
-}
+};
 
 export default PendingFriendReqButton;

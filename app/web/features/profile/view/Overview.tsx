@@ -1,3 +1,4 @@
+import { HostingStatus } from "@couchers/services/api";
 import { styled } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import Link from "next/link";
@@ -14,7 +15,6 @@ import MessageUserButton from "@/features/profile/actions/MessageUserButton";
 import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
 import UserOverview from "@/features/profile/view/UserOverview";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
-import { HostingStatus } from "@/proto/api_pb";
 import {
   CONNECTIONS_ROUTE,
   EditUserTab,

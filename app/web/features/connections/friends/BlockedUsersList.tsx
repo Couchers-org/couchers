@@ -1,3 +1,4 @@
+import { BlockedUser, GetBlockedUsersRes } from "@couchers/services/blocking";
 import { People } from "@mui/icons-material";
 import { useQuery } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
@@ -7,7 +8,6 @@ import EllipsisMenu from "@/components/EllipsisMenu";
 import { BLOCKED_USERS_KEY } from "@/features/queryKeys";
 import { useTranslation } from "@/i18n";
 import { CONNECTIONS } from "@/i18n/namespaces";
-import { BlockedUser, GetBlockedUsersRes } from "@/proto/blocking_pb";
 import { service } from "@/service";
 
 import ConnectionActionDialog from "./ConnectionActionDialog";

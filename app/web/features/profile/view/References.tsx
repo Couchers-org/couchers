@@ -1,3 +1,5 @@
+import { User } from "@couchers/services/api";
+import { ReferenceType } from "@couchers/services/references";
 import { Typography, styled } from "@mui/material";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Link from "next/link";
@@ -11,8 +13,6 @@ import { useListAvailableReferences } from "@/features/profile/hooks/referencesH
 import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
-import { User } from "@/proto/api_pb";
-import { ReferenceType } from "@/proto/references_pb";
 import { LEAVE_REFERENCE_BASE_ROUTE, REFERENCE_TYPE_ROUTE } from "@/routes";
 import { theme } from "@/theme";
 

@@ -1,3 +1,4 @@
+import { ReferenceType } from "@couchers/services/references";
 import { Typography, styled } from "@mui/material";
 import { useRouter } from "next/router";
 
@@ -5,7 +6,6 @@ import HeaderButton from "@/components/HeaderButton";
 import { BackIcon } from "@/components/Icons";
 import { useTranslation } from "@/i18n";
 import { GLOBAL, PROFILE } from "@/i18n/namespaces";
-import { ReferenceType } from "@/proto/references_pb";
 import { REFERENCE_TYPE_ROUTE } from "@/routes";
 import { theme } from "@/theme";
 

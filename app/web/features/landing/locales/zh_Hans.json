@@ -1,8 +1,8 @@
 {
-    "introduction_subtitle": "永久免费。社区主导。非营利。现代化。",
-    "signup_header": "立即注册Couchers.org",
-    "create_an_account": "创建账户",
-    "signup_continue": "完成注册",
-    "signup_description": "加入{{ user_count }}位沙发冲浪者，体验增长最快的沙发冲浪平台。",
-    "introduction_title": "Couchsurfing™ 的新替代方案"
+  "introduction_subtitle": "永久免费。社区主导。非营利。现代化。",
+  "signup_header": "立即注册Couchers.org",
+  "create_an_account": "创建账户",
+  "signup_continue": "完成注册",
+  "signup_description": "加入{{ user_count }}位沙发冲浪者，体验增长最快的沙发冲浪平台。",
+  "introduction_title": "Couchsurfing™ 的新替代方案"
 }

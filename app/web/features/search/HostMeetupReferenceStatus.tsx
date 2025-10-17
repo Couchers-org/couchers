@@ -1,3 +1,4 @@
+import { HostingStatus, MeetupStatus, User } from "@couchers/services/api";
 import {
   CheckCircleOutlineRounded,
   DoDisturb,
@@ -12,7 +13,6 @@ import {
 } from "@/features/profile/constants";
 import { useTranslation } from "@/i18n";
 import { PROFILE } from "@/i18n/namespaces";
-import { HostingStatus, MeetupStatus, User } from "@/proto/api_pb";
 import { theme } from "@/theme";
 
 const Wrapper = styled("div")(({ theme }) => ({

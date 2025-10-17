@@ -1,3 +1,4 @@
+import { GetAccountInfoRes } from "@couchers/services/account";
 import { Typography, styled, useMediaQuery, useTheme } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -18,7 +19,6 @@ import StyledLink from "@/components/StyledLink";
 import TextField from "@/components/TextField";
 import { ACCOUNT_INFO_QUERY_KEY } from "@/features/queryKeys";
 import { AUTH } from "@/i18n/namespaces";
-import { GetAccountInfoRes } from "@/proto/account_pb";
 import { HOW_TO_DONATE_URL } from "@/routes";
 import { service } from "@/service";
 import { theme } from "@/theme";

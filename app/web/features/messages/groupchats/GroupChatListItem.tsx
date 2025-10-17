@@ -1,3 +1,4 @@
+import { GroupChat } from "@couchers/services/conversations";
 import {
   ListItemAvatar,
   ListItemButton,
@@ -21,7 +22,6 @@ import {
 import { useLiteUsers } from "@/features/userQueries/useLiteUsers";
 import { useTranslation } from "@/i18n";
 import { MESSAGES } from "@/i18n/namespaces";
-import { GroupChat } from "@/proto/conversations_pb";
 import { theme } from "@/theme";
 import { firstName } from "@/utils/names";
 
