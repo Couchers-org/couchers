@@ -44,7 +44,7 @@
                     "receive_hosted": "Vous recevez une référence de la part de quelqu’un.e qui vous a hébergé.e.",
                     "receive_friend": "Vous avez reçu une référence d’un ami",
                     "reminder_hosted": "Rappel d'écrire une référence pour quelqu'un.e que vous avez hébergé.e",
-                    "reminder_surfed": "Rappel d'écrire une référence pour quelqu'un.e avec qui vous avez surfé",
+                    "reminder_surfed": "Attention : Rappel d'écrire une référence pour quelqu'un.e avec qui vous avez surfé",
                     "receive_surfed": "Vous recevez une référence de la part de quelqu’un.e que vous avez hébergé.e"
                 },
                 "friend_request": {
@@ -91,16 +91,63 @@
                     "reminder": "Rappel de compléter votre profil après votre inscription récente"
                 },
                 "phone_number": {
-                    "change": "Votre numéro de téléphone a été changé"
+                    "change": "Votre numéro de téléphone a été changé",
+                    "verify": "Votre numéro de téléphone est vérifié"
+                },
+                "birthdate": {
+                    "change": "Votre date de naissance a été modifiée"
+                },
+                "gender": {
+                    "change": "Le genre affiché sur votre profil a été modifié"
+                },
+                "discussion": {
+                    "create": "Quelqu’un autre a crée une discussion dans une communauté dont vous faites partie",
+                    "comment": "Quelqu’un a commenté une discussion que vous suivez"
+                },
+                "thread": {
+                    "reply": "Quelqu’un a répondu à votre commentaire"
                 }
             },
             "expand_all": "Gonflez tout",
             "collapse_all": "Réduisez tout",
             "description": "Toute modification apportée ci-dessous est enregistrée automatiquement. Veuillez noter que vous pouvez toujours recevoir des notifications importantes concernant votre compte et votre contenu, en dehors de vos paramètres de notification préférés."
         },
-        "edit_in_console": "Vous pouvez modifier vos paramètres de notification <2>sur cette page</2>. Nous les déplacerons bientôt ici."
+        "edit_in_console": "Vous pouvez modifier vos paramètres de notification <2>sur cette page</2>. Nous les déplacerons bientôt ici.",
+        "push_notifications": {
+            "title": "Les notifications poussées",
+            "description": "Vous pouvez activer les notifications poussées pour Couchers.org sur votre appareil. Nous travaillons à étendre cette fonctionnalité.",
+            "error_generic": "Erreur lors de l’abonnement aux notifications poussées",
+            "disabled_message": "Les notifications poussées sont actuellement <1>désactivées</1>.",
+            "enabled_message": "Les notifications poussées sont actuellement <1>activées</1>.",
+            "permission_denied": {
+                "instructions": {
+                    "firefox": "Vous avez bloqué les notifications. Veuillez activer les notifications dans les paramètres de votre navigateur pour continuer. Dans Firefox, allez dans Préférences > Vie privée et sécurité > Permissions > Notifications, puis modifiez l'autorisation du site-web.",
+                    "generic": "Vous avez bloqué les notifications. Veuillez activer les notifications dans les paramètres de votre navigateur pour continuer.",
+                    "macos": "Sur macOS, naviguez aux Réglages Système > Notifications, puis modifiez l’autorisation de l’application.",
+                    "windows": "Dans Windows, naviguez aux Paramètres > Système > Notifications et actions, puis ajustez l'autorisation de l'application ou du site-web.",
+                    "linux": {
+                        "gnome": "Dans GNOME, naviguez aux Paramètres > Notifications pour ajuster l'autorisation de l'application.",
+                        "kde": "Dans KDE, naviguez dans Paramètres système > Notifications pour modifier les autorisations."
+                    },
+                    "mobile": {
+                        "browser": "Dans les paramètres de votre navigateur mobile, ajustez l'autorisation de notifications pour ce site-web.",
+                        "os": "Dans les paramètres de notification de votre portable, ajustez les autorisations pour permettre les notifications."
+                    },
+                    "safari": "Vous avez bloqué les notifications. Veuillez activer les notifications dans les paramètres de votre navigateur pour continuer. Dans Safari, allez dans Préférences > Sites web > Notifications pour modifier les autorisations.",
+                    "chrome": "Vous avez bloqué les notifications. Veuillez activer les notifications dans les paramètres de votre navigateur pour continuer. DAns Chrome, cliquez sur l’icône de cadenas dans la barre d’adresse, puis ajustez le paramètre « Notifications »."
+                },
+                "platform_settings_description": "Vous rencontrez toujours des problèmes après avoir activé les notifications dans votre navigateur ? Vous devrez peut-être ajuster les paramètres de votre plateforme."
+            },
+            "allow_push": "Cliquez sur le bouton « Autoriser » dans la fenêtre push-up de votre navigateur pour activer les notifications poussées.",
+            "error_unsupported": "Les notifications pousées ou les « Service Workers » ne sont pas prises en charge dans ce navigateur.",
+            "error_not_granted": "Vous n'avez pas donné l'autorisation d'envoyer des notifications poussées."
+        }
     },
     "all": "Toutes",
     "error_loading": "Erreur de chargement des notifications",
-    "error_updating_notifications": "Erreur lors de la mise à jour des notifications"
+    "error_updating_notifications": "Erreur lors de la mise à jour des notifications",
+    "push_notification_banner": {
+        "message": "Ne manquez pas de demandes d'hébergement, de réponses ou de messages ; pouvons-nous vous envoyer des notifications poussées ?",
+        "confirm": "Oui, s'il vous plaît !"
+    }
 }
