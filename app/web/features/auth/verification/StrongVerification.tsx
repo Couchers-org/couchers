@@ -19,7 +19,7 @@ export default function StrongVerification({
   const { t } = useTranslation(AUTH);
 
   return (
-    <div className={className}>
+    <div className={className} id="strong-verification">
       <Typography variant="h2">{t("strong_verification.title")}</Typography>
       <Typography variant="body1" sx={{ marginBottom: theme.spacing(2) }}>
         <Trans

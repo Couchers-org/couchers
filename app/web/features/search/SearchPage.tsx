@@ -44,6 +44,7 @@ export type FilterOptions = {
   selectedUserId?: number;
   sleepingArrangement?: SleepingArrangementOptions[];
   smokesAtHome?: boolean | undefined;
+  sameGenderOnly?: boolean;
 };
 
 const SearchPageContainer = styled("div")(({ theme }) => ({

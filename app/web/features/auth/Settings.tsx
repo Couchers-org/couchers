@@ -14,6 +14,7 @@ import PushNotificationSettings from "features/notifications/PushNotificationSet
 import LanguagePickerSettings from "features/translate/LanguagePickerSettings";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
+import { useEffect } from "react";
 
 import DeleteAccount from "./deletion/DeleteAccount";
 import ManageDonations from "./donations/ManageDonations";
@@ -41,6 +42,20 @@ export default function Settings() {
     error: accountInfoError,
     isLoading: isAccountInfoLoading,
   } = useAccountInfo();
+
+  useEffect(() => {
+    // Scroll to the element if there's a hash in the URL
+    if (window.location.hash) {
+      const id = window.location.hash.substring(1);
+      const element = document.getElementById(id);
+      if (element) {
+        // Use a small timeout to ensure the page has fully rendered
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 100);
+      }
+    }
+  }, [accountInfo]);
 
   return (
     <>
