@@ -14,12 +14,12 @@ import {
   Typography,
 } from "@mui/material";
 import { styled, useMediaQuery } from "@mui/system";
+import BetaFlag from "components/BetaFlag";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import { Dialog, DialogTitle } from "components/Dialog";
 import Divider from "components/Divider";
 import IconButton from "components/IconButton";
 import { CloseIcon } from "components/Icons";
-import NewFlag from "components/NewFlag";
 import PlusMinusSelector from "components/PlusMinusSelector";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useTranslation } from "i18n";
@@ -418,7 +418,7 @@ const FilterDialog = ({
               >
                 {t("search:form.general_filters.same_gender_only")}
               </Typography>
-              <NewFlag />
+              <BetaFlag />
             </Box>
             {!currentUser?.hasStrongVerification && (
               <Typography

@@ -26,7 +26,7 @@ const StyledChip = styled(Chip)({
   color: theme.palette.common.white,
 });
 
-export default function NewFlag() {
+export default function BetaFlag() {
   const { t } = useTranslation(GLOBAL);
-  return <StyledChip label={`✨ ${t("new")}`} size="small" />;
+  return <StyledChip label={`✨ ${t("beta")}`} size="small" />;
 }
