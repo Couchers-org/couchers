@@ -62,8 +62,8 @@
       "has_strong_verification": "Has strong verification",
       "has_references": "Has references",
       "same_gender_only": "Show same gender only",
-      "same_gender_only_helper_text": "Only strong verified users can use this filter",
-      "get_strong_verification": "Get strong verification here (it's free)."
+      "same_gender_only_helper_text": "Only strong verified users can use this filter.",
+      "get_strong_verification": "Get strong verified here (it's free)."
     },
     "rules": {
       "title": "Rules",
