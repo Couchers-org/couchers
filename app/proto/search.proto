@@ -135,6 +135,7 @@ message UserSearchReq {
   repeated org.couchers.api.core.LanguageAbility language_ability_filter = 11;
 
   repeated string gender = 9;
+  bool same_gender_only = 36;
   google.protobuf.UInt32Value guests = 10;
   bool only_with_references = 12;
   bool only_with_strong_verification = 34;

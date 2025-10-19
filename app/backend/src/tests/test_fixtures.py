@@ -639,7 +639,11 @@ class FakeChannel:
 
         self.handlers.update(generic_rpc_handlers[0]._method_handlers)
 
-    def unary_unary(self, uri, request_serializer, response_deserializer):
+    def add_registered_method_handlers(self, service_name, method_handlers):
+        # Compatibility method for newer grpc versions
+        pass
+
+    def unary_unary(self, uri, request_serializer, response_deserializer, _registered_method=False):
         handler = self.handlers[uri]
 
         _check_user_perms(uri, self.user_id, self._is_jailed, self._is_superuser, self._token_expiry)
