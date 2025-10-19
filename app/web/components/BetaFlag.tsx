@@ -1,12 +1,12 @@
 /**
- * NewFlag - A reusable badge component to highlight new features
+ * BetaFlag - A reusable badge component to highlight beta features
  *
  * Usage:
  * ```tsx
- * <NewFlag />
+ * <BetaFlag />
  * ```
  *
- * Typically placed next to a label or feature name to draw attention.
+ * Typically placed next to a label or feature name to draw attention to new and experimental features.
  */
 import { Chip } from "@mui/material";
 import { styled } from "@mui/system";
