@@ -14,21 +14,42 @@ async function getMarkdownPageBySlug(
   return { slug, frontmatter: md.attributes, content: md.html };
 }
 
-export const getStaticPaths: GetStaticPaths = () => ({
-  paths: [],
-  fallback: "blocking",
-});
+export const getStaticPaths: GetStaticPaths = () => {
+  // Return empty paths for fast builds
+  // Pages will be generated on-demand with fallback: 'blocking'
+  return {
+    paths: [],
+    fallback: "blocking",
+  };
+};
 
-export const getStaticProps: GetStaticProps = async ({ locale, params }) => ({
-  props: {
-    ...(await serverSideTranslations(
-      locale ?? "en",
-      [GLOBAL, AUTH, NOTIFICATIONS],
-      nextI18nextConfig,
-    )),
-    page: await getMarkdownPageBySlug(params!.slug as Array<string>),
-  },
-});
+export const getStaticProps: GetStaticProps = async ({ locale, params }) => {
+  const slug = params!.slug as Array<string>;
+
+  // Validate slug: only allow alphanumeric, hyphens, and underscores
+  // This prevents webpack files, dot files, etc.
+  const isValidSlug = slug.every((segment) => /^[a-zA-Z0-9_-]+$/.test(segment));
+
+  if (!isValidSlug) {
+    return { notFound: true };
+  }
+
+  try {
+    return {
+      props: {
+        ...(await serverSideTranslations(
+          locale ?? "en",
+          [GLOBAL, AUTH, NOTIFICATIONS],
+          nextI18nextConfig,
+        )),
+        page: await getMarkdownPageBySlug(slug),
+      },
+    };
+  } catch {
+    // Markdown file doesn't exist
+    return { notFound: true };
+  }
+};
 
 export default function Markdown({ page }: { page: MarkdownPageProps }) {
   return <MarkdownPage {...page} />;
