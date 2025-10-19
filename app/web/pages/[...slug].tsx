@@ -26,14 +26,6 @@ export const getStaticPaths: GetStaticPaths = () => {
 export const getStaticProps: GetStaticProps = async ({ locale, params }) => {
   const slug = params!.slug as Array<string>;
 
-  // Validate slug: only allow alphanumeric, hyphens, and underscores
-  // This prevents webpack files, dot files, etc.
-  const isValidSlug = slug.every((segment) => /^[a-zA-Z0-9_-]+$/.test(segment));
-
-  if (!isValidSlug) {
-    return { notFound: true };
-  }
-
   try {
     return {
       props: {
@@ -46,7 +38,7 @@ export const getStaticProps: GetStaticProps = async ({ locale, params }) => {
       },
     };
   } catch {
-    // Markdown file doesn't exist
+    // Markdown file doesn't exist or path is invalid
     return { notFound: true };
   }
 };
