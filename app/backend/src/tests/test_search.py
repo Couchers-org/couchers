@@ -778,3 +778,112 @@ def test_regression_search_no_results(db):
     with search_session(token) as api:
         res = api.UserSearchV2(search_pb2.UserSearchReq(only_with_references=True))
         assert len(res.results) == 0
+
+
+def test_user_filter_same_gender_only(db):
+    """Test that same_gender_only filter works correctly"""
+    # Create users with different genders and strong verification status
+    woman_with_sv, token_woman_with_sv = generate_user(strong_verification=True, gender="Woman")
+    woman_without_sv, token_woman_without_sv = generate_user(strong_verification=False, gender="Woman")
+    man_with_sv, token_man_with_sv = generate_user(strong_verification=True, gender="Man")
+    man_without_sv, _ = generate_user(strong_verification=False, gender="Man")
+    other_woman_with_sv, _ = generate_user(strong_verification=True, gender="Woman")
+
+    refresh_materialized_views_rapid(None)
+    refresh_materialized_views(None)
+
+    # Test 1: Woman with strong verification should see only women when same_gender_only=True
+    with search_session(token_woman_with_sv) as api:
+        res = api.UserSearch(search_pb2.UserSearchReq(same_gender_only=True))
+        result_ids = [result.user.user_id for result in res.results]
+        assert woman_with_sv.id in result_ids
+        assert woman_without_sv.id in result_ids
+        assert other_woman_with_sv.id in result_ids
+        assert man_with_sv.id not in result_ids
+        assert man_without_sv.id not in result_ids
+
+        res = api.UserSearchV2(search_pb2.UserSearchReq(same_gender_only=True))
+        result_ids = [result.user_id for result in res.results]
+        assert woman_with_sv.id in result_ids
+        assert woman_without_sv.id in result_ids
+        assert other_woman_with_sv.id in result_ids
+        assert man_with_sv.id not in result_ids
+        assert man_without_sv.id not in result_ids
+
+    # Test 2: Man with strong verification should see only men when same_gender_only=True
+    with search_session(token_man_with_sv) as api:
+        res = api.UserSearch(search_pb2.UserSearchReq(same_gender_only=True))
+        result_ids = [result.user.user_id for result in res.results]
+        assert man_with_sv.id in result_ids
+        assert man_without_sv.id in result_ids
+        assert woman_with_sv.id not in result_ids
+        assert woman_without_sv.id not in result_ids
+        assert other_woman_with_sv.id not in result_ids
+
+        res = api.UserSearchV2(search_pb2.UserSearchReq(same_gender_only=True))
+        result_ids = [result.user_id for result in res.results]
+        assert man_with_sv.id in result_ids
+        assert man_without_sv.id in result_ids
+        assert woman_with_sv.id not in result_ids
+        assert woman_without_sv.id not in result_ids
+        assert other_woman_with_sv.id not in result_ids
+
+    # Test 3: Woman without strong verification should get an error
+    with search_session(token_woman_without_sv) as api:
+        with pytest.raises(Exception) as e:
+            api.UserSearch(search_pb2.UserSearchReq(same_gender_only=True))
+        assert "NEED_STRONG_VERIFICATION" in str(e.value) or "FAILED_PRECONDITION" in str(e.value)
+
+        with pytest.raises(Exception) as e:
+            api.UserSearchV2(search_pb2.UserSearchReq(same_gender_only=True))
+        assert "NEED_STRONG_VERIFICATION" in str(e.value) or "FAILED_PRECONDITION" in str(e.value)
+
+    # Test 4: When same_gender_only=False, should see all users
+    with search_session(token_woman_with_sv) as api:
+        res = api.UserSearch(search_pb2.UserSearchReq(same_gender_only=False))
+        result_ids = [result.user.user_id for result in res.results]
+        assert woman_with_sv.id in result_ids
+        assert woman_without_sv.id in result_ids
+        assert other_woman_with_sv.id in result_ids
+        assert man_with_sv.id in result_ids
+        assert man_without_sv.id in result_ids
+
+        res = api.UserSearchV2(search_pb2.UserSearchReq(same_gender_only=False))
+        result_ids = [result.user_id for result in res.results]
+        assert woman_with_sv.id in result_ids
+        assert woman_without_sv.id in result_ids
+        assert other_woman_with_sv.id in result_ids
+        assert man_with_sv.id in result_ids
+        assert man_without_sv.id in result_ids
+
+
+def test_user_filter_same_gender_only_with_other_filters(db):
+    """Test that same_gender_only filter works correctly combined with other filters"""
+    # Create users with different properties
+    woman_host, token_woman = generate_user(
+        strong_verification=True, gender="Woman", hosting_status=HostingStatus.can_host
+    )
+    woman_cant_host, _ = generate_user(strong_verification=True, gender="Woman", hosting_status=HostingStatus.cant_host)
+    man_host, _ = generate_user(strong_verification=True, gender="Man", hosting_status=HostingStatus.can_host)
+
+    refresh_materialized_views_rapid(None)
+    refresh_materialized_views(None)
+
+    # Test: Combine same_gender_only with hosting_status filter
+    with search_session(token_woman) as api:
+        res = api.UserSearch(
+            search_pb2.UserSearchReq(same_gender_only=True, hosting_status_filter=[api_pb2.HOSTING_STATUS_CAN_HOST])
+        )
+        result_ids = [result.user.user_id for result in res.results]
+        # Should only see woman who can host
+        assert woman_host.id in result_ids
+        assert woman_cant_host.id not in result_ids
+        assert man_host.id not in result_ids
+
+        res = api.UserSearchV2(
+            search_pb2.UserSearchReq(same_gender_only=True, hosting_status_filter=[api_pb2.HOSTING_STATUS_CAN_HOST])
+        )
+        result_ids = [result.user_id for result in res.results]
+        assert woman_host.id in result_ids
+        assert woman_cant_host.id not in result_ids
+        assert man_host.id not in result_ids

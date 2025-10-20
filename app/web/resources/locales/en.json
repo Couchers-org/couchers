@@ -221,6 +221,7 @@
   "yes": "Yes",
   "no": "No",
   "ok": "OK",
+  "beta": "Beta",
   "relative_time": {
     "less_than_a_minute_ago": "< 1 minute ago",
     "one_minute_ago": "1 minute ago",

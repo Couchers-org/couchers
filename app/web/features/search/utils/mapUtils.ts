@@ -73,7 +73,8 @@ const getHasActiveFilters = (
     state.filters.hasStrongVerification !==
       initialState.filters.hasStrongVerification ||
     state.filters.smokesAtHome !== initialState.filters.smokesAtHome ||
-    state.filters.lastActive !== initialState.filters.lastActive
+    state.filters.lastActive !== initialState.filters.lastActive ||
+    state.filters.sameGenderOnly !== initialState.filters.sameGenderOnly
   );
 };
 
