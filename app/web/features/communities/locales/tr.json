@@ -28,5 +28,6 @@
   "upload_helper_text_replace": "Fotoğraf değiştirmek için tıkla",
   "community_moderators": "Topluluk Mimarları",
   "discussions_empty_state": "Şu anda herhangi bir tartışma yok.",
-  "discussions_label": "Tartışmalar"
+  "discussions_label": "Tartışmalar",
+  "invalid_community_id": "Hatalı topluluk ID'si"
 }

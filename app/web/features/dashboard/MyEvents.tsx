@@ -9,7 +9,7 @@ import EventCard from "features/communities/events/EventCard";
 import { myEventsKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
-import { COMMUNITIES, DASHBOARD } from "i18n/namespaces";
+import { DASHBOARD } from "i18n/namespaces";
 import { ListMyEventsRes } from "proto/events_pb";
 import { service } from "service";
 import { theme } from "theme";
@@ -68,7 +68,7 @@ const StyledButtonContainer = styled("div")(() => ({
 const PAGE_SIZE = 2;
 
 export default function MyEvents() {
-  const { t } = useTranslation([COMMUNITIES, DASHBOARD]);
+  const { t } = useTranslation([DASHBOARD]);
   const isBelowSm = useMediaQuery(theme.breakpoints.down("sm"));
 
   const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
@@ -99,7 +99,15 @@ export default function MyEvents() {
             {data.pages
               .flatMap((page) => page.eventsList)
               .map((event) => {
-                return <StyledCard key={event.eventId} event={event} />;
+                return (
+                  <StyledCard
+                    key={event.eventId}
+                    event={event}
+                    attendeesCountFormatter={(count) =>
+                      t("dashboard:attendees_count", { count })
+                    }
+                  />
+                );
               })}
           </StyledCardContainer>
           {hasNextPage && !isBelowSm && (
@@ -117,13 +125,13 @@ export default function MyEvents() {
                   },
                 }}
               >
-                {t("communities:see_more_events_label")}
+                {t("dashboard:load_more")}
               </Button>
             </StyledButtonContainer>
           )}
         </>
       ) : (
-        !error && <TextBody>{t("communities:events_empty_state")}</TextBody>
+        !error && <TextBody>{t("dashboard:events_empty_state")}</TextBody>
       )}
     </StyledWrapper>
   );

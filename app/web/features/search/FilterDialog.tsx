@@ -14,17 +14,20 @@ import {
   Typography,
 } from "@mui/material";
 import { styled, useMediaQuery } from "@mui/system";
+import BetaFlag from "components/BetaFlag";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import { Dialog, DialogTitle } from "components/Dialog";
 import Divider from "components/Divider";
 import IconButton from "components/IconButton";
 import { CloseIcon } from "components/Icons";
 import PlusMinusSelector from "components/PlusMinusSelector";
+import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { HostingStatus, MeetupStatus, SleepingArrangement } from "proto/api_pb";
 import { theme } from "theme";
 
+import { settingsRoute } from "../../routes";
 import { FilterOptions } from "./SearchPage";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import {
@@ -128,6 +131,7 @@ const FilterDialog = ({
 }: FilterDialogProps) => {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const { data: currentUser } = useCurrentUser();
 
   const { setSearchFilters } = useMapSearchActions();
 
@@ -207,6 +211,12 @@ const FilterDialog = ({
     newSmokesAtHome: boolean | undefined,
   ) => {
     updateFilter({ smokesAtHome: newSmokesAtHome });
+  };
+
+  const handleSameGenderOnlyChange = () => {
+    if (currentUser?.hasStrongVerification) {
+      updateFilter({ sameGenderOnly: !filters.sameGenderOnly });
+    }
   };
 
   const handleClearFilters = () => {
@@ -394,6 +404,47 @@ const FilterDialog = ({
             checked={filters.hasStrongVerification || false}
             onClick={handleHasStrongVerificationChange}
             customColor={theme.palette.primary.main}
+          />
+        </FilterItemRow>
+        <FilterItemRow>
+          <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Typography
+                sx={{
+                  color: !currentUser?.hasStrongVerification
+                    ? theme.palette.grey[400]
+                    : "inherit",
+                }}
+              >
+                {t("search:form.general_filters.same_gender_only")}
+              </Typography>
+              <BetaFlag />
+            </Box>
+            {!currentUser?.hasStrongVerification && (
+              <Typography
+                variant="caption"
+                sx={{
+                  color: theme.palette.grey[600],
+                  marginTop: theme.spacing(0.5),
+                }}
+              >
+                {t("search:form.general_filters.same_gender_only_helper_text")}{" "}
+                <a
+                  href={`${settingsRoute}#strong-verification`}
+                  style={{ color: theme.palette.primary.main }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t("search:form.general_filters.get_strong_verification")}
+                </a>
+              </Typography>
+            )}
+          </Box>
+          <CustomColorSwitch
+            checked={filters.sameGenderOnly || false}
+            onClick={handleSameGenderOnlyChange}
+            customColor={theme.palette.primary.main}
+            disabled={!currentUser?.hasStrongVerification}
           />
         </FilterItemRow>
         <FilterItemRow>

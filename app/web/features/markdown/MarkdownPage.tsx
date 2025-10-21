@@ -174,7 +174,7 @@ export default function MarkdownPage({
           {crumbs.map((crumb, index) => {
             const isLast = index === crumbs.length - 1;
             return isLast ? (
-              <Typography key={crumb.key} color="textPrimary">
+              <Typography key={`${crumb.key}-${index}`} color="textPrimary">
                 {crumb.value}
               </Typography>
             ) : (

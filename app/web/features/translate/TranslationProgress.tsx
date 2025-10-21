@@ -234,7 +234,9 @@ export default function TranslationProgress() {
                     <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
                       {renderFlag(languageInfo.flagIconCode, percent)}
                       <Typography variant="subtitle2" fontWeight="bold">
-                        {t(`language_names.${languageCode}`)}
+                        {t(
+                          `global:language_preference.language_names.${languageCode}`,
+                        )}
                       </Typography>
                     </Box>
                     <Chip

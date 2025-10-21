@@ -383,13 +383,10 @@ def _user_search_inner(request, context, session):
             raw_dt = to_aware_datetime(request.last_active)
             statement = statement.where(User.last_active >= last_active_coarsen(raw_dt))
 
-        if len(request.gender) > 0:
+        if request.same_gender_only:
             if not has_strong_verification(session, user):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NEED_STRONG_VERIFICATION)
-            elif user.gender not in request.gender:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.MUST_INCLUDE_OWN_GENDER)
-            else:
-                statement = statement.where(User.gender.in_(request.gender))
+            statement = statement.where(User.gender == user.gender)
 
         if len(request.hosting_status_filter) > 0:
             statement = statement.where(

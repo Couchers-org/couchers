@@ -1,5 +1,12 @@
 # Makefile for the backend of the application
 # Run 'make [command]' in app/backend to execute the specified command
+# Connect to the local development database
+# Usage:
+# make db
+db:
+	PGPASSWORD=203d805f4b62c0a1b2f1f6b82d4583dfe563ec1619b83ce22ee414e8376a25e7 \
+	psql -h localhost -p 6545 -U postgres -d postgres
+
 format:
 	ruff check --select I --fix . && ruff check . --fix && ruff format .
 
