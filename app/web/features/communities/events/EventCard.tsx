@@ -65,10 +65,9 @@ const CancelledChip = styled(Chip)(({ theme }) => ({
 }));
 
 const FlagButtonWrapper = styled("div")(({ theme }) => ({
-  display: "flex",
-  justifyContent: "flex-end",
-  padding: theme.spacing(1),
-  alignItems: "center",
+  position: "absolute",
+  top: theme.spacing(1),
+  right: theme.spacing(1),
   "& svg": {
     fontSize: 16,
   },
@@ -124,6 +123,7 @@ export default function EventCard({
         <CardMedia
           component="div"
           sx={{
+            position: "relative",
             padding: 1,
             backgroundColor: (theme) => theme.palette.grey[200],
             height: { xs: 80, sm: 100, md: 120 },
@@ -141,6 +141,12 @@ export default function EventCard({
               sx={{ borderRadius: 1, fontWeight: "bold" }}
             />
           )}
+          <FlagButtonWrapper>
+            <FlagButton
+              contentRef={`event/${event.eventId}`}
+              authorUser={event.creatorUserId}
+            />
+          </FlagButtonWrapper>
         </CardMedia>
         <CardContent>
           <EventTime
@@ -176,13 +182,13 @@ export default function EventCard({
             </Content>
 
             <ActivityStatsWrapper>
-            <Typography variant="body2" color="textSecondary">
-              {attendeesCountFormatter
-                ? attendeesCountFormatter(event.goingCount + event.maybeCount)
-                : t("communities:attendees_count", {
-                    count: event.goingCount + event.maybeCount,
-                  })}
-            </Typography>
+              <Typography variant="body2" color="textSecondary">
+                {attendeesCountFormatter
+                  ? attendeesCountFormatter(event.goingCount + event.maybeCount)
+                  : t("communities:attendees_count", {
+                      count: event.goingCount + event.maybeCount,
+                    })}
+              </Typography>
               <StyledCommentsCount variant="body2">
                 {t("communities:comments_count", {
                   count: event.thread?.numResponses,
