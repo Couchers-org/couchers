@@ -198,12 +198,6 @@ export default function EventCard({
           </div>
         </CardContent>
       </Link>
-      <FlagButtonWrapper>
-        <FlagButton
-          contentRef={`event/${event.eventId}`}
-          authorUser={event.creatorUserId}
-        />
-      </FlagButtonWrapper>
     </StyledCard>
   );
 }
