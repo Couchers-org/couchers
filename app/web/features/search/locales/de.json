@@ -59,7 +59,10 @@
     "general_filters": {
       "accepts_last_minute_requests": "Nimmt Last-Minute-Anfragen an",
       "has_strong_verification": "Hat eine starke Verifizierung",
-      "has_references": "Hat Referenzen"
+      "has_references": "Hat Referenzen",
+      "same_gender_only": "Nur gleichgeschlechtlich anzeigen",
+      "same_gender_only_helper_text": "Nur Nutzer mit starker Verifizierung können diesen Filter verwenden.",
+      "get_strong_verification": "Jetzt stark verifizieren (es ist kostenlos)."
     },
     "rules": {
       "title": "Regeln",
