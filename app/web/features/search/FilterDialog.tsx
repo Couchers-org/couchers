@@ -422,7 +422,7 @@ const FilterDialog = ({
             </Box>
             {!currentUser?.hasStrongVerification && (
               <Typography
-                variant="caption"
+                variant="body2"
                 sx={{
                   color: theme.palette.grey[600],
                   marginTop: theme.spacing(0.5),

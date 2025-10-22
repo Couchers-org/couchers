@@ -150,19 +150,21 @@ export default function HostRequestSendField({
       <StyledContainer>
         <TextField
           {...register("text")}
-          defaultValue={
-            isRequestClosed ? t("messages:request_closed_message") : ""
+          value={
+            isRequestClosed ? t("messages:request_closed_message") : undefined
           }
           disabled={isRequestClosed}
           fullWidth
           aria-label={t("messages:chat_input.label")}
           label={!isRequestClosed ? t("messages:chat_input.label") : ""}
           id="host-request-message"
-          InputLabelProps={{
-            style: {
-              transform: isRequestClosed ? "none" : undefined,
+          slotProps={{
+            inputLabel: {
+              style: {
+                transform: isRequestClosed ? "none" : undefined,
+              },
+              shrink: isRequestClosed ? false : undefined,
             },
-            shrink: isRequestClosed ? false : undefined,
           }}
           multiline
           onKeyDown={handleKeyDown}
