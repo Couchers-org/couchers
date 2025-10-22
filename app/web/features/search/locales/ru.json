@@ -55,7 +55,10 @@
     "general_filters": {
       "has_strong_verification": "Имеет Надёжную Верификацию",
       "has_references": "Есть отзывы",
-      "accepts_last_minute_requests": "Принимает запросы в последнюю минуту"
+      "accepts_last_minute_requests": "Принимает запросы в последнюю минуту",
+      "same_gender_only": "Показывать только одинаковый пол",
+      "same_gender_only_helper_text": "Только пользователи с Надёжной Верификацией могут использовать этот фильтр.",
+      "get_strong_verification": "Получите Надежную Верификацию здесь (это бесплатно)."
     }
   },
   "search_result": {

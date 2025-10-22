@@ -78,7 +78,30 @@
             "de": "Deutsch",
             "zh-Hant": "Chinesisch (Traditionell)"
         },
-        "tap_press_to_flip": " tippen / drücken zum Umdrehen"
+        "tap_press_to_flip": " tippen / drücken zum Umdrehen",
+        "community_coordinator": "Community-Koordinator",
+        "ui_ux_designer": "UI/UX-Designer",
+        "volunteer_settings": {
+            "show_on_team_page": {
+                "title": "Mein Freiwilligenprofil auf der Teamseite anzeigen",
+                "enabled_message": "Dein Profil ist derzeit auf der Teamseite sichtbar",
+                "disabled_message": "Dein Profil ist derzeit auf der Teamseite ausgeblendet"
+            }
+        },
+        "current_members": "Aktuelle Mitglieder",
+        "past_members": "Ehemalige Mitglieder",
+        "board_member": "Vorstandsmitglied",
+        "co_founder_president": "Mitbegründer, Präsident & Vorsitzender",
+        "co_founder": "Mitbegründer",
+        "secretary": "Sekretär",
+        "treasurer": "Kassenführer",
+        "developer": "Entwickler",
+        "frontend_developer": "Frontend-Entwickler",
+        "lead_frontend_developer": "Leitende Frontend-Entwicklerin",
+        "backend_developer": "Backend-Entwickler",
+        "lead_backend_developer": "Leitender Backend-Entwickler",
+        "full_stack_backend_developer": "Full-Stack-Entwickler",
+        "translations_lead": "Übersetzungsleiter"
     },
     "push_notification_banner": {
         "message": "Verpasse keine Anfragen, Antworten oder Nachrichten; dürfen wir dir Push-Benachrichtigungen senden?",
@@ -331,7 +354,11 @@
             "early_2000s_year": "Frühe 2000er",
             "2010s_year": "2010er",
             "2020_year": "2020",
-            "today_year": "Heute"
+            "today_year": "Heute",
+            "2010s_text": "Communitys und Events blühen auf; Empfehlungen schaffen Vertrauen — die Welt beginnt sich wie eine freundliche Nachbarschaft anzufühlen.",
+            "today_text": "Couchers.org schreibt das nächste Kapitel: modernes, sichereres, gemeinnütziges Couchsurfing — von der Community für die Community entwickelt.",
+            "early_2000s_text": "Die Online-Couchsurfing-Bewegung ist geboren: Übernachte bei Einheimischen, teile Kultur.",
+            "2020_text": "Eine große Plattform wird gewinnorientiert; Couchers.org startet als gemeinnützige, von der Community betriebene Alternative."
         },
         "why_people_title": "Warum Leute Couchsurfen lieben",
         "tip_label": "TIPP",
@@ -339,11 +366,47 @@
         "table": {
             "header_couchers": "Couchers.org",
             "header_hostel": "Hostel",
-            "header_hotel": "Hotel"
+            "header_hotel": "Hotel",
+            "social_expectation": "Ermutigt, Zeit mit dem Host zu verbringen",
+            "people_first": "Menschenorientierte gemeinnützige Organisation",
+            "cost_to_stay": "Kosten für den Aufenthalt",
+            "free_to_stay": "Kostenloser Aufenthalt",
+            "dollar": "€",
+            "dollars_range": "€€-€€€",
+            "stay_with_locals": "Übernachte bei Einheimischen",
+            "professionally_managed": "Professionell geführter Aufenthalt",
+            "meetups_communities": "Treffen & lokale Communitys",
+            "cultural_exchange": "Schwerpunkt auf Kulturaustausch",
+            "non_transactional": "Nicht-transaktionales Gemeinschaftsmodell",
+            "no_investor_pressure": "Kein Druck von Investoren"
         },
         "join_couchers": "Couchers.org beitreten",
         "is_it_safe": {
-            "title": "Wie sicher ist Couchsurfing?"
-        }
-    }
+            "title": "Wie sicher ist Couchsurfing?",
+            "description_1": "Obwohl jede Reise und der Kontakt mit Fremden ein gewisses Risiko bergen, ist Couchsurfing viel sicherer, als viele Menschen zunächst denken.",
+            "description_2": "Unsere Community basiert auf Vertrauen zwischen den Mitgliedern, das durch Referenzen nach Aufenthalten aufgebaut wird. Unser aktives Moderationsteam nimmt jede Meldung ernst und geht gewissenhaft gegen Personen vor, die sich nicht an unsere <guidelines>Community-Richtlinien</guidelines> halten.",
+            "description_3": "Zusätzlich bietet die Couchers-Plattform Tools wie verschiedene Verifizierungsformen (zum Beispiel die starke Verifizierung mit einem biometrischen Reisepass), die ein zusätzliches Maß an Sicherheit bieten. Es ist wichtig, immer einen alternativen Plan parat zu haben, falls etwas nicht wie erwartet läuft, und auf das eigene Bauchgefühl zu vertrauen!"
+        },
+        "why_people_points": {
+            "everyone": "<bold>Für alle</bold>: Gemeinschaft, Kultur und Verbindung – keine Transaktionen",
+            "travelers": "<bold>Für Reisende</bold>: tiefere, menschlichere Erlebnisse abseits der Touristenpfade",
+            "hosts": "<bold>Für Hosts</bold>: Lerne Menschen aus aller Welt kennen und zeige ihnen deine Stadt"
+        },
+        "description_1": "Couchsurfing ist ein Konzept, bei dem einige Mitglieder (sogenannte Hosts) auf der Plattform angeben, dass sie bereit sind, andere Mitglieder (sogenannte Surfer), die ihre Stadt besuchen, bei sich aufzunehmen.",
+        "actions": {
+            "host": "Hoste einen Reisenden, der deine Stadt besucht",
+            "surf": "Surfe mit einem Einheimischen während deiner Reise",
+            "attend_events": "Nehme an Events mit Einheimischen und Reisenden teil",
+            "find_people": "Finde Gleichgesinnte in deiner Stadt und treffe dich mit ihnen",
+            "join_discussions": "Trete Diskussionen in deiner lokalen Community bei oder starte eigene"
+        },
+        "tip_text": "Neu hier? Besuche eine lokale Veranstaltung, um ein Gefühl für die Gemeinschaft zu bekommen — wenig Verpflichtung, viel Verbindung.",
+        "bottom_cta_subtitle": "Tritt Couchers.org bei und werde Teil einer weltweiten Community, die auf Gastfreundschaft und Verbundenheit basiert.",
+        "description_2": "Es ist, als hätte man einen Freund in einer anderen Stadt und besucht ihn, aber man trifft den Freund zum ersten Mal, wenn man dort ankommt!",
+        "get_started": "Loslegen",
+        "timeline_title": "Eine kurze Geschichte des Couchsurfings",
+        "bottom_cta_title": "Bereit, Couchsurfing auszuprobieren?"
+    },
+    "learn_more": "Mehr erfahren",
+    "beta": "Beta"
 }
