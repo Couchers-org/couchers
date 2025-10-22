@@ -420,9 +420,9 @@ const FilterDialog = ({
               </Typography>
               <BetaFlag />
             </Box>
-            {!currentUser?.hasStrongVerification && (
+            {true && (
               <Typography
-                variant="caption"
+                variant="body2"
                 sx={{
                   color: theme.palette.grey[600],
                   marginTop: theme.spacing(0.5),
