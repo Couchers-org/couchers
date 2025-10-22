@@ -420,7 +420,7 @@ const FilterDialog = ({
               </Typography>
               <BetaFlag />
             </Box>
-            {true && (
+            {!currentUser?.hasStrongVerification && (
               <Typography
                 variant="body2"
                 sx={{
