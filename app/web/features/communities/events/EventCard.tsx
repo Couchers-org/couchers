@@ -23,6 +23,8 @@ const StyledCard = styled(Card, {
   shouldForwardProp: (prop) => prop !== "isCancelled",
 })<{ isCancelled?: boolean }>(({ theme, isCancelled }) => ({
   position: "relative",
+  display: "grid",
+  gridTemplateRows: "1fr auto",
   "&:hover": {
     backgroundColor: theme.palette.grey[50],
   },
@@ -62,16 +64,24 @@ const CancelledChip = styled(Chip)(({ theme }) => ({
   fontWeight: "bold",
 }));
 
-const FlagButtonWrapper = styled("div")({
+const FlagButtonWrapper = styled("div")(({ theme }) => ({
   position: "absolute",
-  bottom: 8,
-  right: 8,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
+  top: theme.spacing(1),
+  right: theme.spacing(1),
   "& svg": {
     fontSize: 16,
   },
+}));
+
+const StyledCommentsCount = styled(Typography)(({ theme }) => ({
+  alignSelf: "flex-end",
+  flexShrink: 0,
+  color: theme.palette.primary.main,
+}));
+
+const ActivityStatsWrapper = styled("div")({
+  display: "flex",
+  justifyContent: "space-between",
 });
 
 export const EVENT_CARD_TEST_ID = "event-card";
@@ -113,6 +123,7 @@ export default function EventCard({
         <CardMedia
           component="div"
           sx={{
+            position: "relative",
             padding: 1,
             backgroundColor: (theme) => theme.palette.grey[200],
             height: { xs: 80, sm: 100, md: 120 },
@@ -130,6 +141,12 @@ export default function EventCard({
               sx={{ borderRadius: 1, fontWeight: "bold" }}
             />
           )}
+          <FlagButtonWrapper>
+            <FlagButton
+              contentRef={`event/${event.eventId}`}
+              authorUser={event.creatorUserId}
+            />
+          </FlagButtonWrapper>
         </CardMedia>
         <CardContent>
           <EventTime
@@ -140,44 +157,47 @@ export default function EventCard({
           >
             {formattedEventDates}
           </EventTime>
-
           <Title variant="h3" gutterBottom>
             {event.title}
           </Title>
-
-          <Typography noWrap variant="body2" gutterBottom>
+          <Typography
+            noWrap
+            variant="body2"
+            gutterBottom
+            sx={{
+              maxWidth: "25em",
+            }}
+          >
             {event.offlineInformation
               ? event.offlineInformation.address
               : t("communities:virtual_event_location_placeholder")}
           </Typography>
-
           {event.isCancelled && (
             <CancelledChip label={t("communities:cancelled")} />
           )}
-
           <Divider spacing={1} />
-
           <div>
             <Content variant="body1" paragraph>
               {strippedContent}
             </Content>
 
-            <Typography variant="body2" color="textSecondary">
-              {attendeesCountFormatter
-                ? attendeesCountFormatter(event.goingCount + event.maybeCount)
-                : t("communities:attendees_count", {
-                    count: event.goingCount + event.maybeCount,
-                  })}
-            </Typography>
+            <ActivityStatsWrapper>
+              <Typography variant="body2" color="textSecondary">
+                {attendeesCountFormatter
+                  ? attendeesCountFormatter(event.goingCount + event.maybeCount)
+                  : t("communities:attendees_count", {
+                      count: event.goingCount + event.maybeCount,
+                    })}
+              </Typography>
+              <StyledCommentsCount variant="body2">
+                {t("communities:comments_count", {
+                  count: event.thread?.numResponses,
+                })}
+              </StyledCommentsCount>
+            </ActivityStatsWrapper>
           </div>
         </CardContent>
       </Link>
-      <FlagButtonWrapper>
-        <FlagButton
-          contentRef={`event/${event.eventId}`}
-          authorUser={event.creatorUserId}
-        />
-      </FlagButtonWrapper>
     </StyledCard>
   );
 }
