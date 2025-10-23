@@ -1,4 +1,5 @@
 {
+  "any": "Any",
   "choose_search_criteria": "Type a location or apply a filter to search.",
   "error_loading_users": "Error loading users",
   "filter_dialog": {
@@ -7,7 +8,6 @@
     "mobile_title": "Search"
   },
   "last_active_options": {
-    "any": "Any",
     "last_week": "Last week",
     "last_month": "Last month",
     "last_3_months": "Last 3 months",

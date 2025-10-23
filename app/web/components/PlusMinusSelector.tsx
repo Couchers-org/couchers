@@ -1,6 +1,8 @@
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { Box, IconButton, Typography } from "@mui/material";
+import { useTranslation } from "i18n";
+import { GLOBAL } from "i18n/namespaces";
 import { theme } from "theme";
 
 interface PlusMinusSelectorProps {
@@ -9,6 +11,7 @@ interface PlusMinusSelectorProps {
 }
 
 const PlusMinusSelector = ({ onChange, value }: PlusMinusSelectorProps) => {
+  const { t } = useTranslation([GLOBAL]);
   const handleDecrease = () => onChange(Math.max(0, (value ?? 0) - 1));
   const handleIncrease = () => onChange((value ?? 0) + 1);
 
@@ -32,8 +35,8 @@ const PlusMinusSelector = ({ onChange, value }: PlusMinusSelectorProps) => {
         <RemoveIcon />
       </IconButton>
 
-      <Typography sx={{ width: "30px", textAlign: "center" }}>
-        {!value ? "Any" : value}
+      <Typography sx={{ textAlign: "center" }}>
+        {!value ? t("search:any") : value}
       </Typography>
 
       <IconButton

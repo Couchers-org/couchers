@@ -1,4 +1,5 @@
 {
+  "any": "Herhangi biri",
   "error_loading_users": "Kullanıcıları yüklemede hata oluştu",
   "filter_dialog": {
     "search_here_button": "Bu bölgede arama yap",
@@ -6,7 +7,6 @@
     "mobile_title": "Ara"
   },
   "last_active_options": {
-    "any": "Herhangi biri",
     "last_week": "Geçen hafta",
     "last_month": "Geçen ay",
     "last_3_months": "Son 3 ay",

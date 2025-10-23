@@ -1,4 +1,5 @@
 {
+  "any": "Любые",
   "form": {
     "rules": {
       "kids_allowed": "Дети разрешены",
@@ -75,7 +76,6 @@
     "search_here_button": "Искать в этом районе"
   },
   "last_active_options": {
-    "any": "Любые",
     "last_month": "В прошлом месяце",
     "last_week": "На прошлой неделе",
     "last_3_months": "Последние 3 месяца",
