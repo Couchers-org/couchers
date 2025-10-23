@@ -22,6 +22,7 @@ import {
   ALMOST_DONE_CUTOFF,
   COMPLETE_CUTOFF,
   HIDDEN_CUTOFF,
+  SELECTOR_CUTOFF,
 } from "./constants";
 
 const ProgressBar = styled(Box)<{ percent: number }>(({ theme, percent }) => ({
@@ -39,13 +40,11 @@ const ProgressBar = styled(Box)<{ percent: number }>(({ theme, percent }) => ({
     height: "100%",
     width: `${percent}%`,
     backgroundColor:
-      percent >= COMPLETE_CUTOFF
-        ? theme.palette.success.main
-        : percent >= ALMOST_DONE_CUTOFF && percent < COMPLETE_CUTOFF
-          ? theme.palette.info.main
-          : percent >= HIDDEN_CUTOFF
-            ? theme.palette.warning.main
-            : theme.palette.error.main,
+      percent >= ALMOST_DONE_CUTOFF
+        ? theme.palette.success.main // 80-100%: Green
+        : percent >= SELECTOR_CUTOFF
+          ? "#FFC107" // 50-80%: Yellow (Material Design amber/yellow)
+          : theme.palette.error.main, // <50%: Red
     transition: "width 0.3s ease-in-out",
   },
 }));
@@ -54,7 +53,8 @@ const LargeLanguageCard = styled(Card)<{ percent: number }>(
   ({ theme, percent }) => ({
     width: "100%",
     transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
-    opacity: percent < HIDDEN_CUTOFF ? 0.5 : 1,
+    opacity:
+      percent < HIDDEN_CUTOFF ? 0.35 : percent < SELECTOR_CUTOFF ? 0.55 : 1,
     marginBottom: theme.spacing(2),
 
     "&:hover": {
@@ -68,7 +68,8 @@ const SmallLanguageCard = styled(Card)<{ percent: number }>(
   ({ theme, percent }) => ({
     width: "100%",
     transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
-    opacity: percent < HIDDEN_CUTOFF ? 0.5 : 1,
+    opacity:
+      percent < HIDDEN_CUTOFF ? 0.35 : percent < SELECTOR_CUTOFF ? 0.55 : 1,
     marginBottom: theme.spacing(2),
   }),
 );
@@ -77,7 +78,12 @@ const FlagImage = styled("img")<{ percent: number }>(({ percent }) => ({
   width: 32,
   height: 24,
   borderRadius: 4,
-  filter: percent < ALMOST_DONE_CUTOFF ? "grayscale(50%)" : "none",
+  filter:
+    percent < HIDDEN_CUTOFF
+      ? "grayscale(100%)"
+      : percent < SELECTOR_CUTOFF
+        ? "grayscale(50%)"
+        : "none",
   transition: "filter 0.2s ease-in-out",
 }));
 
@@ -86,7 +92,12 @@ const CatalanFlag = styled(CatalanFlagIcon)<{ percent: number }>(
     width: 32,
     height: 24,
     borderRadius: 4,
-    filter: percent < ALMOST_DONE_CUTOFF ? "grayscale(50%)" : "none",
+    filter:
+      percent < HIDDEN_CUTOFF
+        ? "grayscale(100%)"
+        : percent < SELECTOR_CUTOFF
+          ? "grayscale(50%)"
+          : "none",
     transition: "filter 0.2s ease-in-out",
   }),
 );
@@ -94,10 +105,10 @@ const CatalanFlag = styled(CatalanFlagIcon)<{ percent: number }>(
 const getStatusColor = (
   percent: number,
 ): "success" | "info" | "warning" | "error" => {
-  if (percent >= COMPLETE_CUTOFF) return "success";
-  if (percent >= ALMOST_DONE_CUTOFF && percent < COMPLETE_CUTOFF) return "info";
-  if (percent >= HIDDEN_CUTOFF) return "warning";
-  return "error";
+  if (percent >= ALMOST_DONE_CUTOFF) return "success"; // 80-100%: Green
+  if (percent >= SELECTOR_CUTOFF && percent < ALMOST_DONE_CUTOFF)
+    return "warning"; // 50-80%: Orange/Yellow
+  return "error"; // <50%: Red
 };
 
 const getStatusText = (percent: number, t: (key: string) => string) => {
@@ -105,9 +116,11 @@ const getStatusText = (percent: number, t: (key: string) => string) => {
     return t("global:language_preference.translation_progress.complete");
   if (percent >= ALMOST_DONE_CUTOFF && percent < COMPLETE_CUTOFF)
     return t("global:language_preference.translation_progress.almost_there");
-  if (percent >= HIDDEN_CUTOFF)
-    return t("global:language_preference.translation_progress.in_progress");
-  return t("global:language_preference.translation_progress.early_stage");
+  if (percent >= SELECTOR_CUTOFF && percent < ALMOST_DONE_CUTOFF)
+    return t("global:language_preference.translation_progress.almost_there");
+  if (percent >= HIDDEN_CUTOFF && percent < SELECTOR_CUTOFF)
+    return t("global:language_preference.translation_progress.early_stage");
+  return t("global:language_preference.translation_progress.just_started");
 };
 
 const StyledCardContent = styled(CardContent)(({ theme }) => ({
@@ -168,9 +181,13 @@ export default function TranslationProgress() {
     );
   }
 
-  // Filter and sort languages
+  // Filter and sort languages - show all with any progress
   const availableLanguages = languages
-    .filter((language) => LANGUAGE_MAP[language.code.replace("_", "-")])
+    .filter(
+      (language) =>
+        LANGUAGE_MAP[language.code.replace("_", "-")] &&
+        language.translated_percent > 0,
+    )
     .sort((a, b) => b.translated_percent - a.translated_percent); // Sort by completion percentage
 
   return (
@@ -244,6 +261,13 @@ export default function TranslationProgress() {
                       size="small"
                       color={getStatusColor(percent)}
                       variant="outlined"
+                      sx={{
+                        ...(percent >= SELECTOR_CUTOFF &&
+                          percent < ALMOST_DONE_CUTOFF && {
+                            borderColor: "#FFC107",
+                            color: "#F57C00",
+                          }),
+                      }}
                     />
                   </Box>
                   <Box
@@ -309,6 +333,13 @@ export default function TranslationProgress() {
                         size="small"
                         color={getStatusColor(percent)}
                         variant="outlined"
+                        sx={{
+                          ...(percent >= SELECTOR_CUTOFF &&
+                            percent < ALMOST_DONE_CUTOFF && {
+                              borderColor: "#FFC107",
+                              color: "#F57C00",
+                            }),
+                        }}
                       />
                     </Box>
 

@@ -27,7 +27,7 @@ import { translateRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 
-import { ALMOST_DONE_CUTOFF, HIDDEN_CUTOFF } from "./constants";
+import { ALMOST_DONE_CUTOFF, SELECTOR_CUTOFF } from "./constants";
 
 interface StyledMuiSelectProps {
   displayMode?: "round" | "rect";
@@ -113,13 +113,13 @@ export default function LanguagePickerSelect({
       />
     );
   };
-  // Languages with < 20% translated are hidden
+  // Languages with < 50% translated are hidden from language selector
   // Languages with < 80% translated are greyed out
   const availableLanguages = languages
     ?.filter(
       (language) =>
         LANGUAGE_MAP[language.code.replace("_", "-")] &&
-        language.translated_percent > HIDDEN_CUTOFF,
+        language.translated_percent >= SELECTOR_CUTOFF,
     )
     // sort by translated percent with the >= 80 grouped at the top, then sorted alphabetically by code
     .sort((a, b) => {
