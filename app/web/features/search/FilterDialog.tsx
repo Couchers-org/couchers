@@ -352,7 +352,7 @@ const FilterDialog = ({
             value={filters.lastActive ?? lastActiveOptions.LAST_ACTIVE_ANY}
           >
             <MenuItem value={lastActiveOptions.LAST_ACTIVE_ANY}>
-              {t("search:last_active_options.any")}
+              {t("search:any")}
             </MenuItem>
             <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_YEAR}>
               {t("search:last_active_options.last_year")}
