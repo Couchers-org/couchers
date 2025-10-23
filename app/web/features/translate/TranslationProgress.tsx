@@ -44,7 +44,9 @@ const ProgressBar = styled(Box)<{ percent: number }>(({ theme, percent }) => ({
         ? theme.palette.success.main // 80-100%: Green
         : percent >= SELECTOR_CUTOFF
           ? "#FFC107" // 50-80%: Yellow (Material Design amber/yellow)
-          : theme.palette.error.main, // <50%: Red
+          : percent >= HIDDEN_CUTOFF
+            ? theme.palette.error.main // 20-50%: Red
+            : theme.palette.grey[500], // <20%: Grey
     transition: "width 0.3s ease-in-out",
   },
 }));
@@ -104,11 +106,12 @@ const CatalanFlag = styled(CatalanFlagIcon)<{ percent: number }>(
 
 const getStatusColor = (
   percent: number,
-): "success" | "info" | "warning" | "error" => {
+): "success" | "info" | "warning" | "error" | "default" => {
   if (percent >= ALMOST_DONE_CUTOFF) return "success"; // 80-100%: Green
   if (percent >= SELECTOR_CUTOFF && percent < ALMOST_DONE_CUTOFF)
     return "warning"; // 50-80%: Orange/Yellow
-  return "error"; // <50%: Red
+  if (percent >= HIDDEN_CUTOFF) return "error"; // 20-50%: Red
+  return "default"; // <20%: Grey
 };
 
 const getStatusText = (percent: number, t: (key: string) => string) => {
@@ -278,7 +281,13 @@ export default function TranslationProgress() {
                       width: "100%",
                     }}
                   >
-                    <Typography variant="h5" fontWeight="bold" color="primary">
+                    <Typography
+                      variant="h5"
+                      fontWeight="bold"
+                      color={
+                        percent < HIDDEN_CUTOFF ? "text.secondary" : "primary"
+                      }
+                    >
                       {percent.toFixed(1)}%
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
@@ -324,7 +333,9 @@ export default function TranslationProgress() {
                       <Typography
                         variant="h5"
                         fontWeight="bold"
-                        color="primary"
+                        color={
+                          percent < HIDDEN_CUTOFF ? "text.secondary" : "primary"
+                        }
                       >
                         {percent.toFixed(1)}%
                       </Typography>
