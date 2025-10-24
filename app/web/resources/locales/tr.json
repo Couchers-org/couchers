@@ -27,5 +27,6 @@
     "disabled": "Devre dışı",
     "edit": "Düzenle",
     "save": "Kaydet",
-    "copied": "Panoya kopyalandı"
+    "copied": "Panoya kopyalandı",
+    "verification_score_description": "Diğer kullanıcıların kefaletine göre hesaplandı"
 }
