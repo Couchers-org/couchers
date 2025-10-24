@@ -1,4 +1,5 @@
 {
+  "any": "Alles",
   "error_loading_users": "Error bij het laden van gebruikers",
   "choose_search_criteria": "Voer een locatie in of gebruik een filter om te zoeken.",
   "last_active_options": {
@@ -6,7 +7,6 @@
     "last_3_months": "Laatste 3 maanden",
     "last_week": "Vorige week",
     "last_6_months": "Laatste 6 maanden",
-    "any": "Alles",
     "last_year": "Vorig jaar"
   },
   "filter_dialog": {
