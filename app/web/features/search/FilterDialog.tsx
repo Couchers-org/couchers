@@ -255,9 +255,12 @@ const FilterDialog = ({
       </IconButton>
       <FilterItemsContainer>
         <FilterItemRow>
-          <Typography>
-            {t("search:form.empty_profile_filters.title")}
-          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Typography>
+              {t("search:form.empty_profile_filters.title")}
+            </Typography>
+            <BetaFlag />
+          </Box>
           <CustomColorSwitch
             checked={filters.showEmptyProfile || false}
             onClick={handleShowEmptyProfileChange}
