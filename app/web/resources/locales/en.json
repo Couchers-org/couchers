@@ -70,7 +70,7 @@
       "early_stage": "Early Stage",
       "just_started": "Just Started",
       "complete_percent": "{{percent}}% complete",
-      "info_text": "💡 Languages with less than 50% completion are hidden from the language picker. Languages with 50-80% completion appear greyed out. Languages below 20% are shown here to encourage contributors.",
+      "info_text": "💡 Languages with 50-80% completion appear greyed out in the language picker. Languages with less than 50% completion are hidden from the language picker. To encourage contributors, languages below 20% are shown on this site.",
       "view_progress": "View translation progress"
     }
   },
