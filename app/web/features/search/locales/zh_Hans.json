@@ -1,10 +1,10 @@
 {
+  "any": "任何",
   "filter_dialog": {
     "desktop_title": "筛选",
     "mobile_title": "搜索"
   },
   "last_active_options": {
-    "any": "任何",
     "last_week": "上周",
     "last_month": "上个月",
     "last_3_months": "过去三个月"
