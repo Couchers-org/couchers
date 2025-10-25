@@ -1,11 +1,12 @@
 import { TabContext, TabPanel } from "@mui/lab";
-import { Box, Button, Card, Link, styled } from "@mui/material";
+import { Box, Button, Card, styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import IconButton from "components/IconButton";
 import { BackIcon, CouchIcon, PersonIcon } from "components/Icons";
 import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
 import { useTranslation } from "i18n";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import {

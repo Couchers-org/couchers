@@ -1,37 +1,13 @@
 import { styled } from "@mui/material";
 import Slider from "@mui/material/Slider";
-import {
-  AMAZING,
-  NEGATIVE,
-  NEUTRAL,
-  POSITIVE,
-  RATINGS_SLIDER,
-} from "components/RatingsSlider/constants";
 import { getSliderColor } from "components/RatingsSlider/getSliderColor";
 import SliderLabel from "components/RatingsSlider/SliderLabel";
+import { useTranslation } from "i18n";
+import { PROFILE } from "i18n/namespaces";
 
 interface ColorProps {
   sliderColor: string;
 }
-
-const marks = [
-  {
-    value: 0,
-    label: `${NEGATIVE}`,
-  },
-  {
-    value: 0.33,
-    label: `${NEUTRAL}`,
-  },
-  {
-    value: 0.67,
-    label: `${POSITIVE}`,
-  },
-  {
-    value: 1,
-    label: `${AMAZING}`,
-  },
-];
 
 interface SliderProps {
   value: number | undefined;
@@ -94,9 +70,30 @@ const StyledSlider = styled(Slider, {
 }));
 
 export default function RatingsSlider({ value, onChange }: SliderProps) {
+  const { t } = useTranslation(PROFILE);
+
+  const marks = [
+    {
+      value: 0,
+      label: t("profile:leave_reference.rating_negative"),
+    },
+    {
+      value: 0.33,
+      label: t("profile:leave_reference.rating_neutral"),
+    },
+    {
+      value: 0.67,
+      label: t("profile:leave_reference.rating_positive"),
+    },
+    {
+      value: 1,
+      label: t("profile:leave_reference.rating_amazing"),
+    },
+  ];
+
   return (
     <StyledSlider
-      aria-label={RATINGS_SLIDER}
+      aria-label={t("profile:leave_reference.ratings_slider_label")}
       sliderColor={getSliderColor(value)}
       value={value ?? marks[1].value}
       min={0}

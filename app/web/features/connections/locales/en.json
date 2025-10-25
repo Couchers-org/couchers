@@ -1,5 +1,7 @@
 {
   "add_friend": "Add friend",
+  "accept": "Accept",
+  "decline": "Decline",
   "blocked_list_title": "Blocked users",
   "block_user": "Block user",
   "block_user_confirmation_dialog": {

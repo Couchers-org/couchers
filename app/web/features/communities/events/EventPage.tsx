@@ -26,7 +26,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { AttendanceState, Event } from "proto/events_pb";
 import { useEffect, useState } from "react";
-import { routeToEditEvent, routeToEvent } from "routes";
+import { eventsRoute, routeToEditEvent, routeToEvent } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
@@ -210,6 +210,14 @@ export default function EventPage({
     ? dayjs().isAfter(timestamp2Date(event.endTime))
     : false;
 
+  const handleBackClick = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push(eventsRoute);
+    }
+  };
+
   useEffect(() => {
     if (event?.slug && event.slug !== eventSlug) {
       router.replace(routeToEvent(event.eventId, event.slug));
@@ -245,7 +253,7 @@ export default function EventPage({
             />
             <StyledHeader>
               <StyledBackButton
-                onClick={() => router.back()}
+                onClick={handleBackClick}
                 aria-label={t("communities:previous_page")}
               >
                 <BackIcon />
