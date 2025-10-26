@@ -51,7 +51,7 @@ const CenteredDiv = styled(ContentDiv)(({ theme }) => ({
   justifyContent: "center",
 }));
 
-export interface BadgesPageProps {
+interface BadgesPageProps {
   badgeId?: string;
 }
 

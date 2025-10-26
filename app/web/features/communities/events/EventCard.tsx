@@ -85,7 +85,7 @@ const ActivityStatsWrapper = styled("div")({
 });
 
 export const EVENT_CARD_TEST_ID = "event-card";
-export interface EventCardProps {
+interface EventCardProps {
   event: Event.AsObject;
   className?: string;
   // Optional formatter to override attendees count text (used by dashboard to avoid loading COMMUNITIES)

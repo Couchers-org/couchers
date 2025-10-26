@@ -38,7 +38,7 @@ const StyledTitle = styled("span")(() => ({
   marginInlineEnd: theme.spacing(1),
 }));
 
-export interface GroupChatListItemProps extends ListItemProps {
+interface GroupChatListItemProps extends ListItemProps {
   groupChat: GroupChat.AsObject;
 }
 

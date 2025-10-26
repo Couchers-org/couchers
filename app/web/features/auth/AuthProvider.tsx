@@ -10,7 +10,7 @@ import useStablePush from "utils/useStablePush";
 import { JAILED_ERROR_MESSAGE } from "./constants";
 import useAuthStore, { AuthStoreType } from "./useAuthStore";
 
-export const AuthContext = React.createContext<null | AuthStoreType>(null);
+const AuthContext = React.createContext<null | AuthStoreType>(null);
 
 function useAppContext<T>(context: Context<T | null>) {
   const contextValue = useContext(context);

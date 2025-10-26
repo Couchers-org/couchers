@@ -13,7 +13,7 @@ import Link from "next/link";
 import React from "react";
 import { howToCompleteProfileUrl, routeToEditProfile } from "routes";
 
-export interface ProfileIncompleteDialogProps {
+interface ProfileIncompleteDialogProps {
   open: boolean;
   onClose: () => void;
   attempted_action: "create_event" | "send_message" | "send_request";

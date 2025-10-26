@@ -38,8 +38,6 @@ export const whatIsCouchSurfingRoute = "/what-is-couch-surfing";
 
 export const loginRoute = "/login";
 export const resetPasswordRoute = "/password-reset";
-export const featurePreviewRoute = "/preview";
-export const confirmChangeEmailRoute = "/confirm-email";
 
 export const signupRoute = "/signup";
 export const inviteRoute = "/invite";
@@ -86,9 +84,7 @@ export type MessageType = (typeof messageTypeStrings)[number];
 export const groupChatsRoute = `${messagesRoute}/chats`;
 export const routeToCreateMessage = (username: string) =>
   `${groupChatsRoute}?to=${username}`;
-export const surfingRequestsRoute = `${messagesRoute}/surfing`;
-export const hostingRequestsRoute = `${messagesRoute}/hosting`;
-export const hostRequestRoute = `${messagesRoute}/request`;
+const hostRequestRoute = `${messagesRoute}/request`;
 export const routeToGroupChat = (id: number) => `${groupChatsRoute}/${id}`;
 export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
 
@@ -104,8 +100,7 @@ export const referenceTypeRouteStrings = [
   "surfed",
   "hosted",
 ] as const;
-export type ReferenceTypeRouteStrings =
-  (typeof referenceTypeRouteStrings)[number];
+type ReferenceTypeRouteStrings = (typeof referenceTypeRouteStrings)[number];
 export const referenceTypeRoute: Record<
   ReferenceType,
   ReferenceTypeRouteStrings
@@ -127,7 +122,6 @@ export const eventsRoute = "/events";
 export const communitiesRoute = "/communities";
 export const logoutRoute = "/logout";
 export const connectionsRoute = "/connections";
-export const friendsRoute = `${connectionsRoute}/friends`;
 
 export const searchRoute = "/search";
 export const routeToSearch = (filters: SearchFilters) =>
@@ -139,12 +133,10 @@ export const tosRoute = "/terms";
 const placeBaseRoute = "/place";
 export const routeToPlace = (id: number, slug: string) =>
   `${placeBaseRoute}/${id}/${slug}`;
-export const newPlaceRoute = `${placeBaseRoute}/new`;
 
 const guideBaseRoute = "/guide";
 export const routeToGuide = (id: number, slug: string) =>
   `${guideBaseRoute}/${id}/${slug}`;
-export const newGuideRoute = `${guideBaseRoute}/new`;
 
 const groupBaseRoute = "/group";
 export const routeToGroup = (id: number, slug: string) =>
@@ -184,10 +176,9 @@ export const routeToEditCommunityPage = (id: number, slug: string) =>
 export const composingDiscussionHash = "new";
 export const volunteerRoute = "/volunteer";
 
-export const badgesRoute = "/badges";
+const badgesRoute = "/badges";
 export const routeToBadge = (id: string) => `${badgesRoute}/${id}`;
 
-export const strongVerificationURL = `${process.env.NEXT_PUBLIC_CONSOLE_BASE_URL}/strong-verification`;
 export function adminPanelUserLink(username: string) {
   return `${process.env.NEXT_PUBLIC_CONSOLE_BASE_URL}/admin/user/${username}`;
 }

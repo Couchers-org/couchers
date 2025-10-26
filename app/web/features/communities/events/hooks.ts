@@ -20,7 +20,7 @@ import { service } from "service";
 import type { ListAllEventsInput, ListMyEventsInput } from "service/events";
 import { GeocodeResult } from "utils/hooks";
 
-export interface UseEventUsersInput {
+interface UseEventUsersInput {
   eventId: number;
   type: QueryType;
   enabled?: boolean;

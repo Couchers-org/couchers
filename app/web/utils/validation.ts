@@ -13,11 +13,6 @@ export function validatePastDate(stringDate: string) {
   return !isNaN(date.getTime()) && date < new Date();
 }
 
-export function validateFutureDate(stringDate: string) {
-  const date = new Date(stringDate);
-  return !isNaN(date.getTime()) && date >= new Date();
-}
-
 export function lowercaseAndTrimField(name: string) {
   return name.trim().toLowerCase();
 }

@@ -19,7 +19,7 @@ import { theme } from "theme";
 
 import useUpdateNotificationSettings from "./useUpdateNotificationSettings";
 
-export interface NotificationSettingsSubListItemProps {
+interface NotificationSettingsSubListItemProps {
   topic: string;
   action: string;
   email: boolean;

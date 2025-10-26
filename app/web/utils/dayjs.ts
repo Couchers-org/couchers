@@ -15,7 +15,5 @@ dayjs.extend(LocalizedFormat);
 
 const TIME_FORMAT = "HH:mm";
 
-export type Duration = DurationPlugin.Duration;
-
 export { Dayjs, TIME_FORMAT };
 export default dayjs;

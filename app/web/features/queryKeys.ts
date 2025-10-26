@@ -114,7 +114,7 @@ export const communityEventsKey = (communityId: number, type: QueryType) => [
 export const eventKey = (eventId: number) => ["event", eventId];
 export type EventsType = "upcoming" | "past";
 export const eventsKey = (type: EventsType) => ["events", { type }];
-export interface EventUsersInput {
+interface EventUsersInput {
   eventId: number;
   type: QueryType;
 }
@@ -166,7 +166,7 @@ export const activeLoginsKey = "activeLogins";
 export const inviteCodesKey = "inviteCodes";
 
 // Badges
-export interface BadgeUsersInput {
+interface BadgeUsersInput {
   badgeId: string;
 }
 export const badgeUsersKey = ({ badgeId }: BadgeUsersInput) => [

@@ -30,7 +30,7 @@ const ControlMessageWrapper = styled(ControlMessageView)(() => ({
   },
 }));
 
-export interface MessageListProps {
+interface MessageListProps {
   messages: Array<Message.AsObject>;
   markLastSeen(messageId: number): void;
   className?: string;

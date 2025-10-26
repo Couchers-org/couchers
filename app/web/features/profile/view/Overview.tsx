@@ -134,7 +134,7 @@ function DefaultActions({
   );
 }
 
-export interface OverviewProps {
+interface OverviewProps {
   setIsRequesting: (value: boolean) => void;
   tab: UserTab;
 }

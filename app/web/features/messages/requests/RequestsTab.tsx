@@ -10,7 +10,6 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
-import { GroupChat } from "proto/conversations_pb";
 import { ListHostRequestsRes } from "proto/requests_pb";
 import * as React from "react";
 import { routeToHostRequest } from "routes";
@@ -29,10 +28,6 @@ const StyledListItem = styled(HostRequestListItem)(() => ({
   marginInline: `-${theme.spacing(2)}`,
   paddingInline: `${theme.spacing(2)}`,
 }));
-
-export interface GroupChatListProps {
-  groupChats: Array<GroupChat.AsObject>;
-}
 
 export default function RequestsTab({
   type,

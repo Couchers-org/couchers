@@ -12,7 +12,7 @@ import { theme } from "theme";
 
 const mkd = new markdown();
 
-export interface MarkdownPageFrontmatter {
+interface MarkdownPageFrontmatter {
   title: string;
   hide_title?: boolean;
   subtitle?: string;

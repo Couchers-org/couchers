@@ -5,7 +5,7 @@ import { useBadgeUsers } from "features/badges/hooks";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 
-export interface BadgeUserListProps {
+interface BadgeUserListProps {
   badgeId: string;
 }
 

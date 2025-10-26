@@ -2,7 +2,6 @@ import { TFunction } from "i18next";
 
 export const minuteMillis = 60000;
 export const twoMinuteMillis = 120000;
-export const quarterHourMillis = 900000;
 export const hourMillis = 3600000;
 export const twoHourMillis = 7200000;
 export const dayMillis = 86400000;
@@ -16,7 +15,7 @@ export const twoYearMillis = 31557600000 * 2;
 
 export const lessThanHour = "Less than an hour ago";
 
-export interface FuzzySpec {
+interface FuzzySpec {
   millis: number;
   text: string;
 }
@@ -59,7 +58,7 @@ export function timeAgo(input: Date | string, fuzzy?: FuzzySpec) {
   return "" + (diffMillis / yearMillis).toFixed() + " years ago";
 }
 
-export interface FuzzySpecT {
+interface FuzzySpecT {
   millis: number;
   translationKey: Parameters<TFunction<"global", undefined>>[0];
 }

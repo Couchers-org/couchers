@@ -65,10 +65,4 @@ function MapSearchProvider({
   );
 }
 
-export {
-  MapSearchContext,
-  MapSearchDispatchContext,
-  MapSearchProvider,
-  useMapSearchDispatch,
-  useMapSearchState,
-};
+export { MapSearchProvider, useMapSearchDispatch, useMapSearchState };

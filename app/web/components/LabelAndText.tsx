@@ -15,7 +15,7 @@ const StyledFlexItem = styled("div")(({ theme }) => ({
   alignItems: "center",
 }));
 
-export interface LabelAndTextProps {
+interface LabelAndTextProps {
   label: string;
   text: string | React.ReactNode;
 }

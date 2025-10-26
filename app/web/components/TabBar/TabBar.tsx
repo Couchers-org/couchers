@@ -18,7 +18,7 @@ const StyledTab = styled(Tab)(({ theme }) => ({
   },
 }));
 
-export interface TabBarProps<T extends Record<string, React.ReactNode>> {
+interface TabBarProps<T extends Record<string, React.ReactNode>> {
   ariaLabel: string;
   labels: T;
   setValue: (value: keyof T) => void;

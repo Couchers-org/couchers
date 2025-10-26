@@ -209,7 +209,7 @@ const StyledSubmitButton = styled(Button)(() => ({
   alignSelf: "stretch",
 }));
 
-export interface DonationFormData {
+interface DonationFormData {
   amount: number;
   recurring: "monthly" | "one-off";
 }
