@@ -239,6 +239,20 @@ export default function PrivateFeedback({
                     }}
                     multiline
                     minRows={3}
+                    slotProps={{
+                      inputLabel: {
+                        sx: {
+                          whiteSpace: "normal",
+                          lineHeight: 1.2,
+                          "&.MuiInputLabel-shrink": {
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            maxWidth: "calc(133% - 32px)",
+                          },
+                        },
+                      },
+                    }}
                     sx={{
                       "& > .MuiInputBase-root": {
                         width: "100%",

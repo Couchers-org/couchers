@@ -1,10 +1,11 @@
-import { Card, CardActions, Link, styled, Typography } from "@mui/material";
+import { Card, CardActions, styled, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
 import Divider from "components/Divider";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import StrongVerificationBadge from "components/StrongVerificationBadge";
+import StyledLink from "components/StyledLink";
 import {
   hostingStatusLabels,
   meetupStatusLabels,
@@ -51,15 +52,6 @@ const StyledIntro = styled(Typography)(({ theme }) => ({
   marginBottom: theme.spacing(1),
 }));
 
-const StyledLink = styled(Link)(({ theme }) => ({
-  display: "flex",
-  justifyContent: "center",
-  wordBreak: "break-word",
-  overflowWrap: "break-word",
-  textAlign: "center",
-  marginBottom: theme.spacing(1),
-}));
-
 const StyledCardActions = styled(CardActions)(({ theme }) => ({
   flexDirection: "column",
   justifyContent: "center",
@@ -91,7 +83,6 @@ export default function UserOverview({
 }: UserOverviewProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
-
   return (
     <StyledCard>
       <StyledAvatarContainer>
@@ -105,10 +96,17 @@ export default function UserOverview({
             {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
           </span>
         </StyledIntro>
-        <StyledLink href={routeToUser(user.username)} variant="body1">
+        <StyledLink
+          href={routeToUser(user.username)}
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: 1,
+          }}
+        >
           @{user.username}
         </StyledLink>
-        <StyledIntro variant="body1">{user.city}</StyledIntro>
+        <StyledIntro>{user.city}</StyledIntro>
         <Badges user={user} />
       </StyledWrapper>
 

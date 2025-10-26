@@ -468,7 +468,7 @@ export default function Navigation() {
         </StyledMenuContainer>
       </StyledToolbar>
       <GlobalMessage />
-      <PushNotificationBanner />
+      {authState.authenticated && <PushNotificationBanner />}
     </StyledAppBar>
   );
 }
