@@ -4,15 +4,12 @@ export { default as AccountSecurityIcon } from "@mui/icons-material/VerifiedUser
 export { default as AccountSettingsIcon } from "@mui/icons-material/SettingsApplications";
 export { default as CommentIcon } from "@mui/icons-material/Comment";
 export { default as BlueSkyIcon } from "./BlueSkyIcon";
-export { default as CommunityIcon } from "./CommunityIcon";
 export { default as EventIcon } from "./EventIcon";
 export { default as NotificationNewIcon } from "./NotificationNewIcon";
 
 export { default as AddIcon } from "@mui/icons-material/AddOutlined";
-export { default as AttendeesIcon } from "@mui/icons-material/AccountCircleOutlined";
 export { default as BackIcon } from "@mui/icons-material/ArrowBackOutlined";
 export { default as BugIcon } from "@mui/icons-material/BugReportOutlined";
-export { default as CakeIcon } from "@mui/icons-material/CakeOutlined";
 export { default as CalendarIcon } from "@mui/icons-material/EventOutlined";
 export { default as CatalanFlagIcon } from "./CatalanFlagIcon";
 export { default as ChatBubbleIcon } from "@mui/icons-material/ChatBubble";
@@ -28,7 +25,6 @@ export { default as CouchFilledIcon } from "@mui/icons-material/Weekend";
 export { default as CouchIcon } from "@mui/icons-material/HotelOutlined";
 export { default as DissatisfiedIcon } from "@mui/icons-material/SentimentDissatisfiedOutlined";
 export { default as DoneAllIcon } from "@mui/icons-material/DoneAllOutlined";
-export { default as DoneIcon } from "@mui/icons-material/DoneOutlined";
 export { default as EditIcon } from "@mui/icons-material/EditOutlined";
 export { default as EmailIcon } from "@mui/icons-material/EmailOutlined";
 export { default as ErrorIcon } from "@mui/icons-material/Error";
