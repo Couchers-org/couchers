@@ -5,6 +5,7 @@ import Divider from "components/Divider";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import StrongVerificationBadge from "components/StrongVerificationBadge";
+import StyledLink from "components/StyledLink";
 import {
   hostingStatusLabels,
   meetupStatusLabels,
@@ -15,7 +16,6 @@ import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import React from "react";
 import { routeToUser } from "routes";
 
-import StyledLink from "../../../components/StyledLink";
 import { useProfileUser } from "../hooks/useProfileUser";
 import { Badges } from "./Badges";
 import { ReferencesLastActiveLabels, ResponseRateLabel } from "./userLabels";
@@ -51,16 +51,6 @@ const StyledIntro = styled(Typography)(({ theme }) => ({
   textAlign: "center",
   marginBottom: theme.spacing(1),
 }));
-
-// const StyledLink = styled(Link)(({ theme }) => ({
-//   display: "flex",
-//   justifyContent: "center",
-//   wordBreak: "break-word",
-//   overflowWrap: "break-word",
-//   textAlign: "center",
-//   marginBottom: theme.spacing(1),
-//   color: theme.palette.text.primary,
-// }));
 
 const StyledCardActions = styled(CardActions)(({ theme }) => ({
   flexDirection: "column",

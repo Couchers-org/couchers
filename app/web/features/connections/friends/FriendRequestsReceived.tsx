@@ -1,10 +1,10 @@
 import { Stack } from "@mui/material";
+import Button from "components/Button";
 import { CONNECTIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { FriendRequest } from "proto/api_pb";
 import { useIsMounted, useSafeState } from "utils/hooks";
 
-import Button from "../../../components/Button";
 import type { SetMutationError } from ".";
 import FriendSummaryView from "./FriendSummaryView";
 import FriendTile from "./FriendTile";
@@ -33,6 +33,7 @@ function RespondToFriendRequestAction({
   return (
     <Stack direction="row" spacing={1}>
       <Button
+        aria-label={t("connections:decline")}
         onClick={() => {
           reset();
           respondToFriendRequest({
@@ -47,6 +48,7 @@ function RespondToFriendRequestAction({
         {t("connections:decline")}
       </Button>
       <Button
+        aria-label={t("connections:accept")}
         onClick={() => {
           reset();
           respondToFriendRequest({
