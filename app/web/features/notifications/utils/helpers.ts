@@ -22,7 +22,7 @@ type PushNotificationPermissionResponse =
   | PushNotificationPermissionSuccessResponse
   | PushNotificationPermissionErrorResponse;
 
-export const onPushNotificationPermissionGranted =
+const onPushNotificationPermissionGranted =
   async (): Promise<PushNotificationPermissionResponse> => {
     try {
       // Check if service workers and push notifications are supported
@@ -93,7 +93,7 @@ export const onPushNotificationPermissionGranted =
     }
   };
 
-export const getCurrentSubscription = async () => {
+const getCurrentSubscription = async () => {
   let registration = await navigator.serviceWorker.getRegistration();
 
   if (!registration) {

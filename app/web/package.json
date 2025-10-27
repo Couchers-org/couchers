@@ -64,7 +64,8 @@
     "react-map-gl": "^8.1.0",
     "react-phone-number-input": "^3.4.12",
     "react-simple-maps": "^3.0.0",
-    "seamless-scroll-polyfill": "^2.1.8"
+    "seamless-scroll-polyfill": "^2.1.8",
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@babel/core": "^7.28.4",
@@ -85,6 +86,7 @@
     "@types/react-simple-maps": "^3.0.6",
     "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.44.0",
+    "babel-jest": "^30.2.0",
     "cross-env": "^10.1.0",
     "css-mediaquery": "^0.1.2",
     "eslint": "^8.56.0",
@@ -101,7 +103,6 @@
     "prettier": "3.4.2",
     "sentry-testkit": "^6.2.2",
     "typescript": "^5.9.3",
-    "webpack": "^5.101.3",
     "whatwg-fetch": "^3.6.20"
   },
   "resolutions": {

@@ -10,7 +10,7 @@ import {
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 
-export const MAKE_CO_ORGANIZER_DIALOG_LABEL_ID = "make-co-organizer";
+const MAKE_CO_ORGANIZER_DIALOG_LABEL_ID = "make-co-organizer";
 
 type MakeCoOrganizerDialogProps = {
   username: string;

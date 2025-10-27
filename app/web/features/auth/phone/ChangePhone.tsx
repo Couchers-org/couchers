@@ -30,7 +30,7 @@ const StyledForm = styled("form")(() => ({
   },
 }));
 
-export const validatePhoneCode = (code: string) =>
+const validatePhoneCode = (code: string) =>
   code.length == 6 && luhn.validate(code);
 
 interface ChangePhoneFormData {

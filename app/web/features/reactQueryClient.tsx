@@ -5,7 +5,7 @@ import { persistQueryClient } from "@tanstack/react-query-persist-client";
 import { reactQueryRetries } from "appConstants";
 import { useEffect } from "react";
 
-export const queryClient = new QueryClient({
+const queryClient = new QueryClient({
   //grpc-web has built in timeout, so better not use the default exponential backoff
   defaultOptions: {
     queries: {

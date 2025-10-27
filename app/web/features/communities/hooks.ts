@@ -12,12 +12,9 @@ import {
   communityAdminsKey,
   communityDiscussionsKey,
   communityEventsKey,
-  communityGroupsKey,
-  communityGuidesKey,
   communityKey,
   communityMembersKey,
   communityNearbyUsersKey,
-  communityPlacesKey,
   QueryType,
   subCommunitiesKey,
   threadKey,
@@ -31,11 +28,8 @@ import {
   ListCommunitiesRes,
   ListDiscussionsRes,
   ListEventsRes,
-  ListGroupsRes,
-  ListGuidesRes,
   ListMembersRes,
   ListNearbyUsersRes,
-  ListPlacesRes,
 } from "proto/communities_pb";
 import { Discussion } from "proto/discussions_pb";
 import { GetVolunteersRes } from "proto/public_pb";
@@ -95,48 +89,6 @@ export const useListSubCommunities = (communityId: number) =>
       ),
     initialPageParam: undefined,
     enabled: communityId !== undefined,
-    getNextPageParam: (lastPage) =>
-      lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-  });
-
-export const useListGroups = (communityId: number) =>
-  useInfiniteQuery<ListGroupsRes.AsObject, RpcError>({
-    queryKey: communityGroupsKey(communityId),
-    queryFn: ({ pageParam }) =>
-      service.communities.listGroups(
-        communityId,
-        pageParam as string | undefined,
-      ),
-    initialPageParam: undefined,
-    enabled: !!communityId,
-    getNextPageParam: (lastPage) =>
-      lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-  });
-
-export const useListPlaces = (communityId: number) =>
-  useInfiniteQuery<ListPlacesRes.AsObject, RpcError>({
-    queryKey: communityPlacesKey(communityId),
-    queryFn: ({ pageParam }) =>
-      service.communities.listPlaces(
-        communityId,
-        pageParam as string | undefined,
-      ),
-    initialPageParam: undefined,
-    enabled: !!communityId,
-    getNextPageParam: (lastPage) =>
-      lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-  });
-
-export const useListGuides = (communityId: number) =>
-  useInfiniteQuery<ListGuidesRes.AsObject, RpcError>({
-    queryKey: communityGuidesKey(communityId),
-    queryFn: ({ pageParam }) =>
-      service.communities.listGuides(
-        communityId,
-        pageParam as string | undefined,
-      ),
-    initialPageParam: undefined,
-    enabled: !!communityId,
     getNextPageParam: (lastPage) =>
       lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
   });

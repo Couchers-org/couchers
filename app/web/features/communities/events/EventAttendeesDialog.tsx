@@ -11,7 +11,7 @@ import { COMMUNITIES } from "i18n/namespaces";
 
 import { useEventAttendees } from "./hooks";
 
-export const ATTENDEES_DIALOG_LABEL_ID = "attendees";
+const ATTENDEES_DIALOG_LABEL_ID = "attendees";
 
 interface EventAttendeesDialogProps {
   eventId: number;

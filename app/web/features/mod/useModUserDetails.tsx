@@ -18,11 +18,3 @@ export function ModUserDetails({ children, userDetails }: ModUserDetailsProps) {
     </ModUserDetailsContext.Provider>
   );
 }
-
-export function useModUserDetails() {
-  const modUserDetails = React.useContext(ModUserDetailsContext);
-  if (modUserDetails === null) {
-    throw new Error("No ModUserDetailsContext provided!");
-  }
-  return modUserDetails;
-}

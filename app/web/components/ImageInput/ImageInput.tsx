@@ -92,7 +92,7 @@ const StyledInput = styled("input")(({ theme }) => ({
   display: "none",
 }));
 
-export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
+function ImageInput(props: AvatarInputProps | RectImgInputProps) {
   const { className, control, id, initialPreviewSrc, name } = props;
 
   const { t } = useTranslation([PROFILE]);

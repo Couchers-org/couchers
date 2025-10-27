@@ -13,7 +13,7 @@ interface PendingFriendReqButtonProps {
   setMutationError: SetMutationError;
 }
 
-export const RESPOND_TO_FRIEND_REQUEST_MENU_ID =
+const RESPOND_TO_FRIEND_REQUEST_MENU_ID =
   "respond-to-friend-request-actions-menu";
 
 function PendingFriendReqButton({

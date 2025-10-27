@@ -12,7 +12,6 @@ export const baseRoute = "/";
 export const githubURL = "https://github.com/Couchers-org/couchers";
 export const instagramURL = "https://www.instagram.com/couchersorg";
 export const redditURL = "https://www.reddit.com/r/couchers/";
-export const blueSkyURL = "https://bsky.app/profile/couchers.bsky.social";
 export const facebookURL = "https://www.facebook.com/Couchers.org";
 export const helpCenterURL = "https://help.couchers.org";
 export const githubUpdatesURL =

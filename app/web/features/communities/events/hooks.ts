@@ -3,21 +3,19 @@ import {
   eventAttendeesKey,
   eventKey,
   eventOrganizersKey,
-  eventsKey,
   myEventsKey,
   QueryType,
 } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import {
   Event,
-  ListAllEventsRes,
   ListEventAttendeesRes,
   ListEventOrganizersRes,
   ListMyEventsRes,
 } from "proto/events_pb";
 import { EventSearchRes } from "proto/search_pb";
 import { service } from "service";
-import type { ListAllEventsInput, ListMyEventsInput } from "service/events";
+import type { ListMyEventsInput } from "service/events";
 import { GeocodeResult } from "utils/hooks";
 
 interface UseEventUsersInput {
@@ -26,7 +24,7 @@ interface UseEventUsersInput {
   enabled?: boolean;
 }
 
-export const SUMMARY_QUERY_PAGE_SIZE = 5;
+const SUMMARY_QUERY_PAGE_SIZE = 5;
 
 export function useEventOrganizers({
   enabled = true,
@@ -92,25 +90,6 @@ export function useEvent({ eventId }: { eventId: number }) {
     eventId,
     isValidEventId,
   };
-}
-
-export function useListAllEvents({
-  pastEvents,
-  pageSize,
-  showCancelled,
-}: Omit<ListAllEventsInput, "pageToken">) {
-  return useInfiniteQuery<ListAllEventsRes.AsObject, RpcError>({
-    queryKey: [eventsKey(pastEvents ? "past" : "upcoming"), showCancelled],
-    queryFn: ({ pageParam }) =>
-      service.events.listAllEvents({
-        pastEvents,
-        pageSize,
-        pageToken: pageParam as string | undefined,
-        showCancelled,
-      }),
-    getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
-    initialPageParam: undefined,
-  });
 }
 
 export function useListMyEvents({

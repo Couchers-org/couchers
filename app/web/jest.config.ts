@@ -16,11 +16,7 @@ const customJestConfig: Config = {
     "!**/*.coverage/**",
   ],
   moduleNameMapper: {
-    // Handle CSS imports (with CSS modules)
-    // https://jestjs.io/docs/webpack#mocking-css-modules
-    "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy",
-
-    // Handle CSS imports (without CSS modules)
+    // Handle CSS imports
     "^.+\\.(css|sass|scss)$": "<rootDir>/__mocks__/styleMock.js",
 
     // Handle image imports
@@ -29,11 +25,6 @@ const customJestConfig: Config = {
 
     // Handle module aliases
     "^@/components/(.*)$": "<rootDir>/components/$1",
-
-    // Handle next/font
-    "next/font/(.*)": `<rootDir>/__mocks__/nextFontMock.js`,
-    // Disable server-only
-    "server-only": `<rootDir>/__mocks__/empty.js`,
   },
   //<rootDir> instead of . - https://github.com/tannerlinsley/react-query/issues/2339
   // @TODO(NA) ^^ Fixed in react-query v4, but we are still on v3. Remove this when we upgrade.
@@ -47,10 +38,7 @@ const customJestConfig: Config = {
     // https://jestjs.io/docs/configuration#transform-objectstring-pathtotransformer--pathtotransformer-object
     "^.+\\.(js|jsx|ts|tsx)$": ["babel-jest", { presets: ["next/babel"] }],
   },
-  transformIgnorePatterns: [
-    "/node_modules/",
-    "^.+\\.module\\.(css|sass|scss)$",
-  ],
+  transformIgnorePatterns: ["/node_modules/"],
   resetMocks: true,
 };
 
