@@ -12,7 +12,7 @@ export default function useFriendRequests(
     isLoading: isFriendReqLoading,
     error,
   } = useQuery<FriendRequest.AsObject[], Error>({
-    queryKey: [friendRequestKey(friendRequestType)],
+    queryKey: friendRequestKey(friendRequestType),
     queryFn: async () => {
       const friendRequests = await service.api.listFriendRequests();
       return friendRequestType === "sent"
@@ -20,13 +20,6 @@ export default function useFriendRequests(
         : friendRequests.receivedList;
     },
   });
-
-  console.log(
-    "DATA",
-    friendRequestLists,
-    "isFriendReqLoading",
-    isFriendReqLoading,
-  );
 
   const userIds = (friendRequestLists ?? []).map(
     (friendReq) => friendReq.userId,

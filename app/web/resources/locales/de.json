@@ -78,15 +78,29 @@
       "de": "Deutsch",
       "zh-Hant": "Chinesisch (Traditionell)"
     },
-    "tap_press_to_flip": " tippen / drücken zum Umdrehen",
-    "community_coordinator": "Community-Koordinator",
-    "ui_ux_designer": "UI/UX-Designer",
-    "volunteer_settings": {
-      "show_on_team_page": {
-        "title": "Mein Freiwilligenprofil auf der Teamseite anzeigen",
-        "enabled_message": "Dein Profil ist derzeit auf der Teamseite sichtbar",
-        "disabled_message": "Dein Profil ist derzeit auf der Teamseite ausgeblendet"
-      }
+    "language_preference": {
+        "current_preferred_language": "Deine Sprachauswahl ist derzeit ",
+        "form_title": "Sprache",
+        "help_translate": "Hilf dabei Couchers in deine Sprache zu übersetzen.",
+        "select_language": "Sprache auswählen",
+        "success_message": "Deine Änderung wurde gespeichert.",
+        "translation_progress": {
+            "description": "Siehe, wie vollständig unsere Übersetzungen in verschiedenen Sprachen sind. Hilf uns, Couchers für mehr Menschen weltweit zugänglich zu machen!",
+            "info_text": "💡 Sprachen die 50–80% übersetzt sind, werden im Sprachauswahlmenü ausgegraut angezeigt. Sprachen, die weniger als 50% übersetzt sind, werden im Sprachauswahlmenü ausgeblendet. Um Mitwirkende zu ermutigen, werden Sprachen die weniger als 20% übersetzt sind auf dieser Seite angezeigt.",
+            "title": "Übersetzungsfortschritt",
+            "help_translate": "Hilf dabei Couchers in deine Sprache zu übersetzen",
+            "loading": "Übersetzungsfortschritt wird geladen...",
+            "error_loading": "Das Laden des Übersetzungsfortschritts ist fehlgeschlagen",
+            "no_data": "Keine Übersetzungsdaten verfügbar",
+            "complete": "Vollständig",
+            "almost_there": "Fast da",
+            "in_progress": "In Bearbeitung",
+            "early_stage": "Frühes Stadium",
+            "complete_percent": "{{percent}}% fertig",
+            "view_progress": "Übersetzungsfortschritt anzeigen",
+            "just_started": "Gerade angefangen"
+        },
+        "error_loading_languages": "Das Laden der Sprachoptionen ist fehlgeschlagen. Bitte versuche es später erneut."
     },
     "current_members": "Aktuelle Mitglieder",
     "past_members": "Ehemalige Mitglieder",

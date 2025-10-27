@@ -120,7 +120,7 @@ const getStatusText = (percent: number, t: (key: string) => string) => {
   if (percent >= ALMOST_DONE_CUTOFF && percent < COMPLETE_CUTOFF)
     return t("global:language_preference.translation_progress.almost_there");
   if (percent >= SELECTOR_CUTOFF && percent < ALMOST_DONE_CUTOFF)
-    return t("global:language_preference.translation_progress.almost_there");
+    return t("global:language_preference.translation_progress.midway");
   if (percent >= HIDDEN_CUTOFF && percent < SELECTOR_CUTOFF)
     return t("global:language_preference.translation_progress.early_stage");
   return t("global:language_preference.translation_progress.just_started");
@@ -254,9 +254,7 @@ export default function TranslationProgress() {
                     <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
                       {renderFlag(languageInfo.flagIconCode, percent)}
                       <Typography variant="subtitle2" fontWeight="bold">
-                        {t(
-                          `global:language_preference.language_names.${languageCode}`,
-                        )}
+                        {t(`global:language_names.${languageCode}`)}
                       </Typography>
                     </Box>
                     <Chip
@@ -314,7 +312,7 @@ export default function TranslationProgress() {
                     {renderFlag(languageInfo.flagIconCode, percent)}
 
                     <Typography variant="subtitle1" fontWeight="bold" noWrap>
-                      {t(`language_names.${languageCode}`)}
+                      {t(`global:language_names.${languageCode}`)}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
                       {languageCode.toUpperCase()}

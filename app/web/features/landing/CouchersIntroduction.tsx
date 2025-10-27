@@ -80,8 +80,9 @@ const CouchersIntroduction = () => {
               size="large"
               color="primary"
               sx={{
-                width: theme.spacing(20),
-                fontSize: "1.3rem",
+                minWidth: theme.spacing(20),
+                fontSize: "1.2rem",
+                paddingX: theme.spacing(3),
               }}
             >
               {t("global:join_us")}
@@ -92,8 +93,9 @@ const CouchersIntroduction = () => {
               variant="outlined"
               color="primary"
               sx={{
-                width: theme.spacing(20),
-                fontSize: "1.3rem",
+                minWidth: theme.spacing(20),
+                fontSize: "1.2rem",
+                paddingX: theme.spacing(3),
               }}
             >
               {t("global:learn_more")}
