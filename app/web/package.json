@@ -68,7 +68,7 @@
     "sharp": "^0.34.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.28.4",
+    "@babel/core": "^7.28.5",
     "@next/bundle-analyzer": "^15.5.4",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.9.1",
