@@ -11,11 +11,11 @@ author: Nicole
 
 ## Big picture stuff
 
-In the [v1 release](/blog/2025/07/01/releasing-couchers-v1), we announced our new strategy around aiming to be the safest, healthiest, and most active couch surfing community. In order to achieve this, we've spent a lot of time in the last four months making sure the core hosting and surfing features (like finding hosts, leaving references) are really nailed down. We also announced the CouchOps team that, and since the v1 release, we have put a lot of effort into getting that part of the Couchers project into a healthy state. We have managed to recruit a bunch of great new volunteers to help us out on CouchOps, and they've lead projects like translating the platform to many new languages, which helps us reach more people and bring them into the couch surfing community.
+In the [v1 release](/blog/2025/07/01/releasing-couchers-v1), we announced our new strategy around aiming to be the safest, healthiest, and most active couch surfing community. In order to achieve this, we've spent a lot of time in the last four months making sure the core hosting and surfing features (like finding hosts, leaving references) are really nailed down. We also started the CouchOps (Couchers Operations) team that, and since the v1 release, have put a lot of effort into getting the non-engineering part of the Couchers project into a healthy state. We recruited a bunch of great new volunteers to help us out on CouchOps. They've lead projects like translating the platform to many new languages, which helps us reach more people and bring them into the couch surfing community.
 
-Our main longer-term priorities at the moment include improving the core couch surfing experience through what we call *platform dynamics*: making it easier for surfers to find great hosts, and making it easier for great hosts to get the kinds of requests they'd like. We spent a lot of time behind the scenes on better understanding the userbase by doing some heavy data analysis and creating dashboards and metrics that track core parts of the experience, like what proportion of requests receive responses in a timeline manner. We think this data-driven approach will help us improve the platform, and we have already made some small changes like changing the order in which users are shown in search results.
+Our main longer-term priority at the moment is improving the core couch surfing experience through what we call *platform dynamics*. This means making it easier for surfers to find great hosts, and making it easier for great hosts to get the kinds of requests they'd like. We spent a lot of time behind the scenes on better understanding the userbase by doing some heavy data analysis and creating dashboards and metrics that track core parts of the host request flow. For example, what proportion of requests receive responses in a timely manner. We think this data-driven approach will help us improve the platform, and we have already made some small changes due to this like changing the order that users are shown in search results.
 
-Our other major longer term goal is getting a mobile app out. We have already made some progress on many fronts towards this goal and hope that by the next release we can give you some more concrete updates on it!
+Our other major long-term goal is getting a mobile app out. We already made some progress towards this goal and hope that by the next release we can give you some more concrete updates on it!
 
 ## New Features in the Fall Release (v1.1)
 
@@ -23,7 +23,9 @@ Our other major longer term goal is getting a mobile app out. We have already ma
 
 We added a filter that allows you to show only users with your own gender if you have completed strong verification (it's free). This has been requested by several users so we're happy to offer it now! Built by [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Aapeli](https://couchers.org/user/aapeli) [[#6955](https://github.com/Couchers-org/couchers/pull/6955)].
 
-![Screenshot of the same gender only toggle](/img/blog/20251028_show_same_gender_only.png)
+<p align="center">
+<img src="/img/blog/20251028_show_same_gender_only.png" alt="Screenshot of the same gender only toggle" />
+</p>
 
 
 ### Map Search
@@ -48,7 +50,9 @@ We implemented a bunch of updates to the on-platform events functionality.
 
 * Allow users to add/remove event co-organizers by [Felix](https://couchers.org/user/nepo36) and [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Aapeli](https://couchers.org/user/aapeli) [[#6593](https://github.com/Couchers-org/couchers/pull/6593), [#6599](https://github.com/Couchers-org/couchers/pull/6599)]
 
-![Screenshot showing how to make an attendee an event co-organizer](/img/blog/20251028_event_coorganizer.png)
+<p align="center">
+<img src="/img/blog/20251028_event_coorganizer.png" alt="Screenshot showing how to make an attendee an event co-organizer" />
+</p>
 
 * Fixed stretched community event image issue by [Felix](https://couchers.org/user/nepo36), with assistance from [Nicole](https://couchers.org/user/unsettleddown) [[#6595](https://github.com/Couchers-org/couchers/pull/6595)]
 * Add comment count in Discover and Your Events tiles by [Dieu](https://couchers.org/user/dieu), with assistance from [Nicole](https://couchers.org/user/unsettleddown) [[#6937](https://github.com/Couchers-org/couchers/pull/6937)]
@@ -59,7 +63,9 @@ We implemented a bunch of updates to the on-platform events functionality.
 
 We added an "Invite friends" feature to the main dropdown menu. You can now get a personalized link to invite friends to Couchers and see how many people signed up via the link by [Andrei](https://couchers.org/user/andrei_k) and [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Aapeli](https://couchers.org/user/aapeli) [[#6526](https://github.com/Couchers-org/couchers/pull/6526), [#6767](https://github.com/Couchers-org/couchers/pull/6767)]!
 
-![Screenshot showing the invite feature](/img/blog/20251028_invite_members.png)
+<p align="center">
+<img src="/img/blog/20251028_invite_members.png" alt="Screenshot showing the invite feature" />
+</p>
 
 ### Host-Surfer Connection Improvements
 
@@ -69,7 +75,9 @@ We added an "Invite friends" feature to the main dropdown menu. You can now get 
 
 **Hide users with empty profiles or those that can't host by default** by [Itsi](https://couchers.org/user/itsi), with assistance from [Nicole](https://couchers.org/user/unsettleddown) [[#6359](https://github.com/Couchers-org/couchers/pull/6359)].
 
-![Screenshot showing the search bar with a message that empty profiles have been hidden by default](/img/blog/20251028_filter_empty_profile.png)
+<p align="center">
+<img src="/img/blog/20251028_filter_empty_profile.png" alt="Screenshot showing the search bar with a message that empty profiles have been hidden by default" />
+</p>
 
 Adjust order and color of host request response buttons by [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Aapeli](https://couchers.org/user/aapeli) and [Felix](https://couchers.org/user/nepo36) [[#6913](https://github.com/Couchers-org/couchers/pull/6913)].
 
@@ -80,9 +88,13 @@ We redesigned the Edit Profile Page as it felt it was not very user friendly and
 * Redesign the edit profile page by [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Jesse](https://couchers.org/user/jesse) [[#6494](https://github.com/Couchers-org/couchers/pull/6494)]
 * Web/UI changes edit profile by [Dieu](https://couchers.org/user/dieu), with assistance from [Nicole](https://couchers.org/user/unsettleddown) [[#6852](https://github.com/Couchers-org/couchers/pull/6852)]
 
-![Screenshot showing hosting and meetup preference editing](/img/blog/20251028_editprofile_redesign_1.png)
+<p align="center">
+<img src="/img/blog/20251028_editprofile_redesign_1.png" alt="Screenshot showing hosting and meetup preference editing" />
+</p>
 
-![Screenshot showing the top of the profile editing page](/img/blog/20251028_editprofile_redesign_2.png)
+<p align="center">
+<img src="/img/blog/20251028_editprofile_redesign_2.png" alt="Screenshot showing the top of the profile editing page" />
+</p>
 
 
 ### "What is Couch Surfing" Page
@@ -130,7 +142,7 @@ We implemented a bunch of new moderation and safety related functionality, a lot
 
 ## CouchOps Team Updates
 
-The CouchOps team is responsible for the non-dev operations side of Couchers.
+The CouchOps team is responsible for the non-engineering operations side of Couchers.
 
 ### Translations
 
@@ -142,11 +154,15 @@ We also introduced some new translation features and structure.
 
 * Now languages with less than 50% translations are filtered out from the language picker and those with less than 80% are greyed out by [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Chris](https://couchers.org/user/chrisk) [[#6971](https://github.com/Couchers-org/couchers/pull/6971)]
 
-![Screenshot showing the new language picker](/img/blog/20251028_language_picker.png)
+<p align="center">
+<img src="/img/blog/20251028_language_picker.png" alt="Screenshot showing the new language picker" />
+</p>
 
 * We added a translation progress page where you can keep track of our progress in various languages.
 
-![Screenshot showing the translation progress page](/img/blog/20251028_translation_progress_page.png)
+<p align="center">
+<img src="/img/blog/20251028_translation_progress_page.png" alt="Screenshot showing the translation progress page" />
+</p>
 
 
 Shoutout to [Chris](https://couchers.org/user/chrisk) for the idea of translation benchmarks and [Nicole](https://couchers.org/user/unsettleddown) for making the translation progress page. [Find it here.](https://couchers.org/translate)
@@ -173,7 +189,7 @@ To support a volunteer recruitment push next quarter, our volunteer [Cameron](ht
 
 Want to help us make Couchers thrive? We especially need:
 
-* A**Senior Backend Python Developers** who are able to do bigger feature work and help review PRs
+* A **Senior Backend Python Developer** who is able to do bigger feature work and help review PRs
 * **Mid and Senior Frontend Developers** with familiarity with Typescript and React
 * **Blog Writers**: we currently have our developers writing our blog posts (please save us).
 * **UI/UX Designers**: Help us create Figma designs for new features we have in the works!
