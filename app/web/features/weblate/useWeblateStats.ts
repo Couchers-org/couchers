@@ -48,5 +48,3 @@ export const useWeblateStats = () => {
     refetchOnMount: false,
   });
 };
-
-export type { WeblateLanguage };

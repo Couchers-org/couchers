@@ -8,7 +8,7 @@ import { ReferenceType } from "proto/references_pb";
 import { referenceTypeRoute } from "routes";
 import { theme } from "theme";
 
-export interface ReferenceStepHeaderProps {
+interface ReferenceStepHeaderProps {
   name?: string;
   referenceType?: string;
   isSubmitStep?: boolean;

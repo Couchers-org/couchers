@@ -14,7 +14,7 @@ const StyledPill = styled(Typography)<PillStylesProps>(({ theme }) => ({
   fontSize: ".8rem",
 }));
 
-export interface PillProps {
+interface PillProps {
   children: React.ReactNode;
   backgroundColor?: string;
   color?: string;

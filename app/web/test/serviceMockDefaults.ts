@@ -7,7 +7,6 @@ import {
 } from "proto/api_pb";
 import { GetBlockedUsersRes } from "proto/blocking_pb";
 import { ListAdminsRes } from "proto/communities_pb";
-import { HostRequestStatus } from "proto/conversations_pb";
 import { ListEventAttendeesRes, ListEventOrganizersRes } from "proto/events_pb";
 import { ListNotificationsRes } from "proto/notifications_pb";
 import {
@@ -104,47 +103,6 @@ export async function getGroupChatMessages() {
     messagesList: messages,
     noMore: true,
   };
-}
-
-export async function listGroupChats() {
-  return {
-    groupChatsList: [
-      {
-        adminUserIdsList: [],
-        groupChatId: 3,
-        isDm: false,
-        lastSeenMessageId: 4,
-        latestMessage: messages[0],
-        memberUserIdsList: [],
-        onlyAdminsInvite: true,
-        title: "groupchattitle",
-        // created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
-        unseenMessageCount: 0,
-        canMessage: true,
-      },
-    ],
-    noMore: true,
-  };
-}
-
-export async function listHostRequests() {
-  return [
-    {
-      created: {
-        nanos: 0,
-        seconds: Date.now() / 1000,
-      },
-      fromDate: "2020/12/01",
-      surferUserId: 1,
-      hostRequestId: 1,
-      lastSeenMessageId: 0,
-      latestMessage: messages[0],
-      status: HostRequestStatus.HOST_REQUEST_STATUS_PENDING,
-      toDate: "2020/12/06",
-      hostUserId: 2,
-      canMessage: true,
-    },
-  ];
 }
 
 export async function getAccountInfo() {

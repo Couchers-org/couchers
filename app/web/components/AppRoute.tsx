@@ -67,7 +67,7 @@ const ContentWrapper = styled(Container, {
   }),
 }));
 
-export default function AppRoute({
+function AppRoute({
   children,
   isPrivate,
   noFooter = false,

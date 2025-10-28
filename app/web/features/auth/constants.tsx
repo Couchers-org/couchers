@@ -1,5 +1,3 @@
-export const TERMS = "Terms";
-
 // don't change these, these are set in the backend
 // error message when jailed
 export const JAILED_ERROR_MESSAGE = "Permission denied";

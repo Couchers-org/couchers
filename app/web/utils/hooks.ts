@@ -148,14 +148,6 @@ const useGeocodeQuery = () => {
   return { isLoading, error, results, query };
 };
 
-function usePrevious<T>(value: T) {
-  const ref = useRef<T>();
-  useEffect(() => {
-    ref.current = value;
-  }, [value]);
-  return ref.current;
-}
-
 function useUnsavedChangesWarning({
   isDirty,
   isSubmitted,
@@ -192,7 +184,6 @@ function useUnsavedChangesWarning({
 export {
   useGeocodeQuery,
   useIsMounted,
-  usePrevious,
   useSafeState,
   useUnsavedChangesWarning,
 };

@@ -2,7 +2,7 @@ import { Chip, styled, Tooltip } from "@mui/material";
 import { Badge as BadgeType } from "proto/resources_pb";
 import { routeToBadge } from "routes";
 
-export interface BadgeProps {
+interface BadgeProps {
   badge: BadgeType.AsObject;
 }
 

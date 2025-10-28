@@ -141,7 +141,7 @@ const styledIcon = <C extends React.ComponentType<React.ComponentProps<C>>>(
 const StyledCheckCircleIcon = styledIcon(CheckCircleIcon);
 const StyledErrorIcon = styledIcon(ErrorIcon);
 
-export const AgeAndGenderRenderer = ({ user }: Props) => {
+const AgeAndGenderRenderer = ({ user }: Props) => {
   const {
     birthdateVerificationStatus,
     genderVerificationStatus,

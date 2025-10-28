@@ -36,7 +36,7 @@ const StyledNoMapText = styled("div")({
   height: "100%",
 });
 
-export interface MapProps {
+interface MapProps {
   initialCenter: LngLat | undefined;
   initialZoom: number;
   postMapInitialize?: (map: MaplibreMap) => void;

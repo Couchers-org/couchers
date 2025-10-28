@@ -37,7 +37,7 @@ const StyledHostRequestStatusIcon = styled(HostRequestStatusIcon)(
   }),
 );
 
-export interface HostRequestListItemProps {
+interface HostRequestListItemProps {
   hostRequest: HostRequest.AsObject;
   className?: string;
 }

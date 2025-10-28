@@ -14,7 +14,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import CatalanFlagIcon from "components/Icons/CatalanFlagIcon";
+import { CatalanFlagIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useWeblateStats } from "features/weblate/useWeblateStats";

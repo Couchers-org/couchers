@@ -25,7 +25,7 @@ import { theme } from "theme";
 
 import ReferenceStepHeader from "../ReferenceStepHeader";
 
-export interface SubmitReferenceProps {
+interface SubmitReferenceProps {
   referenceData: ReferenceContextFormData;
   referenceType: string;
   hostRequestId?: number;

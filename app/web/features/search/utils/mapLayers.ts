@@ -82,8 +82,6 @@ const unclusteredPointLayer: LayerProps = {
 };
 
 export {
-  CLUSTER_COUNT_LAYER_ID,
-  CLUSTER_LAYER_ID,
   clusterCountLayer,
   clusterLayer,
   UNCLUSTERED_LAYER_ID,

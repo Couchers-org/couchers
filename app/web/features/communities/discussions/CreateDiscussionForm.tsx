@@ -40,7 +40,7 @@ const StyledCancelButton = styled(Button)(() => ({
   },
 }));
 
-export interface CreateDiscussionFormProps {
+interface CreateDiscussionFormProps {
   communityId: number;
   onCancel?(): void;
   onPostSuccess?(): void;

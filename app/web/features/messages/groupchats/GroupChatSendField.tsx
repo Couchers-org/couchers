@@ -31,7 +31,7 @@ const StyledForm = styled("form")(({ theme }) => ({
   marginTop: theme.spacing(3),
 }));
 
-export interface GroupChatSendFieldProps {
+interface GroupChatSendFieldProps {
   sendMutation: UseMutationResult<string | undefined | Empty, RpcError, string>;
   chatId: number;
   currentUserId: number;

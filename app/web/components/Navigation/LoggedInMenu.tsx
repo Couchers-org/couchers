@@ -25,7 +25,7 @@ import { theme } from "theme";
 
 import { AccessibleDialogProps } from "../Dialog";
 
-export type LoggedInMenuLinkItem = {
+type LoggedInMenuLinkItem = {
   type: "link";
   name: string;
   hasBottomDivider?: boolean;
@@ -34,7 +34,7 @@ export type LoggedInMenuLinkItem = {
   externalLink?: boolean;
 };
 
-export type LoggedInMenuDialogItem = {
+type LoggedInMenuDialogItem = {
   type: "dialog";
   name: string;
   hasBottomDivider?: boolean;

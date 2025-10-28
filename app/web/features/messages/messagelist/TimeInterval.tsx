@@ -8,7 +8,7 @@ const Root = styled("div")(({ theme }) => ({
   paddingInlineEnd: theme.spacing(1),
 }));
 
-export interface TimeIntervalProps {
+interface TimeIntervalProps {
   date: Date;
   className?: string;
 }

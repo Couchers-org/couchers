@@ -25,7 +25,7 @@ interface MessageFormData {
   text: string;
 }
 
-export interface HostRequestSendFieldProps {
+interface HostRequestSendFieldProps {
   hostRequest: HostRequest.AsObject;
   sendMutation: UseMutationResult<string | undefined | Empty, RpcError, string>;
   respondMutation: UseMutationResult<
