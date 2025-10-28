@@ -28,7 +28,8 @@
                     "reminder": "Bekleyen bir ev sahibi isteğine henüz yanıt vermediniz.",
                     "create": "Birisi sana bir ev sahipliği isteği yollayınca",
                     "accept": "Birisi ev sahipliği isteğini kabul edince",
-                    "confirm": "Birisi ev sahipliği isteğini onayladığında"
+                    "confirm": "Birisi ev sahipliği isteğini onayladığında",
+                    "reject": "Birisi ev sahipliği isteğini reddettiğinde"
                 },
                 "reference": {
                     "receive_hosted": "Sana ev sahipliği yapmış biri tarafından referans aldığında",

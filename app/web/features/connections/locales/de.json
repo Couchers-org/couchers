@@ -28,5 +28,7 @@
     "title": "Willst du {{name}} wirklich entsperren?",
     "message": "Das Entsperren ermöglicht es der Person, dein Profil zu sehen und dir Anfragen zu senden. Wenn ihr zuvor befreundet wart, wird die Person wieder in deine Freundesliste aufgenommen. Die Person wird nicht benachrichtigt.",
     "confirm": "Entsperren"
-  }
+  },
+  "accept": "Akzeptieren",
+  "decline": "Ablehnen"
 }
