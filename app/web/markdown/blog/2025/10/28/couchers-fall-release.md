@@ -126,7 +126,7 @@ We implemented a bunch of new moderation and safety related functionality, a lot
 
 ### Bug Fixes
 
-Thanks to [Vas](https://couchers.org/user/vas_traveler), who did a ton of QA testing and scoured our all site for bugs! We caught a lot of bugs and pushed fixes thanks to him.
+Thanks to [Vas](https://couchers.org/user/vas_traveler), who did a ton of QA testing and scoured all our sites for bugs! We caught a lot of bugs and pushed fixes thanks to him.
 
 * Fix Brisbane (Australia) missing from map search bug and add extended tests by [Nicole](https://couchers.org/user/unsettleddown) [[#6721](https://github.com/Couchers-org/couchers/pull/6721)]
 * Fix unread notification filter by [Nicole](https://couchers.org/user/unsettleddown) [[#6932](https://github.com/Couchers-org/couchers/pull/6932)]
