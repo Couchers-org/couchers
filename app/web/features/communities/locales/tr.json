@@ -29,5 +29,6 @@
   "community_moderators": "Topluluk Mimarları",
   "discussions_empty_state": "Şu anda herhangi bir tartışma yok.",
   "discussions_label": "Tartışmalar",
-  "invalid_community_id": "Hatalı topluluk ID'si"
+  "invalid_community_id": "Hatalı topluluk ID'si",
+  "discussions_title": "Tartışmalar"
 }
