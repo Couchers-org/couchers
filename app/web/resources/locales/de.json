@@ -151,7 +151,8 @@
             "early_stage": "Frühes Stadium",
             "complete_percent": "{{percent}}% fertig",
             "view_progress": "Übersetzungsfortschritt anzeigen",
-            "just_started": "Gerade angefangen"
+            "just_started": "Gerade angefangen",
+            "midway": "Auf halbem Weg"
         },
         "error_loading_languages": "Das Laden der Sprachoptionen ist fehlgeschlagen. Bitte versuche es später erneut."
     },
@@ -282,7 +283,7 @@
     "create": "Erstellen",
     "terms_of_service": "Nutzungsbedingungen",
     "required": "Erforderlich",
-    "accept": "Annehmen",
+    "accept": "Akzeptieren",
     "community_standing": "Community Status",
     "community_standing_description": "Berechnet aus verschiedenen Faktoren wie Referenzen und Community-Engagement.",
     "send": "Senden",
