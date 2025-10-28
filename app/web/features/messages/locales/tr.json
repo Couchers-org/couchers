@@ -35,7 +35,8 @@
       "1_month_label": "1 ay",
       "forever_label": "Ben sessizden çıkarana dek",
       "button_label": "Sohbeti sessize al",
-      "unmute_button_label": "Sohbeti sessizden çıkar"
+      "unmute_button_label": "Sohbeti sessizden çıkar",
+      "dialog_title": "Ne kadar süreyle sessize almak istiyorsun?"
     },
     "muted_icon": {
       "a11y_label": "Sessiz"

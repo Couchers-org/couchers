@@ -165,5 +165,11 @@ module.exports = {
         "https://docs.google.com/document/d/18N0uFUzNAh-tmv_Doiq3ESJ9wX8AyQXbiuhuUOrVYiw/edit",
       permanent: false,
     },
+    {
+      source: "/contribute",
+      destination:
+        "https://forms.monday.com/forms/0354e14aa52a37757e9b5ecf2419fef9?r=use1",
+      permanent: false,
+    },
   ],
 };
