@@ -11,6 +11,8 @@ author: Nicole
 
 ## Big picture stuff
 
+*Section written by [Aapeli](https://couchers.org/user/aapeli).*
+
 In the [v1 release](/blog/2025/07/01/releasing-couchers-v1), we announced our new strategy around aiming to be the safest, healthiest, and most active couch surfing community. In order to achieve this, we've spent a lot of time in the last four months making sure the core hosting and surfing features (like finding hosts, leaving references) are really nailed down. We also started the CouchOps (Couchers Operations) team that, and since the v1 release, have put a lot of effort into getting the non-engineering part of the Couchers project into a healthy state. We recruited a bunch of great new volunteers to help us out on CouchOps. They've lead projects like translating the platform to many new languages, which helps us reach more people and bring them into the couch surfing community.
 
 Our primary long-term priority right now is improving the core couch surfing experience through what we call *platform dynamics*.
@@ -23,7 +25,7 @@ Our other major long-term goal is launching the mobile app. We've already made s
 
 ### Same gender only filter for strong verified users
 
-We’ve implemented a filter that enables users to view only profiles matching their own gender after completing the **free** strong verification process. This has been a popular request, and we’re excited to make it available! This has been requested by several users so we're happy to offer it now! Built by [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Aapeli](https://couchers.org/user/aapeli) [[#6955](https://github.com/Couchers-org/couchers/pull/6955)].
+We've implemented a filter that enables users to view only profiles matching their own gender after completing the **free** strong verification process. This has been a popular request, and we're excited to make it available! This has been requested by several users so we're happy to offer it now! Built by [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Aapeli](https://couchers.org/user/aapeli) [[#6955](https://github.com/Couchers-org/couchers/pull/6955)].
 
 <p align="center">
 <img src="/img/blog/20251028_show_same_gender_only.png" alt="Screenshot of the same gender only toggle" />
