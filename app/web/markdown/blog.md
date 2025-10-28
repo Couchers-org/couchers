@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Couchers.org Fall Release ― What's New?](/blog/2025/10/28/couchers-fall-release)
+
+2025/10/28 by Nicole.
+
+We've released a number of new features, and fixed many bugs. We discuss more of what's next below. We also moved to roughly a quarterly release schedule, which helps us keep on track better with smaller releases.
+
+[Read more.](/blog/2025/10/28/couchers-fall-release)
+
 ## [A new chapter: Couchers is officially out of Beta!](/blog/2025/07/01/releasing-couchers-v1)
 
 2025/07/01 by Aapeli.

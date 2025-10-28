@@ -1,6 +1,12 @@
-# Couchers.org Fall Release --- What's New?
+---
+title: "Couchers.org Fall Release ― What's New?"
+slug: couchers-fall-release
+description: "We've released a number of new features, and fixed many bugs. We discuss more of what's next below. We also moved to roughly a quarterly release schedule, which helps us keep on track better with smaller releases."
+date: 2025/10/28
+author: Nicole
+---
 
-We've released a number of new features, and fixed many bugs. We discuss more of what's next below. We also moved to roughly a quarterly release schedule, which helps us keep on track better with smaller releases.
+*Quick summary: we've released a number of new features, and fixed many bugs. We discuss more of what's next below. We also moved to roughly a quarterly release schedule, which helps us keep on track better with smaller releases.*
 
 
 ## New Features for Fall Release
@@ -9,13 +15,13 @@ We've released a number of new features, and fixed many bugs. We discuss more of
 
 * Added a filter that allows you to filter results by only your own gender if you have completed strong verification (it's free). This has been requested by several users so we're happy to offer it now! By [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Aapeli](https://couchers.org/user/aapeli) [[#6955](https://github.com/Couchers-org/couchers/pull/6955)]
 
-[](/img/blog/20251028_show_same_gender_only.png)
+![Screenshot of the same gender only toggle](/img/blog/20251028_show_same_gender_only.png)
 
 
 ### Map Search
 
-* Add chick emoji for no references 6371
-* Map style improvements and fixes 6492
+* Add chick emoji for no references by [Itsi](https://couchers.org/user/itsi), with assistance from [Nicole](https://couchers.org/user/unsettleddown) [[#6371](https://github.com/Couchers-org/couchers/pull/6371)]
+* Map style improvements and fixes by [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Jesse](https://couchers.org/user/jesse) [[#6492](https://github.com/Couchers-org/couchers/pull/6492)]
 
 ### Host Request and Reference Flow Improvements
 
@@ -33,7 +39,7 @@ We were getting a lot of bug tickets from people confused with the reference flo
 
 * Allow users to add/remove event co-organizers by [Felix](https://couchers.org/user/nepo36) and [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Aapeli](https://couchers.org/user/aapeli) [[#6593](https://github.com/Couchers-org/couchers/pull/6593), [#6599](https://github.com/Couchers-org/couchers/pull/6599)]
 
-[](/img/blog/20251028_event_coorganizer.png)
+![Screenshot showing how to make an attendee an event co-organizer](/img/blog/20251028_event_coorganizer.png)
 
 * Fixed stretched community event image by [Felix](https://couchers.org/user/nepo36), with assistance from [Nicole](https://couchers.org/user/unsettleddown) [[#6595](https://github.com/Couchers-org/couchers/pull/6595)]
 * Add comment count in Discover and Your Events tiles by [Dieu](https://couchers.org/user/dieu), with assistance from [Nicole](https://couchers.org/user/unsettleddown) [[#6937](https://github.com/Couchers-org/couchers/pull/6937)]
@@ -44,7 +50,7 @@ We were getting a lot of bug tickets from people confused with the reference flo
 
 * Added an "Invite friends" feature to the main dropdown menu. You can get a personalized link now to invite friends to Couchers and see how many people signed up via the link by [Andrei](https://couchers.org/user/andrei_k) and [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Aapeli](https://couchers.org/user/aapeli) [[#6526](https://github.com/Couchers-org/couchers/pull/6526), [#6767](https://github.com/Couchers-org/couchers/pull/6767)]
 
-[](/img/blog/20251028_invite_members.png)
+![Screenshot showing the invite feature](/img/blog/20251028_invite_members.png)
 
 ### Host-Surfer Connection Improvements
 
@@ -52,7 +58,7 @@ We were getting a lot of bug tickets from people confused with the reference flo
 * **Map search results ranking** Adjusted the ranking of search results for the map search. We realized new users were often showing low in search results and seasoned hosts were complaining of too many requests. We adjusted map search results to show a mix of new and seasoned users by [Aapeli](https://couchers.org/user/aapeli), with assistance from [Itsi](https://couchers.org/user/itsi) and [Nicole](https://couchers.org/user/unsettleddown) [[#6557](https://github.com/Couchers-org/couchers/pull/6557)]
 * **Search default filters to hide empty profile and can't host** by [Itsi](https://couchers.org/user/itsi), with assistance from [Nicole](https://couchers.org/user/unsettleddown) [[#6359](https://github.com/Couchers-org/couchers/pull/6359)]
 
-[](/img/blog/20251028_filter_empty_profile.png)
+![Screenshot showing the search bar with a message that empty profiles have been hidden by default](/img/blog/20251028_filter_empty_profile.png)
 
 * Adjust order and color of host request response buttons by [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Aapeli](https://couchers.org/user/aapeli) and [Felix](https://couchers.org/user/nepo36) [[#6913](https://github.com/Couchers-org/couchers/pull/6913)]
 
@@ -63,9 +69,9 @@ We redesigned the Edit Profile Page as felt it was out of date, not very user fr
 * Redesign the edit profile page by [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Jesse](https://couchers.org/user/jesse) [[#6494](https://github.com/Couchers-org/couchers/pull/6494)]
 * Web/UI changes edit profile by [Dieu](https://couchers.org/user/dieu), with assistance from [Nicole](https://couchers.org/user/unsettleddown) [[#6852](https://github.com/Couchers-org/couchers/pull/6852)]
 
-[](/img/blog/20251028_editprofile_redesign_1.png)
+![Screenshot showing hosting and meetup preference editing](/img/blog/20251028_editprofile_redesign_1.png)
 
-[](/img//blog/20251028_editprofile_redesign_2.png)
+![Screenshot showing the top of the profile editing page](/img/blog/20251028_editprofile_redesign_2.png)
 
 
 ### What is Couch Surfing Page
@@ -122,11 +128,11 @@ We also introduced some new translation features and structure.
 
 * Now languages with less than 50% translations are filtered out of the language picker and those with less than 80% are greyed out by [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Chris](https://couchers.org/user/chrisk) [[#6971](https://github.com/Couchers-org/couchers/pull/6971)]
 
-[](/img/blog/20251028_language_picker.png)
+![Screenshot showing the new language picker](/img/blog/20251028_language_picker.png)
 
 * We also added a translation progress page where you can keep track of our progress in various languages.
 
-[](/img/blog/20251028_translation_progress_page.png)
+![Screenshot showing the translation progress page](/img/blog/20251028_translation_progress_page.png)
 
 
 Shoutout to Chris for the idea of translation benchmarks and Nicole for making the translation progress page. [Find it here.](https://couchers.org/translate)
@@ -162,3 +168,5 @@ Want to help us make Couchers thrive? We especially need:
 * **Community Builders** Help us get a Couchers community thriving in your city! WRITE MORE HERE WE HAVE ZULIP ETC.
 
 [Interested? Apply here!](/volunteer/form)
+
+*Written by [Nicole](https://couchers.org/user/unsettleddown). Published on 2025/10/28*
