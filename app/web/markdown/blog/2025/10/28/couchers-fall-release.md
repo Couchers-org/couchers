@@ -83,7 +83,7 @@ Adjust order and color of host request response buttons by [Nicole](https://couc
 
 ### Total Redesign of Edit Profile Page
 
-We redesigned the Edit Profile Page as it felt it was not very user friendly and didn't highlight the most important aspects of the page. We added more guidance for users about what sections show in map search, made the hosting status more prominent and grouped the sections more intuitively:
+We redesigned the Edit Profile Page as it was not very user friendly and didn't highlight the most important aspects of the page. We added more guidance for users about what sections show in map search, made the hosting status more prominent and grouped the sections more intuitively:
 
 * Redesign the edit profile page by [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Jesse](https://couchers.org/user/jesse) [[#6494](https://github.com/Couchers-org/couchers/pull/6494)]
 * Web/UI changes edit profile by [Dieu](https://couchers.org/user/dieu), with assistance from [Nicole](https://couchers.org/user/unsettleddown) [[#6852](https://github.com/Couchers-org/couchers/pull/6852)]
@@ -125,6 +125,8 @@ We implemented a bunch of new moderation and safety related functionality, a lot
 * Reminders backend by [Aapeli](https://couchers.org/user/aapeli) [[#6537](https://github.com/Couchers-org/couchers/pull/6537)]
 
 ### Bug Fixes
+
+Thanks to [Vas](https://couchers.org/user/vas_traveler), who did a ton of QA testing and scoured our all site for bugs! We caught a lot of bugs and pushed fixes thanks to him.
 
 * Fix Brisbane (Australia) missing from map search bug and add extended tests by [Nicole](https://couchers.org/user/unsettleddown) [[#6721](https://github.com/Couchers-org/couchers/pull/6721)]
 * Fix unread notification filter by [Nicole](https://couchers.org/user/unsettleddown) [[#6932](https://github.com/Couchers-org/couchers/pull/6932)]
@@ -181,7 +183,7 @@ We did some updating of our website pages to make sure they're up to date. This 
 [Aditi](https://couchers.org/user/adititrips) has organized our operations boards and is working to improve our volunteer onboarding process.
 
 
-## Updates on Volunteering At Couchers
+## Updates on Volunteering at Couchers
 
 With a couple of our major contributors becoming more busy due to life changes and new jobs, we really could use more support!
 
