@@ -150,7 +150,7 @@ The CouchOps team is responsible for the non-engineering operations side of Couc
 
 We've done a big push in the area of translations to make Couchers more accessible to users that don't speak English.
 
-Shoutout to our Translation Manager [Chris](https://couchers.org/user/chrisk) who completed our German translations, our Russian Language Lead [Vas](https://couchers.org/user/vas_traveler) who completed our Russian translations and our Language Leads [Dale](https://couchers.org/user/oskyldig) (French), Marc (Catalan), Hakan (Turkish) and Henriëtte (Dutch) who contributed significantly to these languages over the last quarter. A big thank you to our numerous other translators that did translation or submitted suggestions in various languages.
+Shoutout to our Translation Manager [Chris](https://couchers.org/user/chrisk) who completed our German translations, our Russian Language Lead [Vas](https://couchers.org/user/vas_traveler) who completed our Russian translations and our Language Leads [Dale](https://couchers.org/user/oskyldig) (French), [Marc](https://couchers.org/user/markusand) (Catalan), [Hakan](https://couchers.org/user/thelosttraveler) (Turkish) and [Henriëtte](https://couchers.org/user/henriettesays) (Dutch) who contributed significantly to these languages over the last quarter. A big thank you to our numerous other translators that did translation or submitted suggestions in various languages.
 
 We also introduced some new translation features and structure.
 
