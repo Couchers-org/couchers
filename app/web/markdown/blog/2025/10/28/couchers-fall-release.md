@@ -13,15 +13,17 @@ author: Nicole
 
 In the [v1 release](/blog/2025/07/01/releasing-couchers-v1), we announced our new strategy around aiming to be the safest, healthiest, and most active couch surfing community. In order to achieve this, we've spent a lot of time in the last four months making sure the core hosting and surfing features (like finding hosts, leaving references) are really nailed down. We also started the CouchOps (Couchers Operations) team that, and since the v1 release, have put a lot of effort into getting the non-engineering part of the Couchers project into a healthy state. We recruited a bunch of great new volunteers to help us out on CouchOps. They've lead projects like translating the platform to many new languages, which helps us reach more people and bring them into the couch surfing community.
 
-Our main longer-term priority at the moment is improving the core couch surfing experience through what we call *platform dynamics*. This means making it easier for surfers to find great hosts, and making it easier for great hosts to get the kinds of requests they'd like. We spent a lot of time behind the scenes on better understanding the userbase by doing some heavy data analysis and creating dashboards and metrics that track core parts of the host request flow. For example, what proportion of requests receive responses in a timely manner. We think this data-driven approach will help us improve the platform, and we have already made some small changes due to this like changing the order that users are shown in search results.
+Our primary long-term priority right now is improving the core couch surfing experience through what we call *platform dynamics*.
 
-Our other major long-term goal is getting a mobile app out. We already made some progress towards this goal and hope that by the next release we can give you some more concrete updates on it!
+This means making it easier for surfers to find great hosts, and making it easier for great hosts to get the kinds of requests they'd like. We've spent a lot of time behind the scenes on better understanding our user base by conducting in-depth data analysis and creating dashboards and metrics that track key parts of the host request flow. For example, what proportion of requests receive responses in a timely manner. We think this data-driven approach will help us improve the platform, and we have already made some small changes due to this like changing the order that users are shown in search results.
+
+Our other major long-term goal is launching the mobile app. We've already made some progress towards this goal and hope to share more concrete updates by the next release!
 
 ## New Features in the Fall Release (v1.1)
 
 ### Same gender only filter for strong verified users
 
-We added a filter that allows you to show only users with your own gender if you have completed strong verification (it's free). This has been requested by several users so we're happy to offer it now! Built by [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Aapeli](https://couchers.org/user/aapeli) [[#6955](https://github.com/Couchers-org/couchers/pull/6955)].
+We’ve implemented a filter that enables users to view only profiles matching their own gender after completing the **free** strong verification process. This has been a popular request, and we’re excited to make it available! This has been requested by several users so we're happy to offer it now! Built by [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Aapeli](https://couchers.org/user/aapeli) [[#6955](https://github.com/Couchers-org/couchers/pull/6955)].
 
 <p align="center">
 <img src="/img/blog/20251028_show_same_gender_only.png" alt="Screenshot of the same gender only toggle" />
@@ -30,12 +32,12 @@ We added a filter that allows you to show only users with your own gender if you
 
 ### Map Search
 
-* We add a cute chick emoji when users have no references by [Itsi](https://couchers.org/user/itsi), with assistance from [Nicole](https://couchers.org/user/unsettleddown) [[#6371](https://github.com/Couchers-org/couchers/pull/6371)]
+* We now add a cute chick emoji when users have no references by [Itsi](https://couchers.org/user/itsi), with assistance from [Nicole](https://couchers.org/user/unsettleddown) [[#6371](https://github.com/Couchers-org/couchers/pull/6371)]
 * We improved the map style and made other fixes by [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Jesse](https://couchers.org/user/jesse) [[#6492](https://github.com/Couchers-org/couchers/pull/6492)]
 
 ### Host Request and Reference Flow Improvements
 
-We were getting a lot of bug tickets from people confused with the reference flow, so did a full iteration on it. We added some improvements:
+We were receiving a lot of bug tickets from users who were confused by the reference flow, so we did a full iteration on it. We added some improvements:
 
 * Require reference scale rating and make scale empty by default by [Felix](https://couchers.org/user/nepo36), with assistance from [Jesse](https://couchers.org/user/jesse) and [Nicole](https://couchers.org/user/unsettleddown) [[#6569](https://github.com/Couchers-org/couchers/pull/6569)]
 * Add clearer error messages for references past 14 days, already written references, that you need to be friends to write friend references, etc; differentiate on site better between friend and host references; add pending host references to that user's reference tab page; remove 0 on the reference tab for people with 0 references by [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Aapeli](https://couchers.org/user/aapeli), [Felix](https://couchers.org/user/nepo36) and [Jesse](https://couchers.org/user/jesse) [[#6814](https://github.com/Couchers-org/couchers/pull/6814)]
@@ -99,11 +101,11 @@ We redesigned the Edit Profile Page as it was not very user friendly and didn't 
 
 ### "What is Couch Surfing" Page
 
-We recognize that there's a whole new generation of couch surfers now so we wanted to provide some information about the concept and history for newbies. [Find that page here](https://couchers.org/what-is-couch-surfing) by [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Aapeli](https://couchers.org/user/aapeli) [[#6638](https://github.com/Couchers-org/couchers/pull/6638)].
+We recognize that there's a whole new generation of couch surfers now so we wanted to provide some information about the concept and history for newbies. [Find that page here](https://couchers.org/what-is-couch-surfing) by [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Aditi](https://couchers.org/user/adititrips) and [Aapeli](https://couchers.org/user/aapeli) [[#6638](https://github.com/Couchers-org/couchers/pull/6638)].
 
 ### Moderation and Safety
 
-We implemented a bunch of new moderation and safety related functionality, a lot of which happens on the backend and is used by our moderators.
+We implemented a range of new moderation and safety-related features, many of which operate on the backend and are used by our moderators.
 
 * Rework report reasons by [Nicole](https://couchers.org/user/unsettleddown), with assistance from [Aapeli](https://couchers.org/user/aapeli) and [Jesse](https://couchers.org/user/jesse) [[#6235](https://github.com/Couchers-org/couchers/pull/6235)]
 * Update sleeping arrangement meanings by [Colleen](https://couchers.org/user/colleen), with assistance from [Nicole](https://couchers.org/user/unsettleddown) and [Jesse](https://couchers.org/user/jesse) [[#6093](https://github.com/Couchers-org/couchers/pull/6093)]
@@ -180,7 +182,7 @@ We did some updating of our website pages to make sure they're up to date. This 
 
 ### Miscellaneous
 
-[Aditi](https://couchers.org/user/adititrips) has organized our operations boards and is working to improve our volunteer onboarding process.
+[Aditi](https://couchers.org/user/adititrips) has organized our operations boards and is working to improve our volunteer onboarding process. Alongside making internal systems run smoother, she continues to rework UX functionality for future feature ideas, develop marketing materials, and dive into growth metrics to align our overall strategy going forward!
 
 
 ## Updates on Volunteering at Couchers
