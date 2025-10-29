@@ -88,8 +88,9 @@ const nextConfig = {
 
 // Injected content via Sentry wizard below
 
+// eslint-disable-next-line
 const { withSentryConfig } = require("@sentry/nextjs");
-
+// eslint-disable-next-line
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 });

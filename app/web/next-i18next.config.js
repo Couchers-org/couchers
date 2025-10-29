@@ -1,4 +1,6 @@
+// eslint-disable-next-line
 const { NAMESPACES } = require("./i18n/namespaces");
+// eslint-disable-next-line
 const { allLanguages } = require("./i18n/allLanguages");
 
 const fallbackLng = {
@@ -23,6 +25,7 @@ module.exports = {
   returnEmptyString: false,
   serializeConfig: false,
   localePath: (locale, namespace) => {
+    // eslint-disable-next-line
     const path = require("path");
     if (namespace === "global") {
       return path.resolve(

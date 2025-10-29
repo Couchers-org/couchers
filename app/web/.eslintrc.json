@@ -2,10 +2,14 @@
   "extends": [
     "plugin:@typescript-eslint/recommended",
     "next/core-web-vitals",
-    "prettier",
-    "plugin:jsonc/recommended-with-json"
+    "prettier"
   ],
-  "plugins": ["@typescript-eslint", "simple-import-sort", "unused-imports"],
+  "plugins": [
+    "@typescript-eslint",
+    "simple-import-sort",
+    "unused-imports",
+    "jsonc"
+  ],
   "ignorePatterns": [
     "node_modules/**",
     ".next/**",
@@ -21,9 +25,11 @@
     },
     {
       "files": ["*.json"],
+      "plugins": ["jsonc"],
+      "extends": ["plugin:jsonc/recommended-with-json"],
       "parser": "jsonc-eslint-parser",
       "rules": {
-        "jsonc/no-duplicate-keys": "error"
+        "jsonc/no-comments": "off"
       }
     }
   ],
