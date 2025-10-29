@@ -23,7 +23,7 @@ services:
     volumes:
       - "./backend:/app"
     # see https://github.com/eradman/entr#docker-and-windows-subsystem-for-linux
-    command: bash -c "find src -name '**.py' | ENTR_INOTIFY_WORKAROUND=1 entr -rndz python src/app.py && exit 1"
+    command: bash -c "find src -name '**.py' | ENTR_INOTIFY_WORKAROUND=1 entr -rndz uv run src/app.py && exit 1"
     restart: unless-stopped
     ports:
       # grpc: main apis

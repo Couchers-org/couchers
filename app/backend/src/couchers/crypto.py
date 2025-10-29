@@ -2,7 +2,6 @@ import functools
 import secrets
 import string
 from base64 import urlsafe_b64decode, urlsafe_b64encode
-from typing import Optional, Union
 
 import nacl.pwhash
 import nacl.utils
@@ -81,7 +80,7 @@ def generate_hash_signature(message: bytes, key: bytes) -> bytes:
     return generichash_blake2b_salt_personal(message, key=key, digest_size=32)
 
 
-def simple_hash_signature(message: Union[bytes, str], key_name: str) -> str:
+def simple_hash_signature(message: bytes | str, key_name: str) -> str:
     if isinstance(message, str):
         msg_bytes = message.encode("utf8")
     else:
@@ -149,7 +148,12 @@ def aead_generate_key():
     return random_bytes(_aead_key_len)
 
 
-def aead_encrypt(key: bytes, secret_data: bytes, plaintext_data: bytes = b"", nonce: Optional[bytes] = None) -> bytes:
+def aead_encrypt(
+    key: bytes,
+    secret_data: bytes,
+    plaintext_data: bytes = b"",
+    nonce: bytes | None = None,
+) -> tuple[bytes, bytes]:
     if not nonce:
         nonce = aead_generate_nonce()
     encrypted = crypto_aead.crypto_aead_xchacha20poly1305_ietf_encrypt(secret_data, plaintext_data, nonce, key)
