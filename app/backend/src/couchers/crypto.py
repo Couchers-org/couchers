@@ -2,7 +2,6 @@ import functools
 import secrets
 import string
 from base64 import urlsafe_b64decode, urlsafe_b64encode
-from typing import Optional, Union
 
 import nacl.pwhash
 import nacl.utils
@@ -43,15 +42,15 @@ def urlsafe_secure_token():
     return _urlsafe_random_b64(32)
 
 
-def cookiesafe_secure_token():
+def cookiesafe_secure_token() -> str:
     return random_hex(32)
 
 
-def hash_password(password: str):
+def hash_password(password: str) -> bytes:
     return nacl.pwhash.str(password.encode("utf-8"))
 
 
-def verify_password(hashed: bytes, password: str):
+def verify_password(hashed: bytes, password: str) -> bool:
     try:
         correct = nacl.pwhash.verify(hashed, password.encode("utf-8"))
         return correct
@@ -59,14 +58,14 @@ def verify_password(hashed: bytes, password: str):
         return False
 
 
-def random_hex(length=32):
+def random_hex(length: int = 32) -> str:
     """
     Length in binary
     """
     return random_bytes(length).hex()
 
 
-def secure_compare(val1, val2):
+def secure_compare(val1, val2) -> bool:
     return sodium_memcmp(val1, val2)
 
 
@@ -81,7 +80,7 @@ def generate_hash_signature(message: bytes, key: bytes) -> bytes:
     return generichash_blake2b_salt_personal(message, key=key, digest_size=32)
 
 
-def simple_hash_signature(message: Union[bytes, str], key_name: str) -> str:
+def simple_hash_signature(message: bytes | str, key_name: str) -> str:
     if isinstance(message, str):
         msg_bytes = message.encode("utf8")
     else:
@@ -98,12 +97,12 @@ def verify_hash_signature(message: bytes, key: bytes, sig: bytes) -> bool:
     return secure_compare(sig, generate_hash_signature(message, key))
 
 
-def generate_random_5digit_string():
+def generate_random_5digit_string() -> str:
     """Return a random 5-digit string"""
     return f"{secrets.randbelow(100000):05d}"
 
 
-def verify_token(a: str, b: str):
+def verify_token(a: str, b: str) -> bool:
     """Return True if strings a and b are equal, in such a way as to
     reduce the risk of timing attacks.
     """
@@ -122,7 +121,7 @@ def stable_secure_uniform(key: bytes, seed: bytes):
 
 
 @functools.lru_cache
-def get_secret(name: str):
+def get_secret(name: str) -> bytes:
     """
     Derives a secret key from the root secret using a key derivation function
     """
@@ -141,15 +140,20 @@ _aead_key_len = crypto_aead.crypto_aead_xchacha20poly1305_ietf_KEYBYTES
 _aead_nonce_len = crypto_aead.crypto_aead_xchacha20poly1305_ietf_NPUBBYTES
 
 
-def aead_generate_nonce():
+def aead_generate_nonce() -> bytes:
     return random_bytes(_aead_nonce_len)
 
 
-def aead_generate_key():
+def aead_generate_key() -> bytes:
     return random_bytes(_aead_key_len)
 
 
-def aead_encrypt(key: bytes, secret_data: bytes, plaintext_data: bytes = b"", nonce: Optional[bytes] = None) -> bytes:
+def aead_encrypt(
+    key: bytes,
+    secret_data: bytes,
+    plaintext_data: bytes = b"",
+    nonce: bytes | None = None,
+) -> tuple[bytes, bytes]:
     if not nonce:
         nonce = aead_generate_nonce()
     encrypted = crypto_aead.crypto_aead_xchacha20poly1305_ietf_encrypt(secret_data, plaintext_data, nonce, key)
