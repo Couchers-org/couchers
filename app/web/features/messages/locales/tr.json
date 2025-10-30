@@ -11,7 +11,13 @@
   "host_pending_request_help_text": "Cevap vermeden önce <0>değerlendirmek isteyebileceğin şeyler</0>.",
   "mark_all_read_button_text": "Hepsini okundu işaretle",
   "messages_page": {
-    "title": "Mesajlar"
+    "title": "Mesajlar",
+    "tabs": {
+      "aria_label": "Farklı mesaj türleri için sekmeler",
+      "chats": "Sohbetler",
+      "hosting": "Ev Sahipliği",
+      "surfing": "Sörfler"
+    }
   },
   "chat_view": {
     "invalid_id_error": "Geçersiz sohbet ID'si.",
@@ -36,11 +42,14 @@
       "forever_label": "Ben sessizden çıkarana dek",
       "button_label": "Sohbeti sessize al",
       "unmute_button_label": "Sohbeti sessizden çıkar",
-      "dialog_title": "Ne kadar süreyle sessize almak istiyorsun?"
+      "dialog_title": "Ne kadar süreyle sessize almak istiyorsun?",
+      "1_day_label": "1 gün"
     },
     "muted_icon": {
       "a11y_label": "Sessiz"
-    }
+    },
+    "cannot_message_text": "Bu sohbette mesaj yollayamazsın",
+    "no_messages_state_text": "Mesaj yok"
   },
   "admins_dialog": {
     "step_down_confirmation_dialog": {

@@ -24,5 +24,10 @@
     "title": "{{name}}'nın engelini kaldırmak istediğine emin misin?",
     "message": "Engeli kaldırmak onların senin profilini görmesine ve sana istek yollamalarına izin verecek. Eğer daha önceden arkadaş idiyseniz, arkadaş listene geri dönecekler. Onlara haber verilmeyecek."
   },
-  "unblock_user": "Kullanıcının engelini kaldır"
+  "unblock_user": "Kullanıcının engelini kaldır",
+  "no_friend_requests": "Bekleyen arkadaş isteği yok",
+  "accept": "Kabul Et",
+  "no_friend_requests_sent": "Bekleyen arkadaşlık isteği yok",
+  "remove_friend": "Arkadaşı çıkar",
+  "pending": "Bekliyor"
 }

@@ -28,5 +28,13 @@
     "edit": "Düzenle",
     "save": "Kaydet",
     "copied": "Panoya kopyalandı",
-    "verification_score_description": "Diğer kullanıcıların kefaletine göre hesaplandı"
+    "verification_score_description": "Diğer kullanıcıların kefaletine göre hesaplandı",
+    "created": "Oluşturuldu",
+    "terms_of_service": "Hizmet Şartları",
+    "required": "Gerekli",
+    "accept": "Kabul Et",
+    "expand": "Genişlet",
+    "save_changes": "Değişiklikleri kaydet",
+    "submit": "Gönder",
+    "learn_more": "Daha fazla öğren"
 }
