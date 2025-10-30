@@ -21,7 +21,7 @@ To make a decision a person **does not need approval** from someone with more au
 There are many cases where it is unclear if the decision falls within the scope of a person’s responsibilities. In those cases, that person should consult with the person they report to, and if necessary re-clarify their scope.
 
 For this to work, we need to consider:
-- communication and consultation must be high. While no one needs authority, it is still worth discussing things over slack and the forum, especially when there will be significant impact.
+- communication and consultation must be high. While no one needs authority, it is still worth discussing things over slack, especially when there will be significant impact.
 - we will **make mistakes**, and decisions will need to be overridden. No one should feel bad in these situations, it is a good outcome, as it means people are taking action and pushing things forward. People must be frank with one another when this happens.
 - **scope must be clearly defined**. If anyone is unsure about their responsibilities, this should be quickly corrected so people know what they should be taking initiative over.
 
@@ -33,7 +33,7 @@ The Board is a supervisory body that ensures that the organization is on the rig
 
 The Board meets at least once a quarter. It should be removed from the day-to-day operations of the organization, but provides high level strategy and advises those carrying out executive tasks.
 
-For now, there are 3 members on the board: Aapeli, Dea, and Itsi. We plan to gradually grow the board, aiming for around 8 to 12 members. The composition should have some members who are actively involved in carrying out the mission, but we aim to find experienced people who can bring their experience and perspectives to the high level strategy of the organization.
+We are aiming for 8 to 12 [board members](https://couchers.org/foundation). The composition should have some members who are actively involved in carrying out the mission, but we aim to find experienced people who can bring their experience and perspectives to the high level strategy of the organization.
 
 ### Executive Director
 
