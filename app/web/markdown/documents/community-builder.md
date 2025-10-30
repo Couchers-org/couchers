@@ -23,10 +23,12 @@ On the platform, your community page must be populated with some content. Check 
 
 
 
-1. **Short description**: write some text (50-80 words) for the community overview to appear under the “General information” in the "Overview" tab ([example](https://couchers.org/community/64/madison)). **Email description to community.building@couchers.org** and we will update it. ![Screenshot of the Madison community short description](/img/docs/community_builder_short_description.jpg)Please remember to email this description to **community.building@couchers.org**
-2. **Long description/page**: Write text for the "Local info" page ([example](https://couchers.org/community/64/madison/info)). This can be edited on the page. ![Screenshot of how to edit long description](/img/docs/community_builder_long_description.jpg)
-3. **Start discussions**: create new discussions on your community page, and make sure you are responsive when other people interact to keep up momentum ([example](https://couchers.org/community/54/russia)).
-4. **Community Builder diversity**: If all of the Community Builders in your community are men, you must recruit one who is not a man.
+1. **Short description**: write some text (50-80 words) for the community overview to appear under the “General information” in the "Overview" tab ([example](https://couchers.org/community/64/madison)). **Email the description to community.building@couchers.org** and we will update it, please include the community name in the subject line (e.g.: Description Update Madison).
+   ![Screenshot of the Madison community short description](/img/docs/community_builder_short_description.jpg)
+3. **Long description/page**: Write text for the "Local info" page ([example](https://couchers.org/community/64/madison/info)). This can be edited on the page.
+   ![Screenshot of how to edit long description](/img/docs/community_builder_long_description.jpg)
+5. **Start discussions**: create new discussions on your community page, and make sure you are responsive when other people interact to keep up momentum ([example](https://couchers.org/community/54/russia)).
+6. **Community Builder diversity**: Community Builders should be an example of a diverse group. Ensure to recruit CBs accordingly, this includes - but is not limited to - age, sex and ethnicity.
 
 *We may remove communities where the Community Organizers do not meet these 4 minimum platform tasks, as we need the communities present to be active.*
 
@@ -34,8 +36,8 @@ On the platform, your community page must be populated with some content. Check 
 ### Outreach tasks
 
 1. **New Community Builders**: Find experienced and well-connected couch surfers in other cities to do what you're doing, or find other people to lead your community alongside you. Your own networks are best, but you can also search through Facebook groups and the Couchsurfing™ app for event organizers.
-2. **Event outreach**: Attend events for other couch surfing platforms (including Couchsurfing™, Facebook and WhatsApp groups etc.), and tell people about Couchers.org. Of course only do this if your city has low Covid risk.
-3. **Media outreach**: Contact local new outlets, blogs, magazines, YouTube channels and influencers that have an interest in travel or community matters, and give them information about Couchers.org and your local community, with the aim of getting content published.
+2. **Event outreach**: Attend events for other couch surfing platforms (including Couchsurfing™, Facebook and WhatsApp groups etc.), and tell people about Couchers.org.
+3. **Media outreach**: Contact local news outlets, blogs, magazines, YouTube channels and influencers that have an interest in travel or community matters, and give them information about Couchers.org and your local community, with the aim of getting content published.
 4. **Digital outreach**: Spread the word on your social media platforms, find online groups (e.g. Facebook or WhatsApp) and contact your friends. If possible, convert existing digital groups to include Couchers.org (like the [Chicago community](https://www.facebook.com/groups/cschicago/)). ![Screenshot of facebook couch surfing group in Chicago that includes Couchers.org in the title](/img/docs/community_builder_chicago_fb.jpg)
 
 
@@ -50,7 +52,7 @@ On the platform, your community page must be populated with some content. Check 
 
 We are still in the process of building out further reporting and moderation features. In the meantime, we would like you to keep an eye on activities on the platform, and report content or users you see that you believe are out of line with the spirit of the platform.
 
-Please send reports to [support@couchers.org](mailto:support@couchers.org)
+Please use the green flag icon next to events, discussions, comments and in profiles to report issues. If that's not possible please send a report to [support@couchers.org](mailto:support@couchers.org)
 
 
 ## Future of Community Builders
