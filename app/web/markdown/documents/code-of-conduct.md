@@ -41,6 +41,6 @@ You agree:
 You agree:
 
 - to not act fraudulently or dishonestly, or do anything that brings, or is likely to bring, Couchers.org into disrepute;
-- to to only use your Couchers.org email account only for volunteer-work-related communications and tasks;
+- to use your Couchers.org email account solely for communications and tasks related to volunteer work;
 - to seek approval from the Couchers.org Head of Marketing before representing Couchers.org outside the organization;
 - that when expressing opinions outside Couchers.org, to clarify that all opinions are your own and not necessarily the opinions of the organization.
