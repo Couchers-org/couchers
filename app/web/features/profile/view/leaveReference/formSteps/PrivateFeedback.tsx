@@ -130,7 +130,11 @@ export default function PrivateFeedback({
 
   return (
     <StyledForm onSubmit={onSubmit}>
-      <ReferenceStepHeader name={user.name} referenceType={referenceType} />
+      <ReferenceStepHeader
+        name={user.name}
+        referenceType={referenceType}
+        step="private-feedback"
+      />
       <StyledTextBody>
         {t("profile:leave_reference.appropriate_explanation")}
       </StyledTextBody>

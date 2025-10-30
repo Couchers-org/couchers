@@ -87,7 +87,11 @@ export default function Text({
 
   return (
     <StyledForm onSubmit={onSubmit}>
-      <ReferenceStepHeader name={user.name} referenceType={referenceType} />
+      <ReferenceStepHeader
+        name={user.name}
+        referenceType={referenceType}
+        step="reference"
+      />
       <StyledTextBody>
         {t("profile:leave_reference.text_explanation")}
       </StyledTextBody>

@@ -31,15 +31,13 @@ const StyledSection = styled("div")(() => ({
 }));
 
 const StyledCardContainer = styled(HorizontalScroller)(() => ({
-  cardContainer: {
-    display: "flex",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: theme.spacing(2),
-    [theme.breakpoints.down("sm")]: {
-      overflowX: "auto",
-      flexWrap: "nowrap",
-    },
+  display: "flex",
+  flexDirection: "row",
+  flexWrap: "wrap",
+  gap: theme.spacing(2),
+  [theme.breakpoints.down("sm")]: {
+    overflowX: "auto",
+    flexWrap: "nowrap",
   },
 }));
 
