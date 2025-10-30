@@ -21,7 +21,7 @@ import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { DONATIONS } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import React, { PropsWithChildren, useMemo, useRef, useState } from "react";
+import React, { PropsWithChildren, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
@@ -216,10 +216,6 @@ interface DonationFormData {
 
 export default function DonationsBox() {
   const { t } = useTranslation(DONATIONS);
-  const stripePromise = useMemo(async () => {
-    const stripe = await import("@stripe/stripe-js");
-    return stripe.loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY);
-  }, []);
 
   const [isPredefinedAmount, setIsPredefinedAmount] = useState(true);
 
@@ -252,20 +248,15 @@ export default function DonationsBox() {
         throw Error(t("donations_box.amount_validation_error"));
       }
       const source = router.query.utm_source as string;
-      const stripe = (await stripePromise)!;
 
-      const sessionId = await service.donations.initiateDonation(
+      const sessionUrl = await service.donations.initiateDonation(
         amount,
         recurring === "monthly",
         source,
       );
-      // When the customer clicks on the button, redirect them to Checkout.
-      const result = await stripe.redirectToCheckout({
-        sessionId,
-      });
-      if (result.error) {
-        throw Error(result.error.message);
-      }
+
+      // Redirect to Stripe Checkout
+      window.location.href = sessionUrl;
     },
 
     onSuccess: () => {
