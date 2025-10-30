@@ -16,7 +16,8 @@
     "out/**",
     "build/**",
     "coverage/**",
-    "package-lock.json"
+    "package-lock.json",
+    "next-env.d.ts"
   ],
   "overrides": [
     {
