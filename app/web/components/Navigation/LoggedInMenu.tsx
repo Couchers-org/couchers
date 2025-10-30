@@ -1,7 +1,5 @@
 import { NotificationsOutlined } from "@mui/icons-material";
-import { styled, Tooltip, Typography, useMediaQuery } from "@mui/material";
-import MuiLink from "@mui/material/Link";
-import { Box } from "@mui/system";
+import { Box, styled, Tooltip, Typography, useMediaQuery } from "@mui/material";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
 import IconButton from "components/IconButton";
@@ -110,7 +108,7 @@ const styledMenuItem = <C extends React.ComponentType<React.ComponentProps<C>>>(
   }));
 };
 
-const StyledMenuItemLink = styledMenuItem(MuiLink);
+const StyledMenuItemLink = styledMenuItem(Link);
 const StyledMenuItemDialog = styledMenuItem(Button);
 
 function LinkMenuItemView({
