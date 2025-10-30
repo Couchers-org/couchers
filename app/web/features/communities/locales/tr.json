@@ -12,7 +12,9 @@
     "message": "Bu etkinliği çevredeki tüm kullanıcılara duyuracak bir bildirim yollamaları için modaretörlerden bu formla istekte bulun."
   },
   "invite_community_dialog_buttons": {
-    "open": "Topluluğu davet et"
+    "open": "Topluluğu davet et",
+    "confirm": "Onayla",
+    "close": "İptal et"
   },
   "cancelled": "İptal edildi",
   "cancel_event": "Etkinliği iptal et",
@@ -30,5 +32,14 @@
   "discussions_empty_state": "Şu anda herhangi bir tartışma yok.",
   "discussions_label": "Tartışmalar",
   "invalid_community_id": "Hatalı topluluk ID'si",
-  "discussions_title": "Tartışmalar"
+  "discussions_title": "Tartışmalar",
+  "fill_out_comment": "Önce birşey yazman gerekli!",
+  "attendees_count": "{{count}} katılımcı",
+  "attendees_count_plural": "{{count}} katılımcı",
+  "by_creator": "{{name}} tarafından",
+  "error_loading_community": "Topluluk yüklenirken bir hata oluştu.",
+  "events_empty_state": "Şu anda herhangi bir etkinlik yok.",
+  "comment": "Yorum yap",
+  "comments": "Yorumlar",
+  "community_header": "{{name}}'ya hoşgeldin"
 }

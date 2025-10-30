@@ -20,5 +20,13 @@
     "open_source_title": "Açık kaynak",
     "map_section_title": "Küresel tooluluğumuzu keşfedin",
     "community_led_title": "Topluluk tarafından yönetilen",
-    "num_users": "{{numUsers}} üye"
+    "num_users": "{{numUsers}} üye",
+    "open_source_description": "Kurduğumuz platform ve aletlerin kullanımı,modifikasyonu ve dağıtımı vakfımızın bunlar üzerinde hakkı olmamakla beraber ücretsizdir. Biz açık kaynak topluluğuna katkıda bulunmaya çalışıyoruz.",
+    "open_source_why": "Diğer kişilerin de oluşturduğumuz araçları en üst düzeyde kullanarak faydalanmalarını istiyoruz. Bunları ücretsiz bir şekilde dağıtmak topluluğumuza daha kullanabileceğimiz bir gelecek inşa ettiğimizin daha kuvvetli olan bir garantisini veriyor.",
+    "community_first_description": "Seyahatin gerçek bağlantılar hakkında olduğunu düşünüyoruz. Biz üyeler tarafından yönlendiriliyoruz—yatırımcılar tarafından değil. Sesiniz önemli.",
+    "safer_stronger_description": "Biz güveni ve güvenliği doğrulama, eylemlere sorumluluk ve daha iyi referenslarla yeniden tasarladık—ki siz şüphede kalmadan diğerleriyle bağlanabilin.",
+    "built_by_travelers": "Seyahat edenler tarafından, seyahat edenler için yapıldı",
+    "non_transactional_description": "İnsanlar, etkinliklere veya topluluğa katılmak için birbirlerine para ya da ayni olarak ödeme yapmazlar. Sörf yaparak, gelecekte ev sahipliği yapmak zorunda değilsiniz.",
+    "non_transactional_why": "Bu, gerçek etkileşimlere temel olarak aykırıdır. Sadece vermek ya da sadece almak sağlıklıdır ve buna daha rahat yaklaşmayı öğrenmeliyiz.",
+    "safer_stronger": "Daha güvenli, daha kuvvetli bağlantılar"
 }

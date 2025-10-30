@@ -35,6 +35,9 @@
           "label": "Özel alan"
         },
         "shared_room": {
+          "label": "Paylaşılan oda"
+        },
+        "common": {
           "label": "Ortak oda"
         }
       },
@@ -45,10 +48,16 @@
       "title": "Boş profilleri göster"
     },
     "general_filters": {
-      "accepts_last_minute_requests": "Son dakika isteklerini kabul ediyor"
+      "accepts_last_minute_requests": "Son dakika isteklerini kabul ediyor",
+      "has_strong_verification": "Kuvvetli doğrulamaya sahip"
     },
     "rules": {
       "title": "Kurallar"
+    },
+    "keywords": {
+      "field_label": "İsim, anahtar kelimeler, veya kullanıcı adı",
+      "clear_field_action_a11y_label": "Aramayı temizle",
+      "search_this_keyword_a11y_label": "Bu anahtar kelimeyi ara"
     }
   },
   "choose_search_criteria": "Aramaya bir konum yaz veya bir filtre uygula."

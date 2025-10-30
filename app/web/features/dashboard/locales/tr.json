@@ -8,7 +8,8 @@
     },
     "edit_profile_button": "Profilini şimdi düzenle",
     "description_2": "Bu, güvenilir bir topluluk kurmamıza ve spamı azaltmamıza yardım ediyor. Daha fazla bilgi için, <2>lütfen bu destek sayfasına bak</2>. Yardımın için teşekkürler!",
-    "description_1": "{{action_name}}'yı yapabilmeden önce, profilinde <4>kendin hakkında biraz yazman<4> ve <7>bir profil fotoğrafı yüklemen<7> gerekli."
+    "description_1": "{{action_name}}'yı yapabilmeden önce, profilinde <4>kendin hakkında biraz yazman<4> ve <7>bir profil fotoğrafı yüklemen<7> gerekli.",
+    "cancel_button": "Boş ver"
   },
   "complete_profile_explanation": "Diğer platformların hiçbir bilgi olmayan boş ''hayalet'' profillere sahip olmasından rahatsız olmuyor musun? Lütfen bize hayaletlik yapma!👻👻👻",
   "dashboard": "Gösterge",
@@ -28,5 +29,15 @@
   "all_communities_section": "Tüm topluluklar",
   "browse_communities": "Topluluklara göz at",
   "community_builder": "Topluluğunuzun elçisi olmak ve büyümesine yardımcı olmak ister misiniz? Bir <1>Topluluk Mimarı</1> olun!",
-  "all_communities_intro": "Aşağıda şu ana dek var olan tüm topluluk sayfalarına bakabilirsin. <strong>Bir topluluk adına tıklayarak içindeki diğer toplulukları görebilirsin.</strong>"
+  "all_communities_intro": "Aşağıda şu ana dek var olan tüm topluluk sayfalarına bakabilirsin. <strong>Bir topluluk adına tıklayarak içindeki diğer toplulukları görebilirsin.</strong>",
+  "member_count": "{{count}} üye",
+  "member_count_plural": "{{count}} üye",
+  "events_empty_state": "Şu anda herhangi bir etkinlik yok.",
+  "attendees_count": "{{count}} katılımcı",
+  "attendees_count_plural": "{{count}} katılımcı",
+  "profile_summary_edit": "Profili Düzenle",
+  "your_communities_heading": "Topluluklarınız",
+  "all_communities_heading": "Tüm topluluklar",
+  "no_community": "Şu anda bir topluluğun içinde değilsin.",
+  "no_sub_communities": "Alt topluluk yok."
 }
