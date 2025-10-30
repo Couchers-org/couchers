@@ -3,6 +3,7 @@ A simple config system
 """
 
 import os
+from typing import Any
 
 # Allowed config options, as tuples (name, type, default).
 # All fields are required
@@ -102,48 +103,8 @@ CONFIG_OPTIONS = [
     ("IN_TEST", bool, "0"),
 ]
 
-config = {}
 
-for config_option in CONFIG_OPTIONS:
-    if len(config_option) == 2:
-        name, type_ = config_option
-        optional = False
-    elif len(config_option) == 3:
-        name, type_, default_value = config_option
-        optional = True
-    else:
-        raise ValueError("Invalid CONFIG_OPTIONS")
-
-    value = os.getenv(name)
-
-    if not value:
-        if not optional:
-            # config value not set - will cause a KeyError when trying
-            # to access it.
-            continue
-        else:
-            value = default_value
-
-    if type_ is bool:
-        # 1 is true, 0 is false, everything else is illegal
-        if value not in ["0", "1"]:
-            raise ValueError(f'Invalid bool for {name}, need "0" or "1"')
-        value = value == "1"
-    elif type_ is bytes:
-        # decode from hex
-        value = bytes.fromhex(value)
-    elif isinstance(type_, list):
-        # list of allowed string values
-        if value not in type_:
-            raise ValueError(f"Invalid value for {name}, need one of {', '.join(type_)}")
-    else:
-        value = type_(value)
-
-    config[name] = value
-
-
-## Config checks
-def check_config():
+def check_config(config: dict[str, Any]) -> None:
     for name, *_ in CONFIG_OPTIONS:
         if name not in config:
             raise ValueError(f"Required config value {name} not set")
@@ -170,3 +131,49 @@ def check_config():
     if config["ENABLE_STRONG_VERIFICATION"]:
         if not config["IRIS_ID_PUBKEY"] or not config["IRIS_ID_SECRET"] or not config["VERIFICATION_DATA_PUBLIC_KEY"]:
             raise Exception("No Iris ID pubkey/secret or verification data pubkey but strong verification enabled")
+
+
+def make_config() -> dict[str, Any]:
+    cfg = {}
+
+    for config_option in CONFIG_OPTIONS:
+        if len(config_option) == 2:
+            name, type_ = config_option
+            optional = False
+        elif len(config_option) == 3:
+            name, type_, default_value = config_option
+            optional = True
+        else:
+            raise ValueError("Invalid CONFIG_OPTIONS")
+
+        value = os.getenv(name)
+
+        if not value:
+            if not optional:
+                # config value not set - will cause a KeyError when trying
+                # to access it.
+                continue
+            else:
+                value = default_value
+
+        if type_ is bool:
+            # 1 is true, 0 is false, everything else is illegal
+            if value not in ["0", "1"]:
+                raise ValueError(f'Invalid bool for {name}, need "0" or "1"')
+            value = value == "1"
+        elif type_ is bytes:
+            # decode from hex
+            value = bytes.fromhex(value)
+        elif isinstance(type_, list):
+            # list of allowed string values
+            if value not in type_:
+                raise ValueError(f"Invalid value for {name}, need one of {', '.join(type_)}")
+        else:
+            value = type_(value)
+
+        cfg[name] = value
+
+    return cfg
+
+
+config = make_config()
