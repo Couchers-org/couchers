@@ -23,7 +23,7 @@ On the platform, your community page must be populated with some content. Check 
 
 
 
-1. **Short description**: write some text (50-80 words) for the community overview to appear under the “General information” in the "Overview" tab ([example](https://couchers.org/community/64/madison)). **Email description to community.building@couchers.org** and we will update it.
+1. **Short description**: write some text (50-80 words) for the community overview to appear under the “General information” in the "Overview" tab ([example](https://couchers.org/community/64/madison)). **Email the description to community.building@couchers.org** and we will update it, please ensure to include the community name in the subject line (e.g.: Short Sescription Update Madison).
    ![Screenshot of the Madison community short description](/img/docs/community_builder_short_description.jpg)
 3. **Long description/page**: Write text for the "Local info" page ([example](https://couchers.org/community/64/madison/info)). This can be edited on the page.
    ![Screenshot of how to edit long description](/img/docs/community_builder_long_description.jpg)
