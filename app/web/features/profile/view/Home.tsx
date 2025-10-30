@@ -81,7 +81,10 @@ export default function Home({ user }: HomeProps) {
           </Typography>
           <LabelAndText
             label={t("profile:home_info_headings.space")}
-            text={`${sleepingArrangementLabelsShort(t)[user.sleepingArrangement]}`}
+            text={
+              sleepingArrangementLabelsShort(t)[user.sleepingArrangement] ||
+              t("profile:unspecified_info")
+            }
           />
           <LabelAndText
             label={t("profile:home_info_headings.parking")}
