@@ -17,8 +17,8 @@ You don't have to do these in order, so feel free to join the development meetin
 To get started, head to our GitHub repository and find a good first issue to get working on.
 
 <!-- not assigned, exclude critical or high priority issues, and exclude those requiring work from the other "end" -->
-* [Backend good first issues]([https://github.com/Couchers-org/couchers/issues?q=is%3Aopen+is%3Aissue+label%3Abackend+label%3A%22good+first+issue%22+-label%3Aweb+-label%3A%22priority%3A+critical%22+-label%3A%22priority%3A+high%22+no%3Aassignee](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen%20is%3Aissue%20label%3A%221.topic%20backend%22%20label%3A%223.skill%20good%20first%20issue%22%20%20no%3Aassignee))
-* [Web frontend good first issues]([https://github.com/Couchers-org/couchers/issues?q=is%3Aopen+is%3Aissue+label%3Aweb+is%3Aissue+label%3A%22good+first+issue%22+no%3Aassignee](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen%20is%3Aissue%20label%3A%221.topic%20frontend%22%20is%3Aissue%20label%3A%223.skill%20good%20first%20issue%22%20no%3Aassignee))
+* [Backend good first issues](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen%20is%3Aissue%20label%3A%221.topic%20backend%22%20label%3A%223.skill%20good%20first%20issue%22%20%20no%3Aassignee)
+* [Web frontend good first issues](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen%20is%3Aissue%20label%3A%221.topic%20frontend%22%20is%3Aissue%20label%3A%223.skill%20good%20first%20issue%22%20no%3Aassignee)
 
 **Comment on the issue, that you'd like to work on it**, and one of the core developers will assign it to you. Feel free to ask any questions in that issue's comments and we'll do our best to help you get going.
 
