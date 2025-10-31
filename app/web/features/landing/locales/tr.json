@@ -10,7 +10,7 @@
     "introduction_subtitle": "Kendi dünyanı paylaş, onlarınkini keşfet. Gerçek kanepe sörfü deneyimleri, güven ve gerçek bağlantı üzerine kurulu—harcamalara değil.",
     "introduction_title": "Yabancı olarak tanışın, arkadaş olarak ayrılın",
     "signup_description": "Seyahat et, ev sahipliği yap ve {{ user_count }} kadar üyemizle bağlan. <2>Bizim hakkımızda daha fazla öğren<2>.",
-    "what_couchsurfing_description": "Couchers.org yolcular ve yerliler arasında gerçek etkileşim oluşturmak için yapılan bir topluluk ve platformdur, kanepe sörfü üzerine kurulmuş—ücretsiz, paraya ayalı olmayan konaklamalar ve buluşmalar için—aynı anda da güveni ve güvenliği öne koyuyoruz.",
+    "what_couchsurfing_description": "Couchers.org yolcular ve yerliler arasında gerçek etkileşim oluşturmak için yapılan bir topluluk ve platformdur, kanepe sörfü üzerine kurulmuş—ücretsiz, paraya dayalı olmayan konaklamalar ve buluşmalar için—aynı anda da güveni ve güvenliği öne koyuyoruz.",
     "couchers_mission_title": "Ne için mücadele ediyoruz",
     "nonprofit_title": "Kâr amacı gütmeyen",
     "free_forever_title": "Sonsuza dek ücretsiz",
@@ -18,7 +18,7 @@
     "free_forever_why": "Kullanım için ödeme talep etmek, kabul edilemez bir giriş engelidir. Couch surfing'e para dahil edildiğinde, insanlar yanlış beklentiler geliştirebilir.",
     "authentic_title": "Otantik & gerçek",
     "open_source_title": "Açık kaynak",
-    "map_section_title": "Küresel tooluluğumuzu keşfedin",
+    "map_section_title": "Küresel topluluğumuzu keşfedin",
     "community_led_title": "Topluluk tarafından yönetilen",
     "num_users": "{{numUsers}} üye",
     "open_source_description": "Kurduğumuz platform ve aletlerin kullanımı,modifikasyonu ve dağıtımı vakfımızın bunlar üzerinde hakkı olmamakla beraber ücretsizdir. Biz açık kaynak topluluğuna katkıda bulunmaya çalışıyoruz.",
@@ -28,5 +28,6 @@
     "built_by_travelers": "Seyahat edenler tarafından, seyahat edenler için yapıldı",
     "non_transactional_description": "İnsanlar, etkinliklere veya topluluğa katılmak için birbirlerine para ya da ayni olarak ödeme yapmazlar. Sörf yaparak, gelecekte ev sahipliği yapmak zorunda değilsiniz.",
     "non_transactional_why": "Bu, gerçek etkileşimlere temel olarak aykırıdır. Sadece vermek ya da sadece almak sağlıklıdır ve buna daha rahat yaklaşmayı öğrenmeliyiz.",
-    "safer_stronger": "Daha güvenli, daha kuvvetli bağlantılar"
+    "safer_stronger": "Daha güvenli, daha kuvvetli bağlantılar",
+    "why": "Neden?"
 }
