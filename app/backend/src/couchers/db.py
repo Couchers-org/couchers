@@ -9,7 +9,7 @@ from threading import get_ident
 from alembic import command
 from alembic.config import Config
 from opentelemetry import trace
-from sqlalchemy import create_engine, text
+from sqlalchemy import Engine, create_engine, text
 from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import QueuePool
 from sqlalchemy.sql import and_, func, literal, or_
@@ -46,7 +46,7 @@ def apply_migrations():
 
 
 @functools.cache
-def _get_base_engine():
+def _get_base_engine() -> Engine:
     return create_engine(
         config["DATABASE_CONNECTION_STRING"],
         # checks that the connections in the pool are alive before using them, which avoids the "server closed the
@@ -91,7 +91,7 @@ def session_scope():
 @contextmanager
 def worker_repeatable_read_session_scope():
     """
-    This is a separate sesson scope that is isolated from the main one since otherwise we end up nesting transactions,
+    This is a separate session scope that is isolated from the main one since otherwise we end up nesting transactions,
     this causes two different connections to be used
 
     This operates in a `REPEATABLE READ` isolation level so that we can do a `SELECT ... FOR UPDATE SKIP LOCKED` in the
