@@ -17,7 +17,6 @@ import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { useIsNativeEmbed } from "platform/nativeLink";
 import Sentry from "platform/sentry";
 import { GetInviteCodeInfoRes } from "proto/auth_pb";
 import { useEffect, useState } from "react";
@@ -57,8 +56,6 @@ export default function Signup() {
 
   const urlToken = stringOrFirstString(router.query.token);
   const inviteCode = stringOrFirstString(router.query.code);
-
-  const isNativeEmbed = useIsNativeEmbed();
 
   useEffect(() => {
     authActions.clearError();
@@ -117,65 +114,6 @@ export default function Signup() {
       }
     : null;
   const inviteError = inviteInfoError?.message ?? null;
-
-  if (isNativeEmbed) {
-    return (
-      <StyledMobileEmbed>
-        {error && (
-          <Alert severity="error" sx={{ width: "100%" }}>
-            {error}
-          </Alert>
-        )}
-        {inviter && inviteError && (
-          <Alert severity="info" sx={{ width: "100%" }}>
-            {t("global:error_loading_invite_codes")}
-          </Alert>
-        )}
-        {inviteCode && !inviteError && (
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1.5,
-              padding: 1.25,
-              border: `1px solid ${theme.palette.divider}`,
-              borderRadius: 2,
-              backgroundColor: theme.palette.background.paper,
-              mb: 2,
-            }}
-          >
-            {inviter && !isInvitePending && (
-              <>
-                <Avatar
-                  user={{
-                    username: inviter.username,
-                    name: inviter.name,
-                    avatarUrl: inviter.avatarUrl || "",
-                  }}
-                  highRes
-                />
-                <Typography>
-                  {t("global:invited_you", { name: inviter.name })}
-                </Typography>
-              </>
-            )}
-
-            {inviter && isInvitePending && (
-              <>
-                <Skeleton variant="circular" sx={{ width: 48, height: 48 }} />
-                <Skeleton variant="text" sx={{ width: "60%" }} />
-              </>
-            )}
-          </Box>
-        )}
-        {loading ? (
-          <CenteredSpinner />
-        ) : (
-          <SignupFormContent inviteCode={inviteCode || undefined} />
-        )}
-      </StyledMobileEmbed>
-    );
-  }
 
   return (
     <>
