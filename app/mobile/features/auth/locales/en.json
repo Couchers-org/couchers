@@ -179,7 +179,6 @@
       "resubmit_button_text": "Re-submit"
     }
   },
-  "logged_out_message": "You were logged out.",
   "sign_up_completed_title": "Thank you for signing up!",
   "sign_up_completed_prompt": "We have sent an email with a verification link to your email address. Please click the link to activate your account.",
   "sign_up_confirmed_prompt": "You're all done! If you are not redirected, try logging in.",

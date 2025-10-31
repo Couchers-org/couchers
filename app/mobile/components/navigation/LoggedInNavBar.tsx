@@ -45,7 +45,6 @@ const NavBar = () => {
     setIsNotifOpen(false);
     await authActions.logout();
     queryClient.clear();
-    // No need to navigate - RootLayoutNav will automatically show login screen
   };
 
   if (!authState.authenticated) return null;

@@ -1,14 +1,9 @@
-import { Alert } from "react-native";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "@/i18n";
-import { AUTH } from "@/i18n/namespaces";
 import React, { Context, ReactNode, useContext, useEffect } from "react";
 import { setUnauthenticatedErrorHandler } from "@/service/client";
 
 import { JAILED_ERROR_MESSAGE } from "@/features/auth/constants";
 import useAuthStore, { AuthStoreType } from "@/features/auth/useAuthStore";
-import { loginRoute } from "@/routes";
-import { router } from "expo-router";
 
 export const AuthContext = React.createContext<null | AuthStoreType>(null);
 
@@ -21,7 +16,6 @@ function useAppContext<T>(context: Context<T | null>) {
 }
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
-  const { t } = useTranslation(AUTH);
   const store = useAuthStore();
 
   useEffect(() => {
@@ -29,20 +23,17 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       // the backend will return "Permission denied" if you're just jailed, and "Unauthorized" otherwise
       if (e.message === JAILED_ERROR_MESSAGE) {
         await store.authActions.updateJailStatus();
-        Alert.alert("You seem to be jailed.");
       } else {
-        // completely logged out
+        // Session expired or unauthorized - log them out silently
         await store.authActions.logout();
-        store.authActions.authError(t("logged_out_message"));
-        Alert.alert("You've been logged out.");
-        router.replace(loginRoute as any);
+        // The RootLayoutNav will automatically show the login screen
       }
     });
 
     return () => {
       setUnauthenticatedErrorHandler(async () => {});
     };
-  }, [store.authActions, t]);
+  }, [store.authActions]);
 
   return <AuthContext.Provider value={store}>{children}</AuthContext.Provider>;
 }
