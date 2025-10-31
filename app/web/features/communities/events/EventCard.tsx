@@ -25,6 +25,7 @@ const StyledCard = styled(Card, {
   position: "relative",
   display: "grid",
   gridTemplateRows: "1fr auto",
+  overflow: "hidden",
   "&:hover": {
     backgroundColor: theme.palette.grey[50],
   },
@@ -51,12 +52,12 @@ const EventTime = styled(Typography)(({ theme }) => ({
   },
 }));
 
-const Content = styled(Typography)(({ theme }) => ({
-  display: "-webkit-box",
-  WebkitBoxOrient: "vertical",
-  WebkitLineClamp: 5,
+const Content = styled(Typography)({
+  display: "flex",
+  flexDirection: "column",
   overflow: "hidden",
-}));
+  wordBreak: "break-word",
+});
 
 const CancelledChip = styled(Chip)(({ theme }) => ({
   backgroundColor: theme.palette.error.main,
@@ -82,6 +83,24 @@ const StyledCommentsCount = styled(Typography)(({ theme }) => ({
 const ActivityStatsWrapper = styled("div")({
   display: "flex",
   justifyContent: "space-between",
+});
+
+const StyledLink = styled(Link)({
+  textDecoration: "none",
+  color: "inherit",
+  display: "flex",
+  flexDirection: "column",
+  height: "100%",
+  overflow: "hidden",
+});
+
+const StyledCardContent = styled(CardContent)({
+  display: "flex",
+  flexDirection: "column",
+  flexGrow: 1,
+  "&:last-child": {
+    paddingBottom: 16, // Override MUI's default last-child padding
+  },
 });
 
 export const EVENT_CARD_TEST_ID = "event-card";
@@ -119,7 +138,7 @@ export default function EventCard({
       isCancelled={event.isCancelled}
       data-testid={EVENT_CARD_TEST_ID}
     >
-      <Link href={routeToEvent(event.eventId, event.slug)}>
+      <StyledLink href={routeToEvent(event.eventId, event.slug)}>
         <CardMedia
           component="div"
           sx={{
@@ -148,7 +167,7 @@ export default function EventCard({
             />
           </FlagButtonWrapper>
         </CardMedia>
-        <CardContent>
+        <StyledCardContent>
           <EventTime
             variant="body2"
             color="textSecondary"
@@ -177,9 +196,7 @@ export default function EventCard({
           )}
           <Divider spacing={1} />
           <div>
-            <Content variant="body1" paragraph>
-              {strippedContent}
-            </Content>
+            <Content>{strippedContent}</Content>
 
             <ActivityStatsWrapper>
               <Typography variant="body2" color="textSecondary">
@@ -196,8 +213,8 @@ export default function EventCard({
               </StyledCommentsCount>
             </ActivityStatsWrapper>
           </div>
-        </CardContent>
-      </Link>
+        </StyledCardContent>
+      </StyledLink>
     </StyledCard>
   );
 }
