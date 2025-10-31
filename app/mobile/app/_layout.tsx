@@ -56,14 +56,11 @@ function RootLayoutNav() {
     );
   }
 
-  // AuthNavigator - show login with logged out navbar
+  // AuthNavigator - show login (web app has its own navbar)
   return (
-    <View style={{ flex: 1 }}>
-      <LoggedOutNavBar />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="login" />
-      </Stack>
-    </View>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="login" />
+    </Stack>
   );
 }
 
