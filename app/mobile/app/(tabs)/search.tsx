@@ -1,5 +1,5 @@
 import WebEmbed from "@/components/WebEmbed";
-import { TabBarIcon } from "@/components/navigation/TabBarIcon";
+import { TabBarIcon } from "@/components/TabBarIcon";
 
 export const options = {
   title: "Search",

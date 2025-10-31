@@ -26,8 +26,6 @@ import { ReactQueryClientProvider } from "@/features/reactQueryClient";
 
 import { Stack } from "expo-router";
 import { useAuthContext } from "@/features/auth/AuthProvider";
-import { View } from "react-native";
-import LoggedOutNavBar from "@/components/navigation/LoggedOutNavBar";
 
 // Sentry.init({
 //   dsn: "https://7de06aa8cca6dacc9620667dd84a0d01@o782870.ingest.us.sentry.io/4507718344704000",
@@ -46,9 +44,7 @@ function RootLayoutNav() {
   }
 
   // Conditionally render the appropriate navigator based on auth state
-  // This is the key pattern from the article
   if (authState.authenticated) {
-    // DashboardNavigator - show the tabs with LoggedInNavBar
     return (
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
