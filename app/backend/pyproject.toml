@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Couchers.org backend application"
 requires-python = ">=3.13"
 dependencies = [
-    "alembic==1.16.5",
+    "alembic==1.17.1",
     "boto3==1.39.3",
     "cachetools==6.1.0",
     "cryptography==46.0.3",
