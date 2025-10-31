@@ -1,5 +1,7 @@
 FROM python:3.13-bullseye AS base
 
+ENV UV_VERSION=0.9.6
+
 RUN apt-get update && apt-get install -y libgeos-c1v5
 
 FROM base AS build
@@ -23,10 +25,15 @@ COPY --from=build /usr/local/bin/entr /usr/local/bin/entr
 
 WORKDIR /app
 
-COPY requirements.txt /app
-RUN pip install --no-cache-dir -r requirements.txt
+# Make sure uv is in PATH
+ENV PATH="/root/.local/bin:$PATH"
+
+COPY pyproject.toml uv.lock /app/
+RUN wget -qO- https://astral.sh/uv/${UV_VERSION}/install.sh | sh && uv sync --frozen --no-install-project
 
 COPY . /app
+
+RUN uv sync --frozen
 
 COPY --from=build /deps/timezone_areas.sql /app/resources/timezone_areas.sql
 
@@ -42,4 +49,4 @@ ENV COMMIT_SHA=$commit_sha
 ARG commit_timestamp
 ENV COMMIT_TIMESTAMP=$commit_timestamp
 
-CMD python src/app.py
+CMD uv run src/app.py

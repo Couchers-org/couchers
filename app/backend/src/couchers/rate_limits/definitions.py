@@ -3,9 +3,10 @@ In order to add a new rate limit definition, extend RateLimitAction and RATE_LIM
 rate_limits.check.process_rate_limits_and_check_abort in the relevant endpoint.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 from sqlalchemy import func, select
 
