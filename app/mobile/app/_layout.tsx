@@ -24,7 +24,10 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { ReactQueryClientProvider } from "@/features/reactQueryClient";
 // import Sentry from "platform/sentry";
 
-import { Slot, Stack } from "expo-router";
+import { Stack } from "expo-router";
+import { useAuthContext } from "@/features/auth/AuthProvider";
+import { View } from "react-native";
+import LoggedOutNavBar from "@/components/navigation/LoggedOutNavBar";
 
 // Sentry.init({
 //   dsn: "https://7de06aa8cca6dacc9620667dd84a0d01@o782870.ingest.us.sentry.io/4507718344704000",
@@ -32,6 +35,37 @@ import { Slot, Stack } from "expo-router";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+// This is like AppNavigator in the article - conditionally renders based on auth
+function RootLayoutNav() {
+  const { authState } = useAuthContext();
+
+  // While checking auth status, show nothing (splash screen stays visible)
+  if (!authState.authenticated && authState.loading) {
+    return null;
+  }
+
+  // Conditionally render the appropriate navigator based on auth state
+  // This is the key pattern from the article
+  if (authState.authenticated) {
+    // DashboardNavigator - show the tabs with LoggedInNavBar
+    return (
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+      </Stack>
+    );
+  }
+
+  // AuthNavigator - show login with logged out navbar
+  return (
+    <View style={{ flex: 1 }}>
+      <LoggedOutNavBar />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="login" />
+      </Stack>
+    </View>
+  );
+}
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -61,10 +95,7 @@ export default function RootLayout() {
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <ReactQueryClientProvider>
           <AuthProvider>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="login" />
-            </Stack>
+            <RootLayoutNav />
           </AuthProvider>
         </ReactQueryClientProvider>
       </ThemeProvider>

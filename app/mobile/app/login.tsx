@@ -1,9 +1,11 @@
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
-import { router } from "expo-router";
+import { useAuthContext } from "@/features/auth/AuthProvider";
 
 export default function Login() {
   const WEB_BASE_URL = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
+  const { authActions } = useAuthContext();
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <WebView
@@ -12,7 +14,9 @@ export default function Login() {
         sharedCookiesEnabled
         onNavigationStateChange={(s) => {
           if (s.url.startsWith(WEB_BASE_URL + "/dashboard")) {
-            router.replace("/(tabs)/dashboard");
+            // The auth state will update automatically through the cookie
+            // and the RootLayoutNav will handle showing the tabs
+            authActions.checkAuthStatus();
           }
         }}
       />
