@@ -1,9 +1,10 @@
-import { styled } from "@mui/material";
+import { Box, Chip, styled, useMediaQuery } from "@mui/material";
 import Slider from "@mui/material/Slider";
 import { getSliderColor } from "components/RatingsSlider/getSliderColor";
 import SliderLabel from "components/RatingsSlider/SliderLabel";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
+import { theme } from "theme";
 
 interface ColorProps {
   sliderColor: string;
@@ -22,6 +23,13 @@ const StyledSlider = styled(Slider, {
   },
   '& .MuiSlider-markLabel[data-index="3"]': {
     transform: "translateX(-100%)",
+  },
+  // Hide mark labels on mobile
+  [theme.breakpoints.down("sm")]: {
+    "& .MuiSlider-markLabel": {
+      display: "none",
+    },
+    marginBottom: theme.spacing(3),
   },
   height: "0.5rem",
   borderRadius: "1.5625rem",
@@ -71,6 +79,7 @@ const StyledSlider = styled(Slider, {
 
 export default function RatingsSlider({ value, onChange }: SliderProps) {
   const { t } = useTranslation(PROFILE);
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const marks = [
     {
@@ -91,20 +100,45 @@ export default function RatingsSlider({ value, onChange }: SliderProps) {
     },
   ];
 
+  const getCurrentLabel = (val: number | undefined) => {
+    if (val === undefined) return marks[1].label;
+    if (val <= 0.165) return marks[0].label;
+    if (val <= 0.5) return marks[1].label;
+    if (val <= 0.835) return marks[2].label;
+    return marks[3].label;
+  };
+
   return (
-    <StyledSlider
-      aria-label={t("profile:leave_reference.ratings_slider_label")}
-      sliderColor={getSliderColor(value)}
-      value={value ?? marks[1].value}
-      min={0}
-      max={1}
-      step={0.01}
-      marks={marks}
-      valueLabelDisplay="on"
-      valueLabelFormat={() => <SliderLabel value={value} />}
-      onChange={(event, value) => {
-        onChange(value);
-      }}
-    />
+    <Box>
+      <StyledSlider
+        aria-label={t("profile:leave_reference.ratings_slider_label")}
+        sliderColor={getSliderColor(value)}
+        value={value ?? marks[1].value}
+        min={0}
+        max={1}
+        step={0.01}
+        marks={marks}
+        valueLabelDisplay="on"
+        valueLabelFormat={() => <SliderLabel value={value} />}
+        onChange={(event, value) => {
+          onChange(value);
+        }}
+      />
+      {isMobile && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+          <Chip
+            label={getCurrentLabel(value)}
+            sx={{
+              backgroundColor: getSliderColor(value),
+              color: "white",
+              fontWeight: 600,
+              fontSize: "1rem",
+              px: 2,
+              py: 2.5,
+            }}
+          />
+        </Box>
+      )}
+    </Box>
   );
 }

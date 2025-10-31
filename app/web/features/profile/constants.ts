@@ -33,7 +33,9 @@ export const referenceBadgeLabel = (t: TFunction) => ({
   ),
 });
 
-export const smokingLocationLabels = (t: TFunction) => ({
+export const smokingLocationLabels = (
+  t: TFunction,
+): Record<number, string> => ({
   [SmokingLocation.SMOKING_LOCATION_NO]: t("profile:smoking_location.no"),
   [SmokingLocation.SMOKING_LOCATION_OUTSIDE]: t(
     "profile:smoking_location.outside",
@@ -78,7 +80,9 @@ export const meetupStatusLabels = (t: TFunction) => ({
   ),
 });
 
-export const sleepingArrangementLabels = (t: TFunction) => ({
+export const sleepingArrangementLabels = (
+  t: TFunction,
+): Record<number, string> => ({
   [SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE]: t(
     "profile:sleeping_arrangement.private",
   ),
@@ -91,12 +95,11 @@ export const sleepingArrangementLabels = (t: TFunction) => ({
   [SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN]: t(
     "profile:unspecified_info",
   ),
-  [SleepingArrangement.SLEEPING_ARRANGEMENT_UNSPECIFIED]: t(
-    "profile:unspecified_info",
-  ),
 });
 
-export const sleepingArrangementLabelsShort = (t: TFunction) => ({
+export const sleepingArrangementLabelsShort = (
+  t: TFunction,
+): Record<number, string> => ({
   [SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE]: t(
     "profile:sleeping_arrangement.private_short",
   ),
@@ -111,7 +114,7 @@ export const sleepingArrangementLabelsShort = (t: TFunction) => ({
   ),
 });
 
-export const parkingDetailsLabels = (t: TFunction) => ({
+export const parkingDetailsLabels = (t: TFunction): Record<number, string> => ({
   [ParkingDetails.PARKING_DETAILS_FREE_ONSITE]: t(
     "profile:parking_details.free_onsite",
   ),

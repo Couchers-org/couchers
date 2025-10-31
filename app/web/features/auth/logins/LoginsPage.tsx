@@ -54,7 +54,7 @@ export default function LoginsPage() {
   >({
     queryKey: [activeLoginsKey],
     queryFn: ({ pageParam }) => service.account.listActiveSessions(pageParam),
-    initialPageParam: "0",
+    initialPageParam: "",
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
   });
 

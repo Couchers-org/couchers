@@ -5,7 +5,7 @@ import Markdown from "components/Markdown";
 import {
   booleanConversion,
   parkingDetailsLabels,
-  sleepingArrangementLabels,
+  sleepingArrangementLabelsShort,
   smokingLocationLabels,
 } from "features/profile/constants";
 import { useTranslation } from "i18n";
@@ -81,7 +81,10 @@ export default function Home({ user }: HomeProps) {
           </Typography>
           <LabelAndText
             label={t("profile:home_info_headings.space")}
-            text={`${sleepingArrangementLabels(t)[user.sleepingArrangement]}`}
+            text={
+              sleepingArrangementLabelsShort(t)[user.sleepingArrangement] ||
+              t("profile:unspecified_info")
+            }
           />
           <LabelAndText
             label={t("profile:home_info_headings.parking")}

@@ -30,10 +30,6 @@ import stringOrFirstString from "utils/stringOrFirstString";
 import { useAuthContext } from "../AuthProvider";
 import SignupFormContent from "./SignupFormContent";
 
-const StyledMobileEmbed = styled("div")(({ theme }) => ({
-  margin: theme.spacing(3),
-}));
-
 const StyledFormWrapper = styled("div")(({ theme }) => ({
   backgroundColor: alpha(theme.palette.primary.light, 0.1),
   borderRadius: theme.shape.borderRadius,
