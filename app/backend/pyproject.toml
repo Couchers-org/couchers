@@ -7,7 +7,7 @@ dependencies = [
     "alembic==1.16.5",
     "boto3==1.39.3",
     "cachetools==6.1.0",
-    "cryptography==45.0.5",
+    "cryptography==46.0.3",
     "geoalchemy2==0.17.0",
     "geoip2==5.1.0",
     "grpcio==1.75.1",
