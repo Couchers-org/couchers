@@ -44,12 +44,12 @@ const PageWrapper = styled(Box)({
   overflowY: "auto",
 });
 
-const ContentWrapper = styled(Container, {
-  shouldForwardProp: (prop) => prop !== "isNativeEmbed",
-})<{
-  isNativeEmbed: boolean;
+const ContentWrapper = styled(
+  Container,
+  {},
+)<{
   variant: AppRouteProps["variant"];
-}>(({ theme, variant, isNativeEmbed }) => ({
+}>(({ theme, variant }) => ({
   display: "flex",
   flexDirection: "column",
   flex: 1,
@@ -60,10 +60,6 @@ const ContentWrapper = styled(Container, {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
     paddingBottom: theme.spacing(2),
-  }),
-  ...(isNativeEmbed && {
-    margin: "0 auto",
-    padding: 0,
   }),
 }));
 
@@ -112,14 +108,13 @@ function AppRoute({
       ) : (
         <>
           {globalStyles}
-          {!isNativeEmbed && <Navigation />}
+          <Navigation />
           {/* Temporary container injected for marketing to test dynamic "announcements".
            * Find a better spot to componentise this code once plan is more finalised with this */}
           <div id="announcements"></div>
           <PageWrapper ref={pageWrapperRef}>
             <ContentWrapper
               disableGutters
-              isNativeEmbed={isNativeEmbed}
               variant={variant}
               maxWidth={
                 variant === "full-screen" ||
