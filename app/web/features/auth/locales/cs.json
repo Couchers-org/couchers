@@ -17,11 +17,12 @@
     "old_password": "Původní heslo",
     "new_password": "Nové heslo",
     "password_mismatch_error": "Nové heslo se neshoduje.",
-    "password_changed_success": "Změna hesla proběhla úspěšně. Zároveň jsme poslali upozornění na tvou e-mailovou adresu."
+    "password_changed_success": "Změna hesla proběhla úspěšně. Zároveň jsme poslali upozornění na tvůj email.",
+    "reset_password_success": "Tvé heslo bylo úspěšně změněno!"
   },
   "reset_password_form": {
     "enter_email": "Zadej své uživatelské jméno/e-mail",
-    "success_message": "Zkontrolujte vaší e-mailovou adresu a pokračujte podle instrukcí!"
+    "success_message": "Zkontroluj svou e-mailovou adresu a pokračuj podle instrukcí!"
   },
   "login_page": {
     "title": "Přihlásit se",
@@ -31,7 +32,8 @@
       "password_field_label": "Heslo",
       "username_field_label": "E-mail/Uživatelské jméno",
       "forgot_password": "Zapomenuté heslo?",
-      "no_password_login_prompt": "Zkontroluj svou e-mailovou schránku a klikni na odkaz pro přihlášení! :)"
+      "no_password_login_prompt": "Zkontroluj svou e-mailovou schránku a klikni na odkaz pro přihlášení! :)",
+      "remember_me": "Zamapatovat jméno a heslo"
     }
   },
   "basic_sign_up_form": {
@@ -39,11 +41,11 @@
     "sign_up_agreement_explainer": "Pokračováním udělujete souhlas s <2>Podmínkami použití</2>, zpracováním dat, použitím cookies a k zasílání upozornění e-mailem."
   },
   "account_form": {
-    "header": "Detaily k vašemu účtu",
+    "header": "Podrobnosti o tvém účtu",
     "username": {
       "field_label": "Uživatelské jméno",
       "required_error": "Zadej své uživatelské jméno",
-      "username_taken_error": "Toto uživatelské jméno je již použito.",
+      "username_taken_error": "Toto uživatelské jméno už používá někdo jiný.",
       "validation_error": "Uživatelské jméno může být složeno pouze z písmen, čísel, _ a musí začínat písmenem."
     },
     "birthday": {
@@ -52,7 +54,10 @@
       "validation_error": "Datum narození musí být datum v minulosti."
     },
     "hosting_status": {
-      "field_label": "Status hostitele"
+      "field_label": "Status hostitele",
+      "cant_host": "Nepřijímám hosty",
+      "maybe": "Možná přijímám hosty",
+      "can_host": "Přijímám hosty"
     },
     "gender": {
       "field_label": "Identifikuji se jako…",
@@ -61,11 +66,12 @@
       "woman": "Žena",
       "required_error": "Prosím vyber svou pohlavní identitu"
     },
-    "tos_prompt": "Než budete pokračovat musíte si přečíst a souhlasit s <1></1>.",
+    "tos_prompt": "Chceš-li pokračovat, musíš si přečíst a souhlasit s <1></1>.",
     "tos_accept_label": "Souhlasím s $t(global:terms_of_service).",
     "password": {
       "required_error": "Zadej heslo",
-      "field_label": "Heslo"
+      "field_label": "Heslo",
+      "validation_error": "Heslo musí mít 8 až 256 znaků a nesmí být příliš snadno uhodnutelné."
     }
   },
   "basic_form": {
@@ -77,7 +83,7 @@
     "email": {
       "field_label": "E-mailová adresa",
       "empty_error": "Zadej prosím platnou e-mailovou adresu",
-      "required_error": "E-mail nesmí zůstat prázdný."
+      "required_error": "E-mail nesmí být prázdný."
     }
   },
   "community_guidelines_form": {
@@ -144,5 +150,13 @@
   },
   "logged_out_message": "Byl/a jsi odhlášen/a.",
   "sign_up_completed_title": "Děkujeme za přihlášení!",
-  "login_prompt": "Klikni zde pro přihlášení"
+  "login_prompt": "Klikni zde pro přihlášení",
+  "do_not_email": {
+    "status": {
+      "no_emails_disabled_message": "E-maily jsou pro tvůj účet momentálně <1>povoleny</1>."
+    }
+  },
+  "location": {
+    "field_label": "Tvá poloha"
+  }
 }

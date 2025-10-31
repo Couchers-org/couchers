@@ -29,5 +29,6 @@
   "accept": "Kabul Et",
   "no_friend_requests_sent": "Bekleyen arkadaşlık isteği yok",
   "remove_friend": "Arkadaşı çıkar",
-  "pending": "Bekliyor"
+  "pending": "Bekliyor",
+  "decline": "Reddet"
 }

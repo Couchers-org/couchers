@@ -1,1 +1,17 @@
-{}
+{
+  "chat_view": {
+    "actions_menu": {
+      "a11y_label": "Zobrazit další akce chatu",
+      "items": {
+        "invite_members": "Pozvat k chatu",
+        "show_all_members": "Členové chatu",
+        "manage_admins": "Spravovat správce chatu",
+        "chat_settings": "Nastavení chatu",
+        "leave_chat": "Opustit chat"
+      }
+    },
+    "mute": {
+      "button_label": "Ztišit chat"
+    }
+  }
+}
