@@ -420,6 +420,7 @@ class Account(account_pb2_grpc.AccountServicer):
             json={
                 "callback_url": f"{config['BACKEND_BASE_URL']}/iris/webhook",
                 "face_verification": False,
+                "passport_only": True,
                 "reference": reference,
             },
             timeout=10,

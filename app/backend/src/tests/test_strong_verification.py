@@ -100,6 +100,7 @@ def do_and_check_sv(
             json={
                 "callback_url": "http://localhost:8888/iris/webhook",
                 "face_verification": False,
+                "passport_only": True,
                 "reference": ANY,
             },
             timeout=10,
