@@ -59,7 +59,7 @@
     "react-gtm-module": "^2.0.11",
     "react-hook-form": "^7.54.0",
     "react-i18next": "^13.2.1",
-    "react-intersection-observer": "^9.16.0",
+    "react-intersection-observer": "^10.0.0",
     "react-lines-ellipsis": "^0.16.1",
     "react-map-gl": "^8.1.0",
     "react-phone-number-input": "^3.4.13",
