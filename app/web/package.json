@@ -99,7 +99,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "jest-junit": "^16.0.0",
     "knip": "^5.66.3",
-    "msw": "^1.2.1",
+    "msw": "^2.11.6",
     "next-router-mock": "^1.0.2",
     "prettier": "3.4.2",
     "sentry-testkit": "^6.2.2",
