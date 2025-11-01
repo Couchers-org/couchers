@@ -9,6 +9,8 @@ import { useMemo, useRef, useState } from "react";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
 
+import { useIsNativeEmbed } from "../../platform/nativeLink";
+
 export default function useAuthStore() {
   const [authenticated, setAuthenticated] = usePersistedState(
     "auth.authenticated",
@@ -27,6 +29,7 @@ export default function useAuthStore() {
   //this is used to set the current user in the user cache
   //may as well not waste the api call since it is needed for userId
   const queryClient = useQueryClient();
+  const isNativeEmbed = useIsNativeEmbed();
 
   const { t } = useTranslation(GLOBAL);
   const fatalErrorMessage = useRef(t("error.fatal_message"));
@@ -46,6 +49,13 @@ export default function useAuthStore() {
           setAuthenticated(false);
           setUserId(null);
           Sentry.setUser({ id: undefined });
+
+          // Notify mobile app if running in embed
+          if (isNativeEmbed) {
+            window.ReactNativeWebView?.postMessage(
+              JSON.stringify({ type: "LOGOUT" }),
+            );
+          }
         } catch (e) {
           Sentry.captureException(e, {
             tags: {
@@ -134,7 +144,14 @@ export default function useAuthStore() {
     }),
     //note: there should be no dependenices on the state or t, or
     //some useEffects will break. Eg. the token login in Login.tsx
-    [setAuthenticated, setJailed, setUserId, setFlowState, queryClient],
+    [
+      setAuthenticated,
+      setJailed,
+      setUserId,
+      setFlowState,
+      queryClient,
+      isNativeEmbed,
+    ],
   );
 
   return {
