@@ -32,6 +32,12 @@ upgrade:
 	DATABASE_CONNECTION_STRING="postgresql://postgres:203d805f4b62c0a1b2f1f6b82d4583dfe563ec1619b83ce22ee414e8376a25e7@localhost:6545/postgres" \
 	uv run alembic upgrade +1
 
+setup-db:
+	docker compose -f ../docker-compose.test.yml up -d --wait --no-deps postgres_tests
+
+teardown-db:
+	docker compose -f ../docker-compose.test.yml down
+
 # Run backend tests with optional file argument
 # Usage:
 # make test                    → runs all tests
