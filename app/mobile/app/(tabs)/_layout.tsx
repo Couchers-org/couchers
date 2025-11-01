@@ -1,11 +1,19 @@
-import { Tabs } from "expo-router";
+import { Tabs, Redirect, router } from "expo-router";
 
 import { theme } from "@/theme";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { TabBarIcon } from "@/components/TabBarIcon";
+import { useAuthContext } from "@/features/auth/AuthProvider";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { authState } = useAuthContext();
+
+  // Redirect to login if not authenticated
+  if (!authState.authenticated) {
+    router.replace("/login");
+    return null;
+  }
 
   return (
     <>

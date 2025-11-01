@@ -16,7 +16,7 @@ const colorMap = {
     icon: theme.palette.grey[100],
   },
   dark: {
-    text: theme.palette.text.primary, // Using same for now, adjust if needed
+    text: theme.palette.text.primary,
     background: theme.palette.common.black,
     icon: theme.palette.grey[100],
   },
