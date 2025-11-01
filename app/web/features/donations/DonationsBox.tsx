@@ -21,7 +21,7 @@ import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { DONATIONS } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import React, { PropsWithChildren, useRef, useState } from "react";
+import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
@@ -220,8 +220,15 @@ export default function DonationsBox() {
   const [isPredefinedAmount, setIsPredefinedAmount] = useState(true);
 
   const router = useRouter();
-  const [success] = useState(!!router.query["success"]);
-  const [cancelled] = useState(!!router.query["cancelled"]);
+  const [success, setSuccess] = useState(false);
+  const [cancelled, setCancelled] = useState(false);
+
+  useEffect(() => {
+    if (router.isReady) {
+      setSuccess(!!router.query["success"]);
+      setCancelled(!!router.query["cancelled"]);
+    }
+  }, [router.isReady, router.query]);
 
   const {
     control,
