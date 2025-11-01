@@ -830,6 +830,91 @@ class TestCommunities:
             ]
             assert not res.next_page_token
 
+    @staticmethod
+    def test_empty_query_aborts(testing_communities):
+        with session_scope() as session:
+            _, token = get_user_id_and_token(session, "user1")
+
+        with communities_session(token) as api:
+            with pytest.raises(grpc.RpcError) as err:
+                api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="   "))
+            assert err.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+            assert err.value.details() == errors.QUERY_TOO_SHORT
+
+    @staticmethod
+    def test_min_length_lt_3_aborts(testing_communities):
+        """
+        len(query) < 3 → return INVALID_ARGUMENT: query_too_short
+        """
+        with session_scope() as session:
+            _, token = get_user_id_and_token(session, "user1")
+
+        with communities_session(token) as api:
+            with pytest.raises(grpc.RpcError) as err:
+                api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="zz", page_size=5))
+            assert err.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+            assert err.value.details() == errors.QUERY_TOO_SHORT
+
+    @staticmethod
+    def test_typo_matches_existing_name(testing_communities):
+        """
+        Word_similarity should match a simple typo in community name.
+        """
+        with session_scope() as session:
+            _, token = get_user_id_and_token(session, "user1")
+            c1_id = get_community_id(session, "Country 1")
+
+        with communities_session(token) as api:
+            res = api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="Coutri 1", page_size=5))
+            ids = [c.community_id for c in res.communities]
+            assert c1_id in ids
+
+    @staticmethod
+    def test_word_similarity_matches_partial_word(testing_communities):
+        """
+        Query 'city' should match 'Country 1, Region 1, City 1'.
+        """
+        with session_scope() as session:
+            _, token = get_user_id_and_token(session, "user1")
+            city1_id = get_community_id(session, "Country 1, Region 1, City 1")  # переименовал для ясности
+
+        with communities_session(token) as api:
+            res = api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="city", page_size=5))
+            ids = [c.community_id for c in res.communities]
+            assert city1_id in ids
+
+    @staticmethod
+    def test_results_sorted_by_similarity(testing_communities):
+        """
+        Results should be ordered by similarity score (best match first).
+        For query 'Country 1, Region', the full region name should rank higher
+        than deeper descendants like 'City 1'.
+        """
+        with session_scope() as session:
+            _, token = get_user_id_and_token(session, "user1")
+            region_id = get_community_id(session, "Country 1, Region 1")
+            city_id = get_community_id(session, "Country 1, Region 1, City 1")
+
+        with communities_session(token) as api:
+            res = api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="Country 1, Region", page_size=5))
+            ids = [c.community_id for c in res.communities]
+
+            assert region_id in ids
+            assert city_id in ids
+            assert ids.index(region_id) < ids.index(city_id)
+
+    @staticmethod
+    def test_no_results_returns_empty(testing_communities):
+        """
+        For a nonsense query that shouldn't meet the similarity threshold, return empty list.
+        """
+        with session_scope() as session:
+            _, token = get_user_id_and_token(session, "user1")
+
+        with communities_session(token) as api:
+            res = api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="qwertyuiopasdf", page_size=5))
+            assert res.communities == []
+
 
 def test_JoinCommunity_and_LeaveCommunity(testing_communities):
     # these are separate as they mutate the database

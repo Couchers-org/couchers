@@ -133,7 +133,7 @@ def create_schema_from_models():
     """
 
     # create the slugify function
-    functions = Path(__file__).parent / "slugify.sql"
+    functions = Path(__file__).parent / "sql_functions.sql"
     with open(functions) as f, session_scope() as session:
         session.execute(text(f.read()))
 
