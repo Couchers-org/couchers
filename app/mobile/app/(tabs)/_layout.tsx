@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router";
 
-import { Colors } from "@/constants/Colors";
+import { theme } from "@/theme";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { TabBarIcon } from "@/components/TabBarIcon";
 
@@ -12,7 +12,10 @@ export default function TabLayout() {
       <Tabs
         initialRouteName="dashboard"
         screenOptions={{
-          tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+          tabBarActiveTintColor:
+            colorScheme === "dark"
+              ? theme.palette.common.white
+              : theme.palette.primary.main,
           headerShown: false,
         }}
       >

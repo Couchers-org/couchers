@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useTranslation } from "@/i18n";
 import { AUTH, GLOBAL } from "@/i18n/namespaces";
+import { theme } from "@/theme";
 
 type WebEmbedProps = {
   path: string;
@@ -18,7 +19,10 @@ export default function Terms({ path }: WebEmbedProps) {
   const colorScheme = useColorScheme();
   let webview = useRef<WebView>(null);
 
-  const backgroundColor = colorScheme === "dark" ? "#151718" : "#ffffff";
+  const backgroundColor =
+    colorScheme === "dark"
+      ? theme.palette.common.black
+      : theme.palette.common.white;
 
   const handleWebViewNavigationStateChange = (
     newNavState: WebViewNavigation
