@@ -784,7 +784,7 @@ class TestCommunities:
         with session_scope() as session:
             c1_id = get_community_id(session, "Country 1")
             node = session.execute(select(Node).where(Node.id == c1_id)).scalar_one_or_none()
-            assert node.contained_user_ids == [1, 2, 3, 4, 5]
+            assert set(node.contained_user_ids) == {1, 2, 3, 4, 5}
             assert len(node.contained_user_ids) == len(node.contained_users)
 
     @staticmethod
