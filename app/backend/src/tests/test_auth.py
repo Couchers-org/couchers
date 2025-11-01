@@ -686,6 +686,36 @@ def test_signup_existing_email(db):
         assert e.value.details() == errors.SIGNUP_FLOW_EMAIL_TAKEN
 
 
+def test_signup_banned_user_email(db):
+    user, _ = generate_user()
+
+    with session_scope() as session:
+        session.execute(select(User)).scalar_one().is_banned = True
+
+    with auth_api_session() as (auth_api, _):
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="NewName", email=user.email))
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.SIGNUP_EMAIL_CANNOT_BE_USED
+
+
+def test_signup_deleted_user_email(db):
+    user, _ = generate_user()
+
+    with session_scope() as session:
+        session.execute(select(User)).scalar_one().is_deleted = True
+
+    with auth_api_session() as (auth_api, _):
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="NewName", email=user.email))
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.SIGNUP_EMAIL_CANNOT_BE_USED
+
+
 def test_signup_continue_with_email(db):
     testing_email = f"{random_hex(12)}@couchers.org.invalid"
     with auth_api_session() as (auth_api, metadata_interceptor):
