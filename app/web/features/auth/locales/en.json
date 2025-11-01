@@ -234,7 +234,34 @@
     "donation_title": "Thanks for verifying—you're helping make Couchers.org safer for everyone.",
     "donation_message1": "Verification is free for you, but it does come at a cost to us. As a nonprofit run by volunteers, we rely on donations to cover expenses like keeping our servers running, verification, and tools for volunteers and community builders.",
     "donation_message2": "If you're able, please consider donating to help keep Couchers.org running and growing.",
-    "donate_button": "Donate to support Couchers.org"
+    "donate_button": "Donate to support Couchers.org",
+    "instructions": {
+      "title": "How to Complete Strong Verification",
+      "warning": "Important: The passport chip scanning step can be tricky—read all instructions first!",
+      "step1": "Click <strong>\"Start Strong Verification\"</strong> below (opens in new tab)",
+      "step2": "Scan the QR code with your phone",
+      "step3": "Download the <strong>IRIS ID</strong> app",
+      "step4": "Open the app and scan the QR code again",
+      "step5": "Select <strong>Passport</strong> (ID cards not supported)",
+      "step6": "Take a clear photo of the passport page with numbers at the bottom",
+      "step7": "Hold your phone against the passport page with the NFC chip",
+      "step8": "You'll know it's successful when you see increasing percentages and a loader",
+      "chip_section": {
+        "heading": "Where is the NFC chip in my passport?",
+        "description": "The chip location varies by country and year. Press your phone firmly against the correct page:",
+        "picture_page": "Picture Page",
+        "back_page": "Back Page",
+        "other": "Other Location",
+        "countries": {
+          "finland": "🇫🇮 Finland (2022)",
+          "germany_new": "🇩🇪 Germany (2017+)",
+          "us": "🇺🇸 US (2024)",
+          "germany_old": "🇩🇪 Germany (2016)",
+          "mexico": "🇲🇽 Mexico (2023)",
+          "australia": "🇦🇺 Australia (2017): center page with chip symbol"
+        }
+      }
+    }
   },
   "quick_links": {
     "title": "Email quick action",
