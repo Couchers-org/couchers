@@ -1880,6 +1880,13 @@ class Cluster(Base):
             unique=True,
             postgresql_where=is_official_cluster,
         ),
+        # trigram index on unaccented name
+        # note that the function `unaccent` is not immutable so cannot be used in an index, that's why we wrap it
+        Index(
+            "idx_clusters_name_unaccented_trgm",
+            text("immutable_unaccent(name) gin_trgm_ops"),
+            postgresql_using="gin",
+        ),
     )
 
 

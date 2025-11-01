@@ -122,8 +122,8 @@ def create_schema_from_models():
     through migrations.
     """
 
-    # create the slugify function
-    functions = Path(__file__).parent / "slugify.sql"
+    # create sql functions (these are created in migrations otherwise)
+    functions = Path(__file__).parent / "sql_functions.sql"
     with open(functions) as f, session_scope() as session:
         session.execute(text(f.read()))
 

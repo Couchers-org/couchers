@@ -6,6 +6,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy.sql import delete, func, or_
 
 from couchers import errors
+from couchers.constants import COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD
 from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.db import can_moderate_node, get_node_parents_recursively
 from couchers.materialized_views import ClusterAdminCount, ClusterSubscriptionCount
@@ -143,6 +144,28 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             communities=communities_to_pb(session, nodes[:page_size], context),
             next_page_token=encrypt_page_token(str(offset + page_size)) if len(nodes) > page_size else None,
         )
+
+    def SearchCommunities(self, request, context, session):
+        raw_query = request.query.strip()
+        if len(raw_query) < 3:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.QUERY_TOO_SHORT)
+
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+
+        word_similarity_score = func.word_similarity(func.unaccent(raw_query), func.immutable_unaccent(Cluster.name))
+
+        query = (
+            select(Node)
+            .join(Cluster, Cluster.parent_node_id == Node.id)
+            .where(Cluster.is_official_cluster)
+            .where(word_similarity_score > COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD)
+            .order_by(word_similarity_score.desc(), Cluster.name.asc(), Node.id.asc())
+            .limit(page_size)
+        )
+
+        rows = session.execute(query).scalars().all()
+
+        return communities_pb2.SearchCommunitiesRes(communities=communities_to_pb(session, rows, context))
 
     def ListGroups(self, request, context, session):
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
