@@ -32,8 +32,8 @@ from tests.test_fixtures import (  # noqa
     generate_user,
     get_user_id_and_token,
     pages_session,
-    recreate_database,
     testconfig,
+    truncate_all_tables,
 )
 
 
@@ -215,7 +215,7 @@ def get_group_id(session, group_name):
 
 @pytest.fixture(scope="class")
 def testing_communities(testconfig):
-    recreate_database()
+    truncate_all_tables()
     user1, token1 = generate_user(username="user1", geom=create_1d_point(1), geom_radius=0.1)
     user2, token2 = generate_user(username="user2", geom=create_1d_point(2), geom_radius=0.1)
     user3, token3 = generate_user(username="user3", geom=create_1d_point(3), geom_radius=0.1)

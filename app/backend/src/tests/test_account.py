@@ -1047,8 +1047,11 @@ def test_reminders(db):
 
 
 def test_volunteer_stuff(db):
+    # taken from couchers/app/backend/resources/badges.json
+    board_member_id = 8347
+
     # with password
-    user, token = generate_user(name="Von Tester", username="tester", city="Amsterdam")
+    user, token = generate_user(name="Von Tester", username="tester", city="Amsterdam", id=board_member_id)
 
     with account_session(token) as account:
         res = account.GetAccountInfo(empty_pb2.Empty())
