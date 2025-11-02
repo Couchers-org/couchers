@@ -469,7 +469,11 @@ class User(Base):
 
     @hybrid_property
     def is_visible(self):
-        return ~(self.is_banned | self.is_deleted)
+        return not self.is_banned and not self.is_deleted
+
+    @is_visible.expression
+    def is_visible(cls):
+        return ~(cls.is_banned | cls.is_deleted)
 
     @property
     def coordinates(self):
@@ -1875,6 +1879,13 @@ class Cluster(Base):
             is_official_cluster,
             unique=True,
             postgresql_where=is_official_cluster,
+        ),
+        # trigram index on unaccented name
+        # note that the function `unaccent` is not immutable so cannot be used in an index, that's why we wrap it
+        Index(
+            "idx_clusters_name_unaccented_trgm",
+            text("immutable_unaccent(name) gin_trgm_ops"),
+            postgresql_using="gin",
         ),
     )
 

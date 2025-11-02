@@ -17,3 +17,8 @@ SELECT regexp_replace(
   ), '^$', 'slug'
 );
 $$ LANGUAGE SQL STRICT IMMUTABLE;
+
+CREATE OR REPLACE FUNCTION immutable_unaccent(input_text TEXT)
+RETURNS TEXT AS $$
+SELECT public.unaccent(input_text);
+$$ LANGUAGE sql STRICT IMMUTABLE;
