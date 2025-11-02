@@ -40,21 +40,21 @@ export default function Terms({ path }: WebEmbedProps) {
       v.stopLoading();
     }
   };
-
-  const handleMessage = (event: any) => {
-    try {
-      const data = JSON.parse(event.nativeEvent.data);
-      if (data.type === "LOGOUT") {
-        authActions.logout();
-        router.replace("/login");
-      }
-    } catch (e) {
-      console.log(
-        "WebEmbed received non-JSON message:",
-        event.nativeEvent.data
-      );
-    }
-  };
+  // @TODO(JNA): Remove postMessage from web app
+  // const handleMessage = (event: any) => {
+  //   try {
+  //     const data = JSON.parse(event.nativeEvent.data);
+  //     if (data.type === "LOGOUT") {
+  //       authActions.logout();
+  //       router.replace("/login");
+  //     }
+  //   } catch (e) {
+  //     console.log(
+  //       "WebEmbed received non-JSON message:",
+  //       event.nativeEvent.data
+  //     );
+  //   }
+  // };
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
@@ -64,9 +64,9 @@ export default function Terms({ path }: WebEmbedProps) {
         style={styles.webview}
         source={{ uri: WEB_BASE_URL + path }}
         sharedCookiesEnabled={true}
-        onNavigationStateChange={handleWebViewNavigationStateChange}
+        // onNavigationStateChange={handleWebViewNavigationStateChange}
         injectedJavaScriptObject={{ isCouchersNativeEmbed: true }}
-        onMessage={handleMessage}
+        // onMessage={handleMessage}
       />
     </View>
   );

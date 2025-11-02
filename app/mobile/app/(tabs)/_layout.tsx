@@ -27,7 +27,6 @@ export default function TabLayout() {
           headerShown: false,
         }}
       >
-        <Tabs.Screen name="index" options={{ href: null }} />
         <Tabs.Screen name="profile" options={{ href: null }} />
         <Tabs.Screen name="account-settings" options={{ href: null }} />
         <Tabs.Screen name="events" options={{ href: null }} />

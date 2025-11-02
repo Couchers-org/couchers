@@ -13,6 +13,8 @@ import { AUTH, GLOBAL } from "@/i18n/namespaces";
 import SignupForm from "@/features/auth/sign_up/SignupForm";
 import AccountForm from "@/features/auth/sign_up/AccountForm";
 
+// @TODO(NA): Why is this not a WebView? Remove?
+
 function CurrentForm() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authState } = useAuthContext();
@@ -113,8 +115,6 @@ export default function SignUp() {
         <Pressable
           style={styles.backButton}
           onPress={() => {
-            authActions.clearFlowState();
-            authActions.clearError();
             router.push("/landing");
           }}
         >

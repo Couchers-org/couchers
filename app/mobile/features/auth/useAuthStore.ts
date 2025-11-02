@@ -152,7 +152,6 @@ export default function useAuthStore() {
       !checkedAuthStatus
     ) {
       setCheckedAuthStatus(true);
-      authActions.checkAuthStatus();
     }
   }, [authenticated, checkedAuthStatus, setCheckedAuthStatus, authActions]);
 
