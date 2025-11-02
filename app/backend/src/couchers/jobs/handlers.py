@@ -114,6 +114,7 @@ from proto.internal import jobs_pb2, verification_pb2
 
 logger = logging.getLogger(__name__)
 
+
 # these were straight up imported
 handle_notification.PAYLOAD = jobs_pb2.HandleNotificationPayload
 
@@ -855,6 +856,7 @@ def finalize_strong_verification(payload):
             auth=(config["IRIS_ID_PUBKEY"], config["IRIS_ID_SECRET"]),
             json={"id": verification_attempt.iris_session_id},
             timeout=10,
+            verify="/etc/ssl/certs/ca-certificates.crt",
         )
         if response.status_code != 200:
             raise Exception(f"Iris didn't return 200: {response.text}")
