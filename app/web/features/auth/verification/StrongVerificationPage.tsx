@@ -67,14 +67,15 @@ export default function StrongVerificationInstructions() {
           </ListItem>
           <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
             <Typography variant="body1">
-              {t("auth:strong_verification.instructions.step2")}
-            </Typography>
-          </ListItem>
-          <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
-            <Typography variant="body1">
-              <Trans i18nKey="auth:strong_verification.instructions.step3">
+              <Trans i18nKey="auth:strong_verification.instructions.step2">
                 Download the <strong>IRIS ID</strong> app
               </Trans>
+            </Typography>
+          </ListItem>
+          {/** ADD LINKS TO GOOGLE PLAY AND APPLE APP STORE TO DOWNLOAD APP */}
+          <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
+            <Typography variant="body1">
+              {t("auth:strong_verification.instructions.step3")}
             </Typography>
           </ListItem>
           <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
