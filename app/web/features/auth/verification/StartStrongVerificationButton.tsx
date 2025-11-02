@@ -29,6 +29,7 @@ export default function StartStrongVerificationButton() {
     error,
     isPending,
     mutate: startStrongVerification,
+    reset,
   } = useMutation<InitiateStrongVerificationRes.AsObject, RpcError>({
     mutationFn: () => service.account.initiateStrongVerification(),
     onSuccess: async (data) => {
@@ -36,18 +37,23 @@ export default function StartStrongVerificationButton() {
     },
   });
 
+  const handleClose = () => {
+    reset();
+    setOpen(false);
+  };
+
   return (
     <>
-      <Dialog aria-labelledby="strong-verification-start-dialog" open={open}>
+      <Dialog
+        aria-labelledby="strong-verification-start-dialog"
+        open={open}
+        onClose={handleClose}
+      >
         <DialogTitle id="strong-verification-start-dialog">
           {t("auth:strong_verification.title")}
         </DialogTitle>
         <DialogContent>
-          {error && (
-            <DialogContentText>
-              <Alert severity="error">{error.message}</Alert>
-            </DialogContentText>
-          )}
+          {error && <Alert severity="error">{error.message}</Alert>}
           <DialogContentText>
             <Trans i18nKey="auth:strong_verification.information_text1">
               You will need a <strong>biometric passport</strong> (other types
@@ -80,7 +86,7 @@ export default function StartStrongVerificationButton() {
           <Button onClick={() => startStrongVerification()} loading={isPending}>
             {t("auth:strong_verification.begin_button")}
           </Button>
-          <Button variant="outlined" onClick={() => setOpen(false)}>
+          <Button variant="outlined" onClick={handleClose}>
             {t("global:cancel")}
           </Button>
         </DialogActions>
