@@ -333,9 +333,10 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 couchers_context._send_cookies()
             except grpc.RpcError as e:
                 # Log details when client disconnects during cookie sending
-                logger.exception(
-                    f"RpcError during _send_cookies(): code={e.code()}, details={e.details()}, method={method}"
-                )
+                # Some RpcErrors don't have code() or details() methods, so use getattr
+                code = getattr(e, "code", lambda: "unknown")()
+                details = getattr(e, "details", lambda: "unknown")()
+                logger.exception(f"RpcError during _send_cookies(): code={code}, details={details}, method={method}")
                 raise
 
             return res
