@@ -20,7 +20,6 @@ import * as references from "@/service/references";
 // import * as resources from "./resources";
 // import * as search from "./search";
 // import * as threads from "./threads";
-import * as user from "./user";
 // import * as version from "./version";
 
 export const service = {
@@ -46,11 +45,5 @@ export const service = {
   // resources,
   // search,
   // threads,
-  user,
   // version,
 } as const;
-
-export type {
-  HostingPreferenceData,
-  UpdateUserProfileData,
-} from "@/service/user";

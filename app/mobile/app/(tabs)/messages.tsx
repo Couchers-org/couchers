@@ -1,5 +1,5 @@
 import WebEmbed from "@/components/WebEmbed";
 
-export default function Screen() {
-  return <WebEmbed path={"/messages"} />;
+export default function MessagesScreen() {
+  return <WebEmbed path="/messages" />;
 }

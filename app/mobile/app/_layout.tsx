@@ -17,15 +17,14 @@ import {
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import "react-native-reanimated";
-import AuthProvider from "@/features/auth/AuthProvider";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { ReactQueryClientProvider } from "@/features/reactQueryClient";
 // import Sentry from "platform/sentry";
 
 import { Stack } from "expo-router";
-import { useAuthContext } from "@/features/auth/AuthProvider";
+
+import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
 
 // Sentry.init({
 //   dsn: "https://7de06aa8cca6dacc9620667dd84a0d01@o782870.ingest.us.sentry.io/4507718344704000",
@@ -34,17 +33,23 @@ import { useAuthContext } from "@/features/auth/AuthProvider";
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-// This is like AppNavigator in the article - conditionally renders based on auth
-function RootLayoutNav() {
-  const { authState } = useAuthContext();
+function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
+  const { authenticated, checkedAuthStatus } = useAuthContext();
 
-  // While checking auth status, show nothing (splash screen stays visible)
-  if (!authState.authenticated && authState.loading) {
+  console.log("AUTHENTICATED ROOT NAVIGATOR", authenticated);
+  console.log("CHECKED AUTH STATUS ROOT NAVIGATOR", checkedAuthStatus);
+
+  useEffect(() => {
+    if (fontsLoaded && checkedAuthStatus) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, checkedAuthStatus]);
+
+  if (!fontsLoaded || !checkedAuthStatus) {
     return null;
   }
 
-  // Conditionally render the appropriate navigator based on auth state
-  if (authState.authenticated) {
+  if (authenticated) {
     return (
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
@@ -52,7 +57,6 @@ function RootLayoutNav() {
     );
   }
 
-  // AuthNavigator - show login (web app has its own navbar)
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="login" />
@@ -62,7 +66,7 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
+  const [fontsLoaded] = useFonts({
     Ubuntu_300Light,
     Ubuntu_300Light_Italic,
     Ubuntu_400Regular,
@@ -73,24 +77,16 @@ export default function RootLayout() {
     Ubuntu_700Bold_Italic,
   });
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
+  if (!fontsLoaded) {
     return null;
   }
 
   return (
     <SafeAreaProvider>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <ReactQueryClientProvider>
-          <AuthProvider>
-            <RootLayoutNav />
-          </AuthProvider>
-        </ReactQueryClientProvider>
+        <AuthProvider>
+          <RootNavigator fontsLoaded={fontsLoaded} />
+        </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );
