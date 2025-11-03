@@ -2,7 +2,6 @@ import difflib
 import re
 import subprocess
 
-import pytest
 from sqlalchemy.sql import func
 
 from couchers.config import config
@@ -19,10 +18,8 @@ from tests.test_fixtures import (  # noqa
     create_schema_from_models,
     db,
     drop_database,
-    recreate_database,
     run_migration_test,
     testconfig,
-    truncate_all_tables,
 )
 
 
@@ -133,19 +130,8 @@ def strip_leading_whitespace(lines):
     return [s.lstrip() for s in lines]
 
 
-@pytest.fixture
-def restore_database_after_testing_migrations(testconfig):
-    """
-    Make sure the database exists for other tests after test_migrations runs.
-    """
-    try:
-        yield
-    finally:
-        recreate_database()
-
-
-@pytest.mark.skipif(not run_migration_test(), reason="Migration test disabled")
-def test_migrations(testconfig, restore_database_after_testing_migrations):
+# @pytest.mark.skipif(not run_migration_test(), reason="Migration test disabled")
+def test_migrations(db, testconfig):
     """
     This test will only run successfully if you have `pg_dump` installed and everything set up, which only happens if the
     test is being run within Gitlab CI where we do all that setup. So we disable it unless explicitly marked to run.
@@ -153,8 +139,8 @@ def test_migrations(testconfig, restore_database_after_testing_migrations):
     Compares the database schema built up from migrations, with the
     schema built by models.py. Both scenarios are started from an
     empty database, and dumped with pg_dump. Any unexplainable
-    differences in the output are reported in unified diff format and
-    fails the test.
+    differences in the output are reported in a unified diff format and
+    fail the test.
     """
     drop_database()
     # rebuild it with alembic migrations

@@ -42,7 +42,6 @@ def test_GetPublicMapLayer(db):
         http_body = public.GetPublicUsers(empty_pb2.Empty())
         assert http_body.content_type == "application/json"
         data = json.loads(http_body.data)
-        print(data)
         assert data == {
             "type": "FeatureCollection",
             "features": [

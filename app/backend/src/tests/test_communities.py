@@ -33,7 +33,6 @@ from tests.test_fixtures import (  # noqa
     get_user_id_and_token,
     pages_session,
     testconfig,
-    truncate_all_tables,
 )
 
 
@@ -214,8 +213,7 @@ def get_group_id(session, group_name):
 
 
 @pytest.fixture(scope="class")
-def testing_communities(testconfig):
-    truncate_all_tables()
+def testing_communities(db_class, testconfig):
     user1, token1 = generate_user(username="user1", geom=create_1d_point(1), geom_radius=0.1)
     user2, token2 = generate_user(username="user2", geom=create_1d_point(2), geom_radius=0.1)
     user3, token3 = generate_user(username="user3", geom=create_1d_point(3), geom_radius=0.1)
@@ -293,7 +291,9 @@ class TestCommunities:
     @staticmethod
     def test_GetCommunity(testing_communities):
         with session_scope() as session:
+            user1_id, token1 = get_user_id_and_token(session, "user1")
             user2_id, token2 = get_user_id_and_token(session, "user2")
+            user6_id, token6 = get_user_id_and_token(session, "user6")
             w_id = get_community_id(session, "Global")
             c1_id = get_community_id(session, "Country 1")
             c1r1_id = get_community_id(session, "Country 1, Region 1")
@@ -317,14 +317,14 @@ class TestCommunities:
             assert res.parents[0].community.description == "Description for Global"
             assert res.main_page.type == pages_pb2.PAGE_TYPE_MAIN_PAGE
             assert res.main_page.slug == "main-page-for-the-global-community"
-            assert res.main_page.last_editor_user_id == 1
-            assert res.main_page.creator_user_id == 1
+            assert res.main_page.last_editor_user_id == user1_id
+            assert res.main_page.creator_user_id == user1_id
             assert res.main_page.owner_community_id == w_id
             assert res.main_page.title == "Main page for the Global community"
             assert res.main_page.content == "There is nothing here yet..."
             assert not res.main_page.can_edit
             assert not res.main_page.can_moderate
-            assert res.main_page.editor_user_ids == [1]
+            assert res.main_page.editor_user_ids == [user1_id]
             assert res.member
             assert not res.admin
             assert res.member_count == 8
@@ -362,14 +362,14 @@ class TestCommunities:
             assert res.parents[3].community.description == "Description for Country 1, Region 1, City 1"
             assert res.main_page.type == pages_pb2.PAGE_TYPE_MAIN_PAGE
             assert res.main_page.slug == "main-page-for-the-country-1-region-1-city-1-community"
-            assert res.main_page.last_editor_user_id == 2
-            assert res.main_page.creator_user_id == 2
+            assert res.main_page.last_editor_user_id == user2_id
+            assert res.main_page.creator_user_id == user2_id
             assert res.main_page.owner_community_id == c1r1c1_id
             assert res.main_page.title == "Main page for the Country 1, Region 1, City 1 community"
             assert res.main_page.content == "There is nothing here yet..."
             assert res.main_page.can_edit
             assert res.main_page.can_moderate
-            assert res.main_page.editor_user_ids == [2]
+            assert res.main_page.editor_user_ids == [user2_id]
             assert res.member
             assert res.admin
             assert res.member_count == 3
@@ -397,14 +397,14 @@ class TestCommunities:
             assert res.parents[1].community.description == "Description for Country 2"
             assert res.main_page.type == pages_pb2.PAGE_TYPE_MAIN_PAGE
             assert res.main_page.slug == "main-page-for-the-country-2-community"
-            assert res.main_page.last_editor_user_id == 6
-            assert res.main_page.creator_user_id == 6
+            assert res.main_page.last_editor_user_id == user6_id
+            assert res.main_page.creator_user_id == user6_id
             assert res.main_page.owner_community_id == c2_id
             assert res.main_page.title == "Main page for the Country 2 community"
             assert res.main_page.content == "There is nothing here yet..."
             assert not res.main_page.can_edit
             assert not res.main_page.can_moderate
-            assert res.main_page.editor_user_ids == [6]
+            assert res.main_page.editor_user_ids == [user6_id]
             assert not res.member
             assert not res.admin
             assert res.member_count == 2
@@ -784,7 +784,14 @@ class TestCommunities:
         with session_scope() as session:
             c1_id = get_community_id(session, "Country 1")
             node = session.execute(select(Node).where(Node.id == c1_id)).scalar_one_or_none()
-            assert set(node.contained_user_ids) == {1, 2, 3, 4, 5}
+
+            user1_id, _ = get_user_id_and_token(session, "user1")
+            user2_id, _ = get_user_id_and_token(session, "user2")
+            user3_id, _ = get_user_id_and_token(session, "user3")
+            user4_id, _ = get_user_id_and_token(session, "user4")
+            user5_id, _ = get_user_id_and_token(session, "user5")
+
+            assert set(node.contained_user_ids) == {user1_id, user2_id, user3_id, user4_id, user5_id}
             assert len(node.contained_user_ids) == len(node.contained_users)
 
     @staticmethod
