@@ -34,6 +34,12 @@ upgrade:
 
 setup-db:
 	docker compose -f ../docker-compose.test.yml up -d --wait --no-deps postgres_tests
+	# Creating postgis extension takes several seconds, and we don't want to do it on
+	# every test run.
+	docker compose -f ../docker-compose.test.yml exec postgres_tests psql -U postgres -c \
+		"CREATE EXTENSION IF NOT EXISTS postgis; \
+		 CREATE EXTENSION IF NOT EXISTS pg_trgm; \
+		 CREATE EXTENSION IF NOT EXISTS btree_gist"
 
 teardown-db:
 	docker compose -f ../docker-compose.test.yml down

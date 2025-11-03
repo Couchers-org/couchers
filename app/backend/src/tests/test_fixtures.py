@@ -221,11 +221,11 @@ def postgres_engine() -> Generator[Engine]:
     """
     SQLAlchemy engine connected to "postgres" database.
     """
-    postgres_dsn = re.sub(
-        r"/testdb$",
-        "/postgres",
-        config["DATABASE_CONNECTION_STRING"],
-    )
+    dsn = config["DATABASE_CONNECTION_STRING"]
+    if not dsn.endswith("/testdb"):
+        raise RuntimeError(f"DATABASE_CONNECTION_STRING must point to /testdb, but was {dsn}")
+
+    postgres_dsn = re.sub(r"/testdb$", "/postgres", dsn)
 
     with autocommit_engine(postgres_dsn) as engine:
         yield engine
