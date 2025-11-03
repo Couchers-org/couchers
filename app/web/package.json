@@ -40,7 +40,7 @@
     "@tanstack/react-query-devtools": "^5.85.6",
     "@tanstack/react-query-persist-client": "^5.85.6",
     "@toast-ui/editor": "^3.2.2",
-    "dayjs": "^1.11.18",
+    "dayjs": "^1.11.19",
     "frontmatter-markdown-loader": "^3.7.0",
     "geojson": "^0.5.0",
     "google-protobuf": "^3.21.4",
