@@ -42,19 +42,11 @@ def test_GetPublicMapLayer(db):
         http_body = public.GetPublicUsers(empty_pb2.Empty())
         assert http_body.content_type == "application/json"
         data = json.loads(http_body.data)
+        # Sort to ensure a deterministic order
+        data["features"].sort(key=lambda f: f["geometry"]["coordinates"][0])
         assert data == {
             "type": "FeatureCollection",
             "features": [
-                {
-                    "type": "Feature",
-                    "geometry": {"type": "Point", "coordinates": [-73.974, 40.7108]},
-                    "properties": {"username": "user4"},
-                },
-                {
-                    "type": "Feature",
-                    "geometry": {"type": "Point", "coordinates": [-73.928380198, 40.729706144]},
-                    "properties": {"username": None},
-                },
                 {
                     "type": "Feature",
                     "geometry": {"type": "Point", "coordinates": [-74.042643848, 40.706241098]},
@@ -62,7 +54,17 @@ def test_GetPublicMapLayer(db):
                 },
                 {
                     "type": "Feature",
+                    "geometry": {"type": "Point", "coordinates": [-73.974, 40.7108]},
+                    "properties": {"username": "user4"},
+                },
+                {
+                    "type": "Feature",
                     "geometry": {"type": "Point", "coordinates": [-73.955417734, 40.691831306]},
+                    "properties": {"username": None},
+                },
+                {
+                    "type": "Feature",
+                    "geometry": {"type": "Point", "coordinates": [-73.928380198, 40.729706144]},
                     "properties": {"username": None},
                 },
             ],

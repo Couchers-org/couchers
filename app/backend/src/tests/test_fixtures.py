@@ -99,7 +99,7 @@ from proto import (
 )
 
 
-def create_schema_from_models(engine: Engine | None = None):
+def create_schema_from_models(engine: Engine | None = None) -> None:
     """
     Create everything from the current models, not incrementally
     through migrations.
@@ -116,7 +116,7 @@ def create_schema_from_models(engine: Engine | None = None):
     Base.metadata.create_all(engine)
 
 
-def populate_testing_resources(conn):
+def populate_testing_resources(conn: Connection) -> None:
     """
     Testing version of couchers.resources.copy_resources_to_database
     """
@@ -208,6 +208,10 @@ def drop_database() -> None:
 
 @contextmanager
 def autocommit_engine(url: str):
+    """
+    An engine that executes every statement in a transaction. Mainly needed
+    because CREATE/DROP DATABASE cannot be executed any other way.
+    """
     engine = create_engine(
         url,
         isolation_level="AUTOCOMMIT",
@@ -241,15 +245,22 @@ def postgres_conn(postgres_engine: Engine) -> Generator[Connection]:
 
 
 @pytest.fixture(scope="session")
-def template_db(postgres_engine: Engine) -> str:
+def template_db(postgres_conn: Connection) -> str:
+    """
+    Creates a template database with all the extensions, tables,
+    and static data (languages, regions.) This is done only once: then
+    we copy this template for every test. It's much faster than creating
+    a database without a template or deleting data from all tables between
+    tests. The tables are created from SQLA metadata, not by running the
+    migrations - again, for speed.
+    """
     # running in non-UTC catches some timezone errors
     os.environ["TZ"] = "America/New_York"
 
     name = "couchers_template"
 
-    with postgres_engine.connect() as conn:
-        conn.execute(text(f"DROP DATABASE IF EXISTS {name}"))
-        conn.execute(text(f"CREATE DATABASE {name}"))
+    postgres_conn.execute(text(f"DROP DATABASE IF EXISTS {name}"))
+    postgres_conn.execute(text(f"CREATE DATABASE {name}"))
 
     template_dsn = re.sub(
         r"/testdb$",
