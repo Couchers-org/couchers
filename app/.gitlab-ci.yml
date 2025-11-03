@@ -248,7 +248,7 @@ test:backend:
     DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/postgres"
     RUN_MIGRATION_TEST: true
   before_script:
-    # install latest postgres from their repos to get pg_dump compatible with later postgres
+    # install the latest postgres from their repos to get pg_dump compatible with later postgres
     - sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt bullseye-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
     - wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
     - apt-get update

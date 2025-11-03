@@ -262,9 +262,9 @@ def template_db(postgres_engine: Engine) -> str:
             conn.execute(
                 text(
                     "CREATE SCHEMA logging;"
-                    "CREATE EXTENSION postgis;"
-                    "CREATE EXTENSION pg_trgm;"
-                    "CREATE EXTENSION btree_gist;"
+                    "CREATE EXTENSION IF NOT EXISTS postgis;"
+                    "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+                    "CREATE EXTENSION IF NOT EXISTS btree_gist;"
                 )
             )
 
