@@ -49,7 +49,7 @@ function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
     return null;
   }
 
-  if (authenticated) {
+  if (checkedAuthStatus && authenticated) {
     return (
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />

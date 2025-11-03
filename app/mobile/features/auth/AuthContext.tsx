@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   ReactNode,
   createContext,
@@ -18,48 +17,21 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-const STORAGE_KEY = "auth.authenticated";
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [authenticated, setAuthenticated] = useState(false);
   const [checkedAuthStatus, setCheckedAuthStatus] = useState(false);
 
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const stored = await AsyncStorage.getItem(STORAGE_KEY);
-        if (stored !== null && mounted) {
-          setAuthenticated(stored === "true");
-        }
-      } finally {
-        if (mounted) {
-          setCheckedAuthStatus(true);
-        }
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const persist = useCallback(async (value: boolean) => {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, value ? "true" : "false");
-    } catch (error) {
-      console.warn("Failed to persist auth state", error);
-    }
+    setCheckedAuthStatus(true);
   }, []);
 
   const markAuthenticated = useCallback(() => {
     setAuthenticated(true);
-    persist(true);
-  }, [persist]);
+  }, []);
 
   const markLoggedOut = useCallback(() => {
     setAuthenticated(false);
-    persist(false);
-  }, [persist]);
+  }, []);
 
   const value = useMemo(
     () => ({

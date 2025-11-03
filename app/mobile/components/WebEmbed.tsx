@@ -9,11 +9,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { theme } from "@/theme";
 import { useAuthContext } from "@/features/auth/AuthContext";
-import { router } from "expo-router";
 
 type WebEmbedProps = {
   path: string;
 };
+
+// @TODO(NA): Handle browser push notifications in web app so doesn't throw error
+// @TODO(NA): Get bottom nav only showing when logged in
 
 export default function WebEmbed({ path }: WebEmbedProps) {
   const WEB_BASE_URL = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
