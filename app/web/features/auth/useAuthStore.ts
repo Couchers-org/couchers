@@ -93,6 +93,13 @@ export default function useAuthStore() {
           //userId to be set.
           setJailed(auth.jailed);
           setAuthenticated(true);
+
+          // Notify mobile app that login succeeded
+          if (window.ReactNativeWebView) {
+            window.ReactNativeWebView.postMessage(
+              JSON.stringify({ type: "LOGIN" }),
+            );
+          }
         } catch (e) {
           Sentry.captureException(e, {
             tags: {
