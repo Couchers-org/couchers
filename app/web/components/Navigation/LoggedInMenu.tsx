@@ -157,6 +157,7 @@ function LinkMenuItemView({
       ) : (
         <Link
           href={route}
+          onClick={closeMenu}
           style={{
             width: "100%",
             color: theme.palette.text.primary,
@@ -174,6 +175,7 @@ function DialogMenuItemView({
   name,
   dialogComponent: DialogComponent,
   dialogLabel,
+  closeMenu,
 }: LoggedInMenuDialogItem & { closeMenu: () => unknown }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -182,6 +184,7 @@ function DialogMenuItemView({
       <StyledMenuItemDialog
         onClick={() => {
           setIsDialogOpen(true);
+          closeMenu();
         }}
       >
         {name}
