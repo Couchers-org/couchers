@@ -7,6 +7,7 @@ import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
 import { theme } from "theme";
 
+import { useIsNativeEmbed } from "../../platform/nativeLink";
 import PushNotificationDenied from "./PushNotificationDenied";
 import {
   checkPushEnabled,
@@ -27,6 +28,7 @@ const StyledTitleBox = styled("div")(({ theme }) => ({
 export default function PushNotificationSettings() {
   const { t } = useTranslation([NOTIFICATIONS]);
   const isNotificationSupported = typeof Notification !== "undefined";
+  const isNativeEmbed = useIsNativeEmbed();
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isPushEnabled, setIsPushEnabled] = useState<boolean>(false);
@@ -34,6 +36,8 @@ export default function PushNotificationSettings() {
   const [shouldPromptAllow, setShouldPromptAllow] = useState<boolean>(false); // whether to show the user instructions to click 'Allow' in their browser
 
   useEffect(() => {
+    if (isNativeEmbed) return;
+
     const checkPushEnabledWrap = async () => {
       try {
         setIsPushEnabled(await checkPushEnabled());
@@ -53,7 +57,7 @@ export default function PushNotificationSettings() {
     };
 
     checkPushEnabledWrap();
-  }, [t]);
+  }, [t, isNativeEmbed]);
 
   const turnPushNotificationsOnWrap = async () => {
     setIsLoading(true);

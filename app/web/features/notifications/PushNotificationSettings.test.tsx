@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useTranslation } from "i18n";
-import { ReactChildren } from "react";
+import { useIsNativeEmbed } from "platform/nativeLink";
 import {
   getVapidPublicKey,
   registerPushNotificationSubscription,
@@ -8,6 +8,11 @@ import {
 import wrapper from "test/hookWrapper";
 
 import PushNotificationSettings from "./PushNotificationSettings";
+import {
+  checkPushEnabled,
+  turnPushNotificationsOff,
+  turnPushNotificationsOn,
+} from "./utils/helpers";
 
 jest.mock("platform/sentry", () => ({
   captureException: jest.fn(),
@@ -15,7 +20,7 @@ jest.mock("platform/sentry", () => ({
 
 jest.mock("i18n", () => ({
   useTranslation: jest.fn(),
-  Trans: ({ children }: { children: ReactChildren }) => children, // Mock the Trans component to return its children
+  Trans: ({ children }: { children: React.ReactNode }) => children, // Mock the Trans component to return its children
 }));
 
 jest.mock("service/notifications", () => ({
@@ -23,7 +28,19 @@ jest.mock("service/notifications", () => ({
   registerPushNotificationSubscription: jest.fn(() => Promise.resolve()),
 }));
 
-// Mock Service Worker API
+jest.mock("platform/nativeLink", () => ({
+  useIsNativeEmbed: jest.fn(),
+}));
+
+jest.mock("./utils/helpers", () => ({
+  checkPushEnabled: jest.fn(),
+  turnPushNotificationsOn: jest.fn(),
+  turnPushNotificationsOff: jest.fn(),
+}));
+
+const actualHelpers =
+  jest.requireActual<typeof import("./utils/helpers")>("./utils/helpers");
+
 const mockServiceWorker = {
   register: jest.fn(),
   pushManager: {
@@ -46,6 +63,8 @@ describe("PushNotificationSettings Component", () => {
     (useTranslation as jest.Mock).mockReturnValue({
       t: (key: string) => key,
     });
+    (useIsNativeEmbed as jest.Mock).mockReturnValue(false);
+    (checkPushEnabled as jest.Mock).mockResolvedValue(false);
   });
 
   afterEach(() => {
@@ -70,6 +89,8 @@ describe("PushNotificationSettings Component", () => {
   });
 
   it("Displays enabled message when permission is granted", async () => {
+    (checkPushEnabled as jest.Mock).mockResolvedValue(true);
+
     Object.defineProperty(navigator, "serviceWorker", {
       value: mockServiceWorker,
     });
@@ -119,18 +140,27 @@ describe("PushNotificationSettings Component", () => {
     });
   });
 
-  it.skip("Displays error message when push notifications are not supported", async () => {
-    // TOD: Need to somehow mock no navigator.PushManager or window.PushManager key
-    const mockChangeDefaultToGranted = {
+  it("Displays error message when push notifications are not supported", async () => {
+    (turnPushNotificationsOn as jest.Mock).mockResolvedValue({
+      success: false,
+      errorMessage:
+        "notification_settings.push_notifications.error_unsupported",
+    });
+
+    const mockDefault = {
       requestPermission: jest.fn().mockImplementation(() => {
         return "granted";
       }),
       permission: "default",
     };
 
-    Object.assign(global.Notification, mockChangeDefaultToGranted);
+    Object.assign(global.Notification, mockDefault);
 
     render(<PushNotificationSettings />, { wrapper });
+
+    await waitFor(() => {
+      expect(screen.getByText("disabled")).toBeInTheDocument();
+    });
 
     fireEvent.click(document.querySelector("input[type='checkbox']")!);
 
@@ -144,6 +174,12 @@ describe("PushNotificationSettings Component", () => {
   });
 
   it("Displays error when permission is denied", async () => {
+    (turnPushNotificationsOn as jest.Mock).mockResolvedValue({
+      success: false,
+      errorMessage:
+        "notification_settings.push_notifications.permission_denied.instructions.generic",
+    });
+
     const mockDenied = {
       requestPermission: jest.fn().mockImplementation(() => {
         return "denied";
@@ -166,9 +202,16 @@ describe("PushNotificationSettings Component", () => {
   });
 
   it("Unsubscribes when permission is revoked", async () => {
+    (checkPushEnabled as jest.Mock).mockResolvedValue(true);
+    (turnPushNotificationsOff as jest.Mock).mockImplementation(
+      actualHelpers.turnPushNotificationsOff,
+    );
+
     Object.defineProperty(navigator, "serviceWorker", {
       value: mockServiceWorker,
     });
+
+    Object.defineProperty(window, "PushManager", {});
 
     const mockGranted = {
       requestPermission: jest.fn().mockImplementation(() => {
@@ -197,6 +240,10 @@ describe("PushNotificationSettings Component", () => {
 
     render(<PushNotificationSettings />, { wrapper });
 
+    await waitFor(() => {
+      expect(screen.getByText("enabled")).toBeInTheDocument();
+    });
+
     fireEvent.click(document.querySelector("input[type='checkbox']")!);
 
     await waitFor(() => {
@@ -205,9 +252,15 @@ describe("PushNotificationSettings Component", () => {
   });
 
   it("Subscribes to push notifications when permission is granted", async () => {
+    (turnPushNotificationsOn as jest.Mock).mockImplementation(
+      actualHelpers.turnPushNotificationsOn,
+    );
+
     Object.defineProperty(navigator, "serviceWorker", {
       value: mockServiceWorker,
     });
+
+    Object.defineProperty(window, "PushManager", {});
 
     const mockChangeDefaultToGranted = {
       requestPermission: jest.fn().mockImplementation(() => {
@@ -218,7 +271,10 @@ describe("PushNotificationSettings Component", () => {
 
     Object.assign(global.Notification, mockChangeDefaultToGranted);
 
-    const mockSubscribe = jest.fn();
+    const mockSubscribe = jest.fn().mockResolvedValue({
+      endpoint: "https://example.com/push",
+      getKey: jest.fn().mockReturnValue(new ArrayBuffer(8)),
+    });
 
     (getVapidPublicKey as jest.Mock).mockResolvedValue({
       vapidPublicKey: "mockedVapidPublicKey",
@@ -237,6 +293,48 @@ describe("PushNotificationSettings Component", () => {
     await waitFor(() => {
       expect(mockSubscribe).toHaveBeenCalled();
       expect(registerPushNotificationSubscription).toHaveBeenCalled();
+    });
+  });
+
+  it("Does not check push notification status when running in native embed", async () => {
+    (useIsNativeEmbed as jest.Mock).mockReturnValue(true);
+
+    render(<PushNotificationSettings />, { wrapper });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("notification_settings.push_notifications.title"),
+      ).toBeInTheDocument();
+    });
+
+    // checkPushEnabled should NOT be called when isNativeEmbed is true
+    expect(checkPushEnabled).not.toHaveBeenCalled();
+  });
+
+  it("Checks push notification status when NOT running in native embed", async () => {
+    (useIsNativeEmbed as jest.Mock).mockReturnValue(false);
+    (checkPushEnabled as jest.Mock).mockResolvedValue(true);
+
+    Object.defineProperty(navigator, "serviceWorker", {
+      value: mockServiceWorker,
+    });
+
+    Object.defineProperty(window, "PushManager", {});
+
+    const mockGranted = {
+      requestPermission: jest.fn().mockImplementation(() => {
+        return "granted";
+      }),
+      permission: "granted",
+    };
+
+    Object.assign(global.Notification, mockGranted);
+
+    render(<PushNotificationSettings />, { wrapper });
+
+    await waitFor(() => {
+      expect(checkPushEnabled).toHaveBeenCalled();
+      expect(screen.getByText("enabled")).toBeInTheDocument();
     });
   });
 });
