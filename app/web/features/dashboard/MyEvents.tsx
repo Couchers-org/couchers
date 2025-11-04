@@ -4,13 +4,15 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HorizontalScroller from "components/HorizontalScroller";
+import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import EventCard from "features/communities/events/EventCard";
 import { myEventsKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import { ListMyEventsRes } from "proto/events_pb";
+import { routeToNewEvent } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
@@ -131,7 +133,17 @@ export default function MyEvents() {
           )}
         </>
       ) : (
-        !error && <TextBody>{t("dashboard:events_empty_state")}</TextBody>
+        !error && (
+          <TextBody>
+            <Trans
+              t={t}
+              i18nKey="dashboard:events_empty_state"
+              components={[
+                <StyledLink key="create-link" href={routeToNewEvent()} />,
+              ]}
+            />
+          </TextBody>
+        )
       )}
     </StyledWrapper>
   );

@@ -100,9 +100,11 @@ def do_and_check_sv(
             json={
                 "callback_url": "http://localhost:8888/iris/webhook",
                 "face_verification": False,
+                "passport_only": True,
                 "reference": ANY,
             },
             timeout=10,
+            verify="/etc/ssl/certs/ca-certificates.crt",
         )
         reference_data = mock.call_args.kwargs["json"]["reference"]
         verification_attempt_token = res.verification_attempt_token
@@ -196,6 +198,7 @@ def do_and_check_sv(
         auth=("dummy_pubkey", "dummy_secret"),
         json={"id": verification_id},
         timeout=10,
+        verify="/etc/ssl/certs/ca-certificates.crt",
     )
 
     with account_session(token) as account:
@@ -790,6 +793,7 @@ def test_strong_verification_delete_data_cant_reverify(db, monkeypatch, push_col
         auth=("dummy_pubkey", "dummy_secret"),
         json={"id": 5731012934821984},
         timeout=10,
+        verify="/etc/ssl/certs/ca-certificates.crt",
     )
 
     with session_scope() as session:
@@ -940,6 +944,7 @@ def test_strong_verification_duplicate_other_user(db, monkeypatch, push_collecto
         auth=("dummy_pubkey", "dummy_secret"),
         json={"id": 5731012934821984},
         timeout=10,
+        verify="/etc/ssl/certs/ca-certificates.crt",
     )
 
     with session_scope() as session:
@@ -1013,6 +1018,7 @@ def test_strong_verification_non_passport(db, monkeypatch, push_collector):
         auth=("dummy_pubkey", "dummy_secret"),
         json={"id": 5731012934821984},
         timeout=10,
+        verify="/etc/ssl/certs/ca-certificates.crt",
     )
 
     with session_scope() as session:

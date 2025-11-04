@@ -1,0 +1,12 @@
+# Couchers Project Rules
+
+This is a monorepo containing:
+- `/app/web` - Next.js web frontend (see `/app/web/.cursorrules` for web-specific rules)
+- `/app/mobile` - React Native Expo mobile app
+- `/app/native` - Deprecated please ignore
+- `/app/backend` - Python backend
+
+## General Conventions
+- Each subproject has its own `.cursorrules` file with specific tooling and style guidelines
+- Check the relevant folder's `.cursorrules` for language/framework-specific rules
+

@@ -420,9 +420,11 @@ class Account(account_pb2_grpc.AccountServicer):
             json={
                 "callback_url": f"{config['BACKEND_BASE_URL']}/iris/webhook",
                 "face_verification": False,
+                "passport_only": True,
                 "reference": reference,
             },
             timeout=10,
+            verify="/etc/ssl/certs/ca-certificates.crt",
         )
 
         if response.status_code != 200:

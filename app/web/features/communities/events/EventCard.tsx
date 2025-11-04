@@ -53,10 +53,13 @@ const EventTime = styled(Typography)(({ theme }) => ({
 }));
 
 const Content = styled(Typography)({
-  display: "flex",
-  flexDirection: "column",
+  display: "-webkit-box",
+  WebkitBoxOrient: "vertical",
+  WebkitLineClamp: 3,
   overflow: "hidden",
+  textOverflow: "ellipsis",
   wordBreak: "break-word",
+  maxHeight: "4.5em",
 });
 
 const CancelledChip = styled(Chip)(({ theme }) => ({
@@ -80,9 +83,16 @@ const StyledCommentsCount = styled(Typography)(({ theme }) => ({
   color: theme.palette.primary.main,
 }));
 
+const ContentWrapper = styled("div")({
+  display: "flex",
+  flexDirection: "column",
+  flexGrow: 1,
+});
+
 const ActivityStatsWrapper = styled("div")({
   display: "flex",
   justifyContent: "space-between",
+  marginTop: "auto",
 });
 
 const StyledLink = styled(Link)({
@@ -98,6 +108,8 @@ const StyledCardContent = styled(CardContent)({
   display: "flex",
   flexDirection: "column",
   flexGrow: 1,
+  height: 240,
+  overflow: "hidden",
   "&:last-child": {
     paddingBottom: 16, // Override MUI's default last-child padding
   },
@@ -195,7 +207,7 @@ export default function EventCard({
             <CancelledChip label={t("communities:cancelled")} />
           )}
           <Divider spacing={1} />
-          <div>
+          <ContentWrapper>
             <Content>{strippedContent}</Content>
 
             <ActivityStatsWrapper>
@@ -212,7 +224,7 @@ export default function EventCard({
                 })}
               </StyledCommentsCount>
             </ActivityStatsWrapper>
-          </div>
+          </ContentWrapper>
         </StyledCardContent>
       </StyledLink>
     </StyledCard>

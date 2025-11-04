@@ -15,7 +15,15 @@ from couchers.utils import (
     parse_date,
 )
 from tests.test_communities import create_1d_point, get_community_id, testing_communities  # noqa
-from tests.test_fixtures import create_schema_from_models, db, drop_all, run_migration_test, testconfig  # noqa
+from tests.test_fixtures import (  # noqa
+    create_schema_from_models,
+    db,
+    drop_database,
+    recreate_database,
+    run_migration_test,
+    testconfig,
+    truncate_all_tables,
+)
 
 
 def test_is_valid_user_id():
@@ -125,10 +133,21 @@ def strip_leading_whitespace(lines):
     return [s.lstrip() for s in lines]
 
 
-@pytest.mark.skipif(not run_migration_test(), reason="Migration test disabled")
-def test_migrations(testconfig):
+@pytest.fixture
+def restore_database_after_testing_migrations(testconfig):
     """
-    This test will only run succesfully if you have `pg_dump` installed and everything set up, which only happens if the
+    Make sure the database exists for other tests after test_migrations runs.
+    """
+    try:
+        yield
+    finally:
+        recreate_database()
+
+
+@pytest.mark.skipif(not run_migration_test(), reason="Migration test disabled")
+def test_migrations(testconfig, restore_database_after_testing_migrations):
+    """
+    This test will only run successfully if you have `pg_dump` installed and everything set up, which only happens if the
     test is being run within Gitlab CI where we do all that setup. So we disable it unless explicitly marked to run.
 
     Compares the database schema built up from migrations, with the
@@ -137,13 +156,13 @@ def test_migrations(testconfig):
     differences in the output are reported in unified diff format and
     fails the test.
     """
-    drop_all()
+    drop_database()
     # rebuild it with alembic migrations
     apply_migrations()
 
     with_migrations = pg_dump()
 
-    drop_all()
+    drop_database()
     # create everything from the current models, not incrementally
     # through migrations
     create_schema_from_models()

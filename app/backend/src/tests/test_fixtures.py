@@ -99,24 +99,14 @@ from proto import (
 )
 
 
-def drop_all():
+def truncate_all_tables():
     """drop everything currently in the database"""
     with session_scope() as session:
-        # postgis is required for all the Geographic Information System (GIS) stuff
-        # pg_trgm is required for trigram based search
-        # btree_gist is required for gist-based exclusion constraints
-        session.execute(
-            text(
-                "DROP SCHEMA IF EXISTS public CASCADE;"
-                "DROP SCHEMA IF EXISTS logging CASCADE;"
-                "DROP EXTENSION IF EXISTS postgis CASCADE;"
-                "CREATE SCHEMA public;"
-                "CREATE SCHEMA logging;"
-                "CREATE EXTENSION postgis;"
-                "CREATE EXTENSION pg_trgm;"
-                "CREATE EXTENSION btree_gist;"
-            )
-        )
+        for table in Base.metadata.tables.values():
+            if table.name in ("regions", "languages", "timezone_areas"):
+                continue
+            name = f'"{table.schema}"."{table.name}"' if table.schema else f'"{table.name}"'
+            session.execute(text(f"TRUNCATE TABLE {name} RESTART IDENTITY CASCADE"))
 
     # this resets the database connection pool, which caches some stuff postgres-side about objects and will otherwise
     # sometimes error out with "ERROR:  no spatial operator found for 'st_contains': opfamily 203699 type 203585"
@@ -132,8 +122,8 @@ def create_schema_from_models():
     through migrations.
     """
 
-    # create the slugify function
-    functions = Path(__file__).parent / "slugify.sql"
+    # create sql functions (these are created in migrations otherwise)
+    functions = Path(__file__).parent / "sql_functions.sql"
     with open(functions) as f, session_scope() as session:
         session.execute(text(f.read()))
 
@@ -210,16 +200,30 @@ def populate_testing_resources(session):
     session.execute(text(tz_sql))
 
 
-def recreate_database():
-    """
-    Connect to a running Postgres database, build it using metadata.create_all()
-    """
+def drop_database() -> None:
+    with session_scope() as session:
+        # postgis is required for all the Geographic Information System (GIS) stuff
+        # pg_trgm is required for trigram-based search
+        # btree_gist is required for gist-based exclusion constraints
+        session.execute(
+            text(
+                "DROP SCHEMA IF EXISTS public CASCADE;"
+                "DROP SCHEMA IF EXISTS logging CASCADE;"
+                "DROP EXTENSION IF EXISTS postgis CASCADE;"
+                "CREATE SCHEMA public;"
+                "CREATE SCHEMA logging;"
+                "CREATE EXTENSION postgis;"
+                "CREATE EXTENSION pg_trgm;"
+                "CREATE EXTENSION btree_gist;"
+            )
+        )
 
+
+def recreate_database():
     # running in non-UTC catches some timezone errors
     os.environ["TZ"] = "America/New_York"
 
-    # drop everything currently in the database
-    drop_all()
+    drop_database()
 
     # create everything from the current models, not incrementally through migrations
     create_schema_from_models()
@@ -228,13 +232,17 @@ def recreate_database():
         populate_testing_resources(session)
 
 
-@pytest.fixture()
-def db():
+@pytest.fixture(scope="session")
+def create_database():
+    recreate_database()
+
+
+@pytest.fixture
+def db(create_database):
     """
     Pytest fixture to connect to a running Postgres database and build it using metadata.create_all()
     """
-
-    recreate_database()
+    truncate_all_tables()
 
 
 def generate_user(*, delete_user=False, complete_profile=True, strong_verification=False, **kwargs):

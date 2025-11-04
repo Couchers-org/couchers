@@ -50,7 +50,7 @@ export default function useAuthStore() {
           setUserId(null);
           Sentry.setUser({ id: undefined });
 
-          // Notify native app if running in embed
+          // Notify mobile app if running in embed
           if (isNativeEmbed) {
             window.ReactNativeWebView?.postMessage(
               JSON.stringify({ type: "LOGOUT" }),
@@ -93,6 +93,13 @@ export default function useAuthStore() {
           //userId to be set.
           setJailed(auth.jailed);
           setAuthenticated(true);
+
+          // Notify mobile app that login succeeded
+          if (window.ReactNativeWebView) {
+            window.ReactNativeWebView.postMessage(
+              JSON.stringify({ type: "LOGIN" }),
+            );
+          }
         } catch (e) {
           Sentry.captureException(e, {
             tags: {
