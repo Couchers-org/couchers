@@ -424,6 +424,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 "reference": reference,
             },
             timeout=10,
+            verify="/etc/ssl/certs/ca-certificates.crt",
         )
 
         if response.status_code != 200:
