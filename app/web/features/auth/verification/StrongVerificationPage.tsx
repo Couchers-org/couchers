@@ -18,6 +18,8 @@ import { InitiateStrongVerificationRes } from "proto/account_pb";
 import { service } from "service";
 import { theme } from "theme";
 
+import { OpenInNewIcon } from "../../../components/Icons";
+
 export default function StrongVerificationInstructions() {
   const { t } = useTranslation([GLOBAL, AUTH]);
 
@@ -66,13 +68,48 @@ export default function StrongVerificationInstructions() {
             </Typography>
           </ListItem>
           <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
-            <Typography variant="body1">
+            <Typography variant="body1" sx={{ marginBottom: 1 }}>
               <Trans i18nKey="auth:strong_verification.instructions.step2">
                 Download the <strong>IRIS ID</strong> app
               </Trans>
             </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                gap: 0,
+                marginTop: 1,
+                flexWrap: "wrap",
+                alignItems: "center",
+              }}
+            >
+              <a
+                href="https://apps.apple.com/app/id1575142357"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img
+                  src="/img/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
+                  alt={t(
+                    "auth:strong_verification.instructions.download_app_store",
+                  )}
+                  style={{ height: "30px", width: "auto" }}
+                />
+              </a>
+              <a
+                href="https://play.google.com/store/apps/details?id=app.iris"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img
+                  src="/img/GetItOnGooglePlay_Badge_Web_color_English.svg"
+                  alt={t(
+                    "auth:strong_verification.instructions.download_google_play",
+                  )}
+                  style={{ height: "45px", width: "auto" }}
+                />
+              </a>
+            </Box>
           </ListItem>
-          {/** ADD LINKS TO GOOGLE PLAY AND APPLE APP STORE TO DOWNLOAD APP */}
           <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
             <Typography variant="body1">
               {t("auth:strong_verification.instructions.step3")}
@@ -223,6 +260,7 @@ export default function StrongVerificationInstructions() {
             onClick={() => startStrongVerification()}
             loading={isPending}
             size="large"
+            icon={<OpenInNewIcon />}
           >
             {t("auth:strong_verification.start_button")}
           </Button>
