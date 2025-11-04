@@ -6,6 +6,7 @@ import { usePersistedState } from "platform/usePersistedState";
 import React, { useEffect, useState } from "react";
 import { theme } from "theme";
 
+import { useIsNativeEmbed } from "../../platform/nativeLink";
 import { checkPushEnabled, turnPushNotificationsOn } from "./utils/helpers";
 
 const TIME_BETWEEN_NAGS_MS = 180 * 86400 * 1_000; // 180 days
@@ -19,6 +20,7 @@ const Wrapper = styled("div")({
 
 export function PushNotificationBanner() {
   const { t } = useTranslation(NOTIFICATIONS);
+  const isNativeEmbed = useIsNativeEmbed();
   // the epoch value of the last time this banner was dismissed
   const [lastDismissedEpoch, setLastDismissedEpoch] = usePersistedState<
     number | null
@@ -33,7 +35,7 @@ export function PushNotificationBanner() {
 
   useEffect(() => {
     const checkPush = async () => {
-      if (!authenticated) return;
+      if (!authenticated || isNativeEmbed) return;
       try {
         if (!(await checkPushEnabled())) {
           setBannerVisible(
@@ -47,7 +49,7 @@ export function PushNotificationBanner() {
     };
 
     checkPush();
-  }, [authenticated, lastDismissedEpoch]);
+  }, [authenticated, lastDismissedEpoch, isNativeEmbed]);
 
   const dismiss = () => {
     setLastDismissedEpoch(new Date().getTime());

@@ -48,7 +48,7 @@
   "show_map": "Show Map",
   "hero_image_alt": "Hot-air balloons in Capadocia",
   "hero_image_attribution": "Photo by <1>Mesut Kaya</1> on <3>Unsplash</3>",
-  "events_empty_state": "No events at the moment.",
+  "events_empty_state": "No events at the moment. Why don't you <0>create</0> one ✨?",
   "attendees_count": "{{count}} attendee",
   "attendees_count_plural": "{{count}} attendees"
 }
