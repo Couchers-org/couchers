@@ -1,1 +1,93 @@
-{}
+{
+    "report": {
+        "bug": {
+            "problem_label": "Při jaké činnosti došlo k chybě?",
+            "button_label": "Nahlásit technický problém",
+            "title_label": "Předmět zprávy",
+            "title_helper": "Stručný popis chyby",
+            "problem_helper": "Stručný popis problému a jak ho reprodukovat",
+            "expect_label": "Co se stalo? Co se mělo stát?",
+            "expect_helper": "Stručný popis toho, co jste očekávali, že se stane místo toho"
+        },
+        "flag": {
+            "reason_required": "Důvod je vyžadován.",
+            "profile_title": "Nahlásit nebo zablokovat",
+            "reason_label": "Důvod nahlášení",
+            "description_required": "Popis je vyžadován.",
+            "description_label": "Popiš problém",
+            "reason": {
+                "external": "Incident mimo platformu",
+                "other": "Ostatní (Prosím specifikuj níže)"
+            }
+        },
+        "content": {
+            "button_label": "Nahlásit nevhodný obsah nebo chování"
+        },
+        "label": "Nahlásit problém",
+        "title": "Nahlásit problém"
+    },
+    "language_preference": {
+        "translation_progress": {
+            "complete_percent": "{{percent}}% hotovo",
+            "view_progress": "Zobrazit stav překladů",
+            "title": "Průběh Překladu",
+            "help_translate": "Pomoc s překladem Couchers do tvého jazyka",
+            "complete": "Hotovo",
+            "loading": "Načítám stav překladů...",
+            "no_data": "Data překladů nejsou k dispozici",
+            "almost_there": "Téměř Hotovo",
+            "in_progress": "Probíhá",
+            "early_stage": "Raná Fáze",
+            "error_loading": "Nepodařilo se načíst stav překladů"
+        },
+        "help_translate": "Pomoc s překladem Couchers do tvého jazyka.",
+        "current_preferred_language": "Tvá jazyková preference je aktuálně ",
+        "form_title": "Jazyk",
+        "select_language": "Vyber jazyk",
+        "success_message": "Tvé změny byly uloženy.",
+        "error_loading_languages": "Nepodařilo se načíst výběr jazyka. Zkus to prosím později."
+    },
+    "meetup_status": {
+        "wants_to_meetup": "Chci se setkat"
+    },
+    "learn_more": "Zjistit více",
+    "terms_of_service": "Podmínky služby",
+    "required": "Vyžadováno",
+    "continue": "Pokračovat",
+    "disable": "Vypnout",
+    "disabled": "Vypnuto",
+    "thanks": "Díky!",
+    "community_standing_description": "Vypočteno na základě různých faktorů, jako jsou reference a zapojení do komunity.",
+    "edit": "Editovat",
+    "save": "Uložit",
+    "save_changes": "Uložit změny",
+    "send": "Poslat",
+    "cancel": "Zrušit",
+    "submit": "Odeslat",
+    "confirm": "Potvrdit",
+    "copy": "Zkopírovat",
+    "copied": "Zkopírováno do schránky",
+    "load_more": "Načíst více",
+    "read_more": "Číst dále",
+    "next": "Další",
+    "previous": "Předchozí",
+    "cookie_message": "Abychom vám zajistili co nejlepší uživatelský zážitek na našich webových stránkách, používáme soubory cookie. Pokud budete tyto stránky nadále používat, budeme předpokládat, že s nimi jste spokojeni. Více si můžete přečíst v našich <1>Podmínkách služby</1>.",
+    "hosting_status": {
+        "can_host": "Mohu ubytovat",
+        "maybe": "Občas mohu ubytovat",
+        "cant_host": "Nemohu ubytovat"
+    },
+    "close": "Zavřít",
+    "create_account": "Vytvořit účet",
+    "expand": "Rozbalit",
+    "couchers": "Couchers.org",
+    "legal_name": "Couchers, Inc.",
+    "login": "Přihlásit se",
+    "sign_up": "Zaregistrovat se",
+    "create": "Vytvořit",
+    "back": "Zpět",
+    "created": "Vytvořeno",
+    "update": "Aktualizovat",
+    "change_time": "Změnit čas",
+    "accept": "Přijmout"
+}
