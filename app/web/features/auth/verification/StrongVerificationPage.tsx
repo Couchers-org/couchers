@@ -1,11 +1,5 @@
-import {
-  Box,
-  Container,
-  List,
-  ListItem,
-  Paper,
-  Typography,
-} from "@mui/material";
+import NfcIcon from "@mui/icons-material/Nfc";
+import { Box, Container, List, ListItem, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -60,17 +54,19 @@ export default function StrongVerificationInstructions() {
           }}
         >
           <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
-            <Typography variant="body1">
+            <Typography variant="body1" sx={{ marginBottom: 1 }}>
               <Trans i18nKey="auth:strong_verification.instructions.step1">
-                Click <strong>"Start Strong Verification"</strong> below (opens
-                in new tab)
+                Download the <strong>IRIS ID</strong> app
               </Trans>
             </Typography>
-          </ListItem>
-          <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
-            <Typography variant="body1" sx={{ marginBottom: 1 }}>
-              <Trans i18nKey="auth:strong_verification.instructions.step2">
-                Download the <strong>IRIS ID</strong> app
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ marginTop: 1, marginBottom: 1 }}
+            >
+              <Trans i18nKey="auth:strong_verification.instructions.step1_apple_note">
+                <strong>Apple users:</strong> You can skip the download and use
+                your browser instead. Just click "Open" when prompted.
               </Trans>
             </Typography>
             <Box
@@ -112,6 +108,14 @@ export default function StrongVerificationInstructions() {
           </ListItem>
           <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
             <Typography variant="body1">
+              <Trans i18nKey="auth:strong_verification.instructions.step2">
+                Click <strong>"Start Strong Verification"</strong> below (opens
+                in new tab)
+              </Trans>
+            </Typography>
+          </ListItem>
+          <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
+            <Typography variant="body1">
               {t("auth:strong_verification.instructions.step3")}
             </Typography>
           </ListItem>
@@ -144,103 +148,58 @@ export default function StrongVerificationInstructions() {
           </ListItem>
         </List>
 
-        <Typography
-          variant="h2"
-          sx={{ marginBottom: theme.spacing(2), marginTop: theme.spacing(4) }}
-        >
-          {t("auth:strong_verification.instructions.chip_section.heading")}
-        </Typography>
-
-        <Typography variant="body1" sx={{ marginBottom: theme.spacing(3) }}>
-          {t("auth:strong_verification.instructions.chip_section.description")}
-        </Typography>
-
         <Box
           sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "1fr", md: "1fr 1fr 1fr" },
-            gap: theme.spacing(2),
+            backgroundColor: theme.palette.grey[50],
+            borderRadius: theme.shape.borderRadius,
+            padding: theme.spacing(3),
             marginBottom: theme.spacing(4),
+            marginTop: theme.spacing(4),
           }}
         >
-          {/* Picture Page Box */}
-          <Paper
-            elevation={2}
+          <Box
             sx={{
-              padding: theme.spacing(2),
-              borderTop: `4px solid ${theme.palette.primary.main}`,
+              display: "flex",
+              alignItems: "center",
+              gap: theme.spacing(1),
+              marginBottom: theme.spacing(1),
             }}
           >
-            <Typography
-              variant="h3"
-              sx={{ marginBottom: theme.spacing(2), fontWeight: "bold" }}
-            >
-              {t(
-                "auth:strong_verification.instructions.chip_section.picture_page",
-              )}
+            <NfcIcon sx={{ fontSize: 28, color: theme.palette.primary.main }} />
+            <Typography variant="h3">
+              {t("auth:strong_verification.instructions.chip_location.heading")}
             </Typography>
-            <Typography variant="body1" component="div">
-              {t(
-                "auth:strong_verification.instructions.chip_section.countries.finland",
-              )}
-              <br />
-              {t(
-                "auth:strong_verification.instructions.chip_section.countries.germany_new",
-              )}
-            </Typography>
-          </Paper>
-
-          {/* Back Page Box */}
-          <Paper
-            elevation={2}
+          </Box>
+          <Typography variant="body1" sx={{ marginBottom: theme.spacing(1) }}>
+            {t(
+              "auth:strong_verification.instructions.chip_location.description",
+            )}
+          </Typography>
+          <Box
+            component="ul"
             sx={{
-              padding: theme.spacing(2),
-              borderTop: `4px solid ${theme.palette.primary.main}`,
+              marginTop: theme.spacing(1),
+              marginBottom: 0,
+              paddingLeft: theme.spacing(3),
             }}
           >
-            <Typography
-              variant="h3"
-              sx={{ marginBottom: theme.spacing(2), fontWeight: "bold" }}
-            >
-              {t(
-                "auth:strong_verification.instructions.chip_section.back_page",
-              )}
-            </Typography>
-            <Typography variant="body1" component="div">
-              {t(
-                "auth:strong_verification.instructions.chip_section.countries.us",
-              )}
-              <br />
-              {t(
-                "auth:strong_verification.instructions.chip_section.countries.germany_old",
-              )}
-              <br />
-              {t(
-                "auth:strong_verification.instructions.chip_section.countries.mexico",
-              )}
-            </Typography>
-          </Paper>
-
-          {/* Other Location Box */}
-          <Paper
-            elevation={2}
-            sx={{
-              padding: theme.spacing(2),
-              borderTop: `4px solid ${theme.palette.primary.main}`,
-            }}
-          >
-            <Typography
-              variant="h3"
-              sx={{ marginBottom: theme.spacing(2), fontWeight: "bold" }}
-            >
-              {t("auth:strong_verification.instructions.chip_section.other")}
-            </Typography>
-            <Typography variant="body1" component="div">
-              {t(
-                "auth:strong_verification.instructions.chip_section.countries.australia",
-              )}
-            </Typography>
-          </Paper>
+            <li>
+              <Trans i18nKey="auth:strong_verification.instructions.chip_location.us_germany_mexico">
+                <strong>US, Germany (2016), Mexico:</strong> Back page
+              </Trans>
+            </li>
+            <li>
+              <Trans i18nKey="auth:strong_verification.instructions.chip_location.finland_germany_new">
+                <strong>Finland, Germany (2017+):</strong> Picture page
+              </Trans>
+            </li>
+            <li>
+              <Trans i18nKey="auth:strong_verification.instructions.chip_location.australia">
+                <strong>Australia:</strong> Middle page (marked with symbol +
+                "chip name")
+              </Trans>
+            </li>
+          </Box>
         </Box>
 
         {error && (
@@ -257,10 +216,10 @@ export default function StrongVerificationInstructions() {
           }}
         >
           <Button
-            onClick={() => startStrongVerification()}
+            onClick={startStrongVerification}
             loading={isPending}
             size="large"
-            icon={<OpenInNewIcon />}
+            endIcon={<OpenInNewIcon />}
           >
             {t("auth:strong_verification.start_button")}
           </Button>
