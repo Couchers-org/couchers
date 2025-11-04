@@ -55,11 +55,11 @@ const EventTime = styled(Typography)(({ theme }) => ({
 const Content = styled(Typography)({
   display: "-webkit-box",
   WebkitBoxOrient: "vertical",
-  WebkitLineClamp: 4,
+  WebkitLineClamp: 3,
   overflow: "hidden",
   textOverflow: "ellipsis",
   wordBreak: "break-word",
-  maxHeight: "6em",
+  maxHeight: "4.5em",
 });
 
 const CancelledChip = styled(Chip)(({ theme }) => ({
