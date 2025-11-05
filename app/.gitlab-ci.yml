@@ -232,13 +232,23 @@ test:backend:
   services:
     - name: postgis/postgis:17-3.5
       alias: postgres
-      command: ["postgres", "-c", "fsync=off"]
+      command: [
+        "postgres",
+        "-c", "bgwriter_lru_maxpages=0",
+        "-c", "jit=off",
+        "-c", "fsync=off",
+        "-c", "full_page_writes=off",
+        "-c", "synchronous_commit=off",
+        "-c", "wal_level=minimal",
+        "-c", "wal_keep_size=100MB",
+        "-c", "max_wal_senders=0",
+      ]
   variables:
     POSTGRES_PASSWORD: c765064a49d18a95
-    DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/postgres"
+    DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/testdb"
     RUN_MIGRATION_TEST: true
   before_script:
-    # install latest postgres from their repos to get pg_dump compatible with later postgres
+    # install the latest postgres from their repos to get pg_dump compatible with later postgres
     - sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt bullseye-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
     - wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
     - apt-get update
