@@ -1,4 +1,6 @@
 import os
+import re
+from collections.abc import Generator
 from concurrent import futures
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -8,7 +10,7 @@ from unittest.mock import patch
 
 import grpc
 import pytest
-from sqlalchemy.orm import close_all_sessions
+from sqlalchemy import Connection, Engine, create_engine
 from sqlalchemy.sql import or_, text
 
 from couchers.config import config
@@ -26,13 +28,11 @@ from couchers.models import (
     FriendRelationship,
     FriendStatus,
     HostingStatus,
-    Language,
     LanguageAbility,
     LanguageFluency,
     MeetupStatus,
     ModerationUserList,
     PassportSex,
-    Region,
     RegionLived,
     RegionVisited,
     StrongVerificationAttempt,
@@ -99,105 +99,92 @@ from proto import (
 )
 
 
-def truncate_all_tables():
-    """drop everything currently in the database"""
-    with session_scope() as session:
-        for table in Base.metadata.tables.values():
-            if table.name in ("regions", "languages", "timezone_areas"):
-                continue
-            name = f'"{table.schema}"."{table.name}"' if table.schema else f'"{table.name}"'
-            session.execute(text(f"TRUNCATE TABLE {name} RESTART IDENTITY CASCADE"))
-
-    # this resets the database connection pool, which caches some stuff postgres-side about objects and will otherwise
-    # sometimes error out with "ERROR:  no spatial operator found for 'st_contains': opfamily 203699 type 203585"
-    # and similar errors
-    _get_base_engine().dispose()
-
-    close_all_sessions()
-
-
-def create_schema_from_models():
+def create_schema_from_models(engine: Engine | None = None) -> None:
     """
     Create everything from the current models, not incrementally
     through migrations.
     """
+    if engine is None:
+        engine = _get_base_engine()
 
     # create sql functions (these are created in migrations otherwise)
     functions = Path(__file__).parent / "sql_functions.sql"
-    with open(functions) as f, session_scope() as session:
-        session.execute(text(f.read()))
+    with open(functions) as f, engine.connect() as conn:
+        conn.execute(text(f.read()))
+        conn.commit()
 
-    Base.metadata.create_all(_get_base_engine())
+    Base.metadata.create_all(engine)
 
 
-def populate_testing_resources(session):
+def populate_testing_resources(conn: Connection) -> None:
     """
     Testing version of couchers.resources.copy_resources_to_database
     """
-    regions = [
-        ("AUS", "Australia"),
-        ("CAN", "Canada"),
-        ("CHE", "Switzerland"),
-        ("CUB", "Cuba"),
-        ("CXR", "Christmas Island"),
-        ("CZE", "Czechia"),
-        ("DEU", "Germany"),
-        ("EGY", "Egypt"),
-        ("ESP", "Spain"),
-        ("EST", "Estonia"),
-        ("FIN", "Finland"),
-        ("FRA", "France"),
-        ("GBR", "United Kingdom"),
-        ("GEO", "Georgia"),
-        ("GHA", "Ghana"),
-        ("GRC", "Greece"),
-        ("HKG", "Hong Kong"),
-        ("IRL", "Ireland"),
-        ("ISR", "Israel"),
-        ("ITA", "Italy"),
-        ("JPN", "Japan"),
-        ("LAO", "Laos"),
-        ("MEX", "Mexico"),
-        ("MMR", "Myanmar"),
-        ("NAM", "Namibia"),
-        ("NLD", "Netherlands"),
-        ("NZL", "New Zealand"),
-        ("POL", "Poland"),
-        ("PRK", "North Korea"),
-        ("REU", "Réunion"),
-        ("SGP", "Singapore"),
-        ("SWE", "Sweden"),
-        ("THA", "Thailand"),
-        ("TUR", "Turkey"),
-        ("TWN", "Taiwan"),
-        ("USA", "United States"),
-        ("VNM", "Vietnam"),
-    ]
+    conn.execute(
+        text("""
+        INSERT INTO regions (code, name) VALUES
+        ('AUS', 'Australia'),
+        ('CAN', 'Canada'),
+        ('CHE', 'Switzerland'),
+        ('CUB', 'Cuba'),
+        ('CXR', 'Christmas Island'),
+        ('CZE', 'Czechia'),
+        ('DEU', 'Germany'),
+        ('EGY', 'Egypt'),
+        ('ESP', 'Spain'),
+        ('EST', 'Estonia'),
+        ('FIN', 'Finland'),
+        ('FRA', 'France'),
+        ('GBR', 'United Kingdom'),
+        ('GEO', 'Georgia'),
+        ('GHA', 'Ghana'),
+        ('GRC', 'Greece'),
+        ('HKG', 'Hong Kong'),
+        ('IRL', 'Ireland'),
+        ('ISR', 'Israel'),
+        ('ITA', 'Italy'),
+        ('JPN', 'Japan'),
+        ('LAO', 'Laos'),
+        ('MEX', 'Mexico'),
+        ('MMR', 'Myanmar'),
+        ('NAM', 'Namibia'),
+        ('NLD', 'Netherlands'),
+        ('NZL', 'New Zealand'),
+        ('POL', 'Poland'),
+        ('PRK', 'North Korea'),
+        ('REU', 'Réunion'),
+        ('SGP', 'Singapore'),
+        ('SWE', 'Sweden'),
+        ('THA', 'Thailand'),
+        ('TUR', 'Turkey'),
+        ('TWN', 'Taiwan'),
+        ('USA', 'United States'),
+        ('VNM', 'Vietnam');
+    """)
+    )
 
-    languages = [
-        ("arb", "Arabic (Standard)"),
-        ("deu", "German"),
-        ("eng", "English"),
-        ("fin", "Finnish"),
-        ("fra", "French"),
-        ("heb", "Hebrew"),
-        ("hun", "Hungarian"),
-        ("jpn", "Japanese"),
-        ("pol", "Polish"),
-        ("swe", "Swedish"),
-        ("cmn", "Chinese (Mandarin)"),
-    ]
+    # Insert languages as textual SQL
+    conn.execute(
+        text("""
+        INSERT INTO languages (code, name) VALUES
+        ('arb', 'Arabic (Standard)'),
+        ('deu', 'German'),
+        ('eng', 'English'),
+        ('fin', 'Finnish'),
+        ('fra', 'French'),
+        ('heb', 'Hebrew'),
+        ('hun', 'Hungarian'),
+        ('jpn', 'Japanese'),
+        ('pol', 'Polish'),
+        ('swe', 'Swedish'),
+        ('cmn', 'Chinese (Mandarin)')
+    """)
+    )
 
     with open(Path(__file__).parent / ".." / ".." / "resources" / "timezone_areas.sql-fake", "r") as f:
         tz_sql = f.read()
 
-    for code, name in regions:
-        session.add(Region(code=code, name=name))
-
-    for code, name in languages:
-        session.add(Language(code=code, name=name))
-
-    session.execute(text(tz_sql))
+    conn.execute(text(tz_sql))
 
 
 def drop_database() -> None:
@@ -210,8 +197,8 @@ def drop_database() -> None:
                 "DROP SCHEMA IF EXISTS public CASCADE;"
                 "DROP SCHEMA IF EXISTS logging CASCADE;"
                 "DROP EXTENSION IF EXISTS postgis CASCADE;"
-                "CREATE SCHEMA public;"
-                "CREATE SCHEMA logging;"
+                "CREATE SCHEMA IF NOT EXISTS public;"
+                "CREATE SCHEMA IF NOT EXISTS logging;"
                 "CREATE EXTENSION postgis;"
                 "CREATE EXTENSION pg_trgm;"
                 "CREATE EXTENSION btree_gist;"
@@ -219,30 +206,102 @@ def drop_database() -> None:
         )
 
 
-def recreate_database():
-    # running in non-UTC catches some timezone errors
-    os.environ["TZ"] = "America/New_York"
-
-    drop_database()
-
-    # create everything from the current models, not incrementally through migrations
-    create_schema_from_models()
-
-    with session_scope() as session:
-        populate_testing_resources(session)
+@contextmanager
+def autocommit_engine(url: str):
+    """
+    An engine that executes every statement in a transaction. Mainly needed
+    because CREATE/DROP DATABASE cannot be executed any other way.
+    """
+    engine = create_engine(
+        url,
+        isolation_level="AUTOCOMMIT",
+    )
+    yield engine
+    engine.dispose()
 
 
 @pytest.fixture(scope="session")
-def create_database():
-    recreate_database()
+def postgres_engine() -> Generator[Engine]:
+    """
+    SQLAlchemy engine connected to "postgres" database.
+    """
+    dsn = config["DATABASE_CONNECTION_STRING"]
+    if not dsn.endswith("/testdb"):
+        raise RuntimeError(f"DATABASE_CONNECTION_STRING must point to /testdb, but was {dsn}")
+
+    postgres_dsn = re.sub(r"/testdb$", "/postgres", dsn)
+
+    with autocommit_engine(postgres_dsn) as engine:
+        yield engine
+
+
+@pytest.fixture(scope="session")
+def postgres_conn(postgres_engine: Engine) -> Generator[Connection]:
+    """
+    Acquiring a connection takes time, so we cache it.
+    """
+    with postgres_engine.connect() as conn:
+        yield conn
+
+
+@pytest.fixture(scope="session")
+def template_db(postgres_conn: Connection) -> str:
+    """
+    Creates a template database with all the extensions, tables,
+    and static data (languages, regions.) This is done only once: then
+    we copy this template for every test. It's much faster than creating
+    a database without a template or deleting data from all tables between
+    tests. The tables are created from SQLA metadata, not by running the
+    migrations - again, for speed.
+    """
+    # running in non-UTC catches some timezone errors
+    os.environ["TZ"] = "America/New_York"
+
+    name = "couchers_template"
+
+    postgres_conn.execute(text(f"DROP DATABASE IF EXISTS {name}"))
+    postgres_conn.execute(text(f"CREATE DATABASE {name}"))
+
+    template_dsn = re.sub(
+        r"/testdb$",
+        f"/{name}",
+        config["DATABASE_CONNECTION_STRING"],
+    )
+
+    with autocommit_engine(template_dsn) as engine:
+        with engine.connect() as conn:
+            conn.execute(
+                text(
+                    "CREATE SCHEMA logging;"
+                    "CREATE EXTENSION IF NOT EXISTS postgis;"
+                    "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+                    "CREATE EXTENSION IF NOT EXISTS btree_gist;"
+                )
+            )
+
+            create_schema_from_models(engine)
+            populate_testing_resources(conn)
+
+    return name
 
 
 @pytest.fixture
-def db(create_database):
+def db(template_db: str, postgres_conn: Connection) -> None:
     """
-    Pytest fixture to connect to a running Postgres database and build it using metadata.create_all()
+    Creates a fresh database for a test by copying a template. The template has
+    the migrations applied and is populated with static data (regions, languages, etc.)
     """
-    truncate_all_tables()
+    postgres_conn.execute(text("DROP DATABASE IF EXISTS testdb WITH (FORCE)"))
+    postgres_conn.execute(text(f"CREATE DATABASE testdb WITH TEMPLATE {template_db}"))
+
+
+@pytest.fixture(scope="class")
+def db_class(template_db: str, postgres_conn: Connection) -> None:
+    """
+    The same as above, but with a different scope. Used in test_communities.py.
+    """
+    postgres_conn.execute(text("DROP DATABASE IF EXISTS testdb WITH (FORCE)"))
+    postgres_conn.execute(text(f"CREATE DATABASE testdb WITH TEMPLATE {template_db}"))
 
 
 def generate_user(*, delete_user=False, complete_profile=True, strong_verification=False, **kwargs):

@@ -37,7 +37,8 @@
                 },
                 "reference": {
                     "receive_hosted": "Sana ev sahipliği yapmış biri tarafından referans aldığında",
-                    "receive_surfed": "Ev sahipliği yaptığın birinden referans aldığında"
+                    "receive_surfed": "Ev sahipliği yaptığın birinden referans aldığında",
+                    "receive_friend": "Bir arkadaştan referans aldığında"
                 },
                 "chat": {
                     "message": "Birisi sana bir mesaj gönderdiğinde",

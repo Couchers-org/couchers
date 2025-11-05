@@ -5,6 +5,10 @@ import { persistQueryClient } from "@tanstack/react-query-persist-client";
 import { reactQueryRetries } from "appConstants";
 import { useEffect } from "react";
 
+interface ReactQueryClientProviderProps {
+  children: React.ReactNode;
+}
+
 const queryClient = new QueryClient({
   //grpc-web has built in timeout, so better not use the default exponential backoff
   defaultOptions: {
@@ -15,10 +19,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-
-interface ReactQueryClientProviderProps {
-  children: React.ReactNode;
-}
 
 export function ReactQueryClientProvider({
   children,
