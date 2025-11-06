@@ -2,8 +2,9 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2
 
-from couchers import errors, models
+from couchers import errors
 from couchers.constants import TOS_VERSION
+from couchers.models import users
 from couchers.servicers import jail as servicers_jail
 from couchers.utils import create_coordinate, to_aware_datetime
 from proto import admin_pb2, api_pb2, jail_pb2
@@ -157,12 +158,12 @@ def test_TOS_increase(db, monkeypatch):
     # now we pretend to update the TOS version
     new_TOS_VERSION = TOS_VERSION + 1
 
-    monkeypatch.setattr(models, "TOS_VERSION", new_TOS_VERSION)
+    monkeypatch.setattr(users, "TOS_VERSION", new_TOS_VERSION)
     monkeypatch.setattr(servicers_jail, "TOS_VERSION", new_TOS_VERSION)
 
     # make sure we're jailed
     with real_api_session(token) as api, pytest.raises(grpc.RpcError) as e:
-        res = api.Ping(api_pb2.PingReq())
+        api.Ping(api_pb2.PingReq())
     assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
 
     with real_jail_session(token) as jail:
