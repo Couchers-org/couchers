@@ -271,7 +271,6 @@
       "today_year": "Today",
       "today_text": "Couchers.org builds the next chapter: modern, safer, non-profit couch surfing — built by and for the community."
     },
-
     "actions": {
       "host": "Host a traveler visiting your city",
       "surf": "Surf with a local while traveling",
@@ -358,6 +357,7 @@
     "es-419": "Spanish",
     "fr": "French (France)",
     "fr-CA": "French (Canada)",
+    "he": "Hebrew",
     "hi": "Hindi",
     "it": "Italian",
     "ja": "Japanese",
