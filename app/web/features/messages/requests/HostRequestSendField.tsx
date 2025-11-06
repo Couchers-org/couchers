@@ -12,7 +12,7 @@ import Link from "next/link";
 import { HostRequestStatus } from "proto/conversations_pb";
 import { ReferenceType } from "proto/references_pb";
 import { HostRequest, RespondHostRequestReq } from "proto/requests_pb";
-import React from "react";
+import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { referenceTypeRoute, routeToLeaveReference } from "routes";
 import { theme } from "theme";
@@ -77,6 +77,8 @@ export default function HostRequestSendField({
     respondMutation;
 
   const { register, handleSubmit, reset } = useForm<MessageFormData>();
+
+  const inputRef = useRef<HTMLDivElement>(null);
   const onSubmit = handleSubmit(async (data: MessageFormData) => {
     handleSend(data.text);
     reset();
@@ -125,6 +127,17 @@ export default function HostRequestSendField({
     }
   };
 
+  // Scroll input into view when focused
+  const handleFocus = () => {
+    // Small delay to allow keyboard to appear first
+    setTimeout(() => {
+      inputRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }, 300);
+  };
+
   return (
     <form onSubmit={onSubmit}>
       <HostRequestGuideLinks
@@ -150,6 +163,7 @@ export default function HostRequestSendField({
       <StyledContainer>
         <TextField
           {...register("text")}
+          ref={inputRef}
           value={
             isRequestClosed ? t("messages:request_closed_message") : undefined
           }
@@ -168,6 +182,7 @@ export default function HostRequestSendField({
           }}
           multiline
           onKeyDown={handleKeyDown}
+          onFocus={handleFocus}
           maxRows={6}
           size="small"
           sx={{ background: theme.palette.common.white }}

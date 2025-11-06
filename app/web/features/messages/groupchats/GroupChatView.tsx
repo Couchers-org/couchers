@@ -87,7 +87,11 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
 
   useEffect(() => {
     const scrollIntoView = () => {
-      if (/Firefox/i.test(navigator.userAgent)) {
+      // Handle both Firefox and iOS Safari
+      if (
+        /Firefox/i.test(navigator.userAgent) ||
+        /iPhone|iPad|iPod/i.test(navigator.userAgent)
+      ) {
         document?.activeElement?.scrollIntoView({ behavior: "smooth" });
       }
     };

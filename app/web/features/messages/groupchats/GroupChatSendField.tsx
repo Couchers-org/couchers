@@ -7,7 +7,7 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { usePersistedState } from "platform/usePersistedState";
-import React from "react";
+import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { theme } from "theme";
 
@@ -48,6 +48,8 @@ export default function GroupChatSendField({
 
   const { register, handleSubmit, reset } = useForm<MessageFormData>();
 
+  const inputRef = useRef<HTMLDivElement>(null);
+
   const [persistedMessage, setPersistedMessage, clearPersistedMessage] =
     usePersistedState(
       `messages.${currentUserId}.${chatId}`,
@@ -68,6 +70,17 @@ export default function GroupChatSendField({
     }
   };
 
+  // Scroll input into view when focused
+  const handleFocus = () => {
+    // Small delay to allow keyboard to appear first
+    setTimeout(() => {
+      inputRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }, 300);
+  };
+
   const { onChange: textOnChange, ...textRegisterRest } = register("text");
 
   return (
@@ -75,11 +88,13 @@ export default function GroupChatSendField({
       <TextField
         id="group-chat-message-field"
         {...textRegisterRest}
+        ref={inputRef}
         label={t("messages:chat_input.label")}
         defaultValue={persistedMessage ?? ""}
         multiline
         fullWidth
         onKeyDown={handleKeyDown}
+        onFocus={handleFocus}
         onChange={(event) => {
           setPersistedMessage(event.target.value);
           textOnChange(event);
