@@ -23,15 +23,19 @@ find proto -name '*.proto' | protoc -I proto \
   \
   --python_out=proto/gen/python/proto \
   --grpc_python_out=proto/gen/python/proto \
+  --pyi_out=proto/gen/python/proto \
   \
   --python_out=backend/src/proto \
   --grpc_python_out=backend/src/proto \
+  --pyi_out=backend/src/proto \
   \
   --python_out=client/src/couchers/proto \
   --grpc_python_out=client/src/couchers/proto \
+  --pyi_out=client/src/couchers/proto \
   \
   --python_out=media/src/proto \
   --grpc_python_out=media/src/proto \
+  --pyi_out=media/src/proto \
   \
   --js_out="import_style=commonjs,binary:proto/gen/ts/proto" \
   --grpc-web_out="import_style=commonjs+dts,mode=grpcweb:proto/gen/ts/proto" \
@@ -51,6 +55,7 @@ cp proto/gen/descriptors.pb backend/src/proto/descriptors.pb
 # create internal backend protos
 (cd backend && find proto -name '*.proto' | protoc -I proto \
   --python_out=src/proto \
+  --pyi_out=src/proto \
   $(xargs))
 
 # fixup python3 relative imports with oneliner from
