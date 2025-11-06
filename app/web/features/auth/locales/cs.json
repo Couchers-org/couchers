@@ -38,7 +38,8 @@
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Máš už vytvořený účet? <2>Log in</2>",
-    "sign_up_agreement_explainer": "Pokračováním udělujete souhlas s <2>Podmínkami použití</2>, zpracováním dat, použitím cookies a k zasílání upozornění e-mailem."
+    "sign_up_agreement_explainer": "Pokračováním udělujete souhlas s <2>Podmínkami použití</2>, zpracováním dat, použitím cookies a k zasílání upozornění e-mailem.",
+    "header": "Pojďme začít!"
   },
   "account_form": {
     "header": "Podrobnosti o tvém účtu",
@@ -89,7 +90,8 @@
   "community_guidelines_form": {
     "guideline": {
       "required_error": "Všechna pole jsou povinná"
-    }
+    },
+    "header": "Pravidla komunity"
   },
   "account_settings_page": {
     "title": "Nastavení účtu",
@@ -98,7 +100,8 @@
       "description": "Tvé uživatelské jméno je <1>{{username}}</1>."
     },
     "gender_section": {
-      "title": "Změnit pohlaví"
+      "title": "Změnit pohlaví",
+      "explanation": "Admini ti rádi pomůžou se změnou tvého pohlavního označení. Prosím, kontaktuj support@couchers.org!"
     },
     "birth_date_section": {
       "title": "Změnit datum narození",
@@ -110,7 +113,7 @@
       "title": "Smazat účet",
       "confirm_username_label": "Potvrzení uživatelského jména",
       "username_mismatch": "Uživatelské jméno se neshoduje.",
-      "reason_label": "Důvod ke smazání účtu"
+      "reason_label": "Důvod k odstranění účtu"
     },
     "confirm": {
       "title": "Potvrdit smazání účtu",
@@ -120,7 +123,8 @@
     "recover": {
       "button_text": "Obnovit účet",
       "success": "Tvůj účet byl obnoven, můžeš se znovu přihlášit. Jsme rádi, že jsi zpět!"
-    }
+    },
+    "missing_token": "Chyba: missing token"
   },
   "jail_set_password_form": {
     "title": "Nastavit heslo",
@@ -145,18 +149,24 @@
       "submit_button": {
         "active_text": "Uložit",
         "inactive_text": "Díky!"
-      }
-    }
+      },
+      "title": "Aktualizuj prosím svou polohu"
+    },
+    "title": "Potřebujeme více informací"
   },
   "logged_out_message": "Byl/a jsi odhlášen/a.",
   "sign_up_completed_title": "Děkujeme za přihlášení!",
   "login_prompt": "Klikni zde pro přihlášení",
   "do_not_email": {
     "status": {
-      "no_emails_disabled_message": "E-maily jsou pro tvůj účet momentálně <1>povoleny</1>."
+      "no_emails_disabled_message": "E-maily jsou pro tvůj účet momentálně <1>povoleny</1>.",
+      "no_emails_enabled_message": "E-maily jsou pro tvůj účet momentálně <1>zakázány</1>."
     }
   },
   "location": {
     "field_label": "Tvá poloha"
-  }
+  },
+  "sign_up_completed_prompt": "Na tvou e-mailovou adresu jsme zaslali e-mail s ověřovacím odkazem. Pro aktivaci tvého účtu prosím klikni na odkaz.",
+  "sign_up_confirmed_prompt": "Hotovo! Pokud nebudeš přesměrován/a, zkus se přihlásit.",
+  "unhandled_sign_up_state": "Chyba: unhandled signup flow state."
 }

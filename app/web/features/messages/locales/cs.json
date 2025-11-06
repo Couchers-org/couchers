@@ -11,7 +11,28 @@
       }
     },
     "mute": {
-      "button_label": "Ztišit chat"
+      "button_label": "Ztišit chat",
+      "dialog_title": "Na jak dlouho to chceš ztišit?",
+      "1_hour_label": "1 hodina",
+      "8_hours_label": "8 hodin",
+      "1_day_label": "1 den",
+      "1_week_label": "1 týden",
+      "1_month_label": "1 měsíc"
+    },
+    "no_messages_state_text": "Žádné zprávy",
+    "back_button": {
+      "a11y_label": "Zpět"
+    },
+    "muted_icon": {
+      "a11y_label": "Ztišeno"
     }
+  },
+  "write_reference_button_text": "Napiš referenci",
+  "close_request_button_text": "Zamítnout",
+  "confirm_request_button_text": "Potvrdit",
+  "host_pending_request_help_text": "<0>Co je třeba zvážit</0> před odpovědí.",
+  "surfer_declined_request_help_text": "<0>Přečti si našeho průvodce</0>, jak napsat žádost, která bude přijata.",
+  "messages_page": {
+    "title": "Zprávy"
   }
 }
