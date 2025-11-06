@@ -14,7 +14,7 @@ import * as auth from "./auth";
 import * as notifications from "./notifications";
 // import * as pages from "./pages";
 // import * as publicApi from "./public";
-import * as references from "@/service/references";
+// import * as references from "@/service/references";
 // import * as reporting from "./reporting";
 // import * as requests from "./requests";
 // import * as resources from "./resources";
@@ -39,7 +39,7 @@ export const service = {
   notifications,
   // pages,
   // publicApi,
-  references,
+  // references,
   // reporting,
   // requests,
   // resources,

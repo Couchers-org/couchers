@@ -1,54 +1,55 @@
-import { useCallback, useRef } from "react";
+import { useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { WebView, WebViewNavigation } from "react-native-webview";
+import { WebView } from "react-native-webview";
+import { useRouter } from "expo-router";
 
 import { useAuthContext } from "@/features/auth/AuthContext";
-import { dashboardRoute, loginRoute } from "@/routes";
-
-const AUTH_SUCCESS_PATHS = [dashboardRoute];
+import { loginRoute } from "@/routes";
+import { theme } from "@/theme";
 
 export default function LoginScreen() {
   const WEB_BASE_URL = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
-  const { markAuthenticated, markLoggedOut } = useAuthContext();
-  const hasMarkedAuth = useRef(false);
+  const { markAuthenticated, setUserId, setJailed } = useAuthContext();
+  const router = useRouter();
+  const colorScheme = useColorScheme();
 
-  const handleNavigation = useCallback(
-    ({ url }: WebViewNavigation) => {
-      if (!url) {
-        return;
-      }
+  const backgroundColor =
+    colorScheme === "dark"
+      ? theme.palette.common.black
+      : theme.palette.common.white;
 
-      const normalizedUrl = url.split("#")[0];
-      const loginUrl = WEB_BASE_URL + loginRoute;
+  const handleMessage = (event: { nativeEvent: { data: string } }) => {
+    try {
+      const data = JSON.parse(event.nativeEvent.data);
 
-      if (normalizedUrl.startsWith(loginUrl)) {
-        hasMarkedAuth.current = false;
-        markLoggedOut();
-        return;
-      }
-
-      if (hasMarkedAuth.current) {
-        return;
-      }
-
-      if (
-        AUTH_SUCCESS_PATHS.some((path) =>
-          normalizedUrl.startsWith(WEB_BASE_URL + path)
-        )
-      ) {
-        hasMarkedAuth.current = true;
+      if (data.type === "LOGIN_SUCCESS") {
+        // Update mobile auth state from web login
+        setUserId(data.userId);
+        setJailed(data.jailed || false);
         markAuthenticated();
+
+        // TODO(NA): Later, offer FaceID enrollment here
+        // if (data.userId) {
+        //   await offerFaceIDEnrollment(username, password);
+        // }
+
+        // Navigate to dashboard with native tabs
+        router.replace("/(tabs)/dashboard");
       }
-    },
-    [WEB_BASE_URL, markAuthenticated, markLoggedOut]
-  );
+    } catch (error) {
+      // Silently ignore non-JSON messages (expected from browser/WebView internals)
+      if (__DEV__) {
+        console.debug("LoginScreen: Ignoring non-JSON message", error);
+      }
+    }
+  };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor }}>
       <WebView
         source={{ uri: WEB_BASE_URL + loginRoute }}
         sharedCookiesEnabled
-        onNavigationStateChange={handleNavigation}
+        onMessage={handleMessage}
       />
     </SafeAreaView>
   );

@@ -36,9 +36,6 @@ SplashScreen.preventAutoHideAsync();
 function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
   const { authenticated, checkedAuthStatus } = useAuthContext();
 
-  console.log("AUTHENTICATED ROOT NAVIGATOR", authenticated);
-  console.log("CHECKED AUTH STATUS ROOT NAVIGATOR", checkedAuthStatus);
-
   useEffect(() => {
     if (fontsLoaded && checkedAuthStatus) {
       SplashScreen.hideAsync();
