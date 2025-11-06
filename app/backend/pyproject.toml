@@ -15,6 +15,7 @@ dependencies = [
     "Jinja2==3.1.6",
     "luhn==0.2.0",
     "markdown-it-py==4.0.0",
+    "mypy>=1.18.2",
     "opentelemetry-api==1.29.0",
     "opentelemetry-exporter-otlp==1.29.0",
     "opentelemetry-instrumentation-grpc==0.50b0",
@@ -40,6 +41,10 @@ dependencies = [
     "sqlalchemy==2.0.43",
     "sqlalchemy-utils==0.42.0",
     "stripe==13.1.0",
+    "types-grpcio>=1.0.0.20251009",
+    "types-protobuf>=6.32.1.20251105",
+    "types-pytz>=2025.2.0.20250809",
+    "types-shapely>=2.1.0.20250917",
     "ua-parser==1.0.1",
     "user-agents==2.2.0",
 ]
@@ -68,6 +73,16 @@ ignore = [
     "F811",   # Redefinition of unused variable
     "F841",   # Local variable is assigned to but never used
     "UP015",  # Unnecessary open mode parameters
+]
+
+[tool.mypy]
+strict = true
+exclude = [
+    "src/couchers/jobs/handlers.py",
+]
+# pb2_grpc.py files have no stubs as of now :(
+untyped_calls_exclude = [
+    "proto",
 ]
 
 [tool.ruff.lint.isort]

@@ -63,7 +63,7 @@ from proto import (
 )
 
 
-def create_main_server(port):
+def create_main_server(port: int) -> grpc.Server:
     server = grpc.server(
         futures.ThreadPoolExecutor(SERVER_THREADS),
         interceptors=[
@@ -102,7 +102,7 @@ def create_main_server(port):
     return server
 
 
-def create_media_server(port, threads=8):
+def create_media_server(port: int, threads: int = 8) -> grpc.Server:
     media_server = grpc.server(
         futures.ThreadPoolExecutor(threads),
         interceptors=[

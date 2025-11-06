@@ -23,7 +23,7 @@ from couchers.server import create_main_server, create_media_server
 from couchers.tracing import setup_tracing
 from dummy_data import add_dummy_data
 
-check_config()
+check_config(config)
 
 logging.basicConfig(
     format="[%(process)5d:%(thread)20d] %(asctime)s: %(name)s:%(lineno)d: %(message)s", level=logging.INFO
