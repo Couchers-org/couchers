@@ -45,7 +45,7 @@ if [ "$VERIFICATION_STATUS" -ne 0 ]; then
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     echo "!!!                                                      !!!"
-    echo "!!!   NEXT DEPLOYMENT VERIFICATION FAILED. ABORTING.     !!!"
+    echo "!!!   PROD DEPLOYMENT VERIFICATION FAILED. ABORTING.     !!!"
     echo "!!!                                                      !!!"
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
