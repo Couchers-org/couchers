@@ -104,32 +104,28 @@ CONFIG_OPTIONS = [
 ]
 
 
-def check_config(config: dict[str, Any]) -> None:
+def check_config(cfg: dict[str, Any]) -> None:
     for name, *_ in CONFIG_OPTIONS:
-        if name not in config:
+        if name not in cfg:
             raise ValueError(f"Required config value {name} not set")
 
-    if not config["DEV"]:
+    if not cfg["DEV"]:
         # checks for prod
-        if "https" not in config["BASE_URL"]:
+        if "https" not in cfg["BASE_URL"]:
             raise Exception("Production site must be over HTTPS")
-        if not config["ENABLE_EMAIL"]:
+        if not cfg["ENABLE_EMAIL"]:
             raise Exception("Production site must have email enabled")
-        if not config["ENABLE_SMS"]:
+        if not cfg["ENABLE_SMS"]:
             raise Exception("Production site must have SMS enabled")
-        if config["IN_TEST"]:
+        if cfg["IN_TEST"]:
             raise Exception("IN_TEST while not DEV")
 
-    if config["ENABLE_DONATIONS"]:
-        if (
-            not config["STRIPE_API_KEY"]
-            or not config["STRIPE_WEBHOOK_SECRET"]
-            or not config["STRIPE_RECURRING_PRODUCT_ID"]
-        ):
+    if cfg["ENABLE_DONATIONS"]:
+        if not cfg["STRIPE_API_KEY"] or not cfg["STRIPE_WEBHOOK_SECRET"] or not cfg["STRIPE_RECURRING_PRODUCT_ID"]:
             raise Exception("No Stripe API key/recurring donation ID but donations enabled")
 
-    if config["ENABLE_STRONG_VERIFICATION"]:
-        if not config["IRIS_ID_PUBKEY"] or not config["IRIS_ID_SECRET"] or not config["VERIFICATION_DATA_PUBLIC_KEY"]:
+    if cfg["ENABLE_STRONG_VERIFICATION"]:
+        if not cfg["IRIS_ID_PUBKEY"] or not cfg["IRIS_ID_SECRET"] or not cfg["VERIFICATION_DATA_PUBLIC_KEY"]:
             raise Exception("No Iris ID pubkey/secret or verification data pubkey but strong verification enabled")
 
 
