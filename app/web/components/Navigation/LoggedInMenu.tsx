@@ -173,32 +173,30 @@ function LinkMenuItemView({
 
 function DialogMenuItemView({
   name,
-  dialogComponent: DialogComponent,
-  dialogLabel,
   closeMenu,
-}: LoggedInMenuDialogItem & { closeMenu: () => unknown }) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+  onOpenDialog,
+}: Omit<LoggedInMenuDialogItem, "dialogComponent" | "dialogLabel"> & {
+  closeMenu: () => unknown;
+  onOpenDialog: () => void;
+}) {
   return (
-    <>
-      <StyledMenuItemDialog
-        onClick={() => {
-          setIsDialogOpen(true);
-          closeMenu();
-        }}
-      >
-        {name}
-      </StyledMenuItemDialog>
-      <DialogComponent
-        open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        aria-labelledby={dialogLabel}
-      />
-    </>
+    <StyledMenuItemDialog
+      onClick={() => {
+        onOpenDialog();
+        closeMenu();
+      }}
+    >
+      {name}
+    </StyledMenuItemDialog>
   );
 }
 
-function MenuItemView(props: LoggedInMenuItem & { closeMenu: () => unknown }) {
+function MenuItemView(
+  props: LoggedInMenuItem & {
+    closeMenu: () => unknown;
+    onOpenDialog?: () => void;
+  },
+) {
   return (
     <MenuItem
       hasNotification={props.type === "link" && !!props.notificationCount}
@@ -207,7 +205,11 @@ function MenuItemView(props: LoggedInMenuItem & { closeMenu: () => unknown }) {
       {props.type === "link" ? (
         <LinkMenuItemView {...props} closeMenu={props.closeMenu} />
       ) : (
-        <DialogMenuItemView {...props} closeMenu={props.closeMenu} />
+        <DialogMenuItemView
+          {...props}
+          closeMenu={props.closeMenu}
+          onOpenDialog={props.onOpenDialog!}
+        />
       )}
     </MenuItem>
   );
@@ -237,6 +239,8 @@ export default function LoggedInMenu({
     useState<HTMLButtonElement | null>(null);
   const isNotificationsFeedOpen = Boolean(notificationsAnchorEl);
 
+  const [openDialogName, setOpenDialogName] = useState<string | null>(null);
+
   const handleNotificationsFeedOpen = (
     event: React.MouseEvent<HTMLButtonElement>,
   ) => {
@@ -246,6 +250,11 @@ export default function LoggedInMenu({
   const handleNotificationsFeedClose = () => {
     setNotificationsAnchorEl(null);
   };
+
+  // Find dialog items ("Report a problem")
+  const dialogItems = items.filter(
+    (item): item is LoggedInMenuDialogItem => item.type === "dialog",
+  );
 
   return (
     <>
@@ -311,9 +320,25 @@ export default function LoggedInMenu({
             closeMenu={() => {
               setMenuOpen(false);
             }}
+            onOpenDialog={
+              item.type === "dialog"
+                ? () => setOpenDialogName(item.name)
+                : undefined
+            }
           />
         ))}
       </StyledMenu>
+      {dialogItems.map((item) => {
+        const DialogComponent = item.dialogComponent;
+        return (
+          <DialogComponent
+            key={item.name}
+            open={openDialogName === item.name}
+            onClose={() => setOpenDialogName(null)}
+            aria-labelledby={item.dialogLabel}
+          />
+        );
+      })}
     </>
   );
 }
