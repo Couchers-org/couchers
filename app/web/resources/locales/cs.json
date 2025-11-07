@@ -7,7 +7,9 @@
             "title_helper": "Stručný popis chyby",
             "problem_helper": "Stručný popis problému a jak ho reprodukovat",
             "expect_label": "Co se stalo? Co se mělo stát?",
-            "expect_helper": "Stručný popis toho, co jste očekávali, že se stane místo toho"
+            "expect_helper": "Stručný popis toho, co jste očekávali, že se stane místo toho",
+            "warning_message": "Vezmi prosím na vědomí, že tyto informace, stejně jako diagnostické údaje, včetně toho na které stránce se nacházíš, jaký používáš prohlížeč a tvé uživatelské jméno, budou uloženy do veřejného seznamu chyb.",
+            "success_message": "Děkujeme ti za nahlášení této chyby a za to, že pomáháš zlepšovat Couchers. Tvé hlásení bylo odesláno vývojářům! ID chyby je "
         },
         "flag": {
             "reason_required": "Důvod je vyžadován.",
@@ -18,10 +20,12 @@
             "reason": {
                 "external": "Incident mimo platformu",
                 "other": "Ostatní (Prosím specifikuj níže)"
-            }
+            },
+            "block_user": "Blokovat {{username}}"
         },
         "content": {
-            "button_label": "Nahlásit nevhodný obsah nebo chování"
+            "button_label": "Nahlásit nevhodný obsah nebo chování",
+            "success_message": "Děkujeme ti za tvou zprávu a za to, že pomáháš dělat Couchers lepší platformou pro všechny!"
         },
         "label": "Nahlásit problém",
         "title": "Nahlásit problém"
@@ -38,7 +42,11 @@
             "almost_there": "Téměř Hotovo",
             "in_progress": "Probíhá",
             "early_stage": "Raná Fáze",
-            "error_loading": "Nepodařilo se načíst stav překladů"
+            "error_loading": "Nepodařilo se načíst stav překladů",
+            "midway": "V polovině",
+            "just_started": "Právě se začalo",
+            "info_text": "💡 Jazyky s 50–80% dokončením jsou v jazykovém výběru zašedlé. Jazyky s méně než 50% dokončením jsou v jazykovém výběru skryté. Pro povzbuzení přispěvatelů, jazyky pod 20% se zobrazují na této stránce.",
+            "description": "Podívej se na stav našich překladů do různých jazyků. Pomozte nám zpřístupnit Couchers více lidem po celém světě!"
         },
         "help_translate": "Pomoc s překladem Couchers do tvého jazyka.",
         "current_preferred_language": "Tvá jazyková preference je aktuálně ",
@@ -48,7 +56,9 @@
         "error_loading_languages": "Nepodařilo se načíst výběr jazyka. Zkus to prosím později."
     },
     "meetup_status": {
-        "wants_to_meetup": "Chci se setkat"
+        "wants_to_meetup": "Chci se setkat",
+        "open_to_meetup": "Otevřený k setkání",
+        "does_not_want_to_meetup": "Nemohu/nechci se setkat"
     },
     "learn_more": "Zjistit více",
     "terms_of_service": "Podmínky služby",
@@ -75,7 +85,8 @@
     "hosting_status": {
         "can_host": "Mohu ubytovat",
         "maybe": "Občas mohu ubytovat",
-        "cant_host": "Nemohu ubytovat"
+        "cant_host": "Nemohu ubytovat",
+        "any": "Jakýkoli"
     },
     "close": "Zavřít",
     "create_account": "Vytvořit účet",
@@ -89,5 +100,9 @@
     "created": "Vytvořeno",
     "update": "Aktualizovat",
     "change_time": "Změnit čas",
-    "accept": "Přijmout"
+    "accept": "Přijmout",
+    "error_loading_invite_codes": "Nepodařilo se získat podrobnosti o kódu pozvánky",
+    "verification_score": "Ověřovací skóre",
+    "verification_score_description": "Vypočítáno na základě doporučení od ostatních uživatelů",
+    "mod": "Moderování"
 }

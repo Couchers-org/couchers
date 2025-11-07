@@ -19,5 +19,6 @@
   },
   "invite_community_dialog_buttons": {
     "open": "Inviter les membres de la communauté"
-  }
+  },
+  "unknown_user": "Utilisateur.trice inconnu.e"
 }
