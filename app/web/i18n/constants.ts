@@ -44,7 +44,7 @@ export const LANGUAGE_MAP: LanguageMap = {
     name: "French (Canada)",
     flagIconCode: "CA",
   },
-  "he": {
+  he: {
     name: "Hebrew",
     flagIconCode: "IL",
   },
