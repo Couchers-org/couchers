@@ -24,7 +24,10 @@
     "general_filters": {
       "has_references": "Heeft referenties",
       "accepts_last_minute_requests": "Accepteert last minute aanvragen",
-      "has_strong_verification": "Heeft een sterke verificatie"
+      "has_strong_verification": "Heeft een sterke verificatie",
+      "same_gender_only": "Alleen dezelfde gender weergeven",
+      "same_gender_only_helper_text": "Alleen gebruikers met een sterke verificatie kunnen dit filter gebruiken.",
+      "get_strong_verification": "Regel hier (gratis!) jouw sterke verificatie."
     },
     "rules": {
       "title": "Regels",

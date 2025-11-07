@@ -23,5 +23,7 @@
   "no_community": "Je zit op dit moment niet in een community.",
   "no_sub_communities": "Geen sub-communities.",
   "load_more": "Meer laden",
-  "new_pill": "Nieuw"
+  "new_pill": "Nieuw",
+  "attendees_count": "{{count}} deelnemer",
+  "attendees_count_plural": "{{count}} deelnemers"
 }
