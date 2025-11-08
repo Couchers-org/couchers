@@ -722,6 +722,7 @@ deploy:staging:
   before_script:
     - export AWS_PROFILE=couchers
     - export rev=$(git rev-parse @ | cut -c-8)
+    - apt-get install git wget
   script:
     - echo "Git hash is ${rev}"
     - echo "Deploying staging..."
