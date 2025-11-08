@@ -719,10 +719,18 @@ deploy:staging:
   inherit:
     # no docker login
     default: false
-  before_script:
-    - export AWS_PROFILE=couchers
-    - export rev=$(git rev-parse @ | cut -c-8)
   script:
+    - apt-get update && apt install -y git wget openssh-client
+    - export rev=$(git rev-parse @ | cut -c-8)
+    # Add the SSH key (https://docs.gitlab.com/ci/jobs/ssh_keys)
+    - eval $(ssh-agent -s)
+    - chmod 400 "$SSH_KEY"
+    - ssh-add "$SSH_KEY"
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    # Deploy
     - echo "Git hash is ${rev}"
     - echo "Deploying staging..."
     - web_next_static="https://${rev}--web-next-static.preview.couchershq.org/static.tar.gz"
@@ -730,12 +738,11 @@ deploy:staging:
     - mkdir -p next/
     - tar xf next-static.tar.gz --directory next/
     - aws s3 sync next/ s3://next-static.couchershq.org/static/_next/static/
-    - ssh ubuntu@next.couchershq.com "cd ~/couchers/app/deployment && ./install.sh && ./post-upgrade.sh"
+    - ssh ubuntu@next.couchershq.org "cd ~/couchers/app/deployment && ./install.sh && ./post-upgrade.sh"
     - echo "Done deploying staging, checking https://next.couchershq.org"
+    # Check that it's working
     - ${CI_PROJECT_DIR}/app/deployment/check_deployment.sh develop-${rev} https://next.couchershq.org
   rules:
-#    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-#      changes:
-#        - app/**/*
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      when: manual
+      changes:
+        - app/**/*
