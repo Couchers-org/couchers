@@ -2,11 +2,12 @@ name: Issue Bot
 
 on:
   issues:
-    types: [opened]
+    types: [opened, labeled]
 
 jobs:
   process-issue:
     runs-on: ubuntu-latest
+    if: contains(github.event.issue.labels.*.name, 'bug tool')
     permissions:
       issues: write
       contents: read
