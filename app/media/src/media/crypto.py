@@ -2,7 +2,7 @@ from nacl.bindings.crypto_generichash import generichash_blake2b_salt_personal
 from nacl.bindings.utils import sodium_memcmp
 
 
-def secure_compare(val1, val2):
+def secure_compare(val1: bytes, val2: bytes) -> bool:
     return sodium_memcmp(val1, val2)
 
 
