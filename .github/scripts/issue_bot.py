@@ -113,7 +113,7 @@ class IssueBot:
     """GitHub issue bot with LLM-powered decision making."""
 
     def __init__(self):
-        self.llm = LLM(model=os.environ["BOT_LLM_MODEL"])
+        self.llm = LLM(model=os.environ["LLM_MODEL"])
         self.github_client = Github(os.environ["GITHUB_TOKEN"])
 
         # Get issue details from environment
