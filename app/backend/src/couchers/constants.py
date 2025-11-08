@@ -49,7 +49,7 @@ WORKER_THREADS = 1
 # how long the user has to undelete their account
 UNDELETE_DAYS = 7
 
-# expiry time for preferrred language cookie
+# expiry time for preferred language cookie
 PREFERRED_LANGUAGE_COOKIE_EXPIRY = timedelta(days=3650)
 
 # activeness probe settings

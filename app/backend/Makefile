@@ -2,9 +2,14 @@
 # Run 'make [command]' in app/backend to execute the specified command
 
 UV_VERSION=0.9.6
+ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
+
+protos:
+	docker run --rm -w /app -v $(realpath ${ROOT_DIR}..):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
 
 setup:
 	wget -qO- https://astral.sh/uv/${UV_VERSION}/install.sh | sh
+
 
 # Connect to the local development database
 # Usage:
@@ -17,6 +22,16 @@ format:
 	uv run ruff check --select I --fix . && uv run ruff check . --fix && uv run ruff format .
 
 fmt: format
+
+mypy:
+	uv run mypy \
+		src/couchers/config.py \
+		src/couchers/descriptor_pool.py \
+		src/couchers/reranker.py \
+		src/couchers/resources.py \
+		src/couchers/urls.py \
+		src/couchers/utils.py \
+		src/couchers/context.py
 
 # Downgrade the local database to the previous migration. Good if you ran a migration on a branch and will run the backend on another branch after.
 # Usage:
@@ -53,4 +68,4 @@ teardown-db:
 # make test file=test_file.py → runs tests in a specific file
 # make test file=test_file.py::TestClass::test_method → runs a specific test
 test:
-	uv run pytest $(if $(file),src/tests/$(file),src/tests)
+	uv run pytest $(if $(file),src/tests/$(file),src/tests) --disable-warnings

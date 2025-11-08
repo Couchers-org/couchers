@@ -5,9 +5,11 @@ A simple config system
 import os
 from typing import Any
 
+CONFIG_T = list[tuple[str, type | list[str]] | tuple[str, type | list[str], str | int]]
+
 # Allowed config options, as tuples (name, type, default).
 # All fields are required
-CONFIG_OPTIONS = [
+CONFIG_OPTIONS: CONFIG_T = [
     # Whether we're in dev mode
     ("DEV", bool),
     # Whether we're `api` mode (answering API queries) or `scheduler` (scheduling background jobs), or `worker`
@@ -142,7 +144,7 @@ def make_config() -> dict[str, Any]:
         else:
             raise ValueError("Invalid CONFIG_OPTIONS")
 
-        value = os.getenv(name)
+        value: str | int | bytes | None = os.getenv(name)
 
         if not value:
             if not optional:
@@ -159,6 +161,8 @@ def make_config() -> dict[str, Any]:
             value = value == "1"
         elif type_ is bytes:
             # decode from hex
+            if not isinstance(value, str):
+                raise RuntimeError(type(value))
             value = bytes.fromhex(value)
         elif isinstance(type_, list):
             # list of allowed string values
