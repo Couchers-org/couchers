@@ -163,6 +163,21 @@ Respond only in JSON with the following format:
 
         return decision
 
+    def _format_debug_section(self, decision: BotDecision) -> str:
+        """Format the debug information as a collapsible section."""
+        debug_info = f"""
+
+<details>
+<summary>🤖 Debug Information</summary>
+
+**Model:** `{os.environ.get('LLM_MODEL', 'unknown')}`
+**Action:** `{decision.action.value}`
+**Labels Added:** {', '.join(f'`{label}`' for label in decision.labels_to_add) if decision.labels_to_add else 'None'}
+**Reasoning:** {decision.reasoning}
+
+</details>"""
+        return debug_info
+
     def apply_decision(self, decision: BotDecision):
         """Apply the bot's decision to the issue."""
 
@@ -184,6 +199,9 @@ Respond only in JSON with the following format:
                     translation_section += f"**Translated Body:**\n\n{decision.translated_body}"
                 comment_body += translation_section
 
+            # Add debug information section
+            comment_body += self._format_debug_section(decision)
+
             print(f"\nPosting comment...")
             self.issue.create_comment(comment_body)
 
@@ -191,6 +209,10 @@ Respond only in JSON with the following format:
         if decision.action == IssueAction.CLOSE:
             print(f"\nClosing issue...")
             self.issue.edit(state="closed")
+
+        # Always add bot-processed label to indicate the bot has taken action
+        print(f"\nAdding bot-processed label...")
+        self.issue.add_to_labels("bot-processed")
 
         print(f"\n✅ Successfully processed issue #{self.issue_number}")
 
@@ -207,6 +229,8 @@ Respond only in JSON with the following format:
                 f"A human maintainer will review it shortly.\n\n"
                 f"Error: `{type(e).__name__}`"
             )
+            # Add bot-processed label even when there's an error
+            self.issue.add_to_labels("bot-processed")
             sys.exit(1)
 
 
