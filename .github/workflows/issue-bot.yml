@@ -12,20 +12,14 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
-          version: "latest"
-
-      - name: Set up Python
-        run: uv python install 3.14
-
+          python-version-file: ".github/issue-bot/.python-version"
+      - uses: astral-sh/setup-uv@v6
       - name: Install dependencies
-        run: uv pip install --system a5 PyGithub
-
+        working-directory: .github/issue-bot
+        run: uv sync --locked --all-extras --dev
       - name: Process issue with LLM
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -36,4 +30,4 @@ jobs:
           ISSUE_BODY: ${{ github.event.issue.body }}
           ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
           REPOSITORY: ${{ github.repository }}
-        run: python .github/scripts/issue_bot.py
+        run: uv run .github/issue-bot/issue_bot.py

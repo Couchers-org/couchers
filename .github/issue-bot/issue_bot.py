@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 GitHub Issue Bot with LLM-powered decision making.
 
