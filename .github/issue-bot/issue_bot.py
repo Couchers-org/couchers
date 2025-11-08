@@ -20,6 +20,13 @@ from github import Github
 # Configuration
 # ============================================================================
 
+# Allowlist of labels that the bot is permitted to add
+ALLOWED_LABELS = {
+    "0.kind bug report",
+    "0.kind feature request",
+    "bot-processed",
+}
+
 SYSTEM_PROMPT = """You are a GitHub issue triage bot for Couchers.org, a couch surfing platform.
 
 Your job is to analyze newly opened issues and determine what actions to take. Follow these rules precisely:
@@ -52,6 +59,9 @@ Your job is to analyze newly opened issues and determine what actions to take. F
    - Add label: "0.kind feature request"
    - Post comment: "I think this is a feature request."
    - Keep the issue open
+
+**Important**: You can ONLY use these labels: "0.kind bug report", "0.kind feature request"
+Do not suggest any other labels.
 
 6. **Everything Else**:
    - If you're not sure what the issue is or it doesn't fit the above categories
@@ -180,10 +190,23 @@ Respond only in JSON with the following format:
     def apply_decision(self, decision: BotDecision):
         """Apply the bot's decision to the issue."""
 
-        # Add labels
+        # Filter labels to only include those in the allowlist
         if decision.labels_to_add:
-            print(f"\nAdding labels: {decision.labels_to_add}")
-            self.issue.add_to_labels(*decision.labels_to_add)
+            allowed_labels = [
+                label for label in decision.labels_to_add
+                if label in ALLOWED_LABELS
+            ]
+            rejected_labels = [
+                label for label in decision.labels_to_add
+                if label not in ALLOWED_LABELS
+            ]
+
+            if rejected_labels:
+                print(f"\n⚠️ Rejected labels not in allowlist: {rejected_labels}")
+
+            if allowed_labels:
+                print(f"\nAdding labels: {allowed_labels}")
+                self.issue.add_to_labels(*allowed_labels)
 
         # Post comment if needed
         if decision.comment:
