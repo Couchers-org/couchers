@@ -4,12 +4,15 @@
 UV_VERSION=0.9.6
 ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 
+# On mac, use an ARM-based image, rvolosatovs/protoc:5. Version 5 is compatible with
+# our runtime libraries.
 protos:
-	docker run --rm -w /app -v $(realpath ${ROOT_DIR}..):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
+	$(if $(filter Darwin,$(shell uname -s)), \
+		docker run --rm -w /app --entrypoint bash -v $(realpath ${ROOT_DIR}..):/app rvolosatovs/protoc:5 generate_protos.sh, \
+		docker run --rm -w /app -v $(realpath ${ROOT_DIR}..):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh)
 
 setup:
 	wget -qO- https://astral.sh/uv/${UV_VERSION}/install.sh | sh
-
 
 # Connect to the local development database
 # Usage:
