@@ -13,7 +13,7 @@ variables:
   # whether to build web since it's very slow
   BUILD_WEB: "true"
   PREVIEW_DOMAIN: preview.couchershq.org
-  GIT_DEPTH: 0
+  GIT_DEPTH: 1  # Speed up the checkout.
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
   RELEASE_BRANCH: develop
@@ -45,6 +45,8 @@ default:
   services:
     - docker:dind
   before_script:
+    # All jobs that use this must have full git history to correctly set the version number.
+    - if [ "$GIT_DEPTH" != "0" ]; then echo "GIT_DEPTH must be 0"; exit 1; fi
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - export DISPLAY_VERSION=$(base_ver=$(cat app/version); if [ "$CI_COMMIT_BRANCH" == "$RELEASE_BRANCH" ]; then echo "${base_ver}.$(git rev-list --count "origin/$RELEASE_BRANCH")"; else echo "${base_ver}-$SLUG"; fi)
     - echo $DISPLAY_VERSION
@@ -65,6 +67,8 @@ protos:
 build:proxy:
   needs: ["protos"]
   stage: build
+  variables:
+    GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - docker pull $PROXY_RELEASE_TAG || true
     - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --cache-from $PROXY_RELEASE_TAG -t $PROXY_TAG app/proxy/
@@ -81,6 +85,8 @@ build:proxy:
 build:nginx:
   needs: []
   stage: build
+  variables:
+    GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - docker pull $NGINX_RELEASE_TAG || true
     - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --cache-from $NGINX_RELEASE_TAG -t $NGINX_TAG app/nginx/
@@ -93,6 +99,8 @@ build:nginx:
 build:prometheus:
   needs: []
   stage: build
+  variables:
+    GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - docker pull $PROMETHEUS_RELEASE_TAG || true
     - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --cache-from $PROMETHEUS_RELEASE_TAG -t $PROMETHEUS_TAG app/prometheus/
@@ -105,6 +113,8 @@ build:prometheus:
 build:backend:
   needs: ["protos"]
   stage: build
+  variables:
+    GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - docker pull $BACKEND_RELEASE_TAG || true
     - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --cache-from $BACKEND_RELEASE_TAG -t $BACKEND_TAG app/backend/
@@ -121,6 +131,8 @@ build:backend:
 build:media:
   needs: ["protos"]
   stage: build
+  variables:
+    GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - docker pull $MEDIA_RELEASE_TAG || true
     - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --cache-from $MEDIA_RELEASE_TAG -t $MEDIA_TAG app/media/
@@ -137,6 +149,8 @@ build:media:
 build:web-dev:
   needs: ["protos"]
   stage: build
+  variables:
+    GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - docker pull $WEB_DEV_RELEASE_TAG || true
     - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --build-arg environment=next --cache-from $WEB_DEV_RELEASE_TAG -t $WEB_DEV_TAG -f app/web/Dockerfile app/web/
@@ -160,6 +174,8 @@ build:web-dev:
 build:web:
   needs: ["protos"]
   stage: build
+  variables:
+    GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - docker pull $WEB_RELEASE_TAG || true
     - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --build-arg environment=production --cache-from $WEB_RELEASE_TAG -t $WEB_TAG -f app/web/Dockerfile.prod app/web/
@@ -185,6 +201,8 @@ build:web:
 build:web-next:
   needs: ["protos"]
   stage: build
+  variables:
+    GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - docker pull $WEB_NEXT_RELEASE_TAG || true
     - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG-next --build-arg environment=next --cache-from $WEB_NEXT_RELEASE_TAG -t $WEB_NEXT_TAG -f app/web/Dockerfile.prod app/web/
@@ -210,6 +228,8 @@ build:web-next:
 build:nginx-next:
   needs: []
   stage: build
+  variables:
+    GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - docker pull $NGINX_RELEASE_TAG || true
     - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG-next --build-arg environment=preview --cache-from $NGINX_RELEASE_TAG -t $NGINX_NEXT_TAG app/nginx/
@@ -548,7 +568,8 @@ preview:protos:
     - aws s3 cp app/proto/gen/index.html s3://$AWS_PREVIEW_BUCKET/protos/$CI_COMMIT_REF_SLUG/
     - echo "Done, protos available at https://$CI_COMMIT_SHORT_SHA--protos.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--protos.$PREVIEW_DOMAIN/"
 
-# having this here stops us from having to list out all the needs in each release below. list out all that need to be waited for until releasing a new version
+# Having this here frees us from having to list out all the needs in each release below.
+# List out all that need to be waited for until releasing a new version
 wait:before-release:
   stage: wait
   inherit:
