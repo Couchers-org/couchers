@@ -1,9 +1,14 @@
 import enum
+from datetime import datetime
+from typing import TYPE_CHECKING
 
-from sqlalchemy import BigInteger, Column, DateTime, Enum, Float, ForeignKey, Integer, String, func
-from sqlalchemy.orm import relationship
+from sqlalchemy import BigInteger, DateTime, Enum, Float, ForeignKey, Integer, String, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from couchers.models import Base
+from couchers.models.base import Base
+
+if TYPE_CHECKING:
+    from couchers.models.users import User
 
 
 class DonationType(enum.Enum):
@@ -17,18 +22,18 @@ class DonationInitiation(Base):
     """
 
     __tablename__ = "donation_initiations"
-    id = Column(BigInteger, primary_key=True)
 
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
-    amount = Column(Integer, nullable=False)
-    stripe_checkout_session_id = Column(String, nullable=False)
+    amount: Mapped[int] = mapped_column(Integer)
+    stripe_checkout_session_id: Mapped[str] = mapped_column(String)
 
-    donation_type = Column(Enum(DonationType), nullable=False)
-    source = Column(String, nullable=True)
+    donation_type: Mapped[DonationType] = mapped_column(Enum(DonationType))
+    source: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    user = relationship("User", backref="donation_initiations")
+    user: Mapped["User"] = relationship("User", backref="donation_initiations")
 
 
 class Invoice(Base):
@@ -40,13 +45,13 @@ class Invoice(Base):
 
     __tablename__ = "invoices"
 
-    id = Column(BigInteger, primary_key=True)
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    user_id = Column(ForeignKey("users.id"), nullable=False)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
-    amount = Column(Float, nullable=False)
+    amount: Mapped[float] = mapped_column(Float)
 
-    stripe_payment_intent_id = Column(String, nullable=False, unique=True)
-    stripe_receipt_url = Column(String, nullable=False)
+    stripe_payment_intent_id: Mapped[str] = mapped_column(String, unique=True)
+    stripe_receipt_url: Mapped[str] = mapped_column(String)
 
-    user = relationship("User", backref="invoices")
+    user: Mapped["User"] = relationship("User", backref="invoices")

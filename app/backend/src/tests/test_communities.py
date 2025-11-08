@@ -2,6 +2,7 @@ from datetime import timedelta
 
 import grpc
 import pytest
+from geoalchemy2 import WKBElement
 from google.protobuf import wrappers_pb2
 
 from couchers import errors
@@ -47,12 +48,12 @@ def _(testconfig):
 # mostly fine
 
 
-def create_1d_polygon(lb, ub):
+def create_1d_polygon(lb: int, ub: int) -> WKBElement:
     # given a lower bound and upper bound on x, creates the given interval
     return create_polygon_lat_lng([[lb, 0], [lb, 2], [ub, 2], [ub, 0], [lb, 0]])
 
 
-def create_1d_point(x):
+def create_1d_point(x: int) -> WKBElement:
     return create_coordinate(x, 1)
 
 

@@ -1,8 +1,14 @@
-from sqlalchemy import BigInteger, Column, DateTime, ForeignKey, Index, String, func
+from datetime import datetime
+from typing import TYPE_CHECKING
+
+from sqlalchemy import BigInteger, DateTime, ForeignKey, Index, String, func
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import backref, relationship
+from sqlalchemy.orm import Mapped, backref, mapped_column, relationship
 
 from couchers.models.base import Base
+
+if TYPE_CHECKING:
+    from couchers.models.users import User
 
 
 class ModNote(Base):
@@ -13,27 +19,29 @@ class ModNote(Base):
     """
 
     __tablename__ = "mod_notes"
-    id = Column(BigInteger, primary_key=True)
 
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    acknowledged = Column(DateTime(timezone=True), nullable=True)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    acknowledged: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # this is an internal ID to allow the mods to track different types of notes
-    internal_id = Column(String, nullable=False)
+    internal_id: Mapped[str] = mapped_column(String)
     # the admin that left this note
-    creator_user_id = Column(ForeignKey("users.id"), nullable=False)
+    creator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
-    note_content = Column(String, nullable=False)  # CommonMark without images
+    note_content: Mapped[str] = mapped_column(String)  # CommonMark without images
 
-    user = relationship("User", backref=backref("mod_notes", lazy="dynamic"), foreign_keys="ModNote.user_id")
+    user: Mapped["User"] = relationship(
+        "User", foreign_keys="ModNote.user_id", backref=backref("mod_notes", lazy="dynamic")
+    )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"ModeNote(id={self.id}, user={self.user}, created={self.created}, ack'd={self.acknowledged})"
 
     @hybrid_property
-    def is_pending(self):
+    def is_pending(self) -> bool:
         return self.acknowledged == None
 
     __table_args__ = (

@@ -1,4 +1,6 @@
 import enum
+from datetime import date, datetime
+from typing import Any
 
 from geoalchemy2 import Geometry
 from sqlalchemy import (
@@ -7,7 +9,6 @@ from sqlalchemy import (
     BigInteger,
     Boolean,
     CheckConstraint,
-    Column,
     Date,
     DateTime,
     Enum,
@@ -23,11 +24,11 @@ from sqlalchemy import (
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy.dialects.postgresql import INET
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import expression
 
 from couchers.constants import GUIDELINES_VERSION
-from couchers.models.base import Base
+from couchers.models.base import Base, Geom
 from couchers.models.users import HostingStatus
 from couchers.utils import now
 
@@ -40,14 +41,14 @@ class UserBadge(Base):
     __tablename__ = "user_badges"
     __table_args__ = (UniqueConstraint("user_id", "badge_id"),)
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     # corresponds to "id" in badges.json
-    badge_id = Column(String, nullable=False, index=True)
+    badge_id: Mapped[str] = mapped_column(String, index=True)
 
     # take this with a grain of salt, someone may get then lose a badge for whatever reason
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", backref="badges")
 
@@ -69,16 +70,16 @@ class FriendRelationship(Base):
 
     __tablename__ = "friend_relationships"
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
-    from_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    to_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    from_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    to_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
-    status = Column(Enum(FriendStatus), nullable=False, default=FriendStatus.pending)
+    status: Mapped[FriendStatus] = mapped_column(Enum(FriendStatus), default=FriendStatus.pending)
 
     # timezones should always be UTC
-    time_sent = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    time_responded = Column(DateTime(timezone=True), nullable=True)
+    time_sent: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    time_responded: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     from_user = relationship("User", backref="friends_from", foreign_keys="FriendRelationship.from_user_id")
     to_user = relationship("User", backref="friends_to", foreign_keys="FriendRelationship.to_user_id")
@@ -107,22 +108,22 @@ class ContributorForm(Base):
 
     __tablename__ = "contributor_forms"
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    ideas = Column(String, nullable=True)
-    features = Column(String, nullable=True)
-    experience = Column(String, nullable=True)
-    contribute = Column(Enum(ContributeOption), nullable=True)
-    contribute_ways = Column(ARRAY(String), nullable=False)
-    expertise = Column(String, nullable=True)
+    ideas: Mapped[str | None] = mapped_column(String, nullable=True)
+    features: Mapped[str | None] = mapped_column(String, nullable=True)
+    experience: Mapped[str | None] = mapped_column(String, nullable=True)
+    contribute: Mapped[ContributeOption | None] = mapped_column(Enum(ContributeOption), nullable=True)
+    contribute_ways: Mapped[list[str]] = mapped_column(ARRAY(String))
+    expertise: Mapped[str | None] = mapped_column(String, nullable=True)
 
     user = relationship("User", backref="contributor_forms")
 
     @hybrid_property
-    def is_filled(self):
+    def is_filled(self) -> Any:
         """
         Whether the form counts as having been filled
         """
@@ -136,7 +137,7 @@ class ContributorForm(Base):
         )
 
     @property
-    def should_notify(self):
+    def should_notify(self) -> bool:
         """
         If this evaluates to true, we send an email to the recruitment team.
 
@@ -154,55 +155,55 @@ class SignupFlow(Base):
 
     __tablename__ = "signup_flows"
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
     # housekeeping
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    flow_token = Column(String, nullable=False, unique=True)
-    email_verified = Column(Boolean, nullable=False, default=False)
-    email_sent = Column(Boolean, nullable=False, default=False)
-    email_token = Column(String, nullable=True)
-    email_token_expiry = Column(DateTime(timezone=True), nullable=True)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    flow_token: Mapped[str] = mapped_column(String, unique=True)
+    email_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    email_sent: Mapped[bool] = mapped_column(Boolean, default=False)
+    email_token: Mapped[str | None] = mapped_column(String, nullable=True)
+    email_token_expiry: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     ## Basic
-    name = Column(String, nullable=False)
+    name: Mapped[str] = mapped_column(String)
     # TODO: unique across both tables
-    email = Column(String, nullable=False, unique=True)
+    email: Mapped[str] = mapped_column(String, unique=True)
     # TODO: invitation, attribution
 
     ## Account
     # TODO: unique across both tables
-    username = Column(String, nullable=True, unique=True)
-    hashed_password = Column(Binary, nullable=True)
-    birthdate = Column(Date, nullable=True)  # in the timezone of birthplace
-    gender = Column(String, nullable=True)
-    hosting_status = Column(Enum(HostingStatus), nullable=True)
-    city = Column(String, nullable=True)
-    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
-    geom_radius = Column(Float, nullable=True)
+    username: Mapped[str | None] = mapped_column(String, nullable=True, unique=True)
+    hashed_password: Mapped[bytes | None] = mapped_column(Binary, nullable=True)
+    birthdate: Mapped[date | None] = mapped_column(Date, nullable=True)  # in the timezone of birthplace
+    gender: Mapped[str | None] = mapped_column(String, nullable=True)
+    hosting_status: Mapped[HostingStatus | None] = mapped_column(Enum(HostingStatus), nullable=True)
+    city: Mapped[str | None] = mapped_column(String, nullable=True)
+    geom: Mapped[Geom | None] = mapped_column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    geom_radius: Mapped[float | None] = mapped_column(Float, nullable=True)
 
-    accepted_tos = Column(Integer, nullable=True)
-    accepted_community_guidelines = Column(Integer, nullable=False, server_default="0")
+    accepted_tos: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    accepted_community_guidelines: Mapped[int] = mapped_column(Integer, server_default="0")
 
-    opt_out_of_newsletter = Column(Boolean, nullable=True)
+    opt_out_of_newsletter: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
 
     ## Feedback (now unused)
-    filled_feedback = Column(Boolean, nullable=False, default=False)
-    ideas = Column(String, nullable=True)
-    features = Column(String, nullable=True)
-    experience = Column(String, nullable=True)
-    contribute = Column(Enum(ContributeOption), nullable=True)
-    contribute_ways = Column(ARRAY(String), nullable=True)
-    expertise = Column(String, nullable=True)
+    filled_feedback: Mapped[bool] = mapped_column(Boolean, default=False)
+    ideas: Mapped[str | None] = mapped_column(String, nullable=True)
+    features: Mapped[str | None] = mapped_column(String, nullable=True)
+    experience: Mapped[str | None] = mapped_column(String, nullable=True)
+    contribute: Mapped[ContributeOption | None] = mapped_column(Enum(ContributeOption), nullable=True)
+    contribute_ways: Mapped[list[str] | None] = mapped_column(ARRAY(String), nullable=True)
+    expertise: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    invite_code_id = Column(ForeignKey("invite_codes.id"), nullable=True)
-
-    @hybrid_property
-    def token_is_valid(self):
-        return (self.email_token != None) & (self.email_token_expiry >= now())
+    invite_code_id: Mapped[str | None] = mapped_column(ForeignKey("invite_codes.id"), nullable=True)
 
     @hybrid_property
-    def account_is_filled(self):
+    def token_is_valid(self) -> Any:
+        return (self.email_token != None) & (self.email_token_expiry >= now())  # type: ignore[operator]
+
+    @hybrid_property
+    def account_is_filled(self) -> Any:
         return (
             (self.username != None)
             & (self.birthdate != None)
@@ -216,27 +217,27 @@ class SignupFlow(Base):
         )
 
     @hybrid_property
-    def is_completed(self):
+    def is_completed(self) -> Any:
         return self.email_verified & self.account_is_filled & (self.accepted_community_guidelines == GUIDELINES_VERSION)
 
 
 class AccountDeletionToken(Base):
     __tablename__ = "account_deletion_tokens"
 
-    token = Column(String, primary_key=True)
+    token: Mapped[str] = mapped_column(String, primary_key=True)
 
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    expiry = Column(DateTime(timezone=True), nullable=False)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    expiry: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     user = relationship("User", backref="account_deletion_tokens")
 
     @hybrid_property
-    def is_valid(self):
+    def is_valid(self) -> Any:
         return (self.created <= now()) & (self.expiry >= now())
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"AccountDeletionToken(token={self.token}, user_id={self.user_id}, created={self.created}, expiry={self.expiry})"
 
 
@@ -249,18 +250,18 @@ class UserActivity(Base):
 
     __tablename__ = "user_activity"
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
-    user_id = Column(ForeignKey("users.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     # the start of a period of time, e.g. 1 hour during which we bin activeness
-    period = Column(DateTime(timezone=True), nullable=False)
+    period: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     # details of the browser, if available
-    ip_address = Column(INET, nullable=True)
-    user_agent = Column(String, nullable=True)
+    ip_address: Mapped[str | None] = mapped_column(INET, nullable=True)
+    user_agent: Mapped[str | None] = mapped_column(String, nullable=True)
 
     # count of api calls made with this ip, user_agent, and period
-    api_calls = Column(Integer, nullable=False, default=0)
+    api_calls: Mapped[int] = mapped_column(Integer, default=0)
 
     __table_args__ = (
         # helps look up this tuple quickly
@@ -278,10 +279,10 @@ class UserActivity(Base):
 class InviteCode(Base):
     __tablename__ = "invite_codes"
 
-    id = Column(String, primary_key=True)
-    creator_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    created = Column(DateTime(timezone=True), nullable=False, default=func.now())
-    disabled = Column(DateTime(timezone=True), nullable=True)
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    creator_user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
+    disabled: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     creator = relationship("User", foreign_keys=[creator_user_id])
 
@@ -293,27 +294,27 @@ class ContentReport(Base):
 
     __tablename__ = "content_reports"
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
-    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     # the user who reported or flagged the content
-    reporting_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    reporting_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     # reason, e.g. spam, inappropriate, etc
-    reason = Column(String, nullable=False)
+    reason: Mapped[str] = mapped_column(String)
     # a short description
-    description = Column(String, nullable=False)
+    description: Mapped[str] = mapped_column(String)
 
     # a reference to the content, see //docs/content_ref.md
-    content_ref = Column(String, nullable=False)
+    content_ref: Mapped[str] = mapped_column(String)
     # the author of the content (e.g. the user who wrote the comment itself)
-    author_user_id = Column(ForeignKey("users.id"), nullable=False)
+    author_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
     # details of the browser, if available
-    user_agent = Column(String, nullable=False)
+    user_agent: Mapped[str] = mapped_column(String)
     # the URL the user was on when reporting the content
-    page = Column(String, nullable=False)
+    page: Mapped[str] = mapped_column(String)
 
     # see comments above for reporting vs author
     reporting_user = relationship("User", foreign_keys="ContentReport.reporting_user_id")
@@ -327,22 +328,22 @@ class Email(Base):
 
     __tablename__ = "emails"
 
-    id = Column(String, primary_key=True)
+    id: Mapped[str] = mapped_column(String, primary_key=True)
 
     # timezone should always be UTC
-    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    sender_name = Column(String, nullable=False)
-    sender_email = Column(String, nullable=False)
+    sender_name: Mapped[str] = mapped_column(String)
+    sender_email: Mapped[str] = mapped_column(String)
 
-    recipient = Column(String, nullable=False)
-    subject = Column(String, nullable=False)
+    recipient: Mapped[str] = mapped_column(String)
+    subject: Mapped[str] = mapped_column(String)
 
-    plain = Column(String, nullable=False)
-    html = Column(String, nullable=False)
+    plain: Mapped[str] = mapped_column(String)
+    html: Mapped[str] = mapped_column(String)
 
-    list_unsubscribe_header = Column(String, nullable=True)
-    source_data = Column(String, nullable=True)
+    list_unsubscribe_header: Mapped[str | None] = mapped_column(String, nullable=True)
+    source_data: Mapped[str | None] = mapped_column(String, nullable=True)
 
 
 class SMS(Base):
@@ -352,17 +353,17 @@ class SMS(Base):
 
     __tablename__ = "smss"
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
     # timezone should always be UTC
-    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     # AWS message id
-    message_id = Column(String, nullable=False)
+    message_id: Mapped[str] = mapped_column(String)
 
     # the SMS sender ID sent to AWS, name that the SMS appears to come from
-    sms_sender_id = Column(String, nullable=False)
-    number = Column(String, nullable=False)
-    message = Column(String, nullable=False)
+    sms_sender_id: Mapped[str] = mapped_column(String)
+    number: Mapped[str] = mapped_column(String)
+    message: Mapped[str] = mapped_column(String)
 
 
 class ReferenceType(enum.Enum):
@@ -378,25 +379,25 @@ class Reference(Base):
 
     __tablename__ = "references"
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     # timezone should always be UTC
-    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    from_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    to_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    from_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    to_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
-    reference_type = Column(Enum(ReferenceType), nullable=False)
+    reference_type: Mapped[ReferenceType] = mapped_column(Enum(ReferenceType))
 
-    host_request_id = Column(ForeignKey("host_requests.id"), nullable=True)
+    host_request_id: Mapped[int | None] = mapped_column(ForeignKey("host_requests.id"), nullable=True)
 
-    text = Column(String, nullable=False)  # plain text
+    text: Mapped[str] = mapped_column(String)  # plain text
     # text that's only visible to mods
-    private_text = Column(String, nullable=True)  # plain text
+    private_text: Mapped[str | None] = mapped_column(String, nullable=True)  # plain text
 
-    rating = Column(Float, nullable=False)
-    was_appropriate = Column(Boolean, nullable=False)
+    rating: Mapped[float] = mapped_column(Float)
+    was_appropriate: Mapped[bool] = mapped_column(Boolean)
 
-    is_deleted = Column(Boolean, nullable=False, default=False, server_default=expression.false())
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
 
     from_user = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
     to_user = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
@@ -435,11 +436,11 @@ class Reference(Base):
     )
 
     @property
-    def should_report(self):
+    def should_report(self) -> bool:
         """
         If this evaluates to true, we send a report to the moderation team.
         """
-        return self.rating <= 0.4 or not self.was_appropriate or self.private_text
+        return bool(self.rating <= 0.4 or not self.was_appropriate or self.private_text)
 
 
 class UserBlock(Base):
@@ -449,11 +450,11 @@ class UserBlock(Base):
 
     __tablename__ = "user_blocks"
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
-    blocking_user_id = Column(ForeignKey("users.id"), nullable=False)
-    blocked_user_id = Column(ForeignKey("users.id"), nullable=False)
-    time_blocked = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    blocking_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    blocked_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    time_blocked: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     blocking_user = relationship("User", foreign_keys="UserBlock.blocking_user_id")
     blocked_user = relationship("User", foreign_keys="UserBlock.blocked_user_id")
@@ -468,10 +469,10 @@ class UserBlock(Base):
 class AccountDeletionReason(Base):
     __tablename__ = "account_deletion_reason"
 
-    id = Column(BigInteger, primary_key=True)
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    user_id = Column(ForeignKey("users.id"), nullable=False)
-    reason = Column(String, nullable=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    reason: Mapped[str | None] = mapped_column(String, nullable=True)
 
     user = relationship("User")
 
@@ -483,8 +484,8 @@ class ModerationUserList(Base):
 
     __tablename__ = "moderation_user_lists"
 
-    id = Column(BigInteger, primary_key=True)
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
     users = relationship("User", secondary="moderation_user_list_members", back_populates="moderation_user_lists")
@@ -497,8 +498,8 @@ class ModerationUserListMember(Base):
 
     __tablename__ = "moderation_user_list_members"
 
-    user_id = Column(ForeignKey("users.id"), primary_key=True)
-    moderation_list_id = Column(ForeignKey("moderation_user_lists.id"), primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    moderation_list_id: Mapped[int] = mapped_column(ForeignKey("moderation_user_lists.id"), primary_key=True)
 
     __table_args__ = (UniqueConstraint("user_id", "moderation_list_id"),)
 
@@ -506,18 +507,18 @@ class ModerationUserListMember(Base):
 class AntiBotLog(Base):
     __tablename__ = "antibot_logs"
 
-    id = Column(BigInteger, primary_key=True)
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    user_id = Column(ForeignKey("users.id"), nullable=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
 
-    ip_address = Column(String, nullable=True)
-    user_agent = Column(String, nullable=True)
+    ip_address: Mapped[str | None] = mapped_column(String, nullable=True)
+    user_agent: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    action = Column(String, nullable=False)
-    token = Column(String, nullable=False)
+    action: Mapped[str] = mapped_column(String)
+    token: Mapped[str] = mapped_column(String)
 
-    score = Column(Float, nullable=False)
-    provider_data = Column(JSON, nullable=False)
+    score: Mapped[float] = mapped_column(Float)
+    provider_data: Mapped[dict[str, Any]] = mapped_column(JSON)
 
 
 class RateLimitAction(enum.Enum):
@@ -531,11 +532,11 @@ class RateLimitAction(enum.Enum):
 class RateLimitViolation(Base):
     __tablename__ = "rate_limit_violations"
 
-    id = Column(BigInteger, primary_key=True)
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    user_id = Column(ForeignKey("users.id"), nullable=False)
-    action = Column(Enum(RateLimitAction), nullable=False)
-    is_hard_limit = Column(Boolean, nullable=False)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    action: Mapped[RateLimitAction] = mapped_column(Enum(RateLimitAction))
+    is_hard_limit: Mapped[bool] = mapped_column(Boolean)
 
     user = relationship("User")
 
@@ -548,25 +549,25 @@ class RateLimitViolation(Base):
 class Volunteer(Base):
     __tablename__ = "volunteers"
 
-    id = Column(BigInteger, primary_key=True)
-    user_id = Column(ForeignKey("users.id"), nullable=False, unique=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True)
 
-    display_name = Column(String, nullable=True)
-    display_location = Column(String, nullable=True)
+    display_name: Mapped[str | None] = mapped_column(String, nullable=True)
+    display_location: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    role = Column(String, nullable=False)
+    role: Mapped[str] = mapped_column(String)
 
     # custom sort order on team page, sorted ascending
-    sort_key = Column(Float, nullable=True)
+    sort_key: Mapped[float | None] = mapped_column(Float, nullable=True)
 
-    started_volunteering = Column(Date, nullable=False, server_default=text("CURRENT_DATE"))
-    stopped_volunteering = Column(Date, nullable=True, default=None)
+    started_volunteering: Mapped[date] = mapped_column(Date, server_default=text("CURRENT_DATE"))
+    stopped_volunteering: Mapped[date | None] = mapped_column(Date, nullable=True, default=None)
 
-    link_type = Column(String, nullable=True)
-    link_text = Column(String, nullable=True)
-    link_url = Column(String, nullable=True)
+    link_type: Mapped[str | None] = mapped_column(String, nullable=True)
+    link_text: Mapped[str | None] = mapped_column(String, nullable=True)
+    link_url: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    show_on_team_page = Column(Boolean, nullable=False, server_default=expression.true())
+    show_on_team_page: Mapped[bool] = mapped_column(Boolean, server_default=expression.true())
 
     __table_args__ = (
         # Link type, text, url should all be null or all not be null
