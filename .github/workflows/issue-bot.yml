@@ -21,6 +21,7 @@ jobs:
         working-directory: .github/issue-bot
         run: uv sync --locked --all-extras --dev
       - name: Process issue with LLM
+        working-directory: .github/issue-bot
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LLM_API_KEY:  ${{ secrets.BOT_LLM_API_KEY }}
@@ -30,4 +31,4 @@ jobs:
           ISSUE_BODY: ${{ github.event.issue.body }}
           ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
           REPOSITORY: ${{ github.repository }}
-        run: uv run .github/issue-bot/issue_bot.py
+        run: uv run issue_bot.py
