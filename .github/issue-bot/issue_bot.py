@@ -13,7 +13,7 @@ from enum import Enum
 
 from pydantic import BaseModel, Field
 from a5.ai import LLM
-from github import Github
+from github import Github, Auth
 
 
 # ============================================================================
@@ -123,7 +123,7 @@ class IssueBot:
 
     def __init__(self):
         self.llm = LLM(model=os.environ["LLM_MODEL"])
-        self.github_client = Github(os.environ["GITHUB_TOKEN"])
+        self.github_client = Github(auth=Auth.Token(os.environ["GITHUB_TOKEN"]))
 
         # Get issue details from environment
         self.repo_name = os.environ["REPOSITORY"]
