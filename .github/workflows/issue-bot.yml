@@ -26,8 +26,8 @@ jobs:
       - name: Process issue with LLM
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          LLM_API_KEY:  ${{ github.BOT_LLM_API_KEY }}
-          LLM_MODEL:  ${{ github.BOT_LLM_MODEL }}
+          LLM_API_KEY:  ${{ secrets.BOT_LLM_API_KEY }}
+          LLM_MODEL:  ${{ secrets.BOT_LLM_MODEL }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_BODY: ${{ github.event.issue.body }}
