@@ -332,7 +332,7 @@ test:media:
   variables:
     MEDIA_SERVER_FROM_ENV: 0
   script:
-    - cd /app && pytest src --junitxml=junit.xml
+    - cd /app && uv run pytest src --junitxml=junit.xml
   after_script:
     - cp /app/junit.xml $CI_PROJECT_DIR/junit.xml
   artifacts:
