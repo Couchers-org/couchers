@@ -18,10 +18,11 @@ class MissingTranslationError(Exception):
 @lru_cache(maxsize=1)
 def get_translations() -> dict[str, dict[str, dict[str, str]]]:
     """
-    Load all translation files from the i18n directory structure and apply fallbacks.
-    Scans for components (subdirectories) and their locale JSON files, then prebakes
-    language fallbacks so every language has complete coverage using English as the
-    base and applying fallbacks in the correct precedence order.
+    Load all translation files from the locales directory and apply fallbacks.
+    Each locale JSON file contains components as top-level keys that map to
+    dictionaries of string translations. Fallbacks are prebaked so every language
+    has complete coverage using English as the base and applying fallbacks in the
+    correct precedence order.
 
     Returns:
         Dictionary structure: lang -> component -> (string -> translated string)
@@ -30,34 +31,26 @@ def get_translations() -> dict[str, dict[str, dict[str, str]]]:
     """
     all_langs_all_strings: dict[str, dict[str, dict[str, str]]] = {}
 
-    i18n_dir = Path(__file__).parent
+    locales_dir = Path(__file__).parent / "locales"
 
-    # Scan for component directories
-    for component_dir in i18n_dir.iterdir():
-        if not component_dir.is_dir() or component_dir.name.startswith("_"):
-            continue
+    # Load all locale JSON files from the locales directory
+    for locale_file in locales_dir.glob("*.json"):
+        lang = locale_file.stem  # e.g., "en" from "en.json"
 
-        component_name = component_dir.name
-        locales_dir = component_dir / "locales"
+        with open(locale_file, "r", encoding="utf-8") as f:
+            translations = json.load(f)
 
-        if not locales_dir.exists():
-            continue
+        # Initialize the language dictionary if needed
+        if lang not in all_langs_all_strings:
+            all_langs_all_strings[lang] = {}
 
-        # Load all locale JSON files for this component
-        for locale_file in locales_dir.glob("*.json"):
-            lang = locale_file.stem  # e.g., "en" from "en.json"
-
-            with open(locale_file, "r", encoding="utf-8") as f:
-                translations = json.load(f)
-
-            # Initialize nested dictionaries if needed
-            if lang not in all_langs_all_strings:
-                all_langs_all_strings[lang] = {}
+        # Each top-level key in the JSON file is a component
+        for component_name, component_translations in translations.items():
             if component_name not in all_langs_all_strings[lang]:
                 all_langs_all_strings[lang][component_name] = {}
 
-            # Store the translations
-            all_langs_all_strings[lang][component_name] = translations
+            # Store the translations for this component
+            all_langs_all_strings[lang][component_name] = component_translations
 
     # Apply fallbacks: English is our source of truth - must exist
     if "en" not in all_langs_all_strings:
