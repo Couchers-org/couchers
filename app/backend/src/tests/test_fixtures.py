@@ -10,6 +10,7 @@ from unittest.mock import patch
 
 import grpc
 import pytest
+from grpc._server import _validate_generic_rpc_handlers
 from sqlalchemy import Connection, Engine, create_engine
 from sqlalchemy.sql import or_, text
 
@@ -546,7 +547,7 @@ def api_session(token):
     """
     Create an API for testing, uses the token for auth
     """
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     api_pb2_grpc.add_APIServicer_to_server(API(), channel)
     yield api_pb2_grpc.APIStub(channel)
 
@@ -637,14 +638,14 @@ def real_jail_session(token):
 
 @contextmanager
 def gis_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     gis_pb2_grpc.add_GISServicer_to_server(GIS(), channel)
     yield gis_pb2_grpc.GISStub(channel)
 
 
 @contextmanager
 def public_session():
-    channel = fake_channel()
+    channel = FakeChannel()
     public_pb2_grpc.add_PublicServicer_to_server(Public(), channel)
     yield public_pb2_grpc.PublicStub(channel)
 
@@ -709,38 +710,33 @@ class FakeChannel:
     """
     Mock gRPC channel for testing that orchestrates context creation.
 
-    This holds test state (user auth details) and creates proper CouchersContext
+    This holds test state (token) and creates proper CouchersContext
     instances when handlers are invoked.
     """
 
-    def __init__(
-        self,
-        user_id=None,
-        is_jailed=None,
-        is_superuser=None,
-        token_expiry=None,
-        token=None,
-        ui_language_preference=None,
-    ):
+    def __init__(self, token=None):
         self.handlers = {}
-        self.user_id = user_id
-        self._is_jailed = is_jailed
-        self._is_superuser = is_superuser
-        self._token_expiry = token_expiry
         self._token = token
-        self._ui_language_preference = ui_language_preference
 
     def add_generic_rpc_handlers(self, generic_rpc_handlers):
-        from grpc._server import _validate_generic_rpc_handlers
-
         _validate_generic_rpc_handlers(generic_rpc_handlers)
-
         self.handlers.update(generic_rpc_handlers[0]._method_handlers)
 
     def unary_unary(self, uri, request_serializer, response_deserializer):
         handler = self.handlers[uri]
 
-        _check_user_perms(uri, self.user_id, self._is_jailed, self._is_superuser, self._token_expiry)
+        user_id = None
+        is_jailed = None
+        is_superuser = None
+        token_expiry = None
+        ui_language_preference = None
+
+        if self._token:
+            user_id, is_jailed, is_superuser, token_expiry, ui_language_preference = _try_get_and_update_user_details(
+                self._token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
+            )
+
+        _check_user_perms(uri, user_id, is_jailed, is_superuser, token_expiry)
 
         def fake_handler(request):
             # Do a full serialization cycle on the request and the
@@ -750,16 +746,22 @@ class FakeChannel:
             with session_scope() as session:
                 mock_grpc_ctx = MockGrpcContext()
 
-                if self.user_id is not None:
+                if user_id is not None:
                     context = make_interactive_context(
                         grpc_context=mock_grpc_ctx,
-                        user_id=self.user_id,
+                        user_id=user_id,
                         is_api_key=False,
                         token=self._token,
-                        ui_language_preference=self._ui_language_preference,
+                        ui_language_preference=ui_language_preference,
                     )
                 else:
-                    context = make_interactive_context(grpc_context=mock_grpc_ctx)
+                    context = make_interactive_context(
+                        grpc_context=mock_grpc_ctx,
+                        user_id=None,
+                        is_api_key=False,
+                        token=None,
+                        ui_language_preference=None,
+                    )
 
                 response = handler.unary_unary(request, context, session)
 
@@ -768,34 +770,12 @@ class FakeChannel:
         return fake_handler
 
 
-def fake_channel(token=None):
-    """
-    Create a mock gRPC channel for testing.
-
-    Returns a FakeChannel that will create proper CouchersContext instances
-    when handlers are invoked.
-    """
-    if token:
-        user_id, is_jailed, is_superuser, token_expiry, ui_language_preference = _try_get_and_update_user_details(
-            token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
-        )
-        return FakeChannel(
-            user_id=user_id,
-            is_jailed=is_jailed,
-            is_superuser=is_superuser,
-            token_expiry=token_expiry,
-            token=token,
-            ui_language_preference=ui_language_preference,
-        )
-    return FakeChannel()
-
-
 @contextmanager
 def conversations_session(token):
     """
     Create a Conversations API for testing, uses the token for auth
     """
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), channel)
     yield conversations_pb2_grpc.ConversationsStub(channel)
 
@@ -805,28 +785,28 @@ def requests_session(token):
     """
     Create a Requests API for testing, uses the token for auth
     """
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), channel)
     yield requests_pb2_grpc.RequestsStub(channel)
 
 
 @contextmanager
 def threads_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     threads_pb2_grpc.add_ThreadsServicer_to_server(Threads(), channel)
     yield threads_pb2_grpc.ThreadsStub(channel)
 
 
 @contextmanager
 def discussions_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     discussions_pb2_grpc.add_DiscussionsServicer_to_server(Discussions(), channel)
     yield discussions_pb2_grpc.DiscussionsStub(channel)
 
 
 @contextmanager
 def donations_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     donations_pb2_grpc.add_DonationsServicer_to_server(Donations(), channel)
     yield donations_pb2_grpc.DonationsStub(channel)
 
@@ -870,35 +850,35 @@ def real_iris_session():
 
 @contextmanager
 def pages_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     pages_pb2_grpc.add_PagesServicer_to_server(Pages(), channel)
     yield pages_pb2_grpc.PagesStub(channel)
 
 
 @contextmanager
 def communities_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     communities_pb2_grpc.add_CommunitiesServicer_to_server(Communities(), channel)
     yield communities_pb2_grpc.CommunitiesStub(channel)
 
 
 @contextmanager
 def groups_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     groups_pb2_grpc.add_GroupsServicer_to_server(Groups(), channel)
     yield groups_pb2_grpc.GroupsStub(channel)
 
 
 @contextmanager
 def blocking_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     blocking_pb2_grpc.add_BlockingServicer_to_server(Blocking(), channel)
     yield blocking_pb2_grpc.BlockingStub(channel)
 
 
 @contextmanager
 def notifications_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     notifications_pb2_grpc.add_NotificationsServicer_to_server(Notifications(), channel)
     yield notifications_pb2_grpc.NotificationsStub(channel)
 
@@ -908,7 +888,7 @@ def account_session(token):
     """
     Create a Account API for testing, uses the token for auth
     """
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     account_pb2_grpc.add_AccountServicer_to_server(Account(), channel)
     yield account_pb2_grpc.AccountStub(channel)
 
@@ -918,7 +898,7 @@ def search_session(token):
     """
     Create a Search API for testing, uses the token for auth
     """
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     search_pb2_grpc.add_SearchServicer_to_server(Search(), channel)
     yield search_pb2_grpc.SearchStub(channel)
 
@@ -928,35 +908,35 @@ def references_session(token):
     """
     Create a References API for testing, uses the token for auth
     """
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     references_pb2_grpc.add_ReferencesServicer_to_server(References(), channel)
     yield references_pb2_grpc.ReferencesStub(channel)
 
 
 @contextmanager
 def reporting_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     reporting_pb2_grpc.add_ReportingServicer_to_server(Reporting(), channel)
     yield reporting_pb2_grpc.ReportingStub(channel)
 
 
 @contextmanager
 def events_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     events_pb2_grpc.add_EventsServicer_to_server(Events(), channel)
     yield events_pb2_grpc.EventsStub(channel)
 
 
 @contextmanager
 def bugs_session(token=None):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), channel)
     yield bugs_pb2_grpc.BugsStub(channel)
 
 
 @contextmanager
 def resources_session():
-    channel = fake_channel()
+    channel = FakeChannel()
     resources_pb2_grpc.add_ResourcesServicer_to_server(Resources(), channel)
     yield resources_pb2_grpc.ResourcesStub(channel)
 
