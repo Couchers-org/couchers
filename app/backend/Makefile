@@ -31,7 +31,15 @@ mypy:
 		src/couchers/resources.py \
 		src/couchers/urls.py \
 		src/couchers/utils.py \
+		src/couchers/metrics.py \
+		src/couchers/migrations/env.py \
 		src/couchers/models \
+		src/couchers/notifications \
+		src/couchers/rate_limits \
+		src/couchers/email \
+		src/couchers/templates \
+		src/couchers/helpers \
+		src/couchers/jobs \
 		src/couchers/context.py
 
 # Downgrade the local database to the previous migration. Good if you ran a migration on a branch and will run the backend on another branch after.

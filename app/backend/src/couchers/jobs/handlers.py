@@ -6,6 +6,7 @@ import logging
 from datetime import date, timedelta
 from math import cos, pi, sin, sqrt
 from random import sample
+from typing import Any
 
 import requests
 from google.protobuf import empty_pb2
@@ -23,7 +24,6 @@ from sqlalchemy.sql import (
     literal,
     not_,
     or_,
-    select,
     union_all,
     update,
 )
@@ -146,7 +146,7 @@ refresh_materialized_views_rapid.PAYLOAD = empty_pb2.Empty
 refresh_materialized_views_rapid.SCHEDULE = timedelta(seconds=30)
 
 
-def send_email(payload):
+def send_email(payload: jobs_pb2.SendEmailPayload) -> None:
     logger.info(f"Sending email with subject '{payload.subject}' to '{payload.recipient}'")
     # selects a "sender", which either prints the email to the logger or sends it out with SMTP
     sender = send_smtp_email if config["ENABLE_EMAIL"] else print_dev_email
@@ -168,7 +168,7 @@ def send_email(payload):
 send_email.PAYLOAD = jobs_pb2.SendEmailPayload
 
 
-def purge_login_tokens(payload):
+def purge_login_tokens(payload: empty_pb2.Empty) -> None:
     logger.info("Purging login tokens")
     with session_scope() as session:
         session.execute(delete(LoginToken).where(~LoginToken.is_valid).execution_options(synchronize_session=False))
@@ -178,7 +178,7 @@ purge_login_tokens.PAYLOAD = empty_pb2.Empty
 purge_login_tokens.SCHEDULE = timedelta(hours=24)
 
 
-def purge_password_reset_tokens(payload):
+def purge_password_reset_tokens(payload: empty_pb2.Empty) -> None:
     logger.info("Purging login tokens")
     with session_scope() as session:
         session.execute(
@@ -190,7 +190,7 @@ purge_password_reset_tokens.PAYLOAD = empty_pb2.Empty
 purge_password_reset_tokens.SCHEDULE = timedelta(hours=24)
 
 
-def purge_account_deletion_tokens(payload):
+def purge_account_deletion_tokens(payload: empty_pb2.Empty) -> None:
     logger.info("Purging account deletion tokens")
     with session_scope() as session:
         session.execute(
@@ -204,7 +204,7 @@ purge_account_deletion_tokens.PAYLOAD = empty_pb2.Empty
 purge_account_deletion_tokens.SCHEDULE = timedelta(hours=24)
 
 
-def send_message_notifications(payload):
+def send_message_notifications(payload: empty_pb2.Empty) -> None:
     """
     Sends out email notifications for messages that have been unseen for a long enough time
     """
@@ -298,7 +298,7 @@ send_message_notifications.PAYLOAD = empty_pb2.Empty
 send_message_notifications.SCHEDULE = timedelta(minutes=3)
 
 
-def send_request_notifications(payload):
+def send_request_notifications(payload: empty_pb2.Empty) -> None:
     """
     Sends out email notifications for unseen messages in host requests (as surfer or host)
     """
@@ -370,7 +370,7 @@ send_request_notifications.PAYLOAD = empty_pb2.Empty
 send_request_notifications.SCHEDULE = timedelta(minutes=3)
 
 
-def send_onboarding_emails(payload):
+def send_onboarding_emails(payload: empty_pb2.Empty) -> None:
     """
     Sends out onboarding emails
     """
@@ -423,7 +423,7 @@ send_onboarding_emails.PAYLOAD = empty_pb2.Empty
 send_onboarding_emails.SCHEDULE = timedelta(hours=1)
 
 
-def send_reference_reminders(payload):
+def send_reference_reminders(payload: empty_pb2.Empty) -> None:
     """
     Sends out reminders to write references after hosting/staying
     """
@@ -525,7 +525,7 @@ send_reference_reminders.PAYLOAD = empty_pb2.Empty
 send_reference_reminders.SCHEDULE = timedelta(hours=1)
 
 
-def send_host_request_reminders(payload):
+def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
     with session_scope() as session:
         host_has_sent_message = select(1).where(
             Message.conversation_id == HostRequest.conversation_id, Message.author_id == HostRequest.host_user_id
@@ -566,7 +566,7 @@ send_host_request_reminders.PAYLOAD = empty_pb2.Empty
 send_host_request_reminders.SCHEDULE = timedelta(minutes=15)
 
 
-def add_users_to_email_list(payload):
+def add_users_to_email_list(payload: empty_pb2.Empty) -> None:
     if not config["LISTMONK_ENABLED"]:
         logger.info("Not adding users to mailing list")
         return
@@ -612,7 +612,7 @@ add_users_to_email_list.PAYLOAD = empty_pb2.Empty
 add_users_to_email_list.SCHEDULE = timedelta(hours=1)
 
 
-def enforce_community_membership(payload):
+def enforce_community_membership(payload: empty_pb2.Empty) -> None:
     tasks_enforce_community_memberships()
 
 
@@ -620,7 +620,7 @@ enforce_community_membership.PAYLOAD = empty_pb2.Empty
 enforce_community_membership.SCHEDULE = timedelta(minutes=15)
 
 
-def update_recommendation_scores(payload):
+def update_recommendation_scores(payload: empty_pb2.Empty) -> None:
     text_fields = [
         User.hometown,
         User.occupation,
@@ -801,10 +801,10 @@ update_recommendation_scores.PAYLOAD = empty_pb2.Empty
 update_recommendation_scores.SCHEDULE = timedelta(hours=24)
 
 
-def update_badges(payload):
+def update_badges(payload: empty_pb2.Empty) -> None:
     with session_scope() as session:
 
-        def update_badge(badge_id: str, members: list[int]):
+        def update_badge(badge_id: str, members: list[int]) -> None:
             badge = get_badge_dict()[badge_id]
             user_ids = session.execute(select(UserBadge.user_id).where(UserBadge.badge_id == badge_id)).scalars().all()
             # in case the user ids don't exist in the db
@@ -844,7 +844,7 @@ update_badges.PAYLOAD = empty_pb2.Empty
 update_badges.SCHEDULE = timedelta(minutes=15)
 
 
-def finalize_strong_verification(payload):
+def finalize_strong_verification(payload: "jobs_pb2.FinalizeStrongVerificationPayload") -> None:
     with session_scope() as session:
         verification_attempt = session.execute(
             select(StrongVerificationAttempt)
@@ -952,7 +952,7 @@ def finalize_strong_verification(payload):
 finalize_strong_verification.PAYLOAD = jobs_pb2.FinalizeStrongVerificationPayload
 
 
-def send_activeness_probes(payload):
+def send_activeness_probes(payload: empty_pb2.Empty) -> None:
     with session_scope() as session:
         ## Step 1: create new activeness probes for those who need it and don't have one (if enabled)
 
@@ -1046,7 +1046,7 @@ send_activeness_probes.PAYLOAD = empty_pb2.Empty
 send_activeness_probes.SCHEDULE = timedelta(minutes=60)
 
 
-def update_randomized_locations(payload):
+def update_randomized_locations(payload: empty_pb2.Empty) -> None:
     """
     We generate for each user a randomized location as follows:
     - Start from a strong random seed (based on the SECRET env var and our key derivation function)
@@ -1057,7 +1057,7 @@ def update_randomized_locations(payload):
     """
     randomization_secret = get_secret(USER_LOCATION_RANDOMIZATION_NAME)
 
-    def gen_randomized_coords(user_id, lat, lng):
+    def gen_randomized_coords(user_id: int, lat: float, lng: float) -> tuple[float, float]:
         radius_u = stable_secure_uniform(randomization_secret, seed=bytes(f"{user_id}|radius", "ascii"))
         angle_u = stable_secure_uniform(randomization_secret, seed=bytes(f"{user_id}|angle", "ascii"))
         radius = 0.02 + 0.08 * radius_u
@@ -1066,7 +1066,7 @@ def update_randomized_locations(payload):
         offset_lat = radius * sin(angle_rad)
         return lat + offset_lat, lng + offset_lng
 
-    user_updates = []
+    user_updates: list[dict[str, Any]] = []
 
     with session_scope() as session:
         users_to_update = session.execute(select(User.id, User.geom).where(User.randomized_geom == None)).all()
@@ -1085,7 +1085,7 @@ update_randomized_locations.PAYLOAD = empty_pb2.Empty
 update_randomized_locations.SCHEDULE = timedelta(hours=1)
 
 
-def send_event_reminders(payload: empty_pb2.Empty):
+def send_event_reminders(payload: empty_pb2.Empty) -> None:
     """
     Sends reminders for events that are 24 hours away to users who marked themselves as attending.
     """

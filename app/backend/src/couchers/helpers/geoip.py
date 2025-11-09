@@ -1,4 +1,5 @@
 import logging
+from ipaddress import IPv4Network, IPv6Network
 
 import geoip2.database
 from geoip2.errors import AddressNotFoundError
@@ -10,9 +11,9 @@ logger = logging.getLogger(__name__)
 
 def geoip_approximate_location(ip_address: str) -> str | None:
     if config["GEOLITE2_CITY_MMDB_FILE_LOCATION"] == "":
-        return
+        return None
     if ip_address is None:
-        return
+        return None
     try:
         with geoip2.database.Reader(config["GEOLITE2_CITY_MMDB_FILE_LOCATION"]) as reader:
             response = reader.city(ip_address)
@@ -20,21 +21,28 @@ def geoip_approximate_location(ip_address: str) -> str | None:
             country = response.country.name
             return f"{city}, {country}" if city else f"{country}"
     except AddressNotFoundError:
-        pass
+        return None
     except Exception as e:
         logger.error(f"GeoIP failed for {ip_address=}")
+        return None
 
 
-def geoip_asn(ip_address: str) -> tuple[int, str, str] | None:
+def geoip_asn(ip_address: str | None) -> tuple[int, str, IPv4Network | IPv6Network] | None:
     if config["GEOLITE2_ASN_MMDB_FILE_LOCATION"] == "":
-        return
+        return None
     if ip_address is None:
-        return
+        return None
     try:
         with geoip2.database.Reader(config["GEOLITE2_ASN_MMDB_FILE_LOCATION"]) as reader:
             response = reader.asn(ip_address)
-            return response.autonomous_system_number, response.autonomous_system_organization, response.network
+            asn_number = response.autonomous_system_number
+            asn_org = response.autonomous_system_organization
+            network = response.network
+            if asn_number is not None and asn_org is not None and network is not None:
+                return asn_number, asn_org, network
+            raise ValueError(f"Invalid response: {response}")
     except AddressNotFoundError:
-        pass
+        return None
     except Exception as e:
         logger.error(f"GeoIP failed for {ip_address=}")
+        return None

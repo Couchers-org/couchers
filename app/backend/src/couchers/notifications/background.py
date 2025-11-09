@@ -3,6 +3,7 @@ from pathlib import Path
 
 from google.protobuf import empty_pb2
 from jinja2 import Environment, FileSystemLoader
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
 from couchers import urls
@@ -42,16 +43,15 @@ env = Environment(loader=loader, trim_blocks=True)
 add_filters(env)
 
 
-def _send_email_notification(session, user: User, notification: Notification):
+def _send_email_notification(session: Session, user: User, notification: Notification) -> None:
     rendered = render_notification(user, notification)
     template_args = {
         "user": user,
         "time": notification.created,
+        "_year": now().year,
+        "_timezone_display": get_tz_as_text(user.timezone or "Etc/UTC"),
         **rendered.email_template_args,
     }
-
-    template_args["_year"] = now().year
-    template_args["_timezone_display"] = get_tz_as_text(user.timezone or "Etc/UTC")
 
     plain_unsub_section = "\n\n---\n\n"
     if rendered.is_critical:
@@ -112,7 +112,7 @@ def _send_email_notification(session, user: User, notification: Notification):
     )
 
 
-def _send_push_notification(session, user: User, notification: Notification):
+def _send_push_notification(session: Session, user: User, notification: Notification) -> None:
     logger.debug(f"Formatting push notification for {user}")
 
     rendered = render_notification(user, notification)
@@ -134,7 +134,7 @@ def _send_push_notification(session, user: User, notification: Notification):
     )
 
 
-def handle_notification(payload: jobs_pb2.HandleNotificationPayload):
+def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
     with session_scope() as session:
         notification = session.execute(
             select(Notification).where(Notification.id == payload.notification_id)
@@ -178,7 +178,7 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload):
                 _send_push_notification(session, user, notification)
 
 
-def send_raw_push_notification(payload: jobs_pb2.SendRawPushNotificationPayload):
+def send_raw_push_notification(payload: jobs_pb2.SendRawPushNotificationPayload) -> None:
     if not config["PUSH_NOTIFICATIONS_ENABLED"]:
         logger.info("Not sending push notification due to push notifications disabled")
 
@@ -225,7 +225,7 @@ def send_raw_push_notification(payload: jobs_pb2.SendRawPushNotificationPayload)
             raise Exception(f"Failed to deliver push to {sub.id}, code: {resp.status_code}. Response: {resp.text}")
 
 
-def handle_email_digests(payload: empty_pb2.Empty):
+def handle_email_digests(payload: empty_pb2.Empty) -> None:
     """
     Sends out email digests
 
@@ -248,7 +248,7 @@ def handle_email_digests(payload: empty_pb2.Empty):
             .join(NotificationDelivery, NotificationDelivery.notification_id == Notification.id)
             .where(NotificationDelivery.delivery_type == NotificationDeliveryType.email)
             .where(NotificationDelivery.delivered != None)
-            .group_by(Notification)
+            .group_by(Notification.id)
             .subquery()
         )
 
@@ -268,7 +268,7 @@ def handle_email_digests(payload: empty_pb2.Empty):
                     delivered_email_notifications.c.notification_id == Notification.id,
                 )
                 .where(delivered_email_notifications.c.notification_delivery_id == None)
-                .group_by(User)
+                .group_by(User.id)
             )
             .scalars()
             .all()

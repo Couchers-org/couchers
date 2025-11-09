@@ -1,9 +1,11 @@
-from typing import Any
+from typing import Any, Self
 
+from sqlalchemy import Column
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import Select, union
 
-from couchers.models import User, UserBlock
+from couchers.context import CouchersContext
+from couchers.models import Base, User, UserBlock
 from couchers.utils import is_valid_email, is_valid_user_id, is_valid_username
 
 
@@ -28,7 +30,7 @@ See issue here: https://github.com/sqlalchemy/sqlalchemy/issues/6700
 class CouchersSelect(Select[Any]):
     inherit_cache = True
 
-    def where_username_or_email(self, field: str, table=User):
+    def where_username_or_email(self, field: str, table: Base = User) -> Self:
         if is_valid_username(field):
             return self.where(table.username == field)
         elif is_valid_email(field):
@@ -36,7 +38,7 @@ class CouchersSelect(Select[Any]):
         # no fields match, this will return no rows
         return self.where(False)
 
-    def where_username_or_id(self, field: str, table=User):
+    def where_username_or_id(self, field: str, table: Base = User) -> Self:
         if is_valid_username(field):
             return self.where(table.username == field)
         elif is_valid_user_id(field):
@@ -44,7 +46,7 @@ class CouchersSelect(Select[Any]):
         # no fields match, this will return no rows
         return self.where(False)
 
-    def where_username_or_email_or_id(self, field):
+    def where_username_or_email_or_id(self, field: str) -> Self:
         # Should only be used for admin APIs, etc.
         if is_valid_username(field):
             return self.where(User.username == field)
@@ -55,7 +57,7 @@ class CouchersSelect(Select[Any]):
         # no fields match, this will return no rows
         return self.where(False)
 
-    def where_users_visible(self, context, table=User):
+    def where_users_visible(self, context: CouchersContext, table: Base = User) -> Self:
         """
         Filters out users that should not be visible: blocked, deleted, or banned
 
@@ -64,7 +66,7 @@ class CouchersSelect(Select[Any]):
         hidden_users = _relevant_user_blocks(context.user_id)
         return self.where(table.is_visible).where(~table.id.in_(hidden_users))
 
-    def where_users_column_visible(self, context, column):
+    def where_users_column_visible(self, context: CouchersContext, column: Column[Any]) -> Self:
         """
         Filters the given column, not yet joined/selected from
         """

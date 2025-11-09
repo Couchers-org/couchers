@@ -1,6 +1,7 @@
 import functools
 import json
 
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
 from couchers import urls
@@ -13,23 +14,23 @@ from proto.internal import jobs_pb2
 
 
 @functools.cache
-def get_vapid_public_key():
+def get_vapid_public_key() -> str:
     return get_vapid_public_key_from_private_key(config["PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY"])
 
 
 def push_to_subscription(
-    session,
+    session: Session,
     *,
     push_notification_subscription_id: int,
     user_id: int,
     topic_action: str,
-    key: str = None,
-    title: str,
-    body: str,
-    icon: str = None,
-    url: str = None,
+    key: str | None = None,
+    title: str = "",
+    body: str = "",
+    icon: str | None = None,
+    url: str | None = None,
     ttl: int = 0,
-):
+) -> None:
     queue_job(
         session,
         job_type="send_raw_push_notification",
@@ -52,7 +53,17 @@ def push_to_subscription(
     )
 
 
-def _push_to_user(session, user_id, topic_action, key, title, body, icon, url, ttl):
+def _push_to_user(
+    session: Session,
+    user_id: int,
+    topic_action: str,
+    key: str | None,
+    title: str,
+    body: str,
+    icon: str | None,
+    url: str | None,
+    ttl: int,
+) -> None:
     """
     Same as above but for a given user
     """
@@ -81,17 +92,17 @@ def _push_to_user(session, user_id, topic_action, key, title, body, icon, url, t
 
 
 def push_to_user(
-    session,
+    session: Session,
     *,
     user_id: int,
     topic_action: str,
-    key: str = None,
-    title: str,
-    body: str,
-    icon: str = None,
-    url: str = None,
+    key: str | None = None,
+    title: str = "",
+    body: str = "",
+    icon: str | None = None,
+    url: str | None = None,
     ttl: int = 0,
-):
+) -> None:
     """
     This indirection is so that this can be easily mocked. Not sure how to do it better :(
     """

@@ -1,6 +1,8 @@
 import logging
 
 from google.protobuf import empty_pb2
+from google.protobuf.message import Message
+from sqlalchemy.orm import Session
 
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Notification
@@ -11,13 +13,13 @@ logger = logging.getLogger(__name__)
 
 
 def notify(
-    session,
+    session: Session,
     *,
-    user_id,
-    topic_action,
-    key="",
-    data=None,
-):
+    user_id: int,
+    topic_action: str,
+    key: str = "",
+    data: Message | None = None,
+) -> None:
     """
     Queues a notification given the notification and a target, i.e. a tuple (user_id, topic, key), and an action.
 

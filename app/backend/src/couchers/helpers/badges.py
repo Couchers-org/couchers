@@ -1,3 +1,4 @@
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import delete
 
 from couchers.models import UserBadge
@@ -6,7 +7,7 @@ from couchers.resources import get_badge_dict
 from proto import notification_data_pb2
 
 
-def user_add_badge(session, user_id, badge_id, do_notify=True):
+def user_add_badge(session: Session, user_id: int, badge_id: str, do_notify: bool = True) -> None:
     badge = get_badge_dict()[badge_id]
     session.add(UserBadge(user_id=user_id, badge_id=badge_id))
     session.flush()
@@ -24,7 +25,7 @@ def user_add_badge(session, user_id, badge_id, do_notify=True):
     session.commit()
 
 
-def user_remove_badge(session, user_id, badge_id):
+def user_remove_badge(session: Session, user_id: int, badge_id: str) -> None:
     badge = get_badge_dict()[badge_id]
     session.execute(delete(UserBadge).where(UserBadge.user_id == user_id, UserBadge.badge_id == badge_id))
     session.flush()
