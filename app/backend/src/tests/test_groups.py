@@ -1,7 +1,6 @@
 import grpc
 import pytest
 
-from couchers import errors
 from couchers.db import session_scope
 from couchers.tasks import enforce_community_memberships
 from proto import groups_pb2, pages_pb2
@@ -341,7 +340,7 @@ def test_JoinGroup_and_LeaveGroup(testing_communities):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.NOT_IN_GROUP
+        assert e.value.details() == "You're not in that group."
 
         # didn't magically join
         assert not api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member
@@ -364,7 +363,7 @@ def test_JoinGroup_and_LeaveGroup(testing_communities):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.ALREADY_IN_GROUP
+        assert e.value.details() == "You're already in that group."
 
         # didn't magically leave
         assert api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member

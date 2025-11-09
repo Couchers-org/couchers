@@ -5,7 +5,6 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import or_
 
-from couchers import errors
 from couchers.config import config
 from couchers.models import (
     HostingStatus,
@@ -66,15 +65,17 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         for preference in request.preferences:
             topic_action = enum_from_topic_action.get((preference.topic, preference.action), None)
             if not topic_action:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_NOTIFICATION_PREFERENCE)
+                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_notification_preference")
             delivery_types = {t.name for t in NotificationDeliveryType}
             if preference.delivery_method not in delivery_types:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_DELIVERY_METHOD)
+                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_delivery_method")
             delivery_type = NotificationDeliveryType[preference.delivery_method]
             try:
                 set_preference(session, user.id, topic_action, delivery_type, preference.enabled)
             except PreferenceNotUserEditableError:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANNOT_EDIT_THAT_NOTIFICATION_PREFERENCE)
+                context.abort_with_error_code(
+                    grpc.StatusCode.FAILED_PRECONDITION, "cannot_edit_that_notification_preference"
+                )
         return notifications_pb2.GetNotificationSettingsRes(
             do_not_email_enabled=user.do_not_email,
             groups=get_user_setting_groups(user.id),
@@ -117,7 +118,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             .one_or_none()
         )
         if not notification:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.NOTIFICATION_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "notification_not_found")
         notification.is_seen = request.set_seen
         return empty_pb2.Empty()
 
@@ -132,13 +133,13 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
 
     def GetVapidPublicKey(self, request, context, session):
         if not config["PUSH_NOTIFICATIONS_ENABLED"]:
-            context.abort(grpc.StatusCode.UNAVAILABLE, errors.PUSH_NOTIFICATIONS_DISABLED)
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
 
         return notifications_pb2.GetVapidPublicKeyRes(vapid_public_key=get_vapid_public_key())
 
     def RegisterPushNotificationSubscription(self, request, context, session):
         if not config["PUSH_NOTIFICATIONS_ENABLED"]:
-            context.abort(grpc.StatusCode.UNAVAILABLE, errors.PUSH_NOTIFICATIONS_DISABLED)
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
 
         data = json.loads(request.full_subscription_json)
         subscription = PushNotificationSubscription(
@@ -164,7 +165,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
 
     def SendTestPushNotification(self, request, context, session):
         if not config["PUSH_NOTIFICATIONS_ENABLED"]:
-            context.abort(grpc.StatusCode.UNAVAILABLE, errors.PUSH_NOTIFICATIONS_DISABLED)
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
 
         push_to_user(
             session,

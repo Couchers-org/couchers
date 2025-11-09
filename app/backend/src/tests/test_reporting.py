@@ -1,7 +1,6 @@
 import grpc
 import pytest
 
-from couchers import errors
 from couchers.db import session_scope
 from couchers.models import ContentReport
 from couchers.sql import couchers_select as select
@@ -58,4 +57,4 @@ def test_reporting(db):
                 )
             )
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.USER_NOT_FOUND
+    assert e.value.details() == "Couldn't find that user."

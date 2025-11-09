@@ -2,7 +2,7 @@ import grpc
 import requests
 from sqlalchemy.sql import func
 
-from couchers import errors, urls
+from couchers import urls
 from couchers.config import config
 from couchers.descriptor_pool import get_descriptors_pb
 from couchers.models import User
@@ -20,7 +20,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
 
     def ReportBug(self, request, context, session):
         if not config["BUG_TOOL_ENABLED"]:
-            context.abort(grpc.StatusCode.UNAVAILABLE, errors.BUG_TOOL_DISABLED)
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "bug_tool_disabled")
 
         repo = config["BUG_TOOL_GITHUB_REPO"]
         auth = (config["BUG_TOOL_GITHUB_USERNAME"], config["BUG_TOOL_GITHUB_TOKEN"])
@@ -53,7 +53,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
 
         r = requests.post(f"https://api.github.com/repos/{repo}/issues", auth=auth, json=json_body)
         if not r.status_code == 201:
-            context.abort(grpc.StatusCode.INTERNAL, errors.BUG_TOOL_REQUEST_FAILED)
+            context.abort_with_error_code(grpc.StatusCode.INTERNAL, "bug_tool_request_failed")
 
         issue_number = r.json()["number"]
 

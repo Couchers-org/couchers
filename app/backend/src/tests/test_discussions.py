@@ -1,7 +1,6 @@
 import grpc
 import pytest
 
-from couchers import errors
 from couchers.db import session_scope
 from couchers.utils import now, to_aware_datetime
 from proto import discussions_pb2, notifications_pb2, threads_pb2
@@ -34,7 +33,7 @@ def test_create_discussion_errors(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.MISSING_DISCUSSION_TITLE
+        assert e.value.details() == "Missing discussion title."
 
     with discussions_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -45,7 +44,7 @@ def test_create_discussion_errors(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.MISSING_DISCUSSION_CONTENT
+        assert e.value.details() == "Missing discussion content."
 
 
 def test_create_and_get_discussion(db, push_collector):

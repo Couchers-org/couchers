@@ -4,7 +4,7 @@ import logging
 import grpc
 import stripe
 
-from couchers import errors, urls
+from couchers import urls
 from couchers.config import config
 from couchers.models import DonationInitiation, DonationType, Invoice, User
 from couchers.notifications.notify import notify
@@ -31,13 +31,13 @@ def _create_stripe_customer(session, user):
 class Donations(donations_pb2_grpc.DonationsServicer):
     def InitiateDonation(self, request, context, session):
         if not config["ENABLE_DONATIONS"]:
-            context.abort(grpc.StatusCode.UNAVAILABLE, errors.DONATIONS_DISABLED)
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "donations_disabled")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         if request.amount < 2:
             # we don't want to waste *all* of the donation on processing fees
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DONATION_TOO_SMALL)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "donation_too_small")
 
         if not user.stripe_customer_id:
             _create_stripe_customer(session, user)
@@ -88,7 +88,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
 
     def GetDonationPortalLink(self, request, context, session):
         if not config["ENABLE_DONATIONS"]:
-            context.abort(grpc.StatusCode.UNAVAILABLE, errors.DONATIONS_DISABLED)
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "donations_disabled")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 

@@ -68,3 +68,5 @@ ANTIBOT_FREQ = timedelta(hours=48)
 EVENT_REMINDER_TIMEDELTA = timedelta(hours=24)
 
 COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD = 0.35
+
+UNKNOWN_ERROR_MESSAGE = "An unknown backend error occurred. Please consider filing a bug!"

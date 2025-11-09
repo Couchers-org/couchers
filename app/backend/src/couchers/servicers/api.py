@@ -5,7 +5,7 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import and_, delete, distinct, func, intersect, or_, union
 
-from couchers import errors, urls
+from couchers import urls
 from couchers.config import config
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
 from couchers.helpers.strong_verification import get_strong_verification_fields
@@ -36,6 +36,7 @@ from couchers.models import (
 from couchers.notifications.notify import notify
 from couchers.notifications.settings import get_topic_actions_by_delivery_type
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
+from couchers.rate_limits.definitions import RATE_LIMIT_INTERVAL_STRING
 from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
 from couchers.sql import couchers_select as select
 from couchers.sql import is_valid_user_id, is_valid_username
@@ -221,7 +222,7 @@ class API(api_pb2_grpc.APIServicer):
         ).scalar_one_or_none()
 
         if not user:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         return user_model_to_pb(user, session, context)
 
@@ -233,13 +234,13 @@ class API(api_pb2_grpc.APIServicer):
         ).scalar_one_or_none()
 
         if not lite_user:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         return lite_user_to_pb(lite_user)
 
     def GetLiteUsers(self, request, context, session):
         if len(request.users) > MAX_USERS_PER_QUERY:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.REQUESTED_TOO_MANY_USERS)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "requested_too_many_users")
 
         usernames = {u for u in request.users if is_valid_username(u)}
         ids = {u for u in request.users if is_valid_user_id(u)}
@@ -281,7 +282,7 @@ class API(api_pb2_grpc.APIServicer):
 
         if request.HasField("name"):
             if not is_valid_name(request.name.value):
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_NAME)
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_name")
             user.name = request.name.value
 
         if request.HasField("city"):
@@ -295,7 +296,7 @@ class API(api_pb2_grpc.APIServicer):
 
         if request.HasField("lat") and request.HasField("lng"):
             if request.lat.value == 0 and request.lng.value == 0:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
             user.geom = create_coordinate(request.lat.value, request.lng.value)
             user.randomized_geom = None
 
@@ -349,12 +350,12 @@ class API(api_pb2_grpc.APIServicer):
 
         if request.hosting_status != api_pb2.HOSTING_STATUS_UNSPECIFIED:
             if user.do_not_email and request.hosting_status != api_pb2.HOSTING_STATUS_CANT_HOST:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DO_NOT_EMAIL_CANNOT_HOST)
+                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "do_not_email_cannot_host")
             user.hosting_status = hostingstatus2sql[request.hosting_status]
 
         if request.meetup_status != api_pb2.MEETUP_STATUS_UNSPECIFIED:
             if user.do_not_email and request.meetup_status != api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DO_NOT_EMAIL_CANNOT_MEET)
+                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "do_not_email_cannot_meet")
             user.meetup_status = meetupstatus2sql[request.meetup_status]
 
         if request.HasField("language_abilities"):
@@ -366,7 +367,7 @@ class API(api_pb2_grpc.APIServicer):
             # add the new ones
             for language_ability in request.language_abilities.value:
                 if not language_is_allowed(language_ability.code):
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_LANGUAGE)
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_language")
                 session.add(
                     LanguageAbility(
                         user=user,
@@ -380,7 +381,7 @@ class API(api_pb2_grpc.APIServicer):
 
             for region in request.regions_visited.value:
                 if not region_is_allowed(region):
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_REGION)
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_region")
                 session.add(
                     RegionVisited(
                         user_id=user.id,
@@ -393,7 +394,7 @@ class API(api_pb2_grpc.APIServicer):
 
             for region in request.regions_lived.value:
                 if not region_is_allowed(region):
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_REGION)
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_region")
                 session.add(
                     RegionLived(
                         user_id=user.id,
@@ -580,7 +581,7 @@ class API(api_pb2_grpc.APIServicer):
         ).scalar_one_or_none()
 
         if not rel:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_FRIENDS)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "not_friends")
 
         session.delete(rel)
 
@@ -595,7 +596,7 @@ class API(api_pb2_grpc.APIServicer):
         ).scalar_one_or_none()
 
         if not user:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         q1 = (
             select(FriendRelationship.from_user_id.label("user_id"))
@@ -640,7 +641,7 @@ class API(api_pb2_grpc.APIServicer):
 
     def SendFriendRequest(self, request, context, session):
         if context.user_id == request.user_id:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_FRIEND_SELF)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_friend_self")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         to_user = session.execute(
@@ -648,7 +649,7 @@ class API(api_pb2_grpc.APIServicer):
         ).scalar_one_or_none()
 
         if not to_user:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         if (
             session.execute(
@@ -674,13 +675,17 @@ class API(api_pb2_grpc.APIServicer):
             ).scalar_one_or_none()
             is not None
         ):
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.FRIENDS_ALREADY_OR_PENDING)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "friends_already_or_pending")
 
         # Check if user has been sending friend requests excessively
         if process_rate_limits_and_check_abort(
             session=session, user_id=context.user_id, action=RateLimitAction.friend_request
         ):
-            context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.FRIEND_REQUEST_RATE_LIMIT)
+            context.abort_with_error_code(
+                grpc.StatusCode.RESOURCE_EXHAUSTED,
+                "friend_request_rate_limit",
+                rate_limit_interval_string=RATE_LIMIT_INTERVAL_STRING,
+            )
 
         # TODO: Race condition where we can create two friend reqs, needs db constraint! See comment in table
 
@@ -755,7 +760,7 @@ class API(api_pb2_grpc.APIServicer):
         ).scalar_one_or_none()
 
         if not friend_request:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.FRIEND_REQUEST_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "friend_request_not_found")
 
         friend_request.status = FriendStatus.accepted if request.accept else FriendStatus.rejected
         friend_request.time_responded = func.now()
@@ -785,7 +790,7 @@ class API(api_pb2_grpc.APIServicer):
         ).scalar_one_or_none()
 
         if not friend_request:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.FRIEND_REQUEST_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "friend_request_not_found")
 
         friend_request.status = FriendStatus.cancelled
         friend_request.time_responded = func.now()
@@ -830,7 +835,7 @@ class API(api_pb2_grpc.APIServicer):
         next_user_id = int(request.page_token) if request.page_token else 0
         badge = get_badge_dict().get(request.badge_id)
         if not badge:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.BADGE_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "badge_not_found")
 
         badge_user_ids = (
             session.execute(

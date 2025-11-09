@@ -5,7 +5,6 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2
 
-from couchers import errors
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
@@ -163,7 +162,7 @@ def test_activeness_probes_expiry(db, push_collector):
                 jail_pb2.RespondToActivenessProbeReq(response=jail_pb2.ACTIVENESS_PROBE_RESPONSE_STILL_ACTIVE)
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.PROBE_NOT_FOUND
+        assert e.value.details() == "You don't currently have an activeness probe."
 
         res = jail.JailInfo(empty_pb2.Empty())
         assert not res.has_pending_activeness_probe

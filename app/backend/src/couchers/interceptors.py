@@ -11,8 +11,8 @@ import sentry_sdk
 from opentelemetry import trace
 from sqlalchemy.sql import and_, func
 
-from couchers import errors
-from couchers.context import CouchersContext, make_interactive_user_context, make_media_context
+from couchers.constants import UNKNOWN_ERROR_MESSAGE
+from couchers.context import CouchersContext, make_interactive_context, make_media_context
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import observe_in_servicer_duration_histogram
@@ -249,23 +249,26 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
         # if no session was found and this isn't an open service, fail
         if not auth_info:
             if auth_level != annotations_pb2.AUTH_LEVEL_OPEN:
-                return unauthenticated_handler()
+                # NOTE: do not translate this string; it's used in a hacky way in the frontend
+                return unauthenticated_handler("Unauthorized")
         else:
             # a valid user session was found
             user_id, is_jailed, is_superuser, token_expiry, ui_language_preference = auth_info
 
             if auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not is_superuser:
+                # NOTE: do not translate this string; it's used in a hacky way in the frontend
                 return unauthenticated_handler("Permission denied", grpc.StatusCode.PERMISSION_DENIED)
 
             # if the user is jailed and this is isn't an open or jailed service, fail
             if is_jailed and auth_level not in [annotations_pb2.AUTH_LEVEL_OPEN, annotations_pb2.AUTH_LEVEL_JAILED]:
+                # NOTE: do not translate this string; it's used in a hacky way in the frontend
                 return unauthenticated_handler("Permission denied")
 
         handler = continuation(handler_call_details)
         prev_function = handler.unary_unary
 
         def function_without_couchers_stuff(req, grpc_context):
-            couchers_context: CouchersContext = make_interactive_user_context(
+            couchers_context: CouchersContext = make_interactive_context(
                 grpc_context=grpc_context,
                 user_id=user_id,
                 is_api_key=is_api_key,
@@ -442,7 +445,7 @@ class ErrorSanitizationInterceptor(grpc.ServerInterceptor):
                 if not code:
                     logger.exception(e)
                     logger.info("Probably an unknown error! Sanitizing...")
-                    context.abort(grpc.StatusCode.INTERNAL, errors.UNKNOWN_ERROR)
+                    context.abort(grpc.StatusCode.INTERNAL, UNKNOWN_ERROR_MESSAGE)
                 else:
                     logger.warning(f"RPC error: {code} in method {handler_call_details.method}")
                     raise e

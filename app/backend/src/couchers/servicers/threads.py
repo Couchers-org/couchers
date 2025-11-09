@@ -4,7 +4,6 @@ import grpc
 import sqlalchemy.exc
 from sqlalchemy.sql import func, select
 
-from couchers import errors
 from couchers.context import make_background_user_context
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
@@ -211,7 +210,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
 
         if depth == 0:
             if not session.execute(select(Thread).where(Thread.id == database_id)).scalar_one_or_none():
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
+                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
 
             res = session.execute(
                 select(Comment, func.count(Reply.id))
@@ -235,7 +234,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
 
         elif depth == 1:
             if not session.execute(select(Comment).where(Comment.id == database_id)).scalar_one_or_none():
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
+                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
 
             res = (
                 session.execute(
@@ -260,7 +259,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
             ]
 
         else:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
 
         if len(res) > page_size:
             # There's more!
@@ -274,7 +273,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
         content = request.content.strip()
 
         if content == "":
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COMMENT)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_comment")
 
         database_id, depth = unpack_thread_id(request.thread_id)
         if depth == 0:
@@ -282,12 +281,12 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
         elif depth == 1:
             object_to_add = Reply(comment_id=database_id, author_user_id=context.user_id, content=content)
         else:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
         session.add(object_to_add)
         try:
             session.flush()
         except sqlalchemy.exc.IntegrityError:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
 
         thread_id = pack_thread_id(object_to_add.id, depth + 1)
 

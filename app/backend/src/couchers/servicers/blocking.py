@@ -2,7 +2,7 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import not_, or_, union
 
-from couchers import errors, urls
+from couchers import urls
 from couchers.models import Upload, User, UserBlock
 from couchers.sql import couchers_select as select
 from proto import blocking_pb2, blocking_pb2_grpc
@@ -36,17 +36,17 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
         ).scalar_one_or_none()
 
         if not blockee:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         if context.user_id == blockee.id:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_BLOCK_SELF)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "cant_block_self")
 
         if session.execute(
             select(UserBlock)
             .where(UserBlock.blocking_user_id == context.user_id)
             .where(UserBlock.blocked_user_id == blockee.id)
         ).scalar_one_or_none():
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_ALREADY_BLOCKED)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "user_already_blocked")
         else:
             user_block = UserBlock(
                 blocking_user_id=context.user_id,
@@ -63,7 +63,7 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
         ).scalar_one_or_none()
 
         if not blockee:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         user_block = session.execute(
             select(UserBlock)
@@ -71,7 +71,7 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
             .where(UserBlock.blocked_user_id == blockee.id)
         ).scalar_one_or_none()
         if not user_block:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_NOT_BLOCKED)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "user_not_blocked")
 
         session.delete(user_block)
         session.commit()

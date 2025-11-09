@@ -2,7 +2,6 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2
 
-from couchers import errors
 from couchers.models import UserBlock
 from couchers.sql import couchers_select as select
 from proto import blocking_pb2
@@ -28,14 +27,14 @@ def test_BlockUser(db):
         with pytest.raises(grpc.RpcError) as e:
             user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user1.username))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.CANT_BLOCK_SELF
+        assert e.value.details() == "You can't block yourself."
 
         user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
 
         with pytest.raises(grpc.RpcError) as e:
             user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.USER_ALREADY_BLOCKED
+        assert e.value.details() == "Target user has already been blocked."
 
     with session_scope() as session:
         blocked_user_list = (
@@ -73,7 +72,7 @@ def test_UnblockUser(db):
         with pytest.raises(grpc.RpcError) as e:
             user_blocks.UnblockUser(blocking_pb2.UnblockUserReq(username=user2.username))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.USER_NOT_BLOCKED
+        assert e.value.details() == "Target user is not blocked."
 
         # Test re-blocking
         user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))

@@ -7,7 +7,6 @@ from sqlalchemy import exists
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
-from couchers import errors
 from couchers.materialized_views import UserResponseRate
 from couchers.metrics import (
     account_age_on_host_request_create_histogram,
@@ -29,6 +28,7 @@ from couchers.models import (
 )
 from couchers.notifications.notify import notify
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
+from couchers.rate_limits.definitions import RATE_LIMIT_INTERVAL_STRING
 from couchers.servicers.api import response_rate_to_pb, user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import (
@@ -165,47 +165,51 @@ class Requests(requests_pb2_grpc.RequestsServicer):
     def CreateHostRequest(self, request, context, session):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         if not user.has_completed_profile:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.INCOMPLETE_PROFILE_SEND_REQUEST)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_send_request")
 
         if request.host_user_id == context.user_id:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REQUEST_SELF)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "cant_request_self")
 
         # just to check host exists and is visible
         host = session.execute(
             select(User).where_users_visible(context).where(User.id == request.host_user_id)
         ).scalar_one_or_none()
         if not host:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         from_date = parse_date(request.from_date)
         to_date = parse_date(request.to_date)
 
         if not from_date or not to_date:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_DATE)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_date")
 
         today = today_in_timezone(host.timezone)
 
         # request starts from the past
         if from_date < today:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_BEFORE_TODAY)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_before_today")
 
         # from_date is not >= to_date
         if from_date >= to_date:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_AFTER_TO)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_to")
 
         # No need to check today > to_date
 
         if from_date - today > timedelta(days=365):
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_AFTER_ONE_YEAR)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_one_year")
 
         if to_date - from_date > timedelta(days=365):
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_TO_AFTER_ONE_YEAR)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
 
         # Check if user has been sending host requests excessively
         if process_rate_limits_and_check_abort(
             session=session, user_id=context.user_id, action=RateLimitAction.host_request
         ):
-            context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.HOST_REQUEST_RATE_LIMIT)
+            context.abort_with_error_code(
+                grpc.StatusCode.RESOURCE_EXHAUSTED,
+                "host_request_rate_limit",
+                rate_limit_interval_string=RATE_LIMIT_INTERVAL_STRING,
+            )
 
         conversation = Conversation()
         session.add(conversation)
@@ -275,13 +279,13 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         ).scalar_one_or_none()
 
         if not host_request:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
         return host_request_to_pb(host_request, session, context)
 
     def ListHostRequests(self, request, context, session):
         if request.only_sent and request.only_received:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_SENT_OR_RECEIVED)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "host_request_sent_or_received")
 
         pagination = request.number if request.number > 0 else DEFAULT_PAGINATION_LENGTH
         pagination = min(pagination, MAX_PAGE_SIZE)
@@ -386,30 +390,30 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         ).scalar_one_or_none()
 
         if not host_request:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
         if host_request.surfer_user_id != context.user_id and host_request.host_user_id != context.user_id:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
         if request.status == conversations_pb2.HOST_REQUEST_STATUS_PENDING:
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
 
         if host_request.end_time < now():
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_IN_PAST)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "host_request_in_past")
 
         control_message = Message()
 
         if request.status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED:
             # only host can accept
             if context.user_id != host_request.host_user_id:
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.NOT_THE_HOST)
+                context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "not_the_host")
             # can't accept a cancelled or confirmed request (only reject), or already accepted
             if (
                 host_request.status == HostRequestStatus.cancelled
                 or host_request.status == HostRequestStatus.confirmed
                 or host_request.status == HostRequestStatus.accepted
             ):
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
+                context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
             _possibly_observe_first_response_time(session, host_request, context.user_id, "accepted")
             control_message.host_request_status_target = HostRequestStatus.accepted
             host_request.status = HostRequestStatus.accepted
@@ -431,10 +435,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if request.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED:
             # only host can reject
             if context.user_id != host_request.host_user_id:
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
+                context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
             # can't reject a cancelled or already rejected request
             if host_request.status == HostRequestStatus.cancelled or host_request.status == HostRequestStatus.rejected:
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
+                context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
             _possibly_observe_first_response_time(session, host_request, context.user_id, "rejected")
             control_message.host_request_status_target = HostRequestStatus.rejected
             host_request.status = HostRequestStatus.rejected
@@ -456,10 +460,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if request.status == conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED:
             # only surfer can confirm
             if context.user_id != host_request.surfer_user_id:
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
+                context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
             # can only confirm an accepted request
             if host_request.status != HostRequestStatus.accepted:
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
+                context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
             control_message.host_request_status_target = HostRequestStatus.confirmed
             host_request.status = HostRequestStatus.confirmed
             session.flush()
@@ -480,10 +484,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if request.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED:
             # only surfer can cancel
             if context.user_id != host_request.surfer_user_id:
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
+                context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
             # can't' cancel an already cancelled or rejected request
             if host_request.status == HostRequestStatus.rejected or host_request.status == HostRequestStatus.cancelled:
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
+                context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
             control_message.host_request_status_target = HostRequestStatus.cancelled
             host_request.status = HostRequestStatus.cancelled
             session.flush()
@@ -532,10 +536,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         ).scalar_one_or_none()
 
         if not host_request:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
         if host_request.surfer_user_id != context.user_id and host_request.host_user_id != context.user_id:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
         pagination = request.number if request.number > 0 else DEFAULT_PAGINATION_LENGTH
         pagination = min(pagination, MAX_PAGE_SIZE)
@@ -564,16 +568,16 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def SendHostRequestMessage(self, request, context, session):
         if request.text == "":
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_message")
         host_request = session.execute(
             select(HostRequest).where(HostRequest.conversation_id == request.host_request_id)
         ).scalar_one_or_none()
 
         if not host_request:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
         if host_request.surfer_user_id != context.user_id and host_request.host_user_id != context.user_id:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
         if host_request.host_user_id == context.user_id:
             _possibly_observe_first_response_time(session, host_request, context.user_id, "message")
@@ -627,13 +631,13 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def GetHostRequestUpdates(self, request, context, session):
         if request.only_sent and request.only_received:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_SENT_OR_RECEIVED)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "host_request_sent_or_received")
 
         if request.newest_message_id == 0:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_message")
 
         if not session.execute(select(Message).where(Message.id == request.newest_message_id)).scalar_one_or_none():
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_message")
 
         pagination = request.number if request.number > 0 else DEFAULT_PAGINATION_LENGTH
         pagination = min(pagination, MAX_PAGE_SIZE)
@@ -682,18 +686,18 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         ).scalar_one_or_none()
 
         if not host_request:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
         if host_request.surfer_user_id != context.user_id and host_request.host_user_id != context.user_id:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
         if host_request.surfer_user_id == context.user_id:
             if not host_request.surfer_last_seen_message_id <= request.last_seen_message_id:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNSEE_MESSAGES)
+                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_unsee_messages")
             host_request.surfer_last_seen_message_id = request.last_seen_message_id
         else:
             if not host_request.host_last_seen_message_id <= request.last_seen_message_id:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNSEE_MESSAGES)
+                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_unsee_messages")
             host_request.host_last_seen_message_id = request.last_seen_message_id
 
         session.commit()
@@ -707,7 +711,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         ).scalar_one_or_none()
 
         if not host_request:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
         if context.user_id == host_request.surfer_user_id:
             host_request.is_surfer_archived = request.is_archived
@@ -729,7 +733,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         # if user doesn't exist, return None
         if not user_res:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         user, response_rates = user_res
         return requests_pb2.GetResponseRateRes(**response_rate_to_pb(response_rates))
@@ -742,7 +746,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         ).scalar_one_or_none()
 
         if not host_request:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
         feedback = session.execute(
             select(HostRequestFeedback)
@@ -751,7 +755,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         ).scalar_one_or_none()
 
         if feedback:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_LEFT_HOST_REQUEST_FEEDBACK)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "already_left_host_request_feedback")
 
         session.add(
             HostRequestFeedback(

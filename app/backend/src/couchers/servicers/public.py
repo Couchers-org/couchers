@@ -4,7 +4,7 @@ import grpc
 from cachetools import TTLCache, cached
 from sqlalchemy.sql import func, union_all
 
-from couchers import errors, urls
+from couchers import urls
 from couchers.materialized_views import LiteUser
 from couchers.models import Cluster, Node, ProfilePublicVisibility, Reference, User, Volunteer
 from couchers.resources import get_static_badge_dict
@@ -147,7 +147,7 @@ class Public(public_pb2_grpc.PublicServicer):
         ).scalar_one_or_none()
 
         if not user:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         if user.public_visibility == ProfilePublicVisibility.full:
             return public_pb2.GetPublicUserRes(full_user=user_model_to_pb(user, session, make_logged_out_context()))

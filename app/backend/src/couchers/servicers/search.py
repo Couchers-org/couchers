@@ -7,7 +7,7 @@ from datetime import timedelta
 import grpc
 from sqlalchemy.sql import and_, func, or_
 
-from couchers import errors, urls
+from couchers import urls
 from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.helpers.strong_verification import has_strong_verification
 from couchers.materialized_views import LiteUser, UserResponseRate
@@ -385,7 +385,7 @@ def _user_search_inner(request, context, session):
 
         if request.same_gender_only:
             if not has_strong_verification(session, user):
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NEED_STRONG_VERIFICATION)
+                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "need_strong_verification")
             statement = statement.where(User.gender == user.gender)
 
         if len(request.hosting_status_filter) > 0:
@@ -496,7 +496,7 @@ def _user_search_inner(request, context, session):
             # could do a join here as well, but this is just simpler
             node = session.execute(select(Node).where(Node.id == request.search_in_community_id)).scalar_one_or_none()
             if not node:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
             statement = statement.where(func.ST_Contains(node.geom, User.geom))
 
         if request.only_with_references:
@@ -781,7 +781,7 @@ class Search(search_pb2_grpc.SearchServicer):
             # could do a join here as well, but this is just simpler
             node = session.execute(select(Node).where(Node.id == request.search_in_community_id)).scalar_one_or_none()
             if not node:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
             statement = statement.where(func.ST_Contains(node.geom, EventOccurrence.geom))
 
         if request.HasField("after"):

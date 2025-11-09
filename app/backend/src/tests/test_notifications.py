@@ -6,7 +6,6 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2, timestamp_pb2
 
-from couchers import errors
 from couchers.context import make_background_user_context
 from couchers.crypto import b64decode
 from couchers.jobs.worker import process_job
@@ -119,7 +118,7 @@ def test_SetNotificationSettings_preferences_not_editable(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANNOT_EDIT_THAT_NOTIFICATION_PREFERENCE
+        assert e.value.details() == "That notification preference is not user editable."
 
 
 def test_unsubscribe(db):
