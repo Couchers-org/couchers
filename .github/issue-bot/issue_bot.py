@@ -38,7 +38,7 @@ Your job is to analyze newly opened issues and determine what actions to take. F
 
 2. **Foreign Language Issues**:
    - If the issue is written in a language other than English
-   - Translate the title and body to English
+   - Translate the issue to English
    - Post the translation as a comment
    - Keep the issue open
    - Do not add any labels or make other modifications
@@ -103,14 +103,9 @@ class BotDecision(BaseModel):
         description="Comment to post on the issue (if any). Use markdown formatting."
     )
 
-    translated_title: Optional[str] = Field(
+    translation: Optional[str] = Field(
         default=None,
-        description="Translated issue title if original was in foreign language"
-    )
-
-    translated_body: Optional[str] = Field(
-        default=None,
-        description="Translated issue body if original was in foreign language"
+        description="English translation of the issue if original was in foreign language"
     )
 
 
@@ -213,13 +208,8 @@ Respond only in JSON with the following format:
             comment_body = decision.comment
 
             # If there's a translation, add it to the comment
-            if decision.translated_title or decision.translated_body:
-                translation_section = "\n\n---\n\n## 🌐 Translation\n\n"
-                if decision.translated_title:
-                    translation_section += f"**Translated Title:** {decision.translated_title}\n\n"
-                if decision.translated_body:
-                    translation_section += f"**Translated Body:**\n\n{decision.translated_body}"
-                comment_body += translation_section
+            if decision.translation:
+                comment_body += f"\n\n---\n\n## 🌐 Translation\n\n{decision.translation}"
 
             # Add debug information section
             comment_body += self._format_debug_section(decision)
