@@ -252,8 +252,8 @@
       "chip_location": {
         "heading": "Finding Your Passport's NFC Chip",
         "description": "The chip location varies by country. You may need to try different pages. Here are some examples of locations:",
-        "us_germany_mexico": "<strong>US, Germany (2016), Mexico:</strong> Back page",
-        "finland_germany_new": "<strong>Finland, Germany (2017+):</strong> Picture page",
+        "us_germany_mexico": "<strong>Brazil, US, Germany (2016), Indonesia, Mexico:</strong> Back page",
+        "finland_germany_new": "<strong>Finland, Germany (2017+), Russia:</strong> Picture page",
         "australia": "<strong>Australia:</strong> Middle page (marked with symbol + \"chip name\")"
       }
     }
