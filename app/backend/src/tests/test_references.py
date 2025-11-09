@@ -5,7 +5,6 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2
 
-from couchers import errors
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import (
@@ -348,7 +347,7 @@ def test_ListPagination(db):
                 references_pb2.ListReferencesReq(reference_type_filter=[references_pb2.REFERENCE_TYPE_SURFED])
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.NEED_TO_SPECIFY_AT_LEAST_ONE_USER
+        assert e.value.details() == "You need to specify at least one user."
 
     with references_session(token5) as api:
         # from user1 to user2
@@ -456,7 +455,7 @@ def test_WriteFriendReference(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.REFERENCE_ALREADY_GIVEN
+        assert e.value.details() == "Reference already given."
 
     with references_session(token2) as api:
         # can't write a reference about yourself
@@ -470,7 +469,7 @@ def test_WriteFriendReference(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.CANT_REFER_SELF
+        assert e.value.details() == "You can't refer yourself."
 
 
 def test_WriteFriendReference_with_empty_text(db):
@@ -483,7 +482,7 @@ def test_WriteFriendReference_with_empty_text(db):
                 references_pb2.WriteFriendReferenceReq(to_user_id=user2.id, text="  ", was_appropriate=True, rating=0.8)
             )
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == errors.REFERENCE_NO_TEXT
+    assert e.value.details() == "The text of a reference must not be empty"
 
 
 def test_WriteFriendReference_with_private_text(db, push_collector):
@@ -565,7 +564,7 @@ def test_host_request_states_references(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_WRITE_REFERENCE_FOR_REQUEST
+        assert e.value.details() == "You can't write a reference for that host request, or it wasn't found."
 
         # confirmed
         with pytest.raises(grpc.RpcError) as e:
@@ -578,7 +577,7 @@ def test_host_request_states_references(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_WRITE_REFERENCE_FOR_REQUEST
+        assert e.value.details() == "You can't write a reference for that host request, or it wasn't found."
 
         # cancelled
         with pytest.raises(grpc.RpcError) as e:
@@ -591,7 +590,7 @@ def test_host_request_states_references(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_WRITE_REFERENCE_FOR_REQUEST
+        assert e.value.details() == "You can't write a reference for that host request, or it wasn't found."
 
 
 def test_WriteHostRequestReference(db):
@@ -637,7 +636,7 @@ def test_WriteHostRequestReference(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_WRITE_REFERENCE_FOR_REQUEST
+        assert e.value.details() == "You can't write a reference for that host request, or it wasn't found."
 
         # can't write reference that's more than 2 weeks old
         with pytest.raises(grpc.RpcError) as e:
@@ -650,7 +649,7 @@ def test_WriteHostRequestReference(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_WRITE_REFERENCE_FOR_REQUEST
+        assert e.value.details() == "You can't write a reference for that host request, or it wasn't found."
 
         # can write for this one
         api.WriteHostRequestReference(
@@ -673,7 +672,7 @@ def test_WriteHostRequestReference(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.REFERENCE_ALREADY_GIVEN
+        assert e.value.details() == "Reference already given."
 
         # can write for this one too
         api.WriteHostRequestReference(
@@ -696,7 +695,10 @@ def test_WriteHostRequestReference(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_WRITE_REFERENCE_INDICATED_DIDNT_MEETUP
+        assert (
+            e.value.details()
+            == "You can't write a reference for that host request because you indicated that you didn't meet up."
+        )
 
         # can't write reference for a HR that we indicate we didn't show up for
         api.HostRequestIndicateDidntMeetup(
@@ -716,7 +718,10 @@ def test_WriteHostRequestReference(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_WRITE_REFERENCE_INDICATED_DIDNT_MEETUP
+        assert (
+            e.value.details()
+            == "You can't write a reference for that host request because you indicated that you didn't meet up."
+        )
 
     with references_session(token4) as api:
         # they can still write one
@@ -920,19 +925,19 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
         with pytest.raises(grpc.RpcError) as e:
             api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user5.id))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
+        assert e.value.details() == "Couldn't find that user."
 
         # can't write reference for blocking user
         with pytest.raises(grpc.RpcError) as e:
             api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user7.id))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
+        assert e.value.details() == "Couldn't find that user."
 
         # can't write reference for blocked user
         with pytest.raises(grpc.RpcError) as e:
             api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user6.id))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
+        assert e.value.details() == "Couldn't find that user."
 
         # can't write anything to myself
         res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user1.id))

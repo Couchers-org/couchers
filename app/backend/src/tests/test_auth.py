@@ -5,7 +5,7 @@ import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy.sql import delete, func
 
-from couchers import errors, urls
+from couchers import urls
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
 from couchers.models import (
@@ -320,7 +320,7 @@ def test_login_part_signed_up_verified_email(db):
         with auth_api_session() as (auth_api, metadata_interceptor):
             with pytest.raises(grpc.RpcError) as e:
                 auth_api.Authenticate(auth_pb2.AuthReq(user="email@couchers.org.invalid", password="wrong pwd"))
-            assert e.value.details() == errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP
+            assert e.value.details() == "Please check your email for a link to continue signing up."
 
     assert mock.call_count == 1
     e = email_fields(mock)
@@ -356,7 +356,7 @@ def test_login_part_signed_up_not_verified_email(db):
         with auth_api_session() as (auth_api, metadata_interceptor):
             with pytest.raises(grpc.RpcError) as e:
                 auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="wrong pwd"))
-            assert e.value.details() == errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP
+            assert e.value.details() == "Please check your email for a link to continue signing up."
 
     with session_scope() as session:
         flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
@@ -379,7 +379,7 @@ def test_banned_user(db):
         with pytest.raises(grpc.RpcError) as e:
             auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.ACCOUNT_SUSPENDED
+        assert e.value.details() == "Your account is suspended."
 
 
 def test_deleted_user(db):
@@ -392,7 +392,7 @@ def test_deleted_user(db):
         with pytest.raises(grpc.RpcError) as e:
             auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.ACCOUNT_NOT_FOUND
+        assert e.value.details() == "An account with that username or email was not found."
 
 
 def test_invalid_token(db):
@@ -445,7 +445,7 @@ def test_password_reset_v2(db, push_collector):
                 auth_pb2.CompletePasswordResetV2Req(password_reset_token=password_reset_token, new_password="password")
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INSECURE_PASSWORD
+        assert e.value.details() == "The password is insecure. Please use one that is not easily guessable."
 
     # make sure we can set a good password
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -485,7 +485,7 @@ def test_password_reset_v2(db, push_collector):
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.INVALID_TOKEN
+        assert e.value.details() == "Invalid token."
 
     with session_scope() as session:
         user = session.execute(select(User)).scalar_one()
@@ -522,7 +522,7 @@ def test_password_reset_invalid_token_v2(db):
     with auth_api_session() as (auth_api, metadata_interceptor), pytest.raises(grpc.RpcError) as e:
         res = auth_api.CompletePasswordResetV2(auth_pb2.CompletePasswordResetV2Req(password_reset_token="wrongtoken"))
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.INVALID_TOKEN
+    assert e.value.details() == "Invalid token."
 
     with session_scope() as session:
         user = session.execute(select(User)).scalar_one()
@@ -573,7 +573,7 @@ def test_signup_without_password(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.PASSWORD_TOO_SHORT
+        assert e.value.details() == "The password must be 8 or more characters long."
 
 
 def test_signup_invalid_birthdate(db):
@@ -598,7 +598,7 @@ def test_signup_invalid_birthdate(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.INVALID_BIRTHDATE
+        assert e.value.details() == "You must be at least 18 years old to sign up."
 
         res = auth_api.SignupFlow(
             auth_pb2.SignupFlowReq(
@@ -641,7 +641,7 @@ def test_signup_invalid_birthdate(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.INVALID_BIRTHDATE
+        assert e.value.details() == "You must be at least 18 years old to sign up."
 
         with session_scope() as session:
             assert session.execute(select(func.count()).select_from(SignupFlow)).scalar_one() == 1
@@ -652,25 +652,25 @@ def test_signup_invalid_email(db):
         with pytest.raises(grpc.RpcError) as e:
             reply = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email="a")))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_EMAIL
+        assert e.value.details() == "Invalid email."
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
             reply = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email="a@b")))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_EMAIL
+        assert e.value.details() == "Invalid email."
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
             reply = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email="a@b.")))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_EMAIL
+        assert e.value.details() == "Invalid email."
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
             reply = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email="a@b.c")))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_EMAIL
+        assert e.value.details() == "Invalid email."
 
 
 def test_signup_existing_email(db):
@@ -683,7 +683,7 @@ def test_signup_existing_email(db):
                 auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=user.email))
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.SIGNUP_FLOW_EMAIL_TAKEN
+        assert e.value.details() == "That email address is already associated with an account. Please log in instead!"
 
 
 def test_signup_banned_user_email(db):
@@ -698,7 +698,7 @@ def test_signup_banned_user_email(db):
                 auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="NewName", email=user.email))
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.SIGNUP_EMAIL_CANNOT_BE_USED
+        assert e.value.details() == "You cannot sign up with that email address."
 
 
 def test_signup_deleted_user_email(db):
@@ -713,7 +713,7 @@ def test_signup_deleted_user_email(db):
                 auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="NewName", email=user.email))
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.SIGNUP_EMAIL_CANNOT_BE_USED
+        assert e.value.details() == "You cannot sign up with that email address."
 
 
 def test_signup_continue_with_email(db):
@@ -730,7 +730,7 @@ def test_signup_continue_with_email(db):
                 auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=testing_email))
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP
+        assert e.value.details() == "Please check your email for a link to continue signing up."
 
 
 def test_signup_resend_email(db):
@@ -821,14 +821,14 @@ def test_unsuccessful_authenticate(db):
         with pytest.raises(grpc.RpcError) as e:
             reply = auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password="incorrectpassword"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.INVALID_PASSWORD
+        assert e.value.details() == "Wrong password."
 
     # Invalid username
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
             reply = auth_api.Authenticate(auth_pb2.AuthReq(user="notarealusername", password="password"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.ACCOUNT_NOT_FOUND
+        assert e.value.details() == "An account with that username or email was not found."
 
     # Invalid email
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -837,14 +837,14 @@ def test_unsuccessful_authenticate(db):
                 auth_pb2.AuthReq(user=f"{random_hex(12)}@couchers.org.invalid", password="password")
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.ACCOUNT_NOT_FOUND
+        assert e.value.details() == "An account with that username or email was not found."
 
     # Invalid id
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
             reply = auth_api.Authenticate(auth_pb2.AuthReq(user="-1", password="password"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.ACCOUNT_NOT_FOUND
+        assert e.value.details() == "An account with that username or email was not found."
 
 
 def test_complete_signup(db):
@@ -877,7 +877,7 @@ def test_complete_signup(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_USERNAME
+        assert e.value.details() == "Invalid username."
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         # Invalid name
@@ -888,7 +888,7 @@ def test_complete_signup(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_NAME
+        assert e.value.details() == "Name not supported."
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         # Hosting status required
@@ -911,7 +911,7 @@ def test_complete_signup(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.HOSTING_STATUS_REQUIRED
+        assert e.value.details() == "Hosting status is required."
 
     user, _ = generate_user()
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -935,7 +935,7 @@ def test_complete_signup(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.USERNAME_NOT_AVAILABLE
+        assert e.value.details() == "Sorry, that username isn't available."
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         # Invalid coordinate
@@ -958,7 +958,7 @@ def test_complete_signup(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_COORDINATE
+        assert e.value.details() == "Invalid coordinate."
 
 
 def test_signup_token_regression(db):
@@ -998,7 +998,7 @@ def test_signup_token_regression(db):
                 auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=testing_email))
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP
+        assert e.value.details() == "Please check your email for a link to continue signing up."
 
 
 @pytest.mark.parametrize("opt_out", [True, False])
@@ -1165,7 +1165,7 @@ def test_banned_username(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.USERNAME_NOT_AVAILABLE
+        assert e.value.details() == "Sorry, that username isn't available."
 
 
 # tests for ConfirmChangeEmail within test_account.py tests for test_ChangeEmail_*
@@ -1226,7 +1226,7 @@ def test_GetInviteCodeInfo_not_found(db):
         with pytest.raises(grpc.RpcError) as e:
             auth.GetInviteCodeInfo(auth_pb2.GetInviteCodeInfoReq(code="BADCODE"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.INVITE_CODE_NOT_FOUND
+        assert e.value.details() == "Invite code not found."
 
 
 def test_SignupFlow_invite_code(db):

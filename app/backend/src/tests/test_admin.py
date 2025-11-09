@@ -5,7 +5,6 @@ import grpc
 import pytest
 from sqlalchemy.sql import func
 
-from couchers import errors
 from couchers.db import session_scope
 from couchers.models import (
     AccountDeletionToken,
@@ -245,7 +244,7 @@ def test_AddAdminNote_blank(db):
         with pytest.raises(grpc.RpcError) as e:
             api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, admin_note=empty_admin_note))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.ADMIN_NOTE_CANT_BE_EMPTY
+        assert e.value.details() == "The admin note cannot be empty."
 
 
 def test_admin_content_reports(db):
@@ -293,7 +292,7 @@ def test_admin_content_reports(db):
         with pytest.raises(grpc.RpcError) as e:
             api.GetContentReport(admin_pb2.GetContentReportReq(content_report_id=-1))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.CONTENT_REPORT_NOT_FOUND
+        assert e.value.details() == "Content report not found."
 
         res = api.GetContentReport(admin_pb2.GetContentReportReq(content_report_id=id_by_description["r2"]))
         rep = res.content_report
@@ -435,7 +434,7 @@ def test_CreateCommunity_invalid_geojson(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.NO_MULTIPOLYGON
+        assert e.value.details() == "GeoJson was not of type MultiPolygon."
 
 
 def test_CreateCommunity(db):
@@ -481,7 +480,7 @@ def test_UpdateCommunity_invalid_geojson(db):
                     )
                 )
             assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-            assert e.value.details() == errors.NO_MULTIPOLYGON
+            assert e.value.details() == "GeoJson was not of type MultiPolygon."
 
 
 def test_UpdateCommunity_invalid_id(db):
@@ -508,7 +507,7 @@ def test_UpdateCommunity_invalid_id(db):
                     )
                 )
             assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert e.value.details() == errors.COMMUNITY_NOT_FOUND
+            assert e.value.details() == "Community not found."
 
 
 def test_UpdateCommunity(db):
@@ -589,13 +588,13 @@ def test_badges(db, push_collector):
         with pytest.raises(grpc.RpcError) as e:
             api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="founder"))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.ADMIN_CANNOT_EDIT_BADGE
+        assert e.value.details() == "Admins cannot edit that badge."
 
         # double add badge
         with pytest.raises(grpc.RpcError) as e:
             api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="volunteer"))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.USER_ALREADY_HAS_BADGE
+        assert e.value.details() == "The user already has that badge."
 
         # can remove badge
         assert "volunteer" in api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username)).badges
@@ -617,13 +616,13 @@ def test_badges(db, push_collector):
         with pytest.raises(grpc.RpcError) as e:
             api.RemoveBadge(admin_pb2.RemoveBadgeReq(user=normal_user.username, badge_id="volunteer"))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.USER_DOES_NOT_HAVE_BADGE
+        assert e.value.details() == "The user does not have that badge."
 
         # not found in general
         with pytest.raises(grpc.RpcError) as e:
             api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="nonexistentbadge"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.BADGE_NOT_FOUND
+        assert e.value.details() == "Badge not found."
 
 
 def test_DeleteEvent(db):
@@ -759,7 +758,7 @@ def test_AddUsersToModerationUserList(db):
                     admin_pb2.AddUsersToModerationUserListReq(users=[user2.username], moderation_list_id=999),
                 )
             assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert errors.MODERATION_USER_LIST_NOT_FOUND == e.value.details()
+            assert "Moderation user list not found." == e.value.details()
 
             # Test with non-existent user (should raise an error)
             with pytest.raises(grpc.RpcError) as e:
@@ -767,7 +766,7 @@ def test_AddUsersToModerationUserList(db):
                     admin_pb2.AddUsersToModerationUserListReq(users=[user1.username, "nonexistent"]),
                 )
             assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert errors.USER_NOT_FOUND == e.value.details()
+            assert "Couldn't find that user." == e.value.details()
 
             # Test successful creation of new moderation list (no moderation_list_id provided)
             res = api.AddUsersToModerationUserList(
@@ -823,13 +822,13 @@ def test_RemoveUserFromModerationUserList(db):
         with pytest.raises(grpc.RpcError) as e:
             api.RemoveUserFromModerationUserList(admin_pb2.RemoveUserFromModerationUserListReq(user="nonexistent"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert errors.USER_NOT_FOUND == e.value.details()
+        assert "Couldn't find that user." == e.value.details()
 
         # Test without providing moderation list id (should raise error)
         with pytest.raises(grpc.RpcError) as e:
             api.RemoveUserFromModerationUserList(admin_pb2.RemoveUserFromModerationUserListReq(user=user2.username))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert errors.MISSING_MODERATION_USER_LIST_ID == e.value.details()
+        assert "Missing moderation user list id." == e.value.details()
 
         # Test removing user that's not in the provided moderation list (should raise error)
         with pytest.raises(grpc.RpcError) as e:
@@ -839,7 +838,7 @@ def test_RemoveUserFromModerationUserList(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert errors.USER_NOT_IN_THE_MODERATION_USER_LIST == e.value.details()
+        assert "User is not in the moderation user list." == e.value.details()
 
         # Test successful removal
         api.RemoveUserFromModerationUserList(

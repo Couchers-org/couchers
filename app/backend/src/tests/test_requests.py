@@ -6,7 +6,6 @@ import grpc
 import pytest
 from sqlalchemy.sql import select
 
-from couchers import errors
 from couchers.crypto import b64decode
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_view
@@ -68,7 +67,7 @@ def test_create_request(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.CANT_REQUEST_SELF
+        assert e.value.details() == "Can't request hosting from yourself."
 
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
@@ -77,7 +76,7 @@ def test_create_request(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
+        assert e.value.details() == "Couldn't find that user."
 
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
@@ -86,7 +85,7 @@ def test_create_request(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.DATE_FROM_AFTER_TO
+        assert e.value.details() == "From date can't be after to date."
 
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
@@ -95,7 +94,7 @@ def test_create_request(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.DATE_FROM_BEFORE_TODAY
+        assert e.value.details() == "From date must be today or later."
 
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
@@ -104,7 +103,7 @@ def test_create_request(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.DATE_FROM_AFTER_TO
+        assert e.value.details() == "From date can't be after to date."
 
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
@@ -113,7 +112,7 @@ def test_create_request(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_DATE
+        assert e.value.details() == "Invalid date."
 
         res = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -150,7 +149,7 @@ def test_create_request(db):
             )
         )
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == errors.DATE_FROM_AFTER_ONE_YEAR
+    assert e.value.details() == "The start date must be within one year from today."
 
     with pytest.raises(grpc.RpcError) as e:
         api.CreateHostRequest(
@@ -162,7 +161,7 @@ def test_create_request(db):
             )
         )
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == errors.DATE_TO_AFTER_ONE_YEAR
+    assert e.value.details() == "You cannot request to stay with someone for longer than one year."
 
 
 def test_create_request_incomplete_profile(db):
@@ -178,7 +177,7 @@ def test_create_request_incomplete_profile(db):
                 )
             )
     assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert e.value.details() == errors.INCOMPLETE_PROFILE_SEND_REQUEST
+    assert e.value.details() == "You have to complete your profile before you can send a request."
 
 
 def test_excessive_requests_are_reported(db):
@@ -236,7 +235,10 @@ def test_excessive_requests_are_reported(db):
                     )
                 )
             assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
-            assert exc_info.value.details() == errors.HOST_REQUEST_RATE_LIMIT
+            assert (
+                exc_info.value.details()
+                == "You have sent a lot of host requests in the past 24 hours. To avoid spam, you can't send any more for now."
+            )
 
             assert mock_email.call_count == 1
             email = mock_email.mock_calls[0].kwargs["plain"]
@@ -271,7 +273,7 @@ def test_GetHostRequest(db):
         with pytest.raises(grpc.RpcError) as e:
             api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=999))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+        assert e.value.details() == "Couldn't find that host request."
 
         api.SendHostRequestMessage(
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
@@ -476,7 +478,7 @@ def test_RespondHostRequests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+        assert e.value.details() == "Couldn't find that host request."
 
     with requests_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -486,7 +488,7 @@ def test_RespondHostRequests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == errors.NOT_THE_HOST
+        assert e.value.details() == "You are not the host of this request."
 
     with requests_session(token2) as api:
         # non existing id
@@ -506,7 +508,7 @@ def test_RespondHostRequests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == errors.INVALID_HOST_REQUEST_STATUS
+        assert e.value.details() == "You can't set the host request status to that."
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
@@ -514,7 +516,7 @@ def test_RespondHostRequests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == errors.INVALID_HOST_REQUEST_STATUS
+        assert e.value.details() == "You can't set the host request status to that."
 
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
@@ -543,7 +545,7 @@ def test_RespondHostRequests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == errors.INVALID_HOST_REQUEST_STATUS
+        assert e.value.details() == "You can't set the host request status to that."
 
         # can confirm then cancel
         api.RespondHostRequest(
@@ -566,7 +568,7 @@ def test_RespondHostRequests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == errors.INVALID_HOST_REQUEST_STATUS
+        assert e.value.details() == "You can't set the host request status to that."
 
     # at this point there should be 7 messages
     # 2 for creation, 2 for the status change with message, 3 for the other status changed
@@ -669,7 +671,7 @@ def test_SendHostRequestMessage(db):
         with pytest.raises(grpc.RpcError) as e:
             api.SendHostRequestMessage(requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text=""))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_MESSAGE
+        assert e.value.details() == "Invalid message."
 
         api.SendHostRequestMessage(
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
@@ -685,7 +687,7 @@ def test_SendHostRequestMessage(db):
                 requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 2")
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+        assert e.value.details() == "Couldn't find that host request."
 
     with requests_session(token2) as api:
         api.SendHostRequestMessage(
@@ -903,7 +905,7 @@ def test_mark_last_seen(db):
                 requests_pb2.MarkLastSeenHostRequestReq(host_request_id=host_request_id, last_seen_message_id=1)
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_UNSEE_MESSAGES
+        assert e.value.details() == "You can't unsee messages."
 
         # this will be used to test sent request notifications
         host_request_id_3 = api.CreateHostRequest(
@@ -948,7 +950,7 @@ def test_response_rate(db):
         with pytest.raises(grpc.RpcError) as e:
             api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user3.id))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
+        assert e.value.details() == "Couldn't find that user."
 
         # no requests: insufficient
         res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
@@ -1342,7 +1344,7 @@ def test_host_req_feedback(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+        assert e.value.details() == "Couldn't find that host request."
 
     with requests_session(host_token) as api:
         api.SendHostRequestFeedback(
@@ -1363,7 +1365,7 @@ def test_host_req_feedback(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.ALREADY_LEFT_HOST_REQUEST_FEEDBACK
+        assert e.value.details() == "You have already left feedback for this host request!"
 
         res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=hr_id))
         assert not res.need_host_request_feedback
@@ -1382,7 +1384,7 @@ def test_host_req_feedback(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+        assert e.value.details() == "Couldn't find that host request."
 
         # null feedback is still feedback
         api.SendHostRequestFeedback(requests_pb2.SendHostRequestFeedbackReq(host_request_id=hr2_id))

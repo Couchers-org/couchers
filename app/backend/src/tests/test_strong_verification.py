@@ -10,7 +10,6 @@ from sqlalchemy.sql import or_
 
 import couchers.jobs.handlers
 import couchers.servicers.account
-from couchers import errors
 from couchers.config import config
 from couchers.crypto import asym_decrypt, b64encode_unpadded
 from couchers.db import session_scope
@@ -671,7 +670,7 @@ def test_strong_verification_disabled(db):
         with pytest.raises(grpc.RpcError) as e:
             account.InitiateStrongVerification(empty_pb2.Empty())
         assert e.value.code() == grpc.StatusCode.UNAVAILABLE
-        assert e.value.details() == errors.STRONG_VERIFICATION_DISABLED
+        assert e.value.details() == "Strong verification is currently disabled."
 
 
 def test_strong_verification_delete_data_cant_reverify(db, monkeypatch, push_collector):

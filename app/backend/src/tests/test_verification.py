@@ -5,7 +5,6 @@ import pytest
 from google.protobuf import empty_pb2
 
 import couchers.phone.sms
-from couchers import errors
 from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.db import session_scope
@@ -263,4 +262,4 @@ def test_sms_verification_no_donation():
         with pytest.raises(grpc.RpcError) as e:
             account.ChangePhone(account_pb2.ChangePhoneReq(phone="+467017406066"))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.NOT_DONATED
+        assert e.value.details() == "Please complete donation to get phone verified."

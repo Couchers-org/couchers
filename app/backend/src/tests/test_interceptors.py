@@ -5,7 +5,6 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2
 
-from couchers import errors
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.interceptors import (
@@ -132,7 +131,7 @@ def test_logging_interceptor_assertion():
         with pytest.raises(grpc.RpcError) as e:
             call_rpc(empty_pb2.Empty())
         assert e.value.code() == grpc.StatusCode.INTERNAL
-        assert e.value.details() == errors.UNKNOWN_ERROR
+        assert e.value.details() == "An unknown backend error occurred. Please consider filing a bug!"
 
 
 def test_logging_interceptor_div0():
@@ -143,7 +142,7 @@ def test_logging_interceptor_div0():
         with pytest.raises(grpc.RpcError) as e:
             call_rpc(empty_pb2.Empty())
         assert e.value.code() == grpc.StatusCode.INTERNAL
-        assert e.value.details() == errors.UNKNOWN_ERROR
+        assert e.value.details() == "An unknown backend error occurred. Please consider filing a bug!"
 
 
 def test_logging_interceptor_raise():
@@ -154,7 +153,7 @@ def test_logging_interceptor_raise():
         with pytest.raises(grpc.RpcError) as e:
             call_rpc(empty_pb2.Empty())
         assert e.value.code() == grpc.StatusCode.INTERNAL
-        assert e.value.details() == errors.UNKNOWN_ERROR
+        assert e.value.details() == "An unknown backend error occurred. Please consider filing a bug!"
 
 
 def test_logging_interceptor_raise_custom():
@@ -168,7 +167,7 @@ def test_logging_interceptor_raise_custom():
         with pytest.raises(grpc.RpcError) as e:
             call_rpc(empty_pb2.Empty())
         assert e.value.code() == grpc.StatusCode.INTERNAL
-        assert e.value.details() == errors.UNKNOWN_ERROR
+        assert e.value.details() == "An unknown backend error occurred. Please consider filing a bug!"
 
 
 def test_tracing_interceptor_ok_open(db):

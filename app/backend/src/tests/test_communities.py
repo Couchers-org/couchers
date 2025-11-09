@@ -5,7 +5,6 @@ import pytest
 from geoalchemy2 import WKBElement
 from google.protobuf import wrappers_pb2
 
-from couchers import errors
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views
 from couchers.models import (
@@ -583,7 +582,7 @@ class TestCommunities:
             with pytest.raises(grpc.RpcError) as err:
                 api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user2_id))
             assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == errors.NODE_MODERATE_PERMISSION_DENIED
+            assert err.value.details() == "You're not allowed to moderate that community"
 
         with communities_session(token4) as api:
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
@@ -592,12 +591,12 @@ class TestCommunities:
             with pytest.raises(grpc.RpcError) as err:
                 api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user8_id))
             assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == errors.USER_NOT_MEMBER
+            assert err.value.details() == "That user is not in the community."
 
             with pytest.raises(grpc.RpcError) as err:
                 api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user5_id))
             assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == errors.USER_ALREADY_ADMIN
+            assert err.value.details() == "That user is already an admin."
 
             api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user2_id))
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
@@ -618,7 +617,7 @@ class TestCommunities:
             with pytest.raises(grpc.RpcError) as err:
                 api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user2_id))
             assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == errors.NODE_MODERATE_PERMISSION_DENIED
+            assert err.value.details() == "You're not allowed to moderate that community"
 
         with communities_session(token4) as api:
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
@@ -627,12 +626,12 @@ class TestCommunities:
             with pytest.raises(grpc.RpcError) as err:
                 api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=node_id, user_id=user8_id))
             assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == errors.USER_NOT_MEMBER
+            assert err.value.details() == "That user is not in the community."
 
             with pytest.raises(grpc.RpcError) as err:
                 api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=node_id, user_id=user2_id))
             assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == errors.USER_NOT_ADMIN
+            assert err.value.details() == "That user is not an admin."
 
             api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=node_id, user_id=user5_id))
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
@@ -847,7 +846,7 @@ class TestCommunities:
             with pytest.raises(grpc.RpcError) as err:
                 api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="   "))
             assert err.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-            assert err.value.details() == errors.QUERY_TOO_SHORT
+            assert err.value.details() == "Query must be at least 3 characters long."
 
     @staticmethod
     def test_min_length_lt_3_aborts(testing_communities):
@@ -861,7 +860,7 @@ class TestCommunities:
             with pytest.raises(grpc.RpcError) as err:
                 api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="zz", page_size=5))
             assert err.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-            assert err.value.details() == errors.QUERY_TOO_SHORT
+            assert err.value.details() == "Query must be at least 3 characters long."
 
     @staticmethod
     def test_typo_matches_existing_name(testing_communities):
@@ -944,7 +943,7 @@ def test_JoinCommunity_and_LeaveCommunity(testing_communities):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.ALREADY_IN_COMMUNITY
+        assert e.value.details() == "You're already in that community."
 
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
@@ -956,7 +955,7 @@ def test_JoinCommunity_and_LeaveCommunity(testing_communities):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANNOT_LEAVE_CONTAINING_COMMUNITY
+        assert e.value.details() == "You are inside this community, so you cannot leave it."
 
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
@@ -971,7 +970,7 @@ def test_JoinCommunity_and_LeaveCommunity(testing_communities):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.NOT_IN_COMMUNITY
+        assert e.value.details() == "You're not in that community."
 
         assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
@@ -992,7 +991,7 @@ def test_JoinCommunity_and_LeaveCommunity(testing_communities):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.ALREADY_IN_COMMUNITY
+        assert e.value.details() == "You're already in that community."
 
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 

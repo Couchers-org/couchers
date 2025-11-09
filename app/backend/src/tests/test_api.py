@@ -4,7 +4,6 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 
-from couchers import errors
 from couchers.db import session_scope
 from couchers.jobs.handlers import update_badges
 from couchers.materialized_views import refresh_materialized_views_rapid
@@ -324,7 +323,7 @@ def test_GetLiteUsers(db):
         with pytest.raises(grpc.RpcError) as e:
             api.GetLiteUsers(api_pb2.GetLiteUsersReq(users=201 * [user1.username]))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.REQUESTED_TOO_MANY_USERS
+        assert e.value.details() == "You can't request that many users at a time."
 
 
 def test_update_profile(db):
@@ -334,28 +333,28 @@ def test_update_profile(db):
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(api_pb2.UpdateProfileReq(name=wrappers_pb2.StringValue(value="  ")))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_NAME
+        assert e.value.details() == "Name not supported."
 
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(
                 api_pb2.UpdateProfileReq(lat=wrappers_pb2.DoubleValue(value=0), lng=wrappers_pb2.DoubleValue(value=0))
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_COORDINATE
+        assert e.value.details() == "Invalid coordinate."
 
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(
                 api_pb2.UpdateProfileReq(regions_visited=api_pb2.RepeatedStringValue(value=["United States"]))
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_REGION
+        assert e.value.details() == "Invalid region."
 
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(
                 api_pb2.UpdateProfileReq(regions_lived=api_pb2.RepeatedStringValue(value=["United Kingdom"]))
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_REGION
+        assert e.value.details() == "Invalid region."
 
         api.UpdateProfile(
             api_pb2.UpdateProfileReq(
@@ -455,12 +454,12 @@ def test_update_profile_do_not_email(db):
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(api_pb2.UpdateProfileReq(hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.DO_NOT_EMAIL_CANNOT_HOST
+        assert e.value.details() == "You cannot enable hosting while you have emails turned off in your settings."
 
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(api_pb2.UpdateProfileReq(meetup_status=api_pb2.MEETUP_STATUS_OPEN_TO_MEETUP))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.DO_NOT_EMAIL_CANNOT_MEET
+        assert e.value.details() == "You cannot enable meeting up while you have emails turned off in your settings."
 
 
 def test_language_abilities(db):
@@ -485,7 +484,7 @@ def test_language_abilities(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_LANGUAGE
+        assert e.value.details() == "Invalid language."
 
         # can't have multiple languages of the same type
         with pytest.raises(Exception) as e:
@@ -736,7 +735,7 @@ def test_friend_request_flow(db, push_collector):
         with pytest.raises(grpc.RpcError) as e:
             api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=user3.id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.NOT_FRIENDS
+        assert e.value.details() == "You aren't friends with that user!"
 
         # we can unfriend
         res = api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=user2.id))
@@ -802,7 +801,7 @@ def test_cant_friend_request_twice(db):
         with pytest.raises(grpc.RpcError) as e:
             api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.FRIENDS_ALREADY_OR_PENDING
+        assert e.value.details() == "You are already friends with or have sent a friend request to that user."
 
 
 def test_cant_friend_request_pending(db):
@@ -817,7 +816,7 @@ def test_cant_friend_request_pending(db):
         with pytest.raises(grpc.RpcError) as e:
             api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.FRIENDS_ALREADY_OR_PENDING
+        assert e.value.details() == "You are already friends with or have sent a friend request to that user."
 
 
 def test_cant_friend_request_already_friends(db):
@@ -829,13 +828,13 @@ def test_cant_friend_request_already_friends(db):
         with pytest.raises(grpc.RpcError) as e:
             api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.FRIENDS_ALREADY_OR_PENDING
+        assert e.value.details() == "You are already friends with or have sent a friend request to that user."
 
     with api_session(token2) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.FRIENDS_ALREADY_OR_PENDING
+        assert e.value.details() == "You are already friends with or have sent a friend request to that user."
 
 
 def test_excessive_friend_requests_are_reported(db):
@@ -870,7 +869,10 @@ def test_excessive_friend_requests_are_reported(db):
             with pytest.raises(grpc.RpcError) as exc_info:
                 _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
             assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
-            assert exc_info.value.details() == errors.FRIEND_REQUEST_RATE_LIMIT
+            assert (
+                exc_info.value.details()
+                == "You have sent a lot of friend requests in the past 24 hours. To avoid spam, you can't send any more for now."
+            )
 
             assert mock_email.call_count == 1
             email = mock_email.mock_calls[0].kwargs["plain"]

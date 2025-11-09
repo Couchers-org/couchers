@@ -3,7 +3,6 @@ import string
 import grpc
 import pytest
 
-from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Thread
 from couchers.servicers.threads import pack_thread_id
@@ -79,37 +78,37 @@ def test_threads_errors(db):
         with pytest.raises(grpc.RpcError) as e:
             api.GetThread(threads_pb2.GetThreadReq(thread_id=11))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.THREAD_NOT_FOUND
+        assert e.value.details() == "Discussion thread not found."
 
         # request non-existing depth digit
         with pytest.raises(grpc.RpcError) as e:
             api.GetThread(threads_pb2.GetThreadReq(thread_id=19))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.THREAD_NOT_FOUND
+        assert e.value.details() == "Discussion thread not found."
 
         # post on non-existing comment
         with pytest.raises(grpc.RpcError) as e:
             api.PostReply(threads_pb2.PostReplyReq(thread_id=11, content="foo"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.THREAD_NOT_FOUND
+        assert e.value.details() == "Discussion thread not found."
 
         # post on non-existing depth
         with pytest.raises(grpc.RpcError) as e:
             api.PostReply(threads_pb2.PostReplyReq(thread_id=19, content="foo"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.THREAD_NOT_FOUND
+        assert e.value.details() == "Discussion thread not found."
 
         # post empty content
         with pytest.raises(grpc.RpcError) as e:
             api.PostReply(threads_pb2.PostReplyReq(thread_id=19, content=""))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_COMMENT
+        assert e.value.details() == "You cannot post an empty comment."
 
         # post whitespace only content
         with pytest.raises(grpc.RpcError) as e:
             api.PostReply(threads_pb2.PostReplyReq(thread_id=19, content="    "))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_COMMENT
+        assert e.value.details() == "You cannot post an empty comment."
 
 
 def pagination_test(api, parent_id):
