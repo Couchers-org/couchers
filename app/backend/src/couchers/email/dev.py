@@ -6,7 +6,16 @@ from couchers.models import Email
 logger = logging.getLogger(__name__)
 
 
-def print_dev_email(sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header, source_data):
+def print_dev_email(
+    sender_name: str,
+    sender_email: str,
+    recipient: str,
+    subject: str,
+    plain: str,
+    html: str | None,
+    list_unsubscribe_header: str | None,
+    source_data: str | None,
+) -> Email:
     """
     Generates a dummy Email object and prints the plain email contents to the logger
 

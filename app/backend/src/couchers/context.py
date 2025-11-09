@@ -1,4 +1,4 @@
-from typing import cast
+from typing import NoReturn, cast
 
 import grpc
 
@@ -96,7 +96,7 @@ class CouchersContext:
     def is_logged_in(self) -> bool:
         return self.__logged_in
 
-    def abort(self, status_code: grpc.StatusCode, error_message: str) -> None:
+    def abort(self, status_code: grpc.StatusCode, error_message: str) -> NoReturn:
         """
         Raises an error that's returned to the user
         """

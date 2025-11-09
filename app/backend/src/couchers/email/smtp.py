@@ -1,8 +1,9 @@
 import smtplib
 from email.headerregistry import Address
-from email.message import EmailMessage
+from email.message import EmailMessage, MIMEPart
 from email.utils import make_msgid
 from pathlib import Path
+from typing import cast
 
 from couchers.config import config
 from couchers.crypto import EMAIL_SOURCE_DATA_KEY_NAME, random_hex, simple_hash_signature
@@ -11,13 +12,22 @@ from couchers.models import Email
 template_base = Path(Path(__file__).parent / ".." / ".." / ".." / "templates" / "v2")
 
 
-def make_cid(sender_email):
+def make_cid(sender_email: str) -> tuple[str, str]:
     cid = make_msgid(domain=Address(addr_spec=sender_email).domain)
     without_tag = cid[1:-1]
     return cid, without_tag
 
 
-def send_smtp_email(sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header, source_data):
+def send_smtp_email(
+    sender_name: str,
+    sender_email: str,
+    recipient: str,
+    subject: str,
+    plain: str,
+    html: str | None,
+    list_unsubscribe_header: str | None,
+    source_data: str | None,
+) -> Email:
     """
     Sends out the email through SMTP, settings from config.
 
@@ -55,7 +65,8 @@ def send_smtp_email(sender_name, sender_email, recipient, subject, plain, html, 
         msg.add_alternative(html, subtype="html")
 
         for cid, mime_type, mime_subtype, data in used_attachments:
-            msg.get_payload()[1].add_related(data, mime_type, mime_subtype, cid=cid)
+            payloads = cast(list[MIMEPart], msg.get_payload())
+            payloads[1].add_related(data, mime_type, mime_subtype, cid=cid)
 
     with smtplib.SMTP(config["SMTP_HOST"], config["SMTP_PORT"]) as server:
         server.ehlo()

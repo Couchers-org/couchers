@@ -3,18 +3,22 @@ template mailer/push notification formatter v2
 """
 
 import logging
-from datetime import date
+from datetime import date, datetime
 from html import escape
 from pathlib import Path
+from typing import Any
 from zoneinfo import ZoneInfo
 
 import phonenumbers
+from google.protobuf.timestamp_pb2 import Timestamp
 from jinja2 import Environment, FileSystemLoader
 from markdown_it import MarkdownIt
+from sqlalchemy.orm import Session
 
 from couchers import urls
 from couchers.config import config
 from couchers.email import queue_email
+from couchers.models import User
 from couchers.utils import get_tz_as_text, now, to_aware_datetime
 
 logger = logging.getLogger(__name__)
@@ -27,61 +31,61 @@ env = Environment(loader=loader, trim_blocks=True)
 md = MarkdownIt("zero", {"typographer": True}).enable(["smartquotes", "heading", "hr", "list", "link", "emphasis"])
 
 
-def v2esc(value):
+def v2esc(value: Any) -> str:
     return escape(str(value))
 
 
-def v2multiline(value):
+def v2multiline(value: str) -> str:
     return "<br />".join(value.splitlines())
 
 
-def v2sf(value):
+def v2sf(value: str) -> str:
     return value
 
 
-def v2url(value):
+def v2url(value: str) -> str:
     return value
 
 
-def v2phone(value):
+def v2phone(value: str) -> str:
     return phonenumbers.format_number(phonenumbers.parse(value), phonenumbers.PhoneNumberFormat.INTERNATIONAL)
 
 
-def v2date(value, user):
+def v2date(value: date | str, user: User) -> str:
     # todo: user locale-based date formatting
     if isinstance(value, str):
         value = date.fromisoformat(value)
     return value.strftime("%A %-d %B %Y")
 
 
-def v2time(value, user):
+def v2time(value: datetime, user: User) -> str:
     tz = ZoneInfo(user.timezone or "Etc/UTC")
     return value.astimezone(tz=tz).strftime("%-I:%M %p (%H:%M)")
 
 
-def v2timestamp(value, user):
+def v2timestamp(value: Timestamp, user: User) -> str:
     tz = ZoneInfo(user.timezone or "Etc/UTC")
     return to_aware_datetime(value).astimezone(tz=tz).strftime("%A %-d %B %Y at %-I:%M %p (%H:%M)")
 
 
-def v2avatar(user):
+def v2avatar(user: Any) -> str:
     if not user.avatar_thumbnail_url:
         return urls.icon_url()
-    return user.avatar_thumbnail_url
+    return user.avatar_thumbnail_url  # type: ignore[no-any-return]
 
 
-def v2quote(value):
+def v2quote(value: str) -> str:
     """
     Multiline quote, use in place of markdown in plaintext emails
     """
     return "\n> ".join([""] + value.splitlines())
 
 
-def v2markdown(value):
-    return md.render(value)
+def v2markdown(value: str) -> str:
+    return md.render(value)  # type: ignore[no-any-return]
 
 
-def add_filters(env):
+def add_filters(env: Environment) -> None:
     env.filters["v2esc"] = v2esc
     env.filters["v2multiline"] = v2multiline
     env.filters["v2sf"] = v2sf
@@ -98,7 +102,9 @@ def add_filters(env):
 add_filters(env)
 
 
-def send_simple_pretty_email(session, recipient, subject, template_name, template_args):
+def send_simple_pretty_email(
+    session: Session, recipient: str, subject: str, template_name: str, template_args: dict[str, Any]
+) -> None:
     """
     This is a simplified version of couchers.notifications.background._send_email_notification
 

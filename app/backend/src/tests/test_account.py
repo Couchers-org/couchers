@@ -586,7 +586,7 @@ def test_DeleteAccount_start(db):
         assert email_fields(mock).subject == "[TEST] Confirm your Couchers.org account deletion"
 
     with session_scope() as session:
-        deletion_token = session.execute(
+        deletion_token: AccountDeletionToken = session.execute(
             select(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id)
         ).scalar_one()
 

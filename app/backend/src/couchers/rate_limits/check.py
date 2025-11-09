@@ -1,6 +1,7 @@
 import logging
+from collections.abc import Sequence
 
-from sqlalchemy import exists, select
+from sqlalchemy import RowMapping, exists, select
 from sqlalchemy.orm import Session
 
 from couchers.models import RateLimitAction, RateLimitViolation
@@ -11,7 +12,9 @@ from couchers.utils import now
 logger = logging.getLogger(__name__)
 
 
-def _get_user_events_in_past_time_interval(session: Session, user_id: int) -> dict[RateLimitAction, list[dict]]:
+def _get_user_events_in_past_time_interval(
+    session: Session, user_id: int
+) -> dict[RateLimitAction, Sequence[RowMapping]]:
     """Get all relevant events for the user in the last rate limit interval for the mod email."""
     return {
         action: RATE_LIMIT_DEFINITIONS[action].mod_email_information_query(session, user_id)
@@ -56,7 +59,7 @@ def process_rate_limits_and_check_abort(session: Session, user_id: int, action: 
     Returns True if the user has reached a hard rate limit.
     """
     rate_limit_definition = RATE_LIMIT_DEFINITIONS[action]
-    count_last_interval = rate_limit_definition.count_actions_query(session=session, user_id=user_id)
+    count_last_interval = rate_limit_definition.count_actions_query(session, user_id)
     for limit, is_hard_limit in [
         (rate_limit_definition.hard_limit, True),
         (rate_limit_definition.warning_limit, False),

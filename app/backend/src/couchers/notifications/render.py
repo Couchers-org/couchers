@@ -1,7 +1,9 @@
 import logging
 from dataclasses import dataclass
+from typing import Any
 
 from couchers import urls
+from couchers.models import Notification, User
 from couchers.notifications.quick_links import generate_quick_decline_link, generate_unsub_topic_action
 from couchers.templates.v2 import v2avatar, v2date, v2esc, v2phone, v2timestamp
 from couchers.utils import now, to_aware_datetime
@@ -23,13 +25,13 @@ class RenderedNotification:
     # corresponds to .mjml + .txt file in templates/v2
     email_template_name: str
     # other template args
-    email_template_args: dict
+    email_template_args: dict[str, Any]
     # the link label on the topic_action unsubscribe link
-    email_topic_action_unsubscribe_text: str = None
+    email_topic_action_unsubscribe_text: str | None = None
     # the link label on the topic_key unsubscribe link
-    email_topic_key_unsubscribe_text: str = None
+    email_topic_key_unsubscribe_text: str | None = None
     # url to unsubscribe with one click
-    email_list_unsubscribe_url: str = None
+    email_list_unsubscribe_url: str | None = None
     # push notification title
     push_title: str
     # push notification content
@@ -40,8 +42,8 @@ class RenderedNotification:
     push_url: str
 
 
-def render_notification(user, notification) -> RenderedNotification:
-    data = notification.topic_action.data_type.FromString(notification.data)
+def render_notification(user: User, notification: Notification) -> RenderedNotification:
+    data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     if notification.topic == "host_request":
         view_link = urls.host_request(host_request_id=data.host_request.host_request_id)
         if notification.action == "missed_messages":
@@ -869,13 +871,13 @@ def render_notification(user, notification) -> RenderedNotification:
         )
     elif notification.topic_action.display == "verification:sv_fail":
         title = "Strong Verification failed"
-        message: str
+        reason_message: str
         if data.reason == notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER:
-            message = "The date of birth or gender on your profile does not match the date of birth or sex on your passport. Please contact the support team to update your date of birth or gender, or if your passport sex does not match your gender identity."
+            reason_message = "The date of birth or gender on your profile does not match the date of birth or sex on your passport. Please contact the support team to update your date of birth or gender, or if your passport sex does not match your gender identity."
         elif data.reason == notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT:
-            message = "You tried to verify with a document that is not a passport. You can only use a passport for Strong Verification."
+            reason_message = "You tried to verify with a document that is not a passport. You can only use a passport for Strong Verification."
         elif data.reason == notification_data_pb2.SV_FAIL_REASON_DUPLICATE:
-            message = "You tried to verify with a passport that has already been used for verification. Please use another passport."
+            reason_message = "You tried to verify with a passport that has already been used for verification. Please use another passport."
         else:
             raise Exception("Shouldn't get here")
         return RenderedNotification(
@@ -885,10 +887,10 @@ def render_notification(user, notification) -> RenderedNotification:
             email_template_name="security",
             email_template_args={
                 "title": title,
-                "message": message,
+                "message": reason_message,
             },
             push_title=title,
-            push_body=message,
+            push_body=reason_message,
             push_icon=urls.icon_url(),
             push_url=urls.account_settings_link(),
         )
@@ -924,5 +926,5 @@ def render_notification(user, notification) -> RenderedNotification:
             push_icon=urls.icon_url(),
             push_url=data.url,
         )
-    else:
-        raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
+
+    raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")

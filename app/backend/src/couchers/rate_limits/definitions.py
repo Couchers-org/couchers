@@ -3,12 +3,12 @@ In order to add a new rate limit definition, extend RateLimitAction and RATE_LIM
 rate_limits.check.process_rate_limits_and_check_abort in the relevant endpoint.
 """
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import TYPE_CHECKING
 
-from sqlalchemy import func, select
+from sqlalchemy import RowMapping, func, select
+from sqlalchemy.orm import Session
 
 from couchers.models import (
     Conversation,
@@ -21,23 +21,20 @@ from couchers.models import (
 )
 from couchers.utils import now
 
-if TYPE_CHECKING:
-    from sqlalchemy.orm import Session
-
 
 @dataclass
 class RateLimitDefinition:
     warning_limit: int
     hard_limit: int
-    count_actions_query: Callable[["Session", int], int]
-    mod_email_information_query: Callable[["Session", int], list[dict]]
+    count_actions_query: Callable[[Session, int], int]
+    mod_email_information_query: Callable[[Session, int], Sequence[RowMapping]]
 
 
 RATE_LIMIT_INTERVAL = timedelta(hours=24)
 RATE_LIMIT_INTERVAL_STRING = "24 hours"
 
 
-def _get_user_host_requests_in_past_time_interval(session, user_id) -> list[dict]:
+def _get_user_host_requests_in_past_time_interval(session: Session, user_id: int) -> Sequence[RowMapping]:
     return (
         session.execute(
             select(
@@ -56,7 +53,7 @@ def _get_user_host_requests_in_past_time_interval(session, user_id) -> list[dict
     )
 
 
-def _get_user_friend_requests_in_past_time_interval(session, user_id) -> list[dict]:
+def _get_user_friend_requests_in_past_time_interval(session: Session, user_id: int) -> Sequence[RowMapping]:
     return (
         session.execute(
             select(
@@ -75,7 +72,7 @@ def _get_user_friend_requests_in_past_time_interval(session, user_id) -> list[di
     )
 
 
-def _get_user_initiated_chats_in_past_time_interval(session, user_id) -> list[dict]:
+def _get_user_initiated_chats_in_past_time_interval(session: Session, user_id: int) -> Sequence[RowMapping]:
     return (
         session.execute(
             select(

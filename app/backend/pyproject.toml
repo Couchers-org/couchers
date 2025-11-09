@@ -51,6 +51,8 @@ dev = [
     "types-protobuf>=6.32.1.20251105",
     "types-pytz>=2025.2.0.20250809",
     "types-shapely>=2.1.0.20250917",
+    "types-requests>=2.32.4.20250913",
+    "types-pyyaml>=6.0.12.20250915",
 ]
 
 [tool.ruff]
@@ -99,6 +101,18 @@ module = "couchers.models.*"
 disable_error_code = [
     "no-redef",
 ]
+
+[[tool.mypy.overrides]]
+module = "couchers.servicers.*"
+# Weird shenanigans with going on with GRPC method signatures
+disable_error_code = [
+    "override"
+]
+
+[[tool.mypy.overrides]]
+module = ["http_ece", "py_vapid"]
+# These libraries don't have type stubs or py.typed markers
+ignore_missing_imports = true
 
 [tool.coverage.run]
 omit = ["src/proto/*", "src/couchers/migrations/*", "src/dummy_data.py"]

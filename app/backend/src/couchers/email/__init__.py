@@ -1,8 +1,10 @@
 import logging
 from pathlib import Path
+from typing import Any
 
 import yaml
 from jinja2 import Environment, FileSystemLoader
+from sqlalchemy.orm.session import Session
 
 from couchers.config import config
 from couchers.jobs.enqueue import queue_job
@@ -16,8 +18,16 @@ env = Environment(loader=loader, trim_blocks=True)
 
 
 def _queue_email(
-    session, sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header, source_data
-):
+    session: Session,
+    sender_name: str,
+    sender_email: str,
+    recipient: str,
+    subject: str,
+    plain: str,
+    html: str | None,
+    list_unsubscribe_header: str | None,
+    source_data: str | None,
+) -> None:
     payload = jobs_pb2.SendEmailPayload(
         sender_name=sender_name,
         sender_email=sender_email,
@@ -37,8 +47,16 @@ def _queue_email(
 
 
 def queue_email(
-    session, sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header=None, source_data=None
-):
+    session: Session,
+    sender_name: str,
+    sender_email: str,
+    recipient: str,
+    subject: str,
+    plain: str,
+    html: str | None,
+    list_unsubscribe_header: str | None = None,
+    source_data: str | None = None,
+) -> None:
     """
     This indirection is so that this can be easily mocked. Not sure how to do it better :(
     """
@@ -55,7 +73,7 @@ def queue_email(
     )
 
 
-def enqueue_system_email(session, recipient, template_name, template_args):
+def enqueue_system_email(session: Session, recipient: str, template_name: str, template_args: dict[str, Any]) -> None:
     source, _, _ = loader.get_source(env, f"system/{template_name}.md")
     _, frontmatter_source, text_source = source.split("---", 2)
 
