@@ -6,5 +6,6 @@ LANGUAGE_FALLBACKS: dict[str, list[str]] = {
     "es-419": ["es", "en"],
     "fr-CA": ["fr", "en"],
     "zh": ["zh-Hans", "en"],
+    "en_CORP": ["en"],
 }
 DEFAULT_FALLBACK = ["en"]

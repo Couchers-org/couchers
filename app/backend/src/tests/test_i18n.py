@@ -75,3 +75,19 @@ def test_get_string_multiple_substitutions():
     result = get_string("en", "errors", "chat_initiation_rate_limit", rate_limit_interval_string="2 days")
     assert "2 days" in result
     assert "messaged a lot of users" in result
+
+
+def test_fallbacks():
+    """Test that en_CORP uses its custom translation"""
+    result = get_string("en_CORP", "errors", "account_not_found")
+    expected = "The requested account could not be located."
+    assert result == expected
+
+    # Verify it's different from the English version
+    result_en = get_string("en", "errors", "account_not_found")
+    assert result != result_en
+
+    # user_not_found is not translated in en_CORP, so it should fall back to en
+    result = get_string("en_CORP", "errors", "user_not_found")
+    expected = "Couldn't find that user."
+    assert result == expected
