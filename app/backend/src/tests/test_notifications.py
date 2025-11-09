@@ -171,11 +171,14 @@ def test_unsubscribe(db):
         payload = unsubscribe_pb2.UnsubscribePayload.FromString(b64decode(params["payload"][0]))
         if payload.HasField("topic_action"):
             with auth_api_session() as (auth_api, metadata_interceptor):
-                res = auth_api.Unsubscribe(
-                    auth_pb2.UnsubscribeReq(
-                        payload=b64decode(params["payload"][0]),
-                        sig=b64decode(params["sig"][0]),
-                    )
+                assert (
+                    auth_api.Unsubscribe(
+                        auth_pb2.UnsubscribeReq(
+                            payload=b64decode(params["payload"][0]),
+                            sig=b64decode(params["sig"][0]),
+                        )
+                    ).response
+                    == "You've been unsubscribed from email notifications of that type."
                 )
             break
     else:
@@ -228,11 +231,14 @@ def test_unsubscribe_do_not_email(db):
         payload = unsubscribe_pb2.UnsubscribePayload.FromString(b64decode(params["payload"][0]))
         if payload.HasField("do_not_email"):
             with auth_api_session() as (auth_api, metadata_interceptor):
-                res = auth_api.Unsubscribe(
-                    auth_pb2.UnsubscribeReq(
-                        payload=b64decode(params["payload"][0]),
-                        sig=b64decode(params["sig"][0]),
-                    )
+                assert (
+                    auth_api.Unsubscribe(
+                        auth_pb2.UnsubscribeReq(
+                            payload=b64decode(params["payload"][0]),
+                            sig=b64decode(params["sig"][0]),
+                        )
+                    ).response
+                    == "You will not receive any non-security emails, and your hosting status has been turned off. You may still receive the newsletter, and need to unsubscribe from it separately."
                 )
             break
     else:

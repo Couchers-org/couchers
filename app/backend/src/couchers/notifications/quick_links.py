@@ -97,7 +97,7 @@ def respond_quick_link(request: auth_pb2.UnsubscribeReq, context: CouchersContex
         user.do_not_email = True
         user.hosting_status = HostingStatus.cant_host
         user.meetup_status = MeetupStatus.does_not_want_to_meetup
-        return "You will not receive any non-security emails, and your hosting status has been turned off. You may still receive the newsletter, and need to unsubscribe from it separately."
+        return context.get_localized_string("quick_links", "do_not_email")
     if payload.HasField("topic_action"):
         logger.info(f"User {user.name} unsubscribing from topic_action")
         topic = payload.topic_action.topic
@@ -105,7 +105,7 @@ def respond_quick_link(request: auth_pb2.UnsubscribeReq, context: CouchersContex
         topic_action = enum_from_topic_action[topic, action]
         # disable emails for this type
         settings.set_preference(session, user.id, topic_action, NotificationDeliveryType.email, False)
-        return "You've been unsubscribed from email notifications of that type."
+        return context.get_localized_string("quick_links", "topic_action")
     if payload.HasField("topic_key"):
         logger.info(f"User {user.name} unsubscribing from topic_key")
         topic = payload.topic_key.topic
@@ -125,7 +125,7 @@ def respond_quick_link(request: auth_pb2.UnsubscribeReq, context: CouchersContex
 
             assert subscription is not None
             subscription.muted_until = DATETIME_INFINITY
-            return "That group chat has been muted."
+            return context.get_localized_string("quick_links", "chat_unsub")
         else:
             context.abort_with_error_code(grpc.StatusCode.UNIMPLEMENTED, "cant_unsub_topic")
     if payload.HasField("host_request_quick_decline"):
@@ -137,5 +137,5 @@ def respond_quick_link(request: auth_pb2.UnsubscribeReq, context: CouchersContex
             context=make_one_off_interactive_user_context(couchers_context=context, user_id=payload.user_id),
             session=session,
         )
-        return "Thank you for responding to the host request!"
+        return context.get_localized_string("quick_links", "host_request_quick_decline")
     raise Exception("Unhandled quick link type")
