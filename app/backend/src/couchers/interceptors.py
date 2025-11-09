@@ -11,7 +11,7 @@ import sentry_sdk
 from opentelemetry import trace
 from sqlalchemy.sql import and_, func
 
-from couchers import errors
+from couchers.constants import UNKNOWN_ERROR_MESSAGE
 from couchers.context import CouchersContext, make_interactive_user_context, make_media_context
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
@@ -442,7 +442,7 @@ class ErrorSanitizationInterceptor(grpc.ServerInterceptor):
                 if not code:
                     logger.exception(e)
                     logger.info("Probably an unknown error! Sanitizing...")
-                    context.abort(grpc.StatusCode.INTERNAL, errors.UNKNOWN_ERROR)
+                    context.abort(grpc.StatusCode.INTERNAL, UNKNOWN_ERROR_MESSAGE)
                 else:
                     logger.warning(f"RPC error: {code} in method {handler_call_details.method}")
                     raise e

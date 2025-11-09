@@ -8,7 +8,7 @@ import logging
 
 import grpc
 
-from couchers import errors, urls
+from couchers import urls
 from couchers.constants import DATETIME_INFINITY
 from couchers.context import make_one_off_interactive_user_context
 from couchers.crypto import UNSUBSCRIBE_KEY_NAME, b64encode, generate_hash_signature, get_secret, verify_hash_signature
@@ -80,7 +80,7 @@ def respond_quick_link(request, context, session):
     Returns a response string or uses context.abort upon error
     """
     if not verify_hash_signature(message=request.payload, key=get_secret(UNSUBSCRIBE_KEY_NAME), sig=request.sig):
-        context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.WRONG_SIGNATURE)
+        context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "wrong_signature")
     payload = unsubscribe_pb2.UnsubscribePayload.FromString(request.payload)
     user = session.execute(select(User).where(User.id == payload.user_id)).scalar_one()
     if payload.HasField("do_not_email"):
@@ -112,12 +112,12 @@ def respond_quick_link(request, context, session):
             ).scalar_one_or_none()
 
             if not subscription:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
+                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "chat_not_found")
 
             subscription.muted_until = DATETIME_INFINITY
             return "That group chat has been muted."
         else:
-            context.abort(grpc.StatusCode.UNIMPLEMENTED, errors.CANT_UNSUB_TOPIC)
+            context.abort_with_error_code(grpc.StatusCode.UNIMPLEMENTED, "cant_unsub_topic")
     if payload.HasField("host_request_quick_decline"):
         Requests().RespondHostRequest(
             request=requests_pb2.RespondHostRequestReq(

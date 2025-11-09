@@ -123,7 +123,7 @@ class CouchersContext:
             context = cast(grpc.ServicerContext, self._grpc_context)
             context.abort(status_code, error_message)
 
-    def abort_with_error_code(self, status_code: grpc.StatusCode, error_message_id: str) -> None:
+    def abort_with_error_code(self, status_code: grpc.StatusCode, error_message_id: str, **subs) -> None:
         """
         Raises an error that's returned to the user, but error_message_id should be an entry from translateable errors
         """
@@ -132,7 +132,7 @@ class CouchersContext:
         else:
             context = cast(grpc.ServicerContext, self._grpc_context)
             # Get the translated error message using the user's language preference
-            error_message = self.get_localized_string("errors", error_message_id)
+            error_message = self.get_localized_string("errors", error_message_id, **subs)
             context.abort(status_code, error_message)
 
     def set_cookies(self, cookies: list[str]) -> None:

@@ -6,7 +6,6 @@ from google.protobuf import empty_pb2
 from psycopg2.extras import DateTimeTZRange
 from sqlalchemy.sql import and_, func, or_, select, update
 
-from couchers import errors
 from couchers.context import make_background_user_context
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
 from couchers.jobs.enqueue import queue_job
@@ -221,13 +220,13 @@ def _get_event_and_occurrence_one_or_none(
 
 def _check_occurrence_time_validity(start_time, end_time, context):
     if start_time < now():
-        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.EVENT_IN_PAST)
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_in_past")
     if end_time < start_time:
-        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.EVENT_ENDS_BEFORE_STARTS)
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_ends_before_starts")
     if end_time - start_time > timedelta(days=7):
-        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.EVENT_TOO_LONG)
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_too_long")
     if start_time - now() > timedelta(days=365):
-        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.EVENT_TOO_FAR_IN_FUTURE)
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_too_far_in_future")
 
 
 def get_users_to_notify_for_new_event(session, occurrence):
@@ -373,17 +372,17 @@ class Events(events_pb2_grpc.EventsServicer):
     def CreateEvent(self, request, context, session):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         if not user.has_completed_profile:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.INCOMPLETE_PROFILE_CREATE_EVENT)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_create_event")
         if not request.title:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_TITLE)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_title")
         if not request.content:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_CONTENT)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_content")
         if request.HasField("online_information"):
             online = True
             geom = None
             address = None
             if not request.online_information.link:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.ONLINE_EVENT_REQUIRES_LINK)
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "online_event_requires_link")
             link = request.online_information.link
         elif request.HasField("offline_information"):
             online = False
@@ -393,14 +392,14 @@ class Events(events_pb2_grpc.EventsServicer):
                 and request.offline_information.lat
                 and request.offline_information.lng
             ):
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_ADDRESS_OR_LOCATION)
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_or_location")
             if request.offline_information.lat == 0 and request.offline_information.lng == 0:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
             geom = create_coordinate(request.offline_information.lat, request.offline_information.lng)
             address = request.offline_information.address
             link = None
         else:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_ADDRESS_LOCATION_OR_LINK)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_location_or_link")
 
         start_time = to_aware_datetime(request.start_time)
         end_time = to_aware_datetime(request.end_time)
@@ -413,21 +412,21 @@ class Events(events_pb2_grpc.EventsServicer):
             ).scalar_one_or_none()
 
             if not parent_node.official_cluster.events_enabled:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENTS_NOT_ENABLED)
+                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "events_not_enabled")
         else:
             if online:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.ONLINE_EVENT_MISSING_PARENT_COMMUNITY)
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "online_event_missing_parent_community")
             # parent community computed from geom
             parent_node = get_parent_node_at_location(session, geom)
 
         if not parent_node:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.COMMUNITY_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "community_not_found")
 
         if (
             request.photo_key
             and not session.execute(select(Upload).where(Upload.key == request.photo_key)).scalar_one_or_none()
         ):
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PHOTO_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
 
         event = Event(
             title=request.title,
@@ -490,7 +489,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
     def ScheduleEvent(self, request, context, session):
         if not request.content:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_CONTENT)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_content")
         if request.HasField("online_information"):
             geom = None
             address = None
@@ -501,14 +500,14 @@ class Events(events_pb2_grpc.EventsServicer):
                 and request.offline_information.lat
                 and request.offline_information.lng
             ):
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_ADDRESS_OR_LOCATION)
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_or_location")
             if request.offline_information.lat == 0 and request.offline_information.lng == 0:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
             geom = create_coordinate(request.offline_information.lat, request.offline_information.lng)
             address = request.offline_information.address
             link = None
         else:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_ADDRESS_LOCATION_OR_LINK)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_location_or_link")
 
         start_time = to_aware_datetime(request.start_time)
         end_time = to_aware_datetime(request.end_time)
@@ -517,21 +516,21 @@ class Events(events_pb2_grpc.EventsServicer):
 
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
         if not res:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
 
         event, occurrence = res
 
         if not _can_edit_event(session, event, context.user_id):
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_EDIT_PERMISSION_DENIED)
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_edit_permission_denied")
 
         if occurrence.is_cancelled:
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_cant_update_cancelled_event")
 
         if (
             request.photo_key
             and not session.execute(select(Upload).where(Upload.key == request.photo_key)).scalar_one_or_none()
         ):
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PHOTO_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
 
         during = DateTimeTZRange(start_time, end_time)
 
@@ -547,7 +546,7 @@ class Events(events_pb2_grpc.EventsServicer):
             .one_or_none()
             is not None
         ):
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_OVERLAP)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_overlap")
 
         occurrence = EventOccurrence(
             event=event,
@@ -580,18 +579,18 @@ class Events(events_pb2_grpc.EventsServicer):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
         if not res:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
 
         event, occurrence = res
 
         if not _can_edit_event(session, event, context.user_id):
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_EDIT_PERMISSION_DENIED)
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_edit_permission_denied")
 
         # the things that were updated and need to be notified about
         notify_updated = []
 
         if occurrence.is_cancelled:
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_cant_update_cancelled_event")
 
         occurrence_update = {"last_edited": now()}
 
@@ -610,7 +609,7 @@ class Events(events_pb2_grpc.EventsServicer):
         if request.HasField("online_information"):
             notify_updated.append("location")
             if not request.online_information.link:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.ONLINE_EVENT_REQUIRES_LINK)
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "online_event_requires_link")
             occurrence_update["link"] = request.online_information.link
             occurrence_update["geom"] = None
             occurrence_update["address"] = None
@@ -618,7 +617,7 @@ class Events(events_pb2_grpc.EventsServicer):
             notify_updated.append("location")
             occurrence_update["link"] = None
             if request.offline_information.lat == 0 and request.offline_information.lng == 0:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
             occurrence_update["geom"] = create_coordinate(
                 request.offline_information.lat, request.offline_information.lng
             )
@@ -626,7 +625,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
         if request.HasField("start_time") or request.HasField("end_time"):
             if request.update_all_future:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.EVENT_CANT_UPDATE_ALL_TIMES)
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_cant_update_all_times")
             if request.HasField("start_time"):
                 notify_updated.append("start time")
                 start_time = to_aware_datetime(request.start_time)
@@ -655,7 +654,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 .one_or_none()
                 is not None
             ):
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_OVERLAP)
+                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_overlap")
 
             occurrence_update["during"] = during
 
@@ -676,7 +675,7 @@ class Events(events_pb2_grpc.EventsServicer):
             )
         else:
             if occurrence.end_time < now() - timedelta(hours=24):
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_UPDATE_OLD_EVENT)
+                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_update_old_event")
             session.execute(
                 update(EventOccurrence)
                 .where(EventOccurrence.end_time >= now() - timedelta(hours=24))
@@ -716,22 +715,22 @@ class Events(events_pb2_grpc.EventsServicer):
         ).scalar_one_or_none()
 
         if not occurrence:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
 
         return event_to_pb(session, occurrence, context)
 
     def CancelEvent(self, request, context, session):
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
         if not res:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
 
         event, occurrence = res
 
         if not _can_edit_event(session, event, context.user_id):
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_EDIT_PERMISSION_DENIED)
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_edit_permission_denied")
 
         if occurrence.end_time < now() - timedelta(hours=24):
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_CANCEL_OLD_EVENT)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_cancel_old_event")
 
         occurrence.is_cancelled = True
 
@@ -750,28 +749,32 @@ class Events(events_pb2_grpc.EventsServicer):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
         if not res:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
 
         event, occurrence = res
 
         if not _can_edit_event(session, event, context.user_id):
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_EDIT_PERMISSION_DENIED)
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_edit_permission_denied")
 
         if occurrence.is_cancelled:
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_cant_update_cancelled_event")
 
         if occurrence.end_time < now() - timedelta(hours=24):
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_UPDATE_OLD_EVENT)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_update_old_event")
 
         this_user_reqs = [req for req in occurrence.community_invite_requests if req.user_id == context.user_id]
 
         if len(this_user_reqs) > 0:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_COMMUNITY_INVITE_ALREADY_REQUESTED)
+            context.abort_with_error_code(
+                grpc.StatusCode.FAILED_PRECONDITION, "event_community_invite_already_requested"
+            )
 
         approved_reqs = [req for req in occurrence.community_invite_requests if req.approved]
 
         if len(approved_reqs) > 0:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_COMMUNITY_INVITE_ALREADY_APPROVED)
+            context.abort_with_error_code(
+                grpc.StatusCode.FAILED_PRECONDITION, "event_community_invite_already_approved"
+            )
 
         request = EventCommunityInviteRequest(
             occurrence_id=request.event_id,
@@ -792,7 +795,7 @@ class Events(events_pb2_grpc.EventsServicer):
             select(EventOccurrence).where(EventOccurrence.id == request.event_id).where(~EventOccurrence.is_deleted)
         ).scalar_one_or_none()
         if not occurrence:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
 
         occurrences = (
             select(EventOccurrence).where(EventOccurrence.event_id == Event.id).where(~EventOccurrence.is_deleted)
@@ -825,7 +828,7 @@ class Events(events_pb2_grpc.EventsServicer):
             select(EventOccurrence).where(EventOccurrence.id == request.event_id).where(~EventOccurrence.is_deleted)
         ).scalar_one_or_none()
         if not occurrence:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
         attendees = (
             session.execute(
                 select(EventOccurrenceAttendee)
@@ -848,7 +851,7 @@ class Events(events_pb2_grpc.EventsServicer):
         next_user_id = int(request.page_token) if request.page_token else 0
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
         if not res:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
         event, occurrence = res
         subscribers = (
             session.execute(
@@ -872,7 +875,7 @@ class Events(events_pb2_grpc.EventsServicer):
         next_user_id = int(request.page_token) if request.page_token else 0
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
         if not res:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
         event, occurrence = res
         organizers = (
             session.execute(
@@ -894,18 +897,18 @@ class Events(events_pb2_grpc.EventsServicer):
     def TransferEvent(self, request, context, session):
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
         if not res:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
 
         event, occurrence = res
 
         if not _can_edit_event(session, event, context.user_id):
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_TRANSFER_PERMISSION_DENIED)
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_transfer_permission_denied")
 
         if occurrence.is_cancelled:
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_cant_update_cancelled_event")
 
         if occurrence.end_time < now() - timedelta(hours=24):
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_UPDATE_OLD_EVENT)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_update_old_event")
 
         if request.WhichOneof("new_owner") == "new_owner_group_id":
             cluster = session.execute(
@@ -919,7 +922,7 @@ class Events(events_pb2_grpc.EventsServicer):
             ).scalar_one_or_none()
 
         if not cluster:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_OR_COMMUNITY_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "group_or_community_not_found")
 
         event.owner_user = None
         event.owner_cluster = cluster
@@ -930,15 +933,15 @@ class Events(events_pb2_grpc.EventsServicer):
     def SetEventSubscription(self, request, context, session):
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
         if not res:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
 
         event, occurrence = res
 
         if occurrence.is_cancelled:
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_cant_update_cancelled_event")
 
         if occurrence.end_time < now() - timedelta(hours=24):
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_UPDATE_OLD_EVENT)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_update_old_event")
 
         current_subscription = session.execute(
             select(EventSubscription)
@@ -964,13 +967,13 @@ class Events(events_pb2_grpc.EventsServicer):
         ).scalar_one_or_none()
 
         if not occurrence:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
 
         if occurrence.is_cancelled:
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_cant_update_cancelled_event")
 
         if occurrence.end_time < now() - timedelta(hours=24):
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_UPDATE_OLD_EVENT)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_update_old_event")
 
         current_attendance = session.execute(
             select(EventOccurrenceAttendee)
@@ -1116,23 +1119,23 @@ class Events(events_pb2_grpc.EventsServicer):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
         if not res:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
 
         event, occurrence = res
 
         if not _can_edit_event(session, event, context.user_id):
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_EDIT_PERMISSION_DENIED)
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_edit_permission_denied")
 
         if occurrence.is_cancelled:
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_cant_update_cancelled_event")
 
         if occurrence.end_time < now() - timedelta(hours=24):
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_UPDATE_OLD_EVENT)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_update_old_event")
 
         if not session.execute(
             select(User).where_users_visible(context).where(User.id == request.user_id)
         ).scalar_one_or_none():
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         session.add(
             EventOrganizer(
@@ -1160,26 +1163,26 @@ class Events(events_pb2_grpc.EventsServicer):
     def RemoveEventOrganizer(self, request, context, session):
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
         if not res:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
 
         event, occurrence = res
 
         if occurrence.is_cancelled:
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_cant_update_cancelled_event")
 
         if occurrence.end_time < now() - timedelta(hours=24):
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_UPDATE_OLD_EVENT)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_update_old_event")
 
         # Determine which user to remove
         user_id_to_remove = request.user_id.value if request.HasField("user_id") else context.user_id
 
         # Check if the target user is the event owner (only after permission check)
         if event.owner_user_id == user_id_to_remove:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_REMOVE_OWNER_AS_ORGANIZER)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_remove_owner_as_organizer")
 
         # Check permissions: either an organizer removing an organizer OR you're the event owner
         if not _can_edit_event(session, event, context.user_id):
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_EDIT_PERMISSION_DENIED)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_edit_permission_denied")
 
         # Find the organizer to remove
         organizer_to_remove = session.execute(
@@ -1189,7 +1192,7 @@ class Events(events_pb2_grpc.EventsServicer):
         ).scalar_one_or_none()
 
         if not organizer_to_remove:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_NOT_AN_ORGANIZER)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_not_an_organizer")
 
         session.delete(organizer_to_remove)
 

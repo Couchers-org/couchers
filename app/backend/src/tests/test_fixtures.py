@@ -18,6 +18,7 @@ from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.crypto import random_hex
 from couchers.db import _get_base_engine, session_scope
 from couchers.descriptor_pool import get_descriptor_pool
+from couchers.i18n.i18n import get_raw_translation_string
 from couchers.interceptors import (
     CouchersMiddlewareInterceptor,
     _try_get_and_update_user_details,
@@ -698,6 +699,18 @@ class FakeChannel:
 
     def abort(self, code, details):
         raise FakeRpcError(code, details)
+
+    def abort_with_error_code(self, status_code, error_message_id, **subs):
+        """
+        Raises an error that's returned to the user, but error_message_id should be an entry from translateable errors.
+        This method validates that the error code exists in the english language translation.
+        """
+        # Validate that the error message ID exists by attempting to retrieve it
+        # This will raise MissingTranslationError if the string doesn't exist
+        error_message = get_raw_translation_string("en", "errors", error_message_id, **subs)
+
+        # Now abort with the translated message
+        self.abort(status_code, error_message)
 
     def add_generic_rpc_handlers(self, generic_rpc_handlers):
         from grpc._server import _validate_generic_rpc_handlers

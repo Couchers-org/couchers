@@ -2,7 +2,6 @@ import logging
 
 import grpc
 
-from couchers import errors
 from couchers.context import make_background_user_context
 from couchers.db import can_moderate_node, session_scope
 from couchers.jobs.enqueue import queue_job
@@ -72,11 +71,11 @@ def generate_create_discussion_notifications(payload: jobs_pb2.GenerateCreateDis
 class Discussions(discussions_pb2_grpc.DiscussionsServicer):
     def CreateDiscussion(self, request, context, session):
         if not request.title:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_DISCUSSION_TITLE)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_discussion_title")
         if not request.content:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_DISCUSSION_CONTENT)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_discussion_content")
         if not request.owner_community_id and not request.owner_group_id:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.GROUP_OR_COMMUNITY_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "group_or_community_not_found")
 
         if request.WhichOneof("owner") == "owner_group_id":
             cluster = session.execute(
@@ -90,10 +89,10 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
             ).scalar_one_or_none()
 
         if not cluster:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_OR_COMMUNITY_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "group_or_community_not_found")
 
         if not cluster.discussions_enabled:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANNOT_CREATE_DISCUSSION)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cannot_create_discussion")
 
         discussion = Discussion(
             title=request.title,
@@ -120,6 +119,6 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
             select(Discussion).where(Discussion.id == request.discussion_id)
         ).scalar_one_or_none()
         if not discussion:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.DISCUSSION_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "discussion_not_found")
 
         return discussion_to_pb(session, discussion, context)

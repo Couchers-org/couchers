@@ -2,7 +2,6 @@ import logging
 
 import grpc
 
-from couchers import errors
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.models import ActivenessProbe, ActivenessProbeStatus, HostingStatus, ModNote, User
 from couchers.servicers.account import mod_note_to_pb
@@ -52,7 +51,7 @@ class Jail(jail_pb2_grpc.JailServicer):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         if not request.accept:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNACCEPT_TOS)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_unaccept_tos")
 
         user.accepted_tos = TOS_VERSION
 
@@ -62,7 +61,7 @@ class Jail(jail_pb2_grpc.JailServicer):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         if request.lat == 0 and request.lng == 0:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
 
         user.city = request.city
         user.geom = create_coordinate(request.lat, request.lng)
@@ -76,7 +75,7 @@ class Jail(jail_pb2_grpc.JailServicer):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         if not request.accept:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNACCEPT_COMMUNITY_GUIDELINES)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_unaccept_community_guidelines")
 
         user.accepted_community_guidelines = GUIDELINES_VERSION
 
@@ -93,10 +92,10 @@ class Jail(jail_pb2_grpc.JailServicer):
         ).scalar_one_or_none()
 
         if not note:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.MOD_NOTE_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "mod_note_not_found")
 
         if not request.acknowledge:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.MOD_NOTE_NEED_TO_ACKNOWELDGE)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "mod_note_need_to_acknoweldge")
 
         note.acknowledged = now()
 
@@ -110,7 +109,7 @@ class Jail(jail_pb2_grpc.JailServicer):
         ).scalar_one_or_none()
 
         if not probe:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.PROBE_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "probe_not_found")
 
         if request.response == jail_pb2.ACTIVENESS_PROBE_RESPONSE_STILL_ACTIVE:
             probe.response = ActivenessProbeStatus.still_active
@@ -119,7 +118,7 @@ class Jail(jail_pb2_grpc.JailServicer):
             # disable hosting
             user.hosting_status = HostingStatus.cant_host
         else:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.PROBE_RESPONSE_INVALID)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "probe_response_invalid")
 
         probe.responded = now()
 
