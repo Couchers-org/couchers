@@ -332,15 +332,10 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 if ui_language_preference and ui_language_preference != parse_ui_lang_cookie(headers):
                     couchers_context.set_cookies(create_lang_cookie(ui_language_preference))
 
-            try:
-                couchers_context._send_cookies()
-            except grpc.RpcError as e:
-                # Log details when client disconnects during cookie sending
-                # Some RpcErrors don't have code() or details() methods, so use getattr
-                code = getattr(e, "code", lambda: "unknown")()
-                details = getattr(e, "details", lambda: "unknown")()
-                logger.exception(f"RpcError during _send_cookies(): code={code}, details={details}, method={method}")
-                raise
+            if not grpc_context.is_active():
+                grpc_context.abort(grpc.StatusCode.INTERNAL, "Call cancelled.")
+
+            couchers_context._send_cookies()
 
             return res
 
