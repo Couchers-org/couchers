@@ -1277,6 +1277,7 @@ def test_quick_decline(db, push_collector):
                         sig=b64decode(params["sig"][0]),
                     )
                 )
+                assert res.response == "Thank you for responding to the host request!"
             break
     else:
         raise Exception("Didn't find link")
