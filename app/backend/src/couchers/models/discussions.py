@@ -1,5 +1,7 @@
-from sqlalchemy import BigInteger, Column, DateTime, ForeignKey, String, UniqueConstraint, func
-from sqlalchemy.orm import backref, column_property, relationship
+from datetime import datetime
+
+from sqlalchemy import BigInteger, DateTime, ForeignKey, String, UniqueConstraint, func
+from sqlalchemy.orm import Mapped, backref, column_property, mapped_column, relationship
 
 from couchers.models.base import Base, communities_seq
 
@@ -11,15 +13,17 @@ class Discussion(Base):
 
     __tablename__ = "discussions"
 
-    id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
+    id: Mapped[int] = mapped_column(
+        BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value()
+    )
 
-    title = Column(String, nullable=False)
-    content = Column(String, nullable=False)
-    thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True)
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    title: Mapped[str] = mapped_column(String)
+    content: Mapped[str] = mapped_column(String)
+    thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), unique=True)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=False, index=True)
+    creator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    owner_cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
 
     slug = column_property(func.slugify(title))
 
@@ -39,12 +43,12 @@ class DiscussionSubscription(Base):
     __tablename__ = "discussion_subscriptions"
     __table_args__ = (UniqueConstraint("discussion_id", "user_id"),)
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    discussion_id = Column(ForeignKey("discussions.id"), nullable=False, index=True)
-    joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    left = Column(DateTime(timezone=True), nullable=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    discussion_id: Mapped[int] = mapped_column(ForeignKey("discussions.id"), index=True)
+    joined: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    left: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     user = relationship("User", backref="discussion_subscriptions")
     discussion = relationship("Discussion", backref="discussion_subscriptions")
@@ -57,10 +61,10 @@ class Thread(Base):
 
     __tablename__ = "threads"
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    deleted = Column(DateTime(timezone=True), nullable=True)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class Comment(Base):
@@ -70,13 +74,13 @@ class Comment(Base):
 
     __tablename__ = "comments"
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
-    thread_id = Column(ForeignKey("threads.id"), nullable=False, index=True)
-    author_user_id = Column(ForeignKey("users.id"), nullable=False)
-    content = Column(String, nullable=False)  # CommonMark without images
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    deleted = Column(DateTime(timezone=True), nullable=True)
+    thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), index=True)
+    author_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    content: Mapped[str] = mapped_column(String)  # CommonMark without images
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     thread = relationship("Thread", backref="comments")
 
@@ -88,13 +92,13 @@ class Reply(Base):
 
     __tablename__ = "replies"
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
-    comment_id = Column(ForeignKey("comments.id"), nullable=False, index=True)
-    author_user_id = Column(ForeignKey("users.id"), nullable=False)
-    content = Column(String, nullable=False)  # CommonMark without images
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    deleted = Column(DateTime(timezone=True), nullable=True)
+    comment_id: Mapped[int] = mapped_column(ForeignKey("comments.id"), index=True)
+    author_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    content: Mapped[str] = mapped_column(String)  # CommonMark without images
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     comment = relationship("Comment", backref="replies")
 
@@ -107,10 +111,10 @@ class ClusterDiscussionAssociation(Base):
     __tablename__ = "cluster_discussion_associations"
     __table_args__ = (UniqueConstraint("discussion_id", "cluster_id"),)
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
-    discussion_id = Column(ForeignKey("discussions.id"), nullable=False, index=True)
-    cluster_id = Column(ForeignKey("clusters.id"), nullable=False, index=True)
+    discussion_id: Mapped[int] = mapped_column(ForeignKey("discussions.id"), index=True)
+    cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
 
     discussion = relationship("Discussion", backref="cluster_discussion_associations")
     cluster = relationship("Cluster", backref="cluster_discussion_associations")

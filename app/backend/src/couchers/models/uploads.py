@@ -1,9 +1,15 @@
-from sqlalchemy import Column, DateTime, ForeignKey, String, func
+from datetime import datetime
+from typing import TYPE_CHECKING, Any
+
+from sqlalchemy import DateTime, ForeignKey, String, func
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from couchers import urls
 from couchers.models.base import Base
+
+if TYPE_CHECKING:
+    from couchers.models.users import User
 
 
 class InitiatedUpload(Base):
@@ -13,18 +19,18 @@ class InitiatedUpload(Base):
 
     __tablename__ = "initiated_uploads"
 
-    key = Column(String, primary_key=True)
+    key: Mapped[str] = mapped_column(String, primary_key=True)
 
     # timezones should always be UTC
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    expiry = Column(DateTime(timezone=True), nullable=False)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    expiry: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
-    initiator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    initiator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
-    initiator_user = relationship("User")
+    initiator_user: Mapped["User"] = relationship("User")
 
     @hybrid_property
-    def is_valid(self):
+    def is_valid(self) -> Any:
         return (self.created <= func.now()) & (self.expiry >= func.now())
 
 
@@ -34,24 +40,25 @@ class Upload(Base):
     """
 
     __tablename__ = "uploads"
-    key = Column(String, primary_key=True)
 
-    filename = Column(String, nullable=False)
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    key: Mapped[str] = mapped_column(String, primary_key=True)
+
+    filename: Mapped[str] = mapped_column(String)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    creator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     # photo credit, etc
-    credit = Column(String, nullable=True)
+    credit: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    creator_user = relationship("User", backref="uploads", foreign_keys="Upload.creator_user_id")
+    creator_user: Mapped["User"] = relationship("User", backref="uploads", foreign_keys="Upload.creator_user_id")
 
-    def _url(self, size):
+    def _url(self, size: str) -> str:
         return urls.media_url(filename=self.filename, size=size)
 
     @property
-    def thumbnail_url(self):
+    def thumbnail_url(self) -> str:
         return self._url("thumbnail")
 
     @property
-    def full_url(self):
+    def full_url(self) -> str:
         return self._url("full")

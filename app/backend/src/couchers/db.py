@@ -2,14 +2,16 @@ import functools
 import inspect
 import logging
 import os
+from collections.abc import Generator, Sequence
 from contextlib import contextmanager
 from os import getpid
 from threading import get_ident
 
 from alembic import command
 from alembic.config import Config
+from geoalchemy2 import WKBElement
 from opentelemetry import trace
-from sqlalchemy import Engine, create_engine, text
+from sqlalchemy import Engine, Row, Subquery, create_engine, text
 from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import QueuePool
 from sqlalchemy.sql import and_, func, literal, or_
@@ -32,7 +34,7 @@ logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
 
 
-def apply_migrations():
+def apply_migrations() -> None:
     alembic_dir = os.path.dirname(__file__) + "/../.."
     cwd = os.getcwd()
     try:
@@ -60,7 +62,7 @@ def _get_base_engine() -> Engine:
 
 
 @contextmanager
-def session_scope():
+def session_scope() -> Generator[Session]:
     with tracer.start_as_current_span("session_scope") as rollspan:
         with Session(_get_base_engine()) as session:
             session.begin()
@@ -89,7 +91,7 @@ def session_scope():
 
 
 @contextmanager
-def worker_repeatable_read_session_scope():
+def worker_repeatable_read_session_scope() -> Generator[Session]:
     """
     This is a separate session scope that is isolated from the main one since otherwise we end up nesting transactions,
     this causes two different connections to be used
@@ -124,7 +126,7 @@ def worker_repeatable_read_session_scope():
                     logger.debug(f"SScope (worker): closed {backend_pid=}")
 
 
-def db_post_fork():
+def db_post_fork() -> None:
     """
     Fix post-fork issues with sqlalchemy
     """
@@ -132,7 +134,7 @@ def db_post_fork():
     _get_base_engine().dispose(close=False)
 
 
-def are_friends(session, context, other_user):
+def are_friends(session: Session, context, other_user: int) -> bool:
     return (
         session.execute(
             select(FriendRelationship)
@@ -154,7 +156,7 @@ def are_friends(session, context, other_user):
     )
 
 
-def get_parent_node_at_location(session, shape):
+def get_parent_node_at_location(session: Session, shape: WKBElement) -> Node | None:
     """
     Finds the smallest node containing the shape.
 
@@ -172,7 +174,7 @@ def get_parent_node_at_location(session, shape):
     )
 
 
-def _get_node_parents_recursive_cte_subquery(session, node_id):
+def _get_node_parents_recursive_cte_subquery(node_id: int) -> Subquery:
     parents = (
         select(Node.id, Node.parent_node_id, literal(0).label("level"))
         .where(Node.id == node_id)
@@ -188,8 +190,8 @@ def _get_node_parents_recursive_cte_subquery(session, node_id):
     ).subquery()
 
 
-def get_node_parents_recursively(session, node_id):
-    subquery = _get_node_parents_recursive_cte_subquery(session, node_id)
+def get_node_parents_recursively(session: Session, node_id: int) -> Sequence[Row[tuple[int, int, int, Cluster]]]:
+    subquery = _get_node_parents_recursive_cte_subquery(node_id)
     return session.execute(
         select(subquery, Cluster)
         .join(Cluster, Cluster.parent_node_id == subquery.c.id)
@@ -198,7 +200,7 @@ def get_node_parents_recursively(session, node_id):
     ).all()
 
 
-def _can_moderate_any_cluster(session, user_id, cluster_ids):
+def _can_moderate_any_cluster(session: Session, user_id: int, cluster_ids: list[int]) -> bool:
     return session.execute(
         select(
             (
@@ -212,11 +214,11 @@ def _can_moderate_any_cluster(session, user_id, cluster_ids):
     ).scalar_one()
 
 
-def can_moderate_node(session, user_id, node_id):
+def can_moderate_node(session: Session, user_id: int, node_id: int) -> bool:
     """
     Returns True if the user_id can moderate the given node (i.e., if they are admin of any community that is a parent of the node)
     """
-    subquery = _get_node_parents_recursive_cte_subquery(session, node_id)
+    subquery = _get_node_parents_recursive_cte_subquery(node_id)
     return session.execute(
         select(
             (
@@ -236,7 +238,7 @@ def can_moderate_node(session, user_id, node_id):
     )
 
 
-def can_moderate_at(session, user_id, shape):
+def can_moderate_at(session: Session, user_id: int, shape: WKBElement) -> bool:
     """
     Returns True if the user_id can moderate a given geo-shape (i.e., if the shape is contained in any Node that the user is an admin of)
     """
@@ -255,7 +257,7 @@ def can_moderate_at(session, user_id, shape):
     ).scalar_one()
 
 
-def timezone_at_coordinate(session, geom):
+def timezone_at_coordinate(session: Session, geom: WKBElement) -> str | None:
     area = session.execute(
         select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, geom))
     ).scalar_one_or_none()

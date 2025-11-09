@@ -1,10 +1,16 @@
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Index, Integer, String, func, text
+from datetime import datetime
+from typing import TYPE_CHECKING, Any
+
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String, func, text
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import expression
 
 from couchers.models.base import Base
 from couchers.utils import now
+
+if TYPE_CHECKING:
+    from couchers.models.users import User
 
 
 class UserSession(Base):
@@ -23,44 +29,46 @@ class UserSession(Base):
     """
 
     __tablename__ = "sessions"
-    token = Column(String, primary_key=True)
 
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    token: Mapped[str] = mapped_column(String, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     # sessions are either "api keys" or "session cookies", otherwise identical
     # an api key is put in the authorization header (e.g. "authorization: Bearer <token>")
     # a session cookie is set in the "couchers-sesh" cookie (e.g. "cookie: couchers-sesh=<token>")
     # when a session is created, it's fixed as one or the other for security reasons
     # for api keys to be useful, they should be long-lived and have a long expiry
-    is_api_key = Column(Boolean, nullable=False, server_default=expression.false())
+    is_api_key: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
 
     # whether it's a long-lived or short-lived session
-    long_lived = Column(Boolean, nullable=False)
+    long_lived: Mapped[bool] = mapped_column(Boolean)
 
     # the time at which the session was created
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     # the expiry of the session: the session *cannot* be refreshed past this
-    expiry = Column(DateTime(timezone=True), nullable=False, server_default=func.now() + text("interval '730 days'"))
+    expiry: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now() + text("interval '730 days'")
+    )
 
     # the time at which the token was invalidated, allows users to delete sessions
-    deleted = Column(DateTime(timezone=True), nullable=True, default=None)
+    deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     # the last time this session was used
-    last_seen = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    last_seen: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     # count of api calls made with this token/session (if we're updating last_seen, might as well update this too)
-    api_calls = Column(Integer, nullable=False, default=0)
+    api_calls: Mapped[int] = mapped_column(Integer, default=0)
 
     # details of the browser, if available
     # these are from the request creating the session, not used for anything else
-    ip_address = Column(String, nullable=True)
-    user_agent = Column(String, nullable=True)
+    ip_address: Mapped[str | None] = mapped_column(String, default=None)
+    user_agent: Mapped[str | None] = mapped_column(String, default=None)
 
-    user = relationship("User", backref="sessions")
+    user: Mapped["User"] = relationship("User", backref="sessions")
 
     @hybrid_property
-    def is_valid(self):
+    def is_valid(self) -> Any:
         """
         It must have been created and not be expired or deleted.
 
@@ -72,7 +80,7 @@ class UserSession(Base):
             (self.created <= func.now())
             & (self.expiry >= func.now())
             & (self.deleted == None)
-            & (self.long_lived | (func.now() - self.last_seen < text("interval '168 hours'")))
+            & (self.long_lived | (func.now() - self.last_seen < text("interval '168 hours'")))  # type: ignore[operator]
         )
 
     __table_args__ = (
@@ -90,38 +98,38 @@ class LoginToken(Base):
     """
 
     __tablename__ = "login_tokens"
-    token = Column(String, primary_key=True)
 
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    token: Mapped[str] = mapped_column(String, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     # timezones should always be UTC
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    expiry = Column(DateTime(timezone=True), nullable=False)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    expiry: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
-    user = relationship("User", backref="login_tokens")
+    user: Mapped["User"] = relationship("User", backref="login_tokens")
 
     @hybrid_property
-    def is_valid(self):
+    def is_valid(self) -> Any:
         return (self.created <= now()) & (self.expiry >= now())
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"LoginToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
 
 
 class PasswordResetToken(Base):
     __tablename__ = "password_reset_tokens"
-    token = Column(String, primary_key=True)
 
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    token: Mapped[str] = mapped_column(String, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    expiry = Column(DateTime(timezone=True), nullable=False)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    expiry: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
-    user = relationship("User", backref="password_reset_tokens")
+    user: Mapped["User"] = relationship("User", backref="password_reset_tokens")
 
     @hybrid_property
-    def is_valid(self):
+    def is_valid(self) -> Any:
         return (self.created <= now()) & (self.expiry >= now())
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"PasswordResetToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"

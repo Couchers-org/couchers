@@ -1,8 +1,11 @@
 import enum
+from datetime import datetime
+from typing import Any
 
-from sqlalchemy import BigInteger, Column, DateTime, Enum, Index, Integer, String, func, text
+from sqlalchemy import BigInteger, DateTime, Enum, Index, Integer, String, func, text
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import Mapped, mapped_column
 
 from couchers.models.base import Base
 
@@ -25,31 +28,31 @@ class BackgroundJob(Base):
 
     __tablename__ = "background_jobs"
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
     # used to discern which function should be triggered to service it
-    job_type = Column(String, nullable=False)
-    state = Column(Enum(BackgroundJobState), nullable=False, default=BackgroundJobState.pending)
+    job_type: Mapped[str] = mapped_column(String)
+    state: Mapped[BackgroundJobState] = mapped_column(Enum(BackgroundJobState), default=BackgroundJobState.pending)
 
     # time queued
-    queued = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    queued: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     # time at which we may next attempt it, for implementing exponential backoff
-    next_attempt_after = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    next_attempt_after: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     # used to count number of retries for failed jobs
-    try_count = Column(Integer, nullable=False, default=0)
+    try_count: Mapped[int] = mapped_column(Integer, default=0)
 
-    max_tries = Column(Integer, nullable=False, default=5)
+    max_tries: Mapped[int] = mapped_column(Integer, default=5)
 
     # higher is more important
-    priority = Column(Integer, nullable=False, server_default=text("10"))
+    priority: Mapped[int] = mapped_column(Integer, server_default=text("10"))
 
     # protobuf encoded job payload
-    payload = Column(Binary, nullable=False)
+    payload: Mapped[bytes] = mapped_column(Binary)
 
     # if the job failed, we write that info here
-    failure_info = Column(String, nullable=True)
+    failure_info: Mapped[str | None] = mapped_column(String, nullable=True)
 
     __table_args__ = (
         # used in looking up background jobs to attempt
@@ -64,12 +67,12 @@ class BackgroundJob(Base):
     )
 
     @hybrid_property
-    def ready_for_retry(self):
+    def ready_for_retry(self) -> Any:
         return (
             (self.next_attempt_after <= func.now())
             & (self.try_count < self.max_tries)
             & ((self.state == BackgroundJobState.pending) | (self.state == BackgroundJobState.error))
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, next_attempt_after={self.next_attempt_after}, try_count={self.try_count}, failure_info={self.failure_info})"

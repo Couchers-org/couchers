@@ -1,3 +1,4 @@
+from geoalchemy2 import WKBElement, WKTElement
 from sqlalchemy import MetaData, Sequence
 from sqlalchemy.orm import DeclarativeBase
 
@@ -17,3 +18,4 @@ class Base(DeclarativeBase):
 
 
 communities_seq = Sequence("communities_seq")
+Geom = WKBElement | WKTElement

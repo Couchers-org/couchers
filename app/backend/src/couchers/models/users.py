@@ -1,11 +1,12 @@
 import enum
+from datetime import date, datetime, timedelta
+from typing import TYPE_CHECKING, Any
 
-from geoalchemy2 import Geometry
+from geoalchemy2 import Geometry, WKBElement, WKTElement
 from sqlalchemy import (
     BigInteger,
     Boolean,
     CheckConstraint,
-    Column,
     Date,
     DateTime,
     Enum,
@@ -25,7 +26,7 @@ from sqlalchemy import (
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import select as sa_select
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import column_property, relationship
+from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 from sqlalchemy.sql import expression
 
 from couchers.constants import (
@@ -38,8 +39,12 @@ from couchers.constants import (
 from couchers.models.activeness_probe import ActivenessProbe
 from couchers.models.base import Base
 from couchers.models.mod_note import ModNote
-from couchers.models.static import TimezoneArea
+from couchers.models.static import Language, Region, TimezoneArea
+from couchers.models.uploads import Upload
 from couchers.utils import get_coordinates, last_active_coarsen, now
+
+if TYPE_CHECKING:
+    from couchers.models.rest import InviteCode, ModerationUserList
 
 
 class HostingStatus(enum.Enum):
@@ -87,6 +92,9 @@ class ProfilePublicVisibility(enum.Enum):
     full = enum.auto()
 
 
+Geom = WKBElement | WKTElement
+
+
 class User(Base):
     """
     Basic user and profile details
@@ -94,144 +102,150 @@ class User(Base):
 
     __tablename__ = "users"
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
-    username = Column(String, nullable=False, unique=True)
-    email = Column(String, nullable=False, unique=True)
+    username: Mapped[str] = mapped_column(String, unique=True)
+    email: Mapped[str] = mapped_column(String, unique=True)
     # stored in libsodium hash format, can be null for email login
-    hashed_password = Column(Binary, nullable=False)
+    hashed_password: Mapped[bytes] = mapped_column(Binary)
     # phone number in E.164 format with leading +, for example "+46701740605"
-    phone = Column(String, nullable=True, server_default=expression.null())
+    phone: Mapped[str | None] = mapped_column(String, nullable=True, server_default=expression.null())
     # language preference -- defaults to empty string
-    ui_language_preference = Column(String, nullable=True, server_default="")
+    ui_language_preference: Mapped[str | None] = mapped_column(String, nullable=True, server_default="")
 
     # timezones should always be UTC
     ## location
     # point describing their location. EPSG4326 is the SRS (spatial ref system, = way to describe a point on earth) used
     # by GPS, it has the WGS84 geoid with lat/lon
-    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
+    geom: Mapped[Geom] = mapped_column(Geometry(geometry_type="POINT", srid=4326))
     # randomized coordinates within a radius of 0.02-0.1 degrees, equates to about 2-10 km
-    randomized_geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    randomized_geom: Mapped[Geom | None] = mapped_column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     # their display location (displayed to other users), in meters
-    geom_radius = Column(Float, nullable=False)
+    geom_radius: Mapped[float] = mapped_column(Float)
     # the display address (text) shown on their profile
-    city = Column(String, nullable=False)
+    city: Mapped[str] = mapped_column(String)
     # "Grew up in" on profile
-    hometown = Column(String, nullable=True)
+    hometown: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    regions_visited = relationship("Region", secondary="regions_visited", order_by="Region.name")
-    regions_lived = relationship("Region", secondary="regions_lived", order_by="Region.name")
+    regions_visited: Mapped[list["Region"]] = relationship(
+        "Region", secondary="regions_visited", order_by="Region.name"
+    )
+    regions_lived: Mapped[list["Region"]] = relationship("Region", secondary="regions_lived", order_by="Region.name")
 
     timezone = column_property(
         sa_select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, geom)).limit(1).scalar_subquery(),
         deferred=True,
     )
 
-    joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    joined: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    last_active: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    public_visibility = Column(Enum(ProfilePublicVisibility), nullable=False, server_default="map_only")
-    has_modified_public_visibility = Column(Boolean, nullable=False, server_default=expression.false())
+    public_visibility: Mapped[ProfilePublicVisibility] = mapped_column(
+        Enum(ProfilePublicVisibility), server_default="map_only"
+    )
+    has_modified_public_visibility: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
 
     # id of the last message that they received a notification about
-    last_notified_message_id = Column(BigInteger, nullable=False, default=0)
+    last_notified_message_id: Mapped[int] = mapped_column(BigInteger, default=0)
     # same as above for host requests
-    last_notified_request_message_id = Column(BigInteger, nullable=False, server_default=text("0"))
+    last_notified_request_message_id: Mapped[int] = mapped_column(BigInteger, server_default=text("0"))
 
     # display name
-    name = Column(String, nullable=False)
-    gender = Column(String, nullable=False)
-    pronouns = Column(String, nullable=True)
-    birthdate = Column(Date, nullable=False)  # in the timezone of birthplace
+    name: Mapped[str] = mapped_column(String)
+    gender: Mapped[str] = mapped_column(String)
+    pronouns: Mapped[str | None] = mapped_column(String, nullable=True)
+    birthdate: Mapped[date] = mapped_column(Date)  # in the timezone of birthplace
 
-    avatar_key = Column(ForeignKey("uploads.key"), nullable=True)
+    avatar_key: Mapped[str | None] = mapped_column(ForeignKey("uploads.key"), nullable=True)
 
-    hosting_status = Column(Enum(HostingStatus), nullable=False)
-    meetup_status = Column(Enum(MeetupStatus), nullable=False, server_default="open_to_meetup")
+    hosting_status: Mapped[HostingStatus] = mapped_column(Enum(HostingStatus))
+    meetup_status: Mapped[MeetupStatus] = mapped_column(Enum(MeetupStatus), server_default="open_to_meetup")
 
     # community standing score
-    community_standing = Column(Float, nullable=True)
+    community_standing: Mapped[float | None] = mapped_column(Float, nullable=True)
 
-    occupation = Column(String, nullable=True)  # CommonMark without images
-    education = Column(String, nullable=True)  # CommonMark without images
+    occupation: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
+    education: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
 
     # "Who I am" under "About Me" tab
-    about_me = Column(String, nullable=True)  # CommonMark without images
+    about_me: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
     # "What I do in my free time" under "About Me" tab
-    things_i_like = Column(String, nullable=True)  # CommonMark without images
+    things_i_like: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
     # "About my home" under "My Home" tab
-    about_place = Column(String, nullable=True)  # CommonMark without images
+    about_place: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
     # "Additional information" under "About Me" tab
-    additional_information = Column(String, nullable=True)  # CommonMark without images
+    additional_information: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
 
-    is_banned = Column(Boolean, nullable=False, server_default=expression.false())
-    is_deleted = Column(Boolean, nullable=False, server_default=expression.false())
-    is_superuser = Column(Boolean, nullable=False, server_default=expression.false())
+    is_banned: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
+    is_deleted: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
+    is_superuser: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
 
     # the undelete token allows a user to recover their account for a couple of days after deletion in case it was
     # accidental or they changed their mind
     # constraints make sure these are non-null only if is_deleted and that these are null in unison
-    undelete_token = Column(String, nullable=True)
+    undelete_token: Mapped[str | None] = mapped_column(String, nullable=True)
     # validity of the undelete token
-    undelete_until = Column(DateTime(timezone=True), nullable=True)
+    undelete_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # hosting preferences
-    max_guests = Column(Integer, nullable=True)
-    last_minute = Column(Boolean, nullable=True)
-    has_pets = Column(Boolean, nullable=True)
-    accepts_pets = Column(Boolean, nullable=True)
-    pet_details = Column(String, nullable=True)  # CommonMark without images
-    has_kids = Column(Boolean, nullable=True)
-    accepts_kids = Column(Boolean, nullable=True)
-    kid_details = Column(String, nullable=True)  # CommonMark without images
-    has_housemates = Column(Boolean, nullable=True)
-    housemate_details = Column(String, nullable=True)  # CommonMark without images
-    wheelchair_accessible = Column(Boolean, nullable=True)
-    smoking_allowed = Column(Enum(SmokingLocation), nullable=True)
-    smokes_at_home = Column(Boolean, nullable=True)
-    drinking_allowed = Column(Boolean, nullable=True)
-    drinks_at_home = Column(Boolean, nullable=True)
+    max_guests: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    last_minute: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    has_pets: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    accepts_pets: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    pet_details: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
+    has_kids: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    accepts_kids: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    kid_details: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
+    has_housemates: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    housemate_details: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
+    wheelchair_accessible: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    smoking_allowed: Mapped[SmokingLocation | None] = mapped_column(Enum(SmokingLocation), nullable=True)
+    smokes_at_home: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    drinking_allowed: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    drinks_at_home: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
     # "Additional information" under "My Home" tab
-    other_host_info = Column(String, nullable=True)  # CommonMark without images
+    other_host_info: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
 
     # "Sleeping privacy" (not long-form text)
-    sleeping_arrangement = Column(Enum(SleepingArrangement), nullable=True)
+    sleeping_arrangement: Mapped[SleepingArrangement | None] = mapped_column(Enum(SleepingArrangement), nullable=True)
     # "Sleeping arrangement" under "My Home" tab
-    sleeping_details = Column(String, nullable=True)  # CommonMark without images
+    sleeping_details: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
     # "Local area information" under "My Home" tab
-    area = Column(String, nullable=True)  # CommonMark without images
+    area: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
     # "House rules" under "My Home" tab
-    house_rules = Column(String, nullable=True)  # CommonMark without images
-    parking = Column(Boolean, nullable=True)
-    parking_details = Column(Enum(ParkingDetails), nullable=True)  # CommonMark without images
-    camping_ok = Column(Boolean, nullable=True)
+    house_rules: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
+    parking: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    parking_details: Mapped[ParkingDetails | None] = mapped_column(
+        Enum(ParkingDetails), nullable=True
+    )  # CommonMark without images
+    camping_ok: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
 
-    accepted_tos = Column(Integer, nullable=False, default=0)
-    accepted_community_guidelines = Column(Integer, nullable=False, server_default="0")
-    # whether the user has yet filled in the contributor form
-    filled_contributor_form = Column(Boolean, nullable=False, server_default=expression.false())
+    accepted_tos: Mapped[int] = mapped_column(Integer, default=0)
+    accepted_community_guidelines: Mapped[int] = mapped_column(Integer, server_default="0")
+    # whether the user has filled in the contributor form
+    filled_contributor_form: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
 
     # number of onboarding emails sent
-    onboarding_emails_sent = Column(Integer, nullable=False, server_default="0")
-    last_onboarding_email_sent = Column(DateTime(timezone=True), nullable=True)
+    onboarding_emails_sent: Mapped[int] = mapped_column(Integer, server_default="0")
+    last_onboarding_email_sent: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # whether we need to sync the user's newsletter preferences with the newsletter server
-    in_sync_with_newsletter = Column(Boolean, nullable=False, server_default=expression.false())
+    in_sync_with_newsletter: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
     # opted out of the newsletter
-    opt_out_of_newsletter = Column(Boolean, nullable=False, server_default=expression.false())
+    opt_out_of_newsletter: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
 
     # set to null to receive no digests
-    digest_frequency = Column(Interval, nullable=True)
-    last_digest_sent = Column(DateTime(timezone=True), nullable=False, server_default=text("to_timestamp(0)"))
+    digest_frequency: Mapped[timedelta | None] = mapped_column(Interval, nullable=True)
+    last_digest_sent: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=text("to_timestamp(0)"))
 
     # for changing their email
-    new_email = Column(String, nullable=True)
+    new_email: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    new_email_token = Column(String, nullable=True)
-    new_email_token_created = Column(DateTime(timezone=True), nullable=True)
-    new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
+    new_email_token: Mapped[str | None] = mapped_column(String, nullable=True)
+    new_email_token_created: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    new_email_token_expiry: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    recommendation_score = Column(Float, nullable=False, server_default="0")
+    recommendation_score: Mapped[float] = mapped_column(Float, server_default="0")
 
     # Columns for verifying their phone number. State chart:
     #                                       ,-------------------,
@@ -257,45 +271,52 @@ class User(Base):
     # '-----------------'                   '-------------------'                      '-----------------------'
 
     # randomly generated Luhn 6-digit string
-    phone_verification_token = Column(String(6), nullable=True, server_default=expression.null())
+    phone_verification_token: Mapped[str | None] = mapped_column(
+        String(6), nullable=True, server_default=expression.null()
+    )
 
-    phone_verification_sent = Column(DateTime(timezone=True), nullable=False, server_default=text("to_timestamp(0)"))
-    phone_verification_verified = Column(DateTime(timezone=True), nullable=True, server_default=expression.null())
-    phone_verification_attempts = Column(Integer, nullable=False, server_default=text("0"))
+    phone_verification_sent: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=text("to_timestamp(0)")
+    )
+    phone_verification_verified: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True, server_default=expression.null()
+    )
+    phone_verification_attempts: Mapped[int] = mapped_column(Integer, server_default=text("0"))
 
     # the stripe customer identifier if the user has donated to Couchers
     # e.g. cus_JjoXHttuZopv0t
     # for new US entity
-    stripe_customer_id = Column(String, nullable=True)
+    stripe_customer_id: Mapped[str | None] = mapped_column(String, nullable=True)
     # for old AU entity
-    stripe_customer_id_old = Column(String, nullable=True)
+    stripe_customer_id_old: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    has_passport_sex_gender_exception = Column(Boolean, nullable=False, server_default=expression.false())
+    has_passport_sex_gender_exception: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
 
     #  checking for phone verification
-    has_donated = Column(Boolean, nullable=False, server_default=expression.false())
+    has_donated: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
 
     # whether this user has all emails turned off
-    do_not_email = Column(Boolean, nullable=False, server_default=expression.false())
+    do_not_email: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
 
-    avatar = relationship("Upload", foreign_keys="User.avatar_key")
+    avatar: Mapped[Upload | None] = relationship("Upload", foreign_keys="User.avatar_key")
 
-    admin_note = Column(String, nullable=False, server_default=text("''"))
+    admin_note: Mapped[str] = mapped_column(String, server_default=text("''"))
 
     # whether mods have marked this user has having to update their location
-    needs_to_update_location = Column(Boolean, nullable=False, server_default=expression.false())
+    needs_to_update_location: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
 
-    last_antibot = Column(DateTime(timezone=True), nullable=False, server_default=text("to_timestamp(0)"))
+    last_antibot: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=text("to_timestamp(0)"))
 
     age = column_property(func.date_part("year", func.age(birthdate)))
 
     # ID of the invite code used to sign up (if any)
-    invite_code_id = Column(ForeignKey("invite_codes.id"), nullable=True)
-    invite_code = relationship("InviteCode", foreign_keys=[invite_code_id])
+    invite_code_id: Mapped[int | None] = mapped_column(ForeignKey("invite_codes.id"), nullable=True)
+    invite_code: Mapped["InviteCode | None"] = relationship("InviteCode", foreign_keys=[invite_code_id])
 
-    moderation_user_lists = relationship(
+    moderation_user_lists: Mapped[list["ModerationUserList"]] = relationship(
         "ModerationUserList", secondary="moderation_user_list_members", back_populates="users"
     )
+    language_abilities: Mapped[list["LanguageAbility"]] = relationship("LanguageAbility", back_populates="user")
 
     __table_args__ = (
         # Verified phone numbers should be unique
@@ -361,7 +382,7 @@ class User(Base):
     )
 
     @hybrid_property
-    def has_completed_profile(self):
+    def has_completed_profile(self) -> bool:
         return self.avatar_key is not None and self.about_me is not None and len(self.about_me) >= 150
 
     @has_completed_profile.expression
@@ -369,7 +390,7 @@ class User(Base):
         return (cls.avatar_key != None) & (func.character_length(cls.about_me) >= 150)
 
     @hybrid_property
-    def has_completed_my_home(self):
+    def has_completed_my_home(self) -> bool:
         # completed my profile means that:
         # 1. has filled out max_guests
         # 2. has filled out sleeping_arrangement (sleeping privacy)
@@ -401,23 +422,25 @@ class User(Base):
         )
 
     @hybrid_property
-    def jailed_missing_tos(self):
+    def jailed_missing_tos(self) -> bool:
         return self.accepted_tos < TOS_VERSION
 
     @hybrid_property
-    def jailed_missing_community_guidelines(self):
+    def jailed_missing_community_guidelines(self) -> bool:
         return self.accepted_community_guidelines < GUIDELINES_VERSION
 
     @hybrid_property
-    def jailed_pending_mod_notes(self):
-        return self.mod_notes.where(ModNote.is_pending).count() > 0
+    def jailed_pending_mod_notes(self) -> Any:
+        # mod_notes come from a backref in ModNote
+        return self.mod_notes.where(ModNote.is_pending).count() > 0  # type: ignore[attr-defined]
 
     @hybrid_property
-    def jailed_pending_activeness_probe(self):
-        return self.pending_activeness_probe != None
+    def jailed_pending_activeness_probe(self) -> Any:
+        # search for User.pending_activeness_probe
+        return self.pending_activeness_probe != None  # type: ignore[attr-defined]
 
     @hybrid_property
-    def is_jailed(self):
+    def is_jailed(self) -> Any:
         return (
             self.jailed_missing_tos
             | self.jailed_missing_community_guidelines
@@ -427,11 +450,11 @@ class User(Base):
         )
 
     @hybrid_property
-    def is_missing_location(self):
+    def is_missing_location(self) -> bool:
         return self.needs_to_update_location
 
     @hybrid_property
-    def is_visible(self):
+    def is_visible(self) -> bool:
         return not self.is_banned and not self.is_deleted
 
     @is_visible.expression
@@ -439,25 +462,25 @@ class User(Base):
         return ~(cls.is_banned | cls.is_deleted)
 
     @property
-    def coordinates(self):
+    def coordinates(self) -> tuple[int, int] | None:
         return get_coordinates(self.geom)
 
     @property
-    def display_joined(self):
+    def display_joined(self) -> datetime:
         """
         Returns the last active time rounded down to the nearest hour.
         """
         return self.joined.replace(minute=0, second=0, microsecond=0)
 
     @property
-    def display_last_active(self):
+    def display_last_active(self) -> datetime:
         """
         Returns the last active time rounded down whatever is the "last active" coarsening.
         """
         return last_active_coarsen(self.last_active)
 
     @hybrid_property
-    def phone_is_verified(self):
+    def phone_is_verified(self) -> bool:
         return (
             self.phone_verification_verified is not None
             and now() - self.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
@@ -470,10 +493,10 @@ class User(Base):
         )
 
     @hybrid_property
-    def phone_code_expired(self):
+    def phone_code_expired(self) -> bool:
         return now() - self.phone_verification_sent > SMS_CODE_LIFETIME
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"User(id={self.id}, email={self.email}, username={self.username})"
 
 
@@ -499,28 +522,28 @@ class LanguageAbility(Base):
         UniqueConstraint("user_id", "language_code"),
     )
 
-    id = Column(BigInteger, primary_key=True)
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    language_code = Column(ForeignKey("languages.code", deferrable=True), nullable=False)
-    fluency = Column(Enum(LanguageFluency), nullable=False)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    language_code: Mapped[str] = mapped_column(ForeignKey("languages.code", deferrable=True))
+    fluency: Mapped[LanguageFluency] = mapped_column(Enum(LanguageFluency))
 
-    user = relationship("User", backref="language_abilities")
-    language = relationship("Language")
+    user: Mapped["User"] = relationship("User", back_populates="language_abilities")
+    language: Mapped[Language] = relationship("Language")
 
 
 class RegionVisited(Base):
     __tablename__ = "regions_visited"
     __table_args__ = (UniqueConstraint("user_id", "region_code"),)
 
-    id = Column(BigInteger, primary_key=True)
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    region_code = Column(ForeignKey("regions.code", deferrable=True), nullable=False)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    region_code: Mapped[str] = mapped_column(ForeignKey("regions.code", deferrable=True))
 
 
 class RegionLived(Base):
     __tablename__ = "regions_lived"
     __table_args__ = (UniqueConstraint("user_id", "region_code"),)
 
-    id = Column(BigInteger, primary_key=True)
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    region_code = Column(ForeignKey("regions.code", deferrable=True), nullable=False)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    region_code: Mapped[str] = mapped_column(ForeignKey("regions.code", deferrable=True))

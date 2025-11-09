@@ -1,11 +1,11 @@
 import enum
+from datetime import datetime
 
 from geoalchemy2 import Geometry
 from sqlalchemy import (
     BigInteger,
     Boolean,
     CheckConstraint,
-    Column,
     DateTime,
     Enum,
     ForeignKey,
@@ -16,10 +16,10 @@ from sqlalchemy import (
     text,
 )
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.orm import backref, column_property, deferred, relationship
+from sqlalchemy.orm import Mapped, backref, column_property, deferred, mapped_column, relationship
 from sqlalchemy.sql import expression
 
-from couchers.models.base import Base, communities_seq
+from couchers.models.base import Base, Geom, communities_seq
 from couchers.utils import get_coordinates
 
 
@@ -32,12 +32,17 @@ class Node(Base):
 
     __tablename__ = "nodes"
 
-    id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
+    id: Mapped[int] = mapped_column(
+        BigInteger,
+        communities_seq,
+        primary_key=True,
+        server_default=communities_seq.next_value(),
+    )
 
-    # name and description come from official cluster
-    parent_node_id = Column(ForeignKey("nodes.id"), nullable=True, index=True)
-    geom = deferred(Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False))
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    # name and description come from the official cluster
+    parent_node_id: Mapped[int | None] = mapped_column(ForeignKey("nodes.id"), nullable=True, index=True)
+    geom: Mapped[Geom] = deferred(mapped_column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False))
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     parent_node = relationship("Node", backref="child_nodes", remote_side="Node.id")
 
@@ -58,17 +63,19 @@ class Cluster(Base):
 
     __tablename__ = "clusters"
 
-    id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
-    parent_node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
-    name = Column(String, nullable=False)
+    id: Mapped[int] = mapped_column(
+        BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value()
+    )
+    parent_node_id: Mapped[int] = mapped_column(ForeignKey("nodes.id"), index=True)
+    name: Mapped[str] = mapped_column(String)
     # short description
-    description = Column(String, nullable=False)
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    description: Mapped[str] = mapped_column(String)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    is_official_cluster = Column(Boolean, nullable=False, default=False)
+    is_official_cluster: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    discussions_enabled = Column(Boolean, nullable=False, default=True, server_default=expression.true())
-    events_enabled = Column(Boolean, nullable=False, default=True, server_default=expression.true())
+    discussions_enabled: Mapped[bool] = mapped_column(Boolean, default=True, server_default=expression.true())
+    events_enabled: Mapped[bool] = mapped_column(Boolean, default=True, server_default=expression.true())
 
     slug = column_property(func.slugify(name))
 
@@ -154,10 +161,10 @@ class NodeClusterAssociation(Base):
     __tablename__ = "node_cluster_associations"
     __table_args__ = (UniqueConstraint("node_id", "cluster_id"),)
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
-    node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
-    cluster_id = Column(ForeignKey("clusters.id"), nullable=False, index=True)
+    node_id: Mapped[int] = mapped_column(ForeignKey("nodes.id"), index=True)
+    cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
 
     node = relationship("Node", backref="node_cluster_associations")
     cluster = relationship("Cluster", backref="node_cluster_associations")
@@ -175,11 +182,11 @@ class ClusterSubscription(Base):
 
     __tablename__ = "cluster_subscriptions"
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    cluster_id = Column(ForeignKey("clusters.id"), nullable=False, index=True)
-    role = Column(Enum(ClusterRole), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
+    role: Mapped[ClusterRole] = mapped_column(Enum(ClusterRole))
 
     user = relationship("User", backref="cluster_subscriptions")
     cluster = relationship("Cluster", backref="cluster_subscriptions")
@@ -209,10 +216,10 @@ class ClusterPageAssociation(Base):
     __tablename__ = "cluster_page_associations"
     __table_args__ = (UniqueConstraint("page_id", "cluster_id"),)
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
-    page_id = Column(ForeignKey("pages.id"), nullable=False, index=True)
-    cluster_id = Column(ForeignKey("clusters.id"), nullable=False, index=True)
+    page_id: Mapped[int] = mapped_column(ForeignKey("pages.id"), index=True)
+    cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
 
     page = relationship("Page", backref="cluster_page_associations")
     cluster = relationship("Cluster", backref="cluster_page_associations")
@@ -231,15 +238,17 @@ class Page(Base):
 
     __tablename__ = "pages"
 
-    id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
+    id: Mapped[int] = mapped_column(
+        BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value()
+    )
 
-    parent_node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
-    type = Column(Enum(PageType), nullable=False)
-    creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    owner_user_id = Column(ForeignKey("users.id"), nullable=True, index=True)
-    owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, index=True)
+    parent_node_id: Mapped[int] = mapped_column(ForeignKey("nodes.id"), index=True)
+    type: Mapped[PageType] = mapped_column(Enum(PageType))
+    creator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    owner_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True, index=True)
+    owner_cluster_id: Mapped[int | None] = mapped_column(ForeignKey("clusters.id"), nullable=True, index=True)
 
-    thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True)
+    thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), unique=True)
 
     parent_node = relationship("Node", backref="child_pages", remote_side="Node.id", foreign_keys="Page.parent_node_id")
 
@@ -273,7 +282,7 @@ class Page(Base):
         ),
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Page({self.id=})"
 
 
@@ -284,17 +293,17 @@ class PageVersion(Base):
 
     __tablename__ = "page_versions"
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
-    page_id = Column(ForeignKey("pages.id"), nullable=False, index=True)
-    editor_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    title = Column(String, nullable=False)
-    content = Column(String, nullable=False)  # CommonMark without images
-    photo_key = Column(ForeignKey("uploads.key"), nullable=True)
-    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    page_id: Mapped[int] = mapped_column(ForeignKey("pages.id"), index=True)
+    editor_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    title: Mapped[str] = mapped_column(String)
+    content: Mapped[str] = mapped_column(String)  # CommonMark without images
+    photo_key: Mapped[str | None] = mapped_column(ForeignKey("uploads.key"), nullable=True)
+    geom: Mapped[Geom | None] = mapped_column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     # the human-readable address
-    address = Column(String, nullable=True)
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    address: Mapped[str | None] = mapped_column(String, nullable=True)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     slug = column_property(func.slugify(title))
 
@@ -311,9 +320,9 @@ class PageVersion(Base):
     )
 
     @property
-    def coordinates(self):
+    def coordinates(self) -> tuple[float, float] | None:
         # returns (lat, lng) or None
         return get_coordinates(self.geom)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"PageVersion({self.id=}, {self.page_id=})"

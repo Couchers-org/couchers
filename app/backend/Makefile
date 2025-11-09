@@ -31,6 +31,7 @@ mypy:
 		src/couchers/resources.py \
 		src/couchers/urls.py \
 		src/couchers/utils.py \
+		src/couchers/models \
 		src/couchers/context.py
 
 # Downgrade the local database to the previous migration. Good if you ran a migration on a branch and will run the backend on another branch after.

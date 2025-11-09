@@ -1,13 +1,19 @@
 import enum
+from datetime import date, datetime
+from typing import TYPE_CHECKING, Any
 
 from geoalchemy2 import Geometry
-from sqlalchemy import BigInteger, Boolean, Column, Date, DateTime, Enum, Float, ForeignKey, Index, String, func, text
+from sqlalchemy import BigInteger, Boolean, Date, DateTime, Enum, Float, ForeignKey, Index, String, func, text
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import column_property, relationship
+from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 from sqlalchemy.sql import expression
 
 from couchers.models.base import Base
 from couchers.utils import date_in_timezone, now
+
+if TYPE_CHECKING:
+    from couchers.models.conversations import Conversation
+    from couchers.models.users import User
 
 
 class HostRequestStatus(enum.Enum):
@@ -31,49 +37,55 @@ class HostRequest(Base):
 
     __tablename__ = "host_requests"
 
-    conversation_id = Column("id", ForeignKey("conversations.id"), nullable=False, primary_key=True)
-    surfer_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    host_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    conversation_id: Mapped[int] = mapped_column("id", ForeignKey("conversations.id"), primary_key=True)
+    surfer_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    host_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
-    hosting_city = Column(String, nullable=False)
-    hosting_location = Column(Geometry("POINT", srid=4326), nullable=False)
-    hosting_radius = Column(Float, nullable=False)
+    hosting_city: Mapped[str] = mapped_column(String)
+    hosting_location: Mapped[Geometry] = mapped_column(Geometry("POINT", srid=4326))
+    hosting_radius: Mapped[float] = mapped_column(Float)
 
     # TODO: proper timezone handling
     timezone = "Etc/UTC"
 
     # dates in the timezone above
-    from_date = Column(Date, nullable=False)
-    to_date = Column(Date, nullable=False)
+    from_date: Mapped[date] = mapped_column(Date)
+    to_date: Mapped[date] = mapped_column(Date)
 
     # timezone aware start and end times of the request, can be compared to now()
-    start_time = column_property(date_in_timezone(from_date, timezone))
-    end_time = column_property(date_in_timezone(to_date, timezone) + text("interval '1 days'"))
-    start_time_to_write_reference = column_property(date_in_timezone(to_date, timezone))
+    start_time = column_property(date_in_timezone(from_date, timezone))  # type: ignore[arg-type]
+    end_time = column_property(date_in_timezone(to_date, timezone) + text("interval '1 days'"))  # type: ignore[arg-type]
+    start_time_to_write_reference = column_property(date_in_timezone(to_date, timezone))  # type: ignore[arg-type]
     # notice 1 day for midnight at the *end of the day*, then 14 days to write a ref
-    end_time_to_write_reference = column_property(date_in_timezone(to_date, timezone) + text("interval '15 days'"))
+    end_time_to_write_reference = column_property(date_in_timezone(to_date, timezone) + text("interval '15 days'"))  # type: ignore[arg-type]
 
-    status = Column(Enum(HostRequestStatus), nullable=False)
-    is_host_archived = Column(Boolean, nullable=False, default=False, server_default=expression.false())
-    is_surfer_archived = Column(Boolean, nullable=False, default=False, server_default=expression.false())
+    status: Mapped[HostRequestStatus] = mapped_column(Enum(HostRequestStatus))
+    is_host_archived: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
+    is_surfer_archived: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
 
-    host_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
-    surfer_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
+    host_last_seen_message_id: Mapped[int] = mapped_column(BigInteger, default=0)
+    surfer_last_seen_message_id: Mapped[int] = mapped_column(BigInteger, default=0)
 
     # number of reference reminders sent out
-    host_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
-    surfer_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
-    host_sent_request_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
-    last_sent_request_reminder_time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    host_sent_reference_reminders: Mapped[int] = mapped_column(BigInteger, server_default=text("0"))
+    surfer_sent_reference_reminders: Mapped[int] = mapped_column(BigInteger, server_default=text("0"))
+    host_sent_request_reminders: Mapped[int] = mapped_column(BigInteger, server_default=text("0"))
+    last_sent_request_reminder_time: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
     # reason why the host/surfer marked that they didn't meet up
     # if null then they haven't marked it such
-    host_reason_didnt_meetup = Column(String, nullable=True)
-    surfer_reason_didnt_meetup = Column(String, nullable=True)
+    host_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, nullable=True)
+    surfer_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    surfer = relationship("User", backref="host_requests_sent", foreign_keys="HostRequest.surfer_user_id")
-    host = relationship("User", backref="host_requests_received", foreign_keys="HostRequest.host_user_id")
-    conversation = relationship("Conversation")
+    surfer: Mapped["User"] = relationship(
+        "User", backref="host_requests_sent", foreign_keys="HostRequest.surfer_user_id"
+    )
+    host: Mapped["User"] = relationship(
+        "User", backref="host_requests_received", foreign_keys="HostRequest.host_user_id"
+    )
+    conversation: Mapped["Conversation"] = relationship("Conversation")
 
     __table_args__ = (
         # allows fast lookup as to whether they didn't meet up
@@ -96,7 +108,7 @@ class HostRequest(Base):
     )
 
     @hybrid_property
-    def can_write_reference(self):
+    def can_write_reference(self) -> Any:
         return (
             ((self.status == HostRequestStatus.confirmed) | (self.status == HostRequestStatus.accepted))
             & (now() >= self.start_time_to_write_reference)
@@ -104,14 +116,14 @@ class HostRequest(Base):
         )
 
     @can_write_reference.expression
-    def can_write_reference(cls):
+    def can_write_reference_expr(cls) -> Any:  # noqa: ARG003,D102
         return (
             ((cls.status == HostRequestStatus.confirmed) | (cls.status == HostRequestStatus.accepted))
             & (func.now() >= cls.start_time_to_write_reference)
             & (func.now() <= cls.end_time_to_write_reference)
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"HostRequest(id={self.conversation_id}, surfer_user_id={self.surfer_user_id}, host_user_id={self.host_user_id}...)"
 
 
@@ -122,17 +134,17 @@ class HostRequestFeedback(Base):
 
     __tablename__ = "host_request_feedbacks"
 
-    id = Column(BigInteger, primary_key=True)
-    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    host_request_id = Column(ForeignKey("host_requests.id"), nullable=False)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    host_request_id: Mapped[int] = mapped_column(ForeignKey("host_requests.id"))
 
-    from_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    to_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    from_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    to_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
-    request_quality = Column(Enum(HostRequestQuality), nullable=True)
-    decline_reason = Column(String, nullable=True)  # plain text
+    request_quality: Mapped[HostRequestQuality | None] = mapped_column(Enum(HostRequestQuality), nullable=True)
+    decline_reason: Mapped[str | None] = mapped_column(String, nullable=True)  # plain text
 
-    host_request = relationship("HostRequest")
+    host_request: Mapped["HostRequest"] = relationship("HostRequest")
 
     __table_args__ = (
         # Each user can leave at most one friend reference to another user

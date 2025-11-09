@@ -1,8 +1,10 @@
 import enum
+from datetime import datetime
+from typing import Any
 
-from sqlalchemy import BigInteger, Boolean, Column, DateTime, Enum, ForeignKey, String, func
+from sqlalchemy import BigInteger, Boolean, DateTime, Enum, ForeignKey, String, func
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import backref, relationship
+from sqlalchemy.orm import Mapped, backref, mapped_column, relationship
 
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.models.base import Base
@@ -17,11 +19,11 @@ class Conversation(Base):
 
     __tablename__ = "conversations"
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     # timezone should always be UTC
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Conversation(id={self.id}, created={self.created})"
 
 
@@ -32,17 +34,17 @@ class GroupChat(Base):
 
     __tablename__ = "group_chats"
 
-    conversation_id = Column("id", ForeignKey("conversations.id"), nullable=False, primary_key=True)
+    conversation_id: Mapped[int] = mapped_column("id", ForeignKey("conversations.id"), primary_key=True)
 
-    title = Column(String, nullable=True)
-    only_admins_invite = Column(Boolean, nullable=False, default=True)
-    creator_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    is_dm = Column(Boolean, nullable=False)
+    title: Mapped[str | None] = mapped_column(String, nullable=True)
+    only_admins_invite: Mapped[bool] = mapped_column(Boolean, default=True)
+    creator_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    is_dm: Mapped[bool] = mapped_column(Boolean)
 
     conversation = relationship("Conversation", backref="group_chat")
     creator = relationship("User", backref="created_group_chats")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"GroupChat(conversation={self.conversation}, title={self.title or 'None'}, only_admins_invite={self.only_admins_invite}, creator={self.creator}, is_dm={self.is_dm})"
 
 
@@ -57,27 +59,29 @@ class GroupChatSubscription(Base):
     """
 
     __tablename__ = "group_chat_subscriptions"
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
     # TODO: DB constraint on only one user+group_chat combo at a given time
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    group_chat_id = Column(ForeignKey("group_chats.id"), nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    group_chat_id: Mapped[int] = mapped_column(ForeignKey("group_chats.id"), index=True)
 
     # timezones should always be UTC
-    joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    left = Column(DateTime(timezone=True), nullable=True)
+    joined: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    left: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    role = Column(Enum(GroupChatRole), nullable=False)
+    role: Mapped[GroupChatRole] = mapped_column(Enum(GroupChatRole))
 
-    last_seen_message_id = Column(BigInteger, nullable=False, default=0)
+    last_seen_message_id: Mapped[int] = mapped_column(BigInteger, default=0)
 
     # when this chat is muted until, DATETIME_INFINITY for "forever"
-    muted_until = Column(DateTime(timezone=True), nullable=False, server_default=DATETIME_MINUS_INFINITY.isoformat())
+    muted_until: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=DATETIME_MINUS_INFINITY.isoformat()
+    )
 
     user = relationship("User", backref="group_chat_subscriptions")
     group_chat = relationship("GroupChat", backref=backref("subscriptions", lazy="dynamic"))
 
-    def muted_display(self):
+    def muted_display(self) -> tuple[bool, datetime | None]:
         """
         Returns (muted, muted_until) display values:
         1. If not muted, returns (False, None)
@@ -92,10 +96,10 @@ class GroupChatSubscription(Base):
             return (True, self.muted_until)
 
     @hybrid_property
-    def is_muted(self):
+    def is_muted(self) -> Any:
         return self.muted_until > func.now()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"GroupChatSubscription(id={self.id}, user={self.user}, joined={self.joined}, left={self.left}, role={self.role}, group_chat={self.group_chat})"
 
 
@@ -124,39 +128,39 @@ class Message(Base):
 
     __tablename__ = "messages"
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
     # which conversation the message belongs in
-    conversation_id = Column(ForeignKey("conversations.id"), nullable=False, index=True)
+    conversation_id: Mapped[int] = mapped_column(ForeignKey("conversations.id"), index=True)
 
     # the user that sent the message/command
-    author_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    author_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     # the message type, "text" is a text message, otherwise a "control message"
-    message_type = Column(Enum(MessageType), nullable=False)
+    message_type: Mapped[MessageType] = mapped_column(Enum(MessageType))
 
     # the target if a control message and requires target, e.g. if inviting a user, the user invited is the target
-    target_id = Column(ForeignKey("users.id"), nullable=True, index=True)
+    target_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True, index=True)
 
     # time sent, timezone should always be UTC
-    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     # the plain-text message text if not control
-    text = Column(String, nullable=True)
+    text: Mapped[str | None] = mapped_column(String, nullable=True)
 
     # the new host request status if the message type is host_request_status_changed
-    host_request_status_target = Column(Enum(HostRequestStatus), nullable=True)
+    host_request_status_target: Mapped[HostRequestStatus | None] = mapped_column(Enum(HostRequestStatus), nullable=True)
 
     conversation = relationship("Conversation", backref="messages", order_by="Message.time.desc()")
     author = relationship("User", foreign_keys="Message.author_id")
     target = relationship("User", foreign_keys="Message.target_id")
 
     @property
-    def is_normal_message(self):
+    def is_normal_message(self) -> bool:
         """
         There's only one normal type atm, text
         """
         return self.message_type == MessageType.text
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Message(id={self.id}, time={self.time}, text={self.text}, author={self.author}, conversation={self.conversation})"

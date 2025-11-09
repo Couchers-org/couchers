@@ -1,10 +1,10 @@
 import enum
+from datetime import datetime
 
 from google.protobuf import empty_pb2
 from sqlalchemy import (
     BigInteger,
     Boolean,
-    Column,
     DateTime,
     Enum,
     ForeignKey,
@@ -15,7 +15,7 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import expression
 
 from couchers.constants import DATETIME_INFINITY
@@ -36,10 +36,13 @@ dt = NotificationDeliveryType
 nd = notification_data_pb2
 dt_sec = [dt.email, dt.push]
 dt_all = [dt.email, dt.push, dt.digest]
+dt_empty: list[NotificationDeliveryType] = []
 
 
 class NotificationTopicAction(enum.Enum):
-    def __init__(self, topic_action, defaults, user_editable, data_type):
+    def __init__(
+        self, topic_action: str, defaults: list[NotificationDeliveryType], user_editable: bool, data_type: type
+    ) -> None:
         self.topic, self.action = topic_action.split(":")
         self.defaults = defaults
         # for now user editable == not a security notification
@@ -47,14 +50,14 @@ class NotificationTopicAction(enum.Enum):
 
         self.data_type = data_type
 
-    def unpack(self):
+    def unpack(self) -> tuple[str, str]:
         return self.topic, self.action
 
     @property
-    def display(self):
+    def display(self) -> str:
         return f"{self.topic}:{self.action}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.display
 
     # topic, action, default delivery types
@@ -96,7 +99,7 @@ class NotificationTopicAction(enum.Enum):
     # approved by mods
     event__create_approved = ("event:create_approved", dt_all, True, nd.EventCreate)
     # any user creates any event, default to no notifications
-    event__create_any = ("event:create_any", [], True, nd.EventCreate)
+    event__create_any = ("event:create_any", dt_empty, True, nd.EventCreate)
     event__update = ("event:update", dt_all, True, nd.EventUpdate)
     event__cancel = ("event:cancel", dt_all, True, nd.EventCancel)
     event__delete = ("event:delete", dt_all, True, nd.EventDelete)
@@ -151,12 +154,12 @@ class NotificationTopicAction(enum.Enum):
 class NotificationPreference(Base):
     __tablename__ = "notification_preferences"
 
-    id = Column(BigInteger, primary_key=True)
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
-    topic_action = Column(Enum(NotificationTopicAction), nullable=False)
-    delivery_type = Column(Enum(NotificationDeliveryType), nullable=False)
-    deliver = Column(Boolean, nullable=False)
+    topic_action: Mapped[NotificationTopicAction] = mapped_column(Enum(NotificationTopicAction))
+    delivery_type: Mapped[NotificationDeliveryType] = mapped_column(Enum(NotificationDeliveryType))
+    deliver: Mapped[bool] = mapped_column(Boolean)
 
     user = relationship("User", foreign_keys="NotificationPreference.user_id")
 
@@ -170,19 +173,19 @@ class Notification(Base):
 
     __tablename__ = "notifications"
 
-    id = Column(BigInteger, primary_key=True)
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     # recipient user id
-    user_id = Column(ForeignKey("users.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
-    topic_action = Column(Enum(NotificationTopicAction), nullable=False)
-    key = Column(String, nullable=False)
+    topic_action: Mapped[NotificationTopicAction] = mapped_column(Enum(NotificationTopicAction))
+    key: Mapped[str] = mapped_column(String)
 
-    data = Column(Binary, nullable=False)
+    data: Mapped[bytes] = mapped_column(Binary)
 
     # whether the user has marked this notification as seen or not
-    is_seen = Column(Boolean, nullable=False, server_default=expression.false())
+    is_seen: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
 
     user = relationship("User", foreign_keys="Notification.user_id")
 
@@ -209,24 +212,24 @@ class Notification(Base):
     )
 
     @property
-    def topic(self):
+    def topic(self) -> str:
         return self.topic_action.topic
 
     @property
-    def action(self):
+    def action(self) -> str:
         return self.topic_action.action
 
 
 class NotificationDelivery(Base):
     __tablename__ = "notification_deliveries"
 
-    id = Column(BigInteger, primary_key=True)
-    notification_id = Column(ForeignKey("notifications.id"), nullable=False, index=True)
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    delivered = Column(DateTime(timezone=True), nullable=True)
-    read = Column(DateTime(timezone=True), nullable=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    notification_id: Mapped[int] = mapped_column(ForeignKey("notifications.id"), index=True)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    delivered: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    read: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     # todo: enum of "phone, web, digest"
-    delivery_type = Column(Enum(NotificationDeliveryType), nullable=False)
+    delivery_type: Mapped[NotificationDeliveryType] = mapped_column(Enum(NotificationDeliveryType))
     # todo: device id
     # todo: receipt id, etc
     notification = relationship("Notification", foreign_keys="NotificationDelivery.notification_id")
@@ -251,27 +254,27 @@ class NotificationDelivery(Base):
 class PushNotificationSubscription(Base):
     __tablename__ = "push_notification_subscriptions"
 
-    id = Column(BigInteger, primary_key=True)
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     # which user this is connected to
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     # these come from https://developer.mozilla.org/en-US/docs/Web/API/PushSubscription
     # the endpoint
-    endpoint = Column(String, nullable=False)
+    endpoint: Mapped[str] = mapped_column(String)
     # the "auth" key
-    auth_key = Column(Binary, nullable=False)
+    auth_key: Mapped[bytes] = mapped_column(Binary)
     # the "p256dh" key
-    p256dh_key = Column(Binary, nullable=False)
+    p256dh_key: Mapped[bytes] = mapped_column(Binary)
 
-    full_subscription_info = Column(String, nullable=False)
+    full_subscription_info: Mapped[str] = mapped_column(String)
 
     # the browse user-agent, so we can tell the user what browser notifications are going to
-    user_agent = Column(String, nullable=True)
+    user_agent: Mapped[str | None] = mapped_column(String, nullable=True)
 
     # when it was disabled
-    disabled_at = Column(DateTime(timezone=True), nullable=False, server_default=DATETIME_INFINITY.isoformat())
+    disabled_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=DATETIME_INFINITY.isoformat())
 
     user = relationship("User")
 
@@ -279,18 +282,18 @@ class PushNotificationSubscription(Base):
 class PushNotificationDeliveryAttempt(Base):
     __tablename__ = "push_notification_delivery_attempt"
 
-    id = Column(BigInteger, primary_key=True)
-    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    push_notification_subscription_id = Column(
-        ForeignKey("push_notification_subscriptions.id"), nullable=False, index=True
+    push_notification_subscription_id: Mapped[int] = mapped_column(
+        ForeignKey("push_notification_subscriptions.id"), index=True
     )
 
-    success = Column(Boolean, nullable=False)
+    success: Mapped[bool] = mapped_column(Boolean)
     # the HTTP status code, 201 is success
-    status_code = Column(Integer, nullable=False)
+    status_code: Mapped[int] = mapped_column(Integer)
 
     # can be null if it was a success
-    response = Column(String, nullable=True)
+    response: Mapped[str | None] = mapped_column(String, nullable=True)
 
     push_notification_subscription = relationship("PushNotificationSubscription")
