@@ -15,10 +15,10 @@ from sqlalchemy.sql import or_, text
 
 from couchers.config import config
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
+from couchers.context import make_interactive_context
 from couchers.crypto import random_hex
 from couchers.db import _get_base_engine, session_scope
 from couchers.descriptor_pool import get_descriptor_pool
-from couchers.i18n.i18n import get_raw_translation_string
 from couchers.interceptors import (
     CouchersMiddlewareInterceptor,
     _try_get_and_update_user_details,
@@ -686,31 +686,49 @@ def _check_user_perms(method, user_id, is_jailed, is_superuser, token_expiry):
         ), "User is jailed but tried to call non-open/non-jailed API"
 
 
+class MockGrpcContext:
+    """
+    Pure mock of grpc.ServicerContext for testing.
+    """
+
+    def __init__(self):
+        self._initial_metadata = []
+        self._invocation_metadata = []
+
+    def abort(self, code, details):
+        raise FakeRpcError(code, details)
+
+    def invocation_metadata(self):
+        return self._invocation_metadata
+
+    def send_initial_metadata(self, metadata):
+        self._initial_metadata.extend(metadata)
+
+
 class FakeChannel:
-    def __init__(self, user_id=None, is_jailed=None, is_superuser=None, token_expiry=None):
+    """
+    Mock gRPC channel for testing that orchestrates context creation.
+
+    This holds test state (user auth details) and creates proper CouchersContext
+    instances when handlers are invoked.
+    """
+
+    def __init__(
+        self,
+        user_id=None,
+        is_jailed=None,
+        is_superuser=None,
+        token_expiry=None,
+        token=None,
+        ui_language_preference=None,
+    ):
         self.handlers = {}
         self.user_id = user_id
         self._is_jailed = is_jailed
         self._is_superuser = is_superuser
         self._token_expiry = token_expiry
-
-    def is_logged_in(self):
-        return self.user_id is not None
-
-    def abort(self, code, details):
-        raise FakeRpcError(code, details)
-
-    def abort_with_error_code(self, status_code, error_message_id, **subs):
-        """
-        Raises an error that's returned to the user, but error_message_id should be an entry from translateable errors.
-        This method validates that the error code exists in the english language translation.
-        """
-        # Validate that the error message ID exists by attempting to retrieve it
-        # This will raise MissingTranslationError if the string doesn't exist
-        error_message = get_raw_translation_string("en", "errors", error_message_id, **subs)
-
-        # Now abort with the translated message
-        self.abort(status_code, error_message)
+        self._token = token
+        self._ui_language_preference = ui_language_preference
 
     def add_generic_rpc_handlers(self, generic_rpc_handlers):
         from grpc._server import _validate_generic_rpc_handlers
@@ -730,7 +748,20 @@ class FakeChannel:
             request = handler.request_deserializer(request_serializer(request))
 
             with session_scope() as session:
-                response = handler.unary_unary(request, self, session)
+                mock_grpc_ctx = MockGrpcContext()
+
+                if self.user_id is not None:
+                    context = make_interactive_context(
+                        grpc_context=mock_grpc_ctx,
+                        user_id=self.user_id,
+                        is_api_key=False,
+                        token=self._token,
+                        ui_language_preference=self._ui_language_preference,
+                    )
+                else:
+                    context = make_interactive_context(grpc_context=mock_grpc_ctx)
+
+                response = handler.unary_unary(request, context, session)
 
             return response_deserializer(handler.response_serializer(response))
 
@@ -738,11 +769,24 @@ class FakeChannel:
 
 
 def fake_channel(token=None):
+    """
+    Create a mock gRPC channel for testing.
+
+    Returns a FakeChannel that will create proper CouchersContext instances
+    when handlers are invoked.
+    """
     if token:
         user_id, is_jailed, is_superuser, token_expiry, ui_language_preference = _try_get_and_update_user_details(
             token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
         )
-        return FakeChannel(user_id=user_id, is_jailed=is_jailed, is_superuser=is_superuser, token_expiry=token_expiry)
+        return FakeChannel(
+            user_id=user_id,
+            is_jailed=is_jailed,
+            is_superuser=is_superuser,
+            token_expiry=token_expiry,
+            token=token,
+            ui_language_preference=ui_language_preference,
+        )
     return FakeChannel()
 
 

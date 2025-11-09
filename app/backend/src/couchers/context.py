@@ -184,11 +184,11 @@ class CouchersContext:
         return self.__ui_language_preference
 
 
-def make_interactive_user_context(
+def make_interactive_context(
     grpc_context: grpc.ServicerContext,
-    user_id: int,
+    user_id: int | None,
     is_api_key: bool,
-    token: str,
+    token: str | None,
     ui_language_preference: str | None,
 ) -> CouchersContext:
     return CouchersContext(

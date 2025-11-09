@@ -12,7 +12,7 @@ from opentelemetry import trace
 from sqlalchemy.sql import and_, func
 
 from couchers.constants import UNKNOWN_ERROR_MESSAGE
-from couchers.context import CouchersContext, make_interactive_user_context, make_media_context
+from couchers.context import CouchersContext, make_interactive_context, make_media_context
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import observe_in_servicer_duration_histogram
@@ -265,7 +265,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
         prev_function = handler.unary_unary
 
         def function_without_couchers_stuff(req, grpc_context):
-            couchers_context: CouchersContext = make_interactive_user_context(
+            couchers_context: CouchersContext = make_interactive_context(
                 grpc_context=grpc_context,
                 user_id=user_id,
                 is_api_key=is_api_key,
