@@ -1,11 +1,13 @@
 import { Pagination, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import { EventsType } from "features/queryKeys";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useState } from "react";
+import { routeToNewEvent } from "routes";
 import { theme } from "theme";
 
 import EventsList from "./EventsList";
@@ -104,7 +106,15 @@ const MyEventsList = () => {
         </StyledFilterTag>
       </StyledFilterTagContainer>
       {!hasEvents && !isLoading && (
-        <StyledEmptyBody>{t("communities:events_empty_state")}</StyledEmptyBody>
+        <StyledEmptyBody>
+          <Trans
+            t={t}
+            i18nKey="communities:events_empty_state"
+            components={[
+              <StyledLink key="create-link" href={routeToNewEvent()} />,
+            ]}
+          />
+        </StyledEmptyBody>
       )}
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading && <CenteredSpinner minHeight="theme.spacing(20)" />}
