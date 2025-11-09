@@ -419,6 +419,8 @@ test:web-linting:
 test:proxy:
   needs: ["build:proxy"]
   stage: test
+  variables:
+    GIT_DEPTH: 0
   script:
     - docker run --name envoy-config-test -d -p 8888:8888 -p 9901:9901 $PROXY_TAG
     - sleep 10
@@ -627,6 +629,8 @@ wait:before-release:
 release:proxy:
   needs: ["wait:before-release"]
   stage: release
+  variables:
+    GIT_DEPTH: 0
   script:
     - docker pull $PROXY_TAG
     - docker tag $PROXY_TAG $PROXY_RELEASE_TAG
@@ -639,6 +643,8 @@ release:proxy:
 release:nginx:
   needs: ["wait:before-release"]
   stage: release
+  variables:
+    GIT_DEPTH: 0
   script:
     - docker pull $NGINX_TAG
     - docker tag $NGINX_TAG $NGINX_RELEASE_TAG
@@ -651,6 +657,8 @@ release:nginx:
 release:prometheus:
   needs: ["wait:before-release"]
   stage: release
+  variables:
+    GIT_DEPTH: 0
   script:
     - docker pull $PROMETHEUS_TAG
     - docker tag $PROMETHEUS_TAG $PROMETHEUS_RELEASE_TAG
@@ -663,6 +671,8 @@ release:prometheus:
 release:backend:
   needs: ["wait:before-release"]
   stage: release
+  variables:
+    GIT_DEPTH: 0
   script:
     - docker pull $BACKEND_TAG
     - docker tag $BACKEND_TAG $BACKEND_RELEASE_TAG
@@ -675,6 +685,8 @@ release:backend:
 release:media:
   needs: ["wait:before-release"]
   stage: release
+  variables:
+    GIT_DEPTH: 0
   script:
     - docker pull $MEDIA_TAG
     - docker tag $MEDIA_TAG $MEDIA_RELEASE_TAG
@@ -687,6 +699,8 @@ release:media:
 release:web-dev:
   needs: ["wait:before-release"]
   stage: release
+  variables:
+    GIT_DEPTH: 0
   script:
     - docker pull $WEB_DEV_TAG
     - docker tag $WEB_DEV_TAG $WEB_DEV_RELEASE_TAG
@@ -699,6 +713,8 @@ release:web-dev:
 release:web:
   needs: ["wait:before-release"]
   stage: release
+  variables:
+    GIT_DEPTH: 0
   script:
     - docker pull $WEB_TAG
     - docker tag $WEB_TAG $WEB_RELEASE_TAG
@@ -711,6 +727,8 @@ release:web:
 release:web-next:
   needs: ["wait:before-release"]
   stage: release
+  variables:
+    GIT_DEPTH: 0
   script:
     - docker pull $WEB_NEXT_TAG
     - docker tag $WEB_NEXT_TAG $WEB_NEXT_RELEASE_TAG
@@ -724,6 +742,8 @@ release:web-next:
 release:nginx-next:
   needs: ["wait:before-release"]
   stage: release
+  variables:
+    GIT_DEPTH: 0
   script:
     - docker pull $NGINX_NEXT_TAG
     - docker tag $NGINX_NEXT_TAG $NGINX_NEXT_RELEASE_TAG
