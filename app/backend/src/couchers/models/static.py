@@ -1,7 +1,8 @@
 from geoalchemy2 import Geometry
-from sqlalchemy import BigInteger, Column, Index, String
+from sqlalchemy import BigInteger, Index, String
+from sqlalchemy.orm import Mapped, mapped_column
 
-from couchers.models.base import Base
+from couchers.models.base import Base, Geom
 
 
 class Language(Base):
@@ -12,18 +13,18 @@ class Language(Base):
     __tablename__ = "languages"
 
     # ISO639-3 language code, in lowercase, e.g. fin, eng
-    code = Column(String(3), primary_key=True)
+    code: Mapped[str] = mapped_column(String(3), primary_key=True)
 
     # the english name
-    name = Column(String, nullable=False, unique=True)
+    name: Mapped[str] = mapped_column(String, unique=True)
 
 
 class TimezoneArea(Base):
     __tablename__ = "timezone_areas"
-    id = Column(BigInteger, primary_key=True)
 
-    tzid = Column(String)
-    geom = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    tzid: Mapped[str | None] = mapped_column(String)
+    geom: Mapped[Geom] = mapped_column(Geometry(geometry_type="MULTIPOLYGON", srid=4326))
 
     __table_args__ = (
         Index(
@@ -43,8 +44,8 @@ class Region(Base):
     __tablename__ = "regions"
 
     # iso 3166-1 alpha3 code in uppercase, e.g. FIN, USA
-    code = Column(String(3), primary_key=True)
+    code: Mapped[str] = mapped_column(String(3), primary_key=True)
 
     # the name, e.g. Finland, United States
     # this is the display name in English, should be the "common name", not "Republic of Finland"
-    name = Column(String, nullable=False, unique=True)
+    name: Mapped[str] = mapped_column(String, unique=True)

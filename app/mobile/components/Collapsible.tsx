@@ -4,7 +4,7 @@ import { StyleSheet, TouchableOpacity } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { Colors } from "@/constants/Colors";
+import { theme } from "@/theme";
 import { useColorScheme } from "@/hooks/useColorScheme";
 
 export function Collapsible({
@@ -12,7 +12,7 @@ export function Collapsible({
   title,
 }: PropsWithChildren & { title: string }) {
   const [isOpen, setIsOpen] = useState(false);
-  const theme = useColorScheme() ?? "light";
+  const colorScheme = useColorScheme() ?? "light";
 
   return (
     <ThemedView>
@@ -25,7 +25,11 @@ export function Collapsible({
           name="chevron.right"
           size={18}
           weight="medium"
-          color={theme === "light" ? Colors.light.icon : Colors.dark.icon}
+          color={
+            colorScheme === "light"
+              ? theme.palette.common.white
+              : theme.palette.common.black
+          }
           style={{ transform: [{ rotate: isOpen ? "90deg" : "0deg" }] }}
         />
 

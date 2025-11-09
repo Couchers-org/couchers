@@ -14,13 +14,12 @@ import * as auth from "./auth";
 import * as notifications from "./notifications";
 // import * as pages from "./pages";
 // import * as publicApi from "./public";
-import * as references from "@/service/references";
+// import * as references from "@/service/references";
 // import * as reporting from "./reporting";
 // import * as requests from "./requests";
 // import * as resources from "./resources";
 // import * as search from "./search";
 // import * as threads from "./threads";
-import * as user from "./user";
 // import * as version from "./version";
 
 export const service = {
@@ -40,17 +39,11 @@ export const service = {
   notifications,
   // pages,
   // publicApi,
-  references,
+  // references,
   // reporting,
   // requests,
   // resources,
   // search,
   // threads,
-  user,
   // version,
 } as const;
-
-export type {
-  HostingPreferenceData,
-  UpdateUserProfileData,
-} from "@/service/user";

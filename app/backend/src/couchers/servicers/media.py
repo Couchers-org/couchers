@@ -13,15 +13,15 @@ from proto import media_pb2_grpc
 logger = logging.getLogger(__name__)
 
 
-def get_media_auth_interceptor(secret_token):
-    def is_authorized(token):
+def get_media_auth_interceptor(secret_token: str) -> MediaInterceptor:
+    def is_authorized(token: str):
         return secure_compare(token.encode("ascii"), secret_token.encode("ascii"))
 
     return MediaInterceptor(is_authorized)
 
 
 class Media(media_pb2_grpc.MediaServicer):
-    def UploadConfirmation(self, request, context, session):
+    def UploadConfirmation(self, request, context, session) -> empty_pb2.Empty:
         initiated_upload = session.execute(
             select(InitiatedUpload).where(InitiatedUpload.key == request.key).where(InitiatedUpload.is_valid)
         ).scalar_one_or_none()

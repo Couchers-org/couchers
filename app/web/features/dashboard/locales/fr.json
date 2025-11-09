@@ -48,5 +48,9 @@
   "become_a_host": "Devenir un.e hôte",
   "search_input_placeholder": "Rechercher une destination géographique",
   "hero_image_alt": "Montgolfières en Cappadoce",
-  "all_communities_intro": "Vous pouvez parcourir ci-dessous toutes les pages de la communauté existantes jusqu'à maintenant. <strong>Cliquez sur un nom de communauté pour voir les autres sous-communautés qu’elle contient.</strong>"
+  "all_communities_intro": "Vous pouvez parcourir ci-dessous toutes les pages de la communauté existantes jusqu'à maintenant. <strong>Cliquez sur un nom de communauté pour voir les autres sous-communautés qu’elle contient.</strong>",
+  "events_empty_state": "Aucun événement pour le moment. Pourquoi ne pas en <0>créer</0> un ✨ ?",
+  "attendees_count_0": "{{count}} participant.e",
+  "attendees_count_1": "{{count}} participant.e.s",
+  "attendees_count_2": "{{count}} participant.e.s"
 }

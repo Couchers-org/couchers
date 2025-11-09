@@ -5,7 +5,7 @@ from couchers.utils import now, to_aware_datetime
 from proto import api_pb2, search_pb2
 
 
-def reranker(users: [search_pb2.SearchUser]) -> [search_pb2.SearchUser]:
+def reranker(users: list[search_pb2.SearchUser]) -> list[search_pb2.SearchUser]:
     """
     Given a list of users that are about to be returned in a search, reranks (re-orders) them better.
     """

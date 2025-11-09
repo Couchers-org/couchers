@@ -1,29 +1,31 @@
+from typing import cast
+
 import grpc
 
 
 class NonInteractiveContextException(Exception):
-    """If this exception is raised it is a programming error"""
+    """If this exception is raised, it is a programming error"""
 
 
 class NotLoggedInContextException(Exception):
-    """If this exception is raised it is a programming error"""
+    """If this exception is raised, it is a programming error"""
 
 
 class NonInteractiveAbortException(grpc.RpcError):
     """This exception is raised in background processes when they call context.abort()"""
 
-    def __init__(self, code, details):
+    def __init__(self, code: grpc.StatusCode, details: str) -> None:
         super().__init__(details)
         self._code = code
         self._details = details
 
-    def code(self):
+    def code(self) -> grpc.StatusCode:
         return self._code
 
-    def details(self):
+    def details(self) -> str:
         return self._details
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"RPC aborted in non-interactive context, code: {self._code}, details: {self._details}"
 
 
@@ -72,7 +74,7 @@ class CouchersContext:
         self.__ui_language_preference = ui_language_preference
         self.__is_interactive = is_interactive
         self.__logged_in = self._user_id is not None
-        self.__cookies = []
+        self.__cookies: list[str] = []
 
         if self.__is_interactive:
             if not self._grpc_context:
@@ -83,15 +85,15 @@ class CouchersContext:
             if not self._user_id:
                 raise ValueError("Invalid state, logged in but missing user_id")
 
-    def __verify_interactive(self):
+    def __verify_interactive(self) -> None:
         if not self.__is_interactive:
             raise NonInteractiveContextException("Called an interactive context function in non-interactive context")
 
-    def __verify_logged_in(self):
+    def __verify_logged_in(self) -> None:
         if not self.__logged_in:
             raise NotLoggedInContextException("Called a logged-in function from logged-out context")
 
-    def is_logged_in(self):
+    def is_logged_in(self) -> bool:
         return self.__logged_in
 
     def abort(self, status_code: grpc.StatusCode, error_message: str) -> None:
@@ -101,7 +103,8 @@ class CouchersContext:
         if not self.__is_interactive:
             raise NonInteractiveAbortException(status_code, error_message)
         else:
-            self._grpc_context.abort(status_code, error_message)
+            context = cast(grpc.ServicerContext, self._grpc_context)
+            context.abort(status_code, error_message)
 
     def set_cookies(self, cookies: list[str]) -> None:
         """
@@ -111,10 +114,11 @@ class CouchersContext:
         self.__cookies += cookies
 
     def _send_cookies(self) -> None:
-        self._grpc_context.send_initial_metadata([("set-cookie", cookie) for cookie in self.__cookies])
+        data = tuple([("set-cookie", cookie) for cookie in self.__cookies])
+        self._grpc_context.send_initial_metadata(data)  # type: ignore[union-attr]
 
     @property
-    def headers(self):
+    def headers(self) -> dict[str, str | bytes]:
         """
         Gets a list of HTTP headers for the requests
         """
@@ -124,18 +128,18 @@ class CouchersContext:
     @property
     def user_id(self) -> int:
         """
-        Returns the user ID of the currently logged in user, if available
+        Returns the user ID of the currently logged-in user, if available
         """
         self.__verify_logged_in()
-        return self._user_id
+        return cast(int, self._user_id)
 
     @property
     def is_api_key(self) -> bool:
         """
-        Returns whether the API call was done with API key or not, if available
+        Returns whether the API call was done with an API key or not, if available
         """
         self.__verify_logged_in()
-        return self._is_api_key
+        return cast(bool, self._is_api_key)
 
     @property
     def token(self) -> str:
@@ -144,14 +148,20 @@ class CouchersContext:
         """
         self.__verify_interactive()
         self.__verify_logged_in()
-        return self.__token
+        return cast(str, self.__token)
 
     @property
     def ui_language_preference(self) -> str | None:
         return self.__ui_language_preference
 
 
-def make_interactive_user_context(grpc_context, user_id, is_api_key, token, ui_language_preference):
+def make_interactive_user_context(
+    grpc_context: grpc.ServicerContext,
+    user_id: int,
+    is_api_key: bool,
+    token: str,
+    ui_language_preference: str | None,
+) -> CouchersContext:
     return CouchersContext(
         is_interactive=True,
         grpc_context=grpc_context,
@@ -162,7 +172,10 @@ def make_interactive_user_context(grpc_context, user_id, is_api_key, token, ui_l
     )
 
 
-def make_one_off_interactive_user_context(couchers_context, user_id):
+def make_one_off_interactive_user_context(
+    couchers_context: CouchersContext,
+    user_id: int,
+) -> CouchersContext:
     return CouchersContext(
         is_interactive=True,
         grpc_context=couchers_context._grpc_context,
@@ -173,7 +186,7 @@ def make_one_off_interactive_user_context(couchers_context, user_id):
     )
 
 
-def make_media_context(grpc_context):
+def make_media_context(grpc_context: grpc.ServicerContext) -> CouchersContext:
     return CouchersContext(
         is_interactive=True,
         user_id=None,
@@ -184,7 +197,7 @@ def make_media_context(grpc_context):
     )
 
 
-def make_background_user_context(user_id):
+def make_background_user_context(user_id: int) -> CouchersContext:
     return CouchersContext(
         is_interactive=False,
         user_id=user_id,

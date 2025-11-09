@@ -1,1 +1,20 @@
-{}
+{
+  "any": "Tous",
+  "filter_dialog": {
+    "desktop_title": "Filtres",
+    "mobile_title": "Rechercher",
+    "search_here_button": "Rechercher dans cet endroit"
+  },
+  "last_active_options": {
+    "last_week": "La semaine dernière",
+    "last_month": "Le mois dernier",
+    "last_3_months": "Les 3 derniers mois",
+    "last_6_months": "Les 6 derniers mois",
+    "last_year": "L'année dernière"
+  },
+  "form": {
+    "missing_location_validation_error": "Spécifiez un endroit pour utiliser ce filtre"
+  },
+  "choose_search_criteria": "Saisissez un lieu ou appliquez un filtre pour rechercher.",
+  "error_loading_users": "Erreur lors du chargement des utilisateurs.trices"
+}

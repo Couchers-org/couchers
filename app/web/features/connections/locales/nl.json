@@ -28,5 +28,7 @@
     "message": "Door deze gebruiker niet meer te blokkeren kunnen ze jouw profiel bekijken en verzoeken sturen. Als je vrienden was, komt deze persoon automatisch weer in je vriendenlijst. Ze krijgen hierover geen bericht.",
     "confirm": "Niet meer blokkeren"
   },
-  "block_user": "Gebruiker blokkeren"
+  "block_user": "Gebruiker blokkeren",
+  "accept": "Accepteren",
+  "decline": "Afwijzen"
 }

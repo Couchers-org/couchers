@@ -1,10 +1,15 @@
 import enum
+from datetime import datetime
+from typing import TYPE_CHECKING
 
-from sqlalchemy import BigInteger, CheckConstraint, Column, DateTime, Enum, ForeignKey, Index, Integer, func
+from sqlalchemy import BigInteger, CheckConstraint, DateTime, Enum, ForeignKey, Index, Integer, func
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from couchers.models.base import Base
+
+if TYPE_CHECKING:
+    from couchers.models.users import User
 
 
 class ActivenessProbeStatus(enum.Enum):
@@ -30,24 +35,26 @@ class ActivenessProbe(Base):
 
     __tablename__ = "activeness_probes"
 
-    id = Column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     # the time this probe was initiated
-    probe_initiated = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    probe_initiated: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     # the number of reminders sent for this probe
-    notifications_sent = Column(Integer, nullable=False, server_default="0")
+    notifications_sent: Mapped[int] = mapped_column(Integer, server_default="0")
 
     # the time of response
-    responded = Column(DateTime(timezone=True), nullable=True, default=None)
+    responded: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     # the response value
-    response = Column(Enum(ActivenessProbeStatus), nullable=False, default=ActivenessProbeStatus.pending)
+    response: Mapped[ActivenessProbeStatus] = mapped_column(
+        Enum(ActivenessProbeStatus), default=ActivenessProbeStatus.pending
+    )
 
     @hybrid_property
-    def is_pending(self):
+    def is_pending(self) -> bool:
         return self.responded == None
 
-    user = relationship("User", back_populates="pending_activeness_probe")
+    user: Mapped["User"] = relationship("User", back_populates="pending_activeness_probe")
 
     __table_args__ = (
         # a user can have at most one pending activeness probe at a time
@@ -55,7 +62,7 @@ class ActivenessProbe(Base):
             "ix_activeness_probe_unique_pending_response",
             user_id,
             unique=True,
-            postgresql_where=responded == None,
+            postgresql_where=responded.is_(None),
         ),
         # response time is none iff response is pending
         CheckConstraint(

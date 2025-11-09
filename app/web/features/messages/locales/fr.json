@@ -8,7 +8,8 @@
     "tabs": {
       "chats": "Discussions",
       "hosting": "Hébergement",
-      "aria_label": "Onglets pour différents types de message"
+      "aria_label": "Onglets pour différents types de message",
+      "surfing": "Demandes de surfer"
     }
   },
   "chat_view": {
@@ -37,6 +38,9 @@
       "1_month_label": "1 mois",
       "forever_label": "Jusqu'à ce que je réactive le son",
       "1_week_label": "1 semaine"
+    },
+    "muted_icon": {
+      "a11y_label": "Muet.te"
     }
   },
   "close_request_dialog_title": "Avez-vous fini de discuter ?",
@@ -49,7 +53,103 @@
   "admins_dialog": {
     "step_down_confirmation_dialog": {
       "title": "Démissionner en tant qu'administrateur ?",
-      "message": "Êtes-vous sûr.e de vouloir cesser d’être administrateur.trice de cette discussion de groupe ? Vous ne pourrez redevenir administrateur.trice que si un autre administrateur vous ajoute de nouveau."
+      "message": "Êtes-vous sûr.e de vouloir cesser d’être administrateur.trice de cette discussion de groupe ? Vous ne pourrez redevenir administrateur.trice que si un autre administrateur.trice vous ajoute de nouveau."
+    },
+    "add_admin": {
+      "action_a11y_label": "Ajouter en tant qu'administrateur.trice",
+      "title": "Ajouter un.e administrateur.trice"
+    },
+    "remove_admin": {
+      "title": "Supprimer l'administrateur.trice",
+      "action_a11y_label": "Supprimer en tant qu'administrateur.trice"
     }
-  }
+  },
+  "host_request_view": {
+    "request_duration_0": "{{count}} nuit",
+    "request_duration_1": "{{count}} nuits",
+    "request_duration_2": "{{count}} nuits",
+    "error_message": "Identification de demande d’hôte invalide",
+    "back_button_a11y_label": "Retourner",
+    "title_for_host": "Demande de {{user}} - {{status}}",
+    "title_for_surfer": "Demande à {{user}} - {{status}}"
+  },
+  "group_chat_settings_dialog": {
+    "only_admins_invite": {
+      "field_label": "Seuls les administrateurs.trices peuvent inviter d'autres personnes à la discussion"
+    },
+    "title": "Paramètres de discussion de groupe",
+    "chat_title": {
+      "field_label": "Titre de la discussion"
+    }
+  },
+  "host_request_item": {
+    "host_status": {
+      "cancelled": "Vous avez annulé cette demande",
+      "accepted": "Vous avez accepté cette demande",
+      "confirmed": "Vous avez confirmé cette demande",
+      "rejected": "Vous avez refusé cette demande"
+    },
+    "expired": "Cette demande a expiré",
+    "pending": "Cette demande est toujours en attente",
+    "surfer_status": {
+      "accepted": "Votre demande a été acceptée",
+      "cancelled": "Votre demande a été annulée",
+      "confirmed": "Votre demande a été confirmée",
+      "rejected": "Votre demande a été refusée"
+    }
+  },
+  "create_chat": {
+    "no_friends_found_message": "Impossible de trouver des ami.e.s",
+    "dm_title": "Créer une nouvelle discussion",
+    "group_title": "Créer une discussion de groupe",
+    "group_title_field_label": "Titre",
+    "user_load_error_message": "(Erreur de chargement)",
+    "friends_input_label": "Ami.e.s"
+  },
+  "leave_chat_dialog": {
+    "message": "Êtes-vous sûr.e de vouloir quitter cette discussion ?",
+    "title": "Quitter la discussion ?"
+  },
+  "control_message": {
+    "admin_assignment_text": "{{user}} a fait de {{target_user}} un.e administrateur.trice",
+    "created_chat_text": "{{user}} a créé la discussion",
+    "edited_chat_text": "{{user}} a modifié la discussion",
+    "invite_user_text": "{{user}} a invité {{target_user}}",
+    "user_left_chat_text": "{{user}} a quitté la discussion",
+    "admin_removal_text": "{{user}} a retiré {{target_user}} en tant qu'administrateur.trice",
+    "host_request_status_changed_text": "{{user}} a modifié la demande à {{status}}",
+    "unknown_message_text": "Message de contrôle inconnu"
+  },
+  "host_request_status": {
+    "rejected": "Refusé",
+    "accepted": "Accepté",
+    "cancelled": "Annulé",
+    "confirmed": "Confirmé",
+    "past": "Passé",
+    "pending": "En attente"
+  },
+  "chat_input": {
+    "label": "Envoyer un message"
+  },
+  "group_chats_tab": {
+    "no_chats_message": "Aucune discussion de groupe pour l'instant",
+    "load_more_button_label": "Afficher plus"
+  },
+  "requests_tab": {
+    "no_requests_message": "Aucune demande pour l'instant",
+    "load_more_button_label": "Afficher plus"
+  },
+  "invite_dialog": {
+    "title": "Inviter à discuter",
+    "selected": {
+      "field_label": "Ami.e.s",
+      "no_options_text": "Personne à inviter",
+      "option_load_error_text": "(Erreur de chargement)"
+    },
+    "invite_button_label": "Inviter"
+  },
+  "members_dialog": {
+    "title": "Membres de la discussion"
+  },
+  "unknown_user": "Utilisateur.trice inconnu.e"
 }

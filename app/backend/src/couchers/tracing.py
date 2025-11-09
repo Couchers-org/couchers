@@ -11,7 +11,7 @@ from couchers.config import config
 from couchers.db import _get_base_engine
 
 
-def setup_tracing():
+def setup_tracing() -> None:
     if config["OPENTELEMETRY_ENDPOINT"] != "":
         ThreadingInstrumentor().instrument()
 

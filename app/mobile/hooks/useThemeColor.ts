@@ -5,18 +5,33 @@
 
 import { useColorScheme } from "react-native";
 
-import { Colors } from "@/constants/Colors";
+import { theme } from "@/theme";
+
+type ColorName = "text" | "background" | "icon";
+
+const colorMap = {
+  light: {
+    text: theme.palette.text.primary,
+    background: theme.palette.background.default,
+    icon: theme.palette.grey[100],
+  },
+  dark: {
+    text: theme.palette.text.primary,
+    background: theme.palette.common.black,
+    icon: theme.palette.grey[100],
+  },
+};
 
 export function useThemeColor(
   props: { light?: string; dark?: string },
-  colorName: keyof typeof Colors.light & keyof typeof Colors.dark,
+  colorName: ColorName
 ) {
-  const theme = useColorScheme() ?? "light";
-  const colorFromProps = props[theme];
+  const scheme = useColorScheme() ?? "light";
+  const colorFromProps = props[scheme];
 
   if (colorFromProps) {
     return colorFromProps;
   } else {
-    return Colors[theme][colorName];
+    return colorMap[scheme][colorName];
   }
 }

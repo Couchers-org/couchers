@@ -1,18 +1,9 @@
-import React from "react";
-import WebEmbed from "@/components/WebEmbed";
 import { useLocalSearchParams } from "expo-router";
 
-export default function MarkdownEmbed() {
-  const params = useLocalSearchParams<{ slug?: string | string[] }>();
-  const slugParam = params.slug;
+import WebEmbed from "@/components/WebEmbed";
 
-  const segments = Array.isArray(slugParam)
-    ? slugParam
-    : typeof slugParam === "string"
-      ? [slugParam]
-      : [];
-
-  const path = "/" + segments.join("/");
-
+export default function MarkdownScreen() {
+  const { slug } = useLocalSearchParams<{ slug?: string[] }>();
+  const path = `/md/${(slug ?? []).join("/")}`;
   return <WebEmbed path={path} />;
 }
