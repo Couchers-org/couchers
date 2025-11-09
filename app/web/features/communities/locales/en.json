@@ -39,7 +39,7 @@
   "edit_event": "Edit event",
   "edit_info_page_title": "Edit local info",
   "error_loading_community": "Error loading the community.",
-  "events_empty_state": "No events at the moment.",
+  "events_empty_state": "No events at the moment. Why don't you <0>create</0> one ✨?",
   "find_host": "Find host",
   "finished": "Finished",
   "community_info_page_title": "General information",

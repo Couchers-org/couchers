@@ -2,11 +2,13 @@ import { Pagination, styled, Typography, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import LocationAutocomplete from "components/LocationAutocomplete";
+import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { routeToNewEvent } from "routes";
 import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
 
@@ -166,7 +168,15 @@ const DiscoverEventsList = () => {
         {isMobile && renderLocationAutoComplete()}
       </StyledColumn>
       {!hasEvents && !isLoading && (
-        <TextBody>{t("communities:events_empty_state")}</TextBody>
+        <TextBody>
+          <Trans
+            t={t}
+            i18nKey="communities:events_empty_state"
+            components={[
+              <StyledLink key="create-link" href={routeToNewEvent()} />,
+            ]}
+          />
+        </TextBody>
       )}
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading && (

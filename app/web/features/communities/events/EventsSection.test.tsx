@@ -76,7 +76,17 @@ describe("Events section", () => {
     renderEventsSection();
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    expect(screen.getByText(t("communities:events_empty_state"))).toBeVisible();
+    expect(
+      screen.getByText((content, element) => {
+        // Match text split across multiple elements by checking the full text content
+        return (
+          element?.textContent ===
+          "No events at the moment. Why don't you create one ✨?"
+        );
+      }),
+    ).toBeVisible();
+    // Check that there's a link to create a new event
+    expect(screen.getByRole("link", { name: "create" })).toBeInTheDocument();
   });
 
   it("takes the user to the events tab when 'See more events' is clicked", async () => {

@@ -17,6 +17,9 @@ Run tests with: `yarn test`
 ## Development
 To run the app locally in development, use `yarn start` (not Docker)
 
+# File imports
+- Use our import aliases, e.g. "components/" instead of "../../../components/" and "routes" instead of "../../../routes"
+
 ## Code Style
 - Do not use the `any` type in TypeScript - it's considered bad practice
 - Remove extra unnecessary style declarations, including anything that's already a default of MUI or the theme
