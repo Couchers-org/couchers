@@ -1,4 +1,5 @@
 import grpc
+from sqlalchemy.orm import Session
 
 from couchers import errors
 from couchers.db import can_moderate_at, can_moderate_node, get_parent_node_at_location
@@ -23,7 +24,7 @@ pagetype2api = {
 }
 
 
-def _is_page_owner(page: Page, user_id):
+def _is_page_owner(page: Page, user_id: int) -> bool:
     """
     Checks whether the user can act as an owner of the page
     """
@@ -33,7 +34,7 @@ def _is_page_owner(page: Page, user_id):
     return page.owner_cluster.admins.where(User.id == user_id).one_or_none() is not None
 
 
-def _can_moderate_page(session, page: Page, user_id):
+def _can_moderate_page(session: Session, page: Page, user_id: int) -> bool:
     """
     Checks if the user is allowed to moderate this page
     """
@@ -52,7 +53,7 @@ def _can_moderate_page(session, page: Page, user_id):
     return can_moderate_node(session, user_id, page.parent_node_id)
 
 
-def page_to_pb(session, page: Page, context):
+def page_to_pb(session: Session, page: Page, context) -> pages_pb2.Page:
     first_version = page.versions[0]
     current_version = page.versions[-1]
 

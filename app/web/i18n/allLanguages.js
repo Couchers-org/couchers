@@ -8,6 +8,7 @@ const allLanguages = [
   "es-419",
   "fr",
   "fr-CA",
+  "he",
   "hi",
   "it",
   "ja",

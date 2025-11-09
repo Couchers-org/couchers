@@ -35,7 +35,11 @@ export function PushNotificationBanner() {
 
   useEffect(() => {
     const checkPush = async () => {
-      if (!authenticated || isNativeEmbed) return;
+      if (!authenticated) return;
+
+      // Skip push notification check in native embed (WebView doesn't support it)
+      if (isNativeEmbed) return;
+
       try {
         if (!(await checkPushEnabled())) {
           setBannerVisible(
@@ -44,7 +48,15 @@ export function PushNotificationBanner() {
           );
         }
       } catch (error) {
-        console.error("Error checking for push notification state:", error);
+        // Only log errors for web browsers, not mobile WebView
+        if (isNativeEmbed) {
+          console.debug(
+            "Push notifications not available in mobile app:",
+            error,
+          );
+        } else {
+          console.error("Error checking for push notification state:", error);
+        }
       }
     };
 

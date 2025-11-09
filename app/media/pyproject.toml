@@ -1,3 +1,27 @@
+[project]
+name = "couchers-media"
+version = "0.1.0"
+description = "Media service for Couchers"
+requires-python = ">=3.13"
+dependencies = [
+    "backoff",
+    "Flask",
+    "grpcio",
+    "pillow",
+    "protobuf",
+    "pynacl",
+    "pyvips[binary]; sys_platform == 'darwin'",
+    "pyvips; sys_platform != 'darwin'",
+    "sentry-sdk",
+    "uwsgi",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff",
+]
+
 [tool.ruff]
 line-length = 120
 

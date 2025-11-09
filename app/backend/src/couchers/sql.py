@@ -1,3 +1,5 @@
+from typing import Any
+
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import Select, union
 
@@ -23,14 +25,10 @@ See issue here: https://github.com/sqlalchemy/sqlalchemy/issues/6700
 """
 
 
-def couchers_select(*expr):
-    return CouchersSelect(*expr)
-
-
-class CouchersSelect(Select):
+class CouchersSelect(Select[Any]):
     inherit_cache = True
 
-    def where_username_or_email(self, field, table=User):
+    def where_username_or_email(self, field: str, table=User):
         if is_valid_username(field):
             return self.where(table.username == field)
         elif is_valid_email(field):
@@ -38,7 +36,7 @@ class CouchersSelect(Select):
         # no fields match, this will return no rows
         return self.where(False)
 
-    def where_username_or_id(self, field, table=User):
+    def where_username_or_id(self, field: str, table=User):
         if is_valid_username(field):
             return self.where(table.username == field)
         elif is_valid_user_id(field):
@@ -77,3 +75,7 @@ class CouchersSelect(Select):
             .where(aliased_user.is_visible)
             .where(~aliased_user.id.in_(hidden_users))
         )
+
+
+def couchers_select(*expr: Any) -> CouchersSelect:
+    return CouchersSelect(*expr)

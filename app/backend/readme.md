@@ -44,16 +44,16 @@ docker compose -f docker-compose.test.yml up --build
 ### Running tests locally
 
 ```sh
-## Start the test database
-cd app
-docker compose -f docker-compose.test.yml up --no-deps postgres_tests
+cd app/backend
 
 ## Install uv (if not already installed)
 make setup
 
 ## Create a virtual environment and install dependencies
-cd backend
 uv sync --frozen
+
+## Start the test database
+make setup-db
 
 ## Now run the test against the testing postgres database
 make test

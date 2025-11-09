@@ -1,61 +1,94 @@
-import { StyleSheet } from "react-native";
-import { WebView, WebViewNavigation } from "react-native-webview";
+import { StyleSheet, View, useColorScheme } from "react-native";
 import { useRef } from "react";
+import {
+  WebView,
+  WebViewMessageEvent,
+  WebViewNavigation,
+} from "react-native-webview";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 
-import { useTranslation } from "@/i18n";
-import { AUTH, GLOBAL } from "@/i18n/namespaces";
-
-import { SafeAreaView } from "react-native-safe-area-context";
+import { theme } from "@/theme";
+import { useAuthContext } from "@/features/auth/AuthContext";
 
 type WebEmbedProps = {
   path: string;
 };
 
-export default function Terms({ path }: WebEmbedProps) {
+export default function WebEmbed({ path }: WebEmbedProps) {
   const WEB_BASE_URL = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
 
-  const { t } = useTranslation([AUTH, GLOBAL]);
-  let webview = useRef<WebView>(null);
+  const insets = useSafeAreaInsets();
+  const colorScheme = useColorScheme();
+  const webviewRef = useRef<WebView>(null);
+  const router = useRouter();
+  const { markLoggedOut, setUserId, setJailed, markAuthenticated } =
+    useAuthContext();
 
-  const handleWebViewNavigationStateChange = (
-    newNavState: WebViewNavigation
-  ) => {
-    const { url } = newNavState;
-    if (!url) return;
-    const v = webview.current;
-    if (!v) return;
+  const backgroundColor =
+    colorScheme === "dark"
+      ? theme.palette.common.black
+      : theme.palette.common.white;
 
-    if (!url.startsWith(WEB_BASE_URL)) {
-      console.log("oooop");
-      v.stopLoading();
+  const handleNavigationStateChange = (navState: WebViewNavigation) => {
+    const { url } = navState;
+
+    if (!url) {
+      return;
+    }
+
+    const normalizedUrl = url.split("#")[0];
+
+    // Prevent navigation to external sites
+    if (!normalizedUrl.startsWith(WEB_BASE_URL)) {
+      webviewRef.current?.stopLoading();
+    }
+  };
+
+  const handleMessage = (event: WebViewMessageEvent) => {
+    try {
+      const payload = JSON.parse(event.nativeEvent.data);
+
+      if (payload?.type === "LOGIN_SUCCESS") {
+        // Web app says user logged in - update mobile state
+        setUserId(payload.userId);
+        setJailed(payload.jailed || false);
+        markAuthenticated();
+      } else if (payload?.type === "LOGOUT") {
+        // Web app says user logged out - clear mobile state and navigate to login
+        markLoggedOut();
+        router.replace("/login");
+      }
+    } catch (error) {
+      // Silently ignore non-JSON messages (expected from browser/WebView internals)
+      // These are typically not errors - just messages from the WebView itself
+      if (__DEV__) {
+        console.debug("WebEmbed: Ignoring non-JSON message", error);
+      }
     }
   };
 
   return (
-    <SafeAreaView style={styles.sav} edges={["bottom"]}>
+    <View style={[styles.container, { backgroundColor }]}>
+      <View style={{ height: insets.top, backgroundColor }} />
       <WebView
-        ref={webview}
+        ref={webviewRef}
         style={styles.webview}
         source={{ uri: WEB_BASE_URL + path }}
-        sharedCookiesEnabled={true}
-        onNavigationStateChange={handleWebViewNavigationStateChange}
+        sharedCookiesEnabled
+        onNavigationStateChange={handleNavigationStateChange}
         injectedJavaScriptObject={{ isCouchersNativeEmbed: true }}
-        onMessage={(event) => {
-          console.log(event.nativeEvent.data);
-        }}
+        onMessage={handleMessage}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  sav: {
-    height: "100%",
-    backgroundColor: "#ffffff",
+  container: {
+    flex: 1,
   },
   webview: {
-    margin: 0,
-    padding: 0,
-    height: "100%",
+    flex: 1,
   },
 });

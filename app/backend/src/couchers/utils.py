@@ -1,16 +1,21 @@
 import http.cookies
 import re
+import typing
+from collections.abc import Sequence
 from datetime import date, datetime, timedelta
 from email.utils import formatdate
 from types import SimpleNamespace
+from typing import Any
 from zoneinfo import ZoneInfo
 
 import pytz
+from geoalchemy2 import WKBElement, WKTElement
 from geoalchemy2.shape import from_shape, to_shape
 from google.protobuf.duration_pb2 import Duration
 from google.protobuf.timestamp_pb2 import Timestamp
 from shapely.geometry import Point, Polygon, shape
-from sqlalchemy.sql import cast, func
+from sqlalchemy import Function, cast
+from sqlalchemy.sql import func
 from sqlalchemy.types import DateTime
 
 from couchers.config import config
@@ -27,14 +32,14 @@ utc = pytz.UTC
 # * emails are just whatever stack overflow says emails are ;)
 
 
-def is_valid_user_id(field):
+def is_valid_user_id(field: str) -> bool:
     """
     Checks if it's a string representing a base 10 integer not starting with 0
     """
     return re.match(r"[1-9][0-9]*$", field) is not None
 
 
-def is_valid_username(field):
+def is_valid_username(field: str) -> bool:
     """
     Checks if it's an alphanumeric + underscore, lowercase string, at least
     two characters long, and starts with a letter, ends with alphanumeric
@@ -42,30 +47,30 @@ def is_valid_username(field):
     return re.match(r"[a-z][0-9a-z_]*[a-z0-9]$", field) is not None
 
 
-def is_valid_name(field):
+def is_valid_name(field: str) -> bool:
     """
     Checks if it has at least one non-whitespace character
     """
     return re.match(r"\S+", field) is not None
 
 
-def is_valid_email(field):
+def is_valid_email(field: str) -> bool:
     return re.match(EMAIL_REGEX, field) is not None
 
 
-def Timestamp_from_datetime(dt: datetime):
+def Timestamp_from_datetime(dt: datetime) -> Timestamp:
     pb_ts = Timestamp()
     pb_ts.FromDatetime(dt)
     return pb_ts
 
 
-def Duration_from_timedelta(dt: datetime):
+def Duration_from_timedelta(dt: timedelta) -> Duration:
     pb_d = Duration()
     pb_d.FromTimedelta(dt)
     return pb_d
 
 
-def parse_date(date_str: str):
+def parse_date(date_str: str) -> date | None:
     """
     Parses a date-only string in the format "YYYY-MM-DD" returning None if it fails
     """
@@ -75,22 +80,22 @@ def parse_date(date_str: str):
         return None
 
 
-def date_to_api(date: date):
-    return date.isoformat()
+def date_to_api(date_obj: date) -> str:
+    return date_obj.isoformat()
 
 
-def to_aware_datetime(ts: Timestamp):
+def to_aware_datetime(ts: Timestamp) -> datetime:
     """
     Turns a protobuf Timestamp object into a timezone-aware datetime
     """
     return utc.localize(ts.ToDatetime())
 
 
-def now():
+def now() -> datetime:
     return datetime.now(utc)
 
 
-def minimum_allowed_birthdate():
+def minimum_allowed_birthdate() -> date:
     """
     Most recent birthdate allowed to register (must be 18 years minimum)
 
@@ -99,21 +104,21 @@ def minimum_allowed_birthdate():
     return today() - timedelta(days=365.25 * 18)
 
 
-def today():
+def today() -> date:
     """
     Date only in UTC
     """
     return now().date()
 
 
-def now_in_timezone(tz):
+def now_in_timezone(tz: str) -> datetime:
     """
     tz should be tzdata identifier, e.g. America/New_York
     """
     return datetime.now(pytz.timezone(tz))
 
 
-def today_in_timezone(tz):
+def today_in_timezone(tz: str) -> date:
     """
     tz should be tzdata identifier, e.g. America/New_York
     """
@@ -125,26 +130,26 @@ def today_in_timezone(tz):
 # When entering as EPSG4326, we also need it in (lng, lat)
 
 
-def wrap_coordinate(lat, lng):
+def wrap_coordinate(lat: int, lng: int) -> tuple[int, int]:
     """
     Wraps (lat, lng) point in the EPSG4326 format
     """
 
-    def __wrap_gen(deg, ct, adj):
+    def __wrap_gen(deg: int, ct: int, adj: int) -> int:
         if deg > ct:
             deg -= adj
         if deg < -ct:
             deg += adj
         return deg
 
-    def __wrap_flip(deg, ct, adj):
+    def __wrap_flip(deg: int, ct: int, adj: int) -> int:
         if deg > ct:
             deg = -deg + adj
         if deg < -ct:
             deg = -deg - adj
         return deg
 
-    def __wrap_rem(deg, ct=360):
+    def __wrap_rem(deg: int, ct: int = 360) -> int:
         if deg > ct:
             deg = deg % ct
         if deg < -ct:
@@ -165,7 +170,7 @@ def wrap_coordinate(lat, lng):
     return lat, lng
 
 
-def create_coordinate(lat, lng):
+def create_coordinate(lat: int, lng: int) -> WKBElement:
     """
     Creates a WKT point from a (lat, lng) tuple in EPSG4326 coordinate system (normal GPS-coordinates)
     """
@@ -173,44 +178,44 @@ def create_coordinate(lat, lng):
     return from_shape(Point(lng, lat), srid=4326)
 
 
-def create_polygon_lat_lng(points):
+def create_polygon_lat_lng(points: list[list[int]]) -> WKBElement:
     """
     Creates a EPSG4326 WKT polygon from a list of (lat, lng) tuples
     """
     return from_shape(Polygon([(lng, lat) for (lat, lng) in points]), srid=4326)
 
 
-def create_polygon_lng_lat(points):
+def create_polygon_lng_lat(points: list[list[int]]) -> WKBElement:
     """
     Creates a EPSG4326 WKT polygon from a list of (lng, lat) tuples
     """
     return from_shape(Polygon(points), srid=4326)
 
 
-def geojson_to_geom(geojson):
+def geojson_to_geom(geojson: dict[str, Any]) -> WKBElement:
     """
     Turns GeoJSON to PostGIS geom data in EPSG4326
     """
     return from_shape(shape(geojson), srid=4326)
 
 
-def to_multi(polygon):
+def to_multi(polygon: WKBElement) -> Function[Any]:
     return func.ST_Multi(polygon)
 
 
-def get_coordinates(geom):
+def get_coordinates(geom: WKBElement | WKTElement | None) -> tuple[int, int] | None:
     """
     Returns EPSG4326 (lat, lng) pair for a given WKT geom point or None if the input is not truthy
     """
     if geom:
         shp = to_shape(geom)
-        # note the funiness with 4326 normally being (x, y) = (lng, lat)
+        # note the funniness with 4326 normally being (x, y) = (lng, lat)
         return (shp.y, shp.x)
     else:
         return None
 
 
-def http_date(dt=None):
+def http_date(dt: datetime | None = None) -> str:
     """
     Format the datetime for HTTP cookies
     """
@@ -219,8 +224,8 @@ def http_date(dt=None):
     return formatdate(dt.timestamp(), usegmt=True)
 
 
-def _create_tasty_cookie(name: str, value, expiry: datetime, httponly: bool):
-    cookie = http.cookies.Morsel()
+def _create_tasty_cookie(name: str, value: Any, expiry: datetime, httponly: bool) -> str:
+    cookie: http.cookies.Morsel[str] = http.cookies.Morsel()
     cookie.set(name, str(value), str(value))
     # tell the browser when to stop sending the cookie
     cookie["expires"] = http_date(expiry)
@@ -242,7 +247,7 @@ def _create_tasty_cookie(name: str, value, expiry: datetime, httponly: bool):
     return cookie.OutputString()
 
 
-def create_session_cookies(token, user_id, expiry) -> list[str]:
+def create_session_cookies(token: str, user_id: int, expiry: datetime) -> list[str]:
     """
     Creates our session cookies.
 
@@ -254,21 +259,23 @@ def create_session_cookies(token, user_id, expiry) -> list[str]:
     ]
 
 
-def create_lang_cookie(lang):
+def create_lang_cookie(lang: str) -> list[str]:
     return [
         _create_tasty_cookie("NEXT_LOCALE", lang, expiry=(now() + PREFERRED_LANGUAGE_COOKIE_EXPIRY), httponly=False)
     ]
 
 
-def parse_session_cookie(headers):
+def parse_session_cookie(headers: dict[str, str | bytes]) -> str | None:
     """
     Returns our session cookie value (aka token) or None
     """
     if "cookie" not in headers:
         return None
 
+    cookie_str = typing.cast(str, headers["cookie"])
+
     # parse the cookie
-    cookie = http.cookies.SimpleCookie(headers["cookie"]).get("couchers-sesh")
+    cookie = http.cookies.SimpleCookie(cookie_str).get("couchers-sesh")
 
     if not cookie:
         return None
@@ -276,15 +283,17 @@ def parse_session_cookie(headers):
     return cookie.value
 
 
-def parse_user_id_cookie(headers):
+def parse_user_id_cookie(headers: dict[str, str | bytes]) -> str | None:
     """
     Returns our session cookie value (aka token) or None
     """
     if "cookie" not in headers:
         return None
 
+    cookie_str = typing.cast(str, headers["cookie"])
+
     # parse the cookie
-    cookie = http.cookies.SimpleCookie(headers["cookie"]).get("couchers-user-id")
+    cookie = http.cookies.SimpleCookie(cookie_str).get("couchers-user-id")
 
     if not cookie:
         return None
@@ -292,15 +301,17 @@ def parse_user_id_cookie(headers):
     return cookie.value
 
 
-def parse_ui_lang_cookie(headers):
+def parse_ui_lang_cookie(headers: dict[str, str | bytes]) -> str | None:
     """
     Returns language cookie or None
     """
     if "cookie" not in headers:
         return None
 
+    cookie_str = typing.cast(str, headers["cookie"])
+
     # else parse the cookie & return its value
-    cookie = http.cookies.SimpleCookie(headers["cookie"]).get("NEXT_LOCALE")
+    cookie = http.cookies.SimpleCookie(cookie_str).get("NEXT_LOCALE")
 
     if not cookie:
         return None
@@ -308,7 +319,7 @@ def parse_ui_lang_cookie(headers):
     return cookie.value
 
 
-def parse_api_key(headers):
+def parse_api_key(headers: dict[str, str | bytes]) -> str | None:
     """
     Returns a bearer token (API key) from the `authorization` header, or None if invalid/not present
     """
@@ -316,13 +327,16 @@ def parse_api_key(headers):
         return None
 
     authorization = headers["authorization"]
+    if isinstance(authorization, bytes):
+        authorization = authorization.decode("utf-8")
+
     if not authorization.startswith("Bearer "):
         return None
 
     return authorization[7:]
 
 
-def remove_duplicates_retain_order(list_):
+def remove_duplicates_retain_order[T](list_: Sequence[T]) -> list[T]:
     out = []
     for item in list_:
         if item not in out:
@@ -330,7 +344,7 @@ def remove_duplicates_retain_order(list_):
     return out
 
 
-def date_in_timezone(date_, timezone):
+def date_in_timezone(date_: date, timezone: str) -> Function[Any]:
     """
     Given a naive postgres date object (postgres doesn't have tzd dates), returns a timezone-aware timestamp for the
     start of that date in that timezone. E.g. if postgres is in 'America/New_York',
@@ -357,15 +371,15 @@ def date_in_timezone(date_, timezone):
     return func.timezone(timezone, cast(date_, DateTime(timezone=False)))
 
 
-def millis_from_dt(dt):
+def millis_from_dt(dt: datetime) -> int:
     return round(1000 * dt.timestamp())
 
 
-def dt_from_millis(millis):
+def dt_from_millis(millis: int) -> datetime:
     return datetime.fromtimestamp(millis / 1000, tz=utc)
 
 
-def dt_to_page_token(dt):
+def dt_to_page_token(dt: datetime) -> str:
     """
     Python has datetime resolution equal to 1 micro, as does postgres
 
@@ -375,21 +389,21 @@ def dt_to_page_token(dt):
     return encrypt_page_token(str(round(1_000_000 * dt.timestamp())))
 
 
-def dt_from_page_token(page_token):
+def dt_from_page_token(page_token: str) -> datetime:
     # see above comment
     return datetime.fromtimestamp(int(decrypt_page_token(page_token)) / 1_000_000, tz=utc)
 
 
-def last_active_coarsen(dt):
+def last_active_coarsen(dt: datetime) -> datetime:
     """
     Coarsens a "last active" time to the accuracy we use for last active times, currently to the last hour, e.g. if the current time is 27th June 2021, 16:53 UTC, this returns 27th June 2021, 16:00 UTC
     """
     return dt.replace(minute=0, second=0, microsecond=0)
 
 
-def get_tz_as_text(tz_name):
+def get_tz_as_text(tz_name: str) -> str:
     return datetime.now(tz=ZoneInfo(tz_name)).strftime("%Z/UTC%z")
 
 
-def make_logged_out_context():
+def make_logged_out_context() -> SimpleNamespace:
     return SimpleNamespace(user_id=0)

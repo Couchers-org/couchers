@@ -41,5 +41,6 @@
   "events_empty_state": "Şu anda herhangi bir etkinlik yok.",
   "comment": "Yorum yap",
   "comments": "Yorumlar",
-  "community_header": "{{name}}'ya hoşgeldin"
+  "community_header": "{{name}}'ya hoşgeldin",
+  "join_community": "Topluluğa katıl"
 }

@@ -7,5 +7,28 @@
   },
   "blocked_list_title": "Utilisateurs bloqués",
   "block_user": "Bloquer l'utilisateur",
-  "my_connections": "Mes connexions"
+  "my_connections": "Mes connexions",
+  "friends": "Ami.e.s",
+  "friend_list_title": "Vos ami.e.s",
+  "friend_requests": "Demandes d'ami.e.s",
+  "friend_requests_sent": "Demandes d'ami.e.s envoyées",
+  "no_blocked_users": "Aucun.e utilisateur.trice bloqué.e",
+  "no_friends": "Aucun.e ami.e disponible",
+  "no_friend_requests": "Aucune demande d'ami.e en attente",
+  "no_friend_requests_sent": "Aucune demande d'ami.e en attente",
+  "pending": "En attente",
+  "remove_friend": "Supprimer l’ami.e",
+  "accept": "Accepter",
+  "decline": "Réfuser",
+  "remove_friend_confirmation_dialog": {
+    "title": "Supprimer l’ami.e",
+    "message": "Êtes-vous sûr.e de vouloir supprimer {{name}} ? Cette action est irréversible.",
+    "confirm": "Supprimer"
+  },
+  "unblock_user": "Débloquer l'utilisateur.trice",
+  "unblock_user_confirmation_dialog": {
+    "title": "Êtes-vous sûr.e de vouloir débloquer {{name}} ?",
+    "message": "Le déblocage lui permettra de voir votre profil et de vous envoyer des demandes. Si vous étiez auparavant ami.e.s, il/elle réapparaîtra dans votre liste d’ami.e.s. Il/elle ne sera pas notifié.e.",
+    "confirm": "Débloquer"
+  }
 }
