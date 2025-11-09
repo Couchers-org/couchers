@@ -1,7 +1,8 @@
-
 import json
 from pathlib import Path
-from couchers.i18n.constants import LANGUAGE_FALLBACKS,DEFAULT_FALLBACK
+
+from couchers.i18n.constants import DEFAULT_FALLBACK, LANGUAGE_FALLBACKS
+
 
 class MissingTranslationError(Exception):
     """Raised when a translation template is not found in any fallback language."""
@@ -20,8 +21,10 @@ ALL_LANGS_ALL_STRINGS: dict[str, dict[str, dict[str, str]]] = {}
 
 def _load_translations():
     """
-    Load all translation files from the i18n directory structure.
-    Scans for components (subdirectories) and their locale JSON files.
+    Load all translation files from the i18n directory structure and apply fallbacks.
+    Scans for components (subdirectories) and their locale JSON files, then prebakes
+    language fallbacks so every language has complete coverage using English as the
+    base and applying fallbacks in the correct precedence order.
     """
     i18n_dir = Path(__file__).parent
 
@@ -52,15 +55,56 @@ def _load_translations():
             # Store the translations
             ALL_LANGS_ALL_STRINGS[lang][component_name] = translations
 
+    # Apply fallbacks: English is our source of truth - must exist
+    if "en" not in ALL_LANGS_ALL_STRINGS:
+        raise RuntimeError("English translations must be loaded")
 
-# Load translations when the module is imported
+    en_strings = ALL_LANGS_ALL_STRINGS["en"]
+
+    # Get all languages we need to process (loaded languages + those in fallback config)
+    all_languages = set(ALL_LANGS_ALL_STRINGS.keys()) | set(LANGUAGE_FALLBACKS.keys())
+
+    for lang in all_languages:
+        if lang == "en":
+            continue  # English is already complete
+
+        # Start with a complete copy of English as the base
+        lang_strings = {}
+        for component in en_strings:
+            lang_strings[component] = en_strings[component].copy()
+
+        # Get fallback chain for this language
+        fallback_chain = LANGUAGE_FALLBACKS.get(lang, DEFAULT_FALLBACK)
+
+        # Apply fallbacks in reverse order (so more specific overrides less specific)
+        # For pt-BR with fallbacks ["pt", "en"]: Apply "en" (already done) → then "pt"
+        for fallback_lang in reversed(fallback_chain):
+            if fallback_lang in ALL_LANGS_ALL_STRINGS:
+                for component in ALL_LANGS_ALL_STRINGS[fallback_lang]:
+                    if component not in lang_strings:
+                        lang_strings[component] = {}
+                    lang_strings[component].update(ALL_LANGS_ALL_STRINGS[fallback_lang][component])
+
+        # Finally, apply the language's own translations (highest priority)
+        if lang in ALL_LANGS_ALL_STRINGS:
+            for component in ALL_LANGS_ALL_STRINGS[lang]:
+                if component not in lang_strings:
+                    lang_strings[component] = {}
+                lang_strings[component].update(ALL_LANGS_ALL_STRINGS[lang][component])
+
+        # Replace the language entry with the complete version
+        ALL_LANGS_ALL_STRINGS[lang] = lang_strings
+
+
+# Load translations and apply fallbacks when the module is imported
 _load_translations()
+
 
 def get_string(lang: str, component: str, string_name: str, **subs) -> str:
     """
     Retrieves a translated string from the ALL_LANGS_ALL_STRINGS dictionary
-    and performs variable substitutions. Uses language fallback hierarchy if
-    the string is not found in the requested language.
+    and performs variable substitutions. Fallbacks have been prebaked during
+    module initialization, so this is now a simple lookup.
 
     Args:
         lang: Language code (e.g., "en", "pt-BR")
@@ -71,22 +115,15 @@ def get_string(lang: str, component: str, string_name: str, **subs) -> str:
     Returns:
         The translated string with substitutions applied
     """
-    # Determine the fallback chain for this language
-    fallback_chain = LANGUAGE_FALLBACKS.get(lang, DEFAULT_FALLBACK)
-    languages_to_try = [lang] + fallback_chain
+    # Fallback to English if the requested language doesn't exist
+    if lang not in ALL_LANGS_ALL_STRINGS:
+        lang = "en"
 
-    # Try each language in the fallback chain
-    template = None
-    for try_lang in languages_to_try:
-        try:
-            template = ALL_LANGS_ALL_STRINGS[try_lang][component][string_name]
-            break
-        except KeyError:
-            continue
-
-    # If still not found, raise an exception
-    if template is None:
-        raise MissingTranslationError(lang, component, string_name)
+    # Direct lookup (fallbacks already applied during initialization)
+    try:
+        template = ALL_LANGS_ALL_STRINGS[lang][component][string_name]
+    except KeyError:
+        raise MissingTranslationError(lang, component, string_name) from None
 
     # Perform substitutions by replacing {{key}} with the corresponding value
     for key, value in subs.items():
