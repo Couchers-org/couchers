@@ -96,10 +96,10 @@ def create_app(
         # proto timestamps are in UTC
         now = datetime.now(UTC)
 
-        if req.created.ToDatetime() > now:
+        if req.created.ToDatetime(tzinfo=UTC) > now:
             logger.warning("Got request from the future. Are the clocks out of sync?")
 
-        if req.expiry.ToDatetime() < now:
+        if req.expiry.ToDatetime(tzinfo=UTC) < now:
             abort(400, "Request expired")
 
         if req.key != secure_filename(req.key):

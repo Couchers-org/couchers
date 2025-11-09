@@ -613,8 +613,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
         return empty_pb2.Empty()
 
     def ListUserIds(self, request, context, session):
-        start_date = request.start_time.ToDatetime()
-        end_date = request.end_time.ToDatetime()
+        start_date = to_aware_datetime(request.start_time)
+        end_date = to_aware_datetime(request.end_time)
 
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_user_id = int(request.page_token) if request.page_token else 0
