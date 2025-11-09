@@ -2,6 +2,8 @@ from typing import cast
 
 import grpc
 
+from couchers.i18n.i18n import get_raw_translation_string
+
 
 class NonInteractiveContextException(Exception):
     """If this exception is raised, it is a programming error"""
@@ -96,6 +98,21 @@ class CouchersContext:
     def is_logged_in(self) -> bool:
         return self.__logged_in
 
+    def get_localized_string(self, component: str, message_id: str, **subs) -> str:
+        """
+        Get a localized string using the user's language preference.
+        Falls back to the default language if no preference is set.
+
+        Args:
+            component: Component name (e.g., "errors")
+            message_id: The key for the specific string
+            **subs: Variable substitutions for the string
+
+        Returns:
+            The translated string with substitutions applied
+        """
+        return get_raw_translation_string(self.__ui_language_preference, component, message_id, **subs)
+
     def abort(self, status_code: grpc.StatusCode, error_message: str) -> None:
         """
         Raises an error that's returned to the user
@@ -104,6 +121,18 @@ class CouchersContext:
             raise NonInteractiveAbortException(status_code, error_message)
         else:
             context = cast(grpc.ServicerContext, self._grpc_context)
+            context.abort(status_code, error_message)
+
+    def abort_with_error_code(self, status_code: grpc.StatusCode, error_message_id: str) -> None:
+        """
+        Raises an error that's returned to the user, but error_message_id should be an entry from translateable errors
+        """
+        if not self.__is_interactive:
+            raise NonInteractiveAbortException(status_code, error_message_id)
+        else:
+            context = cast(grpc.ServicerContext, self._grpc_context)
+            # Get the translated error message using the user's language preference
+            error_message = self.get_localized_string("errors", error_message_id)
             context.abort(status_code, error_message)
 
     def set_cookies(self, cookies: list[str]) -> None:

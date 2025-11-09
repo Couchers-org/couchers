@@ -100,14 +100,14 @@ def _load_translations():
 _load_translations()
 
 
-def get_string(lang: str, component: str, string_name: str, **subs) -> str:
+def get_raw_translation_string(lang: str | None, component: str, string_name: str, **subs) -> str:
     """
     Retrieves a translated string from the ALL_LANGS_ALL_STRINGS dictionary
     and performs variable substitutions. Fallbacks have been prebaked during
     module initialization, so this is now a simple lookup.
 
     Args:
-        lang: Language code (e.g., "en", "pt-BR")
+        lang: Language code (e.g., "en", "pt-BR"). If None, defaults to the default fallback language ("en")
         component: Component name (e.g., "errors")
         string_name: The key for the specific string
         **subs: Variable substitutions for the string (e.g., rate_limit_interval_string="24 hours")
@@ -115,8 +115,8 @@ def get_string(lang: str, component: str, string_name: str, **subs) -> str:
     Returns:
         The translated string with substitutions applied
     """
-    # Fallback to English if the requested language doesn't exist
-    if lang not in ALL_LANGS_ALL_STRINGS:
+    # Use default fallback language if lang is None or doesn't exist
+    if lang is None or lang not in ALL_LANGS_ALL_STRINGS:
         lang = "en"
 
     # Direct lookup (fallbacks already applied during initialization)
