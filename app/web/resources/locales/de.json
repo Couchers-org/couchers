@@ -346,7 +346,8 @@
         "nl": "Niederländisch",
         "ca": "Katalan",
         "tr": "Türkisch",
-        "en-CORP": "Amerikanisch (Unternehmenssprache)"
+        "en-CORP": "Amerikanisch (Unternehmenssprache)",
+        "he": "Hebräisch"
     },
     "back": "Zurück",
     "save_changes": "Änderungen speichern",
