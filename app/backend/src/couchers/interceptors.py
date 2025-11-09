@@ -249,16 +249,19 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
         # if no session was found and this isn't an open service, fail
         if not auth_info:
             if auth_level != annotations_pb2.AUTH_LEVEL_OPEN:
-                return unauthenticated_handler()
+                # NOTE: do not translate this string; it's used in a hacky way in the frontend
+                return unauthenticated_handler("Unauthorized")
         else:
             # a valid user session was found
             user_id, is_jailed, is_superuser, token_expiry, ui_language_preference = auth_info
 
             if auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not is_superuser:
+                # NOTE: do not translate this string; it's used in a hacky way in the frontend
                 return unauthenticated_handler("Permission denied", grpc.StatusCode.PERMISSION_DENIED)
 
             # if the user is jailed and this is isn't an open or jailed service, fail
             if is_jailed and auth_level not in [annotations_pb2.AUTH_LEVEL_OPEN, annotations_pb2.AUTH_LEVEL_JAILED]:
+                # NOTE: do not translate this string; it's used in a hacky way in the frontend
                 return unauthenticated_handler("Permission denied")
 
         handler = continuation(handler_call_details)
