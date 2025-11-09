@@ -5,13 +5,13 @@ services:
     command: postgres
       -c bgwriter_lru_maxpages=0
       -c jit=off
-      -c fsync=off 
-      -c full_page_writes=off 
-      -c synchronous_commit=off 
+      -c fsync=off
+      -c full_page_writes=off
+      -c synchronous_commit=off
       -c wal_level=minimal
-      -c wal_keep_size=100MB 
-      -c max_wal_senders=0 
-      -c log_statement=all
+      -c wal_keep_size=100MB
+      -c max_wal_senders=0
+      # -c log_statement=all
     tmpfs: /pgdata
     restart: unless-stopped
     ports:
