@@ -125,8 +125,17 @@ build:backend:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - docker pull $BACKEND_RELEASE_TAG || true
-    - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --cache-from $BACKEND_RELEASE_TAG -t $BACKEND_TAG app/backend/
-    - docker push $BACKEND_TAG
+    - docker pull $CI_REGISTRY_IMAGE/backend:xxx || true
+    - docker context create my-builder
+    - docker buildx create my-builder --driver docker-container --use
+    - docker buildx build --push -t $CI_REGISTRY_IMAGE/backend:xxx
+      --build-arg display_version=$DISPLAY_VERSION
+      --build-arg commit_timestamp=$COMMIT_TIMESTAMP
+      --build-arg version=$SLUG
+      --cache-from $CI_REGISTRY_IMAGE/backend:xxx
+      --cache-from $BACKEND_RELEASE_TAG
+      --cache-to type=registry,ref=$CI_REGISTRY_IMAGE/backend:xxx,mode=max
+      app/backend
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
