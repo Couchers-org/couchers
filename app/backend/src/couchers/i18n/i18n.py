@@ -1,4 +1,5 @@
 import json
+from functools import lru_cache
 from pathlib import Path
 
 from couchers.i18n.constants import DEFAULT_FALLBACK, LANGUAGE_FALLBACKS
@@ -14,18 +15,21 @@ class MissingTranslationError(Exception):
         super().__init__(f"Missing translation: {lang}.{component}.{string_name}")
 
 
-# This will be populated from `{lang}.json` files
-# Structure: lang -> component -> (string -> translated string)
-ALL_LANGS_ALL_STRINGS: dict[str, dict[str, dict[str, str]]] = {}
-
-
-def _load_translations():
+@lru_cache(maxsize=1)
+def get_translations() -> dict[str, dict[str, dict[str, str]]]:
     """
     Load all translation files from the i18n directory structure and apply fallbacks.
     Scans for components (subdirectories) and their locale JSON files, then prebakes
     language fallbacks so every language has complete coverage using English as the
     base and applying fallbacks in the correct precedence order.
+
+    Returns:
+        Dictionary structure: lang -> component -> (string -> translated string)
+
+    The result is cached so that translations are only loaded once per process.
     """
+    all_langs_all_strings: dict[str, dict[str, dict[str, str]]] = {}
+
     i18n_dir = Path(__file__).parent
 
     # Scan for component directories
@@ -47,22 +51,22 @@ def _load_translations():
                 translations = json.load(f)
 
             # Initialize nested dictionaries if needed
-            if lang not in ALL_LANGS_ALL_STRINGS:
-                ALL_LANGS_ALL_STRINGS[lang] = {}
-            if component_name not in ALL_LANGS_ALL_STRINGS[lang]:
-                ALL_LANGS_ALL_STRINGS[lang][component_name] = {}
+            if lang not in all_langs_all_strings:
+                all_langs_all_strings[lang] = {}
+            if component_name not in all_langs_all_strings[lang]:
+                all_langs_all_strings[lang][component_name] = {}
 
             # Store the translations
-            ALL_LANGS_ALL_STRINGS[lang][component_name] = translations
+            all_langs_all_strings[lang][component_name] = translations
 
     # Apply fallbacks: English is our source of truth - must exist
-    if "en" not in ALL_LANGS_ALL_STRINGS:
+    if "en" not in all_langs_all_strings:
         raise RuntimeError("English translations must be loaded")
 
-    en_strings = ALL_LANGS_ALL_STRINGS["en"]
+    en_strings = all_langs_all_strings["en"]
 
     # Get all languages we need to process (loaded languages + those in fallback config)
-    all_languages = set(ALL_LANGS_ALL_STRINGS.keys()) | set(LANGUAGE_FALLBACKS.keys())
+    all_languages = set(all_langs_all_strings.keys()) | set(LANGUAGE_FALLBACKS.keys())
 
     for lang in all_languages:
         if lang == "en":
@@ -79,30 +83,28 @@ def _load_translations():
         # Apply fallbacks in reverse order (so more specific overrides less specific)
         # For pt-BR with fallbacks ["pt", "en"]: Apply "en" (already done) → then "pt"
         for fallback_lang in reversed(fallback_chain):
-            if fallback_lang in ALL_LANGS_ALL_STRINGS:
-                for component in ALL_LANGS_ALL_STRINGS[fallback_lang]:
+            if fallback_lang in all_langs_all_strings:
+                for component in all_langs_all_strings[fallback_lang]:
                     if component not in lang_strings:
                         lang_strings[component] = {}
-                    lang_strings[component].update(ALL_LANGS_ALL_STRINGS[fallback_lang][component])
+                    lang_strings[component].update(all_langs_all_strings[fallback_lang][component])
 
         # Finally, apply the language's own translations (highest priority)
-        if lang in ALL_LANGS_ALL_STRINGS:
-            for component in ALL_LANGS_ALL_STRINGS[lang]:
+        if lang in all_langs_all_strings:
+            for component in all_langs_all_strings[lang]:
                 if component not in lang_strings:
                     lang_strings[component] = {}
-                lang_strings[component].update(ALL_LANGS_ALL_STRINGS[lang][component])
+                lang_strings[component].update(all_langs_all_strings[lang][component])
 
         # Replace the language entry with the complete version
-        ALL_LANGS_ALL_STRINGS[lang] = lang_strings
+        all_langs_all_strings[lang] = lang_strings
 
-
-# Load translations and apply fallbacks when the module is imported
-_load_translations()
+    return all_langs_all_strings
 
 
 def get_raw_translation_string(lang: str | None, component: str, string_name: str, **subs) -> str:
     """
-    Retrieves a translated string from the ALL_LANGS_ALL_STRINGS dictionary
+    Retrieves a translated string from the all_langs_all_strings dictionary
     and performs variable substitutions. Fallbacks have been prebaked during
     module initialization, so this is now a simple lookup.
 
@@ -115,15 +117,18 @@ def get_raw_translation_string(lang: str | None, component: str, string_name: st
     Returns:
         The translated string with substitutions applied
     """
+    # Get translations (cached)
+    all_langs_all_strings = get_translations()
+
     # Use default fallback language if lang is None or doesn't exist
-    if lang is None or lang not in ALL_LANGS_ALL_STRINGS:
+    if lang is None or lang not in all_langs_all_strings:
         lang = "en"
 
     # Direct lookup (fallbacks already applied during initialization)
     try:
-        template = ALL_LANGS_ALL_STRINGS[lang][component][string_name]
-    except KeyError:
-        raise MissingTranslationError(lang, component, string_name) from None
+        template = all_langs_all_strings[lang][component][string_name]
+    except KeyError as e:
+        raise MissingTranslationError(lang, component, string_name) from e
 
     # Perform substitutions by replacing {{key}} with the corresponding value
     for key, value in subs.items():

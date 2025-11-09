@@ -1,6 +1,6 @@
 import pytest
 
-from couchers.i18n.i18n import ALL_LANGS_ALL_STRINGS, MissingTranslationError, get_raw_translation_string
+from couchers.i18n.i18n import MissingTranslationError, get_raw_translation_string, get_translations
 from tests.test_fixtures import testconfig  # noqa
 
 
@@ -12,9 +12,9 @@ def _(testconfig):
 def test_translations_loaded():
     """Test that translations are loaded from JSON files"""
     # Should have at least English errors loaded
-    assert "en" in ALL_LANGS_ALL_STRINGS
-    assert "errors" in ALL_LANGS_ALL_STRINGS["en"]
-    assert len(ALL_LANGS_ALL_STRINGS["en"]["errors"]) > 0
+    assert "en" in get_translations()
+    assert "errors" in get_translations()["en"]
+    assert len(get_translations()["en"]["errors"]) > 0
 
 
 def test_get_string_simple():

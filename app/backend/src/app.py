@@ -4,6 +4,8 @@ import sys
 from os import environ
 from tempfile import TemporaryDirectory
 
+from cocuhers.i18n.i18n import get_translations
+
 # these two lines need to be at the top of the file before we span child processes
 # this temp dir will be destroyed when prometheus_multiproc_dir is destroyed, aka at the end of the program
 prometheus_multiproc_dir = TemporaryDirectory()
@@ -76,6 +78,8 @@ with session_scope() as session:
 logger.info("Running DB migrations")
 
 apply_migrations()
+
+get_translations()
 
 if config["ADD_DUMMY_DATA"]:
     add_dummy_data()
