@@ -3,7 +3,7 @@ import json
 from base64 import urlsafe_b64encode
 from concurrent import futures
 from contextlib import contextmanager
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from urllib.parse import urlencode
 
@@ -117,7 +117,7 @@ def test_robots(client_with_secrets):
 def create_upload_request():
     key = random_bytes(32).hex()
 
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
     expiry = now + timedelta(minutes=20)
 
     return key, media_pb2.UploadRequest(
@@ -490,7 +490,7 @@ def test_fails_expired(client_with_secrets):
 
     key = random_bytes(32).hex()
 
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
     created = now - timedelta(minutes=12)
     expiry = now - timedelta(minutes=2)
 
