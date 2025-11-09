@@ -1,7 +1,7 @@
 import logging
 import os
 from base64 import urlsafe_b64decode
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 import backoff
@@ -94,7 +94,7 @@ def create_app(
         req = media_pb2.UploadRequest.FromString(data)
 
         # proto timestamps are in UTC
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
 
         if req.created.ToDatetime() > now:
             logger.warning("Got request from the future. Are the clocks out of sync?")
