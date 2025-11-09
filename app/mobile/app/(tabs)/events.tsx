@@ -1,5 +1,5 @@
 import WebEmbed from "@/components/WebEmbed";
 
-export default function Screen() {
+export default function EventsScreen() {
   return <WebEmbed path="/events" />;
 }
