@@ -32,7 +32,7 @@
   "edit_event": "Event bearbeiten",
   "discussions_title": "Beiträge",
   "error_loading_community": "Fehler beim Laden der Community.",
-  "events_empty_state": "Aktuell gibt es keine Events.",
+  "events_empty_state": "Aktuell gibt es keine Events. Warum <0>erstellst</0> du nicht eins ✨?",
   "find_host": "Host finden",
   "community_info_page_title": "Allgemeine Infos",
   "finished": "Beendet",
