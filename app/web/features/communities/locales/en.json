@@ -143,5 +143,9 @@
     "title": "Remove as co-organizer",
     "dialog_title": "Remove {{name}} as co-organizer",
     "dialog_text": "Are you sure you want to remove {{name}} as a co-organizer of {{event}}?"
-  }
+  },
+  "search_communities": "Search and visit a community",
+  "search_communities_placeholder": "Search by city or country name...",
+  "search_communities_helper": "Select a community to go to its page",
+  "no_results_found": "No communities found"
 }
