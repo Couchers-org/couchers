@@ -10,6 +10,7 @@ from couchers import urls
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.email import queue_email
+from couchers.i18n.i18n import get_user_translator_for_component
 from couchers.metrics import push_notification_counter, push_notification_disabled_counter
 from couchers.models import (
     Notification,
@@ -44,6 +45,7 @@ add_filters(env)
 
 
 def _send_email_notification(session: Session, user: User, notification: Notification) -> None:
+    get_localized_string = get_user_translator_for_component(user)
     rendered = render_notification(user, notification)
     template_args = {
         "user": user,
@@ -55,28 +57,28 @@ def _send_email_notification(session: Session, user: User, notification: Notific
 
     plain_unsub_section = "\n\n---\n\n"
     if rendered.is_critical:
-        plain_unsub_section += "This is a security email, you cannot unsubscribe from it."
-        html_unsub_section = "This is a security email, you cannot unsubscribe from it."
+        plain_unsub_section += get_localized_string("security_email_cannot_unsub")
+        html_unsub_section = get_localized_string("security_email_cannot_unsub")
     else:
         manage_link = urls.notification_settings_link()
-        plain_unsub_section += f"Edit your notification settings at <{manage_link}>"
-        html_unsub_section = f'<a href="{manage_link}">Manage notification preferences</a>.'
+        plain_unsub_section += f"{get_localized_string('edit_notification_settings')} <{manage_link}>"
+        html_unsub_section = f'<a href="{manage_link}">{get_localized_string("manage_notification_preferences")}</a>.'
         unsub_options = []
         ta = rendered.email_topic_action_unsubscribe_text
         tk = rendered.email_topic_key_unsubscribe_text
         ta_link = generate_unsub_topic_action(notification)
         tk_link = generate_unsub_topic_key(notification)
         if ta:
-            plain_unsub_section += f"\n\nTurn off emails for {ta}: <{ta_link}>"
+            plain_unsub_section += f"\n\n{get_localized_string('turn_off_emails_for')} {ta}: <{ta_link}>"
             unsub_options.append(f'<a href="{ta_link}">{ta}</a>')
         if tk:
-            plain_unsub_section += f"\n\nTurn off emails for {tk}: <{tk_link}>"
+            plain_unsub_section += f"\n\n{get_localized_string('turn_off_emails_for')} {tk}: <{tk_link}>"
             unsub_options.append(f'<a href="{tk_link}">{tk}</a>')
         if unsub_options:
-            html_unsub_section += f"<br />Turn off emails for: {' / '.join(unsub_options)}."
+            html_unsub_section += f"<br />{get_localized_string('turn_off_emails_for')}: {' / '.join(unsub_options)}."
         dne_link = generate_do_not_email(user)
-        plain_unsub_section += f"\n\nDo not email me (disables hosting): <{dne_link}>"
-        html_unsub_section += f'<br /><a href="{dne_link}">Do not email me (disables hosting)</a>.'
+        plain_unsub_section += f"\n\n{get_localized_string('do_not_email')} <{dne_link}>"
+        html_unsub_section += f'<br /><a href="{dne_link}">{get_localized_string("do_not_email")}</a>.'
 
     plain_tmplt = (template_folder / f"{rendered.email_template_name}.txt").read_text()
     plain = env.from_string(plain_tmplt + plain_unsub_section).render(template_args)

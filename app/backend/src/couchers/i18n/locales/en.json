@@ -192,6 +192,13 @@
     "wrong_signature": "Wrong signature.",
     "wrong_sms_code": "The code is wrong."
   },
+  "email_footer": {
+    "security_email_cannot_unsub": "This is a security email, you cannot unsubscribe from it.",
+    "edit_notification_settings": "Edit your notification and language settings at",
+    "manage_notification_preferences": "Manage notification preferences",
+    "turn_off_emails_for": "Turn off emails for",
+    "do_not_email": "Do not email me (disables hosting)"
+  },
   "quick_links": {
     "do_not_email": "You will not receive any non-security emails, and your hosting status has been turned off. You may still receive the newsletter, and need to unsubscribe from it separately.",
     "topic_action": "You've been unsubscribed from email notifications of that type.",

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from couchers import urls
-from couchers.i18n.i18n import get_raw_translation_string
+from couchers.i18n.i18n import get_user_translator
 from couchers.models import Notification, User
 from couchers.notifications.quick_links import generate_quick_decline_link, generate_unsub_topic_action
 from couchers.templates.v2 import v2avatar, v2date, v2esc, v2phone, v2timestamp
@@ -44,11 +44,7 @@ class RenderedNotification:
 
 
 def render_notification(user: User, notification: Notification) -> RenderedNotification:
-    def get_localized_string(component: str, message_id: str, *, substitutions: dict | None = None) -> str:
-        return get_raw_translation_string(
-            user.ui_language_preference, component, message_id, substitutions=substitutions
-        )
-
+    get_localized_string = get_user_translator(user)
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     if notification.topic == "host_request":
         view_link = urls.host_request(host_request_id=data.host_request.host_request_id)
@@ -89,7 +85,7 @@ def render_notification(user: User, notification: Notification) -> RenderedNotif
                     "text": data.text,
                 },
                 email_topic_action_unsubscribe_text="new host requests",
-                push_title=f"{message}",
+                push_title=message,
                 push_body=f"Dates: {v2date(data.host_request.from_date, user)} to {v2date(data.host_request.to_date, user)}.\n\n{data.text}",
                 push_icon=v2avatar(other),
                 push_url=view_link,
@@ -113,7 +109,7 @@ def render_notification(user: User, notification: Notification) -> RenderedNotif
                     "text": data.text,
                 },
                 email_topic_action_unsubscribe_text=topic_action_unsub_text,
-                push_title=f"{message}",
+                push_title=message,
                 push_body=f"Dates: {v2date(data.host_request.from_date, user)} to {v2date(data.host_request.to_date, user)}.\n\n{data.text}",
                 push_icon=v2avatar(other),
                 push_url=view_link,

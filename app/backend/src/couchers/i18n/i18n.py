@@ -1,8 +1,10 @@
 import json
+from collections.abc import Callable
 from functools import lru_cache
 from pathlib import Path
 
 from couchers.i18n.constants import DEFAULT_FALLBACK, LANGUAGE_FALLBACKS
+from couchers.models import User
 
 
 class MissingTranslationError(Exception):
@@ -131,3 +133,21 @@ def get_raw_translation_string(
             template = template.replace(f"{{{{{key}}}}}", str(value))
 
     return template
+
+
+def get_user_translator(user: User) -> Callable[..., str]:
+    def get_localized_string(component: str, message_id: str, *, substitutions: dict | None = None) -> str:
+        return get_raw_translation_string(
+            user.ui_language_preference, component, message_id, substitutions=substitutions
+        )
+
+    return get_localized_string
+
+
+def get_user_translator_for_component(user: User, component: str) -> Callable[..., str]:
+    def get_localized_string(message_id: str, *, substitutions: dict | None = None) -> str:
+        return get_raw_translation_string(
+            user.ui_language_preference, component, message_id, substitutions=substitutions
+        )
+
+    return get_localized_string
