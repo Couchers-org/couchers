@@ -45,7 +45,7 @@ add_filters(env)
 
 
 def _send_email_notification(session: Session, user: User, notification: Notification) -> None:
-    get_localized_string = get_user_translator_for_component(user)
+    get_localized_string = get_user_translator_for_component(user, "email_footer")
     rendered = render_notification(user, notification)
     template_args = {
         "user": user,

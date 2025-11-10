@@ -5,6 +5,7 @@ import { NOTIFICATIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { useEffect, useState } from "react";
 
+import LanguagePickerSettings from "../translate/LanguagePickerSettings";
 import NotificationSettingsListItem from "./NotificationSettingsListItem";
 import useNotificationSettings from "./useNotificationSettings";
 
@@ -75,6 +76,10 @@ const StyledButton = styled(Button)(({ theme }) => ({
 const StyledNotificationDescription = styled(Typography)(({ theme }) => ({
   margin: theme.spacing(1, 0),
   paddingBottom: theme.spacing(3),
+}));
+
+const StyledLanguagePickerContainer = styled("div")(({ theme }) => ({
+  paddingTop: theme.spacing(4),
 }));
 
 const StyledAccordionContainer = styled("div")(({ theme }) => ({
@@ -188,6 +193,9 @@ export default function EditNotificationSettingsPage() {
       ) : (
         <StyledLoadingSpinner />
       )}
+      <StyledLanguagePickerContainer>
+        <LanguagePickerSettings />
+      </StyledLanguagePickerContainer>
     </StyledNotificationSettingsContainer>
   );
 }
