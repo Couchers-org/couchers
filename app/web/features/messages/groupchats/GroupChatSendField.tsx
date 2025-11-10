@@ -46,7 +46,7 @@ export default function GroupChatSendField({
 
   const { mutate: handleSend, isPending } = sendMutation;
 
-  const { register, handleSubmit, reset } = useForm<MessageFormData>();
+  const { register, handleSubmit, reset, watch } = useForm<MessageFormData>();
 
   const [persistedMessage, setPersistedMessage, clearPersistedMessage] =
     usePersistedState(
@@ -54,6 +54,8 @@ export default function GroupChatSendField({
       "",
       "sessionStorage",
     );
+
+  const messageText = watch("text", persistedMessage ?? "");
 
   const onSubmit = handleSubmit(async (data: MessageFormData) => {
     handleSend(data.text.trimEnd());
@@ -95,6 +97,7 @@ export default function GroupChatSendField({
         color="primary"
         onClick={onSubmit}
         loading={isPending}
+        disabled={!messageText.trim() || isPending}
       >
         {t("global:send")}
       </StyledButton>
