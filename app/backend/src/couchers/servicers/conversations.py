@@ -603,7 +603,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
                 "chat_initiation_rate_limit",
-                rate_limit_interval_string=RATE_LIMIT_INTERVAL_STRING,
+                substitutions={"rate_limit_interval_string": RATE_LIMIT_INTERVAL_STRING},
             )
 
         group_chat = _create_chat(
