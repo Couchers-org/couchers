@@ -75,6 +75,9 @@ def _try_get_and_update_user_details(
             return None
         else:
             user, user_session, user_activity = result
+            # user: User = result[0]
+            # user_session: UserSession = result[1]
+            # user_activity: UserActivity | None = result[2]
 
             # update user last active time if it's been a while
             if now() - user.last_active > timedelta(minutes=5):
