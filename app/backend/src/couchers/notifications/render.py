@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from couchers import urls
+from couchers.i18n.i18n import get_raw_translation_string
 from couchers.models import Notification, User
 from couchers.notifications.quick_links import generate_quick_decline_link, generate_unsub_topic_action
 from couchers.templates.v2 import v2avatar, v2date, v2esc, v2phone, v2timestamp
@@ -43,6 +44,11 @@ class RenderedNotification:
 
 
 def render_notification(user: User, notification: Notification) -> RenderedNotification:
+    def get_localized_string(component: str, message_id: str, *, substitutions: dict | None = None) -> str:
+        return get_raw_translation_string(
+            user.ui_language_preference, component, message_id, substitutions=substitutions
+        )
+
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     if notification.topic == "host_request":
         view_link = urls.host_request(host_request_id=data.host_request.host_request_id)

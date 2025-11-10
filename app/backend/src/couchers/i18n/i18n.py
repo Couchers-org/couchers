@@ -95,7 +95,9 @@ def get_translations() -> dict[str, dict[str, dict[str, str]]]:
     return all_langs_all_strings
 
 
-def get_raw_translation_string(lang: str | None, component: str, string_name: str, **subs) -> str:
+def get_raw_translation_string(
+    lang: str | None, component: str, string_name: str, *, substitutions: dict | None = None
+) -> str:
     """
     Retrieves a translated string from the all_langs_all_strings dictionary
     and performs variable substitutions. Fallbacks have been prebaked during
@@ -105,7 +107,7 @@ def get_raw_translation_string(lang: str | None, component: str, string_name: st
         lang: Language code (e.g., "en", "pt-BR"). If None, defaults to the default fallback language ("en")
         component: Component name (e.g., "errors")
         string_name: The key for the specific string
-        **subs: Variable substitutions for the string (e.g., rate_limit_interval_string="24 hours")
+        substitutions: Dictionary of variable substitutions for the string (e.g., {"rate_limit_interval_string": "24 hours"})
 
     Returns:
         The translated string with substitutions applied
@@ -124,7 +126,8 @@ def get_raw_translation_string(lang: str | None, component: str, string_name: st
         raise MissingTranslationError(lang, component, string_name) from e
 
     # Perform substitutions by replacing {{key}} with the corresponding value
-    for key, value in subs.items():
-        template = template.replace(f"{{{{{key}}}}}", str(value))
+    if substitutions:
+        for key, value in substitutions.items():
+            template = template.replace(f"{{{{{key}}}}}", str(value))
 
     return template

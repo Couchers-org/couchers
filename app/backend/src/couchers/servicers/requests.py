@@ -208,7 +208,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
                 "host_request_rate_limit",
-                rate_limit_interval_string=RATE_LIMIT_INTERVAL_STRING,
+                substitutions={"rate_limit_interval_string": RATE_LIMIT_INTERVAL_STRING},
             )
 
         conversation = Conversation()

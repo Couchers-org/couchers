@@ -27,7 +27,7 @@ def test_get_string_simple():
 def test_get_string_with_substitution():
     """Test string retrieval with variable substitutions"""
     result = get_raw_translation_string(
-        "en", "errors", "chat_initiation_rate_limit", rate_limit_interval_string="24 hours"
+        "en", "errors", "chat_initiation_rate_limit", substitutions={"rate_limit_interval_string": "24 hours"}
     )
     expected = "You have messaged a lot of users in the past 24 hours. To avoid spam, you can't contact any more users for now."
     assert result == expected
@@ -75,7 +75,7 @@ def test_get_string_multiple_substitutions():
     """Test string with multiple variable substitutions"""
     # Using a string that exists, even though this particular one has only one substitution
     result = get_raw_translation_string(
-        "en", "errors", "chat_initiation_rate_limit", rate_limit_interval_string="2 days"
+        "en", "errors", "chat_initiation_rate_limit", substitutions={"rate_limit_interval_string": "2 days"}
     )
     assert "2 days" in result
     assert "messaged a lot of users" in result

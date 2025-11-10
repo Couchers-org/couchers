@@ -98,7 +98,7 @@ class CouchersContext:
     def is_logged_in(self) -> bool:
         return self.__logged_in
 
-    def get_localized_string(self, component: str, message_id: str, **subs) -> str:
+    def get_localized_string(self, component: str, message_id: str, *, substitutions: dict | None = None) -> str:
         """
         Get a localized string using the user's language preference.
         Falls back to the default language if no preference is set.
@@ -106,12 +106,14 @@ class CouchersContext:
         Args:
             component: Component name (e.g., "errors")
             message_id: The key for the specific string
-            **subs: Variable substitutions for the string
+            substitutions: Dictionary of variable substitutions for the string (optional)
 
         Returns:
             The translated string with substitutions applied
         """
-        return get_raw_translation_string(self.__ui_language_preference, component, message_id, **subs)
+        return get_raw_translation_string(
+            self.__ui_language_preference, component, message_id, substitutions=substitutions
+        )
 
     def abort(self, status_code: grpc.StatusCode, error_message: str) -> NoReturn:
         """
@@ -123,7 +125,9 @@ class CouchersContext:
             context = cast(grpc.ServicerContext, self._grpc_context)
             context.abort(status_code, error_message)
 
-    def abort_with_error_code(self, status_code: grpc.StatusCode, error_message_id: str, **subs) -> NoReturn:
+    def abort_with_error_code(
+        self, status_code: grpc.StatusCode, error_message_id: str, *, substitutions: dict | None = None
+    ) -> NoReturn:
         """
         Raises an error that's returned to the user, but error_message_id should be an entry from translateable errors
         """
@@ -132,7 +136,7 @@ class CouchersContext:
         else:
             context = cast(grpc.ServicerContext, self._grpc_context)
             # Get the translated error message using the user's language preference
-            error_message = self.get_localized_string("errors", error_message_id, **subs)
+            error_message = self.get_localized_string("errors", error_message_id, substitutions=substitutions)
             context.abort(status_code, error_message)
 
     def set_cookies(self, cookies: list[str]) -> None:
