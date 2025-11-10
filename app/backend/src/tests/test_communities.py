@@ -955,7 +955,10 @@ def test_JoinCommunity_and_LeaveCommunity(testing_communities):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You are inside this community, so you cannot leave it."
+        assert (
+            e.value.details()
+            == "Your profile is part of your local community and can’t be removed, but you can adjust your notifications in Account Settings."
+        )
 
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
