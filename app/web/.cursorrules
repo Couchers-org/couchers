@@ -14,6 +14,19 @@ This project uses **yarn** as the package manager. Always use `yarn` commands in
 ## Testing
 Run tests with: `yarn test`
 
+### Testing Best Practices
+- **Use fixture data when available**: Import test data from `test/fixtures/` (e.g., `hostRequest.json`, `messages.json`, `groupChat.json`) instead of creating mock data inline
+- **Query elements by label**: Prefer `getByLabelText()` for form inputs as it tests accessibility
+  - When there's ambiguity (e.g., both a label and aria-label), use the `selector` option: `getByLabelText(label, { selector: "textarea" })`
+- **Text matching with embedded elements**: When text is split by child elements (e.g., links inside text), use function matchers:
+  ```typescript
+  screen.getByText((content, element) => {
+    return element?.textContent === "Full text including embedded link text";
+  })
+  ```
+- **Type safety**: Explicitly type mock mutations (e.g., `UseMutationResult<...>`) without using `any`
+- **Async queries**: Use `await screen.findByText()` when waiting for elements after loading states, instead of `getByText()` after `waitForElementToBeRemoved()`
+
 ## Development
 To run the app locally in development, use `yarn start` (not Docker)
 
