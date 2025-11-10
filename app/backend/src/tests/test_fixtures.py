@@ -12,6 +12,7 @@ import grpc
 import pytest
 from grpc._server import _validate_generic_rpc_handlers
 from sqlalchemy import Connection, Engine, create_engine
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import or_, text
 
 from couchers.config import config
@@ -436,13 +437,13 @@ def generate_user(*, delete_user=False, complete_profile=True, strong_verificati
     return user, token
 
 
-def get_user_id_and_token(session, username):
+def get_user_id_and_token(session: Session, username: str) -> tuple[int, str]:
     user_id = session.execute(select(User).where(User.username == username)).scalar_one().id
     token = session.execute(select(UserSession).where(UserSession.user_id == user_id)).scalar_one().token
     return user_id, token
 
 
-def make_friends(user1, user2):
+def make_friends(user1: User, user2: User) -> None:
     with session_scope() as session:
         friend_relationship = FriendRelationship(
             from_user_id=user1.id,
@@ -452,7 +453,7 @@ def make_friends(user1, user2):
         session.add(friend_relationship)
 
 
-def make_user_block(user1, user2):
+def make_user_block(user1: User, user2: User) -> None:
     with session_scope() as session:
         user_block = UserBlock(
             blocking_user_id=user1.id,
@@ -462,13 +463,13 @@ def make_user_block(user1, user2):
         session.commit()
 
 
-def make_user_invisible(user_id):
+def make_user_invisible(user_id: int) -> None:
     with session_scope() as session:
         session.execute(select(User).where(User.id == user_id)).scalar_one().is_banned = True
 
 
 # This doubles as get_FriendRequest, since a friend request is just a pending friend relationship
-def get_friend_relationship(user1, user2):
+def get_friend_relationship(user1: User, user2: User) -> FriendRelationship:
     with session_scope() as session:
         friend_relationship = session.execute(
             select(FriendRelationship).where(
@@ -483,7 +484,7 @@ def get_friend_relationship(user1, user2):
         return friend_relationship
 
 
-def add_users_to_new_moderation_list(users):
+def add_users_to_new_moderation_list(users: list[User]) -> int:
     """Group users as duplicated accounts"""
     with session_scope() as session:
         moderation_user_list = ModerationUserList()
@@ -500,15 +501,17 @@ class CookieMetadataPlugin(grpc.AuthMetadataPlugin):
     Injects the right `cookie: couchers-sesh=...` header into the metadata
     """
 
-    def __init__(self, token):
+    def __init__(self, token: str):
         self.token = token
 
-    def __call__(self, context, callback):
+    def __call__(self, context, callback) -> None:
         callback((("cookie", f"couchers-sesh={self.token}"),), None)
 
 
 @contextmanager
-def auth_api_session(grpc_channel_options=()):
+def auth_api_session(
+    grpc_channel_options=(),
+) -> Generator[tuple[auth_pb2_grpc.AuthStub, grpc.UnaryUnaryClientInterceptor]]:
     """
     Create an Auth API for testing
 
@@ -595,7 +598,7 @@ def real_admin_session(token):
 
 
 @contextmanager
-def real_account_session(token):
+def real_account_session(token: str):
     """
     Create a Account service for testing, using TCP sockets, uses the token for auth
     """
@@ -616,7 +619,7 @@ def real_account_session(token):
 
 
 @contextmanager
-def real_jail_session(token):
+def real_jail_session(token: str):
     """
     Create a Jail service for testing, using TCP sockets, uses the token for auth
     """

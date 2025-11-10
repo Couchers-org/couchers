@@ -386,7 +386,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
     def Authenticate(self, request, context, session):
         """
-        Authenticates a classic password based login request.
+        Authenticates a classic password-based login request.
 
         request.user can be any of id/username/email
         """
