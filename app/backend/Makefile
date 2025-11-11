@@ -51,7 +51,11 @@ mypy:
 		src/couchers/helpers \
 		src/couchers/jobs \
 		src/couchers/i18n \
-		src/couchers/servicers \
+		src/couchers/servicers/references.py \
+		src/couchers/servicers/reporting.py \
+		src/couchers/servicers/requests.py \
+		src/couchers/servicers/resources.py \
+		src/couchers/servicers/threads.py \
 		src/couchers/phone
 
 # Downgrade the local database to the previous migration. Good if you ran a migration on a branch and will run the backend on another branch after.

@@ -33,13 +33,13 @@ def test_one_time_donation_flow(db, monkeypatch):
 
     monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
 
-    ## User first makes a req to Donations.InitiateDonation
+    # User first makes a req to Donations.InitiateDonation
     with donations_session(token) as donations:
         with patch("couchers.servicers.donations.stripe") as mock:
             mock.Customer.create.return_value = type("__MockCustomer", (), {"id": "cus_Pv4uq0gT0rDZWN"})
             mock.checkout.Session.create.return_value = type("__MockCheckoutSession", (), one_time_STRIPE_SESSION)
 
-            res = donations.InitiateDonation(
+            donations.InitiateDonation(
                 donations_pb2.InitiateDonationReq(
                     amount=100,
                     recurring=False,
@@ -48,7 +48,7 @@ def test_one_time_donation_flow(db, monkeypatch):
             )
 
         mock.Customer.create.assert_called_once_with(
-            email=user_email, metadata={"user_id": user_id}, api_key="dummy_api_key"
+            email=user_email, metadata={"user_id": str(user_id)}, api_key="dummy_api_key"
         )
 
         mock.checkout.Session.create.assert_called_once_with(
@@ -151,7 +151,7 @@ def test_recurring_donation_flow(db, monkeypatch):
             )
 
         mock.Customer.create.assert_called_once_with(
-            email=user_email, metadata={"user_id": user_id}, api_key="dummy_api_key"
+            email=user_email, metadata={"user_id": str(user_id)}, api_key="dummy_api_key"
         )
 
         mock.checkout.Session.create.assert_called_once_with(
@@ -272,7 +272,7 @@ def test_customer_portal_url(db, monkeypatch):
             assert res.stripe_portal_url == "https://stripe.com.invalid/subman"
 
         mock.Customer.create.assert_called_once_with(
-            email=user_email, metadata={"user_id": user_id}, api_key="dummy_api_key"
+            email=user_email, metadata={"user_id": str(user_id)}, api_key="dummy_api_key"
         )
 
 
@@ -281,7 +281,7 @@ def fire_stripe_event(event_id):
     with real_stripe_session() as api:
         with patch("couchers.servicers.donations.stripe") as mock:
             mock.Webhook.construct_event.return_value = event
-            reply = api.Webhook(
+            api.Webhook(
                 httpbody_pb2.HttpBody(content_type="application/json", data=b"{}"),
                 metadata=(("stripe-signature", "dummy_sig"),),
             )

@@ -5,6 +5,9 @@
 * References become visible after min{2 weeks, both reciprocal references written}
 """
 
+from datetime import datetime
+from typing import Any
+
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.orm import Session, aliased
@@ -49,7 +52,9 @@ def reference_to_pb(reference: Reference, context: CouchersContext) -> reference
     )
 
 
-def get_host_req_and_check_can_write_ref(session: Session, context: CouchersContext, host_request_id: int) -> tuple:
+def get_host_req_and_check_can_write_ref(
+    session: Session, context: CouchersContext, host_request_id: int
+) -> tuple[HostRequest, bool]:
     """
     Checks that this can see the given host req and write a ref for it
 
@@ -91,7 +96,10 @@ def get_host_req_and_check_can_write_ref(session: Session, context: CouchersCont
     return host_request, surfed
 
 
-def check_valid_reference(request: references_pb2.WriteReferenceReq, context: CouchersContext) -> None:
+def check_valid_reference(
+    request: references_pb2.WriteHostRequestReferenceReq | references_pb2.WriteFriendReferenceReq,
+    context: CouchersContext,
+) -> None:
     if request.rating < 0 or request.rating > 1:
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "reference_invalid_rating")
 
@@ -99,7 +107,9 @@ def check_valid_reference(request: references_pb2.WriteReferenceReq, context: Co
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "reference_no_text")
 
 
-def get_pending_references_to_write(session: Session, context: CouchersContext) -> list:
+def get_pending_references_to_write(
+    session: Session, context: CouchersContext
+) -> list[tuple[int, ReferenceType, datetime, LiteUser]]:
     q1 = (
         select(literal(True), HostRequest, LiteUser)
         .outerjoin(
@@ -134,7 +144,7 @@ def get_pending_references_to_write(session: Session, context: CouchersContext) 
         .where(HostRequest.host_reason_didnt_meetup == None)
     )
 
-    union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
+    union: Any = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
     union = select(union.c[0].label("surfed"), aliased(HostRequest, union), aliased(LiteUser, union))
     host_request_references = session.execute(union).all()
 
@@ -195,7 +205,7 @@ class References(references_pb2_grpc.ReferencesServicer):
         # 3. It has been over 2 weeks since the host request ended
 
         # we get the matching other references through this subquery
-        sub = select(Reference.id.label("sub_id"), Reference.host_request_id).where(
+        sub: Any = select(Reference.id.label("sub_id"), Reference.host_request_id).where(
             Reference.reference_type != ReferenceType.friend
         )
         if request.from_user_id:
@@ -401,7 +411,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             .where(HostRequest.host_reason_didnt_meetup == None)
         )
 
-        union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
+        union: Any = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
         union = select(union.c[0].label("surfed"), aliased(HostRequest, union))
         host_request_references = session.execute(union).all()
 

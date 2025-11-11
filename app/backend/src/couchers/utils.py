@@ -5,7 +5,7 @@ from collections.abc import Sequence
 from datetime import date, datetime, timedelta
 from email.utils import formatdate
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, overload
 from zoneinfo import ZoneInfo
 
 import pytz
@@ -203,14 +203,20 @@ def to_multi(polygon: WKBElement) -> Function[Any]:
     return func.ST_Multi(polygon)
 
 
+@overload
+def get_coordinates(geom: WKBElement | WKTElement) -> tuple[int, int]: ...
+@overload
+def get_coordinates(geom: None) -> None: ...
+
+
 def get_coordinates(geom: WKBElement | WKTElement | None) -> tuple[int, int] | None:
     """
-    Returns EPSG4326 (lat, lng) pair for a given WKT geom point or None if the input is not truthy
+    Returns a EPSG4326 (lat, lng) pair for a given WKT geom point or None if the input is not truthy
     """
     if geom:
         shp = to_shape(geom)
         # note the funniness with 4326 normally being (x, y) = (lng, lat)
-        return (shp.y, shp.x)
+        return shp.y, shp.x
     else:
         return None
 

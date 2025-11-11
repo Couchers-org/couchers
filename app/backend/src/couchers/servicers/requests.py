@@ -1,5 +1,6 @@
 import logging
 from datetime import timedelta
+from typing import cast
 
 import grpc
 from google.protobuf import empty_pb2
@@ -86,7 +87,7 @@ def message_to_pb(message: Message) -> conversations_pb2.Message:
             ),
             host_request_status_changed=(
                 conversations_pb2.MessageContentHostRequestStatusChanged(
-                    status=hostrequeststatus2api[message.host_request_status_target]
+                    status=hostrequeststatus2api[cast(HostRequestStatus, message.host_request_status_target)]
                 )
                 if message.message_type == MessageType.host_request_status_changed
                 else None
@@ -110,6 +111,9 @@ def host_request_to_pb(
         .order_by(Message.id.desc())
         .limit(1)
     ).scalar_one()
+
+    if host_request.hosting_location is None:
+        raise RuntimeError(f"No hosting location for request {host_request.conversation_id=}")
 
     lat, lng = get_coordinates(host_request.hosting_location)
 
@@ -169,7 +173,7 @@ def _possibly_observe_first_response_time(
 class Requests(requests_pb2_grpc.RequestsServicer):
     def CreateHostRequest(
         self, request: requests_pb2.CreateHostRequestReq, context: CouchersContext, session: Session
-    ) -> requests_pb2.HostRequest:
+    ) -> requests_pb2.CreateHostRequestRes:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         if not user.has_completed_profile:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_send_request")
@@ -260,7 +264,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             session,
             user_id=host_request.host_user_id,
             topic_action="host_request:create",
-            key=host_request.conversation_id,
+            key=str(host_request.conversation_id),
             data=notification_data_pb2.HostRequestCreate(
                 host_request=host_request_to_pb(host_request, session, context),
                 surfer=user_model_to_pb(host_request.surfer, session, context),
@@ -313,7 +317,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             .where_users_column_visible(context, HostRequest.surfer_user_id)
             .where_users_column_visible(context, HostRequest.host_user_id)
             .where(message_2.id == None)
-            .where(or_(Message.id < request.last_request_id, request.last_request_id == 0))
+            .where(or_(Message.id < request.last_request_id, request.last_request_id == 0))  # type: ignore[arg-type]
         )
 
         if request.only_sent:
@@ -563,7 +567,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             session.execute(
                 select(Message)
                 .where(Message.conversation_id == host_request.conversation_id)
-                .where(or_(Message.id < request.last_message_id, request.last_message_id == 0))
+                .where(
+                    or_(
+                        Message.id < request.last_message_id,
+                        request.last_message_id == 0,  # type: ignore[arg-type]
+                    ),
+                )
                 .order_by(Message.id.desc())
                 .limit(pagination + 1)
             )
@@ -726,8 +735,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def SetHostRequestArchiveStatus(
         self, request: requests_pb2.SetHostRequestArchiveStatusReq, context: CouchersContext, session: Session
-    ) -> empty_pb2.Empty:
-        host_request: HostRequest = session.execute(
+    ) -> requests_pb2.SetHostRequestArchiveStatusRes:
+        host_request: HostRequest | None = session.execute(
             select(HostRequest)
             .where(HostRequest.conversation_id == request.host_request_id)
             .where(or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id))
@@ -761,7 +770,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         user, response_rates = user_res
-        return requests_pb2.GetResponseRateRes(**response_rate_to_pb(response_rates))
+        return requests_pb2.GetResponseRateRes(**response_rate_to_pb(response_rates))  # type: ignore[arg-type]
 
     def SendHostRequestFeedback(
         self, request: requests_pb2.SendHostRequestFeedbackReq, context: CouchersContext, session: Session

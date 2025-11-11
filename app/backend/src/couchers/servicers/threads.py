@@ -3,7 +3,7 @@ import logging
 import grpc
 import sqlalchemy.exc
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import func, select
+from sqlalchemy.sql import func
 
 from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import session_scope
@@ -28,24 +28,23 @@ def pack_thread_id(database_id: int, depth: int) -> int:
     return database_id * 10 + depth
 
 
-def unpack_thread_id(thread_id: int) -> (int, int):
+def unpack_thread_id(thread_id: int) -> tuple[int, int]:
     """Returns (database_id, depth) tuple."""
     return divmod(thread_id, 10)
 
 
 def total_num_responses(session: Session, database_id: int) -> int:
-    """Return the total number of comments and replies to the thread with
-    database id database_id.
-    """
-    return (
-        session.execute(select(func.count()).select_from(Comment).where(Comment.thread_id == database_id)).scalar_one()
-        + session.execute(
-            select(func.count())
-            .select_from(Reply)
-            .join(Comment, Comment.id == Reply.comment_id)
-            .where(Comment.thread_id == database_id)
-        ).scalar_one()
-    )
+    """Return the total number of comments and replies to the thread."""
+    num_comments: int = session.execute(
+        select(func.count()).select_from(Comment).where(Comment.thread_id == database_id)
+    ).scalar_one()
+    num_replies: int = session.execute(
+        select(func.count())
+        .select_from(Reply)
+        .join(Comment, Comment.id == Reply.comment_id)
+        .where(Comment.thread_id == database_id)
+    ).scalar_one()
+    return num_comments + num_replies
 
 
 def thread_to_pb(session: Session, database_id: int) -> threads_pb2.Thread:
@@ -206,7 +205,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
 class Threads(threads_pb2_grpc.ThreadsServicer):
     def GetThread(
         self, request: threads_pb2.GetThreadReq, context: CouchersContext, session: Session
-    ) -> threads_pb2.Thread:
+    ) -> threads_pb2.GetThreadRes:
         database_id, depth = unpack_thread_id(request.thread_id)
         page_size = request.page_size if 0 < request.page_size < 100000 else 1000
         page_start = unpack_thread_id(int(request.page_token))[0] if request.page_token else 2**50
@@ -282,7 +281,9 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
 
         database_id, depth = unpack_thread_id(request.thread_id)
         if depth == 0:
-            object_to_add = Comment(thread_id=database_id, author_user_id=context.user_id, content=content)
+            object_to_add: Comment | Reply = Comment(
+                thread_id=database_id, author_user_id=context.user_id, content=content
+            )
         elif depth == 1:
             object_to_add = Reply(comment_id=database_id, author_user_id=context.user_id, content=content)
         else:
