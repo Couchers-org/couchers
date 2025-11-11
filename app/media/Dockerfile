@@ -1,5 +1,7 @@
 FROM python:3.13-bullseye
 
+ENV UV_VERSION=0.9.8
+
 RUN apt-get update \
     && apt-get install -y libvips42 \
     && wget -qO- https://astral.sh/uv/${UV_VERSION}/install.sh | sh

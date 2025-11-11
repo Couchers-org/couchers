@@ -123,10 +123,27 @@ build:backend:
   stage: build
   variables:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
-  script:
-    - docker pull $BACKEND_RELEASE_TAG || true
-    - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --cache-from $BACKEND_RELEASE_TAG -t $BACKEND_TAG app/backend/
-    - docker push $BACKEND_TAG
+  script: |
+    # Push image cache only on develop.
+    CACHE_TO=""
+    if [ "$CI_COMMIT_BRANCH" = "$RELEASE_BRANCH" ]; then
+      CACHE_TO="--cache-to type=registry,ref=$BACKEND_RELEASE_TAG,mode=max"
+    fi
+    
+    # Use buildx, as "docker build" does not work with registry cache.
+    docker pull $BACKEND_RELEASE_TAG || true
+    docker context create my-builder
+    docker buildx create my-builder --driver docker-container --use
+  
+    docker buildx build \
+      --push \
+      -t "$BACKEND_TAG" \
+      --build-arg display_version="$DISPLAY_VERSION" \
+      --build-arg commit_timestamp="$COMMIT_TIMESTAMP" \
+      --build-arg version="$SLUG" \
+      --cache-from "$BACKEND_RELEASE_TAG" \
+      $CACHE_TO \
+      app/backend
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
