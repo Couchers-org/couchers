@@ -25,6 +25,18 @@ jest.mock("next/router", () => {
     },
   };
 });
+// Mock Sentry to prevent router instrumentation errors in tests
+jest.mock("@sentry/nextjs", () => ({
+  init: jest.fn(),
+  captureException: jest.fn(),
+  captureMessage: jest.fn(),
+  withScope: jest.fn((callback) => callback({ setTag: jest.fn() })),
+  Severity: {
+    Error: "error",
+    Warning: "warning",
+    Info: "info",
+  },
+}));
 // Mock next/dynamic to skip the dynamic part
 // This works by extracting the require("path/to/component")
 // It needs to be in the form dynamic(() => import("components/MarkdownNoSSR"))
