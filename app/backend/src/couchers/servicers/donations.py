@@ -5,6 +5,7 @@ import grpc
 import stripe
 from google.protobuf import empty_pb2
 from sqlalchemy.orm import Session
+from stripe.params.checkout import SessionCreateParamsLineItem
 
 from couchers import urls
 from couchers.config import config
@@ -23,7 +24,7 @@ def _create_stripe_customer(session: Session, user: User) -> None:
     customer = stripe.Customer.create(
         email=user.email,
         # metadata allows us to store arbitrary metadata for ourselves
-        metadata={"user_id": user.id},
+        metadata={"user_id": str(user.id)},
         api_key=config["STRIPE_API_KEY"],
     )
     user.stripe_customer_id = customer.id
@@ -48,7 +49,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             _create_stripe_customer(session, user)
 
         if request.recurring:
-            item = {
+            item: SessionCreateParamsLineItem = {
                 "price": config["STRIPE_RECURRING_PRODUCT_ID"],
                 "quantity": request.amount,
             }
@@ -67,7 +68,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
 
         checkout_session = stripe.checkout.Session.create(
             client_reference_id=user.id,
-            submit_type="donate" if not request.recurring else None,
+            submit_type="donate" if not request.recurring else None,  # type: ignore[arg-type]
             customer=user.stripe_customer_id,
             success_url=urls.donation_success_url(),
             cancel_url=urls.donation_cancelled_url(),
@@ -102,13 +103,13 @@ class Donations(donations_pb2_grpc.DonationsServicer):
         if not user.stripe_customer_id:
             _create_stripe_customer(session, user)
 
-        session = stripe.billing_portal.Session.create(
+        stripe_session = stripe.billing_portal.Session.create(
             customer=user.stripe_customer_id,
             return_url=urls.donation_url(),
             api_key=config["STRIPE_API_KEY"],
         )
 
-        return donations_pb2.GetDonationPortalLinkRes(stripe_portal_url=session.url)
+        return donations_pb2.GetDonationPortalLinkRes(stripe_portal_url=stripe_session.url)
 
 
 class Stripe(stripe_pb2_grpc.StripeServicer):
@@ -118,7 +119,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
         # We're set up to receive the following webhook events (with explanations from stripe docs):
         # For both recurring and one-off donations, we get a `charge.succeeded` event and we then send the user an
         # invoice. There are other events too, but we don't handle them right now.
-        event = stripe.Webhook.construct_event(
+        event = stripe.Webhook.construct_event(  # type: ignore[no-untyped-call]
             payload=request.data,
             sig_header=context.headers.get("stripe-signature"),
             secret=config["STRIPE_WEBHOOK_SECRET"],

@@ -1,10 +1,13 @@
 """
-See //docs/search.md for overview.
+See //docs/search.md for an overview.
 """
 
+from collections.abc import Callable, Sequence
 from datetime import timedelta
+from typing import Any
 
 import grpc
+from sqlalchemy import Function, Row, Select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_
 
@@ -69,7 +72,7 @@ TRI_SIMILARITY_THRESHOLD = 0.6
 TRI_SIMILARITY_WEIGHT = 5
 
 
-def _join_with_space(coalesces):
+def _join_with_space(coalesces: list[str]) -> str:
     # the objects in coalesces are not strings, so we can't do " ".join(coalesces). They're SQLAlchemy magic.
     if not coalesces:
         return ""
@@ -79,7 +82,7 @@ def _join_with_space(coalesces):
     return out
 
 
-def _build_tsv(A, B=None, C=None, D=None):
+def _build_tsv(A: list, B: list | None = None, C: list | None = None, D: list | None = None) -> Function[Any]:
     """
     Given lists for A, B, C, and D, builds a tsvector from them.
     """
@@ -102,7 +105,7 @@ def _build_tsv(A, B=None, C=None, D=None):
     return tsv
 
 
-def _build_doc(A, B=None, C=None, D=None):
+def _build_doc(A: list[str], B: list[str] | None = None, C: list[str] | None = None, D: list[str] | None = None) -> str:
     """
     Builds the raw document (without to_tsvector and weighting), used for extracting snippet
     """
@@ -119,13 +122,24 @@ def _build_doc(A, B=None, C=None, D=None):
     return doc
 
 
-def _similarity(statement, text):
+def _similarity(statement: Select[Any], text: str) -> Function[Any]:  # type: ignore[no-untyped-def]
+    # Return type is an SQLAlchemy function object
     return func.word_similarity(func.unaccent(statement), func.unaccent(text))
 
 
-def _gen_search_elements(statement, title_only, next_rank, page_size, A, B=None, C=None, D=None):
+def _gen_search_elements[T](
+    statement: str,
+    title_only: bool,
+    next_rank: float | None,
+    page_size: int,
+    A: list[str],
+    B: list[str] | None = None,
+    C: list[str] | None = None,
+    D: list[str] | None = None,
+) -> tuple[Function[Any], Function[Any], Callable[[Session, Select[T]], Sequence[Row[T]]]]:
     """
-    Given an sql statement and four sets of fields, (A, B, C, D), generates a bunch of postgres expressions for full text search.
+    Given an sql statement and four sets of fields, (A, B, C, D), generates a bunch of postgres expressions
+    for full-text search.
 
     The four sets are in decreasing order of "importance" for ranking.
 
@@ -148,7 +162,7 @@ def _gen_search_elements(statement, title_only, next_rank, page_size, A, B=None,
 
         title = _build_doc(A)
 
-        # trigram based text similarity between title and sql statement string
+        # trigram-based text similarity between title and sql statement string
         sim = _similarity(statement, title)
 
         # ranking algo, weigh the similarity a lot, the text-based ranking less
@@ -157,7 +171,7 @@ def _gen_search_elements(statement, title_only, next_rank, page_size, A, B=None,
         # the snippet with results highlighted
         snippet = func.ts_headline(REGCONFIG, doc, tsq, "StartSel=**,StopSel=**").label("snippet")
 
-        def execute_search_statement(session, orig_statement):
+        def execute_search_statement[T](session: Session, orig_statement: Select[T]) -> Sequence[Row[T]]:
             """
             Does the right search filtering, limiting, and ordering for the initial statement
             """
@@ -171,7 +185,7 @@ def _gen_search_elements(statement, title_only, next_rank, page_size, A, B=None,
     else:
         title = _build_doc(A)
 
-        # trigram based text similarity between title and sql statement string
+        # trigram-based text similarity between title and sql statement string
         sim = _similarity(statement, title)
 
         # ranking algo, weigh the similarity a lot, the text-based ranking less
@@ -184,7 +198,7 @@ def _gen_search_elements(statement, title_only, next_rank, page_size, A, B=None,
         # the snippet with results highlighted
         snippet = func.ts_headline(REGCONFIG, doc, tsq, "StartSel=**,StopSel=**").label("snippet")
 
-        def execute_search_statement(session, orig_statement):
+        def execute_search_statement[T](session: Session, orig_statement: Select[T]) -> Sequence[Row[T]]:
             """
             Does the right search filtering, limiting, and ordering for the initial statement
             """
@@ -198,7 +212,15 @@ def _gen_search_elements(statement, title_only, next_rank, page_size, A, B=None,
     return rank, snippet, execute_search_statement
 
 
-def _search_users(session, search_statement, title_only, next_rank, page_size, context, include_users):
+def _search_users(
+    session: Session,
+    search_statement: str,
+    title_only: bool,
+    next_rank: float | None,
+    page_size: int,
+    context: CouchersContext,
+    include_users: bool,
+) -> list[search_pb2.Result]:
     if not include_users:
         return []
     rank, snippet, execute_search_statement = _gen_search_elements(
@@ -224,7 +246,16 @@ def _search_users(session, search_statement, title_only, next_rank, page_size, c
     ]
 
 
-def _search_pages(session, search_statement, title_only, next_rank, page_size, context, include_places, include_guides):
+def _search_pages(
+    session: Session,
+    search_statement: str,
+    title_only: bool,
+    next_rank: float | None,
+    page_size: int,
+    context: CouchersContext,
+    include_places: bool,
+    include_guides: bool,
+) -> list[search_pb2.Result]:
     rank, snippet, execute_search_statement = _gen_search_elements(
         search_statement,
         title_only,
@@ -269,7 +300,14 @@ def _search_pages(session, search_statement, title_only, next_rank, page_size, c
     ]
 
 
-def _search_events(session, search_statement, title_only, next_rank, page_size, context):
+def _search_events(
+    session: Session,
+    search_statement: str,
+    title_only: bool,
+    next_rank: float | None,
+    page_size: int,
+    context: CouchersContext,
+) -> list[search_pb2.Result]:
     rank, snippet, execute_search_statement = _gen_search_elements(
         search_statement,
         title_only,
@@ -299,8 +337,15 @@ def _search_events(session, search_statement, title_only, next_rank, page_size, 
 
 
 def _search_clusters(
-    session, search_statement, title_only, next_rank, page_size, context, include_communities, include_groups
-):
+    session: Session,
+    search_statement: str,
+    title_only: bool,
+    next_rank: float | None,
+    page_size: int,
+    context: CouchersContext,
+    include_communities: bool,
+    include_groups: bool,
+) -> list[search_pb2.Result]:
     if not include_communities and not include_groups:
         return []
 
@@ -348,7 +393,7 @@ def _search_clusters(
     ]
 
 
-def _user_search_inner(request, context: CouchersContext, session: Session):
+def _user_search_inner(request: search_pb2.UserSearchReq, context: CouchersContext, session: Session) -> tuple:
     user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
     # Base statement with visibility filter
@@ -647,7 +692,7 @@ class Search(search_pb2_grpc.SearchServicer):
 
         ref_counts_by_user_id = get_num_references(session, user_ids_to_return)
 
-        def _user_to_search_user(user_id):
+        def _user_to_search_user(user_id: int) -> search_pb2.SearchUser:
             lite_user = LiteUser_by_id[user_id]
 
             about_me, gender, last_active, hosting_status, meetup_status, joined = db_user_data_by_id[user_id]

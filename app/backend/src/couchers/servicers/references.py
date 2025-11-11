@@ -49,7 +49,7 @@ def reference_to_pb(reference: Reference, context: CouchersContext) -> reference
     )
 
 
-def get_host_req_and_check_can_write_ref(session, context, host_request_id):
+def get_host_req_and_check_can_write_ref(session: Session, context: CouchersContext, host_request_id: int) -> tuple:
     """
     Checks that this can see the given host req and write a ref for it
 
@@ -91,7 +91,7 @@ def get_host_req_and_check_can_write_ref(session, context, host_request_id):
     return host_request, surfed
 
 
-def check_valid_reference(request, context):
+def check_valid_reference(request: references_pb2.WriteReferenceReq, context: CouchersContext) -> None:
     if request.rating < 0 or request.rating > 1:
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "reference_invalid_rating")
 
@@ -99,7 +99,7 @@ def check_valid_reference(request, context):
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "reference_no_text")
 
 
-def get_pending_references_to_write(session, context):
+def get_pending_references_to_write(session: Session, context: CouchersContext) -> list:
     q1 = (
         select(literal(True), HostRequest, LiteUser)
         .outerjoin(
@@ -334,7 +334,9 @@ class References(references_pb2_grpc.ReferencesServicer):
 
         return reference_to_pb(reference, context)
 
-    def HostRequestIndicateDidntMeetup(self, request, context, session):
+    def HostRequestIndicateDidntMeetup(
+        self, request: references_pb2.HostRequestIndicateDidntMeetupReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         host_request, surfed = get_host_req_and_check_can_write_ref(session, context, request.host_request_id)
 
         reason = request.reason_didnt_meetup.strip()

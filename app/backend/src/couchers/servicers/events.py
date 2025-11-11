@@ -59,7 +59,7 @@ attendancestate2api = {
 MAX_PAGINATION_LENGTH = 25
 
 
-def _is_event_owner(event: Event, user_id):
+def _is_event_owner(event: Event, user_id: int) -> bool:
     """
     Checks whether the user can act as an owner of the event
     """
@@ -69,14 +69,14 @@ def _is_event_owner(event: Event, user_id):
     return event.owner_cluster.admins.where(User.id == user_id).one_or_none() is not None
 
 
-def _is_event_organizer(event: Event, user_id):
+def _is_event_organizer(event: Event, user_id: int) -> bool:
     """
     Checks whether the user is as an organizer of the event
     """
     return event.organizers.where(EventOrganizer.user_id == user_id).one_or_none() is not None
 
 
-def _can_moderate_event(session, event: Event, user_id):
+def _can_moderate_event(session: Session, event: Event, user_id: int) -> bool:
     # if the event is owned by a cluster, then any moderator of that cluster can moderate this event
     if event.owner_cluster is not None and can_moderate_node(session, user_id, event.owner_cluster.parent_node_id):
         return True
@@ -85,7 +85,7 @@ def _can_moderate_event(session, event: Event, user_id):
     return can_moderate_node(session, user_id, event.parent_node_id)
 
 
-def _can_edit_event(session, event, user_id):
+def _can_edit_event(session: Session, event: Event, user_id: int) -> bool:
     return (
         _is_event_owner(event, user_id)
         or _is_event_organizer(event, user_id)
@@ -93,7 +93,7 @@ def _can_edit_event(session, event, user_id):
     )
 
 
-def event_to_pb(session, occurrence: EventOccurrence, context):
+def event_to_pb(session: Session, occurrence: EventOccurrence, context: CouchersContext) -> events_pb2.Event:
     event = occurrence.event
 
     next_occurrence = (
@@ -194,7 +194,7 @@ def event_to_pb(session, occurrence: EventOccurrence, context):
     )
 
 
-def _get_event_and_occurrence_query(occurrence_id, include_deleted: bool):
+def _get_event_and_occurrence_query(occurrence_id: int, include_deleted: bool):  # type: ignore[no-untyped-def]
     query = (
         select(Event, EventOccurrence)
         .where(EventOccurrence.id == occurrence_id)
@@ -208,18 +208,18 @@ def _get_event_and_occurrence_query(occurrence_id, include_deleted: bool):
 
 
 def _get_event_and_occurrence_one(
-    session, occurrence_id, include_deleted: bool = False
+    session: Session, occurrence_id: int, include_deleted: bool = False
 ) -> tuple[Event, EventOccurrence]:
     return session.execute(_get_event_and_occurrence_query(occurrence_id, include_deleted)).one()
 
 
 def _get_event_and_occurrence_one_or_none(
-    session, occurrence_id, include_deleted: bool = False
+    session: Session, occurrence_id: int, include_deleted: bool = False
 ) -> tuple[Event, EventOccurrence] | None:
     return session.execute(_get_event_and_occurrence_query(occurrence_id, include_deleted)).one_or_none()
 
 
-def _check_occurrence_time_validity(start_time, end_time, context):
+def _check_occurrence_time_validity(start_time, end_time, context: CouchersContext) -> None:  # type: ignore[no-untyped-def]
     if start_time < now():
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_in_past")
     if end_time < start_time:
@@ -230,7 +230,7 @@ def _check_occurrence_time_validity(start_time, end_time, context):
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_too_far_in_future")
 
 
-def get_users_to_notify_for_new_event(session, occurrence):
+def get_users_to_notify_for_new_event(session: Session, occurrence: EventOccurrence) -> tuple:  # type: ignore[no-untyped-def]
     """
     Returns the users to notify, as well as the community id that is being notified (None if based on geo search)
     """
@@ -256,7 +256,7 @@ def get_users_to_notify_for_new_event(session, occurrence):
         return users, None
 
 
-def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNotificationsPayload):
+def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNotificationsPayload) -> None:
     """
     Background job to generated/fan out event notifications
     """
@@ -294,7 +294,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
             )
 
 
-def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNotificationsPayload):
+def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNotificationsPayload) -> None:
     with session_scope() as session:
         event, occurrence = _get_event_and_occurrence_one(session, occurrence_id=payload.occurrence_id)
 
@@ -320,7 +320,7 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
             )
 
 
-def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNotificationsPayload):
+def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNotificationsPayload) -> None:
     with session_scope() as session:
         event, occurrence = _get_event_and_occurrence_one(session, occurrence_id=payload.occurrence_id)
 
@@ -347,7 +347,7 @@ def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNot
             )
 
 
-def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNotificationsPayload):
+def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNotificationsPayload) -> None:
     with session_scope() as session:
         event, occurrence = _get_event_and_occurrence_one(
             session, occurrence_id=payload.occurrence_id, include_deleted=True

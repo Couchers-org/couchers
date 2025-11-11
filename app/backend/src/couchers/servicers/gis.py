@@ -2,7 +2,7 @@ import json
 import logging
 from typing import Any
 
-from sqlalchemy import Select, Function
+from sqlalchemy import Function, Select
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func

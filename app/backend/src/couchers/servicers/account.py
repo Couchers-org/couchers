@@ -607,7 +607,7 @@ class Account(account_pb2_grpc.AccountServicer):
             .all()
         )
 
-        def _active_session_to_pb(user_session):
+        def _active_session_to_pb(user_session: UserSession) -> account_pb2.ActiveSession:
             user_agent = user_agents_parse(user_session.user_agent or "")
             return account_pb2.ActiveSession(
                 created=Timestamp_from_datetime(user_session.created),
@@ -657,7 +657,9 @@ class Account(account_pb2_grpc.AccountServicer):
         )
         return empty_pb2.Empty()
 
-    def SetProfilePublicVisibility(self, request, context, session):
+    def SetProfilePublicVisibility(
+        self, request: account_pb2.SetProfilePublicVisibilityReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         user.public_visibility = profilepublicitysetting2sql[request.profile_public_visibility]
         user.has_modified_public_visibility = True

@@ -19,7 +19,7 @@ from couchers.utils import Timestamp_from_datetime
 logger = logging.getLogger(__name__)
 
 
-def discussion_to_pb(session, discussion: Discussion, context):
+def discussion_to_pb(session: Session, discussion: Discussion, context: CouchersContext) -> discussions_pb2.Discussion:
     owner_community_id = None
     owner_group_id = None
     if discussion.owner_cluster.is_official_cluster:
@@ -44,7 +44,7 @@ def discussion_to_pb(session, discussion: Discussion, context):
     )
 
 
-def generate_create_discussion_notifications(payload: jobs_pb2.GenerateCreateDiscussionNotificationsPayload):
+def generate_create_discussion_notifications(payload: jobs_pb2.GenerateCreateDiscussionNotificationsPayload) -> None:
     with session_scope() as session:
         discussion = session.execute(select(Discussion).where(Discussion.id == payload.discussion_id)).scalar_one()
 

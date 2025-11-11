@@ -1,5 +1,5 @@
 import logging
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import grpc
 import requests
@@ -60,13 +60,19 @@ from couchers.utils import (
 logger = logging.getLogger(__name__)
 
 
-def _auth_res(user):
+def _auth_res(user: User) -> auth_pb2.AuthRes:
     return auth_pb2.AuthRes(jailed=user.is_jailed, user_id=user.id)
 
 
 def create_session(
-    context: CouchersContext, session, user, long_lived, is_api_key=False, duration=None, set_cookie=True
-):
+    context: CouchersContext,
+    session: Session,
+    user: User,
+    long_lived: bool,
+    is_api_key: bool = False,
+    duration: timedelta | None = None,
+    set_cookie: bool = True,
+) -> tuple[str, datetime]:
     """
     Creates a session for the given user and returns the token and expiry.
 
@@ -84,7 +90,7 @@ def create_session(
     if user.is_banned:
         context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "account_suspended")
 
-    # just double check
+    # just double-check
     assert not user.is_deleted
 
     token = cookiesafe_secure_token()
@@ -113,7 +119,7 @@ def create_session(
     return token, user_session.expiry
 
 
-def delete_session(session, token):
+def delete_session(session: Session, token: str) -> bool:
     """
     Deletes the given session (practically logging the user out)
 
@@ -130,7 +136,7 @@ def delete_session(session, token):
         return False
 
 
-def _username_available(session, username):
+def _username_available(session: Session, username: str) -> bool:
     """
     Checks if the given username adheres to our rules and isn't taken already.
     """

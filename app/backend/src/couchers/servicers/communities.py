@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 MAX_PAGINATION_LENGTH = 25
 
 
-def _parents_to_pb(session, node_id):
+def _parents_to_pb(session: Session, node_id: int) -> list:
     parents = get_node_parents_recursively(session, node_id)
     return [
         groups_pb2.Parent(
@@ -51,7 +51,7 @@ def _parents_to_pb(session, node_id):
     ]
 
 
-def communities_to_pb(session, nodes: list[Node], context):
+def communities_to_pb(session: Session, nodes: list[Node], context: CouchersContext) -> list:
     can_moderates = [can_moderate_node(session, context.user_id, node.id) for node in nodes]
 
     official_clusters = [node.official_cluster for node in nodes]
@@ -113,7 +113,7 @@ def communities_to_pb(session, nodes: list[Node], context):
     ]
 
 
-def community_to_pb(session, node: Node, context):
+def community_to_pb(session: Session, node: Node, context: CouchersContext) -> communities_pb2.Community:
     return communities_to_pb(session, [node], context)[0]
 
 

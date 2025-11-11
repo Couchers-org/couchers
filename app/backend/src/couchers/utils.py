@@ -130,26 +130,26 @@ def today_in_timezone(tz: str) -> date:
 # When entering as EPSG4326, we also need it in (lng, lat)
 
 
-def wrap_coordinate(lat: int, lng: int) -> tuple[int, int]:
+def wrap_coordinate(lat: float, lng: float) -> tuple[float, float]:
     """
     Wraps (lat, lng) point in the EPSG4326 format
     """
 
-    def __wrap_gen(deg: int, ct: int, adj: int) -> int:
+    def __wrap_gen(deg: float, ct: int, adj: int) -> float:
         if deg > ct:
             deg -= adj
         if deg < -ct:
             deg += adj
         return deg
 
-    def __wrap_flip(deg: int, ct: int, adj: int) -> int:
+    def __wrap_flip(deg: float, ct: int, adj: int) -> float:
         if deg > ct:
             deg = -deg + adj
         if deg < -ct:
             deg = -deg - adj
         return deg
 
-    def __wrap_rem(deg: int, ct: int = 360) -> int:
+    def __wrap_rem(deg: float, ct: int = 360) -> float:
         if deg > ct:
             deg = deg % ct
         if deg < -ct:
@@ -170,7 +170,7 @@ def wrap_coordinate(lat: int, lng: int) -> tuple[int, int]:
     return lat, lng
 
 
-def create_coordinate(lat: int, lng: int) -> WKBElement:
+def create_coordinate(lat: float, lng: float) -> WKBElement:
     """
     Creates a WKT point from a (lat, lng) tuple in EPSG4326 coordinate system (normal GPS-coordinates)
     """

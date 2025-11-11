@@ -15,7 +15,7 @@ from couchers.utils import create_coordinate, now
 logger = logging.getLogger(__name__)
 
 
-def _get_jail_info(session, user):
+def _get_jail_info(session: Session, user: User) -> jail_pb2.JailInfoRes:
     res = jail_pb2.JailInfoRes(
         has_not_accepted_tos=user.jailed_missing_tos,
         needs_to_update_location=user.is_missing_location,

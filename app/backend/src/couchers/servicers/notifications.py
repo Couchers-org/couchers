@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 MAX_PAGINATION_LENGTH = 100
 
 
-def notification_to_pb(user, notification: Notification) -> notifications_pb2.Notification:
+def notification_to_pb(user: User, notification: Notification) -> notifications_pb2.Notification:
     rendered = render_notification(user, notification)
     return notifications_pb2.Notification(
         notification_id=notification.id,

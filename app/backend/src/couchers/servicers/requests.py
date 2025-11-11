@@ -146,7 +146,9 @@ def host_request_to_pb(
     )
 
 
-def _possibly_observe_first_response_time(session, host_request, user_id, response_type):
+def _possibly_observe_first_response_time(
+    session: Session, host_request: HostRequest, user_id: int, response_type: str
+) -> None:
     # if this is the first response then there's nothing by this user yet
     assert host_request.host_user_id == user_id
 
@@ -387,7 +389,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
     def RespondHostRequest(
         self, request: requests_pb2.RespondHostRequestReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
-        def count_host_response(other_user_id, response_type):
+        def count_host_response(other_user_id: int, response_type: str) -> None:
             user_gender = session.execute(select(User.gender).where(User.id == context.user_id)).scalar_one()
             other_gender = session.execute(select(User.gender).where(User.id == other_user_id)).scalar_one()
             host_request_responses_counter.labels(user_gender, other_gender, response_type).inc()

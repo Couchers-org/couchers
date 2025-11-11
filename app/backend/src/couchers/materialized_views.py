@@ -124,6 +124,12 @@ cluster_admin_counts = create_materialized_view(
 class ClusterAdminCount(Base):
     __table__ = cluster_admin_counts
 
+    # to allow type annotations without affecting SQLAlchemy
+    __allow_unmapped__ = True
+
+    cluster_id: Column[int]
+    count: Column[int]
+
 
 def make_lite_users_selectable(create: bool = False) -> Select[Any]:
     if create:
@@ -195,7 +201,7 @@ class LiteUser(Base):
     # to allow type annotations without affecting SQLAlchemy
     __allow_unmapped__ = True
 
-    # A subset enough to make mypy happy. Taken from "make_lite_users_selectable".
+    # Make mypy happy. Taken from "make_lite_users_selectable".
     id: Column[int]
     username: Column[str]
     name: Column[str]
@@ -265,6 +271,13 @@ clustered_users = create_materialized_view_with_different_ddl(
 class ClusteredUser(Base):
     __table__ = clustered_users
 
+    # to allow type annotations without affecting SQLAlchemy
+    __allow_unmapped__ = True
+
+    # Make mypy happy. Taken from "make_clustered_users_selectable".
+    geom: Column[Geom]
+    count: Column[int]
+
 
 def float_(stmt: Any) -> Any:
     return func.coalesce(cast(stmt, Float), 0.0)
@@ -329,6 +342,16 @@ user_response_rates = create_materialized_view(
 
 class UserResponseRate(Base):
     __table__ = user_response_rates
+
+    # to allow type annotations without affecting SQLAlchemy
+    __allow_unmapped__ = True
+
+    user_id: Column[int]
+    requests: Column[int]
+    response_rate: Column[float]
+    avg_response_time: Column[float]
+    response_time_33p: Column[timedelta]
+    response_time_66p: Column[timedelta]
 
 
 def refresh_materialized_views(payload: empty_pb2.Empty) -> None:

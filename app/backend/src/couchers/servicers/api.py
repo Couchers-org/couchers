@@ -1,6 +1,7 @@
 from datetime import timedelta
 from urllib.parse import urlencode
 
+import google.protobuf.message
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.orm import Session
@@ -42,13 +43,14 @@ from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.rate_limits.definitions import RATE_LIMIT_INTERVAL_STRING
 from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
 from couchers.sql import couchers_select as select
-from couchers.sql import is_valid_user_id, is_valid_username
 from couchers.utils import (
     Duration_from_timedelta,
     Timestamp_from_datetime,
     create_coordinate,
     get_coordinates,
     is_valid_name,
+    is_valid_user_id,
+    is_valid_username,
     now,
 )
 
@@ -286,7 +288,7 @@ class API(api_pb2_grpc.APIServicer):
     def UpdateProfile(
         self, request: api_pb2.UpdateProfileReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user: User = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         if request.HasField("name"):
             if not is_valid_name(request.name.value):
@@ -359,12 +361,12 @@ class API(api_pb2_grpc.APIServicer):
         if request.hosting_status != api_pb2.HOSTING_STATUS_UNSPECIFIED:
             if user.do_not_email and request.hosting_status != api_pb2.HOSTING_STATUS_CANT_HOST:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "do_not_email_cannot_host")
-            user.hosting_status = hostingstatus2sql[request.hosting_status]
+            user.hosting_status = hostingstatus2sql[request.hosting_status]  # type: ignore[assignment]
 
         if request.meetup_status != api_pb2.MEETUP_STATUS_UNSPECIFIED:
             if user.do_not_email and request.meetup_status != api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "do_not_email_cannot_meet")
-            user.meetup_status = meetupstatus2sql[request.meetup_status]
+            user.meetup_status = meetupstatus2sql[request.meetup_status]  # type: ignore[assignment]
 
         if request.HasField("language_abilities"):
             # delete all existing abilities
@@ -713,7 +715,7 @@ class API(api_pb2_grpc.APIServicer):
             session,
             user_id=friend_relationship.to_user_id,
             topic_action="friend_request:create",
-            key=friend_relationship.from_user_id,
+            key=str(friend_relationship.from_user_id),
             data=notification_data_pb2.FriendRequestCreate(
                 other_user=user_model_to_pb(friend_relationship.from_user, session, context),
             ),
@@ -881,7 +883,7 @@ class API(api_pb2_grpc.APIServicer):
         )
 
 
-def response_rate_to_pb(response_rate: UserResponseRate):
+def response_rate_to_pb(response_rate: UserResponseRate | None) -> dict[str, google.protobuf.message.Message]:
     if not response_rate:
         return {"insufficient_data": requests_pb2.ResponseRateInsufficientData()}
 
@@ -919,7 +921,7 @@ def response_rate_to_pb(response_rate: UserResponseRate):
 
 def get_num_references(session: Session, user_ids: list[int]) -> dict[int, int]:
     return dict(
-        session.execute(
+        session.execute(  # type: ignore[arg-type]
             select(Reference.to_user_id, func.count(Reference.id))
             .where(Reference.to_user_id.in_(user_ids))
             .where(Reference.is_deleted == False)
@@ -930,7 +932,7 @@ def get_num_references(session: Session, user_ids: list[int]) -> dict[int, int]:
     )
 
 
-def user_model_to_pb(db_user: User, session: Session, context: CouchersContext) ->  api_pb2.User:
+def user_model_to_pb(db_user: User, session: Session, context: CouchersContext) -> api_pb2.User:
     # note that this function should work also for banned/deleted users as it's called from Admin.GetUser
     # note that this function is sometimes called by a logged out user, in which case context comes from make_logged_out_context
     num_references = get_num_references(session, [db_user.id]).get(db_user.id, 0)
@@ -1040,8 +1042,8 @@ def user_model_to_pb(db_user: User, session: Session, context: CouchersContext) 
         badges=session.execute(select(UserBadge.badge_id).where(UserBadge.user_id == db_user.id).order_by(UserBadge.id))
         .scalars()
         .all(),
-        **get_strong_verification_fields(session, db_user),
-        **response_rate_to_pb(response_rate),
+        **get_strong_verification_fields(session, db_user),  # type: ignore[arg-type]
+        **response_rate_to_pb(response_rate),  # type: ignore[arg-type]
     )
 
     if db_user.max_guests is not None:
@@ -1107,7 +1109,7 @@ def user_model_to_pb(db_user: User, session: Session, context: CouchersContext) 
     return user
 
 
-def lite_user_to_pb(lite_user: LiteUser):
+def lite_user_to_pb(lite_user: LiteUser) -> api_pb2.LiteUser:
     lat, lng = get_coordinates(lite_user.geom) or (0, 0)
 
     return api_pb2.LiteUser(

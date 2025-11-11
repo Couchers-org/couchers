@@ -33,7 +33,7 @@ def unpack_thread_id(thread_id: int) -> (int, int):
     return divmod(thread_id, 10)
 
 
-def total_num_responses(session, database_id):
+def total_num_responses(session: Session, database_id: int) -> int:
     """Return the total number of comments and replies to the thread with
     database id database_id.
     """
@@ -48,14 +48,14 @@ def total_num_responses(session, database_id):
     )
 
 
-def thread_to_pb(session, database_id):
+def thread_to_pb(session: Session, database_id: int) -> threads_pb2.Thread:
     return threads_pb2.Thread(
         thread_id=pack_thread_id(database_id, 0),
         num_responses=total_num_responses(session, database_id),
     )
 
 
-def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPayload):
+def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPayload) -> None:
     from couchers.servicers.discussions import discussion_to_pb
     from couchers.servicers.events import event_to_pb
 

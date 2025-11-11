@@ -131,7 +131,7 @@ def _get_visible_admins_for_subscription(subscription: GroupChatSubscription) ->
         ]
 
 
-def _user_can_message(session, context, group_chat: GroupChat) -> bool:
+def _user_can_message(session: Session, context: CouchersContext, group_chat: GroupChat) -> bool:
     """
     If it is a true group chat (not a DM), user can always message. For a DM, user can message if the other participant
     - Is not deleted/banned
@@ -231,7 +231,13 @@ def _add_message_to_subscription(session: Session, subscription: GroupChatSubscr
     return message
 
 
-def _create_chat(session: Session, creator_id: int, recipient_ids: list[int], title: str | None =None, only_admins_invite: bool =True) -> GroupChat:
+def _create_chat(
+    session: Session,
+    creator_id: int,
+    recipient_ids: list[int],
+    title: str | None = None,
+    only_admins_invite: bool = True,
+) -> GroupChat:
     conversation = Conversation()
     session.add(conversation)
     session.flush()
