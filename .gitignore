@@ -10,4 +10,4 @@
 pyrightconfig.json
 
 /private/
-/app/backend/.claude/settings.local.json
+.claude
