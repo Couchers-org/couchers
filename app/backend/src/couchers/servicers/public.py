@@ -1,10 +1,14 @@
 import logging
+from typing import TYPE_CHECKING
 
 import grpc
 from cachetools import TTLCache, cached
+from google.protobuf import empty_pb2
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import func, union_all
 
 from couchers import urls
+from couchers.context import CouchersContext, make_logged_out_context
 from couchers.materialized_views import LiteUser
 from couchers.models import Cluster, Node, ProfilePublicVisibility, Reference, User, Volunteer
 from couchers.proto import api_pb2, public_pb2, public_pb2_grpc
@@ -13,13 +17,18 @@ from couchers.servicers.account import _format_volunteer_link
 from couchers.servicers.api import fluency2api, hostingstatus2api, meetupstatus2api, user_model_to_pb
 from couchers.servicers.gis import _statement_to_geojson_response
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime, make_logged_out_context
+from couchers.utils import Timestamp_from_datetime
+
+# This avoids
+# "TypeError: Couldn't build proto file into descriptor pool: duplicate file name google/api/httpbody.proto"
+if TYPE_CHECKING:
+    from google.api import httpbody_pb2
 
 logger = logging.getLogger(__name__)
 
 
 @cached(cache=TTLCache(maxsize=1, ttl=600), key=lambda _: None)
-def _get_public_users(session):
+def _get_public_users(session: Session) -> "httpbody_pb2.HttpBody":
     with_geom = (
         select(User.username, User.geom)
         .where(User.is_visible)
@@ -37,11 +46,11 @@ def _get_public_users(session):
 
 
 @cached(cache=TTLCache(maxsize=1, ttl=60), key=lambda _: None)
-def _get_signup_page_info(session):
+def _get_signup_page_info(session: Session) -> public_pb2.GetSignupPageInfoRes:
     # last user who signed up
     last_signup, geom = session.execute(
         select(User.joined, User.geom).where(User.is_visible).order_by(User.id.desc()).limit(1)
-    ).one_or_none()
+    ).one()
 
     communities = (
         session.execute(
@@ -75,7 +84,7 @@ def _get_signup_page_info(session):
 
 
 @cached(cache=TTLCache(maxsize=1, ttl=60), key=lambda _: None)
-def _get_volunteers(session):
+def _get_volunteers(session: Session) -> public_pb2.GetVolunteersRes:
     volunteers = session.execute(
         select(Volunteer, LiteUser)
         .join(LiteUser, LiteUser.id == Volunteer.user_id)
@@ -90,16 +99,7 @@ def _get_volunteers(session):
 
     board_members = set(get_static_badge_dict()["board_member"])
 
-    def format_volunteer(volunteer, lite_user):
-        if volunteer.link_type:
-            link_type = volunteer.link_type
-            link_text = volunteer.link_text
-            link_url = volunteer.link_url
-        else:
-            link_type = "couchers"
-            link_text = f"@{lite_user.username}"
-            link_url = urls.user_link(username=lite_user.username)
-
+    def format_volunteer(volunteer: Volunteer, lite_user: LiteUser) -> public_pb2.Volunteer:
         return public_pb2.Volunteer(
             name=volunteer.display_name or lite_user.name,
             username=lite_user.username,
@@ -131,10 +131,14 @@ class Public(public_pb2_grpc.PublicServicer):
     Public (logged out) APIs for getting public info
     """
 
-    def GetPublicUsers(self, request, context, session):
+    def GetPublicUsers(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> "httpbody_pb2.HttpBody":
         return _get_public_users(session)
 
-    def GetPublicUser(self, request, context, session):
+    def GetPublicUser(
+        self, request: public_pb2.GetPublicUserReq, context: CouchersContext, session: Session
+    ) -> public_pb2.GetPublicUserRes:
         user = session.execute(
             select(User)
             .where(User.is_visible)
@@ -175,40 +179,44 @@ class Public(public_pb2_grpc.PublicServicer):
                 )
             )
 
-        if user.public_visibility == ProfilePublicVisibility.most:
-            return public_pb2.GetPublicUserRes(
-                most_user=public_pb2.MostUser(
-                    username=user.username,
-                    name=user.name,
-                    city=user.city,
-                    hometown=user.hometown,
-                    timezone=user.timezone,
-                    num_references=num_references,
-                    gender=user.gender,
-                    pronouns=user.pronouns,
-                    age=user.age,
-                    joined=Timestamp_from_datetime(user.display_joined),
-                    last_active=Timestamp_from_datetime(user.display_last_active),
-                    hosting_status=hostingstatus2api[user.hosting_status],
-                    meetup_status=meetupstatus2api[user.meetup_status],
-                    occupation=user.occupation,
-                    education=user.education,
-                    about_me=user.about_me,
-                    things_i_like=user.things_i_like,
-                    language_abilities=[
-                        api_pb2.LanguageAbility(code=ability.language_code, fluency=fluency2api[ability.fluency])
-                        for ability in user.language_abilities
-                    ],
-                    regions_visited=[region.code for region in user.regions_visited],
-                    regions_lived=[region.code for region in user.regions_lived],
-                    avatar_url=user.avatar.full_url if user.avatar else None,
-                    avatar_thumbnail_url=user.avatar.thumbnail_url if user.avatar else None,
-                    badges=[badge.badge_id for badge in user.badges],
-                )
+        # user.public_visibility must be ProfilePublicVisibility.most at this point
+        return public_pb2.GetPublicUserRes(
+            most_user=public_pb2.MostUser(
+                username=user.username,
+                name=user.name,
+                city=user.city,
+                hometown=user.hometown,
+                timezone=user.timezone,
+                num_references=num_references,
+                gender=user.gender,
+                pronouns=user.pronouns,
+                age=user.age,
+                joined=Timestamp_from_datetime(user.display_joined),
+                last_active=Timestamp_from_datetime(user.display_last_active),
+                hosting_status=hostingstatus2api[user.hosting_status],
+                meetup_status=meetupstatus2api[user.meetup_status],
+                occupation=user.occupation,
+                education=user.education,
+                about_me=user.about_me,
+                things_i_like=user.things_i_like,
+                language_abilities=[
+                    api_pb2.LanguageAbility(code=ability.language_code, fluency=fluency2api[ability.fluency])
+                    for ability in user.language_abilities
+                ],
+                regions_visited=[region.code for region in user.regions_visited],
+                regions_lived=[region.code for region in user.regions_lived],
+                avatar_url=user.avatar.full_url if user.avatar else None,
+                avatar_thumbnail_url=user.avatar.thumbnail_url if user.avatar else None,
+                badges=[badge.badge_id for badge in user.badges],
             )
+        )
 
-    def GetSignupPageInfo(self, request, context, session):
+    def GetSignupPageInfo(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> public_pb2.GetSignupPageInfoRes:
         return _get_signup_page_info(session)
 
-    def GetVolunteers(self, request, context, session):
+    def GetVolunteers(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> public_pb2.GetVolunteersRes:
         return _get_volunteers(session)

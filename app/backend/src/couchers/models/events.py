@@ -1,13 +1,13 @@
 import enum
 from datetime import datetime
-from typing import Any
 
 from geoalchemy2 import Geometry
-from psycopg2.extras import DateTimeTZRange  # type: ignore[import-untyped]
+from psycopg2.extras import DateTimeTZRange
 from sqlalchemy import (
     BigInteger,
     Boolean,
     CheckConstraint,
+    ColumnElement,
     DateTime,
     Enum,
     ForeignKey,
@@ -23,7 +23,7 @@ from sqlalchemy.orm import Mapped, backref, column_property, mapped_column, rela
 from sqlalchemy.sql import expression
 
 from couchers.models.base import Base, Geom, communities_seq
-from couchers.utils import get_coordinates
+from couchers.utils import get_coordinates, not_none
 
 
 class ClusterEventAssociation(Base):
@@ -166,19 +166,21 @@ class EventOccurrence(Base):
         return get_coordinates(self.geom)
 
     @hybrid_property
-    def start_time(self) -> Any:
-        return self.during.lower
+    def start_time(self) -> datetime:
+        return not_none(self.during.lower)
 
-    @start_time.expression
-    def start_time(cls) -> Any:  # noqa: ARG003,D102
+    @start_time.inplace.expression
+    @classmethod
+    def _start_time(cls) -> ColumnElement[datetime]:
         return func.lower(cls.during)
 
     @hybrid_property
-    def end_time(self) -> Any:
-        return self.during.upper
+    def end_time(self) -> datetime:
+        return not_none(self.during.upper)
 
-    @end_time.expression
-    def end_time(cls) -> Any:  # noqa: ARG003,D102
+    @end_time.inplace.expression
+    @classmethod
+    def _end_time(cls) -> ColumnElement[datetime]:
         return func.upper(cls.during)
 
 

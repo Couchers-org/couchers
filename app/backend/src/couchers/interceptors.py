@@ -14,6 +14,7 @@ from google.protobuf.descriptor import ServiceDescriptor
 from google.protobuf.message import Message
 from opentelemetry import trace
 from sqlalchemy import Function
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func
 
 from couchers.constants import UNKNOWN_ERROR_MESSAGE
@@ -75,9 +76,6 @@ def _try_get_and_update_user_details(
             return None
         else:
             user, user_session, user_activity = result
-            # user: User = result[0]
-            # user_session: UserSession = result[1]
-            # user_activity: UserActivity | None = result[2]
 
             # update user last active time if it's been a while
             if now() - user.last_active > timedelta(minutes=5):
@@ -193,6 +191,7 @@ def _store_log(
 
 
 type Cont[T, R] = Callable[[grpc.HandlerCallDetails], grpc.RpcMethodHandler[T, R] | None]
+type CouchersHandler = Callable[[Message, CouchersContext, Session], Message | None]
 
 
 class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
@@ -284,7 +283,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 # NOTE: do not translate this string; it's used in a hacky way in the frontend
                 return unauthenticated_handler("Permission denied", grpc.StatusCode.PERMISSION_DENIED)
 
-            # if the user is jailed and this is isn't an open or jailed service, fail
+            # if the user is jailed and this isn't an open or jailed service, fail
             if is_jailed and auth_level not in [annotations_pb2.AUTH_LEVEL_OPEN, annotations_pb2.AUTH_LEVEL_JAILED]:
                 # NOTE: do not translate this string; it's used in a hacky way in the frontend
                 return unauthenticated_handler("Permission denied")
@@ -307,7 +306,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             )
             with session_scope() as session:
                 try:
-                    res = prev_function(req, couchers_context, session)  # type: ignore[call-arg, arg-type]
+                    func = cast(CouchersHandler, prev_function)  # noqa
+                    res = func(req, couchers_context, session)
                     finished = perf_counter_ns()
                     duration = (finished - start) / 1e6  # ms
                     _store_log(
@@ -320,8 +320,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         response=res,
                         traceback=None,
                         perf_report=None,
-                        ip_address=ip_address,  # type: ignore[arg-type]
-                        user_agent=user_agent,  # type: ignore[arg-type]
+                        ip_address=ip_address,
+                        user_agent=user_agent,
                     )
                     observe_in_servicer_duration_histogram(method, couchers_context._user_id, "", "", duration / 1000)
                 except Exception as e:
@@ -339,8 +339,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         response=None,
                         traceback=traceback,
                         perf_report=None,
-                        ip_address=ip_address,  # type: ignore[arg-type]
-                        user_agent=user_agent,  # type: ignore[arg-type]
+                        ip_address=ip_address,
+                        user_agent=user_agent,
                     )
                     observe_in_servicer_duration_histogram(
                         method, couchers_context._user_id, code or "", type(e).__name__, duration / 1000

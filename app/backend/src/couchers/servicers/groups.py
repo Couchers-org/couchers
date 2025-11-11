@@ -241,16 +241,12 @@ class Groups(groups_pb2_grpc.GroupsServicer):
         )
 
         if not request.past:
-            query = (
-                query.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(  # type: ignore[operator, arg-type]
-                    EventOccurrence.start_time.asc()
-                )  # type: ignore[attr-defined]
+            query = query.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
+                EventOccurrence.start_time.asc()
             )
         else:
-            query = (
-                query.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(  # type: ignore[operator, arg-type]
-                    EventOccurrence.start_time.desc()
-                )  # type: ignore[attr-defined]
+            query = query.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
+                EventOccurrence.start_time.desc()
             )
 
         query = query.limit(page_size + 1)

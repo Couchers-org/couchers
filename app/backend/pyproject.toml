@@ -56,6 +56,7 @@ dev = [
     "types-boto3>=1.40.69",
     "types-cachetools>=6.2.0.20251022",
     "types-python-dateutil>=2.9.0.20251108",
+    "types-psycopg2>=2.9.21.20251012",
 ]
 
 [tool.ruff]
@@ -115,6 +116,13 @@ module = "couchers.servicers.*"
 # Weird shenanigans with going on with GRPC method signatures
 disable_error_code = [
     "override"
+]
+
+[[tool.mypy.overrides]]
+module = "couchers.server"
+# Auto-generated gRPC add_*Servicer_to_server functions are untyped
+disable_error_code = [
+    "no-untyped-call"
 ]
 
 [[tool.mypy.overrides]]

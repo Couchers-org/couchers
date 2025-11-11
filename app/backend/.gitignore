@@ -8,6 +8,7 @@ __pycache__/
 .pytest_cache
 
 src/proto
+src/couchers/proto
 
 .env
 

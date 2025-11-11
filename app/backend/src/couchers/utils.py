@@ -408,3 +408,9 @@ def last_active_coarsen(dt: datetime) -> datetime:
 
 def get_tz_as_text(tz_name: str) -> str:
     return datetime.now(tz=ZoneInfo(tz_name)).strftime("%Z/UTC%z")
+
+
+def not_none[T](x: T | None) -> T:
+    if x is None:
+        raise ValueError("x is None!")
+    return x

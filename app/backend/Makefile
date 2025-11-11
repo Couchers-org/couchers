@@ -52,6 +52,8 @@ mypy:
 		src/couchers/helpers \
 		src/couchers/jobs \
 		src/couchers/i18n \
+		src/couchers/servicers/donations.py \
+		src/couchers/servicers/events.py \
 		src/couchers/servicers/gis.py \
 		src/couchers/servicers/groups.py \
 		src/couchers/servicers/jail.py \
