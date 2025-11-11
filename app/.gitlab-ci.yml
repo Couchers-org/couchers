@@ -56,6 +56,43 @@ default:
     
     docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
+.common_functions: &common_functions |
+    # Build a Docker image using cache from latest "develop" build.
+    # If this is a pipeline on "develop", push Docker build cache to the registry.
+    # Usage:
+    #   build "$BACKEND_TAG" "$BACKEND_RELEASE_TAG" "backend" "1.2.3"
+    #   build "$BACKEND_TAG" "$BACKEND_RELEASE_TAG" "backend" "1.2.3" --arg  # extra args
+    build() {
+      local branch_tag="$1"
+      local release_tag="$2"
+      local path="$3"
+      local version="$4"
+      shift 4 # Remove the N arguments so that the rest can be used in "$@" later
+
+      # Push image cache only on develop.
+      local cache_to=""
+      if [ "$CI_COMMIT_BRANCH" = "$RELEASE_BRANCH" ]; then
+        cache_to="--cache-to type=registry,ref=$release_tag,mode=max"
+      fi
+
+      # Use buildx, as "docker build" does not work with registry cache.
+      docker pull "$release_tag" || true
+      docker context create my-builder
+      docker buildx create my-builder --driver docker-container --use
+
+      docker buildx build \
+        --push \
+        -t "$branch_tag" \
+        --build-arg display_version="$DISPLAY_VERSION" \
+        --build-arg commit_sha="$COMMIT_SHA" \
+        --build-arg commit_timestamp="$COMMIT_TIMESTAMP" \
+        --build-arg version="$version" \
+        --cache-from "$release_tag" \
+        ${cache_to} \
+        "$@" \
+        "app/$path/"
+    }
+
 protos:
   needs: []
   stage: protos
@@ -75,9 +112,8 @@ build:proxy:
   variables:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
-    - docker pull $PROXY_RELEASE_TAG || true
-    - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --cache-from $PROXY_RELEASE_TAG -t $PROXY_TAG app/proxy/
-    - docker push $PROXY_TAG
+    - *common_functions
+    - build "$PROXY_TAG" "$PROXY_RELEASE_TAG" "proxy" "$SLUG"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -94,9 +130,8 @@ build:nginx:
   variables:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
-    - docker pull $NGINX_RELEASE_TAG || true
-    - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --cache-from $NGINX_RELEASE_TAG -t $NGINX_TAG app/nginx/
-    - docker push $NGINX_TAG
+    - *common_functions
+    - build "$NGINX_TAG" "$NGINX_RELEASE_TAG" "nginx" "$SLUG"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -109,9 +144,8 @@ build:prometheus:
   variables:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
-    - docker pull $PROMETHEUS_RELEASE_TAG || true
-    - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --cache-from $PROMETHEUS_RELEASE_TAG -t $PROMETHEUS_TAG app/prometheus/
-    - docker push $PROMETHEUS_TAG
+    - *common_functions
+    - build "$PROMETHEUS_TAG" "$PROMETHEUS_RELEASE_TAG" "prometheus" "$SLUG"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -123,27 +157,9 @@ build:backend:
   stage: build
   variables:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
-  script: |
-    # Push image cache only on develop.
-    CACHE_TO=""
-    if [ "$CI_COMMIT_BRANCH" = "$RELEASE_BRANCH" ]; then
-      CACHE_TO="--cache-to type=registry,ref=$BACKEND_RELEASE_TAG,mode=max"
-    fi
-    
-    # Use buildx, as "docker build" does not work with registry cache.
-    docker pull $BACKEND_RELEASE_TAG || true
-    docker context create my-builder
-    docker buildx create my-builder --driver docker-container --use
-  
-    docker buildx build \
-      --push \
-      -t "$BACKEND_TAG" \
-      --build-arg display_version="$DISPLAY_VERSION" \
-      --build-arg commit_timestamp="$COMMIT_TIMESTAMP" \
-      --build-arg version="$SLUG" \
-      --cache-from "$BACKEND_RELEASE_TAG" \
-      $CACHE_TO \
-      app/backend
+  script:
+    - *common_functions
+    - build "$BACKEND_TAG" "$BACKEND_RELEASE_TAG" "backend" "$SLUG"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -160,9 +176,8 @@ build:media:
   variables:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
-    - docker pull $MEDIA_RELEASE_TAG || true
-    - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --cache-from $MEDIA_RELEASE_TAG -t $MEDIA_TAG app/media/
-    - docker push $MEDIA_TAG
+    - *common_functions
+    - build "$MEDIA_TAG" "$MEDIA_RELEASE_TAG" "media" "$SLUG"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -179,9 +194,8 @@ build:web-dev:
   variables:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
-    - docker pull $WEB_DEV_RELEASE_TAG || true
-    - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --build-arg environment=next --cache-from $WEB_DEV_RELEASE_TAG -t $WEB_DEV_TAG -f app/web/Dockerfile app/web/
-    - docker push $WEB_DEV_TAG
+    - *common_functions
+    - build "$WEB_DEV_TAG" "$WEB_DEV_RELEASE_TAG" "web" "$SLUG" --build-arg environment=next -f app/web/Dockerfile
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_DEV_TAG):/app artifacts/web-dev
   rules:
@@ -205,9 +219,8 @@ build:web:
   variables:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
-    - docker pull $WEB_RELEASE_TAG || true
-    - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --build-arg environment=production --cache-from $WEB_RELEASE_TAG -t $WEB_TAG -f app/web/Dockerfile.prod app/web/
-    - docker push $WEB_TAG
+    - - *common_functions
+    - build "$WEB_TAG" "$WEB_RELEASE_TAG" "web" "$SLUG" --build-arg environment=production -f app/web/Dockerfile.prod
     # creates a new docker container (docker create returns the container name), and copies the static folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app/.next/static/ static
     - ./app/web/generate_static_manifest.sh static > static/manifest.txt
@@ -233,9 +246,8 @@ build:web-next:
   variables:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
-    - docker pull $WEB_NEXT_RELEASE_TAG || true
-    - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG-next --build-arg environment=next --cache-from $WEB_NEXT_RELEASE_TAG -t $WEB_NEXT_TAG -f app/web/Dockerfile.prod app/web/
-    - docker push $WEB_NEXT_TAG
+    - *common_functions
+    - build "$WEB_NEXT_TAG" "$WEB_NEXT_RELEASE_TAG" "web" "$SLUG-next" --build-arg environment=next -f app/web/Dockerfile.prod
     # creates a new docker container (docker create returns the container name), and copies the static folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_NEXT_TAG):/app/.next/static/ static
     - ./app/web/generate_static_manifest.sh static > static/manifest.txt
@@ -261,9 +273,8 @@ build:nginx-next:
   variables:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
-    - docker pull $NGINX_RELEASE_TAG || true
-    - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG-next --build-arg environment=preview --cache-from $NGINX_RELEASE_TAG -t $NGINX_NEXT_TAG app/nginx/
-    - docker push $NGINX_NEXT_TAG
+    - *common_functions
+    - build "$NGINX_NEXT_TAG" "$NGINX_RELEASE_TAG" "nginx" "$SLUG-next" --build-arg environment=preview
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
