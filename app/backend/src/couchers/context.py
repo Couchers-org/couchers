@@ -241,3 +241,14 @@ def make_background_user_context(user_id: int) -> CouchersContext:
         token=None,
         ui_language_preference=None,
     )
+
+
+def make_logged_out_context() -> CouchersContext:
+    return CouchersContext(
+        is_interactive=False,
+        user_id=0,
+        is_api_key=None,
+        grpc_context=None,
+        token=None,
+        ui_language_preference=None,
+    )

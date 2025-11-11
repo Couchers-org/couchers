@@ -409,7 +409,3 @@ def last_active_coarsen(dt: datetime) -> datetime:
 
 def get_tz_as_text(tz_name: str) -> str:
     return datetime.now(tz=ZoneInfo(tz_name)).strftime("%Z/UTC%z")
-
-
-def make_logged_out_context() -> SimpleNamespace:
-    return SimpleNamespace(user_id=0)
