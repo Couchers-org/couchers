@@ -3,6 +3,7 @@ import signal
 import sys
 from os import environ
 from tempfile import TemporaryDirectory
+from types import TracebackType
 
 from couchers.i18n.i18n import get_translations
 
@@ -57,7 +58,11 @@ if config["SENTRY_ENABLED"]:
 create_prometheus_server(8000)
 
 
-def log_unhandled_exception(exc_type, exc_value, exc_traceback):
+def log_unhandled_exception(
+    exc_type: type[BaseException],
+    exc_value: BaseException,
+    exc_traceback: TracebackType | None,
+) -> None:
     """Make sure that any unhandled exceptions will write to the logs"""
     if issubclass(exc_type, KeyboardInterrupt):
         # call the default excepthook saved at __excepthook__

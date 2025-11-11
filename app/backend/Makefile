@@ -25,6 +25,7 @@ fmt: format
 
 mypy:
 	uv run mypy \
+		src/app.py \
 		src/couchers/config.py \
 		src/couchers/constants.py \
 		src/couchers/context.py \

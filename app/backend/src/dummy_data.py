@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
 SRC_DIR = os.path.dirname(__file__)
 
 
-def add_dummy_users():
+def add_dummy_users() -> None:
     logger.info("Adding dummy users")
     with session_scope() as session:
         if session.execute(select(func.count()).select_from(User)).scalar_one() > 0:
@@ -205,7 +205,7 @@ def add_dummy_users():
         session.commit()
 
 
-def add_dummy_communities():
+def add_dummy_communities() -> None:
     logger.info("Adding dummy communities")
     with session_scope() as session:
         if session.execute(select(func.count()).select_from(Node)).scalar_one() > 0:
@@ -403,6 +403,6 @@ def add_dummy_communities():
             session.add(page_version)
 
 
-def add_dummy_data():
+def add_dummy_data() -> None:
     add_dummy_users()
     add_dummy_communities()
