@@ -1,6 +1,7 @@
 import grpc
 from sqlalchemy.orm import Session
 
+from couchers.context import CouchersContext
 from couchers.db import can_moderate_at, can_moderate_node, get_parent_node_at_location
 from couchers.models import Cluster, Node, Page, PageType, PageVersion, Thread, Upload, User
 from couchers.proto import pages_pb2, pages_pb2_grpc
@@ -97,7 +98,9 @@ def page_to_pb(session: Session, page: Page, context) -> pages_pb2.Page:
 
 
 class Pages(pages_pb2_grpc.PagesServicer):
-    def CreatePlace(self, request, context, session):
+    def CreatePlace(
+        self, request: pages_pb2.CreatePlaceReq, context: CouchersContext, session: Session
+    ) -> pages_pb2.Page:
         if not request.title:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_title")
         if not request.content:
@@ -139,7 +142,9 @@ class Pages(pages_pb2_grpc.PagesServicer):
         session.commit()
         return page_to_pb(session, page, context)
 
-    def CreateGuide(self, request, context, session):
+    def CreateGuide(
+        self, request: pages_pb2.CreateGuideReq, context: CouchersContext, session: Session
+    ) -> pages_pb2.Page:
         if not request.title:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_title")
         if not request.content:
@@ -192,14 +197,16 @@ class Pages(pages_pb2_grpc.PagesServicer):
         session.commit()
         return page_to_pb(session, page, context)
 
-    def GetPage(self, request, context, session):
+    def GetPage(self, request: pages_pb2.GetPageReq, context: CouchersContext, session: Session) -> pages_pb2.Page:
         page = session.execute(select(Page).where(Page.id == request.page_id)).scalar_one_or_none()
         if not page:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "page_not_found")
 
         return page_to_pb(session, page, context)
 
-    def UpdatePage(self, request, context, session):
+    def UpdatePage(
+        self, request: pages_pb2.UpdatePageReq, context: CouchersContext, session: Session
+    ) -> pages_pb2.Page:
         page = session.execute(select(Page).where(Page.id == request.page_id)).scalar_one_or_none()
         if not page:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "page_not_found")
@@ -251,7 +258,9 @@ class Pages(pages_pb2_grpc.PagesServicer):
         session.commit()
         return page_to_pb(session, page, context)
 
-    def TransferPage(self, request, context, session):
+    def TransferPage(
+        self, request: pages_pb2.TransferPageReq, context: CouchersContext, session: Session
+    ) -> pages_pb2.Page:
         page = session.execute(
             select(Page).where(Page.id == request.page_id).where(Page.type != PageType.main_page)
         ).scalar_one_or_none()
@@ -285,7 +294,9 @@ class Pages(pages_pb2_grpc.PagesServicer):
         session.commit()
         return page_to_pb(session, page, context)
 
-    def ListUserPlaces(self, request, context, session):
+    def ListUserPlaces(
+        self, request: pages_pb2.ListUserPlacesReq, context: CouchersContext, session: Session
+    ) -> pages_pb2.ListUserPlacesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_page_id = int(request.page_token) if request.page_token else 0
         user_id = request.user_id or context.user_id
@@ -306,7 +317,9 @@ class Pages(pages_pb2_grpc.PagesServicer):
             next_page_token=str(places[-1].id) if len(places) > page_size else None,
         )
 
-    def ListUserGuides(self, request, context, session):
+    def ListUserGuides(
+        self, request: pages_pb2.ListUserGuidesReq, context: CouchersContext, session: Session
+    ) -> pages_pb2.ListUserGuidesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_page_id = int(request.page_token) if request.page_token else 0
         user_id = request.user_id or context.user_id

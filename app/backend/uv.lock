@@ -330,6 +330,7 @@ dev = [
     { name = "pytest-cov" },
     { name = "ruff" },
     { name = "types-boto3" },
+    { name = "types-cachetools" },
     { name = "types-grpcio" },
     { name = "types-protobuf" },
     { name = "types-pytz" },
@@ -384,6 +385,7 @@ dev = [
     { name = "pytest-cov", specifier = ">=6.2.1" },
     { name = "ruff", specifier = ">=0.14.3" },
     { name = "types-boto3", specifier = ">=1.40.69" },
+    { name = "types-cachetools", specifier = ">=6.2.0.20251022" },
     { name = "types-grpcio", specifier = ">=1.0.0.20251009" },
     { name = "types-protobuf", specifier = ">=6.32.1.20251105" },
     { name = "types-pytz", specifier = ">=2025.2.0.20250809" },
@@ -1740,6 +1742,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/2f/ac/b0eed832dd9e39845a7a576f5a7a003d02ff60ccfd06afb16b9fe868db8f/types_boto3-1.40.69.tar.gz", hash = "sha256:b7b8aee0210f2fa988f9e6ac4d6d44d4c4d7be5e4741bb0baed0b10f8f49bf23", size = 100099, upload-time = "2025-11-07T20:35:36.751Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f7/2a/ea9b7382c60717c6db6fbf69c2c4e91b3f053ff7115a73e00db75a2d79b0/types_boto3-1.40.69-py3-none-any.whl", hash = "sha256:6ad73f173ca17e3162f1fbfe59e6f5a654bc8a978343053e774c98b7fd86871a", size = 68953, upload-time = "2025-11-07T20:35:29.888Z" },
+]
+
+[[package]]
+name = "types-cachetools"
+version = "6.2.0.20251022"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/3b/a8/f9bcc7f1be63af43ef0170a773e2d88817bcc7c9d8769f2228c802826efe/types_cachetools-6.2.0.20251022.tar.gz", hash = "sha256:f1d3c736f0f741e89ec10f0e1b0138625023e21eb33603a930c149e0318c0cef", size = 9608, upload-time = "2025-10-22T03:03:58.16Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/98/2d/8d821ed80f6c2c5b427f650bf4dc25b80676ed63d03388e4b637d2557107/types_cachetools-6.2.0.20251022-py3-none-any.whl", hash = "sha256:698eb17b8f16b661b90624708b6915f33dbac2d185db499ed57e4997e7962cad", size = 9341, upload-time = "2025-10-22T03:03:57.036Z" },
 ]
 
 [[package]]

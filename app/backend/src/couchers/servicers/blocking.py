@@ -1,14 +1,16 @@
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import not_, or_, union
 
 from couchers import urls
+from couchers.context import CouchersContext
 from couchers.models import Upload, User, UserBlock
 from couchers.proto import blocking_pb2, blocking_pb2_grpc
 from couchers.sql import couchers_select as select
 
 
-def is_not_visible(session, user1_id, user2_id) -> bool:
+def is_not_visible(session: Session, user1_id: int, user2_id: int) -> bool:
     """
     Check if users are not visible to each other (due to block or because either account is deleted/banned).
     """
@@ -30,7 +32,9 @@ def is_not_visible(session, user1_id, user2_id) -> bool:
 
 
 class Blocking(blocking_pb2_grpc.BlockingServicer):
-    def BlockUser(self, request, context, session):
+    def BlockUser(
+        self, request: blocking_pb2.BlockUserReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         blockee = session.execute(
             select(User).where(User.is_visible).where(User.username == request.username)
         ).scalar_one_or_none()
@@ -57,7 +61,9 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
 
         return empty_pb2.Empty()
 
-    def UnblockUser(self, request, context, session):
+    def UnblockUser(
+        self, request: blocking_pb2.UnblockUserReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         blockee = session.execute(
             select(User).where(User.is_visible).where(User.username == request.username)
         ).scalar_one_or_none()
@@ -78,7 +84,9 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
 
         return empty_pb2.Empty()
 
-    def GetBlockedUsers(self, request, context, session):
+    def GetBlockedUsers(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> blocking_pb2.GetBlockedUsersRes:
         blocked_users = session.execute(
             select(User.username, User.name, Upload.filename)
             .join(UserBlock, UserBlock.blocked_user_id == User.id)

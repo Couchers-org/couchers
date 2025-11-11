@@ -54,6 +54,7 @@ dev = [
     "types-requests>=2.32.4.20250913",
     "types-pyyaml>=6.0.12.20250915",
     "types-boto3>=1.40.69",
+    "types-cachetools>=6.2.0.20251022",
 ]
 
 [tool.ruff]
@@ -116,7 +117,7 @@ disable_error_code = [
 ]
 
 [[tool.mypy.overrides]]
-module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*"]
+module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*", "user_agents"]
 # These libraries don't have type stubs or py.typed markers
 ignore_missing_imports = true
 

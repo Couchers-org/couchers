@@ -5,9 +5,11 @@ See //docs/search.md for overview.
 from datetime import timedelta
 
 import grpc
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_
 
 from couchers import urls
+from couchers.context import CouchersContext
 from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.helpers.strong_verification import has_strong_verification
 from couchers.materialized_views import LiteUser, UserResponseRate
@@ -346,7 +348,7 @@ def _search_clusters(
     ]
 
 
-def _user_search_inner(request, context, session):
+def _user_search_inner(request, context: CouchersContext, session: Session):
     user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
     # Base statement with visibility filter
@@ -538,7 +540,7 @@ def _user_search_inner(request, context, session):
 
 
 class Search(search_pb2_grpc.SearchServicer):
-    def Search(self, request, context, session):
+    def Search(self, request: search_pb2.SearchReq, context: CouchersContext, session: Session) -> search_pb2.SearchRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         # this is not an ideal page token, some results have equal rank (unlikely)
         next_rank = float(request.page_token) if request.page_token else None
@@ -588,7 +590,9 @@ class Search(search_pb2_grpc.SearchServicer):
             next_page_token=str(all_results[page_size].rank) if len(all_results) > page_size else None,
         )
 
-    def UserSearch(self, request, context, session):
+    def UserSearch(
+        self, request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
+    ) -> search_pb2.UserSearchRes:
         user_ids_to_return, next_page_token, total_items = _user_search_inner(request, context, session)
 
         user_ids_to_users = dict(session.execute(select(User.id, User).where(User.id.in_(user_ids_to_return))).all())
@@ -605,7 +609,9 @@ class Search(search_pb2_grpc.SearchServicer):
             total_items=total_items,
         )
 
-    def UserSearchV2(self, request, context, session):
+    def UserSearchV2(
+        self, request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
+    ) -> search_pb2.UserSearchV2Res:
         user_ids_to_return, next_page_token, total_items = _user_search_inner(request, context, session)
 
         LiteUser_by_id = {
@@ -682,7 +688,9 @@ class Search(search_pb2_grpc.SearchServicer):
             total_items=total_items,
         )
 
-    def EventSearch(self, request, context, session):
+    def EventSearch(
+        self, request: search_pb2.EventSearchReq, context: CouchersContext, session: Session
+    ) -> search_pb2.EventSearchRes:
         statement = (
             select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(~EventOccurrence.is_deleted)
         )

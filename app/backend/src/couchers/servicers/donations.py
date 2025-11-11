@@ -3,9 +3,12 @@ import logging
 
 import grpc
 import stripe
+from google.protobuf import empty_pb2
+from sqlalchemy.orm import Session
 
 from couchers import urls
 from couchers.config import config
+from couchers.context import CouchersContext
 from couchers.models import DonationInitiation, DonationType, Invoice, User
 from couchers.notifications.notify import notify
 from couchers.proto import donations_pb2, donations_pb2_grpc, notification_data_pb2, stripe_pb2_grpc
@@ -15,7 +18,7 @@ from couchers.sql import couchers_select as select
 logger = logging.getLogger(__name__)
 
 
-def _create_stripe_customer(session, user):
+def _create_stripe_customer(session: Session, user: User) -> None:
     # create a new stripe id for this user
     customer = stripe.Customer.create(
         email=user.email,
@@ -29,7 +32,9 @@ def _create_stripe_customer(session, user):
 
 
 class Donations(donations_pb2_grpc.DonationsServicer):
-    def InitiateDonation(self, request, context, session):
+    def InitiateDonation(
+        self, request: donations_pb2.InitiateDonationReq, context: CouchersContext, session: Session
+    ) -> donations_pb2.InitiateDonationRes:
         if not config["ENABLE_DONATIONS"]:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "donations_disabled")
 
@@ -86,7 +91,9 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             stripe_checkout_session_id=checkout_session.id, stripe_checkout_url=checkout_session.url
         )
 
-    def GetDonationPortalLink(self, request, context, session):
+    def GetDonationPortalLink(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> donations_pb2.GetDonationPortalLinkRes:
         if not config["ENABLE_DONATIONS"]:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "donations_disabled")
 
@@ -105,7 +112,9 @@ class Donations(donations_pb2_grpc.DonationsServicer):
 
 
 class Stripe(stripe_pb2_grpc.StripeServicer):
-    def Webhook(self, request, context, session):
+    def Webhook(
+        self, request: httpbody_pb2.HttpBody, context: CouchersContext, session: Session
+    ) -> httpbody_pb2.HttpBody:
         # We're set up to receive the following webhook events (with explanations from stripe docs):
         # For both recurring and one-off donations, we get a `charge.succeeded` event and we then send the user an
         # invoice. There are other events too, but we don't handle them right now.
