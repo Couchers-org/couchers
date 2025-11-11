@@ -35,6 +35,7 @@ services:
   backend:
     image: registry.gitlab.com/couchers/couchers/backend
     restart: always
+    init: true
     env_file: backend.prod.env
     volumes:
       # auxiliary resources
@@ -55,6 +56,7 @@ services:
   media:
     image: registry.gitlab.com/couchers/couchers/media
     restart: always
+    init: true
     env_file: media.prod.env
     volumes:
       - "./data/media/uploads/:/uploads/"
