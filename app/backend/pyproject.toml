@@ -58,6 +58,9 @@ dev = [
 
 [tool.ruff]
 line-length = 120
+exclude = [
+     "src/couchers/proto/*",
+]
 
 [tool.ruff.lint]
 select = [
@@ -90,6 +93,7 @@ extra-standard-library = ["zoneinfo"]
 strict = true
 exclude = [
     "src/couchers/jobs/handlers.py",
+    "src/couchers/proto/*",
 ]
 # pb2_grpc.py files have no stubs as of now :(
 untyped_calls_exclude = [
