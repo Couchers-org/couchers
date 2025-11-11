@@ -4,7 +4,6 @@ import typing
 from collections.abc import Sequence
 from datetime import date, datetime, timedelta
 from email.utils import formatdate
-from types import SimpleNamespace
 from typing import Any, overload
 from zoneinfo import ZoneInfo
 

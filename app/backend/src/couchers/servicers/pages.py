@@ -39,7 +39,7 @@ def _can_moderate_page(session: Session, page: Page, user_id: int) -> bool:
     Checks if the user is allowed to moderate this page
     """
     # checks if either the page is in the exclusive moderation area of a node
-    latest_version = page.versions[-1]
+    latest_version = page.versions[-1]  # type: ignore[attr-defined]
 
     # if the page has a location, we firstly check if we are the moderator of any node that contains this page
     if latest_version.geom is not None and can_moderate_at(session, user_id, latest_version.geom):
@@ -54,8 +54,8 @@ def _can_moderate_page(session: Session, page: Page, user_id: int) -> bool:
 
 
 def page_to_pb(session: Session, page: Page, context: CouchersContext) -> pages_pb2.Page:
-    first_version = page.versions[0]
-    current_version = page.versions[-1]
+    first_version = page.versions[0]  # type: ignore[attr-defined]
+    current_version = page.versions[-1]  # type: ignore[attr-defined]
 
     owner_community_id = None
     owner_group_id = None
@@ -91,7 +91,9 @@ def page_to_pb(session: Session, page: Page, context: CouchersContext) -> pages_
             if current_version.coordinates
             else None
         ),
-        editor_user_ids=remove_duplicates_retain_order([version.editor_user_id for version in page.versions]),
+        editor_user_ids=remove_duplicates_retain_order(
+            [version.editor_user_id for version in page.versions]  # type: ignore[attr-defined]
+        ),
         can_edit=_is_page_owner(page, context.user_id) or can_moderate,
         can_moderate=can_moderate,
     )

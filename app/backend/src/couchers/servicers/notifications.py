@@ -1,8 +1,10 @@
 import json
 import logging
+from typing import cast
 
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy import Table
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import or_
 
@@ -98,7 +100,12 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
                 select(Notification)
                 .where(Notification.user_id == context.user_id)
                 .where(Notification.id <= next_notification_id)
-                .where(or_(request.only_unread == False, Notification.is_seen == False))
+                .where(
+                    or_(
+                        request.only_unread == False,  # type: ignore[arg-type]
+                        Notification.is_seen == False,
+                    )
+                )
                 .where(
                     Notification.topic_action.in_(
                         get_topic_actions_by_delivery_type(session, user.id, NotificationDeliveryType.push)
@@ -136,7 +143,8 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         self, request: notifications_pb2.MarkAllNotificationsSeenReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
         session.execute(
-            Notification.__table__.update()
+            cast(Table, Notification.__table__)
+            .update()
             .values(is_seen=True)
             .where(Notification.user_id == context.user_id)
             .where(Notification.id <= request.latest_notification_id)

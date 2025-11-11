@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 MAX_PAGINATION_LENGTH = 25
 
 
-def _parents_to_pb(session: Session, cluster: Cluster) -> list:
+def _parents_to_pb(session: Session, cluster: Cluster) -> list[groups_pb2.Parent]:
     parents = get_node_parents_recursively(session, cluster.parent_node_id)
     return [
         groups_pb2.Parent(
@@ -234,23 +234,27 @@ class Groups(groups_pb2_grpc.GroupsServicer):
         if not cluster:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "group_not_found")
 
-        occurrences = (
+        query = (
             select(EventOccurrence)
             .join(Event, Event.id == EventOccurrence.event_id)
             .where(Event.owner_cluster == cluster)
         )
 
         if not request.past:
-            occurrences = occurrences.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
-                EventOccurrence.start_time.asc()
+            query = (
+                query.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(  # type: ignore[operator, arg-type]
+                    EventOccurrence.start_time.asc()
+                )  # type: ignore[attr-defined]
             )
         else:
-            occurrences = occurrences.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
-                EventOccurrence.start_time.desc()
+            query = (
+                query.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(  # type: ignore[operator, arg-type]
+                    EventOccurrence.start_time.desc()
+                )  # type: ignore[attr-defined]
             )
 
-        occurrences = occurrences.limit(page_size + 1)
-        occurrences = session.execute(occurrences).scalars().all()
+        query = query.limit(page_size + 1)
+        occurrences = session.execute(query).scalars().all()
 
         return groups_pb2.ListEventsRes(
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],

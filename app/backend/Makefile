@@ -53,6 +53,11 @@ mypy:
 		src/couchers/jobs \
 		src/couchers/i18n \
 		src/couchers/servicers/gis.py \
+		src/couchers/servicers/groups.py \
+		src/couchers/servicers/jail.py \
+		src/couchers/servicers/media.py \
+		src/couchers/servicers/notifications.py \
+		src/couchers/servicers/pages.py \
 		src/couchers/servicers/public.py \
 		src/couchers/servicers/references.py \
 		src/couchers/servicers/reporting.py \

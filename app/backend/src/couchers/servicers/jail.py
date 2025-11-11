@@ -21,7 +21,10 @@ def _get_jail_info(session: Session, user: User) -> jail_pb2.JailInfoRes:
         needs_to_update_location=user.is_missing_location,
         has_not_accepted_community_guidelines=user.jailed_missing_community_guidelines,
         has_pending_mod_notes=user.jailed_pending_mod_notes,
-        pending_mod_notes=[mod_note_to_pb(note) for note in user.mod_notes.where(ModNote.is_pending)],
+        pending_mod_notes=[
+            mod_note_to_pb(note)
+            for note in user.mod_notes.where(ModNote.is_pending)  # type: ignore[attr-defined]
+        ],
         has_pending_activeness_probe=user.jailed_pending_activeness_probe,
     )
 
