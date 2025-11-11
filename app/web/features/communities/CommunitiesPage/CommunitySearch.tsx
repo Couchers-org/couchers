@@ -5,13 +5,15 @@ import {
   styled,
   TextField,
 } from "@mui/material";
-import { useTranslation } from "i18n";
+import StyledLink from "components/StyledLink";
+import useAccountInfo from "features/auth/useAccountInfo";
+import { Trans, useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import Sentry from "platform/sentry";
 import { Community } from "proto/communities_pb";
 import { useEffect, useState } from "react";
-import { routeToCommunity } from "routes";
+import { communityCreationFormURL, routeToCommunity } from "routes";
 import { listCommunities } from "service/communities";
 
 interface GroupedCommunity extends Community.AsObject {
@@ -31,6 +33,7 @@ const StyledAutocomplete = styled(
 export default function CommunitySearch() {
   const { t } = useTranslation(COMMUNITIES);
   const router = useRouter();
+  const { data: accountInfo } = useAccountInfo();
   const [inputValue, setInputValue] = useState("");
   const [allCommunities, setAllCommunities] = useState<GroupedCommunity[]>([]);
   const [filteredOptions, setFilteredOptions] = useState<GroupedCommunity[]>(
@@ -128,7 +131,20 @@ export default function CommunitySearch() {
       onChange={handleChange}
       getOptionLabel={(option) => option.name}
       groupBy={(option) => option.regionName || ""}
-      noOptionsText={t("communities:no_results_found")}
+      noOptionsText={
+        <Trans
+          t={t}
+          i18nKey="communities:no_results_found_with_link"
+          components={[
+            <StyledLink
+              href={communityCreationFormURL(accountInfo?.username)}
+              target="_blank"
+              rel="noreferrer noopener"
+              key="request-link"
+            />,
+          ]}
+        />
+      }
       renderInput={(params) => (
         <TextField
           {...params}

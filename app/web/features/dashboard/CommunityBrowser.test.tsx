@@ -34,6 +34,9 @@ const mockImplementation = async (id: number) => ({
 
 describe("Community browser", () => {
   beforeEach(() => {
+    // Mock scrollTo which is not implemented in JSDOM
+    Element.prototype.scrollTo = jest.fn();
+
     getCommunityMock.mockResolvedValue({
       communityId: 1,
       name: "Global",

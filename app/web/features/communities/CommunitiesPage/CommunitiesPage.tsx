@@ -12,8 +12,8 @@ import {
   helpCenterCommunityBuilderURL,
 } from "routes";
 
-import CommunitySearch from "../CommunitySearch/CommunitySearch";
 import NewCommunities from "../NewCommunities";
+import CommunitySearch from "./CommunitySearch";
 
 const HeaderRow = styled("div")(({ theme }) => ({
   display: "flex",

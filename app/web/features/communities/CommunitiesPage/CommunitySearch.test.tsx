@@ -7,7 +7,7 @@ import * as communitiesService from "service/communities";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 
-import CommunitySearch from "./CommunitySearch";
+import CommunitySearch from "../CommunitiesPage/CommunitySearch";
 
 const { t } = i18n;
 
@@ -262,8 +262,12 @@ describe("CommunitySearch", () => {
     await user.type(input, "NonExistentCity");
 
     await waitFor(() => {
+      // Check for the no results text
+      expect(screen.getByText(/No communities found\./)).toBeInTheDocument();
+
+      // Check that there's a link to request the community
       expect(
-        screen.getByText(t("communities:no_results_found")),
+        screen.getByRole("link", { name: "Request this community!" }),
       ).toBeInTheDocument();
     });
   });
