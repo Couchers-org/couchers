@@ -1,6 +1,6 @@
 FROM python:3.13-bullseye AS base
 
-ENV UV_VERSION=0.9.6
+ENV UV_VERSION=0.9.8
 
 RUN apt-get update && apt-get install -y libgeos-c1v5
 
@@ -48,4 +48,4 @@ ENV COMMIT_SHA=$commit_sha
 ARG commit_timestamp
 ENV COMMIT_TIMESTAMP=$commit_timestamp
 
-CMD uv run src/app.py
+CMD ["uv", "run", "src/app.py"]
