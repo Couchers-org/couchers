@@ -212,7 +212,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
     def __init__(self) -> None:
         self._pool = get_descriptor_pool()
 
-    def intercept_service[T = Message, R = Message](
+    def intercept_service[T, R](
         self,
         continuation: Cont[T, R],
         handler_call_details: grpc.HandlerCallDetails,
@@ -307,8 +307,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             )
             with session_scope() as session:
                 try:
-                    _res = prev_function(req, couchers_context, session)  # type: ignore[call-arg, arg-type]
-                    res = cast(Message, _res)
+                    res = prev_function(req, couchers_context, session)  # type: ignore[call-arg, arg-type]
                     finished = perf_counter_ns()
                     duration = (finished - start) / 1e6  # ms
                     _store_log(
@@ -321,8 +320,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         response=res,
                         traceback=None,
                         perf_report=None,
-                        ip_address=ip_address,
-                        user_agent=user_agent,
+                        ip_address=ip_address,  # type: ignore[arg-type]
+                        user_agent=user_agent,  # type: ignore[arg-type]
                     )
                     observe_in_servicer_duration_histogram(method, couchers_context._user_id, "", "", duration / 1000)
                 except Exception as e:
@@ -340,8 +339,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         response=None,
                         traceback=traceback,
                         perf_report=None,
-                        ip_address=ip_address,
-                        user_agent=user_agent,
+                        ip_address=ip_address,  # type: ignore[arg-type]
+                        user_agent=user_agent,  # type: ignore[arg-type]
                     )
                     observe_in_servicer_duration_histogram(
                         method, couchers_context._user_id, code or "", type(e).__name__, duration / 1000
