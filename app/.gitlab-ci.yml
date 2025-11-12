@@ -70,7 +70,7 @@ default:
       shift 4 # Remove the N arguments so that the rest can be used in "$@" later
       
       # A separate image with cached layers.
-      cache_tag="${release_tag}-cache}"
+      cache_tag="${release_tag}-cache"
   
       # Push image cache only on develop.
       local cache_to=""
