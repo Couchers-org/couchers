@@ -6,7 +6,7 @@ import stripe
 
 from couchers import urls
 from couchers.config import config
-from couchers.models import DonationInitiation, DonationType, Invoice, User
+from couchers.models import DonationInitiation, DonationType, Invoice, InvoiceType, User
 from couchers.notifications.notify import notify
 from couchers.sql import couchers_select as select
 from proto import donations_pb2, donations_pb2_grpc, notification_data_pb2, stripe_pb2_grpc
@@ -69,6 +69,9 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             payment_method_types=["card"],
             mode="subscription" if request.recurring else "payment",
             line_items=[item],
+            metadata={
+                "type": "donation",
+            },
             api_key=config["STRIPE_API_KEY"],
         )
 
@@ -130,27 +133,49 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
             amount = int(data_object["amount"]) // 100
             receipt_url = data_object["receipt_url"]
 
-            # may be check for amount to enable phone verify
-            user.has_donated = True
+            # Get invoice type from payment intent metadata
+            payment_intent_id = data_object["payment_intent"]
+            payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id, api_key=config["STRIPE_API_KEY"])
+
+            # Check if this is from Couchers (type=donation) or WooCommerce (has site_url=shop)
+            if payment_intent.metadata.get("type") == "donation":
+                invoice_type = InvoiceType.donation
+            elif payment_intent.metadata.get("site_url") == "https://shop.couchershq.org":
+                # This is from WooCommerce merch shop
+                invoice_type = InvoiceType.merch
+            else:
+                # Unknown payment source - ignore it
+                logger.warning(f"Stripe payment intent {payment_intent_id} has unknown metadata, ignoring")
+                return httpbody_pb2.HttpBody(
+                    content_type="application/json",
+                    data=json.dumps({"success": True, "ignored": True}).encode("ascii"),
+                )
+
+            # Only mark as donated if it's a donation (not merch)
+            if invoice_type == InvoiceType.donation:
+                user.has_donated = True
 
             session.add(
                 Invoice(
                     user_id=user.id,
                     amount=amount,
-                    stripe_payment_intent_id=data_object["payment_intent"],
+                    stripe_payment_intent_id=payment_intent_id,
                     stripe_receipt_url=receipt_url,
+                    invoice_type=invoice_type,
                 )
             )
 
-            notify(
-                session,
-                user_id=user.id,
-                topic_action="donation:received",
-                data=notification_data_pb2.DonationReceived(
-                    amount=amount,
-                    receipt_url=receipt_url,
-                ),
-            )
+            # Only notify for donations (not merch)
+            if invoice_type == InvoiceType.donation:
+                notify(
+                    session,
+                    user_id=user.id,
+                    topic_action="donation:received",
+                    data=notification_data_pb2.DonationReceived(
+                        amount=amount,
+                        receipt_url=receipt_url,
+                    ),
+                )
         else:
             logger.info(f"Unhandled event from Stripe: {event_type}")
 
