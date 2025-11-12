@@ -4,7 +4,16 @@
   "slug": "amsterdam",
   "description": "This is amsterdam",
   "created": { "seconds": 1577800000, "nanos": 0 },
-  "parentsList": [],
+  "parentsList": [
+    {
+      "community": {
+        "communityId": 1,
+        "name": "Netherlands",
+        "slug": "netherlands",
+        "description": "Netherlands region"
+      }
+    }
+  ],
   "mainPage": {
     "pageId": 3,
     "type": 2,

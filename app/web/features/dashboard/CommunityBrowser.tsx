@@ -17,7 +17,7 @@ import {
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { routeToCommunity } from "routes";
 import { theme } from "theme";
 
@@ -68,6 +68,7 @@ const StyledListItemText = styled(ListItemText)(({ theme }) => ({
 export default function CommunityBrowser() {
   const { t } = useTranslation([DASHBOARD]);
   const [selected, setSelected] = useState<Community.AsObject[]>([]);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const globalCommunityQuery = useCommunity(1);
 
@@ -113,9 +114,19 @@ export default function CommunityBrowser() {
     }
   };
 
+  // Auto-scroll to show the newly added column on the right
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        left: scrollContainerRef.current.scrollWidth,
+        behavior: "smooth",
+      });
+    }
+  }, [selected.length, cachedQueryResults.length]);
+
   return (
     <OuterWrapper>
-      <InnerWrapper>
+      <InnerWrapper ref={scrollContainerRef}>
         {cachedQueryResults.map((query, index) => (
           <BrowserColumn
             key={index}

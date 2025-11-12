@@ -10,6 +10,7 @@ import crypto from "crypto";
 import mediaQuery from "css-mediaquery";
 import sentryTestkit from "sentry-testkit";
 import i18n from "test/i18n";
+import { TextDecoder, TextEncoder } from "util";
 
 import user from "./fixtures/defaultUser.json";
 
@@ -54,6 +55,11 @@ global.crypto = {
     return crypto.randomFillSync(array);
   },
 };
+
+// Polyfill TextDecoder and TextEncoder for maplibre-gl
+// @ts-expect-error Polyfilling for test environment
+global.TextDecoder = TextDecoder;
+global.TextEncoder = TextEncoder;
 
 const { testkit } = sentryTestkit();
 global.testKit = testkit;
