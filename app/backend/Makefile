@@ -8,7 +8,7 @@ protos:
 	docker run --rm -w /app -v $(realpath ${ROOT_DIR}..):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
 
 setup:
-	curl -fsSL https://astral.sh/uv/${UV_VERSION}/install.sh | sh
+	wget -qO- https://astral.sh/uv/${UV_VERSION}/install.sh | sh
 
 
 # Connect to the local development database
