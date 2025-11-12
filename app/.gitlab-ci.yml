@@ -68,15 +68,18 @@ default:
       local path="$3"
       local version="$4"
       shift 4 # Remove the N arguments so that the rest can be used in "$@" later
-
+      
+      # A separate image with cached layers.
+      cache_tag="${release_tag}-cache}"
+  
       # Push image cache only on develop.
       local cache_to=""
       if [ "$CI_COMMIT_BRANCH" = "$RELEASE_BRANCH" ]; then
-        cache_to="--cache-to type=registry,ref=$release_tag,mode=max"
+        cache_to="--cache-to type=registry,ref=$cache_tag,mode=max"
       fi
 
       # Use buildx, as "docker build" does not work with registry cache.
-      docker pull "$release_tag" || true
+      docker pull "$cache_tag" || true
       docker context create my-builder
       docker buildx create my-builder --driver docker-container --use
 
@@ -87,7 +90,7 @@ default:
         --build-arg commit_sha="$COMMIT_SHA" \
         --build-arg commit_timestamp="$COMMIT_TIMESTAMP" \
         --build-arg version="$version" \
-        --cache-from "$release_tag" \
+        --cache-from "$cache_tag" \
         ${cache_to} \
         "$@" \
         "app/$path/"
