@@ -82,6 +82,7 @@ default:
 
       docker buildx build \
         --push \
+        --debug \
         -t "$branch_tag" \
         --build-arg display_version="$DISPLAY_VERSION" \
         --build-arg commit_sha="$COMMIT_SHA" \
