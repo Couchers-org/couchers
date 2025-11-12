@@ -69,9 +69,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             payment_method_types=["card"],
             mode="subscription" if request.recurring else "payment",
             line_items=[item],
-            metadata={
-                "type": "donation",
-            },
+            metadata={"type": "donation"},
             api_key=config["STRIPE_API_KEY"],
         )
 
@@ -132,15 +130,15 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
             # amount comes in cents
             amount = int(data_object["amount"]) // 100
             receipt_url = data_object["receipt_url"]
-
-            # Get invoice type from payment intent metadata
             payment_intent_id = data_object["payment_intent"]
-            payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id, api_key=config["STRIPE_API_KEY"])
+
+            # Get invoice type from charge metadata
+            metadata = data_object.get("metadata", {})
 
             # Check if this is from Couchers (type=donation) or WooCommerce (has site_url=shop)
-            if payment_intent.metadata.get("type") == "donation":
+            if metadata.get("type") == "donation":
                 invoice_type = InvoiceType.donation
-            elif payment_intent.metadata.get("site_url") == "https://shop.couchershq.org":
+            elif metadata.get("site_url") == "https://shop.couchershq.org":
                 # This is from WooCommerce merch shop
                 invoice_type = InvoiceType.merch
             else:
