@@ -315,10 +315,12 @@ test:backend:
     RUN_MIGRATION_TEST: true
   before_script:
     # install the latest postgres from their repos to get pg_dump compatible with later postgres
-    - sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt bullseye-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-    - wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-    - apt-get update
-    - apt-get -y install postgresql-client
+    - apt-get update -qy && apt-get install -qyy wget gpg
+    - wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /usr/share/keyrings/postgresql-archive-keyring.gpg
+    # "trixie" is taken from backend's dockerfile "python:3.13-slim-trixie"
+    - echo "deb [signed-by=/usr/share/keyrings/postgresql-archive-keyring.gpg] http://apt.postgresql.org/pub/repos/apt trixie-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+    - apt-get -qy update
+    - apt-get -qyy install postgresql-client
   script:
     - cd /app && uv run pytest --junitxml=junit.xml --cov=src src
   after_script:
