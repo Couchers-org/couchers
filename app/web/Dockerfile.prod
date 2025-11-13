@@ -6,23 +6,9 @@ WORKDIR /app
 # disable next.js telemetry
 ENV NEXT_TELEMETRY_DISABLED 1
 
-ARG version
-ENV NEXT_PUBLIC_VERSION=$version
-ENV SENTRY_RELEASE=$version
-
-ARG display_version
-ENV NEXT_PUBLIC_DISPLAY_VERSION=$display_version
-
-ARG commit_sha
-ENV NEXT_PUBLIC_COMMIT_SHA=$commit_sha
-
-ARG commit_timestamp
-ENV NEXT_PUBLIC_COMMIT_TIMESTAMP=$commit_timestamp
-
 COPY package.json yarn.lock ./
 # https://github.com/yarnpkg/yarn/issues/8242
-RUN yarn config set network-timeout 300000
-RUN yarn install --frozen-lockfile
+RUN yarn config set network-timeout 300000 && yarn install --frozen-lockfile
 
 COPY . .
 
@@ -41,8 +27,7 @@ FROM node:22-bookworm-slim AS runner
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED 1
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/next.config.js ./
 COPY --from=builder /app/public ./public
@@ -54,6 +39,19 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/.env.local ./
 COPY --from=builder /app/proto ./proto
 
+# These are at the end so as to not invalidate Docker build cache
+ARG version
+ENV NEXT_PUBLIC_VERSION=$version
+ENV SENTRY_RELEASE=$version
+
+ARG display_version
+ENV NEXT_PUBLIC_DISPLAY_VERSION=$display_version
+
+ARG commit_sha
+ENV NEXT_PUBLIC_COMMIT_SHA=$commit_sha
+
+ARG commit_timestamp
+ENV NEXT_PUBLIC_COMMIT_TIMESTAMP=$commit_timestamp
 
 EXPOSE 3000
 
