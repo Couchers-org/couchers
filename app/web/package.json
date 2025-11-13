@@ -6,9 +6,9 @@
     "node": "22.x"
   },
   "scripts": {
-    "build": "next build",
+    "build": "next build --turbo",
     "injectsourcemaps": "sentry-cli sourcemaps inject .next/",
-    "dev": "next dev",
+    "dev": "next dev --turbo",
     "start": "yarn dev",
     "format": "prettier --write '**/*.{ts,tsx,js,jsx,json,css}'",
     "format:check": "prettier --check '**/*.{ts,tsx,js,jsx,json,css}'",
