@@ -2,6 +2,7 @@ import json
 import logging
 
 import grpc
+import sentry_sdk
 import stripe
 
 from couchers import urls
@@ -142,12 +143,13 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                 # This is from WooCommerce merch shop
                 invoice_type = InvoiceType.merch
             else:
-                # Unknown payment source - ignore it
-                logger.warning(f"Stripe payment intent {payment_intent_id} has unknown metadata, ignoring")
-                return httpbody_pb2.HttpBody(
-                    content_type="application/json",
-                    data=json.dumps({"success": True, "ignored": True}).encode("ascii"),
-                )
+                # Unknown payment source - this should never happen
+                sentry_sdk.set_tag("stripe_payment_intent_id", payment_intent_id)
+                sentry_sdk.set_tag("stripe_customer_id", customer_id)
+                sentry_sdk.set_context("stripe_metadata", metadata)
+                error_msg = f"Unable to determine invoice_type for Stripe payment intent {payment_intent_id}. Expected metadata.type='donation' or metadata.site_url='https://shop.couchershq.org', but got: {metadata}"
+                logger.error(error_msg)
+                raise ValueError(error_msg)
 
             # Only mark as donated if it's a donation (not merch)
             if invoice_type == InvoiceType.donation:
