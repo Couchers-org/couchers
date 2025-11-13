@@ -4,8 +4,10 @@ migrations/**
 tests/**
 .git*
 Docker*
-docker-compose.yml
+docker-compose.*
 documentation
 node_modules
-Dockerfile*
 *.diff
+readme.md
+.cursorrules
+.dockerignore
