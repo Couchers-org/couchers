@@ -198,8 +198,9 @@ build:web-dev:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - *common_functions
-    - build "$WEB_DEV_TAG" "$WEB_DEV_RELEASE_TAG" "web" "$SLUG" --build-arg environment=next -f app/web/Dockerfile
-    # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
+    # Add "--load" so that the image is saved locally for "docker create"
+    - build "$WEB_DEV_TAG" "$WEB_DEV_RELEASE_TAG" "web" "$SLUG" --build-arg environment=next -f app/web/Dockerfile --load
+    # creates a new docker container (docker create returns the container name) and copies the /app folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_DEV_TAG):/app artifacts/web-dev
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") &&($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
@@ -223,7 +224,8 @@ build:web:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - - *common_functions
-    - build "$WEB_TAG" "$WEB_RELEASE_TAG" "web" "$SLUG" --build-arg environment=production -f app/web/Dockerfile.prod
+    # Add "--load" so that the image is saved locally for "docker create"
+    - build "$WEB_TAG" "$WEB_RELEASE_TAG" "web" "$SLUG" --build-arg environment=production -f app/web/Dockerfile.prod --load
     # creates a new docker container (docker create returns the container name), and copies the static folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app/.next/static/ static
     - ./app/web/generate_static_manifest.sh static > static/manifest.txt
@@ -250,7 +252,8 @@ build:web-next:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - *common_functions
-    - build "$WEB_NEXT_TAG" "$WEB_NEXT_RELEASE_TAG" "web" "$SLUG-next" --build-arg environment=next -f app/web/Dockerfile.prod
+    # Add "--load" so that the image is saved locally for "docker create"
+    - build "$WEB_NEXT_TAG" "$WEB_NEXT_RELEASE_TAG" "web" "$SLUG-next" --build-arg environment=next -f app/web/Dockerfile.prod --load
     # creates a new docker container (docker create returns the container name), and copies the static folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_NEXT_TAG):/app/.next/static/ static
     - ./app/web/generate_static_manifest.sh static > static/manifest.txt
