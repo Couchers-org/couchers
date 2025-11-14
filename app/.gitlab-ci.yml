@@ -322,9 +322,9 @@ test:backend:
     - apt-get -qy update
     - apt-get -qyy install postgresql-client
   script:
-    - cd /app && uv run pytest --junitxml=junit.xml --cov=src src
+    - cd /app && pytest --junitxml=junit.xml --cov=src src
   after_script:
-    - cd /app && uv run coverage xml && uv run coverage html
+    - cd /app && coverage xml && coverage html
     - cp /app/junit.xml $CI_PROJECT_DIR/
     - cp /app/coverage.xml $CI_PROJECT_DIR/
     - mkdir -p $CI_PROJECT_DIR/artifacts/htmlcov && cp -a /app/htmlcov $CI_PROJECT_DIR/artifacts/
@@ -357,9 +357,9 @@ test:backend-format:
     default: false
   script:
     - cd app/backend
-    - uv run ruff check .
-    - uv run ruff check --diff .
-    - uv run ruff format --diff .
+    - ruff check .
+    - ruff check --diff .
+    - ruff format --diff .
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:

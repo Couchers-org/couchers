@@ -1,1 +1,15 @@
-venv/**
+# Ignore everything
+**
+**/__pycache__*
+
+# Allow specific files and directories
+!proto
+!src
+!resources
+!templates
+!alembic.ini
+
+# These are not included into the final image, but are still needed here
+# for "--mount=type=bind"
+!uv.lock
+!pyproject.toml
