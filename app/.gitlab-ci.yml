@@ -379,7 +379,7 @@ test:media:
   variables:
     MEDIA_SERVER_FROM_ENV: 0
   script:
-    - cd /app && uv run pytest src --junitxml=junit.xml
+    - cd /app && pytest src --junitxml=junit.xml
   after_script:
     - cp /app/junit.xml $CI_PROJECT_DIR/junit.xml
   artifacts:
@@ -802,7 +802,7 @@ deploy:staging:
     - echo "Git hash is ${rev}"
     - echo "Deploying staging..."
     - web_next_static="https://${rev}--web-next-static.preview.couchershq.org/static.tar.gz"
-    - wget ${web_next_static} -O next-static.tar.gz
+    - wget -q ${web_next_static} -O next-static.tar.gz
     - mkdir -p next/
     - tar xf next-static.tar.gz --directory next/
     - aws s3 sync next/ s3://next-static.couchershq.org/static/_next/static/
