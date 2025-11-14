@@ -118,30 +118,30 @@ class StrongVerificationAttempt(Base):
         return self.status != StrongVerificationAttemptStatus.deleted
 
     @hybrid_method
-    def _raw_birthdate_match(self, user: "User") -> Any:
+    def _raw_birthdate_match(self, user: "User | type[User]") -> Any:
         """Does not check whether the SV attempt itself is not expired"""
         return self.passport_date_of_birth == user.birthdate
 
     @hybrid_method
-    def matches_birthdate(self, user: "User") -> Any:
+    def matches_birthdate(self, user: "User | type[User]") -> Any:
         return self.is_valid & self._raw_birthdate_match(user)
 
     @hybrid_method
-    def _raw_gender_match(self, user: "User") -> Any:
+    def _raw_gender_match(self, user: "User | type[User]") -> Any:
         """Does not check whether the SV attempt itself is not expired"""
         return (
-            ((user.gender == "Woman") & (self.passport_sex == PassportSex.female))
+            ((user.gender == "Woman") & (self.passport_sex == PassportSex.female))  # type: ignore[operator]
             | ((user.gender == "Man") & (self.passport_sex == PassportSex.male))
             | (self.passport_sex == PassportSex.unspecified)
             | (user.has_passport_sex_gender_exception == True)
         )
 
     @hybrid_method
-    def matches_gender(self, user: "User") -> Any:
+    def matches_gender(self, user: "User | type[User]") -> Any:
         return self.is_valid & self._raw_gender_match(user)
 
     @hybrid_method
-    def has_strong_verification(self, user: "User") -> Any:
+    def has_strong_verification(self, user: "User | type[User]") -> Any:
         return self.is_valid & self._raw_birthdate_match(user) & self._raw_gender_match(user)
 
     __table_args__ = (

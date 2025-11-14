@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_media_auth_interceptor(secret_token: str) -> MediaInterceptor:
-    def is_authorized(token: str):
+    def is_authorized(token: str) -> bool:
         return secure_compare(token.encode("ascii"), secret_token.encode("ascii"))
 
     return MediaInterceptor(is_authorized)

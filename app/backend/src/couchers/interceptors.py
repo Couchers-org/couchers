@@ -1,14 +1,18 @@
 import logging
+from collections.abc import Callable
 from copy import deepcopy
-from datetime import timedelta
+from datetime import datetime, timedelta
 from os import getpid
 from threading import get_ident
 from time import perf_counter_ns
 from traceback import format_exception
+from typing import Any, NoReturn
 
 import grpc
 import sentry_sdk
+from google.protobuf.message import Message
 from opentelemetry import trace
+from sqlalchemy import Function
 from sqlalchemy.sql import and_, func
 
 from couchers.constants import UNKNOWN_ERROR_MESSAGE
@@ -32,15 +36,17 @@ from proto import annotations_pb2
 logger = logging.getLogger(__name__)
 
 
-def _binned_now():
+def _binned_now() -> Function[Any]:
     return func.date_bin("1 hour", func.now(), "2000-01-01")
 
 
-def _try_get_and_update_user_details(token, is_api_key, ip_address, user_agent):
+def _try_get_and_update_user_details(
+    token: str | None, is_api_key: bool, ip_address: str | None, user_agent: str | None
+) -> tuple[int, bool, bool, datetime, str | None] | None:
     """
     Tries to get session and user info corresponding to this token.
 
-    Also updates the user last active time, token last active time, and increments API call count.
+    Also updates the user's last active time, token last active time, and increments API call count.
     """
     if not token:
         return None
@@ -95,18 +101,24 @@ def _try_get_and_update_user_details(token, is_api_key, ip_address, user_agent):
             return user.id, user.is_jailed, user.is_superuser, user_session.expiry, user.ui_language_preference
 
 
-def abort_handler(message, status_code):
-    def f(request, context):
+def abort_handler(
+    message: str,
+    status_code: grpc.StatusCode,
+) -> "grpc.RpcMethodHandler[tuple[Any, CouchersContext], NoReturn]":
+    def f(request: Any, context: CouchersContext) -> NoReturn:
         context.abort(status_code, message)
 
     return grpc.unary_unary_rpc_method_handler(f)
 
 
-def unauthenticated_handler(message="Unauthorized", status_code=grpc.StatusCode.UNAUTHENTICATED):
+def unauthenticated_handler(
+    message: str = "Unauthorized",
+    status_code: grpc.StatusCode = grpc.StatusCode.UNAUTHENTICATED,
+) -> "grpc.RpcMethodHandler[tuple[Any, CouchersContext], NoReturn]":
     return abort_handler(message, status_code)
 
 
-def _sanitized_bytes(proto):
+def _sanitized_bytes(proto: Message | None) -> bytes | None:
     """
     Remove fields marked sensitive and return serialized bytes
     """
@@ -115,7 +127,7 @@ def _sanitized_bytes(proto):
 
     new_proto = deepcopy(proto)
 
-    def _sanitize_message(message):
+    def _sanitize_message(message: Message) -> None:
         for name, descriptor in message.DESCRIPTOR.fields_by_name.items():
             if descriptor.GetOptions().Extensions[annotations_pb2.sensitive]:
                 message.ClearField(name)
@@ -136,18 +148,18 @@ def _sanitized_bytes(proto):
 
 def _store_log(
     *,
-    method,
-    status_code,
-    duration,
-    user_id,
-    is_api_key,
-    request,
-    response,
-    traceback,
-    perf_report,
-    ip_address,
-    user_agent,
-):
+    method: str,
+    status_code: grpc.StatusCode | None,
+    duration: float,
+    user_id: int,
+    is_api_key: bool,
+    request: Message,
+    response: Message | None,
+    traceback: str | None,
+    perf_report: str | None,
+    ip_address: str,
+    user_agent: str,
+) -> None:
     req_bytes = _sanitized_bytes(request)
     res_bytes = _sanitized_bytes(response)
     with session_scope() as session:
@@ -189,7 +201,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
     4. Measures and logs the time it takes to service each incoming call.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._pool = get_descriptor_pool()
 
     def intercept_service(self, continuation, handler_call_details):
@@ -267,7 +279,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
         handler = continuation(handler_call_details)
         prev_function = handler.unary_unary
 
-        def function_without_couchers_stuff(req, grpc_context):
+        def function_without_couchers_stuff(req, grpc_context: grpc.ServicerContext):
             couchers_context: CouchersContext = make_interactive_context(
                 grpc_context=grpc_context,
                 user_id=user_id,
@@ -324,7 +336,9 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     raise e
 
             if user_id and not is_api_key:
-                cookies = []
+                # Sanity check. If user_id is present, then we should have a token.
+                if token is None or token_expiry is None:
+                    raise RuntimeError(f"{token=}, {token_expiry=}")
 
                 # check the two cookies are in sync & that language preference cookie is correct
                 if parse_user_id_cookie(headers) != str(user_id):
@@ -355,7 +369,7 @@ class MediaInterceptor(grpc.ServerInterceptor):
     Also adds a session to called APIs.
     """
 
-    def __init__(self, is_authorized):
+    def __init__(self, is_authorized: Callable[[str], bool]):
         self._is_authorized = is_authorized
 
     def intercept_service(self, continuation, handler_call_details):
@@ -368,7 +382,7 @@ class MediaInterceptor(grpc.ServerInterceptor):
         if not token or not self._is_authorized(token):
             return unauthenticated_handler()
 
-        def function_without_session(request, grpc_context):
+        def function_without_session(request, grpc_context: grpc.ServicerContext):
             with session_scope() as session:
                 return prev_func(request, make_media_context(grpc_context), session)
 
@@ -384,7 +398,7 @@ class OTelInterceptor(grpc.ServerInterceptor):
     OpenTelemetry tracing
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.tracer = trace.get_tracer(__name__)
 
     def intercept_service(self, continuation, handler_call_details):
