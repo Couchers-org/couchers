@@ -4,10 +4,11 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 ## Get started
 
-1. Install dependencies
+1. Install dependencies (and native modules used by the app)
 
    ```bash
    npm install
+   npx expo install expo-notifications expo-device
    ```
 
 2. Generate the gRPC-Web stubs to extract the latest protos (needed any time `/proto` changes)
@@ -16,7 +17,17 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm run build:protos
    ```
 
-3. Start the app
+3. If you haven't created a local development build yet (required for native modules such as `expo-notifications`/`expo-device`), build once per platform:
+
+   ```bash
+   # For iOS
+   npx expo run:ios
+
+   # For Android
+   npx expo run:android
+   ```
+
+4. Start the app (this will reuse the dev build/emulator or Expo Go, depending on what you choose in the Metro UI)
 
    ```bash
    npx expo start
