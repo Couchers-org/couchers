@@ -38,6 +38,15 @@ message SendRawPushNotificationPayload {
   uint32 ttl = 3;
 }
 
+message SendMobilePushNotificationPayload {
+  int64 mobile_push_notification_subscription_id = 1;
+  string title = 2;
+  string body = 3;
+  string url = 4;
+  string topic_action = 5;
+  string key = 6;
+}
+
 message GenerateMessageNotificationsPayload {
   uint64 message_id = 1;
 }

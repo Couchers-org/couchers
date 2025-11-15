@@ -1,63 +1,83 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Generates the gRPC-Web/JS stubs consumed by the Expo app (app/mobile/proto).
+# This script runs in CI before Android/iOS builds and can be invoked locally via `npm run build:protos`.
 
-# this needs to run on both android (linux) and ios (osx) builds
+set -euo pipefail
 
-OS=$(uname -s)
-# Determine the architecture
-ARCH=$(uname -m)
+echo "Generating mobile proto stubs…"
 
-OS_ARCH=""
-# for some reason protoc-gen-grpc-web uses "darwin" instead of "osx"
-OS_ARCH_GRPC_WEB=""
+# Resolve repo paths so the script can be run from anywhere.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+PROTO_SRC="${REPO_ROOT}/proto"
+OUT_DIR="${REPO_ROOT}/mobile/proto"
+TMP_DIR="$(mktemp -d)"
+trap 'rm -rf "${TMP_DIR}"' EXIT
 
-echo "Running on OS=$OS, ARCH=$ARCH"
-
-if [[ "$OS" == "Linux" && "$ARCH" == "x86_64" ]]; then
-    OS_ARCH="linux-x86_64"
-    OS_ARCH_GRPC_WEB="linux-x86_64"
-elif [[ "$OS" == "Darwin" && "$ARCH" == "arm64" ]]; then
-    OS_ARCH="osx-aarch_64"
-    OS_ARCH_GRPC_WEB="darwin-aarch64"
-elif [[ "$OS" == "Darwin" && "$ARCH" == "x86_64" ]]; then
-    OS_ARCH="osx-x86_64"
-    OS_ARCH_GRPC_WEB="darwin-x86_64"
-else
-    echo "Not one of the known builders!"
-    exit 1
+if [[ ! -d "${PROTO_SRC}" ]]; then
+  echo "Could not find proto directory at ${PROTO_SRC}"
+  exit 1
 fi
 
-echo "Using OS/arch: $OS_ARCH"
+# Detect OS/arch so we download the matching protoc/grpc-web binaries.
+OS="$(uname -s)"
+ARCH="$(uname -m)"
 
+case "${OS}-${ARCH}" in
+  "Linux-x86_64")
+    OS_ARCH="linux-x86_64"
+    OS_ARCH_GRPC_WEB="linux-x86_64"
+    ;;
+  "Darwin-arm64")
+    OS_ARCH="osx-aarch_64"
+    OS_ARCH_GRPC_WEB="darwin-aarch64"
+    ;;
+  "Darwin-x86_64")
+    OS_ARCH="osx-x86_64"
+    OS_ARCH_GRPC_WEB="darwin-x86_64"
+    ;;
+  *)
+    echo "Unsupported platform: OS=${OS} ARCH=${ARCH}"
+    exit 1
+    ;;
+esac
+
+# Versions should match backend scripts so the generated stubs stay compatible.
 PROTOC_VERSION=27.0
 GRPC_WEB_VERSION=1.5.0
 PROTOBUF_JS_VERSION=3.21.2
 
-# download deps
-mkdir -p /tmp/deps
-pushd /tmp/deps
+# Download protoc + grpc-web + JS runtime into a temp directory.
+DEPS_DIR="${TMP_DIR}/deps"
+mkdir -p "${DEPS_DIR}"
 
-curl -L https://github.com/protocolbuffers/protobuf/releases/download/v$PROTOC_VERSION/protoc-$PROTOC_VERSION-$OS_ARCH.zip -o protoc.zip
-unzip protoc.zip
-chmod +x bin/protoc
+curl -sSL "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-${OS_ARCH}.zip" -o "${DEPS_DIR}/protoc.zip"
+(cd "${DEPS_DIR}" && unzip -qq protoc.zip)
+chmod +x "${DEPS_DIR}/bin/protoc"
 
-curl -L https://github.com/grpc/grpc-web/releases/download/$GRPC_WEB_VERSION/protoc-gen-grpc-web-$GRPC_WEB_VERSION-$OS_ARCH_GRPC_WEB -o protoc-gen-grpc-web
-chmod +x protoc-gen-grpc-web
+curl -sSL "https://github.com/grpc/grpc-web/releases/download/${GRPC_WEB_VERSION}/protoc-gen-grpc-web-${GRPC_WEB_VERSION}-${OS_ARCH_GRPC_WEB}" -o "${DEPS_DIR}/protoc-gen-grpc-web"
+chmod +x "${DEPS_DIR}/protoc-gen-grpc-web"
 
-curl -L https://github.com/protocolbuffers/protobuf-javascript/releases/download/v$PROTOBUF_JS_VERSION/protobuf-javascript-$PROTOBUF_JS_VERSION-$OS_ARCH.zip  -o protobuf-javascript.zip
-unzip -o protobuf-javascript.zip
+curl -sSL "https://github.com/protocolbuffers/protobuf-javascript/releases/download/v${PROTOBUF_JS_VERSION}/protobuf-javascript-${PROTOBUF_JS_VERSION}-${OS_ARCH}.zip" -o "${DEPS_DIR}/protobuf-javascript.zip"
+(cd "${DEPS_DIR}" && unzip -qq -o protobuf-javascript.zip)
 
-popd
+# Clean output dir before regenerating.
+mkdir -p "${OUT_DIR}"
+rm -rf "${OUT_DIR:?}"/*
 
-# actually build the protos
-cd ..
-mkdir -p native/proto/
-find proto -name '*.proto' | /tmp/deps/bin/protoc -I /tmp/deps/include -I proto \
-  --plugin=protoc-gen-grpc-web=/tmp/deps/protoc-gen-grpc-web \
-  --plugin=protoc-gen-js=/tmp/deps/bin/protoc-gen-js \
-  \
-  --js_out="import_style=commonjs,binary:native/proto" \
-  --grpc-web_out="import_style=commonjs+dts,mode=grpcweb:native/proto" \
-  \
-  $(xargs)
+# Gather all proto files relative to repo root.
+PROTO_FILES=()
+while IFS= read -r rel_path; do
+  PROTO_FILES+=("${PROTO_SRC}/${rel_path#./}")
+done < <(cd "${PROTO_SRC}" && find . -name '*.proto' -print)
 
-echo "Protos built!"
+"${DEPS_DIR}/bin/protoc" \
+  -I "${DEPS_DIR}/include" \
+  -I "${PROTO_SRC}" \
+  --plugin=protoc-gen-grpc-web="${DEPS_DIR}/protoc-gen-grpc-web" \
+  --plugin=protoc-gen-js="${DEPS_DIR}/bin/protoc-gen-js" \
+  --js_out="import_style=commonjs,binary:${OUT_DIR}" \
+  --grpc-web_out="import_style=commonjs+dts,mode=grpcweb:${OUT_DIR}" \
+  "${PROTO_FILES[@]}"
+
+echo "Protos built in ${OUT_DIR}"

@@ -25,6 +25,7 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { Stack } from "expo-router";
 
 import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
+import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
 
 // Sentry.init({
 //   dsn: "https://7de06aa8cca6dacc9620667dd84a0d01@o782870.ingest.us.sentry.io/4507718344704000",
@@ -82,9 +83,15 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <AuthProvider>
+          <PushNotificationsRegistrar />
           <RootNavigator fontsLoaded={fontsLoaded} />
         </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );
+}
+
+function PushNotificationsRegistrar() {
+  useRegisterPushNotifications();
+  return null;
 }

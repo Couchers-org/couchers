@@ -3,17 +3,20 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import or_
+from sqlalchemy.sql import func, or_
 
 from couchers.config import config
+from couchers.constants import DATETIME_INFINITY
 from couchers.models import (
     HostingStatus,
     MeetupStatus,
+    MobilePushNotificationSubscription,
     Notification,
     NotificationDeliveryType,
     PushNotificationSubscription,
     User,
 )
+from couchers.notifications.mobile_push import push_to_mobile_subscription, push_to_mobile_user
 from couchers.notifications.push import get_vapid_public_key, push_to_subscription, push_to_user
 from couchers.notifications.push_api import decode_key
 from couchers.notifications.render import render_notification
@@ -173,6 +176,57 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             topic_action="adhoc:testing",
             title="Checking push notifications work!",
             body="If you see this, then it's working :)",
+        )
+
+        return empty_pb2.Empty()
+
+    def RegisterMobilePushNotificationSubscription(self, request, context, session):
+        if not config["PUSH_NOTIFICATIONS_ENABLED"]:
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
+
+        existing = (
+            session.query(MobilePushNotificationSubscription)
+            .filter(MobilePushNotificationSubscription.token == request.token)
+            .one_or_none()
+        )
+        if existing:
+            if existing.disabled_at < func.now():
+                existing.disabled_at = DATETIME_INFINITY
+                existing.device_name = request.device_name or existing.device_name
+                existing.device_type = request.device_type or existing.device_type
+                existing.platform = request.platform or existing.platform
+                logger.info(f"Re-enabled mobile push sub {existing.id} for user {context.user_id}")
+            return empty_pb2.Empty()
+
+        subscription = MobilePushNotificationSubscription(
+            user_id=context.user_id,
+            token=request.token,
+            platform=request.platform or "expo",
+            device_name=request.device_name if request.device_name else None,
+            device_type=request.device_type if request.device_type else None,
+        )
+        session.add(subscription)
+        session.flush()
+
+        push_to_mobile_subscription(
+            session,
+            mobile_push_notification_subscription_id=subscription.id,
+            title="Push notifications enabled!",
+            body="You'll now receive notifications on this device.",
+        )
+
+        return empty_pb2.Empty()
+
+    def SendTestMobilePushNotification(self, request, context, session):
+        if not config["PUSH_NOTIFICATIONS_ENABLED"]:
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
+
+        push_to_mobile_user(
+            session,
+            user_id=context.user_id,
+            topic_action="adhoc:testing",
+            title="Checking mobile push notifications work!",
+            body="If you see this on your phone, everything is wired up correctly 🎉",
         )
 
         return empty_pb2.Empty()

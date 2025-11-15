@@ -1,6 +1,7 @@
 import logging
 from pathlib import Path
 
+import sentry_sdk
 from google.protobuf import empty_pb2
 from jinja2 import Environment, FileSystemLoader
 from sqlalchemy.orm import Session
@@ -12,6 +13,8 @@ from couchers.db import session_scope
 from couchers.email import queue_email
 from couchers.metrics import push_notification_counter, push_notification_disabled_counter
 from couchers.models import (
+    MobilePushNotificationDeliveryAttempt,
+    MobilePushNotificationSubscription,
     Notification,
     NotificationDelivery,
     NotificationDeliveryType,
@@ -19,6 +22,8 @@ from couchers.models import (
     PushNotificationSubscription,
     User,
 )
+from couchers.notifications.mobile_push import push_to_mobile_user
+from couchers.notifications.mobile_push_api import send_expo_push_notification
 from couchers.notifications.push import push_to_user
 from couchers.notifications.push_api import send_push
 from couchers.notifications.quick_links import (
@@ -134,6 +139,25 @@ def _send_push_notification(session: Session, user: User, notification: Notifica
     )
 
 
+def _send_mobile_push_notification(session: Session, user: User, notification: Notification) -> None:
+    logger.debug(f"Formatting mobile push notification for {user}")
+
+    rendered = render_notification(user, notification)
+
+    if not rendered.push_title:
+        raise Exception(f"Tried to send mobile push notification to {user} but didn't have push info")
+
+    push_to_mobile_user(
+        session,
+        user_id=user.id,
+        title=rendered.push_title,
+        body=rendered.push_body,
+        url=rendered.push_url,
+        topic_action=notification.topic_action.display,
+        key=notification.key,
+    )
+
+
 def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
     with session_scope() as session:
         notification = session.execute(
@@ -167,7 +191,7 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
                     )
                 )
             elif delivery_type == NotificationDeliveryType.push:
-                # for push notifications, we send them straight away
+                # for push notifications, we send them straight away (web + mobile)
                 session.add(
                     NotificationDelivery(
                         notification_id=notification.id,
@@ -176,6 +200,7 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
                     )
                 )
                 _send_push_notification(session, user, notification)
+                _send_mobile_push_notification(session, user, notification)
 
 
 def send_raw_push_notification(payload: jobs_pb2.SendRawPushNotificationPayload) -> None:
@@ -223,6 +248,120 @@ def send_raw_push_notification(payload: jobs_pb2.SendRawPushNotificationPayload)
             push_notification_disabled_counter.inc()
         else:
             raise Exception(f"Failed to deliver push to {sub.id}, code: {resp.status_code}. Response: {resp.text}")
+
+
+def send_mobile_push_notification(payload: jobs_pb2.SendMobilePushNotificationPayload) -> None:
+    if not config["PUSH_NOTIFICATIONS_ENABLED"]:
+        logger.info("Not sending mobile push notification due to push notifications disabled")
+        return
+
+    with session_scope() as session:
+        sub = session.execute(
+            select(MobilePushNotificationSubscription).where(
+                MobilePushNotificationSubscription.id == payload.mobile_push_notification_subscription_id
+            )
+        ).scalar_one()
+
+        if sub.disabled_at < now():
+            logger.error(
+                f"Tried to send mobile push to disabled subscription: {sub.id}. Disabled at {sub.disabled_at}."
+            )
+            return
+
+        try:
+            if sub.platform == "expo":
+                collapse_key = None
+                if payload.topic_action and payload.key:
+                    collapse_key = f"{payload.topic_action}_{payload.key}"
+
+                result = send_expo_push_notification(
+                    token=sub.token,
+                    title=payload.title,
+                    body=payload.body,
+                    data={
+                        "url": payload.url,
+                        "topic_action": payload.topic_action,
+                        "key": payload.key,
+                    },
+                    collapse_key=collapse_key,
+                )
+
+                response_data = result.get("data", [{}])[0] if result.get("data") else {}
+                status = response_data.get("status", "unknown")
+
+                if status == "error":
+                    error_code = response_data.get("details", {}).get("error")
+                    if error_code in {"DeviceNotRegistered", "InvalidCredentials", "MessageTooBig"}:
+                        logger.warning(f"Disabling mobile push sub {sub.id}: {error_code}")
+                        sub.disabled_at = func.now()
+                        push_notification_disabled_counter.inc()
+
+                    sentry_sdk.set_tag("context", "mobile_push_notification")
+                    sentry_sdk.set_tag("error_code", error_code)
+                    sentry_sdk.set_tag("subscription_id", sub.id)
+                    sentry_sdk.set_context(
+                        "mobile_push",
+                        {
+                            "user_id": sub.user_id,
+                            "platform": sub.platform,
+                            "device_type": sub.device_type,
+                            "title": payload.title,
+                            "expo_response": result,
+                        },
+                    )
+
+                    session.add(
+                        MobilePushNotificationDeliveryAttempt(
+                            mobile_push_notification_subscription_id=sub.id,
+                            success=False,
+                            status_code=400,
+                            response=str(result),
+                        )
+                    )
+                    session.commit()
+
+                    raise Exception(f"Failed to deliver mobile push to {sub.id}: {error_code}")
+
+                session.add(
+                    MobilePushNotificationDeliveryAttempt(
+                        mobile_push_notification_subscription_id=sub.id,
+                        success=True,
+                        status_code=200,
+                        response=str(result),
+                    )
+                )
+                session.commit()
+                logger.debug(f"Successfully sent mobile push to sub {sub.id} for user {sub.user}")
+                push_notification_counter.inc()
+            else:
+                logger.warning(f"Platform {sub.platform} not yet supported for mobile push; skipping sub {sub.id}")
+
+        except Exception as exc:
+            logger.error(f"Failed to send mobile push to sub {sub.id}: {exc}")
+            sentry_sdk.set_tag("context", "mobile_push_notification")
+            sentry_sdk.set_tag("subscription_id", sub.id)
+            sentry_sdk.set_context(
+                "mobile_push",
+                {
+                    "user_id": sub.user_id,
+                    "platform": sub.platform,
+                    "device_type": sub.device_type,
+                    "title": payload.title,
+                    "error_type": type(exc).__name__,
+                },
+            )
+            sentry_sdk.capture_exception(exc)
+
+            session.add(
+                MobilePushNotificationDeliveryAttempt(
+                    mobile_push_notification_subscription_id=sub.id,
+                    success=False,
+                    status_code=500,
+                    response=str(exc),
+                )
+            )
+            session.commit()
+            raise
 
 
 def handle_email_digests(payload: empty_pb2.Empty) -> None:

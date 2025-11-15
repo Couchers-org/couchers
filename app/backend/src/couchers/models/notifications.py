@@ -297,3 +297,50 @@ class PushNotificationDeliveryAttempt(Base):
     response: Mapped[str | None] = mapped_column(String, nullable=True)
 
     push_notification_subscription = relationship("PushNotificationSubscription")
+
+
+class MobilePushNotificationSubscription(Base):
+    """
+    Mobile push notification subscriptions (Expo/FCM/APNs)
+    """
+
+    __tablename__ = "mobile_push_notification_subscriptions"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+
+    token: Mapped[str] = mapped_column(String, unique=True, index=True)
+    platform: Mapped[str] = mapped_column(String)  # "expo", "fcm", "apns"
+    device_name: Mapped[str | None] = mapped_column(String, nullable=True)
+    device_type: Mapped[str | None] = mapped_column(String, nullable=True)  # "ios", "android"
+
+    disabled_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=DATETIME_INFINITY.isoformat())
+
+    user = relationship("User")
+
+    __table_args__ = (
+        Index(
+            "ix_mobile_push_notification_subscriptions_active",
+            user_id,
+            postgresql_where=(disabled_at > func.now()),
+        ),
+    )
+
+
+class MobilePushNotificationDeliveryAttempt(Base):
+    __tablename__ = "mobile_push_notification_delivery_attempts"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    mobile_push_notification_subscription_id: Mapped[int] = mapped_column(
+        ForeignKey("mobile_push_notification_subscriptions.id"), index=True
+    )
+
+    success: Mapped[bool] = mapped_column(Boolean)
+    status_code: Mapped[int] = mapped_column(Integer)
+    response: Mapped[str | None] = mapped_column(String, nullable=True)
+
+    mobile_push_notification_subscription = relationship("MobilePushNotificationSubscription")

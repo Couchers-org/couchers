@@ -25,6 +25,10 @@ service Notifications {
   rpc RegisterPushNotificationSubscription(RegisterPushNotificationSubscriptionReq) returns (google.protobuf.Empty);
 
   rpc SendTestPushNotification(google.protobuf.Empty) returns (google.protobuf.Empty);
+
+  rpc RegisterMobilePushNotificationSubscription(RegisterMobilePushNotificationSubscriptionReq) returns (google.protobuf.Empty);
+
+  rpc SendTestMobilePushNotification(google.protobuf.Empty) returns (google.protobuf.Empty);
 }
 
 message GetNotificationSettingsReq {}
@@ -127,4 +131,18 @@ message RegisterPushNotificationSubscriptionReq {
 
   // the browse user-agent, so we can tell the user what browser notifications are going to
   string user_agent = 2;
+}
+
+message RegisterMobilePushNotificationSubscriptionReq {
+  // Expo push token or platform-specific token
+  string token = 1;
+
+  // e.g. "expo", "fcm", "apns"
+  string platform = 2;
+
+  // Optional metadata to show users which device is registered
+  string device_name = 3;
+
+  // e.g. "ios" or "android"
+  string device_type = 4;
 }

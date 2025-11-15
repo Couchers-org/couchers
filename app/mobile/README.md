@@ -10,10 +10,10 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Download & extract the latest protos
+2. Generate the gRPC-Web stubs to extract the latest protos (needed any time `/proto` changes)
 
-   ``` bash
-   curl -sL https://develop--protos.preview.couchershq.org/ts.tar.gz | tar xz
+   ```bash
+   npm run build:protos
    ```
 
 3. Start the app
