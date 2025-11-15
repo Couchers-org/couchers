@@ -17,12 +17,12 @@ from couchers.models import (
     PageType,
     User,
 )
+from couchers.proto import groups_pb2, groups_pb2_grpc
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, dt_from_millis, millis_from_dt, now
-from proto import groups_pb2, groups_pb2_grpc
 
 logger = logging.getLogger(__name__)
 

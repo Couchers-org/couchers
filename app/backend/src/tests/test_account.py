@@ -19,9 +19,9 @@ from couchers.models import (
     User,
     Volunteer,
 )
+from couchers.proto import account_pb2, api_pb2, auth_pb2, conversations_pb2, requests_pb2
 from couchers.sql import couchers_select as select
 from couchers.utils import now, today
-from proto import account_pb2, api_pb2, auth_pb2, conversations_pb2, requests_pb2
 from tests.test_fixtures import (  # noqa
     account_session,
     auth_api_session,

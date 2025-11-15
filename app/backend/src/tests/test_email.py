@@ -18,6 +18,7 @@ from couchers.models import (
     User,
 )
 from couchers.notifications.notify import notify
+from couchers.proto import admin_pb2, api_pb2, events_pb2, notification_data_pb2, notifications_pb2
 from couchers.sql import couchers_select as select
 from couchers.tasks import (
     enforce_community_memberships,
@@ -27,7 +28,6 @@ from couchers.tasks import (
     send_signup_email,
 )
 from couchers.utils import Timestamp_from_datetime, now, timedelta
-from proto import admin_pb2, api_pb2, events_pb2, notification_data_pb2, notifications_pb2
 from tests.test_communities import create_community
 from tests.test_fixtures import (  # noqa
     api_session,

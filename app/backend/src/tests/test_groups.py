@@ -2,8 +2,8 @@ import grpc
 import pytest
 
 from couchers.db import session_scope
+from couchers.proto import groups_pb2, pages_pb2
 from couchers.tasks import enforce_community_memberships
-from proto import groups_pb2, pages_pb2
 from tests.test_communities import (  # noqa
     create_1d_point,
     create_community,

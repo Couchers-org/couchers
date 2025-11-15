@@ -2,8 +2,8 @@ import grpc
 import pytest
 
 from couchers.db import session_scope
+from couchers.proto import discussions_pb2, notifications_pb2, threads_pb2
 from couchers.utils import now, to_aware_datetime
-from proto import discussions_pb2, notifications_pb2, threads_pb2
 from tests.test_communities import create_community, create_group
 from tests.test_fixtures import (  # noqa
     db,

@@ -10,8 +10,8 @@ from sqlalchemy.sql import delete, text
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import Language, Region, TimezoneArea
+from couchers.proto import resources_pb2
 from couchers.sql import couchers_select as select
-from proto import resources_pb2
 
 logger = logging.getLogger(__name__)
 

@@ -9,7 +9,7 @@ from sqlalchemy.orm.session import Session
 from couchers.config import config
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import emails_counter
-from proto.internal import jobs_pb2
+from couchers.proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 

@@ -6,7 +6,7 @@ from google.protobuf import empty_pb2
 
 from couchers.config import config
 from couchers.crypto import random_hex
-from proto import bugs_pb2
+from couchers.proto import bugs_pb2
 from tests.test_fixtures import bugs_session, db, generate_user, testconfig  # noqa
 
 

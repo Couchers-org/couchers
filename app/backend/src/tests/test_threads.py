@@ -5,8 +5,8 @@ import pytest
 
 from couchers.db import session_scope
 from couchers.models import Thread
+from couchers.proto import threads_pb2
 from couchers.servicers.threads import pack_thread_id
-from proto import threads_pb2
 from tests.test_fixtures import db, generate_user, testconfig, threads_session  # noqa
 
 

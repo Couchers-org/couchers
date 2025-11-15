@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 
 from couchers.models import StrongVerificationAttempt, User
+from couchers.proto import api_pb2
 from couchers.sql import couchers_select as select
-from proto import api_pb2
 
 
 def has_strong_verification(session: Session, user: User) -> bool:
