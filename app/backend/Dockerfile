@@ -53,6 +53,8 @@ FROM base
 COPY --from=build /usr/local/bin/entr /usr/local/bin/entr
 COPY --from=build /deps/timezone_areas.sql /app/resources/timezone_areas.sql
 COPY --from=build /app /app
+# uv installs itself into /root/.local inside the build image; copy it so entr can invoke uv during dev runs
+COPY --from=build /root/.local /root/.local
 
 WORKDIR /app
 

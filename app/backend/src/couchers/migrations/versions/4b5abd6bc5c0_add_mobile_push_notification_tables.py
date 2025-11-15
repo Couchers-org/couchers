@@ -50,9 +50,8 @@ def upgrade():
     op.create_index(
         "ix_mobile_push_notification_subscriptions_active",
         "mobile_push_notification_subscriptions",
-        ["user_id"],
+        ["user_id", "disabled_at"],
         unique=False,
-        postgresql_where=sa.text("disabled_at > now()"),
     )
 
     op.create_table(

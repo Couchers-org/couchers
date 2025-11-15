@@ -324,7 +324,7 @@ class MobilePushNotificationSubscription(Base):
         Index(
             "ix_mobile_push_notification_subscriptions_active",
             user_id,
-            postgresql_where=(disabled_at > func.now()),
+            disabled_at,
         ),
     )
 
