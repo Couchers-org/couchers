@@ -60,11 +60,7 @@ async function getDeviceName(): Promise<string | undefined> {
   if (Device.deviceName) {
     return Device.deviceName;
   }
-  try {
-    return await Device.getDeviceNameAsync();
-  } catch {
-    return undefined;
-  }
+  return undefined;
 }
 
 export function useRegisterPushNotifications() {
