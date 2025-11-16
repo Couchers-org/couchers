@@ -914,10 +914,7 @@ def user_model_to_pb(db_user, session, context, *, is_admin_see_ghosts=False, is
     # note that this function should work also for banned/deleted users as it's called from Admin.GetUser
     # note that this function is sometimes called by a logged out user, in which case context comes from make_logged_out_context
 
-    # If admin mode, skip visibility check and return full user data
-    if is_admin_see_ghosts:
-        pass
-    elif is_not_visible(session, context.user_id, db_user.id):
+    if not is_admin_see_ghosts and is_not_visible(session, context.user_id, db_user.id):
         # User is not visible (deleted, banned, or blocked)
         if is_get_user_return_ghosts:
             # Return an anonymized "ghost" user profile
@@ -927,12 +924,10 @@ def user_model_to_pb(db_user, session, context, *, is_admin_see_ghosts=False, is
                 name=context.get_localized_string("ghost_users", "display_name"),
                 about_me=context.get_localized_string("ghost_users", "about_me"),
             )
-        else:
-            # Neither flag is set - this is an error
-            raise GhostUserSerializationError(
-                f"Tried to serialize ghost profile in user_model_to_pb without appropriate flags. "
-                f"Context user_id: {context.user_id}, db_user id: {db_user.id} (username: {db_user.username})"
-            )
+        raise GhostUserSerializationError(
+            f"Tried to serialize ghost profile in user_model_to_pb without appropriate flags. "
+            f"Context user_id: {context.user_id}, db_user id: {db_user.id} (username: {db_user.username})"
+        )
 
     num_references = get_num_references(session, [db_user.id]).get(db_user.id, 0)
 
@@ -1111,10 +1106,7 @@ def user_model_to_pb(db_user, session, context, *, is_admin_see_ghosts=False, is
 def lite_user_to_pb(
     session, lite_user: LiteUser, context, *, is_admin_see_ghosts=False, is_get_user_return_ghosts=False
 ):
-    # If admin mode, skip visibility check and return full user data
-    if is_admin_see_ghosts:
-        pass
-    elif is_not_visible(session, context.user_id, lite_user.id):
+    if not is_admin_see_ghosts and is_not_visible(session, context.user_id, lite_user.id):
         # User is not visible (deleted, banned, or blocked)
         if is_get_user_return_ghosts:
             # Return an anonymized "ghost" user profile
@@ -1123,12 +1115,10 @@ def lite_user_to_pb(
                 username=GHOST_USERNAME,
                 name=context.get_localized_string("ghost_users", "display_name"),
             )
-        else:
-            # Neither flag is set - this is an error
-            raise GhostUserSerializationError(
-                f"Tried to serialize ghost profile in lite_user_to_pb without appropriate flags. "
-                f"Context user_id: {context.user_id}, lite_user id: {lite_user.id} (username: {lite_user.username})"
-            )
+        raise GhostUserSerializationError(
+            f"Tried to serialize ghost profile in lite_user_to_pb without appropriate flags. "
+            f"Context user_id: {context.user_id}, lite_user id: {lite_user.id} (username: {lite_user.username})"
+        )
 
     lat, lng = get_coordinates(lite_user.geom) or (0, 0)
 
