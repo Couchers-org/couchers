@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Any
 
 import grpc
 import sentry_sdk
@@ -14,6 +15,23 @@ from couchers.proto.google.api import httpbody_pb2
 from couchers.sql import couchers_select as select
 
 logger = logging.getLogger(__name__)
+
+
+def infer_invoice_type(metadata: dict[str, Any], payment_intent_id: str, customer_id: str) -> InvoiceType:
+    # Check if this is from Couchers on-platform donation or external shop purchase
+    if metadata.get("type") == "donation":
+        return InvoiceType.on_platform
+    elif metadata.get("site_url") == config["MERCH_SHOP_URL"]:
+        # This is from WooCommerce external shop
+        return InvoiceType.external_shop
+    else:
+        # Unknown payment source - this should never happen
+        sentry_sdk.set_tag("stripe_payment_intent_id", payment_intent_id)
+        sentry_sdk.set_tag("stripe_customer_id", customer_id)
+        sentry_sdk.set_context("stripe_metadata", metadata)
+        error_msg = f"Unable to determine invoice_type for Stripe payment intent {payment_intent_id}. Expected metadata.type='donation' or metadata.site_url='{config['MERCH_SHOP_URL']}', but got: {metadata}"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
 
 
 def _create_stripe_customer(session, user):
@@ -134,22 +152,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
             payment_intent_id = data_object["payment_intent"]
 
             # Get invoice type from charge metadata
-            metadata = data_object.get("metadata", {})
-
-            # Check if this is from Couchers on-platform donation or external shop purchase
-            if metadata.get("type") == "donation":
-                invoice_type = InvoiceType.on_platform
-            elif metadata.get("site_url") == config["MERCH_SHOP_URL"]:
-                # This is from WooCommerce external shop
-                invoice_type = InvoiceType.external_shop
-            else:
-                # Unknown payment source - this should never happen
-                sentry_sdk.set_tag("stripe_payment_intent_id", payment_intent_id)
-                sentry_sdk.set_tag("stripe_customer_id", customer_id)
-                sentry_sdk.set_context("stripe_metadata", metadata)
-                error_msg = f"Unable to determine invoice_type for Stripe payment intent {payment_intent_id}. Expected metadata.type='donation' or metadata.site_url='{config['MERCH_SHOP_URL']}', but got: {metadata}"
-                logger.error(error_msg)
-                raise ValueError(error_msg)
+            invoice_type = infer_invoice_type(data_object.get("metadata", {}), payment_intent_id, customer_id)
 
             invoice = Invoice(
                 user_id=user.id,
