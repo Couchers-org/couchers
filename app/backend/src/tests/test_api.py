@@ -391,9 +391,12 @@ def test_GetLiteUsers(db):
         assert res.responses[7].query == "notreal"
         assert res.responses[7].not_found
 
-        # blocked
+        # blocked - should return ghost profile
         assert res.responses[8].query == user4.username
-        assert res.responses[8].not_found
+        assert not res.responses[8].not_found
+        assert res.responses[8].user.user_id == user4.id
+        assert res.responses[8].user.username == "ghost"
+        assert res.responses[8].user.name == "Deleted user"
 
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -1383,3 +1386,312 @@ def test_badges(db):
             api_pb2.ListBadgeUsersReq(badge_id=board_member_badge["id"], page_token=res.next_page_token)
         )
         assert res2.user_ids == [2]
+
+
+@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+def test_GetLiteUser_ghost_user_by_username(db, flag):
+    """Test that GetLiteUser returns a ghost profile for deleted/banned users when querying by username."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    # Make user2 invisible
+    with session_scope() as session:
+        db_user2 = session.merge(user2)
+        setattr(db_user2, flag, True)
+        session.commit()
+
+    # Refresh the materialized view
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token1) as api:
+        # Query by username
+        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
+
+        assert lite_user.user_id == user2.id
+        assert lite_user.username == "ghost"
+        assert lite_user.name == "Deleted user"
+        assert lite_user.lat == 0
+        assert lite_user.lng == 0
+        assert lite_user.radius == 0
+        assert lite_user.city == ""
+        assert lite_user.age == 0
+        assert lite_user.avatar_url == ""
+        assert lite_user.avatar_thumbnail_url == ""
+        assert not lite_user.has_strong_verification
+
+
+@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+def test_GetLiteUser_ghost_user_by_id(db, flag):
+    """Test that GetLiteUser returns a ghost profile for deleted/banned users when querying by ID."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    # Make user2 invisible
+    with session_scope() as session:
+        db_user2 = session.merge(user2)
+        setattr(db_user2, flag, True)
+        session.commit()
+
+    # Refresh the materialized view
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token1) as api:
+        # Query by ID
+        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=str(user2.id)))
+
+        assert lite_user.user_id == user2.id
+        assert lite_user.username == "ghost"
+        assert lite_user.name == "Deleted user"
+        assert lite_user.lat == 0
+        assert lite_user.lng == 0
+        assert lite_user.radius == 0
+        assert lite_user.city == ""
+        assert lite_user.age == 0
+        assert lite_user.avatar_url == ""
+        assert lite_user.avatar_thumbnail_url == ""
+        assert not lite_user.has_strong_verification
+
+
+def test_GetLiteUser_blocked_user(db):
+    """Test that GetLiteUser returns a ghost profile for blocked users."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    # User1 blocks user2
+    make_user_block(user1, user2)
+
+    # Refresh the materialized view
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token1) as api:
+        # Query by username
+        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
+
+        assert lite_user.user_id == user2.id
+        assert lite_user.username == "ghost"
+        assert lite_user.name == "Deleted user"
+
+        # Query by ID
+        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=str(user2.id)))
+
+        assert lite_user.user_id == user2.id
+        assert lite_user.username == "ghost"
+        assert lite_user.name == "Deleted user"
+
+
+def test_GetLiteUser_blocking_user(db):
+    """Test that GetLiteUser returns a ghost profile when the target user has blocked the requester."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    # User2 blocks user1
+    make_user_block(user2, user1)
+
+    # Refresh the materialized view
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token1) as api:
+        # Query by username
+        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
+
+        assert lite_user.user_id == user2.id
+        assert lite_user.username == "ghost"
+        assert lite_user.name == "Deleted user"
+
+        # Query by ID
+        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=str(user2.id)))
+
+        assert lite_user.user_id == user2.id
+        assert lite_user.username == "ghost"
+        assert lite_user.name == "Deleted user"
+
+
+@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+def test_GetLiteUsers_ghost_users(db, flag):
+    """Test that GetLiteUsers returns ghost profiles for deleted/banned users."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+    user4, _ = generate_user()
+
+    # Make user2 and user4 invisible
+    with session_scope() as session:
+        db_user2 = session.merge(user2)
+        setattr(db_user2, flag, True)
+        db_user4 = session.merge(user4)
+        setattr(db_user4, flag, True)
+        session.commit()
+
+    # Refresh the materialized view
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token1) as api:
+        res = api.GetLiteUsers(
+            api_pb2.GetLiteUsersReq(
+                users=[
+                    user1.username,  # visible
+                    user2.username,  # ghost
+                    str(user3.id),  # visible
+                    str(user4.id),  # ghost
+                ]
+            )
+        )
+
+        assert len(res.responses) == 4
+
+        # user1 - visible, normal profile
+        assert res.responses[0].query == user1.username
+        assert not res.responses[0].not_found
+        assert res.responses[0].user.user_id == user1.id
+        assert res.responses[0].user.username == user1.username
+        assert res.responses[0].user.name == user1.name
+
+        # user2 - ghost by username
+        assert res.responses[1].query == user2.username
+        assert not res.responses[1].not_found
+        assert res.responses[1].user.user_id == user2.id
+        assert res.responses[1].user.username == "ghost"
+        assert res.responses[1].user.name == "Deleted user"
+
+        # user3 - visible, normal profile
+        assert res.responses[2].query == str(user3.id)
+        assert not res.responses[2].not_found
+        assert res.responses[2].user.user_id == user3.id
+        assert res.responses[2].user.username == user3.username
+        assert res.responses[2].user.name == user3.name
+
+        # user4 - ghost by ID
+        assert res.responses[3].query == str(user4.id)
+        assert not res.responses[3].not_found
+        assert res.responses[3].user.user_id == user4.id
+        assert res.responses[3].user.username == "ghost"
+        assert res.responses[3].user.name == "Deleted user"
+
+
+def test_GetLiteUsers_blocked_users(db):
+    """Test that GetLiteUsers returns ghost profiles for blocked users."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+    user4, _ = generate_user()
+    user5, _ = generate_user()
+
+    # User1 blocks user2
+    make_user_block(user1, user2)
+    # User4 blocks user1
+    make_user_block(user4, user1)
+
+    # Refresh the materialized view
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token1) as api:
+        res = api.GetLiteUsers(
+            api_pb2.GetLiteUsersReq(
+                users=[
+                    user2.username,  # user1 blocked user2
+                    str(user3.id),  # visible
+                    user4.username,  # user4 blocked user1
+                    str(user5.id),  # visible
+                ]
+            )
+        )
+
+        assert len(res.responses) == 4
+
+        # user2 - blocked by user1, should be ghost
+        assert res.responses[0].query == user2.username
+        assert not res.responses[0].not_found
+        assert res.responses[0].user.user_id == user2.id
+        assert res.responses[0].user.username == "ghost"
+        assert res.responses[0].user.name == "Deleted user"
+
+        # user3 - visible
+        assert res.responses[1].query == str(user3.id)
+        assert not res.responses[1].not_found
+        assert res.responses[1].user.user_id == user3.id
+        assert res.responses[1].user.username == user3.username
+
+        # user4 - user4 blocked user1, should be ghost
+        assert res.responses[2].query == user4.username
+        assert not res.responses[2].not_found
+        assert res.responses[2].user.user_id == user4.id
+        assert res.responses[2].user.username == "ghost"
+        assert res.responses[2].user.name == "Deleted user"
+
+        # user5 - visible
+        assert res.responses[3].query == str(user5.id)
+        assert not res.responses[3].not_found
+        assert res.responses[3].user.user_id == user5.id
+        assert res.responses[3].user.username == user5.username
+
+
+@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+def test_GetUser_ghost_user_by_id(db, flag):
+    """Test that GetUser returns a ghost profile for deleted/banned users when querying by ID."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    # Make user2 invisible
+    with session_scope() as session:
+        db_user2 = session.merge(user2)
+        setattr(db_user2, flag, True)
+        session.commit()
+
+    with api_session(token1) as api:
+        # Query by ID
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
+
+        assert user_pb.user_id == user2.id
+        assert user_pb.username == "ghost"
+        assert user_pb.name == "Deleted user"
+        assert user_pb.city == ""
+        assert user_pb.hosting_status == 0
+        assert user_pb.meetup_status == 0
+
+
+def test_GetUser_blocked_user(db):
+    """Test that GetUser returns a ghost profile for blocked users."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    # User1 blocks user2
+    make_user_block(user1, user2)
+
+    with api_session(token1) as api:
+        # Query by username
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+
+        assert user_pb.user_id == user2.id
+        assert user_pb.username == "ghost"
+        assert user_pb.name == "Deleted user"
+
+        # Query by ID
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
+
+        assert user_pb.user_id == user2.id
+        assert user_pb.username == "ghost"
+        assert user_pb.name == "Deleted user"
+
+
+def test_GetUser_blocking_user(db):
+    """Test that GetUser returns a ghost profile when the target user has blocked the requester."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    # User2 blocks user1
+    make_user_block(user2, user1)
+
+    with api_session(token1) as api:
+        # Query by username
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+
+        assert user_pb.user_id == user2.id
+        assert user_pb.username == "ghost"
+        assert user_pb.name == "Deleted user"
+
+        # Query by ID
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
+
+        assert user_pb.user_id == user2.id
+        assert user_pb.username == "ghost"
+        assert user_pb.name == "Deleted user"

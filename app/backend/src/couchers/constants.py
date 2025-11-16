@@ -71,7 +71,6 @@ COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD = 0.35
 
 UNKNOWN_ERROR_MESSAGE = "An unknown backend error occurred. Please consider filing a bug!"
 
-GHOST_USER_DISPLAY_NAME = "Deleted user"
 GHOST_USERNAME = "ghost"
 
 # Donation drive start date - set to None to disable donation drive banner

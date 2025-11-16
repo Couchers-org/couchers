@@ -135,7 +135,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
-        return user_model_to_pb(user, session, context, is_admin_should_show_invisible=True)
+        return user_model_to_pb(user, session, context, is_admin_see_ghosts=True)
 
     def SearchUsers(self, request, context, session):
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
