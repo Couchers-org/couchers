@@ -52,13 +52,11 @@ FROM base
 COPY --from=build /usr/local/bin/entr /usr/local/bin/entr
 COPY --from=build /deps/timezone_areas.sql /app/resources/timezone_areas.sql
 COPY --from=build /app /app
-# uv installs itself into /root/.local inside the build image; copy it so entr can invoke uv during dev runs
-COPY --from=build /root/.local /root/.local
 
 WORKDIR /app
 
-# make sure both uv and the virtualenv binaries are on PATH for development
-ENV PATH=/root/.local/bin:/app/.venv/bin:$PATH
+# make sure virtualenv binaries are on PATH
+ENV PATH=/app/.venv/bin:$PATH
 
 ARG version
 ENV VERSION=$version
