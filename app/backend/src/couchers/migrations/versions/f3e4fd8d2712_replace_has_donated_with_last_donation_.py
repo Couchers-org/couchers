@@ -17,9 +17,6 @@ depends_on = None
 
 
 def upgrade():
-    op.create_unique_constraint(
-        ["user_id", "moderation_list_id"],
-    )
     op.add_column(
         "users", sa.Column("last_donated", sa.DateTime(timezone=True), server_default=sa.text("NULL"), nullable=True)
     )
