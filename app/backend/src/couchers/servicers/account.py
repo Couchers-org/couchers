@@ -178,7 +178,7 @@ class Account(account_pb2_grpc.AccountServicer):
             username=user.username,
             email=user.email,
             phone=user.phone if (user.phone_is_verified or not user.phone_code_expired) else None,
-            has_donated=user.has_donated,
+            has_donated=user.last_donated is not None,
             phone_verified=user.phone_is_verified,
             profile_complete=user.has_completed_profile,
             my_home_complete=user.has_completed_my_home,
@@ -319,7 +319,7 @@ class Account(account_pb2_grpc.AccountServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_phone")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-        if not user.has_donated:
+        if user.last_donated is None:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "not_donated")
 
         if not phone:

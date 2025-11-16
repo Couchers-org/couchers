@@ -4,6 +4,7 @@ import logging
 import grpc
 import sentry_sdk
 import stripe
+from sqlalchemy.sql import func
 
 from couchers import urls
 from couchers.config import config
@@ -153,7 +154,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
 
             # Only mark as donated if it's a donation (not merch)
             if invoice_type == InvoiceType.donation:
-                user.has_donated = True
+                user.last_donated = session.execute(func.now()).scalar()
 
             session.add(
                 Invoice(
