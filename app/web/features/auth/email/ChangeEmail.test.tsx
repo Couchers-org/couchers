@@ -33,6 +33,7 @@ const accountInfo = {
   profilePublicVisibility: 1,
   isVolunteer: false,
   myHomeComplete: false,
+  shouldShowDonationBanner: false,
 };
 
 describe("ChangeEmail", () => {
