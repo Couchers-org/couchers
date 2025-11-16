@@ -14,11 +14,11 @@ from couchers.context import make_background_user_context
 from couchers.materialized_views import LiteUser
 from couchers.models import HostRequest, Reference, ReferenceType, User
 from couchers.notifications.notify import notify
+from couchers.proto import notification_data_pb2, references_pb2, references_pb2_grpc
 from couchers.servicers.api import user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.tasks import maybe_send_reference_report_email
 from couchers.utils import Timestamp_from_datetime, now
-from proto import notification_data_pb2, references_pb2, references_pb2_grpc
 
 MAX_PAGINATION_LENGTH = 100
 

@@ -5,7 +5,7 @@ set -e
 rm -rf proto/gen
 mkdir -p proto/gen/python/proto
 mkdir -p proto/gen/ts/proto
-mkdir -p backend/src/proto/
+mkdir -p backend/src/couchers/proto/
 mkdir -p media/src/media/proto/
 mkdir -p web/proto/
 mkdir -p native/proto/
@@ -25,9 +25,9 @@ find proto -name '*.proto' | protoc -I proto \
   --grpc_python_out=proto/gen/python/proto \
   --pyi_out=proto/gen/python/proto \
   \
-  --python_out=backend/src/proto \
-  --grpc_python_out=backend/src/proto \
-  --pyi_out=backend/src/proto \
+  --python_out=backend/src/couchers/proto \
+  --grpc_python_out=backend/src/couchers/proto \
+  --pyi_out=backend/src/couchers/proto \
   \
   --python_out=client/src/couchers/proto \
   --grpc_python_out=client/src/couchers/proto \
@@ -50,19 +50,19 @@ find proto -name '*.proto' | protoc -I proto \
 
 # protoc only allows passing --descriptor_set_out once...
 cp proto/gen/descriptors.pb proxy/descriptors.pb
-cp proto/gen/descriptors.pb backend/src/proto/descriptors.pb
+cp proto/gen/descriptors.pb backend/src/couchers/proto/descriptors.pb
 
 # create internal backend protos
 (cd backend && find proto -name '*.proto' | protoc -I proto \
-  --python_out=src/proto \
-  --pyi_out=src/proto \
+  --python_out=src/couchers/proto \
+  --pyi_out=src/couchers/proto \
   $(xargs))
 
 # fixup python3 relative imports with oneliner from
 # https://github.com/protocolbuffers/protobuf/issues/1491#issuecomment-690618628
-sed -i -E 's/^import.*_pb2/from . &/' proto/gen/python/proto/*.py backend/src/proto/*.py client/src/couchers/proto/*.py media/src/media/proto/*.py
-sed -i -E 's/^from google.api/from .google.api/' proto/gen/python/proto/*.py backend/src/proto/*.py client/src/couchers/proto/*.py media/src/media/proto/*.py
-sed -i -E 's/^from google.api/from ./' proto/gen/python/proto/google/api/*.py backend/src/proto/google/api/*.py client/src/couchers/proto/google/api/*.py media/src/media/proto/google/api/*.py
+sed -i -E 's/^import.*_pb2/from . &/' proto/gen/python/proto/*.py backend/src/couchers/proto/*.py client/src/couchers/proto/*.py media/src/media/proto/*.py
+sed -i -E 's/^from google.api/from .google.api/' proto/gen/python/proto/*.py backend/src/couchers/proto/*.py client/src/couchers/proto/*.py media/src/media/proto/*.py
+sed -i -E 's/^from google.api/from ./' proto/gen/python/proto/google/api/*.py backend/src/couchers/proto/google/api/*.py client/src/couchers/proto/google/api/*.py media/src/media/proto/google/api/*.py
 
 (cd proto/gen/python && tar czf ../python.tar.gz proto)
 (cd proto/gen/ts && tar czf ../ts.tar.gz proto)

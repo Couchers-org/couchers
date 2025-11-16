@@ -10,8 +10,8 @@ from couchers.models import (
     NotificationTopicAction,
 )
 from couchers.notifications.utils import enum_from_topic_action
+from couchers.proto import notifications_pb2
 from couchers.sql import couchers_select as select
-from proto import notifications_pb2
 
 logger = logging.getLogger(__name__)
 

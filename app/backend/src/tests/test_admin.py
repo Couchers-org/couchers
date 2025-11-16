@@ -16,9 +16,9 @@ from couchers.models import (
     Reference,
     UserSession,
 )
+from couchers.proto import admin_pb2, auth_pb2, events_pb2, references_pb2, reporting_pb2
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now, parse_date, timedelta
-from proto import admin_pb2, auth_pb2, events_pb2, references_pb2, reporting_pb2
 from tests.test_communities import create_community
 from tests.test_fixtures import (  # noqa
     add_users_to_new_moderation_list,

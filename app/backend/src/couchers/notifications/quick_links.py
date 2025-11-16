@@ -24,11 +24,11 @@ from couchers.models import (
 )
 from couchers.notifications import settings
 from couchers.notifications.utils import enum_from_topic_action
+from couchers.proto import auth_pb2, conversations_pb2, requests_pb2
+from couchers.proto.internal import unsubscribe_pb2
 from couchers.servicers.requests import Requests
 from couchers.sql import couchers_select as select
 from couchers.utils import now
-from proto import auth_pb2, conversations_pb2, requests_pb2
-from proto.internal import unsubscribe_pb2
 
 logger = logging.getLogger(__name__)
 

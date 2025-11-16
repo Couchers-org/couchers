@@ -8,9 +8,9 @@ from sqlalchemy.sql.expression import update
 
 from couchers.db import session_scope
 from couchers.models import BackgroundJob, EventOccurrence
+from couchers.proto import admin_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
-from proto import admin_pb2, events_pb2, threads_pb2
 from tests.test_communities import create_community, create_group
 from tests.test_fixtures import (  # noqa
     db,
