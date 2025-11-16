@@ -307,6 +307,10 @@ def test_merch_invoice_flow(db, monkeypatch):
         assert invoice.amount == 50
         assert invoice.stripe_payment_intent_id == "pi_merch_test_12345"
 
+        # Check that last_donated was set for merch purchase
+        user_obj = session.execute(select(User).where(User.id == user_id)).scalar_one()
+        assert user_obj.last_donated == invoice.created
+
         # Check no donation notification was sent for merch
         notifications = session.execute(select(Notification).where(Notification.user_id == user_id)).scalars().all()
         donation_notifications = [n for n in notifications if n.topic_action == "donation:received"]

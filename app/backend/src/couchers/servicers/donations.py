@@ -4,7 +4,6 @@ import logging
 import grpc
 import sentry_sdk
 import stripe
-from sqlalchemy.sql import func
 
 from couchers import urls
 from couchers.config import config
@@ -152,19 +151,16 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                 logger.error(error_msg)
                 raise ValueError(error_msg)
 
-            # Only mark as donated if it's a donation (not merch)
-            if invoice_type == InvoiceType.donation:
-                user.last_donated = session.execute(func.now()).scalar()
-
-            session.add(
-                Invoice(
-                    user_id=user.id,
-                    amount=amount,
-                    stripe_payment_intent_id=payment_intent_id,
-                    stripe_receipt_url=receipt_url,
-                    invoice_type=invoice_type,
-                )
+            invoice = Invoice(
+                user_id=user.id,
+                amount=amount,
+                stripe_payment_intent_id=payment_intent_id,
+                stripe_receipt_url=receipt_url,
+                invoice_type=invoice_type,
             )
+            session.add(invoice)
+            session.flush()
+            user.last_donated = invoice.created
 
             # Only notify for donations (not merch)
             if invoice_type == InvoiceType.donation:
