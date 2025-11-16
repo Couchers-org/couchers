@@ -12,7 +12,7 @@ from user_agents import parse as user_agents_parse
 
 from couchers import urls
 from couchers.config import config
-from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
+from couchers.constants import DONATION_DRIVE_START, PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
 from couchers.context import CouchersContext
 from couchers.crypto import (
     b64decode,
@@ -174,6 +174,10 @@ class Account(account_pb2_grpc.AccountServicer):
             select(User, Volunteer).outerjoin(Volunteer, Volunteer.user_id == User.id).where(User.id == context.user_id)
         ).one()
 
+        should_show_donation_banner = DONATION_DRIVE_START is not None and (
+            user.last_donated is None or user.last_donated < DONATION_DRIVE_START
+        )
+
         return account_pb2.GetAccountInfoRes(
             username=user.username,
             email=user.email,
@@ -187,6 +191,7 @@ class Account(account_pb2_grpc.AccountServicer):
             ui_language_preference=user.ui_language_preference,
             profile_public_visibility=profilepublicitysetting2api[user.public_visibility],
             is_volunteer=volunteer is not None,
+            should_show_donation_banner=should_show_donation_banner,
             **get_strong_verification_fields(session, user),
         )
 
