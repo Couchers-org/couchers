@@ -244,7 +244,7 @@ export async function geolocationSearchInfo({
   req.setSearchString(searchString);
   req.setNominatimResultJson(nominatimResultJson);
   req.setFormattedResultJson(formattedResultJson);
-  req.setDurationMs(durationMs);
+  req.setDurationMs(Math.max(0, Math.round(durationMs)));
   await client.search.geolocationSearchInfo(req);
 }
 
