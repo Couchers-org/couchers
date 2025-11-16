@@ -290,7 +290,9 @@ class User(Base):
     has_passport_sex_gender_exception: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
 
     #  checking for phone verification
-    has_donated: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
+    last_donated: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True, server_default=expression.null()
+    )
 
     # whether this user has all emails turned off
     do_not_email: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())

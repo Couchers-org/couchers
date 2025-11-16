@@ -348,7 +348,7 @@ def generate_user(*, delete_user=False, complete_profile=True, strong_verificati
             "geom_radius": 100,
             "onboarding_emails_sent": 1,
             "last_onboarding_email_sent": now(),
-            "has_donated": True,
+            "last_donated": now(),
         }
 
         for key, value in kwargs.items():

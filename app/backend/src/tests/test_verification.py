@@ -257,7 +257,7 @@ def test_send_sms_disabled(db):
 
 
 def test_sms_verification_no_donation():
-    user, token = generate_user(has_donated=False)
+    user, token = generate_user(last_donated=None)
     with account_session(token) as account:
         with pytest.raises(grpc.RpcError) as e:
             account.ChangePhone(account_pb2.ChangePhoneReq(phone="+467017406066"))

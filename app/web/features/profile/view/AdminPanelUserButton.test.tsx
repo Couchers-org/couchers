@@ -33,6 +33,7 @@ const baseAccountInfo = {
   profilePublicVisibility: 1,
   isVolunteer: false,
   myHomeComplete: false,
+  shouldShowDonationBanner: false,
 };
 
 describe("AdminPanelUserButton", () => {
