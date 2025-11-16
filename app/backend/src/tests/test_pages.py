@@ -5,8 +5,8 @@ from google.protobuf import wrappers_pb2
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread, Upload
+from couchers.proto import pages_pb2
 from couchers.utils import create_polygon_lat_lng, now, to_aware_datetime, to_multi
-from proto import pages_pb2
 from tests.test_communities import create_community
 from tests.test_fixtures import db, generate_user, pages_session, testconfig  # noqa
 

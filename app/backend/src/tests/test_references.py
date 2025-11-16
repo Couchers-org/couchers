@@ -17,9 +17,9 @@ from couchers.models import (
     ReferenceType,
     User,
 )
+from couchers.proto import conversations_pb2, references_pb2, requests_pb2
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, now, to_aware_datetime, today
-from proto import conversations_pb2, references_pb2, requests_pb2
 from tests.test_fixtures import (  # noqa
     account_session,
     db,

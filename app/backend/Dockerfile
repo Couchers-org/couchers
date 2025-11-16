@@ -55,6 +55,7 @@ COPY --from=build /app /app
 
 WORKDIR /app
 
+# make sure virtualenv binaries are on PATH
 ENV PATH=/app/.venv/bin:$PATH
 
 ARG version

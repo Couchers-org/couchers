@@ -25,6 +25,8 @@ from couchers.models import (
     User,
 )
 from couchers.notifications.notify import notify
+from couchers.proto import events_pb2, events_pb2_grpc, notification_data_pb2
+from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.threads import thread_to_pb
@@ -38,8 +40,6 @@ from couchers.utils import (
     now,
     to_aware_datetime,
 )
-from proto import events_pb2, events_pb2_grpc, notification_data_pb2
-from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 

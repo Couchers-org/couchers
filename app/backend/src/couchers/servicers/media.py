@@ -6,8 +6,8 @@ from google.protobuf import empty_pb2
 from couchers.crypto import secure_compare
 from couchers.interceptors import MediaInterceptor
 from couchers.models import InitiatedUpload, Upload
+from couchers.proto import media_pb2_grpc
 from couchers.sql import couchers_select as select
-from proto import media_pb2_grpc
 
 logger = logging.getLogger(__name__)
 

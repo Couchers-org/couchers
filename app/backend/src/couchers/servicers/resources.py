@@ -1,5 +1,6 @@
 import logging
 
+from couchers.proto import resources_pb2, resources_pb2_grpc
 from couchers.resources import (
     get_badge_dict,
     get_community_guidelines,
@@ -7,7 +8,6 @@ from couchers.resources import (
     get_region_dict,
     get_terms_of_service,
 )
-from proto import resources_pb2, resources_pb2_grpc
 
 logger = logging.getLogger(__name__)
 

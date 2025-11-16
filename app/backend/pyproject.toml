@@ -59,7 +59,8 @@ dev = [
 [tool.ruff]
 line-length = 120
 exclude = [
-     "src/couchers/proto/*",
+    ".venv",
+    "src/couchers/proto",
 ]
 
 [tool.ruff.lint]
@@ -120,7 +121,7 @@ module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*"]
 ignore_missing_imports = true
 
 [tool.coverage.run]
-omit = ["src/proto/*", "src/couchers/migrations/*", "src/dummy_data.py"]
+omit = ["src/couchers/proto/*", "src/couchers/migrations/*", "src/dummy_data.py"]
 
 [build-system]
 requires = ["hatchling"]

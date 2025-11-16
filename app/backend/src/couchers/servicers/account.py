@@ -54,6 +54,9 @@ from couchers.models import (
 from couchers.notifications.notify import notify
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
+from couchers.proto import account_pb2, account_pb2_grpc, auth_pb2, iris_pb2_grpc, notification_data_pb2
+from couchers.proto.google.api import httpbody_pb2
+from couchers.proto.internal import jobs_pb2, verification_pb2
 from couchers.servicers.api import lite_user_to_pb
 from couchers.servicers.references import get_pending_references_to_write, reftype2api
 from couchers.sql import couchers_select as select
@@ -72,9 +75,6 @@ from couchers.utils import (
     now,
     to_aware_datetime,
 )
-from proto import account_pb2, account_pb2_grpc, auth_pb2, iris_pb2_grpc, notification_data_pb2
-from proto.google.api import httpbody_pb2
-from proto.internal import jobs_pb2, verification_pb2
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
