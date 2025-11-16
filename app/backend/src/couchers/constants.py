@@ -71,6 +71,9 @@ COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD = 0.35
 
 UNKNOWN_ERROR_MESSAGE = "An unknown backend error occurred. Please consider filing a bug!"
 
+GHOST_USER_DISPLAY_NAME = "Deleted user"
+GHOST_USERNAME = "ghost"
+
 # Donation drive start date - set to None to disable donation drive banner
 # When set, users who haven't donated since this date will see a donation banner
 DONATION_DRIVE_START = pytz.UTC.localize(datetime(2025, 11, 1))

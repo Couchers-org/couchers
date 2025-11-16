@@ -7,6 +7,7 @@ from sqlalchemy.sql import and_, delete, distinct, func, intersect, or_, union
 
 from couchers import urls
 from couchers.config import config
+from couchers.constants import GHOST_USER_DISPLAY_NAME, GHOST_USERNAME
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.materialized_views import LiteUser, UserResponseRate
@@ -39,6 +40,7 @@ from couchers.proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_p
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.rate_limits.definitions import RATE_LIMIT_INTERVAL_STRING
 from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
+from couchers.servicers.blocking import is_not_visible
 from couchers.sql import couchers_select as select
 from couchers.sql import is_valid_user_id, is_valid_username
 from couchers.utils import (
@@ -217,9 +219,7 @@ class API(api_pb2_grpc.APIServicer):
         )
 
     def GetUser(self, request, context, session):
-        user = session.execute(
-            select(User).where_users_visible(context).where_username_or_id(request.user)
-        ).scalar_one_or_none()
+        user = session.execute(select(User).where_username_or_id(request.user)).scalar_one_or_none()
 
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
@@ -228,15 +228,13 @@ class API(api_pb2_grpc.APIServicer):
 
     def GetLiteUser(self, request, context, session):
         lite_user = session.execute(
-            select(LiteUser)
-            .where_users_visible(context, table=LiteUser)
-            .where_username_or_id(request.user, table=LiteUser)
+            select(LiteUser).where_username_or_id(request.user, table=LiteUser)
         ).scalar_one_or_none()
 
         if not lite_user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        return lite_user_to_pb(lite_user)
+        return lite_user_to_pb(session, lite_user, context)
 
     def GetLiteUsers(self, request, context, session):
         if len(request.users) > MAX_USERS_PER_QUERY:
@@ -246,11 +244,7 @@ class API(api_pb2_grpc.APIServicer):
         ids = {u for u in request.users if is_valid_user_id(u)}
 
         users = (
-            session.execute(
-                select(LiteUser)
-                .where_users_visible(context, table=LiteUser)
-                .where(or_(LiteUser.username.in_(usernames), LiteUser.id.in_(ids)))
-            )
+            session.execute(select(LiteUser).where(or_(LiteUser.username.in_(usernames), LiteUser.id.in_(ids))))
             .scalars()
             .all()
         )
@@ -271,7 +265,7 @@ class API(api_pb2_grpc.APIServicer):
                 api_pb2.LiteUserRes(
                     query=user,
                     not_found=lite_user is None,
-                    user=lite_user_to_pb(lite_user) if lite_user else None,
+                    user=lite_user_to_pb(session, lite_user, context) if lite_user else None,
                 )
             )
 
@@ -904,9 +898,18 @@ def get_num_references(session, user_ids):
     )
 
 
-def user_model_to_pb(db_user, session, context):
+def user_model_to_pb(db_user, session, context, is_admin_should_show_invisible=False):
     # note that this function should work also for banned/deleted users as it's called from Admin.GetUser
     # note that this function is sometimes called by a logged out user, in which case context comes from make_logged_out_context
+
+    if not is_admin_should_show_invisible and is_not_visible(session, context.user_id, db_user.id):
+        # Return an anonymized "ghost" user profile for deleted, banned, and blocked users
+        return api_pb2.User(
+            user_id=db_user.id,
+            username=GHOST_USERNAME,
+            name=GHOST_USER_DISPLAY_NAME,
+        )
+
     num_references = get_num_references(session, [db_user.id]).get(db_user.id, 0)
 
     # returns (lat, lng)
@@ -1081,7 +1084,15 @@ def user_model_to_pb(db_user, session, context):
     return user
 
 
-def lite_user_to_pb(lite_user: LiteUser):
+def lite_user_to_pb(session, lite_user: LiteUser, context):
+    if is_not_visible(session, context.user_id, lite_user.id):
+        # Return an anonymized "ghost" user profile for deleted, banned, and blocked users
+        return api_pb2.LiteUser(
+            user_id=lite_user.id,
+            username=GHOST_USERNAME,
+            name=GHOST_USER_DISPLAY_NAME,
+        )
+
     lat, lng = get_coordinates(lite_user.geom) or (0, 0)
 
     return api_pb2.LiteUser(
