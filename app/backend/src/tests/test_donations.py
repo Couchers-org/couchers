@@ -294,6 +294,7 @@ def test_merch_invoice_flow(db, monkeypatch):
     new_config = config.copy()
     new_config["STRIPE_API_KEY"] = "dummy_api_key"
     new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
+    new_config["MERCH_SHOP_URL"] = "https://shop.couchershq.org"
 
     monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
 

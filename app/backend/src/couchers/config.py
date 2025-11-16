@@ -25,6 +25,8 @@ CONFIG_OPTIONS: CONFIG_T = [
     ("BACKEND_BASE_URL", str),
     # URL of the console, e.g. https://console.couchers.org
     ("CONSOLE_BASE_URL", str),
+    # URL of the merch shop, e.g. https://shop.couchershq.org
+    ("MERCH_SHOP_URL", str),
     # Used to generate a variety of secrets
     ("SECRET", bytes),
     # Domain that cookies should set as their domain value

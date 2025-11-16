@@ -139,7 +139,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
             # Check if this is from Couchers (type=donation) or WooCommerce (has site_url=shop)
             if metadata.get("type") == "donation":
                 invoice_type = InvoiceType.donation
-            elif metadata.get("site_url") == "https://shop.couchershq.org":
+            elif metadata.get("site_url") == config["MERCH_SHOP_URL"]:
                 # This is from WooCommerce merch shop
                 invoice_type = InvoiceType.merch
             else:
@@ -147,7 +147,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                 sentry_sdk.set_tag("stripe_payment_intent_id", payment_intent_id)
                 sentry_sdk.set_tag("stripe_customer_id", customer_id)
                 sentry_sdk.set_context("stripe_metadata", metadata)
-                error_msg = f"Unable to determine invoice_type for Stripe payment intent {payment_intent_id}. Expected metadata.type='donation' or metadata.site_url='https://shop.couchershq.org', but got: {metadata}"
+                error_msg = f"Unable to determine invoice_type for Stripe payment intent {payment_intent_id}. Expected metadata.type='donation' or metadata.site_url='{config['MERCH_SHOP_URL']}', but got: {metadata}"
                 logger.error(error_msg)
                 raise ValueError(error_msg)
 
