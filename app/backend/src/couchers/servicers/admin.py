@@ -41,6 +41,8 @@ from couchers.models import (
     UserBadge,
 )
 from couchers.notifications.notify import notify
+from couchers.proto import admin_pb2, admin_pb2_grpc, notification_data_pb2
+from couchers.proto.internal import jobs_pb2
 from couchers.resources import get_badge_dict
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.auth import create_session
@@ -49,8 +51,6 @@ from couchers.servicers.events import get_users_to_notify_for_new_event
 from couchers.servicers.threads import unpack_thread_id
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, to_aware_datetime
-from proto import admin_pb2, admin_pb2_grpc, notification_data_pb2
-from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 

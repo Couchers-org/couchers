@@ -20,7 +20,7 @@ from sqlalchemy.sql import expression
 
 from couchers.constants import DATETIME_INFINITY
 from couchers.models.base import Base
-from proto import notification_data_pb2
+from couchers.proto import notification_data_pb2
 
 
 class NotificationDeliveryType(enum.Enum):

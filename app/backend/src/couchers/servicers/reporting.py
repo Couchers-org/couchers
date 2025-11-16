@@ -2,9 +2,9 @@ import grpc
 from google.protobuf import empty_pb2
 
 from couchers.models import ContentReport, User
+from couchers.proto import reporting_pb2_grpc
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_content_report_email
-from proto import reporting_pb2_grpc
 
 
 class Reporting(reporting_pb2_grpc.ReportingServicer):

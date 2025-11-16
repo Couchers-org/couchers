@@ -33,10 +33,10 @@ from couchers.notifications.quick_links import (
 )
 from couchers.notifications.render import render_notification
 from couchers.notifications.settings import get_preference
+from couchers.proto.internal import jobs_pb2
 from couchers.sql import couchers_select as select
 from couchers.templates.v2 import add_filters
 from couchers.utils import get_tz_as_text, now
-from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 

@@ -27,6 +27,7 @@ from couchers.models import (
     User,
 )
 from couchers.notifications.notify import notify
+from couchers.proto import conversations_pb2, notification_data_pb2, requests_pb2, requests_pb2_grpc
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.rate_limits.definitions import RATE_LIMIT_INTERVAL_STRING
 from couchers.servicers.api import response_rate_to_pb, user_model_to_pb
@@ -39,7 +40,6 @@ from couchers.utils import (
     parse_date,
     today_in_timezone,
 )
-from proto import conversations_pb2, notification_data_pb2, requests_pb2, requests_pb2_grpc
 
 logger = logging.getLogger(__name__)
 

@@ -12,7 +12,7 @@ from user_agents import parse as user_agents_parse
 
 from couchers import urls
 from couchers.config import config
-from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
+from couchers.constants import DONATION_DRIVE_START, PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
 from couchers.context import CouchersContext
 from couchers.crypto import (
     b64decode,
@@ -54,6 +54,9 @@ from couchers.models import (
 from couchers.notifications.notify import notify
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
+from couchers.proto import account_pb2, account_pb2_grpc, auth_pb2, iris_pb2_grpc, notification_data_pb2
+from couchers.proto.google.api import httpbody_pb2
+from couchers.proto.internal import jobs_pb2, verification_pb2
 from couchers.servicers.api import lite_user_to_pb
 from couchers.servicers.references import get_pending_references_to_write, reftype2api
 from couchers.sql import couchers_select as select
@@ -72,9 +75,6 @@ from couchers.utils import (
     now,
     to_aware_datetime,
 )
-from proto import account_pb2, account_pb2_grpc, auth_pb2, iris_pb2_grpc, notification_data_pb2
-from proto.google.api import httpbody_pb2
-from proto.internal import jobs_pb2, verification_pb2
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -174,11 +174,15 @@ class Account(account_pb2_grpc.AccountServicer):
             select(User, Volunteer).outerjoin(Volunteer, Volunteer.user_id == User.id).where(User.id == context.user_id)
         ).one()
 
+        should_show_donation_banner = DONATION_DRIVE_START is not None and (
+            user.last_donated is None or user.last_donated < DONATION_DRIVE_START
+        )
+
         return account_pb2.GetAccountInfoRes(
             username=user.username,
             email=user.email,
             phone=user.phone if (user.phone_is_verified or not user.phone_code_expired) else None,
-            has_donated=user.has_donated,
+            has_donated=user.last_donated is not None,
             phone_verified=user.phone_is_verified,
             profile_complete=user.has_completed_profile,
             my_home_complete=user.has_completed_my_home,
@@ -187,6 +191,7 @@ class Account(account_pb2_grpc.AccountServicer):
             ui_language_preference=user.ui_language_preference,
             profile_public_visibility=profilepublicitysetting2api[user.public_visibility],
             is_volunteer=volunteer is not None,
+            should_show_donation_banner=should_show_donation_banner,
             **get_strong_verification_fields(session, user),
         )
 
@@ -319,7 +324,7 @@ class Account(account_pb2_grpc.AccountServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_phone")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-        if not user.has_donated:
+        if user.last_donated is None:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "not_donated")
 
         if not phone:

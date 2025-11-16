@@ -6,9 +6,9 @@ from couchers import urls
 from couchers.i18n.i18n import get_raw_translation_string
 from couchers.models import Notification, User
 from couchers.notifications.quick_links import generate_quick_decline_link, generate_unsub_topic_action
+from couchers.proto import notification_data_pb2
 from couchers.templates.v2 import v2avatar, v2date, v2esc, v2phone, v2timestamp
 from couchers.utils import now, to_aware_datetime
-from proto import notification_data_pb2
 
 logger = logging.getLogger(__name__)
 

@@ -6,7 +6,7 @@ from google.protobuf import descriptor_pb2, descriptor_pool
 
 @functools.cache
 def get_descriptors_pb() -> bytes:
-    with open(Path(__file__).parent / ".." / "proto" / "descriptors.pb", "rb") as descriptor_set_f:
+    with open(Path(__file__).parent / "proto" / "descriptors.pb", "rb") as descriptor_set_f:
         return descriptor_set_f.read()
 
 
@@ -17,7 +17,7 @@ def get_descriptor_pool() -> descriptor_pool.DescriptorPool:
     for each servicer, method, or message.
     """
     # this needs to be imported so the annotations are available in the generated pool...
-    from proto import annotations_pb2  # noqa
+    from couchers.proto import annotations_pb2  # noqa
 
     pool = descriptor_pool.DescriptorPool()
     desc = descriptor_pb2.FileDescriptorSet.FromString(get_descriptors_pb())

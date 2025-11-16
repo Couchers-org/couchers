@@ -19,8 +19,8 @@ from couchers.models import (
     User,
     UserSession,
 )
+from couchers.proto import api_pb2, auth_pb2
 from couchers.sql import couchers_select as select
-from proto import api_pb2, auth_pb2
 from tests.test_fixtures import (  # noqa
     api_session,
     auth_api_session,

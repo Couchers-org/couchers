@@ -160,6 +160,8 @@ message GetAccountInfoRes {
   ProfilePublicVisibility profile_public_visibility = 17;
 
   bool is_volunteer = 18;
+
+  bool should_show_donation_banner = 20;
 }
 
 message ChangePasswordV2Req {

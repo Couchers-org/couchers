@@ -9,9 +9,9 @@ from couchers.config import config
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import ActivenessProbe, ActivenessProbeStatus, HostingStatus, MeetupStatus
+from couchers.proto import api_pb2, jail_pb2
 from couchers.sql import couchers_select as select
 from couchers.utils import now
-from proto import api_pb2, jail_pb2
 from tests.test_fixtures import (  # noqa  # noqa
     api_session,
     db,

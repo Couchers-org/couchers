@@ -3,10 +3,10 @@ from sqlalchemy.orm import Session
 
 from couchers.db import can_moderate_at, can_moderate_node, get_parent_node_at_location
 from couchers.models import Cluster, Node, Page, PageType, PageVersion, Thread, Upload, User
+from couchers.proto import pages_pb2, pages_pb2_grpc
 from couchers.servicers.threads import thread_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order
-from proto import pages_pb2, pages_pb2_grpc
 
 MAX_PAGINATION_LENGTH = 25
 

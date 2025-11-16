@@ -1,18 +1,37 @@
 import json
 import logging
+from typing import Any
 
 import grpc
+import sentry_sdk
 import stripe
 
 from couchers import urls
 from couchers.config import config
-from couchers.models import DonationInitiation, DonationType, Invoice, User
+from couchers.models import DonationInitiation, DonationType, Invoice, InvoiceType, User
 from couchers.notifications.notify import notify
+from couchers.proto import donations_pb2, donations_pb2_grpc, notification_data_pb2, stripe_pb2_grpc
+from couchers.proto.google.api import httpbody_pb2
 from couchers.sql import couchers_select as select
-from proto import donations_pb2, donations_pb2_grpc, notification_data_pb2, stripe_pb2_grpc
-from proto.google.api import httpbody_pb2
 
 logger = logging.getLogger(__name__)
+
+
+def infer_invoice_type(metadata: dict[str, Any], payment_intent_id: str, customer_id: str) -> InvoiceType:
+    # Check if this is from Couchers on-platform donation or external shop purchase
+    if metadata.get("type") == "donation":
+        return InvoiceType.on_platform
+    elif metadata.get("site_url") == config["MERCH_SHOP_URL"]:
+        # This is from WooCommerce external shop
+        return InvoiceType.external_shop
+    else:
+        # Unknown payment source - this should never happen
+        sentry_sdk.set_tag("stripe_payment_intent_id", payment_intent_id)
+        sentry_sdk.set_tag("stripe_customer_id", customer_id)
+        sentry_sdk.set_context("stripe_metadata", metadata)
+        error_msg = f"Unable to determine invoice_type for Stripe payment intent {payment_intent_id}. Expected metadata.type='donation' or metadata.site_url='{config['MERCH_SHOP_URL']}', but got: {metadata}"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
 
 
 def _create_stripe_customer(session, user):
@@ -69,6 +88,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             payment_method_types=["card"],
             mode="subscription" if request.recurring else "payment",
             line_items=[item],
+            metadata={"type": "donation"},
             api_key=config["STRIPE_API_KEY"],
         )
 
@@ -129,28 +149,33 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
             # amount comes in cents
             amount = int(data_object["amount"]) // 100
             receipt_url = data_object["receipt_url"]
+            payment_intent_id = data_object["payment_intent"]
 
-            # may be check for amount to enable phone verify
-            user.has_donated = True
+            # Get invoice type from charge metadata
+            invoice_type = infer_invoice_type(data_object.get("metadata", {}), payment_intent_id, customer_id)
 
-            session.add(
-                Invoice(
-                    user_id=user.id,
-                    amount=amount,
-                    stripe_payment_intent_id=data_object["payment_intent"],
-                    stripe_receipt_url=receipt_url,
-                )
-            )
-
-            notify(
-                session,
+            invoice = Invoice(
                 user_id=user.id,
-                topic_action="donation:received",
-                data=notification_data_pb2.DonationReceived(
-                    amount=amount,
-                    receipt_url=receipt_url,
-                ),
+                amount=amount,
+                stripe_payment_intent_id=payment_intent_id,
+                stripe_receipt_url=receipt_url,
+                invoice_type=invoice_type,
             )
+            session.add(invoice)
+            session.flush()
+            user.last_donated = invoice.created
+
+            # Only notify for on-platform donations (not external shop purchases)
+            if invoice_type == InvoiceType.on_platform:
+                notify(
+                    session,
+                    user_id=user.id,
+                    topic_action="donation:received",
+                    data=notification_data_pb2.DonationReceived(
+                        amount=amount,
+                        receipt_url=receipt_url,
+                    ),
+                )
         else:
             logger.info(f"Unhandled event from Stripe: {event_type}")
 

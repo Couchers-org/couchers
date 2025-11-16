@@ -7,13 +7,13 @@ from couchers.db import can_moderate_node, session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Cluster, Discussion, Thread, User
 from couchers.notifications.notify import notify
+from couchers.proto import discussions_pb2, discussions_pb2_grpc, notification_data_pb2
+from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.threads import thread_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime
-from proto import discussions_pb2, discussions_pb2_grpc, notification_data_pb2
-from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 

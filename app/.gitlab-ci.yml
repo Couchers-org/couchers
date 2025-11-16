@@ -198,10 +198,7 @@ build:web-dev:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - *common_functions
-    # Add "--load" so that the image is saved locally for "docker create"
-    - build "$WEB_DEV_TAG" "$WEB_DEV_RELEASE_TAG" "web" "$SLUG" --build-arg environment=next -f app/web/Dockerfile --load
-    # creates a new docker container (docker create returns the container name) and copies the /app folder to the host
-    - mkdir -p artifacts && docker cp $(docker create $WEB_DEV_TAG):/app artifacts/web-dev
+    - build "$WEB_DEV_TAG" "$WEB_DEV_RELEASE_TAG" "web" "$SLUG" --build-arg environment=next -f app/web/Dockerfile
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") &&($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
@@ -211,9 +208,6 @@ build:web-dev:
         - app/proto/**/*
         - app/web/**/*
         - app/.gitlab-ci.yml
-  artifacts:
-    paths:
-      - artifacts/web-dev/
   tags:
       - saas-linux-large-amd64
 

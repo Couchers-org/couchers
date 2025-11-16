@@ -7,13 +7,13 @@ from sqlalchemy.sql import func, union_all
 from couchers import urls
 from couchers.materialized_views import LiteUser
 from couchers.models import Cluster, Node, ProfilePublicVisibility, Reference, User, Volunteer
+from couchers.proto import api_pb2, public_pb2, public_pb2_grpc
 from couchers.resources import get_static_badge_dict
 from couchers.servicers.account import _format_volunteer_link
 from couchers.servicers.api import fluency2api, hostingstatus2api, meetupstatus2api, user_model_to_pb
 from couchers.servicers.gis import _statement_to_geojson_response
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, make_logged_out_context
-from proto import api_pb2, public_pb2, public_pb2_grpc
 
 logger = logging.getLogger(__name__)
 

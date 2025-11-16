@@ -20,11 +20,19 @@ from couchers.models import (
 )
 from couchers.notifications.notify import notify
 from couchers.notifications.settings import get_topic_actions_by_delivery_type
+from couchers.proto import (
+    admin_pb2,
+    api_pb2,
+    auth_pb2,
+    conversations_pb2,
+    events_pb2,
+    notification_data_pb2,
+    notifications_pb2,
+)
+from couchers.proto.internal import unsubscribe_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.templates.v2 import v2timestamp
-from proto import admin_pb2, api_pb2, auth_pb2, conversations_pb2, events_pb2, notification_data_pb2, notifications_pb2
-from proto.internal import unsubscribe_pb2
 from tests.test_fixtures import (  # noqa
     api_session,
     auth_api_session,
