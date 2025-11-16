@@ -17,8 +17,8 @@ class DonationType(enum.Enum):
 
 
 class InvoiceType(enum.Enum):
-    donation = enum.auto()
-    merch = enum.auto()
+    on_platform = enum.auto()
+    external_shop = enum.auto()
 
 
 class DonationInitiation(Base):

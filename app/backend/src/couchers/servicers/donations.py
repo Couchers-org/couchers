@@ -136,12 +136,12 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
             # Get invoice type from charge metadata
             metadata = data_object.get("metadata", {})
 
-            # Check if this is from Couchers (type=donation) or WooCommerce (has site_url=shop)
+            # Check if this is from Couchers on-platform donation or external shop purchase
             if metadata.get("type") == "donation":
-                invoice_type = InvoiceType.donation
+                invoice_type = InvoiceType.on_platform
             elif metadata.get("site_url") == config["MERCH_SHOP_URL"]:
-                # This is from WooCommerce merch shop
-                invoice_type = InvoiceType.merch
+                # This is from WooCommerce external shop
+                invoice_type = InvoiceType.external_shop
             else:
                 # Unknown payment source - this should never happen
                 sentry_sdk.set_tag("stripe_payment_intent_id", payment_intent_id)
@@ -162,8 +162,8 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
             session.flush()
             user.last_donated = invoice.created
 
-            # Only notify for donations (not merch)
-            if invoice_type == InvoiceType.donation:
+            # Only notify for on-platform donations (not external shop purchases)
+            if invoice_type == InvoiceType.on_platform:
                 notify(
                     session,
                     user_id=user.id,
