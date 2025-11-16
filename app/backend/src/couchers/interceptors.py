@@ -1,14 +1,19 @@
 import logging
+from collections.abc import Callable
 from copy import deepcopy
-from datetime import timedelta
+from datetime import datetime, timedelta
 from os import getpid
 from threading import get_ident
 from time import perf_counter_ns
 from traceback import format_exception
+from typing import Any, Never, NoReturn, cast
 
 import grpc
 import sentry_sdk
+from google.protobuf.descriptor import ServiceDescriptor
+from google.protobuf.message import Message
 from opentelemetry import trace
+from sqlalchemy import Function
 from sqlalchemy.sql import and_, func
 
 from couchers.constants import UNKNOWN_ERROR_MESSAGE
@@ -17,6 +22,7 @@ from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import observe_in_servicer_duration_histogram
 from couchers.models import APICall, User, UserActivity, UserSession
+from couchers.proto import annotations_pb2
 from couchers.sql import couchers_select as select
 from couchers.utils import (
     create_lang_cookie,
@@ -27,20 +33,21 @@ from couchers.utils import (
     parse_ui_lang_cookie,
     parse_user_id_cookie,
 )
-from proto import annotations_pb2
 
 logger = logging.getLogger(__name__)
 
 
-def _binned_now():
+def _binned_now() -> Function[Any]:
     return func.date_bin("1 hour", func.now(), "2000-01-01")
 
 
-def _try_get_and_update_user_details(token, is_api_key, ip_address, user_agent):
+def _try_get_and_update_user_details(
+    token: str | None, is_api_key: bool, ip_address: str | None, user_agent: str | None
+) -> tuple[int, bool, bool, datetime, str | None] | None:
     """
     Tries to get session and user info corresponding to this token.
 
-    Also updates the user last active time, token last active time, and increments API call count.
+    Also updates the user's last active time, token last active time, and increments API call count.
     """
     if not token:
         return None
@@ -95,18 +102,25 @@ def _try_get_and_update_user_details(token, is_api_key, ip_address, user_agent):
             return user.id, user.is_jailed, user.is_superuser, user_session.expiry, user.ui_language_preference
 
 
-def abort_handler(message, status_code):
-    def f(request, context):
+# We have to lie with R | NoReturn to please mypy. It should be NoReturn.
+def abort_handler[T, R](
+    message: str,
+    status_code: grpc.StatusCode,
+) -> "grpc.RpcMethodHandler[T, R | NoReturn]":
+    def f(request: Any, context: CouchersContext) -> NoReturn:
         context.abort(status_code, message)
 
     return grpc.unary_unary_rpc_method_handler(f)
 
 
-def unauthenticated_handler(message="Unauthorized", status_code=grpc.StatusCode.UNAUTHENTICATED):
+def unauthenticated_handler[T, R](
+    message: str = "Unauthorized",
+    status_code: grpc.StatusCode = grpc.StatusCode.UNAUTHENTICATED,
+) -> "grpc.RpcMethodHandler[T, R | NoReturn]":
     return abort_handler(message, status_code)
 
 
-def _sanitized_bytes(proto):
+def _sanitized_bytes(proto: Message | None) -> bytes | None:
     """
     Remove fields marked sensitive and return serialized bytes
     """
@@ -115,7 +129,7 @@ def _sanitized_bytes(proto):
 
     new_proto = deepcopy(proto)
 
-    def _sanitize_message(message):
+    def _sanitize_message(message: Message) -> None:
         for name, descriptor in message.DESCRIPTOR.fields_by_name.items():
             if descriptor.GetOptions().Extensions[annotations_pb2.sensitive]:
                 message.ClearField(name)
@@ -136,18 +150,18 @@ def _sanitized_bytes(proto):
 
 def _store_log(
     *,
-    method,
-    status_code,
-    duration,
-    user_id,
-    is_api_key,
-    request,
-    response,
-    traceback,
-    perf_report,
-    ip_address,
-    user_agent,
-):
+    method: str,
+    status_code: grpc.StatusCode | None,
+    duration: float,
+    user_id: int | None,
+    is_api_key: bool,
+    request: Message,
+    response: Message | None,
+    traceback: str | None,
+    perf_report: str | None,
+    ip_address: str | None,
+    user_agent: str | None,
+) -> None:
     req_bytes = _sanitized_bytes(request)
     res_bytes = _sanitized_bytes(response)
     with session_scope() as session:
@@ -175,6 +189,9 @@ def _store_log(
     logger.debug(f"{user_id=}, {method=}, {duration=} ms")
 
 
+type Cont[T, R] = Callable[[grpc.HandlerCallDetails], grpc.RpcMethodHandler[T, R] | None]
+
+
 class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
     """
     1. Does auth: extracts a session token from a cookie, and authenticates a user with that.
@@ -189,10 +206,14 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
     4. Measures and logs the time it takes to service each incoming call.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._pool = get_descriptor_pool()
 
-    def intercept_service(self, continuation, handler_call_details):
+    def intercept_service[T = Message, R = Message](
+        self,
+        continuation: Cont[T, R],
+        handler_call_details: grpc.HandlerCallDetails,
+    ) -> "grpc.RpcMethodHandler[T, R | Never]":
         start = perf_counter_ns()
 
         method = handler_call_details.method
@@ -200,13 +221,14 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
         _, service_name, method_name = method.split("/")
 
         try:
-            service_options = self._pool.FindServiceByName(service_name).GetOptions()
+            service: ServiceDescriptor = self._pool.FindServiceByName(service_name)  # type: ignore[no-untyped-call]
+            service_options = service.GetOptions()
         except KeyError:
             return abort_handler(
                 "API call does not exist. Please refresh and try again.", grpc.StatusCode.UNIMPLEMENTED
             )
 
-        auth_level = service_options.Extensions[annotations_pb2.auth_level]
+        auth_level: Any = service_options.Extensions[annotations_pb2.auth_level]  # type: ignore[index]
 
         # if unknown auth level, then it wasn't set and something's wrong
         if auth_level == annotations_pb2.AUTH_LEVEL_UNKNOWN:
@@ -234,8 +256,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             # no session found
             token, is_api_key = None, False
 
-        ip_address = headers.get("x-couchers-real-ip")
-        user_agent = headers.get("user-agent")
+        ip_address = cast(str | None, headers.get("x-couchers-real-ip"))
+        user_agent = cast(str | None, headers.get("user-agent"))
 
         auth_info = _try_get_and_update_user_details(token, is_api_key, ip_address, user_agent)
         # auth_info is now filled if and only if this is a valid session
@@ -265,9 +287,14 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 return unauthenticated_handler("Permission denied")
 
         handler = continuation(handler_call_details)
-        prev_function = handler.unary_unary
+        if not handler:
+            raise RuntimeError(f"No handler in '{method}'")
 
-        def function_without_couchers_stuff(req, grpc_context):
+        prev_function = handler.unary_unary
+        if not prev_function:
+            raise RuntimeError(f"No prev_function in '{method}', {handler}")
+
+        def function_without_couchers_stuff(req: Message, grpc_context: grpc.ServicerContext) -> Message | None:
             couchers_context: CouchersContext = make_interactive_context(
                 grpc_context=grpc_context,
                 user_id=user_id,
@@ -277,7 +304,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             )
             with session_scope() as session:
                 try:
-                    res = prev_function(req, couchers_context, session)
+                    _res = prev_function(req, couchers_context, session)  # type: ignore[call-arg, arg-type]
+                    res = cast(Message, _res)
                     finished = perf_counter_ns()
                     duration = (finished - start) / 1e6  # ms
                     _store_log(
@@ -285,7 +313,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         status_code=None,
                         duration=duration,
                         user_id=couchers_context._user_id,
-                        is_api_key=couchers_context._is_api_key,
+                        is_api_key=cast(bool, couchers_context._is_api_key),
                         request=req,
                         response=res,
                         traceback=None,
@@ -297,14 +325,14 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 except Exception as e:
                     finished = perf_counter_ns()
                     duration = (finished - start) / 1e6  # ms
-                    code = getattr(couchers_context._grpc_context.code(), "name", None)
+                    code = getattr(couchers_context._grpc_context.code(), "name", None)  # type: ignore[union-attr]
                     traceback = "".join(format_exception(type(e), e, e.__traceback__))
                     _store_log(
                         method=method,
                         status_code=code,
                         duration=duration,
                         user_id=couchers_context._user_id,
-                        is_api_key=couchers_context._is_api_key,
+                        is_api_key=cast(bool, couchers_context._is_api_key),
                         request=req,
                         response=None,
                         traceback=traceback,
@@ -324,7 +352,9 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     raise e
 
             if user_id and not is_api_key:
-                cookies = []
+                # Sanity check. If user_id is present, then we should have a token.
+                if token is None or token_expiry is None:
+                    raise RuntimeError(f"{token=}, {token_expiry=}")
 
                 # check the two cookies are in sync & that language preference cookie is correct
                 if parse_user_id_cookie(headers) != str(user_id):
@@ -355,12 +385,22 @@ class MediaInterceptor(grpc.ServerInterceptor):
     Also adds a session to called APIs.
     """
 
-    def __init__(self, is_authorized):
+    def __init__(self, is_authorized: Callable[[str], bool]):
         self._is_authorized = is_authorized
 
-    def intercept_service(self, continuation, handler_call_details):
+    def intercept_service[T, R](
+        self,
+        continuation: Cont[T, R],
+        handler_call_details: grpc.HandlerCallDetails,
+    ) -> "grpc.RpcMethodHandler[T, R | Never]":
         handler = continuation(handler_call_details)
+        if not handler:
+            raise RuntimeError("No handler")
+
         prev_func = handler.unary_unary
+        if not prev_func:
+            raise RuntimeError(f"No prev_function, {handler}")
+
         metadata = dict(handler_call_details.invocation_metadata)
 
         token = parse_api_key(metadata)
@@ -368,9 +408,9 @@ class MediaInterceptor(grpc.ServerInterceptor):
         if not token or not self._is_authorized(token):
             return unauthenticated_handler()
 
-        def function_without_session(request, grpc_context):
+        def function_without_session(request: T, grpc_context: grpc.ServicerContext) -> R:
             with session_scope() as session:
-                return prev_func(request, make_media_context(grpc_context), session)
+                return prev_func(request, make_media_context(grpc_context), session)  # type: ignore[call-arg, arg-type]
 
         return grpc.unary_unary_rpc_method_handler(
             function_without_session,
@@ -384,12 +424,22 @@ class OTelInterceptor(grpc.ServerInterceptor):
     OpenTelemetry tracing
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.tracer = trace.get_tracer(__name__)
 
-    def intercept_service(self, continuation, handler_call_details):
+    def intercept_service[T, R](
+        self,
+        continuation: Cont[T, R],
+        handler_call_details: grpc.HandlerCallDetails,
+    ) -> "grpc.RpcMethodHandler[T, R | Never]":
         handler = continuation(handler_call_details)
+        if not handler:
+            raise RuntimeError("No handler")
+
         prev_func = handler.unary_unary
+        if not prev_func:
+            raise RuntimeError(f"No prev_function, {handler}")
+
         method = handler_call_details.method
 
         # method is of the form "/org.couchers.api.core.API/GetUser"
@@ -397,7 +447,7 @@ class OTelInterceptor(grpc.ServerInterceptor):
 
         headers = dict(handler_call_details.invocation_metadata)
 
-        def tracing_function(request, context):
+        def tracing_function(request: T, context: grpc.ServicerContext) -> R:
             with self.tracer.start_as_current_span("handler") as rollspan:
                 rollspan.set_attribute("rpc.method_full", method)
                 rollspan.set_attribute("rpc.service", service_name)
@@ -427,15 +477,24 @@ class ErrorSanitizationInterceptor(grpc.ServerInterceptor):
     It's important to put this first, so that it does not interfere with other interceptors.
     """
 
-    def intercept_service(self, continuation, handler_call_details):
+    def intercept_service[T, R](
+        self,
+        continuation: Cont[T, R],
+        handler_call_details: grpc.HandlerCallDetails,
+    ) -> "grpc.RpcMethodHandler[T, R | Never]":
         handler = continuation(handler_call_details)
-        prev_func = handler.unary_unary
+        if not handler:
+            raise RuntimeError("No handler")
 
-        def sanitizing_function(req, context):
+        prev_func = handler.unary_unary
+        if not prev_func:
+            raise RuntimeError(f"No prev_function, {handler}")
+
+        def sanitizing_function(req: T, context: grpc.ServicerContext) -> R:
             try:
                 res = prev_func(req, context)
             except Exception as e:
-                code = context.code()
+                code = context.code()  # type: ignore[attr-defined]
                 # the code is one of the RPC error codes if this was failed through abort(), otherwise it's None
                 if not code:
                     logger.exception(e)

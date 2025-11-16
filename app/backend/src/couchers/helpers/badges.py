@@ -3,8 +3,8 @@ from sqlalchemy.sql import delete
 
 from couchers.models import UserBadge
 from couchers.notifications.notify import notify
+from couchers.proto import notification_data_pb2
 from couchers.resources import get_badge_dict
-from proto import notification_data_pb2
 
 
 def user_add_badge(session: Session, user_id: int, badge_id: str, do_notify: bool = True) -> None:

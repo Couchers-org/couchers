@@ -28,6 +28,17 @@ const nextConfig = {
     });
     return config;
   },
+  turbopack: {
+    resolveAlias: {
+      "@/*": "./*",
+    },
+    rules: {
+      "*.md": {
+        loaders: ["frontmatter-markdown-loader"],
+        as: "*.js",
+      },
+    },
+  },
   redirects: async () => redirects,
   headers: async () => [
     {

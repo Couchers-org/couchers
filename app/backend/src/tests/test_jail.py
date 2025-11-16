@@ -4,9 +4,9 @@ from google.protobuf import empty_pb2
 
 from couchers.constants import TOS_VERSION
 from couchers.models import users
+from couchers.proto import admin_pb2, api_pb2, jail_pb2
 from couchers.servicers import jail as servicers_jail
 from couchers.utils import create_coordinate, to_aware_datetime
-from proto import admin_pb2, api_pb2, jail_pb2
 from tests.test_fixtures import (  # noqa  # noqa
     db,
     email_fields,

@@ -21,13 +21,13 @@ from couchers.models import (
     User,
 )
 from couchers.notifications.notify import notify
+from couchers.proto import conversations_pb2, conversations_pb2_grpc, notification_data_pb2
+from couchers.proto.internal import jobs_pb2
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.rate_limits.definitions import RATE_LIMIT_INTERVAL_STRING
 from couchers.servicers.api import user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now
-from proto import conversations_pb2, conversations_pb2_grpc, notification_data_pb2
-from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ DEFAULT_PAGINATION_LENGTH = 20
 MAX_PAGE_SIZE = 50
 
 
-def _message_to_pb(message: Message):
+def _message_to_pb(message: Message) -> conversations_pb2.Message:
     """
     Turns the given message to a protocol buffer
     """

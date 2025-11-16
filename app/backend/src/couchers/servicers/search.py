@@ -28,6 +28,7 @@ from couchers.models import (
     StrongVerificationAttempt,
     User,
 )
+from couchers.proto import search_pb2, search_pb2_grpc
 from couchers.reranker import reranker
 from couchers.servicers.api import (
     fluency2sql,
@@ -57,7 +58,6 @@ from couchers.utils import (
     now,
     to_aware_datetime,
 )
-from proto import search_pb2, search_pb2_grpc
 
 # searches are a bit expensive, we'd rather send back a bunch of results at once than lots of small pages
 MAX_PAGINATION_LENGTH = 100

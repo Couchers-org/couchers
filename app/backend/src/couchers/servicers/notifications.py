@@ -24,9 +24,9 @@ from couchers.notifications.settings import (
     set_preference,
 )
 from couchers.notifications.utils import enum_from_topic_action
+from couchers.proto import notifications_pb2, notifications_pb2_grpc
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime
-from proto import notifications_pb2, notifications_pb2_grpc
 
 logger = logging.getLogger(__name__)
 MAX_PAGINATION_LENGTH = 100

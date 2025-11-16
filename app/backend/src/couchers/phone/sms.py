@@ -1,4 +1,5 @@
 import logging
+from typing import cast
 
 import boto3
 import luhn
@@ -11,20 +12,20 @@ from couchers.models import SMS
 logger = logging.getLogger(__name__)
 
 
-def generate_random_code():
+def generate_random_code() -> str:
     """Return a random 6-digit string with correct Luhn checksum"""
-    return luhn.append(crypto.generate_random_5digit_string())
+    return cast(str, luhn.append(crypto.generate_random_5digit_string()))
 
 
-def looks_like_a_code(string):
+def looks_like_a_code(string: str) -> bool:
     return len(string) == 6 and string.isdigit() and luhn.verify(string)
 
 
-def format_message(token):
+def format_message(token: str) -> str:
     return f"{token} is your Couchers.org verification code. If you did not request this, please ignore this message. Best, the Couchers.org team."
 
 
-def send_sms(number, message):
+def send_sms(number: str, message: str) -> str:
     """Send SMS to a E.164 formatted phone number with leading +. Return "success" on
     success, "unsupported operator" on unsupported operator, and any other
     string for any other error."""

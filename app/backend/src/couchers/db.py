@@ -6,6 +6,7 @@ from collections.abc import Generator, Sequence
 from contextlib import contextmanager
 from os import getpid
 from threading import get_ident
+from typing import cast
 
 from alembic import command
 from alembic.config import Config
@@ -18,6 +19,7 @@ from sqlalchemy.sql import and_, func, literal, or_
 
 from couchers.config import config
 from couchers.constants import SERVER_THREADS, WORKER_THREADS
+from couchers.context import CouchersContext
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -73,7 +75,7 @@ def session_scope() -> Generator[Session]:
                         filename_line = f"{frame.filename}:{frame.lineno}"
                     except Exception as e:
                         filename_line = "{unknown file}"
-                    backend_pid = session.execute(text("SELECT pg_backend_pid();")).scalar()
+                    backend_pid = session.execute(text("SELECT pg_backend_pid();")).scalar_one()
                     logger.debug(f"SScope: got {backend_pid=} at {filename_line}")
                     rollspan.set_attribute("db.backend_pid", backend_pid)
                     rollspan.set_attribute("db.filename_line", filename_line)
@@ -109,7 +111,7 @@ def worker_repeatable_read_session_scope() -> Generator[Session]:
                         filename_line = f"{frame.filename}:{frame.lineno}"
                     except Exception as e:
                         filename_line = "{unknown file}"
-                    backend_pid = session.execute(text("SELECT pg_backend_pid();")).scalar()
+                    backend_pid = session.execute(text("SELECT pg_backend_pid();")).scalar_one()
                     logger.debug(f"SScope (worker): got {backend_pid=} at {filename_line}")
                     rollspan.set_attribute("db.backend_pid", backend_pid)
                     rollspan.set_attribute("db.filename_line", filename_line)
@@ -134,7 +136,7 @@ def db_post_fork() -> None:
     _get_base_engine().dispose(close=False)
 
 
-def are_friends(session: Session, context, other_user: int) -> bool:
+def are_friends(session: Session, context: CouchersContext, other_user: int) -> bool:
     return (
         session.execute(
             select(FriendRelationship)
@@ -201,17 +203,16 @@ def get_node_parents_recursively(session: Session, node_id: int) -> Sequence[Row
 
 
 def _can_moderate_any_cluster(session: Session, user_id: int, cluster_ids: list[int]) -> bool:
-    return session.execute(
-        select(
-            (
-                select(True)
-                .select_from(ClusterSubscription)
-                .where(ClusterSubscription.role == ClusterRole.admin)
-                .where(ClusterSubscription.user_id == user_id)
-                .where(ClusterSubscription.cluster_id.in_(cluster_ids))
-            ).exists()
-        )
-    ).scalar_one()
+    query = select(
+        (
+            select(True)
+            .select_from(ClusterSubscription)
+            .where(ClusterSubscription.role == ClusterRole.admin)
+            .where(ClusterSubscription.user_id == user_id)
+            .where(ClusterSubscription.cluster_id.in_(cluster_ids))
+        ).exists()
+    )
+    return cast(bool, session.execute(query).scalar_one())
 
 
 def can_moderate_node(session: Session, user_id: int, node_id: int) -> bool:
@@ -219,42 +220,36 @@ def can_moderate_node(session: Session, user_id: int, node_id: int) -> bool:
     Returns True if the user_id can moderate the given node (i.e., if they are admin of any community that is a parent of the node)
     """
     subquery = _get_node_parents_recursive_cte_subquery(node_id)
-    return session.execute(
-        select(
-            (
-                select(True)
-                .select_from(ClusterSubscription)
-                .where(ClusterSubscription.role == ClusterRole.admin)
-                .where(ClusterSubscription.user_id == user_id)
-                .join(Cluster, Cluster.id == ClusterSubscription.cluster_id)
-                .where(Cluster.is_official_cluster)
-                .where(Cluster.parent_node_id == subquery.c.id)
-            ).exists()
-        )
-    ).scalar_one()
-
-    return _can_moderate_any_cluster(
-        session, user_id, [cluster.id for _, _, _, cluster in get_node_parents_recursively(session, node_id)]
+    query = select(
+        (
+            select(True)
+            .select_from(ClusterSubscription)
+            .where(ClusterSubscription.role == ClusterRole.admin)
+            .where(ClusterSubscription.user_id == user_id)
+            .join(Cluster, Cluster.id == ClusterSubscription.cluster_id)
+            .where(Cluster.is_official_cluster)
+            .where(Cluster.parent_node_id == subquery.c.id)
+        ).exists()
     )
+    return cast(bool, session.execute(query).scalar_one())
 
 
 def can_moderate_at(session: Session, user_id: int, shape: WKBElement) -> bool:
     """
     Returns True if the user_id can moderate a given geo-shape (i.e., if the shape is contained in any Node that the user is an admin of)
     """
-    return session.execute(
-        select(
-            (
-                select(True)
-                .select_from(ClusterSubscription)
-                .where(ClusterSubscription.role == ClusterRole.admin)
-                .where(ClusterSubscription.user_id == user_id)
-                .join(Cluster, Cluster.id == ClusterSubscription.cluster_id)
-                .join(Node, and_(Cluster.is_official_cluster, Node.id == Cluster.parent_node_id))
-                .where(func.ST_Contains(Node.geom, shape))
-            ).exists()
-        )
-    ).scalar_one()
+    query = select(
+        (
+            select(True)
+            .select_from(ClusterSubscription)
+            .where(ClusterSubscription.role == ClusterRole.admin)
+            .where(ClusterSubscription.user_id == user_id)
+            .join(Cluster, Cluster.id == ClusterSubscription.cluster_id)
+            .join(Node, and_(Cluster.is_official_cluster, Node.id == Cluster.parent_node_id))
+            .where(func.ST_Contains(Node.geom, shape))
+        ).exists()
+    )
+    return cast(bool, session.execute(query).scalar_one())
 
 
 def timezone_at_coordinate(session: Session, geom: WKBElement) -> str | None:
@@ -262,5 +257,5 @@ def timezone_at_coordinate(session: Session, geom: WKBElement) -> str | None:
         select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, geom))
     ).scalar_one_or_none()
     if area:
-        return area.tzid
+        return cast(str | None, area.tzid)
     return None

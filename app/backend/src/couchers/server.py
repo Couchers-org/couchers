@@ -9,31 +9,7 @@ from couchers.interceptors import (
     ErrorSanitizationInterceptor,
     OTelInterceptor,
 )
-from couchers.servicers.account import Account, Iris
-from couchers.servicers.admin import Admin
-from couchers.servicers.api import API
-from couchers.servicers.auth import Auth
-from couchers.servicers.blocking import Blocking
-from couchers.servicers.bugs import Bugs
-from couchers.servicers.communities import Communities
-from couchers.servicers.conversations import Conversations
-from couchers.servicers.discussions import Discussions
-from couchers.servicers.donations import Donations, Stripe
-from couchers.servicers.events import Events
-from couchers.servicers.gis import GIS
-from couchers.servicers.groups import Groups
-from couchers.servicers.jail import Jail
-from couchers.servicers.media import Media, get_media_auth_interceptor
-from couchers.servicers.notifications import Notifications
-from couchers.servicers.pages import Pages
-from couchers.servicers.public import Public
-from couchers.servicers.references import References
-from couchers.servicers.reporting import Reporting
-from couchers.servicers.requests import Requests
-from couchers.servicers.resources import Resources
-from couchers.servicers.search import Search
-from couchers.servicers.threads import Threads
-from proto import (
+from couchers.proto import (
     account_pb2_grpc,
     admin_pb2_grpc,
     api_pb2_grpc,
@@ -61,6 +37,30 @@ from proto import (
     stripe_pb2_grpc,
     threads_pb2_grpc,
 )
+from couchers.servicers.account import Account, Iris
+from couchers.servicers.admin import Admin
+from couchers.servicers.api import API
+from couchers.servicers.auth import Auth
+from couchers.servicers.blocking import Blocking
+from couchers.servicers.bugs import Bugs
+from couchers.servicers.communities import Communities
+from couchers.servicers.conversations import Conversations
+from couchers.servicers.discussions import Discussions
+from couchers.servicers.donations import Donations, Stripe
+from couchers.servicers.events import Events
+from couchers.servicers.gis import GIS
+from couchers.servicers.groups import Groups
+from couchers.servicers.jail import Jail
+from couchers.servicers.media import Media, get_media_auth_interceptor
+from couchers.servicers.notifications import Notifications
+from couchers.servicers.pages import Pages
+from couchers.servicers.public import Public
+from couchers.servicers.references import References
+from couchers.servicers.reporting import Reporting
+from couchers.servicers.requests import Requests
+from couchers.servicers.resources import Resources
+from couchers.servicers.search import Search
+from couchers.servicers.threads import Threads
 
 
 def create_main_server(port: int) -> grpc.Server:

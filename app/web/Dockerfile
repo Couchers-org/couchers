@@ -6,6 +6,19 @@ WORKDIR /app
 # disable next.js telemetry
 ENV NEXT_TELEMETRY_DISABLED=1
 
+COPY package.json yarn.lock ./
+# https://github.com/yarnpkg/yarn/issues/8242
+RUN yarn config set network-timeout 300000 && yarn install --frozen-lockfile
+
+COPY . .
+
+RUN cp .env.$environment env && \
+    rm .env.* && \
+    mv env .env.local
+
+RUN yarn build
+
+# These are at the end so as to not invalidate Docker build cache
 ARG version
 ENV NEXT_PUBLIC_VERSION=$version
 ENV SENTRY_RELEASE=$version
@@ -18,16 +31,3 @@ ENV NEXT_PUBLIC_COMMIT_SHA=$commit_sha
 
 ARG commit_timestamp
 ENV NEXT_PUBLIC_COMMIT_TIMESTAMP=$commit_timestamp
-
-COPY package.json yarn.lock ./
-# https://github.com/yarnpkg/yarn/issues/8242
-RUN yarn config set network-timeout 300000
-RUN yarn install --frozen-lockfile
-
-COPY . .
-
-RUN cp .env.$environment env && \
-    rm .env.* && \
-    mv env .env.local
-
-RUN yarn build

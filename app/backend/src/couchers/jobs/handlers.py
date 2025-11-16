@@ -85,6 +85,8 @@ from couchers.models import (
 )
 from couchers.notifications.background import handle_email_digests, handle_notification, send_raw_push_notification
 from couchers.notifications.notify import notify
+from couchers.proto import notification_data_pb2
+from couchers.proto.internal import jobs_pb2, verification_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.admin import generate_new_blog_post_notifications
 from couchers.servicers.api import user_model_to_pb
@@ -109,8 +111,6 @@ from couchers.utils import (
     get_coordinates,
     now,
 )
-from proto import notification_data_pb2
-from proto.internal import jobs_pb2, verification_pb2
 
 logger = logging.getLogger(__name__)
 

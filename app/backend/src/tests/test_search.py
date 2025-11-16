@@ -6,8 +6,8 @@ from google.protobuf import wrappers_pb2
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
 from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, LanguageFluency, MeetupStatus
+from couchers.proto import api_pb2, communities_pb2, events_pb2, search_pb2
 from couchers.utils import Timestamp_from_datetime, create_coordinate, millis_from_dt, now
-from proto import api_pb2, communities_pb2, events_pb2, search_pb2
 from tests.test_communities import create_community, testing_communities  # noqa
 from tests.test_fixtures import (  # noqa
     communities_session,

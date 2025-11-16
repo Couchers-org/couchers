@@ -4,10 +4,10 @@ import grpc
 
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.models import ActivenessProbe, ActivenessProbeStatus, HostingStatus, ModNote, User
+from couchers.proto import jail_pb2, jail_pb2_grpc
 from couchers.servicers.account import mod_note_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, now
-from proto import jail_pb2, jail_pb2_grpc
 
 logger = logging.getLogger(__name__)
 

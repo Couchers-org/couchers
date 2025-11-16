@@ -9,9 +9,9 @@ from couchers import urls
 from couchers.config import config
 from couchers.models import DonationInitiation, DonationType, Invoice, InvoiceType, User
 from couchers.notifications.notify import notify
+from couchers.proto import donations_pb2, donations_pb2_grpc, notification_data_pb2, stripe_pb2_grpc
+from couchers.proto.google.api import httpbody_pb2
 from couchers.sql import couchers_select as select
-from proto import donations_pb2, donations_pb2_grpc, notification_data_pb2, stripe_pb2_grpc
-from proto.google.api import httpbody_pb2
 
 logger = logging.getLogger(__name__)
 

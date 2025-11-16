@@ -4,8 +4,8 @@ from sqlalchemy.sql import not_, or_, union
 
 from couchers import urls
 from couchers.models import Upload, User, UserBlock
+from couchers.proto import blocking_pb2, blocking_pb2_grpc
 from couchers.sql import couchers_select as select
-from proto import blocking_pb2, blocking_pb2_grpc
 
 
 def is_not_visible(session, user1_id, user2_id) -> bool:

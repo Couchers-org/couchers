@@ -40,9 +40,9 @@ from couchers.models import (
     PasswordResetToken,
     UserBadge,
 )
+from couchers.proto import conversations_pb2, requests_pb2
 from couchers.sql import couchers_select as select
 from couchers.utils import now, today
-from proto import conversations_pb2, requests_pb2
 from tests.test_fixtures import (  # noqa
     auth_api_session,
     conversations_session,

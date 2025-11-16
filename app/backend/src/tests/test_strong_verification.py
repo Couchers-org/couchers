@@ -23,9 +23,9 @@ from couchers.models import (
     StrongVerificationCallbackEvent,
     User,
 )
+from couchers.proto import account_pb2, admin_pb2, api_pb2
+from couchers.proto.google.api import httpbody_pb2
 from couchers.sql import couchers_select as select
-from proto import account_pb2, admin_pb2, api_pb2
-from proto.google.api import httpbody_pb2
 from tests.test_fixtures import (  # noqa
     account_session,
     api_session,

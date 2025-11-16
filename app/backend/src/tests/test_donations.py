@@ -10,9 +10,9 @@ from couchers.config import config
 from couchers.db import session_scope
 from couchers.jobs.handlers import update_badges
 from couchers.models import DonationInitiation, DonationType, Invoice, InvoiceType, Notification, User, UserBadge
+from couchers.proto import donations_pb2
+from couchers.proto.google.api import httpbody_pb2
 from couchers.sql import couchers_select as select
-from proto import donations_pb2
-from proto.google.api import httpbody_pb2
 from tests.test_fixtures import db, donations_session, generate_user, real_stripe_session, testconfig  # noqa
 
 

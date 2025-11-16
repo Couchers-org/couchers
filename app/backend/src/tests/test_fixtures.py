@@ -12,6 +12,7 @@ import grpc
 import pytest
 from grpc._server import _validate_generic_rpc_handlers
 from sqlalchemy import Connection, Engine, create_engine
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import or_, text
 
 from couchers.config import config
@@ -44,33 +45,7 @@ from couchers.models import (
     UserBlock,
     UserSession,
 )
-from couchers.servicers.account import Account, Iris
-from couchers.servicers.admin import Admin
-from couchers.servicers.api import API
-from couchers.servicers.auth import Auth, create_session
-from couchers.servicers.blocking import Blocking
-from couchers.servicers.bugs import Bugs
-from couchers.servicers.communities import Communities
-from couchers.servicers.conversations import Conversations
-from couchers.servicers.discussions import Discussions
-from couchers.servicers.donations import Donations, Stripe
-from couchers.servicers.events import Events
-from couchers.servicers.gis import GIS
-from couchers.servicers.groups import Groups
-from couchers.servicers.jail import Jail
-from couchers.servicers.media import Media, get_media_auth_interceptor
-from couchers.servicers.notifications import Notifications
-from couchers.servicers.pages import Pages
-from couchers.servicers.public import Public
-from couchers.servicers.references import References
-from couchers.servicers.reporting import Reporting
-from couchers.servicers.requests import Requests
-from couchers.servicers.resources import Resources
-from couchers.servicers.search import Search
-from couchers.servicers.threads import Threads
-from couchers.sql import couchers_select as select
-from couchers.utils import create_coordinate, now
-from proto import (
+from couchers.proto import (
     account_pb2_grpc,
     admin_pb2_grpc,
     annotations_pb2,
@@ -99,6 +74,32 @@ from proto import (
     stripe_pb2_grpc,
     threads_pb2_grpc,
 )
+from couchers.servicers.account import Account, Iris
+from couchers.servicers.admin import Admin
+from couchers.servicers.api import API
+from couchers.servicers.auth import Auth, create_session
+from couchers.servicers.blocking import Blocking
+from couchers.servicers.bugs import Bugs
+from couchers.servicers.communities import Communities
+from couchers.servicers.conversations import Conversations
+from couchers.servicers.discussions import Discussions
+from couchers.servicers.donations import Donations, Stripe
+from couchers.servicers.events import Events
+from couchers.servicers.gis import GIS
+from couchers.servicers.groups import Groups
+from couchers.servicers.jail import Jail
+from couchers.servicers.media import Media, get_media_auth_interceptor
+from couchers.servicers.notifications import Notifications
+from couchers.servicers.pages import Pages
+from couchers.servicers.public import Public
+from couchers.servicers.references import References
+from couchers.servicers.reporting import Reporting
+from couchers.servicers.requests import Requests
+from couchers.servicers.resources import Resources
+from couchers.servicers.search import Search
+from couchers.servicers.threads import Threads
+from couchers.sql import couchers_select as select
+from couchers.utils import create_coordinate, now
 
 
 def create_schema_from_models(engine: Engine | None = None) -> None:
@@ -436,13 +437,13 @@ def generate_user(*, delete_user=False, complete_profile=True, strong_verificati
     return user, token
 
 
-def get_user_id_and_token(session, username):
+def get_user_id_and_token(session: Session, username: str) -> tuple[int, str]:
     user_id = session.execute(select(User).where(User.username == username)).scalar_one().id
     token = session.execute(select(UserSession).where(UserSession.user_id == user_id)).scalar_one().token
     return user_id, token
 
 
-def make_friends(user1, user2):
+def make_friends(user1: User, user2: User) -> None:
     with session_scope() as session:
         friend_relationship = FriendRelationship(
             from_user_id=user1.id,
@@ -452,7 +453,7 @@ def make_friends(user1, user2):
         session.add(friend_relationship)
 
 
-def make_user_block(user1, user2):
+def make_user_block(user1: User, user2: User) -> None:
     with session_scope() as session:
         user_block = UserBlock(
             blocking_user_id=user1.id,
@@ -462,13 +463,13 @@ def make_user_block(user1, user2):
         session.commit()
 
 
-def make_user_invisible(user_id):
+def make_user_invisible(user_id: int) -> None:
     with session_scope() as session:
         session.execute(select(User).where(User.id == user_id)).scalar_one().is_banned = True
 
 
 # This doubles as get_FriendRequest, since a friend request is just a pending friend relationship
-def get_friend_relationship(user1, user2):
+def get_friend_relationship(user1: User, user2: User) -> FriendRelationship:
     with session_scope() as session:
         friend_relationship = session.execute(
             select(FriendRelationship).where(
@@ -483,7 +484,7 @@ def get_friend_relationship(user1, user2):
         return friend_relationship
 
 
-def add_users_to_new_moderation_list(users):
+def add_users_to_new_moderation_list(users: list[User]) -> int:
     """Group users as duplicated accounts"""
     with session_scope() as session:
         moderation_user_list = ModerationUserList()
@@ -500,15 +501,17 @@ class CookieMetadataPlugin(grpc.AuthMetadataPlugin):
     Injects the right `cookie: couchers-sesh=...` header into the metadata
     """
 
-    def __init__(self, token):
+    def __init__(self, token: str):
         self.token = token
 
-    def __call__(self, context, callback):
+    def __call__(self, context, callback) -> None:
         callback((("cookie", f"couchers-sesh={self.token}"),), None)
 
 
 @contextmanager
-def auth_api_session(grpc_channel_options=()):
+def auth_api_session(
+    grpc_channel_options=(),
+) -> Generator[tuple[auth_pb2_grpc.AuthStub, grpc.UnaryUnaryClientInterceptor]]:
     """
     Create an Auth API for testing
 
@@ -595,7 +598,7 @@ def real_admin_session(token):
 
 
 @contextmanager
-def real_account_session(token):
+def real_account_session(token: str):
     """
     Create a Account service for testing, using TCP sockets, uses the token for auth
     """
@@ -616,7 +619,7 @@ def real_account_session(token):
 
 
 @contextmanager
-def real_jail_session(token):
+def real_jail_session(token: str):
     """
     Create a Jail service for testing, using TCP sockets, uses the token for auth
     """
