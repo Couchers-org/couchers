@@ -28,6 +28,8 @@ RUN apt-get update -qy && apt-get install -qyy zstd wget build-essential \
     && zstd -d timezone_areas.sql.zst \
     && wget -qO- https://astral.sh/uv/${UV_VERSION}/install.sh | sh
 
+WORKDIR /app
+
 # Synchronize DEPENDENCIES without the application itself.
 # This layer is cached until uv.lock or pyproject.toml change, which are
 # only temporarily mounted into the build container since we don't need
@@ -41,7 +43,6 @@ RUN --mount=type=cache,target=/root/.cache \
 
 # Now install the rest from `/app`: The APPLICATION w/o dependencies.
 COPY . /app
-WORKDIR /app
 RUN --mount=type=cache,target=/root/.cache \
     /root/.local/bin/uv sync \
         --locked \

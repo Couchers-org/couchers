@@ -1,7 +1,5 @@
 FROM python:3.13-slim-trixie AS base
 
-ENV UV_VERSION=0.9.8
-
 RUN <<EOT
 apt-get update -qy
 apt-get install -qyy \
@@ -17,7 +15,8 @@ FROM base AS build
 
 ENV UV_VERSION=0.9.8
 
-WORKDIR /deps
+WORKDIR /app
+
 RUN apt-get update -qy && apt-get install -qyy wget build-essential \
     && wget -qO- https://astral.sh/uv/${UV_VERSION}/install.sh | sh
 
@@ -34,7 +33,6 @@ RUN --mount=type=cache,target=/root/.cache \
 
 # Now install the rest from `/app`: The APPLICATION w/o dependencies.
 COPY . /app
-WORKDIR /app
 RUN --mount=type=cache,target=/root/.cache \
     /root/.local/bin/uv sync \
         --locked \
