@@ -31,6 +31,7 @@ mypy:
 		src/couchers/crypto.py \
 		src/couchers/db.py \
 		src/couchers/descriptor_pool.py \
+		src/couchers/interceptors.py \
 		src/couchers/materialized_views.py \
 		src/couchers/metrics.py \
 		src/couchers/reranker.py \
