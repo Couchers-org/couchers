@@ -88,8 +88,9 @@ service Communities {
     // Gets a list of communities a member belongs to
   }
 
-  rpc SearchCommunities(SearchCommunitiesReq) returns (SearchCommunitiesRes);
-  // Gets a list of communities in accordance to search request
+  rpc SearchCommunities(SearchCommunitiesReq) returns (SearchCommunitiesRes) {
+    // Gets a list of communities in accordance to search request
+  }
 
   rpc ListAllCommunities(ListAllCommunitiesReq) returns (ListAllCommunitiesRes) {
     // Gets a list of all communities, ordered hierarchically
@@ -293,6 +294,7 @@ message CommunitySummary {
   uint32 member_count = 5;
   // list of parents, ordered according to inclusion, for hierarchical ordering
   repeated org.couchers.api.groups.Parent parents = 6;
+  google.protobuf.Timestamp created = 7;
 }
 
 message ListAllCommunitiesReq {

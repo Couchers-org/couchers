@@ -974,6 +974,9 @@ class TestCommunities:
                 assert isinstance(community.member, bool)
                 # parents should be present for hierarchical ordering
                 assert len(community.parents) >= 1
+                # created timestamp should be present
+                assert community.HasField("created")
+                assert community.created.seconds > 0
 
             # Find specific communities and verify their data
             global_community = next(c for c in res.communities if c.community_id == w_id)
