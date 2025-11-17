@@ -13,7 +13,6 @@ import TextField from "components/TextField";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { forwardRef, SyntheticEvent, useEffect, useState } from "react";
-import { service } from "service";
 import { theme } from "theme";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
 
@@ -33,7 +32,6 @@ interface LocationAutocompleteOutlinedProps {
   placeholder?: string;
   required?: string;
   showFullDisplayName?: boolean;
-  autocompleteContext: string;
 }
 
 const IconWrapper = styled("div")({
@@ -72,7 +70,6 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     onClear,
     placeholder,
     showFullDisplayName = false,
-    autocompleteContext,
   } = props;
   const { t } = useTranslation([GLOBAL]);
 
@@ -102,11 +99,6 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     if (reason === "selectOption") {
       onChange(newValue as GeocodeResult | undefined);
       setIsOpen(false);
-      service.search.geolocationClickInfo({
-        context: autocompleteContext,
-        formattedResultJson: JSON.stringify(options),
-        searchChoiceJson: JSON.stringify(newValue),
-      });
     }
   };
 

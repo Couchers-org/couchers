@@ -41,7 +41,6 @@ const renderForm = (
           showFullDisplayName={showFullDisplayName}
           fieldError={errors.location?.message}
           disableRegions={disableRegions}
-          autocompleteContext="test"
         />
         <input type="submit" aria-label="submit" />
       </form>
