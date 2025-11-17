@@ -115,6 +115,41 @@ def community_to_pb(session, node: Node, context):
     return communities_to_pb(session, [node], context)[0]
 
 
+def community_summaries_to_pb(session, nodes: list[Node], context):
+    """Convert nodes to CommunitySummary protobuf objects (lightweight version without full details)"""
+    official_clusters = [node.official_cluster for node in nodes]
+    official_cluster_ids = [cluster.id for cluster in official_clusters]
+
+    member_counts = dict(
+        session.execute(
+            select(ClusterSubscriptionCount.cluster_id, ClusterSubscriptionCount.count).where(
+                ClusterSubscriptionCount.cluster_id.in_(official_cluster_ids)
+            )
+        ).all()
+    )
+    cluster_memberships = set(
+        session.execute(
+            select(ClusterSubscription.cluster_id)
+            .where(ClusterSubscription.user_id == context.user_id)
+            .where(ClusterSubscription.cluster_id.in_(official_cluster_ids))
+        )
+        .scalars()
+        .all()
+    )
+
+    return [
+        communities_pb2.CommunitySummary(
+            community_id=node.id,
+            name=official_cluster.name,
+            slug=official_cluster.slug,
+            member=official_cluster.id in cluster_memberships,
+            member_count=member_counts.get(official_cluster.id, 1),
+            parents=_parents_to_pb(session, node.id),
+        )
+        for node, official_cluster in zip(nodes, official_clusters)
+    ]
+
+
 class Communities(communities_pb2_grpc.CommunitiesServicer):
     def GetCommunity(self, request, context, session):
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
@@ -474,4 +509,22 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         return communities_pb2.ListUserCommunitiesRes(
             communities=communities_to_pb(session, nodes[:page_size], context),
             next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
+        )
+
+    def ListAllCommunities(self, request, context, session):
+        """List all communities ordered hierarchically by parent-child relationships"""
+        # Get all nodes that have official clusters (i.e., are communities)
+        nodes = (
+            session.execute(
+                select(Node)
+                .join(Cluster, Cluster.parent_node_id == Node.id)
+                .where(Cluster.is_official_cluster)
+                .order_by(Node.id)
+            )
+            .scalars()
+            .all()
+        )
+
+        return communities_pb2.ListAllCommunitiesRes(
+            communities=community_summaries_to_pb(session, nodes, context),
         )
