@@ -1,15 +1,11 @@
 import VolunteerActivismIcon from "@mui/icons-material/VolunteerActivism";
 import { Alert, alpha, Button, styled } from "@mui/material";
-import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { usePersistedState } from "platform/usePersistedState";
 import React, { useState } from "react";
 import { donationsRoute } from "routes";
 import { theme } from "theme";
-
-const TIME_BETWEEN_NAGS_MS = 7 * 86400 * 1_000; // 7 days
 
 const Wrapper = styled("div")(({ theme }) => ({
   display: "flex",
@@ -27,20 +23,10 @@ const Wrapper = styled("div")(({ theme }) => ({
 export function DonationBanner() {
   const { t } = useTranslation(GLOBAL);
   const router = useRouter();
-  const [lastDismissedEpoch, setLastDismissedEpoch] = usePersistedState<
-    number | null
-  >("donation_banner.dismissed", null);
-  const [bannerVisible, setBannerVisible] = useState<boolean>(
-    !lastDismissedEpoch ||
-      new Date().getTime() - lastDismissedEpoch > TIME_BETWEEN_NAGS_MS,
-  );
 
-  const {
-    authState: { authenticated },
-  } = useAuthContext();
+  const [bannerVisible, setBannerVisible] = useState<boolean>(true);
 
   const dismiss = () => {
-    setLastDismissedEpoch(new Date().getTime());
     setBannerVisible(false);
   };
 
@@ -48,7 +34,7 @@ export function DonationBanner() {
     router.push(`${donationsRoute}?utm_source=donation_banner`);
   };
 
-  if (!bannerVisible || !authenticated) return null;
+  if (!bannerVisible) return null;
 
   return (
     <Alert

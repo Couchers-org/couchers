@@ -9,25 +9,21 @@ const { t } = i18n;
 
 const mockPush = jest.fn();
 jest.mock("next/router", () => ({
+  __esModule: true,
   useRouter: () => ({
     push: mockPush,
   }),
-}));
-
-jest.mock("features/auth/useAuthStore", () => ({
-  __esModule: true,
-  default: () => ({
-    authState: {
-      authenticated: true,
+  default: {
+    events: {
+      on: jest.fn(),
+      off: jest.fn(),
     },
-  }),
+  },
 }));
 
 describe("DonationBanner", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Clear localStorage to reset banner dismissal state
-    global.localStorage.clear();
   });
 
   it("renders the donation banner when user is authenticated", () => {
@@ -68,18 +64,19 @@ describe("DonationBanner", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("does not show again after dismissal within the time window", () => {
-    // First render and dismiss
+  it("shows again after unmounting and remounting", async () => {
+    const user = userEvent.setup();
     const { unmount } = render(<DonationBanner />, { wrapper });
     const closeButton = screen.getByLabelText("Close");
-    closeButton.click();
-
-    // Unmount and re-render
-    unmount();
-    render(<DonationBanner />, { wrapper });
+    await user.click(closeButton);
 
     expect(
       screen.queryByText(t("donation_banner.message")),
     ).not.toBeInTheDocument();
+
+    unmount();
+    render(<DonationBanner />, { wrapper });
+
+    expect(screen.getByText(t("donation_banner.message"))).toBeInTheDocument();
   });
 });
