@@ -182,10 +182,10 @@ def test_user_model_to_pb_ghost_user(db, flag):
 
     assert user_pb.user_id == user2.id
     assert user_pb.username == "ghost"
-    assert user_pb.name == "Ghost user"
+    assert user_pb.name == "Ghost"
     assert (
         user_pb.about_me
-        == "This user is no longer on the platform. They may have deleted their account, been blocked, or banned. We recommend applying caution with any further interaction with this user, and reaching out to support if you need any help."
+        == "This user is no longer on the platform. They may have deleted their account, been blocked, or been banned. We recommend exercising caution with any further interaction with this user off the platform. You can always reach out to support if you need any help."
     )
 
     assert user_pb.lat == 0
@@ -221,7 +221,7 @@ def test_user_model_to_pb_ghost_user(db, flag):
 
     assert lite_user_pb.user_id == user2.id
     assert lite_user_pb.username == "ghost"
-    assert lite_user_pb.name == "Ghost user"
+    assert lite_user_pb.name == "Ghost"
     assert lite_user_pb.city == ""
     assert lite_user_pb.age == 0
     assert lite_user_pb.avatar_url == ""
@@ -246,10 +246,10 @@ def test_user_model_to_pb_ghost_user_blocked(db):
 
     assert user_pb.user_id == user2.id
     assert user_pb.username == "ghost"
-    assert user_pb.name == "Ghost user"
+    assert user_pb.name == "Ghost"
     assert (
         user_pb.about_me
-        == "This user is no longer on the platform. They may have deleted their account, been blocked, or banned. We recommend applying caution with any further interaction with this user, and reaching out to support if you need any help."
+        == "This user is no longer on the platform. They may have deleted their account, been blocked, or been banned. We recommend exercising caution with any further interaction with this user off the platform. You can always reach out to support if you need any help."
     )
 
     assert user_pb.lat == 0
@@ -285,7 +285,7 @@ def test_user_model_to_pb_ghost_user_blocked(db):
 
     assert lite_user_pb.user_id == user2.id
     assert lite_user_pb.username == "ghost"
-    assert lite_user_pb.name == "Ghost user"
+    assert lite_user_pb.name == "Ghost"
     assert lite_user_pb.city == ""
     assert lite_user_pb.age == 0
     assert lite_user_pb.avatar_url == ""
@@ -311,7 +311,7 @@ def test_admin_viewing_ghost_users_sees_full_profile(db, flag):
     assert user_pb.username == user.username
     assert user_pb.name == user.name
     assert user_pb.city == user.city
-    assert user_pb.name != "Ghost user"
+    assert user_pb.name != "Ghost"
     assert user_pb.username != "ghost"
     assert user_pb.hosting_status in (
         api_pb2.HOSTING_STATUS_UNKNOWN,
@@ -475,7 +475,7 @@ def test_GetLiteUsers(db):
         assert not res.responses[8].not_found
         assert res.responses[8].user.user_id == user4.id
         assert res.responses[8].user.username == "ghost"
-        assert res.responses[8].user.name == "Ghost user"
+        assert res.responses[8].user.name == "Ghost"
 
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -1488,7 +1488,7 @@ def test_GetLiteUser_ghost_user_by_username(db, flag):
 
         assert lite_user.user_id == user2.id
         assert lite_user.username == "ghost"
-        assert lite_user.name == "Ghost user"
+        assert lite_user.name == "Ghost"
         assert lite_user.lat == 0
         assert lite_user.lng == 0
         assert lite_user.radius == 0
@@ -1520,7 +1520,7 @@ def test_GetLiteUser_ghost_user_by_id(db, flag):
 
         assert lite_user.user_id == user2.id
         assert lite_user.username == "ghost"
-        assert lite_user.name == "Ghost user"
+        assert lite_user.name == "Ghost"
         assert lite_user.lat == 0
         assert lite_user.lng == 0
         assert lite_user.radius == 0
@@ -1548,14 +1548,14 @@ def test_GetLiteUser_blocked_user(db):
 
         assert lite_user.user_id == user2.id
         assert lite_user.username == "ghost"
-        assert lite_user.name == "Ghost user"
+        assert lite_user.name == "Ghost"
 
         # Query by ID
         lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=str(user2.id)))
 
         assert lite_user.user_id == user2.id
         assert lite_user.username == "ghost"
-        assert lite_user.name == "Ghost user"
+        assert lite_user.name == "Ghost"
 
 
 def test_GetLiteUser_blocking_user(db):
@@ -1575,14 +1575,14 @@ def test_GetLiteUser_blocking_user(db):
 
         assert lite_user.user_id == user2.id
         assert lite_user.username == "ghost"
-        assert lite_user.name == "Ghost user"
+        assert lite_user.name == "Ghost"
 
         # Query by ID
         lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=str(user2.id)))
 
         assert lite_user.user_id == user2.id
         assert lite_user.username == "ghost"
-        assert lite_user.name == "Ghost user"
+        assert lite_user.name == "Ghost"
 
 
 @pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
@@ -1630,7 +1630,7 @@ def test_GetLiteUsers_ghost_users(db, flag):
         assert not res.responses[1].not_found
         assert res.responses[1].user.user_id == user2.id
         assert res.responses[1].user.username == "ghost"
-        assert res.responses[1].user.name == "Ghost user"
+        assert res.responses[1].user.name == "Ghost"
 
         # user3 - visible, normal profile
         assert res.responses[2].query == str(user3.id)
@@ -1644,7 +1644,7 @@ def test_GetLiteUsers_ghost_users(db, flag):
         assert not res.responses[3].not_found
         assert res.responses[3].user.user_id == user4.id
         assert res.responses[3].user.username == "ghost"
-        assert res.responses[3].user.name == "Ghost user"
+        assert res.responses[3].user.name == "Ghost"
 
 
 def test_GetLiteUsers_blocked_users(db):
@@ -1682,7 +1682,7 @@ def test_GetLiteUsers_blocked_users(db):
         assert not res.responses[0].not_found
         assert res.responses[0].user.user_id == user2.id
         assert res.responses[0].user.username == "ghost"
-        assert res.responses[0].user.name == "Ghost user"
+        assert res.responses[0].user.name == "Ghost"
 
         # user3 - visible
         assert res.responses[1].query == str(user3.id)
@@ -1695,7 +1695,7 @@ def test_GetLiteUsers_blocked_users(db):
         assert not res.responses[2].not_found
         assert res.responses[2].user.user_id == user4.id
         assert res.responses[2].user.username == "ghost"
-        assert res.responses[2].user.name == "Ghost user"
+        assert res.responses[2].user.name == "Ghost"
 
         # user5 - visible
         assert res.responses[3].query == str(user5.id)
@@ -1722,7 +1722,7 @@ def test_GetUser_ghost_user_by_id(db, flag):
 
         assert user_pb.user_id == user2.id
         assert user_pb.username == "ghost"
-        assert user_pb.name == "Ghost user"
+        assert user_pb.name == "Ghost"
         assert user_pb.city == ""
         assert user_pb.hosting_status == 0
         assert user_pb.meetup_status == 0
@@ -1742,14 +1742,14 @@ def test_GetUser_blocked_user(db):
 
         assert user_pb.user_id == user2.id
         assert user_pb.username == "ghost"
-        assert user_pb.name == "Ghost user"
+        assert user_pb.name == "Ghost"
 
         # Query by ID
         user_pb = api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
 
         assert user_pb.user_id == user2.id
         assert user_pb.username == "ghost"
-        assert user_pb.name == "Ghost user"
+        assert user_pb.name == "Ghost"
 
 
 def test_GetUser_blocking_user(db):
@@ -1766,11 +1766,11 @@ def test_GetUser_blocking_user(db):
 
         assert user_pb.user_id == user2.id
         assert user_pb.username == "ghost"
-        assert user_pb.name == "Ghost user"
+        assert user_pb.name == "Ghost"
 
         # Query by ID
         user_pb = api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
 
         assert user_pb.user_id == user2.id
         assert user_pb.username == "ghost"
-        assert user_pb.name == "Ghost user"
+        assert user_pb.name == "Ghost"

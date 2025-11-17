@@ -199,7 +199,7 @@
     "host_request_quick_decline": "Thank you for responding to the host request!"
   },
   "ghost_users": {
-    "display_name": "Ghost user",
-    "about_me": "This user is no longer on the platform. They may have deleted their account, been blocked, or banned. We recommend applying caution with any further interaction with this user, and reaching out to support if you need any help."
+    "display_name": "Ghost",
+    "about_me": "This user is no longer on the platform. They may have deleted their account, been blocked, or been banned. We recommend exercising caution with any further interaction with this user off the platform. You can always reach out to support if you need any help."
   }
 }
