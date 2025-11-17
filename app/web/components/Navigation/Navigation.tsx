@@ -45,7 +45,6 @@ import {
 } from "routes";
 import { theme } from "theme";
 
-import useAccountInfo from "../../features/auth/useAccountInfo";
 import LoggedInMenu, { LoggedInMenuItem } from "./LoggedInMenu";
 import NavButton from "./NavButton";
 import ReportDialog from "./ReportDialog";
@@ -292,9 +291,6 @@ export default function Navigation() {
   const { data: pingData } = useNotifications();
   const { authState } = useAuthContext();
 
-  const { data: accountInfo, isLoading: isAccountInfoLoading } =
-    useAccountInfo();
-
   useEffect(() => setIsMounted(true), []);
 
   const { t } = useTranslation(GLOBAL);
@@ -473,9 +469,7 @@ export default function Navigation() {
         </StyledMenuContainer>
       </StyledToolbar>
       <GlobalMessage />
-      {!isAccountInfoLoading &&
-        accountInfo?.shouldShowDonationBanner &&
-        authState.authenticated && <DonationBanner />}
+      {authState.authenticated && <DonationBanner />}
       {authState.authenticated && <PushNotificationBanner />}
     </StyledAppBar>
   );

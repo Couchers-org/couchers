@@ -3,9 +3,11 @@ import { Alert, alpha, Button, styled } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { donationsRoute } from "routes";
 import { theme } from "theme";
+
+import useAccountInfo from "../auth/useAccountInfo";
 
 const Wrapper = styled("div")(({ theme }) => ({
   display: "flex",
@@ -24,14 +26,26 @@ export function DonationBanner() {
   const { t } = useTranslation(GLOBAL);
   const router = useRouter();
 
-  const [bannerVisible, setBannerVisible] = useState<boolean>(true);
+  const [bannerVisible, setBannerVisible] = useState<boolean>(false);
 
-  const dismiss = () => {
+  const { data: accountInfo, isLoading: isAccountInfoLoading } =
+    useAccountInfo();
+
+  useEffect(() => {
+    if (!isAccountInfoLoading && accountInfo?.shouldShowDonationBanner) {
+      setBannerVisible(true);
+    } else {
+      setBannerVisible(false);
+    }
+  }, [isAccountInfoLoading, accountInfo]);
+
+  const handleClose = () => {
     setBannerVisible(false);
   };
 
   const handleDonateClick = () => {
     router.push(`${donationsRoute}?utm_source=donation_banner`);
+    setBannerVisible(false);
   };
 
   if (!bannerVisible) return null;
@@ -39,7 +53,7 @@ export function DonationBanner() {
   return (
     <Alert
       icon={<VolunteerActivismIcon />}
-      onClose={dismiss}
+      onClose={handleClose}
       sx={{
         alignItems: "center",
         ".MuiAlert-message": { width: "100%" },
