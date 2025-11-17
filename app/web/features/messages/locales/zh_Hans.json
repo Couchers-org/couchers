@@ -1,6 +1,6 @@
 {
   "mark_all_read_button_text": "全部标记为已读",
-  "request_closed_message": "此沙发主请求已关闭或已过期。如需继续聊天，请发送普通消息给对方。",
+  "request_closed_message": "此沙发主请求已关闭。如需继续聊天，请发送普通消息给对方。",
   "write_reference_button_text": "编写评语",
   "close_request_dialog_title": "您要结束聊天吗？",
   "close_request_dialog_host": "请确认您在拒绝他们的请求前已结束聊天。",
@@ -47,7 +47,8 @@
       "1_week_label": "1周",
       "1_month_label": "1个月",
       "forever_label": "直到我取消静音"
-    }
+    },
+    "cannot_message_text": "您无法在此聊天中发送消息"
   },
   "admins_dialog": {
     "step_down_confirmation_dialog": {
@@ -122,7 +123,8 @@
     "cancelled": "已取消",
     "confirmed": "已确认",
     "pending": "等待中",
-    "rejected": "已拒绝"
+    "rejected": "已拒绝",
+    "past": "过去"
   },
   "host_request_item": {
     "pending": "此请求仍在等待中",
@@ -136,8 +138,9 @@
       "accepted": "您的请求已被接受",
       "cancelled": "您的请求已取消",
       "confirmed": "您的请求已确认",
-      "rejected": "您的请求已被拒绝"
-    }
+      "rejected": "您的请求被拒绝"
+    },
+    "expired": "此请求已过期"
   },
   "host_request_view": {
     "error_message": "无效的留宿请求ID",
@@ -145,5 +148,7 @@
     "title_for_host": "来自{{user}} 的请求 - {{status}}",
     "title_for_surfer": "向 {{user}} 发出的请求 - {{status}}",
     "request_duration_0": "{{count}} 晚"
-  }
+  },
+  "past_request_help_text": "该请求已过期，你仍可发送消息，但无法进行其他修改。",
+  "unknown_user": "未知用户"
 }
