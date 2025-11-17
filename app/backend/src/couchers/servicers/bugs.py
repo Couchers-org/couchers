@@ -6,9 +6,9 @@ from couchers import urls
 from couchers.config import config
 from couchers.descriptor_pool import get_descriptors_pb
 from couchers.models import User
+from couchers.proto import bugs_pb2, bugs_pb2_grpc
+from couchers.proto.google.api import httpbody_pb2
 from couchers.sql import couchers_select as select
-from proto import bugs_pb2, bugs_pb2_grpc
-from proto.google.api import httpbody_pb2
 
 
 class Bugs(bugs_pb2_grpc.BugsServicer):

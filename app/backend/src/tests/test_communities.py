@@ -18,10 +18,10 @@ from couchers.models import (
     SignupFlow,
     Thread,
 )
+from couchers.proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, events_pb2, pages_pb2
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, create_coordinate, create_polygon_lat_lng, now, to_multi
-from proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, events_pb2, pages_pb2
 from tests.test_auth import get_session_cookie_tokens
 from tests.test_fixtures import (  # noqa
     auth_api_session,

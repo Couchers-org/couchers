@@ -35,6 +35,7 @@ from couchers.models import (
 )
 from couchers.notifications.notify import notify
 from couchers.notifications.quick_links import respond_quick_link
+from couchers.proto import auth_pb2, auth_pb2_grpc, notification_data_pb2
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
 from couchers.sql import couchers_select as select
@@ -54,7 +55,6 @@ from couchers.utils import (
     parse_date,
     parse_session_cookie,
 )
-from proto import auth_pb2, auth_pb2_grpc, notification_data_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -386,7 +386,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
     def Authenticate(self, request, context, session):
         """
-        Authenticates a classic password based login request.
+        Authenticates a classic password-based login request.
 
         request.user can be any of id/username/email
         """

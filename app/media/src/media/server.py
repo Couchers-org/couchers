@@ -14,7 +14,7 @@ from sentry_sdk.integrations import logging as sentry_logging
 from werkzeug.utils import secure_filename
 
 from media.crypto import verify_hash_signature
-from proto import media_pb2, media_pb2_grpc
+from media.proto import media_pb2, media_pb2_grpc
 
 logger = logging.getLogger(__name__)
 

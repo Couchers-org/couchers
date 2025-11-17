@@ -16,6 +16,11 @@ class DonationType(enum.Enum):
     recurring = enum.auto()
 
 
+class InvoiceType(enum.Enum):
+    on_platform = enum.auto()
+    external_shop = enum.auto()
+
+
 class DonationInitiation(Base):
     """
     Whenever someone initiates a donation through the platform
@@ -53,5 +58,7 @@ class Invoice(Base):
 
     stripe_payment_intent_id: Mapped[str] = mapped_column(String, unique=True)
     stripe_receipt_url: Mapped[str] = mapped_column(String)
+
+    invoice_type: Mapped[InvoiceType] = mapped_column(Enum(InvoiceType))
 
     user: Mapped["User"] = relationship("User", backref="invoices")

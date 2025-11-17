@@ -9,9 +9,9 @@ from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.models import SMS, User
+from couchers.proto import account_pb2, api_pb2
 from couchers.sql import couchers_select as select
 from couchers.utils import now
-from proto import account_pb2, api_pb2
 from tests.test_fixtures import (  # noqa
     account_session,
     api_session,
@@ -257,7 +257,7 @@ def test_send_sms_disabled(db):
 
 
 def test_sms_verification_no_donation():
-    user, token = generate_user(has_donated=False)
+    user, token = generate_user(last_donated=None)
     with account_session(token) as account:
         with pytest.raises(grpc.RpcError) as e:
             account.ChangePhone(account_pb2.ChangePhoneReq(phone="+467017406066"))

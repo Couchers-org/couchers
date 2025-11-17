@@ -1,40 +1,63 @@
-FROM python:3.13-bullseye AS base
+FROM python:3.13-slim-trixie AS base
 
-ENV UV_VERSION=0.9.8
+RUN <<EOT
+apt-get update -qy
+apt-get install -qyy \
+    -o APT::Install-Recommends=false \
+    -o APT::Install-Suggests=false \
+    libgeos-c1v5
 
-RUN apt-get update && apt-get install -y libgeos-c1v5
+apt-get clean
+rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+EOT
 
 FROM base AS build
 
+ENV UV_VERSION=0.9.8
+
 WORKDIR /deps
-RUN wget https://eradman.com/entrproject/code/entr-5.6.tar.gz \
+RUN apt-get update -qy && apt-get install -qyy zstd wget build-essential \
+    && wget -q https://eradman.com/entrproject/code/entr-5.6.tar.gz \
     && tar xf entr-5.6.tar.gz \
     && cd entr-5.6 \
     && ./configure \
     && make \
     && make install \
     && cd .. \
-    && apt-get install -y zstd \
-    && wget https://github.com/Couchers-org/resources/raw/6315b2d500d1113a01f0ea5fb54cd8cf070000b6/timezone_areas/timezone_areas.sql.zst \
+    && wget -q https://github.com/Couchers-org/resources/raw/6315b2d500d1113a01f0ea5fb54cd8cf070000b6/timezone_areas/timezone_areas.sql.zst \
     && zstd -d timezone_areas.sql.zst \
     && wget -qO- https://astral.sh/uv/${UV_VERSION}/install.sh | sh
+
+WORKDIR /app
+
+# Synchronize DEPENDENCIES without the application itself.
+# This layer is cached until uv.lock or pyproject.toml change, which are
+# only temporarily mounted into the build container since we don't need
+# them in the production one.
+RUN --mount=type=cache,target=/root/.cache \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    /root/.local/bin/uv sync \
+        --locked \
+        --no-install-project
+
+# Now install the rest from `/app`: The APPLICATION w/o dependencies.
+COPY . /app
+RUN --mount=type=cache,target=/root/.cache \
+    /root/.local/bin/uv sync \
+        --locked \
+        --no-editable
 
 FROM base
 
 COPY --from=build /usr/local/bin/entr /usr/local/bin/entr
-COPY --from=build /root/.local/bin/uv /usr/local/bin/uv
-COPY --from=build /root/.local/bin/uvx /usr/local/bin/uvx
 COPY --from=build /deps/timezone_areas.sql /app/resources/timezone_areas.sql
+COPY --from=build /app /app
 
 WORKDIR /app
 
-# Install dependencies
-COPY pyproject.toml uv.lock /app/
-RUN uv sync --frozen --no-cache --no-install-project
-
-# Install the app itself
-COPY . /app
-RUN uv sync --frozen --no-cache
+# make sure virtualenv binaries are on PATH
+ENV PATH=/app/.venv/bin:$PATH
 
 ARG version
 ENV VERSION=$version
@@ -48,4 +71,4 @@ ENV COMMIT_SHA=$commit_sha
 ARG commit_timestamp
 ENV COMMIT_TIMESTAMP=$commit_timestamp
 
-CMD ["uv", "run", "src/app.py"]
+CMD ["python", "src/app.py"]

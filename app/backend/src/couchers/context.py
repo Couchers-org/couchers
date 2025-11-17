@@ -98,7 +98,9 @@ class CouchersContext:
     def is_logged_in(self) -> bool:
         return self.__logged_in
 
-    def get_localized_string(self, component: str, message_id: str, *, substitutions: dict | None = None) -> str:
+    def get_localized_string(
+        self, component: str, message_id: str, *, substitutions: dict[str, str] | None = None
+    ) -> str:
         """
         Get a localized string using the user's language preference.
         Falls back to the default language if no preference is set.
@@ -126,7 +128,7 @@ class CouchersContext:
             context.abort(status_code, error_message)
 
     def abort_with_error_code(
-        self, status_code: grpc.StatusCode, error_message_id: str, *, substitutions: dict | None = None
+        self, status_code: grpc.StatusCode, error_message_id: str, *, substitutions: dict[str, str] | None = None
     ) -> NoReturn:
         """
         Raises an error that's returned to the user, but error_message_id should be an entry from translateable errors

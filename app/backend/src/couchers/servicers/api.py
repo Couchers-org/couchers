@@ -35,6 +35,7 @@ from couchers.models import (
 )
 from couchers.notifications.notify import notify
 from couchers.notifications.settings import get_topic_actions_by_delivery_type
+from couchers.proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2, requests_pb2
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.rate_limits.definitions import RATE_LIMIT_INTERVAL_STRING
 from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
@@ -48,7 +49,6 @@ from couchers.utils import (
     is_valid_name,
     now,
 )
-from proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2, requests_pb2
 
 MAX_USERS_PER_QUERY = 200
 MAX_PAGINATION_LENGTH = 50

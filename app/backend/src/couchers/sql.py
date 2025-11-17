@@ -1,63 +1,57 @@
-from typing import Any, Self
+from typing import TYPE_CHECKING, Any, Self
 
-from sqlalchemy import Column
-from sqlalchemy.orm import aliased
+from sqlalchemy import false
+from sqlalchemy.orm import InstrumentedAttribute, aliased
 from sqlalchemy.sql import Select, union
 
 from couchers.context import CouchersContext
-from couchers.models import Base, User, UserBlock
+from couchers.models import SignupFlow, User, UserBlock
 from couchers.utils import is_valid_email, is_valid_user_id, is_valid_username
 
+if TYPE_CHECKING:
+    from couchers.materialized_views import LiteUser
 
-def _relevant_user_blocks(user_id):
-    """
-    Gets list of blocked user IDs or users that have blocked this user: those should be hidden
-    """
-    blocked_users = couchers_select(UserBlock.blocked_user_id).where(UserBlock.blocking_user_id == user_id)
-
-    blocking_users = couchers_select(UserBlock.blocking_user_id).where(UserBlock.blocked_user_id == user_id)
-
-    return couchers_select(union(blocked_users, blocking_users).subquery())
-
-
-"""
-This method construct provided directly by the developers
-They intend to implement a better option in the near future
-See issue here: https://github.com/sqlalchemy/sqlalchemy/issues/6700
-"""
+    type _UserLike = type[User | LiteUser | SignupFlow]
+    type _User = type[User | LiteUser]
 
 
 class CouchersSelect(Select[Any]):
+    """
+    This method construct provided directly by the developers
+    They intend to implement a better option in the near future
+    See issue here: https://github.com/sqlalchemy/sqlalchemy/issues/6700
+    """
+
     inherit_cache = True
 
-    def where_username_or_email(self, field: str, table: Base = User) -> Self:
-        if is_valid_username(field):
-            return self.where(table.username == field)
-        elif is_valid_email(field):
-            return self.where(table.email == field)
+    def where_username_or_email(self, value: str, table: "_UserLike" = User) -> Self:
+        if is_valid_username(value):
+            return self.where(table.username == value)
+        elif is_valid_email(value) and hasattr(table, "email"):
+            return self.where(table.email == value)
         # no fields match, this will return no rows
-        return self.where(False)
+        return self.where(false())
 
-    def where_username_or_id(self, field: str, table: Base = User) -> Self:
-        if is_valid_username(field):
-            return self.where(table.username == field)
-        elif is_valid_user_id(field):
-            return self.where(table.id == field)
+    def where_username_or_id(self, value: str, table: "_UserLike" = User) -> Self:
+        if is_valid_username(value):
+            return self.where(table.username == value)
+        elif is_valid_user_id(value):
+            return self.where(table.id == value)
         # no fields match, this will return no rows
-        return self.where(False)
+        return self.where(false())
 
-    def where_username_or_email_or_id(self, field: str) -> Self:
+    def where_username_or_email_or_id(self, value: str) -> Self:
         # Should only be used for admin APIs, etc.
-        if is_valid_username(field):
-            return self.where(User.username == field)
-        elif is_valid_email(field):
-            return self.where(User.email == field)
-        elif is_valid_user_id(field):
-            return self.where(User.id == field)
+        if is_valid_username(value):
+            return self.where(User.username == value)
+        elif is_valid_email(value):
+            return self.where(User.email == value)
+        elif is_valid_user_id(value):
+            return self.where(User.id == value)
         # no fields match, this will return no rows
-        return self.where(False)
+        return self.where(false())
 
-    def where_users_visible(self, context: CouchersContext, table: Base = User) -> Self:
+    def where_users_visible(self, context: CouchersContext, table: "_User" = User) -> Self:
         """
         Filters out users that should not be visible: blocked, deleted, or banned
 
@@ -66,7 +60,7 @@ class CouchersSelect(Select[Any]):
         hidden_users = _relevant_user_blocks(context.user_id)
         return self.where(table.is_visible).where(~table.id.in_(hidden_users))
 
-    def where_users_column_visible(self, context: CouchersContext, column: Column[Any]) -> Self:
+    def where_users_column_visible(self, context: CouchersContext, column: InstrumentedAttribute[int]) -> Self:
         """
         Filters the given column, not yet joined/selected from
         """
@@ -81,3 +75,14 @@ class CouchersSelect(Select[Any]):
 
 def couchers_select(*expr: Any) -> CouchersSelect:
     return CouchersSelect(*expr)
+
+
+def _relevant_user_blocks(user_id: int) -> CouchersSelect:
+    """
+    Gets a list of blocked user IDs or users that have blocked this user: those should be hidden
+    """
+    blocked_users = couchers_select(UserBlock.blocked_user_id).where(UserBlock.blocking_user_id == user_id)
+
+    blocking_users = couchers_select(UserBlock.blocking_user_id).where(UserBlock.blocked_user_id == user_id)
+
+    return couchers_select(union(blocked_users, blocking_users).subquery())

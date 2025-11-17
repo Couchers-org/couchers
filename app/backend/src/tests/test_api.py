@@ -8,11 +8,11 @@ from couchers.db import session_scope
 from couchers.jobs.handlers import update_badges
 from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import FriendRelationship, FriendStatus, RateLimitAction
+from couchers.proto import api_pb2, jail_pb2, notifications_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL_STRING
 from couchers.resources import get_badge_dict
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, to_aware_datetime
-from proto import api_pb2, jail_pb2, notifications_pb2
 from tests.test_fixtures import (  # noqa
     api_session,
     blocking_session,

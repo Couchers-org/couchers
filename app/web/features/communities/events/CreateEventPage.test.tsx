@@ -48,6 +48,7 @@ const accountInfo = {
   profilePublicVisibility: 1,
   isVolunteer: false,
   myHomeComplete: false,
+  shouldShowDonationBanner: false,
 };
 
 describe("Create event page", () => {
@@ -375,6 +376,7 @@ describe("Create event page", () => {
       profilePublicVisibility: 1,
       isVolunteer: false,
       myHomeComplete: false,
+      shouldShowDonationBanner: false,
     });
 
     render(<CreateEventPage />, { wrapper });

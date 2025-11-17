@@ -1,12 +1,12 @@
 import phonenumbers
 
 
-def is_e164_format(phone):
+def is_e164_format(phone: str) -> bool:
     """Return true if string is in E.164 format with leading +, for example "+46701740605" """
     return len(phone) > 2 and phone[0] == "+" and phone[1:].isdigit() and len(phone) <= 16
 
 
-def is_known_operator(phone):
+def is_known_operator(phone: str) -> bool:
     """Return true if phone is in E.164 format with leading +, and has the
     correct amount of digits considering the country and operator.
     """

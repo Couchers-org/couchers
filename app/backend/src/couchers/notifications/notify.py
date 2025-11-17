@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Notification
 from couchers.notifications.utils import enum_from_topic_action
-from proto.internal import jobs_pb2
+from couchers.proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 

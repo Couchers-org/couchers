@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package org.couchers.api.search;
 
+import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 
@@ -32,6 +33,10 @@ service Search {
   rpc EventSearch(EventSearchReq) returns (EventSearchRes) {
     // Search for events in particular with extra filters
   }
+
+  rpc GeolocationSearchInfo(GeolocationSearchInfoReq) returns (google.protobuf.Empty) {}
+
+  rpc GeolocationClickInfo(GeolocationClickInfoReq) returns (google.protobuf.Empty) {}
 }
 
 message Area {
@@ -270,4 +275,17 @@ message EventSearchRes {
 
   string next_page_token = 2;
   uint32 total_items = 4;
+}
+
+message GeolocationSearchInfoReq {
+  string search_string = 1;
+  string nominatim_result_json = 2;
+  string formatted_result_json = 3;
+  uint32 duration_ms = 4;
+}
+
+message GeolocationClickInfoReq {
+  string context = 1;
+  string formatted_result_json = 2;
+  string search_choice_json = 3;
 }

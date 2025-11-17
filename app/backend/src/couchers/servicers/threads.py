@@ -9,12 +9,12 @@ from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Comment, Discussion, Event, EventOccurrence, Reply, Thread, User
 from couchers.notifications.notify import notify
+from couchers.proto import notification_data_pb2, threads_pb2, threads_pb2_grpc
+from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime
-from proto import notification_data_pb2, threads_pb2, threads_pb2_grpc
-from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 

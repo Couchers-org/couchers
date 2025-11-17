@@ -6,9 +6,9 @@ from sqlalchemy.sql import func
 
 from couchers.materialized_views import ClusteredUser, LiteUser
 from couchers.models import Node, Page, PageType, PageVersion
+from couchers.proto import gis_pb2_grpc
+from couchers.proto.google.api import httpbody_pb2
 from couchers.sql import couchers_select as select
-from proto import gis_pb2_grpc
-from proto.google.api import httpbody_pb2
 
 logger = logging.getLogger(__name__)
 

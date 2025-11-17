@@ -68,15 +68,18 @@ default:
       local path="$3"
       local version="$4"
       shift 4 # Remove the N arguments so that the rest can be used in "$@" later
-
+      
+      # A separate image with cached layers.
+      cache_tag="${release_tag}-cache"
+  
       # Push image cache only on develop.
       local cache_to=""
       if [ "$CI_COMMIT_BRANCH" = "$RELEASE_BRANCH" ]; then
-        cache_to="--cache-to type=registry,ref=$release_tag,mode=max"
+        cache_to="--cache-to type=registry,ref=$cache_tag,mode=max"
       fi
 
       # Use buildx, as "docker build" does not work with registry cache.
-      docker pull "$release_tag" || true
+      docker pull "$cache_tag" || true
       docker context create my-builder
       docker buildx create my-builder --driver docker-container --use
 
@@ -87,7 +90,7 @@ default:
         --build-arg commit_sha="$COMMIT_SHA" \
         --build-arg commit_timestamp="$COMMIT_TIMESTAMP" \
         --build-arg version="$version" \
-        --cache-from "$release_tag" \
+        --cache-from "$cache_tag" \
         ${cache_to} \
         "$@" \
         "app/$path/"
@@ -196,8 +199,6 @@ build:web-dev:
   script:
     - *common_functions
     - build "$WEB_DEV_TAG" "$WEB_DEV_RELEASE_TAG" "web" "$SLUG" --build-arg environment=next -f app/web/Dockerfile
-    # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
-    - mkdir -p artifacts && docker cp $(docker create $WEB_DEV_TAG):/app artifacts/web-dev
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") &&($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
@@ -207,9 +208,6 @@ build:web-dev:
         - app/proto/**/*
         - app/web/**/*
         - app/.gitlab-ci.yml
-  artifacts:
-    paths:
-      - artifacts/web-dev/
   tags:
       - saas-linux-large-amd64
 
@@ -220,7 +218,8 @@ build:web:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - - *common_functions
-    - build "$WEB_TAG" "$WEB_RELEASE_TAG" "web" "$SLUG" --build-arg environment=production -f app/web/Dockerfile.prod
+    # Add "--load" so that the image is saved locally for "docker create"
+    - build "$WEB_TAG" "$WEB_RELEASE_TAG" "web" "$SLUG" --build-arg environment=production -f app/web/Dockerfile.prod --load
     # creates a new docker container (docker create returns the container name), and copies the static folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app/.next/static/ static
     - ./app/web/generate_static_manifest.sh static > static/manifest.txt
@@ -247,7 +246,8 @@ build:web-next:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - *common_functions
-    - build "$WEB_NEXT_TAG" "$WEB_NEXT_RELEASE_TAG" "web" "$SLUG-next" --build-arg environment=next -f app/web/Dockerfile.prod
+    # Add "--load" so that the image is saved locally for "docker create"
+    - build "$WEB_NEXT_TAG" "$WEB_NEXT_RELEASE_TAG" "web" "$SLUG-next" --build-arg environment=next -f app/web/Dockerfile.prod --load
     # creates a new docker container (docker create returns the container name), and copies the static folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_NEXT_TAG):/app/.next/static/ static
     - ./app/web/generate_static_manifest.sh static > static/manifest.txt
@@ -312,14 +312,16 @@ test:backend:
     RUN_MIGRATION_TEST: true
   before_script:
     # install the latest postgres from their repos to get pg_dump compatible with later postgres
-    - sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt bullseye-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-    - wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-    - apt-get update
-    - apt-get -y install postgresql-client
+    - apt-get update -qy && apt-get install -qyy wget gpg
+    - wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /usr/share/keyrings/postgresql-archive-keyring.gpg
+    # "trixie" is taken from backend's dockerfile "python:3.13-slim-trixie"
+    - echo "deb [signed-by=/usr/share/keyrings/postgresql-archive-keyring.gpg] http://apt.postgresql.org/pub/repos/apt trixie-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+    - apt-get -qy update
+    - apt-get -qyy install postgresql-client
   script:
-    - cd /app && uv run pytest --junitxml=junit.xml --cov=src src
+    - cd /app && pytest --junitxml=junit.xml --cov=src src
   after_script:
-    - cd /app && uv run coverage xml && uv run coverage html
+    - cd /app && coverage xml && coverage html
     - cp /app/junit.xml $CI_PROJECT_DIR/
     - cp /app/coverage.xml $CI_PROJECT_DIR/
     - mkdir -p $CI_PROJECT_DIR/artifacts/htmlcov && cp -a /app/htmlcov $CI_PROJECT_DIR/artifacts/
@@ -352,9 +354,9 @@ test:backend-format:
     default: false
   script:
     - cd app/backend
-    - uv run ruff check .
-    - uv run ruff check --diff .
-    - uv run ruff format --diff .
+    - ruff check .
+    - ruff check --diff .
+    - ruff format --diff .
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
@@ -374,7 +376,7 @@ test:media:
   variables:
     MEDIA_SERVER_FROM_ENV: 0
   script:
-    - cd /app && uv run pytest src --junitxml=junit.xml
+    - cd /app && pytest src --junitxml=junit.xml
   after_script:
     - cp /app/junit.xml $CI_PROJECT_DIR/junit.xml
   artifacts:
@@ -797,7 +799,7 @@ deploy:staging:
     - echo "Git hash is ${rev}"
     - echo "Deploying staging..."
     - web_next_static="https://${rev}--web-next-static.preview.couchershq.org/static.tar.gz"
-    - wget ${web_next_static} -O next-static.tar.gz
+    - wget -q ${web_next_static} -O next-static.tar.gz
     - mkdir -p next/
     - tar xf next-static.tar.gz --directory next/
     - aws s3 sync next/ s3://next-static.couchershq.org/static/_next/static/

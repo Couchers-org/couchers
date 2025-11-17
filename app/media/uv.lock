@@ -106,7 +106,7 @@ wheels = [
 [[package]]
 name = "couchers-media"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "backoff" },
     { name = "flask" },

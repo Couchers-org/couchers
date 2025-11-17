@@ -2,7 +2,7 @@ import enum
 from datetime import date, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
-from geoalchemy2 import Geometry, WKBElement, WKTElement
+from geoalchemy2 import Geometry
 from sqlalchemy import (
     BigInteger,
     Boolean,
@@ -37,7 +37,7 @@ from couchers.constants import (
     TOS_VERSION,
 )
 from couchers.models.activeness_probe import ActivenessProbe
-from couchers.models.base import Base
+from couchers.models.base import Base, Geom
 from couchers.models.mod_note import ModNote
 from couchers.models.static import Language, Region, TimezoneArea
 from couchers.models.uploads import Upload
@@ -90,9 +90,6 @@ class ProfilePublicVisibility(enum.Enum):
     most = enum.auto()
     # all but references
     full = enum.auto()
-
-
-Geom = WKBElement | WKTElement
 
 
 class User(Base):
@@ -293,7 +290,9 @@ class User(Base):
     has_passport_sex_gender_exception: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
 
     #  checking for phone verification
-    has_donated: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
+    last_donated: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True, server_default=expression.null()
+    )
 
     # whether this user has all emails turned off
     do_not_email: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())

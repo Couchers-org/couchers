@@ -126,6 +126,7 @@ export async function getAccountInfo() {
     profilePublicVisibility:
       ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_NOTHING,
     isVolunteer: false,
+    shouldShowDonationBanner: false,
   };
 }
 

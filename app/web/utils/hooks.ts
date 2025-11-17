@@ -11,6 +11,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { service } from "service";
 import {
   filterDuplicatePlaces,
   NominatimPlace,
@@ -102,6 +103,7 @@ const useGeocodeQuery = () => {
         method: "GET",
       };
       try {
+        const startTime = performance.now();
         const response = await fetch(url, fetchOptions);
 
         if (!response.ok) throw Error(await response.text());
@@ -128,6 +130,12 @@ const useGeocodeQuery = () => {
               isRegion: !nonRegionKeys.some((k) => k in result.address),
               bbox: result["boundingbox"],
             };
+          });
+          service.search.geolocationSearchInfo({
+            searchString: value,
+            nominatimResultJson: JSON.stringify(nominatimResults),
+            formattedResultJson: JSON.stringify(formattedResults),
+            durationMs: performance.now() - startTime,
           });
 
           setResults(formattedResults);

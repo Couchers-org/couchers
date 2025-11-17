@@ -8,7 +8,7 @@ protos:
 	docker run --rm -w /app -v $(realpath ${ROOT_DIR}..):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
 
 setup:
-	wget -qO- https://astral.sh/uv/${UV_VERSION}/install.sh | sh
+	curl -fsSL https://astral.sh/uv/${UV_VERSION}/install.sh | sh
 
 
 # Connect to the local development database
@@ -26,12 +26,22 @@ fmt: format
 mypy:
 	uv run mypy \
 		src/couchers/config.py \
+		src/couchers/constants.py \
+		src/couchers/context.py \
+		src/couchers/crypto.py \
+		src/couchers/db.py \
 		src/couchers/descriptor_pool.py \
+		src/couchers/interceptors.py \
+		src/couchers/materialized_views.py \
+		src/couchers/metrics.py \
 		src/couchers/reranker.py \
 		src/couchers/resources.py \
+		src/couchers/server.py \
+		src/couchers/sql.py \
+		src/couchers/tasks.py \
+		src/couchers/tracing.py \
 		src/couchers/urls.py \
 		src/couchers/utils.py \
-		src/couchers/metrics.py \
 		src/couchers/migrations/env.py \
 		src/couchers/models \
 		src/couchers/notifications \
@@ -40,7 +50,8 @@ mypy:
 		src/couchers/templates \
 		src/couchers/helpers \
 		src/couchers/jobs \
-		src/couchers/context.py
+		src/couchers/i18n \
+		src/couchers/phone
 
 # Downgrade the local database to the previous migration. Good if you ran a migration on a branch and will run the backend on another branch after.
 # Usage:

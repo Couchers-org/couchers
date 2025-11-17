@@ -6,6 +6,7 @@ __pycache__/
 
 .pytest_cache
 
-src/proto
+src/proto  # old path
+src/media/proto
 
 .env
