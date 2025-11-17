@@ -376,8 +376,6 @@ def generate_user(
             session.add(LanguageAbility(user_id=user.id, language_code=lang, fluency=fluency))
 
         # this expires the user, so now it's "dirty"
-        session.commit()
-
         token, _ = create_session(_MockCouchersContext(), session, user, False, set_cookie=False)
 
         # deleted user aborts session creation, hence this follows and necessitates a second commit
