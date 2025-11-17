@@ -7,5 +7,27 @@
   "confirm_request_button_text": "Bevestigen",
   "close_request_button_text": "Afwijzen",
   "host_pending_request_help_text": "<0>Dingen om rekening mee te houden</0> voordat je reageert.",
-  "close_request_dialog_host": "Zorg ervoor dat je klaar bent met chatten voordat je hun verzoek afwijst."
+  "close_request_dialog_host": "Zorg ervoor dat je klaar bent met chatten voordat je hun verzoek afwijst.",
+  "messages_page": {
+    "tabs": {
+      "chats": "Chats",
+      "hosting": "Hosten",
+      "surfing": "Surfen",
+      "aria_label": "Tabbladen voor verschillende berichttypen"
+    },
+    "title": "Berichten"
+  },
+  "chat_view": {
+    "invalid_id_error": "Ongeldige chat-ID.",
+    "no_messages_state_text": "Geen berichten",
+    "back_button": {
+      "a11y_label": "Terug"
+    },
+    "muted_icon": {
+      "a11y_label": "Gemute"
+    },
+    "cannot_message_text": "Je kan geen berichten sturen in deze chat"
+  },
+  "past_request_help_text": "Dit verzoek is oud en kan niet aangepast worden, maar je kan nog wel berichten versturen.",
+  "surfer_declined_request_help_text": "<0>Lees onze handleiding</0> over hoe je het beste een verzoek doet dat wordt geaccepteerd."
 }
