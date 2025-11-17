@@ -308,6 +308,12 @@ def db_class(template_db: str, postgres_conn: Connection) -> None:
     postgres_conn.execute(text(f"CREATE DATABASE testdb WITH TEMPLATE {template_db}"))
 
 
+class _MockCouchersContext:
+    @property
+    def headers(self):
+        return {}
+
+
 def generate_user(
     *, delete_user=False, complete_profile=True, strong_verification=False,
     regions_visited: Sequence[str] = (),
@@ -322,8 +328,6 @@ def generate_user(
 
     Use this most of the time
     """
-    auth = Auth()
-
     with session_scope() as session:
         # default args
         username = "test_user_" + random_hex(16)
@@ -373,11 +377,6 @@ def generate_user(
 
         # this expires the user, so now it's "dirty"
         session.commit()
-
-        class _MockCouchersContext:
-            @property
-            def headers(self):
-                return {}
 
         token, _ = create_session(_MockCouchersContext(), session, user, False, set_cookie=False)
 
@@ -510,6 +509,17 @@ class CookieMetadataPlugin(grpc.AuthMetadataPlugin):
         callback((("cookie", f"couchers-sesh={self.token}"),), None)
 
 
+class _MetadataKeeperInterceptor(grpc.UnaryUnaryClientInterceptor):
+    def __init__(self):
+        self.latest_headers = {}
+
+    def intercept_unary_unary(self, continuation, client_call_details, request):
+        call = continuation(client_call_details, request)
+        self.latest_headers = dict(call.initial_metadata())
+        self.latest_header_raw = call.initial_metadata()
+        return call
+
+
 @contextmanager
 def auth_api_session(
     grpc_channel_options=(),
@@ -529,17 +539,6 @@ def auth_api_session(
             with grpc.secure_channel(
                 f"localhost:{port}", grpc.local_channel_credentials(), options=grpc_channel_options
             ) as channel:
-
-                class _MetadataKeeperInterceptor(grpc.UnaryUnaryClientInterceptor):
-                    def __init__(self):
-                        self.latest_headers = {}
-
-                    def intercept_unary_unary(self, continuation, client_call_details, request):
-                        call = continuation(client_call_details, request)
-                        self.latest_headers = dict(call.initial_metadata())
-                        self.latest_header_raw = call.initial_metadata()
-                        return call
-
                 metadata_interceptor = _MetadataKeeperInterceptor()
                 channel = grpc.intercept_channel(channel, metadata_interceptor)
                 yield auth_pb2_grpc.AuthStub(channel), metadata_interceptor
@@ -1109,56 +1108,57 @@ def email_fields(mock, call_ix=0):
     )
 
 
+class Push:
+    """
+    This allows nice access to the push info via e.g. push.title instead of push["title"]
+    """
+
+    def __init__(self, kwargs):
+        self.kwargs = kwargs
+
+    def __getattr__(self, attr):
+        try:
+            return self.kwargs[attr]
+        except KeyError:
+            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{attr}'") from None
+
+    def __repr__(self):
+        kwargs_disp = ", ".join(f"'{key}'='{val}'" for key, val in self.kwargs.items())
+        return f"Push({kwargs_disp})"
+
+
+class PushCollector:
+    def __init__(self):
+        # pairs of (user_id, push)
+        self.pushes = []
+
+    def by_user(self, user_id):
+        return [kwargs for uid, kwargs in self.pushes if uid == user_id]
+
+    def push_to_user(self, session, user_id, **kwargs):
+        self.pushes.append((user_id, Push(kwargs=kwargs)))
+
+    def assert_user_has_count(self, user_id, count):
+        assert len(self.by_user(user_id)) == count
+
+    def assert_user_push_matches_fields(self, user_id, ix=0, **kwargs):
+        push = self.by_user(user_id)[ix]
+        for kwarg in kwargs:
+            assert kwarg in push.kwargs, f"Push notification {user_id=}, {ix=} missing field '{kwarg}'"
+            assert push.kwargs[kwarg] == kwargs[kwarg], (
+                f"Push notification {user_id=}, {ix=} mismatch in field '{kwarg}', expected '{kwargs[kwarg]}' but got '{push.kwargs[kwarg]}'"
+            )
+
+    def assert_user_has_single_matching(self, user_id, **kwargs):
+        self.assert_user_has_count(user_id, 1)
+        self.assert_user_push_matches_fields(user_id, ix=0, **kwargs)
+
+
 @pytest.fixture
 def push_collector():
     """
     See test_SendTestPushNotification for an example on how to use this fixture
     """
-
-    class Push:
-        """
-        This allows nice access to the push info via e.g. push.title instead of push["title"]
-        """
-
-        def __init__(self, kwargs):
-            self.kwargs = kwargs
-
-        def __getattr__(self, attr):
-            try:
-                return self.kwargs[attr]
-            except KeyError:
-                raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{attr}'") from None
-
-        def __repr__(self):
-            kwargs_disp = ", ".join(f"'{key}'='{val}'" for key, val in self.kwargs.items())
-            return f"Push({kwargs_disp})"
-
-    class PushCollector:
-        def __init__(self):
-            # pairs of (user_id, push)
-            self.pushes = []
-
-        def by_user(self, user_id):
-            return [kwargs for uid, kwargs in self.pushes if uid == user_id]
-
-        def push_to_user(self, session, user_id, **kwargs):
-            self.pushes.append((user_id, Push(kwargs=kwargs)))
-
-        def assert_user_has_count(self, user_id, count):
-            assert len(self.by_user(user_id)) == count
-
-        def assert_user_push_matches_fields(self, user_id, ix=0, **kwargs):
-            push = self.by_user(user_id)[ix]
-            for kwarg in kwargs:
-                assert kwarg in push.kwargs, f"Push notification {user_id=}, {ix=} missing field '{kwarg}'"
-                assert push.kwargs[kwarg] == kwargs[kwarg], (
-                    f"Push notification {user_id=}, {ix=} mismatch in field '{kwarg}', expected '{kwargs[kwarg]}' but got '{push.kwargs[kwarg]}'"
-                )
-
-        def assert_user_has_single_matching(self, user_id, **kwargs):
-            self.assert_user_has_count(user_id, 1)
-            self.assert_user_push_matches_fields(user_id, ix=0, **kwargs)
-
     collector = PushCollector()
 
     with patch("couchers.notifications.push._push_to_user", collector.push_to_user):
