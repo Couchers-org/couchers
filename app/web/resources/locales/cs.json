@@ -19,13 +19,30 @@
             "description_label": "Popiš problém",
             "reason": {
                 "external": "Incident mimo platformu",
-                "other": "Ostatní (Prosím specifikuj níže)"
+                "other": "Ostatní (Prosím specifikuj níže)",
+                "sexualized": "Sexuálně laděný obsah nebo chování",
+                "dating": "Chování připomínající flirtování či seznamovací aplikace",
+                "harassment": "Obtěžování, šikana, nenávistné projevy nebo nelegální obsah",
+                "guidelines_breach": "Porušení pravidel nebo zásad (účtování poplatků, nahota, společné spaní apod.)",
+                "safety": "Obava o bezpečí (tvé nebo ostatních)",
+                "spam": "Spam nebo propagační obsah nesouvisející s couchsurfingem",
+                "scam": "Podvod, falešné nebo zavádějící informace"
             },
-            "block_user": "Blokovat {{username}}"
+            "block_user": "Blokovat {{username}}",
+            "block_user_explainer": "Zprávy a žádosti od této osoby budou zablokovány a tvůj profil, události a komentáře pro něj nebudou viditelné. Daná osoba nebude upozorněna, že byla tebou zablokována.",
+            "button_aria_label": "Nahlásit obsah nebo uživatele",
+            "profile_button_aria_label": "Nahlásit obsah nebo zablokovat uživatele",
+            "explainer": "Důvěrně poslat zprávu našemu týmu pro bezpečí a důvěru.",
+            "title": "Nahlásit obsah nebo uživatele",
+            "description_helper": "Prosím, řekni nám, proč to nahlašuješ.",
+            "profile_reason_required": "Vyplň prosím popis nebo blok",
+            "success": "Děkujeme ti za tvou zprávu a za to, že pomáháš dělat Couchers lepší platformou pro všechny!",
+            "reason_helper": "Proč tento obsah nahlašuješ?"
         },
         "content": {
             "button_label": "Nahlásit nevhodný obsah nebo chování",
-            "success_message": "Děkujeme ti za tvou zprávu a za to, že pomáháš dělat Couchers lepší platformou pro všechny!"
+            "success_message": "Děkujeme ti za tvou zprávu a za to, že pomáháš dělat Couchers lepší platformou pro všechny!",
+            "dialog_message": "Pracujeme na robustních nástrojích pro hlášení a moderaci uživatelů. Mezitím nám můžeš poslat e-mail na níže uvedenou adresu. Uveď podrobnosti, jako je patřičný uživatel, co bylo nevhodné a kde jsi to viděl/a."
         },
         "label": "Nahlásit problém",
         "title": "Nahlásit problém"
@@ -104,5 +121,131 @@
     "error_loading_invite_codes": "Nepodařilo se získat podrobnosti o kódu pozvánky",
     "verification_score": "Ověřovací skóre",
     "verification_score_description": "Vypočítáno na základě doporučení od ostatních uživatelů",
-    "mod": "Moderování"
+    "mod": "Moderování",
+    "not_found_text_1": "Nepodařilo se nám najít požadovanou URL nebo zdroj",
+    "not_found_alt": "404 Error: Zdroj nebyl nalezen",
+    "nav": {
+        "feature_preview": "Náhled funkce",
+        "forum": "Fórum",
+        "the_team": "Tým",
+        "github": "GitHub",
+        "help_center": "Centrum nápovědy",
+        "roadmap_updates": "Plán vývoje a novinky",
+        "help": "Pomoc",
+        "log_out": "Odhlásit se",
+        "map_search": "Hledat",
+        "mission": "Mise a hodnoty",
+        "messages": "Zprávy",
+        "notifications": "Notifikace",
+        "our_plan": "Náš plán",
+        "our_team": "Náš tým",
+        "account_settings": "Nastavení účtu",
+        "badges": "Odznaky",
+        "blog": "Blog",
+        "community": "Komunita",
+        "communities": "Komunity",
+        "dashboard": "Nástěnka",
+        "donate": "Podpořit projekt",
+        "events": "Události",
+        "newsletter": "Zpravodaj",
+        "profile": "Profil",
+        "show_all_events": "Zobrazit všechny události",
+        "volunteer": "Dobrovolník",
+        "legal_more": "Právní záležitosti a další",
+        "contact_us": "Kontaktuj nás",
+        "built_with": "Open Source",
+        "landing_page": "Úvodní stránka",
+        "invite_members": "Pozvat členy",
+        "faq": "Často kladené otázky"
+    },
+    "html_meta": {
+        "default_description": "Sdílej svůj svět a objevuj ten jejich. Autentické místní zážitky postavené na důvěře a skutečném spojení — ne na transakcích.",
+        "default_title": "Couchers.org",
+        "title_suffix": " | Couchers.org"
+    },
+    "invited_you": "{{name}} tě pozval(a), abys ses přidal(a) ke Couchers!",
+    "components": {
+        "edit_location_map": {
+            "location_accuracy": "Přesnost polohy",
+            "location_publicly_visible": "Toto bude veřejně viditelné",
+            "display_location_label": "Zobrazit polohu",
+            "search_location_label": "Vyhledat místo",
+            "map_is_blank": "Chybějící souřadnice, začni hledáním místa pomocí mapy výše",
+            "radius_text": "{{radius}} metrů",
+            "no_location_results_text": "Žádné výsledky. Zkus vyhledat pouze město.",
+            "press_enter_to_search": "Stiskni Enter pro vyhledávání",
+            "invalid_coordinate": "Chybí souřadnice, prosím vyber na mapě výše dané místo",
+            "location_warn": "Klikni a přetáhni kruh níže, abys ukázal(a) lidem přibližnou polohu svého domova. Ujisti se, že tvůj domov není ve středu kruhu, aby lidé nepoznali přesnou polohu.",
+            "no_map_support": "Tvé zařízení nepodporuje zobrazení mapy. Zkontroluj, že máš zapnutý WebGL2, nebo zkus jiné zařízení/prohlížeč. Omlouváme se za komplikace!"
+        },
+        "datepicker": {
+            "change_date": "Změnit datum"
+        }
+    },
+    "error": {
+        "fatal_message": "Tohle by se nemělo stávat. Prosím, kontaktuj nás a napiš, co jsi právě dělal(a), aby nám to pomohlo takové chybě do budoucna zabránit.",
+        "unknown": "Neznámá chyba",
+        "fallback": {
+            "title": "Jejda... to je neznámá chyba",
+            "subtitle": "Použij prosím tlačítko „Nahlásit problém“ a napiš nám, co jsi právě dělal(a), aby nám to pomohlo takové chybě do budoucna předejít.",
+            "refresh_page_button_label": "Obnovit stránku",
+            "home_page_link_label": "Přejít na domovskou stránku"
+        }
+    },
+    "invites": {
+        "title": "Pozvat členy",
+        "create": "Vytvořit pozvánku",
+        "disable": "Vypnout",
+        "share_link": "Kopírovat odkaz ke sdílení",
+        "uses_suffix": "dokončené registrace",
+        "banner": {
+            "inviter_fallback": "{{username}} tě pozval(a), abys ses přidal(a) ke Couchers!",
+            "invited_you": "{{name}} tě pozval(a), abys ses přidal(a) ke Couchers!"
+        },
+        "instructions": "Vytvoř odkaz na pozvánku, který můžeš sdílet s přáteli a komunitou. Deaktivuj kódy, které už nepoužíváš.",
+        "error": {
+            "fetch_invite_info": "Nepodařilo se získat podrobnosti o kódu pozvánky"
+        }
+    },
+    "no_invite_codes": "Zatím žádné pozvánky",
+    "community_standing": "Postavení v komunitě",
+    "relative_time": {
+        "one_year_ago": "před rokem",
+        "x_years_ago": "Před {{date}} lety",
+        "less_than_a_minute_ago": "před méně než minutou",
+        "one_minute_ago": "před minutou",
+        "x_minutes_ago": "před {{date}} minutami",
+        "less_than_one_hour_ago": "Před méně než hodinou",
+        "one_hour_ago": "před 1 hodinou",
+        "x_hours_ago": "Před {{date}} hodinami",
+        "one_day_ago": "před 1 dnem",
+        "x_days_ago": "Před {{date}} dny",
+        "one_week_ago": "před týdnem",
+        "x_weeks_ago": "Před {{date}} týdny",
+        "one_month_ago": "před měsícem",
+        "x_months_ago": "před {{date}} měsíci"
+    },
+    "join_us": "Přidej se k nám",
+    "ok": "Dobře",
+    "reply": "Odpovědět",
+    "yes": "Ano",
+    "location_autocomplete": {
+        "more_specific": "Vyber si prosím konkrétnější místo",
+        "search_location_button": "Hledat místo",
+        "search_location_hint": "Stiskni Enter nebo klikni na ikonu hledání a vyber místo",
+        "select_location_hint": "Stiskni Enter nebo klikni na ikonu hledání, poté vyber místo ze seznamu"
+    },
+    "strong_verification": {
+        "helper_text": "Tento uživatel ověřil svou totožnost pomocí biometrického pasu"
+    },
+    "footer": {
+        "copyright": "© 2025 Couchers, Inc.",
+        "version_info": "Verze <2>{{version}}</2>, naposledy aktualizováno <5>{{updated_ago}}</5>."
+    },
+    "what_is_cs": {
+        "get_involved_title": "Co mohu dělat na Couchers.org?",
+        "get_started": "Začít"
+    },
+    "beta": "Beta",
+    "no": "Ne"
 }

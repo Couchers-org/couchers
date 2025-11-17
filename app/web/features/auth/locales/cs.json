@@ -68,7 +68,7 @@
       "required_error": "Prosím vyber svou pohlavní identitu"
     },
     "tos_prompt": "Chceš-li pokračovat, musíš si přečíst a souhlasit s <1></1>.",
-    "tos_accept_label": "Souhlasím s $t(global:terms_of_service).",
+    "tos_accept_label": "Souhlasím s Podmínkami služby.",
     "password": {
       "required_error": "Zadej heslo",
       "field_label": "Heslo",

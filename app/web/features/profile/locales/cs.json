@@ -1,3 +1,13 @@
 {
-  "cancel": "Zrušit"
+  "cancel": "Zrušit",
+  "heading": {
+    "edit_profile": "Upravit profil",
+    "education": "Vzdělání",
+    "home": "Můj domov",
+    "edit": "Editovat"
+  },
+  "edit": "Upravit profil",
+  "leave_reference": {
+    "next_step_label": "Pokračovat"
+  }
 }
