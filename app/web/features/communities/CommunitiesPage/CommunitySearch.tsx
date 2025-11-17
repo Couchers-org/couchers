@@ -11,12 +11,12 @@ import { Trans, useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import Sentry from "platform/sentry";
-import { Community } from "proto/communities_pb";
+import { CommunitySummary } from "proto/communities_pb";
 import { useEffect, useState } from "react";
 import { communityCreationFormURL, routeToCommunity } from "routes";
-import { listCommunities } from "service/communities";
+import { listAllCommunities } from "service/communities";
 
-interface GroupedCommunity extends Community.AsObject {
+interface GroupedCommunity extends CommunitySummary.AsObject {
   regionName?: string;
 }
 
@@ -46,30 +46,37 @@ export default function CommunitySearch() {
     const fetchAllCommunities = async () => {
       try {
         setLoading(true);
-        // First, fetch all top-level regions (communityId = 0)
-        const regionsResponse = await listCommunities(0);
-        const regions = regionsResponse.communitiesList;
+        // Use the new ListAllCommunities API - single call returns everything!
+        const response = await listAllCommunities();
 
-        // Then fetch subcommunities for each region
-        const allCommunitiesPromises = regions.map(async (region) => {
-          const subCommunitiesResponse = await listCommunities(
-            region.communityId,
-          );
-          return subCommunitiesResponse.communitiesList.map((community) => ({
+        // Map communities and extract immediate parent name from parents (last parent is the immediate parent)
+        const communitiesWithRegion: GroupedCommunity[] =
+          response.communitiesList.map((community) => ({
             ...community,
-            regionName: region.name,
+            regionName:
+              community.parentsList && community.parentsList.length > 0
+                ? community.parentsList[community.parentsList.length - 1]
+                    .community?.name || ""
+                : "",
           }));
-        });
 
-        const communitiesArrays = await Promise.all(allCommunitiesPromises);
-        const flattenedCommunities = communitiesArrays.flat();
+        // Sort hierarchically: first by depth (number of parents), then by full parent path, then by name
+        const sortedCommunities = communitiesWithRegion.sort((a, b) => {
+          // First, sort by depth in hierarchy (fewer parents = higher in tree)
+          const depthCompare = a.parentsList.length - b.parentsList.length;
+          if (depthCompare !== 0) return depthCompare;
 
-        // Sort alphabetically by region name, then by community name
-        const sortedCommunities = flattenedCommunities.sort((a, b) => {
-          const regionCompare = (a.regionName || "").localeCompare(
-            b.regionName || "",
-          );
-          if (regionCompare !== 0) return regionCompare;
+          // Then sort by the full path through the hierarchy
+          const aPath = a.parentsList
+            .map((p) => p.community?.name || "")
+            .join("/");
+          const bPath = b.parentsList
+            .map((p) => p.community?.name || "")
+            .join("/");
+          const pathCompare = aPath.localeCompare(bPath);
+          if (pathCompare !== 0) return pathCompare;
+
+          // Finally sort by community name
           return a.name.localeCompare(b.name);
         });
 
