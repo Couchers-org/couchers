@@ -1,1 +1,29 @@
-{}
+{
+    "banned": "Gebanned",
+    "deleted": "Verwijderd",
+    "do_not_email": "Niet e-mailen",
+    "list_users": {
+        "none_found": "Geen gebruikers gevonden",
+        "load_more": "Meer laden",
+        "heading": "Lijst met nieuwe gebruikers"
+    },
+    "actions": {
+        "ban": "Gebruiker bannen",
+        "open_in_console": "Openen in console"
+    },
+    "panel": {
+        "heading": "Mod-dingen",
+        "username": "Gebruikersnaam",
+        "user_id": "Gebruikers-ID",
+        "email": "e-mail",
+        "birthdate": "Geboortedatum",
+        "birthdate_verification_status": "Verificatie geboortedatum",
+        "gender_verification_status": "Verificatie gender",
+        "has_passport_sex_gender_exception": "Uitzondering gender/sekse op paspoort?",
+        "acknowledged_mod_notes_count": "Mod-notities gezien",
+        "admin_note": "Admin notitie",
+        "has_strong_verification": "Heeft sterke verificatie",
+        "pending_mod_notes_count": "Wachten op de mod"
+    },
+    "title": "Mod-tools"
+}

@@ -12,7 +12,7 @@
         "bug_tool_disabled": "Bug-Tool deaktiviert",
         "bug_tool_request_failed": "Anfrage fehlgeschlagen",
         "cannot_edit_that_notification_preference": "Diese Benachrichtigungseinstellung kann vom Benutzer nicht bearbeitet werden.",
-        "cannot_leave_containing_community": "Du bist Teil dieser Gemeinschaft, daher kannst du sie nicht verlassen.",
+        "cannot_leave_containing_community": "Der Standort in deinem Profil befindet sich innerhalb dieser Community, daher kannst du sie nicht verlassen. Du kannst jedoch deine Benachrichtigungen in den Kontoeinstellungen anpassen.",
         "cant_add_self": "Du kannst dich nicht selbst zu einem Gruppenchat hinzufügen.",
         "cant_block_self": "Du kannst dich nicht selbst blockieren.",
         "cant_invite_self": "Du kannst dich nicht selbst zu einem Chat einladen.",
@@ -40,6 +40,22 @@
         "already_left_host_request_feedback": "Du hast für diese Host-Anfrage bereits ein Feedback hinterlassen!",
         "cannot_create_discussion": "Du kannst in dieser Gruppe oder Community keine Diskussion erstellen.",
         "cant_remove_self": "Du kannst dich nicht selbst entfernen.",
-        "chat_initiation_rate_limit": "Du hast in den vergangenen {{rate_limit_interval_string}} viele Nutzer kontaktiert. Um Spam zu vermeiden, kannst du vorerst keine weiteren Nutzer kontaktieren."
+        "chat_initiation_rate_limit": "Du hast in den vergangenen {{rate_limit_interval_string}} viele Nutzer kontaktiert. Um Spam zu vermeiden, kannst du vorerst keine weiteren Nutzer kontaktieren.",
+        "date_from_after_one_year": "Das Startdatum muss innerhalb eines Jahres ab heute liegen.",
+        "date_from_after_to": "Das Startdatum darf nicht nach dem Enddatum liegen.",
+        "date_from_before_today": "Das Startdatum muss heute oder später sein.",
+        "date_to_after_one_year": "Du kannst nicht darum bitten, länger als ein Jahr bei jemandem zu bleiben.",
+        "discussion_not_found": "Diskussion nicht gefunden.",
+        "discussions_not_enabled": "Diskussionen sind in dieser Gruppe oder Community nicht aktiviert.",
+        "do_not_email_cannot_host": "Du kannst das Hosting nicht aktivieren, solange E-Mails in deinen Einstellungen deaktiviert sind.",
+        "do_not_email_cannot_meet": "Du kannst Treffen nicht aktivieren, solange du E-Mails in deinen Einstellungen deaktiviert hast.",
+        "donation_too_small": "Wir können leider keine Spenden unter 2$ annehmen!",
+        "donations_disabled": "Spenden sind derzeit deaktiviert.",
+        "event_cant_cancel_old_event": "Du kannst ein Event, das älter als einen Tag ist, nicht absagen.",
+        "event_cant_remove_owner_as_organizer": "Du kannst den Event-Ersteller nicht als Organisator entfernen.",
+        "event_cant_update_all_times": "Du kannst nicht alle Events aktualisieren, wenn du Start- oder Endzeiten änderst.",
+        "event_cant_update_cancelled_event": "Du kannst ein Event, das abgesagt wurde, weder bearbeiten, abonnieren noch daran teilnehmen.",
+        "event_cant_update_old_event": "Du kannst ein Event, das älter als einen Tag ist, nicht bearbeiten, abonnieren oder daran teilnehmen.",
+        "event_cant_overlap": "Ein Event kann keine sich überschneidenden Vorkommen haben."
     }
 }
