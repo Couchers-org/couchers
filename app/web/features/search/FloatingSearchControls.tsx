@@ -249,7 +249,6 @@ const FloatingSearchControls = ({
                 name="location"
                 onChange={handleLocationChange}
                 onClear={handleClearLocation}
-                autocompleteContext="floating-search-controls"
               />
             )}
             {searchType === "keyword" && (
