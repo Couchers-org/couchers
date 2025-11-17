@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import date, timedelta
 from pathlib import Path
+from typing import Sequence, Any
 from unittest.mock import patch
 
 import grpc
@@ -307,7 +308,13 @@ def db_class(template_db: str, postgres_conn: Connection) -> None:
     postgres_conn.execute(text(f"CREATE DATABASE testdb WITH TEMPLATE {template_db}"))
 
 
-def generate_user(*, delete_user=False, complete_profile=True, strong_verification=False, **kwargs):
+def generate_user(
+    *, delete_user=False, complete_profile=True, strong_verification=False,
+    regions_visited: Sequence[str] = (),
+    regions_lived: Sequence[str] = (),
+    language_abilities: Sequence[tuple[str, LanguageFluency]] = (),
+    **kwargs: Any,
+) -> tuple[User, str]:
     """
     Create a new user, return session token
 
@@ -349,25 +356,20 @@ def generate_user(*, delete_user=False, complete_profile=True, strong_verificati
             "onboarding_emails_sent": 1,
             "last_onboarding_email_sent": now(),
             "last_donated": now(),
-        }
-
-        for key, value in kwargs.items():
-            user_opts[key] = value
+        } | kwargs
 
         user = User(**user_opts)
         session.add(user)
         session.flush()
 
-        session.add(RegionVisited(user_id=user.id, region_code="CHE"))
-        session.add(RegionVisited(user_id=user.id, region_code="REU"))
-        session.add(RegionVisited(user_id=user.id, region_code="FIN"))
+        for region in regions_visited:
+            session.add(RegionVisited(user_id=user.id, region_code=region))
 
-        session.add(RegionLived(user_id=user.id, region_code="ESP"))
-        session.add(RegionLived(user_id=user.id, region_code="FRA"))
-        session.add(RegionLived(user_id=user.id, region_code="EST"))
+        for region in regions_lived:
+            session.add(RegionLived(user_id=user.id, region_code=region))
 
-        session.add(LanguageAbility(user_id=user.id, language_code="fin", fluency=LanguageFluency.fluent))
-        session.add(LanguageAbility(user_id=user.id, language_code="fra", fluency=LanguageFluency.beginner))
+        for lang, fluency in language_abilities:
+            session.add(LanguageAbility(user_id=user.id, language_code=lang, fluency=fluency))
 
         # this expires the user, so now it's "dirty"
         session.commit()

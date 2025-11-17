@@ -38,7 +38,14 @@ def _(testconfig):
 
 
 def test_ping(db):
-    user, token = generate_user()
+    user, token = generate_user(
+        regions_lived=["ESP", "FRA", "EST"],
+        regions_visited=["CHE", "REU", "FIN"],
+        language_abilities=[
+            ("fin", LanguageFluency.fluent),
+            ("fra", LanguageFluency.beginner),
+        ],
+    )
 
     with real_api_session(token) as api:
         res = api.Ping(api_pb2.PingReq())
@@ -621,7 +628,12 @@ def test_update_profile_do_not_email(db):
 
 
 def test_language_abilities(db):
-    user, token = generate_user()
+    user, token = generate_user(
+        language_abilities=[
+            ("fin", LanguageFluency.fluent),
+            ("fra", LanguageFluency.beginner),
+        ],
+    )
 
     with api_session(token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
