@@ -102,6 +102,13 @@
         "invalid_region": "Ungültige Region.",
         "invalid_token": "Ungültiges Token.",
         "invalid_phone": "Die Telefonnummer muss im internationalen Format ohne Satzzeichen angegeben werden.",
-        "invalid_notification_preference": "Ungültige Benachrichtigungseinstellung."
+        "invalid_notification_preference": "Ungültige Benachrichtigungseinstellung.",
+        "invalid_username": "Ungültiger Benutzername.",
+        "invalid_website_url": "Ungültige Website-URL oder Text. Stelle sicher, dass die URL mit \"https://\" beginnt und dass der Text in der URL enthalten ist.",
+        "invite_code_not_found": "Einladungscode nicht gefunden.",
+        "invite_permission_denied": "Du darfst keine Nutzer einladen.",
+        "last_admin_cant_leave": "Der letzte Administrator kann den Gruppenchat nicht verlassen.",
+        "missing_discussion_content": "Fehlende Diskussionsinhalte.",
+        "missing_discussion_title": "Fehlender Diskussionstitel."
     }
 }
