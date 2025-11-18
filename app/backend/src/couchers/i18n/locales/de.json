@@ -56,6 +56,24 @@
         "event_cant_update_all_times": "Du kannst nicht alle Events aktualisieren, wenn du Start- oder Endzeiten änderst.",
         "event_cant_update_cancelled_event": "Du kannst ein Event, das abgesagt wurde, weder bearbeiten, abonnieren noch daran teilnehmen.",
         "event_cant_update_old_event": "Du kannst ein Event, das älter als einen Tag ist, nicht bearbeiten, abonnieren oder daran teilnehmen.",
-        "event_cant_overlap": "Ein Event kann keine sich überschneidenden Vorkommen haben."
+        "event_cant_overlap": "Ein Event kann keine sich überschneidenden Vorkommen haben.",
+        "event_community_invite_already_approved": "Für dieses Event wurde bereits eine Community-Einladung verschickt.",
+        "event_community_invite_already_decided": "Diese Event Community-Einladung wurde bereits genehmigt/abgelehnt.",
+        "event_community_invite_already_requested": "Du hast bereits eine Community-Einladung für dieses Event angefordert.",
+        "event_community_invite_not_found": "Die Event-Einladung für die Community konnte nicht gefunden werden.",
+        "event_edit_permission_denied": "Du darfst dieses Event nicht bearbeiten.",
+        "event_ends_before_starts": "Das Event muss nach seinem Beginn enden.",
+        "event_in_past": "Das Event muss in der Zukunft liegen.",
+        "event_not_an_organizer": "Dieser Benutzer ist kein Organisator.",
+        "event_not_found": "Event nicht gefunden.",
+        "event_too_far_in_future": "Das Event muss innerhalb des nächsten Jahres beginnen.",
+        "event_too_long": "Events dürfen nicht länger als 7 Tage dauern.",
+        "event_transfer_permission_denied": "Du darfst dieses Ereignis nicht übertragen.",
+        "friend_request_not_found": "Diese Freundschaftsanfrage konnte nicht gefunden werden.",
+        "friends_already_or_pending": "Du bist bereits mit diesem Nutzer befreundet oder hast ihm eine Freundschaftsanfrage gesendet.",
+        "group_not_found": "Gruppe nicht gefunden.",
+        "group_or_community_not_found": "Gruppe oder Community nicht gefunden.",
+        "friend_request_rate_limit": "Du hast in den letzten {{rate_limit_interval_string}} viele Freundschaftsanfragen gesendet. Um Spam zu vermeiden, kannst du vorerst keine weiteren senden.",
+        "events_not_enabled": "Events sind in dieser Gruppe oder Community nicht aktiviert."
     }
 }
