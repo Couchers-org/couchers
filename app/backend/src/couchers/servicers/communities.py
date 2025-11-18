@@ -475,3 +475,41 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             communities=communities_to_pb(session, nodes[:page_size], context),
             next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
         )
+
+    def ListAllCommunities(self, request, context, session):
+        """List all communities ordered hierarchically by parent-child relationships"""
+        # Get all nodes with their clusters, member counts, and user membership in a single query
+        results = session.execute(
+            select(
+                Node,
+                Cluster,
+                ClusterSubscriptionCount.count,
+                ClusterSubscription.cluster_id.label("user_subscription"),
+            )
+            .join(Cluster, Cluster.parent_node_id == Node.id)
+            .outerjoin(
+                ClusterSubscriptionCount,
+                ClusterSubscriptionCount.cluster_id == Cluster.id,
+            )
+            .outerjoin(
+                ClusterSubscription,
+                (ClusterSubscription.cluster_id == Cluster.id) & (ClusterSubscription.user_id == context.user_id),
+            )
+            .where(Cluster.is_official_cluster)
+            .order_by(Node.id)
+        ).all()
+
+        return communities_pb2.ListAllCommunitiesRes(
+            communities=[
+                communities_pb2.CommunitySummary(
+                    community_id=node.id,
+                    name=cluster.name,
+                    slug=cluster.slug,
+                    member=user_subscription is not None,
+                    member_count=member_count or 1,
+                    parents=_parents_to_pb(session, node.id),
+                    created=Timestamp_from_datetime(node.created),
+                )
+                for node, cluster, member_count, user_subscription in results
+            ],
+        )
