@@ -24,7 +24,7 @@ from couchers.notifications.notify import notify
 from couchers.proto import conversations_pb2, conversations_pb2_grpc, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
-from couchers.rate_limits.definitions import RATE_LIMIT_INTERVAL_STRING
+from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
 from couchers.servicers.api import user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now
@@ -603,7 +603,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
                 "chat_initiation_rate_limit",
-                substitutions={"rate_limit_interval_string": RATE_LIMIT_INTERVAL_STRING},
+                substitutions={"hours": RATE_LIMIT_HOURS},
             )
 
         group_chat = _create_chat(
