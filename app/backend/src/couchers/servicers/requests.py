@@ -29,7 +29,7 @@ from couchers.models import (
 from couchers.notifications.notify import notify
 from couchers.proto import conversations_pb2, notification_data_pb2, requests_pb2, requests_pb2_grpc
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
-from couchers.rate_limits.definitions import RATE_LIMIT_INTERVAL_STRING
+from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
 from couchers.servicers.api import response_rate_to_pb, user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import (
@@ -208,7 +208,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
                 "host_request_rate_limit",
-                substitutions={"rate_limit_interval_string": RATE_LIMIT_INTERVAL_STRING},
+                substitutions={"hours": RATE_LIMIT_HOURS},
             )
 
         conversation = Conversation()

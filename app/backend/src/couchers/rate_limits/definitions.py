@@ -30,8 +30,8 @@ class RateLimitDefinition:
     mod_email_information_query: Callable[[Session, int], Sequence[RowMapping]]
 
 
-RATE_LIMIT_INTERVAL = timedelta(hours=24)
-RATE_LIMIT_INTERVAL_STRING = "24 hours"
+RATE_LIMIT_HOURS = 24
+RATE_LIMIT_INTERVAL = timedelta(hours=RATE_LIMIT_HOURS)
 
 
 def _get_user_host_requests_in_past_time_interval(session: Session, user_id: int) -> Sequence[RowMapping]:

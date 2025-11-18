@@ -40,7 +40,7 @@
         "already_left_host_request_feedback": "Du hast für diese Host-Anfrage bereits ein Feedback hinterlassen!",
         "cannot_create_discussion": "Du kannst in dieser Gruppe oder Community keine Diskussion erstellen.",
         "cant_remove_self": "Du kannst dich nicht selbst entfernen.",
-        "chat_initiation_rate_limit": "Du hast in den vergangenen {{rate_limit_interval_string}} viele Nutzer kontaktiert. Um Spam zu vermeiden, kannst du vorerst keine weiteren Nutzer kontaktieren.",
+        "chat_initiation_rate_limit": "Du hast in den vergangenen {{hours}} Stunden viele Nutzer kontaktiert. Um Spam zu vermeiden, kannst du vorerst keine weiteren Nutzer kontaktieren.",
         "date_from_after_one_year": "Das Startdatum muss innerhalb eines Jahres ab heute liegen.",
         "date_from_after_to": "Das Startdatum darf nicht nach dem Enddatum liegen.",
         "date_from_before_today": "Das Startdatum muss heute oder später sein.",
@@ -73,8 +73,6 @@
         "friends_already_or_pending": "Du bist bereits mit diesem Nutzer befreundet oder hast ihm eine Freundschaftsanfrage gesendet.",
         "group_not_found": "Gruppe nicht gefunden.",
         "group_or_community_not_found": "Gruppe oder Community nicht gefunden.",
-        "friend_request_rate_limit": "Du hast in den letzten {{rate_limit_interval_string}} viele Freundschaftsanfragen gesendet. Um Spam zu vermeiden, kannst du vorerst keine weiteren senden.",
-        "events_not_enabled": "Events sind in dieser Gruppe oder Community nicht aktiviert.",
         "host_request_in_past": "Diese Hostanfrage liegt in der Vergangenheit.",
         "host_request_not_found": "Diese Host-Anfrage wurde nicht gefunden.",
         "host_request_rate_limit": "Du hast viele Hostanfragen in den letzten {{rate_limit_interval_string}} gesendet. Um Spam zu vermeiden, kannst du vorerst keine weiteren Anfragen senden.",
@@ -109,6 +107,8 @@
         "invite_permission_denied": "Du darfst keine Nutzer einladen.",
         "last_admin_cant_leave": "Der letzte Administrator kann den Gruppenchat nicht verlassen.",
         "missing_discussion_content": "Fehlende Diskussionsinhalte.",
-        "missing_discussion_title": "Fehlender Diskussionstitel."
+        "missing_discussion_title": "Fehlender Diskussionstitel.",
+        "friend_request_rate_limit": "Du hast in den letzten {{hours}} Stunden viele Freundschaftsanfragen gesendet. Um Spam zu vermeiden, kannst du vorerst keine weiteren senden.",
+        "events_not_enabled": "Events sind in dieser Gruppe oder Community nicht aktiviert."
     }
 }
