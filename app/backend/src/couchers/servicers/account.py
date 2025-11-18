@@ -742,7 +742,7 @@ class Account(account_pb2_grpc.AccountServicer):
             account_pb2.Reminder(
                 respond_to_host_request_reminder=account_pb2.RespondToHostRequestReminder(
                     host_request_id=host_request_id,
-                    surfer_user=lite_user_to_pb(lite_user),
+                    surfer_user=lite_user_to_pb(session, lite_user, context),
                 )
             )
             for host_request_id, lite_user in pending_host_requests
@@ -754,7 +754,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 write_reference_reminder=account_pb2.WriteReferenceReminder(
                     host_request_id=host_request_id,
                     reference_type=reftype2api[reference_type],
-                    other_user=lite_user_to_pb(lite_user),
+                    other_user=lite_user_to_pb(session, lite_user, context),
                 )
             )
             for host_request_id, reference_type, _, lite_user in get_pending_references_to_write(session, context)

@@ -197,5 +197,9 @@
     "topic_action": "You've been unsubscribed from email notifications of that type.",
     "chat_unsub": "That group chat has been muted.",
     "host_request_quick_decline": "Thank you for responding to the host request!"
+  },
+  "ghost_users": {
+    "display_name": "Ghost",
+    "about_me": "This user is no longer on the platform. They may have deleted their account, been blocked, or been banned. We recommend exercising caution with any further interaction with this user off the platform. You can always reach out to support if you need any help."
   }
 }
