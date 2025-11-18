@@ -40,5 +40,8 @@
   "search_input_placeholder": "搜索位置",
   "show_map": "显示地图",
   "hero_image_alt": "卡帕多奇亚的热气球",
-  "hero_image_attribution": "图片由 <1>Mesut Kaya</1> 提供，来源于 <3>Unsplash</3>"
+  "hero_image_attribution": "图片由 <1>Mesut Kaya</1> 提供，来源于 <3>Unsplash</3>",
+  "communities_welcome_title": "欢迎来到社区",
+  "attendees_count_0": "{{count}} 位参与者",
+  "events_empty_state": "目前没有活动。要不要<0>创建</0>一个✨？"
 }
