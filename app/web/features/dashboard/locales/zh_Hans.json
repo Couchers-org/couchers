@@ -1,12 +1,12 @@
 {
-  "dashboard": "仪表盘",
+  "dashboard": "个人主页",
   "please_complete_profile": "请完善您的个人资料，并确保您的资料在搜索中显示：",
   "fill_in_who_i_am": "1. 填写您的 \"我是谁\" 部分，介绍一下自己",
   "upload_photo": "2. 上传照片（点击编辑页面上的头像）",
   "edit_profile_button_text": "编辑个人资料",
   "complete_profile_explanation": "您是否讨厌其他平台上那些没有信息的空白\"幽灵\"资料？请不要忽视我们！👻👻👻",
   "complete_profile_dialog": {
-    "title": "差一点了：请完成您的个人资料以继续！",
+    "title": "只差一步：请填写您的个人资料以继续！",
     "description_1": "在您能 {{action_name}} 之前，您必须 <4>写一些关于自己的内容</4> 并 <7>上传一张头像</7>。",
     "description_2": "这有助于建立信任的社区并减少垃圾信息。更多信息，<2>请参阅此帮助页面</2>。感谢您的帮助！",
     "actions": {
@@ -22,7 +22,7 @@
   "no_community": "您当前不在任何社区中。",
   "no_sub_communities": "没有子社区。",
   "load_more": "加载更多",
-  "welcome": "欢迎来到Couchers.org版！",
+  "welcome": "欢迎来到Couchers.org！",
   "new_pill": "新",
   "landing_text": "我们正在开发新的 <1>功能</1>，如活动、本地指南、管理和聚会。感谢您在我们开发过程中给予的耐心和 <3>支持</3>。",
   "your_communities_helper_text": "根据您的位置，您已被添加到所有社区。您也可以随时 <1>浏览其他位置的社区</1>。",
@@ -30,7 +30,7 @@
   "community_builder_form_text": "创建您自己的本地社区",
   "upcoming_events": "即将举行的活动",
   "member_count_0": "{{count}} 个成员",
-  "profile_summary_edit": "编辑",
+  "profile_summary_edit": "编辑个人资料",
   "profile_summary_view": "查看我的个人资料",
   "profile_mobile_summary_view": "前往个人资料",
   "find_a_host": "寻找沙发主",
@@ -43,5 +43,17 @@
   "hero_image_attribution": "图片由 <1>Mesut Kaya</1> 提供，来源于 <3>Unsplash</3>",
   "communities_welcome_title": "欢迎来到社区",
   "attendees_count_0": "{{count}} 位参与者",
-  "events_empty_state": "目前没有活动。要不要<0>创建</0>一个✨？"
+  "events_empty_state": "目前没有活动。要不要<0>创建</0>一个✨？",
+  "community_builder": "想成为你所在社区的大使并助力其发展吗？快来成为<1>社区建设者！</1>",
+  "all_communities_section": "所有社区",
+  "communities_intro": "为了帮助世界各地的人们在本地组织活动、讨论和聚会，我们创建了社区页面，具体如下。<strong>我们已根据您的位置自动将您添加到一些社区，但您可以加入任何社区！</strong> 您加入的社区会显示在您的个人主页上。",
+  "find_your_community": "寻找你的社区",
+  "find_your_community_intro": "您可以在下方搜索或浏览目前已有的所有社区页面。没有找到您的国家或城市？<1>请使用此表单</1>进行申请！",
+  "find_your_community_intro_simplified": "搜索您的社区或在下方浏览。<1>没有找到？申请添加！</1>",
+  "browse_all_communities": "浏览所有社区",
+  "show_all_communities": "显示所有社区",
+  "hide_all_communities": "隐藏所有社区",
+  "all_communities_intro": "以下是目前已存在的所有社区页面。<strong>点击社区名称可查看其下的其他社区。</strong>",
+  "community_missing": "您的国家或城市不在列表中吗？请使用<1>此表格</1>进行申请！",
+  "browse_communities_text": "点击区域名称可在下方查看该区域内的其他社区。点击链接可进入该城市或区域的社区页面。"
 }
