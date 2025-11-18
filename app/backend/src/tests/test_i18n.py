@@ -73,7 +73,7 @@ def test_get_string_multiple_substitutions():
     """Test string with multiple variable substitutions"""
     # Using a string that exists, even though this particular one has only one substitution
     result = get_raw_translation_string("en", "errors", "chat_initiation_rate_limit", substitutions={"hours": 48})
-    assert "2 days" in result
+    assert "48 hours" in result
     assert "messaged a lot of users" in result
 
 
