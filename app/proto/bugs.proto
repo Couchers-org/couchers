@@ -35,6 +35,10 @@ service Bugs {
       get : "/descriptors.pb"
     };
   }
+
+  rpc GeolocationSearchInfo(GeolocationSearchInfoReq) returns (google.protobuf.Empty) {}
+
+  rpc GeolocationClickInfo(GeolocationClickInfoReq) returns (google.protobuf.Empty) {}
 }
 
 message VersionInfo {
@@ -71,4 +75,17 @@ message StatusRes {
   string nonce = 1;
   string version = 2;
   uint64 coucher_count = 3;
+}
+
+message GeolocationSearchInfoReq {
+  string search_string = 1;
+  string nominatim_result_json = 2;
+  string formatted_result_json = 3;
+  uint32 duration_ms = 4;
+}
+
+message GeolocationClickInfoReq {
+  string context = 1;
+  string formatted_result_json = 2;
+  string search_choice_json = 3;
 }

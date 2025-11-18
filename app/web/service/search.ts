@@ -14,8 +14,6 @@ import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import {
   EventSearchReq,
   EventSearchRes,
-  GeolocationClickInfoReq,
-  GeolocationSearchInfoReq,
   RectArea,
   UserSearchReq,
 } from "proto/search_pb";
@@ -227,39 +225,4 @@ export async function EventSearch({
 
   const res = await client.search.eventSearch(req);
   return res.toObject();
-}
-
-export async function geolocationSearchInfo({
-  searchString,
-  nominatimResultJson,
-  formattedResultJson,
-  durationMs,
-}: {
-  searchString: string;
-  nominatimResultJson: string;
-  formattedResultJson: string;
-  durationMs: number;
-}) {
-  const req = new GeolocationSearchInfoReq();
-  req.setSearchString(searchString);
-  req.setNominatimResultJson(nominatimResultJson);
-  req.setFormattedResultJson(formattedResultJson);
-  req.setDurationMs(durationMs);
-  await client.search.geolocationSearchInfo(req);
-}
-
-export async function geolocationClickInfo({
-  context,
-  formattedResultJson,
-  searchChoiceJson,
-}: {
-  context: string;
-  formattedResultJson: string;
-  searchChoiceJson: string;
-}) {
-  const req = new GeolocationClickInfoReq();
-  req.setContext(context);
-  req.setFormattedResultJson(formattedResultJson);
-  req.setSearchChoiceJson(searchChoiceJson);
-  await client.search.geolocationClickInfo(req);
 }

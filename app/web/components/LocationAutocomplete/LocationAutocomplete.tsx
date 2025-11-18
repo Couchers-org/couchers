@@ -85,10 +85,10 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
     if (value === controller.field.value?.simplifiedName) return;
 
     controller.field.onChange(value ?? "");
-    service.search.geolocationClickInfo({
+    service.bugs.geolocationClickInfo({
       context: autocompleteContext,
       formattedResultJson: JSON.stringify(options),
-      searchChoiceJson: JSON.stringify(newValue),
+      searchChoiceJson: JSON.stringify(value),
     });
   };
 

@@ -102,7 +102,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     if (reason === "selectOption") {
       onChange(newValue as GeocodeResult | undefined);
       setIsOpen(false);
-      service.search.geolocationClickInfo({
+      service.bugs.geolocationClickInfo({
         context: autocompleteContext,
         formattedResultJson: JSON.stringify(options),
         searchChoiceJson: JSON.stringify(newValue),

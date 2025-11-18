@@ -131,7 +131,7 @@ const useGeocodeQuery = () => {
               bbox: result["boundingbox"],
             };
           });
-          service.search.GeolocationSearchInfo({
+          service.bugs.geolocationSearchInfo({
             searchString: value,
             nominatimResultJson: JSON.stringify(nominatimResults),
             formattedResultJson: JSON.stringify(formattedResults),

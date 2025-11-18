@@ -1,5 +1,10 @@
 import { BugReportFormData } from "components/Navigation/ReportDialog";
-import { ReportBugReq, ScreenResolution } from "proto/bugs_pb";
+import {
+  GeolocationClickInfoReq,
+  GeolocationSearchInfoReq,
+  ReportBugReq,
+  ScreenResolution,
+} from "proto/bugs_pb";
 
 import client from "./client";
 
@@ -24,4 +29,39 @@ export async function reportBug({
 
   const res = await client.bugs.reportBug(req);
   return res.toObject();
+}
+
+export async function geolocationSearchInfo({
+  searchString,
+  nominatimResultJson,
+  formattedResultJson,
+  durationMs,
+}: {
+  searchString: string;
+  nominatimResultJson: string;
+  formattedResultJson: string;
+  durationMs: number;
+}) {
+  const req = new GeolocationSearchInfoReq();
+  req.setSearchString(searchString);
+  req.setNominatimResultJson(nominatimResultJson);
+  req.setFormattedResultJson(formattedResultJson);
+  req.setDurationMs(durationMs);
+  await client.bugs.geolocationSearchInfo(req);
+}
+
+export async function geolocationClickInfo({
+  context,
+  formattedResultJson,
+  searchChoiceJson,
+}: {
+  context: string;
+  formattedResultJson: string;
+  searchChoiceJson: string;
+}) {
+  const req = new GeolocationClickInfoReq();
+  req.setContext(context);
+  req.setFormattedResultJson(formattedResultJson);
+  req.setSearchChoiceJson(searchChoiceJson);
+  await client.bugs.geolocationClickInfo(req);
 }

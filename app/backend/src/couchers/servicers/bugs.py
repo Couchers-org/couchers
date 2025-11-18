@@ -1,5 +1,6 @@
 import grpc
 import requests
+from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
 from couchers import urls
@@ -75,3 +76,9 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             content_type="application/octet-stream",
             data=get_descriptors_pb(),
         )
+
+    def GeolocationSearchInfo(self, request, context, session):
+        return empty_pb2.Empty()
+
+    def GeolocationClickInfo(self, request, context, session):
+        return empty_pb2.Empty()
