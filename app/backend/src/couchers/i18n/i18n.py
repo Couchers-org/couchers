@@ -107,7 +107,7 @@ def get_raw_translation_string(
         lang: Language code (e.g., "en", "pt-BR"). If None, defaults to the default fallback language ("en")
         component: Component name (e.g., "errors")
         string_name: The key for the specific string
-        substitutions: Dictionary of variable substitutions for the string (e.g., {"rate_limit_interval_string": "24 hours"})
+        substitutions: Dictionary of variable substitutions for the string (e.g., {"hours": "24"})
 
     Returns:
         The translated string with substitutions applied

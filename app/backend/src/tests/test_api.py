@@ -9,7 +9,7 @@ from couchers.jobs.handlers import update_badges
 from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import FriendRelationship, FriendStatus, RateLimitAction, User
 from couchers.proto import admin_pb2, api_pb2, blocking_pb2, jail_pb2, notifications_pb2
-from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL_STRING
+from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.resources import get_badge_dict
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, to_aware_datetime
@@ -1013,7 +1013,7 @@ def test_excessive_friend_requests_are_reported(db):
             assert mock_email.call_count == 1
             email = mock_email.mock_calls[0].kwargs["plain"]
             assert email.startswith(
-                f"User {user.username} has sent {rate_limit_definition.warning_limit} friend requests in the past {RATE_LIMIT_INTERVAL_STRING}."
+                f"User {user.username} has sent {rate_limit_definition.warning_limit} friend requests in the past {RATE_LIMIT_HOURS} hours."
             )
 
         # Test ban after exceeding FRIEND_REQUEST_HARD_LIMIT
@@ -1035,7 +1035,7 @@ def test_excessive_friend_requests_are_reported(db):
             assert mock_email.call_count == 1
             email = mock_email.mock_calls[0].kwargs["plain"]
             assert email.startswith(
-                f"User {user.username} has sent {rate_limit_definition.hard_limit} friend requests in the past {RATE_LIMIT_INTERVAL_STRING}."
+                f"User {user.username} has sent {rate_limit_definition.hard_limit} friend requests in the past {RATE_LIMIT_HOURS} hours."
             )
             assert "The user has been blocked from sending further friend requests for now." in email
 

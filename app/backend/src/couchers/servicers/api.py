@@ -38,7 +38,7 @@ from couchers.notifications.notify import notify
 from couchers.notifications.settings import get_topic_actions_by_delivery_type
 from couchers.proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2, requests_pb2
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
-from couchers.rate_limits.definitions import RATE_LIMIT_INTERVAL_STRING
+from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
 from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
 from couchers.servicers.blocking import is_not_visible
 from couchers.sql import couchers_select as select
@@ -690,7 +690,7 @@ class API(api_pb2_grpc.APIServicer):
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
                 "friend_request_rate_limit",
-                substitutions={"rate_limit_interval_string": RATE_LIMIT_INTERVAL_STRING},
+                substitutions={"hours": RATE_LIMIT_HOURS},
             )
 
         # TODO: Race condition where we can create two friend reqs, needs db constraint! See comment in table
