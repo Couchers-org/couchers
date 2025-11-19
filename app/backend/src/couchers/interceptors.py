@@ -228,7 +228,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 "API call does not exist. Please refresh and try again.", grpc.StatusCode.UNIMPLEMENTED
             )
 
-        auth_level: Any = service_options.Extensions[annotations_pb2.auth_level]  # type: ignore[index]
+        auth_level = service_options.Extensions[annotations_pb2.auth_level]
 
         # if unknown auth level, then it wasn't set and something's wrong
         if auth_level == annotations_pb2.AUTH_LEVEL_UNKNOWN:

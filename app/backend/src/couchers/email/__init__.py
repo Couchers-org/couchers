@@ -86,12 +86,12 @@ def enqueue_system_email(session: Session, recipient: str, template_name: str, t
 
     queue_email(
         session,
-        config["NOTIFICATION_EMAIL_SENDER"],
-        config["NOTIFICATION_EMAIL_ADDRESS"],
-        recipient,
-        config["NOTIFICATION_PREFIX"] + frontmatter["subject"],
-        plain,
-        None,
+        sender_name=config["NOTIFICATION_EMAIL_SENDER"],
+        sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
+        recipient=recipient,
+        subject=config["NOTIFICATION_PREFIX"] + frontmatter["subject"],
+        plain=plain,
+        html=None,
         source_data=template_name,
     )
 
