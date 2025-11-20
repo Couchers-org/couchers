@@ -51,16 +51,18 @@
     }
   },
   "host_request_status": {
-    "confirmed": "Confirmado",
-    "accepted": "Aceptado",
-    "cancelled": "Cancelado",
+    "confirmed": "Confirmadas",
+    "accepted": "Aceptadas",
+    "cancelled": "Canceladas",
     "past": "Pasadas",
-    "pending": "Pendiente"
+    "pending": "Pendientes",
+    "rejected": "Rechazadas"
   },
   "invite_dialog": {
     "selected": {
       "field_label": "Amigos"
     },
     "invite_button_label": "Invitar"
-  }
+  },
+  "unknown_user": "Usuario desconocido"
 }

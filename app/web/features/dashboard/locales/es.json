@@ -10,5 +10,7 @@
   "load_more": "Cargar más",
   "welcome": "¡Bienvenido a Couchers.org!",
   "new_pill": "Nuevo",
-  "dashboard": "Tablón"
+  "dashboard": "Tablón",
+  "complete_profile_explanation": "¿No odias cómo otras plataformas tienen perfiles \"fantasma\" vacíos sin información? ¡Por favor, no nos dejes en el aire! 👻👻👻",
+  "events_empty_state": "No hay eventos en este momento. ¿Por qué no <0>creas</0> uno ✨?"
 }

@@ -10,7 +10,7 @@
   "edit_event": "Editar evento",
   "edit_info_page_title": "Editar información local",
   "error_loading_community": "Error al cargar la comunidad.",
-  "events_empty_state": "No hay eventos en este momento.",
+  "events_empty_state": "No hay eventos en este momento. ¿Por qué no <0>creas</0> uno ✨?",
   "find_host": "Encontrar anfitrión",
   "finished": "Terminado",
   "community_info_page_title": "Información general",
