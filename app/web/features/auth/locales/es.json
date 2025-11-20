@@ -127,7 +127,7 @@
     "activeness_probe": {
       "title": "¿Todavía sigues abierto a alojar viajeros?",
       "description": "Hemos observado que no has iniciado sesión ultimamente y queremos comprobar si todavía estas abierto a alojar viajeros.",
-      "still_hosting": "¡Todavía quiero ser anfitrión!"
+      "still_hosting": "¡Todavía quiero hospedar!"
     }
   },
   "jail_set_password_form": {
@@ -172,11 +172,11 @@
   "feature_preview": {
     "explanation": "Esta página te permite probar características que aun están en desarrollo antes de que estén completamente listas para que las utilice todo el mundo.",
     "no_previews": {
-      "title": "No hay ninguna funcionalidad nueva en vista previa actualmente",
-      "explanation": "No hay ninguna característica en vista previa activada, ¡por favor, prueba más tarde!"
+      "title": "Ninguna característica en previsualización ahora mismo",
+      "explanation": "Ninguna característica en previsualización activada, por favor, ¡prueba más tarde!"
     },
     "title": "Previsualización de características",
-    "disclaimer": "Por favor, ten en cuenta que estas características son experimentales. Podrían no funcionar según lo previsto y podrían cambiar rápidamente según las desarrollamos. Siéntete libre de dar tu opinión en nuestro forum. ¡Por favor, reporta cualquier error!"
+    "disclaimer": "Por favor, ten en cuenta que estas características son experimentales. Podrían no funcionar según lo previsto y cambiar rápidamente según las desarrollamos. ¡Siéntete libre de dar tu opinión usando el botón \"Informar de un problema\" para reportar cualquier error!"
   },
   "delete_account": {
     "request": {
