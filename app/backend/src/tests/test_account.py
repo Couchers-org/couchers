@@ -1006,7 +1006,6 @@ def test_DisableInviteCode(db):
     code = "TEST1234"
     with session_scope() as session:
         session.add(InviteCode(id=code, creator_user_id=user.id))
-        session.commit()
 
     with account_session(token) as account:
         account.DisableInviteCode(account_pb2.DisableInviteCodeReq(code=code))

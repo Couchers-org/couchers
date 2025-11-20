@@ -258,11 +258,9 @@ def _quick_signup() -> int:
 
     # make sure we got the right token in a cookie
     with session_scope() as session:
-        token = (
-            session.execute(
-                select(UserSession.token).join(User, UserSession.user_id == User.id).where(User.username == "frodo")
-            ).scalar_one()
-        )
+        token = session.execute(
+            select(UserSession.token).join(User, UserSession.user_id == User.id).where(User.username == "frodo")
+        ).scalar_one()
     sesh, uid = get_session_cookie_tokens(metadata_interceptor)
     assert sesh == token
 
@@ -283,15 +281,13 @@ def test_basic_login(db):
     reply_token, _ = get_session_cookie_tokens(metadata_interceptor)
 
     with session_scope() as session:
-        token = (
-            session.execute(
-                select(UserSession.token)
-                .join(User, UserSession.user_id == User.id)
-                .where(User.username == "frodo")
-                .where(UserSession.token == reply_token)
-                .where(UserSession.is_valid)
-            ).scalar_one_or_none()
-        )
+        token = session.execute(
+            select(UserSession.token)
+            .join(User, UserSession.user_id == User.id)
+            .where(User.username == "frodo")
+            .where(UserSession.token == reply_token)
+            .where(UserSession.is_valid)
+        ).scalar_one_or_none()
         assert token
 
     # log out
@@ -468,15 +464,13 @@ def test_password_reset_v2(db, push_collector):
     session_token, _ = get_session_cookie_tokens(metadata_interceptor)
 
     with session_scope() as session:
-        other_session_token = (
-            session.execute(
-                select(UserSession.token)
-                .join(User, UserSession.user_id == User.id)
-                .where(User.username == user.username)
-                .where(UserSession.token == session_token)
-                .where(UserSession.is_valid)
-            ).scalar_one_or_none()
-        )
+        other_session_token = session.execute(
+            select(UserSession.token)
+            .join(User, UserSession.user_id == User.id)
+            .where(User.username == user.username)
+            .where(UserSession.token == session_token)
+            .where(UserSession.is_valid)
+        ).scalar_one_or_none()
         assert other_session_token
 
     # make sure we can't set a password again
@@ -682,9 +676,7 @@ def test_signup_existing_email(db):
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
-            auth_api.SignupFlow(
-                auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=user.email))
-            )
+            auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=user.email)))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == "That email address is already associated with an account. Please log in instead!"
 
@@ -697,9 +689,7 @@ def test_signup_banned_user_email(db):
 
     with auth_api_session() as (auth_api, _):
         with pytest.raises(grpc.RpcError) as e:
-            auth_api.SignupFlow(
-                auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="NewName", email=user.email))
-            )
+            auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="NewName", email=user.email)))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == "You cannot sign up with that email address."
 
@@ -712,9 +702,7 @@ def test_signup_deleted_user_email(db):
 
     with auth_api_session() as (auth_api, _):
         with pytest.raises(grpc.RpcError) as e:
-            auth_api.SignupFlow(
-                auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="NewName", email=user.email))
-            )
+            auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="NewName", email=user.email)))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == "You cannot sign up with that email address."
 
@@ -982,9 +970,9 @@ def test_signup_token_regression(db):
 
     # 2. Confirm the email
     with session_scope() as session:
-        email_token = (
-            session.execute(select(SignupFlow.email_token).where(SignupFlow.flow_token == flow_token)).scalar_one()
-        )
+        email_token = session.execute(
+            select(SignupFlow.email_token).where(SignupFlow.flow_token == flow_token)
+        ).scalar_one()
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.SignupFlow(
@@ -997,9 +985,7 @@ def test_signup_token_regression(db):
     # 3. Start a new signup with the same email
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
-            auth_api.SignupFlow(
-                auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=testing_email))
-            )
+            auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=testing_email)))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == "Please check your email for a link to continue signing up."
 
@@ -1029,9 +1015,9 @@ def test_opt_out_of_newsletter(db, opt_out):
         )
 
     with session_scope() as session:
-        email_token = (
-            session.execute(select(SignupFlow.email_token).where(SignupFlow.flow_token == res.flow_token)).scalar_one()
-        )
+        email_token = session.execute(
+            select(SignupFlow.email_token).where(SignupFlow.flow_token == res.flow_token)
+        ).scalar_one()
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
@@ -1129,11 +1115,9 @@ def test_signup_no_feedback_regression(db):
 
     # make sure we got the right token in a cookie
     with session_scope() as session:
-        token = (
-            session.execute(
-                select(UserSession.token).join(User, UserSession.user_id == User.id).where(User.username == "frodo")
-            ).scalar_one()
-        )
+        token = session.execute(
+            select(UserSession.token).join(User, UserSession.user_id == User.id).where(User.username == "frodo")
+        ).scalar_one()
     sesh, uid = get_session_cookie_tokens(metadata_interceptor)
     assert sesh == token
 
@@ -1252,9 +1236,9 @@ def test_SignupFlow_invite_code(db):
 
         # Confirm email
         with session_scope() as session:
-            email_token = (
-                session.execute(select(SignupFlow.email_token).where(SignupFlow.flow_token == flow_token)).scalar_one()
-            )
+            email_token = session.execute(
+                select(SignupFlow.email_token).where(SignupFlow.flow_token == flow_token)
+            ).scalar_one()
 
         auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
 

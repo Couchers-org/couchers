@@ -12,7 +12,7 @@ from unittest.mock import patch
 import grpc
 import pytest
 from grpc._server import _validate_generic_rpc_handlers
-from sqlalchemy import Connection, Engine, create_engine
+from sqlalchemy import Connection, Engine, create_engine, update
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import or_, text
 
@@ -459,12 +459,11 @@ def make_user_block(user1: User, user2: User) -> None:
             blocked_user_id=user2.id,
         )
         session.add(user_block)
-        session.commit()
 
 
 def make_user_invisible(user_id: int) -> None:
     with session_scope() as session:
-        session.execute(select(User).where(User.id == user_id)).scalar_one().is_banned = True
+        session.execute(update(User).where(User.id == user_id).values(is_banned=True))
 
 
 # This doubles as get_FriendRequest, since a friend request is just a pending friend relationship

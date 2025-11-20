@@ -4,6 +4,8 @@ from unittest.mock import patch
 import grpc
 import pytest
 from google.protobuf import empty_pb2
+from sqlalchemy import update
+from sqlalchemy.orm import Session
 
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views_rapid
@@ -183,7 +185,7 @@ def create_host_reference(session, from_user_id, to_user_id, reference_age, *, s
     return reference.id, actual_host_request_id
 
 
-def create_friend_reference(session, from_user_id, to_user_id, reference_age):
+def create_friend_reference(session: Session, from_user_id: int, to_user_id: int, reference_age: timedelta) -> int:
     reference = Reference(
         time=now() - reference_age,
         from_user_id=from_user_id,
@@ -380,9 +382,7 @@ def test_ListReference_banned_deleted_users(db):
 
     # ban user2
     with session_scope() as session:
-        user2 = session.execute(select(User).where(User.username == user2.username)).scalar_one()
-        user2.is_banned = True
-        session.commit()
+        session.execute(update(User).where(User.username == user2.username).values(is_banned=True))
 
     # reference to and from banned user is hidden
     with references_session(token1) as api:
@@ -393,9 +393,7 @@ def test_ListReference_banned_deleted_users(db):
 
     # delete user3
     with session_scope() as session:
-        user3 = session.execute(select(User).where(User.username == user3.username)).scalar_one()
-        user3.is_deleted = True
-        session.commit()
+        session.execute(update(User).where(User.username == user3.username).values(is_deleted=True))
 
     # doesn't change; references to and from deleted users remain
     with references_session(token1) as api:
