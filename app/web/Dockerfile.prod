@@ -18,6 +18,20 @@ RUN cp .env.$environment env && \
 
 RUN if [ "$environment" = "production" ]; then cp public/robots-prod.txt public/robots.txt; fi
 
+# These are used during yarn build by Next.js
+ARG version
+ENV NEXT_PUBLIC_VERSION=$version
+ENV SENTRY_RELEASE=$version
+
+ARG display_version
+ENV NEXT_PUBLIC_DISPLAY_VERSION=$display_version
+
+ARG commit_sha
+ENV NEXT_PUBLIC_COMMIT_SHA=$commit_sha
+
+ARG commit_timestamp
+ENV NEXT_PUBLIC_COMMIT_TIMESTAMP=$commit_timestamp
+
 RUN yarn build
 
 RUN yarn injectsourcemaps
@@ -38,20 +52,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 COPY --from=builder /app/.env.local ./
 COPY --from=builder /app/proto ./proto
-
-# These are at the end so as to not invalidate Docker build cache
-ARG version
-ENV NEXT_PUBLIC_VERSION=$version
-ENV SENTRY_RELEASE=$version
-
-ARG display_version
-ENV NEXT_PUBLIC_DISPLAY_VERSION=$display_version
-
-ARG commit_sha
-ENV NEXT_PUBLIC_COMMIT_SHA=$commit_sha
-
-ARG commit_timestamp
-ENV NEXT_PUBLIC_COMMIT_TIMESTAMP=$commit_timestamp
 
 EXPOSE 3000
 

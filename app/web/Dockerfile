@@ -16,9 +16,7 @@ RUN cp .env.$environment env && \
     rm .env.* && \
     mv env .env.local
 
-RUN yarn build
-
-# These are at the end so as to not invalidate Docker build cache
+# These are used during yarn build by Next.js
 ARG version
 ENV NEXT_PUBLIC_VERSION=$version
 ENV SENTRY_RELEASE=$version
@@ -31,3 +29,7 @@ ENV NEXT_PUBLIC_COMMIT_SHA=$commit_sha
 
 ARG commit_timestamp
 ENV NEXT_PUBLIC_COMMIT_TIMESTAMP=$commit_timestamp
+
+RUN yarn build
+
+
