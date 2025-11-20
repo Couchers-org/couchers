@@ -123,6 +123,9 @@
       "description": "Los moderadores te han enviado la siguiente nota. Por favor léela detenidamente y confirma que la has leído y comprendido antes de continuar.",
       "note_title": "Nota de los moderadores recibida el {{time}}:",
       "acknowledge": "Admitir la nota"
+    },
+    "activeness_probe": {
+      "title": "¿Sigues todavía abierto a alojar viajeros?"
     }
   },
   "jail_set_password_form": {
