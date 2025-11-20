@@ -72,7 +72,7 @@
     "subtitle": "Utiliza este formulario para restaurar la contraseña de inicio de sesión.",
     "user_logged_error": "No puedes restaurar tu contraseña si tienes una sesión iniciada. Puedes modificar tu contraseña en la configuración o cerrar la sesión para restaurarla.",
     "reset_password_success": "¡Tu contraseña ha sido modificada correctamente!",
-    "reset_password_error": "Error al restaurar la contraseña: : {{message}}"
+    "reset_password_error": "Error al restaurar la contraseña: {{message}}"
   },
   "reset_password_form": {
     "enter_email": "Introduce tu usuario/correo electrónico",
@@ -224,6 +224,6 @@
       "no_emails_enable_text": "No quiero recibir correos electrónicos",
       "no_emails_disable_text": "Reactivar correos electrónicos"
     },
-    "caveat": "Activando est e ajuste tu cuenta será configurada para no aceptar solicitudes de alojamiento. Seguirás recibiendo correos electrónicos de seguridad (como los de reestablecimiento de contraseña). Podrías seguir recibiendo la newsletter, puedes desubscribirte de ella utilizando el enlace al pie de la newsletter."
+    "caveat": "Activando este ajuste, tu cuenta será configurada para no aceptar solicitudes de alojamiento. Seguirás recibiendo correos electrónicos de seguridad (como los de reestablecimiento de contraseña). Podrías seguir recibiendo la newsletter, puedes desuscribirte de ella utilizando el enlace al pie de la newsletter."
   }
 }
