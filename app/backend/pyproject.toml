@@ -2,7 +2,7 @@
 name = "couchers"
 version = "0.1.0"
 description = "Couchers.org backend application"
-requires-python = ">=3.13"
+requires-python = "==3.13.*"
 dependencies = [
     "alembic>=1.17.1",
     "boto3>=1.39.3",
