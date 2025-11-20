@@ -41,7 +41,7 @@
       "cant_host": "No puede hospedar",
       "any": "En cualquier momento"
     },
-    "tos_accept_label": "Acepto los términos y condiciones.",
+    "tos_accept_label": "Yo Acepto el $t(global:terms_of_service).",
     "password": {
       "validation_error": "La contraseña debe tener entre 8 y 256 caracteres y no ser extremadamente común.",
       "required_error": "Introduce una contraseña",
