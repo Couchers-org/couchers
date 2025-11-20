@@ -26,7 +26,9 @@
     "travel_section": "He viajado a",
     "overview_section": "Resumen",
     "lived_section": "He vivido en",
-    "map_section": "Mapa de viaje"
+    "map_section": "Mapa de viaje",
+    "age_verification_verified": "Este usuario ha verificado su fecha de nacimiento",
+    "age_verification_mismatch": "La fecha de nacimiento proporcionada por el usuario no coincide con la fecha de nacimiento verificada"
   },
   "last_active_false": "Desconocido",
   "reference_amounts": {
