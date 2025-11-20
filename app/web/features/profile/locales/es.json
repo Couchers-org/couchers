@@ -1,1 +1,95 @@
-{}
+{
+  "actions": {
+    "message_label": "Enviar un mensaje",
+    "accept_friend_label": "Aceptar",
+    "decline_friend_label": "Rechazar",
+    "request": "Enviar solicitud",
+    "back_to_dashboard": "Volver al tablón"
+  },
+  "heading": {
+    "about_me": "Sobre mí",
+    "age_gender": "Edad / Género",
+    "edit": "Editar",
+    "edit_profile": "Editar perfil",
+    "education": "Educación",
+    "home": "Mi Hogar",
+    "hometown": "Crecí en",
+    "hosting_status": "Disponibilidad para alojar",
+    "joined": "Coucher desde",
+    "languages_fluent": "Idiomas hablados con fluidez",
+    "last_active": "Última conexión",
+    "occupation": "Ocupación",
+    "references": "Referencias",
+    "who_section": "Quién soy",
+    "local_time": "Hora local",
+    "hobbies_section": "Qué hago en mi tiempo libre",
+    "additional_information_section": "Información adicional",
+    "travel_section": "He viajado a",
+    "overview_section": "Resumen",
+    "lived_section": "He vivido en",
+    "map_section": "Mapa de viajes",
+    "age_verification_verified": "Este usuario ha verificado su fecha de nacimiento",
+    "age_verification_mismatch": "La fecha de nacimiento proporcionada por el usuario no coincide con la fecha de nacimiento verificada",
+    "community_standing": "Prestigio comunitario",
+    "languages_conversational": "Idiomas con los que me defiendo"
+  },
+  "last_active_false": "Desconocido",
+  "reference_amounts": {
+    "references_plural": "referencias",
+    "references_single": "referencia"
+  },
+  "edit_profile_headings": {
+    "name": "Nombre",
+    "gender": "Género",
+    "pronouns": "Pronombres",
+    "occupation": "Ocupación",
+    "education": "Educación",
+    "hosting_status": "Disponibilidad para alojar",
+    "meetup_status": "Disponibilidad para quedar",
+    "hometown": "Crecí en"
+  },
+  "home_info_headings": {
+    "general": "General",
+    "housemates": "Compañeros de piso",
+    "sleeping_arrangement": "Distribución para dormir"
+  },
+  "unspecified_info": "-",
+  "smoking_location": {
+    "no": "No",
+    "outside": "En el exterior",
+    "window": "Ventana",
+    "yes": "Sí"
+  },
+  "gender": {
+    "man": "Hombre",
+    "woman": "Mujer"
+  },
+  "connection_pending": "Pendiente",
+  "cancel": "Cancelar",
+  "more_profile_actions": "...",
+  "report_details": "Detalles",
+  "report_reason": "Motivo",
+  "leave_reference": {
+    "next_step_label": "Siguiente"
+  },
+  "reference_badge_label": {
+    "friend": "Amigo",
+    "hosted": "Alojados",
+    "surfed": "Invitado"
+  },
+  "regions_empty_state": "Ninguno",
+  "response_rate_text_low": "Raramente",
+  "response_rate_text_some": "Algunas veces",
+  "response_rate_text_most": "Habitualmente",
+  "request_form": {
+    "request": "Solicitud",
+    "guest_count": "Número de huéspedes"
+  },
+  "my_connections": "Mis contactos",
+  "active": "Activo",
+  "sleeping_arrangement": {
+    "shared_room_short": "Habitación compartida",
+    "private_short": "Espacio privado",
+    "common_short": "Habitación común"
+  }
+}

@@ -190,7 +190,17 @@
       "step2": "Cliquez sur <strong>« Démarrer la vérification rigoureuse»</strong> ci-dessous (s’ouvre dans un nouvel onglet)",
       "step3": "Scannez le code QR avec votre téléphone",
       "step1": "Télécharger l’application <strong>Iris ID</strong>",
-      "step1_apple_note": "<strong>Utilisateurs.trices Apple :</strong> Vous pouvez ignorer le téléchargement et utiliser votre navigateur à la place de l'application. Cliquez simplement sur « Ouvrir » lorsque vous y êtes invité.e."
+      "step1_apple_note": "<strong>Utilisateurs.trices Apple :</strong> Vous pouvez ignorer le téléchargement et utiliser votre navigateur à la place de l'application. Cliquez simplement sur « Ouvrir » lorsque vous y êtes invité.e.",
+      "step8": "Vous saurez que la vérification a réussi lorsque vous verrez grâce à l'augmentation des pourcentages et à un indicateur de chargement",
+      "step4": "Si vous êtes demandé.e, ouvrez l’application et scannez à nouveau le code QR",
+      "step5": "Sélectionnez <strong>Passeport</strong> (les cartes d'identité ne sont pas acceptées)",
+      "step6": "Prenez une photo claire de la page du passeport avec les numéros d'identification en bas",
+      "step7": "Placez votre portable contre la page du passeport contenant la puce NFC (voir les conseils ci-dessous)",
+      "download_app_store": "Télécharger sur l’App Store",
+      "download_google_play": "Télécharger-le sur Google Play",
+      "chip_location": {
+        "heading": "Trouver la puce NFC de votre passeport"
+      }
     },
     "status": {
       "enabled_message": "Vous <1>êtes actuellement</1> vérifié.e avec une vérification rigoureuse.",
