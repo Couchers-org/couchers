@@ -122,7 +122,7 @@
       "title": "Has recibido una nota de los moderadores",
       "description": "Los moderadores te han enviado la siguiente nota. Por favor léela detenidamente y confirma que la has leído y comprendido antes de continuar.",
       "note_title": "Nota de los moderadores recibida el {{time}}:",
-      "acknowledge": "Aceptar la nota"
+      "acknowledge": "Admitir la nota"
     }
   },
   "jail_set_password_form": {
