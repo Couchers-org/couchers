@@ -7,6 +7,22 @@
   },
   "heading": {
     "about_me": "Sobre mí",
-    "age_gender": "Edad / Género"
+    "age_gender": "Edad / Género",
+    "edit": "Editar",
+    "edit_profile": "Editar perfil",
+    "education": "Educación",
+    "home": "Mi Hogar",
+    "hometown": "Crecí en",
+    "hosting_status": "Estado de anfitrión",
+    "joined": "Coucher desde",
+    "languages_fluent": "Idiomas hablados con fluidez",
+    "last_active": "Última vez activo",
+    "occupation": "Ocupación",
+    "references": "Referencias",
+    "who_section": "Quién soy",
+    "local_time": "Hora local",
+    "hobbies_section": "Qué hago en mi tiempo libre",
+    "additional_information_section": "Información adicional",
+    "travel_section": "Viajado a"
   }
 }
