@@ -56,7 +56,7 @@
       "required_error": "El correo electrónico no puede estar vacío."
     },
     "name": {
-      "field_label": "Tu nombre",
+      "field_label": "Nombre",
       "empty_error": "Por favor introduce tu nombre",
       "required_error": "El nombre no puede ser sólo espacio en blanco."
     }
