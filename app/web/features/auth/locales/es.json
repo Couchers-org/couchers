@@ -125,7 +125,9 @@
       "acknowledge": "Admitir la nota"
     },
     "activeness_probe": {
-      "title": "¿Todavía sigues abierto a alojar viajeros?"
+      "title": "¿Todavía sigues abierto a alojar viajeros?",
+      "description": "Hemos observado que no has iniciado sesión ultimamente y queremos comprobar si todavía estas abierto a alojar viajeros.",
+      "still_hosting": "¡Todavía quiero ser anfitrión!"
     }
   },
   "jail_set_password_form": {
