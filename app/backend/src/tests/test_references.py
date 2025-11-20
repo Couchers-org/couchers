@@ -118,14 +118,6 @@ def create_host_request_by_date(
         )
     )
 
-    message = Message(
-        time=from_date + timedelta(seconds=2),
-        conversation_id=conversation.id,
-        author_id=surfer_user_id,
-        text="Hi, I'm requesting to be hosted.",
-        message_type=MessageType.text,
-    )
-
     host_request = HostRequest(
         conversation_id=conversation.id,
         surfer_user_id=surfer_user_id,
