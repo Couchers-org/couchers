@@ -25,7 +25,7 @@
       "field_label": "Nombre de usuario",
       "required_error": "Introduce tu nombre de usuario",
       "username_taken_error": "Este nombre de usuario ya existe.",
-      "validation_error": "El nombre usuario sólo puede contener números o _,  y debe comenzar con una letra."
+      "validation_error": "El nombre usuario sólo puede contener números o _, y debe comenzar con una letra."
     },
     "birthday": {
       "field_label": "Cumpleaños",
@@ -39,7 +39,7 @@
       "can_host": "Puede hospedar",
       "maybe": "Tal vez podría hospedar",
       "cant_host": "No puede hospedar",
-      "any": "Cualquiera"
+      "any": "En cualquier momento"
     },
     "tos_accept_label": "Acepto los términos y condiciones.",
     "password": {
@@ -47,7 +47,7 @@
       "required_error": "Introduce una contraseña",
       "field_label": "Contraseña"
     },
-    "opt_in_newsletter": "Suscribete a nuestra newsletter ocasional sobre actualizaciones de la comunidad."
+    "opt_in_newsletter": "Suscríbete a nuestra newsletter ocasional sobre actualizaciones de la comunidad."
   },
   "basic_form": {
     "email": {
