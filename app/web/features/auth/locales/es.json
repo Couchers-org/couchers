@@ -35,10 +35,10 @@
       "not_real_date_error": "Por favor introduce una fecha de nacimiento real"
     },
     "hosting_status": {
-      "field_label": "Estado de alojamiento",
-      "can_host": "Puede hospedar",
-      "maybe": "Tal vez podría hospedar",
-      "cant_host": "No puede hospedar",
+      "field_label": "Disponibilidad para alojar",
+      "can_host": "Puede alojar",
+      "maybe": "Tal vez podría alojar",
+      "cant_host": "No puedo alojar",
       "any": "En cualquier momento"
     },
     "tos_accept_label": "Acepto los Términos y condiciones..",

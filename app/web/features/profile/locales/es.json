@@ -3,7 +3,8 @@
     "message_label": "Enviar un mensaje",
     "accept_friend_label": "Aceptar",
     "decline_friend_label": "Rechazar",
-    "request": "Enviar solicitud"
+    "request": "Enviar solicitud",
+    "back_to_dashboard": "Volver al tablón"
   },
   "heading": {
     "about_me": "Sobre mí",
@@ -13,7 +14,7 @@
     "education": "Educación",
     "home": "Mi Hogar",
     "hometown": "Crecí en",
-    "hosting_status": "Estado de anfitrión",
+    "hosting_status": "Disponibilidad para alojar",
     "joined": "Coucher desde",
     "languages_fluent": "Idiomas hablados con fluidez",
     "last_active": "Última conexión",
@@ -26,9 +27,11 @@
     "travel_section": "He viajado a",
     "overview_section": "Resumen",
     "lived_section": "He vivido en",
-    "map_section": "Mapa de viaje",
+    "map_section": "Mapa de viajes",
     "age_verification_verified": "Este usuario ha verificado su fecha de nacimiento",
-    "age_verification_mismatch": "La fecha de nacimiento proporcionada por el usuario no coincide con la fecha de nacimiento verificada"
+    "age_verification_mismatch": "La fecha de nacimiento proporcionada por el usuario no coincide con la fecha de nacimiento verificada",
+    "community_standing": "Prestigio comunitario",
+    "languages_conversational": "Idiomas con los que me defiendo"
   },
   "last_active_false": "Desconocido",
   "reference_amounts": {
@@ -40,11 +43,15 @@
     "gender": "Género",
     "pronouns": "Pronombres",
     "occupation": "Ocupación",
-    "education": "Educación"
+    "education": "Educación",
+    "hosting_status": "Disponibilidad para alojar",
+    "meetup_status": "Disponibilidad para quedar",
+    "hometown": "Crecí en"
   },
   "home_info_headings": {
     "general": "General",
-    "housemates": "Compañeros de piso"
+    "housemates": "Compañeros de piso",
+    "sleeping_arrangement": "Distribución para dormir"
   },
   "unspecified_info": "-",
   "smoking_location": {
@@ -75,6 +82,14 @@
   "response_rate_text_some": "Algunas veces",
   "response_rate_text_most": "Habitualmente",
   "request_form": {
-    "request": "Solicitud"
+    "request": "Solicitud",
+    "guest_count": "Número de huéspedes"
+  },
+  "my_connections": "Mis contactos",
+  "active": "Activo",
+  "sleeping_arrangement": {
+    "shared_room_short": "Habitación compartida",
+    "private_short": "Espacio privado",
+    "common_short": "Habitación común"
   }
 }

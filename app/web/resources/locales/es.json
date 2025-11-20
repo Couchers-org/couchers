@@ -29,5 +29,7 @@
     "error_loading_invite_codes": "No se pudieron obtener los detalles del código de invitación",
     "community_standing_description": "Calculado a partir de varios factores como referencias y participación en la comunidad.",
     "verification_score": "Puntuación de verificación",
-    "community_standing": "Prestigio comunitario"
+    "community_standing": "Prestigio comunitario",
+    "accept": "Aceptar",
+    "cancel": "Cancelar"
 }
