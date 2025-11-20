@@ -206,7 +206,8 @@
       "no_emails_disabled_message": "Los correos electrónicos están actualmente <1>activados</1> en tu cuenta."
     },
     "action_button": {
-      "no_emails_enable_text": "No quiero recibir correos electrónicos"
+      "no_emails_enable_text": "No quiero recibir correos electrónicos",
+      "no_emails_disable_text": "Reactivar  correos electrónicos"
     }
   }
 }

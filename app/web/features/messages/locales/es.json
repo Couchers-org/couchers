@@ -1,7 +1,7 @@
 {
   "mark_all_read_button_text": "Marcar todos como leídos",
   "write_reference_button_text": "Escribir una referencia",
-  "close_request_button_text": "Rechazar",
+  "close_request_button_text": "Declinar",
   "confirm_request_button_text": "Confirmar",
   "messages_page": {
     "title": "Mensajes",
@@ -64,5 +64,8 @@
     },
     "invite_button_label": "Invitar"
   },
-  "unknown_user": "Usuario desconocido"
+  "unknown_user": "Usuario desconocido",
+  "host_request_view": {
+    "back_button_a11y_label": "Volver"
+  }
 }

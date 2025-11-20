@@ -12,5 +12,13 @@
     "create": "Crear",
     "title": "título",
     "update": "Actualizar",
-    "couchers": "Couchers.org"
+    "couchers": "Couchers.org",
+    "create_account": "Crear cuenta",
+    "join_us": "Únete a nosotros",
+    "back": "Volver",
+    "learn_more": "Saber más",
+    "created": "Creado",
+    "login": "Iniciar sesión",
+    "sign_up": "Regístrate",
+    "legal_name": "Couchers, Inc."
 }
