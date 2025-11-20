@@ -127,7 +127,9 @@
     "activeness_probe": {
       "title": "¿Todavía sigues abierto a alojar viajeros?",
       "description": "Hemos observado que no has iniciado sesión ultimamente y queremos comprobar si todavía estas abierto a alojar viajeros.",
-      "still_hosting": "¡Todavía quiero hospedar!"
+      "still_hosting": "¡Todavía quiero hospedar!",
+      "not_hosting": "Ya no puedo alojar.",
+      "note": "¡Actualizaremos tu perfil para reflejar esta decisión!"
     }
   },
   "jail_set_password_form": {
@@ -232,5 +234,6 @@
       "no_emails_disable_text": "Reactivar correos electrónicos"
     },
     "caveat": "Activando este ajuste, tu cuenta será configurada para no aceptar solicitudes de alojamiento. Seguirás recibiendo correos electrónicos de seguridad (como los de reestablecimiento de contraseña). Podrías seguir recibiendo la newsletter, puedes desuscribirte de ella utilizando el enlace al pie de la newsletter."
-  }
+  },
+  "sign_up_need_verification_title": "¡Cási hemos terminado, una última cosa!"
 }

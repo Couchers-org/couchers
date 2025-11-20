@@ -1,5 +1,6 @@
 {
   "actions": {
-    "message_label": "Enviar un mensaje"
+    "message_label": "Enviar un mensaje",
+    "accept_friend_label": "Aceptar"
   }
 }
