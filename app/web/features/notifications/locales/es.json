@@ -15,7 +15,9 @@
                 "event": "Eventos",
                 "friend_request": "Solicitudes de amistad",
                 "host_request": "Solicitudes de alojamiento",
-                "reference": "Recomendaciones"
+                "reference": "Recomendaciones",
+                "discussion": "Discusiones",
+                "reply": "Respuestas"
             },
             "item_descriptions": {
                 "host_request": {
@@ -91,5 +93,7 @@
                 }
             }
         }
-    }
+    },
+    "all": "Todas",
+    "unread": "No leídas"
 }

@@ -5,5 +5,12 @@
         "help_translate": "Ayuda a traducir couchers a tu idioma.",
         "select_language": "Selecciona un idioma",
         "success_message": "Tu cambio ha sido guardado."
-    }
+    },
+    "retract": "Retractarse",
+    "close": "Cerrar",
+    "expand": "Expandir",
+    "create": "Crear",
+    "title": "título",
+    "update": "Actualizar",
+    "couchers": "Couchers.org"
 }

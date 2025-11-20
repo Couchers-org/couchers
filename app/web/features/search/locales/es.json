@@ -1,1 +1,17 @@
-{}
+{
+  "form": {
+    "submit_button_label": "Solicitar",
+    "rules": {
+      "title": "Reglas"
+    }
+  },
+  "filter_dialog": {
+    "mobile_title": "Buscar",
+    "desktop_title": "Filtros"
+  },
+  "views": {
+    "list": "Lista"
+  },
+  "location": "Ubicación",
+  "keyword": "Palabra clave"
+}

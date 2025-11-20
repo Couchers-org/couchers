@@ -6,7 +6,9 @@
   "messages_page": {
     "title": "Mensajes",
     "tabs": {
-      "chats": "Chats"
+      "chats": "Chats",
+      "hosting": "Alojamiento",
+      "surfing": "Surfear"
     }
   },
   "chat_view": {
@@ -47,5 +49,18 @@
     "chat_title": {
       "field_label": "Título del chat"
     }
+  },
+  "host_request_status": {
+    "confirmed": "Confirmado",
+    "accepted": "Aceptado",
+    "cancelled": "Cancelado",
+    "past": "Pasadas",
+    "pending": "Pendiente"
+  },
+  "invite_dialog": {
+    "selected": {
+      "field_label": "Amigos"
+    },
+    "invite_button_label": "Invitar"
   }
 }

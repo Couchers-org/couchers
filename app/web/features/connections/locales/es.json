@@ -1,1 +1,7 @@
-{}
+{
+  "friends": "Amigos",
+  "pending": "Pendientes",
+  "remove_friend_confirmation_dialog": {
+    "confirm": "Eliminar"
+  }
+}

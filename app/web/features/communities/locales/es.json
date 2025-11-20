@@ -74,5 +74,14 @@
   "location_required": "Por favor, proporciona una ubicación para el evento.",
   "no_attendees": "¡Todavía no hay nadie que vaya a asistir a este evento!",
   "title_required": "Por favor, proporciona un título para el evento.",
-  "virtual_events_subtext": "Los eventos virtuales serán añadidos a la comunidad global."
+  "virtual_events_subtext": "Los eventos virtuales serán añadidos a la comunidad global.",
+  "cancelled": "Cancelado",
+  "comment": "Comentar",
+  "post": "Publicar",
+  "attendees": "Asistentes",
+  "invite_community_dialog_buttons": {
+    "confirm": "Confirmar",
+    "close": "Cancelar"
+  },
+  "members_label": "Miembros"
 }
