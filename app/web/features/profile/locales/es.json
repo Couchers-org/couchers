@@ -4,5 +4,9 @@
     "accept_friend_label": "Aceptar",
     "decline_friend_label": "Rechazar",
     "request": "Enviar solicitud"
+  },
+  "heading": {
+    "about_me": "Sobre mí",
+    "age_gender": "Edad / Sexo"
   }
 }
