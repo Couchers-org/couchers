@@ -207,7 +207,7 @@
     },
     "action_button": {
       "no_emails_enable_text": "No quiero recibir correos electrónicos",
-      "no_emails_disable_text": "Reactivar  correos electrónicos"
+      "no_emails_disable_text": "Reactivar correos electrónicos"
     }
   }
 }
