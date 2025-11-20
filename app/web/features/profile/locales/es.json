@@ -27,5 +27,52 @@
     "overview_section": "Resumen",
     "lived_section": "He vivido en",
     "map_section": "Mapa de viaje"
+  },
+  "last_active_false": "Desconocido",
+  "reference_amounts": {
+    "references_plural": "referencias",
+    "references_single": "referencia"
+  },
+  "edit_profile_headings": {
+    "name": "Nombre",
+    "gender": "Género",
+    "pronouns": "Pronombres",
+    "occupation": "Ocupación",
+    "education": "Educación"
+  },
+  "home_info_headings": {
+    "general": "General",
+    "housemates": "Compañeros de piso"
+  },
+  "unspecified_info": "-",
+  "smoking_location": {
+    "no": "No",
+    "outside": "En el exterior",
+    "window": "Ventana",
+    "yes": "Sí"
+  },
+  "gender": {
+    "man": "Hombre",
+    "woman": "Mujer"
+  },
+  "connection_pending": "Pendiente",
+  "cancel": "Cancelar",
+  "more_profile_actions": "...",
+  "report_details": "Detalles",
+  "report_reason": "Motivo",
+  "leave_reference": {
+    "next_step_label": "Siguiente"
+  },
+  "reference_badge_label": {
+    "friend": "Amigo",
+    "hosted": "Alojados",
+    "surfed": "Invitado"
+  },
+  "regions_empty_state": "Ninguno",
+  "response_rate_text_low": "Raramente",
+  "response_rate_text_some": "Algunas veces",
+  "response_rate_text_most": "Habitualmente",
+  "request_form": {
+    "request": "Solicitud"
   }
 }
