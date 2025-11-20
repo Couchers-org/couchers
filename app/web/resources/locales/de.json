@@ -453,5 +453,9 @@
         "description_1": "Couchsurfing ist ein Konzept, bei dem einige Mitglieder (sogenannte Hosts) auf der Plattform angeben, dass sie bereit sind, andere Mitglieder (sogenannte Surfer), die ihre Stadt besuchen, bei sich aufzunehmen."
     },
     "learn_more": "Mehr erfahren",
-    "beta": "Beta"
+    "beta": "Beta",
+    "donation_banner": {
+        "message": "Couchers.org basiert auf Güte — genau wie Couchsurfing selbst. Hilf uns in dieser Weihnachtszeit, dass es so bleibt. Wir sammeln 5.000 $, um die Betriebskosten von Couchers.org zu decken.",
+        "button": "Jetzt spenden"
+    }
 }
