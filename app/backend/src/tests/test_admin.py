@@ -359,15 +359,15 @@ def test_CreateApiKey(db, push_collector):
     assert e.subject == "[TEST] Your API key for Couchers.org"
 
     with session_scope() as session:
-        api_key = session.execute(
-            select(UserSession)
+        token = session.execute(
+            select(UserSession.token)
             .where(UserSession.is_valid)
             .where(UserSession.is_api_key == True)
             .where(UserSession.user_id == normal_user.id)
         ).scalar_one()
 
-        assert api_key.token in e.plain
-        assert api_key.token in e.html
+        assert token in e.plain
+        assert token in e.html
 
     assert e.recipient == normal_user.email
     assert "api key" in e.subject.lower()
@@ -486,28 +486,27 @@ def test_UpdateCommunity_invalid_geojson(db):
 def test_UpdateCommunity_invalid_id(db):
     super_user, super_token = generate_user(is_superuser=True)
 
-    with session_scope() as session:
-        with real_admin_session(super_token) as api:
-            api.CreateCommunity(
-                admin_pb2.CreateCommunityReq(
-                    name="test community",
-                    description="community for testing",
-                    admin_ids=[],
+    with real_admin_session(super_token) as api:
+        api.CreateCommunity(
+            admin_pb2.CreateCommunityReq(
+                name="test community",
+                description="community for testing",
+                admin_ids=[],
+                geojson=VALID_GEOJSON_MULTIPOLYGON,
+            )
+        )
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateCommunity(
+                admin_pb2.UpdateCommunityReq(
+                    community_id=1000,
+                    name="test community 1000",
+                    description="community for testing 1000",
                     geojson=VALID_GEOJSON_MULTIPOLYGON,
                 )
             )
-
-            with pytest.raises(grpc.RpcError) as e:
-                api.UpdateCommunity(
-                    admin_pb2.UpdateCommunityReq(
-                        community_id=1000,
-                        name="test community 1000",
-                        description="community for testing 1000",
-                        geojson=VALID_GEOJSON_MULTIPOLYGON,
-                    )
-                )
-            assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert e.value.details() == "Community not found."
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Community not found."
 
 
 def test_UpdateCommunity(db):

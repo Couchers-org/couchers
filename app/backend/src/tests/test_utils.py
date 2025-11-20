@@ -1,4 +1,5 @@
 import pytest
+from sqlalchemy import update
 from sqlalchemy.sql import func
 
 from couchers.db import session_scope
@@ -19,12 +20,11 @@ def test_page_token_time_python():
 
 
 def test_page_token_time_db(db):
-    generate_user()
+    user, _ = generate_user()
 
     # generate a timestamp in postgres (note use of `func`)
     with session_scope() as session:
-        user = session.execute(select(User)).scalar_one()
-        user.joined = func.now()
+        session.execute(update(User).where(User.id == user.id).values(joined=func.now()))
 
     with session_scope() as session:
         # pull it back into python
@@ -124,7 +124,6 @@ def test_wrap_coordinate():
         ((45, 90), (45, 90)),
     ]
 
-    with session_scope() as session:
-        for coords, coords_expected in test_coords:
-            coords_wrapped = wrap_coordinate(*coords)
-            assert coords_expected == coords_wrapped
+    for coords, coords_expected in test_coords:
+        coords_wrapped = wrap_coordinate(*coords)
+        assert coords_expected == coords_wrapped
