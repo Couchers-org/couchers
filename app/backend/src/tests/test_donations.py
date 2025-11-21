@@ -3,7 +3,6 @@ from unittest.mock import patch
 
 import pytest
 from google.protobuf import empty_pb2
-from sqlalchemy import update
 
 import couchers.servicers.donations
 from couchers.config import config

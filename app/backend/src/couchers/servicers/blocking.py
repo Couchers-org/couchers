@@ -1,5 +1,6 @@
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy import exists
 from sqlalchemy.sql import not_, or_, union
 
 from couchers import urls
@@ -48,10 +49,12 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "cant_block_self")
 
         if session.execute(
-            select(UserBlock.id)
-            .where(UserBlock.blocking_user_id == context.user_id)
-            .where(UserBlock.blocked_user_id == blockee.id)
-        ).scalar_one_or_none():
+            select(
+                exists()
+                .where(UserBlock.blocking_user_id == context.user_id)
+                .where(UserBlock.blocked_user_id == blockee.id)
+            )
+        ).scalar_one():
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "user_already_blocked")
         else:
             user_block = UserBlock(
