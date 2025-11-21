@@ -24,7 +24,7 @@ from couchers.notifications.notify import notify
 from couchers.proto import conversations_pb2, conversations_pb2_grpc, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
-from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
+from couchers.rate_limits.definitions import RATE_LIMIT_HOURS, STRINGENT_RATE_LIMITS
 from couchers.servicers.api import user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now
@@ -597,16 +597,19 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "already_have_dm")
 
         # Check if user has been initiating chats excessively
-        # Use stricter limits for users less than 24 hours old
+        # Use stricter limits for users less than 24 hours old if STRINGENT_RATE_LIMITS is enabled
         user_age = now() - user.joined
-        is_new_user = user_age < timedelta(hours=24)
+        is_new_user = STRINGENT_RATE_LIMITS and user_age < timedelta(hours=24)
         rate_limit_action = RateLimitAction.new_user_chat_initiation if is_new_user else RateLimitAction.chat_initiation
 
         if process_rate_limits_and_check_abort(session=session, user_id=context.user_id, action=rate_limit_action):
+            substitutions = {"hours": RATE_LIMIT_HOURS}
+            if is_new_user:
+                substitutions["rate_limit_currently_stringent"] = True
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
                 "chat_initiation_rate_limit",
-                substitutions={"hours": RATE_LIMIT_HOURS},
+                substitutions=substitutions,
             )
 
         group_chat = _create_chat(

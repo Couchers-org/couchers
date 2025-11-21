@@ -68,7 +68,7 @@ def test_new_user_host_request_rate_limit(db):
         assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
         assert (
             exc_info.value.details()
-            == "You have sent a lot of host requests in the past 24 hours. To avoid spam, you can't send any more for now."
+            == "You have sent a lot of host requests in the past 24 hours. To avoid spam, you can't send any more for now. If you just signed up, please wait 24 hours for rate limits to be relaxed."
         )
 
 
@@ -132,7 +132,7 @@ def test_new_user_friend_request_rate_limit(db):
         assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
         assert (
             exc_info.value.details()
-            == "You have sent a lot of friend requests in the past 24 hours. To avoid spam, you can't send any more for now."
+            == "You have sent a lot of friend requests in the past 24 hours. To avoid spam, you can't send any more for now. If you just signed up, please wait 24 hours for rate limits to be relaxed."
         )
 
 
@@ -192,7 +192,7 @@ def test_new_user_chat_initiation_rate_limit(db):
         assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
         assert (
             exc_info.value.details()
-            == "You have messaged a lot of users in the past 24 hours. To avoid spam, you can't contact any more users for now."
+            == "You have messaged a lot of users in the past 24 hours. To avoid spam, you can't contact any more users for now. If you just signed up, please wait 24 hours for rate limits to be relaxed."
         )
 
 

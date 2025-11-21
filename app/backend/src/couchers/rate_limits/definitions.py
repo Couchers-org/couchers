@@ -33,6 +33,10 @@ class RateLimitDefinition:
 RATE_LIMIT_HOURS = 24
 RATE_LIMIT_INTERVAL = timedelta(hours=RATE_LIMIT_HOURS)
 
+# When True, enables stricter rate limits for new users (< 24 hours old)
+# and includes additional messaging about waiting 24 hours
+STRINGENT_RATE_LIMITS = True
+
 
 def _get_user_host_requests_in_past_time_interval(session: Session, user_id: int) -> Sequence[RowMapping]:
     return (

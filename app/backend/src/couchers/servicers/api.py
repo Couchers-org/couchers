@@ -38,7 +38,7 @@ from couchers.notifications.notify import notify
 from couchers.notifications.settings import get_topic_actions_by_delivery_type
 from couchers.proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2, requests_pb2
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
-from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
+from couchers.rate_limits.definitions import RATE_LIMIT_HOURS, STRINGENT_RATE_LIMITS
 from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
 from couchers.servicers.blocking import is_not_visible
 from couchers.sql import couchers_select as select
@@ -684,16 +684,19 @@ class API(api_pb2_grpc.APIServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "friends_already_or_pending")
 
         # Check if user has been sending friend requests excessively
-        # Use stricter limits for users less than 24 hours old
+        # Use stricter limits for users less than 24 hours old if STRINGENT_RATE_LIMITS is enabled
         user_age = now() - user.joined
-        is_new_user = user_age < timedelta(hours=24)
+        is_new_user = STRINGENT_RATE_LIMITS and user_age < timedelta(hours=24)
         rate_limit_action = RateLimitAction.new_user_friend_request if is_new_user else RateLimitAction.friend_request
 
         if process_rate_limits_and_check_abort(session=session, user_id=context.user_id, action=rate_limit_action):
+            substitutions = {"hours": RATE_LIMIT_HOURS}
+            if is_new_user:
+                substitutions["rate_limit_currently_stringent"] = True
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
                 "friend_request_rate_limit",
-                substitutions={"hours": RATE_LIMIT_HOURS},
+                substitutions=substitutions,
             )
 
         # TODO: Race condition where we can create two friend reqs, needs db constraint! See comment in table
