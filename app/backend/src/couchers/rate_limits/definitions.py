@@ -133,4 +133,39 @@ RATE_LIMIT_DEFINITIONS = {
         ).scalar_one(),
         mod_email_information_query=_get_user_initiated_chats_in_past_time_interval,
     ),
+    RateLimitAction.new_user_host_request: RateLimitDefinition(
+        warning_limit=3,
+        hard_limit=5,
+        count_actions_query=lambda session, user_id: session.execute(
+            select(func.count())
+            .select_from(HostRequest)
+            .join(Conversation, HostRequest.conversation_id == Conversation.id)
+            .where(HostRequest.surfer_user_id == user_id)
+            .where(Conversation.created >= now() - RATE_LIMIT_INTERVAL)
+        ).scalar_one(),
+        mod_email_information_query=_get_user_host_requests_in_past_time_interval,
+    ),
+    RateLimitAction.new_user_friend_request: RateLimitDefinition(
+        warning_limit=3,
+        hard_limit=5,
+        count_actions_query=lambda session, user_id: session.execute(
+            select(func.count())
+            .select_from(FriendRelationship)
+            .where(FriendRelationship.from_user_id == user_id)
+            .where(FriendRelationship.time_sent >= now() - RATE_LIMIT_INTERVAL)
+        ).scalar_one(),
+        mod_email_information_query=_get_user_friend_requests_in_past_time_interval,
+    ),
+    RateLimitAction.new_user_chat_initiation: RateLimitDefinition(
+        warning_limit=2,
+        hard_limit=3,
+        count_actions_query=lambda session, user_id: session.execute(
+            select(func.count())
+            .select_from(GroupChat)
+            .join(Conversation, GroupChat.conversation_id == Conversation.id)
+            .where(GroupChat.creator_id == user_id)
+            .where(Conversation.created >= now() - RATE_LIMIT_INTERVAL)
+        ).scalar_one(),
+        mod_email_information_query=_get_user_initiated_chats_in_past_time_interval,
+    ),
 }

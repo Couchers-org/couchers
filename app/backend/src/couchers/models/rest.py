@@ -527,6 +527,9 @@ class RateLimitAction(enum.Enum):
     host_request = "host request"
     friend_request = "friend request"
     chat_initiation = "chat initiation"
+    new_user_host_request = "new user host request"
+    new_user_friend_request = "new user friend request"
+    new_user_chat_initiation = "new user chat initiation"
 
 
 class RateLimitViolation(Base):

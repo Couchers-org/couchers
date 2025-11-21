@@ -202,9 +202,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
 
         # Check if user has been sending host requests excessively
-        if process_rate_limits_and_check_abort(
-            session=session, user_id=context.user_id, action=RateLimitAction.host_request
-        ):
+        # Use stricter limits for users less than 24 hours old
+        user_age = now() - user.joined
+        is_new_user = user_age < timedelta(hours=24)
+        rate_limit_action = RateLimitAction.new_user_host_request if is_new_user else RateLimitAction.host_request
+
+        if process_rate_limits_and_check_abort(session=session, user_id=context.user_id, action=rate_limit_action):
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
                 "host_request_rate_limit",

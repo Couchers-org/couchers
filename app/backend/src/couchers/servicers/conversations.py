@@ -597,9 +597,12 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "already_have_dm")
 
         # Check if user has been initiating chats excessively
-        if process_rate_limits_and_check_abort(
-            session=session, user_id=context.user_id, action=RateLimitAction.chat_initiation
-        ):
+        # Use stricter limits for users less than 24 hours old
+        user_age = now() - user.joined
+        is_new_user = user_age < timedelta(hours=24)
+        rate_limit_action = RateLimitAction.new_user_chat_initiation if is_new_user else RateLimitAction.chat_initiation
+
+        if process_rate_limits_and_check_abort(session=session, user_id=context.user_id, action=rate_limit_action):
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
                 "chat_initiation_rate_limit",
