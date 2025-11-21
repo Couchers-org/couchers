@@ -1,12 +1,12 @@
 import os
 import re
-from collections.abc import Generator
+from collections.abc import Generator, Sequence
 from concurrent import futures
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import date, timedelta
 from pathlib import Path
-from typing import Sequence, Any
+from typing import Any
 from unittest.mock import patch
 
 import grpc
@@ -315,7 +315,10 @@ class _MockCouchersContext:
 
 
 def generate_user(
-    *, delete_user=False, complete_profile=True, strong_verification=False,
+    *,
+    delete_user=False,
+    complete_profile=True,
+    strong_verification=False,
     regions_visited: Sequence[str] = (),
     regions_lived: Sequence[str] = (),
     language_abilities: Sequence[tuple[str, LanguageFluency]] = (),
@@ -663,7 +666,7 @@ class FakeRpcError(grpc.RpcError):
         return self._details
 
 
-def _check_user_perms(method, user_id, is_jailed, is_superuser, token_expiry):
+def _check_user_perms(method: str, user_id: int, is_jailed: bool, is_superuser: bool) -> None:
     # method is of the form "/org.couchers.api.core.API/GetUser"
     _, service_name, method_name = method.split("/")
 
@@ -726,20 +729,21 @@ class FakeChannel:
     def unary_unary(self, uri, request_serializer, response_deserializer):
         handler = self.handlers[uri]
 
-        user_id = None
-        is_jailed = None
-        is_superuser = None
-        token_expiry = None
-        ui_language_preference = None
-
-        if self._token:
-            user_id, is_jailed, is_superuser, token_expiry, ui_language_preference = _try_get_and_update_user_details(
-                self._token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
-            )
-
-        _check_user_perms(uri, user_id, is_jailed, is_superuser, token_expiry)
-
         def fake_handler(request):
+            if self._token:
+                user_id, is_jailed, is_superuser, token_expiry, ui_language_preference = (
+                    _try_get_and_update_user_details(
+                        self._token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
+                    )
+                )
+            else:
+                user_id = None
+                is_jailed = None
+                is_superuser = None
+                ui_language_preference = None
+
+            _check_user_perms(uri, user_id, is_jailed, is_superuser)
+
             # Do a full serialization cycle on the request and the
             # response to catch accidental use of unserializable data.
             request = handler.request_deserializer(request_serializer(request))
