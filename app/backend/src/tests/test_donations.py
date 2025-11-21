@@ -296,8 +296,8 @@ def test_merch_invoice_flow(db, monkeypatch):
 
     ## Check that the invoice was created with the correct type
     with session_scope() as session:
-        assert not session.execute(select(Invoice)).scalar_one_or_none()
-        assert session.execute(select(User)).scalar_one().last_donated is not None
+        assert not session.execute(select(Invoice.id)).scalar_one_or_none()
+        assert session.execute(select(User.last_donated)).scalar_one() is not None
 
 
 def test_merch_invoice_flow_nonexistent_user(db, monkeypatch):
@@ -316,8 +316,8 @@ def test_merch_invoice_flow_nonexistent_user(db, monkeypatch):
 
     ## Check that the invoice was created with the correct type
     with session_scope() as session:
-        assert not session.execute(select(Invoice)).scalar_one_or_none()
-        assert session.execute(select(User)).scalar_one().last_donated is None
+        assert not session.execute(select(Invoice.id)).scalar_one_or_none()
+        assert session.execute(select(User.last_donated)).scalar_one() is None
 
 
 def fire_stripe_event(event_id):

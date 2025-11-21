@@ -3,6 +3,7 @@ import logging
 
 import grpc
 import stripe
+from sqlalchemy import update
 
 from couchers import urls
 from couchers.config import config
@@ -128,11 +129,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
         if event_type == "charge.succeeded":
             if metadata.get("site_url") == config["MERCH_SHOP_URL"]:
                 # merch shop. just look up this email and update their last donated
-                user = session.execute(
-                    select(User).where(User.email == metadata.get("customer_email"))
-                ).scalar_one_or_none()
-                if user:
-                    user.last_donated = now()
+                session.execute(update(User).where(User.email == metadata["customer_email"]).values(last_donated=now()))
             else:
                 customer_id = data_object["customer"]
                 user = session.execute(select(User).where(User.stripe_customer_id == customer_id)).scalar_one()
