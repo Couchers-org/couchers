@@ -2,6 +2,7 @@
   {
     "name": "Funny Cat current User",
     "userId": 1,
+    "isGhost": false,
     "username": "funnycat",
     "city": "Los Angeles",
     "lat": 34.04,
@@ -15,6 +16,7 @@
   {
     "name": "Funny Dog",
     "userId": 2,
+    "isGhost": false,
     "username": "funnydog",
     "city": "Helsinki, Finland",
     "lat": 60.16,
@@ -28,6 +30,7 @@
   {
     "name": "Funny Kid",
     "userId": 3,
+    "isGhost": false,
     "username": "funnykid",
     "city": "London, UK",
     "lat": 51.5,
@@ -41,6 +44,7 @@
   {
     "name": "Funny Chicken",
     "userId": 4,
+    "isGhost": false,
     "username": "funnyChicken",
     "city": "Melbourne, Australia",
     "lat": -37.8,
@@ -54,6 +58,7 @@
   {
     "name": "Friendly Cow",
     "userId": 5,
+    "isGhost": false,
     "username": "friendlyCow",
     "city": "Melbourne, Australia",
     "lat": -37.8,
