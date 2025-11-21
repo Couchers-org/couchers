@@ -920,6 +920,7 @@ def user_model_to_pb(db_user, session, context, *, is_admin_see_ghosts=False, is
             # Return an anonymized "ghost" user profile
             return api_pb2.User(
                 user_id=db_user.id,
+                is_ghost=True,
                 username=GHOST_USERNAME,
                 name=context.get_localized_string("ghost_users", "display_name"),
                 about_me=context.get_localized_string("ghost_users", "about_me"),
@@ -1112,6 +1113,7 @@ def lite_user_to_pb(
             # Return an anonymized "ghost" user profile
             return api_pb2.LiteUser(
                 user_id=lite_user.id,
+                is_ghost=True,
                 username=GHOST_USERNAME,
                 name=context.get_localized_string("ghost_users", "display_name"),
             )

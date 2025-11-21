@@ -223,6 +223,8 @@ message User {
   }
 
   int64 user_id = 1;
+  bool is_ghost = 56;
+
   string username = 2;
   string name = 3;
   string city = 4;
@@ -318,6 +320,8 @@ message GetUserReq {
 
 message LiteUser {
   int64 user_id = 1;
+  bool is_ghost = 12;
+
   string username = 2;
   string name = 3;
   string city = 4;
