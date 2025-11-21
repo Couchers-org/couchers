@@ -14,6 +14,7 @@ from couchers.models import (
     NotificationDeliveryType,
     NotificationTopicAction,
     RateLimitAction,
+    User,
 )
 from couchers.proto import api_pb2, conversations_pb2, notification_data_pb2, notifications_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
@@ -684,6 +685,15 @@ def test_send_direct_message(db):
 def test_excessive_chat_initiations_are_reported(db):
     """Test that excessive chat initiations are first reported in a warning email and finally lead blocking of further contacting other users."""
     user, token = generate_user()
+
+    # Age the user to be > 24 hours old so they use established user rate limits
+    from couchers.utils import now
+
+    with session_scope() as session:
+        user_obj = session.execute(select(User).where(User.id == user.id)).scalar_one()
+        user_obj.joined = now() - timedelta(hours=25)
+        session.commit()
+
     rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.chat_initiation]
     with conversations_session(token) as c:
         # Test warning email
@@ -715,7 +725,7 @@ def test_excessive_chat_initiations_are_reported(db):
             assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
             assert (
                 exc_info.value.details()
-                == "You have messaged a lot of users in the past 24 hours. To avoid spam, you can't contact any more users for now."
+                == "You have messaged a lot of users in the past 24 hours. To avoid spam, you can't contact any more users for now. If you just signed up, please wait 24 hours for rate limits to be relaxed."
             )
 
             assert mock_email.call_count == 1
@@ -1408,6 +1418,14 @@ def test_regression_ListGroupChats_pagination(db):
 
     make_friends(user1, user2)
     make_friends(user1, user3)
+
+    # Age the user to be > 24 hours old so they use established user rate limits
+    from couchers.utils import now
+
+    with session_scope() as session:
+        user_obj = session.execute(select(User).where(User.id == user1.id)).scalar_one()
+        user_obj.joined = now() - timedelta(hours=25)
+        session.commit()
 
     with conversations_session(token1) as c:
         # tuples of (group_chat_id, message_id)

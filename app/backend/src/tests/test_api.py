@@ -1003,6 +1003,15 @@ def test_cant_friend_request_already_friends(db):
 def test_excessive_friend_requests_are_reported(db):
     """Test that excessive friend requests are first reported in a warning email and finally lead blocking of further requests."""
     user, token = generate_user()
+
+    # Age the user to be > 24 hours old so they use established user rate limits
+    from couchers.utils import now
+
+    with session_scope() as session:
+        user_obj = session.execute(select(User).where(User.id == user.id)).scalar_one()
+        user_obj.joined = now() - timedelta(hours=25)
+        session.commit()
+
     rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.friend_request]
     with api_session(token) as api:
         # Test warning email
@@ -1034,7 +1043,7 @@ def test_excessive_friend_requests_are_reported(db):
             assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
             assert (
                 exc_info.value.details()
-                == "You have sent a lot of friend requests in the past 24 hours. To avoid spam, you can't send any more for now."
+                == "You have sent a lot of friend requests in the past 24 hours. To avoid spam, you can't send any more for now. If you just signed up, please wait 24 hours for rate limits to be relaxed."
             )
 
             assert mock_email.call_count == 1

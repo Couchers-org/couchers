@@ -27,7 +27,7 @@ def test_get_string_simple():
 def test_get_string_with_substitution():
     """Test string retrieval with variable substitutions"""
     result = get_raw_translation_string("en", "errors", "chat_initiation_rate_limit", substitutions={"hours": 24})
-    expected = "You have messaged a lot of users in the past 24 hours. To avoid spam, you can't contact any more users for now."
+    expected = "You have messaged a lot of users in the past 24 hours. To avoid spam, you can't contact any more users for now. If you just signed up, please wait 24 hours for rate limits to be relaxed."
     assert result == expected
 
 
