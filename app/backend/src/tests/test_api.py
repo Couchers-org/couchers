@@ -181,6 +181,7 @@ def test_user_model_to_pb_ghost_user(db, flag):
         user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
 
     assert user_pb.user_id == user2.id
+    assert user_pb.is_ghost
     assert user_pb.username == "ghost"
     assert user_pb.name == "Ghost"
     assert (
@@ -220,6 +221,7 @@ def test_user_model_to_pb_ghost_user(db, flag):
         lite_user_pb = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
 
     assert lite_user_pb.user_id == user2.id
+    assert lite_user_pb.is_ghost
     assert lite_user_pb.username == "ghost"
     assert lite_user_pb.name == "Ghost"
     assert lite_user_pb.city == ""
@@ -245,6 +247,7 @@ def test_user_model_to_pb_ghost_user_blocked(db):
         user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
 
     assert user_pb.user_id == user2.id
+    assert user_pb.is_ghost
     assert user_pb.username == "ghost"
     assert user_pb.name == "Ghost"
     assert (
@@ -284,6 +287,7 @@ def test_user_model_to_pb_ghost_user_blocked(db):
         lite_user_pb = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
 
     assert lite_user_pb.user_id == user2.id
+    assert lite_user_pb.is_ghost
     assert lite_user_pb.username == "ghost"
     assert lite_user_pb.name == "Ghost"
     assert lite_user_pb.city == ""
@@ -474,6 +478,7 @@ def test_GetLiteUsers(db):
         assert res.responses[8].query == user4.username
         assert not res.responses[8].not_found
         assert res.responses[8].user.user_id == user4.id
+        assert res.responses[8].user.is_ghost
         assert res.responses[8].user.username == "ghost"
         assert res.responses[8].user.name == "Ghost"
 
@@ -1547,6 +1552,7 @@ def test_GetLiteUser_blocked_user(db):
         lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
 
         assert lite_user.user_id == user2.id
+        assert lite_user.is_ghost
         assert lite_user.username == "ghost"
         assert lite_user.name == "Ghost"
 
@@ -1554,6 +1560,7 @@ def test_GetLiteUser_blocked_user(db):
         lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=str(user2.id)))
 
         assert lite_user.user_id == user2.id
+        assert lite_user.is_ghost
         assert lite_user.username == "ghost"
         assert lite_user.name == "Ghost"
 
@@ -1574,6 +1581,7 @@ def test_GetLiteUser_blocking_user(db):
         lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
 
         assert lite_user.user_id == user2.id
+        assert lite_user.is_ghost
         assert lite_user.username == "ghost"
         assert lite_user.name == "Ghost"
 
@@ -1581,6 +1589,7 @@ def test_GetLiteUser_blocking_user(db):
         lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=str(user2.id)))
 
         assert lite_user.user_id == user2.id
+        assert lite_user.is_ghost
         assert lite_user.username == "ghost"
         assert lite_user.name == "Ghost"
 
@@ -1629,6 +1638,7 @@ def test_GetLiteUsers_ghost_users(db, flag):
         assert res.responses[1].query == user2.username
         assert not res.responses[1].not_found
         assert res.responses[1].user.user_id == user2.id
+        assert res.responses[1].user.is_ghost
         assert res.responses[1].user.username == "ghost"
         assert res.responses[1].user.name == "Ghost"
 
@@ -1643,6 +1653,7 @@ def test_GetLiteUsers_ghost_users(db, flag):
         assert res.responses[3].query == str(user4.id)
         assert not res.responses[3].not_found
         assert res.responses[3].user.user_id == user4.id
+        assert res.responses[3].user.is_ghost
         assert res.responses[3].user.username == "ghost"
         assert res.responses[3].user.name == "Ghost"
 
@@ -1681,6 +1692,7 @@ def test_GetLiteUsers_blocked_users(db):
         assert res.responses[0].query == user2.username
         assert not res.responses[0].not_found
         assert res.responses[0].user.user_id == user2.id
+        assert res.responses[0].user.is_ghost
         assert res.responses[0].user.username == "ghost"
         assert res.responses[0].user.name == "Ghost"
 
@@ -1694,6 +1706,7 @@ def test_GetLiteUsers_blocked_users(db):
         assert res.responses[2].query == user4.username
         assert not res.responses[2].not_found
         assert res.responses[2].user.user_id == user4.id
+        assert res.responses[2].user.is_ghost
         assert res.responses[2].user.username == "ghost"
         assert res.responses[2].user.name == "Ghost"
 
