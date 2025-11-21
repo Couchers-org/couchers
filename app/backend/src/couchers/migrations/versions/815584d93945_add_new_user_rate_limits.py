@@ -16,9 +16,9 @@ depends_on = None
 
 
 def upgrade():
-    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'new user host request'")
-    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'new user friend request'")
-    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'new user chat initiation'")
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'new_user_host_request'")
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'new_user_friend_request'")
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'new_user_chat_initiation'")
 
 
 def downgrade():
