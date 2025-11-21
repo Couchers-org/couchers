@@ -3,11 +3,12 @@ from datetime import timedelta
 import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
+from sqlalchemy import update
 
 from couchers.db import session_scope
 from couchers.jobs.handlers import update_badges
 from couchers.materialized_views import refresh_materialized_views_rapid
-from couchers.models import FriendRelationship, FriendStatus, RateLimitAction, User
+from couchers.models import FriendRelationship, FriendStatus, LanguageFluency, RateLimitAction, User
 from couchers.proto import admin_pb2, api_pb2, blocking_pb2, jail_pb2, notifications_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.resources import get_badge_dict
@@ -180,7 +181,7 @@ def test_user_model_to_pb_ghost_user(db, flag):
     user2, _ = generate_user()
 
     with session_scope() as session:
-        setattr(session.execute(select(User).where(User.id == user2.id)).scalar_one(), flag, True)
+        session.execute(update(User).where(User.id == user2.id).values(**{flag: True}))
 
     refresh_materialized_views_rapid(None)
 
@@ -309,7 +310,7 @@ def test_admin_viewing_ghost_users_sees_full_profile(db, flag):
     user, _ = generate_user()
 
     with session_scope() as session:
-        setattr(session.execute(select(User).where(User.id == user.id)).scalar_one(), flag, True)
+        session.execute(update(User).where(User.id == user.id).values(**{flag: True}))
 
     with admin_session(token_admin) as api:
         user_pb = api.GetUser(admin_pb2.GetUserReq(user=user.username))
@@ -801,7 +802,7 @@ def test_friend_request_flow(db, push_collector):
     user2, token2 = generate_user(complete_profile=True)
     user3, token3 = generate_user()
 
-    # send friend request from user1 to user2
+    # send a friend request from user1 to user2
     with mock_notification_email() as mock:
         with api_session(token1) as api:
             api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
