@@ -161,7 +161,7 @@ class API(api_pb2_grpc.APIServicer):
         sent_reqs_last_seen_message_ids = (
             select(HostRequest.conversation_id, HostRequest.surfer_last_seen_message_id)
             .where(HostRequest.surfer_user_id == context.user_id)
-            .where_users_column_visible(context, HostRequest.host_user_id)
+            .where_users_column_visible(context.user_id, HostRequest.host_user_id)
         ).subquery()
 
         unseen_sent_host_request_count = session.execute(
@@ -177,7 +177,7 @@ class API(api_pb2_grpc.APIServicer):
         received_reqs_last_seen_message_ids = (
             select(HostRequest.conversation_id, HostRequest.host_last_seen_message_id)
             .where(HostRequest.host_user_id == context.user_id)
-            .where_users_column_visible(context, HostRequest.surfer_user_id)
+            .where_users_column_visible(context.user_id, HostRequest.surfer_user_id)
         ).subquery()
 
         unseen_received_host_request_count = session.execute(
@@ -202,7 +202,7 @@ class API(api_pb2_grpc.APIServicer):
         pending_friend_request_count = session.execute(
             select(func.count(FriendRelationship.id))
             .where(FriendRelationship.to_user_id == context.user_id)
-            .where_users_column_visible(context, FriendRelationship.from_user_id)
+            .where_users_column_visible(context.user_id, FriendRelationship.from_user_id)
             .where(FriendRelationship.status == FriendStatus.pending)
         ).scalar_one()
 
@@ -549,8 +549,8 @@ class API(api_pb2_grpc.APIServicer):
         rels = (
             session.execute(
                 select(FriendRelationship)
-                .where_users_column_visible(context, FriendRelationship.from_user_id)
-                .where_users_column_visible(context, FriendRelationship.to_user_id)
+                .where_users_column_visible(context.user_id, FriendRelationship.from_user_id)
+                .where_users_column_visible(context.user_id, FriendRelationship.to_user_id)
                 .where(
                     or_(
                         FriendRelationship.from_user_id == context.user_id,
@@ -569,8 +569,8 @@ class API(api_pb2_grpc.APIServicer):
     def RemoveFriend(self, request, context, session):
         rel = session.execute(
             select(FriendRelationship)
-            .where_users_column_visible(context, FriendRelationship.from_user_id)
-            .where_users_column_visible(context, FriendRelationship.to_user_id)
+            .where_users_column_visible(context.user_id, FriendRelationship.from_user_id)
+            .where_users_column_visible(context.user_id, FriendRelationship.to_user_id)
             .where(
                 or_(
                     and_(
@@ -598,7 +598,7 @@ class API(api_pb2_grpc.APIServicer):
             return api_pb2.ListMutualFriendsRes(mutual_friends=[])
 
         user = session.execute(
-            select(User).where_users_visible(context).where(User.id == request.user_id)
+            select(User).where_users_visible(context.user_id).where(User.id == request.user_id)
         ).scalar_one_or_none()
 
         if not user:
@@ -635,7 +635,9 @@ class API(api_pb2_grpc.APIServicer):
         mutual = select(intersect(union(q1, q2), union(q3, q4)).subquery())
 
         mutual_friends = (
-            session.execute(select(User).where_users_visible(context).where(User.id.in_(mutual))).scalars().all()
+            session.execute(select(User).where_users_visible(context.user_id).where(User.id.in_(mutual)))
+            .scalars()
+            .all()
         )
 
         return api_pb2.ListMutualFriendsRes(
@@ -651,7 +653,7 @@ class API(api_pb2_grpc.APIServicer):
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         to_user = session.execute(
-            select(User).where_users_visible(context).where(User.id == request.user_id)
+            select(User).where_users_visible(context.user_id).where(User.id == request.user_id)
         ).scalar_one_or_none()
 
         if not to_user:
@@ -716,7 +718,7 @@ class API(api_pb2_grpc.APIServicer):
         sent_requests = (
             session.execute(
                 select(FriendRelationship)
-                .where_users_column_visible(context, FriendRelationship.to_user_id)
+                .where_users_column_visible(context.user_id, FriendRelationship.to_user_id)
                 .where(FriendRelationship.from_user_id == context.user_id)
                 .where(FriendRelationship.status == FriendStatus.pending)
             )
@@ -727,7 +729,7 @@ class API(api_pb2_grpc.APIServicer):
         received_requests = (
             session.execute(
                 select(FriendRelationship)
-                .where_users_column_visible(context, FriendRelationship.from_user_id)
+                .where_users_column_visible(context.user_id, FriendRelationship.from_user_id)
                 .where(FriendRelationship.to_user_id == context.user_id)
                 .where(FriendRelationship.status == FriendStatus.pending)
             )
@@ -759,7 +761,7 @@ class API(api_pb2_grpc.APIServicer):
     def RespondFriendRequest(self, request, context, session):
         friend_request = session.execute(
             select(FriendRelationship)
-            .where_users_column_visible(context, FriendRelationship.from_user_id)
+            .where_users_column_visible(context.user_id, FriendRelationship.from_user_id)
             .where(FriendRelationship.to_user_id == context.user_id)
             .where(FriendRelationship.status == FriendStatus.pending)
             .where(FriendRelationship.id == request.friend_request_id)
@@ -789,7 +791,7 @@ class API(api_pb2_grpc.APIServicer):
     def CancelFriendRequest(self, request, context, session):
         friend_request = session.execute(
             select(FriendRelationship)
-            .where_users_column_visible(context, FriendRelationship.to_user_id)
+            .where_users_column_visible(context.user_id, FriendRelationship.to_user_id)
             .where(FriendRelationship.from_user_id == context.user_id)
             .where(FriendRelationship.status == FriendStatus.pending)
             .where(FriendRelationship.id == request.friend_request_id)

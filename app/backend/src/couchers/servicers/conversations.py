@@ -129,7 +129,7 @@ def _get_visible_admins_for_subscription(subscription):
         ]
 
 
-def _user_can_message(session, context, group_chat: GroupChat) -> bool:
+def _user_can_message(session, user_id: int, group_chat: GroupChat) -> bool:
     """
     If it is a true group chat (not a DM), user can always message. For a DM, user can message if the other participant
     - Is not deleted/banned
@@ -141,8 +141,8 @@ def _user_can_message(session, context, group_chat: GroupChat) -> bool:
     return session.execute(
         func.exists(
             select(GroupChatSubscription)
-            .where_users_column_visible(context=context, column=GroupChatSubscription.user_id)
-            .where(GroupChatSubscription.user_id != context.user_id)
+            .where_users_column_visible(user_id, column=GroupChatSubscription.user_id)
+            .where(GroupChatSubscription.user_id != user_id)
             .where(GroupChatSubscription.group_chat_id == group_chat.conversation_id)
             .where(GroupChatSubscription.left == None)
         )
@@ -170,7 +170,7 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
         user_ids_to_notify = (
             session.execute(
                 select(GroupChatSubscription.user_id)
-                .where_users_column_visible(context=context, column=GroupChatSubscription.user_id)
+                .where_users_column_visible(context.user_id, column=GroupChatSubscription.user_id)
                 .where(GroupChatSubscription.group_chat_id == message.conversation_id)
                 .where(GroupChatSubscription.user_id != message.author_id)
                 .where(GroupChatSubscription.joined <= message.time)
@@ -339,7 +339,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
                     latest_message=_message_to_pb(result.Message) if result.Message else None,
                     mute_info=_mute_info(result.GroupChatSubscription),
-                    can_message=_user_can_message(session, context, result.GroupChat),
+                    can_message=_user_can_message(session, context.user_id, result.GroupChat),
                 )
                 for result in results[:page_size]
             ],
@@ -377,7 +377,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
             latest_message=_message_to_pb(result.Message) if result.Message else None,
             mute_info=_mute_info(result.GroupChatSubscription),
-            can_message=_user_can_message(session, context, result.GroupChat),
+            can_message=_user_can_message(session, context.user_id, result.GroupChat),
         )
 
     def GetDirectMessage(self, request, context, session):
@@ -425,7 +425,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
             latest_message=_message_to_pb(result.Message) if result.Message else None,
             mute_info=_mute_info(result.GroupChatSubscription),
-            can_message=_user_can_message(session, context, result.GroupChat),
+            can_message=_user_can_message(session, context.user_id, result.GroupChat),
         )
 
     def GetUpdates(self, request, context, session):
@@ -553,7 +553,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_send_message")
 
         recipient_user_ids = list(
-            session.execute(select(User.id).where_users_visible(context).where(User.id.in_(request.recipient_user_ids)))
+            session.execute(
+                select(User.id).where_users_visible(context.user_id).where(User.id.in_(request.recipient_user_ids))
+            )
             .scalars()
             .all()
         )
@@ -646,7 +648,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "chat_not_found")
 
         subscription, group_chat = result
-        if not _user_can_message(session, context, group_chat):
+        if not _user_can_message(session, context.user_id, group_chat):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_message_in_chat")
 
         _add_message_to_subscription(session, subscription, message_type=MessageType.text, text=request.text)
@@ -671,7 +673,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "no_recipients")
 
         recipient_user_id = session.execute(
-            select(User.id).where_users_visible(context).where(User.id == recipient_id)
+            select(User.id).where_users_visible(context.user_id).where(User.id == recipient_id)
         ).scalar_one_or_none()
 
         if not recipient_user_id:
@@ -732,7 +734,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def MakeGroupChatAdmin(self, request, context, session):
         if not session.execute(
-            select(User).where_users_visible(context).where(User.id == request.user_id)
+            select(User).where_users_visible(context.user_id).where(User.id == request.user_id)
         ).scalar_one_or_none():
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
@@ -765,7 +767,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def RemoveGroupChatAdmin(self, request, context, session):
         if not session.execute(
-            select(User).where_users_visible(context).where(User.id == request.user_id)
+            select(User).where_users_visible(context.user_id).where(User.id == request.user_id)
         ).scalar_one_or_none():
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
@@ -811,7 +813,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def InviteToGroupChat(self, request, context, session):
         if not session.execute(
-            select(User).where_users_visible(context).where(User.id == request.user_id)
+            select(User).where_users_visible(context.user_id).where(User.id == request.user_id)
         ).scalar_one_or_none():
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 

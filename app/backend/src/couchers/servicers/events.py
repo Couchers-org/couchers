@@ -119,14 +119,14 @@ def event_to_pb(session, occurrence: EventOccurrence, context):
     going_count = session.execute(
         select(func.count())
         .select_from(EventOccurrenceAttendee)
-        .where_users_column_visible(context, EventOccurrenceAttendee.user_id)
+        .where_users_column_visible(context.user_id, EventOccurrenceAttendee.user_id)
         .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
         .where(EventOccurrenceAttendee.attendee_status == AttendeeStatus.going)
     ).scalar_one()
     maybe_count = session.execute(
         select(func.count())
         .select_from(EventOccurrenceAttendee)
-        .where_users_column_visible(context, EventOccurrenceAttendee.user_id)
+        .where_users_column_visible(context.user_id, EventOccurrenceAttendee.user_id)
         .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
         .where(EventOccurrenceAttendee.attendee_status == AttendeeStatus.maybe)
     ).scalar_one()
@@ -134,13 +134,13 @@ def event_to_pb(session, occurrence: EventOccurrence, context):
     organizer_count = session.execute(
         select(func.count())
         .select_from(EventOrganizer)
-        .where_users_column_visible(context, EventOrganizer.user_id)
+        .where_users_column_visible(context.user_id, EventOrganizer.user_id)
         .where(EventOrganizer.event_id == event.id)
     ).scalar_one()
     subscriber_count = session.execute(
         select(func.count())
         .select_from(EventSubscription)
-        .where_users_column_visible(context, EventSubscription.user_id)
+        .where_users_column_visible(context.user_id, EventSubscription.user_id)
         .where(EventSubscription.event_id == event.id)
     ).scalar_one()
 
@@ -832,7 +832,7 @@ class Events(events_pb2_grpc.EventsServicer):
         attendees = (
             session.execute(
                 select(EventOccurrenceAttendee)
-                .where_users_column_visible(context, EventOccurrenceAttendee.user_id)
+                .where_users_column_visible(context.user_id, EventOccurrenceAttendee.user_id)
                 .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
                 .where(EventOccurrenceAttendee.user_id >= next_user_id)
                 .order_by(EventOccurrenceAttendee.user_id)
@@ -856,7 +856,7 @@ class Events(events_pb2_grpc.EventsServicer):
         subscribers = (
             session.execute(
                 select(EventSubscription)
-                .where_users_column_visible(context, EventSubscription.user_id)
+                .where_users_column_visible(context.user_id, EventSubscription.user_id)
                 .where(EventSubscription.event_id == event.id)
                 .where(EventSubscription.user_id >= next_user_id)
                 .order_by(EventSubscription.user_id)
@@ -880,7 +880,7 @@ class Events(events_pb2_grpc.EventsServicer):
         organizers = (
             session.execute(
                 select(EventOrganizer)
-                .where_users_column_visible(context, EventOrganizer.user_id)
+                .where_users_column_visible(context.user_id, EventOrganizer.user_id)
                 .where(EventOrganizer.event_id == event.id)
                 .where(EventOrganizer.user_id >= next_user_id)
                 .order_by(EventOrganizer.user_id)
@@ -1133,7 +1133,7 @@ class Events(events_pb2_grpc.EventsServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_update_old_event")
 
         if not session.execute(
-            select(User).where_users_visible(context).where(User.id == request.user_id)
+            select(User).where_users_visible(context.user_id).where(User.id == request.user_id)
         ).scalar_one_or_none():
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 

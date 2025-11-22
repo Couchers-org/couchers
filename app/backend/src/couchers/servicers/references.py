@@ -57,8 +57,8 @@ def get_host_req_and_check_can_write_ref(session, context, host_request_id):
     """
     host_request = session.execute(
         select(HostRequest)
-        .where_users_column_visible(context, HostRequest.surfer_user_id)
-        .where_users_column_visible(context, HostRequest.host_user_id)
+        .where_users_column_visible(context.user_id, HostRequest.surfer_user_id)
+        .where_users_column_visible(context.user_id, HostRequest.host_user_id)
         .where(HostRequest.conversation_id == host_request_id)
         .where(or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id))
     ).scalar_one_or_none()
@@ -110,7 +110,7 @@ def get_pending_references_to_write(session, context):
             ),
         )
         .join(LiteUser, LiteUser.id == HostRequest.host_user_id)
-        .where_users_column_visible(context, HostRequest.host_user_id)
+        .where_users_column_visible(context.user_id, HostRequest.host_user_id)
         .where(Reference.id == None)
         .where(HostRequest.can_write_reference)
         .where(HostRequest.surfer_user_id == context.user_id)
@@ -127,7 +127,7 @@ def get_pending_references_to_write(session, context):
             ),
         )
         .join(LiteUser, LiteUser.id == HostRequest.surfer_user_id)
-        .where_users_column_visible(context, HostRequest.surfer_user_id)
+        .where_users_column_visible(context.user_id, HostRequest.surfer_user_id)
         .where(Reference.id == None)
         .where(HostRequest.can_write_reference)
         .where(HostRequest.host_user_id == context.user_id)
@@ -231,7 +231,7 @@ class References(references_pb2_grpc.ReferencesServicer):
         check_valid_reference(request, context)
 
         if not session.execute(
-            select(User).where_users_visible(context).where(User.id == request.to_user_id)
+            select(User).where_users_visible(context.user_id).where(User.id == request.to_user_id)
         ).scalar_one_or_none():
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
@@ -346,7 +346,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             return references_pb2.AvailableWriteReferencesRes()
 
         if not session.execute(
-            select(User).where_users_visible(context).where(User.id == request.to_user_id)
+            select(User).where_users_visible(context.user_id).where(User.id == request.to_user_id)
         ).scalar_one_or_none():
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 

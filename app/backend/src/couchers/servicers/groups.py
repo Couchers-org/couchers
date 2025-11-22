@@ -59,7 +59,7 @@ def group_to_pb(session, cluster: Cluster, context):
     member_count = session.execute(
         select(func.count())
         .select_from(ClusterSubscription)
-        .where_users_column_visible(context, ClusterSubscription.user_id)
+        .where_users_column_visible(context.user_id, ClusterSubscription.user_id)
         .where(ClusterSubscription.cluster_id == cluster.id)
     ).scalar_one()
     is_member = (
@@ -74,7 +74,7 @@ def group_to_pb(session, cluster: Cluster, context):
     admin_count = session.execute(
         select(func.count())
         .select_from(ClusterSubscription)
-        .where_users_column_visible(context, ClusterSubscription.user_id)
+        .where_users_column_visible(context.user_id, ClusterSubscription.user_id)
         .where(ClusterSubscription.cluster_id == cluster.id)
         .where(ClusterSubscription.role == ClusterRole.admin)
     ).scalar_one()
@@ -128,7 +128,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
         admins = (
             session.execute(
                 select(User)
-                .where_users_visible(context)
+                .where_users_visible(context.user_id)
                 .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
                 .where(ClusterSubscription.cluster_id == cluster.id)
                 .where(ClusterSubscription.role == ClusterRole.admin)
@@ -157,7 +157,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             session.execute(
                 select(User)
                 .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
-                .where_users_visible(context)
+                .where_users_visible(context.user_id)
                 .where(ClusterSubscription.cluster_id == cluster.id)
                 .where(User.id >= next_member_id)
                 .order_by(User.id)

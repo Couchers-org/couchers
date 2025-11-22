@@ -170,9 +170,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if request.host_user_id == context.user_id:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "cant_request_self")
 
-        # just to check host exists and is visible
+        # just to check the host exists and is visible
         host = session.execute(
-            select(User).where_users_visible(context).where(User.id == request.host_user_id)
+            select(User).where_users_visible(context.user_id).where(User.id == request.host_user_id)
         ).scalar_one_or_none()
         if not host:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
@@ -272,8 +272,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
     def GetHostRequest(self, request, context, session):
         host_request = session.execute(
             select(HostRequest)
-            .where_users_column_visible(context, HostRequest.surfer_user_id)
-            .where_users_column_visible(context, HostRequest.host_user_id)
+            .where_users_column_visible(context.user_id, HostRequest.surfer_user_id)
+            .where_users_column_visible(context.user_id, HostRequest.host_user_id)
             .where(HostRequest.conversation_id == request.host_request_id)
             .where(or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id))
         ).scalar_one_or_none()
@@ -299,8 +299,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             .outerjoin(message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id))
             .join(HostRequest, HostRequest.conversation_id == Message.conversation_id)
             .join(Conversation, Conversation.id == HostRequest.conversation_id)
-            .where_users_column_visible(context, HostRequest.surfer_user_id)
-            .where_users_column_visible(context, HostRequest.host_user_id)
+            .where_users_column_visible(context.user_id, HostRequest.surfer_user_id)
+            .where_users_column_visible(context.user_id, HostRequest.host_user_id)
             .where(message_2.id == None)
             .where(or_(Message.id < request.last_request_id, request.last_request_id == 0))
         )
@@ -384,8 +384,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         host_request = session.execute(
             select(HostRequest)
-            .where_users_column_visible(context, HostRequest.surfer_user_id)
-            .where_users_column_visible(context, HostRequest.host_user_id)
+            .where_users_column_visible(context.user_id, HostRequest.surfer_user_id)
+            .where_users_column_visible(context.user_id, HostRequest.host_user_id)
             .where(HostRequest.conversation_id == request.host_request_id)
         ).scalar_one_or_none()
 
@@ -727,7 +727,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         user_res = session.execute(
             select(User.id, UserResponseRate)
             .outerjoin(UserResponseRate, UserResponseRate.user_id == User.id)
-            .where_users_visible(context)
+            .where_users_visible(context.user_id)
             .where(User.id == request.user_id)
         ).one_or_none()
 

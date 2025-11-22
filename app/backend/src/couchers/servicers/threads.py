@@ -137,7 +137,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
             thread_replies_author_user_ids = (
                 session.execute(
                     select(Reply.author_user_id)
-                    .where_users_column_visible(context, Reply.author_user_id)
+                    .where_users_column_visible(context.user_id, Reply.author_user_id)
                     .where(Reply.comment_id == parent_comment.id)
                 )
                 .scalars()

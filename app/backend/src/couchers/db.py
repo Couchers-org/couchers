@@ -140,8 +140,8 @@ def are_friends(session: Session, context: CouchersContext, other_user: int) -> 
     return (
         session.execute(
             select(FriendRelationship)
-            .where_users_column_visible(context, FriendRelationship.from_user_id)
-            .where_users_column_visible(context, FriendRelationship.to_user_id)
+            .where_users_column_visible(context.user_id, FriendRelationship.from_user_id)
+            .where_users_column_visible(context.user_id, FriendRelationship.to_user_id)
             .where(
                 or_(
                     and_(

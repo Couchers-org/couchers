@@ -732,7 +732,7 @@ class Account(account_pb2_grpc.AccountServicer):
         pending_host_requests = session.execute(
             select(HostRequest.conversation_id, LiteUser)
             .join(LiteUser, LiteUser.id == HostRequest.surfer_user_id)
-            .where_users_column_visible(context, HostRequest.surfer_user_id)
+            .where_users_column_visible(context.user_id, HostRequest.surfer_user_id)
             .where(HostRequest.host_user_id == context.user_id)
             .where(HostRequest.status == HostRequestStatus.pending)
             .where(HostRequest.start_time > func.now())

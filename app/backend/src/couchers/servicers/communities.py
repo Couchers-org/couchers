@@ -196,7 +196,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             session.execute(
                 select(User)
                 .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
-                .where_users_visible(context)
+                .where_users_visible(context.user_id)
                 .where(ClusterSubscription.cluster_id == node.official_cluster.id)
                 .where(ClusterSubscription.role == ClusterRole.admin)
                 .where(User.id >= next_admin_id)
@@ -219,7 +219,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "node_moderate_permission_denied")
 
         user = session.execute(
-            select(User).where_users_visible(context).where(User.id == request.user_id)
+            select(User).where_users_visible(context.user_id).where(User.id == request.user_id)
         ).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
@@ -247,7 +247,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "node_moderate_permission_denied")
 
         user = session.execute(
-            select(User).where_users_visible(context).where(User.id == request.user_id)
+            select(User).where_users_visible(context.user_id).where(User.id == request.user_id)
         ).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
@@ -277,7 +277,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         query = (
             select(User)
             .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
-            .where_users_visible(context)
+            .where_users_visible(context.user_id)
             .where(ClusterSubscription.cluster_id == node.official_cluster.id)
         )
         if next_member_id is not None:
@@ -298,7 +298,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         nearbys = (
             session.execute(
                 select(User)
-                .where_users_visible(context)
+                .where_users_visible(context.user_id)
                 .where(func.ST_Contains(node.geom, User.geom))
                 .where(User.id >= next_nearby_id)
                 .order_by(User.id)

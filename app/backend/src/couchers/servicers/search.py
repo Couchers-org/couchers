@@ -210,7 +210,7 @@ def _search_users(session, search_statement, title_only, next_rank, page_size, c
         [User.things_i_like, User.about_place, User.additional_information],
     )
 
-    users = execute_search_statement(session, select(User, rank, snippet).where_users_visible(context))
+    users = execute_search_statement(session, select(User, rank, snippet).where_users_visible(context.user_id))
 
     return [
         search_pb2.Result(
@@ -350,7 +350,7 @@ def _user_search_inner(request, context, session):
     user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
     # Base statement with visibility filter
-    statement = select(User.id, User.recommendation_score).where_users_visible(context)
+    statement = select(User.id, User.recommendation_score).where_users_visible(context.user_id)
     # make sure that only users who are in LiteUser show up
     statement = statement.join(LiteUser, LiteUser.id == User.id)
 
@@ -502,7 +502,7 @@ def _user_search_inner(request, context, session):
         if request.only_with_references:
             references = (
                 select(Reference.to_user_id.label("user_id"))
-                .where_users_column_visible(context, Reference.from_user_id)
+                .where_users_column_visible(context.user_id, Reference.from_user_id)
                 .distinct()
                 .subquery()
             )

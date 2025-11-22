@@ -12,11 +12,6 @@ from tests.test_fixtures import (  # noqa
 )
 
 
-class _FakeContext:
-    def __init__(self, user_id):
-        self.user_id = user_id
-
-
 # Also tests different ways to make users invisible
 def test_is_visible_property(db):
     user1, token1 = generate_user()
@@ -44,9 +39,8 @@ def test_select_dot_where_users_visible(db):
     make_user_block(user1, user3)
     make_user_block(user4, user1)
 
-    context = _FakeContext(user1.id)
     with session_scope() as session:
-        assert session.execute(select(func.count()).select_from(User).where_users_visible(context)).scalar_one() == 1
+        assert session.execute(select(func.count()).select_from(User).where_users_visible(user1.id)).scalar_one() == 1
 
 
 def test_select_dot_where_users_column_visible(db):
@@ -65,13 +59,12 @@ def test_select_dot_where_users_column_visible(db):
     make_user_block(user1, user4)
     make_user_block(user5, user1)
 
-    context = _FakeContext(user1.id)
     with session_scope() as session:
         assert (
             session.execute(
                 select(func.count())
                 .select_from(FriendRelationship)
-                .where_users_column_visible(context, FriendRelationship.to_user_id)
+                .where_users_column_visible(user1.id, FriendRelationship.to_user_id)
             ).scalar_one()
             == 1
         )

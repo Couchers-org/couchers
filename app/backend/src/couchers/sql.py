@@ -4,7 +4,6 @@ from sqlalchemy import false
 from sqlalchemy.orm import InstrumentedAttribute, aliased
 from sqlalchemy.sql import Select, union
 
-from couchers.context import CouchersContext
 from couchers.models import SignupFlow, User, UserBlock
 from couchers.utils import is_valid_email, is_valid_user_id, is_valid_username
 
@@ -51,20 +50,20 @@ class CouchersSelect(Select[Any]):
         # no fields match, this will return no rows
         return self.where(false())
 
-    def where_users_visible(self, context: CouchersContext, table: "_User" = User) -> Self:
+    def where_users_visible(self, user_id: int, table: "_User" = User) -> Self:
         """
         Filters out users that should not be visible: blocked, deleted, or banned
 
         Filters the given table, assuming it's already joined/selected from
         """
-        hidden_users = _relevant_user_blocks(context.user_id)
+        hidden_users = _relevant_user_blocks(user_id)
         return self.where(table.is_visible).where(~table.id.in_(hidden_users))
 
-    def where_users_column_visible(self, context: CouchersContext, column: InstrumentedAttribute[int]) -> Self:
+    def where_users_column_visible(self, user_id: int, column: InstrumentedAttribute[int]) -> Self:
         """
         Filters the given column, not yet joined/selected from
         """
-        hidden_users = _relevant_user_blocks(context.user_id)
+        hidden_users = _relevant_user_blocks(user_id)
         aliased_user = aliased(User)
         return (
             self.join(aliased_user, aliased_user.id == column)

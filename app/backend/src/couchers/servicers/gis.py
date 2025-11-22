@@ -38,7 +38,7 @@ def _statement_to_geojson_response(session, statement):
 class GIS(gis_pb2_grpc.GISServicer):
     def GetUsers(self, request, context, session):
         statement = select(LiteUser.id, LiteUser.geom, LiteUser.has_completed_profile).where_users_visible(
-            context, table=LiteUser
+            context.user_id, table=LiteUser
         )
         return _statement_to_geojson_response(session, statement)
 
