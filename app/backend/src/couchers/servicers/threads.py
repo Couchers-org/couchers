@@ -2,9 +2,10 @@ import logging
 
 import grpc
 import sqlalchemy.exc
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import func, select
 
-from couchers.context import make_background_user_context
+from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Comment, Discussion, Event, EventOccurrence, Reply, Thread, User
@@ -203,7 +204,9 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
 
 
 class Threads(threads_pb2_grpc.ThreadsServicer):
-    def GetThread(self, request, context, session):
+    def GetThread(
+        self, request: threads_pb2.GetThreadReq, context: CouchersContext, session: Session
+    ) -> threads_pb2.GetThreadRes:
         database_id, depth = unpack_thread_id(request.thread_id)
         page_size = request.page_size if 0 < request.page_size < 100000 else 1000
         page_start = unpack_thread_id(int(request.page_token))[0] if request.page_token else 2**50
@@ -269,7 +272,9 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
 
         return threads_pb2.GetThreadRes(replies=replies, next_page_token=next_page_token)
 
-    def PostReply(self, request, context, session):
+    def PostReply(
+        self, request: threads_pb2.PostReplyReq, context: CouchersContext, session: Session
+    ) -> threads_pb2.PostReplyRes:
         content = request.content.strip()
 
         if content == "":

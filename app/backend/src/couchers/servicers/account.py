@@ -662,7 +662,9 @@ class Account(account_pb2_grpc.AccountServicer):
         )
         return empty_pb2.Empty()
 
-    def SetProfilePublicVisibility(self, request, context, session):
+    def SetProfilePublicVisibility(
+        self, request: account_pb2.SetProfilePublicVisibilityReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         user.public_visibility = profilepublicitysetting2sql[request.profile_public_visibility]
         user.has_modified_public_visibility = True

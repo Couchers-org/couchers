@@ -3,9 +3,11 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import or_
 
 from couchers.config import config
+from couchers.context import CouchersContext
 from couchers.models import (
     HostingStatus,
     MeetupStatus,
@@ -49,14 +51,18 @@ def notification_to_pb(user, notification: Notification):
 
 
 class Notifications(notifications_pb2_grpc.NotificationsServicer):
-    def GetNotificationSettings(self, request, context, session):
+    def GetNotificationSettings(
+        self, request: notifications_pb2.GetNotificationSettingsReq, context: CouchersContext, session: Session
+    ) -> notifications_pb2.GetNotificationSettingsRes:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         return notifications_pb2.GetNotificationSettingsRes(
             do_not_email_enabled=user.do_not_email,
             groups=get_user_setting_groups(user.id),
         )
 
-    def SetNotificationSettings(self, request, context, session):
+    def SetNotificationSettings(
+        self, request: notifications_pb2.SetNotificationSettingsReq, context: CouchersContext, session: Session
+    ) -> notifications_pb2.GetNotificationSettingsRes:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         user.do_not_email = request.enable_do_not_email
         if request.enable_do_not_email:
@@ -81,7 +87,9 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             groups=get_user_setting_groups(user.id),
         )
 
-    def ListNotifications(self, request, context, session):
+    def ListNotifications(
+        self, request: notifications_pb2.ListNotificationsReq, context: CouchersContext, session: Session
+    ) -> notifications_pb2.ListNotificationsRes:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_notification_id = int(request.page_token) if request.page_token else 2**50
@@ -107,7 +115,9 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             next_page_token=str(notifications[-1].id) if len(notifications) > page_size else None,
         )
 
-    def MarkNotificationSeen(self, request, context, session):
+    def MarkNotificationSeen(
+        self, request: notifications_pb2.MarkNotificationSeenReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         notification = (
             session.execute(
                 select(Notification)
@@ -122,7 +132,9 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         notification.is_seen = request.set_seen
         return empty_pb2.Empty()
 
-    def MarkAllNotificationsSeen(self, request, context, session):
+    def MarkAllNotificationsSeen(
+        self, request: notifications_pb2.MarkAllNotificationsSeenReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         session.execute(
             Notification.__table__.update()
             .values(is_seen=True)
@@ -131,13 +143,20 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         )
         return empty_pb2.Empty()
 
-    def GetVapidPublicKey(self, request, context, session):
+    def GetVapidPublicKey(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> notifications_pb2.GetVapidPublicKeyRes:
         if not config["PUSH_NOTIFICATIONS_ENABLED"]:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
 
         return notifications_pb2.GetVapidPublicKeyRes(vapid_public_key=get_vapid_public_key())
 
-    def RegisterPushNotificationSubscription(self, request, context, session):
+    def RegisterPushNotificationSubscription(
+        self,
+        request: notifications_pb2.RegisterPushNotificationSubscriptionReq,
+        context: CouchersContext,
+        session: Session,
+    ) -> empty_pb2.Empty:
         if not config["PUSH_NOTIFICATIONS_ENABLED"]:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
 
@@ -163,7 +182,9 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
 
         return empty_pb2.Empty()
 
-    def SendTestPushNotification(self, request, context, session):
+    def SendTestPushNotification(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         if not config["PUSH_NOTIFICATIONS_ENABLED"]:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
 

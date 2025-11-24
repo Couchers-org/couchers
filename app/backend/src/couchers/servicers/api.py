@@ -3,11 +3,13 @@ from urllib.parse import urlencode
 
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, delete, distinct, func, intersect, or_, union
 
 from couchers import urls
 from couchers.config import config
 from couchers.constants import GHOST_USERNAME
+from couchers.context import CouchersContext
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.materialized_views import LiteUser, UserResponseRate
@@ -154,7 +156,7 @@ fluency2api = {
 
 
 class API(api_pb2_grpc.APIServicer):
-    def Ping(self, request, context, session):
+    def Ping(self, request: api_pb2.PingReq, context: CouchersContext, session: Session) -> api_pb2.PingRes:
         # auth ought to make sure the user exists
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
@@ -227,7 +229,7 @@ class API(api_pb2_grpc.APIServicer):
             unseen_notification_count=unseen_notification_count,
         )
 
-    def GetUser(self, request, context, session):
+    def GetUser(self, request: api_pb2.GetUserReq, context: CouchersContext, session: Session) -> api_pb2.User:
         user = session.execute(select(User).where_username_or_id(request.user)).scalar_one_or_none()
 
         if not user:
@@ -235,7 +237,9 @@ class API(api_pb2_grpc.APIServicer):
 
         return user_model_to_pb(user, session, context, is_get_user_return_ghosts=True)
 
-    def GetLiteUser(self, request, context, session):
+    def GetLiteUser(
+        self, request: api_pb2.GetLiteUserReq, context: CouchersContext, session: Session
+    ) -> api_pb2.LiteUser:
         lite_user = session.execute(
             select(LiteUser).where_username_or_id(request.user, table=LiteUser)
         ).scalar_one_or_none()
@@ -245,7 +249,9 @@ class API(api_pb2_grpc.APIServicer):
 
         return lite_user_to_pb(session, lite_user, context, is_get_user_return_ghosts=True)
 
-    def GetLiteUsers(self, request, context, session):
+    def GetLiteUsers(
+        self, request: api_pb2.GetLiteUsersReq, context: CouchersContext, session: Session
+    ) -> api_pb2.GetLiteUsersRes:
         if len(request.users) > MAX_USERS_PER_QUERY:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "requested_too_many_users")
 
@@ -283,7 +289,9 @@ class API(api_pb2_grpc.APIServicer):
 
         return res
 
-    def UpdateProfile(self, request, context, session):
+    def UpdateProfile(
+        self, request: api_pb2.UpdateProfileReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         if request.HasField("name"):
@@ -545,7 +553,9 @@ class API(api_pb2_grpc.APIServicer):
 
         return empty_pb2.Empty()
 
-    def ListFriends(self, request, context, session):
+    def ListFriends(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> api_pb2.ListFriendsRes:
         rels = (
             session.execute(
                 select(FriendRelationship)
@@ -566,7 +576,9 @@ class API(api_pb2_grpc.APIServicer):
             user_ids=[rel.from_user.id if rel.from_user.id != context.user_id else rel.to_user.id for rel in rels],
         )
 
-    def RemoveFriend(self, request, context, session):
+    def RemoveFriend(
+        self, request: api_pb2.RemoveFriendReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         rel = session.execute(
             select(FriendRelationship)
             .where_users_column_visible(context, FriendRelationship.from_user_id)
@@ -593,7 +605,9 @@ class API(api_pb2_grpc.APIServicer):
 
         return empty_pb2.Empty()
 
-    def ListMutualFriends(self, request, context, session):
+    def ListMutualFriends(
+        self, request: api_pb2.ListMutualFriendsReq, context: CouchersContext, session: Session
+    ) -> api_pb2.ListMutualFriendsRes:
         if context.user_id == request.user_id:
             return api_pb2.ListMutualFriendsRes(mutual_friends=[])
 
@@ -645,7 +659,9 @@ class API(api_pb2_grpc.APIServicer):
             ]
         )
 
-    def SendFriendRequest(self, request, context, session):
+    def SendFriendRequest(
+        self, request: api_pb2.SendFriendRequestReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         if context.user_id == request.user_id:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_friend_self")
 
@@ -711,7 +727,9 @@ class API(api_pb2_grpc.APIServicer):
 
         return empty_pb2.Empty()
 
-    def ListFriendRequests(self, request, context, session):
+    def ListFriendRequests(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> api_pb2.ListFriendRequestsRes:
         # both sent and received
         sent_requests = (
             session.execute(
@@ -756,7 +774,9 @@ class API(api_pb2_grpc.APIServicer):
             ],
         )
 
-    def RespondFriendRequest(self, request, context, session):
+    def RespondFriendRequest(
+        self, request: api_pb2.RespondFriendRequestReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         friend_request = session.execute(
             select(FriendRelationship)
             .where_users_column_visible(context, FriendRelationship.from_user_id)
@@ -786,7 +806,9 @@ class API(api_pb2_grpc.APIServicer):
 
         return empty_pb2.Empty()
 
-    def CancelFriendRequest(self, request, context, session):
+    def CancelFriendRequest(
+        self, request: api_pb2.CancelFriendRequestReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         friend_request = session.execute(
             select(FriendRelationship)
             .where_users_column_visible(context, FriendRelationship.to_user_id)
@@ -807,7 +829,9 @@ class API(api_pb2_grpc.APIServicer):
 
         return empty_pb2.Empty()
 
-    def InitiateMediaUpload(self, request, context, session):
+    def InitiateMediaUpload(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> api_pb2.InitiateMediaUploadRes:
         key = random_hex()
 
         created = now()
@@ -836,7 +860,9 @@ class API(api_pb2_grpc.APIServicer):
             expiry=Timestamp_from_datetime(expiry),
         )
 
-    def ListBadgeUsers(self, request, context, session):
+    def ListBadgeUsers(
+        self, request: api_pb2.ListBadgeUsersReq, context: CouchersContext, session: Session
+    ) -> api_pb2.ListBadgeUsersRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_user_id = int(request.page_token) if request.page_token else 0
         badge = get_badge_dict().get(request.badge_id)

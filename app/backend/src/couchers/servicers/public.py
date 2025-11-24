@@ -2,12 +2,16 @@ import logging
 
 import grpc
 from cachetools import TTLCache, cached
+from google.protobuf import empty_pb2
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import func, union_all
 
 from couchers import urls
+from couchers.context import CouchersContext
 from couchers.materialized_views import LiteUser
 from couchers.models import Cluster, Node, ProfilePublicVisibility, Reference, User, Volunteer
 from couchers.proto import api_pb2, public_pb2, public_pb2_grpc
+from couchers.proto.google.api import httpbody_pb2
 from couchers.resources import get_static_badge_dict
 from couchers.servicers.account import _format_volunteer_link
 from couchers.servicers.api import fluency2api, hostingstatus2api, meetupstatus2api, user_model_to_pb
@@ -128,13 +132,17 @@ def _get_volunteers(session):
 
 class Public(public_pb2_grpc.PublicServicer):
     """
-    Public (logged out) APIs for getting public info
+    Public (logged-out) APIs for getting public info
     """
 
-    def GetPublicUsers(self, request, context, session):
+    def GetPublicUsers(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> httpbody_pb2.HttpBody:
         return _get_public_users(session)
 
-    def GetPublicUser(self, request, context, session):
+    def GetPublicUser(
+        self, request: public_pb2.GetPublicUserReq, context: CouchersContext, session: Session
+    ) -> public_pb2.GetPublicUserRes:
         user = session.execute(
             select(User)
             .where(User.is_visible)
@@ -207,8 +215,12 @@ class Public(public_pb2_grpc.PublicServicer):
                 )
             )
 
-    def GetSignupPageInfo(self, request, context, session):
+    def GetSignupPageInfo(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> public_pb2.GetSignupPageInfoRes:
         return _get_signup_page_info(session)
 
-    def GetVolunteers(self, request, context, session):
+    def GetVolunteers(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> public_pb2.GetVolunteersRes:
         return _get_volunteers(session)

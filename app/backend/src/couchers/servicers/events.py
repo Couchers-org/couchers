@@ -4,9 +4,10 @@ from datetime import timedelta
 import grpc
 from google.protobuf import empty_pb2
 from psycopg2.extras import DateTimeTZRange
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_, select, update
 
-from couchers.context import make_background_user_context
+from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
@@ -369,7 +370,9 @@ def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNot
 
 
 class Events(events_pb2_grpc.EventsServicer):
-    def CreateEvent(self, request, context, session):
+    def CreateEvent(
+        self, request: events_pb2.CreateEventReq, context: CouchersContext, session: Session
+    ) -> events_pb2.Event:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         if not user.has_completed_profile:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_create_event")
@@ -487,7 +490,9 @@ class Events(events_pb2_grpc.EventsServicer):
 
         return event_to_pb(session, occurrence, context)
 
-    def ScheduleEvent(self, request, context, session):
+    def ScheduleEvent(
+        self, request: events_pb2.ScheduleEventReq, context: CouchersContext, session: Session
+    ) -> events_pb2.Event:
         if not request.content:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_content")
         if request.HasField("online_information"):
@@ -575,7 +580,9 @@ class Events(events_pb2_grpc.EventsServicer):
 
         return event_to_pb(session, occurrence, context)
 
-    def UpdateEvent(self, request, context, session):
+    def UpdateEvent(
+        self, request: events_pb2.UpdateEventReq, context: CouchersContext, session: Session
+    ) -> events_pb2.Event:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
         if not res:
@@ -709,7 +716,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
         return event_to_pb(session, occurrence, context)
 
-    def GetEvent(self, request, context, session):
+    def GetEvent(self, request: events_pb2.GetEventReq, context: CouchersContext, session: Session) -> events_pb2.Event:
         occurrence = session.execute(
             select(EventOccurrence).where(EventOccurrence.id == request.event_id).where(~EventOccurrence.is_deleted)
         ).scalar_one_or_none()
@@ -719,7 +726,9 @@ class Events(events_pb2_grpc.EventsServicer):
 
         return event_to_pb(session, occurrence, context)
 
-    def CancelEvent(self, request, context, session):
+    def CancelEvent(
+        self, request: events_pb2.CancelEventReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
         if not res:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
@@ -745,7 +754,9 @@ class Events(events_pb2_grpc.EventsServicer):
 
         return empty_pb2.Empty()
 
-    def RequestCommunityInvite(self, request, context, session):
+    def RequestCommunityInvite(
+        self, request: events_pb2.RequestCommunityInviteReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
         if not res:
@@ -787,7 +798,9 @@ class Events(events_pb2_grpc.EventsServicer):
 
         return empty_pb2.Empty()
 
-    def ListEventOccurrences(self, request, context, session):
+    def ListEventOccurrences(
+        self, request: events_pb2.ListEventOccurrencesReq, context: CouchersContext, session: Session
+    ) -> events_pb2.ListEventOccurrencesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         # the page token is a unix timestamp of where we left off
         page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
@@ -821,7 +834,9 @@ class Events(events_pb2_grpc.EventsServicer):
             next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
         )
 
-    def ListEventAttendees(self, request, context, session):
+    def ListEventAttendees(
+        self, request: events_pb2.ListEventAttendeesReq, context: CouchersContext, session: Session
+    ) -> events_pb2.ListEventAttendeesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_user_id = int(request.page_token) if request.page_token else 0
         occurrence = session.execute(
@@ -846,7 +861,9 @@ class Events(events_pb2_grpc.EventsServicer):
             next_page_token=str(attendees[-1].user_id) if len(attendees) > page_size else None,
         )
 
-    def ListEventSubscribers(self, request, context, session):
+    def ListEventSubscribers(
+        self, request: events_pb2.ListEventSubscribersReq, context: CouchersContext, session: Session
+    ) -> events_pb2.ListEventSubscribersRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_user_id = int(request.page_token) if request.page_token else 0
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
@@ -870,7 +887,9 @@ class Events(events_pb2_grpc.EventsServicer):
             next_page_token=str(subscribers[-1].user_id) if len(subscribers) > page_size else None,
         )
 
-    def ListEventOrganizers(self, request, context, session):
+    def ListEventOrganizers(
+        self, request: events_pb2.ListEventOrganizersReq, context: CouchersContext, session: Session
+    ) -> events_pb2.ListEventOrganizersRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_user_id = int(request.page_token) if request.page_token else 0
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
@@ -894,7 +913,9 @@ class Events(events_pb2_grpc.EventsServicer):
             next_page_token=str(organizers[-1].user_id) if len(organizers) > page_size else None,
         )
 
-    def TransferEvent(self, request, context, session):
+    def TransferEvent(
+        self, request: events_pb2.TransferEventReq, context: CouchersContext, session: Session
+    ) -> events_pb2.Event:
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
         if not res:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
@@ -930,7 +951,9 @@ class Events(events_pb2_grpc.EventsServicer):
         session.commit()
         return event_to_pb(session, occurrence, context)
 
-    def SetEventSubscription(self, request, context, session):
+    def SetEventSubscription(
+        self, request: events_pb2.SetEventSubscriptionReq, context: CouchersContext, session: Session
+    ) -> events_pb2.Event:
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
         if not res:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
@@ -961,7 +984,9 @@ class Events(events_pb2_grpc.EventsServicer):
 
         return event_to_pb(session, occurrence, context)
 
-    def SetEventAttendance(self, request, context, session):
+    def SetEventAttendance(
+        self, request: events_pb2.SetEventAttendanceReq, context: CouchersContext, session: Session
+    ) -> events_pb2.Event:
         occurrence = session.execute(
             select(EventOccurrence).where(EventOccurrence.id == request.event_id).where(~EventOccurrence.is_deleted)
         ).scalar_one_or_none()
@@ -1001,7 +1026,9 @@ class Events(events_pb2_grpc.EventsServicer):
 
         return event_to_pb(session, occurrence, context)
 
-    def ListMyEvents(self, request, context, session):
+    def ListMyEvents(
+        self, request: events_pb2.ListMyEventsReq, context: CouchersContext, session: Session
+    ) -> events_pb2.ListMyEventsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         # the page token is a unix timestamp of where we left off
         page_token = (
@@ -1086,7 +1113,9 @@ class Events(events_pb2_grpc.EventsServicer):
             total_items=total_items,
         )
 
-    def ListAllEvents(self, request, context, session):
+    def ListAllEvents(
+        self, request: events_pb2.ListAllEventsReq, context: CouchersContext, session: Session
+    ) -> events_pb2.ListAllEventsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         # the page token is a unix timestamp of where we left off
         page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
@@ -1115,7 +1144,9 @@ class Events(events_pb2_grpc.EventsServicer):
             next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
         )
 
-    def InviteEventOrganizer(self, request, context, session):
+    def InviteEventOrganizer(
+        self, request: events_pb2.InviteEventOrganizerReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
         if not res:
@@ -1160,7 +1191,9 @@ class Events(events_pb2_grpc.EventsServicer):
 
         return empty_pb2.Empty()
 
-    def RemoveEventOrganizer(self, request, context, session):
+    def RemoveEventOrganizer(
+        self, request: events_pb2.RemoveEventOrganizerReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
         if not res:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
