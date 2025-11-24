@@ -1,5 +1,7 @@
+from sqlalchemy import update
 from sqlalchemy.sql import func
 
+from couchers.db import session_scope
 from couchers.models import FriendRelationship, User
 from couchers.sql import couchers_select as select
 from tests.test_fixtures import (  # noqa
@@ -8,7 +10,6 @@ from tests.test_fixtures import (  # noqa
     make_friends,
     make_user_block,
     make_user_invisible,
-    session_scope,
 )
 
 
@@ -26,13 +27,13 @@ def test_is_visible_property(db):
     user5, token5 = generate_user(delete_user=True)
 
     with session_scope() as session:
-        session.execute(select(User).where(User.id == user2.id)).scalar_one().is_banned = True
-        session.execute(select(User).where(User.id == user3.id)).scalar_one().is_deleted = True
+        session.execute(update(User).where(User.id == user2.id).values(is_banned=True))
+        session.execute(update(User).where(User.id == user3.id).values(is_deleted=True))
+        session.execute(update(User).where(User.id == user4.id).values(is_banned=True))
 
-        make_user_invisible(user4.id)
+        visible_users = session.execute(select(User.id).where(User.is_visible)).scalars().all()
 
-        visible_users = session.execute(select(User).where(User.is_visible)).scalars().all()
-        assert len(visible_users) == 1
+        assert visible_users[0] == user1.id
 
 
 def test_select_dot_where_users_visible(db):

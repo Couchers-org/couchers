@@ -4,6 +4,7 @@ from unittest.mock import patch
 import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
+from sqlalchemy import update
 from sqlalchemy.sql import func
 
 from couchers import constants, urls
@@ -57,13 +58,13 @@ def test_GetAccountInfo(db, fast_passwords):
 
 
 def test_donation_banner_no_drive(db):
-    """Test that banner is not shown when DONATION_DRIVE_START is None"""
+    """Test that the banner is not shown when DONATION_DRIVE_START is None"""
 
     original_value = constants.DONATION_DRIVE_START
     try:
         constants.DONATION_DRIVE_START = None
 
-        # User has donated, but drive is disabled so banner should not show
+        # User has donated, but the drive is disabled, so the banner should not show
         user, token = generate_user()
 
         with account_session(token) as account:
@@ -103,9 +104,8 @@ def test_donation_banner_donated_before_drive(db):
 
         # Set donation before drive start
         with session_scope() as session:
-            db_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
-            db_user.last_donated = datetime(2025, 10, 15, tzinfo=UTC)  # Before Nov 1
-            session.commit()
+            last_donated = datetime(2025, 10, 15, tzinfo=UTC)  # Before Nov 1
+            session.execute(update(User).where(User.id == user.id).values(last_donated=last_donated))
 
         with account_session(token) as account:
             res = account.GetAccountInfo(empty_pb2.Empty())
@@ -126,9 +126,8 @@ def test_donation_banner_donated_after_drive(db):
 
         # Set donation after drive start
         with session_scope() as session:
-            db_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
-            db_user.last_donated = datetime(2025, 11, 15, tzinfo=UTC)  # After Nov 1
-            session.commit()
+            last_donated = datetime(2025, 11, 15, tzinfo=UTC)  # After Nov 1
+            session.execute(update(User).where(User.id == user.id).values(last_donated=last_donated))
 
         with account_session(token) as account:
             res = account.GetAccountInfo(empty_pb2.Empty())
@@ -149,9 +148,7 @@ def test_donation_banner_donated_exactly_at_drive_start(db):
 
         # Set donation exactly at drive start
         with session_scope() as session:
-            db_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
-            db_user.last_donated = drive_start
-            session.commit()
+            session.execute(update(User).where(User.id == user.id).values(last_donated=drive_start))
 
         with account_session(token) as account:
             res = account.GetAccountInfo(empty_pb2.Empty())
@@ -513,8 +510,7 @@ def test_ChangeEmailV2_tokens_two_hour_window(db):
         )
 
     with session_scope() as session:
-        user = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        new_email_token = user.new_email_token
+        new_email_token = session.execute(select(User.new_email_token).where(User.id == user.id)).scalar_one()
 
     with patch("couchers.servicers.auth.now", one_minute_ago):
         with auth_api_session() as (auth_api, metadata_interceptor):
@@ -1010,7 +1006,6 @@ def test_DisableInviteCode(db):
     code = "TEST1234"
     with session_scope() as session:
         session.add(InviteCode(id=code, creator_user_id=user.id))
-        session.commit()
 
     with account_session(token) as account:
         account.DisableInviteCode(account_pb2.DisableInviteCodeReq(code=code))
@@ -1027,9 +1022,7 @@ def test_ListInviteCodes(db):
     code = "LIST1234"
     with session_scope() as session:
         session.add(InviteCode(id=code, creator_user_id=user.id))
-        db_other_user = session.execute(select(User).where(User.id == another_user.id)).scalar_one()
-        db_other_user.invite_code_id = code
-        session.commit()
+        session.execute(update(User).where(User.id == another_user.id).values(invite_code_id=code))
 
     with account_session(token) as account:
         res = account.ListInviteCodes(empty_pb2.Empty())

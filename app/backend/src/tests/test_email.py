@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+from sqlalchemy import update
 
 import couchers.email
 import couchers.jobs.handlers
@@ -446,8 +447,8 @@ def test_email_deleted_users_regression(db):
         assert res.requests[0].approx_users_to_notify == 5
 
     with session_scope() as session:
-        session.execute(select(User).where(User.id == ban_user.id)).scalar_one().is_banned = True
-        session.execute(select(User).where(User.id == delete_user.id)).scalar_one().is_deleted = True
+        session.execute(update(User).where(User.id == ban_user.id).values(is_banned=True))
+        session.execute(update(User).where(User.id == delete_user.id).values(is_deleted=True))
 
     with real_admin_session(super_token) as admin:
         res = admin.ListEventCommunityInviteRequests(admin_pb2.ListEventCommunityInviteRequestsReq())

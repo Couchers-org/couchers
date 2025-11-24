@@ -83,7 +83,7 @@ def create_session(
     if user.is_banned:
         context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "account_suspended")
 
-    # just double check
+    # just double-check
     assert not user.is_deleted
 
     token = cookiesafe_secure_token()

@@ -1,4 +1,5 @@
 import string
+import textwrap
 
 import grpc
 import pytest
@@ -118,7 +119,6 @@ def pagination_test(api, parent_id):
 
     # Get it with pagination
     token = ""
-    import textwrap
 
     for expected_page in textwrap.wrap(string.ascii_lowercase, 5):
         ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_id, page_size=5, page_token=token))
