@@ -1230,6 +1230,85 @@ def test_update_badges(db, push_collector):
     )
 
 
+def test_send_request_notifications_blocked_users_no_notification(db):
+    """
+    Regression test: send_request_notifications should not send notifications
+    when the host and surfer are not visible to each other (e.g., one blocked the other).
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    # Create a host request
+    with requests_session(token1) as requests:
+        host_request_id = requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        ).host_request_id
+
+    with session_scope() as session:
+        # delete send_email BackgroundJob created by CreateHostRequest
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    # Now user2 (host) blocks user1 (surfer)
+    make_user_block(user2, user1)
+
+    with session_scope() as session:
+        # check send_request_notifications does NOT create background job because users are blocked
+        with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+            send_request_notifications(empty_pb2.Empty())
+            process_jobs()
+
+        # Should be 0 emails because the host blocked the surfer
+        assert (
+            session.execute(
+                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
+            ).scalar_one()
+            == 0
+        ), "No notification email should be sent when host has blocked surfer"
+
+    # Also test the reverse direction: surfer sends message to host, host should not get notification
+    # First unblock
+    with session_scope() as session:
+        from couchers.models import UserBlock
+
+        session.execute(delete(UserBlock).execution_options(synchronize_session=False))
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    # Host responds
+    with requests_session(token2) as requests:
+        requests.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                text="Accepting your request",
+            )
+        )
+
+    with session_scope() as session:
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    # Now user1 (surfer) blocks user2 (host)
+    make_user_block(user1, user2)
+
+    with session_scope() as session:
+        # check send_request_notifications does NOT create background job
+        with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+            send_request_notifications(empty_pb2.Empty())
+            process_jobs()
+
+        # Should be 0 emails because the surfer blocked the host
+        assert (
+            session.execute(
+                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
+            ).scalar_one()
+            == 0
+        ), "No notification email should be sent when surfer has blocked host"
+
+
 def test_send_message_notifications_empty_unseen_simple(monkeypatch):
     class DummyUser:
         id = 1
