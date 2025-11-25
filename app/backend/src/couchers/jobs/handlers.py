@@ -265,6 +265,17 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
 
             user.last_notified_message_id = max(message.id for _, message, _ in unseen_messages)
 
+            # Filter out messages from authors who are not visible to the user (e.g., blocked)
+            visible_unseen_messages = [
+                (group_chat, message, count_unseen)
+                for group_chat, message, count_unseen in unseen_messages
+                if not is_not_visible(session, user.id, message.author_id)
+            ]
+
+            if not visible_unseen_messages:
+                session.commit()
+                continue
+
             def format_title(message, group_chat, count_unseen):
                 if group_chat.is_dm:
                     return f"You missed {count_unseen} message(s) from {message.author.name}"
@@ -287,7 +298,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                             text=message.text,
                             group_chat_id=message.conversation_id,
                         )
-                        for group_chat, message, count_unseen in unseen_messages
+                        for group_chat, message, count_unseen in visible_unseen_messages
                     ],
                 ),
             )
@@ -553,6 +564,10 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
         )
 
         for host_request in requests:
+            # Skip if users are not visible to each other (e.g., one blocked the other)
+            if is_not_visible(session, host_request.host_user_id, host_request.surfer_user_id):
+                continue
+
             host_request.host_sent_request_reminders += 1
             host_request.last_sent_request_reminder_time = now()
 
