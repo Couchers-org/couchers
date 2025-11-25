@@ -171,14 +171,6 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if request.host_user_id == context.user_id:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "cant_request_self")
 
-        text_length_utf16 = len(request.text.encode("utf-16")) / 2 - 1  # number of code units minus BOM
-        if text_length_utf16 < HOST_REQUEST_MIN_LENGTH_UTF16:
-            context.abort_with_error_code(
-                grpc.StatusCode.INVALID_ARGUMENT,
-                "host_request_too_short",
-                substitutions={"chars": HOST_REQUEST_MIN_LENGTH_UTF16},
-            )
-
         # just to check host exists and is visible
         host = session.execute(
             select(User).where_users_visible(context).where(User.id == request.host_user_id)
@@ -209,6 +201,15 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         if to_date - from_date > timedelta(days=365):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
+
+        # Check minimum length
+        text_length_utf16 = len(request.text.encode("utf-16")) / 2 - 1  # number of code units minus BOM
+        if text_length_utf16 < HOST_REQUEST_MIN_LENGTH_UTF16:
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT,
+                "host_request_too_short",
+                substitutions={"chars": HOST_REQUEST_MIN_LENGTH_UTF16},
+            )
 
         # Check if user has been sending host requests excessively
         if process_rate_limits_and_check_abort(

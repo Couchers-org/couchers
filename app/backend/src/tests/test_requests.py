@@ -6,6 +6,7 @@ import grpc
 import pytest
 from sqlalchemy.sql import select
 
+from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.crypto import b64decode
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_view
@@ -59,11 +60,13 @@ def test_create_request(db):
     today_plus_3 = (today() + timedelta(days=3)).isoformat()
     today_minus_2 = (today() - timedelta(days=2)).isoformat()
     today_minus_3 = (today() - timedelta(days=3)).isoformat()
+
+    valid_text = "L" + ("o" * HOST_REQUEST_MIN_LENGTH_UTF16) + "ng test request"
     with requests_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    host_user_id=user1.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                    host_user_id=user1.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_text
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -72,7 +75,7 @@ def test_create_request(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    host_user_id=999, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                    host_user_id=999, from_date=today_plus_2, to_date=today_plus_3, text=valid_text
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
@@ -81,7 +84,7 @@ def test_create_request(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id, from_date=today_plus_3, to_date=today_plus_2, text="Test request"
+                    host_user_id=user2.id, from_date=today_plus_3, to_date=today_plus_2, text=valid_text
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -90,7 +93,7 @@ def test_create_request(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id, from_date=today_minus_3, to_date=today_plus_2, text="Test request"
+                    host_user_id=user2.id, from_date=today_minus_3, to_date=today_plus_2, text=valid_text
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -99,7 +102,7 @@ def test_create_request(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id, from_date=today_plus_2, to_date=today_minus_2, text="Test request"
+                    host_user_id=user2.id, from_date=today_plus_2, to_date=today_minus_2, text=valid_text
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -108,18 +111,27 @@ def test_create_request(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id, from_date="2020-00-06", to_date=today_minus_2, text="Test request"
+                    host_user_id=user2.id, from_date="2020-00-06", to_date=today_minus_2, text=valid_text
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == "Invalid date."
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Too short."
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Host request cannot be shorter than 250 characters."
 
         res = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
-                text="Test request",
+                text=valid_text,
             )
         )
 
