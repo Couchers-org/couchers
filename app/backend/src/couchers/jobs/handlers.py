@@ -332,6 +332,10 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
         ).all()
 
         for user, host_request, max_message_id in surfing_reqs:
+            # Skip if users are not visible to each other (e.g., one blocked the other)
+            if is_not_visible(session, user.id, host_request.host_user_id):
+                continue
+
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
             session.flush()
 
@@ -349,6 +353,10 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
             )
 
         for user, host_request, max_message_id in hosting_reqs:
+            # Skip if users are not visible to each other (e.g., one blocked the other)
+            if is_not_visible(session, user.id, host_request.surfer_user_id):
+                continue
+
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
             session.flush()
 
