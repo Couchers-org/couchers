@@ -36,10 +36,10 @@
                     "missed_messages": "Mensajes pendientes en un chat"
                 },
                 "reference": {
-                    "receive_hosted": "Recibes una recomendación de alguien que te hospedó",
-                    "receive_surfed": "Recibes una recomendación de alguien a quien hospedaste",
+                    "receive_hosted": "Recibes una recomendación de alguien que te alojó",
+                    "receive_surfed": "Recibes una recomendación de alguien a quien alojaste",
                     "receive_friend": "Recibes una recomendación de un amigo",
-                    "reminder_hosted": "Recordatorio para escribir una recomendación a alguien a quien hospedaste",
+                    "reminder_hosted": "Recordatorio para escribir una recomendación a alguien a quien alojaste",
                     "reminder_surfed": "Recordatorio para escribir una recomendación a alguien con quien surfeaste"
                 },
                 "friend_request": {

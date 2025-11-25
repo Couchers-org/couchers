@@ -6,17 +6,17 @@
         "select_language": "Selecciona un idioma",
         "success_message": "Tu cambio ha sido guardado.",
         "translation_progress": {
-            "description": "Vea el estado de completitud de nuestras traducciones en diferentes idiomas. ¡Ayúdenos a hacer que Couchers sea accesible para más personas en todo el mundo!",
+            "description": "Comprueba cuán avanzadas están nuestras traducciones en diferentes idiomas. ¡Ayúdanos a hacer que Couchers sea accesible para más personas en todo el mundo!",
             "info_text": "💡 Los idiomas con un 50-80% de completitud aparecen atenuados en el selector de idiomas. Los idiomas con menos del 50% de completitud están ocultos en el selector de idiomas. Para motivar a los colaboradores, los idiomas con menos del 20% se muestran en este sitio.",
-            "midway": "A mitad de camino",
+            "midway": "A medio camino",
             "title": "Progreso de traducción",
             "help_translate": "Ayuda a traducir Couchers a tu idioma",
             "loading": "Cargando el progreso de la traducción...",
             "error_loading": "Error al cargar el progreso de la traducción",
             "no_data": "No hay datos de traducción disponibles",
             "complete": "Completo",
-            "almost_there": "Casi allí",
-            "in_progress": "En Progreso",
+            "almost_there": "Casi está",
+            "in_progress": "En progreso",
             "early_stage": "Etapa temprana",
             "just_started": "Recién empezado",
             "complete_percent": "{{percent}}% completo",
@@ -95,7 +95,11 @@
             "profile_reason_required": "Por favor complete la descripción o el bloque",
             "description_label": "Describa el problema",
             "success": "¡Gracias por tu denuncia y por hacer de Couchers una plataforma mejor para todos!"
-        }
+        },
+        "bug": {
+            "button_label": "Informar de un problema técnico"
+        },
+        "title": "Informar de un problema"
     },
     "continue": "Continuar",
     "required": "Requerido",
