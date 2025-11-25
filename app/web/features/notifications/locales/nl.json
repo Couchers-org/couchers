@@ -8,6 +8,45 @@
     "no_new_notifications": "Geen nieuwe notificaties",
     "notification_settings": {
         "title": "Instellingen notificaties",
-        "edit_in_console": "Je kan je instellingen voor notificaties <2>op deze pagina</2> aanpassen. We zullen het binnenkort hierheen verplaatsen."
+        "edit_in_console": "Je kan je instellingen voor notificaties <2>op deze pagina</2> aanpassen. We zullen het binnenkort hierheen verplaatsen.",
+        "go_to_button": "Notificatie-instellingen beheren",
+        "edit_preferences": {
+            "title": "Notificatie-instellingen",
+            "expand_all": "Alles uitklappen",
+            "error_loading": "Error bij het laden van notificatie-instellingen",
+            "item_descriptions": {
+                "host_request": {
+                    "reminder": "Je hebt nog niet gereageerd op een hostingverzoek",
+                    "create": "Iemand heeft je een hostingverzoek gestuurd",
+                    "missed_messages": "Je hebt berichten gemist bij een hostingverzoek",
+                    "accept": "Iemand heeft je hostingverzoek geaccepteerd",
+                    "confirm": "Iemand heeft zijn hostingverzoek bevestigd",
+                    "reject": "Iemand heeft je hostingverzoek afgewezen",
+                    "cancel": "Iemand heeft zijn hostingverzoek geannuleerd",
+                    "message": "Iemand heeft een bericht gestuurd bij een hostingverzoek"
+                },
+                "chat": {
+                    "message": "Iemand heeft je een bericht gestuurd",
+                    "missed_messages": "Je hebt berichten in een chat gemist"
+                },
+                "general": {
+                    "new_blog_post": "Er is een nieuwe blog"
+                }
+            },
+            "list_heading": "Notificaties die je kunt krijgen",
+            "list_items": {
+                "account_settings": "Account-instellingen",
+                "account_security": "Account-veiligheid",
+                "other_notifications": "Andere notificaties",
+                "chat": "Berichten",
+                "event": "Events",
+                "friend_request": "Vriendschapsverzoeken",
+                "host_request": "Hostingverzoeken",
+                "reference": "Referenties",
+                "discussion": "Discussies",
+                "reply": "Reacties"
+            },
+            "collapse_all": "Alles inklappen"
+        }
     }
 }
