@@ -79,6 +79,7 @@
     "host_request_not_found": "Couldn't find that host request.",
     "host_request_rate_limit": "You have sent a lot of host requests in the past {{hours}} hours. To avoid spam, you can't send any more for now.",
     "host_request_sent_or_received": "Can't only list sent and also only received requests.",
+    "host_request_too_short": "Host request cannot be shorter than {{chars}} characters.",
     "hosting_status_required": "Hosting status is required.",
     "incomplete_profile_create_event": "You have to complete your profile before you can create an event.",
     "incomplete_profile_send_message": "You have to complete your profile before you can send a message.",

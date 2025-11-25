@@ -63,6 +63,9 @@ ACTIVENESS_PROBE_EXPIRY_TIME = timedelta(days=4)
 HOST_REQUEST_MAX_REMINDERS = 1
 HOST_REQUEST_REMINDER_INTERVAL = timedelta(days=2)
 
+# Note: Javascript's string.length is in utf16 code units, Python's len(str) is in utf8 code units.
+HOST_REQUEST_MIN_LENGTH_UTF16 = 250  # Must match frontend
+
 ANTIBOT_FREQ = timedelta(hours=48)
 
 EVENT_REMINDER_TIMEDELTA = timedelta(hours=24)

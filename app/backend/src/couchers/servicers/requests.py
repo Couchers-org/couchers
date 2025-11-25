@@ -7,6 +7,7 @@ from sqlalchemy import exists
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
+from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.materialized_views import UserResponseRate
 from couchers.metrics import (
     account_age_on_host_request_create_histogram,
@@ -169,6 +170,14 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         if request.host_user_id == context.user_id:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "cant_request_self")
+
+        text_length_utf16 = len(request.text.encode("utf-16")) / 2 - 1  # number of code units minus BOM
+        if text_length_utf16 < HOST_REQUEST_MIN_LENGTH_UTF16:
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT,
+                "host_request_too_short",
+                substitutions={"chars": HOST_REQUEST_MIN_LENGTH_UTF16},
+            )
 
         # just to check host exists and is visible
         host = session.execute(
