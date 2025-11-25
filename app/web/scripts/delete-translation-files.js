@@ -66,16 +66,18 @@ function removeFromConstants(languageCode) {
   try {
     let content = fs.readFileSync(constantsPath, "utf8");
 
-    // Check if language exists
-    if (!content.includes(`${languageCode}: {`)) {
+    // Check if language exists (handle both quoted and unquoted keys)
+    const quotedKey = `"${languageCode}": {`;
+    const unquotedKey = `${languageCode}: {`;
+    if (!content.includes(quotedKey) && !content.includes(unquotedKey)) {
       console.log(`⚠️  Language "${languageCode}" not found in constants.ts`);
       return false;
     }
 
     // Find and remove the language entry
     const lines = content.split("\n");
-    const languageStart = lines.findIndex((line) =>
-      line.includes(`${languageCode}: {`),
+    const languageStart = lines.findIndex(
+      (line) => line.includes(quotedKey) || line.includes(unquotedKey),
     );
 
     if (languageStart === -1) {
@@ -189,6 +191,22 @@ function main() {
 
     // Find all en.json files to determine which translation files to delete
     const enJsonFiles = findEnJsonFiles(".");
+
+    // Add backend en.json file (outside of web directory)
+    const backendEnJsonPath = path.join(
+      __dirname,
+      "..",
+      "..",
+      "backend",
+      "src",
+      "couchers",
+      "i18n",
+      "locales",
+      "en.json",
+    );
+    if (fs.existsSync(backendEnJsonPath)) {
+      enJsonFiles.push(path.relative(".", backendEnJsonPath));
+    }
 
     if (enJsonFiles.length === 0) {
       console.log("⚠️  No en.json files found in the current directory tree.");
