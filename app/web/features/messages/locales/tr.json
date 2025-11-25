@@ -46,7 +46,7 @@
       "1_day_label": "1 gün"
     },
     "muted_icon": {
-      "a11y_label": "Sessiz"
+      "a11y_label": "Sessize Alınmış"
     },
     "cannot_message_text": "Bu sohbette mesaj yollayamazsın",
     "no_messages_state_text": "Mesaj yok"

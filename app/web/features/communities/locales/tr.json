@@ -31,16 +31,17 @@
   "community_moderators": "Topluluk Mimarları",
   "discussions_empty_state": "Şu anda herhangi bir tartışma yok.",
   "discussions_label": "Tartışmalar",
-  "invalid_community_id": "Hatalı topluluk ID'si",
+  "invalid_community_id": "Geçersiz topluluk kimliği.",
   "discussions_title": "Tartışmalar",
   "fill_out_comment": "Önce birşey yazman gerekli!",
   "attendees_count": "{{count}} katılımcı",
   "attendees_count_plural": "{{count}} katılımcı",
   "by_creator": "{{name}} tarafından",
   "error_loading_community": "Topluluk yüklenirken bir hata oluştu.",
-  "events_empty_state": "Şu anda herhangi bir etkinlik yok.",
+  "events_empty_state": "Şu anda herhangi bir etkinlik yok. Neden bir tane <0>oluşturmuyorsun</0> ✨?",
   "comment": "Yorum yap",
   "comments": "Yorumlar",
   "community_header": "{{name}}'ya hoşgeldin",
-  "join_community": "Topluluğa katıl"
+  "join_community": "Topluluğa katıl",
+  "created_at": "Oluşturulma tarihi "
 }

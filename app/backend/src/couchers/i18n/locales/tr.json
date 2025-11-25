@@ -1,5 +1,29 @@
 {
     "errors": {
-        "cant_block_self": "Kendini engelleyemezsin."
+        "cant_block_self": "Kendini engelleyemezsin.",
+        "cant_invite_to_dm": "Diğer kullanıcıları direkt mesaja davet edemezsiniz.",
+        "account_not_found": "Bu kullanıcı adı veya e-posta'ya ait bir hesap bulunamadı.",
+        "cannot_create_discussion": "Bu grup veya toplulukta bir tartışma başlatamazsın.",
+        "admin_blog_blurb_too_long": "Blog gönderisi özeti çok uzun.",
+        "already_have_dm": "Bu kullanıcıyla zaten bir direkt mesaj sohbetin var.",
+        "account_suspended": "Hesabınız askıya alındı.",
+        "admin_blog_title_too_long": "Blog gönderisi başlığı çok uzun.",
+        "admin_cannot_edit_badge": "Yöneticiler bu rozeti düzenleyemez.",
+        "admin_note_cant_be_empty": "Yönetici notu boş olamaz.",
+        "already_admin": "Bu kullanıcı zaten bir yönetici.",
+        "already_in_chat": "Bu kullanıcı zaten sohbette.",
+        "already_in_community": "Zaten o topluluktasın.",
+        "already_in_group": "Zaten o grupta varsın.",
+        "already_left_host_request_feedback": "Bu ev sahipliği isteği için zaten bir geri bildirimde bulundun!",
+        "at_least_two_users_required": "En az 2 kullanıcı belirtilmeli",
+        "badge_not_found": "Rozet bulunamadı.",
+        "bug_tool_request_failed": "İstek başarısız oldu",
+        "cannot_edit_that_notification_preference": "Bu bildirim tercihi kullanıcılar tarafından düzenlenemez.",
+        "cant_add_self": "Kendini bir grup sohbetine ekleyemezsin.",
+        "cant_friend_self": "Kendini arkadaş olarak ekleyemezsin!",
+        "cant_invite_self": "Kendini bir sohbete davet edemezsin.",
+        "cant_make_self_admin": "Kendini yönetici yapamazsın.",
+        "cant_message_in_chat": "Bu sohbete mesaj gönderemezsin.",
+        "cannot_leave_containing_community": "Profilindeki konumun bu topluluk içinde olduğu için bu topluluktan ayrılamazsın. Ancak, hesap ayarlarından bildirimlerini ayarlayabilirsin."
     }
 }
