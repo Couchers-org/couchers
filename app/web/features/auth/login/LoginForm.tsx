@@ -1,4 +1,10 @@
-import { FormControlLabel, styled } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import {
+  FormControlLabel,
+  IconButton,
+  InputAdornment,
+  styled,
+} from "@mui/material";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import StyledLink from "components/StyledLink";
 import { doAntibot } from "features/antibot/antibot";
@@ -42,6 +48,7 @@ export default function LoginForm() {
   const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { handleSubmit, register, control } = useForm<{
     username: string;
@@ -100,10 +107,28 @@ export default function LoginForm() {
           {...register("password", { required: true })}
           fullWidth
           name="password"
-          type="password"
+          type={showPassword ? "text" : "password"}
           variant="outlined"
           autoComplete="current-password"
-          placeholder="*********"
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end" sx={{ marginRight: 1 }}>
+                  <IconButton
+                    aria-label={
+                      showPassword
+                        ? t("auth:login_page.form.hide_password")
+                        : t("auth:login_page.form.show_password")
+                    }
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
+          }}
         />
         <StyledLoginOptions>
           <Controller

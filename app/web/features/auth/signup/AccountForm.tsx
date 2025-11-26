@@ -1,3 +1,4 @@
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Checkbox,
   FormControl,
@@ -5,6 +6,8 @@ import {
   FormHelperText,
   FormLabel,
   FormLabelProps,
+  IconButton,
+  InputAdornment,
   Radio,
   RadioGroup,
   styled,
@@ -29,7 +32,7 @@ import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { HostingStatus } from "proto/api_pb";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
@@ -110,6 +113,7 @@ export default function AccountForm() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     control,
@@ -228,11 +232,30 @@ export default function AccountForm() {
               t("auth:account_form.password.validation_error"),
           })}
           variant="outlined"
-          type="password"
+          type={showPassword ? "text" : "password"}
           fullWidth
           helperText={errors?.password?.message ?? " "}
           error={!!errors?.password?.message}
           autoComplete="new-password"
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end" sx={{ marginRight: 1 }}>
+                  <IconButton
+                    aria-label={
+                      showPassword
+                        ? t("auth:login_page.form.hide_password")
+                        : t("auth:login_page.form.show_password")
+                    }
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
+          }}
         />
         <StyledInputLabel htmlFor="birthdate">
           {t("auth:account_form.birthday.field_label")}
