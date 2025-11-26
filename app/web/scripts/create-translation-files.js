@@ -706,6 +706,22 @@ function main() {
     // Find all en.json files
     const enJsonFiles = findEnJsonFiles(".");
 
+    // Add backend en.json file (outside of web directory)
+    const backendEnJsonPath = path.join(
+      __dirname,
+      "..",
+      "..",
+      "backend",
+      "src",
+      "couchers",
+      "i18n",
+      "locales",
+      "en.json",
+    );
+    if (fs.existsSync(backendEnJsonPath)) {
+      enJsonFiles.push(path.relative(".", backendEnJsonPath));
+    }
+
     if (enJsonFiles.length === 0) {
       console.log("⚠️  No en.json files found in the current directory tree.");
       return;
