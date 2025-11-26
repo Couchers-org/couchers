@@ -31,6 +31,7 @@ const mockUseAccountInfo = useAccountInfo as jest.MockedFunction<
 describe("DonationBanner", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    localStorage.clear();
   });
 
   it("displays the donation banner when shouldShowDonationBanner is true", async () => {
@@ -101,9 +102,13 @@ describe("DonationBanner", () => {
     expect(
       screen.queryByText(t("donation_banner.message")),
     ).not.toBeInTheDocument();
+
+    // Verify dismissal timestamp is stored in localStorage
+    const stored = localStorage.getItem("donation_banner.dismissed");
+    expect(stored).not.toBeNull();
   });
 
-  it("shows again after unmounting and remounting", async () => {
+  it("does not show again within 24 hours after dismissal", async () => {
     mockUseAccountInfo.mockReturnValue({
       data: {
         shouldShowDonationBanner: true,
@@ -130,11 +135,46 @@ describe("DonationBanner", () => {
     unmount();
     render(<DonationBanner />, { wrapper });
 
-    await waitFor(() => {
-      expect(
-        screen.getByText(t("donation_banner.message")),
-      ).toBeInTheDocument();
-    });
+    // Banner should NOT appear after remounting within 24 hours
+    expect(
+      screen.queryByText(t("donation_banner.message")),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows again after 24 hours have passed since dismissal", async () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date("2021-01-01 12:00:00"));
+
+    mockUseAccountInfo.mockReturnValue({
+      data: {
+        shouldShowDonationBanner: true,
+      },
+      isLoading: false,
+    } as ReturnType<typeof useAccountInfo>);
+
+    const user = userEvent.setup({ delay: null });
+    const { unmount } = render(<DonationBanner />, { wrapper });
+
+    expect(await screen.findByText(t("donation_banner.message"))).toBeVisible();
+
+    const closeButton = screen.getByLabelText("Close");
+    await user.click(closeButton);
+
+    expect(
+      screen.queryByText(t("donation_banner.message")),
+    ).not.toBeInTheDocument();
+
+    unmount();
+
+    // Advance time by 24 hours + 1 second
+    jest.setSystemTime(new Date("2021-01-02 12:00:01"));
+
+    render(<DonationBanner />, { wrapper });
+
+    // Banner should appear again after 24 hours have passed
+    expect(await screen.findByText(t("donation_banner.message"))).toBeVisible();
+
+    jest.useRealTimers();
   });
 
   it("does not display the donation banner when shouldShowDonationBanner is false", () => {
@@ -189,5 +229,39 @@ describe("DonationBanner", () => {
     expect(
       screen.queryByText(t("donation_banner.message")),
     ).not.toBeInTheDocument();
+  });
+
+  it("does not show if dismissed within 24 hours, even if backend says to show", async () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date("2021-01-01 12:00:00"));
+
+    mockUseAccountInfo.mockReturnValue({
+      data: {
+        shouldShowDonationBanner: true,
+      },
+      isLoading: false,
+    } as ReturnType<typeof useAccountInfo>);
+
+    const user = userEvent.setup({ delay: null });
+    const { unmount } = render(<DonationBanner />, { wrapper });
+
+    expect(await screen.findByText(t("donation_banner.message"))).toBeVisible();
+
+    const closeButton = screen.getByLabelText("Close");
+    await user.click(closeButton);
+
+    unmount();
+
+    // Advance time by less than 24 hours (23 hours, 59 minutes)
+    jest.setSystemTime(new Date("2021-01-02 11:59:00"));
+
+    render(<DonationBanner />, { wrapper });
+
+    // Banner should still NOT appear
+    expect(
+      screen.queryByText(t("donation_banner.message")),
+    ).not.toBeInTheDocument();
+
+    jest.useRealTimers();
   });
 });
