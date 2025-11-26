@@ -58,7 +58,8 @@
       "field_label": "İsim, anahtar kelimeler, veya kullanıcı adı",
       "clear_field_action_a11y_label": "Aramayı temizle",
       "search_this_keyword_a11y_label": "Bu anahtar kelimeyi ara"
-    }
+    },
+    "by_location_filter_label": "Konuma göre"
   },
   "choose_search_criteria": "Aramaya bir konum yaz veya bir filtre uygula."
 }

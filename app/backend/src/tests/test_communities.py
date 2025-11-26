@@ -4,6 +4,7 @@ import grpc
 import pytest
 from geoalchemy2 import WKBElement
 from google.protobuf import wrappers_pb2
+from sqlalchemy.orm import Session
 
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views
@@ -196,20 +197,16 @@ def create_event(token, community_id, group_id, title, content, start_td):
         )
 
 
-def get_community_id(session, community_name):
-    return (
-        session.execute(select(Cluster).where(Cluster.is_official_cluster).where(Cluster.name == community_name))
-        .scalar_one()
-        .parent_node_id
-    )
+def get_community_id(session: Session, community_name: str) -> int:
+    return session.execute(
+        select(Cluster.parent_node_id).where(Cluster.is_official_cluster).where(Cluster.name == community_name)
+    ).scalar_one()
 
 
-def get_group_id(session, group_name):
-    return (
-        session.execute(select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.name == group_name))
-        .scalar_one()
-        .id
-    )
+def get_group_id(session: Session, group_name: str) -> int:
+    return session.execute(
+        select(Cluster.id).where(~Cluster.is_official_cluster).where(Cluster.name == group_name)
+    ).scalar_one()
 
 
 @pytest.fixture(scope="class")

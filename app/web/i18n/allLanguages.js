@@ -10,6 +10,7 @@ const allLanguages = [
   "fr-CA",
   "he",
   "hi",
+  "hu",
   "it",
   "ja",
   "nb-NO",

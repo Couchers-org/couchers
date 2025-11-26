@@ -1,17 +1,18 @@
 import os
 import re
-from collections.abc import Generator
+from collections.abc import Generator, Sequence
 from concurrent import futures
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import date, timedelta
 from pathlib import Path
+from typing import Any
 from unittest.mock import patch
 
 import grpc
 import pytest
 from grpc._server import _validate_generic_rpc_handlers
-from sqlalchemy import Connection, Engine, create_engine
+from sqlalchemy import Connection, Engine, create_engine, update
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import or_, text
 
@@ -307,7 +308,22 @@ def db_class(template_db: str, postgres_conn: Connection) -> None:
     postgres_conn.execute(text(f"CREATE DATABASE testdb WITH TEMPLATE {template_db}"))
 
 
-def generate_user(*, delete_user=False, complete_profile=True, strong_verification=False, **kwargs):
+class _MockCouchersContext:
+    @property
+    def headers(self):
+        return {}
+
+
+def generate_user(
+    *,
+    delete_user=False,
+    complete_profile=True,
+    strong_verification=False,
+    regions_visited: Sequence[str] = (),
+    regions_lived: Sequence[str] = (),
+    language_abilities: Sequence[tuple[str, LanguageFluency]] = (),
+    **kwargs: Any,
+) -> tuple[User, str]:
     """
     Create a new user, return session token
 
@@ -315,8 +331,6 @@ def generate_user(*, delete_user=False, complete_profile=True, strong_verificati
 
     Use this most of the time
     """
-    auth = Auth()
-
     with session_scope() as session:
         # default args
         username = "test_user_" + random_hex(16)
@@ -349,34 +363,22 @@ def generate_user(*, delete_user=False, complete_profile=True, strong_verificati
             "onboarding_emails_sent": 1,
             "last_onboarding_email_sent": now(),
             "last_donated": now(),
-        }
-
-        for key, value in kwargs.items():
-            user_opts[key] = value
+        } | kwargs
 
         user = User(**user_opts)
         session.add(user)
         session.flush()
 
-        session.add(RegionVisited(user_id=user.id, region_code="CHE"))
-        session.add(RegionVisited(user_id=user.id, region_code="REU"))
-        session.add(RegionVisited(user_id=user.id, region_code="FIN"))
+        for region in regions_visited:
+            session.add(RegionVisited(user_id=user.id, region_code=region))
 
-        session.add(RegionLived(user_id=user.id, region_code="ESP"))
-        session.add(RegionLived(user_id=user.id, region_code="FRA"))
-        session.add(RegionLived(user_id=user.id, region_code="EST"))
+        for region in regions_lived:
+            session.add(RegionLived(user_id=user.id, region_code=region))
 
-        session.add(LanguageAbility(user_id=user.id, language_code="fin", fluency=LanguageFluency.fluent))
-        session.add(LanguageAbility(user_id=user.id, language_code="fra", fluency=LanguageFluency.beginner))
+        for lang, fluency in language_abilities:
+            session.add(LanguageAbility(user_id=user.id, language_code=lang, fluency=fluency))
 
         # this expires the user, so now it's "dirty"
-        session.commit()
-
-        class _MockCouchersContext:
-            @property
-            def headers(self):
-                return {}
-
         token, _ = create_session(_MockCouchersContext(), session, user, False, set_cookie=False)
 
         # deleted user aborts session creation, hence this follows and necessitates a second commit
@@ -460,12 +462,11 @@ def make_user_block(user1: User, user2: User) -> None:
             blocked_user_id=user2.id,
         )
         session.add(user_block)
-        session.commit()
 
 
 def make_user_invisible(user_id: int) -> None:
     with session_scope() as session:
-        session.execute(select(User).where(User.id == user_id)).scalar_one().is_banned = True
+        session.execute(update(User).where(User.id == user_id).values(is_banned=True))
 
 
 # This doubles as get_FriendRequest, since a friend request is just a pending friend relationship
@@ -508,6 +509,17 @@ class CookieMetadataPlugin(grpc.AuthMetadataPlugin):
         callback((("cookie", f"couchers-sesh={self.token}"),), None)
 
 
+class _MetadataKeeperInterceptor(grpc.UnaryUnaryClientInterceptor):
+    def __init__(self):
+        self.latest_headers = {}
+
+    def intercept_unary_unary(self, continuation, client_call_details, request):
+        call = continuation(client_call_details, request)
+        self.latest_headers = dict(call.initial_metadata())
+        self.latest_header_raw = call.initial_metadata()
+        return call
+
+
 @contextmanager
 def auth_api_session(
     grpc_channel_options=(),
@@ -527,17 +539,6 @@ def auth_api_session(
             with grpc.secure_channel(
                 f"localhost:{port}", grpc.local_channel_credentials(), options=grpc_channel_options
             ) as channel:
-
-                class _MetadataKeeperInterceptor(grpc.UnaryUnaryClientInterceptor):
-                    def __init__(self):
-                        self.latest_headers = {}
-
-                    def intercept_unary_unary(self, continuation, client_call_details, request):
-                        call = continuation(client_call_details, request)
-                        self.latest_headers = dict(call.initial_metadata())
-                        self.latest_header_raw = call.initial_metadata()
-                        return call
-
                 metadata_interceptor = _MetadataKeeperInterceptor()
                 channel = grpc.intercept_channel(channel, metadata_interceptor)
                 yield auth_pb2_grpc.AuthStub(channel), metadata_interceptor
@@ -665,7 +666,7 @@ class FakeRpcError(grpc.RpcError):
         return self._details
 
 
-def _check_user_perms(method, user_id, is_jailed, is_superuser, token_expiry):
+def _check_user_perms(method: str, user_id: int, is_jailed: bool, is_superuser: bool) -> None:
     # method is of the form "/org.couchers.api.core.API/GetUser"
     _, service_name, method_name = method.split("/")
 
@@ -728,20 +729,21 @@ class FakeChannel:
     def unary_unary(self, uri, request_serializer, response_deserializer):
         handler = self.handlers[uri]
 
-        user_id = None
-        is_jailed = None
-        is_superuser = None
-        token_expiry = None
-        ui_language_preference = None
-
-        if self._token:
-            user_id, is_jailed, is_superuser, token_expiry, ui_language_preference = _try_get_and_update_user_details(
-                self._token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
-            )
-
-        _check_user_perms(uri, user_id, is_jailed, is_superuser, token_expiry)
-
         def fake_handler(request):
+            if self._token:
+                user_id, is_jailed, is_superuser, token_expiry, ui_language_preference = (
+                    _try_get_and_update_user_details(
+                        self._token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
+                    )
+                )
+            else:
+                user_id = None
+                is_jailed = None
+                is_superuser = None
+                ui_language_preference = None
+
+            _check_user_perms(uri, user_id, is_jailed, is_superuser)
+
             # Do a full serialization cycle on the request and the
             # response to catch accidental use of unserializable data.
             request = handler.request_deserializer(request_serializer(request))
@@ -1107,56 +1109,57 @@ def email_fields(mock, call_ix=0):
     )
 
 
+class Push:
+    """
+    This allows nice access to the push info via e.g. push.title instead of push["title"]
+    """
+
+    def __init__(self, kwargs):
+        self.kwargs = kwargs
+
+    def __getattr__(self, attr):
+        try:
+            return self.kwargs[attr]
+        except KeyError:
+            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{attr}'") from None
+
+    def __repr__(self):
+        kwargs_disp = ", ".join(f"'{key}'='{val}'" for key, val in self.kwargs.items())
+        return f"Push({kwargs_disp})"
+
+
+class PushCollector:
+    def __init__(self):
+        # pairs of (user_id, push)
+        self.pushes = []
+
+    def by_user(self, user_id):
+        return [kwargs for uid, kwargs in self.pushes if uid == user_id]
+
+    def push_to_user(self, session, user_id, **kwargs):
+        self.pushes.append((user_id, Push(kwargs=kwargs)))
+
+    def assert_user_has_count(self, user_id, count):
+        assert len(self.by_user(user_id)) == count
+
+    def assert_user_push_matches_fields(self, user_id, ix=0, **kwargs):
+        push = self.by_user(user_id)[ix]
+        for kwarg in kwargs:
+            assert kwarg in push.kwargs, f"Push notification {user_id=}, {ix=} missing field '{kwarg}'"
+            assert push.kwargs[kwarg] == kwargs[kwarg], (
+                f"Push notification {user_id=}, {ix=} mismatch in field '{kwarg}', expected '{kwargs[kwarg]}' but got '{push.kwargs[kwarg]}'"
+            )
+
+    def assert_user_has_single_matching(self, user_id, **kwargs):
+        self.assert_user_has_count(user_id, 1)
+        self.assert_user_push_matches_fields(user_id, ix=0, **kwargs)
+
+
 @pytest.fixture
 def push_collector():
     """
     See test_SendTestPushNotification for an example on how to use this fixture
     """
-
-    class Push:
-        """
-        This allows nice access to the push info via e.g. push.title instead of push["title"]
-        """
-
-        def __init__(self, kwargs):
-            self.kwargs = kwargs
-
-        def __getattr__(self, attr):
-            try:
-                return self.kwargs[attr]
-            except KeyError:
-                raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{attr}'") from None
-
-        def __repr__(self):
-            kwargs_disp = ", ".join(f"'{key}'='{val}'" for key, val in self.kwargs.items())
-            return f"Push({kwargs_disp})"
-
-    class PushCollector:
-        def __init__(self):
-            # pairs of (user_id, push)
-            self.pushes = []
-
-        def by_user(self, user_id):
-            return [kwargs for uid, kwargs in self.pushes if uid == user_id]
-
-        def push_to_user(self, session, user_id, **kwargs):
-            self.pushes.append((user_id, Push(kwargs=kwargs)))
-
-        def assert_user_has_count(self, user_id, count):
-            assert len(self.by_user(user_id)) == count
-
-        def assert_user_push_matches_fields(self, user_id, ix=0, **kwargs):
-            push = self.by_user(user_id)[ix]
-            for kwarg in kwargs:
-                assert kwarg in push.kwargs, f"Push notification {user_id=}, {ix=} missing field '{kwarg}'"
-                assert push.kwargs[kwarg] == kwargs[kwarg], (
-                    f"Push notification {user_id=}, {ix=} mismatch in field '{kwarg}', expected '{kwargs[kwarg]}' but got '{push.kwargs[kwarg]}'"
-                )
-
-        def assert_user_has_single_matching(self, user_id, **kwargs):
-            self.assert_user_has_count(user_id, 1)
-            self.assert_user_push_matches_fields(user_id, ix=0, **kwargs)
-
     collector = PushCollector()
 
     with patch("couchers.notifications.push._push_to_user", collector.push_to_user):

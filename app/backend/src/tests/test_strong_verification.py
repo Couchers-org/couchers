@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 import grpc
 import pytest
 from google.protobuf import empty_pb2
+from sqlalchemy import update
 from sqlalchemy.sql import or_
 
 import couchers.jobs.handlers
@@ -318,8 +319,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
 
     # wrong dob = no badge
     with session_scope() as session:
-        user_ = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        user_.birthdate = date(1988, 1, 2)
+        session.execute(update(User).where(User.id == user.id).values(birthdate=date(1988, 1, 2)))
 
     update_badges(empty_pb2.Empty())
     refresh_materialized_views_rapid(None)
@@ -337,9 +337,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
 
     # bad gender-sex correspondence = no badge
     with session_scope() as session:
-        user_ = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        user_.birthdate = date(1988, 1, 1)
-        user_.gender = "Woman"
+        session.execute(update(User).where(User.id == user.id).values(birthdate=date(1988, 1, 1), gender="Woman"))
 
     update_badges(empty_pb2.Empty())
     refresh_materialized_views_rapid(None)
@@ -363,8 +361,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
 
     # back to should have a badge
     with session_scope() as session:
-        user_ = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        user_.gender = "Man"
+        session.execute(update(User).where(User.id == user.id).values(gender="Man"))
 
     update_badges(empty_pb2.Empty())
     refresh_materialized_views_rapid(None)

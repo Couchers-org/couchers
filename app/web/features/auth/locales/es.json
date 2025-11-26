@@ -127,7 +127,7 @@
     "activeness_probe": {
       "title": "¿Todavía sigues abierto a alojar viajeros?",
       "description": "Hemos observado que no has iniciado sesión ultimamente y queremos comprobar si todavía estas abierto a alojar viajeros.",
-      "still_hosting": "¡Todavía quiero hospedar!",
+      "still_hosting": "¡Todavía quiero alojar!",
       "not_hosting": "Ya no puedo alojar.",
       "note": "¡Actualizaremos tu perfil para reflejar esta decisión!"
     }

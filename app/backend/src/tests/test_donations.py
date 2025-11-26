@@ -118,9 +118,9 @@ def test_one_time_donation_flow(db, monkeypatch):
     update_badges(empty_pb2.Empty())
     with session_scope() as session:
         assert (
-            session.execute(select(UserBadge).where(UserBadge.user_id == user_id, UserBadge.badge_id == "donor"))
-            .scalar_one()
-            .user_id
+            session.execute(
+                select(UserBadge.user_id).where(UserBadge.user_id == user_id, UserBadge.badge_id == "donor")
+            ).scalar_one()
             == user_id
         )
 
@@ -243,9 +243,9 @@ def test_recurring_donation_flow(db, monkeypatch):
     update_badges(empty_pb2.Empty())
     with session_scope() as session:
         assert (
-            session.execute(select(UserBadge).where(UserBadge.user_id == user_id, UserBadge.badge_id == "donor"))
-            .scalar_one()
-            .user_id
+            session.execute(
+                select(UserBadge.user_id).where(UserBadge.user_id == user_id, UserBadge.badge_id == "donor")
+            ).scalar_one()
             == user_id
         )
 

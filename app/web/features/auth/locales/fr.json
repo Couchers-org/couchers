@@ -253,5 +253,59 @@
     "log_out_of_all_session": "Déconnectez-vous de toutes les autres sessions",
     "settings_page_text": "Voir où vous êtes connecté.e et déconnectez-vous des autres sessions",
     "expiry": "Expire à <1>{{expiry_datetime}}</1>"
+  },
+  "delete_account": {
+    "request": {
+      "reason_explanation": "Veuillez nous aider à améliorer notre plateforme en nous indiquant pourquoi vous avez choisi de supprimer votre compte.",
+      "description": "Pour supprimer votre compte, veuillez suivre les étapes ci-dessous. Nous vous enverrons un mail de confirmation.",
+      "confirm_username_explanation": "Votre nom d'utilisateur est <1>{{ username }}</1>, veuillez le saisir ci-dessous pour confirmer la suppression de votre compte.",
+      "username_mismatch": "Le nom d'utilisateur.trice ne correspond pas.",
+      "confirm_username_label": "Confirmation de votre nom d'utilisateur.trice",
+      "reason_label": "Raison de la suppression de votre compte",
+      "success_message": "Suppression de votre compte initiée. Pour finaliser la suppression de votre compte, veuillez confirmer via le mail que nous vous avons envoyé.",
+      "title": "Supprimer mon compte"
+    },
+    "confirm": {
+      "error_message": "Échec de la confirmation de la suppression de votre compte : {{message}}",
+      "button_text": "Confirmer la suppression de votre compte",
+      "account_deleted": "Compte supprimé. Merci d'avoir utilisé Couchers.org !",
+      "title": "Confirmer la suppression de votre compte"
+    },
+    "recover": {
+      "title": "Récupérez votre compte Couchers.org",
+      "error_message": "Échec de la récupération de votre compte : {{message}}",
+      "button_text": "Récupérer votre compte",
+      "success": "Votre compte a été récupéré, vous pouvez à nouveau vous connecter. Nous sommes ravis de vous retrouver !"
+    },
+    "missing_token": "Erreur"
+  },
+  "profile_visibility": {
+    "visiblility_options": {
+      "map_only": "<1>Sur la carte uniquement</1> : afficher une épingle de carte aléatoire et anonyme sans aucune autre information",
+      "most": "<1>La plupart de détails</1> : afficher la section complète « À propos de moi » sauf « Informations supplémentaires »",
+      "nothing": "<1>Rien</1> : cachez-moi complètement",
+      "limited": "<1>Limité</1> : afficher mon nom, ma localisation, mon statut d’hébergement/rencontre, mes badges, le nombre de références et depuis combien de temps je suis membre de Couchers.org",
+      "full_profile": "<1>Profil complet</1> : afficher mon profil complet (sauf les références)"
+    },
+    "title": "La visibilité de mon profil",
+    "choose": "Choisissez quelles informations seront visibles pour les utilisateurs.trices non connecté.e.s"
+  },
+  "change_phone": {
+    "need_to_donate": "Vous devez <2>faire un don</2> avant de pouvoir terminer la vérification du téléphone.",
+    "no_phone_description": "Vous n'avez pas ajouté de numéro de téléphone à votre compte. Pour en ajouter un, saisissez-le ci-dessous. Nous le vérifierons par un texto.",
+    "phone_label": "Votre numéro de téléphone",
+    "add_button_text": "Ajouter un numéro de téléphone",
+    "add_success": "Téléphone ajouté.",
+    "phone_not_verified_description": "Nous vous avons envoyé un code à <2>{{phone}}</2>. Pour vérifier votre numéro, veuillez saisir le code ci-dessous :",
+    "wrong_code": "Le code est incorrect.",
+    "verify_button_text": "Vérifier le numéro de téléphone",
+    "verify_success": "Téléphone vérifié.",
+    "remove_phone_description": "Votre numéro de téléphone actuel est <2>{{phone}}</2>. Vous pouvez supprimer votre numéro de téléphone ci-dessous.",
+    "remove_button_text": "Supprimer le numéro de téléphone actuel",
+    "remove_success": "Téléphone supprimé.",
+    "change_to_different_description": "Pour changer votre numéro de téléphone, veuillez le saisir ci-dessous.",
+    "change_button_text": "Changer le numéro de téléphone",
+    "code_label": "Code de vérification",
+    "title": "Numéro de téléphone"
   }
 }

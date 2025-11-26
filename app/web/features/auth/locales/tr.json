@@ -8,7 +8,8 @@
   },
   "change_email_confirmation": {
     "change_in_progress": "Email değişikliği ilerleme altında…",
-    "success_message": "Emailin başarılı bir şekilde değiştirildi!"
+    "success_message": "Emailin başarılı bir şekilde değiştirildi!",
+    "error_message": "E-posta değiştirilirken hata oluştu: {{message}}"
   },
   "do_not_email": {
     "action_button": {
