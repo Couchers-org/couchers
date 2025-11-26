@@ -165,30 +165,26 @@ export const useMarkAllNotificationsSeen = () => {
         queryKey: [listNotificationsQueryKey],
       });
 
-      const previousData =
-        queryClient.getQueryData<ListNotificationsRes.AsObject>([
-          listNotificationsQueryKey,
-        ]);
+      // Update all notification queries (both "all" and "unread" filters)
+      queryClient.setQueriesData<ListNotificationsRes.AsObject>(
+        {
+          queryKey: [listNotificationsQueryKey],
+        },
+        (previousData) => {
+          if (!previousData) return previousData;
 
-      const newData: ListNotificationsRes.AsObject = {
-        ...previousData,
-        notificationsList: previousData?.notificationsList
-          ? previousData.notificationsList.map((notification) => ({
-              ...notification,
-              isSeen: true,
-            }))
-          : [],
-        nextPageToken: previousData?.nextPageToken ?? "",
-      };
-
-      if (previousData) {
-        queryClient.setQueryData<ListNotificationsRes.AsObject>(
-          [listNotificationsQueryKey],
-          newData,
-        );
-      }
-
-      return { previousData };
+          return {
+            ...previousData,
+            notificationsList: previousData.notificationsList
+              ? previousData.notificationsList.map((notification) => ({
+                  ...notification,
+                  isSeen: true,
+                }))
+              : [],
+            nextPageToken: previousData.nextPageToken ?? "",
+          };
+        },
+      );
     },
     onError: (error) => {
       Sentry.captureException(error, {
@@ -220,31 +216,27 @@ export const useMarkSingleNotificationIsSeen = () => {
         queryKey: [listNotificationsQueryKey],
       });
 
-      const previousData =
-        queryClient.getQueryData<ListNotificationsRes.AsObject>([
-          listNotificationsQueryKey,
-        ]);
+      // Update all notification queries (both "all" and "unread" filters)
+      queryClient.setQueriesData<ListNotificationsRes.AsObject>(
+        {
+          queryKey: [listNotificationsQueryKey],
+        },
+        (previousData) => {
+          if (!previousData) return previousData;
 
-      const newData: ListNotificationsRes.AsObject = {
-        ...previousData,
-        notificationsList: previousData?.notificationsList
-          ? previousData.notificationsList.map((notification) =>
-              notification.notificationId === notificationId
-                ? { ...notification, isSeen: isSeen }
-                : notification,
-            )
-          : [],
-        nextPageToken: previousData?.nextPageToken ?? "",
-      };
-
-      if (previousData) {
-        queryClient.setQueryData<ListNotificationsRes.AsObject>(
-          [listNotificationsQueryKey],
-          newData,
-        );
-      }
-
-      return { previousData };
+          return {
+            ...previousData,
+            notificationsList: previousData.notificationsList
+              ? previousData.notificationsList.map((notification) =>
+                  notification.notificationId === notificationId
+                    ? { ...notification, isSeen: isSeen }
+                    : notification,
+                )
+              : [],
+            nextPageToken: previousData.nextPageToken ?? "",
+          };
+        },
+      );
     },
     onError: (error) => {
       Sentry.captureException(error, {
