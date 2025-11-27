@@ -232,6 +232,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
         )
 
         for user in users:
+            context = make_background_user_context(user_id=user.id)
             # now actually grab all the group chats, not just less than 5 min old
             subquery = (
                 select(
@@ -248,6 +249,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                 .where(Message.time >= GroupChatSubscription.joined)
                 .where(Message.message_type == MessageType.text)  # TODO: only text messages for now
                 .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                .where_users_column_visible(context, Message.author_id)
                 .group_by(GroupChatSubscription.group_chat_id)
                 .order_by(func.max(Message.id).desc())
                 .subquery()
@@ -265,17 +267,6 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
 
             user.last_notified_message_id = max(message.id for _, message, _ in unseen_messages)
 
-            # Filter out messages from authors who are not visible to the user (e.g., blocked)
-            visible_unseen_messages = [
-                (group_chat, message, count_unseen)
-                for group_chat, message, count_unseen in unseen_messages
-                if not is_not_visible(session, user.id, message.author_id)
-            ]
-
-            if not visible_unseen_messages:
-                session.commit()
-                continue
-
             def format_title(message, group_chat, count_unseen):
                 if group_chat.is_dm:
                     return f"You missed {count_unseen} message(s) from {message.author.name}"
@@ -292,13 +283,13 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                             author=user_model_to_pb(
                                 message.author,
                                 session,
-                                make_background_user_context(user_id=user.id),
+                                context,
                             ),
                             message=format_title(message, group_chat, count_unseen),
                             text=message.text,
                             group_chat_id=message.conversation_id,
                         )
-                        for group_chat, message, count_unseen in visible_unseen_messages
+                        for group_chat, message, count_unseen in unseen_messages
                     ],
                 ),
             )
