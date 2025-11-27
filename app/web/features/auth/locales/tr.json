@@ -57,5 +57,12 @@
   "reset_password_form": {
     "enter_email": "Kullanıcı adınızı/e-posta adresinizi girin",
     "success_message": "Şifrenizi sıfırlamak için e-postanızı kontrol edin!"
+  },
+  "account_form": {
+    "username": {
+      "required_error": "Kullanıcı adınızı girin",
+      "username_taken_error": "Bu kullanıcı adı alınmış.",
+      "validation_error": "Kullanıcı adları sadece harfler, numaralar ve ''_'' içerebilir ve bir harfle başlamalıdır."
+    }
   }
 }

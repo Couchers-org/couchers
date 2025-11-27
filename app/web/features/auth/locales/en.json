@@ -240,7 +240,7 @@
     "instructions": {
       "title": "How to Complete Strong Verification",
       "warning": "Important: The passport chip scanning step can be tricky—read all instructions first!",
-      "step1": "Download the <strong>IRIS ID</strong> app",
+      "step1": "Download the <strong>Iris ID</strong> app",
       "step1_apple_note": "<strong>Apple users:</strong> You can skip the download and use your browser instead. Just click \"Open\" when prompted.",
       "step2": "Click <strong>\"Start Strong Verification\"</strong> below (opens in new tab)",
       "step3": "Scan the QR code with your phone",
