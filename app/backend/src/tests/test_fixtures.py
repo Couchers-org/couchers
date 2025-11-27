@@ -24,6 +24,7 @@ from couchers.db import _get_base_engine, session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.interceptors import (
     CouchersMiddlewareInterceptor,
+    UserAuthInfo,
     _try_get_and_update_user_details,
 )
 from couchers.jobs.worker import process_job
@@ -761,20 +762,19 @@ class FakeChannel:
         handler = self.handlers[uri]
 
         def fake_handler(request):
+            auth_info: UserAuthInfo | None = None
             if self._token:
-                user_id, is_jailed, is_editor, is_superuser, token_expiry, ui_language_preference = (
-                    _try_get_and_update_user_details(
-                        self._token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
-                    )
+                auth_info = _try_get_and_update_user_details(
+                    self._token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
                 )
-            else:
-                user_id = None
-                is_jailed = None
-                is_editor = None
-                is_superuser = None
-                ui_language_preference = None
 
-            _check_user_perms(uri, user_id, is_jailed, is_editor, is_superuser)
+            _check_user_perms(
+                uri,
+                auth_info.user_id if auth_info else None,
+                auth_info.is_jailed if auth_info else None,
+                auth_info.is_editor if auth_info else None,
+                auth_info.is_superuser if auth_info else None,
+            )
 
             # Do a full serialization cycle on the request and the
             # response to catch accidental use of unserializable data.
@@ -783,22 +783,13 @@ class FakeChannel:
             with session_scope() as session:
                 mock_grpc_ctx = MockGrpcContext()
 
-                if user_id is not None:
-                    context = make_interactive_context(
-                        grpc_context=mock_grpc_ctx,
-                        user_id=user_id,
-                        is_api_key=False,
-                        token=self._token,
-                        ui_language_preference=ui_language_preference,
-                    )
-                else:
-                    context = make_interactive_context(
-                        grpc_context=mock_grpc_ctx,
-                        user_id=None,
-                        is_api_key=False,
-                        token=None,
-                        ui_language_preference=None,
-                    )
+                context = make_interactive_context(
+                    grpc_context=mock_grpc_ctx,
+                    user_id=auth_info.user_id if auth_info else None,
+                    is_api_key=False,
+                    token=self._token if auth_info else None,
+                    ui_language_preference=auth_info.ui_language_preference if auth_info else None,
+                )
 
                 response = handler.unary_unary(request, context, session)
 

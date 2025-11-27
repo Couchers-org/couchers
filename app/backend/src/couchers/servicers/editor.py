@@ -37,12 +37,12 @@ def load_community_geom(geojson, context):
 
 def generate_new_blog_post_notifications(payload: jobs_pb2.GenerateNewBlogPostNotificationsPayload):
     with session_scope() as session:
-        all_users = session.execute(select(User).where(User.is_visible)).scalars().all()
-        for user in all_users:
-            context = make_background_user_context(user_id=user.id)
+        all_users_ids = session.execute(select(User.id).where(User.is_visible)).scalars().all()
+        for user_id in all_users_ids:
+            context = make_background_user_context(user_id=user_id)
             notify(
                 session,
-                user_id=user.id,
+                user_id=user_id,
                 topic_action="general:new_blog_post",
                 data=notification_data_pb2.GeneralNewBlogPost(
                     url=payload.url,
