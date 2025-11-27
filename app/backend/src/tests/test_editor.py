@@ -2,7 +2,10 @@ import grpc
 import pytest
 
 from couchers.db import session_scope
-from couchers.models import Cluster
+from couchers.models import (
+    Cluster,
+    Node,
+)
 from couchers.proto import editor_pb2
 from couchers.sql import couchers_select as select
 from tests.test_fixtures import db, generate_user, real_editor_session, testconfig  # noqa
@@ -25,12 +28,16 @@ VALID_GEOJSON_MULTIPOLYGON = """
               40.7470284264813
             ],
             [
-              -73.98105322729447,
-              40.74667459710062
+              -73.98314135177611,
+              40.73416844413217
             ],
             [
-              -73.98087614028933,
-              40.74682307877878
+              -74.00538969848634,
+              40.734314779027144
+            ],
+            [
+              -74.00479214294432,
+              40.75027851544338
             ],
             [
               -73.98114904754641,
@@ -86,10 +93,10 @@ def test_access_by_editor_user(db):
 
 def test_access_by_superuser(db):
     """Superusers (who are also editors) should be able to access editor APIs"""
-    super_user, super_token = generate_user(is_superuser=True)
+    editor_user, editor_token = generate_user(is_editor=True)
 
     with session_scope() as session:
-        with real_editor_session(super_token) as api:
+        with real_editor_session(editor_token) as api:
             api.CreateCommunity(
                 editor_pb2.CreateCommunityReq(
                     name="test community",
@@ -207,3 +214,66 @@ def test_UpdateCommunity(db):
             assert community_updated.name == "test community updated"
             assert community_updated.description == "community for testing updated"
             assert community_updated.slug == "test-community-updated"
+
+
+def test_CreateCommunity(db):
+    with session_scope() as session:
+        editor_user, editor_token = generate_user(is_editor=True)
+        normal_user, normal_token = generate_user()
+        with real_editor_session(editor_token) as api:
+            api.CreateCommunity(
+                editor_pb2.CreateCommunityReq(
+                    name="test community",
+                    description="community for testing",
+                    admin_ids=[],
+                    geojson=VALID_GEOJSON_MULTIPOLYGON,
+                )
+            )
+            community = session.execute(select(Cluster).where(Cluster.name == "test community")).scalar_one()
+            assert community.description == "community for testing"
+            assert community.slug == "test-community"
+
+
+def test_UpdateCommunity2(db):
+    editor_user, editor_token = generate_user(is_editor=True)
+
+    with session_scope() as session:
+        with real_editor_session(editor_token) as api:
+            api.CreateCommunity(
+                editor_pb2.CreateCommunityReq(
+                    name="test community",
+                    description="community for testing",
+                    admin_ids=[],
+                    geojson=VALID_GEOJSON_MULTIPOLYGON,
+                )
+            )
+            community = session.execute(select(Cluster).where(Cluster.name == "test community")).scalar_one()
+            assert community.description == "community for testing"
+
+            api.CreateCommunity(
+                editor_pb2.CreateCommunityReq(
+                    name="test community 2",
+                    description="community for testing 2",
+                    admin_ids=[],
+                    geojson=VALID_GEOJSON_MULTIPOLYGON,
+                )
+            )
+            community_2 = session.execute(select(Cluster).where(Cluster.name == "test community 2")).scalar_one()
+
+            api.UpdateCommunity(
+                editor_pb2.UpdateCommunityReq(
+                    community_id=community.parent_node_id,
+                    name="test community 2",
+                    description="community for testing 2",
+                    geojson=VALID_GEOJSON_MULTIPOLYGON,
+                    parent_node_id=community_2.parent_node_id,
+                )
+            )
+            session.commit()
+
+            community_updated = session.execute(select(Cluster).where(Cluster.id == community.id)).scalar_one()
+            assert community_updated.description == "community for testing 2"
+            assert community_updated.slug == "test-community-2"
+
+            node_updated = session.execute(select(Node).where(Node.id == community_updated.parent_node_id)).scalar_one()
+            assert node_updated.parent_node_id == community_2.parent_node_id
