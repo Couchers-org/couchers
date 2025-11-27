@@ -12,14 +12,16 @@ from couchers.context import make_background_user_context
 from couchers.db import session_scope
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
+from couchers.materialized_views import LiteUser
 from couchers.models import EventCommunityInviteRequest, Node, User, Volunteer
 from couchers.notifications.notify import notify
 from couchers.proto import editor_pb2, editor_pb2_grpc, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
+from couchers.resources import get_static_badge_dict
 from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import get_users_to_notify_for_new_event
 from couchers.sql import couchers_select as select
-from couchers.utils import now, parse_date
+from couchers.utils import date_to_api, now, parse_date
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +35,39 @@ def load_community_geom(geojson, context):
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "no_multipolygon")
 
     return geom
+
+
+def volunteer_to_pb(session, volunteer: Volunteer) -> editor_pb2.Volunteer:
+    """Convert a Volunteer model to the editor protobuf message."""
+    lite_user = session.execute(select(LiteUser).where(LiteUser.id == volunteer.user_id)).scalar_one()
+    board_members = set(get_static_badge_dict()["board_member"])
+
+    # Format volunteer link
+    if volunteer.link_type:
+        link_type = volunteer.link_type
+        link_text = volunteer.link_text
+        link_url = volunteer.link_url
+    else:
+        link_type = "couchers"
+        link_text = f"@{lite_user.username}"
+        link_url = urls.user_link(username=lite_user.username)
+
+    return editor_pb2.Volunteer(
+        user_id=volunteer.user_id,
+        name=volunteer.display_name or lite_user.name,
+        username=lite_user.username,
+        is_board_member=lite_user.id in board_members,
+        role=volunteer.role,
+        location=volunteer.display_location or lite_user.city,
+        img=urls.media_url(filename=lite_user.avatar_filename, size="thumbnail") if lite_user.avatar_filename else None,
+        sort_key=volunteer.sort_key,
+        started_volunteering=date_to_api(volunteer.started_volunteering),
+        stopped_volunteering=date_to_api(volunteer.stopped_volunteering) if volunteer.stopped_volunteering else None,
+        show_on_team_page=volunteer.show_on_team_page,
+        link_type=link_type,
+        link_text=link_text,
+        link_url=link_url,
+    )
 
 
 def generate_new_blog_post_notifications(payload: jobs_pb2.GenerateNewBlogPostNotificationsPayload):
@@ -202,8 +237,9 @@ class Editor(editor_pb2_grpc.EditorServicer):
             show_on_team_page=not request.hide_on_team_page,
         )
         session.add(volunteer)
+        session.flush()
 
-        return empty_pb2.Empty()
+        return volunteer_to_pb(session, volunteer)
 
     def UpdateVolunteer(self, request, context, session):
         # Check if volunteer exists
@@ -237,4 +273,27 @@ class Editor(editor_pb2_grpc.EditorServicer):
         if request.HasField("show_on_team_page"):
             volunteer.show_on_team_page = request.show_on_team_page.value
 
-        return empty_pb2.Empty()
+        session.flush()
+
+        return volunteer_to_pb(session, volunteer)
+
+    def ListVolunteers(self, request, context, session):
+        # Query volunteers
+        query = select(Volunteer).join(LiteUser, LiteUser.id == Volunteer.user_id).where(LiteUser.is_visible)
+
+        # Filter based on include_past flag
+        if not request.include_past:
+            query = query.where(Volunteer.stopped_volunteering.is_(None))
+
+        # Order by same criteria as public API
+        query = query.order_by(
+            Volunteer.sort_key.asc().nulls_last(),
+            Volunteer.stopped_volunteering.desc().nulls_first(),
+            Volunteer.started_volunteering.asc(),
+        )
+
+        volunteers = session.execute(query).scalars().all()
+
+        return editor_pb2.ListVolunteersRes(
+            volunteers=[volunteer_to_pb(session, volunteer) for volunteer in volunteers]
+        )

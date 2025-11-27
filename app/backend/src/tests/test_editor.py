@@ -3,6 +3,7 @@ import pytest
 from google.protobuf.wrappers_pb2 import BoolValue, DoubleValue, StringValue
 
 from couchers.db import session_scope
+from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import (
     Cluster,
     Node,
@@ -286,9 +287,10 @@ def test_MakeUserVolunteer(db):
     editor_user, editor_token = generate_user(is_editor=True)
     normal_user, normal_token = generate_user()
 
+    refresh_materialized_views_rapid(None)
     with session_scope() as session:
         with real_editor_session(editor_token) as api:
-            api.MakeUserVolunteer(
+            res = api.MakeUserVolunteer(
                 editor_pb2.MakeUserVolunteerReq(
                     user_id=normal_user.id,
                     role="Test Volunteer",
@@ -296,6 +298,14 @@ def test_MakeUserVolunteer(db):
                     hide_on_team_page=False,
                 )
             )
+
+            # Check response
+            assert res.user_id == normal_user.id
+            assert res.role == "Test Volunteer"
+            assert res.started_volunteering == "2024-01-15"
+            assert res.show_on_team_page is True
+            assert res.username == normal_user.username
+            assert res.name == normal_user.name
 
             volunteer = session.execute(select(Volunteer).where(Volunteer.user_id == normal_user.id)).scalar_one()
             assert volunteer.role == "Test Volunteer"
@@ -308,6 +318,7 @@ def test_MakeUserVolunteer_default_values(db):
     editor_user, editor_token = generate_user(is_editor=True)
     normal_user, normal_token = generate_user()
 
+    refresh_materialized_views_rapid(None)
     with session_scope() as session:
         with real_editor_session(editor_token) as api:
             api.MakeUserVolunteer(
@@ -328,6 +339,7 @@ def test_MakeUserVolunteer_hide_on_team_page(db):
     editor_user, editor_token = generate_user(is_editor=True)
     normal_user, normal_token = generate_user()
 
+    refresh_materialized_views_rapid(None)
     with session_scope() as session:
         with real_editor_session(editor_token) as api:
             api.MakeUserVolunteer(
@@ -364,6 +376,7 @@ def test_MakeUserVolunteer_already_volunteer(db):
     editor_user, editor_token = generate_user(is_editor=True)
     normal_user, normal_token = generate_user()
 
+    refresh_materialized_views_rapid(None)
     with real_editor_session(editor_token) as api:
         # Create volunteer first time
         api.MakeUserVolunteer(
@@ -408,6 +421,7 @@ def test_UpdateVolunteer(db):
     editor_user, editor_token = generate_user(is_editor=True)
     normal_user, normal_token = generate_user()
 
+    refresh_materialized_views_rapid(None)
     with session_scope() as session:
         with real_editor_session(editor_token) as api:
             # Create volunteer first
@@ -419,7 +433,7 @@ def test_UpdateVolunteer(db):
             )
 
             # Update volunteer
-            api.UpdateVolunteer(
+            res = api.UpdateVolunteer(
                 editor_pb2.UpdateVolunteerReq(
                     user_id=normal_user.id,
                     role=StringValue(value="Updated Volunteer"),
@@ -429,6 +443,15 @@ def test_UpdateVolunteer(db):
                     show_on_team_page=BoolValue(value=False),
                 )
             )
+
+            # Check response
+            assert res.user_id == normal_user.id
+            assert res.role == "Updated Volunteer"
+            assert res.sort_key == 10.5
+            assert res.started_volunteering == "2023-06-01"
+            assert res.stopped_volunteering == "2024-12-31"
+            assert res.show_on_team_page is False
+            assert res.username == normal_user.username
 
             volunteer = session.execute(select(Volunteer).where(Volunteer.user_id == normal_user.id)).scalar_one()
             assert volunteer.role == "Updated Volunteer"
@@ -443,6 +466,7 @@ def test_UpdateVolunteer_partial_update(db):
     editor_user, editor_token = generate_user(is_editor=True)
     normal_user, normal_token = generate_user()
 
+    refresh_materialized_views_rapid(None)
     with session_scope() as session:
         with real_editor_session(editor_token) as api:
             # Create volunteer first
@@ -490,6 +514,7 @@ def test_UpdateVolunteer_invalid_started_date(db):
     editor_user, editor_token = generate_user(is_editor=True)
     normal_user, normal_token = generate_user()
 
+    refresh_materialized_views_rapid(None)
     with real_editor_session(editor_token) as api:
         # Create volunteer first
         api.MakeUserVolunteer(
@@ -516,6 +541,7 @@ def test_UpdateVolunteer_invalid_stopped_date(db):
     editor_user, editor_token = generate_user(is_editor=True)
     normal_user, normal_token = generate_user()
 
+    refresh_materialized_views_rapid(None)
     with real_editor_session(editor_token) as api:
         # Create volunteer first
         api.MakeUserVolunteer(
@@ -535,3 +561,139 @@ def test_UpdateVolunteer_invalid_stopped_date(db):
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == "Invalid end date for volunteering."
+
+
+def test_ListVolunteers(db):
+    """ListVolunteers should return all current volunteers"""
+    editor_user, editor_token = generate_user(is_editor=True)
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+
+    refresh_materialized_views_rapid(None)
+    with session_scope() as session:
+        with real_editor_session(editor_token) as api:
+            # Create three volunteers
+            api.MakeUserVolunteer(
+                editor_pb2.MakeUserVolunteerReq(
+                    user_id=user1.id,
+                    role="Volunteer 1",
+                    started_volunteering="2024-01-15",
+                )
+            )
+            api.MakeUserVolunteer(
+                editor_pb2.MakeUserVolunteerReq(
+                    user_id=user2.id,
+                    role="Volunteer 2",
+                    started_volunteering="2023-06-01",
+                )
+            )
+            api.MakeUserVolunteer(
+                editor_pb2.MakeUserVolunteerReq(
+                    user_id=user3.id,
+                    role="Volunteer 3",
+                    started_volunteering="2024-03-20",
+                )
+            )
+
+            # List volunteers (only current ones by default)
+            res = api.ListVolunteers(editor_pb2.ListVolunteersReq(include_past=False))
+
+            assert len(res.volunteers) == 3
+            user_ids = {v.user_id for v in res.volunteers}
+            assert user_ids == {user1.id, user2.id, user3.id}
+
+            # Check that all fields are populated
+            for volunteer in res.volunteers:
+                assert volunteer.user_id > 0
+                assert volunteer.role != ""
+                assert volunteer.username != ""
+                assert volunteer.name != ""
+                assert volunteer.started_volunteering != ""
+                assert volunteer.show_on_team_page is True
+
+
+def test_ListVolunteers_with_past(db):
+    """ListVolunteers should include past volunteers when requested"""
+    editor_user, editor_token = generate_user(is_editor=True)
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+
+    refresh_materialized_views_rapid(None)
+    with session_scope() as session:
+        with real_editor_session(editor_token) as api:
+            # Create current volunteer
+            api.MakeUserVolunteer(
+                editor_pb2.MakeUserVolunteerReq(
+                    user_id=user1.id,
+                    role="Current Volunteer",
+                )
+            )
+
+            # Create past volunteer
+            api.MakeUserVolunteer(
+                editor_pb2.MakeUserVolunteerReq(
+                    user_id=user2.id,
+                    role="Past Volunteer",
+                )
+            )
+            api.UpdateVolunteer(
+                editor_pb2.UpdateVolunteerReq(
+                    user_id=user2.id,
+                    stopped_volunteering=StringValue(value="2024-06-30"),
+                )
+            )
+
+            # List only current volunteers
+            res = api.ListVolunteers(editor_pb2.ListVolunteersReq(include_past=False))
+            assert len(res.volunteers) == 1
+            assert res.volunteers[0].user_id == user1.id
+            assert not res.volunteers[0].HasField("stopped_volunteering")
+
+            # List all volunteers (including past)
+            res_with_past = api.ListVolunteers(editor_pb2.ListVolunteersReq(include_past=True))
+            assert len(res_with_past.volunteers) == 2
+            user_ids = {v.user_id for v in res_with_past.volunteers}
+            assert user_ids == {user1.id, user2.id}
+
+            # Find the past volunteer and verify stopped_volunteering is set
+            past_volunteer = next(v for v in res_with_past.volunteers if v.user_id == user2.id)
+            assert past_volunteer.stopped_volunteering == "2024-06-30"
+
+
+def test_ListVolunteers_ordering(db):
+    """ListVolunteers should respect sort_key ordering"""
+    editor_user, editor_token = generate_user(is_editor=True)
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+
+    refresh_materialized_views_rapid(None)
+    with session_scope() as session:
+        with real_editor_session(editor_token) as api:
+            # Create volunteers with different sort keys
+            api.MakeUserVolunteer(editor_pb2.MakeUserVolunteerReq(user_id=user1.id, role="Volunteer 1"))
+            api.UpdateVolunteer(editor_pb2.UpdateVolunteerReq(user_id=user1.id, sort_key=DoubleValue(value=30.0)))
+
+            api.MakeUserVolunteer(editor_pb2.MakeUserVolunteerReq(user_id=user2.id, role="Volunteer 2"))
+            api.UpdateVolunteer(editor_pb2.UpdateVolunteerReq(user_id=user2.id, sort_key=DoubleValue(value=10.0)))
+
+            api.MakeUserVolunteer(editor_pb2.MakeUserVolunteerReq(user_id=user3.id, role="Volunteer 3"))
+            api.UpdateVolunteer(editor_pb2.UpdateVolunteerReq(user_id=user3.id, sort_key=DoubleValue(value=20.0)))
+
+            # List volunteers - should be ordered by sort_key ascending
+            res = api.ListVolunteers(editor_pb2.ListVolunteersReq(include_past=False))
+            assert len(res.volunteers) == 3
+            assert res.volunteers[0].user_id == user2.id  # sort_key 10.0
+            assert res.volunteers[1].user_id == user3.id  # sort_key 20.0
+            assert res.volunteers[2].user_id == user1.id  # sort_key 30.0
+
+
+def test_ListVolunteers_empty(db):
+    """ListVolunteers should return empty list when no volunteers exist"""
+    editor_user, editor_token = generate_user(is_editor=True)
+
+    refresh_materialized_views_rapid(None)
+    with real_editor_session(editor_token) as api:
+        res = api.ListVolunteers(editor_pb2.ListVolunteersReq(include_past=False))
+        assert len(res.volunteers) == 0

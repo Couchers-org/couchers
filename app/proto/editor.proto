@@ -21,9 +21,11 @@ service Editor {
 
   rpc SendBlogPostNotification(SendBlogPostNotificationReq) returns (google.protobuf.Empty) {}
 
-  rpc MakeUserVolunteer(MakeUserVolunteerReq) returns (google.protobuf.Empty) {}
+  rpc MakeUserVolunteer(MakeUserVolunteerReq) returns (Volunteer) {}
 
-  rpc UpdateVolunteer(UpdateVolunteerReq) returns (google.protobuf.Empty) {}
+  rpc UpdateVolunteer(UpdateVolunteerReq) returns (Volunteer) {}
+
+  rpc ListVolunteers(ListVolunteersReq) returns (ListVolunteersRes) {}
 }
 
 message CreateCommunityReq {
@@ -96,4 +98,42 @@ message UpdateVolunteerReq {
   google.protobuf.StringValue started_volunteering = 4;
   google.protobuf.StringValue stopped_volunteering = 5;
   google.protobuf.BoolValue show_on_team_page = 6;
+}
+
+message ListVolunteersReq {
+  // if true, include past volunteers (where stopped_volunteering is set)
+  bool include_past = 1;
+}
+
+message Volunteer {
+  int64 user_id = 1;
+  // display name
+  string name = 2;
+  // couchers username
+  string username = 3;
+  // whether the user is a board member (and director)
+  bool is_board_member = 4;
+  // volunteer defined role
+  string role = 5;
+  // location from profile
+  string location = 6;
+  // avatar from profile
+  string img = 7;
+  // custom sort order on team page, sorted ascending
+  optional double sort_key = 8;
+  // dates as "yyyy-mm-dd"
+  string started_volunteering = 9;
+  // dates as "yyyy-mm-dd"
+  optional string stopped_volunteering = 10;
+  bool show_on_team_page = 11;
+  // link type, one of couchers, email, linkedin, website
+  optional string link_type = 12;
+  // the text to be shown on the link
+  optional string link_text = 13;
+  // the URL the link should take you to
+  optional string link_url = 14;
+}
+
+message ListVolunteersRes {
+  repeated Volunteer volunteers = 1;
 }
