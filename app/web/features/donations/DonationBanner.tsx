@@ -3,11 +3,14 @@ import { Alert, alpha, Button, styled } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
+import { usePersistedState } from "platform/usePersistedState";
 import React, { useEffect, useState } from "react";
 import { donationsRoute } from "routes";
 import { theme } from "theme";
 
 import useAccountInfo from "../auth/useAccountInfo";
+
+const TIME_BETWEEN_NAGS_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 const Wrapper = styled("div")(({ theme }) => ({
   display: "flex",
@@ -26,6 +29,10 @@ export function DonationBanner() {
   const { t } = useTranslation(GLOBAL);
   const router = useRouter();
 
+  // the epoch value of the last time this banner was dismissed
+  const [lastDismissedEpoch, setLastDismissedEpoch] = usePersistedState<
+    number | null
+  >("donation_banner.dismissed", null);
   const [bannerVisible, setBannerVisible] = useState<boolean>(false);
 
   const { data: accountInfo, isLoading: isAccountInfoLoading } =
@@ -33,13 +40,17 @@ export function DonationBanner() {
 
   useEffect(() => {
     if (!isAccountInfoLoading && accountInfo?.shouldShowDonationBanner) {
-      setBannerVisible(true);
+      setBannerVisible(
+        !lastDismissedEpoch ||
+          new Date().getTime() - lastDismissedEpoch > TIME_BETWEEN_NAGS_MS,
+      );
     } else {
       setBannerVisible(false);
     }
-  }, [isAccountInfoLoading, accountInfo]);
+  }, [isAccountInfoLoading, accountInfo, lastDismissedEpoch]);
 
   const handleClose = () => {
+    setLastDismissedEpoch(new Date().getTime());
     setBannerVisible(false);
   };
 
