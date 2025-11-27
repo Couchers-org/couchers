@@ -3,6 +3,7 @@ syntax = "proto3";
 package org.couchers.editor;
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
 
 import "annotations.proto";
 import "communities.proto";
@@ -19,6 +20,10 @@ service Editor {
   rpc DecideEventCommunityInviteRequest(DecideEventCommunityInviteRequestReq) returns (DecideEventCommunityInviteRequestRes) {}
 
   rpc SendBlogPostNotification(SendBlogPostNotificationReq) returns (google.protobuf.Empty) {}
+
+  rpc MakeUserVolunteer(MakeUserVolunteerReq) returns (google.protobuf.Empty) {}
+
+  rpc UpdateVolunteer(UpdateVolunteerReq) returns (google.protobuf.Empty) {}
 }
 
 message CreateCommunityReq {
@@ -72,4 +77,23 @@ message SendBlogPostNotificationReq {
   string url = 1;
   string title = 2;
   string blurb = 3;
+}
+
+message MakeUserVolunteerReq {
+  int64 user_id = 1;
+  string role = 2;
+  // date as "yyyy-mm-dd", defaults to today if not provided
+  string started_volunteering = 3;
+  // defaults to false (i.e., show on team page by default)
+  bool hide_on_team_page = 4;
+}
+
+message UpdateVolunteerReq {
+  int64 user_id = 1;
+  google.protobuf.StringValue role = 2;
+  google.protobuf.DoubleValue sort_key = 3;
+  // dates as "yyyy-mm-dd"
+  google.protobuf.StringValue started_volunteering = 4;
+  google.protobuf.StringValue stopped_volunteering = 5;
+  google.protobuf.BoolValue show_on_team_page = 6;
 }

@@ -12,14 +12,14 @@ from couchers.context import make_background_user_context
 from couchers.db import session_scope
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
-from couchers.models import EventCommunityInviteRequest, Node, User
+from couchers.models import EventCommunityInviteRequest, Node, User, Volunteer
 from couchers.notifications.notify import notify
 from couchers.proto import editor_pb2, editor_pb2_grpc, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import get_users_to_notify_for_new_event
 from couchers.sql import couchers_select as select
-from couchers.utils import now
+from couchers.utils import now, parse_date
 
 logger = logging.getLogger(__name__)
 
@@ -172,4 +172,72 @@ class Editor(editor_pb2_grpc.EditorServicer):
                 blurb=request.blurb,
             ),
         )
+        return empty_pb2.Empty()
+
+    def MakeUserVolunteer(self, request, context, session):
+        # Check if user exists
+        user = session.execute(select(User).where(User.id == request.user_id)).scalar_one_or_none()
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+
+        # Check if user is already a volunteer
+        existing_volunteer = session.execute(
+            select(Volunteer).where(Volunteer.user_id == request.user_id)
+        ).scalar_one_or_none()
+        if existing_volunteer:
+            context.abort_with_error_code(grpc.StatusCode.ALREADY_EXISTS, "user_already_volunteer")
+
+        # Parse started_volunteering date
+        started_volunteering = None
+        if request.started_volunteering:
+            started_volunteering = parse_date(request.started_volunteering)
+            if not started_volunteering:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_started_volunteering_date")
+
+        # Create volunteer record
+        volunteer = Volunteer(
+            user_id=request.user_id,
+            role=request.role,
+            started_volunteering=started_volunteering,
+            show_on_team_page=not request.hide_on_team_page,
+        )
+        session.add(volunteer)
+        session.flush()
+
+        return empty_pb2.Empty()
+
+    def UpdateVolunteer(self, request, context, session):
+        # Check if volunteer exists
+        volunteer = session.execute(select(Volunteer).where(Volunteer.user_id == request.user_id)).scalar_one_or_none()
+        if not volunteer:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "volunteer_not_found")
+
+        # Update role if provided
+        if request.HasField("role"):
+            volunteer.role = request.role.value
+
+        # Update sort_key if provided
+        if request.HasField("sort_key"):
+            volunteer.sort_key = request.sort_key.value
+
+        # Update started_volunteering if provided
+        if request.HasField("started_volunteering"):
+            started_volunteering = parse_date(request.started_volunteering.value)
+            if not started_volunteering:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_started_volunteering_date")
+            volunteer.started_volunteering = started_volunteering
+
+        # Update stopped_volunteering if provided
+        if request.HasField("stopped_volunteering"):
+            stopped_volunteering = parse_date(request.stopped_volunteering.value)
+            if not stopped_volunteering:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_stopped_volunteering_date")
+            volunteer.stopped_volunteering = stopped_volunteering
+
+        # Update show_on_team_page if provided
+        if request.HasField("show_on_team_page"):
+            volunteer.show_on_team_page = request.show_on_team_page.value
+
+        session.flush()
+
         return empty_pb2.Empty()

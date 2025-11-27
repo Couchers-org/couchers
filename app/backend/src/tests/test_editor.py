@@ -1,10 +1,12 @@
 import grpc
 import pytest
+from google.protobuf.wrappers_pb2 import BoolValue, DoubleValue, StringValue
 
 from couchers.db import session_scope
 from couchers.models import (
     Cluster,
     Node,
+    Volunteer,
 )
 from couchers.proto import editor_pb2
 from couchers.sql import couchers_select as select
@@ -277,3 +279,259 @@ def test_UpdateCommunity2(db):
 
             node_updated = session.execute(select(Node).where(Node.id == community_updated.parent_node_id)).scalar_one()
             assert node_updated.parent_node_id == community_2.parent_node_id
+
+
+def test_MakeUserVolunteer(db):
+    """MakeUserVolunteer should successfully create a volunteer"""
+    editor_user, editor_token = generate_user(is_editor=True)
+    normal_user, normal_token = generate_user()
+
+    with session_scope() as session:
+        with real_editor_session(editor_token) as api:
+            api.MakeUserVolunteer(
+                editor_pb2.MakeUserVolunteerReq(
+                    user_id=normal_user.id,
+                    role="Test Volunteer",
+                    started_volunteering="2024-01-15",
+                    hide_on_team_page=False,
+                )
+            )
+
+            volunteer = session.execute(select(Volunteer).where(Volunteer.user_id == normal_user.id)).scalar_one()
+            assert volunteer.role == "Test Volunteer"
+            assert volunteer.started_volunteering.isoformat() == "2024-01-15"
+            assert volunteer.show_on_team_page is True
+
+
+def test_MakeUserVolunteer_default_values(db):
+    """MakeUserVolunteer should use default values when not provided"""
+    editor_user, editor_token = generate_user(is_editor=True)
+    normal_user, normal_token = generate_user()
+
+    with session_scope() as session:
+        with real_editor_session(editor_token) as api:
+            api.MakeUserVolunteer(
+                editor_pb2.MakeUserVolunteerReq(
+                    user_id=normal_user.id,
+                    role="Test Volunteer",
+                )
+            )
+
+            volunteer = session.execute(select(Volunteer).where(Volunteer.user_id == normal_user.id)).scalar_one()
+            assert volunteer.role == "Test Volunteer"
+            assert volunteer.started_volunteering is not None  # defaults to today
+            assert volunteer.show_on_team_page is True  # hide_on_team_page defaults to False
+
+
+def test_MakeUserVolunteer_hide_on_team_page(db):
+    """MakeUserVolunteer should respect hide_on_team_page=True"""
+    editor_user, editor_token = generate_user(is_editor=True)
+    normal_user, normal_token = generate_user()
+
+    with session_scope() as session:
+        with real_editor_session(editor_token) as api:
+            api.MakeUserVolunteer(
+                editor_pb2.MakeUserVolunteerReq(
+                    user_id=normal_user.id,
+                    role="Test Volunteer",
+                    hide_on_team_page=True,
+                )
+            )
+
+            volunteer = session.execute(select(Volunteer).where(Volunteer.user_id == normal_user.id)).scalar_one()
+            assert volunteer.role == "Test Volunteer"
+            assert volunteer.show_on_team_page is False  # hide_on_team_page=True means don't show
+
+
+def test_MakeUserVolunteer_user_not_found(db):
+    """MakeUserVolunteer should fail if user doesn't exist"""
+    editor_user, editor_token = generate_user(is_editor=True)
+
+    with real_editor_session(editor_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.MakeUserVolunteer(
+                editor_pb2.MakeUserVolunteerReq(
+                    user_id=999999,
+                    role="Test Volunteer",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Couldn't find that user."
+
+
+def test_MakeUserVolunteer_already_volunteer(db):
+    """MakeUserVolunteer should fail if user is already a volunteer"""
+    editor_user, editor_token = generate_user(is_editor=True)
+    normal_user, normal_token = generate_user()
+
+    with real_editor_session(editor_token) as api:
+        # Create volunteer first time
+        api.MakeUserVolunteer(
+            editor_pb2.MakeUserVolunteerReq(
+                user_id=normal_user.id,
+                role="Test Volunteer",
+            )
+        )
+
+        # Try to create again
+        with pytest.raises(grpc.RpcError) as e:
+            api.MakeUserVolunteer(
+                editor_pb2.MakeUserVolunteerReq(
+                    user_id=normal_user.id,
+                    role="Test Volunteer 2",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.ALREADY_EXISTS
+        assert e.value.details() == "This user is already a volunteer."
+
+
+def test_MakeUserVolunteer_invalid_date(db):
+    """MakeUserVolunteer should fail with invalid date format"""
+    editor_user, editor_token = generate_user(is_editor=True)
+    normal_user, normal_token = generate_user()
+
+    with real_editor_session(editor_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.MakeUserVolunteer(
+                editor_pb2.MakeUserVolunteerReq(
+                    user_id=normal_user.id,
+                    role="Test Volunteer",
+                    started_volunteering="invalid-date",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Invalid started_volunteering date."
+
+
+def test_UpdateVolunteer(db):
+    """UpdateVolunteer should successfully update volunteer fields"""
+    editor_user, editor_token = generate_user(is_editor=True)
+    normal_user, normal_token = generate_user()
+
+    with session_scope() as session:
+        with real_editor_session(editor_token) as api:
+            # Create volunteer first
+            api.MakeUserVolunteer(
+                editor_pb2.MakeUserVolunteerReq(
+                    user_id=normal_user.id,
+                    role="Test Volunteer",
+                )
+            )
+
+            # Update volunteer
+            api.UpdateVolunteer(
+                editor_pb2.UpdateVolunteerReq(
+                    user_id=normal_user.id,
+                    role=StringValue(value="Updated Volunteer"),
+                    sort_key=DoubleValue(value=10.5),
+                    started_volunteering=StringValue(value="2023-06-01"),
+                    stopped_volunteering=StringValue(value="2024-12-31"),
+                    show_on_team_page=BoolValue(value=False),
+                )
+            )
+
+            volunteer = session.execute(select(Volunteer).where(Volunteer.user_id == normal_user.id)).scalar_one()
+            assert volunteer.role == "Updated Volunteer"
+            assert volunteer.sort_key == 10.5
+            assert volunteer.started_volunteering.isoformat() == "2023-06-01"
+            assert volunteer.stopped_volunteering.isoformat() == "2024-12-31"
+            assert volunteer.show_on_team_page is False
+
+
+def test_UpdateVolunteer_partial_update(db):
+    """UpdateVolunteer should only update provided fields"""
+    editor_user, editor_token = generate_user(is_editor=True)
+    normal_user, normal_token = generate_user()
+
+    with session_scope() as session:
+        with real_editor_session(editor_token) as api:
+            # Create volunteer first
+            api.MakeUserVolunteer(
+                editor_pb2.MakeUserVolunteerReq(
+                    user_id=normal_user.id,
+                    role="Test Volunteer",
+                    started_volunteering="2024-01-01",
+                )
+            )
+
+            # Update only role
+            api.UpdateVolunteer(
+                editor_pb2.UpdateVolunteerReq(
+                    user_id=normal_user.id,
+                    role=StringValue(value="Updated Role"),
+                )
+            )
+
+            volunteer = session.execute(select(Volunteer).where(Volunteer.user_id == normal_user.id)).scalar_one()
+            assert volunteer.role == "Updated Role"
+            assert volunteer.started_volunteering.isoformat() == "2024-01-01"  # unchanged
+            assert volunteer.show_on_team_page is True  # unchanged
+
+
+def test_UpdateVolunteer_not_found(db):
+    """UpdateVolunteer should fail if volunteer doesn't exist"""
+    editor_user, editor_token = generate_user(is_editor=True)
+    normal_user, normal_token = generate_user()
+
+    with real_editor_session(editor_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateVolunteer(
+                editor_pb2.UpdateVolunteerReq(
+                    user_id=normal_user.id,
+                    role=StringValue(value="Updated Volunteer"),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Volunteer not found."
+
+
+def test_UpdateVolunteer_invalid_started_date(db):
+    """UpdateVolunteer should fail with invalid started_volunteering date"""
+    editor_user, editor_token = generate_user(is_editor=True)
+    normal_user, normal_token = generate_user()
+
+    with real_editor_session(editor_token) as api:
+        # Create volunteer first
+        api.MakeUserVolunteer(
+            editor_pb2.MakeUserVolunteerReq(
+                user_id=normal_user.id,
+                role="Test Volunteer",
+            )
+        )
+
+        # Try to update with invalid date
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateVolunteer(
+                editor_pb2.UpdateVolunteerReq(
+                    user_id=normal_user.id,
+                    started_volunteering=StringValue(value="invalid-date"),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Invalid started_volunteering date."
+
+
+def test_UpdateVolunteer_invalid_stopped_date(db):
+    """UpdateVolunteer should fail with invalid stopped_volunteering date"""
+    editor_user, editor_token = generate_user(is_editor=True)
+    normal_user, normal_token = generate_user()
+
+    with real_editor_session(editor_token) as api:
+        # Create volunteer first
+        api.MakeUserVolunteer(
+            editor_pb2.MakeUserVolunteerReq(
+                user_id=normal_user.id,
+                role="Test Volunteer",
+            )
+        )
+
+        # Try to update with invalid date
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateVolunteer(
+                editor_pb2.UpdateVolunteerReq(
+                    user_id=normal_user.id,
+                    stopped_volunteering=StringValue(value="not-a-date"),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Invalid stopped_volunteering date."
