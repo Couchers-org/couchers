@@ -39,6 +39,7 @@ from couchers.models import (
     MessageType,
     PasswordResetToken,
     UserBadge,
+    UserBlock,
 )
 from couchers.proto import conversations_pb2, requests_pb2
 from couchers.sql import couchers_select as select
@@ -1273,8 +1274,6 @@ def test_send_request_notifications_blocked_users_no_notification(db):
     # Also test the reverse direction: surfer sends message to host, host should not get notification
     # First unblock
     with session_scope() as session:
-        from couchers.models import UserBlock
-
         session.execute(delete(UserBlock).execution_options(synchronize_session=False))
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
@@ -1311,8 +1310,8 @@ def test_send_request_notifications_blocked_users_no_notification(db):
 
 def test_send_host_request_reminders_blocked_users_no_notification(db):
     """
-    Regression test: send_host_request_reminders should not send notifications
-    when the host and surfer are not visible to each other (e.g., one blocked the other).
+    send_host_request_reminders should not send notifications when the host and surfer are not visible to each other
+    (e.g., one blocked the other).
     """
     user1, token1 = generate_user(email="user1@couchers.org.invalid", name="User 1")
     user2, token2 = generate_user(email="user2@couchers.org.invalid", name="User 2")
