@@ -15,6 +15,18 @@ const StyledFriendItem = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "flex-start",
   padding: `0 ${theme.spacing(1)}`,
+  [theme.breakpoints.down("md")]: {
+    flexDirection: "column",
+    gap: theme.spacing(1),
+  },
+}));
+
+const ButtonWrapper = styled("div")(({ theme }) => ({
+  [theme.breakpoints.down("md")]: {
+    display: "flex",
+    justifyContent: "flex-end",
+    width: "100%",
+  },
 }));
 
 function FriendSummaryView({
@@ -30,7 +42,7 @@ function FriendSummaryView({
           user={friend}
           isProfileLink={isProfileLink}
         />
-        {children}
+        <ButtonWrapper>{children}</ButtonWrapper>
       </StyledFriendItem>
     </>
   ) : null;
