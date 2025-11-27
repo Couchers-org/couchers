@@ -316,73 +316,104 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
     logger.info("Sending out email notifications for unseen messages in host requests")
 
     with session_scope() as session:
-        # requests where this user is surfing
-        surfing_reqs = session.execute(
-            select(User, HostRequest, func.max(Message.id))
-            .where(User.is_visible)
-            .join(HostRequest, HostRequest.surfer_user_id == User.id)
-            .join(Message, Message.conversation_id == HostRequest.conversation_id)
-            .where(Message.id > HostRequest.surfer_last_seen_message_id)
-            .where(Message.id > User.last_notified_request_message_id)
-            .where(Message.time < now() - timedelta(minutes=5))
-            .where(Message.message_type == MessageType.text)
-            .group_by(User, HostRequest)
-        ).all()
-
-        # where this user is hosting
-        hosting_reqs = session.execute(
-            select(User, HostRequest, func.max(Message.id))
-            .where(User.is_visible)
-            .join(HostRequest, HostRequest.host_user_id == User.id)
-            .join(Message, Message.conversation_id == HostRequest.conversation_id)
-            .where(Message.id > HostRequest.host_last_seen_message_id)
-            .where(Message.id > User.last_notified_request_message_id)
-            .where(Message.time < now() - timedelta(minutes=5))
-            .where(Message.message_type == MessageType.text)
-            .group_by(User, HostRequest)
-        ).all()
-
-        for user, host_request, max_message_id in surfing_reqs:
-            # Skip if users are not visible to each other (e.g., one blocked the other)
-            if is_not_visible(session, user.id, host_request.host_user_id):
-                continue
-
-            user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
-            session.flush()
-
-            context = make_background_user_context(user_id=user.id)
-            notify(
-                session,
-                user_id=user.id,
-                topic_action="host_request:missed_messages",
-                key=host_request.conversation_id,
-                data=notification_data_pb2.HostRequestMissedMessages(
-                    host_request=host_request_to_pb(host_request, session, context),
-                    user=user_model_to_pb(host_request.host, session, context),
-                    am_host=False,
-                ),
+        # Get all candidate users who might have unseen request messages
+        candidate_user_ids = (
+            session.execute(
+                select(User.id)
+                .where(User.is_visible)
+                .where(
+                    or_(
+                        # Users with unseen messages as surfer
+                        exists(
+                            select(1)
+                            .select_from(HostRequest)
+                            .join(Message, Message.conversation_id == HostRequest.conversation_id)
+                            .where(HostRequest.surfer_user_id == User.id)
+                            .where(Message.id > HostRequest.surfer_last_seen_message_id)
+                            .where(Message.id > User.last_notified_request_message_id)
+                            .where(Message.time < now() - timedelta(minutes=5))
+                            .where(Message.message_type == MessageType.text)
+                        ),
+                        # Users with unseen messages as host
+                        exists(
+                            select(1)
+                            .select_from(HostRequest)
+                            .join(Message, Message.conversation_id == HostRequest.conversation_id)
+                            .where(HostRequest.host_user_id == User.id)
+                            .where(Message.id > HostRequest.host_last_seen_message_id)
+                            .where(Message.id > User.last_notified_request_message_id)
+                            .where(Message.time < now() - timedelta(minutes=5))
+                            .where(Message.message_type == MessageType.text)
+                        ),
+                    )
+                )
             )
+            .scalars()
+            .all()
+        )
 
-        for user, host_request, max_message_id in hosting_reqs:
-            # Skip if users are not visible to each other (e.g., one blocked the other)
-            if is_not_visible(session, user.id, host_request.surfer_user_id):
-                continue
+        for user_id in candidate_user_ids:
+            context = make_background_user_context(user_id=user_id)
 
-            user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
-            session.flush()
+            # requests where this user is surfing
+            surfing_reqs = session.execute(
+                select(User, HostRequest, func.max(Message.id))
+                .where(User.id == user_id)
+                .join(HostRequest, HostRequest.surfer_user_id == User.id)
+                .where_users_column_visible(context, HostRequest.host_user_id)
+                .join(Message, Message.conversation_id == HostRequest.conversation_id)
+                .where(Message.id > HostRequest.surfer_last_seen_message_id)
+                .where(Message.id > User.last_notified_request_message_id)
+                .where(Message.time < now() - timedelta(minutes=5))
+                .where(Message.message_type == MessageType.text)
+                .group_by(User, HostRequest)
+            ).all()
 
-            context = make_background_user_context(user_id=user.id)
-            notify(
-                session,
-                user_id=user.id,
-                topic_action="host_request:missed_messages",
-                key=host_request.conversation_id,
-                data=notification_data_pb2.HostRequestMissedMessages(
-                    host_request=host_request_to_pb(host_request, session, context),
-                    user=user_model_to_pb(host_request.surfer, session, context),
-                    am_host=True,
-                ),
-            )
+            # where this user is hosting
+            hosting_reqs = session.execute(
+                select(User, HostRequest, func.max(Message.id))
+                .where(User.id == user_id)
+                .join(HostRequest, HostRequest.host_user_id == User.id)
+                .where_users_column_visible(context, HostRequest.surfer_user_id)
+                .join(Message, Message.conversation_id == HostRequest.conversation_id)
+                .where(Message.id > HostRequest.host_last_seen_message_id)
+                .where(Message.id > User.last_notified_request_message_id)
+                .where(Message.time < now() - timedelta(minutes=5))
+                .where(Message.message_type == MessageType.text)
+                .group_by(User, HostRequest)
+            ).all()
+
+            for user, host_request, max_message_id in surfing_reqs:
+                user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
+                session.flush()
+
+                notify(
+                    session,
+                    user_id=user.id,
+                    topic_action="host_request:missed_messages",
+                    key=host_request.conversation_id,
+                    data=notification_data_pb2.HostRequestMissedMessages(
+                        host_request=host_request_to_pb(host_request, session, context),
+                        user=user_model_to_pb(host_request.host, session, context),
+                        am_host=False,
+                    ),
+                )
+
+            for user, host_request, max_message_id in hosting_reqs:
+                user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
+                session.flush()
+
+                notify(
+                    session,
+                    user_id=user.id,
+                    topic_action="host_request:missed_messages",
+                    key=host_request.conversation_id,
+                    data=notification_data_pb2.HostRequestMissedMessages(
+                        host_request=host_request_to_pb(host_request, session, context),
+                        user=user_model_to_pb(host_request.surfer, session, context),
+                        am_host=True,
+                    ),
+                )
 
 
 send_request_notifications.PAYLOAD = empty_pb2.Empty
