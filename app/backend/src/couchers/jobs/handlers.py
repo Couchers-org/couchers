@@ -82,6 +82,7 @@ from couchers.models import (
     StrongVerificationAttemptStatus,
     User,
     UserBadge,
+    Volunteer,
 )
 from couchers.notifications.background import handle_email_digests, handle_notification, send_raw_push_notification
 from couchers.notifications.notify import notify
@@ -873,6 +874,18 @@ def update_badges(payload: empty_pb2.Empty) -> None:
                 .join(StrongVerificationAttempt, StrongVerificationAttempt.user_id == User.id)
                 .where(StrongVerificationAttempt.has_strong_verification(User))
             )
+            .scalars()
+            .all(),
+        )
+        # volunteer badge for active volunteers (stopped_volunteering is null)
+        update_badge(
+            "volunteer",
+            session.execute(select(Volunteer.user_id).where(Volunteer.stopped_volunteering.is_(None))).scalars().all(),
+        )
+        # past_volunteer badge for past volunteers (stopped_volunteering is not null)
+        update_badge(
+            "past_volunteer",
+            session.execute(select(Volunteer.user_id).where(Volunteer.stopped_volunteering.is_not(None)))
             .scalars()
             .all(),
         )

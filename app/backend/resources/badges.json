@@ -23,12 +23,12 @@
     {
       "id": "volunteer",
       "color": "#00a398",
-      "admin_editable": true
+      "admin_editable": false
     },
     {
       "id": "past_volunteer",
       "color": "#6bc4a6",
-      "admin_editable": true
+      "admin_editable": false
     },
     {
       "id": "donor",
