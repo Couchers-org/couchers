@@ -20,6 +20,7 @@ from couchers.proto.internal import jobs_pb2
 from couchers.resources import get_static_badge_dict
 from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import get_users_to_notify_for_new_event
+from couchers.servicers.public import format_volunteer_link
 from couchers.sql import couchers_select as select
 from couchers.utils import date_to_api, now, parse_date
 
@@ -42,16 +43,6 @@ def volunteer_to_pb(session, volunteer: Volunteer) -> editor_pb2.Volunteer:
     lite_user = session.execute(select(LiteUser).where(LiteUser.id == volunteer.user_id)).scalar_one()
     board_members = set(get_static_badge_dict()["board_member"])
 
-    # Format volunteer link
-    if volunteer.link_type:
-        link_type = volunteer.link_type
-        link_text = volunteer.link_text
-        link_url = volunteer.link_url
-    else:
-        link_type = "couchers"
-        link_text = f"@{lite_user.username}"
-        link_url = urls.user_link(username=lite_user.username)
-
     return editor_pb2.Volunteer(
         user_id=volunteer.user_id,
         name=volunteer.display_name or lite_user.name,
@@ -64,9 +55,7 @@ def volunteer_to_pb(session, volunteer: Volunteer) -> editor_pb2.Volunteer:
         started_volunteering=date_to_api(volunteer.started_volunteering),
         stopped_volunteering=date_to_api(volunteer.stopped_volunteering) if volunteer.stopped_volunteering else None,
         show_on_team_page=volunteer.show_on_team_page,
-        link_type=link_type,
-        link_text=link_text,
-        link_url=link_url,
+        **format_volunteer_link(volunteer, lite_user.username),
     )
 
 

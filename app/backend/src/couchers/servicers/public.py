@@ -9,13 +9,28 @@ from couchers.materialized_views import LiteUser
 from couchers.models import Cluster, Node, ProfilePublicVisibility, Reference, User, Volunteer
 from couchers.proto import api_pb2, public_pb2, public_pb2_grpc
 from couchers.resources import get_static_badge_dict
-from couchers.servicers.account import _format_volunteer_link
 from couchers.servicers.api import fluency2api, hostingstatus2api, meetupstatus2api, user_model_to_pb
 from couchers.servicers.gis import _statement_to_geojson_response
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, make_logged_out_context
 
 logger = logging.getLogger(__name__)
+
+
+def format_volunteer_link(volunteer: Volunteer, username: str) -> dict[str, str]:
+    """Format volunteer link information into a dict with link_type, link_text, and link_url."""
+    if volunteer.link_type:
+        return dict(
+            link_type=volunteer.link_type,
+            link_text=volunteer.link_text,
+            link_url=volunteer.link_url,
+        )
+    else:
+        return dict(
+            link_type="couchers",
+            link_text=f"@{username}",
+            link_url=urls.user_link(username=username),
+        )
 
 
 @cached(cache=TTLCache(maxsize=1, ttl=600), key=lambda _: None)
@@ -91,15 +106,6 @@ def _get_volunteers(session):
     board_members = set(get_static_badge_dict()["board_member"])
 
     def format_volunteer(volunteer, lite_user):
-        if volunteer.link_type:
-            link_type = volunteer.link_type
-            link_text = volunteer.link_text
-            link_url = volunteer.link_url
-        else:
-            link_type = "couchers"
-            link_text = f"@{lite_user.username}"
-            link_url = urls.user_link(username=lite_user.username)
-
         return public_pb2.Volunteer(
             name=volunteer.display_name or lite_user.name,
             username=lite_user.username,
@@ -109,7 +115,7 @@ def _get_volunteers(session):
             img=urls.media_url(filename=lite_user.avatar_filename, size="thumbnail")
             if lite_user.avatar_filename
             else None,
-            **_format_volunteer_link(volunteer, lite_user.username),
+            **format_volunteer_link(volunteer, lite_user.username),
         )
 
     return public_pb2.GetVolunteersRes(
