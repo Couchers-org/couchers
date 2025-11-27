@@ -25,25 +25,29 @@
       "field_label": "Nombre de usuario",
       "required_error": "Introduce tu nombre de usuario",
       "username_taken_error": "Este nombre de usuario ya existe.",
-      "validation_error": "El nombre de usuario sólo puede tener números o _, y debe comenzar con una letra."
+      "validation_error": "El nombre usuario sólo puede contener números o _, y debe comenzar con una letra."
     },
     "birthday": {
       "field_label": "Cumpleaños",
       "required_error": "Introduce tu fecha de nacimiento",
-      "validation_error": "Debe ser una fecha pasada válida."
+      "validation_error": "Debe ser una fecha pasada válida.",
+      "too_young_error": "Debes tener al menos 18 años para utilizar Couchers",
+      "not_real_date_error": "Por favor introduce una fecha de nacimiento real"
     },
     "hosting_status": {
-      "field_label": "Estado de alojamiento",
-      "can_host": "Puede hospedar",
-      "maybe": "Tal vez podría hospedar",
-      "cant_host": "No puede hospedar"
+      "field_label": "Disponibilidad para alojar",
+      "can_host": "Puede alojar",
+      "maybe": "Tal vez podría alojar",
+      "cant_host": "No puedo alojar",
+      "any": "En cualquier momento"
     },
-    "tos_accept_label": "Acepto los términos y condiciones.",
+    "tos_accept_label": "Acepto los Términos y condiciones..",
     "password": {
       "validation_error": "La contraseña debe tener entre 8 y 256 caracteres y no ser extremadamente común.",
       "required_error": "Introduce una contraseña",
       "field_label": "Contraseña"
-    }
+    },
+    "opt_in_newsletter": "Suscríbete a nuestra newsletter ocasional sobre actualizaciones de la comunidad."
   },
   "basic_form": {
     "email": {
@@ -52,7 +56,7 @@
       "required_error": "El correo electrónico no puede estar vacío."
     },
     "name": {
-      "field_label": "Tu nombre",
+      "field_label": "Nombre",
       "empty_error": "Por favor introduce tu nombre",
       "required_error": "El nombre no puede ser sólo espacio en blanco."
     }
@@ -63,7 +67,12 @@
     "password_changed_success": "Se ha establecido tu nueva contraseña y se ha enviado una notificación a tu correo electrónico.",
     "old_password": "Contraseña antigua",
     "new_password": "Nueva contraseña",
-    "password_mismatch_error": "Esto no coincide con la nueva contraseña que has tecleado arriba."
+    "password_mismatch_error": "Esto no coincide con la nueva contraseña que has tecleado arriba.",
+    "token_error": "Hubo un error al procesar el token de restauración de contraseña, por favor intenta abrir el enlace del correo electrónico de nuevo.",
+    "subtitle": "Utiliza este formulario para restaurar la contraseña de inicio de sesión.",
+    "user_logged_error": "No puedes restaurar tu contraseña si tienes una sesión iniciada. Puedes modificar tu contraseña en la configuración o cerrar la sesión para restaurarla.",
+    "reset_password_success": "¡Tu contraseña ha sido modificada correctamente!",
+    "reset_password_error": "Error al restaurar la contraseña: {{message}}"
   },
   "reset_password_form": {
     "enter_email": "Introduce tu usuario/correo electrónico",
@@ -72,7 +81,7 @@
   "login_page": {
     "title": "Iniciar sesión",
     "header": "¡Bienvenido de nuevo!",
-    "no_account_prompt": "¿Aún no tienes una cuenta? <2>Regístrate</2>",
+    "no_account_prompt": "¿Aún no tienes una cuenta? <2>Únete</2>",
     "form": {
       "username_field_label": "Correo electrónico/Nombre de usuario",
       "password_field_label": "Contraseña",
@@ -91,22 +100,37 @@
     "validation_error": "Por favor selecciona una ubicación válida."
   },
   "feedback_form": {
-    "header": "Da tu opinión"
+    "header": "Da tu opinión",
+    "skip_step_text": "¿No te interesa? <2>Saltar este paso</2>"
   },
   "jail": {
     "title": "Se requiere más información",
     "location_section": {
-      "title": "Por favor, añade tu ubicación",
+      "title": "Por favor, actualiza tu ubicación",
       "submit_button": {
         "inactive_text": "¡Gracias!",
         "active_text": "Guardar"
       },
-      "resubmit_button_text": "Reenviar"
+      "resubmit_button_text": "Reenviar",
+      "explanation": "Parece que tus coordenadas no eran correctas. Por favor actualiza tu ubicación para continuar."
     },
     "terms_of_service_section": {
-      "description": "Hemos actualizado nuestros Términos y Condiciones. Para continuar, lee y acepta los nuevos, por favor <1></1>."
+      "description": "Hemos actualizado nuestros Términos y Condiciones. Para continuar, por favor lea y acepte los nuevos <1></1>."
     },
-    "description": "Por favor, comprueba lo siguiente para continuar."
+    "description": "Por favor, comprueba lo siguiente para continuar.",
+    "mod_note_section": {
+      "title": "Has recibido una nota de los moderadores",
+      "description": "Los moderadores te han enviado la siguiente nota. Por favor léela detenidamente y confirma que la has leído y comprendido antes de continuar.",
+      "note_title": "Nota de los moderadores recibida el {{time}}:",
+      "acknowledge": "Admitir la nota"
+    },
+    "activeness_probe": {
+      "title": "¿Todavía sigues abierto a alojar viajeros?",
+      "description": "Hemos observado que no has iniciado sesión ultimamente y queremos comprobar si todavía estas abierto a alojar viajeros.",
+      "still_hosting": "¡Todavía quiero alojar!",
+      "not_hosting": "Ya no puedo alojar.",
+      "note": "¡Actualizaremos tu perfil para reflejar esta decisión!"
+    }
   },
   "jail_set_password_form": {
     "title": "Establecer una contraseña",
@@ -143,18 +167,18 @@
   "community_guidelines_form": {
     "guideline": {
       "checkbox_label": "Entendido",
-      "required_error": "Todas las casillas de verificación son requeridas"
+      "required_error": "Debes marcar todas las casillas"
     },
     "header": "Normas de la comunidad"
   },
   "feature_preview": {
     "explanation": "Esta página te permite probar características que aun están en desarrollo antes de que estén completamente listas para que las utilice todo el mundo.",
     "no_previews": {
-      "title": "No hay características en previsualización en este momento",
-      "explanation": "No hay ninguna característica en vista previa activada, ¡por favor, prueba más tarde!"
+      "title": "Ninguna característica en previsualización ahora mismo",
+      "explanation": "Ninguna característica en previsualización activada, por favor, ¡prueba más tarde!"
     },
     "title": "Previsualización de características",
-    "disclaimer": "Por favor, ten en cuenta que estas características son experimentales. Podrían no funcionar según lo previsto y podrían cambiar rápidamente según las desarrollamos. Siéntete libre de dar tu opinión en nuestro forum. ¡Por favor, reporta cualquier error!"
+    "disclaimer": "Por favor, ten en cuenta que estas características son experimentales. Podrían no funcionar según lo previsto y cambiar rápidamente según las desarrollamos. ¡Siéntete libre de dar tu opinión usando el botón \"Informar de un problema\" para reportar cualquier error!"
   },
   "delete_account": {
     "request": {
@@ -206,7 +230,10 @@
       "no_emails_disabled_message": "Los correos electrónicos están actualmente <1>activados</1> en tu cuenta."
     },
     "action_button": {
-      "no_emails_enable_text": "No quiero recibir correos electrónicos"
-    }
-  }
+      "no_emails_enable_text": "No quiero recibir correos electrónicos",
+      "no_emails_disable_text": "Reactivar correos electrónicos"
+    },
+    "caveat": "Activando este ajuste, tu cuenta será configurada para no aceptar solicitudes de alojamiento. Seguirás recibiendo correos electrónicos de seguridad (como los de reestablecimiento de contraseña). Podrías seguir recibiendo la newsletter, puedes desuscribirte de ella utilizando el enlace al pie de la newsletter."
+  },
+  "sign_up_need_verification_title": "¡Cási hemos terminado, una última cosa!"
 }

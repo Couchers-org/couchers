@@ -4,6 +4,7 @@ import grpc
 import pytest
 from geoalchemy2 import WKBElement
 from google.protobuf import wrappers_pb2
+from sqlalchemy.orm import Session
 
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views
@@ -196,20 +197,16 @@ def create_event(token, community_id, group_id, title, content, start_td):
         )
 
 
-def get_community_id(session, community_name):
-    return (
-        session.execute(select(Cluster).where(Cluster.is_official_cluster).where(Cluster.name == community_name))
-        .scalar_one()
-        .parent_node_id
-    )
+def get_community_id(session: Session, community_name: str) -> int:
+    return session.execute(
+        select(Cluster.parent_node_id).where(Cluster.is_official_cluster).where(Cluster.name == community_name)
+    ).scalar_one()
 
 
-def get_group_id(session, group_name):
-    return (
-        session.execute(select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.name == group_name))
-        .scalar_one()
-        .id
-    )
+def get_group_id(session: Session, group_name: str) -> int:
+    return session.execute(
+        select(Cluster.id).where(~Cluster.is_official_cluster).where(Cluster.name == group_name)
+    ).scalar_one()
 
 
 @pytest.fixture(scope="class")
@@ -921,6 +918,102 @@ class TestCommunities:
         with communities_session(token) as api:
             res = api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="qwertyuiopasdf", page_size=5))
             assert res.communities == []
+
+    @staticmethod
+    def test_ListAllCommunities(testing_communities):
+        """
+        Test that ListAllCommunities returns all communities with proper hierarchy information.
+        """
+        with session_scope() as session:
+            user1_id, token1 = get_user_id_and_token(session, "user1")
+            user2_id, token2 = get_user_id_and_token(session, "user2")
+            user6_id, token6 = get_user_id_and_token(session, "user6")
+            w_id = get_community_id(session, "Global")
+            c1_id = get_community_id(session, "Country 1")
+            c1r1_id = get_community_id(session, "Country 1, Region 1")
+            c1r1c1_id = get_community_id(session, "Country 1, Region 1, City 1")
+            c1r1c2_id = get_community_id(session, "Country 1, Region 1, City 2")
+            c1r2_id = get_community_id(session, "Country 1, Region 2")
+            c1r2c1_id = get_community_id(session, "Country 1, Region 2, City 1")
+            c2_id = get_community_id(session, "Country 2")
+            c2r1_id = get_community_id(session, "Country 2, Region 1")
+            c2r1c1_id = get_community_id(session, "Country 2, Region 1, City 1")
+
+        # Test with user1 who is a member of multiple communities
+        with communities_session(token1) as api:
+            res = api.ListAllCommunities(communities_pb2.ListAllCommunitiesReq())
+
+            # Should return all 10 communities
+            assert len(res.communities) == 10
+
+            # Get all community IDs
+            community_ids = [c.community_id for c in res.communities]
+            assert set(community_ids) == {
+                w_id,
+                c1_id,
+                c1r1_id,
+                c1r1c1_id,
+                c1r1c2_id,
+                c1r2_id,
+                c1r2c1_id,
+                c2_id,
+                c2r1_id,
+                c2r1c1_id,
+            }
+
+            # Check that each community has the required fields
+            for community in res.communities:
+                assert community.community_id > 0
+                assert len(community.name) > 0
+                assert len(community.slug) > 0
+                assert community.member_count > 0
+                # member field should be a boolean
+                assert isinstance(community.member, bool)
+                # parents should be present for hierarchical ordering
+                assert len(community.parents) >= 1
+                # created timestamp should be present
+                assert community.HasField("created")
+                assert community.created.seconds > 0
+
+            # Find specific communities and verify their data
+            global_community = next(c for c in res.communities if c.community_id == w_id)
+            assert global_community.name == "Global"
+            assert global_community.slug == "global"
+            assert global_community.member  # user1 is a member
+            assert global_community.member_count == 8
+            assert len(global_community.parents) == 1  # Only itself
+
+            c1r1c1_community = next(c for c in res.communities if c.community_id == c1r1c1_id)
+            assert c1r1c1_community.name == "Country 1, Region 1, City 1"
+            assert c1r1c1_community.slug == "country-1-region-1-city-1"
+            assert c1r1c1_community.member  # user1 is a member
+            assert c1r1c1_community.member_count == 3
+            assert len(c1r1c1_community.parents) == 4  # Global, Country 1, Region 1, City 1
+            # Verify parent hierarchy
+            assert c1r1c1_community.parents[0].community.community_id == w_id
+            assert c1r1c1_community.parents[1].community.community_id == c1_id
+            assert c1r1c1_community.parents[2].community.community_id == c1r1_id
+            assert c1r1c1_community.parents[3].community.community_id == c1r1c1_id
+
+        # Test with user6 who has different community memberships
+        with communities_session(token6) as api:
+            res = api.ListAllCommunities(communities_pb2.ListAllCommunitiesReq())
+
+            # Should still return all 10 communities
+            assert len(res.communities) == 10
+
+            # Find Country 2 community - user6 should be a member
+            c2_community = next(c for c in res.communities if c.community_id == c2_id)
+            assert c2_community.member  # user6 is a member
+            assert c2_community.member_count == 2
+
+            # Find Country 1 - user6 should NOT be a member
+            c1_community = next(c for c in res.communities if c.community_id == c1_id)
+            assert not c1_community.member  # user6 is not a member
+
+            # Global - user6 should be a member
+            global_community = next(c for c in res.communities if c.community_id == w_id)
+            assert global_community.member  # user6 is a member
 
 
 def test_JoinCommunity_and_LeaveCommunity(testing_communities):

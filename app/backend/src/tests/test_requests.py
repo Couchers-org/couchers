@@ -21,7 +21,7 @@ from couchers.proto import (
     requests_pb2,
 )
 from couchers.proto.internal import unsubscribe_pb2
-from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL_STRING
+from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.sql import couchers_select as select
 from couchers.templates.v2 import v2date
 from couchers.utils import create_coordinate, now, today
@@ -210,7 +210,7 @@ def test_excessive_requests_are_reported(db):
             assert mock_email.call_count == 1
             email = mock_email.mock_calls[0].kwargs["plain"]
             assert email.startswith(
-                f"User {user.username} has sent {rate_limit_definition.warning_limit} host requests in the past {RATE_LIMIT_INTERVAL_STRING}."
+                f"User {user.username} has sent {rate_limit_definition.warning_limit} host requests in the past {RATE_LIMIT_HOURS} hours."
             )
 
         # Test ban after exceeding HOST_REQUEST_HARD_LIMIT
@@ -243,7 +243,7 @@ def test_excessive_requests_are_reported(db):
             assert mock_email.call_count == 1
             email = mock_email.mock_calls[0].kwargs["plain"]
             assert email.startswith(
-                f"User {user.username} has sent {rate_limit_definition.hard_limit} host requests in the past {RATE_LIMIT_INTERVAL_STRING}."
+                f"User {user.username} has sent {rate_limit_definition.hard_limit} host requests in the past {RATE_LIMIT_HOURS} hours."
             )
             assert "The user has been blocked from sending further host requests for now." in email
 

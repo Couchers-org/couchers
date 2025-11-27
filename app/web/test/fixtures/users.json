@@ -2,6 +2,7 @@
   {
     "name": "Funny Cat current User",
     "userId": 1,
+    "isGhost": false,
     "username": "funnycat",
     "city": "Los Angeles",
     "hometown": "Los Angeles",
@@ -64,6 +65,7 @@
   {
     "name": "Funny Dog",
     "userId": 2,
+    "isGhost": false,
     "username": "funnydog",
     "city": "Helsinki, Finland",
     "hometown": "Tampere, Finland",
@@ -110,6 +112,7 @@
   {
     "name": "Funny Kid",
     "userId": 3,
+    "isGhost": false,
     "username": "funnykid",
     "city": "London, UK",
     "hometown": "Yaounde, Cameroon",
@@ -156,6 +159,7 @@
   {
     "name": "Funny Chicken",
     "userId": 4,
+    "isGhost": false,
     "username": "funnyChicken",
     "city": "Melbourne, Australia",
     "hometown": "Melbourne, Australia",
@@ -202,6 +206,7 @@
   {
     "name": "Friendly Cow",
     "userId": 5,
+    "isGhost": false,
     "username": "friendlyCow",
     "city": "Melbourne, Australia",
     "hometown": "Melbourne, Australia",

@@ -24,6 +24,10 @@
   "no_invite_codes": "No invite codes yet",
   "error_loading_invite_codes": "Couldn't get invite code details",
   "thanks": "Thanks!",
+  "donation_banner": {
+    "message": "Couchers.org runs on kindness — just like couch surfing itself. This holiday season, help us keep it that way. We are raising $5000 to cover the cost of running Couchers.org.",
+    "button": "Donate now"
+  },
   "community_standing": "Community Standing",
   "community_standing_description": "Calculated from various factors such as references and community engagement.",
   "verification_score": "Verification Score",
@@ -371,6 +375,7 @@
     "tr": "Turkish",
     "uk": "Ukrainian",
     "zh-Hans": "Chinese (Simplified)",
-    "zh-Hant": "Chinese (Traditional)"
+    "zh-Hant": "Chinese (Traditional)",
+    "hu": "Hungarian"
   }
 }

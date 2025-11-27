@@ -1,5 +1,6 @@
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy import exists
 from sqlalchemy.sql import not_, or_, union
 
 from couchers import urls
@@ -8,25 +9,31 @@ from couchers.proto import blocking_pb2, blocking_pb2_grpc
 from couchers.sql import couchers_select as select
 
 
-def is_not_visible(session, user1_id, user2_id) -> bool:
+def is_not_visible(session, user1_id: int | None, user2_id: int | None) -> bool:
     """
     Check if users are not visible to each other (due to block or because either account is deleted/banned).
     """
-    blocked_users = (
-        select(UserBlock.blocked_user_id)
-        .where(UserBlock.blocking_user_id == user1_id)
-        .where(UserBlock.blocked_user_id == user2_id)
-    )
-    blocking_users = (
-        select(UserBlock.blocking_user_id)
-        .where(UserBlock.blocking_user_id == user2_id)
-        .where(UserBlock.blocked_user_id == user1_id)
-    )
     hidden_users = select(User.id).where(or_(User.id == user1_id, User.id == user2_id)).where(not_(User.is_visible))
-    return (
-        session.execute(select(union(blocked_users, blocking_users, hidden_users).subquery()).limit(1)).one_or_none()
-        is not None
-    )
+    # if either user_id is empty, just check if either user is hidden (as they can't block each other)
+    if not user1_id or not user2_id:
+        return session.execute(select(union(hidden_users).subquery()).limit(1)).one_or_none() is not None
+    else:
+        blocked_users = (
+            select(UserBlock.blocked_user_id)
+            .where(UserBlock.blocking_user_id == user1_id)
+            .where(UserBlock.blocked_user_id == user2_id)
+        )
+        blocking_users = (
+            select(UserBlock.blocking_user_id)
+            .where(UserBlock.blocking_user_id == user2_id)
+            .where(UserBlock.blocked_user_id == user1_id)
+        )
+        return (
+            session.execute(
+                select(union(blocked_users, blocking_users, hidden_users).subquery()).limit(1)
+            ).one_or_none()
+            is not None
+        )
 
 
 class Blocking(blocking_pb2_grpc.BlockingServicer):
@@ -42,10 +49,12 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "cant_block_self")
 
         if session.execute(
-            select(UserBlock)
-            .where(UserBlock.blocking_user_id == context.user_id)
-            .where(UserBlock.blocked_user_id == blockee.id)
-        ).scalar_one_or_none():
+            select(
+                exists()
+                .where(UserBlock.blocking_user_id == context.user_id)
+                .where(UserBlock.blocked_user_id == blockee.id)
+            )
+        ).scalar_one():
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "user_already_blocked")
         else:
             user_block = UserBlock(

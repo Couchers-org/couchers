@@ -16,7 +16,7 @@
       "validation_error": "Dein Benutzername sollte mit einem Buchstaben beginnen und kann Buchstaben, Nummern und Unterstriche '_' enthalten."
     },
     "birthday": {
-      "field_label": "Geburtsdatum",
+      "field_label": "Geburtstag",
       "required_error": "Gib dein Geburtsdatum ein",
       "validation_error": "Muss ein gültiges Datum aus der Vergangenheit sein.",
       "too_young_error": "Du musst mindestens 18 Jahre alt sein, um Couchers nutzen zu dürfen",

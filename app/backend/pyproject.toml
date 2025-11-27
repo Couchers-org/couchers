@@ -2,7 +2,7 @@
 name = "couchers"
 version = "0.1.0"
 description = "Couchers.org backend application"
-requires-python = ">=3.13"
+requires-python = "==3.13.*"
 dependencies = [
     "alembic>=1.17.1",
     "boto3>=1.39.3",
@@ -23,7 +23,7 @@ dependencies = [
     "opentelemetry-sdk>=1.29.0",
     "phonenumbers>=9.0.4",
     "prometheus-client>=0.23.1",
-    "protobuf>=5.29.5",
+    "protobuf>=6.33.1",
     "psycopg2-binary>=2.9.10",
     "py-vapid>=1.9.2",
     "pynacl>=1.5.0",
@@ -96,10 +96,6 @@ exclude = [
     "src/couchers/jobs/handlers.py",
     "src/couchers/proto/*",
 ]
-# pb2_grpc.py files have no stubs as of now :(
-untyped_calls_exclude = [
-    "proto",
-]
 
 [[tool.mypy.overrides]]
 module = "couchers.models.*"
@@ -108,12 +104,6 @@ disable_error_code = [
     "no-redef",
 ]
 
-[[tool.mypy.overrides]]
-module = "couchers.servicers.*"
-# Weird shenanigans with going on with GRPC method signatures
-disable_error_code = [
-    "override"
-]
 
 [[tool.mypy.overrides]]
 module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*"]

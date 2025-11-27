@@ -7,6 +7,7 @@ from sqlalchemy.sql import and_, delete, distinct, func, intersect, or_, union
 
 from couchers import urls
 from couchers.config import config
+from couchers.constants import GHOST_USERNAME
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.materialized_views import LiteUser, UserResponseRate
@@ -37,8 +38,9 @@ from couchers.notifications.notify import notify
 from couchers.notifications.settings import get_topic_actions_by_delivery_type
 from couchers.proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2, requests_pb2
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
-from couchers.rate_limits.definitions import RATE_LIMIT_INTERVAL_STRING
+from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
 from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
+from couchers.servicers.blocking import is_not_visible
 from couchers.sql import couchers_select as select
 from couchers.sql import is_valid_user_id, is_valid_username
 from couchers.utils import (
@@ -49,6 +51,15 @@ from couchers.utils import (
     is_valid_name,
     now,
 )
+
+
+class GhostUserSerializationError(Exception):
+    """
+    Raised when attempting to serialize a ghost user (deleted/banned/blocked)
+    """
+
+    pass
+
 
 MAX_USERS_PER_QUERY = 200
 MAX_PAGINATION_LENGTH = 50
@@ -217,26 +228,22 @@ class API(api_pb2_grpc.APIServicer):
         )
 
     def GetUser(self, request, context, session):
-        user = session.execute(
-            select(User).where_users_visible(context).where_username_or_id(request.user)
-        ).scalar_one_or_none()
+        user = session.execute(select(User).where_username_or_id(request.user)).scalar_one_or_none()
 
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        return user_model_to_pb(user, session, context)
+        return user_model_to_pb(user, session, context, is_get_user_return_ghosts=True)
 
     def GetLiteUser(self, request, context, session):
         lite_user = session.execute(
-            select(LiteUser)
-            .where_users_visible(context, table=LiteUser)
-            .where_username_or_id(request.user, table=LiteUser)
+            select(LiteUser).where_username_or_id(request.user, table=LiteUser)
         ).scalar_one_or_none()
 
         if not lite_user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        return lite_user_to_pb(lite_user)
+        return lite_user_to_pb(session, lite_user, context, is_get_user_return_ghosts=True)
 
     def GetLiteUsers(self, request, context, session):
         if len(request.users) > MAX_USERS_PER_QUERY:
@@ -245,12 +252,9 @@ class API(api_pb2_grpc.APIServicer):
         usernames = {u for u in request.users if is_valid_username(u)}
         ids = {u for u in request.users if is_valid_user_id(u)}
 
+        # decomposed where_username_or_id...
         users = (
-            session.execute(
-                select(LiteUser)
-                .where_users_visible(context, table=LiteUser)
-                .where(or_(LiteUser.username.in_(usernames), LiteUser.id.in_(ids)))
-            )
+            session.execute(select(LiteUser).where(or_(LiteUser.username.in_(usernames), LiteUser.id.in_(ids))))
             .scalars()
             .all()
         )
@@ -271,7 +275,9 @@ class API(api_pb2_grpc.APIServicer):
                 api_pb2.LiteUserRes(
                     query=user,
                     not_found=lite_user is None,
-                    user=lite_user_to_pb(lite_user) if lite_user else None,
+                    user=lite_user_to_pb(session, lite_user, context, is_get_user_return_ghosts=True)
+                    if lite_user
+                    else None,
                 )
             )
 
@@ -684,7 +690,7 @@ class API(api_pb2_grpc.APIServicer):
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
                 "friend_request_rate_limit",
-                substitutions={"rate_limit_interval_string": RATE_LIMIT_INTERVAL_STRING},
+                substitutions={"hours": RATE_LIMIT_HOURS},
             )
 
         # TODO: Race condition where we can create two friend reqs, needs db constraint! See comment in table
@@ -904,9 +910,26 @@ def get_num_references(session, user_ids):
     )
 
 
-def user_model_to_pb(db_user, session, context):
+def user_model_to_pb(db_user, session, context, *, is_admin_see_ghosts=False, is_get_user_return_ghosts=False):
     # note that this function should work also for banned/deleted users as it's called from Admin.GetUser
     # note that this function is sometimes called by a logged out user, in which case context comes from make_logged_out_context
+
+    if not is_admin_see_ghosts and is_not_visible(session, context.user_id, db_user.id):
+        # User is not visible (deleted, banned, or blocked)
+        if is_get_user_return_ghosts:
+            # Return an anonymized "ghost" user profile
+            return api_pb2.User(
+                user_id=db_user.id,
+                is_ghost=True,
+                username=GHOST_USERNAME,
+                name=context.get_localized_string("ghost_users", "display_name"),
+                about_me=context.get_localized_string("ghost_users", "about_me"),
+            )
+        raise GhostUserSerializationError(
+            f"Tried to serialize ghost profile in user_model_to_pb without appropriate flags. "
+            f"Context user_id: {context.user_id}, db_user id: {db_user.id} (username: {db_user.username})"
+        )
+
     num_references = get_num_references(session, [db_user.id]).get(db_user.id, 0)
 
     # returns (lat, lng)
@@ -1081,7 +1104,24 @@ def user_model_to_pb(db_user, session, context):
     return user
 
 
-def lite_user_to_pb(lite_user: LiteUser):
+def lite_user_to_pb(
+    session, lite_user: LiteUser, context, *, is_admin_see_ghosts=False, is_get_user_return_ghosts=False
+):
+    if not is_admin_see_ghosts and is_not_visible(session, context.user_id, lite_user.id):
+        # User is not visible (deleted, banned, or blocked)
+        if is_get_user_return_ghosts:
+            # Return an anonymized "ghost" user profile
+            return api_pb2.LiteUser(
+                user_id=lite_user.id,
+                is_ghost=True,
+                username=GHOST_USERNAME,
+                name=context.get_localized_string("ghost_users", "display_name"),
+            )
+        raise GhostUserSerializationError(
+            f"Tried to serialize ghost profile in lite_user_to_pb without appropriate flags. "
+            f"Context user_id: {context.user_id}, lite_user id: {lite_user.id} (username: {lite_user.username})"
+        )
+
     lat, lng = get_coordinates(lite_user.geom) or (0, 0)
 
     return api_pb2.LiteUser(

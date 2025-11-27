@@ -16,7 +16,7 @@ from couchers.models import (
     RateLimitAction,
 )
 from couchers.proto import api_pb2, conversations_pb2, notification_data_pb2, notifications_pb2
-from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL_STRING
+from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.sql import couchers_select as select
 from couchers.utils import Duration_from_timedelta, now, to_aware_datetime
 from tests.test_fixtures import (  # noqa
@@ -699,7 +699,7 @@ def test_excessive_chat_initiations_are_reported(db):
             assert mock_email.call_count == 1
             email = mock_email.mock_calls[0].kwargs["plain"]
             assert email.startswith(
-                f"User {user.username} has sent {rate_limit_definition.warning_limit} chat initiations in the past {RATE_LIMIT_INTERVAL_STRING}."
+                f"User {user.username} has sent {rate_limit_definition.warning_limit} chat initiations in the past {RATE_LIMIT_HOURS} hours."
             )
 
         # Test new chat initiations fail after exceeding CHAT_INITIATION_HARD_LIMIT
@@ -721,7 +721,7 @@ def test_excessive_chat_initiations_are_reported(db):
             assert mock_email.call_count == 1
             email = mock_email.mock_calls[0].kwargs["plain"]
             assert email.startswith(
-                f"User {user.username} has sent {rate_limit_definition.hard_limit} chat initiations in the past {RATE_LIMIT_INTERVAL_STRING}."
+                f"User {user.username} has sent {rate_limit_definition.hard_limit} chat initiations in the past {RATE_LIMIT_HOURS} hours."
             )
             assert "The user has been blocked from sending further chat initiations for now." in email
 

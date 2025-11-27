@@ -173,6 +173,7 @@ lite_users = create_materialized_view_with_different_ddl(
     Base.metadata,
     [
         Index("uq_lite_users_id", lite_users_selectable_create.c.id, unique=True),
+        Index("uq_lite_users_username", lite_users_selectable_create.c.username, unique=True),
         Index(
             "ix_lite_users_id_visible",
             lite_users_selectable_create.c.id,

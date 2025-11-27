@@ -5,7 +5,7 @@
         "go_to_button": "管理通知设置",
         "edit_preferences": {
             "title": "通知设置",
-            "description": "您仍可能会收到与账户和内容相关的重要通知，即使这些通知不在您的首选通知设置中。",
+            "description": "您在下方所做的任何更改都会自动保存。请注意，您仍可能会收到有关您的账户和内容的重要通知，这些通知不受您的首选通知设置的影响。",
             "list_heading": "您可能会收到的通知",
             "error_loading": "加载通知设置时出错",
             "list_items": {
@@ -15,7 +15,10 @@
                 "event": "活动",
                 "friend_request": "好友请求",
                 "host_request": "接待请求",
-                "reference": "评语"
+                "reference": "评语",
+                "discussion": "讨论",
+                "reply": "回复",
+                "other_notifications": "其他通知"
             },
             "item_descriptions": {
                 "host_request": {
@@ -25,7 +28,8 @@
                     "reject": "有人拒绝了您的接待请求",
                     "cancel": "有人取消了他们的接待请求",
                     "message": "有人在接待请求中发送了消息",
-                    "missed_messages": "您错过了接待请求中的消息"
+                    "missed_messages": "您错过了接待请求中的消息",
+                    "reminder": "您还没有回复待处理的接待请求"
                 },
                 "chat": {
                     "message": "有人向您发送了消息",
@@ -48,7 +52,9 @@
                     "update": "您参加的活动已更新",
                     "cancel": "您参加的活动已取消",
                     "delete": "您参加的活动已删除",
-                    "invite_organizer": "有人邀请您共同组织一个活动"
+                    "invite_organizer": "有人邀请您共同组织一个活动",
+                    "reminder": "提醒: 您参加的活动即将开始",
+                    "comment": " 一位用户对你即将参加的活动进行了评论"
                 },
                 "onboarding": {
                     "reminder": "注册后提醒您完善个人资料"
@@ -88,8 +94,20 @@
                 },
                 "gender": {
                     "change": "您的个人资料中显示的性别已更改"
+                },
+                "discussion": {
+                    "comment": "有人在你关注的讨论中发表评论",
+                    "create": "有人在您所在的社区发起了新讨论"
+                },
+                "thread": {
+                    "reply": "有人回复了你的评论"
+                },
+                "general": {
+                    "new_blog_post": "一篇新博客文章已发布"
                 }
-            }
+            },
+            "expand_all": "全部展开",
+            "collapse_all": "全部折叠"
         },
         "push_notifications": {
             "title": "推送通知",
@@ -117,7 +135,19 @@
                         "os": "在您的移动设备通知设置中，调整权限以允许通知。"
                     }
                 }
-            }
+            },
+            "error_not_granted": "您未授权发送推送通知。"
         }
-    }
+    },
+    "push_notification_banner": {
+        "message": "不要错过请求、回复或消息；我们可以向您发送推送通知吗？",
+        "confirm": "好的！"
+    },
+    "unread": "未读",
+    "mark_unread": "标记为未读",
+    "mark_all_read": "全部标记为已读",
+    "no_new_notifications": "没有新通知",
+    "all": "全部",
+    "error_loading": "加载通知时出错",
+    "error_updating_notifications": "更新通知时出错"
 }

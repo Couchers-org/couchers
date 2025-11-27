@@ -2,7 +2,7 @@
 subject: "{{ action.value }} limit rate violation by user {{ user.username }}"
 ---
 
-User {{ user.username }} has sent {{ threshold }} {{ action.value }}s in the past {{ time_interval_str }}.
+User {{ user.username }} has sent {{ threshold }} {{ action.value }}s in the past {{ hours }} hours.
 
 {% if is_hard_limit %}**The user has been blocked from sending further {{ action.value }}s for now.**
 
@@ -16,7 +16,7 @@ Joined: {{ user.joined }}
 City: {{ user.city }}
 
 {% for action, entries in events.items() -%}
-**{{ action.value }}s (past {{ time_interval_str }}):**
+**{{ action.value }}s (past {{ hours }} hours):**
 
 {% if entries %}
 |{% for key in entries[0].keys() %} {{ key }} |{% endfor %}
@@ -29,7 +29,7 @@ City: {{ user.city }}
 {% endfor %}
 
 {% else %}
-No {{ action.value }}s found in the past {{ time_interval_str }}.
+No {{ action.value }}s found in the past {{ hours }} hours.
 
 {% endif %}
 {%- endfor %}

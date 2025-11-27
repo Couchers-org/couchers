@@ -47,7 +47,7 @@
   "login_page": {
     "title": "登录",
     "header": "欢迎回家！",
-    "no_account_prompt": "还没有账号吗？<2>现在注册</2>",
+    "no_account_prompt": "还没有账号？<2>加入我们</2>",
     "form": {
       "username_field_label": "电子邮件/用户名",
       "password_field_label": "密码",
@@ -210,13 +210,53 @@
     "log_out_of_all_session": "退出其他所有会话"
   },
   "strong_verification": {
-    "title": "强验证",
-    "subtitle": "强验证是一项额外的安全功能，允许您通过生物护照验证出生日期和性别。",
+    "title": "强身份验证",
+    "subtitle": "强身份验证是一项额外的安全功能，允许您通过生物护照验证出生日期和性别。",
     "status": {
-      "enabled_message": "您当前已完成<1>强验证</1>。",
-      "disabled_message": "您当前未完成<1>强验证</1>。"
+      "enabled_message": "您<1>当前已完成</1>强身份验证。",
+      "disabled_message": "您<1>尚未完成</1>强身份验证。"
     },
-    "learn_more": "了解强验证，点击<a>此处</a>。"
+    "learn_more": "了解强身份验证，点击<a>此处</a>。",
+    "start_button": "开始强身份验证",
+    "begin_button": "使用Iris ID完成强身份验证",
+    "information_text2": "点击下方按钮后，您将被带到Iris ID网站完成护照验证流程。",
+    "delete_information": "您可以随时从我们的服务器中删除您的强身份验证数据（除签发国家、到期日期和证件号码后三位外）。",
+    "delete_information_text2": "如果您删除了您的数据，您将无法再次使用同一本护照进行强身份验证。",
+    "delete_my_data_button": "删除我的数据",
+    "delete_button": "删除我的强身份验证数据",
+    "information_text1": "您需要一份<strong>生物识别护照</strong>（其他类型的身份证明无效）以及一部支持NFC功能的苹果iPhone或安卓手机。",
+    "complete_message1": "您的护照正在验证中, 结果将在几分钟内通过邮件发送给您。",
+    "complete_message2": "强身份验证将在您的护照到期时失效，您需要在获得新护照后重新完成验证。",
+    "delete_success": "您的护照信息已被删除。",
+    "donation_title": "感谢验证！感谢您让Couchers.org变得更安全。",
+    "information_text3": "您可以在我们的<2>服务条款</2>中了解更多关于我们和Iris ID如何处理和存储您的数据。根据Iris ID的<5>隐私政策</5>，他们将在24小时内删除您的个人信息。您可以随时通过点击按钮，要求我们从服务器中删除这些强验证数据（除签发国家、到期日期和证件号码后三位外）。",
+    "complete_title": "我们正在处理您的强身份验证请求",
+    "delete_data_title": "删除您的强身份验证护照数据",
+    "donation_message1": "对你来说，验证是免费的，但对我们来说却是有成本的。作为一个由志愿者运营的非营利组织，我们依靠捐款来支付诸如服务器运行、验证以及为志愿者和社区建设者提供工具等开支。",
+    "donation_message2": "如果您有能力，请考虑捐款以帮助Couchers.org持续运营和发展。",
+    "donate_button": "捐款支持Couchers.org",
+    "instructions": {
+      "step1": "下载 <strong>IRIS ID</strong> 应用",
+      "warning": "重要提示：护照芯片扫描步骤可能较为复杂，请务必先阅读所有说明！",
+      "title": "如何完成强身份验证",
+      "step1_apple_note": "<strong>苹果用户：</strong>您可以跳过下载，直接使用浏览器。出现提示时只需点击“打开”即可。",
+      "step2": "点击下方的<strong>“开始强身份验证”</strong>（将在新标签页中打开）",
+      "step3": "请用手机扫描二维码",
+      "step5": "选择<strong>护照</strong>（不支持身份证）",
+      "step6": "请拍摄一张护照页面的清晰照片，确保底部的号码清晰可见",
+      "step7": "将手机贴在带有NFC芯片的护照页面上（见下方提示）",
+      "download_app_store": "前往 App Store 下载",
+      "download_google_play": "前往 Google Play 下载",
+      "chip_location": {
+        "us_germany_mexico": "<strong>巴西、美国、德国（2016）、印度尼西亚、墨西哥：</strong> 封底",
+        "finland_germany_new": "<strong>芬兰、德国（2017年及以后）、俄罗斯：</strong> 照片页",
+        "australia": "<strong>澳大利亚：</strong> 中间页面（标有符号+“芯片名称”）",
+        "heading": "寻找护照NFC芯片位置",
+        "description": "芯片的位置因国家而异。您可能需要尝试不同的页面。以下是一些位置示例："
+      },
+      "step8": "当您看到进度百分比增加和加载动画时,说明正在成功处理",
+      "step4": "如果出现提示，请打开应用并再次扫描二维码"
+    }
   },
   "change_phone": {
     "title": "电话号码",
@@ -260,5 +300,22 @@
       "button_text": "恢复您的账户",
       "success": "您的账户已恢复，您可以重新登录了。我们很激动您愿意回来！"
     }
+  },
+  "quick_links": {
+    "button_text": "确认操作",
+    "title": "邮件快捷操作",
+    "error_message": "错误：{{message}}",
+    "missing_payload_or_sig": "无效的URL"
+  },
+  "profile_visibility": {
+    "visiblility_options": {
+      "most": "<1>大部分</1>：显示完整的“关于我”部分，但不包括“附加信息”",
+      "full_profile": "<1>完整资料</1>：显示我的完整资料（不包括用户评价）",
+      "nothing": "<1>无</1>：彻底隐藏我",
+      "map_only": "<1>仅地图</1>：仅显示一个随机、匿名的地图标记，不包含其他信息",
+      "limited": "<1>有限</1>：显示我的姓名、位置、接待/见面状态、徽章、评价数量，以及我成为Coucher的时长"
+    },
+    "title": "个人资料可见性",
+    "choose": "选择哪些信息对未登录用户可见"
   }
 }

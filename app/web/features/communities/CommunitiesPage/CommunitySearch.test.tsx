@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Sentry from "platform/sentry";
-import { Community } from "proto/communities_pb";
+import { CommunitySummary } from "proto/communities_pb";
 import { routeToCommunity } from "routes";
 import * as communitiesService from "service/communities";
 import wrapper from "test/hookWrapper";
@@ -29,35 +29,16 @@ jest.mock("platform/sentry", () => {
 });
 
 jest.mock("service/communities");
-const mockListCommunities =
-  communitiesService.listCommunities as jest.MockedFunction<
-    typeof communitiesService.listCommunities
+const mockListAllCommunities =
+  communitiesService.listAllCommunities as jest.MockedFunction<
+    typeof communitiesService.listAllCommunities
   >;
 
-const mockRegion: Community.AsObject = {
-  communityId: 1,
-  name: "Europe",
-  slug: "europe",
-  description: "European region",
-  parentsList: [],
-  member: false,
-  admin: false,
-  memberCount: 0,
-  adminCount: 0,
-  nearbyUserCount: 0,
-  canModerate: false,
-  discussionsEnabled: true,
-  eventsEnabled: true,
-  created: { seconds: 1577800000, nanos: 0 },
-  mainPage: undefined,
-};
-
-const mockCities: Community.AsObject[] = [
+const mockCommunities: CommunitySummary.AsObject[] = [
   {
     communityId: 2,
     name: "Amsterdam",
     slug: "amsterdam",
-    description: "Amsterdam city",
     parentsList: [
       {
         community: {
@@ -69,21 +50,13 @@ const mockCities: Community.AsObject[] = [
       },
     ],
     member: false,
-    admin: false,
     memberCount: 10,
-    adminCount: 2,
-    nearbyUserCount: 5,
-    canModerate: false,
-    discussionsEnabled: true,
-    eventsEnabled: true,
     created: { seconds: 1577800000, nanos: 0 },
-    mainPage: undefined,
   },
   {
     communityId: 3,
     name: "Rotterdam",
     slug: "rotterdam",
-    description: "Rotterdam city",
     parentsList: [
       {
         community: {
@@ -95,21 +68,13 @@ const mockCities: Community.AsObject[] = [
       },
     ],
     member: false,
-    admin: false,
     memberCount: 8,
-    adminCount: 1,
-    nearbyUserCount: 4,
-    canModerate: false,
-    discussionsEnabled: true,
-    eventsEnabled: true,
     created: { seconds: 1577900000, nanos: 0 },
-    mainPage: undefined,
   },
   {
     communityId: 4,
     name: "Berlin",
     slug: "berlin",
-    description: "Berlin city",
     parentsList: [
       {
         community: {
@@ -121,34 +86,16 @@ const mockCities: Community.AsObject[] = [
       },
     ],
     member: false,
-    admin: false,
     memberCount: 15,
-    adminCount: 3,
-    nearbyUserCount: 7,
-    canModerate: false,
-    discussionsEnabled: true,
-    eventsEnabled: true,
     created: { seconds: 1578000000, nanos: 0 },
-    mainPage: undefined,
   },
 ];
 
 describe("CommunitySearch", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Mock fetching regions (communityId = 0)
-    mockListCommunities.mockImplementation(async (communityId) => {
-      if (communityId === 0) {
-        return {
-          communitiesList: [mockRegion],
-          nextPageToken: "",
-        };
-      }
-      // Mock fetching subcommunities of a region
-      return {
-        communitiesList: mockCities,
-        nextPageToken: "",
-      };
+    mockListAllCommunities.mockResolvedValue({
+      communitiesList: mockCommunities,
     });
   });
 
@@ -178,10 +125,7 @@ describe("CommunitySearch", () => {
     render(<CommunitySearch />, { wrapper });
 
     await waitFor(() => {
-      // Should fetch regions first (communityId = 0)
-      expect(mockListCommunities).toHaveBeenCalledWith(0);
-      // Then fetch subcommunities for each region
-      expect(mockListCommunities).toHaveBeenCalledWith(mockRegion.communityId);
+      expect(mockListAllCommunities).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -191,7 +135,7 @@ describe("CommunitySearch", () => {
     const user = userEvent.setup();
 
     await waitFor(() => {
-      expect(mockListCommunities).toHaveBeenCalled();
+      expect(mockListAllCommunities).toHaveBeenCalled();
     });
 
     const input = screen.getByLabelText(t("communities:search_communities"));
@@ -211,7 +155,7 @@ describe("CommunitySearch", () => {
     const user = userEvent.setup();
 
     await waitFor(() => {
-      expect(mockListCommunities).toHaveBeenCalled();
+      expect(mockListAllCommunities).toHaveBeenCalled();
     });
 
     const input = screen.getByLabelText(t("communities:search_communities"));
@@ -232,7 +176,7 @@ describe("CommunitySearch", () => {
     const user = userEvent.setup();
 
     await waitFor(() => {
-      expect(mockListCommunities).toHaveBeenCalled();
+      expect(mockListAllCommunities).toHaveBeenCalled();
     });
 
     const input = screen.getByLabelText(t("communities:search_communities"));
@@ -245,7 +189,7 @@ describe("CommunitySearch", () => {
     await user.click(screen.getByText("Amsterdam"));
 
     expect(mockPush).toHaveBeenCalledWith(
-      routeToCommunity(mockCities[0].communityId, mockCities[0].slug),
+      routeToCommunity(mockCommunities[0].communityId, mockCommunities[0].slug),
     );
   });
 
@@ -255,7 +199,7 @@ describe("CommunitySearch", () => {
     const user = userEvent.setup();
 
     await waitFor(() => {
-      expect(mockListCommunities).toHaveBeenCalled();
+      expect(mockListAllCommunities).toHaveBeenCalled();
     });
 
     const input = screen.getByLabelText(t("communities:search_communities"));
@@ -274,7 +218,7 @@ describe("CommunitySearch", () => {
 
   it("handles fetch errors gracefully", async () => {
     const captureExceptionSpy = jest.spyOn(Sentry, "captureException");
-    mockListCommunities.mockRejectedValue(new Error("Fetch failed"));
+    mockListAllCommunities.mockRejectedValue(new Error("Fetch failed"));
 
     render(<CommunitySearch />, { wrapper });
 

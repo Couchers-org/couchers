@@ -3,6 +3,7 @@ import {
   JoinCommunityReq,
   LeaveCommunityReq,
   ListAdminsReq,
+  ListAllCommunitiesReq,
   ListCommunitiesReq,
   ListDiscussionsReq,
   ListGroupsReq,
@@ -147,5 +148,11 @@ export async function searchCommunities(query: string, pageSize?: number) {
     req.setPageSize(pageSize);
   }
   const response = await client.communities.searchCommunities(req);
+  return response.toObject();
+}
+
+export async function listAllCommunities() {
+  const req = new ListAllCommunitiesReq();
+  const response = await client.communities.listAllCommunities(req);
   return response.toObject();
 }

@@ -25,7 +25,7 @@ from couchers.models import (
     StrongVerificationAttempt,
     User,
 )
-from couchers.rate_limits.definitions import RATE_LIMIT_INTERVAL_STRING
+from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
 from couchers.sql import couchers_select as select
 from couchers.templates.v2 import send_simple_pretty_email
 from couchers.utils import now
@@ -127,7 +127,7 @@ def send_rate_limit_violation_report_email(
             "user": user,
             "action": rate_limit_violation.action,
             "threshold": threshold,
-            "time_interval_str": RATE_LIMIT_INTERVAL_STRING,
+            "hours": RATE_LIMIT_HOURS,
             "is_hard_limit": rate_limit_violation.is_hard_limit,
             "events": events,
         },

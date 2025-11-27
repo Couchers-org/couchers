@@ -4,6 +4,7 @@ from unittest.mock import patch
 import grpc
 import pytest
 from google.protobuf import empty_pb2
+from sqlalchemy import exists
 
 from couchers.config import config
 from couchers.db import session_scope
@@ -121,7 +122,7 @@ def test_activeness_probes_disabled(db, push_collector):
             assert not res.jailed
 
         with session_scope() as session:
-            assert not session.execute(select(ActivenessProbe)).scalar_one_or_none()
+            assert not session.execute(select(exists(ActivenessProbe))).scalar_one()
 
 
 def test_activeness_probes_expiry(db, push_collector):
@@ -152,8 +153,8 @@ def test_activeness_probes_expiry(db, push_collector):
     process_jobs()
 
     with session_scope() as session:
-        probe = session.execute(select(ActivenessProbe)).scalar_one()
-        assert probe.response == ActivenessProbeStatus.expired
+        response = session.execute(select(ActivenessProbe.response)).scalar_one()
+        assert response == ActivenessProbeStatus.expired
 
     with real_jail_session(token) as jail:
         # no such probe
