@@ -1,7 +1,7 @@
 """Add mobile push notification tables
 
 Revision ID: 4b5abd6bc5c0
-Revises: 91bd06f6a96a
+Revises: 941b04198efe
 Create Date: 2025-11-15 10:55:36.401287
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "4b5abd6bc5c0"
-down_revision = "91bd06f6a96a"
+down_revision = "941b04198efe"
 branch_labels = None
 depends_on = None
 

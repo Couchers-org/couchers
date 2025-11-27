@@ -1,4 +1,4 @@
-import { StyleSheet, View, useColorScheme } from "react-native";
+import { StyleSheet, View, useColorScheme, Text } from "react-native";
 import { useRef } from "react";
 import {
   WebView,
@@ -17,6 +17,8 @@ type WebEmbedProps = {
 
 export default function WebEmbed({ path }: WebEmbedProps) {
   const WEB_BASE_URL = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
+
+  console.log("🌐 WebView loading:", WEB_BASE_URL + path);
 
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
@@ -79,6 +81,38 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         onNavigationStateChange={handleNavigationStateChange}
         injectedJavaScriptObject={{ isCouchersNativeEmbed: true }}
         onMessage={handleMessage}
+        onLoadStart={() => {
+          console.log("🌐 WebView started loading");
+        }}
+        onLoadEnd={() => {
+          console.log("✅ WebView finished loading");
+        }}
+        onError={(syntheticEvent) => {
+          const { nativeEvent } = syntheticEvent;
+          console.error("❌ WebView error:", nativeEvent);
+          console.error("❌ URL:", WEB_BASE_URL + path);
+        }}
+        onHttpError={(syntheticEvent) => {
+          const { nativeEvent } = syntheticEvent;
+          console.error(
+            "❌ WebView HTTP error:",
+            nativeEvent.statusCode,
+            nativeEvent.url
+          );
+        }}
+        renderError={(errorDomain, errorCode, errorDesc) => {
+          console.error(
+            "❌ WebView render error:",
+            errorDomain,
+            errorCode,
+            errorDesc
+          );
+          return (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>Failed to load page</Text>
+            </View>
+          );
+        }}
       />
     </View>
   );
@@ -90,5 +124,15 @@ const styles = StyleSheet.create({
   },
   webview: {
     flex: 1,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
+  },
+  errorText: {
+    color: "#666",
+    fontSize: 16,
   },
 });
