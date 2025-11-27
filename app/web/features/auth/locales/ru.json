@@ -28,7 +28,9 @@
       "password_field_label": "Пароль",
       "no_password_login_prompt": "Ссылка для входа отправлена на вашу почту :)",
       "remember_me": "Запомнить меня",
-      "forgot_password": "Забыли пароль?"
+      "forgot_password": "Забыли пароль?",
+      "hide_password": "Скрыть пароль",
+      "show_password": "Показать пароль"
     }
   },
   "basic_sign_up_form": {
