@@ -43,6 +43,10 @@
                 "chat": {
                     "message": "Birisi sana bir mesaj gönderdiğinde",
                     "missed_messages": "Bir sohbette mesaj kaçırdığında"
+                },
+                "friend_request": {
+                    "create": "Biri sana bir arkadaşlık isteği gönderdiğinde",
+                    "accept": "Birisi senin arkadaşlık isteğini kabul ettiğinde"
                 }
             },
             "expand_all": "Tümünü genişlet",

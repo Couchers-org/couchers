@@ -52,7 +52,10 @@
       "has_strong_verification": "Kuvvetli doğrulamaya sahip"
     },
     "rules": {
-      "title": "Kurallar"
+      "title": "Kurallar",
+      "alcohol_allowed": "Alkole izin var",
+      "kids_allowed": "Çocuklara izin var",
+      "pets_allowed": "Evcil hayvanlara izin var"
     },
     "keywords": {
       "field_label": "İsim, anahtar kelimeler, veya kullanıcı adı",

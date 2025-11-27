@@ -43,7 +43,15 @@
   },
   "section_tabs_a11y_label": "kullanıcı detayları için sekmeler",
   "incomplete_dialog": {
-    "description": "Şunu tamamlayana dek istekler ve mesajlar göndermeyeceksin ve etkinlikler oluşturamayacaksın:"
+    "description": "Şunu tamamlayana dek istekler ve mesajlar göndermeyeceksin ve etkinlikler oluşturamayacaksın:",
+    "continue_editing": "Düzenlemeye devam et"
   },
-  "edit": "Profili Düzenle"
+  "edit": "Profili Düzenle",
+  "leave_reference": {
+    "next_step_label": "İleri"
+  },
+  "home_info_headings": {
+    "about_home": "Evim hakkında",
+    "general": "Genel"
+  }
 }
