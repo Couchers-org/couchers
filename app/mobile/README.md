@@ -17,7 +17,9 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm run build:protos
    ```
 
-3. If you haven't created a local development build yet (required for native modules such as `expo-notifications`/`expo-device`), build once per platform:
+3. If you want to test native features like push notications, face ID, etc - If you haven't created a local development build yet (required for native modules such as `expo-notifications`/`expo-device`), build once per platform:
+
+If it's the first time you run this, you might need to install CocoaPods (via homebrew) and X-Code (via App Store) first.
 
    ```bash
    # For iOS
@@ -32,6 +34,16 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    ```bash
    npx expo start
    ```
+
+If testing native features like push notifications, you need to run a development build on your mobile phone the first time.
+
+- You need to be part of the development team in the Apple Developer Account (or Google Play).
+- Open Xcode, Open the Couchers folder, then go to go to the project's "Signing & Capabilities"
+- Select your Apple ID as the Team
+- Xcode will automatically provision your device
+- Run `cd app/mobile`
+- `npx expo run:ios --device` (it will take awhile). Once it's done it will say "Complete 100%"
+- Choose your mobile phone
 
 In the output, you'll find options to open the app in a
 
