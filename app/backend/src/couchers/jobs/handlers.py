@@ -88,11 +88,11 @@ from couchers.notifications.notify import notify
 from couchers.proto import notification_data_pb2
 from couchers.proto.internal import jobs_pb2, verification_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
-from couchers.servicers.admin import generate_new_blog_post_notifications
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.conversations import generate_message_notifications
 from couchers.servicers.discussions import generate_create_discussion_notifications
+from couchers.servicers.editor import generate_new_blog_post_notifications
 from couchers.servicers.events import (
     event_to_pb,
     generate_event_cancel_notifications,

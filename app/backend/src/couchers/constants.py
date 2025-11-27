@@ -71,6 +71,16 @@ COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD = 0.35
 
 UNKNOWN_ERROR_MESSAGE = "An unknown backend error occurred. Please consider filing a bug!"
 
+# NOTE: these codes are on purpose not translatable
+NONEXISTENT_API_CALL_ERROR_MESSAGE = "API call does not exist. Please refresh and try again."
+MISSING_AUTH_LEVEL_ERROR_MESSAGE = "Internal authentication error."
+COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE = 'Both "cookie" and "authorization" in request'
+CALL_CANCELLED_ERROR_MESSAGE = "Call cancelled."
+
+# NOTE: the frontend uses these (and error codes) to distinguish between jailed and logged out
+UNAUTHORIZED_ERROR_MESSAGE = "Unauthorized"
+PERMISSION_DENIED_ERROR_MESSAGE = "Permission denied"
+
 GHOST_USERNAME = "ghost"
 
 # Donation drive start date - set to None to disable donation drive banner

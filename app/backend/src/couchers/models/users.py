@@ -176,6 +176,7 @@ class User(Base):
     is_banned: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
     is_deleted: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
     is_superuser: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
+    is_editor: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
 
     # the undelete token allows a user to recover their account for a couple of days after deletion in case it was
     # accidental or they changed their mind
@@ -377,6 +378,11 @@ class User(Base):
         CheckConstraint(
             "(do_not_email IS FALSE) OR ((hosting_status = 'cant_host') AND (meetup_status = 'does_not_want_to_meetup'))",
             name="do_not_email_inactive",
+        ),
+        # Superusers must be editors
+        CheckConstraint(
+            "(is_superuser IS FALSE) OR (is_editor IS TRUE)",
+            name="superuser_is_editor",
         ),
     )
 

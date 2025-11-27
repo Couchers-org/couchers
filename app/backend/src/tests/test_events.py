@@ -8,7 +8,7 @@ from sqlalchemy.sql.expression import update
 
 from couchers.db import session_scope
 from couchers.models import BackgroundJob, EventOccurrence
-from couchers.proto import admin_pb2, events_pb2, threads_pb2
+from couchers.proto import editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
 from tests.test_communities import create_community, create_group
@@ -21,6 +21,7 @@ from tests.test_fixtures import (  # noqa
     process_jobs,
     push_collector,
     real_admin_session,
+    real_editor_session,
     testconfig,
     threads_session,
 )
@@ -2370,23 +2371,23 @@ def test_community_invite_requests(db):
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
         assert e.value.details() == "You're not allowed to edit that event."
 
-    with real_admin_session(token5) as admin:
-        res = admin.ListEventCommunityInviteRequests(admin_pb2.ListEventCommunityInviteRequestsReq())
+    with real_editor_session(token5) as editor:
+        res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
         assert len(res.requests) == 2
         assert res.requests[0].user_id == user1.id
         assert res.requests[0].approx_users_to_notify == 3
         assert res.requests[1].user_id == user3.id
         assert res.requests[1].approx_users_to_notify == 3
 
-        admin.DecideEventCommunityInviteRequest(
-            admin_pb2.DecideEventCommunityInviteRequestReq(
+        editor.DecideEventCommunityInviteRequest(
+            editor_pb2.DecideEventCommunityInviteRequestReq(
                 event_community_invite_request_id=res.requests[0].event_community_invite_request_id,
                 approve=False,
             )
         )
 
-        admin.DecideEventCommunityInviteRequest(
-            admin_pb2.DecideEventCommunityInviteRequestReq(
+        editor.DecideEventCommunityInviteRequest(
+            editor_pb2.DecideEventCommunityInviteRequestReq(
                 event_community_invite_request_id=res.requests[1].event_community_invite_request_id,
                 approve=True,
             )

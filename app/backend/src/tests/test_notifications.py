@@ -21,10 +21,10 @@ from couchers.models import (
 from couchers.notifications.notify import notify
 from couchers.notifications.settings import get_topic_actions_by_delivery_type
 from couchers.proto import (
-    admin_pb2,
     api_pb2,
     auth_pb2,
     conversations_pb2,
+    editor_pb2,
     events_pb2,
     notification_data_pb2,
     notifications_pb2,
@@ -45,6 +45,7 @@ from tests.test_fixtures import (  # noqa
     process_jobs,
     push_collector,
     real_admin_session,
+    real_editor_session,
     session_scope,
     testconfig,
 )
@@ -519,9 +520,9 @@ def test_SendBlogPostNotification(db, push_collector):
         )
 
     with mock_notification_email() as mock:
-        with real_admin_session(super_token) as admin_api:
-            admin_api.SendBlogPostNotification(
-                admin_pb2.SendBlogPostNotificationReq(
+        with real_editor_session(super_token) as editor_api:
+            editor_api.SendBlogPostNotification(
+                editor_pb2.SendBlogPostNotificationReq(
                     title="Couchers.org v0.9.9 Release Notes",
                     blurb="Read about last major updates before v1!",
                     url="https://couchers.org/blog/2025/05/11/v0.9.9-release",
