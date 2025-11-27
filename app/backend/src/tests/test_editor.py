@@ -381,7 +381,7 @@ def test_MakeUserVolunteer_already_volunteer(db):
                     role="Test Volunteer 2",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.ALREADY_EXISTS
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == "This user is already a volunteer."
 
 
@@ -400,7 +400,7 @@ def test_MakeUserVolunteer_invalid_date(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid started_volunteering date."
+        assert e.value.details() == "Invalid start date for volunteering."
 
 
 def test_UpdateVolunteer(db):
@@ -508,7 +508,7 @@ def test_UpdateVolunteer_invalid_started_date(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid started_volunteering date."
+        assert e.value.details() == "Invalid start date for volunteering."
 
 
 def test_UpdateVolunteer_invalid_stopped_date(db):
@@ -534,4 +534,4 @@ def test_UpdateVolunteer_invalid_stopped_date(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid stopped_volunteering date."
+        assert e.value.details() == "Invalid end date for volunteering."

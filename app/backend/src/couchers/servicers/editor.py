@@ -185,7 +185,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
             select(Volunteer).where(Volunteer.user_id == request.user_id)
         ).scalar_one_or_none()
         if existing_volunteer:
-            context.abort_with_error_code(grpc.StatusCode.ALREADY_EXISTS, "user_already_volunteer")
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_already_volunteer")
 
         # Parse started_volunteering date
         started_volunteering = None
@@ -202,7 +202,6 @@ class Editor(editor_pb2_grpc.EditorServicer):
             show_on_team_page=not request.hide_on_team_page,
         )
         session.add(volunteer)
-        session.flush()
 
         return empty_pb2.Empty()
 
@@ -237,7 +236,5 @@ class Editor(editor_pb2_grpc.EditorServicer):
         # Update show_on_team_page if provided
         if request.HasField("show_on_team_page"):
             volunteer.show_on_team_page = request.show_on_team_page.value
-
-        session.flush()
 
         return empty_pb2.Empty()
