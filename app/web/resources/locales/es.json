@@ -97,9 +97,21 @@
             "success": "¡Gracias por tu denuncia y por hacer de Couchers una plataforma mejor para todos!"
         },
         "bug": {
-            "button_label": "Informar de un problema técnico"
+            "button_label": "Informar de un problema técnico",
+            "title_label": "Título del informe",
+            "warning_message": "Por favor tenga en cuenta que esta información, así como la información de diagnóstico incluyendo en qué página se encuentra, qué navegador está utilizando, y su nombre de usuario, se guardará en una lista pública de errores.",
+            "title_helper": "Breve descripción del error",
+            "problem_label": "¿Qué hiciste para activar el error?",
+            "problem_helper": "Breve descripción del problema y cómo reproducirlo",
+            "expect_label": "¿Qué pasó? ¿Qué debería haber pasado?",
+            "expect_helper": "Breve descripción de lo que esperaba que sucediera en su lugar",
+            "success_message": "¡Gracias por informar de ese error y mejorar Couchers, se ha enviado un informe a los desarrolladores! El ID del error es "
         },
-        "title": "Informar de un problema"
+        "title": "Informar de un problema",
+        "content": {
+            "button_label": "Denunciar contenido o comportamiento inapropiado",
+            "dialog_message": "Estamos trabajando en herramientas de denuncia y moderación robustas. Mientras tanto, por favor envíenos un correo electrónico a la dirección que aparece a continuación. Incluye detalles como el usuario correspondiente, qué fue lo inapropiado, y dónde lo observaste."
+        }
     },
     "continue": "Continuar",
     "required": "Requerido",

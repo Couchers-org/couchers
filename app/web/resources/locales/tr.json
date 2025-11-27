@@ -37,5 +37,8 @@
     "save_changes": "Değişiklikleri kaydet",
     "submit": "Gönder",
     "learn_more": "Daha fazla öğren",
-    "uses": "İşlevler"
+    "uses": "İşlevler",
+    "previous": "Önceki",
+    "next": "İleri",
+    "mod": "Moderasyon"
 }
