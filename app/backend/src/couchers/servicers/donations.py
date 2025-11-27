@@ -3,16 +3,15 @@ import logging
 
 import grpc
 import stripe
-from sqlalchemy import update
 
 from couchers import urls
 from couchers.config import config
+from couchers.helpers.badges import user_add_badge
 from couchers.models import DonationInitiation, DonationType, Invoice, InvoiceType, User
 from couchers.notifications.notify import notify
 from couchers.proto import donations_pb2, donations_pb2_grpc, notification_data_pb2, stripe_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
 from couchers.sql import couchers_select as select
-from couchers.utils import now
 
 logger = logging.getLogger(__name__)
 
@@ -128,8 +127,12 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
 
         if event_type == "charge.succeeded":
             if metadata.get("site_url") == config["MERCH_SHOP_URL"]:
-                # merch shop. just look up this email and update their last donated
-                session.execute(update(User).where(User.email == metadata["customer_email"]).values(last_donated=now()))
+                # merch shop. look up this email and give them the swagster badge
+                user = session.execute(
+                    select(User).where(User.email == metadata["customer_email"])
+                ).scalar_one_or_none()
+                if user:
+                    user_add_badge(session, user.id, "swagster")
             else:
                 customer_id = data_object["customer"]
                 user = session.execute(select(User).where(User.stripe_customer_id == customer_id)).scalar_one()
