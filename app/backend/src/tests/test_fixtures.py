@@ -666,7 +666,7 @@ class FakeRpcError(grpc.RpcError):
         return self._details
 
 
-def _check_user_perms(method: str, user_id: int, is_jailed: bool, is_superuser: bool) -> None:
+def _check_user_perms(method: str, user_id: int, is_jailed: bool, is_editor: bool, is_superuser: bool) -> None:
     # method is of the form "/org.couchers.api.core.API/GetUser"
     _, service_name, method_name = method.split("/")
 
@@ -677,6 +677,7 @@ def _check_user_perms(method: str, user_id: int, is_jailed: bool, is_superuser: 
         annotations_pb2.AUTH_LEVEL_OPEN,
         annotations_pb2.AUTH_LEVEL_JAILED,
         annotations_pb2.AUTH_LEVEL_SECURE,
+        annotations_pb2.AUTH_LEVEL_EDITOR,
         annotations_pb2.AUTH_LEVEL_ADMIN,
     ]
 
@@ -685,6 +686,9 @@ def _check_user_perms(method: str, user_id: int, is_jailed: bool, is_superuser: 
     else:
         assert not (auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not is_superuser), (
             "Non-superuser tried to call superuser API"
+        )
+        assert not (auth_level == annotations_pb2.AUTH_LEVEL_EDITOR and not is_editor), (
+            "Non-editor tried to call editor API"
         )
         assert not (
             is_jailed and auth_level not in [annotations_pb2.AUTH_LEVEL_OPEN, annotations_pb2.AUTH_LEVEL_JAILED]
@@ -731,7 +735,7 @@ class FakeChannel:
 
         def fake_handler(request):
             if self._token:
-                user_id, is_jailed, is_superuser, token_expiry, ui_language_preference = (
+                user_id, is_jailed, is_editor, is_superuser, token_expiry, ui_language_preference = (
                     _try_get_and_update_user_details(
                         self._token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
                     )
@@ -739,10 +743,11 @@ class FakeChannel:
             else:
                 user_id = None
                 is_jailed = None
+                is_editor = None
                 is_superuser = None
                 ui_language_preference = None
 
-            _check_user_perms(uri, user_id, is_jailed, is_superuser)
+            _check_user_perms(uri, user_id, is_jailed, is_editor, is_superuser)
 
             # Do a full serialization cycle on the request and the
             # response to catch accidental use of unserializable data.

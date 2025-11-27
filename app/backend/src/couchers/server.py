@@ -20,6 +20,7 @@ from couchers.proto import (
     conversations_pb2_grpc,
     discussions_pb2_grpc,
     donations_pb2_grpc,
+    editor_pb2_grpc,
     events_pb2_grpc,
     gis_pb2_grpc,
     groups_pb2_grpc,
@@ -47,6 +48,7 @@ from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
 from couchers.servicers.donations import Donations, Stripe
+from couchers.servicers.editor import Editor
 from couchers.servicers.events import Events
 from couchers.servicers.gis import GIS
 from couchers.servicers.groups import Groups
@@ -84,6 +86,7 @@ def create_main_server(port: int) -> grpc.Server:
     conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), server)
     discussions_pb2_grpc.add_DiscussionsServicer_to_server(Discussions(), server)
     donations_pb2_grpc.add_DonationsServicer_to_server(Donations(), server)
+    editor_pb2_grpc.add_EditorServicer_to_server(Editor(), server)
     events_pb2_grpc.add_EventsServicer_to_server(Events(), server)
     gis_pb2_grpc.add_GISServicer_to_server(GIS(), server)
     groups_pb2_grpc.add_GroupsServicer_to_server(Groups(), server)

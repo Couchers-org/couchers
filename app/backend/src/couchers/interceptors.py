@@ -43,11 +43,13 @@ def _binned_now() -> Function[Any]:
 
 def _try_get_and_update_user_details(
     token: str | None, is_api_key: bool, ip_address: str | None, user_agent: str | None
-) -> tuple[int, bool, bool, datetime, str | None] | None:
+) -> tuple[int, bool, bool, bool, datetime, str | None] | None:
     """
     Tries to get session and user info corresponding to this token.
 
     Also updates the user's last active time, token last active time, and increments API call count.
+
+    Returns: (user_id, is_jailed, is_editor, is_superuser, token_expiry, ui_language_preference)
     """
     if not token:
         return None
@@ -99,7 +101,14 @@ def _try_get_and_update_user_details(
 
             session.commit()
 
-            return user.id, user.is_jailed, user.is_superuser, user_session.expiry, user.ui_language_preference
+            return (
+                user.id,
+                user.is_jailed,
+                user.is_editor,
+                user.is_superuser,
+                user_session.expiry,
+                user.ui_language_preference,
+            )
 
 
 # We have to lie with R | NoReturn to please mypy. It should be NoReturn.
@@ -238,6 +247,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             annotations_pb2.AUTH_LEVEL_OPEN,
             annotations_pb2.AUTH_LEVEL_JAILED,
             annotations_pb2.AUTH_LEVEL_SECURE,
+            annotations_pb2.AUTH_LEVEL_EDITOR,
             annotations_pb2.AUTH_LEVEL_ADMIN,
         ]
 
@@ -275,9 +285,13 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 return unauthenticated_handler("Unauthorized")
         else:
             # a valid user session was found
-            user_id, is_jailed, is_superuser, token_expiry, ui_language_preference = auth_info
+            user_id, is_jailed, is_editor, is_superuser, token_expiry, ui_language_preference = auth_info
 
             if auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not is_superuser:
+                # NOTE: do not translate this string; it's used in a hacky way in the frontend
+                return unauthenticated_handler("Permission denied", grpc.StatusCode.PERMISSION_DENIED)
+
+            if auth_level == annotations_pb2.AUTH_LEVEL_EDITOR and not is_editor:
                 # NOTE: do not translate this string; it's used in a hacky way in the frontend
                 return unauthenticated_handler("Permission denied", grpc.StatusCode.PERMISSION_DENIED)
 

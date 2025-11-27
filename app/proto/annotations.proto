@@ -18,6 +18,8 @@ enum AuthLevel {
   AUTH_LEVEL_JAILED = 2;
   // accessible to all signed in users
   AUTH_LEVEL_SECURE = 3;
+  // accessible to editors (admin-lite: can create communities, modify volunteer data)
+  AUTH_LEVEL_EDITOR = 5;
   // accessible only by the Couchers organization
   AUTH_LEVEL_ADMIN = 4;
 }
