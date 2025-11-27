@@ -16,7 +16,7 @@ from couchers.models import (
     Reference,
     UserSession,
 )
-from couchers.proto import admin_pb2, auth_pb2, events_pb2, references_pb2, reporting_pb2
+from couchers.proto import admin_pb2, auth_pb2, editor_pb2, events_pb2, references_pb2, reporting_pb2
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now, parse_date, timedelta
 from tests.test_communities import create_community
@@ -31,6 +31,7 @@ from tests.test_fixtures import (  # noqa
     mock_notification_email,
     push_collector,
     real_admin_session,
+    real_editor_session,
     references_session,
     reporting_session,
     testconfig,
@@ -423,10 +424,10 @@ POINT_GEOJSON = """
 def test_CreateCommunity_invalid_geojson(db):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user()
-    with real_admin_session(super_token) as api:
+    with real_editor_session(super_token) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.CreateCommunity(
-                admin_pb2.CreateCommunityReq(
+                editor_pb2.CreateCommunityReq(
                     name="test community",
                     description="community for testing",
                     admin_ids=[],
@@ -441,9 +442,9 @@ def test_CreateCommunity(db):
     with session_scope() as session:
         super_user, super_token = generate_user(is_superuser=True)
         normal_user, normal_token = generate_user()
-        with real_admin_session(super_token) as api:
+        with real_editor_session(super_token) as api:
             api.CreateCommunity(
-                admin_pb2.CreateCommunityReq(
+                editor_pb2.CreateCommunityReq(
                     name="test community",
                     description="community for testing",
                     admin_ids=[],
@@ -459,9 +460,9 @@ def test_UpdateCommunity_invalid_geojson(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with session_scope() as session:
-        with real_admin_session(super_token) as api:
+        with real_editor_session(super_token) as api:
             api.CreateCommunity(
-                admin_pb2.CreateCommunityReq(
+                editor_pb2.CreateCommunityReq(
                     name="test community",
                     description="community for testing",
                     admin_ids=[],
@@ -472,7 +473,7 @@ def test_UpdateCommunity_invalid_geojson(db):
 
             with pytest.raises(grpc.RpcError) as e:
                 api.UpdateCommunity(
-                    admin_pb2.UpdateCommunityReq(
+                    editor_pb2.UpdateCommunityReq(
                         community_id=community.parent_node_id,
                         name="test community 2",
                         description="community for testing 2",
@@ -486,9 +487,9 @@ def test_UpdateCommunity_invalid_geojson(db):
 def test_UpdateCommunity_invalid_id(db):
     super_user, super_token = generate_user(is_superuser=True)
 
-    with real_admin_session(super_token) as api:
+    with real_editor_session(super_token) as api:
         api.CreateCommunity(
-            admin_pb2.CreateCommunityReq(
+            editor_pb2.CreateCommunityReq(
                 name="test community",
                 description="community for testing",
                 admin_ids=[],
@@ -498,7 +499,7 @@ def test_UpdateCommunity_invalid_id(db):
 
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateCommunity(
-                admin_pb2.UpdateCommunityReq(
+                editor_pb2.UpdateCommunityReq(
                     community_id=1000,
                     name="test community 1000",
                     description="community for testing 1000",
@@ -513,9 +514,9 @@ def test_UpdateCommunity(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with session_scope() as session:
-        with real_admin_session(super_token) as api:
+        with real_editor_session(super_token) as api:
             api.CreateCommunity(
-                admin_pb2.CreateCommunityReq(
+                editor_pb2.CreateCommunityReq(
                     name="test community",
                     description="community for testing",
                     admin_ids=[],
@@ -526,7 +527,7 @@ def test_UpdateCommunity(db):
             assert community.description == "community for testing"
 
             api.CreateCommunity(
-                admin_pb2.CreateCommunityReq(
+                editor_pb2.CreateCommunityReq(
                     name="test community 2",
                     description="community for testing 2",
                     admin_ids=[],
@@ -536,7 +537,7 @@ def test_UpdateCommunity(db):
             community_2 = session.execute(select(Cluster).where(Cluster.name == "test community 2")).scalar_one()
 
             api.UpdateCommunity(
-                admin_pb2.UpdateCommunityReq(
+                editor_pb2.UpdateCommunityReq(
                     community_id=community.parent_node_id,
                     name="test community 2",
                     description="community for testing 2",

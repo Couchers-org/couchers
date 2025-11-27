@@ -8,7 +8,6 @@ import "google/protobuf/wrappers.proto";
 
 import "annotations.proto";
 import "api.proto";
-import "communities.proto";
 
 service Admin {
   option (auth_level) = AUTH_LEVEL_ADMIN;

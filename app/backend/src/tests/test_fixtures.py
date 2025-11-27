@@ -58,6 +58,7 @@ from couchers.proto import (
     conversations_pb2_grpc,
     discussions_pb2_grpc,
     donations_pb2_grpc,
+    editor_pb2_grpc,
     events_pb2_grpc,
     gis_pb2_grpc,
     groups_pb2_grpc,
@@ -85,6 +86,7 @@ from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
 from couchers.servicers.donations import Donations, Stripe
+from couchers.servicers.editor import Editor
 from couchers.servicers.events import Events
 from couchers.servicers.gis import GIS
 from couchers.servicers.groups import Groups
@@ -332,6 +334,10 @@ def generate_user(
     Use this most of the time
     """
     with session_scope() as session:
+        # Ensure superusers are also editors (DB constraint)
+        if kwargs.get("is_superuser") and "is_editor" not in kwargs:
+            kwargs["is_editor"] = True
+
         # default args
         username = "test_user_" + random_hex(16)
         user_opts = {
@@ -594,6 +600,27 @@ def real_admin_session(token):
         try:
             with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
                 yield admin_pb2_grpc.AdminStub(channel)
+        finally:
+            server.stop(None).wait()
+
+
+@contextmanager
+def real_editor_session(token):
+    """
+    Create an Editor service for testing, using TCP sockets, uses the token for auth
+    """
+    with futures.ThreadPoolExecutor(1) as executor:
+        server = grpc.server(executor, interceptors=[CouchersMiddlewareInterceptor()])
+        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+        editor_pb2_grpc.add_EditorServicer_to_server(Editor(), server)
+        server.start()
+
+        call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
+        comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
+
+        try:
+            with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
+                yield editor_pb2_grpc.EditorStub(channel)
         finally:
             server.stop(None).wait()
 
