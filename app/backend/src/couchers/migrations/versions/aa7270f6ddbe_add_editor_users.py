@@ -18,6 +18,7 @@ depends_on = None
 
 def upgrade():
     op.add_column("users", sa.Column("is_editor", sa.Boolean(), server_default=sa.text("false"), nullable=False))
+    op.execute("UPDATE users SET is_editor = true WHERE is_superuser = true")
     op.create_check_constraint(
         constraint_name="superuser_is_editor",
         table_name="users",
