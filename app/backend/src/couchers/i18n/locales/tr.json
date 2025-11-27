@@ -24,6 +24,9 @@
         "cant_invite_self": "Kendini bir sohbete davet edemezsin.",
         "cant_make_self_admin": "Kendini yönetici yapamazsın.",
         "cant_message_in_chat": "Bu sohbete mesaj gönderemezsin.",
-        "cannot_leave_containing_community": "Profilindeki konumun bu topluluk içinde olduğu için bu topluluktan ayrılamazsın. Ancak, hesap ayarlarından bildirimlerini ayarlayabilirsin."
+        "cannot_leave_containing_community": "Profilindeki konumun bu topluluk içinde olduğu için bu topluluktan ayrılamazsın. Ancak, hesap ayarlarından bildirimlerini ayarlayabilirsin.",
+        "date_from_after_one_year": "Başlangıç tarihi bugünden itibaren son bir yıl içinde olmalı.",
+        "date_from_after_to": "Başlangıç tarihi, bitiş tarihinden sonra olamaz.",
+        "date_from_before_today": "Başlangıç tarihi bugün veya daha sonraki bir tarih olmalıdır."
     }
 }

@@ -58,5 +58,10 @@
     "remove_admin": {
       "title": "Yönetici çıkar"
     }
+  },
+  "create_chat": {
+    "group_title_field_label": "Başlık",
+    "dm_title": "Yeni bir sohbet oluştur",
+    "group_title": "Grup sohbeti oluştur"
   }
 }
