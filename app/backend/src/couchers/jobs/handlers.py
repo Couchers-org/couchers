@@ -90,7 +90,6 @@ from couchers.proto.internal import jobs_pb2, verification_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.admin import generate_new_blog_post_notifications
 from couchers.servicers.api import user_model_to_pb
-from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.conversations import generate_message_notifications
 from couchers.servicers.discussions import generate_create_discussion_notifications
 from couchers.servicers.events import (
@@ -500,13 +499,12 @@ def send_reference_reminders(payload: empty_pb2.Empty) -> None:
                         Reference.from_user_id == HostRequest.surfer_user_id,
                     ),
                 )
-                .where(user.is_visible)
-                .where(other_user.is_visible)
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
                 .where(HostRequest.surfer_sent_reference_reminders < reminder_number)
                 .where(HostRequest.end_time_to_write_reference - reminder_time < now())
                 .where(HostRequest.surfer_reason_didnt_meetup == None)
+                .where_users_visible_to_each_other(user, other_user)
             )
 
             # hosts needing to write a ref
@@ -522,13 +520,12 @@ def send_reference_reminders(payload: empty_pb2.Empty) -> None:
                         Reference.from_user_id == HostRequest.host_user_id,
                     ),
                 )
-                .where(user.is_visible)
-                .where(other_user.is_visible)
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
                 .where(HostRequest.host_sent_reference_reminders < reminder_number)
                 .where(HostRequest.end_time_to_write_reference - reminder_time < now())
                 .where(HostRequest.host_reason_didnt_meetup == None)
+                .where_users_visible_to_each_other(user, other_user)
             )
 
             union = union_all(q1, q2).subquery()
@@ -541,25 +538,24 @@ def send_reference_reminders(payload: empty_pb2.Empty) -> None:
             reference_reminders = session.execute(union).all()
 
             for surfed, host_request, user, other_user in reference_reminders:
-                # checked in sql
+                # visibility and blocking already checked in sql
                 assert user.is_visible
-                if not is_not_visible(session, user.id, other_user.id):
-                    context = make_background_user_context(user_id=user.id)
-                    notify(
-                        session,
-                        user_id=user.id,
-                        topic_action="reference:reminder_surfed" if surfed else "reference:reminder_hosted",
-                        data=notification_data_pb2.ReferenceReminder(
-                            host_request_id=host_request.conversation_id,
-                            other_user=user_model_to_pb(other_user, session, context),
-                            days_left=reminder_days_left,
-                        ),
-                    )
-                    if surfed:
-                        host_request.surfer_sent_reference_reminders = reminder_number
-                    else:
-                        host_request.host_sent_reference_reminders = reminder_number
-                    session.commit()
+                context = make_background_user_context(user_id=user.id)
+                notify(
+                    session,
+                    user_id=user.id,
+                    topic_action="reference:reminder_surfed" if surfed else "reference:reminder_hosted",
+                    data=notification_data_pb2.ReferenceReminder(
+                        host_request_id=host_request.conversation_id,
+                        other_user=user_model_to_pb(other_user, session, context),
+                        days_left=reminder_days_left,
+                    ),
+                )
+                if surfed:
+                    host_request.surfer_sent_reference_reminders = reminder_number
+                else:
+                    host_request.host_sent_reference_reminders = reminder_number
+                session.commit()
 
 
 send_reference_reminders.PAYLOAD = empty_pb2.Empty
@@ -580,16 +576,13 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
                 .where(HostRequest.start_time > func.now())
                 .where((func.now() - HostRequest.last_sent_request_reminder_time) >= HOST_REQUEST_REMINDER_INTERVAL)
                 .where(~exists(host_has_sent_message))
+                .where_user_columns_visible_to_each_other(HostRequest.host_user_id, HostRequest.surfer_user_id)
             )
             .scalars()
             .all()
         )
 
         for host_request in requests:
-            # Skip if users are not visible to each other (e.g., one blocked the other)
-            if is_not_visible(session, host_request.host_user_id, host_request.surfer_user_id):
-                continue
-
             host_request.host_sent_request_reminders += 1
             host_request.last_sent_request_reminder_time = now()
 
