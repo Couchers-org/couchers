@@ -38,7 +38,7 @@ If it's the first time you run this, you might need to install CocoaPods (via ho
 If testing native features like push notifications, you need to run a development build on your mobile phone the first time.
 
 - You need to be part of the development team in the Apple Developer Account (or Google Play).
-- Open Xcode, Open the Couchers folder, then go to go to the project's "Signing & Capabilities"
+- [Setup Xcode](https://github.com/expo/fyi/blob/main/setup-xcode-signing.md), open the Couchers folder, then go to go to the project's "Signing & Capabilities"
 - Select your Apple ID as the Team
 - Xcode will automatically provision your device
 - Run `cd app/mobile`

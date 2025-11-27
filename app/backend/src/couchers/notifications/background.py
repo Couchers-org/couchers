@@ -286,7 +286,14 @@ def send_mobile_push_notification(payload: jobs_pb2.SendMobilePushNotificationPa
                     collapse_key=collapse_key,
                 )
 
-                response_data = result.get("data", [{}])[0] if result.get("data") else {}
+                # Safely extract response data - handle cases where data might not be a list
+                response_data = {}
+                if isinstance(result.get("data"), list) and len(result.get("data", [])) > 0:
+                    response_data = result["data"][0]
+                elif isinstance(result.get("data"), dict):
+                    # In some cases, data might be a dict instead of a list
+                    response_data = result["data"]
+
                 status = response_data.get("status", "unknown")
 
                 if status == "error":

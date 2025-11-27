@@ -18,8 +18,6 @@ type WebEmbedProps = {
 export default function WebEmbed({ path }: WebEmbedProps) {
   const WEB_BASE_URL = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
 
-  console.log("🌐 WebView loading:", WEB_BASE_URL + path);
-
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const webviewRef = useRef<WebView>(null);
@@ -81,32 +79,32 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         onNavigationStateChange={handleNavigationStateChange}
         injectedJavaScriptObject={{ isCouchersNativeEmbed: true }}
         onMessage={handleMessage}
-        onLoadStart={() => {
-          console.log("🌐 WebView started loading");
-        }}
-        onLoadEnd={() => {
-          console.log("✅ WebView finished loading");
-        }}
         onError={(syntheticEvent) => {
-          const { nativeEvent } = syntheticEvent;
-          console.error("❌ WebView error:", nativeEvent);
-          console.error("❌ URL:", WEB_BASE_URL + path);
+          if (__DEV__) {
+            const { nativeEvent } = syntheticEvent;
+            console.error("WebView error:", nativeEvent);
+            console.error("URL:", WEB_BASE_URL + path);
+          }
         }}
         onHttpError={(syntheticEvent) => {
-          const { nativeEvent } = syntheticEvent;
-          console.error(
-            "❌ WebView HTTP error:",
-            nativeEvent.statusCode,
-            nativeEvent.url
-          );
+          if (__DEV__) {
+            const { nativeEvent } = syntheticEvent;
+            console.error(
+              "WebView HTTP error:",
+              nativeEvent.statusCode,
+              nativeEvent.url
+            );
+          }
         }}
         renderError={(errorDomain, errorCode, errorDesc) => {
-          console.error(
-            "❌ WebView render error:",
-            errorDomain,
-            errorCode,
-            errorDesc
-          );
+          if (__DEV__) {
+            console.error(
+              "WebView render error:",
+              errorDomain,
+              errorCode,
+              errorDesc
+            );
+          }
           return (
             <View style={styles.errorContainer}>
               <Text style={styles.errorText}>Failed to load page</Text>

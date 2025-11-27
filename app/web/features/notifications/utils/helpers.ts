@@ -109,14 +109,16 @@ const getCurrentSubscription = async () => {
 };
 
 export const checkPushEnabled = async () => {
-  if ("serviceWorker" in navigator && "PushManager" in window) {
-    const existingPushSubscription = await getCurrentSubscription();
-    return (
-      Notification.permission === "granted" && existingPushSubscription !== null
-    );
-  } else {
-    throw new Error("Push notifications or service workers not supported");
+  // Return false if service workers or push notifications aren't supported
+  // (e.g., in mobile WebViews, Safari private browsing, etc.)
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+    return false;
   }
+
+  const existingPushSubscription = await getCurrentSubscription();
+  return (
+    Notification.permission === "granted" && existingPushSubscription !== null
+  );
 };
 
 export const turnPushNotificationsOn = async (

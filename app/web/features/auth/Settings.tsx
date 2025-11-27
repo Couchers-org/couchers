@@ -1,4 +1,4 @@
-import { Button, styled } from "@mui/material";
+import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
@@ -14,9 +14,10 @@ import PushNotificationSettings from "features/notifications/PushNotificationSet
 import LanguagePickerSettings from "features/translate/LanguagePickerSettings";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
-import { useEffect, useState } from "react";
-import { sendTestMobilePushNotification } from "service/notifications";
+import { useEffect } from "react";
 
+// import { useState } from "react";
+// import { sendTestMobilePushNotification } from "service/notifications";
 import { useIsNativeEmbed } from "../../platform/nativeLink";
 import DeleteAccount from "./deletion/DeleteAccount";
 import ManageDonations from "./donations/ManageDonations";
@@ -39,8 +40,9 @@ const MarginWrapper = styled("div")(({ theme }) => ({
 export default function Settings() {
   const { t } = useTranslation(AUTH);
   const isNativeEmbed = useIsNativeEmbed();
-  const [testPushLoading, setTestPushLoading] = useState(false);
-  const [testPushMessage, setTestPushMessage] = useState<string | null>(null);
+  // Uncomment to enable test push notification button
+  // const [testPushLoading, setTestPushLoading] = useState(false);
+  // const [testPushMessage, setTestPushMessage] = useState<string | null>(null);
 
   const {
     data: accountInfo,
@@ -48,20 +50,21 @@ export default function Settings() {
     isLoading: isAccountInfoLoading,
   } = useAccountInfo();
 
-  const handleTestPush = async () => {
-    setTestPushLoading(true);
-    setTestPushMessage(null);
-    try {
-      await sendTestMobilePushNotification();
-      setTestPushMessage("✅ Test notification sent! Check your phone.");
-    } catch (error) {
-      setTestPushMessage(
-        "❌ Failed to send test notification: " + (error as Error).message,
-      );
-    } finally {
-      setTestPushLoading(false);
-    }
-  };
+  // Uncomment to enable test push notification button
+  // const handleTestPush = async () => {
+  //   setTestPushLoading(true);
+  //   setTestPushMessage(null);
+  //   try {
+  //     await sendTestMobilePushNotification();
+  //     setTestPushMessage("✅ Test notification sent! Check your phone.");
+  //   } catch (error) {
+  //     setTestPushMessage(
+  //       "❌ Failed to send test notification: " + (error as Error).message,
+  //     );
+  //   } finally {
+  //     setTestPushLoading(false);
+  //   }
+  // };
 
   useEffect(() => {
     // Scroll to the element if there's a hash in the URL
@@ -90,29 +93,28 @@ export default function Settings() {
           <TopMarginWrapper>
             {isNativeEmbed ? null : <PushNotificationSettings />}
           </TopMarginWrapper>
-          {/* Temporary test button for mobile push notifications */}
-          {isNativeEmbed && (
-            <MarginWrapper>
-              <Button
-                variant="contained"
-                onClick={handleTestPush}
-                disabled={testPushLoading}
+          {/* Temporary test button for mobile push notifications - uncomment to test
+          <MarginWrapper>
+            <Button
+              variant="contained"
+              onClick={handleTestPush}
+              disabled={testPushLoading}
+            >
+              {testPushLoading
+                ? "Sending..."
+                : "🔔 Test Mobile Push Notification"}
+            </Button>
+            {testPushMessage && (
+              <Alert
+                severity={
+                  testPushMessage.startsWith("✅") ? "success" : "error"
+                }
               >
-                {testPushLoading
-                  ? "Sending..."
-                  : "🔔 Test Mobile Push Notification"}
-              </Button>
-              {testPushMessage && (
-                <Alert
-                  severity={
-                    testPushMessage.startsWith("✅") ? "success" : "error"
-                  }
-                >
-                  {testPushMessage}
-                </Alert>
-              )}
-            </MarginWrapper>
-          )}
+                {testPushMessage}
+              </Alert>
+            )}
+          </MarginWrapper>
+          */}
           <MarginWrapper>
             <NotificationSettings />
           </MarginWrapper>
