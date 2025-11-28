@@ -29,17 +29,6 @@ def send_postcard(
     """
     Sends a physical postcard with verification code.
 
-    In production, this would call an external service like:
-    - Lob
-    - PostGrid
-    - Stannp
-
-    The postcard would contain:
-    - Couchers.org branding
-    - The verification code prominently displayed
-    - A QR code that links to verification page with pre-filled code
-    - Instructions for the user
-
     Args:
         recipient_name: Name to print on the postcard
         address_line_1: Street address

@@ -68,6 +68,7 @@ from couchers.proto import (
     media_pb2_grpc,
     notifications_pb2_grpc,
     pages_pb2_grpc,
+    postal_verification_pb2_grpc,
     public_pb2_grpc,
     references_pb2_grpc,
     reporting_pb2_grpc,
@@ -95,6 +96,7 @@ from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.notifications import Notifications
 from couchers.servicers.pages import Pages
+from couchers.servicers.postal_verification import PostalVerification
 from couchers.servicers.public import Public
 from couchers.servicers.references import References
 from couchers.servicers.reporting import Reporting
@@ -953,6 +955,13 @@ def events_session(token):
     channel = FakeChannel(token)
     events_pb2_grpc.add_EventsServicer_to_server(Events(), channel)
     yield events_pb2_grpc.EventsStub(channel)
+
+
+@contextmanager
+def postal_verification_session(token):
+    channel = FakeChannel(token)
+    postal_verification_pb2_grpc.add_PostalVerificationServicer_to_server(PostalVerification(), channel)
+    yield postal_verification_pb2_grpc.PostalVerificationStub(channel)
 
 
 @contextmanager
