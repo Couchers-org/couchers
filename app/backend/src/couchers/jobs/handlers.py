@@ -1221,16 +1221,15 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             attempt.status = PostalVerificationStatus.awaiting_verification
             attempt.postcard_sent_at = func.now()
 
-            # TODO: Notify user that postcard is on its way when notification types are set up
-            # notify(
-            #     session,
-            #     user_id=user.id,
-            #     topic_action="postal_verification:postcard_sent",
-            #     data=notification_data_pb2.PostalVerificationPostcardSent(
-            #         address_city=attempt.city,
-            #         address_country=attempt.country,
-            #     ),
-            # )
+            notify(
+                session,
+                user_id=attempt.user_id,
+                topic_action="postal_verification:postcard_sent",
+                data=notification_data_pb2.PostalVerificationPostcardSent(
+                    city=attempt.city,
+                    country=attempt.country,
+                ),
+            )
         else:
             # Could retry or fail - for now, fail
             attempt.status = PostalVerificationStatus.failed

@@ -17,8 +17,9 @@ from couchers.helpers.postal_verification import generate_postal_verification_co
 from couchers.jobs.enqueue import queue_job
 from couchers.models import User
 from couchers.models.postal_verification import PostalVerificationAttempt, PostalVerificationStatus
+from couchers.notifications.notify import notify
 from couchers.postal.address_validation import AddressValidationError, validate_address
-from couchers.proto import postal_verification_pb2, postal_verification_pb2_grpc
+from couchers.proto import notification_data_pb2, postal_verification_pb2, postal_verification_pb2_grpc
 from couchers.proto.internal import jobs_pb2
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now
@@ -212,7 +213,45 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
 
         has_verification = has_postal_verification(session, user)
 
-        # Get latest attempt or specific attempt if requested
+        # Always get the latest attempt for determining can_initiate and has_active_attempt
+        latest_attempt = session.execute(
+            select(PostalVerificationAttempt)
+            .where(PostalVerificationAttempt.user_id == user.id)
+            .order_by(PostalVerificationAttempt.created.desc())
+            .limit(1)
+        ).scalar_one_or_none()
+
+        # Check if user can initiate a new attempt (based on latest attempt)
+        can_initiate = True
+        next_attempt_allowed_at = None
+        has_active_attempt = False
+
+        if latest_attempt:
+            # Can't initiate if there's an active attempt
+            if latest_attempt.status in [
+                PostalVerificationStatus.pending_address_confirmation,
+                PostalVerificationStatus.in_progress,
+                PostalVerificationStatus.awaiting_verification,
+            ]:
+                can_initiate = False
+                has_active_attempt = True
+            else:
+                # Check rate limit
+                time_since_last = now() - latest_attempt.created
+                if time_since_last < POSTAL_VERIFICATION_RATE_LIMIT:
+                    can_initiate = False
+                    next_attempt_allowed_at = latest_attempt.created + POSTAL_VERIFICATION_RATE_LIMIT
+
+        res = postal_verification_pb2.GetPostalVerificationStatusRes(
+            has_postal_verification=has_verification,
+            can_initiate_new_attempt=can_initiate,
+            has_active_attempt=has_active_attempt,
+        )
+
+        if next_attempt_allowed_at:
+            res.next_attempt_allowed_at.CopyFrom(Timestamp_from_datetime(next_attempt_allowed_at))
+
+        # Get specific attempt if requested, otherwise use latest
         if request.postal_verification_attempt_id:
             attempt = session.execute(
                 select(PostalVerificationAttempt)
@@ -220,46 +259,9 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
                 .where(PostalVerificationAttempt.user_id == context.user_id)
             ).scalar_one_or_none()
         else:
-            attempt = session.execute(
-                select(PostalVerificationAttempt)
-                .where(PostalVerificationAttempt.user_id == user.id)
-                .order_by(PostalVerificationAttempt.created.desc())
-                .limit(1)
-            ).scalar_one_or_none()
-
-        # Check if user can initiate a new attempt
-        can_initiate = True
-        next_attempt_allowed_at = None
+            attempt = latest_attempt
 
         if attempt:
-            # Can't initiate if there's an active attempt
-            if attempt.status in [
-                PostalVerificationStatus.pending_address_confirmation,
-                PostalVerificationStatus.in_progress,
-                PostalVerificationStatus.awaiting_verification,
-            ]:
-                can_initiate = False
-            else:
-                # Check rate limit
-                time_since_last = now() - attempt.created
-                if time_since_last < POSTAL_VERIFICATION_RATE_LIMIT:
-                    can_initiate = False
-                    next_attempt_allowed_at = attempt.created + POSTAL_VERIFICATION_RATE_LIMIT
-
-        res = postal_verification_pb2.GetPostalVerificationStatusRes(
-            has_postal_verification=has_verification,
-            can_initiate_new_attempt=can_initiate,
-        )
-
-        if next_attempt_allowed_at:
-            res.next_attempt_allowed_at.CopyFrom(Timestamp_from_datetime(next_attempt_allowed_at))
-
-        if attempt:
-            res.has_active_attempt = attempt.status in [
-                PostalVerificationStatus.pending_address_confirmation,
-                PostalVerificationStatus.in_progress,
-                PostalVerificationStatus.awaiting_verification,
-            ]
             res.postal_verification_attempt_id = attempt.id
             res.status = postalverificationstatus2pb.get(
                 attempt.status, postal_verification_pb2.POSTAL_VERIFICATION_STATUS_UNKNOWN
@@ -293,6 +295,14 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         # Check code expiry
         if attempt.postcard_sent_at and (now() - attempt.postcard_sent_at) > POSTAL_VERIFICATION_CODE_LIFETIME:
             attempt.status = PostalVerificationStatus.failed
+            notify(
+                session,
+                user_id=context.user_id,
+                topic_action="postal_verification:failed",
+                data=notification_data_pb2.PostalVerificationFailed(
+                    reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED
+                ),
+            )
             session.flush()
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "postal_verification_code_expired")
 
@@ -305,6 +315,14 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
 
             if remaining <= 0:
                 attempt.status = PostalVerificationStatus.failed
+                notify(
+                    session,
+                    user_id=context.user_id,
+                    topic_action="postal_verification:failed",
+                    data=notification_data_pb2.PostalVerificationFailed(
+                        reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS
+                    ),
+                )
                 session.flush()
                 return postal_verification_pb2.VerifyPostalCodeRes(
                     success=False,
@@ -321,13 +339,11 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         attempt.status = PostalVerificationStatus.succeeded
         attempt.verified_at = now()
 
-        # TODO: Send notification when notification types are set up
-        # notify(
-        #     session,
-        #     user_id=context.user_id,
-        #     topic_action="postal_verification:success",
-        #     data=notification_data_pb2.PostalVerificationSuccess(),
-        # )
+        notify(
+            session,
+            user_id=context.user_id,
+            topic_action="postal_verification:success",
+        )
 
         return postal_verification_pb2.VerifyPostalCodeRes(
             success=True,

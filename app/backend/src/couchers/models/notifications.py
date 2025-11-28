@@ -147,6 +147,16 @@ class NotificationTopicAction(enum.Enum):
     verification__sv_fail = ("verification:sv_fail", dt_sec, False, nd.VerificationSVFail)
     verification__sv_success = ("verification:sv_success", dt_sec, False, empty_pb2.Empty)
 
+    # postal verification
+    postal_verification__postcard_sent = (
+        "postal_verification:postcard_sent",
+        dt_all,
+        True,
+        nd.PostalVerificationPostcardSent,
+    )
+    postal_verification__success = ("postal_verification:success", dt_sec, False, empty_pb2.Empty)
+    postal_verification__failed = ("postal_verification:failed", dt_sec, False, nd.PostalVerificationFailed)
+
     # general announcements
     general__new_blog_post = ("general:new_blog_post", [dt.push, dt.digest], True, nd.GeneralNewBlogPost)
 
