@@ -5,7 +5,7 @@ import grpc
 from geoalchemy2.shape import from_shape
 from google.protobuf import empty_pb2
 from shapely.geometry import shape
-from sqlalchemy.sql import select, update
+from sqlalchemy.sql import exists, select, update
 
 from couchers import urls
 from couchers.context import make_background_user_context
@@ -200,15 +200,11 @@ class Editor(editor_pb2_grpc.EditorServicer):
 
     def MakeUserVolunteer(self, request, context, session):
         # Check if user exists
-        user = session.execute(select(User).where(User.id == request.user_id)).scalar_one_or_none()
-        if not user:
+        if not session.execute(select(exists().where(User.id == request.user_id))).scalar():
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         # Check if user is already a volunteer
-        existing_volunteer = session.execute(
-            select(Volunteer).where(Volunteer.user_id == request.user_id)
-        ).scalar_one_or_none()
-        if existing_volunteer:
+        if session.execute(select(exists().where(Volunteer.user_id == request.user_id))).scalar():
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_already_volunteer")
 
         # Parse started_volunteering date
