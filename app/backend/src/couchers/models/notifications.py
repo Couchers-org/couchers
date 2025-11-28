@@ -32,6 +32,11 @@ class NotificationDeliveryType(enum.Enum):
     digest = enum.auto()
 
 
+class DeviceType(enum.Enum):
+    ios = "ios"
+    android = "android"
+
+
 dt = NotificationDeliveryType
 nd = notification_data_pb2
 dt_sec = [dt.email, dt.push]
@@ -294,7 +299,7 @@ class PushNotificationDeliveryAttempt(Base):
     status_code: Mapped[int] = mapped_column(Integer)
 
     # can be null if it was a success
-    response: Mapped[str | None] = mapped_column(String, nullable=True)
+    response: Mapped[str | None] = mapped_column(String)
 
     push_notification_subscription = relationship("PushNotificationSubscription")
 
@@ -313,8 +318,8 @@ class MobilePushNotificationSubscription(Base):
 
     token: Mapped[str] = mapped_column(String, unique=True, index=True)
     platform: Mapped[str] = mapped_column(String)  # "expo", "fcm", "apns"
-    device_name: Mapped[str | None] = mapped_column(String, nullable=True)
-    device_type: Mapped[str | None] = mapped_column(String, nullable=True)  # "ios", "android"
+    device_name: Mapped[str | None] = mapped_column(String)
+    device_type: Mapped[DeviceType | None] = mapped_column(Enum(DeviceType))
 
     disabled_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=DATETIME_INFINITY.isoformat())
 
@@ -323,7 +328,6 @@ class MobilePushNotificationSubscription(Base):
     __table_args__ = (
         Index(
             "ix_mobile_push_notification_subscriptions_active",
-            user_id,
             disabled_at,
         ),
     )
@@ -341,6 +345,6 @@ class MobilePushNotificationDeliveryAttempt(Base):
 
     success: Mapped[bool] = mapped_column(Boolean)
     status_code: Mapped[int] = mapped_column(Integer)
-    response: Mapped[str | None] = mapped_column(String, nullable=True)
+    response: Mapped[str | None] = mapped_column(String)
 
     mobile_push_notification_subscription = relationship("MobilePushNotificationSubscription")
