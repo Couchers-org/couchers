@@ -17,6 +17,10 @@ depends_on = None
 
 
 def upgrade():
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'postal_verification__postcard_sent'")
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'postal_verification__success'")
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'postal_verification__failed'")
+
     op.create_table(
         "postal_verification_attempts",
         sa.Column("id", sa.BigInteger(), nullable=False),

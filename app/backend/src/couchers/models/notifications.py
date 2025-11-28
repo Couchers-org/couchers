@@ -150,8 +150,8 @@ class NotificationTopicAction(enum.Enum):
     # postal verification
     postal_verification__postcard_sent = (
         "postal_verification:postcard_sent",
-        dt_all,
-        True,
+        dt_sec,
+        False,
         nd.PostalVerificationPostcardSent,
     )
     postal_verification__success = ("postal_verification:success", dt_sec, False, empty_pb2.Empty)

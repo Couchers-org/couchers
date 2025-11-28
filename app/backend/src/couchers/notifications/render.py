@@ -905,6 +905,7 @@ def render_notification(user: User, notification: Notification) -> RenderedNotif
             title = "Your verification postcard is on its way"
             message = f"We've sent a postcard with your verification code to {data.city}, {data.country}. It should arrive within 1-3 weeks depending on your location. Once it arrives, enter the code on the platform to complete verification."
             return RenderedNotification(
+                is_critical=True,
                 email_subject=title,
                 email_preview=message,
                 email_template_name="security",
@@ -912,7 +913,6 @@ def render_notification(user: User, notification: Notification) -> RenderedNotif
                     "title": title,
                     "message": message,
                 },
-                email_topic_action_unsubscribe_text="postal verification updates",
                 push_title=title,
                 push_body=f"Postcard sent to {data.city}, {data.country}. Expect it within 1-3 weeks.",
                 push_icon=urls.icon_url(),
