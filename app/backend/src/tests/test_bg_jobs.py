@@ -39,6 +39,7 @@ from couchers.models import (
     MessageType,
     PasswordResetToken,
     UserBadge,
+    UserBlock,
 )
 from couchers.proto import conversations_pb2, requests_pb2
 from couchers.sql import couchers_select as select
@@ -1228,6 +1229,199 @@ def test_update_badges(db, push_collector):
         title="The Verified Phone badge was added to your profile",
         body="Check out your profile to see the new badge!",
     )
+
+
+def test_send_request_notifications_blocked_users_no_notification(db):
+    """
+    Regression test: send_request_notifications should not send notifications
+    when the host and surfer are not visible to each other (e.g., one blocked the other).
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    # Create a host request
+    with requests_session(token1) as requests:
+        host_request_id = requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        ).host_request_id
+
+    with session_scope() as session:
+        # delete send_email BackgroundJob created by CreateHostRequest
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    # Now user2 (host) blocks user1 (surfer)
+    make_user_block(user2, user1)
+
+    with session_scope() as session:
+        # check send_request_notifications does NOT create background job because users are blocked
+        with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+            send_request_notifications(empty_pb2.Empty())
+            process_jobs()
+
+        # Should be 0 emails because the host blocked the surfer
+        assert (
+            session.execute(
+                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
+            ).scalar_one()
+            == 0
+        ), "No notification email should be sent when host has blocked surfer"
+
+    # Also test the reverse direction: surfer sends message to host, host should not get notification
+    # First unblock
+    with session_scope() as session:
+        session.execute(delete(UserBlock).execution_options(synchronize_session=False))
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    # Host responds
+    with requests_session(token2) as requests:
+        requests.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                text="Accepting your request",
+            )
+        )
+
+    with session_scope() as session:
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    # Now user1 (surfer) blocks user2 (host)
+    make_user_block(user1, user2)
+
+    with session_scope() as session:
+        # check send_request_notifications does NOT create background job
+        with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+            send_request_notifications(empty_pb2.Empty())
+            process_jobs()
+
+        # Should be 0 emails because the surfer blocked the host
+        assert (
+            session.execute(
+                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
+            ).scalar_one()
+            == 0
+        ), "No notification email should be sent when surfer has blocked host"
+
+
+def test_send_host_request_reminders_blocked_users_no_notification(db):
+    """
+    send_host_request_reminders should not send notifications when the host and surfer are not visible to each other
+    (e.g., one blocked the other).
+    """
+    user1, token1 = generate_user(email="user1@couchers.org.invalid", name="User 1")
+    user2, token2 = generate_user(email="user2@couchers.org.invalid", name="User 2")
+
+    with session_scope() as session:
+        # Create a pending host request where the host has not replied
+        hr = create_host_request_by_date(
+            session=session,
+            surfer_user_id=user1.id,
+            host_user_id=user2.id,
+            from_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=1),
+            to_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=2),
+            status=HostRequestStatus.pending,
+            host_sent_request_reminders=0,
+            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
+        )
+
+    # Verify that without blocking, a reminder would be sent
+    send_host_request_reminders(empty_pb2.Empty())
+
+    while process_job():
+        pass
+
+    with session_scope() as session:
+        emails = session.execute(select(Email)).scalars().all()
+        assert len(emails) == 1, "Expected 1 reminder email before blocking"
+
+        # Clean up emails and background jobs
+        session.execute(delete(Email).execution_options(synchronize_session=False))
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+        # Reset the reminder counter so we can test again
+        from couchers.models import HostRequest
+
+        host_request = session.execute(select(HostRequest).where(HostRequest.conversation_id == hr)).scalar_one()
+        host_request.host_sent_request_reminders = 0
+        host_request.last_sent_request_reminder_time = now() - HOST_REQUEST_REMINDER_INTERVAL
+
+    # Now have the host block the surfer
+    make_user_block(user2, user1)
+
+    send_host_request_reminders(empty_pb2.Empty())
+
+    while process_job():
+        pass
+
+    with session_scope() as session:
+        emails = session.execute(select(Email)).scalars().all()
+        assert len(emails) == 0, "No reminder email should be sent when host has blocked surfer"
+
+
+def test_send_message_notifications_blocked_users_no_notification(db):
+    """
+    Regression test: send_message_notifications should not send notifications
+    for messages from users who are blocked by the recipient.
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    make_friends(user1, user2)
+
+    # Create a group chat and send messages
+    with conversations_session(token1) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
+        ).group_chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
+
+    # Verify that without blocking, a notification would be sent
+    with session_scope() as session:
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+        send_message_notifications(empty_pb2.Empty())
+        process_jobs()
+
+    with session_scope() as session:
+        email_job_count = session.execute(
+            select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
+        ).scalar_one()
+        assert email_job_count == 1, "Expected 1 notification email before blocking"
+
+        # Clean up
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    # Reset the notification state so user2 will receive notifications for old messages again
+    with session_scope() as session:
+        from couchers.models import User
+
+        u2 = session.execute(select(User).where(User.id == user2.id)).scalar_one()
+        u2.last_notified_message_id = 0
+
+    # Now have user2 block user1
+    make_user_block(user2, user1)
+
+    # The existing messages from user1 should now NOT trigger notifications
+    # since user2 has blocked user1
+    with session_scope() as session:
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+        send_message_notifications(empty_pb2.Empty())
+        process_jobs()
+
+    with session_scope() as session:
+        email_job_count = session.execute(
+            select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
+        ).scalar_one()
+        assert email_job_count == 0, "No notification email should be sent when recipient has blocked sender"
 
 
 def test_send_message_notifications_empty_unseen_simple(monkeypatch):

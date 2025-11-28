@@ -89,7 +89,6 @@ from couchers.proto import notification_data_pb2
 from couchers.proto.internal import jobs_pb2, verification_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.api import user_model_to_pb
-from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.conversations import generate_message_notifications
 from couchers.servicers.discussions import generate_create_discussion_notifications
 from couchers.servicers.editor import generate_new_blog_post_notifications
@@ -232,6 +231,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
         )
 
         for user in users:
+            context = make_background_user_context(user_id=user.id)
             # now actually grab all the group chats, not just less than 5 min old
             subquery = (
                 select(
@@ -248,6 +248,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                 .where(Message.time >= GroupChatSubscription.joined)
                 .where(Message.message_type == MessageType.text)  # TODO: only text messages for now
                 .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                .where_users_column_visible(context, Message.author_id)
                 .group_by(GroupChatSubscription.group_chat_id)
                 .order_by(func.max(Message.id).desc())
                 .subquery()
@@ -281,7 +282,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                             author=user_model_to_pb(
                                 message.author,
                                 session,
-                                make_background_user_context(user_id=user.id),
+                                context,
                             ),
                             message=format_title(message, group_chat, count_unseen),
                             text=message.text,
@@ -305,65 +306,104 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
     logger.info("Sending out email notifications for unseen messages in host requests")
 
     with session_scope() as session:
-        # requests where this user is surfing
-        surfing_reqs = session.execute(
-            select(User, HostRequest, func.max(Message.id))
-            .where(User.is_visible)
-            .join(HostRequest, HostRequest.surfer_user_id == User.id)
-            .join(Message, Message.conversation_id == HostRequest.conversation_id)
-            .where(Message.id > HostRequest.surfer_last_seen_message_id)
-            .where(Message.id > User.last_notified_request_message_id)
-            .where(Message.time < now() - timedelta(minutes=5))
-            .where(Message.message_type == MessageType.text)
-            .group_by(User, HostRequest)
-        ).all()
-
-        # where this user is hosting
-        hosting_reqs = session.execute(
-            select(User, HostRequest, func.max(Message.id))
-            .where(User.is_visible)
-            .join(HostRequest, HostRequest.host_user_id == User.id)
-            .join(Message, Message.conversation_id == HostRequest.conversation_id)
-            .where(Message.id > HostRequest.host_last_seen_message_id)
-            .where(Message.id > User.last_notified_request_message_id)
-            .where(Message.time < now() - timedelta(minutes=5))
-            .where(Message.message_type == MessageType.text)
-            .group_by(User, HostRequest)
-        ).all()
-
-        for user, host_request, max_message_id in surfing_reqs:
-            user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
-            session.flush()
-
-            context = make_background_user_context(user_id=user.id)
-            notify(
-                session,
-                user_id=user.id,
-                topic_action="host_request:missed_messages",
-                key=host_request.conversation_id,
-                data=notification_data_pb2.HostRequestMissedMessages(
-                    host_request=host_request_to_pb(host_request, session, context),
-                    user=user_model_to_pb(host_request.host, session, context),
-                    am_host=False,
-                ),
+        # Get all candidate users who might have unseen request messages
+        candidate_user_ids = (
+            session.execute(
+                select(User.id)
+                .where(User.is_visible)
+                .where(
+                    or_(
+                        # Users with unseen messages as surfer
+                        exists(
+                            select(1)
+                            .select_from(HostRequest)
+                            .join(Message, Message.conversation_id == HostRequest.conversation_id)
+                            .where(HostRequest.surfer_user_id == User.id)
+                            .where(Message.id > HostRequest.surfer_last_seen_message_id)
+                            .where(Message.id > User.last_notified_request_message_id)
+                            .where(Message.time < now() - timedelta(minutes=5))
+                            .where(Message.message_type == MessageType.text)
+                        ),
+                        # Users with unseen messages as host
+                        exists(
+                            select(1)
+                            .select_from(HostRequest)
+                            .join(Message, Message.conversation_id == HostRequest.conversation_id)
+                            .where(HostRequest.host_user_id == User.id)
+                            .where(Message.id > HostRequest.host_last_seen_message_id)
+                            .where(Message.id > User.last_notified_request_message_id)
+                            .where(Message.time < now() - timedelta(minutes=5))
+                            .where(Message.message_type == MessageType.text)
+                        ),
+                    )
+                )
             )
+            .scalars()
+            .all()
+        )
 
-        for user, host_request, max_message_id in hosting_reqs:
-            user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
-            session.flush()
+        for user_id in candidate_user_ids:
+            context = make_background_user_context(user_id=user_id)
 
-            context = make_background_user_context(user_id=user.id)
-            notify(
-                session,
-                user_id=user.id,
-                topic_action="host_request:missed_messages",
-                key=host_request.conversation_id,
-                data=notification_data_pb2.HostRequestMissedMessages(
-                    host_request=host_request_to_pb(host_request, session, context),
-                    user=user_model_to_pb(host_request.surfer, session, context),
-                    am_host=True,
-                ),
-            )
+            # requests where this user is surfing
+            surfing_reqs = session.execute(
+                select(User, HostRequest, func.max(Message.id))
+                .where(User.id == user_id)
+                .join(HostRequest, HostRequest.surfer_user_id == User.id)
+                .where_users_column_visible(context, HostRequest.host_user_id)
+                .join(Message, Message.conversation_id == HostRequest.conversation_id)
+                .where(Message.id > HostRequest.surfer_last_seen_message_id)
+                .where(Message.id > User.last_notified_request_message_id)
+                .where(Message.time < now() - timedelta(minutes=5))
+                .where(Message.message_type == MessageType.text)
+                .group_by(User, HostRequest)
+            ).all()
+
+            # where this user is hosting
+            hosting_reqs = session.execute(
+                select(User, HostRequest, func.max(Message.id))
+                .where(User.id == user_id)
+                .join(HostRequest, HostRequest.host_user_id == User.id)
+                .where_users_column_visible(context, HostRequest.surfer_user_id)
+                .join(Message, Message.conversation_id == HostRequest.conversation_id)
+                .where(Message.id > HostRequest.host_last_seen_message_id)
+                .where(Message.id > User.last_notified_request_message_id)
+                .where(Message.time < now() - timedelta(minutes=5))
+                .where(Message.message_type == MessageType.text)
+                .group_by(User, HostRequest)
+            ).all()
+
+            for user, host_request, max_message_id in surfing_reqs:
+                user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
+                session.flush()
+
+                notify(
+                    session,
+                    user_id=user.id,
+                    topic_action="host_request:missed_messages",
+                    key=host_request.conversation_id,
+                    data=notification_data_pb2.HostRequestMissedMessages(
+                        host_request=host_request_to_pb(host_request, session, context),
+                        user=user_model_to_pb(host_request.host, session, context),
+                        am_host=False,
+                    ),
+                )
+
+            for user, host_request, max_message_id in hosting_reqs:
+                user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
+                session.flush()
+
+                notify(
+                    session,
+                    user_id=user.id,
+                    topic_action="host_request:missed_messages",
+                    key=host_request.conversation_id,
+                    data=notification_data_pb2.HostRequestMissedMessages(
+                        host_request=host_request_to_pb(host_request, session, context),
+                        user=user_model_to_pb(host_request.surfer, session, context),
+                        am_host=True,
+                    ),
+                )
 
 
 send_request_notifications.PAYLOAD = empty_pb2.Empty
@@ -459,13 +499,12 @@ def send_reference_reminders(payload: empty_pb2.Empty) -> None:
                         Reference.from_user_id == HostRequest.surfer_user_id,
                     ),
                 )
-                .where(user.is_visible)
-                .where(other_user.is_visible)
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
                 .where(HostRequest.surfer_sent_reference_reminders < reminder_number)
                 .where(HostRequest.end_time_to_write_reference - reminder_time < now())
                 .where(HostRequest.surfer_reason_didnt_meetup == None)
+                .where_users_visible_to_each_other(user, other_user)
             )
 
             # hosts needing to write a ref
@@ -481,13 +520,12 @@ def send_reference_reminders(payload: empty_pb2.Empty) -> None:
                         Reference.from_user_id == HostRequest.host_user_id,
                     ),
                 )
-                .where(user.is_visible)
-                .where(other_user.is_visible)
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
                 .where(HostRequest.host_sent_reference_reminders < reminder_number)
                 .where(HostRequest.end_time_to_write_reference - reminder_time < now())
                 .where(HostRequest.host_reason_didnt_meetup == None)
+                .where_users_visible_to_each_other(user, other_user)
             )
 
             union = union_all(q1, q2).subquery()
@@ -500,25 +538,24 @@ def send_reference_reminders(payload: empty_pb2.Empty) -> None:
             reference_reminders = session.execute(union).all()
 
             for surfed, host_request, user, other_user in reference_reminders:
-                # checked in sql
+                # visibility and blocking already checked in sql
                 assert user.is_visible
-                if not is_not_visible(session, user.id, other_user.id):
-                    context = make_background_user_context(user_id=user.id)
-                    notify(
-                        session,
-                        user_id=user.id,
-                        topic_action="reference:reminder_surfed" if surfed else "reference:reminder_hosted",
-                        data=notification_data_pb2.ReferenceReminder(
-                            host_request_id=host_request.conversation_id,
-                            other_user=user_model_to_pb(other_user, session, context),
-                            days_left=reminder_days_left,
-                        ),
-                    )
-                    if surfed:
-                        host_request.surfer_sent_reference_reminders = reminder_number
-                    else:
-                        host_request.host_sent_reference_reminders = reminder_number
-                    session.commit()
+                context = make_background_user_context(user_id=user.id)
+                notify(
+                    session,
+                    user_id=user.id,
+                    topic_action="reference:reminder_surfed" if surfed else "reference:reminder_hosted",
+                    data=notification_data_pb2.ReferenceReminder(
+                        host_request_id=host_request.conversation_id,
+                        other_user=user_model_to_pb(other_user, session, context),
+                        days_left=reminder_days_left,
+                    ),
+                )
+                if surfed:
+                    host_request.surfer_sent_reference_reminders = reminder_number
+                else:
+                    host_request.host_sent_reference_reminders = reminder_number
+                session.commit()
 
 
 send_reference_reminders.PAYLOAD = empty_pb2.Empty
@@ -539,6 +576,7 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
                 .where(HostRequest.start_time > func.now())
                 .where((func.now() - HostRequest.last_sent_request_reminder_time) >= HOST_REQUEST_REMINDER_INTERVAL)
                 .where(~exists(host_has_sent_message))
+                .where_user_columns_visible_to_each_other(HostRequest.host_user_id, HostRequest.surfer_user_id)
             )
             .scalars()
             .all()
