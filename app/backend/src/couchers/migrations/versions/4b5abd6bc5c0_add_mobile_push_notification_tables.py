@@ -93,7 +93,7 @@ def upgrade():
     # Backfill outcome based on success
     op.execute("""
         UPDATE push_notification_delivery_attempt
-        SET outcome = CASE WHEN success THEN 'success' ELSE 'transient_failure' END
+        SET outcome = CASE WHEN success THEN 'success'::pushnotificationdeliveryoutcome ELSE 'transient_failure'::pushnotificationdeliveryoutcome END
     """)
 
     # Make outcome non-nullable and drop success
@@ -138,7 +138,7 @@ def downgrade():
     # Backfill success based on outcome
     op.execute("""
         UPDATE push_notification_delivery_attempt
-        SET success = (outcome = 'success')
+        SET success = (outcome = 'success'::pushnotificationdeliveryoutcome)
     """)
 
     op.alter_column("push_notification_delivery_attempt", "success", nullable=False)
