@@ -89,6 +89,8 @@
     "invalid_coordinate": "Invalid coordinate.",
     "invalid_date": "Invalid date.",
     "invalid_delivery_method": "Invalid delivery method.",
+    "invalid_started_volunteering_date": "Invalid start date for volunteering.",
+    "invalid_stopped_volunteering_date": "Invalid end date for volunteering.",
     "invalid_email": "Invalid email.",
     "invalid_guide_location": "You need to either supply an address and location or neither for a guide.",
     "invalid_host_request_status": "You can't set the host request status to that.",
@@ -181,6 +183,7 @@
     "user_already_admin": "That user is already an admin.",
     "user_already_blocked": "Target user has already been blocked.",
     "user_already_has_badge": "The user already has that badge.",
+    "user_already_volunteer": "This user is already a volunteer.",
     "user_does_not_have_badge": "The user does not have that badge.",
     "user_not_admin": "That user is not an admin.",
     "user_not_blocked": "Target user is not blocked.",
@@ -189,6 +192,7 @@
     "user_not_in_the_moderation_user_list": "User is not in the moderation user list.",
     "user_not_member": "That user is not in the community.",
     "username_not_available": "Sorry, that username isn't available.",
+    "volunteer_not_found": "Volunteer not found.",
     "wrong_signature": "Wrong signature.",
     "wrong_sms_code": "The code is wrong."
   },
@@ -201,5 +205,27 @@
   "ghost_users": {
     "display_name": "Ghost",
     "about_me": "This user is no longer on the platform. They may have deleted their account, been blocked, or been banned. We recommend exercising caution with any further interaction with this user off the platform. You can always reach out to support if you need any help."
+  },
+  "badges": {
+    "founder_name": "Founder",
+    "founder_description": "This user is one of the two founders of Couchers.org",
+    "board_member_name": "Board Member",
+    "board_member_description": "This user serves on the Board of the Couchers, Inc. non-profit",
+    "past_board_member_name": "Past Board Member",
+    "past_board_member_description": "This user served on the Board of the Couchers, Inc. non-profit",
+    "moderator_name": "Moderator",
+    "moderator_description": "This user is a moderator of Couchers.org",
+    "volunteer_name": "Active Volunteer",
+    "volunteer_description": "This user is an active volunteer for Couchers.org",
+    "past_volunteer_name": "Past Volunteer",
+    "past_volunteer_description": "This user was a volunteer for Couchers.org",
+    "donor_name": "Donor",
+    "donor_description": "This user has contributed funds to the project",
+    "phone_verified_name": "Verified Phone",
+    "phone_verified_description": "This user has verified their phone number",
+    "strong_verification_name": "Strong Verification",
+    "strong_verification_description": "This user has verified their gender and date of birth with a biometric passport",
+    "swagster_name": "Swagster",
+    "swagster_description": "This user has bought Couchers.org swag!"
   }
 }

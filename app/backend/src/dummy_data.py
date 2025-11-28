@@ -82,6 +82,7 @@ def add_dummy_users():
                 accepted_tos=TOS_VERSION,
                 accepted_community_guidelines=GUIDELINES_VERSION,
                 is_superuser=user.get("is_superuser", False),
+                is_editor=user.get("is_editor", user.get("is_superuser", False)),
             )
             session.add(new_user)
             session.flush()

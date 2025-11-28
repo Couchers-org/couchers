@@ -1,6 +1,7 @@
 import logging
 from collections.abc import Callable
 from copy import deepcopy
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from os import getpid
 from threading import get_ident
@@ -16,7 +17,15 @@ from opentelemetry import trace
 from sqlalchemy import Function
 from sqlalchemy.sql import and_, func
 
-from couchers.constants import UNKNOWN_ERROR_MESSAGE
+from couchers.constants import (
+    CALL_CANCELLED_ERROR_MESSAGE,
+    COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE,
+    MISSING_AUTH_LEVEL_ERROR_MESSAGE,
+    NONEXISTENT_API_CALL_ERROR_MESSAGE,
+    PERMISSION_DENIED_ERROR_MESSAGE,
+    UNAUTHORIZED_ERROR_MESSAGE,
+    UNKNOWN_ERROR_MESSAGE,
+)
 from couchers.context import CouchersContext, make_interactive_context, make_media_context
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
@@ -37,17 +46,35 @@ from couchers.utils import (
 logger = logging.getLogger(__name__)
 
 
+@dataclass(frozen=True, slots=True)
+class UserAuthInfo:
+    """
+    Information about an authenticated user session.
+
+    Returned by _try_get_and_update_user_details when a valid session is found.
+    """
+
+    user_id: int
+    is_jailed: bool
+    is_editor: bool
+    is_superuser: bool
+    token_expiry: datetime
+    ui_language_preference: str | None
+
+
 def _binned_now() -> Function[Any]:
     return func.date_bin("1 hour", func.now(), "2000-01-01")
 
 
 def _try_get_and_update_user_details(
     token: str | None, is_api_key: bool, ip_address: str | None, user_agent: str | None
-) -> tuple[int, bool, bool, datetime, str | None] | None:
+) -> UserAuthInfo | None:
     """
     Tries to get session and user info corresponding to this token.
 
     Also updates the user's last active time, token last active time, and increments API call count.
+
+    Returns UserAuthInfo if valid session found, None otherwise.
     """
     if not token:
         return None
@@ -99,7 +126,14 @@ def _try_get_and_update_user_details(
 
             session.commit()
 
-            return user.id, user.is_jailed, user.is_superuser, user_session.expiry, user.ui_language_preference
+            return UserAuthInfo(
+                user_id=user.id,
+                is_jailed=user.is_jailed,
+                is_editor=user.is_editor,
+                is_superuser=user.is_superuser,
+                token_expiry=user_session.expiry,
+                ui_language_preference=user.ui_language_preference,
+            )
 
 
 # We have to lie with R | NoReturn to please mypy. It should be NoReturn.
@@ -114,7 +148,7 @@ def abort_handler[T, R](
 
 
 def unauthenticated_handler[T, R](
-    message: str = "Unauthorized",
+    message: str = UNAUTHORIZED_ERROR_MESSAGE,
     status_code: grpc.StatusCode = grpc.StatusCode.UNAUTHENTICATED,
 ) -> "grpc.RpcMethodHandler[T, R | NoReturn]":
     return abort_handler(message, status_code)
@@ -224,20 +258,19 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             service: ServiceDescriptor = self._pool.FindServiceByName(service_name)  # type: ignore[no-untyped-call]
             service_options = service.GetOptions()
         except KeyError:
-            return abort_handler(
-                "API call does not exist. Please refresh and try again.", grpc.StatusCode.UNIMPLEMENTED
-            )
+            return abort_handler(NONEXISTENT_API_CALL_ERROR_MESSAGE, grpc.StatusCode.UNIMPLEMENTED)
 
         auth_level = service_options.Extensions[annotations_pb2.auth_level]
 
         # if unknown auth level, then it wasn't set and something's wrong
         if auth_level == annotations_pb2.AUTH_LEVEL_UNKNOWN:
-            return abort_handler("Internal authentication error.", grpc.StatusCode.INTERNAL)
+            return abort_handler(MISSING_AUTH_LEVEL_ERROR_MESSAGE, grpc.StatusCode.INTERNAL)
 
         assert auth_level in [
             annotations_pb2.AUTH_LEVEL_OPEN,
             annotations_pb2.AUTH_LEVEL_JAILED,
             annotations_pb2.AUTH_LEVEL_SECURE,
+            annotations_pb2.AUTH_LEVEL_EDITOR,
             annotations_pb2.AUTH_LEVEL_ADMIN,
         ]
 
@@ -245,7 +278,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
 
         if "cookie" in headers and "authorization" in headers:
             # for security reasons, only one of "cookie" or "authorization" can be present
-            return unauthenticated_handler('Both "cookie" and "authorization" in request')
+            return unauthenticated_handler(COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE)
         elif "cookie" in headers:
             # the session token is passed in cookies, i.e. in the `cookie` header
             token, is_api_key = parse_session_cookie(headers), False
@@ -260,31 +293,29 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
         user_agent = cast(str | None, headers.get("user-agent"))
 
         auth_info = _try_get_and_update_user_details(token, is_api_key, ip_address, user_agent)
-        # auth_info is now filled if and only if this is a valid session
+
         if not auth_info:
+            # Invalid or no session - clear credentials
             token = None
             is_api_key = False
-            token_expiry = None
-            user_id = None
-            ui_language_preference = None
 
-        # if no session was found and this isn't an open service, fail
-        if not auth_info:
+            # if this isn't an open service, fail
             if auth_level != annotations_pb2.AUTH_LEVEL_OPEN:
-                # NOTE: do not translate this string; it's used in a hacky way in the frontend
-                return unauthenticated_handler("Unauthorized")
+                return unauthenticated_handler(UNAUTHORIZED_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED)
         else:
-            # a valid user session was found
-            user_id, is_jailed, is_superuser, token_expiry, ui_language_preference = auth_info
+            # a valid user session was found - check permissions
+            if auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not auth_info.is_superuser:
+                return unauthenticated_handler(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED)
 
-            if auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not is_superuser:
-                # NOTE: do not translate this string; it's used in a hacky way in the frontend
-                return unauthenticated_handler("Permission denied", grpc.StatusCode.PERMISSION_DENIED)
+            if auth_level == annotations_pb2.AUTH_LEVEL_EDITOR and not auth_info.is_editor:
+                return unauthenticated_handler(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED)
 
             # if the user is jailed and this is isn't an open or jailed service, fail
-            if is_jailed and auth_level not in [annotations_pb2.AUTH_LEVEL_OPEN, annotations_pb2.AUTH_LEVEL_JAILED]:
-                # NOTE: do not translate this string; it's used in a hacky way in the frontend
-                return unauthenticated_handler("Permission denied")
+            if auth_info.is_jailed and auth_level not in [
+                annotations_pb2.AUTH_LEVEL_OPEN,
+                annotations_pb2.AUTH_LEVEL_JAILED,
+            ]:
+                return unauthenticated_handler(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED)
 
         handler = continuation(handler_call_details)
         if not handler:
@@ -297,10 +328,10 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
         def function_without_couchers_stuff(req: Message, grpc_context: grpc.ServicerContext) -> Message | None:
             couchers_context: CouchersContext = make_interactive_context(
                 grpc_context=grpc_context,
-                user_id=user_id,
+                user_id=auth_info.user_id if auth_info else None,
                 is_api_key=is_api_key,
                 token=token,
-                ui_language_preference=ui_language_preference,
+                ui_language_preference=auth_info.ui_language_preference if auth_info else None,
             )
             with session_scope() as session:
                 try:
@@ -351,19 +382,23 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
 
                     raise e
 
-            if user_id and not is_api_key:
-                # Sanity check. If user_id is present, then we should have a token.
-                if token is None or token_expiry is None:
-                    raise RuntimeError(f"{token=}, {token_expiry=}")
+            if auth_info and not is_api_key:
+                # Sanity check. If auth_info is present, then we should have a token.
+                if token is None:
+                    raise RuntimeError(f"{token=}, {auth_info.token_expiry=}")
 
                 # check the two cookies are in sync & that language preference cookie is correct
-                if parse_user_id_cookie(headers) != str(user_id):
-                    couchers_context.set_cookies(create_session_cookies(token, user_id, token_expiry))
-                if ui_language_preference and ui_language_preference != parse_ui_lang_cookie(headers):
-                    couchers_context.set_cookies(create_lang_cookie(ui_language_preference))
+                if parse_user_id_cookie(headers) != str(auth_info.user_id):
+                    couchers_context.set_cookies(
+                        create_session_cookies(token, auth_info.user_id, auth_info.token_expiry)
+                    )
+                if auth_info.ui_language_preference and auth_info.ui_language_preference != parse_ui_lang_cookie(
+                    headers
+                ):
+                    couchers_context.set_cookies(create_lang_cookie(auth_info.ui_language_preference))
 
             if not grpc_context.is_active():
-                grpc_context.abort(grpc.StatusCode.INTERNAL, "Call cancelled.")
+                grpc_context.abort(grpc.StatusCode.INTERNAL, CALL_CANCELLED_ERROR_MESSAGE)
 
             couchers_context._send_cookies()
 

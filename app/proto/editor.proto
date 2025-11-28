@@ -1,0 +1,139 @@
+syntax = "proto3";
+
+package org.couchers.editor;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+import "annotations.proto";
+import "communities.proto";
+
+service Editor {
+  option (auth_level) = AUTH_LEVEL_EDITOR;
+
+  rpc CreateCommunity(CreateCommunityReq) returns (org.couchers.api.communities.Community) {}
+
+  rpc UpdateCommunity(UpdateCommunityReq) returns (org.couchers.api.communities.Community) {}
+
+  rpc ListEventCommunityInviteRequests(ListEventCommunityInviteRequestsReq) returns (ListEventCommunityInviteRequestsRes) {}
+
+  rpc DecideEventCommunityInviteRequest(DecideEventCommunityInviteRequestReq) returns (DecideEventCommunityInviteRequestRes) {}
+
+  rpc SendBlogPostNotification(SendBlogPostNotificationReq) returns (google.protobuf.Empty) {}
+
+  rpc MakeUserVolunteer(MakeUserVolunteerReq) returns (Volunteer) {}
+
+  rpc UpdateVolunteer(UpdateVolunteerReq) returns (Volunteer) {}
+
+  rpc ListVolunteers(ListVolunteersReq) returns (ListVolunteersRes) {}
+}
+
+message CreateCommunityReq {
+  string name = 1;
+  string description = 3;
+  int64 parent_node_id = 4;
+  repeated int64 admin_ids = 5;
+  string geojson = 6;
+}
+
+message UpdateCommunityReq {
+  int64 community_id = 1;
+  string name = 2;
+  string description = 3;
+  int64 parent_node_id = 4;
+  string geojson = 5;
+}
+
+message ListEventCommunityInviteRequestsReq {
+  uint32 page_size = 1;
+  string page_token = 2;
+}
+
+message EventCommunityInviteRequest {
+  int64 event_community_invite_request_id = 1;
+
+  int64 user_id = 2;
+  string event_url = 3;
+
+  // assuming they have notifs enabled
+  uint32 approx_users_to_notify = 4;
+  int64 community_id = 5;
+}
+
+message ListEventCommunityInviteRequestsRes {
+  repeated EventCommunityInviteRequest requests = 1;
+
+  string next_page_token = 2;
+}
+
+message DecideEventCommunityInviteRequestReq {
+  int64 event_community_invite_request_id = 1;
+
+  // whether to approve or deny it
+  bool approve = 2;
+}
+
+message DecideEventCommunityInviteRequestRes {}
+
+message SendBlogPostNotificationReq {
+  string url = 1;
+  string title = 2;
+  string blurb = 3;
+}
+
+message MakeUserVolunteerReq {
+  int64 user_id = 1;
+  string role = 2;
+  // date as "yyyy-mm-dd", defaults to today if not provided
+  string started_volunteering = 3;
+  // defaults to false (i.e., show on team page by default)
+  bool hide_on_team_page = 4;
+}
+
+message UpdateVolunteerReq {
+  int64 user_id = 1;
+  google.protobuf.StringValue role = 2;
+  google.protobuf.DoubleValue sort_key = 3;
+  // dates as "yyyy-mm-dd"
+  google.protobuf.StringValue started_volunteering = 4;
+  google.protobuf.StringValue stopped_volunteering = 5;
+  google.protobuf.BoolValue show_on_team_page = 6;
+}
+
+message ListVolunteersReq {
+  // if true, include past volunteers (where stopped_volunteering is set)
+  bool include_past = 1;
+}
+
+message Volunteer {
+  int64 user_id = 1;
+  // display name
+  string name = 2;
+  // couchers username
+  string username = 3;
+  // whether the user is a board member (and director)
+  bool is_board_member = 4;
+  // volunteer defined role
+  string role = 5;
+  // location from profile
+  string location = 6;
+  // avatar from profile
+  string img = 7;
+  // custom sort order on team page, sorted ascending
+  optional double sort_key = 8;
+  // dates as "yyyy-mm-dd"
+  string started_volunteering = 9;
+  // dates as "yyyy-mm-dd"
+  optional string stopped_volunteering = 10;
+  bool show_on_team_page = 11;
+  // link type, one of couchers, email, linkedin, website
+  optional string link_type = 12;
+  // the text to be shown on the link
+  optional string link_text = 13;
+  // the URL the link should take you to
+  optional string link_url = 14;
+}
+
+message ListVolunteersRes {
+  repeated Volunteer volunteers = 1;
+}

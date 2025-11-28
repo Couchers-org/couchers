@@ -24,6 +24,7 @@ from couchers.db import _get_base_engine, session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.interceptors import (
     CouchersMiddlewareInterceptor,
+    UserAuthInfo,
     _try_get_and_update_user_details,
 )
 from couchers.jobs.worker import process_job
@@ -58,6 +59,7 @@ from couchers.proto import (
     conversations_pb2_grpc,
     discussions_pb2_grpc,
     donations_pb2_grpc,
+    editor_pb2_grpc,
     events_pb2_grpc,
     gis_pb2_grpc,
     groups_pb2_grpc,
@@ -85,6 +87,7 @@ from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
 from couchers.servicers.donations import Donations, Stripe
+from couchers.servicers.editor import Editor
 from couchers.servicers.events import Events
 from couchers.servicers.gis import GIS
 from couchers.servicers.groups import Groups
@@ -332,6 +335,10 @@ def generate_user(
     Use this most of the time
     """
     with session_scope() as session:
+        # Ensure superusers are also editors (DB constraint)
+        if kwargs.get("is_superuser") and "is_editor" not in kwargs:
+            kwargs["is_editor"] = True
+
         # default args
         username = "test_user_" + random_hex(16)
         user_opts = {
@@ -599,6 +606,27 @@ def real_admin_session(token):
 
 
 @contextmanager
+def real_editor_session(token):
+    """
+    Create an Editor service for testing, using TCP sockets, uses the token for auth
+    """
+    with futures.ThreadPoolExecutor(1) as executor:
+        server = grpc.server(executor, interceptors=[CouchersMiddlewareInterceptor()])
+        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+        editor_pb2_grpc.add_EditorServicer_to_server(Editor(), server)
+        server.start()
+
+        call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
+        comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
+
+        try:
+            with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
+                yield editor_pb2_grpc.EditorStub(channel)
+        finally:
+            server.stop(None).wait()
+
+
+@contextmanager
 def real_account_session(token: str):
     """
     Create a Account service for testing, using TCP sockets, uses the token for auth
@@ -666,7 +694,7 @@ class FakeRpcError(grpc.RpcError):
         return self._details
 
 
-def _check_user_perms(method: str, user_id: int, is_jailed: bool, is_superuser: bool) -> None:
+def _check_user_perms(method: str, user_id: int, is_jailed: bool, is_editor: bool, is_superuser: bool) -> None:
     # method is of the form "/org.couchers.api.core.API/GetUser"
     _, service_name, method_name = method.split("/")
 
@@ -677,6 +705,7 @@ def _check_user_perms(method: str, user_id: int, is_jailed: bool, is_superuser: 
         annotations_pb2.AUTH_LEVEL_OPEN,
         annotations_pb2.AUTH_LEVEL_JAILED,
         annotations_pb2.AUTH_LEVEL_SECURE,
+        annotations_pb2.AUTH_LEVEL_EDITOR,
         annotations_pb2.AUTH_LEVEL_ADMIN,
     ]
 
@@ -685,6 +714,9 @@ def _check_user_perms(method: str, user_id: int, is_jailed: bool, is_superuser: 
     else:
         assert not (auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not is_superuser), (
             "Non-superuser tried to call superuser API"
+        )
+        assert not (auth_level == annotations_pb2.AUTH_LEVEL_EDITOR and not is_editor), (
+            "Non-editor tried to call editor API"
         )
         assert not (
             is_jailed and auth_level not in [annotations_pb2.AUTH_LEVEL_OPEN, annotations_pb2.AUTH_LEVEL_JAILED]
@@ -730,19 +762,19 @@ class FakeChannel:
         handler = self.handlers[uri]
 
         def fake_handler(request):
+            auth_info: UserAuthInfo | None = None
             if self._token:
-                user_id, is_jailed, is_superuser, token_expiry, ui_language_preference = (
-                    _try_get_and_update_user_details(
-                        self._token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
-                    )
+                auth_info = _try_get_and_update_user_details(
+                    self._token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
                 )
-            else:
-                user_id = None
-                is_jailed = None
-                is_superuser = None
-                ui_language_preference = None
 
-            _check_user_perms(uri, user_id, is_jailed, is_superuser)
+            _check_user_perms(
+                uri,
+                auth_info.user_id if auth_info else None,
+                auth_info.is_jailed if auth_info else None,
+                auth_info.is_editor if auth_info else None,
+                auth_info.is_superuser if auth_info else None,
+            )
 
             # Do a full serialization cycle on the request and the
             # response to catch accidental use of unserializable data.
@@ -751,22 +783,13 @@ class FakeChannel:
             with session_scope() as session:
                 mock_grpc_ctx = MockGrpcContext()
 
-                if user_id is not None:
-                    context = make_interactive_context(
-                        grpc_context=mock_grpc_ctx,
-                        user_id=user_id,
-                        is_api_key=False,
-                        token=self._token,
-                        ui_language_preference=ui_language_preference,
-                    )
-                else:
-                    context = make_interactive_context(
-                        grpc_context=mock_grpc_ctx,
-                        user_id=None,
-                        is_api_key=False,
-                        token=None,
-                        ui_language_preference=None,
-                    )
+                context = make_interactive_context(
+                    grpc_context=mock_grpc_ctx,
+                    user_id=auth_info.user_id if auth_info else None,
+                    is_api_key=False,
+                    token=self._token if auth_info else None,
+                    ui_language_preference=auth_info.ui_language_preference if auth_info else None,
+                )
 
                 response = handler.unary_unary(request, context, session)
 
