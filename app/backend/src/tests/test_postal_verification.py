@@ -353,8 +353,8 @@ def test_postal_verification_cancel(db, monkeypatch):
         assert not status.has_active_attempt
 
 
-def test_postal_verification_cannot_cancel_after_postcard_sent(db, monkeypatch):
-    """Test that you cannot cancel after the postcard is sent."""
+def test_postal_verification_can_cancel_after_postcard_sent(db, monkeypatch):
+    """Test that you CAN cancel after the postcard is sent (e.g., if postcard is lost)."""
     _monkeypatch_postal_verification_config(monkeypatch)
 
     user, token = generate_user()
@@ -383,13 +383,22 @@ def test_postal_verification_cannot_cancel_after_postcard_sent(db, monkeypatch):
         while process_job():
             pass
 
-    # Try to cancel - should fail
+    # Verify status is awaiting_verification
     with postal_verification_session(token) as pv:
-        with pytest.raises(grpc.RpcError) as e:
-            pv.CancelPostalVerification(
-                postal_verification_pb2.CancelPostalVerificationReq(postal_verification_attempt_id=attempt_id)
-            )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        status = pv.GetPostalVerificationStatus(postal_verification_pb2.GetPostalVerificationStatusReq())
+        assert status.status == postal_verification_pb2.POSTAL_VERIFICATION_STATUS_AWAITING_VERIFICATION
+
+    # Cancel - should succeed (user can cancel if postcard is lost)
+    with postal_verification_session(token) as pv:
+        pv.CancelPostalVerification(
+            postal_verification_pb2.CancelPostalVerificationReq(postal_verification_attempt_id=attempt_id)
+        )
+
+    # Verify status is cancelled
+    with postal_verification_session(token) as pv:
+        status = pv.GetPostalVerificationStatus(postal_verification_pb2.GetPostalVerificationStatusReq())
+        assert status.status == postal_verification_pb2.POSTAL_VERIFICATION_STATUS_CANCELLED
+        assert not status.has_active_attempt
 
 
 def test_postal_verification_list_attempts(db, monkeypatch):

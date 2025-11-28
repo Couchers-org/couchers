@@ -180,14 +180,9 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         if attempt.status != PostalVerificationStatus.pending_address_confirmation:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "postal_verification_wrong_state")
 
-        # Generate verification code
-        code = generate_postal_verification_code()
-
-        attempt.verification_code = code
+        attempt.verification_code = generate_postal_verification_code()
         attempt.status = PostalVerificationStatus.in_progress
         attempt.address_confirmed_at = now()
-
-        session.flush()
 
         # Queue background job to send postcard
         queue_job(
@@ -303,7 +298,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
                     reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED
                 ),
             )
-            session.flush()
+            session.commit()
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "postal_verification_code_expired")
 
         # Normalize submitted code
@@ -323,13 +318,11 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
                         reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS
                     ),
                 )
-                session.flush()
                 return postal_verification_pb2.VerifyPostalCodeRes(
                     success=False,
                     remaining_attempts=0,
                 )
 
-            session.flush()
             return postal_verification_pb2.VerifyPostalCodeRes(
                 success=False,
                 remaining_attempts=remaining,
@@ -368,14 +361,17 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         if not attempt:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "postal_verification_attempt_not_found")
 
-        # Can only cancel pending_address_confirmation or in_progress attempts
+        # Can cancel any active attempt (not terminal states)
         if attempt.status not in [
             PostalVerificationStatus.pending_address_confirmation,
             PostalVerificationStatus.in_progress,
+            PostalVerificationStatus.awaiting_verification,
         ]:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "postal_verification_cannot_cancel")
 
         attempt.status = PostalVerificationStatus.cancelled
+        # Clear the verification code (required by db constraint and makes sense - code is no longer valid)
+        attempt.verification_code = None
 
         return empty_pb2.Empty()
 
