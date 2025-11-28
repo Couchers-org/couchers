@@ -35,11 +35,11 @@ def _monkeypatch_postal_verification_config(monkeypatch):
 
 def test_generate_postal_verification_code():
     """Test that generated codes meet requirements."""
+    allowed = set("ABCDEFGHJKLMNPQRSTUVWXYZ23456789")
     for _ in range(100):
         code = generate_postal_verification_code()
         assert len(code) == 6
-        assert code.isupper()
-        assert code.isalnum()
+        assert all(c in allowed for c in code)
         # Should not contain confusing characters
         for char in "IO01":
             assert char not in code
