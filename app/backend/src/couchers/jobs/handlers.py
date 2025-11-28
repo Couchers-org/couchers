@@ -1181,3 +1181,72 @@ def send_event_reminders(payload: empty_pb2.Empty) -> None:
 
 send_event_reminders.PAYLOAD = empty_pb2.Empty
 send_event_reminders.SCHEDULE = timedelta(hours=1)
+
+
+def check_expo_push_receipt(payload: jobs_pb2.CheckExpoPushReceiptPayload) -> None:
+    """Check Expo push receipt and update delivery attempt.
+
+    Expo push notifications are a two-phase delivery system. After sending,
+    we get a ticket ID. We check the receipt ~15 minutes later to see if the
+    notification was actually delivered.
+    """
+    from couchers.metrics import push_notification_counter
+    from couchers.models import PushNotificationDeliveryAttempt, PushNotificationSubscription
+    from couchers.notifications.expo_api import get_expo_push_receipts
+
+    with session_scope() as session:
+        attempt = session.execute(
+            select(PushNotificationDeliveryAttempt).where(
+                PushNotificationDeliveryAttempt.id == payload.delivery_attempt_id
+            )
+        ).scalar_one_or_none()
+
+        if not attempt:
+            logger.warning(f"Delivery attempt {payload.delivery_attempt_id} not found for receipt check")
+            return
+
+        if attempt.receipt_checked_at is not None:
+            logger.debug(f"Receipt already checked for attempt {payload.delivery_attempt_id}")
+            return
+
+        try:
+            receipts = get_expo_push_receipts([payload.ticket_id])
+        except Exception as e:
+            logger.error(f"Failed to fetch Expo receipt for ticket {payload.ticket_id}: {e}")
+            raise  # Will retry via job retry mechanism
+
+        receipt = receipts.get(payload.ticket_id)
+        if receipt is None:
+            # Receipt not found - may have expired (24h) or not yet available
+            logger.info(f"No receipt found for ticket {payload.ticket_id}")
+            attempt.receipt_checked_at = now()
+            attempt.receipt_status = "not_found"
+            return
+
+        attempt.receipt_checked_at = now()
+        attempt.receipt_status = receipt.get("status")
+
+        if receipt.get("status") == "error":
+            details = receipt.get("details", {})
+            error_code = details.get("error")
+            attempt.receipt_error_code = error_code
+
+            if error_code == "DeviceNotRegistered":
+                # Device token is no longer valid - disable the subscription
+                sub = session.execute(
+                    select(PushNotificationSubscription).where(
+                        PushNotificationSubscription.id == attempt.push_notification_subscription_id
+                    )
+                ).scalar_one_or_none()
+
+                if sub and sub.disabled_at > now():
+                    sub.disabled_at = now()
+                    logger.info(f"Disabled push sub {sub.id} due to DeviceNotRegistered in receipt")
+                    push_notification_counter.labels(
+                        platform="expo", outcome="permanent_subscription_failure_receipt"
+                    ).inc()
+            else:
+                logger.warning(f"Expo receipt error for ticket {payload.ticket_id}: {error_code}")
+
+
+check_expo_push_receipt.PAYLOAD = jobs_pb2.CheckExpoPushReceiptPayload

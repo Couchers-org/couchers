@@ -77,3 +77,8 @@ message GenerateNewBlogPostNotificationsPayload {
   string title = 2;
   string blurb = 3;
 }
+
+message CheckExpoPushReceiptPayload {
+  int64 delivery_attempt_id = 1;
+  string ticket_id = 2;
+}

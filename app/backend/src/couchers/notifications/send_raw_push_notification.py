@@ -1,10 +1,12 @@
 import logging
 from dataclasses import dataclass
+from datetime import timedelta
 
 from sqlalchemy.sql import func
 
 from couchers.config import config
 from couchers.db import session_scope
+from couchers.jobs.enqueue import queue_job
 from couchers.metrics import push_notification_counter
 from couchers.models import (
     PushNotificationDeliveryAttempt,
@@ -17,6 +19,8 @@ from couchers.notifications.web_push_api import send_web_push
 from couchers.proto.internal import jobs_pb2
 from couchers.sql import couchers_select as select
 from couchers.utils import now
+
+EXPO_RECEIPT_CHECK_DELAY = timedelta(minutes=15)
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +67,7 @@ class PushDeliveryResult:
 
     status_code: int
     response: str | None = None
+    expo_ticket_id: str | None = None
 
 
 def _send_web_push(
@@ -131,7 +136,9 @@ def _send_expo(
     response_str = str(result)
 
     if status == "ok":
-        return PushDeliveryResult(status_code=200, response=response_str)
+        # Extract ticket ID for receipt checking
+        ticket_id = response_data.get("id")
+        return PushDeliveryResult(status_code=200, response=response_str, expo_ticket_id=ticket_id)
 
     # Handle error status
     error_code = response_data.get("details", {}).get("error")
@@ -183,14 +190,28 @@ def send_raw_push_notification(payload: jobs_pb2.SendRawPushNotificationPayload)
                 raise ValueError(f"Unknown platform: {sub.platform}")
 
             # Success
-            session.add(
-                PushNotificationDeliveryAttempt(
-                    push_notification_subscription_id=sub.id,
-                    outcome=PushNotificationDeliveryOutcome.success,
-                    status_code=result.status_code,
-                    response=result.response,
-                )
+            delivery_attempt = PushNotificationDeliveryAttempt(
+                push_notification_subscription_id=sub.id,
+                outcome=PushNotificationDeliveryOutcome.success,
+                status_code=result.status_code,
+                response=result.response,
+                expo_ticket_id=result.expo_ticket_id,
             )
+            session.add(delivery_attempt)
+            session.flush()  # Get the ID for the receipt check job
+
+            # Queue receipt check for Expo notifications
+            if sub.platform == PushNotificationPlatform.expo and result.expo_ticket_id:
+                queue_job(
+                    session,
+                    job_type="check_expo_push_receipt",
+                    payload=jobs_pb2.CheckExpoPushReceiptPayload(
+                        delivery_attempt_id=delivery_attempt.id,
+                        ticket_id=result.expo_ticket_id,
+                    ),
+                    delay=EXPO_RECEIPT_CHECK_DELAY,
+                )
+
             push_notification_counter.labels(platform=sub.platform.name, outcome="success").inc()
             logger.debug(f"Successfully sent push to sub {sub.id} for user {sub.user_id}")
 
