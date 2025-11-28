@@ -28,6 +28,7 @@ from sqlalchemy.sql import (
     update,
 )
 
+from couchers import urls
 from couchers.config import config
 from couchers.constants import (
     ACTIVENESS_PROBE_EXPIRY_TIME,
@@ -77,6 +78,8 @@ from couchers.models import (
     MessageType,
     PassportSex,
     PasswordResetToken,
+    PostalVerificationAttempt,
+    PostalVerificationStatus,
     Reference,
     StrongVerificationAttempt,
     StrongVerificationAttemptStatus,
@@ -86,6 +89,7 @@ from couchers.models import (
 )
 from couchers.notifications.background import handle_email_digests, handle_notification, send_raw_push_notification
 from couchers.notifications.notify import notify
+from couchers.postal.postcard_service import send_postcard
 from couchers.proto import notification_data_pb2
 from couchers.proto.internal import jobs_pb2, verification_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
@@ -1186,12 +1190,12 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
     """
     Sends the postcard via external API and updates attempt status.
     """
-    from couchers.models.postal_verification import PostalVerificationAttempt, PostalVerificationStatus
-    from couchers.postal.postcard_service import send_postcard
-    from couchers.urls import postal_verification_link
-
     with session_scope() as session:
-        attempt = session.get(PostalVerificationAttempt, payload.postal_verification_attempt_id)
+        attempt = session.execute(
+            select(PostalVerificationAttempt).where(
+                PostalVerificationAttempt.id == payload.postal_verification_attempt_id
+            )
+        ).scalar_one_or_none()
 
         if not attempt or attempt.status != PostalVerificationStatus.in_progress:
             logger.warning(
@@ -1199,10 +1203,10 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             )
             return
 
-        user = session.get(User, attempt.user_id)
+        user = session.execute(select(User).where(User.id == attempt.user_id)).scalar_one()
 
         # Generate QR code URL (only contains the code, user must be logged in)
-        qr_url = postal_verification_link(code=attempt.verification_code)
+        qr_url = urls.postal_verification_link(code=attempt.verification_code)
 
         result = send_postcard(
             recipient_name=user.name,
