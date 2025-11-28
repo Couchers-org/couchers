@@ -37,6 +37,17 @@ SMS_CODE_LIFETIME = timedelta(hours=24)
 # max attempts to enter the sms code
 SMS_CODE_ATTEMPTS = 3
 
+# Postal verification constants
+POSTAL_VERIFICATION_CODE_LENGTH = 6
+# Reduced alphabet to avoid confusion (no I, O, 0, 1)
+POSTAL_VERIFICATION_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+# Code valid for 90 days after postcard sent
+POSTAL_VERIFICATION_CODE_LIFETIME = timedelta(days=90)
+# Max wrong code attempts before lockout
+POSTAL_VERIFICATION_MAX_ATTEMPTS = 5
+# Can only initiate once per 30 days
+POSTAL_VERIFICATION_RATE_LIMIT_DAYS = 30
+
 SIGNUP_EMAIL_TOKEN_VALIDITY = timedelta(hours=48)
 
 DATETIME_MINUS_INFINITY = pytz.UTC.localize(datetime(1, 1, 1))

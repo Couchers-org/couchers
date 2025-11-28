@@ -1,0 +1,381 @@
+import json
+import logging
+
+import grpc
+from google.protobuf import empty_pb2
+from sqlalchemy.orm import Session
+
+from couchers.config import config
+from couchers.constants import (
+    POSTAL_VERIFICATION_CODE_LIFETIME,
+    POSTAL_VERIFICATION_MAX_ATTEMPTS,
+    POSTAL_VERIFICATION_RATE_LIMIT_DAYS,
+)
+from couchers.context import CouchersContext
+from couchers.helpers.postal_verification import generate_postal_verification_code, has_postal_verification
+from couchers.jobs.enqueue import queue_job
+from couchers.models import User
+from couchers.models.postal_verification import PostalVerificationAttempt, PostalVerificationStatus
+from couchers.postal.address_validation import AddressValidationError, validate_address
+from couchers.proto import postal_verification_pb2, postal_verification_pb2_grpc
+from couchers.proto.internal import jobs_pb2
+from couchers.sql import couchers_select as select
+from couchers.utils import Timestamp_from_datetime, now
+
+logger = logging.getLogger(__name__)
+
+
+def _status_to_pb(status: PostalVerificationStatus) -> postal_verification_pb2.PostalVerificationStatus:
+    return {
+        PostalVerificationStatus.pending_address_confirmation: postal_verification_pb2.POSTAL_VERIFICATION_STATUS_PENDING_ADDRESS_CONFIRMATION,
+        PostalVerificationStatus.in_progress: postal_verification_pb2.POSTAL_VERIFICATION_STATUS_IN_PROGRESS,
+        PostalVerificationStatus.awaiting_verification: postal_verification_pb2.POSTAL_VERIFICATION_STATUS_AWAITING_VERIFICATION,
+        PostalVerificationStatus.succeeded: postal_verification_pb2.POSTAL_VERIFICATION_STATUS_SUCCEEDED,
+        PostalVerificationStatus.failed: postal_verification_pb2.POSTAL_VERIFICATION_STATUS_FAILED,
+        PostalVerificationStatus.cancelled: postal_verification_pb2.POSTAL_VERIFICATION_STATUS_CANCELLED,
+    }.get(status, postal_verification_pb2.POSTAL_VERIFICATION_STATUS_UNKNOWN)
+
+
+def _attempt_to_address_pb(attempt: PostalVerificationAttempt) -> postal_verification_pb2.PostalAddress:
+    return postal_verification_pb2.PostalAddress(
+        address_line_1=attempt.address_line_1,
+        address_line_2=attempt.address_line_2 or "",
+        city=attempt.city,
+        state=attempt.state or "",
+        postal_code=attempt.postal_code or "",
+        country=attempt.country,
+    )
+
+
+class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer):
+    def InitiatePostalVerification(
+        self,
+        request: postal_verification_pb2.InitiatePostalVerificationReq,
+        context: CouchersContext,
+        session: Session,
+    ) -> postal_verification_pb2.InitiatePostalVerificationRes:
+        """
+        Step 1: User submits address for validation.
+        """
+        if not config["ENABLE_POSTAL_VERIFICATION"]:
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "postal_verification_disabled")
+
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
+        # Check rate limit: one initiation per 30 days
+        latest_attempt = session.execute(
+            select(PostalVerificationAttempt)
+            .where(PostalVerificationAttempt.user_id == user.id)
+            .order_by(PostalVerificationAttempt.created.desc())
+            .limit(1)
+        ).scalar_one_or_none()
+
+        if latest_attempt:
+            # Check if there's an active attempt
+            if latest_attempt.status in [
+                PostalVerificationStatus.pending_address_confirmation,
+                PostalVerificationStatus.in_progress,
+                PostalVerificationStatus.awaiting_verification,
+            ]:
+                context.abort_with_error_code(
+                    grpc.StatusCode.FAILED_PRECONDITION, "postal_verification_already_in_progress"
+                )
+
+            # Check rate limit
+            days_since_last = (now() - latest_attempt.created).days
+            if days_since_last < POSTAL_VERIFICATION_RATE_LIMIT_DAYS:
+                context.abort_with_error_code(grpc.StatusCode.RESOURCE_EXHAUSTED, "postal_verification_rate_limited")
+
+        # Validate required fields
+        if not request.address.address_line_1:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "address_line_1_required")
+        if not request.address.city:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "city_required")
+        if not request.address.country:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "country_required")
+
+        # Validate address
+        try:
+            validated = validate_address(
+                address_line_1=request.address.address_line_1,
+                address_line_2=request.address.address_line_2 or None,
+                city=request.address.city,
+                state=request.address.state or None,
+                postal_code=request.address.postal_code or None,
+                country=request.address.country,
+            )
+        except AddressValidationError:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "postal_address_invalid")
+
+        if not validated.is_deliverable:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "postal_address_undeliverable")
+
+        # Create attempt
+        attempt = PostalVerificationAttempt(
+            user_id=user.id,
+            status=PostalVerificationStatus.pending_address_confirmation,
+            address_line_1=validated.address_line_1,
+            address_line_2=validated.address_line_2,
+            city=validated.city,
+            state=validated.state,
+            postal_code=validated.postal_code,
+            country=validated.country,
+            original_address_json=json.dumps(
+                {
+                    "address_line_1": request.address.address_line_1,
+                    "address_line_2": request.address.address_line_2,
+                    "city": request.address.city,
+                    "state": request.address.state,
+                    "postal_code": request.address.postal_code,
+                    "country": request.address.country,
+                }
+            ),
+        )
+        session.add(attempt)
+        session.flush()
+
+        return postal_verification_pb2.InitiatePostalVerificationRes(
+            postal_verification_attempt_id=attempt.id,
+            corrected_address=postal_verification_pb2.PostalAddress(
+                address_line_1=validated.address_line_1,
+                address_line_2=validated.address_line_2 or "",
+                city=validated.city,
+                state=validated.state or "",
+                postal_code=validated.postal_code or "",
+                country=validated.country,
+            ),
+            address_was_corrected=validated.was_corrected,
+        )
+
+    def ConfirmPostalAddress(
+        self,
+        request: postal_verification_pb2.ConfirmPostalAddressReq,
+        context: CouchersContext,
+        session: Session,
+    ) -> postal_verification_pb2.ConfirmPostalAddressRes:
+        """
+        Step 2: User confirms address, we generate code and send postcard.
+        """
+        attempt = session.execute(
+            select(PostalVerificationAttempt)
+            .where(PostalVerificationAttempt.id == request.postal_verification_attempt_id)
+            .where(PostalVerificationAttempt.user_id == context.user_id)
+        ).scalar_one_or_none()
+
+        if not attempt:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "postal_verification_attempt_not_found")
+
+        if attempt.status != PostalVerificationStatus.pending_address_confirmation:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "postal_verification_wrong_state")
+
+        # Generate verification code
+        code = generate_postal_verification_code()
+
+        attempt.verification_code = code
+        attempt.status = PostalVerificationStatus.in_progress
+        attempt.address_confirmed_at = now()
+
+        session.flush()
+
+        # Queue background job to send postcard
+        queue_job(
+            session,
+            "send_postal_verification_postcard",
+            jobs_pb2.SendPostalVerificationPostcardPayload(
+                postal_verification_attempt_id=attempt.id,
+            ),
+        )
+
+        return postal_verification_pb2.ConfirmPostalAddressRes()
+
+    def GetPostalVerificationStatus(
+        self,
+        request: postal_verification_pb2.GetPostalVerificationStatusReq,
+        context: CouchersContext,
+        session: Session,
+    ) -> postal_verification_pb2.GetPostalVerificationStatusRes:
+        """
+        Returns the user's postal verification status and current/latest attempt details.
+        """
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
+        has_verification = has_postal_verification(session, user)
+
+        # Get latest attempt or specific attempt if requested
+        if request.postal_verification_attempt_id:
+            attempt = session.execute(
+                select(PostalVerificationAttempt)
+                .where(PostalVerificationAttempt.id == request.postal_verification_attempt_id)
+                .where(PostalVerificationAttempt.user_id == context.user_id)
+            ).scalar_one_or_none()
+        else:
+            attempt = session.execute(
+                select(PostalVerificationAttempt)
+                .where(PostalVerificationAttempt.user_id == user.id)
+                .order_by(PostalVerificationAttempt.created.desc())
+                .limit(1)
+            ).scalar_one_or_none()
+
+        # Check if user can initiate a new attempt
+        can_initiate = True
+        next_attempt_allowed_at = None
+
+        if attempt:
+            # Can't initiate if there's an active attempt
+            if attempt.status in [
+                PostalVerificationStatus.pending_address_confirmation,
+                PostalVerificationStatus.in_progress,
+                PostalVerificationStatus.awaiting_verification,
+            ]:
+                can_initiate = False
+            else:
+                # Check rate limit
+                days_since_last = (now() - attempt.created).days
+                if days_since_last < POSTAL_VERIFICATION_RATE_LIMIT_DAYS:
+                    can_initiate = False
+                    from datetime import timedelta
+
+                    next_attempt_allowed_at = attempt.created + timedelta(days=POSTAL_VERIFICATION_RATE_LIMIT_DAYS)
+
+        res = postal_verification_pb2.GetPostalVerificationStatusRes(
+            has_postal_verification=has_verification,
+            can_initiate_new_attempt=can_initiate,
+        )
+
+        if next_attempt_allowed_at:
+            res.next_attempt_allowed_at.CopyFrom(Timestamp_from_datetime(next_attempt_allowed_at))
+
+        if attempt:
+            res.has_active_attempt = attempt.status in [
+                PostalVerificationStatus.pending_address_confirmation,
+                PostalVerificationStatus.in_progress,
+                PostalVerificationStatus.awaiting_verification,
+            ]
+            res.postal_verification_attempt_id = attempt.id
+            res.status = _status_to_pb(attempt.status)
+            res.address.CopyFrom(_attempt_to_address_pb(attempt))
+            res.created.CopyFrom(Timestamp_from_datetime(attempt.created))
+            if attempt.postcard_sent_at:
+                res.postcard_sent_at.CopyFrom(Timestamp_from_datetime(attempt.postcard_sent_at))
+
+        return res
+
+    def VerifyPostalCode(
+        self,
+        request: postal_verification_pb2.VerifyPostalCodeReq,
+        context: CouchersContext,
+        session: Session,
+    ) -> postal_verification_pb2.VerifyPostalCodeRes:
+        """
+        User submits the code from the postcard.
+        Looks up the user's active attempt (awaiting_verification status).
+        """
+        attempt = session.execute(
+            select(PostalVerificationAttempt)
+            .where(PostalVerificationAttempt.user_id == context.user_id)
+            .where(PostalVerificationAttempt.status == PostalVerificationStatus.awaiting_verification)
+        ).scalar_one_or_none()
+
+        if not attempt:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "postal_verification_attempt_not_found")
+
+        # Check code expiry
+        if attempt.postcard_sent_at and (now() - attempt.postcard_sent_at) > POSTAL_VERIFICATION_CODE_LIFETIME:
+            attempt.status = PostalVerificationStatus.failed
+            session.flush()
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "postal_verification_code_expired")
+
+        # Normalize submitted code
+        submitted_code = request.code.strip().upper()
+
+        if submitted_code != attempt.verification_code:
+            attempt.code_attempts += 1
+            remaining = POSTAL_VERIFICATION_MAX_ATTEMPTS - attempt.code_attempts
+
+            if remaining <= 0:
+                attempt.status = PostalVerificationStatus.failed
+                session.flush()
+                return postal_verification_pb2.VerifyPostalCodeRes(
+                    success=False,
+                    remaining_attempts=0,
+                )
+
+            session.flush()
+            return postal_verification_pb2.VerifyPostalCodeRes(
+                success=False,
+                remaining_attempts=remaining,
+            )
+
+        # Success!
+        attempt.status = PostalVerificationStatus.succeeded
+        attempt.verified_at = now()
+
+        # TODO: Send notification when notification types are set up
+        # notify(
+        #     session,
+        #     user_id=context.user_id,
+        #     topic_action="postal_verification:success",
+        #     data=notification_data_pb2.PostalVerificationSuccess(),
+        # )
+
+        return postal_verification_pb2.VerifyPostalCodeRes(
+            success=True,
+            remaining_attempts=0,
+        )
+
+    def CancelPostalVerification(
+        self,
+        request: postal_verification_pb2.CancelPostalVerificationReq,
+        context: CouchersContext,
+        session: Session,
+    ) -> empty_pb2.Empty:
+        """
+        Cancels an active postal verification attempt.
+        """
+        attempt = session.execute(
+            select(PostalVerificationAttempt)
+            .where(PostalVerificationAttempt.id == request.postal_verification_attempt_id)
+            .where(PostalVerificationAttempt.user_id == context.user_id)
+        ).scalar_one_or_none()
+
+        if not attempt:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "postal_verification_attempt_not_found")
+
+        # Can only cancel pending_address_confirmation or in_progress attempts
+        if attempt.status not in [
+            PostalVerificationStatus.pending_address_confirmation,
+            PostalVerificationStatus.in_progress,
+        ]:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "postal_verification_cannot_cancel")
+
+        attempt.status = PostalVerificationStatus.cancelled
+
+        return empty_pb2.Empty()
+
+    def ListPostalVerificationAttempts(
+        self,
+        request: postal_verification_pb2.ListPostalVerificationAttemptsReq,
+        context: CouchersContext,
+        session: Session,
+    ) -> postal_verification_pb2.ListPostalVerificationAttemptsRes:
+        """
+        Returns all postal verification attempts for the user.
+        """
+        attempts = session.execute(
+            select(PostalVerificationAttempt)
+            .where(PostalVerificationAttempt.user_id == context.user_id)
+            .order_by(PostalVerificationAttempt.created.desc())
+        ).scalars()
+
+        return postal_verification_pb2.ListPostalVerificationAttemptsRes(
+            attempts=[
+                postal_verification_pb2.PostalVerificationAttemptSummary(
+                    postal_verification_attempt_id=attempt.id,
+                    status=_status_to_pb(attempt.status),
+                    address=_attempt_to_address_pb(attempt),
+                    created=Timestamp_from_datetime(attempt.created),
+                    verified_at=Timestamp_from_datetime(attempt.verified_at) if attempt.verified_at else None,
+                )
+                for attempt in attempts
+            ]
+        )

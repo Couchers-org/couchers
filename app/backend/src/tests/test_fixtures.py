@@ -1033,6 +1033,8 @@ def testconfig():
         "dd740a2b2a35bf05041a28257ea439b30f76f056f3698000b71e6470cd82275f"
     )
 
+    config["ENABLE_POSTAL_VERIFICATION"] = False
+
     config["SMTP_HOST"] = "localhost"
     config["SMTP_PORT"] = 587
     config["SMTP_USERNAME"] = "username"
