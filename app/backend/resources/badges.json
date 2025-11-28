@@ -48,7 +48,7 @@
     {
       "id": "swagster",
       "color": "#ff6b9d",
-      "admin_editable": false
+      "admin_editable": true
     }
   ],
   "static_badges": {
