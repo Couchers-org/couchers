@@ -99,7 +99,9 @@
       "password_field_label": "Passwort",
       "no_password_login_prompt": "Überprüfe dein E-Mail-Postfach nach einem Link, um dich einzuloggen! :)",
       "remember_me": "Angemeldet bleiben",
-      "forgot_password": "Passwort vergessen?"
+      "forgot_password": "Passwort vergessen?",
+      "hide_password": "Passwort ausblenden",
+      "show_password": "Passwort anzeigen"
     }
   },
   "basic_sign_up_form": {
@@ -277,7 +279,7 @@
     "donation_message1": "Die Verifizierung ist für dich kostenlos, aber sie verursacht für uns Kosten. Als gemeinnützige Organisation, die von Freiwilligen betrieben wird, sind wir auf Spenden angewiesen, um Ausgaben wie den Betrieb unserer Server, die Verifizierung sowie Werkzeuge für Freiwillige und Community-Betreuer zu decken.",
     "instructions": {
       "warning": "Wichtig: Das Scannen des Passchipps kann knifflig sein—lies zuerst alle Anweisungen!",
-      "step1": "Lade die <strong>IRIS ID</strong> App herunter",
+      "step1": "Lade die <strong>Iris ID</strong> App herunter",
       "step2": "Klicke unten auf <strong>\"Starke Verifizierung starten\"</strong> (öffnet in einem neuen Tab)",
       "step3": "Scanne den QR-Code mit deinem Handy",
       "step4": "Wenn du dazu aufgefordert wirst, öffne die App und scanne den QR-Code erneut",
