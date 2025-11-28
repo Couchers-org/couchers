@@ -7,8 +7,8 @@ from sqlalchemy.sql import func
 
 from couchers.jobs.enqueue import queue_job
 from couchers.models import MobilePushNotificationSubscription
+from couchers.proto.internal import jobs_pb2
 from couchers.sql import couchers_select as select
-from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 
