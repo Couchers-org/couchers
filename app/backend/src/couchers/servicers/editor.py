@@ -5,21 +5,24 @@ import grpc
 from geoalchemy2.shape import from_shape
 from google.protobuf import empty_pb2
 from shapely.geometry import shape
-from sqlalchemy.sql import select, update
+from sqlalchemy.sql import exists, select, update
 
 from couchers import urls
 from couchers.context import make_background_user_context
 from couchers.db import session_scope
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
-from couchers.models import EventCommunityInviteRequest, Node, User
+from couchers.materialized_views import LiteUser
+from couchers.models import EventCommunityInviteRequest, Node, User, Volunteer
 from couchers.notifications.notify import notify
 from couchers.proto import editor_pb2, editor_pb2_grpc, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
+from couchers.resources import get_static_badge_dict
 from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import get_users_to_notify_for_new_event
+from couchers.servicers.public import format_volunteer_link
 from couchers.sql import couchers_select as select
-from couchers.utils import now
+from couchers.utils import date_to_api, now, parse_date
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +36,27 @@ def load_community_geom(geojson, context):
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "no_multipolygon")
 
     return geom
+
+
+def volunteer_to_pb(session, volunteer: Volunteer) -> editor_pb2.Volunteer:
+    """Convert a Volunteer model to the editor protobuf message."""
+    lite_user = session.execute(select(LiteUser).where(LiteUser.id == volunteer.user_id)).scalar_one()
+    board_members = set(get_static_badge_dict()["board_member"])
+
+    return editor_pb2.Volunteer(
+        user_id=volunteer.user_id,
+        name=volunteer.display_name or lite_user.name,
+        username=lite_user.username,
+        is_board_member=lite_user.id in board_members,
+        role=volunteer.role,
+        location=volunteer.display_location or lite_user.city,
+        img=urls.media_url(filename=lite_user.avatar_filename, size="thumbnail") if lite_user.avatar_filename else None,
+        sort_key=volunteer.sort_key,
+        started_volunteering=date_to_api(volunteer.started_volunteering),
+        stopped_volunteering=date_to_api(volunteer.stopped_volunteering) if volunteer.stopped_volunteering else None,
+        show_on_team_page=volunteer.show_on_team_page,
+        **format_volunteer_link(volunteer, lite_user.username),
+    )
 
 
 def generate_new_blog_post_notifications(payload: jobs_pb2.GenerateNewBlogPostNotificationsPayload):
@@ -173,3 +197,88 @@ class Editor(editor_pb2_grpc.EditorServicer):
             ),
         )
         return empty_pb2.Empty()
+
+    def MakeUserVolunteer(self, request, context, session):
+        # Check if user exists
+        if not session.execute(select(exists().where(User.id == request.user_id))).scalar():
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+
+        # Check if user is already a volunteer
+        if session.execute(select(exists().where(Volunteer.user_id == request.user_id))).scalar():
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_already_volunteer")
+
+        # Parse started_volunteering date
+        started_volunteering = None
+        if request.started_volunteering:
+            started_volunteering = parse_date(request.started_volunteering)
+            if not started_volunteering:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_started_volunteering_date")
+
+        # Create volunteer record
+        volunteer = Volunteer(
+            user_id=request.user_id,
+            role=request.role,
+            started_volunteering=started_volunteering,
+            show_on_team_page=not request.hide_on_team_page,
+        )
+        session.add(volunteer)
+        session.flush()
+
+        return volunteer_to_pb(session, volunteer)
+
+    def UpdateVolunteer(self, request, context, session):
+        # Check if volunteer exists
+        volunteer = session.execute(select(Volunteer).where(Volunteer.user_id == request.user_id)).scalar_one_or_none()
+        if not volunteer:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "volunteer_not_found")
+
+        # Update role if provided
+        if request.HasField("role"):
+            volunteer.role = request.role.value
+
+        # Update sort_key if provided
+        if request.HasField("sort_key"):
+            volunteer.sort_key = request.sort_key.value
+
+        # Update started_volunteering if provided
+        if request.HasField("started_volunteering"):
+            started_volunteering = parse_date(request.started_volunteering.value)
+            if not started_volunteering:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_started_volunteering_date")
+            volunteer.started_volunteering = started_volunteering
+
+        # Update stopped_volunteering if provided
+        if request.HasField("stopped_volunteering"):
+            stopped_volunteering = parse_date(request.stopped_volunteering.value)
+            if not stopped_volunteering:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_stopped_volunteering_date")
+            volunteer.stopped_volunteering = stopped_volunteering
+
+        # Update show_on_team_page if provided
+        if request.HasField("show_on_team_page"):
+            volunteer.show_on_team_page = request.show_on_team_page.value
+
+        session.flush()
+
+        return volunteer_to_pb(session, volunteer)
+
+    def ListVolunteers(self, request, context, session):
+        # Query volunteers
+        query = select(Volunteer).join(LiteUser, LiteUser.id == Volunteer.user_id).where(LiteUser.is_visible)
+
+        # Filter based on include_past flag
+        if not request.include_past:
+            query = query.where(Volunteer.stopped_volunteering.is_(None))
+
+        # Order by same criteria as public API
+        query = query.order_by(
+            Volunteer.sort_key.asc().nulls_last(),
+            Volunteer.stopped_volunteering.desc().nulls_first(),
+            Volunteer.started_volunteering.asc(),
+        )
+
+        volunteers = session.execute(query).scalars().all()
+
+        return editor_pb2.ListVolunteersRes(
+            volunteers=[volunteer_to_pb(session, volunteer) for volunteer in volunteers]
+        )

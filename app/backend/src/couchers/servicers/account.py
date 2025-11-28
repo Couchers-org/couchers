@@ -58,6 +58,7 @@ from couchers.proto import account_pb2, account_pb2_grpc, auth_pb2, iris_pb2_grp
 from couchers.proto.google.api import httpbody_pb2
 from couchers.proto.internal import jobs_pb2, verification_pb2
 from couchers.servicers.api import lite_user_to_pb
+from couchers.servicers.public import format_volunteer_link
 from couchers.servicers.references import get_pending_references_to_write, reftype2api
 from couchers.sql import couchers_select as select
 from couchers.tasks import (
@@ -139,21 +140,6 @@ def abort_on_invalid_password(password: str, context: CouchersContext) -> None:
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "insecure_password")
 
 
-def _format_volunteer_link(volunteer: Volunteer, username: str) -> dict[str, str]:
-    if volunteer.link_type:
-        return dict(
-            link_type=volunteer.link_type,
-            link_text=volunteer.link_text,
-            link_url=volunteer.link_url,
-        )
-    else:
-        return dict(
-            link_type="couchers",
-            link_text=f"@{username}",
-            link_url=urls.user_link(username=username),
-        )
-
-
 def _volunteer_info_to_pb(volunteer: Volunteer, username: str) -> account_pb2.GetMyVolunteerInfoRes:
     return account_pb2.GetMyVolunteerInfoRes(
         display_name=volunteer.display_name,
@@ -162,7 +148,7 @@ def _volunteer_info_to_pb(volunteer: Volunteer, username: str) -> account_pb2.Ge
         started_volunteering=date_to_api(volunteer.started_volunteering),
         stopped_volunteering=date_to_api(volunteer.stopped_volunteering) if volunteer.stopped_volunteering else None,
         show_on_team_page=volunteer.show_on_team_page,
-        **_format_volunteer_link(volunteer, username),
+        **format_volunteer_link(volunteer, username),
     )
 
 
