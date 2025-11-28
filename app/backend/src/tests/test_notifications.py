@@ -6,16 +6,20 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2, timestamp_pb2
 
+from couchers.constants import DATETIME_INFINITY
 from couchers.context import make_background_user_context
 from couchers.crypto import b64decode
 from couchers.jobs.worker import process_job
 from couchers.models import (
+    DeviceType,
     HostingStatus,
     MeetupStatus,
     Notification,
     NotificationDelivery,
     NotificationDeliveryType,
     NotificationTopicAction,
+    PushNotificationPlatform,
+    PushNotificationSubscription,
     User,
 )
 from couchers.notifications.notify import notify
@@ -33,6 +37,7 @@ from couchers.proto.internal import unsubscribe_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.templates.v2 import v2timestamp
+from couchers.utils import now
 from tests.test_fixtures import (  # noqa
     api_session,
     auth_api_session,
@@ -630,3 +635,149 @@ def test_event_reminder_email_sent(db):
     assert title in email_fields(mock).plain
     assert expected_time_str in email_fields(mock).html
     assert expected_time_str in email_fields(mock).plain
+
+
+def test_RegisterMobilePushNotificationSubscription(db):
+    user, token = generate_user()
+
+    with notifications_session(token) as notifications:
+        notifications.RegisterMobilePushNotificationSubscription(
+            notifications_pb2.RegisterMobilePushNotificationSubscriptionReq(
+                token="ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]",
+                device_name="My iPhone",
+                device_type="ios",
+            )
+        )
+
+    # Check subscription was created
+    with session_scope() as session:
+        sub = session.execute(
+            select(PushNotificationSubscription).where(PushNotificationSubscription.user_id == user.id)
+        ).scalar_one()
+        assert sub.platform == PushNotificationPlatform.expo
+        assert sub.token == "ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]"
+        assert sub.device_name == "My iPhone"
+        assert sub.device_type == DeviceType.ios
+        assert sub.disabled_at == DATETIME_INFINITY
+
+
+def test_RegisterMobilePushNotificationSubscription_android(db):
+    user, token = generate_user()
+
+    with notifications_session(token) as notifications:
+        notifications.RegisterMobilePushNotificationSubscription(
+            notifications_pb2.RegisterMobilePushNotificationSubscriptionReq(
+                token="ExponentPushToken[yyyyyyyyyyyyyyyyyyyyyy]",
+                device_name="My Android",
+                device_type="android",
+            )
+        )
+
+    with session_scope() as session:
+        sub = session.execute(
+            select(PushNotificationSubscription).where(PushNotificationSubscription.user_id == user.id)
+        ).scalar_one()
+        assert sub.platform == PushNotificationPlatform.expo
+        assert sub.device_type == DeviceType.android
+
+
+def test_RegisterMobilePushNotificationSubscription_no_device_type(db):
+    user, token = generate_user()
+
+    with notifications_session(token) as notifications:
+        notifications.RegisterMobilePushNotificationSubscription(
+            notifications_pb2.RegisterMobilePushNotificationSubscriptionReq(
+                token="ExponentPushToken[zzzzzzzzzzzzzzzzzzzzzz]",
+            )
+        )
+
+    with session_scope() as session:
+        sub = session.execute(
+            select(PushNotificationSubscription).where(PushNotificationSubscription.user_id == user.id)
+        ).scalar_one()
+        assert sub.platform == PushNotificationPlatform.expo
+        assert sub.device_name is None
+        assert sub.device_type is None
+
+
+def test_RegisterMobilePushNotificationSubscription_re_enable(db):
+    user, token = generate_user()
+
+    # Create a disabled subscription directly in the DB
+    with session_scope() as session:
+        sub = PushNotificationSubscription(
+            user_id=user.id,
+            platform=PushNotificationPlatform.expo,
+            token="ExponentPushToken[reeeeeeeeeeeeeeeeeeeee]",
+            device_name="Old Device",
+            device_type=DeviceType.ios,
+            disabled_at=now(),
+        )
+        session.add(sub)
+        session.flush()
+        sub_id = sub.id
+
+    # Re-register with the same token
+    with notifications_session(token) as notifications:
+        notifications.RegisterMobilePushNotificationSubscription(
+            notifications_pb2.RegisterMobilePushNotificationSubscriptionReq(
+                token="ExponentPushToken[reeeeeeeeeeeeeeeeeeeee]",
+                device_name="New Device Name",
+                device_type="android",
+            )
+        )
+
+    # Check subscription was re-enabled and updated
+    with session_scope() as session:
+        sub = session.execute(
+            select(PushNotificationSubscription).where(PushNotificationSubscription.id == sub_id)
+        ).scalar_one()
+        assert sub.disabled_at == DATETIME_INFINITY
+        assert sub.device_name == "New Device Name"
+        assert sub.device_type == DeviceType.android
+
+
+def test_RegisterMobilePushNotificationSubscription_already_exists(db):
+    user, token = generate_user()
+
+    # Create an active subscription directly in the DB
+    with session_scope() as session:
+        sub = PushNotificationSubscription(
+            user_id=user.id,
+            platform=PushNotificationPlatform.expo,
+            token="ExponentPushToken[existingtoken]",
+            device_name="Existing Device",
+            device_type=DeviceType.ios,
+        )
+        session.add(sub)
+
+    # Try to register with the same token - should just return without error
+    with notifications_session(token) as notifications:
+        notifications.RegisterMobilePushNotificationSubscription(
+            notifications_pb2.RegisterMobilePushNotificationSubscriptionReq(
+                token="ExponentPushToken[existingtoken]",
+                device_name="Different Name",
+            )
+        )
+
+    # Check subscription was NOT modified (already active)
+    with session_scope() as session:
+        sub = session.execute(
+            select(PushNotificationSubscription).where(
+                PushNotificationSubscription.token == "ExponentPushToken[existingtoken]"
+            )
+        ).scalar_one()
+        assert sub.device_name == "Existing Device"  # unchanged
+
+
+def test_SendTestMobilePushNotification(db, push_collector):
+    user, token = generate_user()
+
+    with notifications_session(token) as notifications:
+        notifications.SendTestMobilePushNotification(empty_pb2.Empty())
+
+    push_collector.assert_user_has_single_matching(
+        user.id,
+        title="Checking mobile push notifications work!",
+        body="If you see this on your phone, everything is wired up correctly 🎉",
+    )

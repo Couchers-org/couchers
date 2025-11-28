@@ -4,7 +4,7 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import func, or_
+from sqlalchemy.sql import or_
 
 from couchers.config import config
 from couchers.constants import DATETIME_INFINITY
@@ -30,7 +30,7 @@ from couchers.notifications.utils import enum_from_topic_action
 from couchers.notifications.web_push_api import decode_key, get_vapid_public_key_from_private_key
 from couchers.proto import notifications_pb2, notifications_pb2_grpc
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime
+from couchers.utils import Timestamp_from_datetime, now
 
 logger = logging.getLogger(__name__)
 MAX_PAGINATION_LENGTH = 100
@@ -198,7 +198,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
 
         if existing:
             # Re-enable if disabled
-            if existing.disabled_at < func.now():
+            if existing.disabled_at < now():
                 existing.disabled_at = DATETIME_INFINITY
                 existing.device_name = request.device_name or existing.device_name
                 if request.device_type:
