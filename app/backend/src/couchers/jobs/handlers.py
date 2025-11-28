@@ -1203,13 +1203,10 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             )
             return
 
-        user = session.execute(select(User).where(User.id == attempt.user_id)).scalar_one()
-
-        # Generate QR code URL (only contains the code, user must be logged in)
-        qr_url = urls.postal_verification_link(code=attempt.verification_code)
+        user_name = session.execute(select(User.name).where(User.id == attempt.user_id)).scalar_one()
 
         result = send_postcard(
-            recipient_name=user.name,
+            recipient_name=user_name,
             address_line_1=attempt.address_line_1,
             address_line_2=attempt.address_line_2,
             city=attempt.city,
@@ -1217,7 +1214,7 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             postal_code=attempt.postal_code,
             country=attempt.country,
             verification_code=attempt.verification_code,
-            qr_code_url=qr_url,
+            qr_code_url=urls.postal_verification_link(code=attempt.verification_code),
         )
 
         if result.success:
