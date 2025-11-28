@@ -84,13 +84,9 @@ from couchers.models import (
     UserBadge,
     Volunteer,
 )
-from couchers.notifications.background import (
-    handle_email_digests,
-    handle_notification,
-    send_mobile_push_notification,
-    send_raw_push_notification,
-)
+from couchers.notifications.background import handle_email_digests, handle_notification
 from couchers.notifications.notify import notify
+from couchers.notifications.send_raw_push_notification import send_raw_push_notification
 from couchers.proto import notification_data_pb2
 from couchers.proto.internal import jobs_pb2, verification_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
@@ -124,8 +120,6 @@ logger = logging.getLogger(__name__)
 handle_notification.PAYLOAD = jobs_pb2.HandleNotificationPayload
 
 send_raw_push_notification.PAYLOAD = jobs_pb2.SendRawPushNotificationPayload
-
-send_mobile_push_notification.PAYLOAD = jobs_pb2.SendMobilePushNotificationPayload
 
 handle_email_digests.PAYLOAD = empty_pb2.Empty
 handle_email_digests.SCHEDULE = timedelta(minutes=15)

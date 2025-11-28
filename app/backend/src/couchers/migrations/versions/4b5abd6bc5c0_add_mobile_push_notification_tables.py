@@ -1,4 +1,4 @@
-"""Add mobile push notification tables
+"""Add mobile push notification support
 
 Revision ID: 4b5abd6bc5c0
 Revises: 941b04198efe
@@ -17,79 +17,133 @@ depends_on = None
 
 
 def upgrade():
-    op.create_table(
-        "mobile_push_notification_subscriptions",
-        sa.Column("id", sa.BigInteger(), nullable=False),
-        sa.Column("created", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
-        sa.Column("user_id", sa.BigInteger(), nullable=False),
-        sa.Column("token", sa.String(), nullable=False),
-        sa.Column("platform", sa.String(), nullable=False),
+    # Create new enums
+    push_notification_platform = sa.Enum("web_push", "expo", name="pushnotificationplatform")
+    push_notification_platform.create(op.get_bind())
+
+    device_type = sa.Enum("ios", "android", name="devicetype")
+    device_type.create(op.get_bind())
+
+    push_notification_delivery_outcome = sa.Enum(
+        "success",
+        "transient_failure",
+        "permanent_message_failure",
+        "permanent_subscription_failure",
+        name="pushnotificationdeliveryoutcome",
+    )
+    push_notification_delivery_outcome.create(op.get_bind())
+
+    # Add new columns to push_notification_subscriptions
+    op.add_column(
+        "push_notification_subscriptions",
+        sa.Column("platform", push_notification_platform, nullable=True),
+    )
+    op.add_column(
+        "push_notification_subscriptions",
+        sa.Column("token", sa.String(), nullable=True),
+    )
+    op.add_column(
+        "push_notification_subscriptions",
         sa.Column("device_name", sa.String(), nullable=True),
-        sa.Column("device_type", sa.String(), nullable=True),
-        sa.Column(
-            "disabled_at",
-            sa.DateTime(timezone=True),
-            server_default="9876-12-31T23:59:59+00:00",
-            nullable=False,
-        ),
-        sa.ForeignKeyConstraint(["user_id"], ["users.id"], name=op.f("fk_mobile_push_subscriptions_user_id")),
-        sa.PrimaryKeyConstraint("id", name=op.f("pk_mobile_push_notification_subscriptions")),
     )
-    op.create_index(
-        op.f("ix_mobile_push_notification_subscriptions_user_id"),
-        "mobile_push_notification_subscriptions",
-        ["user_id"],
-        unique=False,
+    op.add_column(
+        "push_notification_subscriptions",
+        sa.Column("device_type", device_type, nullable=True),
     )
+
+    # Make web_push-specific columns nullable
+    op.alter_column("push_notification_subscriptions", "endpoint", existing_type=sa.String(), nullable=True)
+    op.alter_column("push_notification_subscriptions", "auth_key", existing_type=sa.LargeBinary(), nullable=True)
+    op.alter_column("push_notification_subscriptions", "p256dh_key", existing_type=sa.LargeBinary(), nullable=True)
+    op.alter_column(
+        "push_notification_subscriptions", "full_subscription_info", existing_type=sa.String(), nullable=True
+    )
+
+    # Backfill existing rows as web_push
+    op.execute("UPDATE push_notification_subscriptions SET platform = 'web_push'")
+
+    # Now make platform non-nullable
+    op.alter_column("push_notification_subscriptions", "platform", nullable=False)
+
+    # Add index on token
     op.create_index(
-        op.f("ix_mobile_push_notification_subscriptions_token"),
-        "mobile_push_notification_subscriptions",
+        op.f("ix_push_notification_subscriptions_token"),
+        "push_notification_subscriptions",
         ["token"],
         unique=True,
     )
-    op.create_index(
-        "ix_mobile_push_notification_subscriptions_active",
-        "mobile_push_notification_subscriptions",
-        ["user_id", "disabled_at"],
-        unique=False,
+
+    # Add check constraint for platform-specific columns
+    op.create_check_constraint(
+        "platform_columns",
+        "push_notification_subscriptions",
+        """
+        (platform = 'web_push' AND endpoint IS NOT NULL AND auth_key IS NOT NULL AND p256dh_key IS NOT NULL AND full_subscription_info IS NOT NULL AND token IS NULL)
+        OR
+        (platform = 'expo' AND token IS NOT NULL AND endpoint IS NULL AND auth_key IS NULL AND p256dh_key IS NULL AND full_subscription_info IS NULL)
+        """,
     )
 
-    op.create_table(
-        "mobile_push_notification_delivery_attempts",
-        sa.Column("id", sa.BigInteger(), nullable=False),
-        sa.Column("time", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
-        sa.Column("mobile_push_notification_subscription_id", sa.BigInteger(), nullable=False),
-        sa.Column("success", sa.Boolean(), nullable=False),
-        sa.Column("status_code", sa.Integer(), nullable=False),
-        sa.Column("response", sa.String(), nullable=True),
-        sa.ForeignKeyConstraint(
-            ["mobile_push_notification_subscription_id"],
-            ["mobile_push_notification_subscriptions.id"],
-            name=op.f("fk_mobile_push_notification_delivery_attempts_subscription_id"),
-        ),
-        sa.PrimaryKeyConstraint("id", name=op.f("pk_mobile_push_notification_delivery_attempts")),
+    # Update push_notification_delivery_attempt: replace success bool with outcome enum
+    op.add_column(
+        "push_notification_delivery_attempt",
+        sa.Column("outcome", push_notification_delivery_outcome, nullable=True),
     )
-    op.create_index(
-        op.f("ix_mobile_push_notification_delivery_attempts_subscription_id"),
-        "mobile_push_notification_delivery_attempts",
-        ["mobile_push_notification_subscription_id"],
-        unique=False,
-    )
+
+    # Backfill outcome based on success
+    op.execute("""
+        UPDATE push_notification_delivery_attempt
+        SET outcome = CASE WHEN success THEN 'success' ELSE 'transient_failure' END
+    """)
+
+    # Make outcome non-nullable and drop success
+    op.alter_column("push_notification_delivery_attempt", "outcome", nullable=False)
+    op.drop_column("push_notification_delivery_attempt", "success")
+
+    # Make status_code nullable
+    op.alter_column("push_notification_delivery_attempt", "status_code", existing_type=sa.Integer(), nullable=True)
 
 
 def downgrade():
-    op.drop_index(
-        op.f("ix_mobile_push_notification_delivery_attempts_subscription_id"),
-        table_name="mobile_push_notification_delivery_attempts",
+    # Re-add success column
+    op.add_column(
+        "push_notification_delivery_attempt",
+        sa.Column("success", sa.Boolean(), nullable=True),
     )
-    op.drop_table("mobile_push_notification_delivery_attempts")
-    op.drop_index(
-        "ix_mobile_push_notification_subscriptions_active", table_name="mobile_push_notification_subscriptions"
+
+    # Backfill success based on outcome
+    op.execute("""
+        UPDATE push_notification_delivery_attempt
+        SET success = (outcome = 'success')
+    """)
+
+    op.alter_column("push_notification_delivery_attempt", "success", nullable=False)
+    op.drop_column("push_notification_delivery_attempt", "outcome")
+
+    # Make status_code non-nullable (may fail if there are NULLs)
+    op.alter_column("push_notification_delivery_attempt", "status_code", existing_type=sa.Integer(), nullable=False)
+
+    # Drop check constraint
+    op.drop_constraint("platform_columns", "push_notification_subscriptions", type_="check")
+
+    # Drop token index
+    op.drop_index(op.f("ix_push_notification_subscriptions_token"), table_name="push_notification_subscriptions")
+
+    # Make web_push columns non-nullable again (may fail if there are expo rows)
+    op.alter_column("push_notification_subscriptions", "endpoint", existing_type=sa.String(), nullable=False)
+    op.alter_column("push_notification_subscriptions", "auth_key", existing_type=sa.LargeBinary(), nullable=False)
+    op.alter_column("push_notification_subscriptions", "p256dh_key", existing_type=sa.LargeBinary(), nullable=False)
+    op.alter_column(
+        "push_notification_subscriptions", "full_subscription_info", existing_type=sa.String(), nullable=False
     )
-    op.drop_index(
-        op.f("ix_mobile_push_notification_subscriptions_token"), table_name="mobile_push_notification_subscriptions"
-    )
-    op.drop_index(
-        op.f("ix_mobile_push_notification_subscriptions_user_id"), table_name="mobile_push_notification_subscriptions"
-    )
-    op.drop_table("mobile_push_notification_subscriptions")
+
+    # Drop new columns
+    op.drop_column("push_notification_subscriptions", "device_type")
+    op.drop_column("push_notification_subscriptions", "device_name")
+    op.drop_column("push_notification_subscriptions", "token")
+    op.drop_column("push_notification_subscriptions", "platform")
+
+    # Drop enums
+    sa.Enum(name="pushnotificationdeliveryoutcome").drop(op.get_bind())
+    sa.Enum(name="devicetype").drop(op.get_bind())
+    sa.Enum(name="pushnotificationplatform").drop(op.get_bind())

@@ -1,4 +1,3 @@
-import functools
 import json
 
 from sqlalchemy.orm import Session
@@ -8,14 +7,8 @@ from couchers import urls
 from couchers.config import config
 from couchers.jobs.enqueue import queue_job
 from couchers.models import PushNotificationSubscription
-from couchers.notifications.push_api import get_vapid_public_key_from_private_key
 from couchers.proto.internal import jobs_pb2
 from couchers.sql import couchers_select as select
-
-
-@functools.cache
-def get_vapid_public_key() -> str:
-    return get_vapid_public_key_from_private_key(config["PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY"])
 
 
 def push_to_subscription(

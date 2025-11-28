@@ -137,12 +137,9 @@ message RegisterMobilePushNotificationSubscriptionReq {
   // Expo push token or platform-specific token
   string token = 1;
 
-  // e.g. "expo", "fcm", "apns"
-  string platform = 2;
-
   // Optional metadata to show users which device is registered
-  string device_name = 3;
+  string device_name = 2;
 
   // e.g. "ios" or "android"
-  string device_type = 4;
+  string device_type = 3;
 }
