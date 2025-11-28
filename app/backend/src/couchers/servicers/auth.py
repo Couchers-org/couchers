@@ -279,6 +279,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.geom_radius = request.account.radius
                 flow.accepted_tos = TOS_VERSION
                 flow.opt_out_of_newsletter = request.account.opt_out_of_newsletter
+                flow.have_you_couchsurfed_before = request.account.have_you_couchsurfed_before
                 session.flush()
 
             if request.HasField("feedback"):
@@ -326,6 +327,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 last_onboarding_email_sent=func.now(),
                 opt_out_of_newsletter=flow.opt_out_of_newsletter,
                 invite_code_id=flow.invite_code_id,
+                heard_about_us_source=flow.heard_about_us_source,
+                what_you_want_to_get_out_of_couchers=flow.what_you_want_to_get_out_of_couchers,
+                have_you_couchsurfed_before=flow.have_you_couchsurfed_before,
             )
 
             session.add(user)

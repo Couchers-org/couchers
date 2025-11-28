@@ -187,6 +187,10 @@ class SignupFlow(Base):
 
     opt_out_of_newsletter: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
 
+    heard_about_us_source = mapped_column(String, nullable=True)
+    what_you_want_to_get_out_of_couchers = mapped_column(String, nullable=True)
+    have_you_couchsurfed_before = mapped_column(Boolean, nullable=True)
+
     ## Feedback (now unused)
     filled_feedback: Mapped[bool] = mapped_column(Boolean, default=False)
     ideas: Mapped[str | None] = mapped_column(String, nullable=True)

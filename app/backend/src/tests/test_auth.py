@@ -165,6 +165,9 @@ def test_signup_incremental(db):
                     lng=-73.9778,
                     radius=500,
                     accept_tos=True,
+                    heard_about_us_source="friend",
+                    what_you_want_to_get_out_of_couchers="meet new people",
+                    have_you_couchsurfed_before=True,
                 ),
             )
         )
@@ -222,6 +225,9 @@ def _quick_signup() -> int:
                     lng=-73.9778,
                     radius=500,
                     accept_tos=True,
+                    heard_about_us_source="friend",
+                    what_you_want_to_get_out_of_couchers="meet new people",
+                    have_you_couchsurfed_before=True,
                 ),
                 feedback=auth_pb2.ContributorForm(),
                 accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
@@ -344,6 +350,9 @@ def test_login_part_signed_up_not_verified_email(db):
                     lng=-73.9778,
                     radius=500,
                     accept_tos=True,
+                    heard_about_us_source="friend",
+                    what_you_want_to_get_out_of_couchers="meet new people",
+                    have_you_couchsurfed_before=True,
                 ),
             )
         )
@@ -565,6 +574,9 @@ def test_signup_without_password(db):
                         lng=1,
                         radius=100,
                         accept_tos=True,
+                        heard_about_us_source="friend",
+                        what_you_want_to_get_out_of_couchers="meet new people",
+                        have_you_couchsurfed_before=True,
                     ),
                     feedback=auth_pb2.ContributorForm(),
                 )
@@ -590,6 +602,9 @@ def test_signup_invalid_birthdate(db):
                         lng=1,
                         radius=100,
                         accept_tos=True,
+                        heard_about_us_source="friend",
+                        what_you_want_to_get_out_of_couchers="meet new people",
+                        have_you_couchsurfed_before=True,
                     ),
                     feedback=auth_pb2.ContributorForm(),
                 )
@@ -611,6 +626,9 @@ def test_signup_invalid_birthdate(db):
                     lng=1,
                     radius=100,
                     accept_tos=True,
+                    heard_about_us_source="friend",
+                    what_you_want_to_get_out_of_couchers="meet new people",
+                    have_you_couchsurfed_before=True,
                 ),
                 feedback=auth_pb2.ContributorForm(),
             )
@@ -633,6 +651,9 @@ def test_signup_invalid_birthdate(db):
                         lng=1,
                         radius=100,
                         accept_tos=True,
+                        heard_about_us_source="friend",
+                        what_you_want_to_get_out_of_couchers="meet new people",
+                        have_you_couchsurfed_before=True,
                     ),
                     feedback=auth_pb2.ContributorForm(),
                 )
@@ -741,6 +762,9 @@ def test_signup_resend_email(db):
                         lng=-73.9778,
                         radius=500,
                         accept_tos=True,
+                        heard_about_us_source="friend",
+                        what_you_want_to_get_out_of_couchers="meet new people",
+                        have_you_couchsurfed_before=True,
                     ),
                     feedback=auth_pb2.ContributorForm(),
                     accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
@@ -864,6 +888,9 @@ def test_complete_signup(db):
                         lng=1,
                         radius=100,
                         accept_tos=True,
+                        heard_about_us_source="friend",
+                        what_you_want_to_get_out_of_couchers="meet new people",
+                        have_you_couchsurfed_before=True,
                     ),
                 )
             )
@@ -898,6 +925,9 @@ def test_complete_signup(db):
                         lng=1,
                         radius=100,
                         accept_tos=True,
+                        heard_about_us_source="friend",
+                        what_you_want_to_get_out_of_couchers="meet new people",
+                        have_you_couchsurfed_before=True,
                     ),
                 )
             )
@@ -922,6 +952,9 @@ def test_complete_signup(db):
                         lng=1,
                         radius=100,
                         accept_tos=True,
+                        heard_about_us_source="friend",
+                        what_you_want_to_get_out_of_couchers="meet new people",
+                        have_you_couchsurfed_before=True,
                     ),
                 )
             )
@@ -945,6 +978,9 @@ def test_complete_signup(db):
                         lng=0,
                         radius=100,
                         accept_tos=True,
+                        heard_about_us_source="friend",
+                        what_you_want_to_get_out_of_couchers="meet new people",
+                        have_you_couchsurfed_before=True,
                     ),
                 )
             )
@@ -1008,6 +1044,9 @@ def test_opt_out_of_newsletter(db, opt_out):
                     radius=500,
                     accept_tos=True,
                     opt_out_of_newsletter=opt_out,
+                    heard_about_us_source="friend",
+                    what_you_want_to_get_out_of_couchers="meet new people",
+                    have_you_couchsurfed_before=False,
                 ),
                 feedback=auth_pb2.ContributorForm(),
                 accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
@@ -1080,6 +1119,9 @@ def test_signup_no_feedback_regression(db):
                     lng=-73.9778,
                     radius=500,
                     accept_tos=True,
+                    heard_about_us_source="friend",
+                    what_you_want_to_get_out_of_couchers="meet new people",
+                    have_you_couchsurfed_before=True,
                 ),
                 accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
             )
@@ -1148,6 +1190,9 @@ def test_banned_username(db):
                         lng=1,
                         radius=100,
                         accept_tos=True,
+                        heard_about_us_source="friend",
+                        what_you_want_to_get_out_of_couchers="meet new people",
+                        have_you_couchsurfed_before=True,
                     ),
                 )
             )
@@ -1257,6 +1302,9 @@ def test_SignupFlow_invite_code(db):
                     lng=5,
                     radius=100,
                     accept_tos=True,
+                    heard_about_us_source="friend",
+                    what_you_want_to_get_out_of_couchers="meet new people",
+                    have_you_couchsurfed_before=True,
                 ),
                 feedback=auth_pb2.ContributorForm(),
                 accept_community_guidelines=wrappers_pb2.BoolValue(value=True),

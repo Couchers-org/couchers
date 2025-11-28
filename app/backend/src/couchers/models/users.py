@@ -245,6 +245,10 @@ class User(Base):
 
     recommendation_score: Mapped[float] = mapped_column(Float, server_default="0")
 
+    heard_about_us_source = mapped_column(String, nullable=True)
+    what_you_want_to_get_out_of_couchers = mapped_column(String, nullable=True)
+    have_you_couchsurfed_before = mapped_column(Boolean, nullable=True)
+
     # Columns for verifying their phone number. State chart:
     #                                       ,-------------------,
     #                                       |    Start          |
