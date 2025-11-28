@@ -43,5 +43,8 @@
   "comments": "Yorumlar",
   "community_header": "{{name}}'ya hoşgeldin",
   "join_community": "Topluluğa katıl",
-  "created_at": "Oluşturulma tarihi "
+  "created_at": "Oluşturulma tarihi ",
+  "load_earlier_replies": "Daha önceki yanıtları yükle",
+  "load_more_moderators": "Daha fazla Topluluk Mimarı yükle",
+  "local_info_label": "Yerel bilgi"
 }
