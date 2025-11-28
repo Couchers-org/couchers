@@ -46,7 +46,7 @@ POSTAL_VERIFICATION_CODE_LIFETIME = timedelta(days=90)
 # Max wrong code attempts before lockout
 POSTAL_VERIFICATION_MAX_ATTEMPTS = 5
 # Can only initiate once per 30 days
-POSTAL_VERIFICATION_RATE_LIMIT_DAYS = 30
+POSTAL_VERIFICATION_RATE_LIMIT = timedelta(days=30)
 
 SIGNUP_EMAIL_TOKEN_VALIDITY = timedelta(hours=48)
 

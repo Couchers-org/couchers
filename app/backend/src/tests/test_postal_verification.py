@@ -9,7 +9,7 @@ from couchers.config import config
 from couchers.constants import (
     POSTAL_VERIFICATION_CODE_LIFETIME,
     POSTAL_VERIFICATION_MAX_ATTEMPTS,
-    POSTAL_VERIFICATION_RATE_LIMIT_DAYS,
+    POSTAL_VERIFICATION_RATE_LIMIT,
 )
 from couchers.db import session_scope
 from couchers.helpers.postal_verification import generate_postal_verification_code, has_postal_verification
@@ -421,7 +421,7 @@ def test_postal_verification_list_attempts(db, monkeypatch):
         attempt = session.execute(
             select(PostalVerificationAttempt).where(PostalVerificationAttempt.id == attempt_id_1)
         ).scalar_one()
-        attempt.created = now() - timedelta(days=POSTAL_VERIFICATION_RATE_LIMIT_DAYS + 1)
+        attempt.created = now() - POSTAL_VERIFICATION_RATE_LIMIT - timedelta(days=1)
 
     # Create second attempt
     with postal_verification_session(token) as pv:

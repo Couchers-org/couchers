@@ -1,7 +1,5 @@
 from dataclasses import dataclass
 
-from couchers.config import config
-
 
 @dataclass
 class PostcardResult:
@@ -43,12 +41,6 @@ def send_postcard(
     Returns:
         PostcardResult with success status
     """
-    if not config["ENABLE_POSTAL_VERIFICATION"]:
-        return PostcardResult(
-            success=False,
-            error_message="Postal verification is disabled",
-        )
-
     # STUB IMPLEMENTATION
     # In production, would make API call to postcard service
     return PostcardResult(
