@@ -61,6 +61,7 @@ def test_GetBadges(db):
             "donor",
             "phone_verified",
             "strong_verification",
+            "swagster",
         }
         assert set(badges_dict.keys()) == expected_badge_ids
 

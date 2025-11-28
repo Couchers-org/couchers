@@ -281,8 +281,8 @@ def test_customer_portal_url(db, monkeypatch):
 
 
 def test_merch_invoice_flow(db, monkeypatch):
-    """Test that external shop purchases (e.g., from merch shop) are correctly categorized as InvoiceType.external_shop"""
-    user, token = generate_user(email="test@couchers.org.invalid")
+    """Test that external shop purchases (e.g., from merch shop) grant swagster badge but don't update last_donated"""
+    user, token = generate_user(email="test@couchers.org.invalid", last_donated=None)
 
     new_config = config.copy()
     new_config["STRIPE_API_KEY"] = "dummy_api_key"
@@ -294,14 +294,19 @@ def test_merch_invoice_flow(db, monkeypatch):
     ## Stripe sends a charge.succeeded webhook for a merch purchase
     fire_stripe_event("evt_merch_charge_succeeded")
 
-    ## Check that the invoice was created with the correct type
+    ## Check that no invoice was created, last_donated was not updated, but swagster badge was granted
     with session_scope() as session:
         assert not session.execute(select(Invoice.id)).scalar_one_or_none()
-        assert session.execute(select(User.last_donated)).scalar_one() is not None
+        assert session.execute(select(User.last_donated)).scalar_one() is None
+        # Check that swagster badge was granted
+        badge = session.execute(
+            select(UserBadge).where(UserBadge.user_id == user.id, UserBadge.badge_id == "swagster")
+        ).scalar_one_or_none()
+        assert badge is not None
 
 
 def test_merch_invoice_flow_nonexistent_user(db, monkeypatch):
-    """Test that external shop purchases (e.g., from merch shop) are correctly categorized as InvoiceType.external_shop"""
+    """Test that external shop purchases for non-existent users don't error and don't grant badges"""
     user, _ = generate_user(last_donated=None)
 
     new_config = config.copy()
@@ -311,13 +316,16 @@ def test_merch_invoice_flow_nonexistent_user(db, monkeypatch):
 
     monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
 
-    ## Stripe sends a charge.succeeded webhook for a merch purchase
+    ## Stripe sends a charge.succeeded webhook for a merch purchase with a non-matching email
     fire_stripe_event("evt_merch_charge_succeeded")
 
-    ## Check that the invoice was created with the correct type
+    ## Check that no invoice was created, last_donated was not updated, and no badge was granted
     with session_scope() as session:
         assert not session.execute(select(Invoice.id)).scalar_one_or_none()
         assert session.execute(select(User.last_donated)).scalar_one() is None
+        # Check that no swagster badge was granted
+        badge_count = session.execute(select(UserBadge).where(UserBadge.badge_id == "swagster")).all()
+        assert len(badge_count) == 0
 
 
 def fire_stripe_event(event_id):

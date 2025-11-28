@@ -44,6 +44,11 @@
       "id": "strong_verification",
       "color": "#1b8aa0",
       "admin_editable": false
+    },
+    {
+      "id": "swagster",
+      "color": "#ff6b9d",
+      "admin_editable": false
     }
   ],
   "static_badges": {

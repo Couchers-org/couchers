@@ -220,6 +220,8 @@
     "phone_verified_name": "Verified Phone",
     "phone_verified_description": "This user has verified their phone number",
     "strong_verification_name": "Strong Verification",
-    "strong_verification_description": "This user has verified their gender and date of birth with a biometric passport"
+    "strong_verification_description": "This user has verified their gender and date of birth with a biometric passport",
+    "swagster_name": "Swagster",
+    "swagster_description": "This user has bought Couchers.org swag!"
   }
 }
