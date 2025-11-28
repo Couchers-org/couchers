@@ -319,5 +319,40 @@
       "most": "<1>Most</1>: show full \"About me\" section except \"Additional information\"",
       "full_profile": "<1>Full profile</1>: show my full profile (except references)"
     }
+  },
+  "volunteer_management": {
+    "title": "Volunteer Management",
+    "description": "Manage your volunteer profile information. This controls how you appear on the team page. If your role or volunteering dates are incorrect, please let us know and we'll update them.",
+    "not_a_volunteer_message": "According to our records you are not a current or past volunteer. If this is incorrect, please let us know by filling in <1>this form</1>.",
+    "current_volunteer": "Volunteering since {{startDate}}.",
+    "past_volunteer": "Volunteered from {{startDate}} to {{endDate}}.",
+    "shown_on_team_page_current": "Shown on team page as a current team member.",
+    "shown_on_team_page_past": "Shown on team page as a past volunteer.",
+    "not_shown_on_team_page": "Not shown on team page.",
+    "update_success": "Your volunteer information has been updated.",
+    "form": {
+      "title": "Update your volunteer info",
+      "override_name_label": "Use a different name on the team page (instead of \"{{profileName}}\")",
+      "display_name_label": "Display name",
+      "override_location_label": "Use a different location on the team page (instead of \"{{profileLocation}}\")",
+      "display_location_label": "Display location",
+      "show_on_team_page_label": "Show me on the team page",
+      "link_type_label": "Link type",
+      "link_type_couchers": "Couchers profile",
+      "link_type_email": "Email",
+      "link_type_linkedin": "LinkedIn",
+      "link_type_website": "Website",
+      "link_text_label": "Link value",
+      "link_text_linkedin_placeholder": "your-linkedin-username",
+      "link_text_email_placeholder": "your@email.com",
+      "link_text_website_placeholder": "https://your-website.com",
+      "link_text_linkedin_helper": "Your LinkedIn username (without the URL)",
+      "link_text_email_helper": "Your email address",
+      "link_text_website_helper": "The text to display for the link",
+      "link_url_label": "Link URL",
+      "link_url_placeholder": "https://your-website.com",
+      "link_url_helper": "The full URL the link should point to",
+      "save_button": "Save changes"
+    }
   }
 }

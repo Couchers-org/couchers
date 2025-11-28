@@ -177,11 +177,11 @@ export function updateVolunteerInfo(info: UpdateVolunteerInfoParams) {
     req.setShowOnTeamPage(new BoolValue().setValue(info.showOnTeamPage));
   }
 
-  if (info.displayName) {
+  if (info.displayName !== undefined) {
     req.setDisplayName(new StringValue().setValue(info.displayName));
   }
 
-  if (info.displayLocation) {
+  if (info.displayLocation !== undefined) {
     req.setDisplayLocation(new StringValue().setValue(info.displayLocation));
   }
 
@@ -190,11 +190,11 @@ export function updateVolunteerInfo(info: UpdateVolunteerInfoParams) {
   }
 
   if (info.linkUrl) {
-    req.setLinkType(new StringValue().setValue(info.linkUrl));
+    req.setLinkUrl(new StringValue().setValue(info.linkUrl));
   }
 
   if (info.linkText) {
-    req.setLinkType(new StringValue().setValue(info.linkText));
+    req.setLinkText(new StringValue().setValue(info.linkText));
   }
 
   return client.account.updateMyVolunteerInfo(req);
