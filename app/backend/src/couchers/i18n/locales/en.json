@@ -201,5 +201,25 @@
   "ghost_users": {
     "display_name": "Ghost",
     "about_me": "This user is no longer on the platform. They may have deleted their account, been blocked, or been banned. We recommend exercising caution with any further interaction with this user off the platform. You can always reach out to support if you need any help."
+  },
+  "badges": {
+    "founder_name": "Founder",
+    "founder_description": "This user is one of the two founders of Couchers.org",
+    "board_member_name": "Board Member",
+    "board_member_description": "This user serves on the Board of the Couchers, Inc. non-profit",
+    "past_board_member_name": "Past Board Member",
+    "past_board_member_description": "This user served on the Board of the Couchers, Inc. non-profit",
+    "moderator_name": "Moderator",
+    "moderator_description": "This user is a moderator of Couchers.org",
+    "volunteer_name": "Active Volunteer",
+    "volunteer_description": "This user is an active volunteer for Couchers.org",
+    "past_volunteer_name": "Past Volunteer",
+    "past_volunteer_description": "This user was a volunteer for Couchers.org",
+    "donor_name": "Donor",
+    "donor_description": "This user has contributed funds to the project",
+    "phone_verified_name": "Verified Phone",
+    "phone_verified_description": "This user has verified their phone number",
+    "strong_verification_name": "Strong Verification",
+    "strong_verification_description": "This user has verified their gender and date of birth with a biometric passport"
   }
 }

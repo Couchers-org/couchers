@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import delete
 
+from couchers.context import make_background_user_context
 from couchers.models import UserBadge
 from couchers.notifications.notify import notify
 from couchers.proto import notification_data_pb2
@@ -12,14 +13,15 @@ def user_add_badge(session: Session, user_id: int, badge_id: str, do_notify: boo
     session.add(UserBadge(user_id=user_id, badge_id=badge_id))
     session.flush()
     if do_notify:
+        context = make_background_user_context(user_id=user_id)
         notify(
             session,
             user_id=user_id,
             topic_action="badge:add",
             data=notification_data_pb2.BadgeAdd(
                 badge_id=badge["id"],
-                badge_name=badge["name"],
-                badge_description=badge["description"],
+                badge_name=context.get_localized_string("badges", f"{badge_id}_name"),
+                badge_description=context.get_localized_string("badges", f"{badge_id}_description"),
             ),
         )
     session.commit()
@@ -29,14 +31,15 @@ def user_remove_badge(session: Session, user_id: int, badge_id: str) -> None:
     badge = get_badge_dict()[badge_id]
     session.execute(delete(UserBadge).where(UserBadge.user_id == user_id, UserBadge.badge_id == badge_id))
     session.flush()
+    context = make_background_user_context(user_id=user_id)
     notify(
         session,
         user_id=user_id,
         topic_action="badge:remove",
         data=notification_data_pb2.BadgeRemove(
             badge_id=badge["id"],
-            badge_name=badge["name"],
-            badge_description=badge["description"],
+            badge_name=context.get_localized_string("badges", f"{badge_id}_name"),
+            badge_description=context.get_localized_string("badges", f"{badge_id}_description"),
         ),
     )
     session.commit()

@@ -43,3 +43,47 @@ def test_GetLanguages(db):
         assert ("fin", "Finnish") in languages_list
         assert ("swe", "Swedish") in languages_list
         assert ("???", "Nonexistent language") not in languages_list
+
+
+def test_GetBadges(db):
+    with resources_session() as api:
+        badges = api.GetBadges(empty_pb2.Empty()).badges
+        badges_dict = {b.id: b for b in badges}
+
+        # Check that all expected badges are present
+        expected_badge_ids = {
+            "founder",
+            "board_member",
+            "past_board_member",
+            "moderator",
+            "volunteer",
+            "past_volunteer",
+            "donor",
+            "phone_verified",
+            "strong_verification",
+        }
+        assert set(badges_dict.keys()) == expected_badge_ids
+
+        # Check that a specific badge has the correct properties
+        founder = badges_dict["founder"]
+        assert founder.id == "founder"
+        assert founder.name == "Founder"
+        assert founder.description == "This user is one of the two founders of Couchers.org"
+        assert founder.color == "#e47701"
+
+        # Check another badge to ensure translations are working
+        moderator = badges_dict["moderator"]
+        assert moderator.id == "moderator"
+        assert moderator.name == "Moderator"
+        assert moderator.description == "This user is a moderator of Couchers.org"
+        assert moderator.color == "#c74f5b"
+
+        # Check strong_verification badge
+        strong_verification = badges_dict["strong_verification"]
+        assert strong_verification.id == "strong_verification"
+        assert strong_verification.name == "Strong Verification"
+        assert (
+            strong_verification.description
+            == "This user has verified their gender and date of birth with a biometric passport"
+        )
+        assert strong_verification.color == "#1b8aa0"
