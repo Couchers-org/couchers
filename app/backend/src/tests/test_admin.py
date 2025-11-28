@@ -40,25 +40,6 @@ def _(testconfig):
     pass
 
 
-@pytest.fixture
-def volunteer_badge_editable(monkeypatch):
-    """
-    Monkeypatch get_badge_dict to make volunteer badge admin editable.
-
-    Currently no badges are editable! This still tests that functionality by monkeypatching one of them to be so.
-    Remove this when there are badges that are editable.
-    """
-    from couchers.resources import get_badge_dict
-    from couchers.servicers import admin
-
-    original_badge_dict = get_badge_dict()
-    patched_badge_dict = {
-        badge_id: {**badge, "admin_editable": True} if badge_id == "volunteer" else badge
-        for badge_id, badge in original_badge_dict.items()
-    }
-    monkeypatch.setattr(admin, "get_badge_dict", lambda: patched_badge_dict)
-
-
 def test_access_by_normal_user(db):
     normal_user, normal_token = generate_user()
 
@@ -408,23 +389,23 @@ def test_GetChats(db):
     assert res.response
 
 
-def test_badges(db, push_collector, volunteer_badge_editable):
+def test_badges(db, push_collector):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user()
 
     with real_admin_session(super_token) as api:
         # can add a badge
-        assert "volunteer" not in api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username)).badges
+        assert "swagster" not in api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username)).badges
         with mock_notification_email() as mock:
-            res = api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="volunteer"))
-        assert "volunteer" in res.badges
+            res = api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="swagster"))
+        assert "swagster" in res.badges
 
         # badge emails are disabled by default
         mock.assert_not_called()
 
         push_collector.assert_user_has_single_matching(
             normal_user.id,
-            title="The Active Volunteer badge was added to your profile",
+            title="The Swagster badge was added to your profile",
             body="Check out your profile to see the new badge!",
         )
 
@@ -436,15 +417,15 @@ def test_badges(db, push_collector, volunteer_badge_editable):
 
         # double add badge
         with pytest.raises(grpc.RpcError) as e:
-            api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="volunteer"))
+            api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="swagster"))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == "The user already has that badge."
 
         # can remove badge
-        assert "volunteer" in api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username)).badges
+        assert "swagster" in api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username)).badges
         with mock_notification_email() as mock:
-            res = api.RemoveBadge(admin_pb2.RemoveBadgeReq(user=normal_user.username, badge_id="volunteer"))
-        assert "volunteer" not in res.badges
+            res = api.RemoveBadge(admin_pb2.RemoveBadgeReq(user=normal_user.username, badge_id="swagster"))
+        assert "swagster" not in res.badges
 
         # badge emails are disabled by default
         mock.assert_not_called()
@@ -452,13 +433,13 @@ def test_badges(db, push_collector, volunteer_badge_editable):
         push_collector.assert_user_push_matches_fields(
             normal_user.id,
             ix=1,
-            title="The Active Volunteer badge was removed from your profile",
+            title="The Swagster badge was removed from your profile",
             body="You can see all your badges on your profile.",
         )
 
         # not found on user
         with pytest.raises(grpc.RpcError) as e:
-            api.RemoveBadge(admin_pb2.RemoveBadgeReq(user=normal_user.username, badge_id="volunteer"))
+            api.RemoveBadge(admin_pb2.RemoveBadgeReq(user=normal_user.username, badge_id="swagster"))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == "The user does not have that badge."
 
