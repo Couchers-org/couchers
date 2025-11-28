@@ -40,6 +40,25 @@ def _(testconfig):
     pass
 
 
+@pytest.fixture
+def volunteer_badge_editable(monkeypatch):
+    """
+    Monkeypatch get_badge_dict to make volunteer badge admin editable.
+
+    Currently no badges are editable! This still tests that functionality by monkeypatching one of them to be so.
+    Remove this when there are badges that are editable.
+    """
+    from couchers.resources import get_badge_dict
+    from couchers.servicers import admin
+
+    original_badge_dict = get_badge_dict()
+    patched_badge_dict = {
+        badge_id: {**badge, "admin_editable": True} if badge_id == "volunteer" else badge
+        for badge_id, badge in original_badge_dict.items()
+    }
+    monkeypatch.setattr(admin, "get_badge_dict", lambda: patched_badge_dict)
+
+
 def test_access_by_normal_user(db):
     normal_user, normal_token = generate_user()
 
@@ -389,7 +408,7 @@ def test_GetChats(db):
     assert res.response
 
 
-def test_badges(db, push_collector):
+def test_badges(db, push_collector, volunteer_badge_editable):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user()
 
