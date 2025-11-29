@@ -46,6 +46,7 @@ from tests.test_fixtures import (  # noqa
     email_fields,
     generate_user,
     mock_notification_email,
+    moderator,
     notifications_session,
     process_jobs,
     push_collector,
@@ -325,7 +326,7 @@ def test_set_do_not_email(db):
         assert not user.do_not_email
 
 
-def test_list_notifications(db, push_collector):
+def test_list_notifications(db, push_collector, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -340,7 +341,7 @@ def test_list_notifications(db, push_collector):
 
     assert n.topic == "friend_request"
     assert n.action == "create"
-    assert n.key == "2"
+    assert n.key == str(user2.id)
     assert n.title == f"{user2.name} wants to be your friend"
     assert n.body == f"You've received a friend request from {user2.name}"
     assert n.icon.startswith("http://localhost:5001/img/thumbnail/")
@@ -349,6 +350,7 @@ def test_list_notifications(db, push_collector):
     with conversations_session(token2) as c:
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id]))
         group_chat_id = res.group_chat_id
+        moderator.approve_group_chat(group_chat_id)
         for i in range(17):
             c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text=f"Test message {i}"))
 

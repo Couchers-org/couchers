@@ -1,6 +1,6 @@
 import enum
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import BigInteger, Boolean, DateTime, Enum, ForeignKey, String, func
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -10,6 +10,9 @@ from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.models.base import Base
 from couchers.models.host_requests import HostRequestStatus
 from couchers.utils import now
+
+if TYPE_CHECKING:
+    from couchers.models.moderation import ModerationState
 
 
 class Conversation(Base):
@@ -33,6 +36,7 @@ class GroupChat(Base):
     """
 
     __tablename__ = "group_chats"
+    __moderation_author_column__ = "creator_id"
 
     conversation_id: Mapped[int] = mapped_column("id", ForeignKey("conversations.id"), primary_key=True)
 
@@ -41,8 +45,12 @@ class GroupChat(Base):
     creator_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     is_dm: Mapped[bool] = mapped_column(Boolean)
 
+    # Unified Moderation System
+    moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
+
     conversation = relationship("Conversation", backref="group_chat")
     creator = relationship("User", backref="created_group_chats")
+    moderation_state: Mapped["ModerationState"] = relationship("ModerationState")
 
     def __repr__(self) -> str:
         return f"GroupChat(conversation={self.conversation}, title={self.title or 'None'}, only_admins_invite={self.only_admins_invite}, creator={self.creator}, is_dm={self.is_dm})"

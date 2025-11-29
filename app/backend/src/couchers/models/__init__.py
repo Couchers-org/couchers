@@ -10,6 +10,7 @@ from .events import *  # noqa: F401,F403
 from .host_requests import *  # noqa: F401,F403
 from .logging import *  # noqa: F401,F403
 from .mod_note import *  # noqa: F401,F403
+from .moderation import *  # noqa: F401,F403
 from .notifications import *  # noqa: F401,F403
 from .postal_verification import *  # noqa: F401,F403
 from .rest import *  # noqa: F401,F403

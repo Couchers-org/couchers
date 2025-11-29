@@ -24,9 +24,11 @@ from couchers.models import (
     HostRequestStatus,
     Message,
     MessageType,
+    ModerationObjectType,
     RateLimitAction,
     User,
 )
+from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
 from couchers.proto import conversations_pb2, notification_data_pb2, requests_pb2, requests_pb2_grpc
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
@@ -249,10 +251,19 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         session.add(message)
         session.flush()
 
+        # Create moderation state for UMS (starts as SHADOWED)
+        moderation_state = create_moderation(
+            session=session,
+            object_type=ModerationObjectType.HOST_REQUEST,
+            object_id=conversation.id,
+            creator_user_id=context.user_id,
+        )
+
         host_request = HostRequest(
             conversation_id=conversation.id,
             surfer_user_id=context.user_id,
             host_user_id=host.id,
+            moderation_state_id=moderation_state.id,
             from_date=from_date,
             to_date=to_date,
             status=HostRequestStatus.pending,
@@ -264,7 +275,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             hosting_radius=host.geom_radius,
         )
         session.add(host_request)
-        session.commit()
+        session.flush()
 
         notify(
             session,
@@ -276,6 +287,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 surfer=user_model_to_pb(host_request.surfer, session, context),
                 text=request.text,
             ),
+            moderation_state_id=moderation_state.id,
         )
 
         host_requests_sent_counter.labels(user.gender, host.gender).inc()
@@ -291,6 +303,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             select(HostRequest)
             .where_users_column_visible(context, HostRequest.surfer_user_id)
             .where_users_column_visible(context, HostRequest.host_user_id)
+            .where_moderated_content_visible(context, HostRequest, is_list_operation=False)
             .where(HostRequest.conversation_id == request.host_request_id)
             .where(or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id))
         ).scalar_one_or_none()
@@ -318,6 +331,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             .join(Conversation, Conversation.id == HostRequest.conversation_id)
             .where_users_column_visible(context, HostRequest.surfer_user_id)
             .where_users_column_visible(context, HostRequest.host_user_id)
+            .where_moderated_content_visible(context, HostRequest, is_list_operation=True)
             .where(message_2.id == None)
             .where(or_(Message.id < request.last_request_id, request.last_request_id == 0))
         )
@@ -403,6 +417,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             select(HostRequest)
             .where_users_column_visible(context, HostRequest.surfer_user_id)
             .where_users_column_visible(context, HostRequest.host_user_id)
+            .where_moderated_content_visible(context, HostRequest, is_list_operation=False)
             .where(HostRequest.conversation_id == request.host_request_id)
         ).scalar_one_or_none()
 
@@ -445,6 +460,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     host_request=host_request_to_pb(host_request, session, context),
                     host=user_model_to_pb(host_request.host, session, context),
                 ),
+                moderation_state_id=host_request.moderation_state_id,
             )
 
             count_host_response(host_request.surfer_user_id, "accepted")
@@ -470,6 +486,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     host_request=host_request_to_pb(host_request, session, context),
                     host=user_model_to_pb(host_request.host, session, context),
                 ),
+                moderation_state_id=host_request.moderation_state_id,
             )
 
             count_host_response(host_request.surfer_user_id, "rejected")
@@ -494,6 +511,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     host_request=host_request_to_pb(host_request, session, context),
                     surfer=user_model_to_pb(host_request.surfer, session, context),
                 ),
+                moderation_state_id=host_request.moderation_state_id,
             )
 
             count_host_response(host_request.host_user_id, "confirmed")
@@ -518,6 +536,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     host_request=host_request_to_pb(host_request, session, context),
                     surfer=user_model_to_pb(host_request.surfer, session, context),
                 ),
+                moderation_state_id=host_request.moderation_state_id,
             )
 
             count_host_response(host_request.host_user_id, "cancelled")
@@ -549,7 +568,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def GetHostRequestMessages(self, request, context, session):
         host_request = session.execute(
-            select(HostRequest).where(HostRequest.conversation_id == request.host_request_id)
+            select(HostRequest)
+            .where_moderated_content_visible(context, HostRequest, is_list_operation=False)
+            .where(HostRequest.conversation_id == request.host_request_id)
         ).scalar_one_or_none()
 
         if not host_request:
@@ -587,7 +608,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if request.text == "":
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_message")
         host_request = session.execute(
-            select(HostRequest).where(HostRequest.conversation_id == request.host_request_id)
+            select(HostRequest)
+            .where_moderated_content_visible(context, HostRequest, is_list_operation=False)
+            .where(HostRequest.conversation_id == request.host_request_id)
         ).scalar_one_or_none()
 
         if not host_request:
@@ -621,6 +644,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     text=request.text,
                     am_host=True,
                 ),
+                moderation_state_id=host_request.moderation_state_id,
             )
 
         else:
@@ -637,6 +661,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     text=request.text,
                     am_host=False,
                 ),
+                moderation_state_id=host_request.moderation_state_id,
             )
 
         session.commit()
@@ -666,6 +691,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 HostRequest.conversation_id.label("host_request_id"),
             )
             .join(HostRequest, HostRequest.conversation_id == Message.conversation_id)
+            .where_moderated_content_visible(context, HostRequest, is_list_operation=False)
             .where(Message.id > request.newest_message_id)
         )
 
@@ -699,7 +725,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def MarkLastSeenHostRequest(self, request, context, session):
         host_request = session.execute(
-            select(HostRequest).where(HostRequest.conversation_id == request.host_request_id)
+            select(HostRequest)
+            .where_moderated_content_visible(context, HostRequest, is_list_operation=False)
+            .where(HostRequest.conversation_id == request.host_request_id)
         ).scalar_one_or_none()
 
         if not host_request:
@@ -723,6 +751,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
     def SetHostRequestArchiveStatus(self, request, context, session):
         host_request: HostRequest = session.execute(
             select(HostRequest)
+            .where_moderated_content_visible(context, HostRequest, is_list_operation=False)
             .where(HostRequest.conversation_id == request.host_request_id)
             .where(or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id))
         ).scalar_one_or_none()
@@ -758,6 +787,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
     def SendHostRequestFeedback(self, request, context, session):
         host_request = session.execute(
             select(HostRequest)
+            .where_moderated_content_visible(context, HostRequest, is_list_operation=False)
             .where(HostRequest.conversation_id == request.host_request_id)
             .where(HostRequest.host_user_id == context.user_id)
         ).scalar_one_or_none()
