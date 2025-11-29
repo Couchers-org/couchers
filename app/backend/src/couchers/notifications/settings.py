@@ -299,6 +299,15 @@ settings_layout = [
                     ("sv_success", "Strong Verification succeeds"),
                 ],
             ),
+            (
+                "postal_verification",
+                "Postal Verification",
+                [
+                    ("postcard_sent", "Verification postcard is sent"),
+                    ("success", "Postal Verification succeeds"),
+                    ("failed", "Postal Verification fails"),
+                ],
+            ),
         ],
     ),
     (

@@ -900,6 +900,66 @@ def render_notification(user: User, notification: Notification) -> RenderedNotif
             push_icon=urls.icon_url(),
             push_url=urls.account_settings_link(),
         )
+    elif notification.topic == "postal_verification":
+        if notification.action == "postcard_sent":
+            title = "Your verification postcard is on its way"
+            message = f"We've sent a postcard with your verification code to {data.city}, {data.country}. It should arrive within 1-3 weeks depending on your location. Once it arrives, enter the code on the platform to complete verification."
+            return RenderedNotification(
+                is_critical=True,
+                email_subject=title,
+                email_preview=message,
+                email_template_name="security",
+                email_template_args={
+                    "title": title,
+                    "message": message,
+                },
+                push_title=title,
+                push_body=f"Postcard sent to {data.city}, {data.country}. Expect it within 1-3 weeks.",
+                push_icon=urls.icon_url(),
+                push_url=urls.account_settings_link(),
+            )
+        elif notification.action == "success":
+            title = "Postal Verification succeeded"
+            message = "You have been verified with Postal Verification! Your address has been confirmed."
+            return RenderedNotification(
+                is_critical=True,
+                email_subject=title,
+                email_preview=message,
+                email_template_name="security",
+                email_template_args={
+                    "title": title,
+                    "message": message,
+                },
+                push_title=title,
+                push_body=message,
+                push_icon=urls.icon_url(),
+                push_url=urls.account_settings_link(),
+            )
+        elif notification.action == "failed":
+            title = "Postal Verification failed"
+            reason_message: str
+            if data.reason == notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED:
+                reason_message = "Your verification code has expired. Codes are valid for 90 days after the postcard is sent. You can start a new verification attempt."
+            elif data.reason == notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS:
+                reason_message = "Too many incorrect code attempts. You can start a new verification attempt."
+            else:
+                reason_message = (
+                    "Your postal verification attempt has failed. You can start a new verification attempt."
+                )
+            return RenderedNotification(
+                is_critical=True,
+                email_subject=title,
+                email_preview=title,
+                email_template_name="security",
+                email_template_args={
+                    "title": title,
+                    "message": reason_message,
+                },
+                push_title=title,
+                push_body=reason_message,
+                push_icon=urls.icon_url(),
+                push_url=urls.account_settings_link(),
+            )
     elif notification.topic_action.display == "activeness:probe":
         title = "Are you still open to hosting on Couchers.org?"
         return RenderedNotification(

@@ -145,3 +145,7 @@ def console_link(*, page: str) -> str:
 
 def invite_code_link(*, code: str) -> str:
     return f"{config['BASE_URL']}/invite?code={code}"
+
+
+def postal_verification_link(*, code: str) -> str:
+    return f"{config['BASE_URL']}/verify-postal?code={code}"
