@@ -338,4 +338,12 @@ class PushNotificationDeliveryAttempt(Base):
     # can be null if it was a success
     response: Mapped[str | None] = mapped_column(String)
 
+    # Expo-specific: ticket ID for receipt checking
+    expo_ticket_id: Mapped[str | None] = mapped_column(String)
+
+    # Receipt check results (populated by delayed job)
+    receipt_checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    receipt_status: Mapped[str | None] = mapped_column(String)  # "ok" or "error"
+    receipt_error_code: Mapped[str | None] = mapped_column(String)  # e.g., "DeviceNotRegistered"
+
     push_notification_subscription = relationship("PushNotificationSubscription")

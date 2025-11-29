@@ -781,3 +781,361 @@ def test_SendTestMobilePushNotification(db, push_collector):
         title="Checking mobile push notifications work!",
         body="If you see this on your phone, everything is wired up correctly 🎉",
     )
+
+
+def test_get_expo_push_receipts(db):
+    from unittest.mock import Mock, patch
+
+    from couchers.notifications.expo_api import get_expo_push_receipts
+
+    mock_response = Mock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {
+        "data": {
+            "ticket-1": {"status": "ok"},
+            "ticket-2": {"status": "error", "details": {"error": "DeviceNotRegistered"}},
+        }
+    }
+
+    with patch("couchers.notifications.expo_api.requests.post", return_value=mock_response) as mock_post:
+        result = get_expo_push_receipts(["ticket-1", "ticket-2"])
+
+        mock_post.assert_called_once()
+        call_args = mock_post.call_args
+        assert call_args[0][0] == "https://exp.host/--/api/v2/push/getReceipts"
+        assert call_args[1]["json"] == {"ids": ["ticket-1", "ticket-2"]}
+
+    assert result == {
+        "ticket-1": {"status": "ok"},
+        "ticket-2": {"status": "error", "details": {"error": "DeviceNotRegistered"}},
+    }
+
+
+def test_get_expo_push_receipts_empty(db):
+    from couchers.notifications.expo_api import get_expo_push_receipts
+
+    result = get_expo_push_receipts([])
+    assert result == {}
+
+
+def test_check_expo_push_receipts_success(db):
+    """Test batch receipt checking with successful delivery."""
+    from datetime import timedelta
+    from unittest.mock import patch
+
+    from google.protobuf import empty_pb2
+
+    from couchers.jobs.handlers import check_expo_push_receipts
+    from couchers.models import PushNotificationDeliveryAttempt, PushNotificationDeliveryOutcome
+
+    user, token = generate_user()
+
+    # Create a push subscription and delivery attempt (old enough to be checked)
+    with session_scope() as session:
+        sub = PushNotificationSubscription(
+            user_id=user.id,
+            platform=PushNotificationPlatform.expo,
+            token="ExponentPushToken[testtoken123]",
+            device_name="Test Device",
+            device_type=DeviceType.ios,
+        )
+        session.add(sub)
+        session.flush()
+
+        attempt = PushNotificationDeliveryAttempt(
+            push_notification_subscription_id=sub.id,
+            outcome=PushNotificationDeliveryOutcome.success,
+            status_code=200,
+            expo_ticket_id="test-ticket-id",
+        )
+        session.add(attempt)
+        session.flush()
+        # Make the attempt old enough to be checked (>10 min)
+        attempt.time = now() - timedelta(minutes=15)
+        attempt_id = attempt.id
+        sub_id = sub.id
+
+    # Mock the receipt API call
+    with patch("couchers.notifications.expo_api.requests.post") as mock_post:
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.json.return_value = {"data": {"test-ticket-id": {"status": "ok"}}}
+
+        check_expo_push_receipts(empty_pb2.Empty())
+
+    # Verify the attempt was updated
+    with session_scope() as session:
+        attempt = session.execute(
+            select(PushNotificationDeliveryAttempt).where(PushNotificationDeliveryAttempt.id == attempt_id)
+        ).scalar_one()
+        assert attempt.receipt_checked_at is not None
+        assert attempt.receipt_status == "ok"
+        assert attempt.receipt_error_code is None
+
+        # Subscription should still be enabled
+        sub = session.execute(
+            select(PushNotificationSubscription).where(PushNotificationSubscription.id == sub_id)
+        ).scalar_one()
+        assert sub.disabled_at == DATETIME_INFINITY
+
+
+def test_check_expo_push_receipts_device_not_registered(db):
+    """Test batch receipt checking with DeviceNotRegistered error disables subscription."""
+    from datetime import timedelta
+    from unittest.mock import patch
+
+    from google.protobuf import empty_pb2
+
+    from couchers.jobs.handlers import check_expo_push_receipts
+    from couchers.models import PushNotificationDeliveryAttempt, PushNotificationDeliveryOutcome
+
+    user, token = generate_user()
+
+    # Create a push subscription and delivery attempt
+    with session_scope() as session:
+        sub = PushNotificationSubscription(
+            user_id=user.id,
+            platform=PushNotificationPlatform.expo,
+            token="ExponentPushToken[devicegone]",
+            device_name="Test Device",
+            device_type=DeviceType.android,
+        )
+        session.add(sub)
+        session.flush()
+
+        attempt = PushNotificationDeliveryAttempt(
+            push_notification_subscription_id=sub.id,
+            outcome=PushNotificationDeliveryOutcome.success,
+            status_code=200,
+            expo_ticket_id="ticket-device-gone",
+        )
+        session.add(attempt)
+        session.flush()
+        # Make the attempt old enough to be checked
+        attempt.time = now() - timedelta(minutes=15)
+        attempt_id = attempt.id
+        sub_id = sub.id
+
+    # Mock the receipt API call with DeviceNotRegistered error
+    with patch("couchers.notifications.expo_api.requests.post") as mock_post:
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.json.return_value = {
+            "data": {
+                "ticket-device-gone": {
+                    "status": "error",
+                    "details": {"error": "DeviceNotRegistered"},
+                }
+            }
+        }
+
+        check_expo_push_receipts(empty_pb2.Empty())
+
+    # Verify the attempt was updated and subscription disabled
+    with session_scope() as session:
+        attempt = session.execute(
+            select(PushNotificationDeliveryAttempt).where(PushNotificationDeliveryAttempt.id == attempt_id)
+        ).scalar_one()
+        assert attempt.receipt_checked_at is not None
+        assert attempt.receipt_status == "error"
+        assert attempt.receipt_error_code == "DeviceNotRegistered"
+
+        # Subscription should be disabled
+        sub = session.execute(
+            select(PushNotificationSubscription).where(PushNotificationSubscription.id == sub_id)
+        ).scalar_one()
+        assert sub.disabled_at <= now()
+
+
+def test_check_expo_push_receipts_not_found(db):
+    """Test batch receipt checking when ticket not found (expired)."""
+    from datetime import timedelta
+    from unittest.mock import patch
+
+    from google.protobuf import empty_pb2
+
+    from couchers.jobs.handlers import check_expo_push_receipts
+    from couchers.models import PushNotificationDeliveryAttempt, PushNotificationDeliveryOutcome
+
+    user, token = generate_user()
+
+    with session_scope() as session:
+        sub = PushNotificationSubscription(
+            user_id=user.id,
+            platform=PushNotificationPlatform.expo,
+            token="ExponentPushToken[notfound]",
+        )
+        session.add(sub)
+        session.flush()
+
+        attempt = PushNotificationDeliveryAttempt(
+            push_notification_subscription_id=sub.id,
+            outcome=PushNotificationDeliveryOutcome.success,
+            status_code=200,
+            expo_ticket_id="unknown-ticket",
+        )
+        session.add(attempt)
+        session.flush()
+        # Make the attempt old enough to be checked
+        attempt.time = now() - timedelta(minutes=15)
+        attempt_id = attempt.id
+        sub_id = sub.id
+
+    # Mock empty receipt response (ticket not found)
+    with patch("couchers.notifications.expo_api.requests.post") as mock_post:
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.json.return_value = {"data": {}}
+
+        check_expo_push_receipts(empty_pb2.Empty())
+
+    with session_scope() as session:
+        attempt = session.execute(
+            select(PushNotificationDeliveryAttempt).where(PushNotificationDeliveryAttempt.id == attempt_id)
+        ).scalar_one()
+        assert attempt.receipt_checked_at is not None
+        assert attempt.receipt_status == "not_found"
+
+        # Subscription should still be enabled
+        sub = session.execute(
+            select(PushNotificationSubscription).where(PushNotificationSubscription.id == sub_id)
+        ).scalar_one()
+        assert sub.disabled_at == DATETIME_INFINITY
+
+
+def test_check_expo_push_receipts_skips_already_checked(db):
+    """Test that already-checked receipts are not re-checked."""
+    from datetime import timedelta
+    from unittest.mock import patch
+
+    from google.protobuf import empty_pb2
+
+    from couchers.jobs.handlers import check_expo_push_receipts
+    from couchers.models import PushNotificationDeliveryAttempt, PushNotificationDeliveryOutcome
+
+    user, token = generate_user()
+
+    # Create an attempt that was already checked
+    with session_scope() as session:
+        sub = PushNotificationSubscription(
+            user_id=user.id,
+            platform=PushNotificationPlatform.expo,
+            token="ExponentPushToken[alreadychecked]",
+        )
+        session.add(sub)
+        session.flush()
+
+        attempt = PushNotificationDeliveryAttempt(
+            push_notification_subscription_id=sub.id,
+            outcome=PushNotificationDeliveryOutcome.success,
+            status_code=200,
+            expo_ticket_id="already-checked-ticket",
+            receipt_checked_at=now(),
+            receipt_status="ok",
+        )
+        session.add(attempt)
+        session.flush()
+        # Make the attempt old enough
+        attempt.time = now() - timedelta(minutes=15)
+
+    # Should not call the API since the only attempt is already checked
+    with patch("couchers.notifications.expo_api.requests.post") as mock_post:
+        check_expo_push_receipts(empty_pb2.Empty())
+        mock_post.assert_not_called()
+
+
+def test_check_expo_push_receipts_skips_too_recent(db):
+    """Test that too-recent receipts (<10 min) are not checked."""
+    from datetime import timedelta
+    from unittest.mock import patch
+
+    from google.protobuf import empty_pb2
+
+    from couchers.jobs.handlers import check_expo_push_receipts
+    from couchers.models import PushNotificationDeliveryAttempt, PushNotificationDeliveryOutcome
+
+    user, token = generate_user()
+
+    # Create a recent attempt (not old enough to check)
+    with session_scope() as session:
+        sub = PushNotificationSubscription(
+            user_id=user.id,
+            platform=PushNotificationPlatform.expo,
+            token="ExponentPushToken[recent]",
+        )
+        session.add(sub)
+        session.flush()
+
+        attempt = PushNotificationDeliveryAttempt(
+            push_notification_subscription_id=sub.id,
+            outcome=PushNotificationDeliveryOutcome.success,
+            status_code=200,
+            expo_ticket_id="recent-ticket",
+        )
+        session.add(attempt)
+        session.flush()
+        # Make the attempt only 5 minutes old (too recent)
+        attempt.time = now() - timedelta(minutes=5)
+
+    # Should not call the API since the attempt is too recent
+    with patch("couchers.notifications.expo_api.requests.post") as mock_post:
+        check_expo_push_receipts(empty_pb2.Empty())
+        mock_post.assert_not_called()
+
+
+def test_check_expo_push_receipts_batch(db):
+    """Test that multiple receipts are checked in a single batch."""
+    from datetime import timedelta
+    from unittest.mock import patch
+
+    from google.protobuf import empty_pb2
+
+    from couchers.jobs.handlers import check_expo_push_receipts
+    from couchers.models import PushNotificationDeliveryAttempt, PushNotificationDeliveryOutcome
+
+    user, token = generate_user()
+
+    # Create multiple delivery attempts
+    attempt_ids = []
+    with session_scope() as session:
+        sub = PushNotificationSubscription(
+            user_id=user.id,
+            platform=PushNotificationPlatform.expo,
+            token="ExponentPushToken[batch]",
+        )
+        session.add(sub)
+        session.flush()
+
+        for i in range(3):
+            attempt = PushNotificationDeliveryAttempt(
+                push_notification_subscription_id=sub.id,
+                outcome=PushNotificationDeliveryOutcome.success,
+                status_code=200,
+                expo_ticket_id=f"batch-ticket-{i}",
+            )
+            session.add(attempt)
+            session.flush()
+            attempt.time = now() - timedelta(minutes=15)
+            attempt_ids.append(attempt.id)
+
+    # Mock the batch receipt API call
+    with patch("couchers.notifications.expo_api.requests.post") as mock_post:
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.json.return_value = {
+            "data": {
+                "batch-ticket-0": {"status": "ok"},
+                "batch-ticket-1": {"status": "ok"},
+                "batch-ticket-2": {"status": "ok"},
+            }
+        }
+
+        check_expo_push_receipts(empty_pb2.Empty())
+
+        # Should only call the API once for all tickets
+        assert mock_post.call_count == 1
+
+    # Verify all attempts were updated
+    with session_scope() as session:
+        for attempt_id in attempt_ids:
+            attempt = session.execute(
+                select(PushNotificationDeliveryAttempt).where(PushNotificationDeliveryAttempt.id == attempt_id)
+            ).scalar_one()
+            assert attempt.receipt_checked_at is not None
+            assert attempt.receipt_status == "ok"

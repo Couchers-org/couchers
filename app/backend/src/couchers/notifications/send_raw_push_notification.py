@@ -63,6 +63,7 @@ class PushDeliveryResult:
 
     status_code: int
     response: str | None = None
+    expo_ticket_id: str | None = None
 
 
 def _send_web_push(
@@ -131,7 +132,9 @@ def _send_expo(
     response_str = str(result)
 
     if status == "ok":
-        return PushDeliveryResult(status_code=200, response=response_str)
+        # Extract ticket ID for receipt checking
+        ticket_id = response_data.get("id")
+        return PushDeliveryResult(status_code=200, response=response_str, expo_ticket_id=ticket_id)
 
     # Handle error status
     error_code = response_data.get("details", {}).get("error")
@@ -182,15 +185,17 @@ def send_raw_push_notification(payload: jobs_pb2.SendRawPushNotificationPayload)
             else:
                 raise ValueError(f"Unknown platform: {sub.platform}")
 
-            # Success
+            # Success - receipt will be checked by the batch job check_expo_push_receipts
             session.add(
                 PushNotificationDeliveryAttempt(
                     push_notification_subscription_id=sub.id,
                     outcome=PushNotificationDeliveryOutcome.success,
                     status_code=result.status_code,
                     response=result.response,
+                    expo_ticket_id=result.expo_ticket_id,
                 )
             )
+
             push_notification_counter.labels(platform=sub.platform.name, outcome="success").inc()
             logger.debug(f"Successfully sent push to sub {sub.id} for user {sub.user_id}")
 

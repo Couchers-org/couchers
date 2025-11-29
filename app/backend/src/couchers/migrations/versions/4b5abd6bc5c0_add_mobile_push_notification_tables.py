@@ -1,7 +1,7 @@
 """Add mobile push notification support
 
 Revision ID: 4b5abd6bc5c0
-Revises: 941b04198efe
+Revises: aa7270f6ddbe
 Create Date: 2025-11-15 10:55:36.401287
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "4b5abd6bc5c0"
-down_revision = "941b04198efe"
+down_revision = "aa7270f6ddbe"
 branch_labels = None
 depends_on = None
 
@@ -103,8 +103,32 @@ def upgrade():
     # Make status_code nullable
     op.alter_column("push_notification_delivery_attempt", "status_code", existing_type=sa.Integer(), nullable=True)
 
+    # Add columns for Expo receipt checking
+    op.add_column(
+        "push_notification_delivery_attempt",
+        sa.Column("expo_ticket_id", sa.String(), nullable=True),
+    )
+    op.add_column(
+        "push_notification_delivery_attempt",
+        sa.Column("receipt_checked_at", sa.DateTime(timezone=True), nullable=True),
+    )
+    op.add_column(
+        "push_notification_delivery_attempt",
+        sa.Column("receipt_status", sa.String(), nullable=True),
+    )
+    op.add_column(
+        "push_notification_delivery_attempt",
+        sa.Column("receipt_error_code", sa.String(), nullable=True),
+    )
+
 
 def downgrade():
+    # Drop Expo receipt checking columns
+    op.drop_column("push_notification_delivery_attempt", "receipt_error_code")
+    op.drop_column("push_notification_delivery_attempt", "receipt_status")
+    op.drop_column("push_notification_delivery_attempt", "receipt_checked_at")
+    op.drop_column("push_notification_delivery_attempt", "expo_ticket_id")
+
     # Re-add success column
     op.add_column(
         "push_notification_delivery_attempt",
