@@ -702,7 +702,7 @@ def test_get_host_request_messages(db):
         assert res.messages[1].text.text == "Test request 1 message 3"
         assert res.messages[2].text.text == "Test request 1 message 2"
         assert res.messages[3].text.text == "Test request 1 message 1"
-        assert res.messages[4].text.text == "Test request 1"
+        assert res.messages[4].text.text == valid_request_text("Test request 1")
         assert res.messages[5].WhichOneof("content") == "chat_created"
 
 
