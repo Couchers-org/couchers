@@ -56,7 +56,7 @@ from tests.test_fixtures import (  # noqa
     testconfig,
 )
 from tests.test_references import create_host_reference, create_host_request, create_host_request_by_date
-
+from tests.test_requests import valid_request_text
 
 def now_5_min_in_future():
     return now() + timedelta(minutes=5)
@@ -642,7 +642,7 @@ def test_send_request_notifications_host_request(db):
     with requests_session(token1) as requests:
         host_request_id = requests.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
             )
         ).host_request_id
 

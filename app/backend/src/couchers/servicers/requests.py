@@ -7,8 +7,9 @@ from sqlalchemy import exists
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
-from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
+from couchers.constants import HOST_REQUEST_MIN_LENGTH
 from couchers.materialized_views import UserResponseRate
+from couchers.i18n.message_length import human_perceived_length
 from couchers.metrics import (
     account_age_on_host_request_create_histogram,
     host_request_first_response_histogram,
@@ -203,12 +204,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
 
         # Check minimum length
-        text_length_utf16 = len(request.text.encode("utf-16")) / 2 - 1  # number of code units minus BOM
-        if text_length_utf16 < HOST_REQUEST_MIN_LENGTH_UTF16:
+        text_length = human_perceived_length(request.text)
+        if text_length < HOST_REQUEST_MIN_LENGTH:
             context.abort_with_error_code(
                 grpc.StatusCode.INVALID_ARGUMENT,
                 "host_request_too_short",
-                substitutions={"chars": HOST_REQUEST_MIN_LENGTH_UTF16},
+                substitutions={"chars": HOST_REQUEST_MIN_LENGTH},
             )
 
         # Check if user has been sending host requests excessively

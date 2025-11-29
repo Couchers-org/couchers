@@ -1,6 +1,7 @@
 import pytest
 
 from couchers.i18n.i18n import MissingTranslationError, get_raw_translation_string, get_translations
+from couchers.i18n.message_length import human_perceived_length
 from tests.test_fixtures import testconfig  # noqa
 
 
@@ -91,3 +92,12 @@ def test_fallbacks():
     result = get_raw_translation_string("en_CORP", "errors", "user_not_found")
     expected = "Couldn't find that user."
     assert result == expected
+
+
+def test_human_perceived_length():
+    """Test human_perceived_length function with various inputs"""
+    assert human_perceived_length("hello") == 5
+    assert human_perceived_length("Héłłö") == 5
+    assert human_perceived_length(" hello world ") == 10  # spaces ignored
+    assert human_perceived_length("こんにちは") == 5  # Japanese characters
+    assert human_perceived_length("👍🏼👩‍👩‍👧‍👦") == 2

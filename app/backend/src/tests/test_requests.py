@@ -6,9 +6,10 @@ import grpc
 import pytest
 from sqlalchemy.sql import select
 
-from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
+from couchers.constants import HOST_REQUEST_MIN_LENGTH
 from couchers.crypto import b64decode
 from couchers.db import session_scope
+from couchers.i18n.message_length import human_perceived_length
 from couchers.materialized_views import refresh_materialized_view
 from couchers.models import (
     Message,
@@ -45,8 +46,12 @@ def _(testconfig):
 
 
 def valid_request_text(text: str = "Test request") -> str:
-    """Pads a request text to a valid length."""
-    return text + ("_" * HOST_REQUEST_MIN_LENGTH_UTF16)
+    """Pads a request text to a valid human-perceived length."""
+    current_length = human_perceived_length(text)
+    if current_length >= HOST_REQUEST_MIN_LENGTH:
+        return text
+    padding_needed = HOST_REQUEST_MIN_LENGTH - current_length
+    return text + ("_" * padding_needed)
 
 
 def test_create_request(db):

@@ -9,6 +9,7 @@ import dayjs from "dayjs";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { Trans, useTranslation } from "i18n";
+import { humanPerceivedLength } from "i18n/messageLength";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -55,7 +56,7 @@ const StyledSendActions = styled(CardActions)(() => ({
   marginTop: theme.spacing(2),
 }));
 
-const MIN_LENGTH = 250; // Must match backend
+const MIN_LENGTH = 250; // In user-perceived chars. Must match backend.
 
 interface NewHostRequestProps {
   setIsRequestSuccess: (value: boolean) => void;
@@ -175,7 +176,10 @@ export default function NewHostRequest({
                 value: MIN_LENGTH,
                 message: t(
                   "profile:request_form.request_char_length_too_short",
-                  { charactersRemaining: MIN_LENGTH - textField.length },
+                  {
+                    charactersRemaining:
+                      MIN_LENGTH - humanPerceivedLength(textField),
+                  },
                 ),
               },
             })}
@@ -188,9 +192,10 @@ export default function NewHostRequest({
             helperText={
               errors.text?.message
                 ? errors.text.message
-                : MIN_LENGTH - textField.length > 0
+                : MIN_LENGTH - humanPerceivedLength(textField) > 0
                   ? t("profile:request_form.request_char_length_too_short", {
-                      charactersRemaining: MIN_LENGTH - textField.length,
+                      charactersRemaining:
+                        MIN_LENGTH - humanPerceivedLength(textField),
                     })
                   : ""
             }
