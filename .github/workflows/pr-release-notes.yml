@@ -25,16 +25,16 @@ jobs:
 
       - uses: actions/setup-python@v6
         with:
-          python-version-file: ".github/pr-release-notes/.python-version"
+          python-version-file: ".github/llm-bot/.python-version"
 
       - uses: astral-sh/setup-uv@v6
 
       - name: Install dependencies
-        working-directory: .github/pr-release-notes
+        working-directory: .github/llm-bot
         run: uv sync --locked --all-extras --dev
 
       - name: Process PR with LLM
-        working-directory: .github/pr-release-notes
+        working-directory: .github/llm-bot
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LLM_API_KEY: ${{ secrets.BOT_LLM_API_KEY }}
