@@ -26,7 +26,7 @@ db:
 	psql -h localhost -p 6545 -U postgres -d postgres
 
 format:
-	uv run ruff check --select I --fix . && uv run ruff check . --fix && uv run ruff format .
+	uv run ruff check . --fix && uv run ruff format .
 
 fmt: format
 
