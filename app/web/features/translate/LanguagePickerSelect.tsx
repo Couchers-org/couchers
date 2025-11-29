@@ -78,6 +78,9 @@ export default function LanguagePickerSelect({
       await changeLanguageMutation(newLocale);
     }
 
+    // Set the NEXT_LOCALE cookie so the backend knows the user's language preference
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; samesite=lax`;
+
     // Push new route with updated locale, keep the current asPath for display
     router.push({ pathname }, asPath, { locale: newLocale });
   };
