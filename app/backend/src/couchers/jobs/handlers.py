@@ -1194,12 +1194,13 @@ def check_expo_push_receipts(payload: empty_pb2.Empty) -> None:
     while True:
         with session_scope() as session:
             # Find all delivery attempts that need receipt checking
+            # Wait 15 minutes per Expo's recommendation before checking receipts
             attempts = (
                 session.execute(
                     select(PushNotificationDeliveryAttempt)
                     .where(PushNotificationDeliveryAttempt.expo_ticket_id != None)
                     .where(PushNotificationDeliveryAttempt.receipt_checked_at == None)
-                    .where(PushNotificationDeliveryAttempt.time < now() - timedelta(minutes=10))
+                    .where(PushNotificationDeliveryAttempt.time < now() - timedelta(minutes=15))
                     .where(PushNotificationDeliveryAttempt.time > now() - timedelta(hours=24))
                     .limit(100)
                 )
@@ -1218,10 +1219,15 @@ def check_expo_push_receipts(payload: empty_pb2.Empty) -> None:
             for attempt in attempts:
                 receipt = receipts.get(attempt.expo_ticket_id)
 
+                # Always mark as checked to avoid infinite loops
+                attempt.receipt_checked_at = now()
+
                 if receipt is None:
+                    # Receipt not found after 15min - likely expired (>24h) or never existed
+                    # Per Expo docs: receipts should be available within 15 minutes
+                    attempt.receipt_status = "not_found"
                     continue
 
-                attempt.receipt_checked_at = now()
                 attempt.receipt_status = receipt.get("status")
 
                 if receipt.get("status") == "error":

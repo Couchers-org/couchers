@@ -850,8 +850,8 @@ def test_check_expo_push_receipts_success(db):
         )
         session.add(attempt)
         session.flush()
-        # Make the attempt old enough to be checked (>10 min)
-        attempt.time = now() - timedelta(minutes=15)
+        # Make the attempt old enough to be checked (>15 min)
+        attempt.time = now() - timedelta(minutes=20)
         attempt_id = attempt.id
         sub_id = sub.id
 
@@ -1042,7 +1042,7 @@ def test_check_expo_push_receipts_skips_already_checked(db):
 
 
 def test_check_expo_push_receipts_skips_too_recent(db):
-    """Test that too-recent receipts (<10 min) are not checked."""
+    """Test that too-recent receipts (<15 min) are not checked."""
     from datetime import timedelta
     from unittest.mock import patch
 
@@ -1112,7 +1112,7 @@ def test_check_expo_push_receipts_batch(db):
             )
             session.add(attempt)
             session.flush()
-            attempt.time = now() - timedelta(minutes=15)
+            attempt.time = now() - timedelta(minutes=20)
             attempt_ids.append(attempt.id)
 
     # Mock the batch receipt API call
