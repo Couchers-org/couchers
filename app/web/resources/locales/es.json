@@ -287,5 +287,29 @@
         "tr": "Turco",
         "zh-Hans": "Chino (Simplificado)",
         "zh-Hant": "Chino (Tradicional)"
+    },
+    "components": {
+        "edit_location_map": {
+            "location_publicly_visible": "Esto será visible públicamente",
+            "location_warn": "Haz clic y arrastra el círculo de abajo para mostrar a las personas la ubicación aproximada de tu hogar. Asegúrate de que tu hogar no esté en el centro del círculo, para que las personas no sepan la ubicación exacta.",
+            "display_location_label": "Mostrar ubicación",
+            "search_location_label": "Buscar una ubicación",
+            "invalid_coordinate": "Faltan las coordenadas, por favor selecciona una ubicación en el mapa de arriba",
+            "location_accuracy": "Precisión de la ubicación",
+            "map_is_blank": "Faltan las coordenadas, comienza buscando una ubicación con el mapa de arriba",
+            "radius_text": "{{radius}} metros",
+            "no_location_results_text": "Sin resultados. Intenta buscar solo la ciudad."
+        },
+        "datepicker": {
+            "change_date": "Cambiar fecha"
+        }
+    },
+    "error": {
+        "fallback": {
+            "title": "Vaya... ese es un error desconocido",
+            "subtitle": "Utiliza el botón \"Informar de un problema\" y cuéntanos qué estabas haciendo para ayudarnos a prevenir este error en el futuro.",
+            "refresh_page_button_label": "Actualizar página",
+            "home_page_link_label": "Ir a la página principal"
+        }
     }
 }
