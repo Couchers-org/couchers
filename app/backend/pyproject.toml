@@ -111,7 +111,7 @@ module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*"]
 ignore_missing_imports = true
 
 [tool.coverage.run]
-omit = ["src/couchers/proto/**", "src/couchers/migrations/versions/**", "src/tests/**", "src/dummy_data.py"]
+omit = ["src/couchers/proto/**", "src/couchers/migrations/versions/**", "src/dummy_data.py"]
 
 [build-system]
 requires = ["hatchling"]
