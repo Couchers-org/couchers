@@ -26,6 +26,7 @@ from tests.test_fixtures import (  # noqa
     events_session,
     generate_user,
     get_user_id_and_token,
+    make_friends,
     mock_notification_email,
     push_collector,
     real_admin_session,
@@ -515,6 +516,7 @@ def test_EditReferenceText(db):
 
     user1, user1_token = generate_user()
     user2, user2_token = generate_user()
+    make_friends(user1, user2)
 
     with session_scope() as session:
         with references_session(user1_token) as api:
@@ -542,6 +544,7 @@ def test_DeleteReference(db):
 
     user1, user1_token = generate_user()
     user2, user2_token = generate_user()
+    make_friends(user1, user2)
 
     with references_session(user1_token) as api:
         reference = api.WriteFriendReference(
