@@ -6,11 +6,14 @@ import pytest
 from google.protobuf import empty_pb2
 from sqlalchemy import update
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import and_, or_
 
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import (
     Conversation,
+    FriendRelationship,
+    FriendStatus,
     HostRequest,
     HostRequestStatus,
     Message,
@@ -558,8 +561,6 @@ def test_WriteFriendReference_requires_friendship(db):
         assert res.to_user_id == user2.id
 
     # Test the unfriending scenario: delete the friendship
-    from couchers.models import FriendRelationship, FriendStatus
-
     with session_scope() as session:
         # Change the friendship status to cancelled (simulating unfriending)
         friendship = session.execute(
