@@ -27,6 +27,7 @@ from tests.test_fixtures import (  # noqa
     db,
     email_fields,
     generate_user,
+    make_friends,
     make_user_block,
     mock_notification_email,
     push_collector,
@@ -409,6 +410,9 @@ def test_WriteFriendReference(db):
     user2, token2 = generate_user()
     user3, token3 = generate_user()
 
+    # Establish friendship between user1 and user2
+    make_friends(user1, user2)
+
     with references_session(token1) as api:
         # can write normal friend reference
         res = api.WriteFriendReference(
@@ -488,6 +492,9 @@ def test_WriteFriendReference_with_private_text(db, push_collector):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
+    # Establish friendship between user1 and user2
+    make_friends(user1, user2)
+
     with references_session(token1) as api:
         with patch("couchers.email.queue_email") as mock1:
             with mock_notification_email() as mock2:
@@ -513,6 +520,74 @@ def test_WriteFriendReference_with_private_text(db, push_collector):
         title=f"You've received a friend reference from {user1.name}!",
         body="They were nice!",
     )
+
+
+def test_WriteFriendReference_requires_friendship(db):
+    """Test that friend references require an active friendship"""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    # Cannot write friend reference without being friends
+    with references_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteFriendReference(
+                references_pb2.WriteFriendReferenceReq(
+                    to_user_id=user2.id,
+                    text="A test reference",
+                    was_appropriate=True,
+                    rating=0.5,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "You can only write friend references for confirmed friends."
+
+    # Establish friendship
+    make_friends(user1, user2)
+
+    # Now can write friend reference
+    with references_session(token1) as api:
+        res = api.WriteFriendReference(
+            references_pb2.WriteFriendReferenceReq(
+                to_user_id=user2.id,
+                text="A test reference",
+                was_appropriate=True,
+                rating=0.5,
+            )
+        )
+        assert res.from_user_id == user1.id
+        assert res.to_user_id == user2.id
+
+    # Test the exact scenario from the issue: unfriend after opening form but before submission
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
+
+    # Establish friendship
+    make_friends(user3, user4)
+
+    # Simulate unfriending by removing the friend relationship
+    with session_scope() as session:
+        from couchers.models import FriendRelationship
+        from sqlalchemy import delete
+
+        session.execute(
+            delete(FriendRelationship)
+            .where(FriendRelationship.from_user_id == user3.id)
+            .where(FriendRelationship.to_user_id == user4.id)
+        )
+
+    # Now user3 should NOT be able to submit a friend reference to user4
+    with references_session(token3) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteFriendReference(
+                references_pb2.WriteFriendReferenceReq(
+                    to_user_id=user4.id,
+                    text="A test reference after unfriending",
+                    was_appropriate=True,
+                    rating=0.5,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "You can only write friend references for confirmed friends."
 
 
 def test_host_request_states_references(db):

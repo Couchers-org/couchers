@@ -73,6 +73,7 @@
     "event_too_long": "Events cannot last longer than 7 days.",
     "event_transfer_permission_denied": "You're not allowed to transfer that event.",
     "events_not_enabled": "Events are not enabled in this group or community.",
+    "friend_reference_requires_friendship": "You can only write friend references for confirmed friends.",
     "friend_request_not_found": "Couldn't find that friend request.",
     "friend_request_rate_limit": "You have sent a lot of friend requests in the past {{hours}} hours. To avoid spam, you can't send any more for now.",
     "friends_already_or_pending": "You are already friends with or have sent a friend request to that user.",
