@@ -1,20 +1,14 @@
 name: PR Release Notes Tagger
 
 on:
-  pull_request_review:
-    types: [submitted]
   pull_request:
     types: [closed]
 
 jobs:
   tag-pr:
     runs-on: ubuntu-latest
-    # Only run if:
-    # 1. PR was approved (review state is approved), OR
-    # 2. PR was merged (closed and merged)
-    if: |
-      (github.event.review.state == 'approved') ||
-      (github.event.pull_request.merged == true)
+    # Only run if PR was merged
+    if: github.event.pull_request.merged == true
 
     permissions:
       pull-requests: write

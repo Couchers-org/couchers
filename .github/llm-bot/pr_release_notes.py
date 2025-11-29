@@ -9,7 +9,8 @@ summary in the appropriate format.
 import os
 import sys
 import json
-from typing import Optional
+import re
+from typing import Optional, List, Dict, Any
 from enum import Enum
 
 from pydantic import BaseModel, Field
@@ -194,6 +195,127 @@ class PRReleaseNotesBot:
             return False
         return True
 
+    def _find_linked_issues(self) -> List[int]:
+        """Find all linked issue numbers from PR body and comments."""
+        issue_numbers = set()
+
+        # Regex patterns for finding issue references
+        # Matches: #123, fixes #123, closes #123, resolves #123, etc.
+        patterns = [
+            r'(?:fix(?:es|ed)?|close(?:s|d)?|resolve(?:s|d)?)\s+#(\d+)',
+            r'(?:^|\s)#(\d+)(?:\s|$|,|\.)',
+        ]
+
+        # Check PR body
+        if self.pr.body:
+            for pattern in patterns:
+                matches = re.finditer(pattern, self.pr.body, re.IGNORECASE | re.MULTILINE)
+                for match in matches:
+                    issue_numbers.add(int(match.group(1)))
+
+        # Check PR comments
+        for comment in self.pr.get_issue_comments():
+            if comment.body:
+                for pattern in patterns:
+                    matches = re.finditer(pattern, comment.body, re.IGNORECASE | re.MULTILINE)
+                    for match in matches:
+                        issue_numbers.add(int(match.group(1)))
+
+        return sorted(list(issue_numbers))
+
+    def _get_pr_conversation(self) -> str:
+        """Get all PR comments and reviews as formatted text."""
+        conversation = []
+
+        # Get all PR comments (issue comments)
+        comments = list(self.pr.get_issue_comments())
+
+        # Get all PR reviews
+        reviews = list(self.pr.get_reviews())
+
+        # Get all review comments (inline code comments)
+        review_comments = list(self.pr.get_review_comments())
+
+        # Combine and sort by creation time
+        all_items = []
+
+        for comment in comments:
+            all_items.append({
+                'type': 'comment',
+                'created_at': comment.created_at,
+                'user': comment.user.login,
+                'body': comment.body
+            })
+
+        for review in reviews:
+            if review.body:  # Only include reviews with body text
+                all_items.append({
+                    'type': 'review',
+                    'created_at': review.submitted_at or review.created_at,
+                    'user': review.user.login,
+                    'state': review.state,
+                    'body': review.body
+                })
+
+        for review_comment in review_comments:
+            all_items.append({
+                'type': 'review_comment',
+                'created_at': review_comment.created_at,
+                'user': review_comment.user.login,
+                'path': review_comment.path,
+                'body': review_comment.body
+            })
+
+        # Sort by creation time
+        all_items.sort(key=lambda x: x['created_at'])
+
+        # Format as text
+        if not all_items:
+            return "(no comments or reviews)"
+
+        for item in all_items:
+            if item['type'] == 'comment':
+                conversation.append(f"**@{item['user']}** commented:")
+                conversation.append(item['body'])
+                conversation.append("")
+            elif item['type'] == 'review':
+                state_emoji = {'APPROVED': '✅', 'CHANGES_REQUESTED': '❌', 'COMMENTED': '💬'}.get(item['state'], '')
+                conversation.append(f"**@{item['user']}** {state_emoji} reviewed:")
+                conversation.append(item['body'])
+                conversation.append("")
+            elif item['type'] == 'review_comment':
+                conversation.append(f"**@{item['user']}** commented on `{item['path']}`:")
+                conversation.append(item['body'])
+                conversation.append("")
+
+        return "\n".join(conversation)
+
+    def _get_linked_issue_details(self, issue_number: int) -> Optional[Dict[str, Any]]:
+        """Get details and comments for a linked issue."""
+        try:
+            issue = self.repo.get_issue(issue_number)
+
+            # Get all comments
+            comments = list(issue.get_comments())
+            comments_text = []
+
+            for comment in comments:
+                comments_text.append(f"**@{comment.user.login}** commented:")
+                comments_text.append(comment.body)
+                comments_text.append("")
+
+            return {
+                'number': issue_number,
+                'title': issue.title,
+                'body': issue.body or "(no description)",
+                'author': issue.user.login,
+                'state': issue.state,
+                'comments': "\n".join(comments_text) if comments_text else "(no comments)"
+            }
+        except Exception as e:
+            print(f"Warning: Could not fetch issue #{issue_number}: {e}")
+            return None
+
     def analyze_pr(self) -> BotDecision:
         """Use LLM to analyze the PR and determine if it should be in release notes."""
 
@@ -203,14 +325,35 @@ class PRReleaseNotesBot:
         if len(files_changed) > 20:
             files_summary += f"\n... and {len(files_changed) - 20} more files"
 
-        # Get review comments if any
-        reviews = list(self.pr.get_reviews())
-        review_summary = ""
-        if reviews:
-            review_summary = "\n\n**Review Comments:**\n"
-            for review in reviews[-3:]:  # Last 3 reviews
-                if review.body:
-                    review_summary += f"- {review.user.login}: {review.body[:200]}\n"
+        # Get PR conversation
+        print("Fetching PR conversation...")
+        pr_conversation = self._get_pr_conversation()
+
+        # Find and fetch linked issues
+        print("Finding linked issues...")
+        linked_issue_numbers = self._find_linked_issues()
+        linked_issues_text = ""
+
+        if linked_issue_numbers:
+            print(f"Found {len(linked_issue_numbers)} linked issue(s): {linked_issue_numbers}")
+            linked_issues_details = []
+
+            for issue_num in linked_issue_numbers:
+                issue_details = self._get_linked_issue_details(issue_num)
+                if issue_details:
+                    linked_issues_details.append(issue_details)
+
+            if linked_issues_details:
+                linked_issues_text = "\n\n**Linked Issues:**\n\n"
+                for issue in linked_issues_details:
+                    linked_issues_text += f"### Issue #{issue['number']}: {issue['title']}\n\n"
+                    linked_issues_text += f"**Author:** @{issue['author']}\n"
+                    linked_issues_text += f"**State:** {issue['state']}\n\n"
+                    linked_issues_text += f"**Description:**\n{issue['body']}\n\n"
+                    linked_issues_text += f"**Comments:**\n{issue['comments']}\n\n"
+                    linked_issues_text += "---\n\n"
+        else:
+            print("No linked issues found")
 
         prompt = f"""{SYSTEM_PROMPT}
 
@@ -225,7 +368,10 @@ Analyze this GitHub Pull Request:
 
 **Files Changed ({len(files_changed)} files):**
 {files_summary}
-{review_summary}
+
+**PR Conversation:**
+{pr_conversation}
+{linked_issues_text}
 
 Based on the guidelines provided, should this PR be included in the release notes?
 
@@ -236,6 +382,13 @@ If no, explain why not.
         print(f"Analyzing PR #{self.pr_number}: {self.pr.title}")
         print(f"Author: @{self.pr.user.login}")
         print(f"Files changed: {len(files_changed)}")
+
+        # Print the entire prompt for debugging
+        print("\n" + "="*80)
+        print("FULL PROMPT BEING SENT TO LLM:")
+        print("="*80)
+        print(prompt)
+        print("="*80 + "\n")
 
         # Call LLM with structured output
         decision_dict = self.llm.json_complete(prompt, response_format=BotDecision)
