@@ -68,14 +68,26 @@ class PushDeliveryResult:
 
 
 def _send_web_push(
-    sub: PushNotificationSubscription, payload: jobs_pb2.SendRawPushNotificationPayload
+    sub: PushNotificationSubscription, payload: jobs_pb2.SendRawPushNotificationPayloadV2
 ) -> PushDeliveryResult:
     """Send via Web Push API. Raises appropriate exceptions on failure."""
-    if len(payload.data) > 3072:
-        raise MessageTooLong(f"Data too long for web push ({len(payload.data)} bytes, max 3072)")
+    data = json.dumps(
+        {
+            "title": payload.title,
+            "body": payload.body,
+            "icon": payload.icon,
+            "url": payload.url,
+            "user_id": payload.user_id,
+            "topic_action": payload.topic_action,
+            "key": payload.key,
+        }
+    ).encode("utf8")
+
+    if len(data) > 3072:
+        raise MessageTooLong(f"Data too long for web push ({len(data)} bytes, max 3072)")
 
     resp = send_web_push(
-        payload.data,
+        data,
         sub.endpoint,
         sub.auth_key,
         sub.p256dh_key,
@@ -103,30 +115,21 @@ def _send_web_push(
 
 
 def _send_expo(
-    sub: PushNotificationSubscription, payload: jobs_pb2.SendRawPushNotificationPayload
+    sub: PushNotificationSubscription, payload: jobs_pb2.SendRawPushNotificationPayloadV2
 ) -> PushDeliveryResult:
     """Send via Expo Push API. Raises appropriate exceptions on failure."""
-    # Parse the JSON-encoded data from the payload
-    data = json.loads(payload.data.decode("utf8"))
-
-    title = data.get("title", "")
-    body = data.get("body", "")
-    url = data.get("url")
-    topic_action = data.get("topic_action", "")
-    key = data.get("key", "")
-
     collapse_key = None
-    if topic_action and key:
-        collapse_key = f"{topic_action}_{key}"
+    if payload.topic_action and payload.key:
+        collapse_key = f"{payload.topic_action}_{payload.key}"
 
     result = send_expo_push_notification(
         token=sub.token,
-        title=title,
-        body=body,
+        title=payload.title,
+        body=payload.body,
         data={
-            "url": url,
-            "topic_action": topic_action,
-            "key": key,
+            "url": payload.url,
+            "topic_action": payload.topic_action,
+            "key": payload.key,
         },
         collapse_key=collapse_key,
     )
@@ -171,7 +174,7 @@ def _send_expo(
     )
 
 
-def send_raw_push_notification(payload: jobs_pb2.SendRawPushNotificationPayload) -> None:
+def send_raw_push_notification_v2(payload: jobs_pb2.SendRawPushNotificationPayloadV2) -> None:
     if not config["PUSH_NOTIFICATIONS_ENABLED"]:
         logger.info("Not sending push notification: push notifications disabled")
         return

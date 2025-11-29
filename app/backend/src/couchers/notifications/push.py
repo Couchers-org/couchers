@@ -1,5 +1,3 @@
-import json
-
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
@@ -26,21 +24,17 @@ def push_to_subscription(
 ) -> None:
     queue_job(
         session,
-        job_type="send_raw_push_notification",
-        payload=jobs_pb2.SendRawPushNotificationPayload(
-            data=json.dumps(
-                {
-                    "title": config["NOTIFICATION_PREFIX"] + title[:500],
-                    "body": body[:2000],
-                    "icon": icon or urls.icon_url(),
-                    "url": url,
-                    "user_id": user_id,
-                    "topic_action": topic_action,
-                    "key": key or "",
-                }
-            ).encode("utf8"),
+        job_type="send_raw_push_notification_v2",
+        payload=jobs_pb2.SendRawPushNotificationPayloadV2(
             push_notification_subscription_id=push_notification_subscription_id,
             ttl=ttl,
+            title=config["NOTIFICATION_PREFIX"] + title[:500],
+            body=body[:2000],
+            icon=icon or urls.icon_url(),
+            url=url or "",
+            user_id=user_id,
+            topic_action=topic_action,
+            key=key or "",
         ),
         priority=7,
     )
