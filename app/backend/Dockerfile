@@ -48,8 +48,8 @@ RUN --mount=type=cache,target=/root/.cache \
         --locked \
         --no-editable
 
-# We don't need them in the final image (uv.lock is more than 300Kb!)
-RUN rm /app/pyproject.toml /app/uv.lock
+# We don't need uv.lock in the final image (it's more than 300Kb!)
+RUN rm /app/uv.lock
 
 FROM base
 
