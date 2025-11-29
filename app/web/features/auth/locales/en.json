@@ -349,9 +349,14 @@
       "link_text_linkedin_helper": "Your LinkedIn username (without the URL)",
       "link_text_email_helper": "Your email address",
       "link_text_website_helper": "The text to display for the link",
+      "link_text_required": "Please enter a value for the link",
+      "link_text_email_invalid": "Please enter a valid email address",
+      "link_text_linkedin_invalid": "Please enter a valid LinkedIn profile URL",
       "link_url_label": "Link URL",
       "link_url_placeholder": "https://your-website.com",
       "link_url_helper": "The full URL the link should point to",
+      "link_url_required": "Please enter a URL for the website",
+      "link_url_invalid": "Please enter a valid URL starting with http:// or https://",
       "save_button": "Save changes"
     }
   }

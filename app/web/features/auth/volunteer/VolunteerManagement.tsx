@@ -25,10 +25,22 @@ import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 import { GetAccountInfoRes, GetMyVolunteerInfoRes } from "proto/account_pb";
+import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { volunteerNotAVolunteerFormUrl } from "routes";
 import { service } from "service";
 import { theme } from "theme";
+
+const LINK_TYPES = ["couchers", "email", "linkedin", "website"] as const;
+
+function isValidLinkType(value: string): value is (typeof LINK_TYPES)[number] {
+  return LINK_TYPES.includes(value as (typeof LINK_TYPES)[number]);
+}
+
+// Validation patterns
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const URL_PATTERN = /^https?:\/\/.+/;
+const LINKEDIN_PATTERN = /^(https?:\/\/)?(www\.)?linkedin\.com\/in\/[\w-]+\/?$/;
 
 const StyledForm = styled("form")(() => ({
   marginTop: theme.spacing(2),
@@ -89,12 +101,10 @@ interface VolunteerFormData {
   overrideLocation: boolean;
   displayLocation: string;
   showOnTeamPage: boolean;
-  linkType: string;
+  linkType: (typeof LINK_TYPES)[number];
   linkText: string;
   linkUrl: string;
 }
-
-const LINK_TYPES = ["couchers", "email", "linkedin", "website"] as const;
 
 export default function VolunteerManagement({
   className,
@@ -120,7 +130,7 @@ export default function VolunteerManagement({
     register,
     watch,
     reset,
-    formState: { isDirty },
+    formState: { isDirty, errors },
   } = useForm<VolunteerFormData>({
     defaultValues: {
       overrideName: false,
@@ -162,13 +172,17 @@ export default function VolunteerManagement({
       queryClient.invalidateQueries({
         queryKey: [volunteerInfoQueryKey],
       });
+      const linkType =
+        data.linkType && isValidLinkType(data.linkType)
+          ? data.linkType
+          : "couchers";
       reset({
         overrideName: !!data.displayName,
         displayName: data.displayName || "",
         overrideLocation: !!data.displayLocation,
         displayLocation: data.displayLocation || "",
         showOnTeamPage: data.showOnTeamPage,
-        linkType: data.linkType || "couchers",
+        linkType,
         linkText: data.linkText || "",
         linkUrl: data.linkUrl || "",
       });
@@ -176,30 +190,24 @@ export default function VolunteerManagement({
   });
 
   // Reset form when volunteer info is loaded
-  if (volunteerInfo && !isDirty) {
-    const newValues = {
-      overrideName: !!volunteerInfo.displayName,
-      displayName: volunteerInfo.displayName || "",
-      overrideLocation: !!volunteerInfo.displayLocation,
-      displayLocation: volunteerInfo.displayLocation || "",
-      showOnTeamPage: volunteerInfo.showOnTeamPage,
-      linkType: volunteerInfo.linkType || "couchers",
-      linkText: volunteerInfo.linkText || "",
-      linkUrl: volunteerInfo.linkUrl || "",
-    };
-    if (
-      newValues.overrideName !== watch("overrideName") ||
-      newValues.displayName !== watch("displayName") ||
-      newValues.overrideLocation !== watch("overrideLocation") ||
-      newValues.displayLocation !== watch("displayLocation") ||
-      newValues.showOnTeamPage !== watch("showOnTeamPage") ||
-      newValues.linkType !== watch("linkType") ||
-      newValues.linkText !== watch("linkText") ||
-      newValues.linkUrl !== watch("linkUrl")
-    ) {
-      reset(newValues);
+  useEffect(() => {
+    if (volunteerInfo && !isDirty) {
+      const linkType =
+        volunteerInfo.linkType && isValidLinkType(volunteerInfo.linkType)
+          ? volunteerInfo.linkType
+          : "couchers";
+      reset({
+        overrideName: !!volunteerInfo.displayName,
+        displayName: volunteerInfo.displayName || "",
+        overrideLocation: !!volunteerInfo.displayLocation,
+        displayLocation: volunteerInfo.displayLocation || "",
+        showOnTeamPage: volunteerInfo.showOnTeamPage,
+        linkType,
+        linkText: volunteerInfo.linkText || "",
+        linkUrl: volunteerInfo.linkUrl || "",
+      });
     }
-  }
+  }, [volunteerInfo, reset, isDirty]);
 
   const onSubmit = handleSubmit((data) => {
     resetMutation();
@@ -477,11 +485,43 @@ export default function VolunteerManagement({
             <TextField
               id="linkText"
               label={t("auth:volunteer_management.form.link_text_label")}
-              {...register("linkText")}
+              {...register("linkText", {
+                validate: (value) => {
+                  if (!value || value.trim() === "") {
+                    return t(
+                      "auth:volunteer_management.form.link_text_required",
+                    );
+                  }
+
+                  if (
+                    watchedLinkType === "email" &&
+                    !EMAIL_PATTERN.test(value)
+                  ) {
+                    return t(
+                      "auth:volunteer_management.form.link_text_email_invalid",
+                    );
+                  }
+
+                  if (
+                    watchedLinkType === "linkedin" &&
+                    !LINKEDIN_PATTERN.test(value)
+                  ) {
+                    return t(
+                      "auth:volunteer_management.form.link_text_linkedin_invalid",
+                    );
+                  }
+
+                  return true;
+                },
+              })}
+              error={!!errors?.linkText}
               placeholder={getLinkTextPlaceholder(watchedLinkType)}
-              helperText={t(
-                `auth:volunteer_management.form.link_text_${watchedLinkType}_helper`,
-              )}
+              helperText={
+                errors?.linkText?.message ||
+                t(
+                  `auth:volunteer_management.form.link_text_${watchedLinkType}_helper`,
+                )
+              }
               sx={{ flex: 1, minWidth: 200 }}
             />
           )}
@@ -491,11 +531,29 @@ export default function VolunteerManagement({
           <TextField
             id="linkUrl"
             label={t("auth:volunteer_management.form.link_url_label")}
-            {...register("linkUrl")}
+            {...register("linkUrl", {
+              validate: (value) => {
+                if (watchedLinkType !== "website") return true;
+
+                if (!value || value.trim() === "") {
+                  return t("auth:volunteer_management.form.link_url_required");
+                }
+
+                if (!URL_PATTERN.test(value)) {
+                  return t("auth:volunteer_management.form.link_url_invalid");
+                }
+
+                return true;
+              },
+            })}
+            error={!!errors?.linkUrl}
             placeholder={t(
               "auth:volunteer_management.form.link_url_placeholder",
             )}
-            helperText={t("auth:volunteer_management.form.link_url_helper")}
+            helperText={
+              errors?.linkUrl?.message ||
+              t("auth:volunteer_management.form.link_url_helper")
+            }
             fullWidth
           />
         )}
