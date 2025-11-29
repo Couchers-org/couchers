@@ -211,7 +211,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
 
         # Check minimum length
-        if _is_host_request_long_enough(request.text):
+        if not _is_host_request_long_enough(request.text):
             context.abort_with_error_code(
                 grpc.StatusCode.INVALID_ARGUMENT,
                 "host_request_too_short",
