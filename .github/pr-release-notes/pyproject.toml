@@ -1,0 +1,11 @@
+[project]
+name = "pr-release-notes"
+version = "0.1.0"
+description = "GitHub PR release notes tagger bot"
+requires-python = ">=3.13"
+dependencies = [
+    "a5>=0.0.16",
+    "openai>=2.7.1",
+    "pydantic>=2.12.4",
+    "pygithub>=2.8.1",
+]

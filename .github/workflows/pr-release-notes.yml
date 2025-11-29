@@ -1,0 +1,44 @@
+name: PR Release Notes Tagger
+
+on:
+  pull_request_review:
+    types: [submitted]
+  pull_request:
+    types: [closed]
+
+jobs:
+  tag-pr:
+    runs-on: ubuntu-latest
+    # Only run if:
+    # 1. PR was approved (review state is approved), OR
+    # 2. PR was merged (closed and merged)
+    if: |
+      (github.event.review.state == 'approved') ||
+      (github.event.pull_request.merged == true)
+
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version-file: ".github/pr-release-notes/.python-version"
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Install dependencies
+        working-directory: .github/pr-release-notes
+        run: uv sync --locked --all-extras --dev
+
+      - name: Process PR with LLM
+        working-directory: .github/pr-release-notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LLM_API_KEY: ${{ secrets.BOT_LLM_API_KEY }}
+          LLM_MODEL: ${{ secrets.BOT_LLM_MODEL }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPOSITORY: ${{ github.repository }}
+        run: uv run pr_release_notes.py
