@@ -25,6 +25,7 @@
     "cant_friend_self": "You can't befriend yourself!",
     "cant_invite_self": "You can't invite yourself to a chat.",
     "cant_invite_to_dm": "You can't invite other users to a direct message.",
+    "can_only_refer_friends": "You can only write friend references for confirmed friends.",
     "cant_make_self_admin": "You can't make yourself an admin.",
     "cant_message_in_chat": "You can't send a message in this chat.",
     "cant_mute_past": "You can't mute until a date in the past.",
