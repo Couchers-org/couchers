@@ -75,24 +75,32 @@ export function useRegisterPushNotifications() {
     let cancelled = false;
 
     async function register() {
-      const token = await getExpoPushToken();
-      if (!token || cancelled) {
-        return;
+      try {
+        const token = await getExpoPushToken();
+        if (!token || cancelled) {
+          console.log("No token or cancelled", { token, cancelled });
+          return;
+        }
+
+        if (lastRegisteredTokenRef.current === token) {
+          return;
+        }
+
+        const deviceName = await getDeviceName();
+
+        await registerMobilePushNotificationSubscription({
+          token,
+          deviceName,
+          deviceType: Platform.OS,
+        });
+
+        lastRegisteredTokenRef.current = token;
+      } catch (error) {
+        console.error(
+          "Failed to register push notification subscription:",
+          error
+        );
       }
-
-      if (lastRegisteredTokenRef.current === token) {
-        return;
-      }
-
-      const deviceName = await getDeviceName();
-      await registerMobilePushNotificationSubscription({
-        token,
-        platform: "expo",
-        deviceName,
-        deviceType: Platform.OS,
-      });
-
-      lastRegisteredTokenRef.current = token;
     }
 
     register();
