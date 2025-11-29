@@ -1,3 +1,4 @@
+import json
 import logging
 from dataclasses import dataclass
 
@@ -105,18 +106,27 @@ def _send_expo(
     sub: PushNotificationSubscription, payload: jobs_pb2.SendRawPushNotificationPayload
 ) -> PushDeliveryResult:
     """Send via Expo Push API. Raises appropriate exceptions on failure."""
+    # Parse the JSON-encoded data from the payload
+    data = json.loads(payload.data.decode("utf8"))
+
+    title = data.get("title", "")
+    body = data.get("body", "")
+    url = data.get("url")
+    topic_action = data.get("topic_action", "")
+    key = data.get("key", "")
+
     collapse_key = None
-    if payload.topic_action and payload.key:
-        collapse_key = f"{payload.topic_action}_{payload.key}"
+    if topic_action and key:
+        collapse_key = f"{topic_action}_{key}"
 
     result = send_expo_push_notification(
         token=sub.token,
-        title=payload.title,
-        body=payload.body,
+        title=title,
+        body=body,
         data={
-            "url": payload.url,
-            "topic_action": payload.topic_action,
-            "key": payload.key,
+            "url": url,
+            "topic_action": topic_action,
+            "key": key,
         },
         collapse_key=collapse_key,
     )
