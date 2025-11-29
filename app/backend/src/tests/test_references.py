@@ -6,7 +6,6 @@ import pytest
 from google.protobuf import empty_pb2
 from sqlalchemy import update
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import and_, or_
 
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views_rapid
@@ -563,21 +562,11 @@ def test_WriteFriendReference_requires_friendship(db):
     # Test the unfriending scenario: delete the friendship
     with session_scope() as session:
         # Change the friendship status to cancelled (simulating unfriending)
-        friendship = session.execute(
-            select(FriendRelationship).where(
-                or_(
-                    and_(
-                        FriendRelationship.from_user_id == user1.id,
-                        FriendRelationship.to_user_id == user2.id,
-                    ),
-                    and_(
-                        FriendRelationship.from_user_id == user2.id,
-                        FriendRelationship.to_user_id == user1.id,
-                    ),
-                )
-            )
-        ).scalar_one()
-        friendship.status = FriendStatus.cancelled
+        session.execute(
+            update(FriendRelationship)
+            .where(FriendRelationship.from_user_id == user1.id, FriendRelationship.to_user_id == user2.id)
+            .values(status=FriendStatus.cancelled)
+        )
 
     # Try to write another friend reference after unfriending
     # (Note: This assumes user1 didn't already write a reference, or we test with user2 writing to user1)
