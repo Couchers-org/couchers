@@ -55,7 +55,7 @@ from couchers.materialized_views import (
     refresh_materialized_views,
     refresh_materialized_views_rapid,
 )
-from couchers.metrics import strong_verification_completions_counter
+from couchers.metrics import push_notification_counter, strong_verification_completions_counter
 from couchers.models import (
     AccountDeletionToken,
     ActivenessProbe,
@@ -77,6 +77,8 @@ from couchers.models import (
     MessageType,
     PassportSex,
     PasswordResetToken,
+    PushNotificationDeliveryAttempt,
+    PushNotificationSubscription,
     Reference,
     StrongVerificationAttempt,
     StrongVerificationAttemptStatus,
@@ -85,6 +87,7 @@ from couchers.models import (
     Volunteer,
 )
 from couchers.notifications.background import handle_email_digests, handle_notification
+from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
 from couchers.notifications.send_raw_push_notification import send_raw_push_notification
 from couchers.proto import notification_data_pb2
@@ -1184,89 +1187,64 @@ send_event_reminders.SCHEDULE = timedelta(hours=1)
 
 
 def check_expo_push_receipts(payload: empty_pb2.Empty) -> None:
-    """Check Expo push receipts in batch and update delivery attempts.
-
-    Expo push notifications are a two-phase delivery system. After sending,
-    we get a ticket ID. This job runs every 5 minutes to check receipts for
-    notifications sent more than 10 minutes ago.
-
-    Expo API supports up to 1000 ticket IDs per request.
     """
-    from couchers.metrics import push_notification_counter
-    from couchers.models import PushNotificationDeliveryAttempt, PushNotificationSubscription
-    from couchers.notifications.expo_api import get_expo_push_receipts
+    Check Expo push receipts in batch and update delivery attempts.
+    """
 
-    # Only check receipts for notifications sent more than 10 minutes ago
-    min_age = timedelta(minutes=10)
-    # Expo receipts expire after 24 hours, no point checking older ones
-    max_age = timedelta(hours=24)
-    # Expo API supports up to 1000 ticket IDs per request
-    batch_size = 1000
-
-    with session_scope() as session:
-        # Find all delivery attempts that need receipt checking
-        attempts = (
-            session.execute(
-                select(PushNotificationDeliveryAttempt)
-                .where(PushNotificationDeliveryAttempt.expo_ticket_id != None)
-                .where(PushNotificationDeliveryAttempt.receipt_checked_at == None)
-                .where(PushNotificationDeliveryAttempt.time < now() - min_age)
-                .where(PushNotificationDeliveryAttempt.time > now() - max_age)
-                .limit(batch_size)
+    while True:
+        with session_scope() as session:
+            # Find all delivery attempts that need receipt checking
+            attempts = (
+                session.execute(
+                    select(PushNotificationDeliveryAttempt)
+                    .where(PushNotificationDeliveryAttempt.expo_ticket_id != None)
+                    .where(PushNotificationDeliveryAttempt.receipt_checked_at == None)
+                    .where(PushNotificationDeliveryAttempt.time < now() - timedelta(minutes=10))
+                    .where(PushNotificationDeliveryAttempt.time > now() - timedelta(hours=24))
+                    .limit(100)
+                )
+                .scalars()
+                .all()
             )
-            .scalars()
-            .all()
-        )
 
-        if not attempts:
-            logger.debug("No Expo receipts to check")
-            return
+            if not attempts:
+                logger.debug("No Expo receipts to check")
+                return
 
-        logger.info(f"Checking {len(attempts)} Expo push receipts")
+            logger.info(f"Checking {len(attempts)} Expo push receipts")
 
-        # Build mapping of ticket_id -> attempt
-        ticket_to_attempt = {attempt.expo_ticket_id: attempt for attempt in attempts}
-        ticket_ids = list(ticket_to_attempt.keys())
+            receipts = get_expo_push_receipts([attempt.expo_ticket_id for attempt in attempts])
 
-        try:
-            receipts = get_expo_push_receipts(ticket_ids)
-        except Exception as e:
-            logger.error(f"Failed to fetch Expo receipts: {e}")
-            raise  # Will retry via job retry mechanism
+            for attempt in attempts:
+                receipt = receipts.get(attempt.expo_ticket_id)
 
-        for ticket_id, attempt in ticket_to_attempt.items():
-            receipt = receipts.get(ticket_id)
+                if receipt is None:
+                    continue
 
-            if receipt is None:
-                # Receipt not found - may have expired (24h) or not yet available
                 attempt.receipt_checked_at = now()
-                attempt.receipt_status = "not_found"
-                continue
+                attempt.receipt_status = receipt.get("status")
 
-            attempt.receipt_checked_at = now()
-            attempt.receipt_status = receipt.get("status")
+                if receipt.get("status") == "error":
+                    details = receipt.get("details", {})
+                    error_code = details.get("error")
+                    attempt.receipt_error_code = error_code
 
-            if receipt.get("status") == "error":
-                details = receipt.get("details", {})
-                error_code = details.get("error")
-                attempt.receipt_error_code = error_code
+                    if error_code == "DeviceNotRegistered":
+                        # Device token is no longer valid - disable the subscription
+                        sub = session.execute(
+                            select(PushNotificationSubscription).where(
+                                PushNotificationSubscription.id == attempt.push_notification_subscription_id
+                            )
+                        ).scalar_one()
 
-                if error_code == "DeviceNotRegistered":
-                    # Device token is no longer valid - disable the subscription
-                    sub = session.execute(
-                        select(PushNotificationSubscription).where(
-                            PushNotificationSubscription.id == attempt.push_notification_subscription_id
-                        )
-                    ).scalar_one_or_none()
-
-                    if sub and sub.disabled_at > now():
-                        sub.disabled_at = now()
-                        logger.info(f"Disabled push sub {sub.id} due to DeviceNotRegistered in receipt")
-                        push_notification_counter.labels(
-                            platform="expo", outcome="permanent_subscription_failure_receipt"
-                        ).inc()
-                else:
-                    logger.warning(f"Expo receipt error for ticket {ticket_id}: {error_code}")
+                        if sub.disabled_at > now():
+                            sub.disabled_at = now()
+                            logger.info(f"Disabled push sub {sub.id} due to DeviceNotRegistered in receipt")
+                            push_notification_counter.labels(
+                                platform="expo", outcome="permanent_subscription_failure_receipt"
+                            ).inc()
+                    else:
+                        logger.warning(f"Expo receipt error for ticket {attempt.expo_ticket_id}: {error_code}")
 
 
 check_expo_push_receipts.PAYLOAD = empty_pb2.Empty
