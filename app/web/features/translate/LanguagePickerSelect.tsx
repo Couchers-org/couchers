@@ -76,6 +76,10 @@ export default function LanguagePickerSelect({
 
     if (isAuthenticated) {
       await changeLanguageMutation(newLocale);
+    } else {
+      // For logged-out users, manually set the NEXT_LOCALE cookie
+      // This matches the middleware's cookie settings (middleware.ts:60-64)
+      document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; samesite=lax`;
     }
 
     // Push new route with updated locale, keep the current asPath for display
