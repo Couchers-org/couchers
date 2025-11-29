@@ -1190,8 +1190,9 @@ def check_expo_push_receipts(payload: empty_pb2.Empty) -> None:
     """
     Check Expo push receipts in batch and update delivery attempts.
     """
+    MAX_ITERATIONS = 100  # Safety limit: 100 batches * 100 attempts = 10,000 max
 
-    while True:
+    for iteration in range(MAX_ITERATIONS):
         with session_scope() as session:
             # Find all delivery attempts that need receipt checking
             # Wait 15 minutes per Expo's recommendation before checking receipts
@@ -1251,6 +1252,12 @@ def check_expo_push_receipts(payload: empty_pb2.Empty) -> None:
                             ).inc()
                     else:
                         logger.warning(f"Expo receipt error for ticket {attempt.expo_ticket_id}: {error_code}")
+
+    # If we get here, we've exhausted MAX_ITERATIONS without finishing
+    raise RuntimeError(
+        f"check_expo_push_receipts exceeded {MAX_ITERATIONS} iterations - "
+        "there may be an unusually large backlog of receipts to check"
+    )
 
 
 check_expo_push_receipts.PAYLOAD = empty_pb2.Empty
