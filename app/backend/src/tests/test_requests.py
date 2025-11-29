@@ -46,7 +46,12 @@ def _(testconfig):
 
 def valid_request_text(text: str = "Test request") -> str:
     """Pads a request text to a valid length."""
-    return text + ("_" * HOST_REQUEST_MIN_LENGTH_UTF16)
+    # Request lengths are measured in utf-16 code units to match the frontend.
+    utf16_length = len(text.encode("utf-16-le")) // 2
+    if utf16_length >= HOST_REQUEST_MIN_LENGTH_UTF16:
+        return text
+    padding_length = HOST_REQUEST_MIN_LENGTH_UTF16 - utf16_length
+    return text + ("_" * padding_length) # Each "_" adds one utf16 code unit.
 
 
 def test_create_request(db):

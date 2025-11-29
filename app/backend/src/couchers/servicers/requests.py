@@ -162,6 +162,14 @@ def _possibly_observe_first_response_time(session, host_request, user_id, respon
         )
 
 
+def _is_host_request_long_enough(text: str) -> bool:
+    # Python's len(str) does not match Javascript's string.length.
+    # e.g. len("é") == 2 but "é".length == 1.
+    # To match the frontend's validation, measure the string in utf16 code units.
+    text_length_utf16 = len(text.encode("utf-16-le")) // 2  # utf-16-le does not include a prefix BOM code unit.
+    return text_length_utf16 >= HOST_REQUEST_MIN_LENGTH_UTF16
+
+
 class Requests(requests_pb2_grpc.RequestsServicer):
     def CreateHostRequest(self, request, context, session):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
@@ -203,8 +211,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
 
         # Check minimum length
-        text_length_utf16 = len(request.text.encode("utf-16")) / 2 - 1  # number of code units minus BOM
-        if text_length_utf16 < HOST_REQUEST_MIN_LENGTH_UTF16:
+        if _is_host_request_long_enough(request.text):
             context.abort_with_error_code(
                 grpc.StatusCode.INVALID_ARGUMENT,
                 "host_request_too_short",

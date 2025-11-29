@@ -33,6 +33,7 @@ from tests.test_fixtures import (  # noqa
     real_account_session,
     requests_session,
 )
+from tests.test_requests import valid_request_text
 
 
 @pytest.fixture(autouse=True)
@@ -1064,7 +1065,10 @@ def test_reminders(db):
     with requests_session(req_user_token1) as api:
         host_request1_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+                host_user_id=user.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request 1"),
             )
         ).host_request_id
 
@@ -1081,7 +1085,10 @@ def test_reminders(db):
     with requests_session(req_user_token2) as api:
         host_request2_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 2"
+                host_user_id=user.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request 2"),
             )
         ).host_request_id
 
@@ -1102,7 +1109,10 @@ def test_reminders(db):
     with requests_session(req_user_token1) as api:
         host_request3_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 3"
+                host_user_id=user.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request 3"),
             )
         ).host_request_id
 
