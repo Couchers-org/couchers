@@ -51,7 +51,7 @@ def valid_request_text(text: str = "Test request") -> str:
     if utf16_length >= HOST_REQUEST_MIN_LENGTH_UTF16:
         return text
     padding_length = HOST_REQUEST_MIN_LENGTH_UTF16 - utf16_length
-    return text + ("_" * padding_length) # Each "_" adds one utf16 code unit.
+    return text + ("_" * padding_length)  # Each "_" adds one utf16 code unit.
 
 
 def test_create_request(db):
