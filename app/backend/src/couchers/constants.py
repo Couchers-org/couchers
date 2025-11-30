@@ -8,7 +8,7 @@ TOS_VERSION = 2
 # community guidelines version
 GUIDELINES_VERSION = 1
 
-EMAIL_REGEX = r"^[0-9a-z][0-9a-z\-\_\+\.]*@([0-9a-z\-]+\.)*[0-9a-z\-]+\.[a-z]{2,}$"
+EMAIL_REGEX = r"^[0-9a-z]([0-9a-z\-\_\+]|(\.[0-9a-z\-\_\+]))*@([0-9a-z\-]+\.)*[0-9a-z\-]+\.[a-z]{2,}$"
 
 BANNED_USERNAME_PHRASES = [
     "admin",
