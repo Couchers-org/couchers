@@ -8,7 +8,6 @@ summary in the appropriate format.
 
 import os
 import sys
-import json
 import re
 from typing import Optional, List, Dict, Any
 from enum import Enum
@@ -325,6 +324,30 @@ class PRReleaseNotesBot:
             print(f"Warning: Could not fetch issue #{issue_number}: {e}")
             return None
 
+    def _get_pr_diff(self, max_lines: int = 2000) -> str:
+        """Get the PR diff, truncated if necessary."""
+        try:
+            # Get the diff using the GitHub API
+            # The .patch property gives us the full diff
+            diff = self.pr.patch
+
+            if not diff:
+                return "(no diff available)"
+
+            # Split into lines and truncate if necessary
+            lines = diff.split('\n')
+
+            if len(lines) > max_lines:
+                truncated_diff = '\n'.join(lines[:max_lines])
+                truncated_diff += f"\n\n... (diff truncated, showing first {max_lines} of {len(lines)} lines)"
+                return truncated_diff
+
+            return diff
+
+        except Exception as e:
+            print(f"Warning: Could not fetch PR diff: {e}")
+            return "(error fetching diff)"
+
     def analyze_pr(self) -> BotDecision:
         """Use LLM to analyze the PR and determine if it should be in release notes."""
 
@@ -337,6 +360,10 @@ class PRReleaseNotesBot:
         # Get PR conversation
         print("Fetching PR conversation...")
         pr_conversation = self._get_pr_conversation()
+
+        # Get PR diff
+        print("Fetching PR diff...")
+        pr_diff = self._get_pr_diff()
 
         # Find and fetch linked issues
         print("Finding linked issues...")
@@ -377,6 +404,11 @@ Analyze this GitHub Pull Request:
 
 **Files Changed ({len(files_changed)} files):**
 {files_summary}
+
+**Diff:**
+```diff
+{pr_diff}
+```
 
 **PR Conversation:**
 {pr_conversation}

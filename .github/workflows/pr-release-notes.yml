@@ -2,13 +2,15 @@ name: PR Release Notes Tagger
 
 on:
   pull_request:
-    types: [closed]
+    types: [closed, labeled]
 
 jobs:
   tag-pr:
     runs-on: ubuntu-latest
-    # Only run if PR was merged
-    if: github.event.pull_request.merged == true
+    # Run if: PR was merged OR the 'bot: release notes' label was added
+    if: |
+      (github.event.pull_request.merged == true) ||
+      (github.event.action == 'labeled' && github.event.label.name == 'release notes: evaluate')
 
     permissions:
       pull-requests: write
