@@ -37,6 +37,7 @@ from tests.test_fixtures import (  # noqa
     requests_session,
     testconfig,
 )
+from tests.test_requests import valid_request_text
 
 
 @pytest.fixture(autouse=True)
@@ -1119,7 +1120,7 @@ def test_regression_disappearing_refs(db, hs):
     with requests_session(token1) as api:
         res = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=req_start, to_date=req_end, text="Test request"
+                host_user_id=user2.id, from_date=req_start, to_date=req_end, text=valid_request_text()
             )
         )
         host_request_id = res.host_request_id
@@ -1127,7 +1128,7 @@ def test_regression_disappearing_refs(db, hs):
             api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
             .host_requests[0]
             .latest_message.text.text
-            == "Test request"
+            == valid_request_text()
         )
 
     with requests_session(token2) as api:
