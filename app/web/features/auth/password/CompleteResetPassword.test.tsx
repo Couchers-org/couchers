@@ -26,6 +26,7 @@ jest.mock("@sentry/nextjs", () => ({
 }));
 
 const mockUseRouter = useRouter as jest.Mock;
+const mockPush = jest.fn();
 
 describe("CompletePasswordReset page", () => {
   beforeEach(() => {
@@ -33,6 +34,7 @@ describe("CompletePasswordReset page", () => {
 
     mockUseRouter.mockReturnValue({
       query: { token: "aaa123" },
+      push: mockPush,
     });
   });
 
@@ -58,6 +60,7 @@ describe("CompletePasswordReset page", () => {
   it("shows a warning when empty token", () => {
     mockUseRouter.mockReturnValue({
       query: { token: "" },
+      push: mockPush,
     });
 
     render(<CompletePasswordReset />, { wrapper });
@@ -112,6 +115,7 @@ describe("CompletePasswordReset page", () => {
   it("submits the reset password request successfully", async () => {
     mockUseRouter.mockReturnValue({
       query: { token: "aaa123" },
+      push: mockPush,
     });
 
     render(<CompletePasswordReset />, { wrapper });
@@ -145,6 +149,7 @@ describe("CompletePasswordReset page", () => {
 
     mockUseRouter.mockReturnValue({
       query: { token: "aaa123" },
+      push: mockPush,
     });
 
     render(<CompletePasswordReset />, { wrapper });

@@ -3,16 +3,15 @@ import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
-import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
+import { AuthRes } from "proto/auth_pb";
 import { useForm } from "react-hook-form";
-import { loginRoute } from "routes";
+import { dashboardRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 import stringOrFirstString from "utils/stringOrFirstString";
@@ -42,7 +41,7 @@ const StyledTextField = styled(TextField)(() => ({
 }));
 
 export default function CompleteResetPassword() {
-  const { authState } = useAuthContext();
+  const { authState, authActions } = useAuthContext();
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { handleSubmit, register } = useForm<{
     newPassword: string;
@@ -55,15 +54,21 @@ export default function CompleteResetPassword() {
     !!resetToken && typeof resetToken === "string" && resetToken !== "";
 
   const { error, isPending, isSuccess, mutate } = useMutation<
-    Empty,
+    AuthRes,
     RpcError,
     string
   >({
-    mutationFn: (newPassword) =>
-      service.account.CompletePasswordResetV2(
+    mutationFn: async (newPassword) => {
+      const res = await service.account.CompletePasswordResetV2(
         resetToken as string,
         newPassword,
-      ),
+      );
+      return res;
+    },
+    onSuccess: (authRes) => {
+      authActions.firstLogin(authRes.toObject());
+      router.push(dashboardRoute);
+    },
   });
 
   const onSubmit = handleSubmit(({ newPassword, newPasswordCheck }) => {
@@ -104,12 +109,9 @@ export default function CompleteResetPassword() {
       )}
 
       {isSuccess && (
-        <>
-          <Alert severity="success">
-            {t("auth:change_password_form.reset_password_success")}
-          </Alert>
-          <StyledLink href={loginRoute}>{t("auth:login_prompt")}</StyledLink>
-        </>
+        <Alert severity="success">
+          {t("auth:change_password_form.reset_password_success")}
+        </Alert>
       )}
 
       <Typography variant="h1" gutterBottom>
