@@ -1,4 +1,4 @@
-import { StyleSheet, View, useColorScheme } from "react-native";
+import { StyleSheet, View, useColorScheme, Text } from "react-native";
 import { useRef } from "react";
 import {
   WebView,
@@ -79,6 +79,38 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         onNavigationStateChange={handleNavigationStateChange}
         injectedJavaScriptObject={{ isCouchersNativeEmbed: true }}
         onMessage={handleMessage}
+        onError={(syntheticEvent) => {
+          if (__DEV__) {
+            const { nativeEvent } = syntheticEvent;
+            console.error("WebView error:", nativeEvent);
+            console.error("URL:", WEB_BASE_URL + path);
+          }
+        }}
+        onHttpError={(syntheticEvent) => {
+          if (__DEV__) {
+            const { nativeEvent } = syntheticEvent;
+            console.error(
+              "WebView HTTP error:",
+              nativeEvent.statusCode,
+              nativeEvent.url
+            );
+          }
+        }}
+        renderError={(errorDomain, errorCode, errorDesc) => {
+          if (__DEV__) {
+            console.error(
+              "WebView render error:",
+              errorDomain,
+              errorCode,
+              errorDesc
+            );
+          }
+          return (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>Failed to load page</Text>
+            </View>
+          );
+        }}
       />
     </View>
   );
@@ -90,5 +122,15 @@ const styles = StyleSheet.create({
   },
   webview: {
     flex: 1,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
+  },
+  errorText: {
+    color: "#666",
+    fontSize: 16,
   },
 });

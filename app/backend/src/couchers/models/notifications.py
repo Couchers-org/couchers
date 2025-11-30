@@ -5,6 +5,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy import (
     BigInteger,
     Boolean,
+    CheckConstraint,
     DateTime,
     Enum,
     ForeignKey,
@@ -236,8 +237,8 @@ class NotificationDelivery(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     notification_id: Mapped[int] = mapped_column(ForeignKey("notifications.id"), index=True)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    delivered: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    read: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    delivered: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    read: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     # todo: enum of "phone, web, digest"
     delivery_type: Mapped[NotificationDeliveryType] = mapped_column(Enum(NotificationDeliveryType))
     # todo: device id
@@ -261,6 +262,26 @@ class NotificationDelivery(Base):
     )
 
 
+class DeviceType(enum.Enum):
+    ios = enum.auto()
+    android = enum.auto()
+
+
+class PushNotificationPlatform(enum.Enum):
+    web_push = enum.auto()
+    expo = enum.auto()
+
+
+class PushNotificationDeliveryOutcome(enum.Enum):
+    success = enum.auto()
+    # transient failure, will retry
+    transient_failure = enum.auto()
+    # message can't be delivered (e.g. too long), but subscription is fine
+    permanent_message_failure = enum.auto()
+    # subscription is broken (e.g. device unregistered), was disabled
+    permanent_subscription_failure = enum.auto()
+
+
 class PushNotificationSubscription(Base):
     __tablename__ = "push_notification_subscriptions"
 
@@ -270,23 +291,44 @@ class PushNotificationSubscription(Base):
     # which user this is connected to
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
+    platform: Mapped[PushNotificationPlatform] = mapped_column(Enum(PushNotificationPlatform))
+
+    ## platform specific: web_push
     # these come from https://developer.mozilla.org/en-US/docs/Web/API/PushSubscription
     # the endpoint
-    endpoint: Mapped[str] = mapped_column(String)
+    endpoint: Mapped[str | None] = mapped_column(String)
     # the "auth" key
-    auth_key: Mapped[bytes] = mapped_column(Binary)
+    auth_key: Mapped[bytes | None] = mapped_column(Binary)
     # the "p256dh" key
-    p256dh_key: Mapped[bytes] = mapped_column(Binary)
+    p256dh_key: Mapped[bytes | None] = mapped_column(Binary)
 
-    full_subscription_info: Mapped[str] = mapped_column(String)
+    full_subscription_info: Mapped[str | None] = mapped_column(String)
 
-    # the browse user-agent, so we can tell the user what browser notifications are going to
-    user_agent: Mapped[str | None] = mapped_column(String, nullable=True)
+    # the browser user-agent, so we can tell the user what browser notifications are going to
+    user_agent: Mapped[str | None] = mapped_column(String)
+
+    ## platform specific: expo
+    token: Mapped[str | None] = mapped_column(String, unique=True, index=True)
+    device_name: Mapped[str | None] = mapped_column(String)
+    device_type: Mapped[DeviceType | None] = mapped_column(Enum(DeviceType))
 
     # when it was disabled
     disabled_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=DATETIME_INFINITY.isoformat())
 
     user = relationship("User")
+
+    __table_args__ = (
+        # web_push platform requires: endpoint, auth_key, p256dh_key, full_subscription_info
+        # expo platform requires: token
+        CheckConstraint(
+            """
+            (platform = 'web_push' AND endpoint IS NOT NULL AND auth_key IS NOT NULL AND p256dh_key IS NOT NULL AND full_subscription_info IS NOT NULL AND token IS NULL)
+            OR
+            (platform = 'expo' AND token IS NOT NULL AND endpoint IS NULL AND auth_key IS NULL AND p256dh_key IS NULL AND full_subscription_info IS NULL)
+            """,
+            name="platform_columns",
+        ),
+    )
 
 
 class PushNotificationDeliveryAttempt(Base):
@@ -299,11 +341,19 @@ class PushNotificationDeliveryAttempt(Base):
         ForeignKey("push_notification_subscriptions.id"), index=True
     )
 
-    success: Mapped[bool] = mapped_column(Boolean)
-    # the HTTP status code, 201 is success
-    status_code: Mapped[int] = mapped_column(Integer)
+    outcome: Mapped[PushNotificationDeliveryOutcome] = mapped_column(Enum(PushNotificationDeliveryOutcome))
+    # the HTTP status code, 201 is success, or similar for other platforms
+    status_code: Mapped[int | None] = mapped_column(Integer)
 
     # can be null if it was a success
-    response: Mapped[str | None] = mapped_column(String, nullable=True)
+    response: Mapped[str | None] = mapped_column(String)
+
+    # Expo-specific: ticket ID for receipt checking
+    expo_ticket_id: Mapped[str | None] = mapped_column(String)
+
+    # Receipt check results (populated by delayed job)
+    receipt_checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    receipt_status: Mapped[str | None] = mapped_column(String)  # "ok" or "error"
+    receipt_error_code: Mapped[str | None] = mapped_column(String)  # e.g., "DeviceNotRegistered"
 
     push_notification_subscription = relationship("PushNotificationSubscription")

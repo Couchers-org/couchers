@@ -15,6 +15,7 @@ import {
   Ubuntu_700Bold_Italic,
 } from "@expo-google-fonts/ubuntu";
 import * as SplashScreen from "expo-splash-screen";
+import * as Notifications from "expo-notifications";
 import React, { useEffect } from "react";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -25,7 +26,19 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { Stack } from "expo-router";
 
 import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
+import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
 
+if (__DEV__) {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
+}
 // Sentry.init({
 //   dsn: "https://7de06aa8cca6dacc9620667dd84a0d01@o782870.ingest.us.sentry.io/4507718344704000",
 // });
@@ -82,9 +95,15 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <AuthProvider>
+          <PushNotificationsRegistrar />
           <RootNavigator fontsLoaded={fontsLoaded} />
         </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );
+}
+
+function PushNotificationsRegistrar() {
+  useRegisterPushNotifications();
+  return null;
 }

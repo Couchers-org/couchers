@@ -4,23 +4,46 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 ## Get started
 
-1. Install dependencies
+1. Install dependencies (and native modules used by the app)
 
    ```bash
    npm install
+   npx expo install expo-notifications expo-device
    ```
 
-2. Download & extract the latest protos
+2. Generate the gRPC-Web stubs to extract the latest protos (needed any time `/proto` changes)
 
-   ``` bash
-   curl -sL https://develop--protos.preview.couchershq.org/ts.tar.gz | tar xz
+   ```bash
+   npm run build:protos
    ```
 
-3. Start the app
+3. If you want to test native features like push notications, face ID, etc - If you haven't created a local development build yet (required for native modules such as `expo-notifications`/`expo-device`), build once per platform:
+
+If it's the first time you run this, you might need to install CocoaPods (via homebrew) and X-Code (via App Store) first.
+
+   ```bash
+   # For iOS
+   npx expo run:ios
+
+   # For Android
+   npx expo run:android
+   ```
+
+4. Start the app (this will reuse the dev build/emulator or Expo Go, depending on what you choose in the Metro UI)
 
    ```bash
    npx expo start
    ```
+
+If testing native features like push notifications, you need to run a development build on your mobile phone the first time.
+
+- You need to be part of the development team in the Apple Developer Account (or Google Play).
+- [Setup Xcode](https://github.com/expo/fyi/blob/main/setup-xcode-signing.md), open the Couchers folder, then go to go to the project's "Signing & Capabilities"
+- Select your Apple ID as the Team
+- Xcode will automatically provision your device
+- Run `cd app/mobile`
+- `npx expo run:ios --device` (it will take awhile). Once it's done it will say "Complete 100%"
+- Choose your mobile phone
 
 In the output, you'll find options to open the app in a
 

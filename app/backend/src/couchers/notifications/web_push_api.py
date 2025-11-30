@@ -40,7 +40,7 @@ def generate_vapid_authorization(endpoint: str, vapid_sub: str, vapid_private_ke
     return Vapid.from_string(private_key=vapid_private_key).sign(vapid_claim)["Authorization"]  # type: ignore[no-any-return]
 
 
-def send_push(
+def send_web_push(
     data: bytes,
     endpoint: str,
     auth_key: bytes,

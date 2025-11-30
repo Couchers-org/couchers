@@ -20,7 +20,9 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "useNextNotificationsApi": true,
+      "package": "com.couchersorg.mobile"
     },
     "web": {
       "bundler": "metro",
@@ -44,6 +46,13 @@
           "url": "https://sentry.io/",
           "project": "native",
           "organization": "couchers"
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#ffffff"
         }
       ]
     ],

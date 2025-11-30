@@ -1,4 +1,4 @@
-import { styled } from "@mui/material";
+import { Button, styled } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
@@ -14,8 +14,10 @@ import PushNotificationSettings from "features/notifications/PushNotificationSet
 import LanguagePickerSettings from "features/translate/LanguagePickerSettings";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { sendTestMobilePushNotification } from "service/notifications";
 
+import { useIsNativeEmbed } from "../../platform/nativeLink";
 import DeleteAccount from "./deletion/DeleteAccount";
 import ManageDonations from "./donations/ManageDonations";
 import LoginsLink from "./logins/LoginsLink";
@@ -36,12 +38,32 @@ const MarginWrapper = styled("div")(({ theme }) => ({
 
 export default function Settings() {
   const { t } = useTranslation(AUTH);
+  const isNativeEmbed = useIsNativeEmbed();
+  // Uncomment to enable test push notification button
+  const [testPushLoading, setTestPushLoading] = useState(false);
+  const [testPushMessage, setTestPushMessage] = useState<string | null>(null);
 
   const {
     data: accountInfo,
     error: accountInfoError,
     isLoading: isAccountInfoLoading,
   } = useAccountInfo();
+
+  // Uncomment to enable test push notification button
+  const handleTestPush = async () => {
+    setTestPushLoading(true);
+    setTestPushMessage(null);
+    try {
+      await sendTestMobilePushNotification();
+      setTestPushMessage("✅ Test notification sent! Check your phone.");
+    } catch (error) {
+      setTestPushMessage(
+        "❌ Failed to send test notification: " + (error as Error).message,
+      );
+    } finally {
+      setTestPushLoading(false);
+    }
+  };
 
   useEffect(() => {
     // Scroll to the element if there's a hash in the URL
@@ -68,8 +90,30 @@ export default function Settings() {
       ) : accountInfo ? (
         <>
           <TopMarginWrapper>
-            <PushNotificationSettings />
+            {isNativeEmbed ? null : <PushNotificationSettings />}
           </TopMarginWrapper>
+          {process.env.NODE_ENV === "development" && (
+            <MarginWrapper>
+              <Button
+                variant="contained"
+                onClick={handleTestPush}
+                disabled={testPushLoading}
+              >
+                {testPushLoading
+                  ? "Sending..."
+                  : "🔔 Test Mobile Push Notification"}
+              </Button>
+              {testPushMessage && (
+                <Alert
+                  severity={
+                    testPushMessage.startsWith("✅") ? "success" : "error"
+                  }
+                >
+                  {testPushMessage}
+                </Alert>
+              )}
+            </MarginWrapper>
+          )}
           <MarginWrapper>
             <NotificationSettings />
           </MarginWrapper>

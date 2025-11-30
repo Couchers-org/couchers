@@ -56,7 +56,7 @@ from couchers.materialized_views import (
     refresh_materialized_views,
     refresh_materialized_views_rapid,
 )
-from couchers.metrics import strong_verification_completions_counter
+from couchers.metrics import push_notification_counter, strong_verification_completions_counter
 from couchers.models import (
     AccountDeletionToken,
     ActivenessProbe,
@@ -80,6 +80,8 @@ from couchers.models import (
     PasswordResetToken,
     PostalVerificationAttempt,
     PostalVerificationStatus,
+    PushNotificationDeliveryAttempt,
+    PushNotificationSubscription,
     Reference,
     StrongVerificationAttempt,
     StrongVerificationAttemptStatus,
@@ -87,8 +89,10 @@ from couchers.models import (
     UserBadge,
     Volunteer,
 )
-from couchers.notifications.background import handle_email_digests, handle_notification, send_raw_push_notification
+from couchers.notifications.background import handle_email_digests, handle_notification
+from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
+from couchers.notifications.send_raw_push_notification import send_raw_push_notification_v2
 from couchers.postal.postcard_service import send_postcard
 from couchers.proto import notification_data_pb2
 from couchers.proto.internal import jobs_pb2, verification_pb2
@@ -122,7 +126,7 @@ logger = logging.getLogger(__name__)
 # these were straight up imported
 handle_notification.PAYLOAD = jobs_pb2.HandleNotificationPayload
 
-send_raw_push_notification.PAYLOAD = jobs_pb2.SendRawPushNotificationPayload
+send_raw_push_notification_v2.PAYLOAD = jobs_pb2.SendRawPushNotificationPayloadV2
 
 handle_email_digests.PAYLOAD = empty_pb2.Empty
 handle_email_digests.SCHEDULE = timedelta(minutes=15)
@@ -1184,6 +1188,84 @@ def send_event_reminders(payload: empty_pb2.Empty) -> None:
 
 send_event_reminders.PAYLOAD = empty_pb2.Empty
 send_event_reminders.SCHEDULE = timedelta(hours=1)
+
+
+def check_expo_push_receipts(payload: empty_pb2.Empty) -> None:
+    """
+    Check Expo push receipts in batch and update delivery attempts.
+    """
+    MAX_ITERATIONS = 100  # Safety limit: 100 batches * 100 attempts = 10,000 max
+
+    for iteration in range(MAX_ITERATIONS):
+        with session_scope() as session:
+            # Find all delivery attempts that need receipt checking
+            # Wait 15 minutes per Expo's recommendation before checking receipts
+            attempts = (
+                session.execute(
+                    select(PushNotificationDeliveryAttempt)
+                    .where(PushNotificationDeliveryAttempt.expo_ticket_id != None)
+                    .where(PushNotificationDeliveryAttempt.receipt_checked_at == None)
+                    .where(PushNotificationDeliveryAttempt.time < now() - timedelta(minutes=15))
+                    .where(PushNotificationDeliveryAttempt.time > now() - timedelta(hours=24))
+                    .limit(100)
+                )
+                .scalars()
+                .all()
+            )
+
+            if not attempts:
+                logger.debug("No Expo receipts to check")
+                return
+
+            logger.info(f"Checking {len(attempts)} Expo push receipts")
+
+            receipts = get_expo_push_receipts([attempt.expo_ticket_id for attempt in attempts])
+
+            for attempt in attempts:
+                receipt = receipts.get(attempt.expo_ticket_id)
+
+                # Always mark as checked to avoid infinite loops
+                attempt.receipt_checked_at = now()
+
+                if receipt is None:
+                    # Receipt not found after 15min - likely expired (>24h) or never existed
+                    # Per Expo docs: receipts should be available within 15 minutes
+                    attempt.receipt_status = "not_found"
+                    continue
+
+                attempt.receipt_status = receipt.get("status")
+
+                if receipt.get("status") == "error":
+                    details = receipt.get("details", {})
+                    error_code = details.get("error")
+                    attempt.receipt_error_code = error_code
+
+                    if error_code == "DeviceNotRegistered":
+                        # Device token is no longer valid - disable the subscription
+                        sub = session.execute(
+                            select(PushNotificationSubscription).where(
+                                PushNotificationSubscription.id == attempt.push_notification_subscription_id
+                            )
+                        ).scalar_one()
+
+                        if sub.disabled_at > now():
+                            sub.disabled_at = now()
+                            logger.info(f"Disabled push sub {sub.id} due to DeviceNotRegistered in receipt")
+                            push_notification_counter.labels(
+                                platform="expo", outcome="permanent_subscription_failure_receipt"
+                            ).inc()
+                    else:
+                        logger.warning(f"Expo receipt error for ticket {attempt.expo_ticket_id}: {error_code}")
+
+    # If we get here, we've exhausted MAX_ITERATIONS without finishing
+    raise RuntimeError(
+        f"check_expo_push_receipts exceeded {MAX_ITERATIONS} iterations - "
+        "there may be an unusually large backlog of receipts to check"
+    )
+
+
+check_expo_push_receipts.PAYLOAD = empty_pb2.Empty
+check_expo_push_receipts.SCHEDULE = timedelta(minutes=5)
 
 
 def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPostcardPayload) -> None:
