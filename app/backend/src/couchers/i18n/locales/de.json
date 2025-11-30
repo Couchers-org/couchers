@@ -194,7 +194,15 @@
         "invalid_started_volunteering_date": "Ungültiges Startdatum für die Freiwilligenarbeit.",
         "user_already_volunteer": "Dieser Benutzer ist bereits ein Freiwilliger.",
         "invalid_stopped_volunteering_date": "Ungültiges Enddatum für die Freiwilligenarbeit.",
-        "volunteer_not_found": "Freiwilliger nicht gefunden."
+        "volunteer_not_found": "Freiwilliger nicht gefunden.",
+        "postal_address_undeliverable": "Die Adresse ist nicht zustellbar.",
+        "postal_verification_already_in_progress": "Du hast bereits einen laufenden Versuch zur Postverifizierung.",
+        "address_line_1_required": "Adresszeile 1 ist erforderlich.",
+        "country_required": "Land ist erforderlich.",
+        "host_request_too_short": "Die Host-Anfrage darf nicht kürzer als {{chars}} Zeichen sein.",
+        "postal_address_invalid": "Die Adresse konnte nicht validiert werden.",
+        "can_only_refer_friends": "Du kannst Freundschaftsreferenzen nur für bestätigte Freunde schreiben.",
+        "city_required": "Stadt ist erforderlich."
     },
     "quick_links": {
         "do_not_email": "Du wirst keine E-Mails mehr erhalten, die nicht sicherheitsrelevant sind, und dein Hosting-Status wurde zurückgesetzt. Der Newsletter muss separat abbestellt werden.",
