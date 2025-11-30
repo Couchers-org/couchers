@@ -18,7 +18,6 @@ import { Trans, useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import React, { useRef, useState } from "react";
 import { ControllerRenderProps } from "react-hook-form";
-import { theme } from "theme";
 
 interface ProfileTagInputProps {
   onChange: (_: unknown, value: string[]) => void;
@@ -32,7 +31,7 @@ interface ProfileTagInputProps {
   inputFieldProps?: ControllerRenderProps<any, string>;
 }
 
-const StyledButtonBase = styled(ButtonBase)(() => ({
+const StyledButtonBase = styled(ButtonBase)(({ theme }) => ({
   "&:focus": {
     boxShadow: `0 0 0 2px ${theme.palette.primary.main}`,
   },
@@ -58,7 +57,7 @@ const StyledTagsContainer = styled("div")(() => ({
   gridTemplateColumns: "repeat(auto-fit, minmax(auto, 250px))",
 }));
 
-const StyledTagWrapper = styled("div")(() => ({
+const StyledTagWrapper = styled("div")(({ theme }) => ({
   alignItems: "center",
   display: "flex",
   fontSize: theme.typography.fontSize,
@@ -75,13 +74,13 @@ const StyledTagWrapper = styled("div")(() => ({
   },
 }));
 
-const StyledTagLabel = styled("span")(() => ({
+const StyledTagLabel = styled("span")(({ theme }) => ({
   marginLeft: theme.spacing(0.75),
   fontWeight: 500,
   color: theme.palette.common.white,
 }));
 
-const StyledPopper = styled(Popper)(() => ({
+const StyledPopper = styled(Popper)(({ theme }) => ({
   backgroundColor: theme.palette.common.white,
   borderColor: theme.palette.grey[200],
   borderRadius: theme.spacing(1.5),
@@ -92,7 +91,7 @@ const StyledPopper = styled(Popper)(() => ({
   zIndex: 101,
 }));
 
-const StyledHeader = styled("div")(() => ({
+const StyledHeader = styled("div")(({ theme }) => ({
   borderBottomColor: theme.palette.divider,
   borderBottomStyle: "solid",
   borderBottomWidth: 1,
@@ -103,7 +102,7 @@ const StyledHeader = styled("div")(() => ({
   },
 }));
 
-const StyledInputBase = styled(InputBase)(() => ({
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
   "& input": {
     "&:focus": {
       borderColor: theme.palette.primary.main,
@@ -125,7 +124,7 @@ const StyledInputBase = styled(InputBase)(() => ({
   width: "100%",
 }));
 
-const StyledCheckbox = styled(Checkbox)(() => ({
+const StyledCheckbox = styled(Checkbox)(({ theme }) => ({
   marginRight: theme.spacing(1),
   padding: 0,
 }));
@@ -139,7 +138,7 @@ const StyledAutocompletePaper = styled(Paper)(() => ({
   margin: 0,
 }));
 
-const StyledAutocompleteOption = styled("li")(() => ({
+const StyledAutocompleteOption = styled("li")(({ theme }) => ({
   '&[aria-selected="true"]': {
     backgroundColor: "transparent",
   },

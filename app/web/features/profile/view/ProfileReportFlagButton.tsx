@@ -7,6 +7,7 @@ import {
   Select,
   styled,
   Typography,
+  useTheme,
 } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
@@ -32,7 +33,6 @@ import { dashboardRoute } from "routes";
 import { service } from "service";
 import { BlockInput } from "service/blocking";
 import { ReportInput } from "service/reporting";
-import { theme } from "theme";
 
 interface ProfileReportFlagButtonProps {
   contentRef: string;
@@ -62,6 +62,7 @@ export default function ProfileReportFlagButton({
 }: ProfileReportFlagButtonProps) {
   const { t } = useTranslation(GLOBAL);
   const router = useRouter();
+  const theme = useTheme();
 
   const [isOpen, setIsOpen] = useState(false);
 

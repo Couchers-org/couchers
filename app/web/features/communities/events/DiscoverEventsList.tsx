@@ -1,4 +1,10 @@
-import { Pagination, styled, Typography, useMediaQuery } from "@mui/material";
+import {
+  Pagination,
+  styled,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import LocationAutocomplete from "components/LocationAutocomplete";
@@ -9,13 +15,12 @@ import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { routeToNewEvent } from "routes";
-import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
 
 import EventsList from "./EventsList";
 import { useEventSearch } from "./hooks";
 
-const StyledLocationSearch = styled(LocationAutocomplete)(() => ({
+const StyledLocationSearch = styled(LocationAutocomplete)(({ theme }) => ({
   marginRight: theme.spacing(2),
   paddingBottom: theme.spacing(2),
 }));
@@ -25,7 +30,7 @@ const StyledColumn = styled("div")(() => ({
   flexDirection: "column",
 }));
 
-const StyledRow = styled("div")(() => ({
+const StyledRow = styled("div")(({ theme }) => ({
   display: "flex",
   justifyContent: "space-between",
   width: "100%",
@@ -34,7 +39,7 @@ const StyledRow = styled("div")(() => ({
   },
 }));
 
-const StyledFilterTagContainer = styled("div")(() => ({
+const StyledFilterTagContainer = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   marginTop: theme.spacing(2),
@@ -43,7 +48,7 @@ const StyledFilterTagContainer = styled("div")(() => ({
 
 const StyledFilterTag = styled(Typography, {
   shouldForwardProp: (propName) => propName !== "isSelected",
-})<{ isSelected: boolean }>(({ isSelected }) => ({
+})<{ isSelected: boolean }>(({ isSelected, theme }) => ({
   backgroundColor: isSelected
     ? theme.palette.secondary.main
     : theme.palette.grey[200],
@@ -58,7 +63,7 @@ const StyledFilterTag = styled(Typography, {
   },
 }));
 
-const StyledLoadingBox = styled("div")(() => ({
+const StyledLoadingBox = styled("div")(({ theme }) => ({
   display: "flex",
   justifyContent: "center",
   padding: theme.spacing(2),
@@ -66,7 +71,7 @@ const StyledLoadingBox = styled("div")(() => ({
   minHeight: theme.spacing(20),
 }));
 
-const StyledPagination = styled(Pagination)(() => ({
+const StyledPagination = styled(Pagination)(({ theme }) => ({
   display: "flex",
   justifyContent: "center",
   marginTop: theme.spacing(2),
@@ -82,6 +87,7 @@ const DiscoverEventsList = () => {
     mode: "onChange",
   });
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const pageSize = 12;
 

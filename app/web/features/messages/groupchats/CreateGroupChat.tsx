@@ -28,10 +28,9 @@ import { LiteUser, User } from "proto/api_pb";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
-import { theme } from "theme";
 import stringOrFirstString from "utils/stringOrFirstString";
 
-const StyledTextField = styled(TextField)(() => ({
+const StyledTextField = styled(TextField)(({ theme }) => ({
   marginTop: theme.spacing(1),
   "& .MuiInputBase-root": {
     width: "100%",
@@ -40,7 +39,7 @@ const StyledTextField = styled(TextField)(() => ({
 
 const StyledAutocomplete = styled(
   Autocomplete<LiteUser.AsObject, true, false, undefined>,
-)(() => ({
+)(({ theme }) => ({
   marginTop: theme.spacing(1),
   "& .MuiInputBase-root": {
     width: "100%",

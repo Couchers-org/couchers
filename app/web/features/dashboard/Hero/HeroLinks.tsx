@@ -3,9 +3,8 @@ import StyledLink from "components/StyledLink";
 import { DASHBOARD } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { routeToEditProfile } from "routes";
-import { theme } from "theme";
 
-const StyledLinksContainer = styled("div")(() => ({
+const StyledLinksContainer = styled("div")(({ theme }) => ({
   display: "flex",
   flexWrap: "wrap",
   rowGap: theme.spacing(2),
@@ -19,7 +18,7 @@ const makeStyledTab = <C extends React.ComponentType<React.ComponentProps<C>>>(
 ) => {
   return styled(component, {
     shouldForwardProp: (prop) => prop !== "isSelected",
-  })<{ isSelected?: boolean }>((props) => ({
+  })<{ isSelected?: boolean }>(({ isSelected, theme }) => ({
     position: "relative",
     paddingBottom: theme.spacing(1),
     color: theme.palette.common.white,
@@ -33,7 +32,7 @@ const makeStyledTab = <C extends React.ComponentType<React.ComponentProps<C>>>(
       height: 2,
       background: theme.palette.common.white,
       transition: `opacity ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
-      opacity: props.isSelected ? 1 : 0,
+      opacity: isSelected ? 1 : 0,
     },
     "&:hover::after": {
       opacity: 1,

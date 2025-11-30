@@ -11,6 +11,7 @@ import Timezone from "features/auth/timezone/Timezone";
 import Username from "features/auth/username/Username";
 import NotificationSettings from "features/notifications/NotificationSettings";
 import PushNotificationSettings from "features/notifications/PushNotificationSettings";
+import ThemeModeSetting from "features/theme/ThemeModeSetting";
 import LanguagePickerSettings from "features/translate/LanguagePickerSettings";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
@@ -143,6 +144,9 @@ export default function Settings() {
           </MarginWrapper>
           <MarginWrapper>
             <LanguagePickerSettings />
+          </MarginWrapper>
+          <MarginWrapper>
+            <ThemeModeSetting />
           </MarginWrapper>
           <MarginWrapper>
             <DoNotEmail />

@@ -6,11 +6,11 @@ import {
   styled,
   Typography,
   useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useEffect, useRef, useState } from "react";
-import { theme } from "theme";
 
 interface StyledBubbleProps extends React.ComponentProps<typeof Box> {
   selected?: boolean;
@@ -58,6 +58,7 @@ const StyledBubble = styled(Box, {
 const CouchersMission = () => {
   const { t } = useTranslation([LANDING, GLOBAL]);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [selectedItem, setSelectedItem] = useState("nonprofit");
@@ -108,7 +109,7 @@ const CouchersMission = () => {
           <Typography
             gutterBottom
             sx={{
-              color: theme.palette.common.black,
+              color: "common.black",
               fontSize: "1.2rem",
               fontWeight: 500,
               marginBottom: 0,
@@ -139,7 +140,7 @@ const CouchersMission = () => {
         sx={{
           position: "relative",
           width: "100%",
-          padding: theme.spacing(3, 0),
+          padding: { xs: "24px 0", md: "24px 0" },
         }}
       >
         {canScrollLeft && (
@@ -152,7 +153,7 @@ const CouchersMission = () => {
               transform: "translateY(-50%)",
               zIndex: 1,
               display: { xs: "flex", md: "none" },
-              color: theme.palette.common.white,
+              color: "common.white",
             }}
             onClick={() => {
               scrollRef.current?.scrollBy({
@@ -192,7 +193,7 @@ const CouchersMission = () => {
               transform: "translateY(-50%)",
               zIndex: 2,
               display: { xs: "flex", md: "none" },
-              color: theme.palette.common.white,
+              color: "common.white",
             }}
             onClick={() => {
               scrollRef.current?.scrollBy({
@@ -208,9 +209,9 @@ const CouchersMission = () => {
       <Grid
         sx={{
           marginTop: 2,
-          backgroundColor: theme.palette.grey[50],
+          backgroundColor: "grey.50",
           padding: 5,
-          borderRadius: theme.shape.borderRadius,
+          borderRadius: (theme) => theme.shape.borderRadius,
           width: "100%",
         }}
       >

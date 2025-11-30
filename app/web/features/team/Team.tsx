@@ -7,7 +7,6 @@ import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { volunteerRoute } from "routes";
-import { theme } from "theme";
 
 import TeamSection from "./TeamSection";
 
@@ -22,7 +21,7 @@ export default function Team() {
         <PageTitle>{t("team.title")}</PageTitle>
         <Typography
           sx={{
-            marginBottom: theme.spacing(2),
+            marginBottom: 2,
           }}
         >
           {t("team.description")}
@@ -54,7 +53,7 @@ export default function Team() {
         <Typography
           variant="h2"
           sx={{
-            marginTop: theme.spacing(4),
+            marginTop: 4,
             textAlign: "center",
           }}
         >
@@ -71,14 +70,14 @@ export default function Team() {
         </Typography>
         <Typography
           sx={{
-            marginBottom: theme.spacing(2),
+            marginBottom: 2,
           }}
         >
           {t("team.fill_form_description")}
         </Typography>
         <Typography
           sx={{
-            marginBottom: theme.spacing(2),
+            marginBottom: 2,
             display: "flex",
             justifyContent: "center",
           }}

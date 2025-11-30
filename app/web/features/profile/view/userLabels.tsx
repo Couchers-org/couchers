@@ -9,7 +9,6 @@ import {
   GenderVerificationStatus,
   User,
 } from "proto/api_pb";
-import { theme } from "theme";
 import { monthFormatter, timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import { hourMillis, timeAgoI18n } from "utils/timeAgo";
@@ -132,7 +131,7 @@ const StyledContainer = styled("div")(() => ({
 const styledIcon = <C extends React.ComponentType<React.ComponentProps<C>>>(
   component: C,
 ) => {
-  return styled(component)(() => ({
+  return styled(component)(({ theme }) => ({
     margin: theme.spacing(0.5),
     alignSelf: "center",
   }));

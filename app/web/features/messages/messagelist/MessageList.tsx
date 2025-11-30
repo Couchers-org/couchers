@@ -6,24 +6,23 @@ import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { Message } from "proto/conversations_pb";
 import * as React from "react";
-import { theme } from "theme";
 
 import MessageView from "./MessageView";
 
-const List = styled("div")(() => ({
+const List = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column-reverse",
   paddingBlock: theme.spacing(2),
 }));
 
-const MessageWrapper = styled(MessageView)(() => ({
+const MessageWrapper = styled(MessageView)(({ theme }) => ({
   marginBottom: theme.spacing(2),
   "&:nth-of-type(1)": {
     marginBottom: 0,
   },
 }));
 
-const ControlMessageWrapper = styled(ControlMessageView)(() => ({
+const ControlMessageWrapper = styled(ControlMessageView)(({ theme }) => ({
   marginBottom: theme.spacing(2),
   "&:nth-of-type(1)": {
     marginBottom: 0,

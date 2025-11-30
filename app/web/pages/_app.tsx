@@ -13,19 +13,34 @@ import ErrorBoundary from "components/ErrorBoundary";
 import HtmlMeta from "components/HtmlMeta";
 import AuthProvider from "features/auth/AuthProvider";
 import { ReactQueryClientProvider } from "features/reactQueryClient";
+import {
+  ThemeModeProvider,
+  useThemeMode,
+} from "features/theme/ThemeModeContext";
 import type { AppProps } from "next/app";
 import { appWithTranslation } from "next-i18next";
 import nextI18nextConfig from "next-i18next.config";
 import React, { ReactNode, useEffect } from "react";
 import TagManager from "react-gtm-module";
 import { polyfill } from "seamless-scroll-polyfill";
-import { theme } from "theme";
+import { darkTheme, lightTheme } from "theme";
 
 type AppWithLayoutProps = Omit<AppProps, "Component"> & {
   Component: AppProps["Component"] & {
     getLayout: (page: ReactNode) => ReactNode;
   };
 };
+
+interface ThemedAppProps {
+  children: ReactNode;
+}
+
+function ThemedApp({ children }: ThemedAppProps) {
+  const { resolvedMode } = useThemeMode();
+  const theme = resolvedMode === "dark" ? darkTheme : lightTheme;
+
+  return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
+}
 
 function MyApp({ Component, pageProps }: AppWithLayoutProps) {
   const getLayout = Component.getLayout ?? ((page: ReactNode) => page);
@@ -77,18 +92,20 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
   return (
     <StyledEngineProvider injectFirst>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <ThemeProvider theme={theme}>
-          <ErrorBoundary isFatal>
-            <ReactQueryClientProvider>
-              <AuthProvider>
-                <CssBaseline />
-                <EnvironmentBanner />
-                <HtmlMeta />
-                {getLayout(<Component {...pageProps} />)}
-              </AuthProvider>
-            </ReactQueryClientProvider>
-          </ErrorBoundary>
-        </ThemeProvider>
+        <ThemeModeProvider>
+          <ThemedApp>
+            <ErrorBoundary isFatal>
+              <ReactQueryClientProvider>
+                <AuthProvider>
+                  <CssBaseline />
+                  <EnvironmentBanner />
+                  <HtmlMeta />
+                  {getLayout(<Component {...pageProps} />)}
+                </AuthProvider>
+              </ReactQueryClientProvider>
+            </ErrorBoundary>
+          </ThemedApp>
+        </ThemeModeProvider>
       </LocalizationProvider>
     </StyledEngineProvider>
   );

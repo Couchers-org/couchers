@@ -6,11 +6,10 @@ import TextField from "components/TextField";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
-import { theme } from "theme";
 
 import { CreateDiscussionInput, useNewDiscussionMutation } from "../hooks";
 
-const StyledWrapper = styled(Card)(() => ({
+const StyledWrapper = styled(Card)(({ theme }) => ({
   "& > :not(:last-child)": {
     marginBlockEnd: theme.spacing(3),
   },
@@ -20,7 +19,7 @@ const StyledWrapper = styled(Card)(() => ({
 
 const StyledTitle = styled(Typography)(() => ({ marginTop: 0 }));
 
-const StyledForm = styled("form")(() => ({
+const StyledForm = styled("form")(({ theme }) => ({
   "& > * + *": {
     marginBlockStart: theme.spacing(3),
   },
@@ -32,7 +31,7 @@ const StyledActionButtonsContainer = styled("div")(() => ({
   gap: 8,
 }));
 
-const StyledCancelButton = styled(Button)(() => ({
+const StyledCancelButton = styled(Button)(({ theme }) => ({
   backgroundColor: theme.palette.grey[50],
   color: theme.palette.grey[800],
   "&:hover": {

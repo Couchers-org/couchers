@@ -7,6 +7,7 @@ import {
   styled,
   Typography,
   useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import BetaFlag from "components/BetaFlag";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
@@ -14,7 +15,6 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { SearchUser } from "proto/search_pb";
-import { theme } from "theme";
 
 import SearchResultUserCard from "./SeachResultUserCard";
 import { useMapSearchState } from "./state/mapSearchContext";
@@ -35,7 +35,7 @@ interface SearchResultListContentProps {
 
 const ListContentWrapper = styled(Box, {
   shouldForwardProp: (prop) => prop !== "showTopSpace",
-})<{ showTopSpace: boolean }>(({ showTopSpace }) => ({
+})<{ showTopSpace: boolean }>(({ theme, showTopSpace }) => ({
   width: "100%",
   padding: theme.spacing(0.5, 2),
   height: "100%",
@@ -85,6 +85,7 @@ const SearchResultListContent = ({
   users,
 }: SearchResultListContentProps) => {
   const { t } = useTranslation([SEARCH]);
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { filters, selectedUserId } = useMapSearchState();
@@ -113,7 +114,7 @@ const SearchResultListContent = ({
           sx={{
             height: "fit-content",
             width: "100%",
-            marginBottom: theme.spacing(2),
+            marginBottom: 2,
           }}
         >
           {t("search:error_loading_users")}
@@ -125,7 +126,7 @@ const SearchResultListContent = ({
           sx={{
             height: "fit-content",
             width: "100%",
-            marginTop: theme.spacing(1),
+            marginTop: 1,
           }}
         >
           {t("search:choose_search_criteria")}
@@ -160,17 +161,18 @@ const SearchResultListContent = ({
             )}
             sx={{
               fontSize: "24px",
-              backgroundColor: theme.palette.common.white,
-              border: `1px solid ${theme.palette.divider}`,
+              backgroundColor: "common.white",
+              border: "1px solid",
+              borderColor: "divider",
               height: "25px",
               width: "25px",
               position: "absolute",
-              top: theme.spacing(1),
-              right: theme.spacing(2),
+              top: 1,
+              right: 2,
               zIndex: 10,
 
               "&:hover": {
-                backgroundColor: theme.palette.common.white,
+                backgroundColor: "common.white",
               },
             }}
           >
@@ -188,9 +190,10 @@ const SearchResultListContent = ({
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: theme.spacing(1),
-            padding: theme.spacing(1, 0),
-            marginBottom: theme.spacing(2),
+            gap: 1,
+            padding: 1,
+            paddingBottom: 0,
+            marginBottom: 2,
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
@@ -203,7 +206,7 @@ const SearchResultListContent = ({
             variant="contained"
             size="small"
             onClick={handleIncludeEmptyProfilesClick}
-            sx={{ backgroundColor: theme.palette.primary.main }}
+            sx={{ backgroundColor: "primary.main" }}
           >
             {t("search:search_result.include_empty_profiles_button")}
           </Button>

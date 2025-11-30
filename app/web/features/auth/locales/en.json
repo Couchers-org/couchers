@@ -187,6 +187,13 @@
       "title": "Username",
       "description": "Your username is <1>{{username}}</1>.",
       "explanation": "Your username is set when you create your account."
+    },
+    "theme_section": {
+      "title": "Appearance",
+      "description": "Choose your preferred color scheme.",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
     }
   },
   "feature_preview": {

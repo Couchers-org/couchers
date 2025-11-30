@@ -1,10 +1,15 @@
 import { Favorite, Language, Star } from "@mui/icons-material";
-import { Box, Skeleton, Typography, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  Skeleton,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import Divider from "components/Divider";
 import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useEffect, useState } from "react";
-import { theme } from "theme";
 import { timeAgoI18n } from "utils/timeAgo";
 
 interface SignupInfo {
@@ -15,6 +20,7 @@ interface SignupInfo {
 
 const SocialProof = () => {
   const { t } = useTranslation([GLOBAL, LANDING]);
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [signupInfo, setSignupInfo] = useState<SignupInfo | null>(null);
@@ -45,7 +51,7 @@ const SocialProof = () => {
   return (
     <Box
       sx={{
-        padding: theme.spacing(8, 4),
+        padding: { xs: 4, md: 8 },
         textAlign: "center",
       }}
       maxWidth="lg"
@@ -66,15 +72,13 @@ const SocialProof = () => {
         sx={{
           marginTop: 2,
           fontSize: "1.2rem",
-          padding: isMobile ? undefined : theme.spacing(0, 20),
+          padding: { xs: 0, md: "0 160px" },
           marginBottom: "16px",
         }}
       >
         {t("landing:what_couchsurfing_description")}
       </Typography>
-      <Divider
-        sx={{ backgroundColor: theme.palette.common.black, marginTop: 4 }}
-      />
+      <Divider sx={{ backgroundColor: "common.black", marginTop: 4 }} />
       <Box
         display="flex"
         flexDirection={isMobile ? "column" : "row"}
@@ -88,7 +92,7 @@ const SocialProof = () => {
             sx={{
               marginRight: 1,
               fontSize: "30px",
-              color: theme.palette.primary.main,
+              color: "primary.main",
             }}
           />
           {isLoading ? (
@@ -117,7 +121,7 @@ const SocialProof = () => {
             sx={{
               marginRight: 1,
               fontSize: "30px",
-              color: theme.palette.primary.main,
+              color: "primary.main",
             }}
           />
           <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
@@ -129,7 +133,7 @@ const SocialProof = () => {
             sx={{
               marginRight: 1,
               fontSize: "30px",
-              color: theme.palette.primary.main,
+              color: "primary.main",
             }}
           />
           {isLoading ? (

@@ -3,13 +3,13 @@ import {
   LoyaltyOutlined,
   VerifiedUserOutlined,
 } from "@mui/icons-material";
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid, Typography, useTheme } from "@mui/material";
 import { useTranslation } from "i18n";
 import { LANDING } from "i18n/namespaces";
-import { theme } from "theme";
 
 const WhyCouchersSection = () => {
   const { t } = useTranslation([LANDING]);
+  const theme = useTheme();
 
   return (
     <>
@@ -27,7 +27,7 @@ const WhyCouchersSection = () => {
         container
         gap={2}
         sx={{
-          padding: theme.spacing(3, 0),
+          padding: { xs: "24px 0", md: "24px 0" },
           width: "100%",
           flexWrap: { xs: "wrap", md: "nowrap" },
         }}
@@ -36,9 +36,9 @@ const WhyCouchersSection = () => {
           size={{ xs: 12, md: 4 }}
           display="flex"
           sx={{
-            backgroundColor: theme.palette.grey[50],
+            backgroundColor: "grey.50",
             padding: 3,
-            borderRadius: theme.shape.borderRadius,
+            borderRadius: (theme) => theme.shape.borderRadius,
             flex: { md: 1 },
             minWidth: 0,
             marginLeft: { xs: 0, md: 2 },
@@ -64,9 +64,9 @@ const WhyCouchersSection = () => {
           size={{ xs: 12, md: 4 }}
           display="flex"
           sx={{
-            backgroundColor: theme.palette.grey[50],
+            backgroundColor: "grey.50",
             padding: 3,
-            borderRadius: theme.shape.borderRadius,
+            borderRadius: (theme) => theme.shape.borderRadius,
             flex: { md: 1 },
             minWidth: 0,
           }}
@@ -91,9 +91,9 @@ const WhyCouchersSection = () => {
           size={{ xs: 12, md: 4 }}
           display="flex"
           sx={{
-            backgroundColor: theme.palette.grey[50],
+            backgroundColor: "grey.50",
             padding: 3,
-            borderRadius: theme.shape.borderRadius,
+            borderRadius: (theme) => theme.shape.borderRadius,
             flex: { md: 1 },
             minWidth: 0,
             marginRight: { xs: 0, md: 2 },

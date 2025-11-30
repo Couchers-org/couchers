@@ -1,13 +1,18 @@
-import { darken, styled, Typography, useMediaQuery } from "@mui/material";
+import {
+  darken,
+  styled,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import Button from "components/Button";
 import { BugIcon } from "components/Icons";
 import { useTranslation } from "i18n";
 import { useState } from "react";
-import { theme } from "theme";
 
 import ReportDialog from "./ReportDialog";
 
-const StyledReportButton = styled(Button)(() => ({
+const StyledReportButton = styled(Button)(({ theme }) => ({
   flexShrink: 0,
   backgroundColor: theme.palette.error.main,
   "&:hover": {
@@ -28,6 +33,7 @@ export default function ReportButton({
   isMenuLink?: boolean;
 }) {
   const { t } = useTranslation("global");
+  const theme = useTheme();
   const isBelowMd = useMediaQuery(theme.breakpoints.down("md"));
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 

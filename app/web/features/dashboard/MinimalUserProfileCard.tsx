@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useTranslation } from "next-i18next";
 import { User } from "proto/api_pb";
 import { routeToProfile } from "routes";
-import { theme } from "theme";
 
 export default function MinimalUserProfileCard({
   user,
@@ -18,7 +17,7 @@ export default function MinimalUserProfileCard({
       sx={{
         display: "flex",
         flexDirection: "row",
-        padding: theme.spacing(1, 2),
+        padding: "8px 16px",
       }}
     >
       <Avatar user={user} highRes />
@@ -27,7 +26,7 @@ export default function MinimalUserProfileCard({
           display: "flex",
           justifyContent: "flex-end",
           flexGrow: 1,
-          paddingLeft: theme.spacing(2),
+          paddingLeft: 2,
           overflow: "hidden",
         }}
       >

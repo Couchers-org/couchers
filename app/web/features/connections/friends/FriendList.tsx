@@ -3,7 +3,6 @@ import { useTranslation } from "i18n";
 import { CONNECTIONS, GLOBAL } from "i18n/namespaces";
 import { LiteUser } from "proto/api_pb";
 import { useState } from "react";
-import { theme } from "theme";
 
 import FriendItem from "./FriendItem";
 import FriendTile from "./FriendTile";
@@ -24,7 +23,7 @@ function FriendList({
   return (
     <>
       {error && (
-        <Alert severity="error" sx={{ marginBottom: theme.spacing(2) }}>
+        <Alert severity="error" sx={{ marginBottom: 2 }}>
           {error.message}
         </Alert>
       )}

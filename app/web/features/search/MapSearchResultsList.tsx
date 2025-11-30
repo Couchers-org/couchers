@@ -1,9 +1,8 @@
-import { styled, useMediaQuery } from "@mui/material";
+import { styled, useMediaQuery, useTheme } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import ResizeableDrawer from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
 import { SearchUser } from "proto/search_pb";
-import { theme } from "theme";
 
 import PreviousNextPagination from "./PreviousNextPagination";
 import SearchResultListContent from "./SearchResultListContent";
@@ -54,6 +53,7 @@ const MapSearchResultsList = ({
   totalItems,
   users,
 }: MapSearchResultsListProps) => {
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const {

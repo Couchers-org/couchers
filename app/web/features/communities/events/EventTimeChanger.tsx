@@ -6,14 +6,13 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Event } from "proto/events_pb";
 import { UseFormReturn } from "react-hook-form";
-import { theme } from "theme";
 import { isSameOrFutureDate, timestamp2Date } from "utils/date";
 import dayjs, { Dayjs } from "utils/dayjs";
 import { timePattern } from "utils/validation";
 
 import { CreateEventData } from "./EventForm";
 
-const StyledContainer = styled("div")(() => ({
+const StyledContainer = styled("div")(({ theme }) => ({
   display: "grid",
   gridTemplateColumns: "1fr",
   gap: theme.spacing(3, 2),

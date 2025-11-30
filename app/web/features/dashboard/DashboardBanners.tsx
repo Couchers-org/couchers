@@ -11,9 +11,8 @@ import { GetAccountInfoRes } from "proto/account_pb";
 import React from "react";
 import { routeToEditProfile } from "routes";
 import { service } from "service";
-import { theme } from "theme";
 
-const StyledAlert = styled(MuiAlert)(() => ({
+const StyledAlert = styled(MuiAlert)(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 

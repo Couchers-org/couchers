@@ -24,11 +24,10 @@ import { useRouter } from "next/router";
 import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
-import { theme } from "theme";
 
 const SUB_GRID_ITEM_AMOUNT = 2;
 
-const StyledForm = styled("form")(() => ({
+const StyledForm = styled("form")(({ theme }) => ({
   padding: theme.spacing(2),
   border: `2px solid ${theme.palette.grey[200]}`,
   borderRadius: theme.shape.borderRadius * 2,
@@ -36,12 +35,12 @@ const StyledForm = styled("form")(() => ({
   flexDirection: "column",
 }));
 
-const StyledFormGroup = styled(FormControl)(() => ({
+const StyledFormGroup = styled(FormControl)(({ theme }) => ({
   marginTop: theme.spacing(2),
   width: "100%",
 }));
 
-const StyledRadioGroup = styled(RadioGroup)(() => ({
+const StyledRadioGroup = styled(RadioGroup)(({ theme }) => ({
   gridTemplateColumns: "repeat( auto-fit, minmax(160px, 1fr) )",
   gridAutoRows: "2.75rem",
   display: "grid",
@@ -53,46 +52,48 @@ const RadioFormControlLabel = (
   props: Omit<FormControlLabelProps, "control">,
 ) => <FormControlLabel {...props} control={<Radio />} />;
 
-const StyledLabelledRadioButton = styled(RadioFormControlLabel)(() => ({
-  boxShadow: "initial",
-  margin: 0,
-  "&:hover > .MuiFormControlLabel-label": {
-    border: `2px solid ${theme.palette.primary.main}`,
-    backgroundColor: theme.palette.background.paper,
-    color: theme.palette.primary.main,
-    transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
-  },
-  "& > .MuiRadio-root": {
-    position: "absolute",
-    left: "-10000px",
-  },
-  "& > .MuiFormControlLabel-label": {
-    color: theme.palette.grey[600],
-    fontWeight: 700,
-    fontSize: theme.typography.button.fontSize,
-    transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
-    justifyContent: "center",
-    alignItems: "center",
-    border: `2px solid ${theme.palette.grey[200]}`,
-    borderRadius: "0.5rem",
-    backgroundColor: theme.palette.grey[200],
-    margin: "initial",
-    height: "100%",
-    width: "100%",
-    display: "flex",
-  },
-  "& > .Mui-checked ~.MuiFormControlLabel-label": {
-    border: `2px solid ${theme.palette.primary.main}`,
-    backgroundColor: theme.palette.background.paper,
-  },
-}));
+const StyledLabelledRadioButton = styled(RadioFormControlLabel)(
+  ({ theme }) => ({
+    boxShadow: "initial",
+    margin: 0,
+    "&:hover > .MuiFormControlLabel-label": {
+      border: `2px solid ${theme.palette.primary.main}`,
+      backgroundColor: theme.palette.background.paper,
+      color: theme.palette.primary.main,
+      transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
+    },
+    "& > .MuiRadio-root": {
+      position: "absolute",
+      left: "-10000px",
+    },
+    "& > .MuiFormControlLabel-label": {
+      color: theme.palette.grey[600],
+      fontWeight: 700,
+      fontSize: theme.typography.button.fontSize,
+      transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
+      justifyContent: "center",
+      alignItems: "center",
+      border: `2px solid ${theme.palette.grey[200]}`,
+      borderRadius: "0.5rem",
+      backgroundColor: theme.palette.grey[200],
+      margin: "initial",
+      height: "100%",
+      width: "100%",
+      display: "flex",
+    },
+    "& > .Mui-checked ~.MuiFormControlLabel-label": {
+      border: `2px solid ${theme.palette.primary.main}`,
+      backgroundColor: theme.palette.background.paper,
+    },
+  }),
+);
 
-const StyledDivider = styled(Divider)(() => ({
+const StyledDivider = styled(Divider)(({ theme }) => ({
   marginTop: theme.spacing(2),
   marginBottom: theme.spacing(2),
 }));
 
-const StyledAmountGrid = styled("div")(() => ({
+const StyledAmountGrid = styled("div")(({ theme }) => ({
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
   gridAutoRows: "2.75rem",
@@ -100,7 +101,7 @@ const StyledAmountGrid = styled("div")(() => ({
   marginBottom: theme.spacing(2),
 }));
 
-const StyledAmountSubGrid = styled("div")(() => ({
+const StyledAmountSubGrid = styled("div")(({ theme }) => ({
   display: "grid",
   gridTemplateColumns: "repeat( auto-fit, minmax(72px, 1fr))",
   gap: theme.spacing(2),
@@ -108,7 +109,7 @@ const StyledAmountSubGrid = styled("div")(() => ({
 
 const StyledAmountButton = styled("button", {
   shouldForwardProp: (propName) => propName !== "isActive",
-})<{ isActive: boolean }>(({ isActive }) => ({
+})<{ isActive: boolean }>(({ isActive, theme }) => ({
   boxShadow: "initial",
   color: theme.palette.grey[600],
   cursor: "pointer",
@@ -134,7 +135,7 @@ const StyledAmountButton = styled("button", {
   },
 }));
 
-const StyledAmountInputWrapper = styled("div")(() => ({
+const StyledAmountInputWrapper = styled("div")(({ theme }) => ({
   position: "relative",
   "&::before": {
     content: `'${DONATIONS_BOX_CURRENCY}'`,
@@ -150,7 +151,7 @@ const StyledAmountInputWrapper = styled("div")(() => ({
 
 const StyledAmountInput = styled("input", {
   shouldForwardProp: (propName) => propName !== "isActive",
-})<{ isActive: boolean }>(({ isActive }) => ({
+})<{ isActive: boolean }>(({ isActive, theme }) => ({
   width: "100%",
   height: "100%",
   border: `2px solid ${isActive ? theme.palette.primary.main : theme.palette.grey[200]}`,
@@ -188,7 +189,7 @@ function AmountGrid(props: PropsWithChildren) {
   return <StyledAmountGrid>{subGrids}</StyledAmountGrid>;
 }
 
-const StyledSubmitButton = styled(Button)(() => ({
+const StyledSubmitButton = styled(Button)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
 
   borderRadius: "0.5rem",

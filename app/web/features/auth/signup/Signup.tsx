@@ -24,7 +24,6 @@ import CouchersTextLogo from "resources/CouchersTextLogo";
 import { dashboardRoute, loginRoute, signupRoute } from "routes";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
-import { theme } from "theme";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 import { useAuthContext } from "../AuthProvider";
@@ -123,7 +122,7 @@ export default function Signup() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          padding: theme.spacing(2),
+          padding: 2,
           height: "100%",
         }}
       >
@@ -146,9 +145,10 @@ export default function Signup() {
                 alignItems: "center",
                 gap: 1.5,
                 padding: 1.25,
-                border: `1px solid ${theme.palette.divider}`,
+                border: "1px solid",
+                borderColor: "divider",
                 borderRadius: 2,
-                backgroundColor: theme.palette.background.paper,
+                backgroundColor: "background.paper",
                 mb: 2,
               }}
             >
@@ -181,7 +181,7 @@ export default function Signup() {
           ) : (
             <SignupFormContent inviteCode={inviteCode || undefined} />
           )}
-          <Typography sx={{ marginTop: theme.spacing(2) }}>
+          <Typography sx={{ marginTop: 2 }}>
             <Trans i18nKey="auth:basic_sign_up_form.existing_user_prompt">
               Already have an account?{" "}
               <StyledLink href={loginRoute}>Log in</StyledLink>

@@ -1,4 +1,4 @@
-import { styled, Tooltip, Typography } from "@mui/material";
+import { styled, Tooltip, Typography, useTheme } from "@mui/material";
 import { FlexboxProps, useMediaQuery } from "@mui/system";
 import Avatar from "components/Avatar";
 import { OpenInNewIcon } from "components/Icons";
@@ -11,7 +11,6 @@ import { TFunction } from "i18next";
 import { SearchUser } from "proto/search_pb";
 import LinesEllipsis from "react-lines-ellipsis";
 import { routeToUser } from "routes";
-import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import stripMarkdown from "utils/stripMarkdown";
 import { hourMillis, timeAgoI18n } from "utils/timeAgo";
@@ -125,12 +124,10 @@ const generateAboutText = (
         <Typography
           variant="body1"
           sx={{
-            [theme.breakpoints.down("md")]: {
-              fontSize: ".9rem",
-            },
-
-            [theme.breakpoints.down("sm")]: {
-              fontSize: ".82rem",
+            fontSize: {
+              xs: ".82rem",
+              sm: ".82rem",
+              md: ".9rem",
             },
           }}
         >
@@ -153,6 +150,7 @@ const SearchResultUserCard = ({
   onUserCardClick,
   user,
 }: SearchResultUserCardProps) => {
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t } = useTranslation([GLOBAL, PROFILE]);
 
@@ -200,7 +198,7 @@ const SearchResultUserCard = ({
                 <StyledOpenInNewIcon
                   sx={{
                     "&:hover": {
-                      color: theme.palette.primary.dark,
+                      color: "primary.dark",
                     },
                   }}
                 />

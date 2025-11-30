@@ -35,7 +35,6 @@ import { HostingStatus } from "proto/api_pb";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
-import { theme } from "theme";
 import {
   lowercaseAndTrimField,
   usernameValidationPattern,
@@ -293,7 +292,7 @@ export default function AccountForm() {
           openTo="year"
           name="birthdate"
           onPostChange={handleBirthdateChange}
-          inputProps={{ sx: { backgroundColor: theme.palette.common.white } }}
+          inputProps={{ sx: { backgroundColor: "common.white" } }}
         />
         <StyledInputLabel htmlFor="location">
           {t("auth:location.field_label")}
@@ -326,7 +325,7 @@ export default function AccountForm() {
             }}
             sx={{
               "& .MuiInputBase-root": {
-                backgroundColor: theme.palette.common.white,
+                backgroundColor: "common.white",
               },
             }}
             variant="outlined"

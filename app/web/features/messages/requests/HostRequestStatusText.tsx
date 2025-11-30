@@ -1,8 +1,7 @@
-import { Typography } from "@mui/material";
+import { Typography, useTheme } from "@mui/material";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { HostRequestStatus } from "proto/conversations_pb";
-import { theme } from "theme";
 
 interface HostRequestStatusTextProps {
   isHost: boolean;
@@ -16,6 +15,7 @@ export default function HostRequestStatusText({
   isPast,
 }: HostRequestStatusTextProps) {
   const { t } = useTranslation(MESSAGES);
+  const theme = useTheme();
 
   let statusText = "";
   if (requestStatus === HostRequestStatus.HOST_REQUEST_STATUS_PENDING) {

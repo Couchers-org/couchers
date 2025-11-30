@@ -1,4 +1,4 @@
-import { Skeleton, styled, useMediaQuery } from "@mui/material";
+import { Skeleton, styled, useMediaQuery, useTheme } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import CircularProgress from "components/CircularProgress";
 import HeaderButton from "components/HeaderButton";
@@ -21,11 +21,10 @@ import { GroupChat } from "proto/conversations_pb";
 import { useRef, useState } from "react";
 import { groupChatsRoute, routeToUser } from "routes";
 import { service } from "service";
-import { theme } from "theme";
 
 import { groupChatKey } from "../../queryKeys";
 
-const StyledTitleBox = styled("div")({
+const StyledTitleBox = styled("div")(({ theme }) => ({
   flexGrow: 1,
   width: "100%",
   display: "flex",
@@ -33,7 +32,7 @@ const StyledTitleBox = styled("div")({
   marginInlineEnd: theme.spacing(2),
   marginInlineStart: theme.spacing(2),
   "& > *": { marginInlineEnd: theme.spacing(2) },
-});
+}));
 
 export default function GroupChatHeaderBar({
   chatId,
@@ -52,6 +51,7 @@ export default function GroupChatHeaderBar({
   const router = useRouter();
   const queryClient = useQueryClient();
   const { t } = useTranslation([GLOBAL, MESSAGES]);
+  const theme = useTheme();
   const username = getDmUsername(groupChatMembersQuery, currentUserId);
 
   const isChatAdmin = groupChat?.adminUserIdsList.includes(currentUserId);

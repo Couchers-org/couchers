@@ -10,7 +10,6 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
 import { useState } from "react";
-import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 import CreateDiscussionForm from "./CreateDiscussionForm";
@@ -21,7 +20,7 @@ const StyledDiscussionsHeader = styled("div")(() => ({
   display: "flex",
 }));
 
-const StyledDiscussionsContainer = styled("div")(() => ({
+const StyledDiscussionsContainer = styled("div")(({ theme }) => ({
   "& > *": {
     width: "100%",
   },
@@ -42,11 +41,11 @@ const StyledLoadMoreButton = styled("div")(() => ({
   width: "100%",
 }));
 
-const StyledCreateResourceButton = styled(Button)(() => ({
+const StyledCreateResourceButton = styled(Button)(({ theme }) => ({
   margin: theme.spacing(2, 0),
 }));
 
-const StyledNewPostButtonContainer = styled("div")(() => ({
+const StyledNewPostButtonContainer = styled("div")(({ theme }) => ({
   "& > * + *": {
     marginInlineStart: theme.spacing(2),
   },

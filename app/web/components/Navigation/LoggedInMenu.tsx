@@ -1,5 +1,12 @@
 import { NotificationsOutlined } from "@mui/icons-material";
-import { Box, styled, Tooltip, Typography, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  styled,
+  Tooltip,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
 import IconButton from "components/IconButton";
@@ -19,7 +26,6 @@ import React, {
   SetStateAction,
   useState,
 } from "react";
-import { theme } from "theme";
 
 import { AccessibleDialogProps } from "../Dialog";
 
@@ -57,14 +63,14 @@ const StyledMenuButton = styled(Button)(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
-  border: `1px solid ${theme.palette.grey[300]}`,
+  border: `1px solid ${theme.palette.divider}`,
   borderRadius: 999,
-  backgroundColor: theme.palette.grey[200],
+  backgroundColor: theme.palette.action.selected,
   padding: theme.spacing(1),
   transition: `${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
   "&:hover": {
     opacity: 0.8,
-    backgroundColor: theme.palette.grey[300],
+    backgroundColor: theme.palette.action.hover,
   },
   [theme.breakpoints.down("lg")]: {
     padding: theme.spacing(0.75),
@@ -85,7 +91,7 @@ const StyledAvatar = styled(Avatar)(({ theme }) => ({
 const styledMenuItem = <C extends React.ComponentType<React.ComponentProps<C>>>(
   component: C,
 ) => {
-  return styled(component)(() => ({
+  return styled(component)(({ theme }) => ({
     width: "100%",
     color: theme.palette.text.primary,
     textDecoration: "none",
@@ -118,23 +124,24 @@ function LinkMenuItemView({
   name,
   notificationCount,
 }: LoggedInMenuLinkItem & { closeMenu: () => unknown }) {
+  const theme = useTheme();
   const linkContent = (
     <span style={{ display: "flex", alignItems: "center" }}>
       <Typography noWrap>{name}</Typography>
       {!!notificationCount && (
         <Box
           sx={{
-            backgroundColor: theme.palette.primary.main,
-            color: theme.palette.common.white,
-            borderRadius: theme.spacing(10),
-            marginLeft: theme.spacing(0.5),
+            backgroundColor: "primary.main",
+            color: "common.white",
+            borderRadius: 10,
+            marginLeft: 0.5,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             fontSize: "0.75rem",
             fontWeight: 600,
-            height: theme.spacing(2),
-            width: theme.spacing(2),
+            height: 16,
+            width: 16,
           }}
         >
           {notificationCount > 99 ? "99+" : notificationCount}
@@ -233,6 +240,7 @@ export default function LoggedInMenu({
   const menuRef = React.useRef<HTMLButtonElement>(null);
   const { data: user } = useCurrentUser();
   const { t } = useTranslation([GLOBAL]);
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [notificationsAnchorEl, setNotificationsAnchorEl] =
@@ -270,12 +278,14 @@ export default function LoggedInMenu({
               aria-haspopup="true"
               aria-expanded={isNotificationsFeedOpen ? "true" : undefined}
               sx={{
-                backgroundColor: theme.palette.grey[300],
+                backgroundColor: "action.selected",
+                border: 1,
+                borderColor: "divider",
                 width: { xs: 36, md: 40 },
                 height: { xs: 36, md: 40 },
                 "&:hover": {
                   opacity: 0.8,
-                  backgroundColor: theme.palette.grey[300],
+                  backgroundColor: "action.hover",
                 },
               }}
             >
@@ -297,7 +307,7 @@ export default function LoggedInMenu({
       >
         <MenuIcon
           sx={{
-            color: theme.palette.text.primary,
+            color: "text.primary",
             fontSize: { xs: 20, lg: 24 },
           }}
         />

@@ -13,11 +13,10 @@ import { GLOBAL } from "i18n/namespaces";
 import { Volunteer } from "proto/public_pb";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { theme } from "theme";
 
 const TeamMemberCard = styled(Card, {
   shouldForwardProp: (prop) => prop !== "memberType",
-})<{ memberType?: "boardMember" | "pastMember" }>(({ memberType }) => ({
+})<{ memberType?: "boardMember" | "pastMember" }>(({ theme, memberType }) => ({
   height: `${memberType === "boardMember" ? 15 : 13}rem`,
   border: `1px solid${memberType === "pastMember" ? theme.palette.grey[50] : theme.palette.grey[400]}`,
 }));
@@ -26,31 +25,31 @@ const TeamMemberCardContent = styled(CardContent)(() => ({
   display: "flex",
 }));
 
-const DetailDiv = styled("div")(() => ({
+const DetailDiv = styled("div")(({ theme }) => ({
   display: "flex",
   flexFlow: "column nowrap",
   gap: theme.spacing(0.5),
   padding: theme.spacing(1, 2),
 }));
 
-const StyledAvatar = styled(MuiAvatar)(() => ({
+const StyledAvatar = styled(MuiAvatar)(({ theme }) => ({
   width: theme.typography.pxToRem(96),
   height: theme.typography.pxToRem(96),
 }));
 
-const StyledSection = styled("section")(() => ({
+const StyledSection = styled("section")(({ theme }) => ({
   display: "flex",
   flexFlow: "column nowrap",
   gap: theme.spacing(6),
   margin: theme.spacing(4, 0),
 }));
 
-const StyledGrid = styled(Grid)(() => ({
+const StyledGrid = styled(Grid)(({ theme }) => ({
   justifyContent: "start",
   margin: theme.spacing(1, 0),
 }));
 
-const StyleBoardMemberBadgeText = styled("h3")(() => ({
+const StyleBoardMemberBadgeText = styled("h3")(({ theme }) => ({
   padding: theme.spacing(0.4, 0.8),
   borderRadius: "0.2rem",
   alignSelf: "start",
@@ -64,7 +63,7 @@ function BoardMemberBadge() {
     <Typography
       variant="h4"
       component={StyleBoardMemberBadgeText}
-      color={theme.palette.common.white}
+      color="common.white"
     >
       {t("team.board_member")}
     </Typography>

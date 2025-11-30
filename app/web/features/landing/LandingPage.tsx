@@ -1,4 +1,4 @@
-import { Box, Container, styled, useMediaQuery } from "@mui/material";
+import { Box, Container, styled, useMediaQuery, useTheme } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
@@ -8,7 +8,6 @@ import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { signupRoute } from "routes";
-import { theme } from "theme";
 
 import CouchersMission from "./CouchersMission";
 import HeroSection from "./HeroSection";
@@ -22,6 +21,7 @@ const StyledSpacer = styled("div")(({ theme }) => ({
 
 export default function LandingPage() {
   const { authState } = useAuthContext();
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const router = useRouter();
   const { t } = useTranslation(GLOBAL);
@@ -49,7 +49,7 @@ export default function LandingPage() {
         sx={{
           display: "flex",
           justifyContent: "center",
-          backgroundColor: theme.palette.grey[50],
+          backgroundColor: "grey.50",
         }}
       >
         <SocialProof />
@@ -73,9 +73,9 @@ export default function LandingPage() {
             bottom: 0,
             left: 0,
             right: 0,
-            backgroundColor: theme.palette.background.paper,
-            padding: theme.spacing(2),
-            boxShadow: theme.shadows[1],
+            backgroundColor: "background.paper",
+            padding: 2,
+            boxShadow: 1,
             zIndex: 10,
           }}
         >
@@ -83,7 +83,7 @@ export default function LandingPage() {
             variant="contained"
             size="small"
             fullWidth
-            sx={{ fontSize: "1.3rem", borderRadius: theme.spacing(1) }}
+            sx={{ fontSize: "1.3rem", borderRadius: 1 }}
             onClick={() => router.push(signupRoute)}
           >
             {t("join_us")}

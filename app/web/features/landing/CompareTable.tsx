@@ -8,14 +8,15 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  useTheme,
 } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { useRef, useState } from "react";
-import { theme } from "theme";
 
 export default function CompareTable() {
   const { t } = useTranslation([GLOBAL]);
+  const theme = useTheme();
   const tableRef = useRef<HTMLDivElement | null>(null);
   const [tableNudge, setTableNudge] = useState(true);
 
@@ -32,7 +33,7 @@ export default function CompareTable() {
           minHeight: 24,
           height: 24,
           pointerEvents: "none",
-          color: theme.palette.text.secondary,
+          color: "text.secondary",
           "@keyframes nudgeRightTop": {
             "0%": { transform: "translateX(0)" },
             "50%": { transform: "translateX(6px)" },
@@ -52,10 +53,10 @@ export default function CompareTable() {
         sx={{
           overflowX: "auto",
           position: "relative",
-          border: `1px solid ${theme.palette.grey[200]}`,
+          border: (theme) => `1px solid ${theme.palette.grey[200]}`,
           borderRadius: 2,
           p: 1.5,
-          bgcolor: theme.palette.background.paper,
+          bgcolor: "background.paper",
         }}
         ref={tableRef}
         onScroll={(e) =>
@@ -86,7 +87,7 @@ export default function CompareTable() {
               px: { xs: 0.5, md: 1 },
             },
             "& tbody tr:nth-of-type(odd)": {
-              backgroundColor: theme.palette.grey[50],
+              backgroundColor: "grey.50",
             },
           }}
         >

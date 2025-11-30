@@ -15,7 +15,6 @@ import {
   routeToProfile,
   settingsRoute,
 } from "routes";
-import { theme } from "theme";
 
 import EditHostingPreference from "./EditHostingPreference";
 import EditProfile from "./EditProfile";
@@ -130,24 +129,25 @@ export default function EditProfilePage({
                 fontWeight: 600,
                 textTransform: "none",
                 minHeight: 56,
-                padding: theme.spacing(1.5, 3),
-                borderRadius: theme.spacing(1.5, 1.5, 0, 0),
+                padding: "12px 24px",
+                borderRadius: "12px 12px 0 0",
                 transition: "all 0.2s ease-in-out",
-                color: theme.palette.text.secondary,
+                color: "text.secondary",
 
                 "&.Mui-selected": {
-                  color: theme.palette.primary.main,
-                  borderBottom: `3px solid ${theme.palette.primary.main}`,
+                  color: "primary.main",
+                  borderBottom: "3px solid",
+                  borderColor: "primary.main",
                   fontWeight: 700,
                 },
 
                 "&:hover": {
-                  color: theme.palette.primary.main,
+                  color: "primary.main",
                 },
 
-                [theme.breakpoints.down("md")]: {
+                "@media (max-width: 900px)": {
                   fontSize: "1rem",
-                  padding: theme.spacing(1, 2),
+                  padding: "8px 16px",
                   minHeight: 48,
                 },
               }}

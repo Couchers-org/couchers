@@ -5,13 +5,12 @@ import CommunitiesList from "features/dashboard/CommunitiesList";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { communityCreationFormURL } from "routes";
-import { theme } from "theme";
 
 const StyledBrowseCommunitiesLink = styled(StyledLink)(() => ({
   verticalAlign: "baseline",
 }));
 
-const StyledCreateCommunityText = styled(Typography)(() => ({
+const StyledCreateCommunityText = styled(Typography)(({ theme }) => ({
   paddingBlockStart: theme.spacing(2),
 }));
 

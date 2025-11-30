@@ -9,6 +9,7 @@ import {
   TextField,
   Tooltip,
   useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import IconButton from "components/IconButton";
 import { SearchIcon } from "components/Icons";
@@ -17,7 +18,6 @@ import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { useState } from "react";
 import { LngLatLike, MapRef } from "react-map-gl/maplibre";
-import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
 
 import { useMapSearchState } from "./state/mapSearchContext";
@@ -63,7 +63,7 @@ const StyledFlexRow = styled("div")({
   justifyContent: "space-between",
 });
 
-const sharedInputStyles = () => ({
+const sharedInputStyles = (theme: any) => ({
   height: "40px",
   minWidth: "250px",
   maxWidth: "250px",
@@ -87,11 +87,11 @@ const sharedInputStyles = () => ({
 });
 
 const StyledLocationAutocompleteOutlined = styled(LocationAutocompleteOutlined)(
-  sharedInputStyles,
+  ({ theme }) => sharedInputStyles(theme),
 );
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
-  ...sharedInputStyles(),
+  ...sharedInputStyles(theme),
 
   "& .MuiInputBase-input": {
     padding: 0,
@@ -157,6 +157,7 @@ const FloatingSearchControls = ({
   searchType,
 }: FloatingSearchNavigationProps) => {
   const { t } = useTranslation([SEARCH]);
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [keyword, setKeyword] = useState("");
@@ -269,8 +270,7 @@ const FloatingSearchControls = ({
                             <InputAdornment
                               position="end"
                               sx={{
-                                marginRight:
-                                  query === "" ? theme.spacing(1) : 0,
+                                marginRight: query === "" ? 1 : 0,
                               }}
                             >
                               <IconButton
@@ -279,7 +279,7 @@ const FloatingSearchControls = ({
                                 )}
                                 onClick={handleKeywordSubmit}
                                 size="small"
-                                sx={{ marginRight: theme.spacing(1) }}
+                                sx={{ marginRight: 1 }}
                               >
                                 <SearchIcon />
                               </IconButton>
@@ -290,15 +290,13 @@ const FloatingSearchControls = ({
                                 onClick={handleClearKeyword}
                                 size="small"
                                 sx={{
-                                  backgroundColor: alpha(
-                                    theme.palette.primary.light,
-                                    0.2,
-                                  ), // Adjust opacity as needed
+                                  backgroundColor: (theme) =>
+                                    alpha(theme.palette.primary.light, 0.2),
                                 }}
                               >
                                 <Clear
                                   sx={{
-                                    color: theme.palette.primary.main,
+                                    color: "primary.main",
                                     fontSize: "20px",
                                   }}
                                 />
@@ -332,8 +330,9 @@ const FloatingSearchControls = ({
               size="small"
               sx={{
                 ...(hasActiveFilters && {
-                  backgroundColor: alpha(theme.palette.primary.light, 0.2), // Adjust opacity as needed
-                  marginRight: theme.spacing(0.5),
+                  backgroundColor: (theme) =>
+                    alpha(theme.palette.primary.light, 0.2),
+                  marginRight: 0.5,
                 }),
               }}
             >
@@ -348,7 +347,8 @@ const FloatingSearchControls = ({
                 size="small"
                 sx={{
                   ...(hasActiveFilters && {
-                    backgroundColor: alpha(theme.palette.primary.light, 0.2), // Adjust opacity as needed
+                    backgroundColor: (theme) =>
+                      alpha(theme.palette.primary.light, 0.2),
                   }),
                 }}
               >

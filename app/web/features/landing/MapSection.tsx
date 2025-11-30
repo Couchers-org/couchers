@@ -1,9 +1,8 @@
-import { Typography } from "@mui/material";
+import { Typography, useTheme } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { useTranslation } from "i18n";
 import { LANDING } from "i18n/namespaces";
 import dynamic from "next/dynamic";
-import { theme } from "theme";
 
 const StaticMap = dynamic(() => import("components/StaticMap"), {
   loading: () => <CenteredSpinner />,
@@ -12,6 +11,7 @@ const StaticMap = dynamic(() => import("components/StaticMap"), {
 
 const MapSection = () => {
   const { t } = useTranslation([LANDING]);
+  const theme = useTheme();
 
   return (
     <>

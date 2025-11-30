@@ -7,7 +7,6 @@ import { groupChatsListKey, hostRequestsListKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { service } from "service";
-import { theme } from "theme";
 import getAllPages from "utils/getAllPages";
 
 const MarkAsReadButtonStyled = styled(Button)(({ theme }) => ({
@@ -93,7 +92,7 @@ export default function MarkAllReadButton({
         loading={markAll.isPending}
         variant="text"
         onClick={() => markAll.mutate()}
-        sx={{ color: theme.palette.text.primary }}
+        sx={{ color: "text.primary" }}
       >
         <MarkAsReadIconStyled />
         <Typography component="span">

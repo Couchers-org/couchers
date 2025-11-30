@@ -1,6 +1,5 @@
-import { styled, Switch, SwitchProps } from "@mui/material";
+import { styled, Switch, SwitchProps, useTheme } from "@mui/material";
 import { useEffect, useState } from "react";
-import { theme } from "theme";
 
 import CircularProgress from "./CircularProgress";
 
@@ -66,8 +65,10 @@ export default function CustomColorSwitch({
   size = "medium",
   status,
   isLoading = false,
-  customColor = theme.palette.secondary.main, // renamed to customColor to avoid conflict with MUI Switch color
+  customColor,
 }: CustomSwitchProps) {
+  const theme = useTheme();
+  const defaultCustomColor = customColor ?? theme.palette.secondary.main;
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -78,7 +79,7 @@ export default function CustomColorSwitch({
     <StyledCircle
       size={size}
       checked={checked}
-      customColor={customColor}
+      customColor={defaultCustomColor}
       isLoading={isLoading}
     >
       {isLoading && (
@@ -103,7 +104,7 @@ export default function CustomColorSwitch({
       icon={<Icon />}
       onClick={onClick}
       size={size}
-      customColor={customColor} // Pass customColor prop to StyledSwitch
+      customColor={defaultCustomColor}
       isLoading={isLoading}
       status={status}
     />

@@ -4,7 +4,6 @@ import EditCommunityPage from "features/communities/EditCommunityInfoPage";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { CommunityTab } from "routes";
-import { theme } from "theme";
 
 import CommunityBase from "../CommunityBase";
 import CommunityInfoPage from "../CommunityInfoPage";
@@ -16,7 +15,7 @@ import PageHeader from "../PageHeader";
 import CommunityPageSubHeader from "./CommunityPageSubHeader";
 import InfoPageSection from "./InfoPageSection";
 
-const StyledTitle = styled(Typography)(() => ({
+const StyledTitle = styled(Typography)(({ theme }) => ({
   marginTop: theme.spacing(3),
 }));
 

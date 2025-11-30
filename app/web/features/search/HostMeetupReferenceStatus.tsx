@@ -3,7 +3,7 @@ import {
   DoDisturb,
   PendingRounded,
 } from "@mui/icons-material";
-import { styled, Typography } from "@mui/material";
+import { styled, Typography, useTheme } from "@mui/material";
 import {
   hostingStatusLabels,
   meetupStatusLabels,
@@ -12,7 +12,6 @@ import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import { TFunction } from "i18next";
 import { HostingStatus, MeetupStatus, User } from "proto/api_pb";
-import { theme } from "theme";
 
 const Wrapper = styled("div")(({ theme }) => ({
   display: "flex",
@@ -66,6 +65,7 @@ const HostMeetupReferenceStatus = ({
   numberReferences: User.AsObject["numReferences"];
 }) => {
   const { t } = useTranslation([PROFILE]);
+  const theme = useTheme();
 
   return (
     <Wrapper>
@@ -78,9 +78,9 @@ const HostMeetupReferenceStatus = ({
           <CheckCircleOutlineRounded
             fontSize="small"
             sx={{
-              color: theme.palette.success.main,
+              color: "success.main",
               fontSize: "0.875rem",
-              marginRight: theme.spacing(0.5),
+              marginRight: 0.5,
             }}
           />
         )}
@@ -88,9 +88,9 @@ const HostMeetupReferenceStatus = ({
           <DoDisturb
             fontSize="small"
             sx={{
-              color: theme.palette.error.main,
+              color: "error.main",
               fontSize: "0.875rem",
-              marginRight: theme.spacing(0.5),
+              marginRight: 0.5,
             }}
           />
         )}
@@ -98,9 +98,9 @@ const HostMeetupReferenceStatus = ({
           <PendingRounded
             fontSize="small"
             sx={{
-              color: theme.palette.grey[600],
+              color: "grey.600",
               fontSize: "0.875rem",
-              marginRight: theme.spacing(0.5),
+              marginRight: 0.5,
             }}
           />
         )}
@@ -118,9 +118,9 @@ const HostMeetupReferenceStatus = ({
           <CheckCircleOutlineRounded
             fontSize="small"
             sx={{
-              color: theme.palette.success.main,
+              color: "success.main",
               fontSize: "0.875rem",
-              marginRight: theme.spacing(0.5),
+              marginRight: 0.5,
             }}
           />
         )}
@@ -129,9 +129,9 @@ const HostMeetupReferenceStatus = ({
           <DoDisturb
             fontSize="small"
             sx={{
-              color: theme.palette.error.main,
+              color: "error.main",
               fontSize: "0.875rem",
-              marginRight: theme.spacing(0.5),
+              marginRight: 0.5,
             }}
           />
         )}
@@ -139,9 +139,9 @@ const HostMeetupReferenceStatus = ({
           <PendingRounded
             fontSize="small"
             sx={{
-              color: theme.palette.grey[600],
+              color: "grey.600",
               fontSize: "0.875rem",
-              marginRight: theme.spacing(0.5),
+              marginRight: 0.5,
             }}
           />
         )}
@@ -153,9 +153,9 @@ const HostMeetupReferenceStatus = ({
           <CheckCircleOutlineRounded
             fontSize="small"
             sx={{
-              color: theme.palette.success.main,
+              color: "success.main",
               fontSize: "0.875rem",
-              marginRight: theme.spacing(0.5),
+              marginRight: 0.5,
             }}
           />
         )}

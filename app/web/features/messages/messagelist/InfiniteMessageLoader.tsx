@@ -10,7 +10,6 @@ import {
   useLayoutEffect,
   useRef,
 } from "react";
-import { theme } from "theme";
 import useOnVisibleEffect from "utils/useOnVisibleEffect";
 
 const StyledWrapper = styled("div")(() => ({
@@ -40,7 +39,7 @@ const StyledWrapper = styled("div")(() => ({
   scrollbarWidth: "thin",
 }));
 
-const StyledLoader = styled("div")(() => ({
+const StyledLoader = styled("div")(({ theme }) => ({
   loader: {
     "& > *": {
       display: "block",

@@ -1,7 +1,6 @@
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
-import { theme } from "theme";
 
 import { MapViewOptions, MapViews } from "./utils/constants";
 
@@ -32,8 +31,8 @@ const MapViewToggle = ({ mapView, onMapViewChange }: MapViewToggleProps) => {
       color="primary"
       sx={{
         borderRadius: "20px",
-        boxShadow: theme.shadows[4],
-        backgroundColor: theme.palette.common.white,
+        boxShadow: 4,
+        backgroundColor: "common.white",
       }}
     >
       <ToggleButton

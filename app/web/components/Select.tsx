@@ -5,9 +5,9 @@ import {
   Select as MuiSelect,
   SelectChangeEvent,
   SelectProps,
+  useTheme,
 } from "@mui/material";
 import React, { forwardRef } from "react";
-import { theme } from "theme";
 
 const Select = forwardRef(function Select<
   T extends Record<string | number, string>,
@@ -36,6 +36,7 @@ const Select = forwardRef(function Select<
   ref: React.Ref<HTMLSelectElement>,
 ) {
   const OptionComponent: React.ElementType = menuItems ? MenuItem : "option";
+  const theme = useTheme();
 
   return (
     <FormControl

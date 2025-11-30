@@ -1,4 +1,4 @@
-import { styled, Typography } from "@mui/material";
+import { styled, Typography, useTheme } from "@mui/material";
 import Actions from "components/Actions";
 import Button from "components/Button";
 import ReportButton from "components/Navigation/ReportButton";
@@ -8,7 +8,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import { baseRoute } from "routes";
-import { theme } from "theme";
 
 const StyledReportButton = styled(ReportButton)(({ theme }) => ({
   marginTop: theme.spacing(2),
@@ -17,6 +16,7 @@ const StyledReportButton = styled(ReportButton)(({ theme }) => ({
 export default function ErrorFallback({ isFatal }: { isFatal?: boolean }) {
   const { t } = useTranslation(GLOBAL);
   const router = useRouter();
+  const theme = useTheme();
 
   const handleRefresh = () => router.reload();
 

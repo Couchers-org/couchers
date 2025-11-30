@@ -21,9 +21,8 @@ import {
 import PhoneInputWithCountry from "react-phone-number-input/react-hook-form";
 import { howToDonateUrl } from "routes";
 import { service } from "service";
-import { theme } from "theme";
 
-const StyledForm = styled("form")(() => ({
+const StyledForm = styled("form")(({ theme }) => ({
   marginBottom: theme.spacing(2),
   "& > * + *": {
     marginBlockStart: theme.spacing(1),

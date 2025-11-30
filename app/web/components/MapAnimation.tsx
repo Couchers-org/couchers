@@ -1,10 +1,9 @@
-import { Box, Skeleton, styled, Typography } from "@mui/material";
+import { Box, Skeleton, styled, Typography, useTheme } from "@mui/material";
 import { useTranslation } from "i18n";
 import { LANDING } from "i18n/namespaces";
 import Lottie from "lottie-react";
 import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
-import { theme } from "theme";
 
 import Alert from "./Alert";
 
@@ -35,6 +34,7 @@ const Attribution = styled(Typography)(({ theme }) => ({
 
 export default function MapAnimation() {
   const { t } = useTranslation([LANDING]);
+  const theme = useTheme();
   const [animationData, setAnimationData] = useState(null);
   const [error, setError] = useState<Error | null>(null);
 

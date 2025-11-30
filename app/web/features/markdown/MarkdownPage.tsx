@@ -5,10 +5,10 @@ import {
   styled,
   Typography,
   TypographyProps,
+  useTheme,
 } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import markdown from "markdown-it";
-import { theme } from "theme";
 
 const mkd = new markdown();
 
@@ -149,6 +149,7 @@ export default function MarkdownPage({
   frontmatter,
   content,
 }: MarkdownPageProps) {
+  const theme = useTheme();
   const subtitle = !!frontmatter.subtitle
     ? mkd.renderInline(frontmatter.subtitle)
     : null;
@@ -165,11 +166,7 @@ export default function MarkdownPage({
         description={frontmatter.description}
         shareImage={frontmatter.share_image}
       />
-      <Container
-        disableGutters
-        maxWidth="md"
-        sx={{ marginTop: theme.spacing(3) }}
-      >
+      <Container disableGutters maxWidth="md" sx={{ marginTop: 3 }}>
         <StyledBreadcrumbs aria-label="breadcrumb">
           {crumbs.map((crumb, index) => {
             const isLast = index === crumbs.length - 1;

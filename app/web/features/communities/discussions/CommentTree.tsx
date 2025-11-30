@@ -1,10 +1,9 @@
-import { styled, Typography } from "@mui/material";
+import { styled, Typography, useTheme } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
-import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 import { useThread } from "../hooks";
@@ -37,6 +36,7 @@ interface CommentTreeProps {
 
 export default function CommentTree({ threadId }: CommentTreeProps) {
   const { t } = useTranslation([COMMUNITIES]);
+  const theme = useTheme();
 
   const {
     data: comments,

@@ -16,12 +16,32 @@ interface MarkdownProps {
 const StyledRoot = styled("div")(({ theme }) => ({
   fontSize: theme.typography.fontSize,
   fontFamily: theme.typography.fontFamily,
+  color: theme.palette.text.primary,
+  // Override ToastUI viewer default styles
+  "& .toastui-editor-contents": {
+    color: theme.palette.text.primary,
+    fontFamily: theme.typography.fontFamily,
+  },
+  "& .toastui-editor-contents h1, & .toastui-editor-contents h2, & .toastui-editor-contents h3, & .toastui-editor-contents h4, & .toastui-editor-contents h5, & .toastui-editor-contents h6":
+    {
+      borderBottom: "none",
+      paddingBottom: 0,
+      marginBottom: 0,
+      marginTop: theme.spacing(2),
+      overflowWrap: "break-word",
+      color: theme.palette.text.primary,
+    },
+  "& .toastui-editor-contents p, & .toastui-editor-contents li, & .toastui-editor-contents td, & .toastui-editor-contents th":
+    {
+      color: theme.palette.text.primary,
+    },
   "& h1, & h2, & h3, & h4, & h5, & h6, & p": {
     borderBottom: "none",
     paddingBottom: 0,
     marginBottom: 0,
     marginTop: theme.spacing(2),
     overflowWrap: "break-word",
+    color: theme.palette.text.primary,
   },
   "& h1": theme.typography.h1,
   "& h2": theme.typography.h2,
@@ -30,9 +50,13 @@ const StyledRoot = styled("div")(({ theme }) => ({
   "& h5": theme.typography.h5,
   "& h6": theme.typography.h6,
   "& p": theme.typography.body1,
-  "& ol": theme.typography.body1,
-  "& ul": theme.typography.body1,
-  "& blockquote": theme.typography.body1,
+  "& ol": { ...theme.typography.body1, color: theme.palette.text.primary },
+  "& ul": { ...theme.typography.body1, color: theme.palette.text.primary },
+  "& li": { color: theme.palette.text.primary },
+  "& blockquote": {
+    ...theme.typography.body1,
+    color: theme.palette.text.primary,
+  },
   "& a": {
     color: theme.palette.primary.main,
   },

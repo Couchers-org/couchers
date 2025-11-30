@@ -1,4 +1,4 @@
-import { Skeleton, styled, useMediaQuery } from "@mui/material";
+import { Skeleton, styled, useMediaQuery, useTheme } from "@mui/material";
 import {
   InfiniteData,
   useInfiniteQuery,
@@ -30,7 +30,6 @@ import {
 } from "proto/requests_pb";
 import { messagesRoute } from "routes";
 import { service } from "service";
-import { theme } from "theme";
 import { firstName } from "utils/names";
 
 import { requestStatusToTransKey } from "../constants";
@@ -52,7 +51,7 @@ const StyledHeader = styled("div")(({ theme }) => ({
   },
 }));
 
-const StyledPageTitle = styled(PageTitle)({
+const StyledPageTitle = styled(PageTitle)(({ theme }) => ({
   flexGrow: 1,
   width: "100%",
   display: "flex",
@@ -64,7 +63,7 @@ const StyledPageTitle = styled(PageTitle)({
   [theme.breakpoints.down("sm")]: {
     fontSize: "0.9rem",
   },
-});
+}));
 
 const StyledPageWrapper = styled("div")(({ theme }) => ({
   alignItems: "stretch",
@@ -100,6 +99,7 @@ export default function HostRequestView({
   hostRequestId: number;
 }) {
   const { t } = useTranslation(MESSAGES);
+  const theme = useTheme();
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 

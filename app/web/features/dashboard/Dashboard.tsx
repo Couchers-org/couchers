@@ -6,7 +6,6 @@ import StyledLink from "components/StyledLink";
 import DashboardBanners from "features/dashboard/DashboardBanners";
 import { useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
-import { theme } from "theme";
 
 import dashboardNews from "../../dashboardNews.json";
 import CommunitiesSection from "./CommunitiesSection";
@@ -24,23 +23,21 @@ export default function Dashboard() {
         because the hero section is full viewport width */}
       <Container maxWidth="lg">
         <Grid container direction="row">
-          <Grid size={{ sm: 4, xs: 12 }} sx={{ marginTop: theme.spacing(3) }}>
+          <Grid size={{ sm: 4, xs: 12 }} sx={{ marginTop: 3 }}>
             <DashboardUserProfileSummary />
           </Grid>
 
           <Grid
             size={{ sm: 8, xs: 12 }}
             sx={{
-              [theme.breakpoints.up("sm")]: {
-                paddingLeft: theme.spacing(5),
-              },
+              paddingLeft: { sm: 5, xs: 0 },
             }}
           >
             <HtmlMeta title={t("global:nav.dashboard")} />
 
             <PageTitle>{t("dashboard:welcome")}</PageTitle>
 
-            <Alert severity="info" sx={{ marginBottom: theme.spacing(2) }}>
+            <Alert severity="info" sx={{ marginBottom: 2 }}>
               <Typography variant="body1">
                 New blog post:{" "}
                 <StyledLink href={dashboardNews["2025-10-28"].link}>

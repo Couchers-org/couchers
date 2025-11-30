@@ -1,6 +1,6 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 
-import { styled, useMediaQuery } from "@mui/material";
+import { styled, useMediaQuery, useTheme } from "@mui/material";
 import {
   clusterCountLayer,
   clusterLayer,
@@ -16,7 +16,6 @@ import {
   NavigationControl,
   Source,
 } from "react-map-gl/maplibre";
-import { theme } from "theme";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -35,6 +34,7 @@ const MapWrapper = styled("div")(({ theme }) => ({
 
 const StaticMap = () => {
   const mapRef = useRef<MapRef | null>(null);
+  const theme = useTheme();
 
   const onLoad = () => {
     if (mapRef.current) {

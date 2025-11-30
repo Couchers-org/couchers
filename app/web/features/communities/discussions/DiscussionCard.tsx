@@ -1,4 +1,11 @@
-import { Card, CardContent, Skeleton, styled, Typography } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  Skeleton,
+  styled,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import Avatar from "components/Avatar";
 import FlagButton from "features/FlagButton";
 import CopyOnClick from "features/mod/CopyOnClick";
@@ -10,7 +17,6 @@ import Link from "next/link";
 import { Discussion } from "proto/discussions_pb";
 import { useMemo } from "react";
 import { routeToDiscussion } from "routes";
-import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import { timeAgo } from "utils/timeAgo";
 
@@ -65,6 +71,7 @@ export default function DiscussionCard({
   className?: string;
 }) {
   const { t } = useTranslation([COMMUNITIES]);
+  const theme = useTheme();
   const { data: creator } = useLiteUser(discussion.creatorUserId);
 
   const date = discussion.created

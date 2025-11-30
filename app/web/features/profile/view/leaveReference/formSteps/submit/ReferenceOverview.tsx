@@ -5,6 +5,7 @@ import {
   styled,
   Typography,
   useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import SliderLabel from "components/RatingsSlider/SliderLabel";
 import TextBody from "components/TextBody";
@@ -13,7 +14,6 @@ import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { ReferenceContextFormData } from "features/profile/view/leaveReference/ReferenceForm";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
-import { theme } from "theme";
 
 const StyledTextBody = styled(TextBody)(({ theme }) => ({
   "& > .MuiInputBase-root": {
@@ -51,6 +51,7 @@ export default function ReferenceOverview({
 }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   return (

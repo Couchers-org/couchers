@@ -4,7 +4,6 @@ import { Button, Stack, styled } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import React from "react";
-import { theme } from "theme";
 
 interface PreviousNextPaginationProps {
   hasPreviousPage: boolean | undefined;
@@ -37,9 +36,10 @@ const PreviousNextPagination: React.FC<PreviousNextPaginationProps> = ({
         height: "50px",
         position: "sticky",
         bottom: 0,
-        backgroundColor: theme.palette.common.white,
-        padding: theme.spacing(0, 2),
-        borderTop: `1px solid ${theme.palette.grey[200]}`,
+        backgroundColor: "background.paper",
+        padding: "0 16px",
+        borderTop: "1px solid",
+        borderColor: "divider",
       }}
     >
       <StyledPaginationButton
@@ -49,8 +49,8 @@ const PreviousNextPagination: React.FC<PreviousNextPaginationProps> = ({
         startIcon={<ChevronLeftIcon />}
         variant="contained"
         sx={{
-          backgroundColor: theme.palette.primary.main,
-          color: theme.palette.common.white,
+          backgroundColor: "primary.main",
+          color: "common.white",
         }}
       >
         {t("global:previous")}
@@ -62,8 +62,8 @@ const PreviousNextPagination: React.FC<PreviousNextPaginationProps> = ({
         endIcon={<ChevronRightIcon />}
         variant="contained"
         sx={{
-          backgroundColor: theme.palette.primary.main,
-          color: theme.palette.common.white,
+          backgroundColor: "primary.main",
+          color: "common.white",
         }}
       >
         {t("global:next")}

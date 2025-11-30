@@ -11,20 +11,19 @@ import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { service } from "service";
-import { theme } from "theme";
 import { lowercaseAndTrimField } from "utils/validation";
 
-const StyledMain = styled("main")(() => ({
+const StyledMain = styled("main")(({ theme }) => ({
   padding: theme.spacing(0, 3),
 }));
 
-const StyledForm = styled("form")(() => ({
+const StyledForm = styled("form")(({ theme }) => ({
   "& > * + *": {
     marginBlockStart: theme.spacing(1),
   },
 }));
 
-const StyledTextField = styled(TextField)(() => ({
+const StyledTextField = styled(TextField)(({ theme }) => ({
   width: "100%",
   [theme.breakpoints.up("md")]: {
     width: theme.typography.pxToRem(400),

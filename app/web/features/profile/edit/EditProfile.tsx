@@ -35,7 +35,6 @@ import React, { FormEvent, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { howToMakeGreatProfileUrl } from "routes";
 import { service, UpdateUserProfileData } from "service/index";
-import { theme } from "theme";
 import {
   useIsMounted,
   useSafeState,
@@ -62,7 +61,7 @@ export type EditProfileFormValues = Omit<
   };
 };
 
-const StyledAlert = styled(Alert)(() => ({
+const StyledAlert = styled(Alert)(({ theme }) => ({
   marginTop: theme.spacing(2),
 }));
 
@@ -191,7 +190,7 @@ const BottomSpacer = styled(Box)(({ theme }) => ({
 const styledField = <C extends React.ComponentType<React.ComponentProps<C>>>(
   component: C,
 ) => {
-  return styled(component)(() => ({
+  return styled(component)(({ theme }) => ({
     [theme.breakpoints.up("md")]: {
       "& > .MuiInputBase-root": {
         width: 400,
@@ -211,7 +210,7 @@ const StyledAvatarInput = styled(ImageInput)(() => ({
 
 const StyledProfileMarkdownInput = styledField(ProfileMarkdownInput);
 
-const StyledRadioGroup = styled(RadioGroup)(() => ({
+const StyledRadioGroup = styled(RadioGroup)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   [theme.breakpoints.up("sm")]: {
@@ -858,7 +857,7 @@ export default function EditProfileForm() {
                         gap: 1,
                         backgroundColor: "grey.50",
                         padding: 1.5,
-                        borderRadius: theme.spacing(1),
+                        borderRadius: 1,
                         marginTop: 1,
                         marginBottom: 1,
                         fontSize: "0.875rem",

@@ -1,11 +1,10 @@
-import { styled, Typography } from "@mui/material";
+import { styled, Typography, useTheme } from "@mui/material";
 import Alert from "components/Alert";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import { Trans, useTranslation } from "i18n";
 import { NOTIFICATIONS } from "i18n/namespaces";
 import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
-import { theme } from "theme";
 
 import { useIsNativeEmbed } from "../../platform/nativeLink";
 import PushNotificationDenied from "./PushNotificationDenied";
@@ -27,6 +26,7 @@ const StyledTitleBox = styled("div")(({ theme }) => ({
 
 export default function PushNotificationSettings() {
   const { t } = useTranslation([NOTIFICATIONS]);
+  const theme = useTheme();
   const isNotificationSupported = typeof Notification !== "undefined";
   const isNativeEmbed = useIsNativeEmbed();
 
@@ -110,7 +110,7 @@ export default function PushNotificationSettings() {
       {isNotificationSupported && Notification.permission === "denied" && (
         <PushNotificationDenied />
       )}
-      <Typography variant="body1" sx={{ marginBottom: theme.spacing(2) }}>
+      <Typography variant="body1" sx={{ marginBottom: 2 }}>
         {isPushEnabled ? (
           <Trans i18nKey="notifications:notification_settings.push_notifications.enabled_message">
             You currently have push notifications <strong>enabled</strong>.

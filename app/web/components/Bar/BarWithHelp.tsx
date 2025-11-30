@@ -1,7 +1,6 @@
-import { IconButton, styled, Tooltip } from "@mui/material";
+import { IconButton, styled, Tooltip, useTheme } from "@mui/material";
 import { HelpIcon } from "components/Icons";
 import React from "react";
-import { theme } from "theme";
 
 import ScoreBar from "./ScoreBar";
 
@@ -24,6 +23,8 @@ export default function BarWithHelp({
   description,
   className,
 }: BarWithHelpProps) {
+  const theme = useTheme();
+
   return process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED ? (
     <StyledWrapper className={className}>
       <ScoreBar value={value}>{label}</ScoreBar>

@@ -1,4 +1,10 @@
-import { Box, Container, GlobalStyles, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  Container,
+  GlobalStyles,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import CookieBanner from "components/CookieBanner";
@@ -9,7 +15,6 @@ import { useRouter } from "next/router";
 import { useIsNativeEmbed } from "platform/nativeLink";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { jailRoute, loginRoute } from "routes";
-import { theme } from "theme";
 
 import Navigation from "./Navigation";
 
@@ -71,6 +76,7 @@ function AppRoute({
   bottomMargin,
 }: AppRouteProps) {
   const router = useRouter();
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const pageWrapperRef = useRef<HTMLDivElement>(null);
   const { pathname } = router;

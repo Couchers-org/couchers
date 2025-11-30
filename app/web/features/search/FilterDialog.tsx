@@ -13,7 +13,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { styled, useMediaQuery } from "@mui/system";
+import { styled, useMediaQuery, useTheme } from "@mui/system";
 import BetaFlag from "components/BetaFlag";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import { Dialog, DialogTitle } from "components/Dialog";
@@ -25,7 +25,6 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { HostingStatus, MeetupStatus, SleepingArrangement } from "proto/api_pb";
-import { theme } from "theme";
 
 import { settingsRoute } from "../../routes";
 import { FilterOptions } from "./SearchPage";
@@ -45,30 +44,30 @@ interface FilterDialogProps {
   updateFilter: (filter: FilterOptions) => void;
 }
 
-const StyledDialog = styled(Dialog)({
+const StyledDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialog-paper": {
     borderRadius: "20px",
     width: "100%",
     maxWidth: "50%",
     padding: theme.spacing(1),
   },
-});
+}));
 
-const FilterItemsContainer = styled("div")({
+const FilterItemsContainer = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   padding: theme.spacing(1, 2),
   overflowY: "auto",
   maxHeight: "60vh",
-});
+}));
 
-const FilterItemRow = styled("div")({
+const FilterItemRow = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
   width: "100%",
   marginBottom: theme.spacing(2),
-});
+}));
 
 const StyledSlider = styled(Slider)(({ theme }) => ({
   height: 3,
@@ -130,6 +129,7 @@ const FilterDialog = ({
   updateFilter,
 }: FilterDialogProps) => {
   const { t } = useTranslation([GLOBAL, SEARCH]);
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { data: currentUser } = useCurrentUser();
 
@@ -264,7 +264,7 @@ const FilterDialog = ({
           <CustomColorSwitch
             checked={filters.showEmptyProfile || false}
             onClick={handleShowEmptyProfileChange}
-            customColor={theme.palette.primary.main}
+            customColor="primary.main"
           />
         </FilterItemRow>
         <FilterItemRow>
@@ -381,7 +381,7 @@ const FilterDialog = ({
           <CustomColorSwitch
             checked={filters.hasReferences || false}
             onClick={handleHasReferencesChange}
-            customColor={theme.palette.primary.main}
+            customColor="primary.main"
           />
         </FilterItemRow>
         <FilterItemRow>
@@ -392,8 +392,8 @@ const FilterDialog = ({
                 <InfoOutlined
                   sx={{
                     fontSize: "16px",
-                    color: theme.palette.primary.main,
-                    marginLeft: theme.spacing(0.5),
+                    color: "primary.main",
+                    marginLeft: 0.5,
 
                     "$:hover": {
                       cursor: "pointer",
@@ -406,7 +406,7 @@ const FilterDialog = ({
           <CustomColorSwitch
             checked={filters.hasStrongVerification || false}
             onClick={handleHasStrongVerificationChange}
-            customColor={theme.palette.primary.main}
+            customColor="primary.main"
           />
         </FilterItemRow>
         <FilterItemRow>
@@ -415,7 +415,7 @@ const FilterDialog = ({
               <Typography
                 sx={{
                   color: !currentUser?.hasStrongVerification
-                    ? theme.palette.grey[400]
+                    ? "grey.400"
                     : "inherit",
                 }}
               >
@@ -427,8 +427,8 @@ const FilterDialog = ({
               <Typography
                 variant="body2"
                 sx={{
-                  color: theme.palette.grey[600],
-                  marginTop: theme.spacing(0.5),
+                  color: "grey.600",
+                  marginTop: 0.5,
                 }}
               >
                 {t("search:form.general_filters.same_gender_only_helper_text")}{" "}
@@ -446,7 +446,7 @@ const FilterDialog = ({
           <CustomColorSwitch
             checked={filters.sameGenderOnly || false}
             onClick={handleSameGenderOnlyChange}
-            customColor={theme.palette.primary.main}
+            customColor="primary.main"
             disabled={!currentUser?.hasStrongVerification}
           />
         </FilterItemRow>
@@ -457,11 +457,11 @@ const FilterDialog = ({
           <CustomColorSwitch
             checked={filters.acceptsLastMinRequests || false}
             onClick={handleAcceptsLastMinRequestsChange}
-            customColor={theme.palette.primary.main}
+            customColor="primary.main"
           />
         </FilterItemRow>
         <Divider />
-        <Typography variant="h3" sx={{ marginBottom: theme.spacing(2) }}>
+        <Typography variant="h3" sx={{ marginBottom: 2 }}>
           {t("search:form.rules.title")}
         </Typography>
         <FilterItemRow>
@@ -469,7 +469,7 @@ const FilterDialog = ({
           <CustomColorSwitch
             checked={filters.acceptsKids || false}
             onClick={handleAcceptsKidsChange}
-            customColor={theme.palette.primary.main}
+            customColor="primary.main"
           />
         </FilterItemRow>
         <FilterItemRow>
@@ -477,7 +477,7 @@ const FilterDialog = ({
           <CustomColorSwitch
             checked={filters.acceptsPets || false}
             onClick={handleAcceptsPetsChange}
-            customColor={theme.palette.primary.main}
+            customColor="primary.main"
           />
         </FilterItemRow>
         <FilterItemRow>
@@ -541,7 +541,7 @@ const FilterDialog = ({
           </ToggleButtonGroup>
         </FilterItemRow>
         <Divider />
-        <Typography variant="h3" sx={{ marginBottom: theme.spacing(2) }}>
+        <Typography variant="h3" sx={{ marginBottom: 2 }}>
           {t("search:form.accommodation_filters.title")}
         </Typography>
         <FilterItemRow>
@@ -689,11 +689,11 @@ const FilterDialog = ({
         <Button
           onClick={handleApplyFilters}
           sx={{
-            backgroundColor: theme.palette.primary.main,
-            color: theme.palette.common.white,
+            backgroundColor: "primary.main",
+            color: "common.white",
 
             "&:hover": {
-              backgroundColor: theme.palette.primary.dark,
+              backgroundColor: "primary.dark",
             },
           }}
         >

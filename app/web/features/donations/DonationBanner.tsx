@@ -1,12 +1,11 @@
 import VolunteerActivismIcon from "@mui/icons-material/VolunteerActivism";
-import { Alert, alpha, Button, styled } from "@mui/material";
+import { Alert, alpha, Button, styled, useTheme } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { usePersistedState } from "platform/usePersistedState";
 import React, { useEffect, useState } from "react";
 import { donationsRoute } from "routes";
-import { theme } from "theme";
 
 import useAccountInfo from "../auth/useAccountInfo";
 
@@ -28,6 +27,7 @@ const Wrapper = styled("div")(({ theme }) => ({
 export function DonationBanner() {
   const { t } = useTranslation(GLOBAL);
   const router = useRouter();
+  const theme = useTheme();
 
   // the epoch value of the last time this banner was dismissed
   const [lastDismissedEpoch, setLastDismissedEpoch] = usePersistedState<

@@ -7,6 +7,7 @@ import {
   ListItemText,
   styled,
   Typography,
+  useTheme,
 } from "@mui/material";
 import Alert from "components/Alert";
 import CustomColorSwitch from "components/CustomColorSwitch";
@@ -15,7 +16,6 @@ import { GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { useState } from "react";
 import { NotificationPreferenceData } from "service/notifications";
-import { theme } from "theme";
 
 import useUpdateNotificationSettings from "./useUpdateNotificationSettings";
 
@@ -56,6 +56,7 @@ export default function NotificationSettingsSubListItem({
     keyPrefix:
       "notifications:notification_settings.edit_preferences.item_descriptions",
   });
+  const theme = useTheme();
 
   const { updateNotificationSettings, status } =
     useUpdateNotificationSettings();

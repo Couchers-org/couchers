@@ -8,12 +8,11 @@ import { Trans, useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useState } from "react";
 import { routeToNewEvent } from "routes";
-import { theme } from "theme";
 
 import EventsList from "./EventsList";
 import { useListMyEvents } from "./hooks";
 
-const StyledFilterTagContainer = styled("div")(() => ({
+const StyledFilterTagContainer = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   marginTop: theme.spacing(2),
@@ -22,7 +21,7 @@ const StyledFilterTagContainer = styled("div")(() => ({
 
 const StyledFilterTag = styled(Typography, {
   shouldForwardProp: (propName) => propName !== "isSelected",
-})<{ isSelected: boolean }>(({ isSelected }) => ({
+})<{ isSelected: boolean }>(({ isSelected, theme }) => ({
   backgroundColor: isSelected
     ? theme.palette.secondary.main
     : theme.palette.grey[200],
@@ -37,11 +36,11 @@ const StyledFilterTag = styled(Typography, {
   },
 }));
 
-const StyledEmptyBody = styled(TextBody)(() => ({
+const StyledEmptyBody = styled(TextBody)(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 
-const StyledPagination = styled(Pagination)(() => ({
+const StyledPagination = styled(Pagination)(({ theme }) => ({
   display: "flex",
   justifyContent: "center",
   marginTop: theme.spacing(2),

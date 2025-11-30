@@ -6,11 +6,10 @@ import {
   Typography,
 } from "@mui/material";
 import { Trans } from "next-i18next";
-import { theme } from "theme";
 
 import useHeroBackgroundTheme from "./useHeroBackgroundTheme";
 
-const StyledAttribution = styled(Typography)(() => ({
+const StyledAttribution = styled(Typography)(({ theme }) => ({
   position: "absolute",
   bottom: 0,
   right: 0,

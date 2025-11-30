@@ -20,7 +20,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
 import { ReportInput } from "service/reporting";
-import { theme } from "theme";
 
 interface FlagButtonProps {
   contentRef: string;
@@ -167,7 +166,7 @@ export default function FlagButton({
               margin="normal"
               sx={{
                 "& .MuiOutlinedInput-root": {
-                  borderRadius: theme.shape.borderRadius * 3,
+                  borderRadius: 3,
                 },
               }}
             >
@@ -190,7 +189,7 @@ export default function FlagButton({
                     id="content-report-reason"
                     sx={{
                       "& + &": {
-                        marginBlockStart: theme.spacing(2),
+                        marginBlockStart: 2,
                       },
                     }}
                   >
@@ -244,9 +243,9 @@ export default function FlagButton({
                   minRows={4}
                   maxRows={6}
                   sx={{
-                    marginTop: theme.spacing(2),
+                    marginTop: 2,
                     "& + &": {
-                      marginBlockStart: theme.spacing(2),
+                      marginBlockStart: 2,
                     },
                   }}
                 />
@@ -258,11 +257,11 @@ export default function FlagButton({
               onClick={() => handleClose({}, "button")}
               variant="outlined"
               sx={{
-                color: theme.palette.common.black,
-                borderColor: theme.palette.grey[300],
+                color: "common.black",
+                borderColor: "grey.300",
 
                 "&:hover": {
-                  borderColor: theme.palette.grey[300],
+                  borderColor: "grey.300",
                   backgroundColor: "#3135390A",
                 },
               }}

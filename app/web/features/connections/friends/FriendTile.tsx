@@ -2,7 +2,6 @@ import { Card, CircularProgress, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import TextBody from "components/TextBody";
 import React from "react";
-import { theme } from "theme";
 
 interface FriendTileProps {
   children: React.ReactNode;
@@ -44,15 +43,11 @@ function FriendTile({
           </Alert>
         ) : null}
         {isLoading ? (
-          <CircularProgress
-            sx={{ display: "block", margin: `0 auto ${theme.spacing(1)}` }}
-          />
+          <CircularProgress sx={{ display: "block", margin: "0 auto 8px" }} />
         ) : hasData ? (
           children
         ) : (
-          <TextBody sx={{ marginLeft: theme.spacing(1) }}>
-            {noDataMessage}
-          </TextBody>
+          <TextBody sx={{ marginLeft: 1 }}>{noDataMessage}</TextBody>
         )}
       </StyledContainer>
     </Card>

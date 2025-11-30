@@ -9,7 +9,6 @@ import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
 import { routeToEditProfile, routeToProfile } from "routes";
-import { theme } from "theme";
 
 import MinimalUserProfileCard from "./MinimalUserProfileCard";
 
@@ -29,11 +28,11 @@ function DashboardUserProfileSummaryActions() {
         component={Link}
         variant="outlined"
         sx={{
-          color: theme.palette.common.black,
-          borderColor: theme.palette.grey[300],
+          color: "common.black",
+          borderColor: "grey.300",
 
           "&:hover": {
-            borderColor: theme.palette.grey[300],
+            borderColor: "grey.300",
             backgroundColor: "#3135390A",
           },
         }}

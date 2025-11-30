@@ -6,15 +6,14 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { ModNote } from "proto/account_pb";
 import { useState } from "react";
 import { service } from "service";
-import { theme } from "theme";
 import { dateFormatter, timestamp2Date } from "utils/date";
 
-const StyledNoteContainer = styled("div")(() => ({
+const StyledNoteContainer = styled("div")(({ theme }) => ({
   marginBottom: theme.spacing(4),
   marginTop: theme.spacing(4),
 }));
 
-const StyledNoteCard = styled(Card)(() => ({
+const StyledNoteCard = styled(Card)(({ theme }) => ({
   padding: theme.spacing(0, 2, 2, 2),
   marginTop: theme.spacing(2),
   marginBottom: theme.spacing(2),

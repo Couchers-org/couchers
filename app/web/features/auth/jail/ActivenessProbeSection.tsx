@@ -11,7 +11,6 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { ActivenessProbeResponse } from "proto/jail_pb";
 import React, { useState } from "react";
 import { service } from "service";
-import { theme } from "theme";
 
 interface ActivenessProbeSectionProps {
   updateJailed: () => void;
@@ -65,18 +64,14 @@ export default function ActivenessProbeSection({
           />
         </RadioGroup>
       </FormControl>
-      <Typography
-        variant="body2"
-        gutterBottom
-        sx={{ marginTop: theme.spacing(2) }}
-      >
+      <Typography variant="body2" gutterBottom sx={{ marginTop: 2 }}>
         {t("auth:jail.activeness_probe.note")}
       </Typography>
       <Button
         loading={isLoading}
         onClick={handleSave}
         disabled={isSelected === undefined}
-        sx={{ marginTop: theme.spacing(2) }}
+        sx={{ marginTop: 2 }}
       >
         {t("global:save")}
       </Button>

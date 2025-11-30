@@ -21,7 +21,6 @@ import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { GroupChat } from "proto/conversations_pb";
 import React from "react";
-import { theme } from "theme";
 import { firstName } from "utils/names";
 
 const StyledListItemTypography = styled(Typography, {
@@ -34,7 +33,7 @@ const StyledMuteIcon = styled(MuteIcon)(() => ({
   verticalAlign: "middle",
 }));
 
-const StyledTitle = styled("span")(() => ({
+const StyledTitle = styled("span")(({ theme }) => ({
   marginInlineEnd: theme.spacing(1),
 }));
 

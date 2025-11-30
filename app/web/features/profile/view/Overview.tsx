@@ -1,5 +1,5 @@
 import { Edit } from "@mui/icons-material";
-import { styled } from "@mui/material";
+import { styled, useTheme } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
@@ -20,7 +20,6 @@ import {
   routeToEditProfile,
   UserTab,
 } from "routes";
-import { theme } from "theme";
 
 import { useProfileUser } from "../hooks/useProfileUser";
 import AdminPanelUserButton from "./AdminPanelUserButton";
@@ -45,6 +44,7 @@ const getEditTab = (tab: UserTab): EditUserTab | undefined => {
 
 function LoggedInUserActions({ tab }: { tab: UserTab }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
+  const theme = useTheme();
   return (
     <>
       <Button
@@ -59,12 +59,12 @@ function LoggedInUserActions({ tab }: { tab: UserTab }) {
         component={Link}
         variant="outlined"
         sx={{
-          color: theme.palette.common.black,
-          borderColor: theme.palette.grey[300],
+          color: "text.primary",
+          borderColor: "divider",
 
           "&:hover": {
-            borderColor: theme.palette.grey[300],
-            backgroundColor: "#3135390A",
+            borderColor: "divider",
+            backgroundColor: theme.palette.action.hover,
           },
         }}
         href={connectionsRoute}

@@ -15,10 +15,9 @@ import { useForm } from "react-hook-form";
 import { howToWriteRequestGuideUrl } from "routes";
 import { service } from "service";
 import { CreateHostRequestWrapper } from "service/requests";
-import { theme } from "theme";
 import { isSameOrFutureDate } from "utils/date";
 
-const StyledTitle = styled(Typography)(() => ({
+const StyledTitle = styled(Typography)(({ theme }) => ({
   marginTop: theme.spacing(1),
   marginBottom: theme.spacing(1),
 }));
@@ -29,27 +28,27 @@ const StyledRequestRow = styled("div")(() => ({
   alignItems: "center",
 }));
 
-const StyledDateRow = styled("div")(() => ({
+const StyledDateRow = styled("div")(({ theme }) => ({
   marginTop: theme.spacing(2),
   display: "flex",
   flexDirection: "column",
   width: "72%",
 }));
 
-const StyledDatepicker = styled(Datepicker)(() => ({
+const StyledDatepicker = styled(Datepicker)(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 
-const StyledHelpText = styled(Typography)(() => ({
+const StyledHelpText = styled(Typography)(({ theme }) => ({
   marginTop: theme.spacing(2),
   marginBottom: theme.spacing(2),
 }));
 
-const StyledRequestField = styled(TextField)(() => ({
+const StyledRequestField = styled(TextField)(({ theme }) => ({
   marginTop: theme.spacing(2),
 }));
 
-const StyledSendActions = styled(CardActions)(() => ({
+const StyledSendActions = styled(CardActions)(({ theme }) => ({
   display: "flex",
   justifyContent: "flex-end",
   marginTop: theme.spacing(2),

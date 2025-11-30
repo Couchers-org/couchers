@@ -15,11 +15,10 @@ import { ListGroupChatsRes } from "proto/conversations_pb";
 import React, { useEffect } from "react";
 import { routeToGroupChat } from "routes";
 import { service } from "service";
-import { theme } from "theme";
 
 import useNotifications from "../../useNotifications";
 
-const StyledWrapper = styled("div")(() => ({
+const StyledWrapper = styled("div")(({ theme }) => ({
   padding: theme.spacing(0, 2),
 }));
 
@@ -27,12 +26,12 @@ const StyledList = styled(List)(() => ({
   width: "100%",
 }));
 
-const StyledCreateGroupChatListItem = styled(CreateGroupChat)(() => ({
+const StyledCreateGroupChatListItem = styled(CreateGroupChat)(({ theme }) => ({
   marginInline: `-${theme.spacing(2)}`,
   paddingInline: `${theme.spacing(2)}`,
 }));
 
-const StyledGroupChatListItem = styled(GroupChatListItem)(() => ({
+const StyledGroupChatListItem = styled(GroupChatListItem)(({ theme }) => ({
   marginInline: `-${theme.spacing(2)}`,
   paddingInline: `${theme.spacing(2)}`,
 }));

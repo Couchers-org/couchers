@@ -1,10 +1,9 @@
-import { Box, Chip, styled, useMediaQuery } from "@mui/material";
+import { Box, Chip, styled, useMediaQuery, useTheme } from "@mui/material";
 import Slider from "@mui/material/Slider";
 import { getSliderColor } from "components/RatingsSlider/getSliderColor";
 import SliderLabel from "components/RatingsSlider/SliderLabel";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
-import { theme } from "theme";
 
 interface ColorProps {
   sliderColor: string;
@@ -79,6 +78,7 @@ const StyledSlider = styled(Slider, {
 
 export default function RatingsSlider({ value, onChange }: SliderProps) {
   const { t } = useTranslation(PROFILE);
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const marks = [
@@ -112,7 +112,7 @@ export default function RatingsSlider({ value, onChange }: SliderProps) {
     <Box>
       <StyledSlider
         aria-label={t("profile:leave_reference.ratings_slider_label")}
-        sliderColor={getSliderColor(value)}
+        sliderColor={getSliderColor(value, theme)}
         value={value ?? marks[1].value}
         min={0}
         max={1}
@@ -129,7 +129,7 @@ export default function RatingsSlider({ value, onChange }: SliderProps) {
           <Chip
             label={getCurrentLabel(value)}
             sx={{
-              backgroundColor: getSliderColor(value),
+              backgroundColor: getSliderColor(value, theme),
               color: "white",
               fontWeight: 600,
               fontSize: "1rem",

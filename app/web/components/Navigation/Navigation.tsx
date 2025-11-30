@@ -8,6 +8,7 @@ import {
   styled,
   Toolbar,
   useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import Button from "components/Button";
 import { GlobalMessage } from "components/GlobalMessage";
@@ -43,7 +44,6 @@ import {
   signupRoute,
   volunteerRoute,
 } from "routes";
-import { theme } from "theme";
 
 import { useIsNativeEmbed } from "../../platform/nativeLink";
 import LoggedInMenu, { LoggedInMenuItem } from "./LoggedInMenu";
@@ -223,7 +223,7 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   bottom: "auto",
   top: 0,
   boxShadow: "none",
-  backgroundColor: theme.palette.common.white,
+  backgroundColor: theme.palette.background.paper,
 }));
 
 const StyledFlexbox = styled("div")(({ theme }) => ({
@@ -279,6 +279,7 @@ const StyledMenuContainer = styled("div")(({ theme }) => ({
 
 export default function Navigation() {
   const router = useRouter();
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [isMounted, setIsMounted] = useState(false);

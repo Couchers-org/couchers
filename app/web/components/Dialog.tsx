@@ -10,10 +10,10 @@ import {
   DialogProps,
   DialogTitle as MuiDialogTitle,
   DialogTitleProps as MuiDialogTitleProps,
+  useTheme,
 } from "@mui/material";
 import IconButton from "components/IconButton";
 import React from "react";
-import { theme } from "theme";
 
 export interface AccessibleDialogProps extends Omit<DialogProps, "className"> {
   "aria-labelledby": string;
@@ -31,7 +31,7 @@ export function DialogActions(props: Omit<DialogActionsProps, "className">) {
         display: "flex",
         justifyContent: "center",
         margin: 0,
-        padding: theme.spacing(2),
+        padding: 2,
         paddingTop: 0,
       }}
     />
@@ -44,7 +44,7 @@ export function DialogContent(props: Omit<DialogContentProps, "className">) {
       {...props}
       sx={{
         height: "fit-content",
-        padding: theme.spacing(3),
+        padding: 3,
         paddingTop: 0,
         width: "100%",
       }}
@@ -53,12 +53,7 @@ export function DialogContent(props: Omit<DialogContentProps, "className">) {
 }
 
 export function DialogContentText(props: DialogContentTextProps) {
-  return (
-    <MuiDialogContentText
-      {...props}
-      sx={{ padding: theme.spacing(2), ...props.sx }}
-    />
-  );
+  return <MuiDialogContentText {...props} sx={{ padding: 2, ...props.sx }} />;
 }
 
 interface DialogTitleProps extends Omit<MuiDialogTitleProps, "className"> {
@@ -70,12 +65,14 @@ export function DialogTitle({
   onClose,
   ...dialogTitleProps
 }: DialogTitleProps) {
+  const theme = useTheme();
+
   return (
     <MuiDialogTitle
       {...dialogTitleProps}
       sx={{
         "&": theme.typography.h2,
-        padding: theme.spacing(2),
+        padding: 2,
         textAlign: "center",
       }}
     >
@@ -86,9 +83,9 @@ export function DialogTitle({
           size="large"
           sx={{
             position: "absolute",
-            right: theme.spacing(1),
-            top: theme.spacing(1),
-            color: theme.palette.grey[500],
+            right: 1,
+            top: 1,
+            color: "grey.500",
           }}
         >
           <CloseIcon />

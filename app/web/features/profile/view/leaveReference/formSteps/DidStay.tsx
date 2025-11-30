@@ -1,4 +1,4 @@
-import { Alert, Box, styled, useMediaQuery } from "@mui/material";
+import { Alert, Box, styled, useMediaQuery, useTheme } from "@mui/material";
 import Button from "components/Button";
 import {
   Dialog,
@@ -24,7 +24,6 @@ import {
   referenceTypeRoute,
 } from "routes";
 import { indicateDidntMeetup } from "service/references";
-import { theme } from "theme";
 
 import { ReferenceStepProps } from "../ReferenceForm";
 import ReferenceStepHeader from "./ReferenceStepHeader";
@@ -72,6 +71,7 @@ const DidStay = ({
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [didSubmitNotStay, setDidSubmitNotStay] = useState(false);

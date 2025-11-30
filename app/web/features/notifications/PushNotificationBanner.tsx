@@ -1,10 +1,9 @@
-import { Alert, Button, styled } from "@mui/material";
+import { Alert, Button, styled, useTheme } from "@mui/material";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { Trans, useTranslation } from "i18n";
 import { NOTIFICATIONS } from "i18n/namespaces";
 import { usePersistedState } from "platform/usePersistedState";
 import React, { useEffect, useState } from "react";
-import { theme } from "theme";
 
 import { useIsNativeEmbed } from "../../platform/nativeLink";
 import { checkPushEnabled, turnPushNotificationsOn } from "./utils/helpers";
@@ -20,6 +19,7 @@ const Wrapper = styled("div")({
 
 export function PushNotificationBanner() {
   const { t } = useTranslation(NOTIFICATIONS);
+  const theme = useTheme();
   const isNativeEmbed = useIsNativeEmbed();
   // the epoch value of the last time this banner was dismissed
   const [lastDismissedEpoch, setLastDismissedEpoch] = usePersistedState<
@@ -101,7 +101,7 @@ export function PushNotificationBanner() {
         <Trans i18nKey="notifications:push_notification_banner.message" />
         <Button
           variant="outlined"
-          sx={{ backgroundColor: theme.palette.common.white }}
+          sx={{ backgroundColor: theme.palette.background.paper }}
           onClick={turnPushNotificationsOnWrap}
         >
           {t("notifications:push_notification_banner.confirm")}

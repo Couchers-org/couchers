@@ -10,12 +10,11 @@ import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";
-import { theme } from "theme";
 
 import { PostReplyRes } from "../../../proto/threads_pb";
 import { threadKey } from "../../queryKeys";
 
-const StyledForm = styled("form")(() => ({
+const StyledForm = styled("form")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   "& > :not(:last-child)": {
@@ -23,7 +22,7 @@ const StyledForm = styled("form")(() => ({
   },
 }));
 
-const StyledButtonsContainer = styled("div")(() => ({
+const StyledButtonsContainer = styled("div")(({ theme }) => ({
   display: "flex",
   gap: 1,
   justifyContent: "flex-end",

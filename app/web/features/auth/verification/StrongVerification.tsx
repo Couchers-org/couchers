@@ -2,7 +2,6 @@ import { Link, Typography } from "@mui/material";
 import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 import { GetAccountInfoRes } from "proto/account_pb";
-import { theme } from "theme";
 
 import DeleteStrongVerificationDataButton from "./DeleteStrongVerificationDataButton";
 import StartStrongVerificationButton from "./StartStrongVerificationButton";
@@ -21,7 +20,7 @@ export default function StrongVerification({
   return (
     <div className={className} id="strong-verification">
       <Typography variant="h2">{t("strong_verification.title")}</Typography>
-      <Typography variant="body1" sx={{ marginBottom: theme.spacing(2) }}>
+      <Typography variant="body1" sx={{ marginBottom: 2 }}>
         <Trans
           t={t}
           i18nKey={

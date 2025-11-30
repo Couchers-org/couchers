@@ -1,5 +1,4 @@
-import { styled, Typography } from "@mui/material";
-import { theme } from "theme";
+import { styled, Typography, useTheme } from "@mui/material";
 
 import TextBody from "./TextBody";
 
@@ -21,6 +20,8 @@ interface LabelAndTextProps {
 }
 
 export default function LabelAndText({ label, text }: LabelAndTextProps) {
+  const theme = useTheme();
+
   return (
     <StyledWrapper>
       <Typography

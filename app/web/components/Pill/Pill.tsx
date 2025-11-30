@@ -1,5 +1,4 @@
-import { styled, SxProps, Typography } from "@mui/material";
-import { theme } from "theme";
+import { styled, SxProps, Typography, useTheme } from "@mui/material";
 
 interface PillStylesProps {
   backgroundColor?: string;
@@ -25,12 +24,16 @@ interface PillProps {
 
 export default function Pill({
   children,
-  backgroundColor = theme.palette.grey[200],
-  color = theme.palette.text.primary,
+  backgroundColor,
+  color,
   onClick,
   variant = "rounded",
   sx,
 }: PillProps) {
+  const theme = useTheme();
+  const defaultBackgroundColor = backgroundColor ?? theme.palette.grey[200];
+  const defaultColor = color ?? theme.palette.text.primary;
+
   const handleClick = () => {
     if (onClick) {
       onClick();
@@ -40,8 +43,8 @@ export default function Pill({
   return (
     <StyledPill
       sx={{
-        backgroundColor,
-        color,
+        backgroundColor: defaultBackgroundColor,
+        color: defaultColor,
         ...(variant === "rounded" && {
           borderRadius: theme.shape.borderRadius * 6,
         }),

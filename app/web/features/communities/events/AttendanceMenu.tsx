@@ -6,9 +6,8 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { AttendanceState } from "proto/events_pb";
 import { useState } from "react";
-import { theme } from "theme";
 
-const StyledMenuListItem = styled(MenuItem)(() => ({
+const StyledMenuListItem = styled(MenuItem)(({ theme }) => ({
   display: "flex",
   gap: theme.spacing(2),
 }));
@@ -64,10 +63,8 @@ export default function AttendanceMenu({
         variant={isAttending ? "outlined" : "contained"}
         disabled={disabled}
         sx={{
-          color: isAttending
-            ? theme.palette.common.black
-            : theme.palette.common.white,
-          borderColor: theme.palette.grey[300],
+          color: isAttending ? "common.black" : "common.white",
+          borderColor: "grey.300",
         }}
       >
         {isAttending

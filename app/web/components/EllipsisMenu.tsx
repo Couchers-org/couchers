@@ -1,6 +1,5 @@
 import { MoreHoriz, SvgIconComponent } from "@mui/icons-material";
-import { IconButton, Menu, styled, Typography } from "@mui/material";
-import { theme } from "theme";
+import { IconButton, Menu, styled, Typography, useTheme } from "@mui/material";
 
 import { MenuItem } from "./Menu";
 
@@ -35,6 +34,8 @@ const EllipsisMenu = ({
   onMenuClose,
   items,
 }: EllipsisMenuProps) => {
+  const theme = useTheme();
+
   return (
     <MenuWrapper>
       <>

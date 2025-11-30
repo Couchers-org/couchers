@@ -10,7 +10,6 @@ import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { service } from "service";
-import { theme } from "theme";
 
 interface ChangePasswordVariables {
   oldPassword: string;
@@ -25,7 +24,7 @@ interface ChangePasswordProps {
   className?: string;
 }
 
-const StyledForm = styled("form")(() => ({
+const StyledForm = styled("form")(({ theme }) => ({
   marginBottom: theme.spacing(2),
   "& > * + *": {
     marginBlockStart: theme.spacing(1),

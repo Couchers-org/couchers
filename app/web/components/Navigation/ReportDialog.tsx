@@ -1,4 +1,4 @@
-import { DialogProps, styled } from "@mui/material";
+import { DialogProps, styled, useTheme } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -19,7 +19,6 @@ import { ComponentPropsWithRef, forwardRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { helpCenterReportContentURL } from "routes";
 import { service } from "service";
-import { theme } from "theme";
 
 export interface BugReportFormData {
   subject: string;
@@ -27,7 +26,7 @@ export interface BugReportFormData {
   results: string;
 }
 
-const StyledTextField = styled(TextField)(() => ({
+const StyledTextField = styled(TextField)(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 
@@ -46,7 +45,7 @@ const ReportDialogTextField = forwardRef<
 
 ReportDialogTextField.displayName = "ReportDialogTextField";
 
-const StyledReportTypeButton = styled(Button)(() => ({
+const StyledReportTypeButton = styled(Button)(({ theme }) => ({
   display: "block",
   margin: "0 auto",
   "& + &": {
@@ -54,7 +53,7 @@ const StyledReportTypeButton = styled(Button)(() => ({
   },
 }));
 
-const StyledCancelButton = styled(Button)(() => ({
+const StyledCancelButton = styled(Button)(({ theme }) => ({
   color: theme.palette.common.black,
   borderColor: theme.palette.grey[300],
   "&:hover": {
@@ -65,6 +64,7 @@ const StyledCancelButton = styled(Button)(() => ({
 
 export default function ReportDialog({ open, onClose }: DialogProps) {
   const { t } = useTranslation("global");
+  const theme = useTheme();
 
   const [type, setType] = useState<"initial" | "bug">("initial");
   const {

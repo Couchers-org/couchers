@@ -2,11 +2,10 @@ import {
   KeyboardDoubleArrowLeft,
   KeyboardDoubleArrowRight,
 } from "@mui/icons-material";
-import { styled } from "@mui/material";
+import { styled, useTheme } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import React from "react";
-import { theme } from "theme";
 
 import IconButton from "./IconButton";
 
@@ -58,6 +57,7 @@ export default function ResizeableDrawer({
   showDragger,
 }: ResizeableDrawerProps) {
   const { t } = useTranslation([GLOBAL]);
+  const theme = useTheme();
 
   const [isExpanded, setIsExpanded] = React.useState(false);
 

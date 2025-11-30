@@ -14,9 +14,8 @@ import { ListHostRequestsRes } from "proto/requests_pb";
 import * as React from "react";
 import { routeToHostRequest } from "routes";
 import { service } from "service";
-import { theme } from "theme";
 
-const StyledWrapper = styled("div")(() => ({
+const StyledWrapper = styled("div")(({ theme }) => ({
   padding: theme.spacing(0, 2),
 }));
 
@@ -24,7 +23,7 @@ const StyledList = styled(List)(() => ({
   width: "100%",
 }));
 
-const StyledListItem = styled(HostRequestListItem)(() => ({
+const StyledListItem = styled(HostRequestListItem)(({ theme }) => ({
   marginInline: `-${theme.spacing(2)}`,
   paddingInline: `${theme.spacing(2)}`,
 }));

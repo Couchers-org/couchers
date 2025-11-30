@@ -1,4 +1,4 @@
-import { styled, useMediaQuery } from "@mui/material";
+import { styled, useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -21,7 +21,6 @@ import {
   WriteFriendReferenceInput,
   WriteHostRequestReferenceInput,
 } from "service/references";
-import { theme } from "theme";
 
 import ReferenceStepHeader from "../ReferenceStepHeader";
 
@@ -60,6 +59,7 @@ export default function SubmitReference({
   } = useWriteHostReference(userId);
 
   const router = useRouter();
+  const theme = useTheme();
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
   const { handleSubmit } = useForm<ReferenceContextFormData>();
 

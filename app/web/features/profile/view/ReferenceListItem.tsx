@@ -32,9 +32,7 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
     marginBlockStart: theme.spacing(2),
   },
   alignItems: "flex-start",
-  borderBlockEnd: `${theme.typography.pxToRem(1)} solid ${
-    theme.palette.grey[300]
-  }`,
+  borderBlockEnd: `${theme.typography.pxToRem(1)} solid ${theme.palette.divider}`,
   flexDirection: "column",
 }));
 

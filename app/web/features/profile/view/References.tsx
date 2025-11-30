@@ -1,4 +1,4 @@
-import { styled, Typography } from "@mui/material";
+import { styled, Typography, useTheme } from "@mui/material";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Button from "components/Button";
 import { AddIcon } from "components/Icons";
@@ -13,7 +13,6 @@ import Link from "next/link";
 import { ReferenceType } from "proto/references_pb";
 import React, { useState } from "react";
 import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
-import { theme } from "theme";
 
 import { User } from "../../../proto/api_pb";
 import ReferencesGivenList from "./ReferencesGivenList";
@@ -57,6 +56,7 @@ const StyledButtonContainer = styled("div")(({ theme }) => ({
 
 export default function References() {
   const { t } = useTranslation([GLOBAL, PROFILE]);
+  const theme = useTheme();
   const [referenceType, setReferenceType] = useState<ReferenceTypeState>("all");
   const { userId, friends } = useProfileUser();
   const { data: availableReferences } = useListAvailableReferences(userId);

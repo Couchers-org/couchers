@@ -1,4 +1,4 @@
-import { styled, Typography, useMediaQuery } from "@mui/material";
+import { styled, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -14,10 +14,9 @@ import { DASHBOARD } from "i18n/namespaces";
 import { ListMyEventsRes } from "proto/events_pb";
 import { routeToNewEvent } from "routes";
 import { service } from "service";
-import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
-const StyledCardContainer = styled(HorizontalScroller)(() => ({
+const StyledCardContainer = styled(HorizontalScroller)(({ theme }) => ({
   paddingLeft: theme.spacing(1),
   paddingRight: theme.spacing(1),
   [theme.breakpoints.down("sm")]: {
@@ -39,7 +38,7 @@ const StyledCardContainer = styled(HorizontalScroller)(() => ({
   },
 }));
 
-const StyledCard = styled(EventCard)(() => ({
+const StyledCard = styled(EventCard)(({ theme }) => ({
   width: "90%",
   [theme.breakpoints.down("md")]: {
     width: "100%",
@@ -55,7 +54,7 @@ const StyledCard = styled(EventCard)(() => ({
   scrollSnapAlign: "start",
 }));
 
-const StyledWrapper = styled("div")(() => ({
+const StyledWrapper = styled("div")(({ theme }) => ({
   display: "grid",
   rowGap: theme.spacing(2),
   margin: theme.spacing(2, 0, 3),
@@ -71,6 +70,7 @@ const PAGE_SIZE = 2;
 
 export default function MyEvents() {
   const { t } = useTranslation([DASHBOARD]);
+  const theme = useTheme();
   const isBelowSm = useMediaQuery(theme.breakpoints.down("sm"));
 
   const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
@@ -118,11 +118,11 @@ export default function MyEvents() {
                 onClick={() => fetchNextPage()}
                 variant="outlined"
                 sx={{
-                  color: theme.palette.common.black,
-                  borderColor: theme.palette.grey[300],
+                  color: "common.black",
+                  borderColor: "grey.300",
 
                   "&:hover": {
-                    borderColor: theme.palette.grey[300],
+                    borderColor: "grey.300",
                     backgroundColor: "#3135390A",
                   },
                 }}

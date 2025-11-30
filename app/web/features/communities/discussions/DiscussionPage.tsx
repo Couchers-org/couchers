@@ -16,7 +16,6 @@ import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Discussion } from "proto/discussions_pb";
 import { service } from "service";
-import { theme } from "theme";
 import { dateFormatter, timestamp2Date } from "utils/date";
 
 import CommunityBase from "../CommunityBase";
@@ -34,19 +33,19 @@ const StyledDiscussionHeader = styled("div")(() => ({
   display: "flex",
 }));
 
-const StyledDiscussionBodyWrapper = styled("div")(() => ({
+const StyledDiscussionBodyWrapper = styled("div")(({ theme }) => ({
   paddingBlockEnd: theme.spacing(5),
 }));
 
-const StyledDiscussionTitle = styled(PageTitle)(() => ({
+const StyledDiscussionTitle = styled(PageTitle)(({ theme }) => ({
   marginInlineStart: theme.spacing(2),
 }));
 
-const StyledDiscussionContent = styled(Markdown)(() => ({
+const StyledDiscussionContent = styled(Markdown)(({ theme }) => ({
   marginBlockEnd: theme.spacing(3),
 }));
 
-const StyledCreatorContainer = styled("div")(() => ({
+const StyledCreatorContainer = styled("div")(({ theme }) => ({
   creatorContainer: {
     "& > * + *": {
       marginInlineStart: theme.spacing(2),

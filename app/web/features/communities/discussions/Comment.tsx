@@ -17,7 +17,6 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { Reply } from "proto/threads_pb";
 import { useEffect, useRef, useState } from "react";
-import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import { timeAgo } from "utils/timeAgo";
@@ -25,7 +24,7 @@ import { timeAgo } from "utils/timeAgo";
 import { useThread } from "../hooks";
 import CommentForm from "./CommentForm";
 
-const StyledCommentContainer = styled(Card)(() => ({
+const StyledCommentContainer = styled(Card)(({ theme }) => ({
   alignItems: "start",
   columnGap: theme.spacing(2),
   display: "grid",
@@ -50,7 +49,7 @@ const StyledButtonsContainer = styled("div")(() => ({
   alignItems: "center",
 }));
 
-const StyledCommentContent = styled("div")(() => ({
+const StyledCommentContent = styled("div")(({ theme }) => ({
   "& > * + *": {
     marginBlockStart: theme.spacing(0.5),
   },
@@ -71,7 +70,7 @@ const StyledReplyButton = styled(Button)(() => ({
   placeSelf: "end",
 }));
 
-const StyledNestedCommentsContainer = styled("div")(() => ({
+const StyledNestedCommentsContainer = styled("div")(({ theme }) => ({
   "& > * + *": {
     marginBlockStart: theme.spacing(2),
   },

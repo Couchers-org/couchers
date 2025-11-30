@@ -1,10 +1,15 @@
-import { Stack, styled, Typography, useMediaQuery } from "@mui/material";
+import {
+  Stack,
+  styled,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import Button from "components/Button";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { signupRoute, whatIsCouchSurfingRoute } from "routes";
-import { theme } from "theme";
 
 const StyledIntroduction = styled("div")(({ theme }) => ({
   flexDirection: "column",
@@ -22,6 +27,7 @@ const StyledIntroduction = styled("div")(({ theme }) => ({
 const CouchersIntroduction = () => {
   const { t } = useTranslation([GLOBAL, LANDING]);
   const router = useRouter();
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const routeToSignupPage = () => {
@@ -41,7 +47,7 @@ const CouchersIntroduction = () => {
 
           [theme.breakpoints.down("md")]: {
             width: "100%",
-            marginBottom: theme.spacing(2),
+            marginBottom: 2,
             fontSize: "2rem",
           },
         }}
@@ -51,8 +57,8 @@ const CouchersIntroduction = () => {
       <>
         <Typography
           sx={{
-            marginTop: theme.spacing(3),
-            marginBottom: theme.spacing(1),
+            marginTop: 3,
+            marginBottom: 1,
             position: "relative",
             fontWeight: 400,
             fontSize: "1.3rem",
@@ -80,9 +86,9 @@ const CouchersIntroduction = () => {
               size="large"
               color="primary"
               sx={{
-                minWidth: theme.spacing(20),
+                minWidth: 20,
                 fontSize: "1.2rem",
-                paddingX: theme.spacing(3),
+                paddingX: 3,
               }}
             >
               {t("global:join_us")}
@@ -93,9 +99,9 @@ const CouchersIntroduction = () => {
               variant="outlined"
               color="primary"
               sx={{
-                minWidth: theme.spacing(20),
+                minWidth: 20,
                 fontSize: "1.2rem",
-                paddingX: theme.spacing(3),
+                paddingX: 3,
               }}
             >
               {t("global:learn_more")}

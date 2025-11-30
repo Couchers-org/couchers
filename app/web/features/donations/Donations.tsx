@@ -6,7 +6,6 @@ import { DONATIONS, GLOBAL } from "i18n/namespaces";
 import { Trans, useTranslation } from "next-i18next";
 import CouchersLogo from "resources/CouchersLogo";
 import { foundationRoute, latestFinancialsURL } from "routes";
-import { theme } from "theme";
 
 import { BENEFACTOR_EMAIL } from "./constants";
 import DonationsBox from "./DonationsBox";
@@ -21,7 +20,7 @@ const StyledBanner = styled("div")(() => ({
   height: "120px",
 }));
 
-const StyledLogoWrapper = styled("div")(() => ({
+const StyledLogoWrapper = styled("div")(({ theme }) => ({
   position: "relative",
   zIndex: 1,
   maxWidth: "68.75rem",
@@ -41,7 +40,7 @@ const StyledLogo = styled(CouchersLogo)(() => ({
   width: "auto",
 }));
 
-const StyledLogoText = styled("div")(() => ({
+const StyledLogoText = styled("div")(({ theme }) => ({
   marginLeft: theme.spacing(2),
 }));
 
@@ -53,7 +52,7 @@ const StyledImage = styled("img")(() => ({
   opacity: 0.3,
 }));
 
-const StyledBody = styled("section")(() => ({
+const StyledBody = styled("section")(({ theme }) => ({
   display: "grid",
   gridTemplateColumns: "39rem 25.5rem",
   columnGap: theme.spacing(7.5),
@@ -75,7 +74,7 @@ const StyledBody = styled("section")(() => ({
   },
 }));
 
-const StyledPrimarySection = styled("div")(() => ({
+const StyledPrimarySection = styled("div")(({ theme }) => ({
   gridRow: "1 / 5",
   gridColumn: "1 / 2",
   paddingBottom: theme.spacing(3),
@@ -86,7 +85,7 @@ const StyledSecondarySection = styled("div")(() => ({
   gridColumn: "2 / 3",
 }));
 
-const StyledDonationsBoxSection = styled("div")(() => ({
+const StyledDonationsBoxSection = styled("div")(({ theme }) => ({
   gridRow: "1 / 3",
   gridColumn: "2 / 3",
   display: "flex",
@@ -95,7 +94,7 @@ const StyledDonationsBoxSection = styled("div")(() => ({
   paddingBottom: theme.spacing(3),
 }));
 
-const StyledBenefactorText = styled("div")(() => ({
+const StyledBenefactorText = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   gap: theme.spacing(3),

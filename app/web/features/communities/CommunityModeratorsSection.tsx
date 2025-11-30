@@ -6,13 +6,12 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
 import { useState } from "react";
-import { theme } from "theme";
 
 import CommunityModeratorsDialog from "./CommunityModeratorsDialog";
 import { SectionTitle } from "./CommunityPage";
 import { useListAdmins } from "./hooks";
 
-const StyledSection = styled("section")(() => ({
+const StyledSection = styled("section")(({ theme }) => ({
   display: "grid",
   rowGap: theme.spacing(2),
 }));

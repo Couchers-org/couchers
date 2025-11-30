@@ -12,6 +12,7 @@ import {
   styled,
   Typography,
   useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { CatalanFlagIcon } from "components/Icons";
@@ -25,7 +26,6 @@ import { useRouter } from "next/router"; // we'll use this to reload the compone
 import { useState } from "react";
 import { translateRoute } from "routes";
 import { service } from "service";
-import { theme } from "theme";
 
 import { ALMOST_DONE_CUTOFF, SELECTOR_CUTOFF } from "./constants";
 
@@ -37,12 +37,20 @@ const StyledSelect = styled(Select, {
   shouldForwardProp: (prop) => prop !== "displayMode",
 })<StyledMuiSelectProps>(({ theme, displayMode }) => ({
   borderRadius: displayMode === "round" ? 999 : theme.shape.borderRadius,
+  backgroundColor: theme.palette.action.selected,
+  border: `1px solid ${theme.palette.divider}`,
+  "& .MuiOutlinedInput-notchedOutline": {
+    border: "none",
+  },
   "& .MuiSelect-icon": {
     color: theme.palette.text.primary,
     fontSize: "1.25rem",
     top: "50%",
     transform: "translateY(-50%)",
     right: 10,
+  },
+  "&:hover": {
+    backgroundColor: theme.palette.action.hover,
   },
   height: 41.25,
 }));
@@ -58,6 +66,7 @@ export default function LanguagePickerSelect({
   const { asPath, locale, pathname } = router;
   const { authState } = useAuthContext();
   const isAuthenticated = authState.authenticated;
+  const theme = useTheme();
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t } = useTranslation([GLOBAL]);
@@ -149,12 +158,12 @@ export default function LanguagePickerSelect({
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: theme.spacing(1),
+              gap: 1,
               "& .Mui-selected": {
-                backgroundColor: theme.palette.action.selected,
+                backgroundColor: "action.selected",
               },
               "& .Mui-selected:hover": {
-                backgroundColor: theme.palette.action.hover,
+                backgroundColor: "action.hover",
               },
             }}
           >
@@ -204,7 +213,7 @@ export default function LanguagePickerSelect({
           alignItems: "center",
           gap: 1,
           pl: 1,
-          color: "#666666",
+          color: "text.secondary",
           fontWeight: "bold",
         }}
       >
@@ -253,7 +262,8 @@ export default function LanguagePickerSelect({
                 key="translation-progress"
                 onClick={handleTranslationProgressClick}
                 sx={{
-                  borderTop: `1px solid ${theme.palette.divider}`,
+                  borderTop: 1,
+                  borderColor: "divider",
                   mt: 1,
                   pt: 1,
                   px: 2,
@@ -288,7 +298,8 @@ export default function LanguagePickerSelect({
               <Box
                 onClick={handleTranslationProgressClick}
                 sx={{
-                  borderTop: `1px solid ${theme.palette.divider}`,
+                  borderTop: 1,
+                  borderColor: "divider",
                   mt: 1,
                   pt: 1,
                   px: 2,

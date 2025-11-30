@@ -27,7 +27,7 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   width: "100%",
 
   "& .MuiInputBase-root": {
-    backgroundColor: theme.palette.common.white,
+    backgroundColor: theme.palette.background.paper,
   },
 }));
 

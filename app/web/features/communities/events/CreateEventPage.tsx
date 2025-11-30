@@ -1,4 +1,4 @@
-import { styled, Typography } from "@mui/material";
+import { styled, Typography, useTheme } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
 import HeaderButton from "components/HeaderButton";
@@ -14,14 +14,13 @@ import { Event } from "proto/events_pb";
 import { dashboardRoute, eventsRoute, routeToEvent } from "routes";
 import { service } from "service";
 import type { CreateEventInput } from "service/events";
-import { theme } from "theme";
 import dayjs, { TIME_FORMAT } from "utils/dayjs";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 import { communityEventsBaseKey } from "../../queryKeys";
 import EventForm, { CreateEventVariables } from "./EventForm";
 
-const StyledBackButton = styled(HeaderButton)(() => ({
+const StyledBackButton = styled(HeaderButton)(({ theme }) => ({
   gridArea: "backButton",
   width: "2.5rem",
   height: "2.5rem",
@@ -31,6 +30,7 @@ const StyledBackButton = styled(HeaderButton)(() => ({
 export default function CreateEventPage() {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const router = useRouter();
+  const theme = useTheme();
 
   const urlCommunityIdString =
     typeof window !== "undefined"

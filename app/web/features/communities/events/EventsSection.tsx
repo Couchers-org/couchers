@@ -11,7 +11,6 @@ import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Community } from "proto/communities_pb";
 import { routeToCommunity, routeToNewEvent } from "routes";
-import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 import { SectionTitle } from "../CommunityPage";
@@ -25,12 +24,12 @@ const StyledLoadMoreButton = styled("div")(() => ({
   width: "100%",
 }));
 
-const StyledSection = styled("div")(() => ({
+const StyledSection = styled("div")(({ theme }) => ({
   display: "grid",
   rowGap: theme.spacing(2),
 }));
 
-const StyledCardContainer = styled(HorizontalScroller)(() => ({
+const StyledCardContainer = styled(HorizontalScroller)(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
   flexWrap: "wrap",
@@ -41,7 +40,7 @@ const StyledCardContainer = styled(HorizontalScroller)(() => ({
   },
 }));
 
-const StyledEventCard = styled(EventCard)(() => ({
+const StyledEventCard = styled(EventCard)(({ theme }) => ({
   [theme.breakpoints.up("sm")]: {
     width: "calc(33.333% - 16px)", // 3 cards per row with gap
     maxWidth: "280px",

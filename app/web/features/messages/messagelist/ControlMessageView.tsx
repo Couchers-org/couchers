@@ -4,7 +4,6 @@ import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import React from "react";
-import { theme } from "theme";
 
 import { timestamp2Date } from "../../../utils/date";
 import { firstName } from "../../../utils/names";
@@ -19,9 +18,9 @@ const StyledWrapper = styled("div")(() => ({
   textAlign: "center",
 }));
 
-const StyledTimestamp = styled("div")(() => theme.typography.caption);
+const StyledTimestamp = styled("div")(({ theme }) => theme.typography.caption);
 
-const StyledBodyWrapper = styled("div")(() => ({
+const StyledBodyWrapper = styled("div")(({ theme }) => ({
   paddingInlineEnd: theme.spacing(1),
 }));
 

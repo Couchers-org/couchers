@@ -28,7 +28,6 @@ import { AttendanceState, Event } from "proto/events_pb";
 import { useEffect, useState } from "react";
 import { eventsRoute, routeToEditEvent, routeToEvent } from "routes";
 import { service } from "service";
-import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 
@@ -40,7 +39,7 @@ import EventOrganizers from "./EventOrganizers";
 import { useEvent } from "./hooks";
 import InviteCommunityDialog from "./InviteCommunityDialog";
 
-const StyledHeader = styled("div")(() => ({
+const StyledHeader = styled("div")(({ theme }) => ({
   alignItems: "center",
   gap: theme.spacing(2, 2),
   display: "grid",
@@ -71,34 +70,34 @@ const StyledTitle = styled("div")(() => ({
   gridArea: "eventTitle",
 }));
 
-const StyledOnlineInfoContainer = styled("div")(() => ({
+const StyledOnlineInfoContainer = styled("div")(({ theme }) => ({
   display: "grid",
   columnGap: theme.spacing(2),
   gridAutoFlow: "column",
   gridTemplateColumns: "max-content max-content",
 }));
 
-const StyledEventTypeText = styled(Typography)(() => ({
+const StyledEventTypeText = styled(Typography)(({ theme }) => ({
   color: theme.palette.grey[600],
 }));
 
 const StyledCoverPhoto = styled("img")((props) => ({
   height: 100,
-  [theme.breakpoints.up("md")]: {
+  [props.theme.breakpoints.up("md")]: {
     height: 200,
   },
   width: "100%",
   objectFit: props.src === eventImagePlaceholderUrl ? "contain" : "cover",
-  marginBlockStart: theme.spacing(2),
+  marginBlockStart: props.theme.spacing(2),
 }));
 
-const StyledCancelledChip = styled(Chip)(() => ({
+const StyledCancelledChip = styled(Chip)(({ theme }) => ({
   backgroundColor: theme.palette.error.main,
   color: theme.palette.common.white,
   fontWeight: "bold",
 }));
 
-const StyledCancelButton = styled(Button)(() => ({
+const StyledCancelButton = styled(Button)(({ theme }) => ({
   flexShrink: 0,
   "&:hover": {
     backgroundColor: darken(theme.palette.error.main, 0.1),
@@ -106,7 +105,7 @@ const StyledCancelButton = styled(Button)(() => ({
   backgroundColor: theme.palette.error.main,
 }));
 
-const StyledActionButtonsContainer = styled("div")(() => ({
+const StyledActionButtonsContainer = styled("div")(({ theme }) => ({
   display: "grid",
   gridAutoFlow: "column",
   columnGap: theme.spacing(1),
@@ -114,7 +113,7 @@ const StyledActionButtonsContainer = styled("div")(() => ({
   justifySelf: "start",
 }));
 
-const StyledEventTimeContainer = styled("div")(() => ({
+const StyledEventTimeContainer = styled("div")(({ theme }) => ({
   alignItems: "center",
   gridArea: "eventTime",
   display: "grid",
@@ -125,26 +124,26 @@ const StyledEventTimeContainer = styled("div")(() => ({
   },
 }));
 
-const StyledCalendarIcon = styled(CalendarIcon)(() => ({
+const StyledCalendarIcon = styled(CalendarIcon)(({ theme }) => ({
   marginInlineStart: theme.spacing(-0.5),
   height: "3.75rem",
   width: "3.75rem",
 }));
 
-const StyledEventDetailsContainer = styled("div")(() => ({
+const StyledEventDetailsContainer = styled("div")(({ theme }) => ({
   display: "grid",
   rowGap: theme.spacing(3),
   marginBlockEnd: theme.spacing(5),
 }));
 
-const StyledCardSection = styled(Card)(() => ({
+const StyledCardSection = styled(Card)(({ theme }) => ({
   padding: theme.spacing(2),
   "& + &": {
     marginBlockStart: theme.spacing(3),
   },
 }));
 
-const StyledDiscussionContainer = styled("div")(() => ({
+const StyledDiscussionContainer = styled("div")(({ theme }) => ({
   marginBlockEnd: theme.spacing(5),
 }));
 
@@ -290,11 +289,11 @@ export default function EventPage({
                       disabled={event.isCancelled || isPastEvent}
                       href={routeToEditEvent(event.eventId, event.slug)}
                       sx={{
-                        color: theme.palette.common.black,
-                        borderColor: theme.palette.grey[300],
+                        color: "common.black",
+                        borderColor: "grey.300",
 
                         "&:hover": {
-                          borderColor: theme.palette.grey[300],
+                          borderColor: "grey.300",
                           backgroundColor: "#3135390A",
                         },
                       }}

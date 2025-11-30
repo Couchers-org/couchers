@@ -10,7 +10,6 @@ import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Community } from "proto/communities_pb";
 import { routeToNewEvent } from "routes";
-import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 import { SectionTitle } from "../CommunityPage";
@@ -21,7 +20,7 @@ interface CommunityEventsListProps {
   community: Community.AsObject;
 }
 
-const StyledEventsListContainer = styled("div")(() => ({
+const StyledEventsListContainer = styled("div")(({ theme }) => ({
   display: "grid",
   rowGap: theme.spacing(3),
   [theme.breakpoints.down("sm")]: {
@@ -29,7 +28,7 @@ const StyledEventsListContainer = styled("div")(() => ({
   },
 }));
 
-const StyledCreateResourceButton = styled(Button)(() => ({
+const StyledCreateResourceButton = styled(Button)(({ theme }) => ({
   margin: theme.spacing(2, 0),
 }));
 
@@ -83,11 +82,11 @@ export default function CommunityEventsList({
         <Button
           onClick={() => fetchNextPage()}
           sx={{
-            color: theme.palette.common.black,
-            borderColor: theme.palette.grey[300],
+            color: "common.black",
+            borderColor: "grey.300",
 
             "&:hover": {
-              borderColor: theme.palette.grey[300],
+              borderColor: "grey.300",
               backgroundColor: "#3135390A",
             },
           }}

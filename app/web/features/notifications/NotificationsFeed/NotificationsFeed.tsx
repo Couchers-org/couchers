@@ -8,6 +8,7 @@ import {
   Stack,
   styled,
   Typography,
+  useTheme,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import Pill from "components/Pill";
@@ -20,7 +21,6 @@ import { ListNotificationsRes } from "proto/notifications_pb";
 import { useState } from "react";
 import { notificationSettingsRoute } from "routes";
 import { service } from "service";
-import { theme } from "theme";
 
 import {
   useMarkAllNotificationsSeen,
@@ -67,6 +67,7 @@ const NotificationsFeed = ({
 }: NotificationsFeedProps) => {
   const { t } = useTranslation([GLOBAL, NOTIFICATIONS]);
   const router = useRouter();
+  const theme = useTheme();
 
   const [internalMenuAnchorEl, setInternalMenuAnchorEl] =
     useState<HTMLButtonElement | null>(null);
@@ -216,19 +217,13 @@ const NotificationsFeed = ({
         >
           <MenuItem onClick={handleMarkAllReadClick}>
             <Check fontSize="small" />
-            <Typography
-              variant="body2"
-              sx={{ marginLeft: theme.spacing(1), fontWeight: 500 }}
-            >
+            <Typography variant="body2" sx={{ marginLeft: 1, fontWeight: 500 }}>
               {t("notifications:mark_all_read")}
             </Typography>
           </MenuItem>
           <MenuItem onClick={handleNotificationSettingsClick}>
             <Settings fontSize="small" />
-            <Typography
-              variant="body2"
-              sx={{ marginLeft: theme.spacing(1), fontWeight: 500 }}
-            >
+            <Typography variant="body2" sx={{ marginLeft: 1, fontWeight: 500 }}>
               {t("notifications:notification_settings.title")}
             </Typography>
           </MenuItem>
@@ -237,18 +232,14 @@ const NotificationsFeed = ({
           <Pill
             variant="rounded"
             backgroundColor={
-              notificationsFilter === "all"
-                ? theme.palette.primary.light
-                : undefined
+              notificationsFilter === "all" ? "primary.light" : undefined
             }
             onClick={() => handleNotificationsFilterChange("all")}
             sx={{
               cursor: "pointer",
               "&:hover": {
                 backgroundColor:
-                  notificationsFilter === "all"
-                    ? theme.palette.primary.dark
-                    : theme.palette.grey[300],
+                  notificationsFilter === "all" ? "primary.dark" : "grey.300",
               },
             }}
           >
@@ -257,9 +248,7 @@ const NotificationsFeed = ({
           <Pill
             variant="rounded"
             backgroundColor={
-              notificationsFilter === "unread"
-                ? theme.palette.primary.light
-                : undefined
+              notificationsFilter === "unread" ? "primary.light" : undefined
             }
             onClick={() => handleNotificationsFilterChange("unread")}
             sx={{
@@ -268,8 +257,8 @@ const NotificationsFeed = ({
               "&:hover": {
                 backgroundColor:
                   notificationsFilter === "unread"
-                    ? theme.palette.primary.dark
-                    : theme.palette.grey[300],
+                    ? "primary.dark"
+                    : "grey.300",
               },
             }}
           >
@@ -279,7 +268,7 @@ const NotificationsFeed = ({
       </TopContentWrapper>
       <NotificationsListWrapper>
         {(isLoading || isMarkingAllSeen) && !isRefetching ? (
-          <Stack spacing={1} sx={{ padding: theme.spacing(1) }}>
+          <Stack spacing={1} sx={{ padding: 1 }}>
             {[1, 2, 3].map((index) => (
               <Stack
                 key={index}
@@ -300,13 +289,13 @@ const NotificationsFeed = ({
         ) : (
           <>
             {error && (
-              <Alert severity="error" sx={{ marginBottom: theme.spacing(2) }}>
+              <Alert severity="error" sx={{ marginBottom: 2 }}>
                 {t("notifications:error_loading")}
               </Alert>
             )}
             {markAllNotificationsSeenError ||
               (markSingleNotificationIsSeenError && (
-                <Alert severity="error" sx={{ marginBottom: theme.spacing(2) }}>
+                <Alert severity="error" sx={{ marginBottom: 2 }}>
                   {t("notifications:error_updating_notifications")}
                 </Alert>
               ))}
@@ -324,8 +313,8 @@ const NotificationsFeed = ({
               <Typography
                 variant="body2"
                 sx={{
-                  marginLeft: theme.spacing(1),
-                  marginBottom: theme.spacing(2),
+                  marginLeft: 1,
+                  marginBottom: 2,
                 }}
               >
                 {t("notifications:no_new_notifications")}

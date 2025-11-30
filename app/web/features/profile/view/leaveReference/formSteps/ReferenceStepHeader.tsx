@@ -1,4 +1,4 @@
-import { styled, Typography } from "@mui/material";
+import { styled, Typography, useTheme } from "@mui/material";
 import HeaderButton from "components/HeaderButton";
 import { BackIcon } from "components/Icons";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
@@ -7,7 +7,6 @@ import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
 import { ReferenceStep, referenceTypeRoute, routeToUser } from "routes";
-import { theme } from "theme";
 
 interface ReferenceStepHeaderProps {
   name?: string;
@@ -29,6 +28,7 @@ export default function ReferenceStepHeader({
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const router = useRouter();
   const user = useProfileUser();
+  const theme = useTheme();
 
   const isFirstStep =
     step === "did-stay" ||

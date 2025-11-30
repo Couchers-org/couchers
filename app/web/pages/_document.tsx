@@ -1,5 +1,4 @@
 import Document, { Head, Html, Main, NextScript } from "next/document";
-import { theme } from "theme";
 
 export default class MyDocument extends Document {
   render() {
@@ -7,7 +6,7 @@ export default class MyDocument extends Document {
       <Html lang={this.props.locale ?? "en"}>
         <Head>
           <link rel="preconnect" href="https://cdn.couchers.org" />
-          <meta name="theme-color" content={theme.palette.primary.main} />
+          <meta name="theme-color" content="#00a398" />
           <link rel="manifest" href="/manifest.json" />
           <link rel="apple-touch-icon" href="/logo512.png" />
           <link

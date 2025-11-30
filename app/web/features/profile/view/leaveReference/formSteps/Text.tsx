@@ -1,4 +1,4 @@
-import { styled, Typography, useMediaQuery } from "@mui/material";
+import { styled, Typography, useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import StyledLink from "components/StyledLink";
@@ -21,7 +21,6 @@ import {
   referenceStepStrings,
   referenceTypeRoute,
 } from "routes";
-import { theme } from "theme";
 
 const StyledForm = styled("form")(({ theme }) => ({
   marginBottom: theme.spacing(2),
@@ -59,6 +58,7 @@ export default function Text({
   const { t } = useTranslation([PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
+  const theme = useTheme();
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
   const {
     control,

@@ -4,19 +4,18 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { newEventRoute } from "routes";
-import { theme } from "theme";
 
 import DiscoverEventsList from "../events/DiscoverEventsList";
 import MyEventsList from "./MyEventsList";
 
-const StyledHeaderRow = styled("div")(() => ({
+const StyledHeaderRow = styled("div")(({ theme }) => ({
   display: "flex",
   justifyContent: "space-between",
   width: "100%",
   paddingBottom: theme.spacing(1),
 }));
 
-const StyledButton = styled(Button)(() => ({
+const StyledButton = styled(Button)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
   color: theme.palette.common.white,
   margin: theme.spacing(2),

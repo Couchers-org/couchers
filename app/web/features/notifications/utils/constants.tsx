@@ -24,7 +24,6 @@ import {
   SegmentIcon,
   SinglePersonIcon,
 } from "components/Icons";
-import { theme } from "theme";
 
 const mapNotificationSettingsTypeToIcon: { [key: string]: JSX.Element } = {
   account_security: <AccountSecurityIcon fontSize="large" color="action" />,
@@ -45,9 +44,9 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   account_deletion: (
     <Box
       sx={{
-        backgroundColor: theme.palette.primary.main,
-        width: theme.spacing(2.5),
-        height: theme.spacing(2.5),
+        backgroundColor: "primary.main",
+        width: 2.5,
+        height: 2.5,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -56,7 +55,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
     >
       <ManageAccountsRounded
         sx={{
-          color: theme.palette.common.white,
+          color: "common.white",
           fontSize: "0.9rem",
         }}
       />
@@ -65,9 +64,9 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   badge: (
     <Box
       sx={{
-        backgroundColor: theme.palette.primary.main,
-        width: theme.spacing(2.5),
-        height: theme.spacing(2.5),
+        backgroundColor: "primary.main",
+        width: 2.5,
+        height: 2.5,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -76,7 +75,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
     >
       <BadgeRounded
         sx={{
-          color: theme.palette.common.white,
+          color: "common.white",
           fontSize: "0.9rem",
         }}
       />
@@ -85,9 +84,9 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   birthdate: (
     <Box
       sx={{
-        backgroundColor: theme.palette.primary.main,
-        width: theme.spacing(2.5),
-        height: theme.spacing(2.5),
+        backgroundColor: "primary.main",
+        width: 2.5,
+        height: 2.5,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -96,7 +95,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
     >
       <ManageAccountsRounded
         sx={{
-          color: theme.palette.common.white,
+          color: "common.white",
           fontSize: "0.9rem",
         }}
       />
@@ -105,9 +104,9 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   chat: (
     <Box
       sx={{
-        backgroundColor: theme.palette.primary.main,
-        width: theme.spacing(2.5),
-        height: theme.spacing(2.5),
+        backgroundColor: "primary.main",
+        width: 2.5,
+        height: 2.5,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -116,7 +115,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
     >
       <EmailRounded
         sx={{
-          color: theme.palette.common.white,
+          color: "common.white",
           fontSize: "0.9rem",
         }}
       />
@@ -125,9 +124,9 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   discussion: (
     <Box
       sx={{
-        backgroundColor: theme.palette.primary.main,
-        width: theme.spacing(2.5),
-        height: theme.spacing(2.5),
+        backgroundColor: "primary.main",
+        width: 2.5,
+        height: 2.5,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -136,7 +135,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
     >
       <ChatRounded
         sx={{
-          color: theme.palette.common.white,
+          color: "common.white",
           fontSize: "0.9rem",
         }}
       />
@@ -145,9 +144,9 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   donation: (
     <Box
       sx={{
-        backgroundColor: theme.palette.common.white,
-        width: theme.spacing(2),
-        height: theme.spacing(2),
+        backgroundColor: "common.white",
+        width: 2,
+        height: 2,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -156,7 +155,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
     >
       <MonetizationOnRounded
         sx={{
-          color: theme.palette.primary.main,
+          color: "primary.main",
         }}
       />
     </Box>
@@ -164,9 +163,9 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   email_address: (
     <Box
       sx={{
-        backgroundColor: theme.palette.primary.main,
-        width: theme.spacing(2.5),
-        height: theme.spacing(2.5),
+        backgroundColor: "primary.main",
+        width: 2.5,
+        height: 2.5,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -175,7 +174,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
     >
       <ManageAccountsRounded
         sx={{
-          color: theme.palette.common.white,
+          color: "common.white",
           fontSize: "0.9rem",
         }}
       />
@@ -184,9 +183,9 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   event: (
     <Box
       sx={{
-        backgroundColor: theme.palette.primary.main,
-        width: theme.spacing(2.5),
-        height: theme.spacing(2.5),
+        backgroundColor: "primary.main",
+        width: 2.5,
+        height: 2.5,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -195,7 +194,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
     >
       <EventRounded
         sx={{
-          color: theme.palette.common.white,
+          color: "common.white",
           fontSize: "1rem",
         }}
       />
@@ -204,9 +203,9 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   friend_request: (
     <Box
       sx={{
-        backgroundColor: theme.palette.common.white,
-        width: theme.spacing(2),
-        height: theme.spacing(2),
+        backgroundColor: "common.white",
+        width: 2,
+        height: 2,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -215,7 +214,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
     >
       <AccountCircleRounded
         sx={{
-          color: theme.palette.primary.main,
+          color: "primary.main",
         }}
       />
     </Box>
@@ -223,9 +222,9 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   gender: (
     <Box
       sx={{
-        backgroundColor: theme.palette.primary.main,
-        width: theme.spacing(2.5),
-        height: theme.spacing(2.5),
+        backgroundColor: "primary.main",
+        width: 2.5,
+        height: 2.5,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -234,7 +233,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
     >
       <ManageAccountsRounded
         sx={{
-          color: theme.palette.common.white,
+          color: "common.white",
           fontSize: "0.9rem",
         }}
       />
@@ -243,9 +242,9 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   host_request: (
     <Box
       sx={{
-        backgroundColor: theme.palette.primary.main,
-        width: theme.spacing(2.5),
-        height: theme.spacing(2.5),
+        backgroundColor: "primary.main",
+        width: 2.5,
+        height: 2.5,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -254,7 +253,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
     >
       <CouchFilledIcon
         sx={{
-          color: theme.palette.common.white,
+          color: "common.white",
           fontSize: "0.9rem",
         }}
       />
@@ -263,9 +262,9 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   modnote: (
     <Box
       sx={{
-        backgroundColor: theme.palette.common.white,
-        width: theme.spacing(2),
-        height: theme.spacing(2),
+        backgroundColor: "common.white",
+        width: 2,
+        height: 2,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -274,7 +273,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
     >
       <InfoRounded
         sx={{
-          color: theme.palette.primary.main,
+          color: "primary.main",
         }}
       />
     </Box>
@@ -282,9 +281,9 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   onboarding: (
     <Box
       sx={{
-        backgroundColor: theme.palette.primary.main,
-        width: theme.spacing(2.5),
-        height: theme.spacing(2.5),
+        backgroundColor: "primary.main",
+        width: 2.5,
+        height: 2.5,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -293,7 +292,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
     >
       <ManageAccountsRounded
         sx={{
-          color: theme.palette.common.white,
+          color: "common.white",
           fontSize: "0.9rem",
         }}
       />
@@ -302,9 +301,9 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   password: (
     <Box
       sx={{
-        backgroundColor: theme.palette.primary.main,
-        width: theme.spacing(2.5),
-        height: theme.spacing(2.5),
+        backgroundColor: "primary.main",
+        width: 2.5,
+        height: 2.5,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -313,7 +312,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
     >
       <ManageAccountsRounded
         sx={{
-          color: theme.palette.common.white,
+          color: "common.white",
           fontSize: "0.9rem",
         }}
       />
@@ -322,9 +321,9 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   password_reset: (
     <Box
       sx={{
-        backgroundColor: theme.palette.primary.main,
-        width: theme.spacing(2.5),
-        height: theme.spacing(2.5),
+        backgroundColor: "primary.main",
+        width: 2.5,
+        height: 2.5,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -333,7 +332,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
     >
       <LockResetRounded
         sx={{
-          color: theme.palette.common.white,
+          color: "common.white",
           fontSize: "1.1rem",
         }}
       />
@@ -342,9 +341,9 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   phone_number: (
     <Box
       sx={{
-        backgroundColor: theme.palette.primary.main,
-        width: theme.spacing(2.5),
-        height: theme.spacing(2.5),
+        backgroundColor: "primary.main",
+        width: 2.5,
+        height: 2.5,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -353,7 +352,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
     >
       <ManageAccountsRounded
         sx={{
-          color: theme.palette.common.white,
+          color: "common.white",
           fontSize: "0.9rem",
         }}
       />
@@ -362,9 +361,9 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   reference: (
     <Box
       sx={{
-        backgroundColor: theme.palette.primary.main,
-        width: theme.spacing(2.5),
-        height: theme.spacing(2.5),
+        backgroundColor: "primary.main",
+        width: 2.5,
+        height: 2.5,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -373,7 +372,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
     >
       <EditRounded
         sx={{
-          color: theme.palette.common.white,
+          color: "common.white",
           fontSize: "0.9rem",
         }}
       />
@@ -382,9 +381,9 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   thread: (
     <Box
       sx={{
-        backgroundColor: theme.palette.primary.main,
-        width: theme.spacing(2.5),
-        height: theme.spacing(2.5),
+        backgroundColor: "primary.main",
+        width: 2.5,
+        height: 2.5,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -393,7 +392,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
     >
       <ChatRounded
         sx={{
-          color: theme.palette.common.white,
+          color: "common.white",
           fontSize: "0.9rem",
         }}
       />
@@ -402,9 +401,9 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   verification: (
     <Box
       sx={{
-        backgroundColor: theme.palette.primary.main,
-        width: theme.spacing(2.5),
-        height: theme.spacing(2.5),
+        backgroundColor: "primary.main",
+        width: 2.5,
+        height: 2.5,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -413,7 +412,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
     >
       <VerifiedUser
         sx={{
-          color: theme.palette.common.white,
+          color: "common.white",
           fontSize: "0.9rem",
         }}
       />

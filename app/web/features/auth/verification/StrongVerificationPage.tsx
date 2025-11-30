@@ -10,7 +10,6 @@ import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { InitiateStrongVerificationRes } from "proto/account_pb";
 import { service } from "service";
-import { theme } from "theme";
 
 import { OpenInNewIcon } from "../../../components/Icons";
 
@@ -32,25 +31,22 @@ export default function StrongVerificationInstructions() {
   return (
     <>
       <HtmlMeta title={t("auth:strong_verification.title")} />
-      <Container maxWidth="md" sx={{ marginTop: theme.spacing(3) }}>
+      <Container maxWidth="md" sx={{ marginTop: 3 }}>
         <PageTitle>{t("auth:strong_verification.title")}</PageTitle>
 
-        <Alert severity="warning" sx={{ marginBottom: theme.spacing(3) }}>
+        <Alert severity="warning" sx={{ marginBottom: 3 }}>
           {t("auth:strong_verification.instructions.warning")}
         </Alert>
 
-        <Typography
-          variant="h2"
-          sx={{ marginBottom: theme.spacing(2), marginTop: theme.spacing(3) }}
-        >
+        <Typography variant="h2" sx={{ marginBottom: 2, marginTop: 3 }}>
           {t("auth:strong_verification.instructions.title")}
         </Typography>
 
         <List
           sx={{
             listStyleType: "decimal",
-            paddingLeft: theme.spacing(3),
-            marginBottom: theme.spacing(4),
+            paddingLeft: 3,
+            marginBottom: 4,
           }}
         >
           <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
@@ -150,27 +146,27 @@ export default function StrongVerificationInstructions() {
 
         <Box
           sx={{
-            backgroundColor: theme.palette.grey[50],
-            borderRadius: theme.shape.borderRadius,
-            padding: theme.spacing(3),
-            marginBottom: theme.spacing(4),
-            marginTop: theme.spacing(4),
+            backgroundColor: "grey.50",
+            borderRadius: 1,
+            padding: 3,
+            marginBottom: 4,
+            marginTop: 4,
           }}
         >
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: theme.spacing(1),
-              marginBottom: theme.spacing(1),
+              gap: 1,
+              marginBottom: 1,
             }}
           >
-            <NfcIcon sx={{ fontSize: 28, color: theme.palette.primary.main }} />
+            <NfcIcon sx={{ fontSize: 28, color: "primary.main" }} />
             <Typography variant="h3">
               {t("auth:strong_verification.instructions.chip_location.heading")}
             </Typography>
           </Box>
-          <Typography variant="body1" sx={{ marginBottom: theme.spacing(1) }}>
+          <Typography variant="body1" sx={{ marginBottom: 1 }}>
             {t(
               "auth:strong_verification.instructions.chip_location.description",
             )}
@@ -178,9 +174,9 @@ export default function StrongVerificationInstructions() {
           <Box
             component="ul"
             sx={{
-              marginTop: theme.spacing(1),
+              marginTop: 1,
               marginBottom: 0,
-              paddingLeft: theme.spacing(3),
+              paddingLeft: 3,
             }}
           >
             <li>
@@ -203,7 +199,7 @@ export default function StrongVerificationInstructions() {
         </Box>
 
         {error && (
-          <Alert severity="error" sx={{ marginBottom: theme.spacing(2) }}>
+          <Alert severity="error" sx={{ marginBottom: 2 }}>
             {error.message}
           </Alert>
         )}
@@ -212,7 +208,7 @@ export default function StrongVerificationInstructions() {
           sx={{
             display: "flex",
             justifyContent: "center",
-            marginBottom: theme.spacing(4),
+            marginBottom: 4,
           }}
         >
           <Button

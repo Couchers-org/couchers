@@ -28,7 +28,6 @@ import {
 import React, { useEffect, useState } from "react";
 import { Controller, useForm, UseFormReturn } from "react-hook-form";
 import { HostingPreferenceData } from "service";
-import { theme } from "theme";
 import { useUnsavedChangesWarning } from "utils/hooks";
 
 import { DEFAULT_ABOUT_HOME_HEADINGS } from "./constants";
@@ -41,7 +40,7 @@ interface HostingPreferenceCheckboxProps {
   checked: boolean;
 }
 
-const StyledAlert = styled(Alert)(() => ({
+const StyledAlert = styled(Alert)(({ theme }) => ({
   marginBottom: theme.spacing(3),
 }));
 
@@ -54,7 +53,7 @@ const StyledHostingPreferenceCheckbox = styled(HostingPreferenceCheckbox)(
 const styledField = <C extends React.ComponentType<React.ComponentProps<C>>>(
   component: C,
 ) => {
-  return styled(component)(() => ({
+  return styled(component)(({ theme }) => ({
     [theme.breakpoints.up("md")]: {
       "& > .MuiInputBase-root": {
         width: 400,

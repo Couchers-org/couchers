@@ -1,4 +1,4 @@
-import { styled, useMediaQuery } from "@mui/material";
+import { styled, useMediaQuery, useTheme } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -16,7 +16,6 @@ import React from "react";
 import { ReferenceStep, referenceTypeRoute } from "routes";
 import { service } from "service";
 import { ReferenceTypeStrings } from "service/references";
-import { theme } from "theme";
 
 const StyledRoot = styled("div")(({ theme }) => ({
   padding: theme.spacing(1),
@@ -58,6 +57,7 @@ export default function LeaveReferencePage({
   step?: ReferenceStep;
 }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { data: statusRes } = useQuery({

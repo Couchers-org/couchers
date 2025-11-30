@@ -7,6 +7,7 @@ import {
   styled,
   Typography,
   useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import IconButton from "components/IconButton";
 import { useTranslation } from "i18n";
@@ -15,7 +16,6 @@ import { useRouter } from "next/router";
 import { Notification } from "proto/notifications_pb";
 import { useState } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
-import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import { timeAgoI18n } from "utils/timeAgo";
 
@@ -76,6 +76,7 @@ const NotificationItem = ({
 }: NotificationItemProps) => {
   const { t } = useTranslation([GLOBAL]);
   const router = useRouter();
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [markUnreadMenuAnchorEl, setMarkUnseedMenuAnchorEl] =
@@ -157,11 +158,11 @@ const NotificationItem = ({
       {!notification.isSeen && (
         <Circle
           sx={{
-            color: theme.palette.primary.main,
+            color: "primary.main",
             fontSize: ".9rem",
             position: "absolute",
-            right: theme.spacing(1),
-            bottom: theme.spacing(1),
+            right: 1,
+            bottom: 1,
           }}
         />
       )}
@@ -173,16 +174,16 @@ const NotificationItem = ({
           onClick={handleMarkUnreadMenuOpen}
           size="small"
           sx={{
-            backgroundColor: theme.palette.common.white,
+            backgroundColor: "common.white",
             position: "absolute",
             bottom: 0,
             right: 0,
-            padding: theme.spacing(0),
-            margin: theme.spacing(1),
+            padding: 0,
+            margin: 1,
             visibility: isMobile ? "visible" : "hidden",
 
             "&:hover": {
-              backgroundColor: theme.palette.grey[300],
+              backgroundColor: "grey.300",
             },
           }}
         >

@@ -1,10 +1,16 @@
 import { LayerProps } from "react-map-gl/maplibre";
-import { theme } from "theme";
 
 const CLUSTER_LAYER_ID = "clusters";
 const UNCLUSTERED_LAYER_ID = "unclustered-points";
 const CLUSTER_COUNT_LAYER_ID = "clusters-count";
 const USERS_SOURCE_ID = "users-source";
+
+// Theme colors hardcoded for static layer configuration
+const PRIMARY_LIGHT = "#6bc4a6";
+const PRIMARY_MAIN = "#00a398";
+const PRIMARY_DARK = "#20686c";
+const SECONDARY_MAIN = "#e47701";
+const GREY_500 = "#767676";
 
 const clusterLayer: LayerProps = {
   filter: ["has", "point_count"],
@@ -14,11 +20,11 @@ const clusterLayer: LayerProps = {
     "circle-color": [
       "step",
       ["get", "point_count"],
-      theme.palette.primary.light,
+      PRIMARY_LIGHT,
       100,
-      theme.palette.primary.main,
+      PRIMARY_MAIN,
       750,
-      theme.palette.primary.dark,
+      PRIMARY_DARK,
     ],
     "circle-radius": ["step", ["get", "point_count"], 20, 100, 30, 750, 40],
   },
@@ -38,11 +44,11 @@ const clusterCountLayer: LayerProps = {
     "text-color": [
       "step",
       ["get", "point_count"],
-      theme.palette.getContrastText(theme.palette.primary.light),
+      "#313539", // contrast text for primary.light
       100,
-      theme.palette.getContrastText(theme.palette.primary.main),
+      "#fcfcfc", // contrast text for primary.main
       750,
-      theme.palette.getContrastText(theme.palette.primary.dark),
+      "#fcfcfc", // contrast text for primary.dark
     ],
   },
   source: USERS_SOURCE_ID,
@@ -61,19 +67,19 @@ const unclusteredPointLayer: LayerProps = {
     "icon-color": [
       "case",
       ["boolean", ["feature-state", "selected"], false],
-      theme.palette.secondary.main,
+      SECONDARY_MAIN,
       ["==", ["get", "hasCompletedProfile"], true],
-      theme.palette.primary.main,
-      theme.palette.grey[500],
+      PRIMARY_MAIN,
+      GREY_500,
     ],
     "icon-halo-width": 2,
     "icon-halo-color": [
       "case",
       ["boolean", ["feature-state", "selected"], false],
-      theme.palette.secondary.main,
+      SECONDARY_MAIN,
       ["==", ["get", "hasCompletedProfile"], true],
-      theme.palette.primary.main,
-      theme.palette.grey[500],
+      PRIMARY_MAIN,
+      GREY_500,
     ],
     "icon-halo-blur": 2,
   },

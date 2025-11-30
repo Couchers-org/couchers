@@ -15,7 +15,6 @@ import { HostRequest, RespondHostRequestReq } from "proto/requests_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { referenceTypeRoute, routeToLeaveReference } from "routes";
-import { theme } from "theme";
 
 import FieldButton from "./FieldButton";
 import HostRequestGuideLinks from "./HostRequestGuideLinks";
@@ -44,13 +43,13 @@ const StyledButtonContainer = styled("div")(({ theme }) => ({
   justifyContent: "center",
 }));
 
-const StyledButton = styled(Button)<ButtonProps>({
+const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
   display: "flex",
   flexShrink: 0,
   marginInlineStart: theme.spacing(1),
   height: theme.spacing(5),
   alignItems: "center",
-});
+}));
 
 const StyledContainer = styled("div")(({ theme }) => ({
   alignItems: "flex-start",
@@ -171,7 +170,7 @@ export default function HostRequestSendField({
           onKeyDown={handleKeyDown}
           maxRows={6}
           size="small"
-          sx={{ background: theme.palette.common.white }}
+          sx={{ background: "background.paper" }}
         />
         <FieldButton
           callback={onSubmit}

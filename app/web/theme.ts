@@ -1,5 +1,5 @@
 import type {} from "@mui/lab/themeAugmentation";
-import { createTheme } from "@mui/material";
+import { createTheme, PaletteOptions } from "@mui/material";
 import { ThemeOptions } from "@mui/material/styles";
 import { createBreakpoints } from "@mui/system";
 
@@ -25,7 +25,73 @@ declare module "@mui/material/styles" {
   }
 }
 
-const themeOptions: ThemeOptions = {
+// Shared brand colors (consistent across light/dark modes)
+const brandColors = {
+  primary: {
+    dark: "#20686c",
+    light: "#6bc4a6",
+    main: "#00a398",
+  },
+  secondary: {
+    dark: "#fe5e01",
+    light: "#fe982a",
+    main: "#e47701",
+  },
+  error: {
+    main: "#ff0000",
+  },
+  success: {
+    main: "#1ac302",
+  },
+};
+
+const lightPalette: PaletteOptions = {
+  mode: "light",
+  ...brandColors,
+  background: {
+    default: "#fcfcfc",
+    paper: "#fff",
+  },
+  common: {
+    black: "#313539",
+    white: "#fcfcfc",
+  },
+  grey: {
+    50: "#f3f3f3",
+    100: "#aaafb4",
+    200: "#e9e9e9",
+    600: "#767676",
+  },
+  text: {
+    primary: "#313539",
+    secondary: "#767676",
+  },
+};
+
+const darkPalette: PaletteOptions = {
+  mode: "dark",
+  ...brandColors,
+  background: {
+    default: "#121212",
+    paper: "#1e1e1e",
+  },
+  common: {
+    black: "#121212",
+    white: "#e0e0e0",
+  },
+  grey: {
+    50: "#2a2a2a",
+    100: "#6a6a6a",
+    200: "#3a3a3a",
+    600: "#a0a0a0",
+  },
+  text: {
+    primary: "#e0e0e0",
+    secondary: "#a0a0a0",
+  },
+};
+
+const baseThemeOptions: Omit<ThemeOptions, "palette"> = {
   components: {
     MuiCssBaseline: {
       styleOverrides: {
@@ -72,42 +138,6 @@ const themeOptions: ThemeOptions = {
           paddingTop: spacing(1),
         },
       },
-    },
-  },
-  palette: {
-    background: {
-      default: "#fcfcfc",
-      paper: "#fff",
-    },
-    common: {
-      black: "#313539",
-      white: "#fcfcfc",
-    },
-    error: {
-      main: "#ff0000",
-    },
-    primary: {
-      dark: "#20686c",
-      light: "#6bc4a6",
-      main: "#00a398",
-    },
-    secondary: {
-      dark: "#fe5e01",
-      light: "#fe982a",
-      main: "#e47701",
-    },
-    success: {
-      main: "#1ac302",
-    },
-    grey: {
-      50: "#f3f3f3",
-      100: "#aaafb4",
-      200: "#e9e9e9",
-      600: "#767676",
-    },
-    text: {
-      primary: "#313539",
-      secondary: "#767676",
     },
   },
   shape: {
@@ -189,4 +219,15 @@ const themeOptions: ThemeOptions = {
   },
 };
 
-export const theme = createTheme(themeOptions);
+export const lightTheme = createTheme({
+  ...baseThemeOptions,
+  palette: lightPalette,
+});
+
+export const darkTheme = createTheme({
+  ...baseThemeOptions,
+  palette: darkPalette,
+});
+
+// Default export for backwards compatibility
+export const theme = lightTheme;

@@ -1,8 +1,7 @@
-import { styled, Typography } from "@mui/material";
+import { styled, Typography, useTheme } from "@mui/material";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
 import { SvgIconTypeMap } from "@mui/material/SvgIcon";
 import React, { ReactNode } from "react";
-import { theme } from "theme";
 
 const StyledWrapper = styled("div")(({ theme }) => ({
   alignItems: "center",
@@ -22,6 +21,8 @@ interface IconTextProps {
 
 export default function IconText({ icon, text }: IconTextProps) {
   const Icon = icon;
+  const theme = useTheme();
+
   return (
     <StyledWrapper>
       <Icon />

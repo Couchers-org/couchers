@@ -6,6 +6,7 @@ import {
   InputAdornment,
   InputProps,
   styled,
+  useTheme,
 } from "@mui/material";
 import IconButton from "components/IconButton";
 import { SearchIcon } from "components/Icons";
@@ -14,7 +15,6 @@ import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { forwardRef, SyntheticEvent, useEffect, useState } from "react";
 import { service } from "service";
-import { theme } from "theme";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
 
 interface LocationAutocompleteOutlinedProps {
@@ -36,7 +36,7 @@ interface LocationAutocompleteOutlinedProps {
   autocompleteContext: string;
 }
 
-const IconWrapper = styled("div")({
+const IconWrapper = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   borderRadius: "50%",
@@ -46,7 +46,7 @@ const IconWrapper = styled("div")({
   "&:hover": {
     backgroundColor: alpha(theme.palette.primary.light, 0.4),
   },
-});
+}));
 
 const StyledClearIcon = styled(Clear)(({ theme }) => ({
   color: theme.palette.primary.main,
@@ -75,6 +75,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     autocompleteContext,
   } = props;
   const { t } = useTranslation([GLOBAL]);
+  const theme = useTheme();
 
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState<string>(defaultValue || "");

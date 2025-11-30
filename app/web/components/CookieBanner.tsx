@@ -1,4 +1,4 @@
-import { styled, Typography } from "@mui/material";
+import { styled, Typography, useTheme } from "@mui/material";
 import IconButton from "components/IconButton";
 import { CloseIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
@@ -6,7 +6,6 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import { Trans, useTranslation } from "i18n";
 import { usePersistedState } from "platform/usePersistedState";
 import { tosRoute } from "routes";
-import { theme } from "theme";
 import { useIsMounted } from "utils/hooks";
 
 const StyledWrapper = styled("div")(({ theme }) => ({
@@ -14,7 +13,7 @@ const StyledWrapper = styled("div")(({ theme }) => ({
   zIndex: theme.zIndex.snackbar,
   left: theme.spacing(0),
   right: theme.spacing(0),
-  backgroundColor: theme.palette.primary.contrastText,
+  backgroundColor: theme.palette.background.paper,
   bottom: 0,
   padding: theme.spacing(2, 4),
   boxShadow: `0 -1px 4px ${theme.palette.primary.dark}33`,
@@ -35,6 +34,7 @@ const StyledCloseButton = styled(IconButton)(({ theme }) => ({
 
 export default function CookieBanner() {
   const { t } = useTranslation();
+  const theme = useTheme();
   // since we are using localStorage, make sure don't render unless mounted
   // or there will be hydration mismatches
   const isMounted = useIsMounted().current;

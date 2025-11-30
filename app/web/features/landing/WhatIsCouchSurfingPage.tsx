@@ -17,6 +17,7 @@ import {
   ListItemIcon,
   Stack,
   Typography,
+  useTheme,
 } from "@mui/material";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
@@ -24,7 +25,6 @@ import { Trans, useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { communityGuidelinesURL, signupRoute } from "routes";
-import { theme } from "theme";
 
 import StyledLink from "../../components/StyledLink";
 import CompareTable from "./CompareTable";
@@ -33,6 +33,7 @@ import HistoryTimeline from "./HistoryTimeline";
 export default function WhatIsCouchSurfingPage() {
   const router = useRouter();
   const { t } = useTranslation([GLOBAL]);
+  const theme = useTheme();
 
   return (
     <>
@@ -115,11 +116,11 @@ export default function WhatIsCouchSurfingPage() {
             <Grid size={{ xs: 12, md: 6 }}>
               <Box
                 sx={{
-                  border: `1px solid ${theme.palette.grey[200]}`,
+                  border: (theme) => `1px solid ${theme.palette.grey[200]}`,
                   borderRadius: 3,
                   p: 3,
                   height: "100%",
-                  background: theme.palette.background.paper,
+                  background: "background.paper",
                 }}
               >
                 <Stack
@@ -129,7 +130,7 @@ export default function WhatIsCouchSurfingPage() {
                   sx={{ mb: 2 }}
                 >
                   <SecurityOutlined
-                    sx={{ fontSize: 36, color: theme.palette.primary.main }}
+                    sx={{ fontSize: 36, color: "primary.main" }}
                   />
                   <Typography
                     variant="h3"
@@ -166,11 +167,11 @@ export default function WhatIsCouchSurfingPage() {
             <Grid size={{ xs: 12, md: 6 }}>
               <Box
                 sx={{
-                  border: `1px solid ${theme.palette.grey[200]}`,
+                  border: (theme) => `1px solid ${theme.palette.grey[200]}`,
                   borderRadius: 3,
                   p: 3,
                   height: "100%",
-                  background: theme.palette.background.paper,
+                  background: "background.paper",
                 }}
               >
                 <Stack
@@ -180,7 +181,7 @@ export default function WhatIsCouchSurfingPage() {
                   sx={{ mb: 2 }}
                 >
                   <GroupAddOutlined
-                    sx={{ fontSize: 36, color: theme.palette.primary.main }}
+                    sx={{ fontSize: 36, color: "primary.main" }}
                   />
                   <Typography
                     variant="h3"
@@ -196,9 +197,7 @@ export default function WhatIsCouchSurfingPage() {
                   <ListItem
                     sx={{ p: 0, mb: 2, columnGap: 1, alignItems: "center" }}
                   >
-                    <ListItemIcon
-                      sx={{ minWidth: 36, color: theme.palette.primary.main }}
-                    >
+                    <ListItemIcon sx={{ minWidth: 36, color: "primary.main" }}>
                       <WeekendOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
                     </ListItemIcon>
                     <Typography
@@ -211,9 +210,7 @@ export default function WhatIsCouchSurfingPage() {
                   <ListItem
                     sx={{ p: 0, mb: 2, columnGap: 1, alignItems: "center" }}
                   >
-                    <ListItemIcon
-                      sx={{ minWidth: 36, color: theme.palette.primary.main }}
-                    >
+                    <ListItemIcon sx={{ minWidth: 36, color: "primary.main" }}>
                       <TravelExploreOutlined
                         sx={{ fontSize: { xs: 22, md: 28 } }}
                       />
@@ -228,9 +225,7 @@ export default function WhatIsCouchSurfingPage() {
                   <ListItem
                     sx={{ p: 0, mb: 2, columnGap: 1, alignItems: "center" }}
                   >
-                    <ListItemIcon
-                      sx={{ minWidth: 36, color: theme.palette.primary.main }}
-                    >
+                    <ListItemIcon sx={{ minWidth: 36, color: "primary.main" }}>
                       <EventOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
                     </ListItemIcon>
                     <Typography
@@ -243,9 +238,7 @@ export default function WhatIsCouchSurfingPage() {
                   <ListItem
                     sx={{ p: 0, mb: 2, columnGap: 1, alignItems: "center" }}
                   >
-                    <ListItemIcon
-                      sx={{ minWidth: 36, color: theme.palette.primary.main }}
-                    >
+                    <ListItemIcon sx={{ minWidth: 36, color: "primary.main" }}>
                       <GroupOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
                     </ListItemIcon>
                     <Typography
@@ -279,7 +272,7 @@ export default function WhatIsCouchSurfingPage() {
         <Box
           component="section"
           sx={{
-            bgcolor: theme.palette.grey[50],
+            bgcolor: "grey.50",
             py: 6,
             position: "relative",
             left: "50%",
@@ -327,10 +320,10 @@ export default function WhatIsCouchSurfingPage() {
                 </List>
                 <Box
                   sx={{
-                    border: `1px solid ${theme.palette.grey[200]}`,
+                    border: (theme) => `1px solid ${theme.palette.grey[200]}`,
                     borderRadius: 3,
                     p: 3,
-                    bgcolor: theme.palette.background.paper,
+                    bgcolor: "background.paper",
                   }}
                 >
                   <Stack
@@ -343,12 +336,12 @@ export default function WhatIsCouchSurfingPage() {
                       className="tip-lightbulb"
                       sx={{
                         fontSize: 20,
-                        color: theme.palette.primary.main,
+                        color: "primary.main",
                         transition:
                           "color .3s, filter .3s, transform .35s cubic-bezier(.4,1.6,.4,1)",
                         transformOrigin: "60% 40%",
                         "&:hover, &:focus-visible": {
-                          color: theme.palette.warning.main,
+                          color: "warning.main",
                           filter:
                             "drop-shadow(0 0 4px rgba(255,193,7,.65)) drop-shadow(0 0 8px rgba(255,193,7,.35))",
                           transform: "scale(1.15) rotate(-5deg)",
@@ -356,7 +349,7 @@ export default function WhatIsCouchSurfingPage() {
                         },
                       }}
                     />
-                    <Typography sx={{ color: theme.palette.text.secondary }}>
+                    <Typography sx={{ color: "text.secondary" }}>
                       {t("what_is_cs.tip_label")}
                     </Typography>
                   </Stack>
@@ -368,7 +361,7 @@ export default function WhatIsCouchSurfingPage() {
               <Grid size={{ xs: 12, md: 6 }}>
                 <Box
                   sx={{
-                    border: `1px solid ${theme.palette.grey[200]}`,
+                    border: (theme) => `1px solid ${theme.palette.grey[200]}`,
                     borderRadius: 3,
                     overflow: "hidden",
                     mb: 3,
@@ -410,7 +403,7 @@ export default function WhatIsCouchSurfingPage() {
         component="section"
         sx={{
           py: 6,
-          bgcolor: theme.palette.grey[50],
+          bgcolor: "grey.50",
           position: "relative",
           left: "50%",
           right: "50%",
@@ -430,10 +423,7 @@ export default function WhatIsCouchSurfingPage() {
             >
               {t("what_is_cs.bottom_cta_title")}
             </Typography>
-            <Typography
-              variant="body1"
-              sx={{ color: theme.palette.text.secondary }}
-            >
+            <Typography variant="body1" sx={{ color: "text.secondary" }}>
               {t("what_is_cs.bottom_cta_subtitle")}
             </Typography>
             <Button

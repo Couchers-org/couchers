@@ -15,9 +15,8 @@ import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { LiteUser } from "proto/api_pb";
 import { GroupChat } from "proto/conversations_pb";
 import React from "react";
-import { theme } from "theme";
 
-const StyledAvatar = styled(Avatar)(() => ({
+const StyledAvatar = styled(Avatar)(({ theme }) => ({
   height: 30,
   marginInlineEnd: theme.spacing(1),
   width: 30,

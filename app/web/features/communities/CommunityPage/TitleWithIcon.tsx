@@ -1,13 +1,12 @@
 import { styled, Typography } from "@mui/material";
 import { ReactNode } from "react";
-import { theme } from "theme";
 
 const StyledWrapper = styled("div")(() => ({
   alignItems: "center",
   display: "flex",
 }));
 
-const StyledText = styled(Typography)(() => ({
+const StyledText = styled(Typography)(({ theme }) => ({
   margin: 0,
   marginInlineStart: theme.spacing(1),
 }));

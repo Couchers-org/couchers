@@ -8,10 +8,9 @@ import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import React from "react";
 import { routeToCommunity } from "routes";
-import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
-const StyledPlaceholder = styled("div")(() => ({
+const StyledPlaceholder = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   padding: theme.spacing(2, 0),
@@ -21,7 +20,7 @@ const StyledPlaceholder = styled("div")(() => ({
   },
 }));
 
-const StyledCommunityLink = styled(StyledLink)(() => ({
+const StyledCommunityLink = styled(StyledLink)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   padding: theme.spacing(2, 0),

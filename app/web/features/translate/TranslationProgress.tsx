@@ -8,6 +8,7 @@ import {
   styled,
   Typography,
   useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { CatalanFlagIcon } from "components/Icons";
 import { useWeblateStats } from "features/weblate/useWeblateStats";
@@ -16,7 +17,6 @@ import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
 import React from "react";
 import { translateJobURL } from "routes";
-import { theme } from "theme";
 
 import {
   ALMOST_DONE_CUTOFF,
@@ -136,6 +136,7 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
 }));
 
 export default function TranslationProgress() {
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t } = useTranslation([GLOBAL]);
 

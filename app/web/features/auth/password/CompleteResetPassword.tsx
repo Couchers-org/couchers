@@ -14,10 +14,9 @@ import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { loginRoute } from "routes";
 import { service } from "service";
-import { theme } from "theme";
 import stringOrFirstString from "utils/stringOrFirstString";
 
-const StyledContainer = styled(Container)(() => ({
+const StyledContainer = styled(Container)(({ theme }) => ({
   marginTop: theme.spacing(2),
   paddingLeft: theme.spacing(2),
   paddingRight: theme.spacing(2),
@@ -25,13 +24,13 @@ const StyledContainer = styled(Container)(() => ({
   flex: 1,
 }));
 
-const StyledForm = styled("form")(() => ({
+const StyledForm = styled("form")(({ theme }) => ({
   "& > * + *": {
     marginBlockStart: theme.spacing(1),
   },
 }));
 
-const StyledTextField = styled(TextField)(() => ({
+const StyledTextField = styled(TextField)(({ theme }) => ({
   "& > div": {
     width: "100%",
     marginBottom: theme.spacing(2),

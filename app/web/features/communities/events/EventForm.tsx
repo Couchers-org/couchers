@@ -14,13 +14,12 @@ import { LngLat } from "maplibre-gl";
 import { Event } from "proto/events_pb";
 import { useRef } from "react";
 import { DeepMap, useForm } from "react-hook-form";
-import { theme } from "theme";
 import { Dayjs } from "utils/dayjs";
 import type { GeocodeResult } from "utils/hooks";
 
 import EventTimeChanger from "./EventTimeChanger";
 
-const StyledWrapper = styled("div")(() => ({
+const StyledWrapper = styled("div")(({ theme }) => ({
   marginBlockStart: theme.spacing(4),
 }));
 
@@ -28,14 +27,14 @@ const StyledImageUploadHelperText = styled(Typography)(() => ({
   textAlign: "center",
 }));
 
-const StyledForm = styled("form")(() => ({
+const StyledForm = styled("form")(({ theme }) => ({
   display: "grid",
   gridTemplateColumns: "minmax(0, 1fr)",
   rowGap: theme.spacing(3),
   marginBlockEnd: theme.spacing(3),
 }));
 
-const StyledLocationContainer = styled("div")(() => ({
+const StyledLocationContainer = styled("div")(({ theme }) => ({
   display: "grid",
   gridTemplateColumns: "1fr",
   gap: theme.spacing(3, 2),
@@ -51,7 +50,7 @@ const StyledIsOnlineCheckboxWrapper = styled("div")(() => ({
   justifyContent: "center",
 }));
 
-const StyledEventDetailsContainer = styled("div")(() => ({
+const StyledEventDetailsContainer = styled("div")(({ theme }) => ({
   display: "grid",
   gridTemplateColumns: "minmax(0, 1fr)",
   rowGap: theme.spacing(1),
