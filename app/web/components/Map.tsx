@@ -2,6 +2,8 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 import { useMediaQuery, useTheme } from "@mui/material";
 import { useMapSearchState } from "features/search/state/mapSearchContext";
+import { useThemeMode } from "features/theme/ThemeModeContext";
+import { mapStyleUrls } from "theme";
 import {
   clusterCountLayer,
   clusterLayer,
@@ -50,6 +52,7 @@ const Map = ({
   pins,
 }: MapProps) => {
   const theme = useTheme();
+  const { resolvedMode } = useThemeMode();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const isZoomFromControlRef = useRef(false);
 
@@ -139,7 +142,7 @@ const Map = ({
           width: grow ? "100%" : "400px",
         }}
         interactive={true}
-        mapStyle="https://cdn.couchers.org/maps/couchers-basemap-style-v1.json"
+        mapStyle={mapStyleUrls[resolvedMode]}
         interactiveLayerIds={clusterLayer.id ? [clusterLayer.id] : []}
         onClick={handleMapClick}
         onLoad={handleMapLoad}

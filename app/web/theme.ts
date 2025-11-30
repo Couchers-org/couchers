@@ -231,3 +231,11 @@ export const darkTheme = createTheme({
 
 // Default export for backwards compatibility
 export const theme = lightTheme;
+
+// Map style URLs
+// For local development, use the public folder path
+// For production, these will be served from the CDN
+export const mapStyleUrls = {
+  light: "https://cdn.couchers.org/maps/couchers-basemap-style-v1.json",
+  dark: "/couchers-basemap-style-v1-dark.json",
+} as const;

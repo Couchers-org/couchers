@@ -1,6 +1,7 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import { styled, Typography } from "@mui/material";
+import { useThemeMode } from "features/theme/ThemeModeContext";
 import { useTranslation } from "i18n";
 import {
   LngLat,
@@ -9,6 +10,7 @@ import {
   RequestParameters,
 } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
+import { mapStyleUrls } from "theme";
 
 import { SEARCH } from "../i18n/namespaces";
 
@@ -63,6 +65,7 @@ export default function Map({
   const containerRef = useRef<HTMLDivElement>(null);
   const [noMap, setNoMap] = useState(false);
   const { t } = useTranslation([SEARCH]);
+  const { resolvedMode } = useThemeMode();
 
   /*
   Allows sending cookies (counted as sensitive "credentials") on cross-origin requests when we grab GeoJSON/other data from the API.
@@ -92,7 +95,7 @@ export default function Map({
         container: containerRef.current,
         hash: hash ? "loc" : false,
         interactive: interactive,
-        style: "https://cdn.couchers.org/maps/couchers-basemap-style-v1.json",
+        style: mapStyleUrls[resolvedMode],
         transformRequest,
         zoom: initialZoom,
         scrollZoom,
@@ -121,6 +124,13 @@ export default function Map({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Update map style when theme mode changes
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.setStyle(mapStyleUrls[resolvedMode]);
+    }
+  }, [resolvedMode]);
 
   return (
     <StyledWrapper className={className} grow={grow} {...otherProps}>

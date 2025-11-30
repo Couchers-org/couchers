@@ -7,6 +7,8 @@ import {
   unclusteredPointLayer,
   USERS_SOURCE_ID,
 } from "features/search/utils/mapLayers";
+import { useThemeMode } from "features/theme/ThemeModeContext";
+import { mapStyleUrls } from "theme";
 import { loadMapUserPins } from "features/search/utils/mapUtils";
 import React, { useRef } from "react";
 import {
@@ -35,6 +37,7 @@ const MapWrapper = styled("div")(({ theme }) => ({
 const StaticMap = () => {
   const mapRef = useRef<MapRef | null>(null);
   const theme = useTheme();
+  const { resolvedMode } = useThemeMode();
 
   const onLoad = () => {
     if (mapRef.current) {
@@ -59,7 +62,7 @@ const StaticMap = () => {
           height: "100%",
           width: "100%",
         }}
-        mapStyle="https://cdn.couchers.org/maps/couchers-basemap-style-v1.json"
+        mapStyle={mapStyleUrls[resolvedMode]}
         interactiveLayerIds={clusterLayer.id ? [clusterLayer.id] : []}
         hash={false}
         ref={mapRef}
