@@ -1,5 +1,5 @@
 """
-GitHub PR Release Notes Tagger with LLM-powered decision making.
+Release Note Bot with LLM-powered decision making.
 
 This bot processes approved/merged PRs using an LLM to determine whether
 they should be included in release notes, and if so, generates a one-line
@@ -24,7 +24,7 @@ from github import Github, Auth
 RELEASE_NOTES_PENDING_LABEL = "release notes: pending"
 RELEASE_NOTES_NOT_NEEDED_LABEL = "release notes: not needed"
 
-SYSTEM_PROMPT = """You are a release notes triage bot for Couchers.org, a non-profit couch surfing platform.
+SYSTEM_PROMPT = """You are the Release Note Bot for Couchers.org, a non-profit couch surfing platform.
 
 **Important context about Couchers.org:**
 - Couchers is a couch surfing platform for end users (not a library or framework)
@@ -175,7 +175,7 @@ class BotDecision(BaseModel):
 # ============================================================================
 
 class PRReleaseNotesBot:
-    """GitHub PR release notes bot with LLM-powered decision making."""
+    """Release Note Bot with LLM-powered decision making."""
 
     def __init__(self):
         self.llm = LLM(model=os.environ["LLM_MODEL"])
@@ -298,55 +298,54 @@ class PRReleaseNotesBot:
 
         return "\n".join(conversation)
 
-    def _get_linked_issue_details(self, issue_number: int) -> Optional[Dict[str, Any]]:
+    def _get_linked_issue_details(self, issue_number: int) -> Dict[str, Any]:
         """Get details and comments for a linked issue."""
-        try:
-            issue = self.repo.get_issue(issue_number)
+        issue = self.repo.get_issue(issue_number)
 
-            # Get all comments
-            comments = list(issue.get_comments())
-            comments_text = []
+        # Get all comments
+        comments = list(issue.get_comments())
+        comments_text = []
 
-            for comment in comments:
-                comments_text.append(f"**@{comment.user.login}** commented:")
-                comments_text.append(comment.body)
-                comments_text.append("")
+        for comment in comments:
+            comments_text.append(f"**@{comment.user.login}** commented:")
+            comments_text.append(comment.body)
+            comments_text.append("")
 
-            return {
-                'number': issue_number,
-                'title': issue.title,
-                'body': issue.body or "(no description)",
-                'author': issue.user.login,
-                'state': issue.state,
-                'comments': "\n".join(comments_text) if comments_text else "(no comments)"
-            }
-        except Exception as e:
-            print(f"Warning: Could not fetch issue #{issue_number}: {e}")
-            return None
+        return {
+            'number': issue_number,
+            'title': issue.title,
+            'body': issue.body or "(no description)",
+            'author': issue.user.login,
+            'state': issue.state,
+            'comments': "\n".join(comments_text) if comments_text else "(no comments)"
+        }
 
     def _get_pr_diff(self, max_lines: int = 2000) -> str:
         """Get the PR diff, truncated if necessary."""
-        try:
-            # Get the diff using the GitHub API
-            # The .patch property gives us the full diff
-            diff = self.pr.patch
+        # Get the diff using the GitHub API
+        # We need to make a raw request with the diff media type
+        import requests
+        headers = {
+            'Authorization': f'token {os.environ["GITHUB_TOKEN"]}',
+            'Accept': 'application/vnd.github.v3.diff'
+        }
+        response = requests.get(self.pr.url, headers=headers)
+        response.raise_for_status()
 
-            if not diff:
-                return "(no diff available)"
+        diff = response.text
 
-            # Split into lines and truncate if necessary
-            lines = diff.split('\n')
+        if not diff:
+            return "(no diff available)"
 
-            if len(lines) > max_lines:
-                truncated_diff = '\n'.join(lines[:max_lines])
-                truncated_diff += f"\n\n... (diff truncated, showing first {max_lines} of {len(lines)} lines)"
-                return truncated_diff
+        # Split into lines and truncate if necessary
+        lines = diff.split('\n')
 
-            return diff
+        if len(lines) > max_lines:
+            truncated_diff = '\n'.join(lines[:max_lines])
+            truncated_diff += f"\n\n... (diff truncated, showing first {max_lines} of {len(lines)} lines)"
+            return truncated_diff
 
-        except Exception as e:
-            print(f"Warning: Could not fetch PR diff: {e}")
-            return "(error fetching diff)"
+        return diff
 
     def analyze_pr(self) -> BotDecision:
         """Use LLM to analyze the PR and determine if it should be in release notes."""
@@ -376,18 +375,16 @@ class PRReleaseNotesBot:
 
             for issue_num in linked_issue_numbers:
                 issue_details = self._get_linked_issue_details(issue_num)
-                if issue_details:
-                    linked_issues_details.append(issue_details)
+                linked_issues_details.append(issue_details)
 
-            if linked_issues_details:
-                linked_issues_text = "\n\n**Linked Issues:**\n\n"
-                for issue in linked_issues_details:
-                    linked_issues_text += f"### Issue #{issue['number']}: {issue['title']}\n\n"
-                    linked_issues_text += f"**Author:** @{issue['author']}\n"
-                    linked_issues_text += f"**State:** {issue['state']}\n\n"
-                    linked_issues_text += f"**Description:**\n{issue['body']}\n\n"
-                    linked_issues_text += f"**Comments:**\n{issue['comments']}\n\n"
-                    linked_issues_text += "---\n\n"
+            linked_issues_text = "\n\n**Linked Issues:**\n\n"
+            for issue in linked_issues_details:
+                linked_issues_text += f"### Issue #{issue['number']}: {issue['title']}\n\n"
+                linked_issues_text += f"**Author:** @{issue['author']}\n"
+                linked_issues_text += f"**State:** {issue['state']}\n\n"
+                linked_issues_text += f"**Description:**\n{issue['body']}\n\n"
+                linked_issues_text += f"**Comments:**\n{issue['comments']}\n\n"
+                linked_issues_text += "---\n\n"
         else:
             print("No linked issues found")
 
@@ -514,14 +511,11 @@ This PR does not need to be included in release notes.
             import traceback
             traceback.print_exc()
             # Post a comment about the error so humans know
-            try:
-                self.pr.create_issue_comment(
-                    f"⚠️ The release notes bot encountered an error while processing this PR. "
-                    f"A human maintainer will review it shortly.\n\n"
-                    f"Error: `{type(e).__name__}: {str(e)}`"
-                )
-            except:
-                pass  # If we can't even post a comment, just fail
+            self.pr.create_issue_comment(
+                f"⚠️ The Release Note Bot encountered an error while processing this PR. "
+                f"A human maintainer will review it shortly.\n\n"
+                f"Error: `{type(e).__name__}: {str(e)}`"
+            )
             sys.exit(1)
 
 
