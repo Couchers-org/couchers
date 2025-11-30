@@ -11,6 +11,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import * as SecureStore from "expo-secure-store";
 
 import client from "@/service/client";
+import i18n from "@/i18n";
 
 const BIOMETRICS_ENABLED_KEY = "biometrics_enabled";
 
@@ -92,8 +93,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (hasHardware && isEnrolled) {
               // Prompt for biometric authentication
               const biometricResult = await localAuth.authenticateAsync({
-                promptMessage: "Log in to Couchers",
-                cancelLabel: "Use Password",
+                promptMessage: i18n.t("biometrics.login_prompt"),
+                cancelLabel: i18n.t("biometrics.use_password_button"),
                 disableDeviceFallback: false,
               });
 

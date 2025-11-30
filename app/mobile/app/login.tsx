@@ -4,18 +4,13 @@ import { WebView } from "react-native-webview";
 import { useRouter } from "expo-router";
 
 import { useAuthContext } from "@/features/auth/AuthContext";
+import { useTranslation } from "@/i18n";
 import { loginRoute } from "@/routes";
 import { theme } from "@/theme";
 
-function getBiometricTypeName(): string {
-  if (Platform.OS === "ios") {
-    return "Face ID";
-  }
-  return "biometrics";
-}
-
 export default function LoginScreen() {
   const WEB_BASE_URL = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
+  const { t } = useTranslation();
   const {
     markAuthenticated,
     setUserId,
@@ -31,6 +26,13 @@ export default function LoginScreen() {
     colorScheme === "dark"
       ? theme.palette.common.black
       : theme.palette.common.white;
+
+  const getBiometricTypeName = (): string => {
+    if (Platform.OS === "ios") {
+      return t("biometrics.face_id");
+    }
+    return t("biometrics.biometrics_generic");
+  };
 
   const offerBiometricEnrollment = async () => {
     // Skip if biometrics native module isn't available (e.g., Expo Go)
@@ -59,23 +61,25 @@ export default function LoginScreen() {
 
       // Prompt user to enable biometrics
       Alert.alert(
-        `Enable ${biometricName}?`,
-        `Would you like to use ${biometricName} for faster login next time?`,
+        t("biometrics.enable_title", { biometricType: biometricName }),
+        t("biometrics.enable_message", { biometricType: biometricName }),
         [
           {
-            text: "Not Now",
+            text: t("biometrics.not_now_button"),
             style: "cancel",
             onPress: () => {
               router.replace("/(tabs)/dashboard");
             },
           },
           {
-            text: "Enable",
+            text: t("biometrics.enable_button"),
             onPress: async () => {
               // Test biometric authentication to ensure it works
               const result = await LocalAuthentication.authenticateAsync({
-                promptMessage: `Confirm ${biometricName}`,
-                cancelLabel: "Cancel",
+                promptMessage: t("biometrics.confirm_prompt", {
+                  biometricType: biometricName,
+                }),
+                cancelLabel: t("biometrics.cancel_button"),
               });
 
               if (result.success) {
@@ -87,7 +91,9 @@ export default function LoginScreen() {
         ]
       );
     } catch (error) {
-      console.error("Error offering biometric enrollment:", error);
+      if (__DEV__) {
+        console.error("Error offering biometric enrollment:", error);
+      }
       router.replace("/(tabs)/dashboard");
     }
   };
