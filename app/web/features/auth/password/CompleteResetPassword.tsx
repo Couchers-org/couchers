@@ -80,7 +80,7 @@ export default function CompleteResetPassword() {
     mutate(newPassword);
   });
 
-  if (authState.authenticated) {
+  if (authState.authenticated && !isSuccess) {
     return (
       <StyledContainer>
         <Alert severity="error">
