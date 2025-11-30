@@ -60,16 +60,17 @@ def render_notification(user: User, notification: Notification) -> RenderedNotif
             return RenderedNotification(
                 email_subject=message,
                 email_preview=message,
-                email_template_name="host_request__plain",
+                email_template_name="host_request__message",
                 email_template_args={
                     "view_link": view_link,
                     "host_request": data.host_request,
                     "message": message,
                     "other": other,
+                    "text": data.text,
                 },
                 email_topic_action_unsubscribe_text="missed messages in host requests",
                 push_title=message,
-                push_body="Check the app for more info.",
+                push_body=f"Dates: {v2date(data.host_request.from_date, user)} to {v2date(data.host_request.to_date, user)}.\n\n{data.text}",
                 push_icon=v2avatar(other),
                 push_url=view_link,
             )

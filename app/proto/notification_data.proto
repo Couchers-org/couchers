@@ -48,6 +48,7 @@ message HostRequestMissedMessages {
   org.couchers.api.requests.HostRequest host_request = 1;
   org.couchers.api.core.User user = 2;
   bool am_host = 3;
+  string text = 4;
 }
 
 message HostRequestReminder {

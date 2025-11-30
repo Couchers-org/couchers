@@ -386,6 +386,11 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                 user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
                 session.flush()
 
+                # Fetch the latest message to get its text
+                latest_message = session.execute(
+                    select(Message).where(Message.id == max_message_id)
+                ).scalar_one()
+
                 notify(
                     session,
                     user_id=user.id,
@@ -395,12 +400,18 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                         host_request=host_request_to_pb(host_request, session, context),
                         user=user_model_to_pb(host_request.host, session, context),
                         am_host=False,
+                        text=latest_message.text,
                     ),
                 )
 
             for user, host_request, max_message_id in hosting_reqs:
                 user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
                 session.flush()
+
+                # Fetch the latest message to get its text
+                latest_message = session.execute(
+                    select(Message).where(Message.id == max_message_id)
+                ).scalar_one()
 
                 notify(
                     session,
@@ -411,6 +422,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                         host_request=host_request_to_pb(host_request, session, context),
                         user=user_model_to_pb(host_request.surfer, session, context),
                         am_host=True,
+                        text=latest_message.text,
                     ),
                 )
 
