@@ -18,17 +18,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
-
       - uses: actions/setup-python@v6
         with:
           python-version-file: ".github/llm-bot/.python-version"
-
       - uses: astral-sh/setup-uv@v6
-
       - name: Install dependencies
         working-directory: .github/llm-bot
         run: uv sync --locked --all-extras --dev
-
       - name: Process PR with LLM
         working-directory: .github/llm-bot
         env:
