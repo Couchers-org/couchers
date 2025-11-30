@@ -790,6 +790,56 @@ def test_signup_resend_email(db):
     assert res.HasField("auth_res")
 
 
+def test_signup_email_token_reuse(db):
+    """Test that reusing an email confirmation token returns a helpful error message"""
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
+                account=auth_pb2.SignupAccount(
+                    username="frodo",
+                    password="a very insecure password",
+                    birthdate="1970-01-01",
+                    gender="Bot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    city="New York City",
+                    lat=40.7331,
+                    lng=-73.9778,
+                    radius=500,
+                    accept_tos=True,
+                ),
+                feedback=auth_pb2.ContributorForm(),
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+            )
+        )
+
+    flow_token = res.flow_token
+    assert flow_token
+
+    # Get the email token
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        email_token = flow.email_token
+        assert email_token
+        assert not flow.email_verified
+
+    # Use the email token to verify email (first click)
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+
+    # Email should now be verified
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        assert flow.email_verified
+
+    # Try to use the same email token again (second click)
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "This email has already been confirmed. You can continue with your signup or log in if you've completed registration."
+
+
 def test_successful_authenticate(db):
     user, _ = generate_user(hashed_password=hash_password("password"))
 

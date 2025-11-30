@@ -159,25 +159,33 @@ class Auth(auth_pb2_grpc.AuthServicer):
     def SignupFlow(self, request, context, session):
         if request.email_token:
             # the email token can either be for verification or just to find an existing signup
+            # First try to find by email_token (regardless of verification status)
             flow = session.execute(
                 select(SignupFlow)
-                .where(SignupFlow.email_verified == False)
                 .where(SignupFlow.email_token == request.email_token)
                 .where(SignupFlow.token_is_valid)
             ).scalar_one_or_none()
-            if flow:
-                # find flow by email verification token and mark it as verified
-                flow.email_verified = True
-                flow.email_token = None
-                flow.email_token_expiry = None
 
-                session.flush()
+            if flow:
+                # Check if email is already verified
+                if flow.email_verified:
+                    # Email was already verified with this token
+                    context.abort_with_error_code(
+                        grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_already_verified"
+                    )
+                else:
+                    # Mark email as verified (but keep the token for future checks)
+                    flow.email_verified = True
+                    session.flush()
             else:
-                # just try to find the flow by flow token, no verification is done
+                # Token not found in email_token field, try flow_token
                 flow = session.execute(
                     select(SignupFlow).where(SignupFlow.flow_token == request.email_token)
                 ).scalar_one_or_none()
                 if not flow:
+                    # Check if a user with this email already exists (signup was completed)
+                    # We can't check by token since we don't store it after completion,
+                    # so we just return a generic invalid_token error
                     context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
         else:
             if not request.flow_token:

@@ -79,9 +79,9 @@ export default function Signup() {
             isGrpcError(err) ? err.message : t("global:error.fatal_message"),
           );
           router.push(signupRoute);
-          return;
+        } finally {
+          setLoading(false);
         }
-        setLoading(false);
       }
     })();
     // next-router-mock router isn't memoized, so putting router in the dependencies

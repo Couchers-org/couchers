@@ -182,6 +182,7 @@
     "signup_flow_account_filled": "Account part already filled in.",
     "signup_flow_basic_filled": "Basic part already filled in.",
     "signup_flow_basic_needed": "Basic part needed to sign up.",
+    "signup_flow_email_already_verified": "This email has already been confirmed. You can continue with your signup or log in if you've completed registration.",
     "signup_flow_email_started_signup": "Please check your email for a link to continue signing up.",
     "signup_flow_email_taken": "That email address is already associated with an account. Please log in instead!",
     "signup_flow_feedback_filled": "Feedback part already filled in.",
