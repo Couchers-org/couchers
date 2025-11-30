@@ -1,0 +1,162 @@
+syntax = "proto3";
+
+package org.couchers.api.postal_verification;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+import "annotations.proto";
+
+service PostalVerification {
+  option (auth_level) = AUTH_LEVEL_SECURE;
+
+  // Step 1: Submit address for validation
+  rpc InitiatePostalVerification(InitiatePostalVerificationReq) returns (InitiatePostalVerificationRes) {
+    // Validates and normalizes the address. Returns a corrected address for user confirmation.
+    // Returns FAILED_PRECONDITION if there's already an active attempt.
+    // Returns RESOURCE_EXHAUSTED if rate limited (one attempt per 30 days).
+  }
+
+  // Step 2: Confirm the (possibly corrected) address and send postcard
+  rpc ConfirmPostalAddress(ConfirmPostalAddressReq) returns (ConfirmPostalAddressRes) {
+    // Confirms the address and queues postcard for sending.
+    // Returns NOT_FOUND if attempt doesn't exist.
+    // Returns FAILED_PRECONDITION if attempt is not in pending_address_confirmation state.
+  }
+
+  // Get current postal verification status
+  rpc GetPostalVerificationStatus(GetPostalVerificationStatusReq) returns (GetPostalVerificationStatusRes) {
+    // Returns the user's postal verification status and current/latest attempt details.
+  }
+
+  // Submit verification code (from postcard or QR code)
+  rpc VerifyPostalCode(VerifyPostalCodeReq) returns (VerifyPostalCodeRes) {
+    // Verifies the code from the postcard.
+    // Returns NOT_FOUND if attempt doesn't exist.
+    // Returns FAILED_PRECONDITION if attempt is not in awaiting_verification state.
+  }
+
+  // Cancel an in-progress attempt
+  rpc CancelPostalVerification(CancelPostalVerificationReq) returns (google.protobuf.Empty) {
+    // Cancels an active postal verification attempt.
+    // Returns NOT_FOUND if attempt doesn't exist.
+    // Returns FAILED_PRECONDITION if attempt is not cancellable.
+  }
+
+  // List all postal verification attempts (history)
+  rpc ListPostalVerificationAttempts(ListPostalVerificationAttemptsReq) returns (ListPostalVerificationAttemptsRes) {
+    // Returns all postal verification attempts for the user.
+  }
+}
+
+enum PostalVerificationStatus {
+  POSTAL_VERIFICATION_STATUS_UNKNOWN = 0;
+  POSTAL_VERIFICATION_STATUS_PENDING_ADDRESS_CONFIRMATION = 1;
+  POSTAL_VERIFICATION_STATUS_IN_PROGRESS = 2;
+  POSTAL_VERIFICATION_STATUS_AWAITING_VERIFICATION = 3;
+  POSTAL_VERIFICATION_STATUS_SUCCEEDED = 4;
+  POSTAL_VERIFICATION_STATUS_FAILED = 5;
+  POSTAL_VERIFICATION_STATUS_CANCELLED = 6;
+}
+
+// Postal address for international mail delivery.
+// Required fields: address_line_1, city, country
+// Optional fields: address_line_2, state, postal_code (varies by country)
+message PostalAddress {
+  // Required: street address, house number, building name, etc.
+  string address_line_1 = 1;
+  // Optional: apartment, suite, unit, floor, etc. Empty string if not provided.
+  string address_line_2 = 2;
+  // Required: city, town, or locality name
+  string city = 3;
+  // Optional: state, province, region, prefecture, etc. Empty string if not applicable.
+  string state = 4;
+  // Optional: postal/ZIP code. Empty string if country doesn't use postal codes.
+  string postal_code = 5;
+  // Required: ISO 3166-1 alpha-2 country code (e.g., "US", "DE", "JP")
+  string country = 6;
+}
+
+// Step 1: Submit address for validation
+message InitiatePostalVerificationReq {
+  PostalAddress address = 1;
+}
+
+message InitiatePostalVerificationRes {
+  // The ID of the created postal verification attempt
+  int64 postal_verification_attempt_id = 1;
+  // The validated/corrected address
+  PostalAddress corrected_address = 2;
+  // Whether the address needed correction
+  bool address_was_corrected = 3;
+}
+
+// Step 2: Confirm the (possibly corrected) address and send postcard
+message ConfirmPostalAddressReq {
+  int64 postal_verification_attempt_id = 1;
+}
+
+message ConfirmPostalAddressRes {
+  // Empty on success, postcard will be sent
+}
+
+// Get current postal verification status
+message GetPostalVerificationStatusReq {
+  // Optional: if 0 or not provided, returns latest attempt
+  int64 postal_verification_attempt_id = 1;
+}
+
+message GetPostalVerificationStatusRes {
+  // Whether user has any successful postal verification
+  bool has_postal_verification = 1;
+
+  // Current/latest attempt details (if any)
+  bool has_active_attempt = 2;
+  int64 postal_verification_attempt_id = 3;
+  PostalVerificationStatus status = 4;
+  PostalAddress address = 5;
+  google.protobuf.Timestamp created = 6;
+  // Set when postcard was sent. Zero value if not yet sent.
+  google.protobuf.Timestamp postcard_sent_at = 7;
+
+  // Rate limit info
+  bool can_initiate_new_attempt = 8;
+  // If rate limited, when user can try again. Zero value if not rate limited.
+  google.protobuf.Timestamp next_attempt_allowed_at = 9;
+}
+
+// Submit verification code (from postcard or QR code)
+message VerifyPostalCodeReq {
+  // 6-character alphanumeric code from the postcard.
+  // The attempt is looked up from the user's active attempt.
+  string code = 1;
+}
+
+message VerifyPostalCodeRes {
+  bool success = 1;
+  // If failed, how many attempts remaining before lockout
+  int32 remaining_attempts = 2;
+}
+
+// Cancel an in-progress attempt
+message CancelPostalVerificationReq {
+  int64 postal_verification_attempt_id = 1;
+}
+
+// List all postal verification attempts (history)
+message ListPostalVerificationAttemptsReq {
+  // No pagination needed for now - users won't have many attempts
+}
+
+message ListPostalVerificationAttemptsRes {
+  repeated PostalVerificationAttemptSummary attempts = 1;
+}
+
+message PostalVerificationAttemptSummary {
+  int64 postal_verification_attempt_id = 1;
+  PostalVerificationStatus status = 2;
+  PostalAddress address = 3;
+  google.protobuf.Timestamp created = 4;
+  // Set when verification succeeded. Zero value if not verified.
+  google.protobuf.Timestamp verified_at = 5;
+}

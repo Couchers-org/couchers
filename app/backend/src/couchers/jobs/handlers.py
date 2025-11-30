@@ -28,6 +28,7 @@ from sqlalchemy.sql import (
     update,
 )
 
+from couchers import urls
 from couchers.config import config
 from couchers.constants import (
     ACTIVENESS_PROBE_EXPIRY_TIME,
@@ -77,6 +78,8 @@ from couchers.models import (
     MessageType,
     PassportSex,
     PasswordResetToken,
+    PostalVerificationAttempt,
+    PostalVerificationStatus,
     PushNotificationDeliveryAttempt,
     PushNotificationSubscription,
     Reference,
@@ -90,6 +93,7 @@ from couchers.notifications.background import handle_email_digests, handle_notif
 from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
 from couchers.notifications.send_raw_push_notification import send_raw_push_notification_v2
+from couchers.postal.postcard_service import send_postcard
 from couchers.proto import notification_data_pb2
 from couchers.proto.internal import jobs_pb2, verification_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
@@ -1262,3 +1266,56 @@ def check_expo_push_receipts(payload: empty_pb2.Empty) -> None:
 
 check_expo_push_receipts.PAYLOAD = empty_pb2.Empty
 check_expo_push_receipts.SCHEDULE = timedelta(minutes=5)
+
+
+def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPostcardPayload) -> None:
+    """
+    Sends the postcard via external API and updates attempt status.
+    """
+    with session_scope() as session:
+        attempt = session.execute(
+            select(PostalVerificationAttempt).where(
+                PostalVerificationAttempt.id == payload.postal_verification_attempt_id
+            )
+        ).scalar_one_or_none()
+
+        if not attempt or attempt.status != PostalVerificationStatus.in_progress:
+            logger.warning(
+                f"Postal verification attempt {payload.postal_verification_attempt_id} not found or wrong state"
+            )
+            return
+
+        user_name = session.execute(select(User.name).where(User.id == attempt.user_id)).scalar_one()
+
+        result = send_postcard(
+            recipient_name=user_name,
+            address_line_1=attempt.address_line_1,
+            address_line_2=attempt.address_line_2,
+            city=attempt.city,
+            state=attempt.state,
+            postal_code=attempt.postal_code,
+            country=attempt.country,
+            verification_code=attempt.verification_code,
+            qr_code_url=urls.postal_verification_link(code=attempt.verification_code),
+        )
+
+        if result.success:
+            attempt.status = PostalVerificationStatus.awaiting_verification
+            attempt.postcard_sent_at = func.now()
+
+            notify(
+                session,
+                user_id=attempt.user_id,
+                topic_action="postal_verification:postcard_sent",
+                data=notification_data_pb2.PostalVerificationPostcardSent(
+                    city=attempt.city,
+                    country=attempt.country,
+                ),
+            )
+        else:
+            # Could retry or fail - for now, fail
+            attempt.status = PostalVerificationStatus.failed
+            logger.error(f"Postcard send failed: {result.error_message}")
+
+
+send_postal_verification_postcard.PAYLOAD = jobs_pb2.SendPostalVerificationPostcardPayload

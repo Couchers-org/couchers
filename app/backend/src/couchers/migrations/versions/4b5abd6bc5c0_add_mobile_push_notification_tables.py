@@ -1,7 +1,7 @@
 """Add mobile push notification support
 
 Revision ID: 4b5abd6bc5c0
-Revises: aa7270f6ddbe
+Revises: d82ad0f2ac85
 Create Date: 2025-11-15 10:55:36.401287
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "4b5abd6bc5c0"
-down_revision = "aa7270f6ddbe"
+down_revision = "d82ad0f2ac85"
 branch_labels = None
 depends_on = None
 
