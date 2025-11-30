@@ -8,7 +8,6 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  useTheme,
 } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
@@ -16,7 +15,6 @@ import { useRef, useState } from "react";
 
 export default function CompareTable() {
   const { t } = useTranslation([GLOBAL]);
-  const theme = useTheme();
   const tableRef = useRef<HTMLDivElement | null>(null);
   const [tableNudge, setTableNudge] = useState(true);
 

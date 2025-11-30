@@ -7,6 +7,7 @@ import {
   SelectChangeEvent,
   styled,
   TextField,
+  Theme,
   Tooltip,
   useMediaQuery,
   useTheme,
@@ -63,7 +64,7 @@ const StyledFlexRow = styled("div")({
   justifyContent: "space-between",
 });
 
-const sharedInputStyles = (theme: any) => ({
+const sharedInputStyles = (theme: Theme) => ({
   height: "40px",
   minWidth: "250px",
   maxWidth: "250px",

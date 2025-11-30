@@ -8,7 +8,6 @@ import {
   Stack,
   styled,
   Typography,
-  useTheme,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import Pill from "components/Pill";
@@ -67,7 +66,6 @@ const NotificationsFeed = ({
 }: NotificationsFeedProps) => {
   const { t } = useTranslation([GLOBAL, NOTIFICATIONS]);
   const router = useRouter();
-  const theme = useTheme();
 
   const [internalMenuAnchorEl, setInternalMenuAnchorEl] =
     useState<HTMLButtonElement | null>(null);

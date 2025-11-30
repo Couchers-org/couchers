@@ -1,4 +1,9 @@
-import { Box, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import {
+  Box,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from "@mui/material";
 import BetaFlag from "components/BetaFlag";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";

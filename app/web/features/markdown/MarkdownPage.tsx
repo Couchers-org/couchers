@@ -5,7 +5,6 @@ import {
   styled,
   Typography,
   TypographyProps,
-  useTheme,
 } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import markdown from "markdown-it";
@@ -149,7 +148,6 @@ export default function MarkdownPage({
   frontmatter,
   content,
 }: MarkdownPageProps) {
-  const theme = useTheme();
   const subtitle = !!frontmatter.subtitle
     ? mkd.renderInline(frontmatter.subtitle)
     : null;

@@ -7,9 +7,8 @@ import {
   unclusteredPointLayer,
   USERS_SOURCE_ID,
 } from "features/search/utils/mapLayers";
-import { useThemeMode } from "features/theme/ThemeModeContext";
-import { mapStyleUrls } from "theme";
 import { loadMapUserPins } from "features/search/utils/mapUtils";
+import { useThemeMode } from "features/theme/ThemeModeContext";
 import React, { useRef } from "react";
 import {
   Layer,
@@ -18,6 +17,7 @@ import {
   NavigationControl,
   Source,
 } from "react-map-gl/maplibre";
+import { mapStyleUrls } from "theme";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 

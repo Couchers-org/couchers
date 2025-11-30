@@ -1,5 +1,5 @@
 import { ChevronRightRounded } from "@mui/icons-material";
-import { Box, Container, Stack, Typography, useTheme } from "@mui/material";
+import { Box, Container, Stack, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";

@@ -2,8 +2,6 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 import { useMediaQuery, useTheme } from "@mui/material";
 import { useMapSearchState } from "features/search/state/mapSearchContext";
-import { useThemeMode } from "features/theme/ThemeModeContext";
-import { mapStyleUrls } from "theme";
 import {
   clusterCountLayer,
   clusterLayer,
@@ -12,6 +10,7 @@ import {
   USERS_SOURCE_ID,
 } from "features/search/utils/mapLayers";
 import ZoomControl from "features/search/ZoomControl";
+import { useThemeMode } from "features/theme/ThemeModeContext";
 import { MapLayerMouseEvent, RequestParameters } from "maplibre-gl";
 import React, { useRef } from "react";
 import {
@@ -21,6 +20,7 @@ import {
   Source,
   ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
+import { mapStyleUrls } from "theme";
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
