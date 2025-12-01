@@ -1,4 +1,4 @@
-FROM python:3.13-slim-trixie AS base
+FROM python:3.14-slim-trixie AS base
 
 RUN <<EOT
 apt-get update -qy
