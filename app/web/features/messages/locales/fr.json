@@ -84,9 +84,9 @@
   },
   "host_request_item": {
     "host_status": {
-      "cancelled": "Vous avez annulé cette demande",
+      "cancelled": "Cette demande a été annulée",
       "accepted": "Vous avez accepté cette demande",
-      "confirmed": "Vous avez confirmé cette demande",
+      "confirmed": "Cette demande a été confirmée",
       "rejected": "Vous avez refusé cette demande"
     },
     "expired": "Cette demande a expiré",

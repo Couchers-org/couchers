@@ -132,8 +132,8 @@
     "pending": "This request is still pending",
     "host_status": {
       "accepted": "You have accepted this request",
-      "cancelled": "You have cancelled this request",
-      "confirmed": "You have confirmed this request",
+      "cancelled": "This request was cancelled",
+      "confirmed": "This request was confirmed",
       "rejected": "You have declined this request"
     },
     "surfer_status": {

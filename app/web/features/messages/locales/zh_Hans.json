@@ -130,8 +130,8 @@
     "pending": "此请求仍在等待中",
     "host_status": {
       "accepted": "您已接受此请求",
-      "cancelled": "您已拒绝此请求",
-      "confirmed": "您已确认此请求",
+      "cancelled": "此请求已被取消",
+      "confirmed": "此请求已被确认",
       "rejected": "您已拒绝此请求"
     },
     "surfer_status": {

@@ -129,8 +129,8 @@
     "pending": "Diese Anfrage ist noch ausstehend",
     "host_status": {
       "accepted": "Du hast diese Anfrage angenommen",
-      "cancelled": "Du hast diese Anfrage storniert",
-      "confirmed": "Du hast diese Anfrage bestätigt",
+      "cancelled": "Diese Anfrage wurde storniert",
+      "confirmed": "Diese Anfrage wurde bestätigt",
       "rejected": "Du hast diese Anfrage abgelehnt"
     },
     "surfer_status": {

@@ -18,9 +18,9 @@
     },
     "expired": "Esta solicitação expirou",
     "host_status": {
-      "cancelled": "Cancelaste este pedido",
+      "cancelled": "Este pedido foi cancelado",
       "accepted": "Aceitaste este pedido",
-      "confirmed": "Confirmaste este pedido",
+      "confirmed": "Este pedido foi confirmado",
       "rejected": "Rejeitaste este pedido"
     },
     "pending": "Este pedido ainda está pendente"
