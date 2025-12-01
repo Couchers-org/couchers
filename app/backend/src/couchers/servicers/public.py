@@ -1,4 +1,5 @@
 import logging
+from datetime import UTC, datetime
 
 import grpc
 from cachetools import TTLCache, cached
@@ -6,7 +7,7 @@ from sqlalchemy.sql import func, union_all
 
 from couchers import urls
 from couchers.materialized_views import LiteUser
-from couchers.models import Cluster, Node, ProfilePublicVisibility, Reference, User, Volunteer
+from couchers.models import Cluster, Invoice, InvoiceType, Node, ProfilePublicVisibility, Reference, User, Volunteer
 from couchers.proto import api_pb2, public_pb2, public_pb2_grpc
 from couchers.resources import get_static_badge_dict
 from couchers.servicers.api import fluency2api, hostingstatus2api, meetupstatus2api, user_model_to_pb
@@ -86,6 +87,28 @@ def _get_signup_page_info(session):
         last_signup=Timestamp_from_datetime(last_signup.replace(second=0, microsecond=0)),
         last_location=last_location,
         user_count=user_count,
+    )
+
+
+DONATION_GOAL_USD = 5000
+
+
+@cached(cache=TTLCache(maxsize=1, ttl=300), key=lambda _: None)
+def _get_donation_stats(session):
+    """Get year-to-date donation statistics, excluding merch purchases."""
+    current_year = datetime.now(UTC).year
+    start_of_year = datetime(current_year, 1, 1, tzinfo=UTC)
+
+    # Sum all on_platform invoices (donations) from start of year, excluding external_shop (merch)
+    total_donated = session.execute(
+        select(func.coalesce(func.sum(Invoice.amount), 0))
+        .where(Invoice.invoice_type == InvoiceType.on_platform)
+        .where(Invoice.created >= start_of_year)
+    ).scalar_one()
+
+    return public_pb2.GetDonationStatsRes(
+        total_donated_ytd=int(total_donated),
+        goal=DONATION_GOAL_USD,
     )
 
 
@@ -218,3 +241,6 @@ class Public(public_pb2_grpc.PublicServicer):
 
     def GetVolunteers(self, request, context, session):
         return _get_volunteers(session)
+
+    def GetDonationStats(self, request, context, session):
+        return _get_donation_stats(session)
