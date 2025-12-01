@@ -5219,7 +5219,7 @@ inherits@2, inherits@2.0.4, inherits@^2.0.3, inherits@^2.0.4:
   resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.4.tgz#0fa2c64f932917c3433a0ded55363aae37416b7c"
   integrity sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
 
-input-format@^0.3.10:
+input-format@^0.3.14:
   version "0.3.14"
   resolved "https://registry.yarnpkg.com/input-format/-/input-format-0.3.14.tgz#7aea985e2a5b258d2cdd853ac7cc10bac1b2a8b8"
   integrity sha512-gHMrgrbCgmT4uK5Um5eVDUohuV9lcs95ZUUN9Px2Y0VIfjTzT2wF8Q3Z4fwLFm7c5Z2OXCm53FHoovj6SlOKdg==
@@ -6258,10 +6258,10 @@ levn@^0.4.1:
     prelude-ls "^1.2.1"
     type-check "~0.4.0"
 
-libphonenumber-js@^1.12.24:
-  version "1.12.25"
-  resolved "https://registry.yarnpkg.com/libphonenumber-js/-/libphonenumber-js-1.12.25.tgz#1af48b816082100bf88f47d342387fbac1f1a773"
-  integrity sha512-u90tUu/SEF8b+RaDKCoW7ZNFDakyBtFlX1ex3J+VH+ElWes/UaitJLt/w4jGu8uAE41lltV/s+kMVtywcMEg7g==
+libphonenumber-js@^1.12.27:
+  version "1.12.30"
+  resolved "https://registry.yarnpkg.com/libphonenumber-js/-/libphonenumber-js-1.12.30.tgz#8f37c6d0546e89a399085d329214a583642e611a"
+  integrity sha512-KxH7uIJFD6+cR6nhdh+wY6prFiH26A3W/W1gTMXnng2PXSwVfi5MhYkdq3Z2Y7vhBVa1/5VJgpNtI76UM2njGA==
 
 lines-and-columns@^1.1.6:
   version "1.2.4"
@@ -7333,15 +7333,15 @@ react-map-gl@^8.1.0:
     "@vis.gl/react-mapbox" "8.1.0"
     "@vis.gl/react-maplibre" "8.1.0"
 
-react-phone-number-input@^3.4.13:
-  version "3.4.13"
-  resolved "https://registry.yarnpkg.com/react-phone-number-input/-/react-phone-number-input-3.4.13.tgz#3122572fb618b97723d5d59c8ecf357ca9c4fd0a"
-  integrity sha512-9l5Zj4MChLwA+AwOtwS59s6ZfyJCuZrZU4EdHt6BJ9BhWwK1NFhtFcE4zMK4fP31GXnwjkesvadAjNHVPuVP0Q==
+react-phone-number-input@^3.4.14:
+  version "3.4.14"
+  resolved "https://registry.yarnpkg.com/react-phone-number-input/-/react-phone-number-input-3.4.14.tgz#e2bbb3f1c89e99082245ba6438be3f19a46e89be"
+  integrity sha512-T9MziNuvthzv6+JAhKD71ab/jVXW5U20nQZRBJd6+q+ujmkC+/ISOf2GYo8pIi4VGjdIYRIHDftMAYn3WKZT3w==
   dependencies:
     classnames "^2.5.1"
     country-flag-icons "^1.5.17"
-    input-format "^0.3.10"
-    libphonenumber-js "^1.12.24"
+    input-format "^0.3.14"
+    libphonenumber-js "^1.12.27"
     prop-types "^15.8.1"
 
 react-simple-maps@^3.0.0:
