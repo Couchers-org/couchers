@@ -9,6 +9,6 @@ export default function useDonationStats() {
     queryKey: [donationStatsKey],
     queryFn: service.publicApi.getDonationStats,
     // Cache for 5 minutes
-    // staleTime: 5 * 60 * 1000,
+    staleTime: 5 * 60 * 1000,
   });
 }
