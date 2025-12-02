@@ -1,6 +1,14 @@
 import { useRouter } from "expo-router";
-import { useRef } from "react";
-import { StyleSheet, Text, useColorScheme, View } from "react-native";
+import { useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  useColorScheme,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   WebView,
@@ -10,6 +18,8 @@ import {
 
 import { useAuthContext } from "@/features/auth/AuthContext";
 import { theme } from "@/theme";
+
+import errorGraphic from "@/resources/404graphic.png";
 
 type WebEmbedProps = {
   path: string;
@@ -24,11 +34,17 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   const router = useRouter();
   const { markLoggedOut, setUserId, setJailed, markAuthenticated } =
     useAuthContext();
+  const [hasError, setHasError] = useState(false);
 
   const backgroundColor =
     colorScheme === "dark"
       ? theme.palette.common.black
       : theme.palette.common.white;
+
+  const handleRetry = () => {
+    setHasError(false);
+    webviewRef.current?.reload();
+  };
 
   const handleNavigationStateChange = (navState: WebViewNavigation) => {
     const { url } = navState;
@@ -68,6 +84,31 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     }
   };
 
+  // Show error screen
+  if (hasError) {
+    return (
+      <View style={[styles.container, { backgroundColor }]}>
+        <View style={{ height: insets.top, backgroundColor }} />
+        <View style={styles.errorContainer}>
+          <Image source={errorGraphic} style={styles.errorImage} />
+          <Text style={styles.errorTitle}>Failed to load</Text>
+          <Text style={styles.errorText}>
+            Check your internet connection and try again.
+          </Text>
+          <Pressable
+            style={({ pressed }) => [
+              styles.retryButton,
+              pressed && styles.retryButtonPressed,
+            ]}
+            onPress={handleRetry}
+          >
+            <Text style={styles.retryButtonText}>Try Again</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.container, { backgroundColor }]}>
       <View style={{ height: insets.top, backgroundColor }} />
@@ -76,10 +117,22 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         style={styles.webview}
         source={{ uri: WEB_BASE_URL + path }}
         sharedCookiesEnabled
+        cacheEnabled
+        cacheMode="LOAD_CACHE_ELSE_NETWORK"
+        startInLoadingState
+        renderLoading={() => (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator
+              size="large"
+              color={theme.palette.primary.main}
+            />
+          </View>
+        )}
         onNavigationStateChange={handleNavigationStateChange}
         injectedJavaScriptObject={{ isCouchersNativeEmbed: true }}
         onMessage={handleMessage}
         onError={(syntheticEvent) => {
+          setHasError(true);
           if (__DEV__) {
             const { nativeEvent } = syntheticEvent;
             console.error("WebView error:", nativeEvent);
@@ -97,6 +150,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
           }
         }}
         renderError={(errorDomain, errorCode, errorDesc) => {
+          setHasError(true);
           if (__DEV__) {
             console.error(
               "WebView render error:",
@@ -105,11 +159,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
               errorDesc,
             );
           }
-          return (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>Failed to load page</Text>
-            </View>
-          );
+          return <View />; // We handle this with hasError state
         }}
       />
     </View>
@@ -123,14 +173,51 @@ const styles = StyleSheet.create({
   webview: {
     flex: 1,
   },
+  loadingContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   errorContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
+    padding: 24,
+  },
+  errorImage: {
+    width: "70%",
+    height: 200,
+    resizeMode: "contain",
+    marginBottom: 24,
+  },
+  errorTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginBottom: 8,
+    color: "#333",
   },
   errorText: {
-    color: "#666",
     fontSize: 16,
+    color: "#666",
+    textAlign: "center",
+    marginBottom: 24,
+  },
+  retryButton: {
+    backgroundColor: theme.palette.primary.main,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryButtonPressed: {
+    opacity: 0.8,
+  },
+  retryButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

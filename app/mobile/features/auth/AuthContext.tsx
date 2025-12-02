@@ -14,6 +14,7 @@ import client from "@/service/client";
 import i18n from "@/i18n";
 
 const BIOMETRICS_ENABLED_KEY = "biometrics_enabled";
+const CACHED_AUTH_STATE_KEY = "cached_auth_state";
 
 // Lazy import LocalAuthentication to handle Expo Go gracefully
 let LocalAuthentication: typeof import("expo-local-authentication") | null =
@@ -42,7 +43,7 @@ type AuthContextValue = {
   /** Whether biometrics are available (native module loaded) */
   biometricsAvailable: boolean;
   markAuthenticated: () => void;
-  markLoggedOut: () => void;
+  markLoggedOut: () => Promise<void>;
   setUserId: (id: number | null) => void;
   setJailed: (jailed: boolean) => void;
   /** Enable biometrics for quick login */
@@ -82,6 +83,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const authState = response.toObject();
 
         if (authState.loggedIn && authState.authRes) {
+          // Cache auth state for offline use
+          await SecureStore.setItemAsync(
+            CACHED_AUTH_STATE_KEY,
+            JSON.stringify({
+              userId: authState.authRes.userId,
+              jailed: authState.authRes.jailed,
+            }),
+          );
+
           // Session is valid - check if we need biometric auth
           if (biometricsEnabledPref && localAuth) {
             // Check if biometrics are available on device
@@ -120,12 +130,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setJailedState(authState.authRes.jailed);
             setAuthenticated(true);
           }
+        } else {
+          // Not logged in - clear cached auth state
+          await SecureStore.deleteItemAsync(CACHED_AUTH_STATE_KEY);
         }
-        // If not logged in, authenticated stays false and user sees login screen
       } catch (error) {
-        // Network error or session invalid - user will see login screen
+        // Network error - try to use cached auth state for offline access
         if (__DEV__) {
           console.error("Error checking auth status:", error);
+        }
+
+        try {
+          const cachedAuthState = await SecureStore.getItemAsync(
+            CACHED_AUTH_STATE_KEY,
+          );
+          if (cachedAuthState) {
+            const { userId, jailed } = JSON.parse(cachedAuthState);
+            setUserIdState(userId);
+            setJailedState(jailed);
+            setAuthenticated(true);
+            if (__DEV__) {
+              console.log("Using cached auth state for offline access");
+            }
+          }
+        } catch {
+          // Failed to parse cached state - ignore
         }
       } finally {
         setCheckedAuthStatus(true);
@@ -139,10 +168,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthenticated(true);
   }, []);
 
-  const markLoggedOut = useCallback(() => {
+  const markLoggedOut = useCallback(async () => {
     setAuthenticated(false);
     setUserIdState(null);
     setJailedState(false);
+    // Clear cached auth state on logout
+    await SecureStore.deleteItemAsync(CACHED_AUTH_STATE_KEY);
   }, []);
 
   const setUserId = useCallback((id: number | null) => {
