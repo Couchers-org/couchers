@@ -1,7 +1,7 @@
 [project]
-name = "issue-bot"
+name = "github-llm-bots"
 version = "0.1.0"
-description = "Add your description here"
+description = "GitHub LLM-powered bots for issue triage and PR release notes"
 requires-python = ">=3.13"
 dependencies = [
     "a5>=0.0.16",

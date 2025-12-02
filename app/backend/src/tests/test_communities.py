@@ -6,7 +6,7 @@ from geoalchemy2 import WKBElement
 from google.protobuf import wrappers_pb2
 from sqlalchemy.orm import Session
 
-from couchers.db import session_scope
+from couchers.db import is_user_in_node_geography, session_scope
 from couchers.materialized_views import refresh_materialized_views
 from couchers.models import (
     Cluster,
@@ -777,10 +777,9 @@ class TestCommunities:
                 assert d.thread.num_responses == 0
 
     @staticmethod
-    def test_node_contained_user_ids_association_proxy(testing_communities):
+    def test_is_user_in_node_geography(testing_communities):
         with session_scope() as session:
             c1_id = get_community_id(session, "Country 1")
-            node = session.execute(select(Node).where(Node.id == c1_id)).scalar_one_or_none()
 
             user1_id, _ = get_user_id_and_token(session, "user1")
             user2_id, _ = get_user_id_and_token(session, "user2")
@@ -788,8 +787,12 @@ class TestCommunities:
             user4_id, _ = get_user_id_and_token(session, "user4")
             user5_id, _ = get_user_id_and_token(session, "user5")
 
-            assert set(node.contained_user_ids) == {user1_id, user2_id, user3_id, user4_id, user5_id}
-            assert len(node.contained_user_ids) == len(node.contained_users)
+            # All these users should be in Country 1's geography
+            assert is_user_in_node_geography(session, user1_id, c1_id)
+            assert is_user_in_node_geography(session, user2_id, c1_id)
+            assert is_user_in_node_geography(session, user3_id, c1_id)
+            assert is_user_in_node_geography(session, user4_id, c1_id)
+            assert is_user_in_node_geography(session, user5_id, c1_id)
 
     @staticmethod
     def test_ListEvents(testing_communities):

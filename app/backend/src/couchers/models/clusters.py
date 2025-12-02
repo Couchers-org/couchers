@@ -15,7 +15,6 @@ from sqlalchemy import (
     func,
     text,
 )
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import Mapped, backref, column_property, deferred, mapped_column, relationship
 from sqlalchemy.sql import expression
 
@@ -45,15 +44,6 @@ class Node(Base):
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     parent_node = relationship("Node", backref="child_nodes", remote_side="Node.id")
-
-    contained_users = relationship(
-        "User",
-        primaryjoin="func.ST_Contains(foreign(Node.geom), User.geom).as_comparison(1, 2)",
-        viewonly=True,
-        uselist=True,
-    )
-
-    contained_user_ids = association_proxy("contained_users", "id")
 
 
 class Cluster(Base):

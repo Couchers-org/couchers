@@ -10,17 +10,13 @@ from couchers import urls
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.email import queue_email
-from couchers.metrics import push_notification_counter, push_notification_disabled_counter
 from couchers.models import (
     Notification,
     NotificationDelivery,
     NotificationDeliveryType,
-    PushNotificationDeliveryAttempt,
-    PushNotificationSubscription,
     User,
 )
 from couchers.notifications.push import push_to_user
-from couchers.notifications.push_api import send_push
 from couchers.notifications.quick_links import (
     generate_do_not_email,
     generate_unsub_topic_action,
@@ -167,7 +163,7 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
                     )
                 )
             elif delivery_type == NotificationDeliveryType.push:
-                # for push notifications, we send them straight away
+                # for push notifications, we send them straight away (web + mobile)
                 session.add(
                     NotificationDelivery(
                         notification_id=notification.id,
@@ -176,53 +172,6 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
                     )
                 )
                 _send_push_notification(session, user, notification)
-
-
-def send_raw_push_notification(payload: jobs_pb2.SendRawPushNotificationPayload) -> None:
-    if not config["PUSH_NOTIFICATIONS_ENABLED"]:
-        logger.info("Not sending push notification due to push notifications disabled")
-
-    with session_scope() as session:
-        if len(payload.data) > 3072:
-            raise Exception(f"Data too long for push notification to sub {payload.push_notification_subscription_id}")
-        sub = session.execute(
-            select(PushNotificationSubscription).where(
-                PushNotificationSubscription.id == payload.push_notification_subscription_id
-            )
-        ).scalar_one()
-        if sub.disabled_at < now():
-            logger.error(f"Tried to send push to disabled subscription: {sub.id}. Disabled at {sub.disabled_at}.")
-            return
-        # this of requests.response
-        resp = send_push(
-            payload.data,
-            sub.endpoint,
-            sub.auth_key,
-            sub.p256dh_key,
-            config["PUSH_NOTIFICATIONS_VAPID_SUBJECT"],
-            config["PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY"],
-            ttl=payload.ttl,
-        )
-        success = resp.status_code in [200, 201, 202]
-        session.add(
-            PushNotificationDeliveryAttempt(
-                push_notification_subscription_id=sub.id,
-                success=success,
-                status_code=resp.status_code,
-                response=resp.text,
-            )
-        )
-        session.commit()
-        if success:
-            logger.debug(f"Successfully sent push to sub {sub.id} for user {sub.user}")
-            push_notification_counter.inc()
-        elif resp.status_code == 404 or resp.status_code == 410:
-            # gone
-            logger.info(f"Push sub {sub.id} for user {sub.user} is gone! Disabling.")
-            sub.disabled_at = func.now()
-            push_notification_disabled_counter.inc()
-        else:
-            raise Exception(f"Failed to deliver push to {sub.id}, code: {resp.status_code}. Response: {resp.text}")
 
 
 def handle_email_digests(payload: empty_pb2.Empty) -> None:

@@ -8,11 +8,9 @@ from sqlalchemy.sql import func
 from couchers.db import session_scope
 from couchers.models import (
     AccountDeletionToken,
-    Cluster,
     ContentReport,
     EventOccurrence,
     ModerationUserList,
-    Node,
     Reference,
     UserSession,
 )
@@ -28,6 +26,7 @@ from tests.test_fixtures import (  # noqa
     events_session,
     generate_user,
     get_user_id_and_token,
+    make_friends,
     mock_notification_email,
     push_collector,
     real_admin_session,
@@ -382,178 +381,6 @@ def test_CreateApiKey(db, push_collector):
     )
 
 
-VALID_GEOJSON_MULTIPOLYGON = """
-    {
-      "type": "MultiPolygon",
-      "coordinates":
-       [
-        [
-          [
-            [
-              -73.98114904754641,
-              40.7470284264813
-            ],
-            [
-              -73.98314135177611,
-              40.73416844413217
-            ],
-            [
-              -74.00538969848634,
-              40.734314779027144
-            ],
-            [
-              -74.00479214294432,
-              40.75027851544338
-            ],
-            [
-              -73.98114904754641,
-              40.7470284264813
-            ]
-          ]
-        ]
-      ]
-    }
-"""
-
-POINT_GEOJSON = """
-{ "type": "Point", "coordinates": [100.0, 0.0] }
-"""
-
-
-def test_CreateCommunity_invalid_geojson(db):
-    super_user, super_token = generate_user(is_superuser=True)
-    normal_user, normal_token = generate_user()
-    with real_admin_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateCommunity(
-                admin_pb2.CreateCommunityReq(
-                    name="test community",
-                    description="community for testing",
-                    admin_ids=[],
-                    geojson=POINT_GEOJSON,
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "GeoJson was not of type MultiPolygon."
-
-
-def test_CreateCommunity(db):
-    with session_scope() as session:
-        super_user, super_token = generate_user(is_superuser=True)
-        normal_user, normal_token = generate_user()
-        with real_admin_session(super_token) as api:
-            api.CreateCommunity(
-                admin_pb2.CreateCommunityReq(
-                    name="test community",
-                    description="community for testing",
-                    admin_ids=[],
-                    geojson=VALID_GEOJSON_MULTIPOLYGON,
-                )
-            )
-            community = session.execute(select(Cluster).where(Cluster.name == "test community")).scalar_one()
-            assert community.description == "community for testing"
-            assert community.slug == "test-community"
-
-
-def test_UpdateCommunity_invalid_geojson(db):
-    super_user, super_token = generate_user(is_superuser=True)
-
-    with session_scope() as session:
-        with real_admin_session(super_token) as api:
-            api.CreateCommunity(
-                admin_pb2.CreateCommunityReq(
-                    name="test community",
-                    description="community for testing",
-                    admin_ids=[],
-                    geojson=VALID_GEOJSON_MULTIPOLYGON,
-                )
-            )
-            community = session.execute(select(Cluster).where(Cluster.name == "test community")).scalar_one()
-
-            with pytest.raises(grpc.RpcError) as e:
-                api.UpdateCommunity(
-                    admin_pb2.UpdateCommunityReq(
-                        community_id=community.parent_node_id,
-                        name="test community 2",
-                        description="community for testing 2",
-                        geojson=POINT_GEOJSON,
-                    )
-                )
-            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-            assert e.value.details() == "GeoJson was not of type MultiPolygon."
-
-
-def test_UpdateCommunity_invalid_id(db):
-    super_user, super_token = generate_user(is_superuser=True)
-
-    with real_admin_session(super_token) as api:
-        api.CreateCommunity(
-            admin_pb2.CreateCommunityReq(
-                name="test community",
-                description="community for testing",
-                admin_ids=[],
-                geojson=VALID_GEOJSON_MULTIPOLYGON,
-            )
-        )
-
-        with pytest.raises(grpc.RpcError) as e:
-            api.UpdateCommunity(
-                admin_pb2.UpdateCommunityReq(
-                    community_id=1000,
-                    name="test community 1000",
-                    description="community for testing 1000",
-                    geojson=VALID_GEOJSON_MULTIPOLYGON,
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Community not found."
-
-
-def test_UpdateCommunity(db):
-    super_user, super_token = generate_user(is_superuser=True)
-
-    with session_scope() as session:
-        with real_admin_session(super_token) as api:
-            api.CreateCommunity(
-                admin_pb2.CreateCommunityReq(
-                    name="test community",
-                    description="community for testing",
-                    admin_ids=[],
-                    geojson=VALID_GEOJSON_MULTIPOLYGON,
-                )
-            )
-            community = session.execute(select(Cluster).where(Cluster.name == "test community")).scalar_one()
-            assert community.description == "community for testing"
-
-            api.CreateCommunity(
-                admin_pb2.CreateCommunityReq(
-                    name="test community 2",
-                    description="community for testing 2",
-                    admin_ids=[],
-                    geojson=VALID_GEOJSON_MULTIPOLYGON,
-                )
-            )
-            community_2 = session.execute(select(Cluster).where(Cluster.name == "test community 2")).scalar_one()
-
-            api.UpdateCommunity(
-                admin_pb2.UpdateCommunityReq(
-                    community_id=community.parent_node_id,
-                    name="test community 2",
-                    description="community for testing 2",
-                    geojson=VALID_GEOJSON_MULTIPOLYGON,
-                    parent_node_id=community_2.parent_node_id,
-                )
-            )
-            session.commit()
-
-            community_updated = session.execute(select(Cluster).where(Cluster.id == community.id)).scalar_one()
-            assert community_updated.description == "community for testing 2"
-            assert community_updated.slug == "test-community-2"
-
-            node_updated = session.execute(select(Node).where(Node.id == community_updated.parent_node_id)).scalar_one()
-            assert node_updated.parent_node_id == community_2.parent_node_id
-
-
 def test_GetChats(db):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user()
@@ -569,17 +396,17 @@ def test_badges(db, push_collector):
 
     with real_admin_session(super_token) as api:
         # can add a badge
-        assert "volunteer" not in api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username)).badges
+        assert "swagster" not in api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username)).badges
         with mock_notification_email() as mock:
-            res = api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="volunteer"))
-        assert "volunteer" in res.badges
+            res = api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="swagster"))
+        assert "swagster" in res.badges
 
         # badge emails are disabled by default
         mock.assert_not_called()
 
         push_collector.assert_user_has_single_matching(
             normal_user.id,
-            title="The Active Volunteer badge was added to your profile",
+            title="The Swagster badge was added to your profile",
             body="Check out your profile to see the new badge!",
         )
 
@@ -591,15 +418,15 @@ def test_badges(db, push_collector):
 
         # double add badge
         with pytest.raises(grpc.RpcError) as e:
-            api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="volunteer"))
+            api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="swagster"))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == "The user already has that badge."
 
         # can remove badge
-        assert "volunteer" in api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username)).badges
+        assert "swagster" in api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username)).badges
         with mock_notification_email() as mock:
-            res = api.RemoveBadge(admin_pb2.RemoveBadgeReq(user=normal_user.username, badge_id="volunteer"))
-        assert "volunteer" not in res.badges
+            res = api.RemoveBadge(admin_pb2.RemoveBadgeReq(user=normal_user.username, badge_id="swagster"))
+        assert "swagster" not in res.badges
 
         # badge emails are disabled by default
         mock.assert_not_called()
@@ -607,13 +434,13 @@ def test_badges(db, push_collector):
         push_collector.assert_user_push_matches_fields(
             normal_user.id,
             ix=1,
-            title="The Active Volunteer badge was removed from your profile",
+            title="The Swagster badge was removed from your profile",
             body="You can see all your badges on your profile.",
         )
 
         # not found on user
         with pytest.raises(grpc.RpcError) as e:
-            api.RemoveBadge(admin_pb2.RemoveBadgeReq(user=normal_user.username, badge_id="volunteer"))
+            api.RemoveBadge(admin_pb2.RemoveBadgeReq(user=normal_user.username, badge_id="swagster"))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == "The user does not have that badge."
 
@@ -689,6 +516,7 @@ def test_EditReferenceText(db):
 
     user1, user1_token = generate_user()
     user2, user2_token = generate_user()
+    make_friends(user1, user2)
 
     with session_scope() as session:
         with references_session(user1_token) as api:
@@ -716,6 +544,7 @@ def test_DeleteReference(db):
 
     user1, user1_token = generate_user()
     user2, user2_token = generate_user()
+    make_friends(user1, user2)
 
     with references_session(user1_token) as api:
         reference = api.WriteFriendReference(

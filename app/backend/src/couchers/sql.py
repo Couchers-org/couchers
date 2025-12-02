@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING, Any, Self
 
-from sqlalchemy import false
+from sqlalchemy import and_, false, or_
 from sqlalchemy.orm import InstrumentedAttribute, aliased
-from sqlalchemy.sql import Select, union
+from sqlalchemy.sql import Select, exists, union
 
 from couchers.context import CouchersContext
 from couchers.models import SignupFlow, User, UserBlock
@@ -70,6 +70,67 @@ class CouchersSelect(Select[Any]):
             self.join(aliased_user, aliased_user.id == column)
             .where(aliased_user.is_visible)
             .where(~aliased_user.id.in_(hidden_users))
+        )
+
+    def where_users_visible_to_each_other(self, user1: "_User", user2: "_User") -> Self:
+        """
+        Filters to ensure two users are mutually visible to each other.
+
+        Checks that:
+        - Both users are visible (not deleted/banned)
+        - Neither user has blocked the other (bidirectional check)
+
+        Use this when both User tables are already joined/selected in the query.
+        """
+        return (
+            self.where(user1.is_visible)
+            .where(user2.is_visible)
+            .where(
+                ~exists(
+                    couchers_select(1)
+                    .select_from(UserBlock)
+                    .where(
+                        or_(
+                            and_(UserBlock.blocking_user_id == user1.id, UserBlock.blocked_user_id == user2.id),
+                            and_(UserBlock.blocking_user_id == user2.id, UserBlock.blocked_user_id == user1.id),
+                        )
+                    )
+                )
+            )
+        )
+
+    def where_user_columns_visible_to_each_other(
+        self, column1: InstrumentedAttribute[int], column2: InstrumentedAttribute[int]
+    ) -> Self:
+        """
+        Filters to ensure two users are mutually visible to each other.
+
+        Checks that:
+        - Both users are visible (not deleted/banned)
+        - Neither user has blocked the other (bidirectional check)
+
+        Use this when you have two user_id columns that haven't been joined yet.
+        This will join both User tables and apply the visibility checks.
+        """
+        user1 = aliased(User)
+        user2 = aliased(User)
+        return (
+            self.join(user1, user1.id == column1)
+            .join(user2, user2.id == column2)
+            .where(user1.is_visible)
+            .where(user2.is_visible)
+            .where(
+                ~exists(
+                    couchers_select(1)
+                    .select_from(UserBlock)
+                    .where(
+                        or_(
+                            and_(UserBlock.blocking_user_id == user1.id, UserBlock.blocked_user_id == user2.id),
+                            and_(UserBlock.blocking_user_id == user2.id, UserBlock.blocked_user_id == user1.id),
+                        )
+                    )
+                )
+            )
         )
 
 

@@ -5,6 +5,7 @@ import {
   MarkAllNotificationsSeenReq,
   MarkNotificationSeenReq,
   Notification,
+  RegisterMobilePushNotificationSubscriptionReq,
   RegisterPushNotificationSubscriptionReq,
   SetNotificationSettingsReq,
   SingleNotificationPreference,
@@ -68,6 +69,26 @@ export async function registerPushNotificationSubscription(
 
 export async function sendTestPushNotification() {
   await client.notifications.sendTestPushNotification(new Empty());
+}
+
+export async function registerMobilePushNotificationSubscription({
+  token,
+  deviceName,
+  deviceType,
+}: {
+  token: string;
+  deviceName?: string;
+  deviceType?: string;
+}) {
+  const req = new RegisterMobilePushNotificationSubscriptionReq();
+  req.setToken(token);
+  if (deviceName) req.setDeviceName(deviceName);
+  if (deviceType) req.setDeviceType(deviceType);
+  await client.notifications.registerMobilePushNotificationSubscription(req);
+}
+
+export async function sendTestMobilePushNotification() {
+  await client.notifications.sendTestMobilePushNotification(new Empty());
 }
 
 export async function listNotifications({

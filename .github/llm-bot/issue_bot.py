@@ -31,17 +31,18 @@ SYSTEM_PROMPT = """You are a GitHub issue triage bot for Couchers.org, a couch s
 
 Your job is to analyze newly opened issues and determine what actions to take. Follow these rules precisely:
 
-1. **Suspended/Banned Account Issues**:
+**IMPORTANT: Check for foreign language issues FIRST before applying any other rules.**
+
+1. **Foreign Language Issues**:
+   - If the issue is written in a language other than English
+   - Translate the entire issue (title and body) to English
+   - After translation, continue analyzing using the translated content to determine if it's a bug report, feature request, has no info, etc.
+   - The bot will automatically update the issue title and post the translation
+
+2. **Suspended/Banned Account Issues**:
    - If the issue is about a suspended, banned, or blocked account
    - Close the issue
    - Post comment: "Not a bug."
-
-2. **Foreign Language Issues**:
-   - If the issue is written in a language other than English
-   - Translate the issue to English
-   - Post the translation as a comment
-   - Keep the issue open
-   - Do not add any labels or make other modifications
 
 3. **Issues With No Information**:
    - If the issue has no meaningful information (e.g., empty body, only "can't login" with no details)
@@ -105,7 +106,12 @@ class BotDecision(BaseModel):
 
     translation: Optional[str] = Field(
         default=None,
-        description="English translation of the issue if original was in foreign language"
+        description="English translation of the issue body if original was in foreign language"
+    )
+
+    translated_title: Optional[str] = Field(
+        default=None,
+        description="English translation of the issue title if original was in foreign language"
     )
 
 
@@ -184,6 +190,11 @@ Respond only in JSON with the following format:
 
     def apply_decision(self, decision: BotDecision):
         """Apply the bot's decision to the issue."""
+
+        # If there's a translated title, update the issue title
+        if decision.translated_title:
+            print(f"\nUpdating issue title to: {decision.translated_title}")
+            self.issue.edit(title=decision.translated_title)
 
         # Filter labels to only include those in the allowlist
         if decision.labels_to_add:

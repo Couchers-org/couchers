@@ -50,6 +50,8 @@ CONFIG_OPTIONS: CONFIG_T = [
     ("IRIS_ID_PUBKEY", str),
     ("IRIS_ID_SECRET", str),
     ("VERIFICATION_DATA_PUBLIC_KEY", bytes),
+    # Postal verification
+    ("ENABLE_POSTAL_VERIFICATION", bool),
     # SMS
     ("ENABLE_SMS", bool),
     ("SMS_SENDER_ID", str),

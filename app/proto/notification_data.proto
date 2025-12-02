@@ -197,6 +197,25 @@ message VerificationSVFail {
   SVFailReason reason = 1;
 }
 
+// Postal verification notifications
+message PostalVerificationPostcardSent {
+  // Address where postcard was sent (city, country for privacy)
+  string city = 1;
+  string country = 2;
+}
+
+enum PostalVerificationFailReason {
+  POSTAL_VERIFICATION_FAIL_REASON_UNKNOWN = 0;
+  // Code expired (90 days since postcard sent)
+  POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED = 1;
+  // Too many wrong attempts (5 attempts)
+  POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS = 2;
+}
+
+message PostalVerificationFailed {
+  PostalVerificationFailReason reason = 1;
+}
+
 message EventComment {
   org.couchers.api.threads.Reply reply = 1;
   org.couchers.api.events.Event event = 2;

@@ -30,6 +30,10 @@ const IS_PROD =
   (process.env.NEXT_PUBLIC_COUCHERS_ENV ||
     process.env.EXPO_PUBLIC_COUCHERS_ENV)! === "prod";
 
+// Debug: Log the API URL being used
+console.log("🔧 Mobile API URL:", URL);
+console.log("🔧 Environment:", process.env.EXPO_PUBLIC_COUCHERS_ENV);
+
 export const grpcTimeout = 10000; //milliseconds
 
 let _unauthenticatedErrorHandler: (
@@ -47,6 +51,8 @@ export class AuthInterceptor {
     try {
       response = await invoker(request);
     } catch (e) {
+      console.error("🔴 API Request Error:", e);
+      console.error("🔴 Using API URL:", URL);
       if (isGrpcError(e) && e.code === StatusCode.UNAUTHENTICATED) {
         _unauthenticatedErrorHandler(e);
       } else {

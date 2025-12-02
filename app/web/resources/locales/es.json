@@ -94,7 +94,9 @@
             "description_required": "Se requiere una descripción.",
             "profile_reason_required": "Por favor complete la descripción o el bloque",
             "description_label": "Describa el problema",
-            "success": "¡Gracias por tu denuncia y por hacer de Couchers una plataforma mejor para todos!"
+            "success": "¡Gracias por tu denuncia y por hacer de Couchers una plataforma mejor para todos!",
+            "block_user": "Bloquear a {{username}}",
+            "block_user_explainer": "Los mensajes y peticiones de esta persona serán bloqueadas, y tu perfil, eventos y comentarios no serán visibles para ella. No se le informará de que la bloqueaste."
         },
         "bug": {
             "button_label": "Informar de un problema técnico",
@@ -110,7 +112,8 @@
         "title": "Informar de un problema",
         "content": {
             "button_label": "Denunciar contenido o comportamiento inapropiado",
-            "dialog_message": "Estamos trabajando en herramientas de denuncia y moderación robustas. Mientras tanto, por favor envíenos un correo electrónico a la dirección que aparece a continuación. Incluye detalles como el usuario correspondiente, qué fue lo inapropiado, y dónde lo observaste."
+            "dialog_message": "Estamos trabajando en herramientas de denuncia y moderación robustas. Mientras tanto, por favor envíenos un correo electrónico a la dirección que aparece a continuación. Incluye detalles como el usuario correspondiente, qué fue lo inapropiado, y dónde lo observaste.",
+            "success_message": "¡Gracias por tu denuncia y por hacer de Couchers una plataforma mejor para todos!"
         }
     },
     "continue": "Continuar",
@@ -155,7 +158,18 @@
         "newsletter": "Boletín",
         "notifications": "Notificaciones",
         "our_plan": "Nuestro Plan",
-        "blog": "Blog"
+        "blog": "Blog",
+        "account_settings": "Ajustes de la cuenta",
+        "our_team": "Nuestro Equipo",
+        "profile": "Perfil",
+        "show_all_events": "Mostrar todos los eventos",
+        "the_team": "El Equipo",
+        "volunteer": "Voluntariado",
+        "legal_more": "Legal y más",
+        "contact_us": "Contáctanos",
+        "built_with": "Código abierto",
+        "landing_page": "Página de inicio",
+        "invite_members": "Invitar a miembros"
     },
     "ok": "De acuerdo",
     "relative_time": {
@@ -194,7 +208,9 @@
         "actions": {
             "host": "Aloja a un viajero que visita tu ciudad",
             "surf": "Alójate con un local mientras viajas",
-            "attend_events": "Asiste a eventos con locales y viajeros"
+            "attend_events": "Asiste a eventos con locales y viajeros",
+            "find_people": "Encuentra a gente con la misma mentalidad en tu ciudad",
+            "join_discussions": "Únete o empieza una discusión en tu comunidad local"
         },
         "table": {
             "non_transactional": "Modelo comunitario no transaccional",
@@ -205,9 +221,32 @@
             "professionally_managed": "Alojamiento gestionado profesionalmente",
             "meetups_communities": "Reuniones y comunidades locales",
             "no_investor_pressure": "Sin presión de inversores",
-            "social_expectation": "Animado a pasar tiempo con el anfitrión"
+            "social_expectation": "Animado a pasar tiempo con el anfitrión",
+            "header_couchers": "Couchers.org",
+            "header_hostel": "Hostal",
+            "header_hotel": "Hotel",
+            "people_first": "Centrado en las personas, sin ánimo de lucro",
+            "cost_to_stay": "Coste de la estancia",
+            "free_to_stay": "Estancia gratuita"
         },
-        "bottom_cta_title": "¿Listo para probar el couch surfing?"
+        "bottom_cta_title": "¿Listo para probar el couch surfing?",
+        "tip_label": "CONSEJO",
+        "why_people_title": "Por qué la gente ama el couch surfing",
+        "why_people_points": {
+            "travelers": "<bold>Para viajeros</bold>: experiencias más profundas y humanas más allá de las rutas turísticas",
+            "hosts": "<bold>Para anfitriones</bold>: conoce a gente de todo el mundo y comparte tu ciudad",
+            "everyone": "<bold>Para todo el mundo</bold>: comunidad, cultura, y conexión; no transacciones"
+        },
+        "tip_text": "¿Nuevo por aquí? Asiste a un evento local y conoce la comunidad: bajo compromiso, alta conexión.",
+        "compare_title": "¿Cómo se compara Couchers.org?",
+        "bottom_cta_subtitle": "Únete a Couchers.org y sé parte de una comunidad global basada en la hospitalidad y la conexión.",
+        "join_couchers": "Únete a Couchers.org",
+        "is_it_safe": {
+            "title": "¿Qué tan seguro es el couch surfing?",
+            "description_1": "Si bien todos los viajes e interacciones con desconocidos tienen algún riesgo, el couch surfing es mucho más seguro de lo que mucha gente imagina al principio.",
+            "description_2": "Nuestra comunidad se basa en la confianza entre los miembros, establecida mediante referencias después de las estancias. Nuestro activo equipo de moderación se toma cada informe en serio y combate diligentemente a los malos actores que no cumplen con nuestras <guidelines>Normas Comunitarias</guidelines>.",
+            "description_3": "Además, la plataforma Couchers incluye herramientas como diversas formas de verificación (como la Verificación Fuerte con pasaporte biométrico) que añaden un nivel adicional de seguridad. Es importante tener siempre un plan alternativo listo en caso de que las cosas no salgan como se espera, ¡y confiar en tus instintos!"
+        }
     },
     "location_autocomplete": {
         "more_specific": "Por favor elige un lugar más específico",
@@ -237,7 +276,8 @@
         },
         "error": {
             "fetch_invite_info": "No se han podido obtener los detalles del código de invitación"
-        }
+        },
+        "title": "Invitar a miembros"
     },
     "contribute_title": "Regístrate para contribuir",
     "reply": "Responder",
@@ -267,7 +307,12 @@
         "lead_frontend_developer": "Desarrollador Frontend Principal",
         "backend_developer": "Desarrollador Backend",
         "lead_backend_developer": "Desarrollador Backend Principal",
-        "full_stack_backend_developer": "Desarrollador Full Stack"
+        "full_stack_backend_developer": "Desarrollador Full Stack",
+        "description": "Somos couch surfers apasionados y profesionales capacitados comprometidos con la creación de una plataforma mejorada, más segura e inclusiva. Estamos construyendo esta plataforma para apoyar y hacer crecer de manera sostenible la comunidad de couch surfing, compartiendo sus valores con el mundo. Si compartes el sentimiento y quieres contribuir, nos encataría saber de ti.",
+        "tap_press_to_flip": " Toca / pulsa para girar",
+        "title": "El Equipo",
+        "join_the_team": "Únete al equipo",
+        "join_our_team": "Únete a nuestro equipo"
     },
     "language_names": {
         "he": "Hebreo",
@@ -286,6 +331,51 @@
         "ru": "Ruso",
         "tr": "Turco",
         "zh-Hans": "Chino (Simplificado)",
-        "zh-Hant": "Chino (Tradicional)"
-    }
+        "zh-Hant": "Chino (Tradicional)",
+        "hu": "Húngaro",
+        "ca": "Catalán",
+        "cs": "Checo",
+        "de": "Alemán",
+        "en": "Inglés",
+        "en-CORP": "Inglés americano (corporativo)",
+        "es": "Español (España)",
+        "es-419": "Español"
+    },
+    "components": {
+        "edit_location_map": {
+            "location_publicly_visible": "Esto será visible públicamente",
+            "location_warn": "Haz clic y arrastra el círculo de abajo para mostrar a las personas la ubicación aproximada de tu hogar. Asegúrate de que tu hogar no esté en el centro del círculo, para que las personas no sepan la ubicación exacta.",
+            "display_location_label": "Mostrar ubicación",
+            "search_location_label": "Buscar una ubicación",
+            "invalid_coordinate": "Faltan las coordenadas, por favor selecciona una ubicación en el mapa de arriba",
+            "location_accuracy": "Precisión de la ubicación",
+            "map_is_blank": "Faltan las coordenadas, comienza buscando una ubicación con el mapa de arriba",
+            "radius_text": "{{radius}} metros",
+            "no_location_results_text": "Sin resultados. Intenta buscar solo la ciudad.",
+            "display_location_not_empty": "Por favor informa una dirección para mostrar",
+            "no_map_support": "Tu dispositivo no soporta el mapa. Por favor asegúrate de que WebGL2 está habilitado o prueba otro dispositivo/navegador. ¡Sentimos las molestias!",
+            "press_enter_to_search": "Pulsa enter para buscar"
+        },
+        "datepicker": {
+            "change_date": "Cambiar fecha"
+        }
+    },
+    "error": {
+        "fallback": {
+            "title": "Vaya... ese es un error desconocido",
+            "subtitle": "Utiliza el botón \"Informar de un problema\" y cuéntanos qué estabas haciendo para ayudarnos a prevenir este error en el futuro.",
+            "refresh_page_button_label": "Actualizar la página",
+            "home_page_link_label": "Ir a la página principal"
+        },
+        "fatal_message": "Esto no debería haber ocurrido. Por favor contáctanos y dinos qué estabas haciendo para ayudarnos a prevenir este error en el futuro.",
+        "unknown": "Error desconocido"
+    },
+    "error_loading_languages": "No se pudo cargar las opciones de idioma",
+    "change_time": "Cambiar la hora",
+    "html_meta": {
+        "title_suffix": " | Couchers.org",
+        "default_title": "Couchers.org",
+        "default_description": "Comparte tu mundo, descubre el de otros. Experiencias locales auténticas, construidas en la confianza y la conexión genuina, no en las transacciones."
+    },
+    "invited_you": "¡{{name}} te ha invitado a unirte a Couchers!"
 }

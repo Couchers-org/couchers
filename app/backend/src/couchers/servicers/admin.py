@@ -1,20 +1,14 @@
-import json
 import logging
 from datetime import timedelta
 
 import grpc
-from geoalchemy2.shape import from_shape
 from google.protobuf import empty_pb2
-from shapely.geometry import shape
-from sqlalchemy.sql import and_, func, or_, select, update
+from sqlalchemy.sql import and_, func, or_, select
 from user_agents import parse as user_agents_parse
 
 from couchers import urls
-from couchers.context import make_background_user_context
 from couchers.crypto import urlsafe_secure_token
-from couchers.db import session_scope
 from couchers.helpers.badges import user_add_badge, user_remove_badge
-from couchers.helpers.clusters import create_cluster, create_node
 from couchers.helpers.geoip import geoip_approximate_location, geoip_asn
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.jobs.enqueue import queue_job
@@ -24,7 +18,6 @@ from couchers.models import (
     ContentReport,
     Discussion,
     Event,
-    EventCommunityInviteRequest,
     EventOccurrence,
     GroupChat,
     GroupChatSubscription,
@@ -33,7 +26,6 @@ from couchers.models import (
     Message,
     ModerationUserList,
     ModNote,
-    Node,
     Reference,
     Reply,
     User,
@@ -46,8 +38,6 @@ from couchers.proto.internal import jobs_pb2
 from couchers.resources import get_badge_dict
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.auth import create_session
-from couchers.servicers.communities import community_to_pb
-from couchers.servicers.events import get_users_to_notify_for_new_event
 from couchers.servicers.threads import unpack_thread_id
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, to_aware_datetime
@@ -96,32 +86,6 @@ def append_admin_note(session, context, user, note):
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
     admin = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
     user.admin_note += f"\n[{now().isoformat()}] (id: {admin.id}, username: {admin.username}) {note}\n"
-
-
-def load_community_geom(geojson, context):
-    geom = shape(json.loads(geojson))
-
-    if geom.geom_type != "MultiPolygon":
-        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "no_multipolygon")
-
-    return geom
-
-
-def generate_new_blog_post_notifications(payload: jobs_pb2.GenerateNewBlogPostNotificationsPayload):
-    with session_scope() as session:
-        all_users = session.execute(select(User).where(User.is_visible)).scalars().all()
-        for user in all_users:
-            context = make_background_user_context(user_id=user.id)
-            notify(
-                session,
-                user_id=user.id,
-                topic_action="general:new_blog_post",
-                data=notification_data_pb2.GeneralNewBlogPost(
-                    url=payload.url,
-                    title=payload.title,
-                    blurb=payload.blurb,
-                ),
-            )
 
 
 class Admin(admin_pb2_grpc.AdminServicer):
@@ -392,39 +356,6 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
         return _user_to_details(session, user)
 
-    def CreateCommunity(self, request, context, session):
-        geom = load_community_geom(request.geojson, context)
-
-        parent_node_id = request.parent_node_id if request.parent_node_id != 0 else None
-        node = create_node(session, geom, parent_node_id)
-        create_cluster(session, node.id, request.name, request.description, context.user_id, request.admin_ids, True)
-
-        return community_to_pb(session, node, context)
-
-    def UpdateCommunity(self, request, context, session):
-        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
-        if not node:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
-        cluster = node.official_cluster
-
-        if request.name:
-            cluster.name = request.name
-
-        if request.description:
-            cluster.description = request.description
-
-        if request.geojson:
-            geom = load_community_geom(request.geojson, context)
-
-            node.geom = from_shape(geom)
-
-        if request.parent_node_id != 0:
-            node.parent_node_id = request.parent_node_id
-
-        session.flush()
-
-        return community_to_pb(session, cluster.parent_node, context)
-
     def GetChats(self, request, context, session):
         def format_user(user):
             return f"{user.name} ({user.username}, {user.id})"
@@ -514,78 +445,6 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         return admin_pb2.GetChatsRes(response=format_all_chats_for_user(user.id))
-
-    def ListEventCommunityInviteRequests(self, request, context, session):
-        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        next_request_id = int(request.page_token) if request.page_token else 0
-        requests = (
-            session.execute(
-                select(EventCommunityInviteRequest)
-                .where(EventCommunityInviteRequest.approved.is_(None))
-                .where(EventCommunityInviteRequest.id >= next_request_id)
-                .order_by(EventCommunityInviteRequest.id)
-                .limit(page_size + 1)
-            )
-            .scalars()
-            .all()
-        )
-
-        def _request_to_pb(request):
-            users_to_notify, node_id = get_users_to_notify_for_new_event(session, request.occurrence)
-            return admin_pb2.EventCommunityInviteRequest(
-                event_community_invite_request_id=request.id,
-                user_id=request.user_id,
-                event_url=urls.event_link(occurrence_id=request.occurrence.id, slug=request.occurrence.event.slug),
-                approx_users_to_notify=len(users_to_notify),
-                community_id=node_id,
-            )
-
-        return admin_pb2.ListEventCommunityInviteRequestsRes(
-            requests=[_request_to_pb(request) for request in requests[:page_size]],
-            next_page_token=str(requests[-1].id) if len(requests) > page_size else None,
-        )
-
-    def DecideEventCommunityInviteRequest(self, request, context, session):
-        req = session.execute(
-            select(EventCommunityInviteRequest).where(
-                EventCommunityInviteRequest.id == request.event_community_invite_request_id
-            )
-        ).scalar_one_or_none()
-
-        if not req:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_community_invite_not_found")
-
-        if req.decided:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_community_invite_already_decided")
-
-        decided = now()
-        req.decided = decided
-        req.decided_by_user_id = context.user_id
-        req.approved = request.approve
-
-        # deny other reqs for the same event
-        if request.approve:
-            session.execute(
-                update(EventCommunityInviteRequest)
-                .where(EventCommunityInviteRequest.occurrence_id == req.occurrence_id)
-                .where(EventCommunityInviteRequest.decided.is_(None))
-                .values(decided=decided, decided_by_user_id=context.user_id, approved=False)
-            )
-
-        session.flush()
-
-        if request.approve:
-            queue_job(
-                session,
-                "generate_event_create_notifications",
-                payload=jobs_pb2.GenerateEventCreateNotificationsPayload(
-                    inviting_user_id=req.user_id,
-                    occurrence_id=req.occurrence_id,
-                    approved=True,
-                ),
-            )
-
-        return admin_pb2.DecideEventCommunityInviteRequestRes()
 
     def DeleteEvent(self, request, context, session):
         res = session.execute(
@@ -802,19 +661,3 @@ class Admin(admin_pb2_grpc.AdminServicer):
             )
 
         return out
-
-    def SendBlogPostNotification(self, request, context, session):
-        if len(request.title) > 50:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin_blog_title_too_long")
-        if len(request.blurb) > 100:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin_blog_blurb_too_long")
-        queue_job(
-            session,
-            "generate_new_blog_post_notifications",
-            payload=jobs_pb2.GenerateNewBlogPostNotificationsPayload(
-                url=request.url,
-                title=request.title,
-                blurb=request.blurb,
-            ),
-        )
-        return empty_pb2.Empty()

@@ -15,20 +15,29 @@ import {
   Ubuntu_700Bold_Italic,
 } from "@expo-google-fonts/ubuntu";
 import * as SplashScreen from "expo-splash-screen";
+import * as Notifications from "expo-notifications";
 import React, { useEffect } from "react";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
-// import Sentry from "platform/sentry";
 
 import { Stack } from "expo-router";
 
 import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
+import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
 
-// Sentry.init({
-//   dsn: "https://7de06aa8cca6dacc9620667dd84a0d01@o782870.ingest.us.sentry.io/4507718344704000",
-// });
+if (__DEV__) {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
+}
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -46,17 +55,10 @@ function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
     return null;
   }
 
-  if (checkedAuthStatus && authenticated) {
-    return (
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
-      </Stack>
-    );
-  }
-
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="login" />
+      <Stack.Screen name="login" redirect={authenticated} />
+      <Stack.Screen name="(tabs)" redirect={!authenticated} />
     </Stack>
   );
 }
@@ -82,9 +84,15 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <AuthProvider>
+          <PushNotificationsRegistrar />
           <RootNavigator fontsLoaded={fontsLoaded} />
         </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );
+}
+
+function PushNotificationsRegistrar() {
+  useRegisterPushNotifications();
+  return null;
 }

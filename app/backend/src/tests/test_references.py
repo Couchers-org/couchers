@@ -11,6 +11,8 @@ from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import (
     Conversation,
+    FriendRelationship,
+    FriendStatus,
     HostRequest,
     HostRequestStatus,
     Message,
@@ -27,6 +29,7 @@ from tests.test_fixtures import (  # noqa
     db,
     email_fields,
     generate_user,
+    make_friends,
     make_user_block,
     mock_notification_email,
     push_collector,
@@ -34,6 +37,7 @@ from tests.test_fixtures import (  # noqa
     requests_session,
     testconfig,
 )
+from tests.test_requests import valid_request_text
 
 
 @pytest.fixture(autouse=True)
@@ -409,6 +413,9 @@ def test_WriteFriendReference(db):
     user2, token2 = generate_user()
     user3, token3 = generate_user()
 
+    # Make user1 and user2 friends
+    make_friends(user1, user2)
+
     with references_session(token1) as api:
         # can write normal friend reference
         res = api.WriteFriendReference(
@@ -488,6 +495,9 @@ def test_WriteFriendReference_with_private_text(db, push_collector):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
+    # Make users friends
+    make_friends(user1, user2)
+
     with references_session(token1) as api:
         with patch("couchers.email.queue_email") as mock1:
             with mock_notification_email() as mock2:
@@ -513,6 +523,66 @@ def test_WriteFriendReference_with_private_text(db, push_collector):
         title=f"You've received a friend reference from {user1.name}!",
         body="They were nice!",
     )
+
+
+def test_WriteFriendReference_requires_friendship(db):
+    """Test that users must be friends to write friend references"""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    # Try to write friend reference without being friends
+    with references_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteFriendReference(
+                references_pb2.WriteFriendReferenceReq(
+                    to_user_id=user2.id,
+                    text="A test reference",
+                    was_appropriate=True,
+                    rating=0.5,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "You can only write friend references for confirmed friends."
+
+    # Now make them friends
+    make_friends(user1, user2)
+
+    # Should now be able to write a reference
+    with references_session(token1) as api:
+        res = api.WriteFriendReference(
+            references_pb2.WriteFriendReferenceReq(
+                to_user_id=user2.id,
+                text="A test reference",
+                was_appropriate=True,
+                rating=0.5,
+            )
+        )
+        assert res.from_user_id == user1.id
+        assert res.to_user_id == user2.id
+
+    # Test the unfriending scenario: delete the friendship
+    with session_scope() as session:
+        # Change the friendship status to cancelled (simulating unfriending)
+        session.execute(
+            update(FriendRelationship)
+            .where(FriendRelationship.from_user_id == user1.id, FriendRelationship.to_user_id == user2.id)
+            .values(status=FriendStatus.cancelled)
+        )
+
+    # Try to write another friend reference after unfriending
+    # (Note: This assumes user1 didn't already write a reference, or we test with user2 writing to user1)
+    with references_session(token2) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteFriendReference(
+                references_pb2.WriteFriendReferenceReq(
+                    to_user_id=user1.id,
+                    text="Another test reference",
+                    was_appropriate=True,
+                    rating=0.8,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "You can only write friend references for confirmed friends."
 
 
 def test_host_request_states_references(db):
@@ -1050,7 +1120,7 @@ def test_regression_disappearing_refs(db, hs):
     with requests_session(token1) as api:
         res = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=req_start, to_date=req_end, text="Test request"
+                host_user_id=user2.id, from_date=req_start, to_date=req_end, text=valid_request_text()
             )
         )
         host_request_id = res.host_request_id
@@ -1058,7 +1128,7 @@ def test_regression_disappearing_refs(db, hs):
             api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
             .host_requests[0]
             .latest_message.text.text
-            == "Test request"
+            == valid_request_text()
         )
 
     with requests_session(token2) as api:

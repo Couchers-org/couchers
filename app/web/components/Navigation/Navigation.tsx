@@ -14,7 +14,7 @@ import { GlobalMessage } from "components/GlobalMessage";
 import { CloseIcon, MenuIcon } from "components/Icons";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { DonationBanner } from "features/donations/DonationBanner";
+import { DonationThermometer } from "features/donations/DonationThermometer";
 import { PushNotificationBanner } from "features/notifications/PushNotificationBanner";
 import LanguagePickerSelect from "features/translate/LanguagePickerSelect";
 import useNotifications from "features/useNotifications";
@@ -45,6 +45,7 @@ import {
 } from "routes";
 import { theme } from "theme";
 
+import { useIsNativeEmbed } from "../../platform/nativeLink";
 import LoggedInMenu, { LoggedInMenuItem } from "./LoggedInMenu";
 import NavButton from "./NavButton";
 import ReportDialog from "./ReportDialog";
@@ -223,10 +224,6 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   top: 0,
   boxShadow: "none",
   backgroundColor: theme.palette.common.white,
-  paddingRight: theme.spacing(2),
-  [theme.breakpoints.up("md")]: {
-    paddingRight: 0,
-  },
 }));
 
 const StyledFlexbox = styled("div")(({ theme }) => ({
@@ -259,13 +256,13 @@ const StyledDrawerTitle = styled("div")(({ theme }) => ({
 }));
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
+  justifyContent: "space-between",
+  paddingLeft: 0,
+  paddingRight: theme.spacing(2),
   [theme.breakpoints.up("md")]: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
   },
-  justifyContent: "space-between",
-  paddingLeft: 0,
-  paddingRight: 0,
 }));
 
 const StyledNav = styled("div")(({ theme }) => ({
@@ -290,6 +287,8 @@ export default function Navigation() {
 
   const { data: pingData } = useNotifications();
   const { authState } = useAuthContext();
+
+  const isNativeEmbed = useIsNativeEmbed();
 
   useEffect(() => setIsMounted(true), []);
 
@@ -469,8 +468,8 @@ export default function Navigation() {
         </StyledMenuContainer>
       </StyledToolbar>
       <GlobalMessage />
-      {authState.authenticated && <DonationBanner />}
-      {authState.authenticated && <PushNotificationBanner />}
+      {authState.authenticated && <DonationThermometer />}
+      {!isNativeEmbed && authState.authenticated && <PushNotificationBanner />}
     </StyledAppBar>
   );
 }
