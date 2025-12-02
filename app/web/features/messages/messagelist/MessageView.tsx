@@ -48,6 +48,7 @@ const StyledCard = styled(Card, {
     },
     [theme.breakpoints.up("md")]: {
       width: "70%",
+      maxWidth: "75rem",
     },
     border: "1px solid",
     borderRadius: theme.shape.borderRadius * 3,
@@ -170,7 +171,6 @@ export default function MessageView({
             <TimeInterval date={timestamp2Date(message.time!)} />
           )}
         </StyledHeader>
-
         <StyledMessageBody>
           <TextBody>
             <Linkify
@@ -179,7 +179,6 @@ export default function MessageView({
             />
           </TextBody>
         </StyledMessageBody>
-
         {isCurrentUser && (
           <StyledFooter>
             <TimeInterval date={timestamp2Date(message.time!)} />
