@@ -4,8 +4,10 @@ import { NotificationsPromiseClient } from "@/proto/notifications_grpc_web_pb";
 
 import isGrpcError from "@/service/utils/isGrpcError";
 
-const URL = (process.env.NEXT_PUBLIC_API_BASE_URL ||
-  process.env.EXPO_PUBLIC_API_BASE_URL)!;
+const URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  process.env.EXPO_PUBLIC_API_BASE_URL ||
+  "http://localhost:8888"; // fallback for tests
 const IS_PROD =
   (process.env.NEXT_PUBLIC_COUCHERS_ENV ||
     process.env.EXPO_PUBLIC_COUCHERS_ENV)! === "prod";
