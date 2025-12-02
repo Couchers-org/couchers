@@ -42,7 +42,7 @@
   },
   "reset_password_form": {
     "enter_email": "Enter your username/email",
-    "success_message": "Check your email for a reset password link!"
+    "success_message": "A password reset link has been sent to the email associated with that account, if it exists and is active. Note that the email may sometimes end up in spam."
   },
   "login_page": {
     "title": "Log in",
