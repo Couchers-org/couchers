@@ -34,7 +34,7 @@ const IS_PROD =
 console.log("🔧 Mobile API URL:", URL);
 console.log("🔧 Environment:", process.env.EXPO_PUBLIC_COUCHERS_ENV);
 
-export const grpcTimeout = 10000; //milliseconds
+const grpcTimeout = 10000; //milliseconds
 
 let _unauthenticatedErrorHandler: (
   e: RpcError
