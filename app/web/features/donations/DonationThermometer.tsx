@@ -139,7 +139,7 @@ export function DonationThermometer() {
           color: theme.palette.secondary.main,
           alignSelf: "center",
         },
-        [theme.breakpoints.down("sm")]: {
+        [theme.breakpoints.down("md")]: {
           alignItems: "flex-start",
           "& .MuiAlert-icon": {
             paddingTop: "10px",
