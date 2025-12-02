@@ -8,6 +8,10 @@ const Root = styled("div")(({ theme }) => ({
   paddingInlineEnd: theme.spacing(1),
 }));
 
+const StyledTypography = styled(Typography)(({ theme }) => ({
+  fontSize: "0.75rem", // 12px
+}));
+
 interface TimeIntervalProps {
   date: Date;
   className?: string;
@@ -18,9 +22,9 @@ export default function TimeInterval({ date, className }: TimeIntervalProps) {
 
   return (
     <Root className={className}>
-      <Typography variant="caption">
+      <StyledTypography variant="caption">
         {timeAgoI18n({ input: date, t })}
-      </Typography>
+      </StyledTypography>
     </Root>
   );
 }
