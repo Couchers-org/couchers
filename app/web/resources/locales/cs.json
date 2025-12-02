@@ -156,7 +156,8 @@
         "built_with": "Open Source",
         "landing_page": "Úvodní stránka",
         "invite_members": "Pozvat členy",
-        "faq": "Často kladené otázky"
+        "faq": "Často kladené otázky",
+        "about": "O aplikaci"
     },
     "html_meta": {
         "default_description": "Sdílej svůj svět a objevuj ten jejich. Autentické místní zážitky postavené na důvěře a skutečném spojení — ne na transakcích.",
@@ -240,12 +241,130 @@
     },
     "footer": {
         "copyright": "© 2025 Couchers, Inc.",
-        "version_info": "Verze <2>{{version}}</2>, naposledy aktualizováno <5>{{updated_ago}}</5>."
+        "version_info": "Verze <2>{{version}}</2>, naposledy aktualizováno <5>{{updated_ago}}</5>.",
+        "non_profit_note": "Couchers.org je projekt společnosti Couchers, Inc., americké neziskové organizace s daňovým osvobozením podle paragrafu 501(c)(3)."
     },
     "what_is_cs": {
         "get_involved_title": "Co mohu dělat na Couchers.org?",
-        "get_started": "Začít"
+        "get_started": "Začít",
+        "table": {
+            "people_first": "Nezisková organizace zaměřená na lidi",
+            "cost_to_stay": "Cena za pobyt",
+            "header_hotel": "Hotel",
+            "cultural_exchange": "Zaměření na kulturní výměnu",
+            "header_couchers": "Couchers.org",
+            "header_hostel": "Hostel",
+            "dollar": "$",
+            "dollars_range": "$$–$$$",
+            "stay_with_locals": "Zůstaň u místních",
+            "professionally_managed": "Profesionálně spravovaný pobyt",
+            "meetups_communities": "Setkání a místní komunity",
+            "non_transactional": "Netaransakční komunitní model",
+            "no_investor_pressure": "Žádný tlak investorů",
+            "social_expectation": "Povzbuzen k trávení času s hostitelem"
+        },
+        "timeline": {
+            "early_2000s_year": "Začátek 21. století",
+            "2020_text": "Hlavní platforma přechází na ziskový model; Couchers.org se spouští jako nezisková, komunitou řízená alternativa.",
+            "2020_year": "2020",
+            "today_year": "Dnes",
+            "today_text": "Couchers.org vytváří další kapitolu: moderní, bezpečnější, neziskové couchsurfování — vytvořené komunitou a pro komunitu."
+        },
+        "description_1": "Couchsurfing je koncept, kdy někteří členové (nazývaní hostitelé) zveřejňují na platformě informaci, že jsou ochotni ubytovat jiné členy (nazývané surfaři), kteří navštěvují jejich město.",
+        "actions": {
+            "join_discussions": "Připoj se k diskuzím nebo je založ ve své místní komunitě",
+            "host": "Ubytuj cestovatele, kteří navštíví tvé město",
+            "attend_events": "Navštěvuj akce s místními i ostatními cestovateli",
+            "find_people": "Najdi podobně smýšlející lidi ve svém městě a setkejte se"
+        },
+        "why_people_points": {
+            "everyone": "<bold>Pro všechny</bold>: komunita, kultura a propojení — ne transakce",
+            "hosts": "<bold>Pro hostitele</bold>: seznam se s lidmi z celého světa a podělte se o své město",
+            "travelers": "<bold>Pro cestovatele</bold>: hlubší, lidštější zážitky mimo turistické trasy"
+        },
+        "bottom_cta_subtitle": "Připoj se k Couchers.org a staň se součástí globální komunity založené na pohostinnosti a propojení.",
+        "is_it_safe": {
+            "description_1": "Ačkoli cestování a setkávání s cizími lidmi vždy nese určitá rizika, couchsurfing je mnohem bezpečnější, než si mnoho lidí zpočátku myslí.",
+            "description_2": "Naše komunita je postavena na důvěře mezi členy, která se vytváří prostřednictvím referencí po pobytech. Náš aktivní moderátorský tým bere každé nahlášení vážně a pečlivě zasahuje proti těm, kteří nedodržují naše <guidelines>Pravidla komunity</guidelines>.",
+            "description_3": "Platforma Couchers navíc zahrnuje nástroje, jako jsou různé formy ověření (například silné ověření pomocí biometrického pasu), které přidávají další úroveň bezpečnosti. Je důležité mít vždy připravený alternativní plán pro případ, že věci nepůjdou podle očekávání, a důvěřovat svým instinktům!",
+            "title": "Jak bezpečný je Couchsurfing?"
+        },
+        "title": "Co je to couchsurfing?",
+        "description_2": "Je to jako mít přítele v jiném městě a jet ho navštívit, ale setkáš se s ním poprvé, až když tam dorazíš!",
+        "timeline_title": "Stručná historie couchsurfingu",
+        "why_people_title": "Proč lidé milují couchsurfing",
+        "tip_label": "TIP",
+        "tip_text": "Jsi tu nový? Navštiv místní akci, aby jsi poznai komunitu – nízký závazek, vysoké propojení.",
+        "compare_title": "Jak si Couchers.org vede v porovnání?",
+        "bottom_cta_title": "Připravený vyzkoušet couchsurfing?",
+        "join_couchers": "Přidejte se k Couchers.org"
     },
     "beta": "Beta",
-    "no": "Ne"
+    "no": "Ne",
+    "language_names": {
+        "pt": "Portugalština (Portugalsko)",
+        "he": "Hebrejština",
+        "hu": "Maďarština",
+        "pt-BR": "Portugalština (Brazílie)",
+        "ca": "Katalánština",
+        "cs": "Čeština",
+        "de": "Němčina",
+        "en": "Angličtina",
+        "ru": "Ruština",
+        "sv": "Švédština",
+        "tr": "Turečtina",
+        "uk": "Ukrajinština",
+        "zh-Hans": "Čínština (zjednodušená)",
+        "zh-Hant": "Čínština (tradiční)",
+        "en-CORP": "Americký (korporátní)",
+        "es": "Španělština (Španělsko)",
+        "es-419": "Španělština",
+        "fr": "Francouzština (Francie)",
+        "fr-CA": "Francouzština (Kanada)",
+        "hi": "Hindština",
+        "it": "Italština",
+        "ja": "Japonština",
+        "nb-NO": "Norština (Bokmål)",
+        "nl": "Nizozemština",
+        "pl": "Polština"
+    },
+    "donation_banner": {
+        "message": "Couchers.org funguje na laskavosti – stejně jako samotné couchsurfování. Pomozte nám to tak udržet i během těchto svátků. Snažíme se vybrat 5000 dolarů na pokrytí nákladů nutných na provoz Couchers.org.",
+        "button": "Přispět teď"
+    },
+    "team": {
+        "description": "Jsme nadšení couchsurfaři a zkušení profesionálové, kteří se zavázali vytvářet lepší, bezpečnější a inkluzivnější platformu. Tuto platformu budujeme s cílem podpořit a udržitelně rozvíjet komunitu couchsurfingu a zároveň sdílet její hodnoty se světem. Pokud sdílíte naše nadšení a chceš přispět, rádi o tobě uslyšíme.",
+        "tap_press_to_flip": " Klikni / stiskni pro otočení",
+        "fill_form_description": "Couchers.org je komunitně řízený projekt, vyvíjený lidmi jako jsi ty, pro dobro celosvětové komunity couchsurfingu. Pokud máš zájem se k této vzrušující iniciativě připojit, klikni prosím na tlačítko níže a vyplň krátký formulář.",
+        "current_members": "Současní členové",
+        "past_members": "Bývalí členové",
+        "board_member": "Člen představenstva",
+        "co_founder_president": "Spoluzakladatel, prezident a předseda",
+        "co_founder": "Spoluzakladatel",
+        "join_our_team": "Přidej se k našemu týmu",
+        "title": "Tým",
+        "join_the_team": "Přidej se k týmu",
+        "have_skills_contribute": "Máš dovednosti, kterými chceš přispět?",
+        "secretary": "Tajemník",
+        "treasurer": "Pokladník",
+        "community_coordinator": "Koordinátor komunity",
+        "developer": "Vývojář",
+        "frontend_developer": "Frontendový vývojář",
+        "lead_frontend_developer": "Vedoucí frontendový vývojář",
+        "backend_developer": "Backendový vývojář",
+        "lead_backend_developer": "Vedoucí backendový vývojář",
+        "full_stack_backend_developer": "Full Stack vývojář",
+        "ui_ux_designer": "UI/UX designér",
+        "translations_lead": "Vedoucí překladů",
+        "volunteer_settings": {
+            "show_on_team_page": {
+                "title": "Zobrazit můj dobrovolnický profil na stránce týmu",
+                "enabled_message": "Tvůj profil je momentálně viditelný na stránce týmu",
+                "disabled_message": "Tvůj profil je momentálně skrytý na stránce týmu"
+            }
+        }
+    },
+    "error_loading_languages": "Nepodařilo se načíst jazykové možnosti",
+    "uses": "Použití",
+    "retract": "Stáhnout"
 }
