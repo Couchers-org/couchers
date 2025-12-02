@@ -1,6 +1,7 @@
 import json
 from datetime import UTC, datetime
 from math import sqrt
+from unittest.mock import patch
 
 import pytest
 from google.protobuf import empty_pb2
@@ -88,10 +89,15 @@ def test_GetPublicMapLayer(db):
 def test_GetDonationStats_empty(db):
     """Test GetDonationStats with no donations returns zero and goal"""
     _get_donation_stats.cache.clear()
-    with public_session() as public:
-        res = public.GetDonationStats(empty_pb2.Empty())
-        assert res.total_donated_ytd == 0
-        assert res.goal == 5000
+
+    with (
+        patch("couchers.servicers.public.DONATION_GOAL_USD", 2500),
+        patch("couchers.servicers.public.DONATION_OFFSET_USD", 700),
+    ):
+        with public_session() as public:
+            res = public.GetDonationStats(empty_pb2.Empty())
+            assert res.total_donated_ytd == 0
+            assert res.goal == 2500
 
 
 def test_GetDonationStats_with_donations(db):
@@ -129,10 +135,14 @@ def test_GetDonationStats_with_donations(db):
             )
         )
 
-    with public_session() as public:
-        res = public.GetDonationStats(empty_pb2.Empty())
-        assert res.total_donated_ytd == 850
-        assert res.goal == 5000
+    with (
+        patch("couchers.servicers.public.DONATION_GOAL_USD", 5000),
+        patch("couchers.servicers.public.DONATION_OFFSET_USD", 0),
+    ):
+        with public_session() as public:
+            res = public.GetDonationStats(empty_pb2.Empty())
+            assert res.total_donated_ytd == 850
+            assert res.goal == 5000
 
 
 def test_GetDonationStats_excludes_merch(db):
@@ -162,11 +172,15 @@ def test_GetDonationStats_excludes_merch(db):
             )
         )
 
-    with public_session() as public:
-        res = public.GetDonationStats(empty_pb2.Empty())
-        # Should only count the on_platform donation, not the merch
-        assert res.total_donated_ytd == 200
-        assert res.goal == 5000
+    with (
+        patch("couchers.servicers.public.DONATION_GOAL_USD", 5000),
+        patch("couchers.servicers.public.DONATION_OFFSET_USD", 0),
+    ):
+        with public_session() as public:
+            res = public.GetDonationStats(empty_pb2.Empty())
+            # Should only count the on_platform donation, not the merch
+            assert res.total_donated_ytd == 200
+            assert res.goal == 5000
 
 
 def test_GetDonationStats_excludes_previous_years(db):
@@ -199,8 +213,12 @@ def test_GetDonationStats_excludes_previous_years(db):
         # Manually set the created date to last year
         invoice.created = last_year
 
-    with public_session() as public:
-        res = public.GetDonationStats(empty_pb2.Empty())
-        # Should only count this year's donation
-        assert res.total_donated_ytd == 300
-        assert res.goal == 5000
+    with (
+        patch("couchers.servicers.public.DONATION_GOAL_USD", 5000),
+        patch("couchers.servicers.public.DONATION_OFFSET_USD", 0),
+    ):
+        with public_session() as public:
+            res = public.GetDonationStats(empty_pb2.Empty())
+            # Should only count this year's donation
+            assert res.total_donated_ytd == 300
+            assert res.goal == 5000

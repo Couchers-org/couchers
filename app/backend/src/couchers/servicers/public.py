@@ -102,7 +102,7 @@ def _get_donation_stats(session):
     ).scalar_one()
 
     return public_pb2.GetDonationStatsRes(
-        total_donated_ytd=int(total_donated) - DONATION_OFFSET_USD,
+        total_donated_ytd=max(int(total_donated - DONATION_OFFSET_USD), 0),
         goal=DONATION_GOAL_USD,
     )
 
