@@ -1,10 +1,6 @@
+import "react-native-reanimated";
+
 import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
-import {
-  useFonts,
   Ubuntu_300Light,
   Ubuntu_300Light_Italic,
   Ubuntu_400Regular,
@@ -13,19 +9,22 @@ import {
   Ubuntu_500Medium_Italic,
   Ubuntu_700Bold,
   Ubuntu_700Bold_Italic,
+  useFonts,
 } from "@expo-google-fonts/ubuntu";
-import * as SplashScreen from "expo-splash-screen";
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
 import * as Notifications from "expo-notifications";
-import React, { useEffect } from "react";
-import "react-native-reanimated";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-
-import { useColorScheme } from "@/hooks/useColorScheme";
-
 import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
 import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
+import { useColorScheme } from "@/hooks/useColorScheme";
 
 const IS_PROD =
   (process.env.NEXT_PUBLIC_COUCHERS_ENV ||

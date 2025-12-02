@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         // Check if biometrics are enabled (stored preference)
         const storedBiometrics = await SecureStore.getItemAsync(
-          BIOMETRICS_ENABLED_KEY
+          BIOMETRICS_ENABLED_KEY,
         );
         const biometricsEnabledPref = storedBiometrics === "true";
         setBiometricsEnabled(biometricsEnabledPref);
@@ -191,7 +191,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setJailed,
       enableBiometrics,
       disableBiometrics,
-    ]
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

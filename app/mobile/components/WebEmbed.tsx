@@ -1,15 +1,15 @@
-import { StyleSheet, View, useColorScheme, Text } from "react-native";
+import { useRouter } from "expo-router";
 import { useRef } from "react";
+import { StyleSheet, Text, useColorScheme, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   WebView,
   WebViewMessageEvent,
   WebViewNavigation,
 } from "react-native-webview";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
 
-import { theme } from "@/theme";
 import { useAuthContext } from "@/features/auth/AuthContext";
+import { theme } from "@/theme";
 
 type WebEmbedProps = {
   path: string;
@@ -92,7 +92,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
             console.error(
               "WebView HTTP error:",
               nativeEvent.statusCode,
-              nativeEvent.url
+              nativeEvent.url,
             );
           }
         }}
@@ -102,7 +102,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
               "WebView render error:",
               errorDomain,
               errorCode,
-              errorDesc
+              errorDesc,
             );
           }
           return (

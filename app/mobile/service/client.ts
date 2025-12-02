@@ -21,10 +21,10 @@ if (!IS_PROD) {
 const grpcTimeout = 10000; //milliseconds
 
 let _unauthenticatedErrorHandler: (
-  e: RpcError
+  e: RpcError,
 ) => Promise<void> = async () => {};
 export const setUnauthenticatedErrorHandler = (
-  f: (e: RpcError) => Promise<void>
+  f: (e: RpcError) => Promise<void>,
 ) => {
   _unauthenticatedErrorHandler = f;
 };
@@ -50,7 +50,7 @@ export class AuthInterceptor {
 class TimeoutInterceptor {
   async intercept(
     request: Request<unknown, unknown>,
-    invoker: (request: unknown) => unknown
+    invoker: (request: unknown) => unknown,
   ) {
     const deadline = Date.now() + grpcTimeout;
     const metadata = request.getMetadata();

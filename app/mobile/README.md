@@ -77,6 +77,17 @@ eas build --platform ios
 eas build --platform android
 ```
 
+## Before Opening a PR
+
+Run these checks before submitting:
+
+```bash
+npm run format   # auto-fix lint errors + format code
+npm run lint     # check for remaining lint errors
+npm test         # run tests
+npx expo start   # make sure app starts and click around
+```
+
 ## Learn More
 
 - [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
