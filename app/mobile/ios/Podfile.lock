@@ -297,6 +297,8 @@ PODS:
     - ExpoModulesCore
   - ExpoLinking (7.1.7):
     - ExpoModulesCore
+  - ExpoLocalAuthentication (17.0.7):
+    - ExpoModulesCore
   - ExpoModulesCore (2.5.0):
     - DoubleConversion
     - glog
@@ -322,6 +324,8 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - ExpoSecureStore (15.0.7):
+    - ExpoModulesCore
   - ExpoSplashScreen (0.30.10):
     - ExpoModulesCore
   - ExpoSymbols (0.4.5):
@@ -2460,7 +2464,9 @@ DEPENDENCIES:
   - ExpoImage (from `../node_modules/expo-image/ios`)
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - ExpoLinking (from `../node_modules/expo-linking/ios`)
+  - ExpoLocalAuthentication (from `../node_modules/expo-local-authentication/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
+  - ExpoSecureStore (from `../node_modules/expo-secure-store/ios`)
   - ExpoSplashScreen (from `../node_modules/expo-splash-screen/ios`)
   - ExpoSymbols (from `../node_modules/expo-symbols/ios`)
   - ExpoSystemUI (from `../node_modules/expo-system-ui/ios`)
@@ -2603,8 +2609,12 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-keep-awake/ios"
   ExpoLinking:
     :path: "../node_modules/expo-linking/ios"
+  ExpoLocalAuthentication:
+    :path: "../node_modules/expo-local-authentication/ios"
   ExpoModulesCore:
     :path: "../node_modules/expo-modules-core"
+  ExpoSecureStore:
+    :path: "../node_modules/expo-secure-store/ios"
   ExpoSplashScreen:
     :path: "../node_modules/expo-splash-screen/ios"
   ExpoSymbols:
@@ -2794,7 +2804,9 @@ SPEC CHECKSUMS:
   ExpoImage: e4102c93d1dbe99ff54b075452d1bc9d6ec21b7c
   ExpoKeepAwake: bf0811570c8da182bfb879169437d4de298376e7
   ExpoLinking: d5c183998ca6ada66ff45e407e0f965b398a8902
+  ExpoLocalAuthentication: ea7b9878fefac9ae38dc5766af00b52cac55c51b
   ExpoModulesCore: 00a1b5c73248465bd0b93f59f8538c4573dac579
+  ExpoSecureStore: 9c6571fe3fcb045a671c4011c451546eaaab98fd
   ExpoSplashScreen: 0ad5acac1b5d2953c6e00d4319f16d616f70d4dd
   ExpoSymbols: c5612a90fb9179cdaebcd19bea9d8c69e5d3b859
   ExpoSystemUI: 433a971503b99020318518ed30a58204288bab2d
