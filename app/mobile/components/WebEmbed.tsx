@@ -17,9 +17,8 @@ import {
 } from "react-native-webview";
 
 import { useAuthContext } from "@/features/auth/AuthContext";
-import { theme } from "@/theme";
-
 import errorGraphic from "@/resources/404graphic.png";
+import { theme } from "@/theme";
 
 type WebEmbedProps = {
   path: string;
