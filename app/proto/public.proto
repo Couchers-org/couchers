@@ -32,6 +32,13 @@ service Public {
       get : "/public/volunteer-info"
     };
   }
+
+  rpc GetDonationStats(google.protobuf.Empty) returns (GetDonationStatsRes) {
+    // Get year-to-date donation statistics for the donation thermometer
+    option (google.api.http) = {
+      get : "/public/donation-stats"
+    };
+  }
 }
 
 message GetPublicUserReq {
@@ -123,4 +130,11 @@ message Volunteer {
 message GetVolunteersRes {
   repeated Volunteer current_volunteers = 1;
   repeated Volunteer past_volunteers = 2;
+}
+
+message GetDonationStatsRes {
+  // Total donations received this year in USD (whole dollars)
+  uint64 total_donated_ytd = 1;
+  // The fundraising goal in USD (whole dollars)
+  uint64 goal = 2;
 }

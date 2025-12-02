@@ -76,7 +76,7 @@
   },
   "reset_password_form": {
     "enter_email": "Introduce tu usuario/correo electrónico",
-    "success_message": "¡Busca en tu correo electrónico un enlace para restablecer la contraseña!"
+    "success_message": "Se ha enviado un enlace para restablecer la contraseña al correo electrónico asociado con esa cuenta, si existe y está activa. Ten en cuenta que el correo electrónico puede llegar a la carpeta de spam."
   },
   "login_page": {
     "title": "Iniciar sesión",
