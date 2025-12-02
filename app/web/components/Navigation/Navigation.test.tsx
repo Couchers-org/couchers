@@ -7,8 +7,8 @@ import Navigation from "./Navigation";
 
 jest.mock("features/auth/useAuthStore");
 
-jest.mock("features/donations/DonationBanner", () => ({
-  DonationBanner: () => (
+jest.mock("features/donations/DonationThermometer", () => ({
+  DonationThermometer: () => (
     <div role="status" aria-label="Donation banner">
       Donation banner
     </div>
