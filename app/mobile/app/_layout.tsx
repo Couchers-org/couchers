@@ -27,10 +27,13 @@ import { Stack } from "expo-router";
 import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
 import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
 
-if (__DEV__) {
+const IS_PROD =
+  (process.env.NEXT_PUBLIC_COUCHERS_ENV ||
+    process.env.EXPO_PUBLIC_COUCHERS_ENV)! === "prod";
+
+if (!IS_PROD) {
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
-      shouldShowAlert: true,
       shouldPlaySound: true,
       shouldSetBadge: true,
       shouldShowBanner: true,
