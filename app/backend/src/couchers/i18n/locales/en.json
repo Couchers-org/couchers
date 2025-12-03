@@ -241,5 +241,15 @@
     "strong_verification_description": "This user has verified their gender and date of birth with a biometric passport",
     "swagster_name": "Swagster",
     "swagster_description": "This user has bought Couchers.org swag!"
+  },
+  "community_guidelines": {
+    "be_kind_title": "Be kind to one another",
+    "be_kind_guideline": "Couchers.org is an inclusive community where people of all cultures and backgrounds come together. Treat everyone with mutual respect and dignity.",
+    "no_dating_title": "This is not a dating app",
+    "no_dating_guideline": "Couchers.org is NOT for dating or hooking up. Harassment or using the platform for the purpose of dating or hooking up will result in a ban.",
+    "be_safe_title": "Be safe and sensible",
+    "be_safe_guideline": "Read profiles, references, and resources. Report any inappropriate content or behavior.",
+    "no_money_title": "Keep money out of it",
+    "no_money_guideline": "Keep things non-transactional. Don't exchange money while staying or hosting. Couchers.org is about learning, experiences, and getting to know people."
   }
 }
