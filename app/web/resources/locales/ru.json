@@ -53,7 +53,7 @@
     "legal_name": "Couchers, Inc.",
     "login": "Войти",
     "sign_up": "Зарегистрироваться",
-    "title": "заголовок",
+    "title": "Заголовок",
     "create": "Создать",
     "terms_of_service": "Условия Обслуживания",
     "required": "Требуется",
@@ -204,7 +204,7 @@
         "current_members": "Текущие участники",
         "backend_developer": "Бэкенд-разработчик",
         "co_founder_president": "Соучредитель, Президент и Председатель Совета Директоров",
-        "tap_press_to_flip": " Нажмите, чтобы перевернуть"
+        "tap_press_to_flip": "Нажмите, чтобы перевернуть"
     },
     "language_names": {
         "ca": "Каталанский",
