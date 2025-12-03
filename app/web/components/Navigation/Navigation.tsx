@@ -14,7 +14,7 @@ import { GlobalMessage } from "components/GlobalMessage";
 import { CloseIcon, MenuIcon } from "components/Icons";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { DonationThermometer } from "features/donations/DonationThermometer";
+import { DonationBanner } from "features/donations/DonationBanner";
 import { PushNotificationBanner } from "features/notifications/PushNotificationBanner";
 import LanguagePickerSelect from "features/translate/LanguagePickerSelect";
 import useNotifications from "features/useNotifications";
@@ -468,7 +468,7 @@ export default function Navigation() {
         </StyledMenuContainer>
       </StyledToolbar>
       <GlobalMessage />
-      {authState.authenticated && <DonationThermometer />}
+      {authState.authenticated && <DonationBanner />}
       {!isNativeEmbed && authState.authenticated && <PushNotificationBanner />}
     </StyledAppBar>
   );

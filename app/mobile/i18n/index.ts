@@ -2,11 +2,9 @@ import resources from "@/i18n/resources";
 import i18n from "i18next";
 import {
   initReactI18next,
-  Trans as nextTrans,
   useTranslation as nextUseTranslation,
 } from "react-i18next";
 
-export const Trans = nextTrans;
 export const useTranslation = nextUseTranslation;
 
 i18n.use(initReactI18next).init({

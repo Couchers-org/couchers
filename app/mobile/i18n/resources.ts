@@ -51,5 +51,3 @@ const resources = {
 } as const;
 
 export default resources;
-
-export type Translations = typeof en;
