@@ -1,7 +1,7 @@
-import { useColorScheme, Alert, Platform } from "react-native";
+import { useRouter } from "expo-router";
+import { Alert, Platform, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
-import { useRouter } from "expo-router";
 
 import { useAuthContext } from "@/features/auth/AuthContext";
 import { useTranslation } from "@/i18n";
@@ -88,7 +88,7 @@ export default function LoginScreen() {
               router.replace("/(tabs)/dashboard");
             },
           },
-        ]
+        ],
       );
     } catch (error) {
       if (__DEV__) {

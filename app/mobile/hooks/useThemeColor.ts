@@ -24,7 +24,7 @@ const colorMap = {
 
 export function useThemeColor(
   props: { light?: string; dark?: string },
-  colorName: ColorName
+  colorName: ColorName,
 ) {
   const scheme = useColorScheme() ?? "light";
   const colorFromProps = props[scheme];
