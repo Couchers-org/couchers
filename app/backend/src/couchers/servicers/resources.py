@@ -3,7 +3,7 @@ import logging
 from couchers.proto import resources_pb2, resources_pb2_grpc
 from couchers.resources import (
     get_badge_dict,
-    get_community_guidelines,
+    get_icon,
     get_language_dict,
     get_region_dict,
     get_terms_of_service,
@@ -11,13 +11,29 @@ from couchers.resources import (
 
 logger = logging.getLogger(__name__)
 
+COMMUNITY_GUIDELINES = [
+    {"key": "be_kind", "icon": "hand_with_heart.svg"},
+    {"key": "no_dating", "icon": "ghost.svg"},
+    {"key": "be_safe", "icon": "shield.svg"},
+    {"key": "no_money", "icon": "handshake.svg"},
+]
+
 
 class Resources(resources_pb2_grpc.ResourcesServicer):
     def GetTermsOfService(self, request, context, session):
         return resources_pb2.GetTermsOfServiceRes(terms_of_service=get_terms_of_service())
 
     def GetCommunityGuidelines(self, request, context, session):
-        return resources_pb2.GetCommunityGuidelinesRes(community_guidelines=get_community_guidelines())
+        return resources_pb2.GetCommunityGuidelinesRes(
+            community_guidelines=[
+                resources_pb2.CommunityGuideline(
+                    title=context.get_localized_string("community_guidelines", f"{cg['key']}_title"),
+                    guideline=context.get_localized_string("community_guidelines", f"{cg['key']}_guideline"),
+                    icon_svg=get_icon(cg["icon"]),
+                )
+                for cg in COMMUNITY_GUIDELINES
+            ]
+        )
 
     def GetRegions(self, request, context, session):
         return resources_pb2.GetRegionsRes(

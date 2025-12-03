@@ -10,7 +10,6 @@ from sqlalchemy.sql import delete, text
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import Language, Region, TimezoneArea
-from couchers.proto import resources_pb2
 from couchers.sql import couchers_select as select
 
 logger = logging.getLogger(__name__)
@@ -28,23 +27,11 @@ def get_terms_of_service() -> str:
 
 
 @functools.cache
-def get_community_guidelines() -> list[resources_pb2.CommunityGuideline]:
+def get_icon(name: str) -> str:
     """
-    Get the latest Community Guidelines
+    Get an icon SVG by name
     """
-    with open(resources_folder / "community_guidelines.json", "r") as f:
-        community_guidelines = json.load(f)
-    ret = []
-    for cg in community_guidelines:
-        with open(resources_folder / "icons" / cg["icon"], "r") as f:
-            ret.append(
-                resources_pb2.CommunityGuideline(
-                    title=cg["title"],
-                    guideline=cg["guideline"],
-                    icon_svg=f.read(),
-                )
-            )
-    return ret
+    return (resources_folder / "icons" / name).read_text()
 
 
 @functools.cache
