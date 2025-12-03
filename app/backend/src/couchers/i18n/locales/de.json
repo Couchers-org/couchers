@@ -202,7 +202,8 @@
         "host_request_too_short": "Die Host-Anfrage darf nicht kürzer als {{chars}} Zeichen sein.",
         "postal_address_invalid": "Die Adresse konnte nicht validiert werden.",
         "can_only_refer_friends": "Du kannst Freundschaftsreferenzen nur für bestätigte Freunde schreiben.",
-        "city_required": "Stadt ist erforderlich."
+        "city_required": "Stadt ist erforderlich.",
+        "postal_verification_code_expired": "Der Bestätigungscode ist abgelaufen."
     },
     "quick_links": {
         "do_not_email": "Du wirst keine E-Mails mehr erhalten, die nicht sicherheitsrelevant sind, und dein Hosting-Status wurde zurückgesetzt. Der Newsletter muss separat abbestellt werden.",

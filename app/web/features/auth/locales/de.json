@@ -87,7 +87,7 @@
     "reset_password_success": "Dein Passwort wurde erfolgreich geändert!"
   },
   "reset_password_form": {
-    "success_message": "Überprüfe deine E-Mail-Adresse, für einen Link, um das Passwort zurückzusetzen!",
+    "success_message": "Ein Link zum Zurücksetzen des Passworts wurde an die mit diesem Konto verknüpfte E-Mail-Adresse gesendet, sofern sie existiert und aktiv ist. Bitte beachte, dass die E-Mail möglicherweise im Spam-Ordner landet.",
     "enter_email": "Benutzernamen/E-Mail-Adresse eingeben"
   },
   "login_page": {

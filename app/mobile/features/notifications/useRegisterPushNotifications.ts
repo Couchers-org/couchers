@@ -98,7 +98,7 @@ export function useRegisterPushNotifications() {
       } catch (error) {
         console.error(
           "Failed to register push notification subscription:",
-          error
+          error,
         );
       }
     }
