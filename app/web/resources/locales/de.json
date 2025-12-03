@@ -457,6 +457,7 @@
     "beta": "Beta",
     "donation_banner": {
         "message": "Couchers.org basiert auf Güte — genau wie Couchsurfing selbst. Hilf uns in dieser Weihnachtszeit, dass es so bleibt. Wir sammeln 5.000 $, um die Betriebskosten von Couchers.org zu decken.",
-        "button": "Jetzt spenden"
+        "button": "Jetzt spenden",
+        "progress_label": "Spendenfortschritt"
     }
 }
