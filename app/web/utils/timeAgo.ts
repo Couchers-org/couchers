@@ -63,6 +63,54 @@ interface FuzzySpecT {
   translationKey: Parameters<TFunction<"global", undefined>>[0];
 }
 
+/**
+ * Converts a duration in seconds to a human-readable, translated string.
+ * Unlike dayjs.humanize(), this uses our i18n translations.
+ */
+export function humanizeDurationI18n({
+  seconds,
+  t,
+}: {
+  seconds: number;
+  t: TFunction<"global", undefined>;
+}): string {
+  const minutes = Math.round(seconds / 60);
+  const hours = Math.round(seconds / 3600);
+  const days = Math.round(seconds / 86400);
+  const weeks = Math.round(seconds / 604800);
+  const months = Math.round(seconds / (604800 * 4));
+
+  if (seconds < 3600) {
+    // Less than 1 hour, show minutes
+    return t("duration.x_minutes", { count: Math.max(1, minutes) });
+  }
+  if (hours === 1) {
+    return t("duration.one_hour");
+  }
+  if (seconds < 86400) {
+    // Less than 1 day, show hours
+    return t("duration.x_hours", { count: hours });
+  }
+  if (days === 1) {
+    return t("duration.one_day");
+  }
+  if (seconds < 604800) {
+    // Less than 1 week, show days
+    return t("duration.x_days", { count: days });
+  }
+  if (weeks === 1) {
+    return t("duration.one_week");
+  }
+  if (seconds < 604800 * 4) {
+    // Less than 1 month, show weeks
+    return t("duration.x_weeks", { count: weeks });
+  }
+  if (months === 1) {
+    return t("duration.one_month");
+  }
+  return t("duration.x_months", { count: months });
+}
+
 export function timeAgoI18n({
   input,
   t,

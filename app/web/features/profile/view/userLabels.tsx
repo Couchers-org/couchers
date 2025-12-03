@@ -12,7 +12,7 @@ import {
 import { theme } from "theme";
 import { monthFormatter, timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
-import { hourMillis, timeAgoI18n } from "utils/timeAgo";
+import { hourMillis, humanizeDurationI18n, timeAgoI18n } from "utils/timeAgo";
 
 interface Props {
   user: User.AsObject;
@@ -76,6 +76,7 @@ export const ResponseRateText = ({
 
 export const ResponseRateLabel = ({ user }: Props) => {
   const { t } = useTranslation("profile");
+  const { t: tGlobal } = useTranslation(GLOBAL);
 
   let rateText = undefined;
   let timeText = undefined;
@@ -87,29 +88,34 @@ export const ResponseRateLabel = ({ user }: Props) => {
   } else if (user.some) {
     rateText = t("response_rate_text_some");
     timeText = t("response_time_text_some", {
-      p33: dayjs
-        .duration(user.some.responseTimeP33!.seconds, "second")
-        .humanize(),
+      p33: humanizeDurationI18n({
+        seconds: user.some.responseTimeP33!.seconds,
+        t: tGlobal,
+      }),
     });
   } else if (user.most) {
     rateText = t("response_rate_text_most");
     timeText = t("response_time_text_most", {
-      p33: dayjs
-        .duration(user.most.responseTimeP33!.seconds, "second")
-        .humanize(),
-      p66: dayjs
-        .duration(user.most.responseTimeP66!.seconds, "second")
-        .humanize(),
+      p33: humanizeDurationI18n({
+        seconds: user.most.responseTimeP33!.seconds,
+        t: tGlobal,
+      }),
+      p66: humanizeDurationI18n({
+        seconds: user.most.responseTimeP66!.seconds,
+        t: tGlobal,
+      }),
     });
   } else if (user.almostAll) {
     rateText = t("response_rate_text_almost_all");
     timeText = t("response_time_text_almost_all", {
-      p33: dayjs
-        .duration(user.almostAll.responseTimeP33!.seconds, "second")
-        .humanize(),
-      p66: dayjs
-        .duration(user.almostAll.responseTimeP66!.seconds, "second")
-        .humanize(),
+      p33: humanizeDurationI18n({
+        seconds: user.almostAll.responseTimeP33!.seconds,
+        t: tGlobal,
+      }),
+      p66: humanizeDurationI18n({
+        seconds: user.almostAll.responseTimeP66!.seconds,
+        t: tGlobal,
+      }),
     });
   }
 

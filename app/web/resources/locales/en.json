@@ -245,6 +245,17 @@
     "one_year_ago": "1 year ago",
     "x_years_ago": "{{date}} years ago"
   },
+  "duration": {
+    "x_minutes": "{{count}} minutes",
+    "one_hour": "an hour",
+    "x_hours": "{{count}} hours",
+    "one_day": "a day",
+    "x_days": "{{count}} days",
+    "one_week": "a week",
+    "x_weeks": "{{count}} weeks",
+    "one_month": "a month",
+    "x_months": "{{count}} months"
+  },
   "location_autocomplete": {
     "more_specific": "Please choose a more specific place",
     "search_location_hint": "Press Enter or click the search icon to choose a location",
