@@ -33,6 +33,7 @@ export const donationsRoute = "/donate";
 export const builtWithRoute = "/open-source";
 export const contactRoute = "/contact";
 export const roadmapRoute = "/roadmap";
+export const shopRoute = "/shop";
 export const whatIsCouchSurfingRoute = "/what-is-couch-surfing";
 
 export const loginRoute = "/login";
