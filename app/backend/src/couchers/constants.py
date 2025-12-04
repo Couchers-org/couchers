@@ -37,6 +37,17 @@ SMS_CODE_LIFETIME = timedelta(hours=24)
 # max attempts to enter the sms code
 SMS_CODE_ATTEMPTS = 3
 
+# Postal verification constants
+POSTAL_VERIFICATION_CODE_LENGTH = 6
+# Reduced alphabet to avoid confusion (no I, O, 0, 1)
+POSTAL_VERIFICATION_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+# Code valid for 90 days after postcard sent
+POSTAL_VERIFICATION_CODE_LIFETIME = timedelta(days=90)
+# Max wrong code attempts before lockout
+POSTAL_VERIFICATION_MAX_ATTEMPTS = 5
+# Can only initiate once per 30 days
+POSTAL_VERIFICATION_RATE_LIMIT = timedelta(days=30)
+
 SIGNUP_EMAIL_TOKEN_VALIDITY = timedelta(hours=48)
 
 DATETIME_MINUS_INFINITY = pytz.UTC.localize(datetime(1, 1, 1))
@@ -63,6 +74,9 @@ ACTIVENESS_PROBE_EXPIRY_TIME = timedelta(days=4)
 HOST_REQUEST_MAX_REMINDERS = 1
 HOST_REQUEST_REMINDER_INTERVAL = timedelta(days=2)
 
+# Note: Javascript's string.length is in utf16 code units, Python's len(str) is in utf8 code units.
+HOST_REQUEST_MIN_LENGTH_UTF16 = 250  # Must match frontend
+
 ANTIBOT_FREQ = timedelta(hours=48)
 
 EVENT_REMINDER_TIMEDELTA = timedelta(hours=24)
@@ -86,3 +100,7 @@ GHOST_USERNAME = "ghost"
 # Donation drive start date - set to None to disable donation drive banner
 # When set, users who haven't donated since this date will see a donation banner
 DONATION_DRIVE_START = pytz.UTC.localize(datetime(2025, 11, 1))
+
+DONATION_GOAL_USD = 5000
+# exclude big donations from Aapeli + Itsi that we're hoping to do without :)
+DONATION_OFFSET_USD = 2000

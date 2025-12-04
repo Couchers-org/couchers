@@ -8,7 +8,10 @@
         "has_strong_verification": "Kuvvetli doğrulamaya sahip",
         "birthdate_verification_status": "Doğum tarihi doğrulaması",
         "gender_verification_status": "Cinsiyet doğrulaması",
-        "pending_mod_notes_count": "Bekleyen moderatör notları"
+        "pending_mod_notes_count": "Bekleyen moderatör notları",
+        "heading": "Moderatör Şeyleri",
+        "has_passport_sex_gender_exception": "Pasapor cinsiyeti istisnası?",
+        "acknowledged_mod_notes_count": "Tasdik edilmiş moderatör notları"
     },
     "title": "Moderatör aletleri",
     "banned": "Yasaklandı",

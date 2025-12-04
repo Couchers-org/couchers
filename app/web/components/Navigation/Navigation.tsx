@@ -45,6 +45,7 @@ import {
 } from "routes";
 import { theme } from "theme";
 
+import { useIsNativeEmbed } from "../../platform/nativeLink";
 import LoggedInMenu, { LoggedInMenuItem } from "./LoggedInMenu";
 import NavButton from "./NavButton";
 import ReportDialog from "./ReportDialog";
@@ -223,10 +224,6 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   top: 0,
   boxShadow: "none",
   backgroundColor: theme.palette.common.white,
-  paddingRight: theme.spacing(2),
-  [theme.breakpoints.up("md")]: {
-    paddingRight: 0,
-  },
 }));
 
 const StyledFlexbox = styled("div")(({ theme }) => ({
@@ -259,13 +256,13 @@ const StyledDrawerTitle = styled("div")(({ theme }) => ({
 }));
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
+  justifyContent: "space-between",
+  paddingLeft: 0,
+  paddingRight: theme.spacing(2),
   [theme.breakpoints.up("md")]: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
   },
-  justifyContent: "space-between",
-  paddingLeft: 0,
-  paddingRight: 0,
 }));
 
 const StyledNav = styled("div")(({ theme }) => ({
@@ -290,6 +287,8 @@ export default function Navigation() {
 
   const { data: pingData } = useNotifications();
   const { authState } = useAuthContext();
+
+  const isNativeEmbed = useIsNativeEmbed();
 
   useEffect(() => setIsMounted(true), []);
 
@@ -470,7 +469,7 @@ export default function Navigation() {
       </StyledToolbar>
       <GlobalMessage />
       {authState.authenticated && <DonationBanner />}
-      {authState.authenticated && <PushNotificationBanner />}
+      {!isNativeEmbed && authState.authenticated && <PushNotificationBanner />}
     </StyledAppBar>
   );
 }

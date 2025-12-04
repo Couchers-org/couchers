@@ -28,6 +28,7 @@ from couchers.models import (
     FriendStatus,
     Node,
     TimezoneArea,
+    User,
 )
 from couchers.sql import couchers_select as select
 
@@ -247,6 +248,24 @@ def can_moderate_at(session: Session, user_id: int, shape: WKBElement) -> bool:
             .join(Cluster, Cluster.id == ClusterSubscription.cluster_id)
             .join(Node, and_(Cluster.is_official_cluster, Node.id == Cluster.parent_node_id))
             .where(func.ST_Contains(Node.geom, shape))
+        ).exists()
+    )
+    return cast(bool, session.execute(query).scalar_one())
+
+
+def is_user_in_node_geography(session: Session, user_id: int, node_id: int) -> bool:
+    """
+    Returns True if the user's location is geographically contained within the node's boundary.
+    This is used to check if a user can leave a community - users cannot leave communities
+    that contain their geographic location.
+    """
+    query = select(
+        (
+            select(True)
+            .select_from(User)
+            .join(Node, func.ST_Contains(Node.geom, User.geom))
+            .where(User.id == user_id)
+            .where(Node.id == node_id)
         ).exists()
     )
     return cast(bool, session.execute(query).scalar_one())

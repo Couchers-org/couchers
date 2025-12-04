@@ -7,7 +7,7 @@ from sqlalchemy.sql import delete, func, or_
 
 from couchers.constants import COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD
 from couchers.crypto import decrypt_page_token, encrypt_page_token
-from couchers.db import can_moderate_node, get_node_parents_recursively
+from couchers.db import can_moderate_node, get_node_parents_recursively, is_user_in_node_geography
 from couchers.materialized_views import ClusterAdminCount, ClusterSubscriptionCount
 from couchers.models import (
     Cluster,
@@ -441,7 +441,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         if not current_membership:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "not_in_community")
 
-        if context.user_id in node.contained_user_ids:
+        if is_user_in_node_geography(session, context.user_id, node.id):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cannot_leave_containing_community")
 
         session.execute(

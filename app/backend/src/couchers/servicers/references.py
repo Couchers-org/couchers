@@ -11,6 +11,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, literal, or_, union_all
 
 from couchers.context import make_background_user_context
+from couchers.db import are_friends
 from couchers.materialized_views import LiteUser
 from couchers.models import HostRequest, Reference, ReferenceType, User
 from couchers.notifications.notify import notify
@@ -234,6 +235,9 @@ class References(references_pb2_grpc.ReferencesServicer):
             select(User).where_users_visible(context).where(User.id == request.to_user_id)
         ).scalar_one_or_none():
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+
+        if not are_friends(session, context, request.to_user_id):
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "can_only_refer_friends")
 
         if session.execute(
             select(Reference)

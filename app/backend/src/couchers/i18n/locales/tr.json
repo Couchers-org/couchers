@@ -27,6 +27,12 @@
         "cannot_leave_containing_community": "Profilindeki konumun bu topluluk içinde olduğu için bu topluluktan ayrılamazsın. Ancak, hesap ayarlarından bildirimlerini ayarlayabilirsin.",
         "date_from_after_one_year": "Başlangıç tarihi bugünden itibaren son bir yıl içinde olmalı.",
         "date_from_after_to": "Başlangıç tarihi, bitiş tarihinden sonra olamaz.",
-        "date_from_before_today": "Başlangıç tarihi bugün veya daha sonraki bir tarih olmalıdır."
+        "date_from_before_today": "Başlangıç tarihi bugün veya daha sonraki bir tarih olmalıdır.",
+        "bug_tool_disabled": "Hata aracı devre dışı bırakıldı",
+        "address_line_1_required": "Adres satırı 1 gereklidir.",
+        "can_only_refer_friends": "Sadece doğrulanmış arkadaşlar için arkadaş referansı yazabilirsin.",
+        "cant_mute_past": "Geçmişteki bir tarihe kadar sessize alamazsınız.",
+        "cant_refer_self": "Kendine atıfta bulunamazsın.",
+        "cant_remove_last_admin": "Son yöneticiyi kaldıramazsın."
     }
 }

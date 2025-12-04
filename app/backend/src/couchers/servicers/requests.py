@@ -7,6 +7,7 @@ from sqlalchemy import exists
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
+from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.materialized_views import UserResponseRate
 from couchers.metrics import (
     account_age_on_host_request_create_histogram,
@@ -161,6 +162,14 @@ def _possibly_observe_first_response_time(session, host_request, user_id, respon
         )
 
 
+def _is_host_request_long_enough(text: str) -> bool:
+    # Python's len(str) does not match Javascript's string.length.
+    # e.g. len("é") == 2 but "é".length == 1.
+    # To match the frontend's validation, measure the string in utf16 code units.
+    text_length_utf16 = len(text.encode("utf-16-le")) // 2  # utf-16-le does not include a prefix BOM code unit.
+    return text_length_utf16 >= HOST_REQUEST_MIN_LENGTH_UTF16
+
+
 class Requests(requests_pb2_grpc.RequestsServicer):
     def CreateHostRequest(self, request, context, session):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
@@ -200,6 +209,14 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         if to_date - from_date > timedelta(days=365):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
+
+        # Check minimum length
+        if not _is_host_request_long_enough(request.text):
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT,
+                "host_request_too_short",
+                substitutions={"chars": HOST_REQUEST_MIN_LENGTH_UTF16},
+            )
 
         # Check if user has been sending host requests excessively
         if process_rate_limits_and_check_abort(

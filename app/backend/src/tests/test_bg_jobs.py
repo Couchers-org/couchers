@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import date, timedelta
 from unittest.mock import call, patch
 
 import pytest
@@ -40,6 +40,7 @@ from couchers.models import (
     PasswordResetToken,
     UserBadge,
     UserBlock,
+    Volunteer,
 )
 from couchers.proto import conversations_pb2, requests_pb2
 from couchers.sql import couchers_select as select
@@ -57,6 +58,7 @@ from tests.test_fixtures import (  # noqa
     testconfig,
 )
 from tests.test_references import create_host_reference, create_host_request, create_host_request_by_date
+from tests.test_requests import valid_request_text
 
 
 def now_5_min_in_future():
@@ -643,7 +645,7 @@ def test_send_request_notifications_host_request(db):
     with requests_session(token1) as requests:
         host_request_id = requests.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
             )
         ).host_request_id
 
@@ -1246,7 +1248,7 @@ def test_send_request_notifications_blocked_users_no_notification(db):
     with requests_session(token1) as requests:
         host_request_id = requests.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
             )
         ).host_request_id
 
@@ -1422,6 +1424,148 @@ def test_send_message_notifications_blocked_users_no_notification(db):
             select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
         ).scalar_one()
         assert email_job_count == 0, "No notification email should be sent when recipient has blocked sender"
+
+
+def test_update_badges_volunteers(db, push_collector):
+    """Test that volunteer and past_volunteer badges are automatically granted based on Volunteer model."""
+    # Create 6 users - users 1 and 2 get founder/board_member badges from static_badges
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+    user4, _ = generate_user()
+    user5, _ = generate_user()
+    user6, _ = generate_user()
+
+    with session_scope() as session:
+        # user3: active volunteer (stopped_volunteering is null)
+        session.add(
+            Volunteer(
+                user_id=user3.id,
+                role="Developer",
+                started_volunteering=date(2020, 1, 1),
+                stopped_volunteering=None,
+            )
+        )
+
+        # user4: past volunteer (stopped_volunteering is set)
+        session.add(
+            Volunteer(
+                user_id=user4.id,
+                role="Designer",
+                started_volunteering=date(2020, 1, 1),
+                stopped_volunteering=date(2023, 6, 1),
+            )
+        )
+
+        # user5: has old volunteer badge that should be removed (not a volunteer anymore)
+        session.add(UserBadge(user_id=user5.id, badge_id="volunteer"))
+
+        # user6: has old past_volunteer badge that should be removed
+        session.add(UserBadge(user_id=user6.id, badge_id="past_volunteer"))
+
+    update_badges(empty_pb2.Empty())
+    process_jobs()
+
+    with session_scope() as session:
+        # Check user3 has volunteer badge
+        user3_badges = session.execute(select(UserBadge.badge_id).where(UserBadge.user_id == user3.id)).scalars().all()
+        assert "volunteer" in user3_badges
+        assert "past_volunteer" not in user3_badges
+
+        # Check user4 has past_volunteer badge
+        user4_badges = session.execute(select(UserBadge.badge_id).where(UserBadge.user_id == user4.id)).scalars().all()
+        assert "past_volunteer" in user4_badges
+        assert "volunteer" not in user4_badges
+
+        # Check user5 lost the volunteer badge (not in Volunteer table)
+        user5_badges = session.execute(select(UserBadge.badge_id).where(UserBadge.user_id == user5.id)).scalars().all()
+        assert "volunteer" not in user5_badges
+
+        # Check user6 lost the past_volunteer badge (not in Volunteer table)
+        user6_badges = session.execute(select(UserBadge.badge_id).where(UserBadge.user_id == user6.id)).scalars().all()
+        assert "past_volunteer" not in user6_badges
+
+    # Check notifications for volunteer badge users
+    push_collector.assert_user_has_single_matching(
+        user3.id,
+        title="The Active Volunteer badge was added to your profile",
+        body="Check out your profile to see the new badge!",
+    )
+    push_collector.assert_user_has_single_matching(
+        user4.id,
+        title="The Past Volunteer badge was added to your profile",
+        body="Check out your profile to see the new badge!",
+    )
+    push_collector.assert_user_has_single_matching(
+        user5.id,
+        title="The Active Volunteer badge was removed from your profile",
+        body="You can see all your badges on your profile.",
+    )
+    push_collector.assert_user_has_single_matching(
+        user6.id,
+        title="The Past Volunteer badge was removed from your profile",
+        body="You can see all your badges on your profile.",
+    )
+
+
+def test_update_badges_volunteer_status_change(db, push_collector):
+    """Test that badge is updated when volunteer status changes from active to past."""
+    # Create users - users 1 and 2 get founder/board_member badges from static_badges
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+
+    with session_scope() as session:
+        # user3: start as active volunteer
+        session.add(
+            Volunteer(
+                user_id=user3.id,
+                role="Developer",
+                started_volunteering=date(2020, 1, 1),
+                stopped_volunteering=None,
+            )
+        )
+
+    update_badges(empty_pb2.Empty())
+    process_jobs()
+
+    with session_scope() as session:
+        user3_badges = session.execute(select(UserBadge.badge_id).where(UserBadge.user_id == user3.id)).scalars().all()
+        assert "volunteer" in user3_badges
+        assert "past_volunteer" not in user3_badges
+
+    push_collector.assert_user_has_single_matching(
+        user3.id,
+        title="The Active Volunteer badge was added to your profile",
+        body="Check out your profile to see the new badge!",
+    )
+
+    # Now change the volunteer to past volunteer
+    with session_scope() as session:
+        volunteer = session.execute(select(Volunteer).where(Volunteer.user_id == user3.id)).scalar_one()
+        volunteer.stopped_volunteering = date(2023, 12, 1)
+
+    update_badges(empty_pb2.Empty())
+    process_jobs()
+
+    with session_scope() as session:
+        user3_badges = session.execute(select(UserBadge.badge_id).where(UserBadge.user_id == user3.id)).scalars().all()
+        assert "volunteer" not in user3_badges
+        assert "past_volunteer" in user3_badges
+
+    # Check both badges were updated
+    push_collector.assert_user_push_matches_fields(
+        user3.id,
+        ix=1,
+        title="The Active Volunteer badge was removed from your profile",
+        body="You can see all your badges on your profile.",
+    )
+    push_collector.assert_user_push_matches_fields(
+        user3.id,
+        ix=2,
+        title="The Past Volunteer badge was added to your profile",
+        body="Check out your profile to see the new badge!",
+    )
 
 
 def test_send_message_notifications_empty_unseen_simple(monkeypatch):

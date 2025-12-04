@@ -28,6 +28,7 @@ from sqlalchemy.sql import (
     update,
 )
 
+from couchers import urls
 from couchers.config import config
 from couchers.constants import (
     ACTIVENESS_PROBE_EXPIRY_TIME,
@@ -55,7 +56,7 @@ from couchers.materialized_views import (
     refresh_materialized_views,
     refresh_materialized_views_rapid,
 )
-from couchers.metrics import strong_verification_completions_counter
+from couchers.metrics import push_notification_counter, strong_verification_completions_counter
 from couchers.models import (
     AccountDeletionToken,
     ActivenessProbe,
@@ -77,14 +78,22 @@ from couchers.models import (
     MessageType,
     PassportSex,
     PasswordResetToken,
+    PostalVerificationAttempt,
+    PostalVerificationStatus,
+    PushNotificationDeliveryAttempt,
+    PushNotificationSubscription,
     Reference,
     StrongVerificationAttempt,
     StrongVerificationAttemptStatus,
     User,
     UserBadge,
+    Volunteer,
 )
-from couchers.notifications.background import handle_email_digests, handle_notification, send_raw_push_notification
+from couchers.notifications.background import handle_email_digests, handle_notification
+from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
+from couchers.notifications.send_raw_push_notification import send_raw_push_notification_v2
+from couchers.postal.postcard_service import send_postcard
 from couchers.proto import notification_data_pb2
 from couchers.proto.internal import jobs_pb2, verification_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
@@ -117,7 +126,7 @@ logger = logging.getLogger(__name__)
 # these were straight up imported
 handle_notification.PAYLOAD = jobs_pb2.HandleNotificationPayload
 
-send_raw_push_notification.PAYLOAD = jobs_pb2.SendRawPushNotificationPayload
+send_raw_push_notification_v2.PAYLOAD = jobs_pb2.SendRawPushNotificationPayloadV2
 
 handle_email_digests.PAYLOAD = empty_pb2.Empty
 handle_email_digests.SCHEDULE = timedelta(minutes=15)
@@ -876,6 +885,18 @@ def update_badges(payload: empty_pb2.Empty) -> None:
             .scalars()
             .all(),
         )
+        # volunteer badge for active volunteers (stopped_volunteering is null)
+        update_badge(
+            "volunteer",
+            session.execute(select(Volunteer.user_id).where(Volunteer.stopped_volunteering.is_(None))).scalars().all(),
+        )
+        # past_volunteer badge for past volunteers (stopped_volunteering is not null)
+        update_badge(
+            "past_volunteer",
+            session.execute(select(Volunteer.user_id).where(Volunteer.stopped_volunteering.is_not(None)))
+            .scalars()
+            .all(),
+        )
 
 
 update_badges.PAYLOAD = empty_pb2.Empty
@@ -1167,3 +1188,134 @@ def send_event_reminders(payload: empty_pb2.Empty) -> None:
 
 send_event_reminders.PAYLOAD = empty_pb2.Empty
 send_event_reminders.SCHEDULE = timedelta(hours=1)
+
+
+def check_expo_push_receipts(payload: empty_pb2.Empty) -> None:
+    """
+    Check Expo push receipts in batch and update delivery attempts.
+    """
+    MAX_ITERATIONS = 100  # Safety limit: 100 batches * 100 attempts = 10,000 max
+
+    for iteration in range(MAX_ITERATIONS):
+        with session_scope() as session:
+            # Find all delivery attempts that need receipt checking
+            # Wait 15 minutes per Expo's recommendation before checking receipts
+            attempts = (
+                session.execute(
+                    select(PushNotificationDeliveryAttempt)
+                    .where(PushNotificationDeliveryAttempt.expo_ticket_id != None)
+                    .where(PushNotificationDeliveryAttempt.receipt_checked_at == None)
+                    .where(PushNotificationDeliveryAttempt.time < now() - timedelta(minutes=15))
+                    .where(PushNotificationDeliveryAttempt.time > now() - timedelta(hours=24))
+                    .limit(100)
+                )
+                .scalars()
+                .all()
+            )
+
+            if not attempts:
+                logger.debug("No Expo receipts to check")
+                return
+
+            logger.info(f"Checking {len(attempts)} Expo push receipts")
+
+            receipts = get_expo_push_receipts([attempt.expo_ticket_id for attempt in attempts])
+
+            for attempt in attempts:
+                receipt = receipts.get(attempt.expo_ticket_id)
+
+                # Always mark as checked to avoid infinite loops
+                attempt.receipt_checked_at = now()
+
+                if receipt is None:
+                    # Receipt not found after 15min - likely expired (>24h) or never existed
+                    # Per Expo docs: receipts should be available within 15 minutes
+                    attempt.receipt_status = "not_found"
+                    continue
+
+                attempt.receipt_status = receipt.get("status")
+
+                if receipt.get("status") == "error":
+                    details = receipt.get("details", {})
+                    error_code = details.get("error")
+                    attempt.receipt_error_code = error_code
+
+                    if error_code == "DeviceNotRegistered":
+                        # Device token is no longer valid - disable the subscription
+                        sub = session.execute(
+                            select(PushNotificationSubscription).where(
+                                PushNotificationSubscription.id == attempt.push_notification_subscription_id
+                            )
+                        ).scalar_one()
+
+                        if sub.disabled_at > now():
+                            sub.disabled_at = now()
+                            logger.info(f"Disabled push sub {sub.id} due to DeviceNotRegistered in receipt")
+                            push_notification_counter.labels(
+                                platform="expo", outcome="permanent_subscription_failure_receipt"
+                            ).inc()
+                    else:
+                        logger.warning(f"Expo receipt error for ticket {attempt.expo_ticket_id}: {error_code}")
+
+    # If we get here, we've exhausted MAX_ITERATIONS without finishing
+    raise RuntimeError(
+        f"check_expo_push_receipts exceeded {MAX_ITERATIONS} iterations - "
+        "there may be an unusually large backlog of receipts to check"
+    )
+
+
+check_expo_push_receipts.PAYLOAD = empty_pb2.Empty
+check_expo_push_receipts.SCHEDULE = timedelta(minutes=5)
+
+
+def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPostcardPayload) -> None:
+    """
+    Sends the postcard via external API and updates attempt status.
+    """
+    with session_scope() as session:
+        attempt = session.execute(
+            select(PostalVerificationAttempt).where(
+                PostalVerificationAttempt.id == payload.postal_verification_attempt_id
+            )
+        ).scalar_one_or_none()
+
+        if not attempt or attempt.status != PostalVerificationStatus.in_progress:
+            logger.warning(
+                f"Postal verification attempt {payload.postal_verification_attempt_id} not found or wrong state"
+            )
+            return
+
+        user_name = session.execute(select(User.name).where(User.id == attempt.user_id)).scalar_one()
+
+        result = send_postcard(
+            recipient_name=user_name,
+            address_line_1=attempt.address_line_1,
+            address_line_2=attempt.address_line_2,
+            city=attempt.city,
+            state=attempt.state,
+            postal_code=attempt.postal_code,
+            country=attempt.country,
+            verification_code=attempt.verification_code,
+            qr_code_url=urls.postal_verification_link(code=attempt.verification_code),
+        )
+
+        if result.success:
+            attempt.status = PostalVerificationStatus.awaiting_verification
+            attempt.postcard_sent_at = func.now()
+
+            notify(
+                session,
+                user_id=attempt.user_id,
+                topic_action="postal_verification:postcard_sent",
+                data=notification_data_pb2.PostalVerificationPostcardSent(
+                    city=attempt.city,
+                    country=attempt.country,
+                ),
+            )
+        else:
+            # Could retry or fail - for now, fail
+            attempt.status = PostalVerificationStatus.failed
+            logger.error(f"Postcard send failed: {result.error_message}")
+
+
+send_postal_verification_postcard.PAYLOAD = jobs_pb2.SendPostalVerificationPostcardPayload

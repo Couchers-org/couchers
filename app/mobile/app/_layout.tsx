@@ -1,10 +1,6 @@
+import "react-native-reanimated";
+
 import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
-import {
-  useFonts,
   Ubuntu_300Light,
   Ubuntu_300Light_Italic,
   Ubuntu_400Regular,
@@ -13,22 +9,37 @@ import {
   Ubuntu_500Medium_Italic,
   Ubuntu_700Bold,
   Ubuntu_700Bold_Italic,
+  useFonts,
 } from "@expo-google-fonts/ubuntu";
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
+import * as Notifications from "expo-notifications";
+import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect } from "react";
-import "react-native-reanimated";
+import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import { useColorScheme } from "@/hooks/useColorScheme";
-// import Sentry from "platform/sentry";
-
-import { Stack } from "expo-router";
-
 import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
+import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
+import { useColorScheme } from "@/hooks/useColorScheme";
 
-// Sentry.init({
-//   dsn: "https://7de06aa8cca6dacc9620667dd84a0d01@o782870.ingest.us.sentry.io/4507718344704000",
-// });
+const IS_PROD =
+  (process.env.NEXT_PUBLIC_COUCHERS_ENV ||
+    process.env.EXPO_PUBLIC_COUCHERS_ENV)! === "prod";
+
+if (!IS_PROD) {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
+}
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -46,17 +57,10 @@ function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
     return null;
   }
 
-  if (checkedAuthStatus && authenticated) {
-    return (
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
-      </Stack>
-    );
-  }
-
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="login" />
+      <Stack.Screen name="login" redirect={authenticated} />
+      <Stack.Screen name="(tabs)" redirect={!authenticated} />
     </Stack>
   );
 }
@@ -82,9 +86,15 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <AuthProvider>
+          <PushNotificationsRegistrar />
           <RootNavigator fontsLoaded={fontsLoaded} />
         </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );
+}
+
+function PushNotificationsRegistrar() {
+  useRegisterPushNotifications();
+  return null;
 }

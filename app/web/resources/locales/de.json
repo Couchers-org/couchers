@@ -126,7 +126,7 @@
             }
         },
         "ui_ux_designer": "UI/UX-Designer",
-        "tap_press_to_flip": " tippen / drücken zum Drehen"
+        "tap_press_to_flip": "tippen / drücken zum Drehen"
     },
     "push_notification_banner": {
         "message": "Verpasse keine Anfragen, Antworten oder Nachrichten; dürfen wir dir Push-Benachrichtigungen senden?",
@@ -457,6 +457,7 @@
     "beta": "Beta",
     "donation_banner": {
         "message": "Couchers.org basiert auf Güte — genau wie Couchsurfing selbst. Hilf uns in dieser Weihnachtszeit, dass es so bleibt. Wir sammeln 5.000 $, um die Betriebskosten von Couchers.org zu decken.",
-        "button": "Jetzt spenden"
+        "button": "Jetzt spenden",
+        "progress_label": "Spendenfortschritt"
     }
 }
