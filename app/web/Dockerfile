@@ -31,5 +31,3 @@ ARG commit_timestamp
 ENV NEXT_PUBLIC_COMMIT_TIMESTAMP=$commit_timestamp
 
 RUN yarn build
-
-
