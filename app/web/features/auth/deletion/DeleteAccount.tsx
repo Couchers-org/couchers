@@ -99,7 +99,7 @@ export default function DeleteAccount({
             id="confirmUsername"
             {...register("confirmUsername", { required: true })}
             label={t("auth:delete_account.request.confirm_username_label")}
-            fullWidth={!isMdOrWider}
+            fullWidth
           />
           <Typography variant="subtitle1">
             {t("auth:delete_account.request.reason_explanation")}
