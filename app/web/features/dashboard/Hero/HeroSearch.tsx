@@ -7,10 +7,9 @@ import { useTranslation } from "next-i18next";
 import { HostingStatus } from "proto/api_pb";
 import { useForm } from "react-hook-form";
 import { routeToSearch } from "routes";
-import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
 
-const StyledSearchBoxContainer = styled("form")(() => ({
+const StyledSearchBoxContainer = styled("form")(({ theme }) => ({
   padding: theme.spacing(4, 2, 6, 2),
   borderRadius: theme.shape.borderRadius,
   backgroundColor: theme.palette.background.paper,

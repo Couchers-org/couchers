@@ -1,5 +1,12 @@
 import { NotificationsOutlined } from "@mui/icons-material";
-import { Box, styled, Tooltip, Typography, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  styled,
+  Theme,
+  Tooltip,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
 import IconButton from "components/IconButton";
@@ -269,7 +276,7 @@ export default function LoggedInMenu({
               aria-controls="notifications-feed"
               aria-haspopup="true"
               aria-expanded={isNotificationsFeedOpen ? "true" : undefined}
-              sx={{
+              sx={(theme: Theme) => ({
                 backgroundColor: theme.palette.grey[300],
                 width: { xs: 36, md: 40 },
                 height: { xs: 36, md: 40 },
@@ -277,7 +284,7 @@ export default function LoggedInMenu({
                   opacity: 0.8,
                   backgroundColor: theme.palette.grey[300],
                 },
-              }}
+              })}
             >
               <NotificationsOutlined sx={{ fontSize: { xs: 20, md: 24 } }} />
             </IconButton>

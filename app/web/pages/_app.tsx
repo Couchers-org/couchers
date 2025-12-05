@@ -6,6 +6,7 @@ import {
   StyledEngineProvider,
   ThemeProvider,
 } from "@mui/material";
+import { AppCacheProvider } from "@mui/material-nextjs/v15-pagesRouter";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { EnvironmentBanner } from "components/EnvironmentBanner";
@@ -27,7 +28,8 @@ type AppWithLayoutProps = Omit<AppProps, "Component"> & {
   };
 };
 
-function MyApp({ Component, pageProps }: AppWithLayoutProps) {
+function MyApp(props: AppWithLayoutProps) {
+  const { Component, pageProps } = props;
   const getLayout = Component.getLayout ?? ((page: ReactNode) => page);
   useEffect(() => polyfill(), []);
   useEffect(() => {
@@ -75,22 +77,24 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
   }, []);
 
   return (
-    <StyledEngineProvider injectFirst>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <ThemeProvider theme={theme}>
-          <ErrorBoundary isFatal>
-            <ReactQueryClientProvider>
-              <AuthProvider>
-                <CssBaseline />
-                <EnvironmentBanner />
-                <HtmlMeta />
-                {getLayout(<Component {...pageProps} />)}
-              </AuthProvider>
-            </ReactQueryClientProvider>
-          </ErrorBoundary>
-        </ThemeProvider>
-      </LocalizationProvider>
-    </StyledEngineProvider>
+    <AppCacheProvider {...props}>
+      <StyledEngineProvider injectFirst>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <ThemeProvider theme={theme}>
+            <ErrorBoundary isFatal>
+              <ReactQueryClientProvider>
+                <AuthProvider>
+                  <CssBaseline />
+                  <EnvironmentBanner />
+                  <HtmlMeta />
+                  {getLayout(<Component {...pageProps} />)}
+                </AuthProvider>
+              </ReactQueryClientProvider>
+            </ErrorBoundary>
+          </ThemeProvider>
+        </LocalizationProvider>
+      </StyledEngineProvider>
+    </AppCacheProvider>
   );
 }
 

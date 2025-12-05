@@ -6,8 +6,10 @@ import {
   List,
   ListItem,
   styled,
+  Theme,
   Toolbar,
   useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import Button from "components/Button";
 import { GlobalMessage } from "components/GlobalMessage";
@@ -43,7 +45,6 @@ import {
   signupRoute,
   volunteerRoute,
 } from "routes";
-import { theme } from "theme";
 
 import { useIsNativeEmbed } from "../../platform/nativeLink";
 import LoggedInMenu, { LoggedInMenuItem } from "./LoggedInMenu";
@@ -223,7 +224,7 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   bottom: "auto",
   top: 0,
   boxShadow: "none",
-  backgroundColor: theme.palette.common.white,
+  backgroundColor: theme.palette.background.paper,
 }));
 
 const StyledFlexbox = styled("div")(({ theme }) => ({
@@ -279,6 +280,7 @@ const StyledMenuContainer = styled("div")(({ theme }) => ({
 
 export default function Navigation() {
   const router = useRouter();
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [isMounted, setIsMounted] = useState(false);
@@ -304,14 +306,14 @@ export default function Navigation() {
             <ListItem
               component="button"
               key={name}
-              sx={{
+              sx={(theme: Theme) => ({
                 background: "transparent",
                 border: "none",
 
                 "&:hover": {
-                  backgroundColor: theme.palette.grey[200],
+                  backgroundColor: theme.palette.action.hover,
                 },
-              }}
+              })}
             >
               {externalLink ? (
                 <ExternalNavButton
@@ -331,12 +333,12 @@ export default function Navigation() {
           ),
         )}
         <ListItem
-          sx={{
+          sx={(theme: Theme) => ({
             display: "flex",
             flex: "1",
             maxWidth: "10.5rem",
             padding: theme.spacing(1, 4),
-          }}
+          })}
         >
           <LanguagePickerSelect />
         </ListItem>
@@ -358,7 +360,7 @@ export default function Navigation() {
   };
 
   return (
-    <StyledAppBar position="sticky" color="inherit">
+    <StyledAppBar position="sticky">
       <StyledToolbar>
         <StyledNav>
           {isMobile && (
@@ -369,9 +371,7 @@ export default function Navigation() {
                 edge="start"
                 sx={{ marginLeft: theme.spacing(1) }}
               >
-                <MenuIcon
-                  sx={{ color: theme.palette.text.primary, fontSize: 24 }}
-                />
+                <MenuIcon sx={{ color: "text.primary", fontSize: 24 }} />
               </IconButton>
               <StyledDrawer
                 variant="temporary"
@@ -444,11 +444,11 @@ export default function Navigation() {
               <Button
                 variant="outlined"
                 size={isMobile ? "medium" : "large"}
-                sx={{
+                sx={(theme: Theme) => ({
                   fontSize: "1.3rem",
                   borderRadius: theme.spacing(1),
                   border: `1.5px solid ${theme.palette.primary.main}`,
-                }}
+                })}
                 onClick={() => router.push(loginRoute)}
               >
                 {t("login")}
