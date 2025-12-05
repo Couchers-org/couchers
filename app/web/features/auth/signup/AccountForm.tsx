@@ -172,7 +172,7 @@ export default function AccountForm() {
 
   const acceptTOS = watch("acceptTOS");
 
-  const usernameInputRef = useRef<HTMLInputElement>();
+  const usernameInputRef = useRef<HTMLInputElement>(undefined);
 
   const handleBirthdateChange = (newBirthdate: Dayjs) => {
     setValue("birthdate", newBirthdate, {

@@ -24,6 +24,7 @@ import {
   SegmentIcon,
   SinglePersonIcon,
 } from "components/Icons";
+import type { JSX } from "react";
 import { theme } from "theme";
 
 const mapNotificationSettingsTypeToIcon: { [key: string]: JSX.Element } = {

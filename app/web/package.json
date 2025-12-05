@@ -54,8 +54,8 @@
     "next": "^15.5.7",
     "next-i18next": "^14.0.0",
     "prop-types": "^15.7.2",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "react-gtm-module": "^2.0.11",
     "react-hook-form": "^7.54.0",
     "react-i18next": "^13.2.1",
@@ -80,8 +80,8 @@
     "@types/jest": "^29.5.14",
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^22.18.12",
-    "@types/react": "^18.3.1",
-    "@types/react-dom": "^18.3.1",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "@types/react-gtm-module": "^2.0.4",
     "@types/react-simple-maps": "^3.0.6",
     "@typescript-eslint/eslint-plugin": "^8.44.0",
@@ -107,7 +107,8 @@
     "whatwg-fetch": "^3.6.20"
   },
   "resolutions": {
-    "@types/react": "^18.3.1"
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0"
   },
   "packageManager": "yarn@1.22.22"
 }
