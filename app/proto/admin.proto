@@ -76,6 +76,8 @@ service Admin {
   rpc CreateAccountDeletionLink(CreateAccountDeletionLinkReq) returns (CreateAccountDeletionLinkRes) {}
 
   rpc AccessStats(AccessStatsReq) returns (AccessStatsRes) {}
+
+  rpc SetLastDonated(SetLastDonatedReq) returns (UserDetails) {}
 }
 
 message UserDetails {
@@ -356,4 +358,11 @@ message AccessStat {
 
 message AccessStatsRes {
   repeated AccessStat stats = 1;
+}
+
+message SetLastDonatedReq {
+  // username, email, or user id
+  string user = 1;
+  // if not set, clears last_donated (removes donor status)
+  google.protobuf.Timestamp last_donated = 2;
 }
