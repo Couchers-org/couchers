@@ -6,6 +6,7 @@ import {
   StyledEngineProvider,
   ThemeProvider,
 } from "@mui/material";
+import { AppCacheProvider } from "@mui/material-nextjs/v15-pagesRouter";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { EnvironmentBanner } from "components/EnvironmentBanner";
@@ -84,7 +85,9 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
                 <CssBaseline />
                 <EnvironmentBanner />
                 <HtmlMeta />
-                {getLayout(<Component {...pageProps} />)}
+                <AppCacheProvider>
+                  {getLayout(<Component {...pageProps} />)}
+                </AppCacheProvider>
               </AuthProvider>
             </ReactQueryClientProvider>
           </ErrorBoundary>

@@ -3,9 +3,8 @@ import Button from "components/Button";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
+import { searchRoute } from "routes";
 
-import { searchRoute } from "../../../routes";
-import { theme } from "../../../theme";
 import useHeroBackgroundTheme from "./useHeroBackgroundTheme";
 
 const StyledButtonContainer = styled("div")(({ theme }) => ({
@@ -17,7 +16,7 @@ const StyledButtonContainer = styled("div")(({ theme }) => ({
 export default function HeroButton() {
   const { t } = useTranslation(DASHBOARD);
 
-  // because this component is over an image background and has a special button, we adjust the theme
+  // because this component is over an image background, we adjust the theme
   const heroTheme = useHeroBackgroundTheme();
 
   return (
@@ -29,15 +28,8 @@ export default function HeroButton() {
             href={searchRoute}
             variant="contained"
             size="large"
-            sx={{
-              "& span": {
-                background: `-webkit-linear-gradient(0deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              },
-            }}
           >
-            <span>{t("show_map")}</span>
+            {t("show_map")}
           </Button>
         </ThemeProvider>
       </StyledEngineProvider>
