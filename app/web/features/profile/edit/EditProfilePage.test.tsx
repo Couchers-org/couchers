@@ -84,24 +84,18 @@ describe("Edit profile", () => {
     });
     await user.click(saveButton);
 
-    // Check if incomplete profile dialog appears and handle it
-    try {
-      const incompleteDialog = await screen.findByTestId(
-        "incomplete-profile-dialog",
-        {},
-      );
-      if (incompleteDialog) {
-        const saveAnywayButton = await screen.findByRole("button", {
-          name: t("profile:incomplete_dialog.save_anyway"),
-        });
-        await user.click(saveAnywayButton);
-      }
-    } catch {
-      // Dialog didn't appear, which is fine
+    const incompleteDialog = screen.queryByTestId("incomplete-profile-dialog");
+    if (incompleteDialog) {
+      const saveAnywayButton = await screen.findByRole("button", {
+        name: t("profile:incomplete_dialog.save_anyway"),
+      });
+      await user.click(saveAnywayButton);
     }
 
-    expect(updateProfileMock).toHaveBeenCalledWith(
-      expect.objectContaining({ aboutMe: aboutMeText }),
+    await waitFor(() =>
+      expect(updateProfileMock).toHaveBeenCalledWith(
+        expect.objectContaining({ aboutMe: aboutMeText }),
+      ),
     );
 
     await waitFor(() =>

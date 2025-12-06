@@ -54,8 +54,8 @@
     "next": "^15.5.7",
     "next-i18next": "^14.0.0",
     "prop-types": "^15.7.2",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
     "react-gtm-module": "^2.0.11",
     "react-hook-form": "^7.54.0",
     "react-i18next": "^13.2.1",
@@ -107,8 +107,8 @@
     "whatwg-fetch": "^3.6.20"
   },
   "resolutions": {
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0"
+    "@types/react": "^19.2.1",
+    "@types/react-dom": "^19.2.1"
   },
   "packageManager": "yarn@1.22.22"
 }
