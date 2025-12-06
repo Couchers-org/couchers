@@ -319,5 +319,14 @@
     "missing_payload_or_sig": "Ungültige URL",
     "title": "E-Mail-Schnellaktion",
     "button_text": "Aktion bestätigen"
+  },
+  "volunteer_management": {
+    "title": "Freiwilligenmanagement",
+    "description": "Wenn deine Rolle oder die Daten nicht korrekt sind, lasse es uns bitte wissen.",
+    "card_preview_label": "Deine Teamseite-Auflistung",
+    "not_a_volunteer_message": "Laut unseren Unterlagen bist du weder derzeit noch in der Vergangenheit Freiwillig tätig gewesen. Falls dies nicht zutrifft, teile uns dies bitte mit, indem du <1>dieses Formular</1> ausfüllst.",
+    "past_volunteer": "Freiwillig tätig von {{startDate}} bis {{endDate}}.",
+    "current_volunteer": "Freiwillig tätig seit {{startDate}}.",
+    "shown_on_team_page_current": "Auf der Teamseite als aktuelles Teammitglied angezeigt."
   }
 }
