@@ -24,11 +24,14 @@
     "knip": "knip"
   },
   "dependencies": {
+    "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
+    "@emotion/server": "^11.11.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.4",
     "@mui/lab": "^7.0.0-beta.17",
     "@mui/material": "^7.3.5",
+    "@mui/material-nextjs": "^7.3.6",
     "@mui/system": "^7.3.5",
     "@mui/utils": "^7.3.2",
     "@mui/x-date-pickers": "^8.19.0",
@@ -52,13 +55,13 @@
     "maplibre-gl": "^5.12.0",
     "markdown-it": "^14.1.0",
     "next": "^15.5.7",
-    "next-i18next": "^14.0.0",
+    "next-i18next": "^15.4.3",
     "prop-types": "^15.7.2",
     "react": "19.2.1",
     "react-dom": "19.2.1",
     "react-gtm-module": "^2.0.11",
     "react-hook-form": "^7.54.0",
-    "react-i18next": "^13.2.1",
+    "react-i18next": "^16.4.0",
     "react-intersection-observer": "^10.0.0",
     "react-lines-ellipsis": "^0.16.1",
     "react-map-gl": "^8.1.0",
@@ -110,5 +113,9 @@
     "@types/react": "^19.2.1",
     "@types/react-dom": "^19.2.1"
   },
-  "packageManager": "yarn@1.22.22"
+  "packageManager": "yarn@1.22.22",
+  "overrides": {
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3"
+  }
 }
