@@ -17,7 +17,7 @@ interface MapSearchContentProps {
   hasPreviousPage: boolean | undefined;
   hasNextPage: boolean | undefined;
   isLoading: boolean;
-  mapRef: React.RefObject<MapRef>;
+  mapRef: React.RefObject<MapRef | null>;
   mapView: MapViewOptions;
   currentRange: string;
   onDrawerWidthChange: (width: number) => void;

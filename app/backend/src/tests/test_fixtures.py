@@ -38,6 +38,7 @@ from couchers.models import (
     MeetupStatus,
     ModerationUserList,
     PassportSex,
+    PhotoGallery,
     RegionLived,
     RegionVisited,
     StrongVerificationAttempt,
@@ -61,6 +62,7 @@ from couchers.proto import (
     donations_pb2_grpc,
     editor_pb2_grpc,
     events_pb2_grpc,
+    galleries_pb2_grpc,
     gis_pb2_grpc,
     groups_pb2_grpc,
     iris_pb2_grpc,
@@ -90,6 +92,7 @@ from couchers.servicers.discussions import Discussions
 from couchers.servicers.donations import Donations, Stripe
 from couchers.servicers.editor import Editor
 from couchers.servicers.events import Events
+from couchers.servicers.galleries import Galleries
 from couchers.servicers.gis import GIS
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
@@ -377,6 +380,12 @@ def generate_user(
         user = User(**user_opts)
         session.add(user)
         session.flush()
+
+        # Create a profile gallery for the user and link it
+        profile_gallery = PhotoGallery(owner_user_id=user.id)
+        session.add(profile_gallery)
+        session.flush()
+        user.profile_gallery_id = profile_gallery.id
 
         for region in regions_visited:
             session.add(RegionVisited(user_id=user.id, region_code=region))
@@ -941,6 +950,16 @@ def references_session(token):
     channel = FakeChannel(token)
     references_pb2_grpc.add_ReferencesServicer_to_server(References(), channel)
     yield references_pb2_grpc.ReferencesStub(channel)
+
+
+@contextmanager
+def galleries_session(token):
+    """
+    Create a Galleries API for testing, uses the token for auth
+    """
+    channel = FakeChannel(token)
+    galleries_pb2_grpc.add_GalleriesServicer_to_server(Galleries(), channel)
+    yield galleries_pb2_grpc.GalleriesStub(channel)
 
 
 @contextmanager

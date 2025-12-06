@@ -1,7 +1,11 @@
 proto/
-node_modules
+node_modules/
+ios/
+android/
 **/locales/*.json
 *.log
 yarn.lock
+package-lock.json
 README.md
-NOTES
+coverage/
+dist/

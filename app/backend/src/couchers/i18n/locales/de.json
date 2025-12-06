@@ -202,7 +202,13 @@
         "host_request_too_short": "Die Host-Anfrage darf nicht kürzer als {{chars}} Zeichen sein.",
         "postal_address_invalid": "Die Adresse konnte nicht validiert werden.",
         "can_only_refer_friends": "Du kannst Freundschaftsreferenzen nur für bestätigte Freunde schreiben.",
-        "city_required": "Stadt ist erforderlich."
+        "city_required": "Stadt ist erforderlich.",
+        "postal_verification_code_expired": "Der Bestätigungscode ist abgelaufen.",
+        "postal_verification_cannot_cancel": "Dieser Versuch der Postverifizierung kann nicht storniert werden.",
+        "postal_verification_disabled": "Die Postverifizierung ist derzeit deaktiviert.",
+        "postal_verification_wrong_state": "Dieser Versuch der Postverifizierung befindet sich nicht im richtigen Status für diese Aktion.",
+        "postal_verification_rate_limited": "Du kannst noch keinen neuen Postverifizierungsversuch starten. Bitte warte.",
+        "postal_verification_attempt_not_found": "Postverifizierungsversuch nicht gefunden."
     },
     "quick_links": {
         "do_not_email": "Du wirst keine E-Mails mehr erhalten, die nicht sicherheitsrelevant sind, und dein Hosting-Status wurde zurückgesetzt. Der Newsletter muss separat abbestellt werden.",
@@ -235,5 +241,15 @@
         "phone_verified_name": "Verifizierte Telefonnummer",
         "phone_verified_description": "Dieser Nutzer hat seine Telefonnummer verifiziert",
         "strong_verification_name": "Starke Verifizierung"
+    },
+    "community_guidelines": {
+        "no_dating_title": "Dies ist keine Dating-App",
+        "no_dating_guideline": "Couchers.org ist NICHT für Dating oder sexuelle Kontakte zu schließen. Belästigung oder die Nutzung der Plattform zum Zweck des Datings oder sexueller Kontakte führt zu einem Ausschluss.",
+        "be_safe_title": "Sei sicher und vernünftig",
+        "be_safe_guideline": "Lies Profile, Referenzen und Ressourcen. Melde unangemessene Inhalte oder Verhaltensweisen.",
+        "no_money_title": "Halte Geld da raus",
+        "be_kind_title": "Seid freundlich zueinander",
+        "be_kind_guideline": "Couchers.org ist eine inklusive Community, in der Menschen aller Kulturen und Hintergründe zusammenkommen. Behandle alle mit gegenseitigem Respekt und Würde.",
+        "no_money_guideline": "Halte es unkommerziell. Tausche kein Geld während des Surfens oder beim Hosten. Couchers.org dreht sich um Lernen, Erfahrungen und das Kennenlernen von Menschen."
     }
 }

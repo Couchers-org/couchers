@@ -1,0 +1,14 @@
+{
+  "biometrics": {
+    "login_prompt": "Log in to Couchers",
+    "cancel_button": "Cancel",
+    "use_password_button": "Use Password",
+    "enable_title": "Enable {{biometricType}}?",
+    "enable_message": "Would you like to use {{biometricType}} for faster login next time?",
+    "enable_button": "Enable",
+    "not_now_button": "Not Now",
+    "confirm_prompt": "Confirm {{biometricType}}",
+    "face_id": "Face ID",
+    "biometrics_generic": "biometrics"
+  }
+}

@@ -357,11 +357,33 @@ class Admin(admin_pb2_grpc.AdminServicer):
         return _user_to_details(session, user)
 
     def GetChats(self, request, context, session):
-        def format_user(user):
-            return f"{user.name} ({user.username}, {user.id})"
+        user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        def format_conversation(conversation_id):
-            out = ""
+        # Cache for UserDetails to avoid recomputing for the same user
+        user_details_cache = {}
+
+        def get_user_details(user_id):
+            if user_id not in user_details_cache:
+                u = session.execute(select(User).where(User.id == user_id)).scalar_one()
+                user_details_cache[user_id] = _user_to_details(session, u)
+            return user_details_cache[user_id]
+
+        def message_to_pb(message):
+            return admin_pb2.ChatMessage(
+                message_id=message.id,
+                author=get_user_details(message.author_id),
+                time=Timestamp_from_datetime(message.time),
+                message_type=message.message_type.name if message.message_type else "",
+                text=message.text or "",
+                host_request_status_target=(
+                    message.host_request_status_target.name if message.host_request_status_target else ""
+                ),
+                target=get_user_details(message.target_id) if message.target_id else None,
+            )
+
+        def get_messages_for_conversation(conversation_id):
             messages = (
                 session.execute(
                     select(Message).where(Message.conversation_id == conversation_id).order_by(Message.id.asc())
@@ -369,31 +391,21 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 .scalars()
                 .all()
             )
-            for message in messages:
-                out += f"Message {message.id} by {format_user(message.author)} at {message.time}\nType={message.message_type}, host_req_status_change={message.host_request_status_target}\n\n"
-                out += str(message.text)
-                out += "\n\n-----\n"
-            out += "\n\n\n\n"
-            return out
+            return [message_to_pb(msg) for msg in messages]
 
-        def format_host_request(host_request_id):
-            out = ""
-            host_request = session.execute(
-                select(HostRequest).where(HostRequest.conversation_id == host_request_id)
-            ).scalar_one()
-            out += "==============================\n"
-            out += f"Host request {host_request.conversation_id} from {format_user(host_request.surfer)} to {format_user(host_request.host)}.\nCurrent state = {host_request.status}\n\nMessages:\n"
-            out += format_conversation(host_request.conversation_id)
-            out += "\n\n\n\n"
-            return out
+        def get_host_request_pb(host_request):
+            return admin_pb2.AdminHostRequest(
+                host_request_id=host_request.conversation_id,
+                surfer=get_user_details(host_request.surfer_user_id),
+                host=get_user_details(host_request.host_user_id),
+                status=host_request.status.name if host_request.status else "",
+                from_date=date_to_api(host_request.from_date),
+                to_date=date_to_api(host_request.to_date),
+                created=Timestamp_from_datetime(host_request.conversation.created),
+                messages=get_messages_for_conversation(host_request.conversation_id),
+            )
 
-        def format_group_chat(group_chat_id):
-            out = ""
-            group_chat = session.execute(
-                select(GroupChat).where(GroupChat.conversation_id == group_chat_id)
-            ).scalar_one()
-            out += "==============================\n"
-            out += f"Group chat {group_chat.conversation_id}. Created by {format_user(group_chat.creator)}, is_dm={group_chat.is_dm}\nName: {group_chat.title}\nMembers:\n"
+        def get_group_chat_pb(group_chat):
             subs = (
                 session.execute(
                     select(GroupChatSubscription)
@@ -403,48 +415,54 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 .scalars()
                 .all()
             )
-            for sub in subs:
-                out += f"{format_user(sub.user)} joined at {sub.joined} (left at {sub.left}), role={sub.role}\n"
-            out += "\n\nMessages:\n"
-            out += format_conversation(group_chat.conversation_id)
-            out += "\n\n\n\n"
-            return out
-
-        def format_all_chats_for_user(user_id):
-            out = ""
-            user = session.execute(select(User).where(User.id == user_id)).scalar_one()
-            out += f"Chats for user {format_user(user)}\n"
-            host_request_ids = (
-                session.execute(
-                    select(HostRequest.conversation_id)
-                    .where(or_(HostRequest.host_user_id == user_id, HostRequest.surfer_user_id == user_id))
-                    .order_by(HostRequest.conversation_id.desc())
+            members = [
+                admin_pb2.GroupChatMember(
+                    user=get_user_details(sub.user_id),
+                    joined=Timestamp_from_datetime(sub.joined),
+                    left=Timestamp_from_datetime(sub.left) if sub.left else None,
+                    role=sub.role.name if sub.role else "",
                 )
-                .scalars()
-                .all()
+                for sub in subs
+            ]
+            return admin_pb2.AdminGroupChat(
+                group_chat_id=group_chat.conversation_id,
+                title=group_chat.title or "",
+                is_dm=group_chat.is_dm,
+                creator=get_user_details(group_chat.creator_id),
+                members=members,
+                messages=get_messages_for_conversation(group_chat.conversation_id),
             )
-            out += f"************************************* Requests ({len(host_request_ids)})\n"
-            for host_request in host_request_ids:
-                out += format_host_request(host_request)
-            group_chat_ids = (
-                session.execute(
-                    select(GroupChatSubscription.group_chat_id)
-                    .where(GroupChatSubscription.user_id == user_id)
-                    .order_by(GroupChatSubscription.joined.desc())
-                )
-                .scalars()
-                .all()
+
+        # Get all host requests for the user
+        host_requests = (
+            session.execute(
+                select(HostRequest)
+                .where(or_(HostRequest.host_user_id == user.id, HostRequest.surfer_user_id == user.id))
+                .order_by(HostRequest.conversation_id.desc())
             )
-            out += f"************************************* Group chats ({len(group_chat_ids)})\n"
-            for group_chat_id in group_chat_ids:
-                out += format_group_chat(group_chat_id)
-            return out
+            .scalars()
+            .all()
+        )
 
-        user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        # Get all group chats for the user
+        group_chat_ids = (
+            session.execute(
+                select(GroupChatSubscription.group_chat_id)
+                .where(GroupChatSubscription.user_id == user.id)
+                .order_by(GroupChatSubscription.joined.desc())
+            )
+            .scalars()
+            .all()
+        )
+        group_chats = (
+            session.execute(select(GroupChat).where(GroupChat.conversation_id.in_(group_chat_ids))).scalars().all()
+        )
 
-        return admin_pb2.GetChatsRes(response=format_all_chats_for_user(user.id))
+        return admin_pb2.GetChatsRes(
+            user=get_user_details(user.id),
+            host_requests=[get_host_request_pb(hr) for hr in host_requests],
+            group_chats=[get_group_chat_pb(gc) for gc in group_chats],
+        )
 
     def DeleteEvent(self, request, context, session):
         res = session.execute(
@@ -661,3 +679,15 @@ class Admin(admin_pb2_grpc.AdminServicer):
             )
 
         return out
+
+    def SetLastDonated(self, request, context, session):
+        user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+
+        if request.HasField("last_donated"):
+            user.last_donated = to_aware_datetime(request.last_donated)
+        else:
+            user.last_donated = None
+
+        return _user_to_details(session, user)

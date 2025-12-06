@@ -26,7 +26,7 @@ import { MapSearchTypes } from "./utils/constants";
 import { getMapBounds } from "./utils/mapUtils";
 
 interface FloatingSearchNavigationProps {
-  mapRef: React.RefObject<MapRef>;
+  mapRef: React.RefObject<MapRef | null>;
   onClearFilters: () => void;
   onOpenFilters: () => void;
   onSetSearchType: (searchType: MapSearchTypes) => void;

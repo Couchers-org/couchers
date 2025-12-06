@@ -54,6 +54,18 @@
           "icon": "./assets/images/icon.png",
           "color": "#ffffff"
         }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow Couchers to use Face ID for quick login."
+        }
+      ],
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": "Allow Couchers to access your Face ID biometric data."
+        }
       ]
     ],
     "experiments": {

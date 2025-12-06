@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import useAccountInfo from "features/auth/useAccountInfo";
 import { DonationBanner } from "features/donations/DonationBanner";
+import useDonationStats from "features/donations/useDonationStats";
 import { donationsRoute } from "routes";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
@@ -23,15 +24,30 @@ jest.mock("next/router", () => ({
 }));
 
 jest.mock("features/auth/useAccountInfo");
+jest.mock("features/donations/useDonationStats");
 
 const mockUseAccountInfo = useAccountInfo as jest.MockedFunction<
   typeof useAccountInfo
 >;
+const mockUseDonationStats = useDonationStats as jest.MockedFunction<
+  typeof useDonationStats
+>;
+
+const defaultDonationStats = {
+  totalDonatedYtd: 5000,
+  goal: 10000,
+};
 
 describe("DonationBanner", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     localStorage.clear();
+
+    // Default mock for donation stats
+    mockUseDonationStats.mockReturnValue({
+      data: defaultDonationStats,
+      isLoading: false,
+    } as ReturnType<typeof useDonationStats>);
   });
 
   it("displays the donation banner when shouldShowDonationBanner is true", async () => {
@@ -49,6 +65,10 @@ describe("DonationBanner", () => {
         screen.getByText(t("donation_banner.message")),
       ).toBeInTheDocument();
     });
+
+    // Should also show the progress bar
+    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+    expect(screen.getByText("$5,000 / $10,000")).toBeInTheDocument();
   });
 
   it("navigates to donations page with utm_source when button is clicked", async () => {
@@ -263,5 +283,83 @@ describe("DonationBanner", () => {
     ).not.toBeInTheDocument();
 
     jest.useRealTimers();
+  });
+
+  it("does not display when donation stats are not available", () => {
+    mockUseAccountInfo.mockReturnValue({
+      data: {
+        shouldShowDonationBanner: true,
+      },
+      isLoading: false,
+    } as ReturnType<typeof useAccountInfo>);
+
+    mockUseDonationStats.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+    } as ReturnType<typeof useDonationStats>);
+
+    render(<DonationBanner />, { wrapper });
+
+    expect(
+      screen.queryByText(t("donation_banner.message")),
+    ).not.toBeInTheDocument();
+  });
+
+  it("displays correct progress percentage", async () => {
+    mockUseAccountInfo.mockReturnValue({
+      data: {
+        shouldShowDonationBanner: true,
+      },
+      isLoading: false,
+    } as ReturnType<typeof useAccountInfo>);
+
+    mockUseDonationStats.mockReturnValue({
+      data: {
+        totalDonatedYtd: 7500,
+        goal: 10000,
+      },
+      isLoading: false,
+    } as ReturnType<typeof useDonationStats>);
+
+    render(<DonationBanner />, { wrapper });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(t("donation_banner.message")),
+      ).toBeInTheDocument();
+    });
+
+    const progressBar = screen.getByRole("progressbar");
+    expect(progressBar).toHaveAttribute("aria-valuenow", "75");
+    expect(screen.getByText("$7,500 / $10,000")).toBeInTheDocument();
+  });
+
+  it("caps progress at 100% when donations exceed goal", async () => {
+    mockUseAccountInfo.mockReturnValue({
+      data: {
+        shouldShowDonationBanner: true,
+      },
+      isLoading: false,
+    } as ReturnType<typeof useAccountInfo>);
+
+    mockUseDonationStats.mockReturnValue({
+      data: {
+        totalDonatedYtd: 15000,
+        goal: 10000,
+      },
+      isLoading: false,
+    } as ReturnType<typeof useDonationStats>);
+
+    render(<DonationBanner />, { wrapper });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(t("donation_banner.message")),
+      ).toBeInTheDocument();
+    });
+
+    const progressBar = screen.getByRole("progressbar");
+    expect(progressBar).toHaveAttribute("aria-valuenow", "100");
+    expect(screen.getByText("$15,000 / $10,000")).toBeInTheDocument();
   });
 });

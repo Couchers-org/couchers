@@ -71,13 +71,13 @@ from couchers.models import (
     HostingStatus,
     HostRequest,
     HostRequestStatus,
-    Invoice,
     LoginToken,
     MeetupStatus,
     Message,
     MessageType,
     PassportSex,
     PasswordResetToken,
+    PhotoGallery,
     PostalVerificationAttempt,
     PostalVerificationStatus,
     PushNotificationDeliveryAttempt,
@@ -869,9 +869,7 @@ def update_badges(payload: empty_pb2.Empty) -> None:
         update_badge("founder", get_static_badge_dict()["founder"])
         update_badge("board_member", get_static_badge_dict()["board_member"])
         update_badge("past_board_member", get_static_badge_dict()["past_board_member"])
-        update_badge(
-            "donor", session.execute(select(User.id).join(Invoice, Invoice.user_id == User.id)).scalars().all()
-        )
+        update_badge("donor", session.execute(select(User.id).where(User.last_donated.is_not(None))).scalars().all())
         update_badge("moderator", session.execute(select(User.id).where(User.is_superuser)).scalars().all())
         update_badge("phone_verified", session.execute(select(User.id).where(User.phone_is_verified)).scalars().all())
         # strong verification requires passport on file + gender/sex correspondence and date of birth match
@@ -1319,3 +1317,42 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
 
 
 send_postal_verification_postcard.PAYLOAD = jobs_pb2.SendPostalVerificationPostcardPayload
+
+
+class DatabaseInconsistencyError(Exception):
+    """Raised when database consistency checks fail"""
+
+    pass
+
+
+def check_database_consistency(payload: empty_pb2.Empty) -> None:
+    """
+    Checks database consistency and raises an exception if any issues are found.
+    """
+    logger.info("Checking database consistency")
+    errors = []
+
+    with session_scope() as session:
+        # Check that all non-deleted users have a profile gallery
+        users_without_gallery = session.execute(
+            select(User.id, User.username).where(User.is_deleted == False).where(User.profile_gallery_id.is_(None))
+        ).all()
+        if users_without_gallery:
+            errors.append(f"Users without profile gallery: {users_without_gallery}")
+
+        # Check that all profile galleries point to their owner
+        mismatched_galleries = session.execute(
+            select(User.id, User.username, User.profile_gallery_id, PhotoGallery.owner_user_id)
+            .join(PhotoGallery, User.profile_gallery_id == PhotoGallery.id)
+            .where(User.profile_gallery_id.is_not(None))
+            .where(PhotoGallery.owner_user_id != User.id)
+        ).all()
+        if mismatched_galleries:
+            errors.append(f"Profile galleries with mismatched owner: {mismatched_galleries}")
+
+    if errors:
+        raise DatabaseInconsistencyError("\n".join(errors))
+
+
+check_database_consistency.PAYLOAD = empty_pb2.Empty
+check_database_consistency.SCHEDULE = timedelta(hours=24)
