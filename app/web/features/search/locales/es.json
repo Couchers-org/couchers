@@ -1,6 +1,6 @@
 {
   "form": {
-    "submit_button_label": "Solicitar",
+    "submit_button_label": "Aplicar",
     "rules": {
       "title": "Reglas",
       "alcohol_allowed": "Se permite alcohol",
