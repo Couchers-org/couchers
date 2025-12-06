@@ -16,6 +16,7 @@ import {
 import { EventSearchRes } from "proto/search_pb";
 import comments from "test/fixtures/comments.json";
 import events from "test/fixtures/events.json";
+import galleries from "test/fixtures/gallery.json";
 import liteUsers from "test/fixtures/liteUsers.json";
 import messages from "test/fixtures/messages.json";
 import notifications from "test/fixtures/notifications.json";
@@ -278,5 +279,53 @@ export async function getMyEvents(
       : events.filter((event) => event.creatorUserId === creatorUserId),
     totalItems: events.length,
     nextPageToken: "",
+  };
+}
+
+export async function getGallery(galleryId: number) {
+  const gallery = galleries.galleries.find((g) => g.galleryId === galleryId);
+  if (!gallery) {
+    throw new Error(`Gallery ${galleryId} not found`);
+  }
+  return gallery;
+}
+
+export async function getGalleryEditInfo(galleryId: number) {
+  const editInfo = galleries.editInfo.find((e) => e.galleryId === galleryId);
+  if (!editInfo) {
+    throw new Error(`Gallery edit info ${galleryId} not found`);
+  }
+  return editInfo;
+}
+
+export async function addPhotoToGallery() {
+  return {
+    galleryId: 1,
+    photosList: [],
+    canEdit: true,
+  };
+}
+
+export async function removePhotoFromGallery() {
+  return {
+    galleryId: 1,
+    photosList: [],
+    canEdit: true,
+  };
+}
+
+export async function movePhoto() {
+  return {
+    galleryId: 1,
+    photosList: [],
+    canEdit: true,
+  };
+}
+
+export async function updatePhotoCaption() {
+  return {
+    galleryId: 1,
+    photosList: [],
+    canEdit: true,
   };
 }

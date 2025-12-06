@@ -154,3 +154,10 @@ export const newUsersListKey = "newUsersList";
 // Public
 export const volunteersKey = "volunteers";
 export const donationStatsKey = "donationStats";
+
+// Gallery
+export const galleryKey = (galleryId: number) => ["gallery", galleryId];
+export const galleryEditInfoKey = (galleryId: number) => [
+  "galleryEditInfo",
+  galleryId,
+];

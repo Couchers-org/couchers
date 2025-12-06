@@ -179,6 +179,10 @@ export const volunteerRoute = "/volunteer";
 const badgesRoute = "/badges";
 export const routeToBadge = (id: string) => `${badgesRoute}/${id}`;
 
+const galleryBaseRoute = "/gallery";
+export const routeToGallery = (galleryId: number) =>
+  `${galleryBaseRoute}/${galleryId}`;
+
 export function adminPanelUserLink(username: string) {
   return `${process.env.NEXT_PUBLIC_CONSOLE_BASE_URL}/admin/user/${username}`;
 }

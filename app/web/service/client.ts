@@ -10,6 +10,7 @@ import { ConversationsPromiseClient } from "proto/conversations_grpc_web_pb";
 import { DiscussionsPromiseClient } from "proto/discussions_grpc_web_pb";
 import { DonationsPromiseClient } from "proto/donations_grpc_web_pb";
 import { EventsPromiseClient } from "proto/events_grpc_web_pb";
+import { GalleriesPromiseClient } from "proto/galleries_grpc_web_pb";
 import { GroupsPromiseClient } from "proto/groups_grpc_web_pb";
 import { JailPromiseClient } from "proto/jail_grpc_web_pb";
 import { NotificationsPromiseClient } from "proto/notifications_grpc_web_pb";
@@ -92,6 +93,7 @@ const client = {
   discussions: new DiscussionsPromiseClient(URL, null, opts),
   donations: new DonationsPromiseClient(URL, null, opts),
   events: new EventsPromiseClient(URL, null, opts),
+  galleries: new GalleriesPromiseClient(URL, null, opts),
   groups: new GroupsPromiseClient(URL, null, opts),
   jail: new JailPromiseClient(URL, null, opts),
   notifications: new NotificationsPromiseClient(URL, null, opts),
@@ -121,6 +123,7 @@ if (!IS_PROD && typeof window !== "undefined") {
     client.discussions,
     client.donations,
     client.events,
+    client.galleries,
     client.groups,
     client.jail,
     client.notifications,

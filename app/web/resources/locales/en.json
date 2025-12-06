@@ -378,5 +378,28 @@
         "zh-Hans": "Chinese (Simplified)",
         "zh-Hant": "Chinese (Traditional)",
         "hu": "Hungarian"
+    },
+    "invalid_gallery_id": "Invalid gallery ID",
+    "gallery_not_found": "Gallery not found",
+    "cannot_edit_gallery": "You don't have permission to edit this gallery",
+    "failed_to_load_gallery": "Failed to load gallery",
+    "failed_to_add_photo": "Failed to add photo",
+    "failed_to_remove_photo": "Failed to remove photo",
+    "failed_to_update_caption": "Failed to update caption",
+    "gallery": {
+        "page_title": "Manage Gallery",
+        "manage_photos": "Manage Photos",
+        "edit_caption": "Edit Caption",
+        "caption": "Caption",
+        "no_photos": "No photos in this gallery"
+    },
+    "success": {
+        "photo_added": "Photo added successfully",
+        "photo_removed": "Photo removed successfully",
+        "caption_updated": "Caption updated successfully",
+        "photos_reordered": "Photos reordered successfully"
+    },
+    "confirmation": {
+        "delete_photo": "Are you sure you want to delete this photo?"
     }
 }
