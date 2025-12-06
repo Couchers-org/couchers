@@ -49,9 +49,16 @@ eas credentials  # configure app signing
 
 2. Create a local development build (required for native features like push notifications):
 
+If you are testing on a device where you don't have the phone, you can set up a simulator first:
+
+   * [Instructions to set up the iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
+   * [Instructions to set up the Android Studio Emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+
+   **Important for Android Emulator:** Make sure the emulator is running before building. Open Android Studio → Device Manager → Start an emulator.
+
    ```bash
    npm run ios      # requires Xcode + CocoaPods
-   npm run android  # requires Android Studio
+   npm run android  # requires Android Studio + running emulator
    ```
 
    We use local builds for development because they're free and faster to iterate on. They compile the native app directly on your machine. Pods are installed automatically on first build.
@@ -66,7 +73,17 @@ Start the Metro bundler:
 npx expo start
 ```
 
-Scan the barcode with your phone's camera.
+**For Android Emulator users:** If you're developing on an Android emulator and getting connection errors, use the localhost mode:
+
+```bash
+npm run start:localhost
+# or
+npx expo start --localhost
+```
+
+Then press `a` to open on the emulator. This uses the special `10.0.2.2` address that Android emulators use to access the host machine.
+
+**For physical devices:** Scan the QR code with your phone's camera (works with the regular `npx expo start` command).
 
 ## TestFlight / Play Store Builds
 

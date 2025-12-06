@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
+    "start:localhost": "expo start --localhost",
     "build:protos": "bash ./ci-build-protos.sh",
     "android": "expo run:android",
     "ios": "expo run:ios",
