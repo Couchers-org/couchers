@@ -5,7 +5,6 @@ import { useRouter } from "next/router";
 import { usePersistedState } from "platform/usePersistedState";
 import { useCallback, useEffect, useState } from "react";
 import { donationsRoute } from "routes";
-import { theme } from "theme";
 
 import useAccountInfo from "../auth/useAccountInfo";
 import DonationDriveBlock from "./DonationDriveBlock";

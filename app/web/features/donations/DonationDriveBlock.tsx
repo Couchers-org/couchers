@@ -1,10 +1,16 @@
 import VolunteerActivismIcon from "@mui/icons-material/VolunteerActivism";
 import { Alert, alpha, styled } from "@mui/material";
+import useAccountInfo from "features/auth/useAccountInfo";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { theme } from "theme";
 
 import DonationProgressBar from "./DonationProgressBar";
+
+export interface DonationDriveBlockProps {
+  onClose?: () => void;
+  action?: React.ReactNode;
+}
 
 const OuterWrapper = styled("div")(({ theme }) => ({
   display: "flex",
@@ -33,16 +39,16 @@ const Message = styled("span")(({ theme }) => ({
   },
 }));
 
-export interface DonationDriveBlockProps {
-  onClose?: () => void;
-  action?: React.ReactNode;
-}
-
 export default function DonationDriveBlock({
   onClose,
   action,
 }: DonationDriveBlockProps) {
   const { t } = useTranslation(GLOBAL);
+  const { data: accountInfo, isLoading } = useAccountInfo();
+
+  if (isLoading || !accountInfo?.shouldShowDonationBanner) {
+    return null;
+  }
 
   return (
     <Alert

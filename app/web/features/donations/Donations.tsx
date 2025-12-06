@@ -147,6 +147,7 @@ export default function Donations() {
                 components={{
                   1: (
                     <Link
+                      key="benefactor-email-link"
                       href={`mailto:${BENEFACTOR_EMAIL}`}
                       underline="hover"
                     />
