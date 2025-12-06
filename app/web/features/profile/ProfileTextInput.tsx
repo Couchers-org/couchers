@@ -1,6 +1,6 @@
 import { TextFieldProps } from "@mui/material";
 import TextField from "components/TextField";
-import React, { forwardRef, LegacyRef, RefObject } from "react";
+import React, { forwardRef, Ref, RefObject } from "react";
 
 interface ProfileTextInputProps extends Omit<TextFieldProps, "margin"> {
   id: NonNullable<TextFieldProps["id"]>;
@@ -9,7 +9,7 @@ interface ProfileTextInputProps extends Omit<TextFieldProps, "margin"> {
 const ProfileTextInput = forwardRef(
   (
     props: ProfileTextInputProps,
-    ref: RefObject<HTMLInputElement> | LegacyRef<HTMLDivElement> | undefined,
+    ref: RefObject<HTMLInputElement | null> | Ref<HTMLDivElement> | undefined,
   ) => {
     return <TextField ref={ref} {...props} margin="normal" />;
   },

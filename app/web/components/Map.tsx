@@ -26,7 +26,7 @@ export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 interface MapProps {
   grow?: boolean;
   hash?: boolean;
-  mapRef: React.RefObject<MapRef>;
+  mapRef: React.RefObject<MapRef | null>;
   onClick: (ev: MapLayerMouseEvent) => void;
   onLoad: () => void;
   onMapMove: () => void;

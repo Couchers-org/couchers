@@ -78,7 +78,7 @@ export default function Map({
     return { url };
   };
 
-  const mapRef = useRef<MaplibreMap>();
+  const mapRef = useRef<MaplibreMap>(undefined);
 
   useEffect(() => {
     if (!containerRef.current) return;

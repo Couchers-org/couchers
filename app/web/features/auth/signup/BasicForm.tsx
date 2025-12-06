@@ -73,7 +73,7 @@ export default function BasicForm({
     mutation.mutate(data);
   });
 
-  const nameInputRef = useRef<HTMLInputElement>();
+  const nameInputRef = useRef<HTMLInputElement>(undefined);
 
   return (
     <>
