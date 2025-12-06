@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package org.couchers.api.galleries;
+
+import "annotations.proto";
+
+service Galleries {
+  option (auth_level) = AUTH_LEVEL_SECURE;
+
+  rpc GetGallery(GetGalleryReq) returns (PhotoGallery) {
+    // Get a specific gallery by ID
+  }
+
+  rpc AddPhotoToGallery(AddPhotoToGalleryReq) returns (PhotoGallery) {
+    // Add a photo to your gallery (appended to end)
+  }
+
+  rpc RemovePhotoFromGallery(RemovePhotoFromGalleryReq) returns (PhotoGallery) {
+    // Remove a photo from your gallery
+  }
+
+  rpc MovePhoto(MovePhotoReq) returns (PhotoGallery) {
+    // Move a photo to a new position in the gallery
+  }
+
+  rpc UpdatePhotoCaption(UpdatePhotoCaptionReq) returns (PhotoGallery) {
+    // Update the caption of a specific photo
+  }
+
+  rpc GetGalleryEditInfo(GetGalleryEditInfoReq) returns (GetGalleryEditInfoRes) {
+    // Get edit info for a gallery you own (e.g., max_photos)
+  }
+}
+
+message PhotoGalleryItem {
+  int64 item_id = 1;
+  string full_url = 2;
+  string thumbnail_url = 3;
+  string caption = 4;
+  // Photos are returned in order, no position field needed
+}
+
+message PhotoGallery {
+  int64 gallery_id = 1;
+  repeated PhotoGalleryItem photos = 2;
+  bool can_edit = 3;
+}
+
+message GetGalleryReq {
+  int64 gallery_id = 1;
+}
+
+message AddPhotoToGalleryReq {
+  int64 gallery_id = 1;
+  string upload_key = 2;
+  string caption = 3;
+}
+
+message RemovePhotoFromGalleryReq {
+  int64 gallery_id = 1;
+  int64 item_id = 2;
+}
+
+message MovePhotoReq {
+  int64 gallery_id = 1;
+  int64 item_id = 2;
+  // ID of photo to place this one after, or 0 to move to first position
+  int64 after_item_id = 3;
+}
+
+message UpdatePhotoCaptionReq {
+  int64 gallery_id = 1;
+  int64 item_id = 2;
+  string caption = 3;
+}
+
+message GetGalleryEditInfoReq {
+  int64 gallery_id = 1;
+}
+
+message GetGalleryEditInfoRes {
+  int64 gallery_id = 1;
+  uint32 max_photos = 2;
+  uint32 current_photo_count = 3;
+}
