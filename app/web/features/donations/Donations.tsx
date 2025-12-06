@@ -1,4 +1,4 @@
-import { Link, styled, Typography } from "@mui/material";
+import { alpha, Link, styled, Typography } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
 import Landscape from "features/donations/resources/landscape.jpeg";
@@ -9,7 +9,9 @@ import { foundationRoute, latestFinancialsURL } from "routes";
 import { theme } from "theme";
 
 import { BENEFACTOR_EMAIL } from "./constants";
+import { DonationProgressBar } from "./DonationProgressBar";
 import DonationsBox from "./DonationsBox";
+import useDonationStats from "./useDonationStats";
 
 const LATEST_FINANCIALS_YEAR = latestFinancialsURL.slice(-4);
 
@@ -101,8 +103,15 @@ const StyledBenefactorText = styled("div")(() => ({
   gap: theme.spacing(3),
 }));
 
+const StyledProgressWrapper = styled("div")(() => ({
+  padding: theme.spacing(2),
+  borderRadius: theme.shape.borderRadius * 2,
+  backgroundColor: alpha(theme.palette.secondary.main, 0.08),
+}));
+
 export default function Donations() {
   const { t } = useTranslation([GLOBAL, DONATIONS]);
+  const { data: donationStats, isLoading } = useDonationStats();
 
   return (
     <>
@@ -121,6 +130,13 @@ export default function Donations() {
       </StyledBanner>
       <StyledBody>
         <StyledDonationsBoxSection>
+          <StyledProgressWrapper>
+            <DonationProgressBar
+              totalDonatedYtd={donationStats?.totalDonatedYtd ?? 0}
+              goal={donationStats?.goal ?? 0}
+              isLoading={isLoading}
+            />
+          </StyledProgressWrapper>
           <DonationsBox />
           <StyledBenefactorText>
             <Typography variant="body2">

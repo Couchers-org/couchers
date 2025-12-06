@@ -1,12 +1,5 @@
 import VolunteerActivismIcon from "@mui/icons-material/VolunteerActivism";
-import {
-  Alert,
-  alpha,
-  Box,
-  Button,
-  LinearProgress,
-  styled,
-} from "@mui/material";
+import { Alert, alpha, Button, styled } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
@@ -16,6 +9,7 @@ import { donationsRoute } from "routes";
 import { theme } from "theme";
 
 import useAccountInfo from "../auth/useAccountInfo";
+import { DonationProgressBar } from "./DonationProgressBar";
 import useDonationStats from "./useDonationStats";
 
 const TIME_BETWEEN_NAGS_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -37,31 +31,6 @@ const ContentWrapper = styled("div")(({ theme }) => ({
   flexDirection: "column",
   flex: 1,
   gap: theme.spacing(0.75),
-}));
-
-const ThermometerRow = styled("div")(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  gap: theme.spacing(1.5),
-  width: "100%",
-}));
-
-const StyledLinearProgress = styled(LinearProgress)(({ theme }) => ({
-  height: 14,
-  borderRadius: 7,
-  flexGrow: 1,
-  backgroundColor: alpha(theme.palette.secondary.main, 0.15),
-  "& .MuiLinearProgress-bar": {
-    borderRadius: 7,
-    background: `linear-gradient(90deg, ${theme.palette.secondary.main} 0%, ${theme.palette.secondary.light} 100%)`,
-  },
-}));
-
-const ProgressLabel = styled("span")(({ theme }) => ({
-  fontSize: "0.875rem",
-  fontWeight: 600,
-  color: theme.palette.secondary.main,
-  whiteSpace: "nowrap",
 }));
 
 const Message = styled("span")(({ theme }) => ({
@@ -132,14 +101,6 @@ export function DonationBanner() {
 
   if (!bannerVisible || !apiDonationStats) return null;
 
-  const progress = Math.min(
-    (apiDonationStats.totalDonatedYtd / apiDonationStats.goal) * 100,
-    100,
-  );
-
-  const formattedRaised = apiDonationStats.totalDonatedYtd.toLocaleString();
-  const formattedGoal = apiDonationStats.goal.toLocaleString();
-
   return (
     <Alert
       icon={<VolunteerActivismIcon />}
@@ -163,18 +124,10 @@ export function DonationBanner() {
     >
       <OuterWrapper>
         <ContentWrapper>
-          <ThermometerRow>
-            <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-              <StyledLinearProgress
-                variant="determinate"
-                value={progress}
-                aria-label={t("donation_banner.progress_label")}
-              />
-            </Box>
-            <ProgressLabel>
-              ${formattedRaised} / ${formattedGoal}
-            </ProgressLabel>
-          </ThermometerRow>
+          <DonationProgressBar
+            totalDonatedYtd={apiDonationStats.totalDonatedYtd}
+            goal={apiDonationStats.goal}
+          />
           <Message>{t("donation_banner.message")}</Message>
         </ContentWrapper>
         <StyledButton variant="contained" onClick={handleDonateClick}>
