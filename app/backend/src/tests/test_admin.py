@@ -12,6 +12,7 @@ from couchers.models import (
     EventOccurrence,
     ModerationUserList,
     Reference,
+    User,
     UserSession,
 )
 from couchers.proto import admin_pb2, auth_pb2, events_pb2, references_pb2, reporting_pb2
@@ -727,6 +728,45 @@ def test_admin_delete_account_url(db, push_collector):
 
     mock.assert_called_once()
     e = email_fields(mock)
+
+
+def test_SetLastDonated(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, normal_token = generate_user(last_donated=None)
+
+    with real_admin_session(super_token) as api:
+        # user starts with no last_donated
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == normal_user.id)).scalar_one()
+            assert user.last_donated is None
+
+        # can set last_donated
+        donation_time = now() - timedelta(days=30)
+        res = api.SetLastDonated(
+            admin_pb2.SetLastDonatedReq(
+                user=normal_user.username,
+                last_donated=Timestamp_from_datetime(donation_time),
+            )
+        )
+
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == normal_user.id)).scalar_one()
+            assert user.last_donated is not None
+            # check timestamp is close (within a second)
+            assert abs((user.last_donated - donation_time).total_seconds()) < 1
+
+        # can clear last_donated by not setting the field
+        res = api.SetLastDonated(admin_pb2.SetLastDonatedReq(user=normal_user.username))
+
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == normal_user.id)).scalar_one()
+            assert user.last_donated is None
+
+        # user not found
+        with pytest.raises(grpc.RpcError) as e:
+            api.SetLastDonated(admin_pb2.SetLastDonatedReq(user="nonexistent"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Couldn't find that user."
 
 
 # community invite feature tested in test_events.py

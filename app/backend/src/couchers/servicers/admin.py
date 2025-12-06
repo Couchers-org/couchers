@@ -661,3 +661,15 @@ class Admin(admin_pb2_grpc.AdminServicer):
             )
 
         return out
+
+    def SetLastDonated(self, request, context, session):
+        user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+
+        if request.HasField("last_donated"):
+            user.last_donated = to_aware_datetime(request.last_donated)
+        else:
+            user.last_donated = None
+
+        return _user_to_details(session, user)
