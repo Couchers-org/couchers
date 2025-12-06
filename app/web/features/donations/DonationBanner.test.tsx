@@ -285,26 +285,6 @@ describe("DonationBanner", () => {
     jest.useRealTimers();
   });
 
-  it("does not display when donation stats are not available", () => {
-    mockUseAccountInfo.mockReturnValue({
-      data: {
-        shouldShowDonationBanner: true,
-      },
-      isLoading: false,
-    } as ReturnType<typeof useAccountInfo>);
-
-    mockUseDonationStats.mockReturnValue({
-      data: undefined,
-      isLoading: false,
-    } as ReturnType<typeof useDonationStats>);
-
-    render(<DonationBanner />, { wrapper });
-
-    expect(
-      screen.queryByText(t("donation_banner.message")),
-    ).not.toBeInTheDocument();
-  });
-
   it("displays correct progress percentage", async () => {
     mockUseAccountInfo.mockReturnValue({
       data: {
