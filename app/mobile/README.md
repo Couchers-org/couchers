@@ -49,6 +49,11 @@ eas credentials  # configure app signing
 
 2. Create a local development build (required for native features like push notifications):
 
+If you are testing on a device where you don't have the phone, you can set up a simulator first:
+
+   * [Instructions to set up the iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
+   * [Instructions to set up the Android Studio Emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+
    ```bash
    npm run ios      # requires Xcode + CocoaPods
    npm run android  # requires Android Studio
