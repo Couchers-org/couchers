@@ -22,6 +22,7 @@ from couchers.proto import (
     donations_pb2_grpc,
     editor_pb2_grpc,
     events_pb2_grpc,
+    galleries_pb2_grpc,
     gis_pb2_grpc,
     groups_pb2_grpc,
     iris_pb2_grpc,
@@ -51,6 +52,7 @@ from couchers.servicers.discussions import Discussions
 from couchers.servicers.donations import Donations, Stripe
 from couchers.servicers.editor import Editor
 from couchers.servicers.events import Events
+from couchers.servicers.galleries import Galleries
 from couchers.servicers.gis import GIS
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
@@ -90,6 +92,7 @@ def create_main_server(port: int) -> grpc.Server:
     donations_pb2_grpc.add_DonationsServicer_to_server(Donations(), server)
     editor_pb2_grpc.add_EditorServicer_to_server(Editor(), server)
     events_pb2_grpc.add_EventsServicer_to_server(Events(), server)
+    galleries_pb2_grpc.add_GalleriesServicer_to_server(Galleries(), server)
     gis_pb2_grpc.add_GISServicer_to_server(GIS(), server)
     groups_pb2_grpc.add_GroupsServicer_to_server(Groups(), server)
     iris_pb2_grpc.add_IrisServicer_to_server(Iris(), server)
