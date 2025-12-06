@@ -30,5 +30,10 @@
     "title": "Manage your donations",
     "description": "Click the button below to update or cancel your recurring donation, or to view past invoices.",
     "button_text": "Go to donations management portal"
+  },
+  "donation_progress": {
+    "title": "Fundraising Progress",
+    "aria_label": "Donation progress bar",
+    "subtitle": "We're {{percent}}% of the way to our goal!"
   }
 }

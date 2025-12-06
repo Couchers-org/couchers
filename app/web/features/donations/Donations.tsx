@@ -9,6 +9,7 @@ import { foundationRoute, latestFinancialsURL } from "routes";
 import { theme } from "theme";
 
 import { BENEFACTOR_EMAIL } from "./constants";
+import DonationProgress from "./DonationProgress";
 import DonationsBox from "./DonationsBox";
 
 const LATEST_FINANCIALS_YEAR = latestFinancialsURL.slice(-4);
@@ -121,6 +122,7 @@ export default function Donations() {
       </StyledBanner>
       <StyledBody>
         <StyledDonationsBoxSection>
+          <DonationProgress />
           <DonationsBox />
           <StyledBenefactorText>
             <Typography variant="body2">
