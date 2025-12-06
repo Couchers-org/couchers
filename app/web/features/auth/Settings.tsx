@@ -24,6 +24,7 @@ import LoginsLink from "./logins/LoginsLink";
 import ChangePhone from "./phone/ChangePhone";
 import useAccountInfo from "./useAccountInfo";
 import StrongVerification from "./verification/StrongVerification";
+import VolunteerManagement from "./volunteer/VolunteerManagement";
 
 const TopMarginWrapper = styled("div")(({ theme }) => ({
   margin: theme.spacing(4, 0),
@@ -119,6 +120,9 @@ export default function Settings() {
           </MarginWrapper>
           <MarginWrapper>
             <StrongVerification accountInfo={accountInfo!} />
+          </MarginWrapper>
+          <MarginWrapper>
+            <VolunteerManagement accountInfo={accountInfo!} />
           </MarginWrapper>
           <MarginWrapper>
             <ChangePhone accountInfo={accountInfo!} />
