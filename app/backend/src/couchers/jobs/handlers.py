@@ -71,7 +71,6 @@ from couchers.models import (
     HostingStatus,
     HostRequest,
     HostRequestStatus,
-    Invoice,
     LoginToken,
     MeetupStatus,
     Message,
@@ -869,9 +868,7 @@ def update_badges(payload: empty_pb2.Empty) -> None:
         update_badge("founder", get_static_badge_dict()["founder"])
         update_badge("board_member", get_static_badge_dict()["board_member"])
         update_badge("past_board_member", get_static_badge_dict()["past_board_member"])
-        update_badge(
-            "donor", session.execute(select(User.id).join(Invoice, Invoice.user_id == User.id)).scalars().all()
-        )
+        update_badge("donor", session.execute(select(User.id).where(User.last_donated.is_not(None))).scalars().all())
         update_badge("moderator", session.execute(select(User.id).where(User.is_superuser)).scalars().all())
         update_badge("phone_verified", session.execute(select(User.id).where(User.phone_is_verified)).scalars().all())
         # strong verification requires passport on file + gender/sex correspondence and date of birth match

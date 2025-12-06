@@ -1158,12 +1158,12 @@ def test_update_recommendation_scores(db):
 
 
 def test_update_badges(db, push_collector):
-    user1, _ = generate_user()
-    user2, _ = generate_user()
-    user3, _ = generate_user()
-    user4, _ = generate_user(phone="+15555555555", phone_verification_verified=func.now())
-    user5, _ = generate_user(phone="+15555555556", phone_verification_verified=func.now())
-    user6, _ = generate_user()
+    user1, _ = generate_user(last_donated=None)
+    user2, _ = generate_user(last_donated=None)
+    user3, _ = generate_user(last_donated=None)
+    user4, _ = generate_user(phone="+15555555555", phone_verification_verified=func.now(), last_donated=None)
+    user5, _ = generate_user(phone="+15555555556", phone_verification_verified=func.now(), last_donated=None)
+    user6, _ = generate_user(last_donated=None)
 
     with session_scope() as session:
         session.add(UserBadge(user_id=user5.id, badge_id="board_member"))
@@ -1429,12 +1429,12 @@ def test_send_message_notifications_blocked_users_no_notification(db):
 def test_update_badges_volunteers(db, push_collector):
     """Test that volunteer and past_volunteer badges are automatically granted based on Volunteer model."""
     # Create 6 users - users 1 and 2 get founder/board_member badges from static_badges
-    user1, _ = generate_user()
-    user2, _ = generate_user()
-    user3, _ = generate_user()
-    user4, _ = generate_user()
-    user5, _ = generate_user()
-    user6, _ = generate_user()
+    user1, _ = generate_user(last_donated=None)
+    user2, _ = generate_user(last_donated=None)
+    user3, _ = generate_user(last_donated=None)
+    user4, _ = generate_user(last_donated=None)
+    user5, _ = generate_user(last_donated=None)
+    user6, _ = generate_user(last_donated=None)
 
     with session_scope() as session:
         # user3: active volunteer (stopped_volunteering is null)
@@ -1511,9 +1511,9 @@ def test_update_badges_volunteers(db, push_collector):
 def test_update_badges_volunteer_status_change(db, push_collector):
     """Test that badge is updated when volunteer status changes from active to past."""
     # Create users - users 1 and 2 get founder/board_member badges from static_badges
-    user1, _ = generate_user()
-    user2, _ = generate_user()
-    user3, _ = generate_user()
+    user1, _ = generate_user(last_donated=None)
+    user2, _ = generate_user(last_donated=None)
+    user3, _ = generate_user(last_donated=None)
 
     with session_scope() as session:
         # user3: start as active volunteer
