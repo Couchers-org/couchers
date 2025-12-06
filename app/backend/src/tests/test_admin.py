@@ -388,7 +388,14 @@ def test_GetChats(db):
 
     with real_admin_session(super_token) as api:
         res = api.GetChats(admin_pb2.GetChatsReq(user=normal_user.username))
-    assert res.response
+    # Check the structured response fields - user field contains full UserDetails
+    assert res.user.user_id == normal_user.id
+    assert res.user.username == normal_user.username
+    assert res.user.name == normal_user.name
+    assert res.user.email == normal_user.email
+    # New user should have no chats
+    assert len(res.host_requests) == 0
+    assert len(res.group_chats) == 0
 
 
 def test_badges(db, push_collector):

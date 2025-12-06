@@ -251,8 +251,47 @@ message GetChatsReq {
   string user = 1;
 }
 
+message ChatMessage {
+  int64 message_id = 1;
+  UserDetails author = 2;
+  google.protobuf.Timestamp time = 3;
+  string message_type = 4; // e.g. "text", "chat_created", "host_request_status_changed"
+  string text = 5;
+  string host_request_status_target = 6; // if applicable
+  UserDetails target = 7; // for user_invited, user_made_admin, etc.
+}
+
+message GroupChatMember {
+  UserDetails user = 1;
+  google.protobuf.Timestamp joined = 2;
+  google.protobuf.Timestamp left = 3; // not set if still member
+  string role = 4; // e.g. "admin", "participant"
+}
+
+message AdminGroupChat {
+  int64 group_chat_id = 1;
+  string title = 2;
+  bool is_dm = 3;
+  UserDetails creator = 4;
+  repeated GroupChatMember members = 5;
+  repeated ChatMessage messages = 6;
+}
+
+message AdminHostRequest {
+  int64 host_request_id = 1;
+  UserDetails surfer = 2;
+  UserDetails host = 3;
+  string status = 4;
+  string from_date = 5;
+  string to_date = 6;
+  google.protobuf.Timestamp created = 7;
+  repeated ChatMessage messages = 8;
+}
+
 message GetChatsRes {
-  string response = 2;
+  UserDetails user = 1;
+  repeated AdminHostRequest host_requests = 2;
+  repeated AdminGroupChat group_chats = 3;
 }
 
 message DeleteEventReq {
