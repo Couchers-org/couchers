@@ -6,7 +6,13 @@ import {
   styled,
   Typography,
 } from "@mui/material";
-import { EmailIcon, GlobeIcon, LinkedInIcon, PinIcon } from "components/Icons";
+import {
+  CouchersIcon,
+  EmailIcon,
+  GlobeIcon,
+  LinkedInIcon,
+  PinIcon,
+} from "components/Icons";
 import IconText from "components/IconText";
 import StyledLink from "components/StyledLink";
 import { GLOBAL } from "i18n/namespaces";
@@ -130,7 +136,9 @@ function MemberList({ variant, volunteers }: MemberListProps) {
                               ? LinkedInIcon
                               : linkType === "email"
                                 ? EmailIcon
-                                : GlobeIcon
+                                : linkType === "couchers"
+                                  ? CouchersIcon
+                                  : GlobeIcon
                           }
                           text={
                             <Typography variant="body1">
