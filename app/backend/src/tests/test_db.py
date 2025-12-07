@@ -1,6 +1,8 @@
 import difflib
+import os
 import re
 import subprocess
+from pathlib import Path
 
 import pytest
 from sqlalchemy.sql import func
@@ -155,6 +157,14 @@ def test_migrations(db, testconfig):
     create_schema_from_models()
 
     from_scratch = pg_dump()
+
+    # Save the raw schemas to files for CI artifacts
+    schema_output_dir = os.environ.get("TEST_SCHEMA_OUTPUT_DIR")
+    if schema_output_dir:
+        output_path = Path(schema_output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+        (output_path / "schema_from_migrations.sql").write_text(with_migrations)
+        (output_path / "schema_from_models.sql").write_text(from_scratch)
 
     def message(s):
         s = sort_pg_dump_output(s)
