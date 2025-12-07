@@ -108,12 +108,12 @@ CONFIG_OPTIONS: CONFIG_T = [
     # Whether we're in test
     ("IN_TEST", bool, "0"),
     # Experimentation (feature flags via Statsig)
-    ("EXPERIMENTATION_ENABLED", bool, "0"),
+    ("EXPERIMENTATION_ENABLED", bool),
     # When enabled, all feature gates return True (useful for development/testing)
-    ("EXPERIMENTATION_PASS_ALL_GATES", bool, "0"),
+    ("EXPERIMENTATION_PASS_ALL_GATES", bool),
     # Statsig SDK configuration
-    ("STATSIG_SERVER_SECRET_KEY", str, ""),
-    ("STATSIG_ENVIRONMENT", str, "development"),
+    ("STATSIG_SERVER_SECRET_KEY", str),
+    ("STATSIG_ENVIRONMENT", str),
 ]
 
 
