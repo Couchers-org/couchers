@@ -25,6 +25,7 @@ from couchers.crypto import (
     verify_password,
     verify_token,
 )
+from couchers.experimentation import check_gate
 from couchers.helpers.geoip import geoip_approximate_location
 from couchers.helpers.strong_verification import get_strong_verification_fields, has_strong_verification
 from couchers.jobs.enqueue import queue_job
@@ -159,6 +160,11 @@ class Account(account_pb2_grpc.AccountServicer):
         user, volunteer = session.execute(
             select(User, Volunteer).outerjoin(Volunteer, Volunteer.user_id == User.id).where(User.id == context.user_id)
         ).one()
+
+        # Test experimentation integration - check if user is in the test gate
+        # Create 'test_statsig_integration' in Statsig console to test
+        test_gate = check_gate(context, "test_statsig_integration")
+        logger.info(f"Experimentation gate 'test_statsig_integration' for user {user.id}: {test_gate}")
 
         should_show_donation_banner = DONATION_DRIVE_START is not None and (
             user.last_donated is None or user.last_donated < DONATION_DRIVE_START

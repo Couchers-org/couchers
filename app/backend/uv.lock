@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = "==3.13.*"
 
 [[package]]
@@ -240,6 +240,7 @@ dependencies = [
     { name = "shapely" },
     { name = "sqlalchemy" },
     { name = "sqlalchemy-utils" },
+    { name = "statsig-python-core" },
     { name = "stripe" },
     { name = "ua-parser" },
     { name = "user-agents" },
@@ -294,6 +295,7 @@ requires-dist = [
     { name = "shapely", specifier = ">=2.1.1" },
     { name = "sqlalchemy", specifier = ">=2.0.43" },
     { name = "sqlalchemy-utils", specifier = ">=0.42.0" },
+    { name = "statsig-python-core", specifier = ">=0.8.0" },
     { name = "stripe", specifier = ">=13.1.0" },
     { name = "ua-parser", specifier = ">=1.0.1" },
     { name = "user-agents", specifier = ">=2.2.0" },
@@ -1390,6 +1392,26 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/63/80/4e15fdcfc25a2226122bf316f0ebac86d840ab3fb38b38ca4cabc395865e/sqlalchemy_utils-0.42.0.tar.gz", hash = "sha256:6d1ecd3eed8b941f0faf8a531f5d5cee7cffa2598fcf8163de8c31c7a417a5e0", size = 130531, upload-time = "2025-08-30T18:43:41.904Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/52/86/21e97809b017a4ebc88971eea335130782421851b0ed8dc3ab6126b479f1/sqlalchemy_utils-0.42.0-py3-none-any.whl", hash = "sha256:c8c0b7f00f4734f6f20e9a4d06b39d79d58c8629cba50924fcaeb20e28eb4f48", size = 91744, upload-time = "2025-08-30T18:43:40.199Z" },
+]
+
+[[package]]
+name = "statsig-python-core"
+version = "0.13.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5f/24/6c048bf4a51d1921ec13ddad9a9e790c6908b5ce1a8f4f972ddc04ef42e0/statsig_python_core-0.13.0.tar.gz", hash = "sha256:cc792b053b335fd38c5816dacd265037509c9da121299a20d8e145bdeb25ebc0", size = 1631337, upload-time = "2025-12-01T22:47:12.498Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/42/90/9dd77de0fea691863802b99a95ae4d4982a3ee927bd34bbcb29bb59cdcef/statsig_python_core-0.13.0-cp37-abi3-macosx_10_12_x86_64.whl", hash = "sha256:0efdb44dd023853611eaf5ef6e82bb9098d0a759f872d9d955cbc52ba54b7baf", size = 3053896, upload-time = "2025-12-01T22:47:01.798Z" },
+    { url = "https://files.pythonhosted.org/packages/9f/ad/d572417a7f9e5b853cc3fea7e93ebcc09f17d83bc56460f31ff8de68f72c/statsig_python_core-0.13.0-cp37-abi3-macosx_11_0_arm64.whl", hash = "sha256:16ea3f4e19137bb9e6832a9e712c220bb020c768f644da79ce1976df3ce5f64e", size = 2967897, upload-time = "2025-12-01T22:47:03.842Z" },
+    { url = "https://files.pythonhosted.org/packages/2d/a8/aea4f85781014dc71604100cd409e7e70f079c10253764429f0e39b7d5fe/statsig_python_core-0.13.0-cp37-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:35939fcc27f165bfc9d42cbeed6faee3f7d54f55d2c3bb964d6f34fdfb28bfd3", size = 3098416, upload-time = "2025-12-01T22:47:07.271Z" },
+    { url = "https://files.pythonhosted.org/packages/4e/b7/7cb6303aa2e576abd92fb0839e06d920cff89bd3888b00a348c4be5faac0/statsig_python_core-0.13.0-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4927d0846a525ef26141af970eb69e41fa990fc653fed9945add6913014e0303", size = 3216067, upload-time = "2025-12-01T22:47:05.367Z" },
+    { url = "https://files.pythonhosted.org/packages/fb/75/36c4f489e9a9c0403ad1ba06fd06136fb71ff7dc907e4308f49292d03876/statsig_python_core-0.13.0-cp37-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:f75f29388e7d728bc17a5f17b6f8dc53de2929fc4990f20dd8977aa1d72c09a1", size = 3163774, upload-time = "2025-12-01T22:47:11.043Z" },
+    { url = "https://files.pythonhosted.org/packages/cd/dd/88bff12e5793e64ef931c15c56bc0f391843ef19caaa15fd881688a0aafd/statsig_python_core-0.13.0-cp37-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:7c35825c3fc21c75c84dd5d0920adfb2ebaa7e73a12f2d14d6e27d9bcea22605", size = 3287509, upload-time = "2025-12-01T22:47:08.734Z" },
+    { url = "https://files.pythonhosted.org/packages/9d/5a/d1001886ff42005f5293eb710620ccd916b6c12ca25c3b5ee23774f270ce/statsig_python_core-0.13.0-cp37-abi3-win32.whl", hash = "sha256:ac0226acb7e451b56d034ad25cbc9f33fc72dd108e910f941d4394ac4a62dee4", size = 2825963, upload-time = "2025-12-01T22:46:59.999Z" },
+    { url = "https://files.pythonhosted.org/packages/4a/35/8abc829013bdc6e13f22e0202f4a32b013325d22fd06f6b06accd14f3846/statsig_python_core-0.13.0-cp37-abi3-win_amd64.whl", hash = "sha256:27368c165510c8d1b2e137d3cde2bf2a1cf22bb6cc0407807673eaad8b99d1ec", size = 3212866, upload-time = "2025-12-01T22:46:58.241Z" },
 ]
 
 [[package]]

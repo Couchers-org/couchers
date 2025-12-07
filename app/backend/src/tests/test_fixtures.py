@@ -1098,6 +1098,11 @@ def testconfig():
     config["RECAPTHCA_API_KEY"] = "..."
     config["RECAPTHCA_SITE_KEY"] = "..."
 
+    config["EXPERIMENTATION_ENABLED"] = False
+    config["EXPERIMENTATION_PASS_ALL_GATES"] = True
+    config["STATSIG_SERVER_SECRET_KEY"] = ""
+    config["STATSIG_ENVIRONMENT"] = "testing"
+
     yield None
 
     config.clear()
