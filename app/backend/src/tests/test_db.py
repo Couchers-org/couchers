@@ -163,7 +163,7 @@ def test_migrations(db, testconfig):
     if schema_output_dir:
         output_path = Path(schema_output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
-        (output_path / "schema.sql").write_text(with_migrations)
+        (output_path / "schema_from_migrations.sql").write_text(with_migrations)
         (output_path / "schema_from_models.sql").write_text(from_scratch)
 
     def message(s):
