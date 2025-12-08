@@ -6,6 +6,6 @@
         "admin_blog_title_too_long": "Le titre du billet est trop long.",
         "admin_cannot_edit_badge": "Les administrateurs.trices ne peuvent pas modifier ce badge.",
         "already_admin": "L'utilisateur.trice est déjà un admin.",
-        "already_have_dm": "Tu as déjà un chat direct avec cet utilisateur ."
+        "already_have_dm": "Vous avez déjà un message direct avec ce membre."
     }
 }
