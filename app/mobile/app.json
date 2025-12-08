@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.couchersorg.mobile",
+      "bundleIdentifier": "com.couchersorg.ios",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -21,7 +21,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.couchersorg.mobile"
+      "package": "org.couchers.android"
     },
     "web": {
       "bundler": "metro",
