@@ -1,5 +1,21 @@
 {
     "load_more": "Afficher plus",
     "cancel": "Annuler",
-    "accept": "Accepter"
+    "accept": "Accepter",
+    "close": "Fermer",
+    "couchers": "Couchers.org",
+    "create_account": "Créer un compte",
+    "legal_name": "Couchers, Inc.",
+    "learn_more": "En savoir plus",
+    "login": "Se connecter",
+    "sign_up": "S'inscrire",
+    "join_us": "Rejoignez-nous",
+    "title": "titre",
+    "update": "Mettre à jour",
+    "create": "Créer",
+    "continue": "Continuer",
+    "terms_of_service": "Conditions d'utilisation",
+    "disable": "Désactiver",
+    "disabled": "Désactivé",
+    "created": "Créé"
 }
