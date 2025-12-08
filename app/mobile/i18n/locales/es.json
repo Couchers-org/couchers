@@ -1,1 +1,14 @@
-{}
+{
+    "biometrics": {
+        "cancel_button": "Cancelar",
+        "use_password_button": "Usar contraseña",
+        "enable_message": "¿Te gustaría usar {{biometricType}} para iniciar sesión más rápido la próxima vez?",
+        "enable_button": "Habilitar",
+        "not_now_button": "Ahora no",
+        "confirm_prompt": "Confirmar {{biometricType}}",
+        "face_id": "Face ID",
+        "biometrics_generic": "biometría",
+        "enable_title": "¿Habilitar {{biometricType}}?",
+        "login_prompt": "Iniciar sesión en Couchers"
+    }
+}
