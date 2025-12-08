@@ -61,7 +61,7 @@
             "just_started": "Net begonnen",
             "early_stage": "In de beginfase",
             "in_progress": "Wordt aan gewerkt",
-            "view_progress": "Vertaalvoortgang inzien",
+            "view_progress": "Bekijk voortgang vertalingen",
             "complete_percent": "{{percent}}% afgerond",
             "midway": "Halverwege",
             "complete": "Afgerond",
@@ -99,5 +99,9 @@
     "donation_banner": {
         "message": "Couchers.org draait op vriendelijkheid, net zoals couchsurfing zelf. In aanloop naar de feestdagen kan je ons helpen dat zo te houden. We proberen $5.000 in te zamelen om de kosten van Couchers.org te dekken.",
         "button": "Doneer nu"
+    },
+    "meetup_status": {
+        "open_to_meetup": "Wil wel afspreken",
+        "unspecified_info": "Niet ingevuld"
     }
 }
