@@ -21,7 +21,6 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "useNextNotificationsApi": true,
       "package": "com.couchersorg.mobile"
     },
     "web": {
