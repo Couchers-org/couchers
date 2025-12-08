@@ -7,6 +7,7 @@
         "admin_cannot_edit_badge": "Les administrateurs.trices ne peuvent pas modifier ce badge.",
         "already_admin": "L'utilisateur.trice est déjà un admin.",
         "already_have_dm": "Vous avez déjà un chat avec ce membre.",
-        "already_in_chat": "Ce membre est déjà dans le chat."
+        "already_in_chat": "Ce membre est déjà dans le chat.",
+        "already_in_community": "Tu fais déjà partie de cette communauté ."
     }
 }
