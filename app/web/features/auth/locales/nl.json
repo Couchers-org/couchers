@@ -92,7 +92,7 @@
   },
   "reset_password_form": {
     "enter_email": "Gebruikersnaam of e-mailadres invullen",
-    "success_message": "Check nu je e-mail om je wachtwoord te kunnen veranderen!"
+    "success_message": "We hebben je een e-mail gestuurd met een link om je wachtwoord te kunnen resetten. De e-mail is gestuurd naar het adres dat is gekoppeld aan dit account. Check dus of dit adres bestaat en actief is. Let op: onze mail kan ook in de spam terecht zijn gekomen."
   },
   "basic_form": {
     "name": {
