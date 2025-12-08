@@ -404,7 +404,7 @@ def test_shadowed_host_request_visible_to_author_only(db):
 
 
 def test_unlisted_host_request_not_in_lists(db):
-    """Test that UNLISTED host requests don't appear in ListHostRequests"""
+    """Test that SHADOWED host requests are visible to author but not to recipient"""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -421,12 +421,12 @@ def test_unlisted_host_request_not_in_lists(db):
             )
         ).host_request_id
 
-    # Surfer should NOT see it in their sent list (UNLISTED)
+    # Surfer (author) should see it in their sent list even though it's SHADOWED
     with requests_session(token1) as api:
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
-        assert len(res.host_requests) == 0
+        assert len(res.host_requests) == 1
 
-    # Host should NOT see it in their received list (UNLISTED)
+    # Host should NOT see it in their received list (still SHADOWED from them)
     with requests_session(token2) as api:
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
         assert len(res.host_requests) == 0
@@ -607,11 +607,12 @@ def test_multiple_host_requests_listing_visibility(db):
             )
         )
 
-    # Surfer should see only the approved one in sent list
+    # Surfer should see the approved one and the shadowed one (author can see their SHADOWED content)
     with requests_session(token1) as api:
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
-        assert len(res.host_requests) == 1
-        assert res.host_requests[0].host_request_id == host_request_ids[0]
+        assert len(res.host_requests) == 2
+        visible_ids = {hr.host_request_id for hr in res.host_requests}
+        assert visible_ids == {host_request_ids[0], host_request_ids[1]}
 
     # Host should see only the approved one in received list
     with requests_session(token2) as api:
@@ -1782,16 +1783,18 @@ def test_group_chat_moderation_shadow(db):
             )
         )
 
-    # SHADOWED content doesn't appear in list operations for anyone
+    # Creator can see SHADOWED content in list operations
     with conversations_session(token1) as api:
         res = api.ListGroupChats(conversations_pb2.ListGroupChatsReq())
-        assert len(res.group_chats) == 0
+        assert len(res.group_chats) == 1
+        assert res.group_chats[0].group_chat_id == group_chat_id
 
+    # But non-creator participant cannot see it in lists
     with conversations_session(token2) as api:
         res = api.ListGroupChats(conversations_pb2.ListGroupChatsReq())
         assert len(res.group_chats) == 0
 
-    # But creator can still access it directly via GetGroupChat
+    # Creator can also access it directly via GetGroupChat
     with conversations_session(token1) as api:
         res = api.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
         assert res.group_chat_id == group_chat_id
@@ -1836,9 +1839,10 @@ def test_auto_approve_moderation_queue_disabled_when_zero(db):
         res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
         assert res.host_request_id == host_request_id
 
-        # But it's not in their sent list (SHADOWED = unlisted)
+        # Author can see their SHADOWED request in their sent list
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
-        assert len(res.host_requests) == 0
+        assert len(res.host_requests) == 1
+        assert res.host_requests[0].host_request_id == host_request_id
 
     # Host cannot see the request (it's shadowed from them)
     with requests_session(token2) as api:
