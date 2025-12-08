@@ -57,7 +57,10 @@
             "help_translate": "Help ons bij het vertalen van Couchers in jouw taal",
             "loading": "Voortgang vertalingen aan het laden...",
             "error_loading": "Voortgang vertalingen kon niet worden geladen",
-            "no_data": "Geen vertaaldata beschikbaar"
+            "no_data": "Geen informatie over de vertalingen beschikbaar",
+            "just_started": "Net begonnen",
+            "early_stage": "In de beginfase",
+            "in_progress": "Wordt aan gewerkt"
         }
     },
     "title": "titel",
