@@ -11,6 +11,8 @@
         "already_in_community": "Vous faites déjà partie de cette communauté.",
         "already_in_group": "Vous êtes déjà dans ce groupe.",
         "already_left_host_request_feedback": "Vous avez déjà laissé des commentaires concernant cette demande d'hébergement !",
-        "at_least_two_users_required": "Au moins de 2 membres doivent être indiqué.e.s."
+        "at_least_two_users_required": "Au moins de 2 membres doivent être indiqué.e.s.",
+        "badge_not_found": "Badge non trouvé.",
+        "bug_tool_disabled": "Outil pour les bugs désactivé"
     }
 }
