@@ -40,14 +40,6 @@
         }
       ],
       [
-        "@sentry/react-native/expo",
-        {
-          "url": "https://sentry.io/",
-          "project": "native",
-          "organization": "couchers"
-        }
-      ],
-      [
         "expo-notifications",
         {
           "icon": "./assets/images/icon.png",
