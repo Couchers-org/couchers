@@ -120,12 +120,8 @@ class ModerationQueueItem(Base):
     # When resolved, this links to the log entry that resolved it
     resolved_by_log_id: Mapped[int | None] = mapped_column(ForeignKey("moderation_log.id"), nullable=True, index=True)
 
-    # The user who authored the content being moderated
-    item_author_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
-
     # Relationships
     moderation_state: Mapped["ModerationState"] = relationship("ModerationState")
-    author: Mapped["User"] = relationship("User", foreign_keys="ModerationQueueItem.item_author_user_id")
 
     __table_args__ = (
         # Fast lookup of unresolved items

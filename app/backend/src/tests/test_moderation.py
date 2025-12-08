@@ -122,7 +122,7 @@ def test_add_to_moderation_queue(db):
         assert res.queue_item.moderation_state_id == state_id
         assert res.queue_item.trigger == moderation_pb2.MODERATION_TRIGGER_USER_FLAG
         assert res.queue_item.reason == "Admin manually flagged for additional review"
-        assert res.queue_item.item_author_user_id == user1.id
+        assert res.queue_item.moderation_state.author_user_id == user1.id
         assert res.queue_item.is_resolved == False
 
 
@@ -343,7 +343,7 @@ def test_create_host_request_creates_moderation_state(db):
 
         assert len(queue_items) == 1
         assert queue_items[0].trigger == ModerationTrigger.INITIAL_REVIEW
-        assert queue_items[0].item_author_user_id == user1.id
+        # item_author_user_id is no longer stored in the model, it's dynamically retrieved
 
 
 def test_host_request_no_notification_before_approval(db, push_collector):
@@ -1117,39 +1117,53 @@ def test_GetModerationQueue_filter_unresolved(db):
 def test_GetModerationQueue_filter_by_author(db):
     """Test filtering moderation queue by item_author_user_id"""
     super_user, super_token = generate_user(is_superuser=True)
-    user1, _ = generate_user()
-    user2, _ = generate_user()
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    host_user, _ = generate_user()
 
-    state1_id = None
-    state2_id = None
-    state3_id = None
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
 
+    # Create 2 host requests by user1
+    with requests_session(token1) as api:
+        hr1_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host_user.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+        hr2_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host_user.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+    # Create 1 host request by user2
+    with requests_session(token2) as api:
+        hr3_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host_user.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+    # Get moderation state IDs
+    state1_id, state2_id, state3_id = None, None, None
     with session_scope() as session:
-        # Create items by user1
-        state1 = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=20001,
-            creator_user_id=user1.id,
-        )
-        state1_id = state1.id
-
-        state2 = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=20002,
-            creator_user_id=user1.id,
-        )
-        state2_id = state2.id
-
-        # Create item by user2
-        state3 = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=20003,
-            creator_user_id=user2.id,
-        )
-        state3_id = state3.id
+        hr1 = session.execute(select(HostRequest).where(HostRequest.conversation_id == hr1_id)).scalar_one()
+        hr2 = session.execute(select(HostRequest).where(HostRequest.conversation_id == hr2_id)).scalar_one()
+        hr3 = session.execute(select(HostRequest).where(HostRequest.conversation_id == hr3_id)).scalar_one()
+        state1_id = hr1.moderation_state_id
+        state2_id = hr2.moderation_state_id
+        state3_id = hr3.moderation_state_id
 
     # Get all items (should be 3)
     with real_moderation_session(super_token) as api:
@@ -1160,13 +1174,13 @@ def test_GetModerationQueue_filter_by_author(db):
     with real_moderation_session(super_token) as api:
         res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(item_author_user_id=user1.id))
         assert len(res.queue_items) == 2
-        assert all(item.item_author_user_id == user1.id for item in res.queue_items)
+        assert all(item.moderation_state.author_user_id == user1.id for item in res.queue_items)
 
     # Filter by user2 (should get 1)
     with real_moderation_session(super_token) as api:
         res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(item_author_user_id=user2.id))
         assert len(res.queue_items) == 1
-        assert res.queue_items[0].item_author_user_id == user2.id
+        assert res.queue_items[0].moderation_state.author_user_id == user2.id
         assert res.queue_items[0].moderation_state_id == state3_id
 
     # Filter by non-existent user (should get 0)
@@ -1253,20 +1267,32 @@ def test_GetModerationQueue_ordering(db):
 def test_GetModerationQueue_pagination_newest_first(db):
     """Test pagination with newest_first=True returns different items on each page"""
     super_user, super_token = generate_user(is_superuser=True)
-    normal_user, _ = generate_user()
+    normal_user, normal_token = generate_user()
+    host_user, _ = generate_user()
 
-    state_ids = []
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
 
-    # Create 5 queue items
-    with session_scope() as session:
+    # Create 5 host requests
+    hr_ids = []
+    with requests_session(normal_token) as api:
         for i in range(5):
-            state = create_moderation(
-                session=session,
-                object_type=ModerationObjectType.HOST_REQUEST,
-                object_id=40001 + i,
-                creator_user_id=normal_user.id,
-            )
-            state_ids.append(state.id)
+            hr_id = api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=host_user.id,
+                    from_date=today_plus_2,
+                    to_date=today_plus_3,
+                    text=valid_request_text(),
+                )
+            ).host_request_id
+            hr_ids.append(hr_id)
+
+    # Get moderation state IDs
+    state_ids = []
+    with session_scope() as session:
+        for hr_id in hr_ids:
+            hr = session.execute(select(HostRequest).where(HostRequest.conversation_id == hr_id)).scalar_one()
+            state_ids.append(hr.moderation_state_id)
 
     # Set different times so ordering is deterministic
     with session_scope() as session:

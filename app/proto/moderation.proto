@@ -64,7 +64,9 @@ message ModerationStateInfo {
   int64 object_id = 3;
   ModerationVisibility visibility = 4;
   google.protobuf.Timestamp created = 5;
-  google.protobuf.Timestamp updated = 7;
+  google.protobuf.Timestamp updated = 6;
+  int64 author_user_id = 7;
+  string content = 8;
 }
 
 message ModerationQueueItemInfo {
@@ -73,10 +75,9 @@ message ModerationQueueItemInfo {
   google.protobuf.Timestamp time_created = 3;
   ModerationTrigger trigger = 4;
   string reason = 5;
-  int64 item_author_user_id = 6;
-  bool is_resolved = 7;
-  int64 resolved_by_log_id = 8;
-  ModerationStateInfo moderation_state = 9;
+  bool is_resolved = 6;
+  int64 resolved_by_log_id = 7;
+  ModerationStateInfo moderation_state = 8;
 }
 
 message ModerationLogEntryInfo {

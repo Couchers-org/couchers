@@ -45,7 +45,6 @@ def create_moderation(
             moderation_state_id=moderation_state.id,
             trigger=ModerationTrigger.INITIAL_REVIEW,
             reason="Object created.",
-            item_author_user_id=creator_user_id,
         )
     )
     session.flush()

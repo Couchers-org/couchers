@@ -12,7 +12,9 @@ from couchers.metrics import (
     observe_moderation_visibility_transition,
 )
 from couchers.models import (
+    GroupChat,
     HostRequest,
+    Message,
     ModerationAction,
     ModerationLog,
     ModerationObjectType,
@@ -31,6 +33,48 @@ from couchers.utils import Timestamp_from_datetime, now
 logger = logging.getLogger(__name__)
 
 MAX_PAGINATION_LENGTH = 1_000
+
+
+def _get_moderated_object_info(session, moderation_state):
+    """
+    Retrieve author user ID and first message text for a moderated object.
+
+    Returns a tuple of (author_user_id, first_message_text).
+    """
+    object_type = moderation_state.object_type
+    object_id = moderation_state.object_id
+
+    # Get the moderated object and extract author
+    moderated_object = None
+    if object_type == ModerationObjectType.HOST_REQUEST:
+        moderated_object = session.execute(
+            select(HostRequest).where(HostRequest.conversation_id == object_id)
+        ).scalar_one_or_none()
+    elif object_type == ModerationObjectType.GROUP_CHAT:
+        moderated_object = session.execute(
+            select(GroupChat).where(GroupChat.conversation_id == object_id)
+        ).scalar_one_or_none()
+
+    if not moderated_object:
+        # Object was deleted or not found
+        return (None, None)
+
+    # Get author using __moderation_author_column__
+    author_column_name = moderated_object.__moderation_author_column__
+    author_user_id = getattr(moderated_object, author_column_name)
+
+    # Get the first message for this conversation
+    first_message = session.execute(
+        select(Message)
+        .where(Message.conversation_id == object_id)
+        .order_by(Message.time.asc(), Message.id.asc())
+        .limit(1)
+    ).scalar_one_or_none()
+
+    first_message_text = first_message.text if first_message else None
+
+    return (author_user_id, first_message_text)
+
 
 # Moderation enum mappings
 moderationvisibility2api = {
@@ -96,16 +140,22 @@ moderationobjecttype2sql = {
 }
 
 
-def moderation_state_to_pb(state: ModerationState):
+def moderation_state_to_pb(state: ModerationState, session):
     """Convert ModerationState model to proto message"""
-    return moderation_pb2.ModerationStateInfo(
+    author_user_id, content = _get_moderated_object_info(session, state)
+
+    state_pb = moderation_pb2.ModerationStateInfo(
         moderation_state_id=state.id,
         object_type=moderationobjecttype2api[state.object_type],
         object_id=state.object_id,
         visibility=moderationvisibility2api[state.visibility],
         created=Timestamp_from_datetime(state.created),
         updated=Timestamp_from_datetime(state.updated),
+        author_user_id=author_user_id or 0,
+        content=content or "",
     )
+
+    return state_pb
 
 
 class Moderation(moderation_pb2_grpc.ModerationServicer):
@@ -149,7 +199,21 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             statement = statement.where(ModerationQueueItem.time_created > created_after)
 
         if request.item_author_user_id:
-            statement = statement.where(ModerationQueueItem.item_author_user_id == request.item_author_user_id)
+            # Filter by author - need to join with moderated objects to check author
+            # Build a subquery of moderation_state_ids that match the author
+            author_user_id = request.item_author_user_id
+
+            # Get host request states where surfer (author) matches
+            hr_states = select(HostRequest.moderation_state_id).where(HostRequest.surfer_user_id == author_user_id)
+
+            # Get group chat states where creator (author) matches
+            gc_states = select(GroupChat.moderation_state_id).where(GroupChat.creator_id == author_user_id)
+
+            # Combine them - moderation_state_id must be in either list
+            statement = statement.where(
+                ModerationQueueItem.moderation_state_id.in_(hr_states)
+                | ModerationQueueItem.moderation_state_id.in_(gc_states)
+            )
 
         # Order by time created
         if request.newest_first:
@@ -167,19 +231,18 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
                 select(ModerationState).where(ModerationState.id == item.moderation_state_id)
             ).scalar_one()
 
-            queue_items_pb.append(
-                moderation_pb2.ModerationQueueItemInfo(
-                    queue_item_id=item.id,
-                    moderation_state_id=item.moderation_state_id,
-                    time_created=Timestamp_from_datetime(item.time_created),
-                    trigger=moderationtrigger2api[item.trigger],
-                    reason=item.reason,
-                    item_author_user_id=item.item_author_user_id,
-                    is_resolved=item.resolved_by_log_id is not None,
-                    resolved_by_log_id=item.resolved_by_log_id or 0,
-                    moderation_state=moderation_state_to_pb(mod_state),
-                )
+            queue_item_pb = moderation_pb2.ModerationQueueItemInfo(
+                queue_item_id=item.id,
+                moderation_state_id=item.moderation_state_id,
+                time_created=Timestamp_from_datetime(item.time_created),
+                trigger=moderationtrigger2api[item.trigger],
+                reason=item.reason,
+                is_resolved=item.resolved_by_log_id is not None,
+                resolved_by_log_id=item.resolved_by_log_id or 0,
+                moderation_state=moderation_state_to_pb(mod_state, session),
             )
+
+            queue_items_pb.append(queue_item_pb)
 
         return moderation_pb2.GetModerationQueueRes(
             queue_items=queue_items_pb,
@@ -202,7 +265,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             context.abort(grpc.StatusCode.NOT_FOUND, "Moderation state not found.")
 
         return moderation_pb2.GetModerationStateRes(
-            moderation_state=moderation_state_to_pb(moderation_state),
+            moderation_state=moderation_state_to_pb(moderation_state, session),
         )
 
     def GetModerationLog(self, request, context, session):
@@ -226,7 +289,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         )
 
         # Convert moderation state to proto first (while still in session)
-        moderation_state_pb = moderation_state_to_pb(moderation_state)
+        moderation_state_pb = moderation_state_to_pb(moderation_state, session)
 
         # Convert to proto
         log_entries_pb = []
@@ -331,7 +394,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
                 )
 
         return moderation_pb2.ModerateContentRes(
-            moderation_state=moderation_state_to_pb(moderation_state),
+            moderation_state=moderation_state_to_pb(moderation_state, session),
         )
 
     def FlagContentForReview(self, request, context, session):
@@ -343,21 +406,6 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         if not moderation_state:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "moderation_state_not_found")
 
-        # Get the author user ID from the moderation state
-        # We need to look up the actual object to get the author
-        author_user_id = None
-        if moderation_state.object_type == ModerationObjectType.HOST_REQUEST:
-            host_request = session.execute(
-                select(HostRequest).where(HostRequest.conversation_id == moderation_state.object_id)
-            ).scalar_one_or_none()
-            if host_request:
-                author_user_id = host_request.surfer_user_id
-
-        # If we can't determine the author (e.g., underlying object was deleted),
-        # use the moderator as the author for the queue item
-        if author_user_id is None:
-            author_user_id = context.user_id
-
         trigger = moderationtrigger2sql[request.trigger] or ModerationTrigger.INITIAL_REVIEW
         reason = request.reason or "Flagged by admin for review"
 
@@ -366,7 +414,6 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             moderation_state_id=request.moderation_state_id,
             trigger=trigger,
             reason=reason,
-            item_author_user_id=author_user_id,
         )
         session.add(queue_item)
         session.flush()
@@ -374,19 +421,18 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         observe_moderation_action(ModerationAction.FLAG, moderation_state.object_type)
         observe_moderation_queue_item_created(trigger, moderation_state.object_type)
 
-        return moderation_pb2.FlagContentForReviewRes(
-            queue_item=moderation_pb2.ModerationQueueItemInfo(
-                queue_item_id=queue_item.id,
-                moderation_state_id=queue_item.moderation_state_id,
-                time_created=Timestamp_from_datetime(queue_item.time_created),
-                trigger=moderationtrigger2api[queue_item.trigger],
-                reason=queue_item.reason,
-                item_author_user_id=queue_item.item_author_user_id,
-                is_resolved=False,
-                resolved_by_log_id=0,
-                moderation_state=moderation_state_to_pb(moderation_state),
-            )
+        queue_item_pb = moderation_pb2.ModerationQueueItemInfo(
+            queue_item_id=queue_item.id,
+            moderation_state_id=queue_item.moderation_state_id,
+            time_created=Timestamp_from_datetime(queue_item.time_created),
+            trigger=moderationtrigger2api[queue_item.trigger],
+            reason=queue_item.reason,
+            is_resolved=False,
+            resolved_by_log_id=0,
+            moderation_state=moderation_state_to_pb(moderation_state, session),
         )
+
+        return moderation_pb2.FlagContentForReviewRes(queue_item=queue_item_pb)
 
     def UnflagContent(self, request, context, session):
         """Unflag content by resolving pending queue items"""
@@ -437,5 +483,5 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         observe_moderation_action(ModerationAction.UNFLAG, moderation_state.object_type)
 
         return moderation_pb2.UnflagContentRes(
-            moderation_state=moderation_state_to_pb(moderation_state),
+            moderation_state=moderation_state_to_pb(moderation_state, session),
         )
