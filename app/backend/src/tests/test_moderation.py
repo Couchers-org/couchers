@@ -23,7 +23,7 @@ from couchers.models import (
     ModerationVisibility,
 )
 from couchers.moderation.utils import create_moderation
-from couchers.proto import conversations_pb2, moderation_pb2, requests_pb2
+from couchers.proto import conversations_pb2, moderation_pb2, notifications_pb2, requests_pb2
 from couchers.utils import Timestamp_from_datetime, now, today
 from tests.test_fixtures import (  # noqa
     conversations_session,
@@ -32,6 +32,7 @@ from tests.test_fixtures import (  # noqa
     generate_user,
     mock_notification_email,
     moderator,
+    notifications_session,
     process_jobs,
     push_collector,
     real_moderation_session,
@@ -399,6 +400,82 @@ def test_host_request_no_notification_before_approval(db, push_collector):
 
     # No push notification should be sent yet (host requests are shadowed initially)
     push_collector.assert_user_has_count(user2.id, 0)
+
+
+def test_shadowed_notification_not_in_list_notifications(db):
+    """Test that notifications for shadowed content don't appear in ListNotifications API"""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    # Create a host request (which creates a shadowed notification for the host)
+    with requests_session(token1) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+    # Host (recipient) should NOT see the notification in ListNotifications - it's for shadowed content
+    with notifications_session(token2) as api:
+        res = api.ListNotifications(notifications_pb2.ListNotificationsReq())
+        # Should be empty - the host request is still shadowed
+        assert len(res.notifications) == 0
+
+
+def test_notification_visible_after_approval(db):
+    """Test that notifications appear in ListNotifications after content is approved"""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    mod, mod_token = generate_user(is_superuser=True)
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    # Create a host request (which creates a shadowed notification for the host)
+    with requests_session(token1) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+    # Host (recipient) should NOT see the notification initially
+    with notifications_session(token2) as api:
+        res = api.ListNotifications(notifications_pb2.ListNotificationsReq())
+        assert len(res.notifications) == 0
+
+    # Get the moderation state ID and approve
+    with session_scope() as session:
+        host_request = session.execute(
+            select(HostRequest).where(HostRequest.conversation_id == host_request_id)
+        ).scalar_one()
+        state_id = host_request.moderation_state_id
+
+    with real_moderation_session(mod_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                reason="Looks good",
+            )
+        )
+
+    # Now host SHOULD see the notification
+    with notifications_session(token2) as api:
+        res = api.ListNotifications(notifications_pb2.ListNotificationsReq())
+        assert len(res.notifications) == 1
+        assert res.notifications[0].topic == "host_request"
+        assert res.notifications[0].action == "create"
 
 
 def test_shadowed_host_request_visible_to_author_only(db):
