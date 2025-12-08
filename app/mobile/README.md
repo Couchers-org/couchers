@@ -2,6 +2,8 @@
 
 React Native mobile app built with [Expo](https://expo.dev).
 
+Are you trying to download and test the app? [See mobile app tester instructions here](./mobileAppTesterInstructions.md).
+
 ## Prerequisites
 
 ### For Local Development Builds
