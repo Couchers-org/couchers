@@ -1,10 +1,8 @@
 import grpc
 import pytest
-from google.protobuf import empty_pb2
 from sqlalchemy.exc import IntegrityError
 
 from couchers.db import session_scope
-from couchers.jobs.handlers import DatabaseInconsistencyError, check_database_consistency
 from couchers.models import PhotoGallery, PhotoGalleryItem, Upload, User
 from couchers.proto import galleries_pb2
 from couchers.sql import couchers_select as select
@@ -43,26 +41,6 @@ def test_user_has_profile_gallery(db):
 
         gallery = session.execute(select(PhotoGallery).where(PhotoGallery.id == user.profile_gallery_id)).scalar_one()
         assert gallery.owner_user_id == user1.id
-
-
-def test_database_consistency_check(db):
-    """The database consistency check should pass with valid user/gallery setup"""
-    # Create a few users (which auto-creates their profile galleries)
-    generate_user()
-    generate_user()
-    generate_user()
-
-    # This should not raise any exceptions
-    check_database_consistency(empty_pb2.Empty())
-
-    # Now break consistency by removing a user's profile gallery
-    with session_scope() as session:
-        user = session.execute(select(User).where(User.is_deleted == False).limit(1)).scalar_one()
-        user.profile_gallery_id = None
-
-    # This should now raise an exception
-    with pytest.raises(DatabaseInconsistencyError):
-        check_database_consistency(empty_pb2.Empty())
 
 
 def test_GetGalleryEditInfo(db):

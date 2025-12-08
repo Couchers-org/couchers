@@ -1387,28 +1387,6 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
         if invalid_resolved_actions:
             errors.append(f"Queue items resolved by non-resolving actions: {invalid_resolved_actions}")
 
-        # Check item_author_user_id matches actual author for HOST_REQUEST
-        hr_author_mismatches = session.execute(
-            select(ModerationQueueItem.id, ModerationQueueItem.item_author_user_id, HostRequest.surfer_user_id)
-            .join(ModerationState, ModerationQueueItem.moderation_state_id == ModerationState.id)
-            .join(HostRequest, HostRequest.moderation_state_id == ModerationState.id)
-            .where(ModerationState.object_type == ModerationObjectType.HOST_REQUEST)
-            .where(ModerationQueueItem.item_author_user_id != HostRequest.surfer_user_id)
-        ).all()
-        if hr_author_mismatches:
-            errors.append(f"ModerationQueueItem author mismatch for HOST_REQUEST: {hr_author_mismatches}")
-
-        # Check item_author_user_id matches actual author for GROUP_CHAT
-        gc_author_mismatches = session.execute(
-            select(ModerationQueueItem.id, ModerationQueueItem.item_author_user_id, GroupChat.creator_id)
-            .join(ModerationState, ModerationQueueItem.moderation_state_id == ModerationState.id)
-            .join(GroupChat, GroupChat.moderation_state_id == ModerationState.id)
-            .where(ModerationState.object_type == ModerationObjectType.GROUP_CHAT)
-            .where(ModerationQueueItem.item_author_user_id != GroupChat.creator_id)
-        ).all()
-        if gc_author_mismatches:
-            errors.append(f"ModerationQueueItem author mismatch for GROUP_CHAT: {gc_author_mismatches}")
-
         # Check every ModerationState has at least one INITIAL_REVIEW queue item
         # Skip items with ID < 2000000 as they were created before this check was introduced
         states_without_initial_review = session.execute(

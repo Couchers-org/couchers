@@ -45,6 +45,26 @@ def _(testconfig):
     pass
 
 
+def create_test_host_request_with_moderation(surfer_token, host_user_id):
+    """Helper to create a host request and return its moderation state ID"""
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    with requests_session(surfer_token) as api:
+        hr_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host_user_id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+    with session_scope() as session:
+        hr = session.execute(select(HostRequest).where(HostRequest.conversation_id == hr_id)).scalar_one()
+        return hr.moderation_state_id
+
+
 # ============================================================================
 # Tests for moderation helper functions
 # ============================================================================
@@ -129,18 +149,27 @@ def test_add_to_moderation_queue(db):
 def test_moderate_content(db):
     """Test moderating content via API"""
     super_user, super_token = generate_user(is_superuser=True)
-    user, _ = generate_user()
+    user, token = generate_user()
+    host, _ = generate_user()
 
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    # Create a real host request
     state_id = None
+    with requests_session(token) as api:
+        hr_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
     with session_scope() as session:
-        # Create a moderation state
-        moderation_state = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=789,
-            creator_user_id=user.id,
-        )
-        state_id = moderation_state.id
+        hr = session.execute(select(HostRequest).where(HostRequest.conversation_id == hr_id)).scalar_one()
+        state_id = hr.moderation_state_id
 
     # Moderate the content via API
     with real_moderation_session(super_token) as api:
@@ -623,20 +652,13 @@ def test_multiple_host_requests_listing_visibility(db):
 
 def test_moderation_log_tracking(db):
     """Test that moderation actions are properly logged via API"""
-    user, _ = generate_user()
+    user, user_token = generate_user()
+    host, _ = generate_user()
     moderator1, moderator1_token = generate_user(is_superuser=True)
     moderator2, moderator2_token = generate_user(is_superuser=True)
 
-    state_id = None
-    with session_scope() as session:
-        # Create moderation state
-        moderation_state = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=99999,
-            creator_user_id=user.id,
-        )
-        state_id = moderation_state.id
+    # Create a real host request
+    state_id = create_test_host_request_with_moderation(user_token, host.id)
 
     # Perform several moderation actions via API
     with real_moderation_session(moderator1_token) as api:
@@ -798,25 +820,12 @@ def test_GetModerationQueue_empty(db):
 def test_GetModerationQueue_with_items(db):
     """Test getting moderation queue with items via API"""
     super_user, super_token = generate_user(is_superuser=True)
-    normal_user, _ = generate_user()
+    normal_user, user_token = generate_user()
+    host, _ = generate_user()
 
-    # Create some moderation states (which automatically adds them to queue)
-    with session_scope() as session:
-        # Create first item
-        state1 = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=1001,
-            creator_user_id=normal_user.id,
-        )
-
-        # Create second item
-        state2 = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=1002,
-            creator_user_id=normal_user.id,
-        )
+    # Create some host requests (which automatically adds them to moderation queue)
+    state1_id = create_test_host_request_with_moderation(user_token, host.id)
+    state2_id = create_test_host_request_with_moderation(user_token, host.id)
 
     with real_moderation_session(super_token) as api:
         res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq())
@@ -828,29 +837,12 @@ def test_GetModerationQueue_with_items(db):
 def test_GetModerationQueue_filter_by_trigger(db):
     """Test filtering moderation queue by trigger type via API"""
     super_user, super_token = generate_user(is_superuser=True)
-    normal_user, _ = generate_user()
+    normal_user, user_token = generate_user()
+    host, _ = generate_user()
 
-    state1_id = None
-    state2_id = None
-
-    with session_scope() as session:
-        # Create item with INITIAL_REVIEW trigger (created automatically)
-        state1 = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=2001,
-            creator_user_id=normal_user.id,
-        )
-        state1_id = state1.id
-
-        # Create another item (will also get INITIAL_REVIEW trigger automatically)
-        state2 = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=2002,
-            creator_user_id=normal_user.id,
-        )
-        state2_id = state2.id
+    # Create host requests (which automatically adds them to moderation queue with INITIAL_REVIEW)
+    state1_id = create_test_host_request_with_moderation(user_token, host.id)
+    state2_id = create_test_host_request_with_moderation(user_token, host.id)
 
     # Add USER_FLAG trigger to second item via API
     with real_moderation_session(super_token) as api:
@@ -882,25 +874,12 @@ def test_GetModerationQueue_filter_by_trigger(db):
 def test_GetModerationQueue_filter_created_before(db):
     """Test filtering moderation queue by created_before timestamp"""
     super_user, super_token = generate_user(is_superuser=True)
-    normal_user, _ = generate_user()
+    normal_user, user_token = generate_user()
+    host, _ = generate_user()
 
-    # Create moderation states
-    with session_scope() as session:
-        state1 = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=10001,
-            creator_user_id=normal_user.id,
-        )
-        state1_id = state1.id
-
-        state2 = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=10002,
-            creator_user_id=normal_user.id,
-        )
-        state2_id = state2.id
+    # Create host requests
+    state1_id = create_test_host_request_with_moderation(user_token, host.id)
+    state2_id = create_test_host_request_with_moderation(user_token, host.id)
 
     # Backdate the first queue item
     with session_scope() as session:
@@ -940,25 +919,12 @@ def test_GetModerationQueue_filter_created_before(db):
 def test_GetModerationQueue_filter_created_after(db):
     """Test filtering moderation queue by created_after timestamp"""
     super_user, super_token = generate_user(is_superuser=True)
-    normal_user, _ = generate_user()
+    normal_user, user_token = generate_user()
+    host, _ = generate_user()
 
-    # Create moderation states
-    with session_scope() as session:
-        state1 = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=11001,
-            creator_user_id=normal_user.id,
-        )
-        state1_id = state1.id
-
-        state2 = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=11002,
-            creator_user_id=normal_user.id,
-        )
-        state2_id = state2.id
+    # Create host requests
+    state1_id = create_test_host_request_with_moderation(user_token, host.id)
+    state2_id = create_test_host_request_with_moderation(user_token, host.id)
 
     # Backdate the first queue item to 2 hours ago
     with session_scope() as session:
@@ -997,33 +963,13 @@ def test_GetModerationQueue_filter_created_after(db):
 def test_GetModerationQueue_filter_created_before_and_after(db):
     """Test filtering moderation queue by both created_before and created_after timestamps"""
     super_user, super_token = generate_user(is_superuser=True)
-    normal_user, _ = generate_user()
+    normal_user, user_token = generate_user()
+    host, _ = generate_user()
 
-    # Create 3 moderation states
-    with session_scope() as session:
-        state1 = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=12001,
-            creator_user_id=normal_user.id,
-        )
-        state1_id = state1.id
-
-        state2 = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=12002,
-            creator_user_id=normal_user.id,
-        )
-        state2_id = state2.id
-
-        state3 = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=12003,
-            creator_user_id=normal_user.id,
-        )
-        state3_id = state3.id
+    # Create 3 host requests
+    state1_id = create_test_host_request_with_moderation(user_token, host.id)
+    state2_id = create_test_host_request_with_moderation(user_token, host.id)
+    state3_id = create_test_host_request_with_moderation(user_token, host.id)
 
     # Set different times: state1 = 3 hours ago, state2 = 1.5 hours ago, state3 = now
     with session_scope() as session:
@@ -1067,29 +1013,12 @@ def test_GetModerationQueue_filter_created_before_and_after(db):
 def test_GetModerationQueue_filter_unresolved(db):
     """Test filtering moderation queue for unresolved items only via API"""
     super_user, super_token = generate_user(is_superuser=True)
-    normal_user, _ = generate_user()
+    normal_user, user_token = generate_user()
+    host, _ = generate_user()
 
-    state1_id = None
-    state2_id = None
-
-    with session_scope() as session:
-        # Create first item (will be resolved) - automatically adds to queue
-        state1 = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=3001,
-            creator_user_id=normal_user.id,
-        )
-        state1_id = state1.id
-
-        # Create second item (remains unresolved) - automatically adds to queue
-        state2 = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=3002,
-            creator_user_id=normal_user.id,
-        )
-        state2_id = state2.id
+    # Create 2 host requests
+    state1_id = create_test_host_request_with_moderation(user_token, host.id)
+    state2_id = create_test_host_request_with_moderation(user_token, host.id)
 
     # Resolve the first one via API (ModerateContent automatically resolves queue items)
     with real_moderation_session(super_token) as api:
@@ -1192,36 +1121,13 @@ def test_GetModerationQueue_filter_by_author(db):
 def test_GetModerationQueue_ordering(db):
     """Test ordering moderation queue by oldest/newest first"""
     super_user, super_token = generate_user(is_superuser=True)
-    normal_user, _ = generate_user()
+    normal_user, user_token = generate_user()
+    host, _ = generate_user()
 
-    state1_id = None
-    state2_id = None
-    state3_id = None
-
-    with session_scope() as session:
-        state1 = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=30001,
-            creator_user_id=normal_user.id,
-        )
-        state1_id = state1.id
-
-        state2 = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=30002,
-            creator_user_id=normal_user.id,
-        )
-        state2_id = state2.id
-
-        state3 = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=30003,
-            creator_user_id=normal_user.id,
-        )
-        state3_id = state3.id
+    # Create 3 host requests
+    state1_id = create_test_host_request_with_moderation(user_token, host.id)
+    state2_id = create_test_host_request_with_moderation(user_token, host.id)
+    state3_id = create_test_host_request_with_moderation(user_token, host.id)
 
     # Set different times: state1 = 3 hours ago, state2 = 2 hours ago, state3 = 1 hour ago
     with session_scope() as session:
@@ -1334,18 +1240,11 @@ def test_GetModerationLog(db):
     """Test getting moderation log for a state via API"""
     super_user, super_token = generate_user(is_superuser=True)
     moderator, moderator_token = generate_user(is_superuser=True)
-    normal_user, _ = generate_user()
+    normal_user, user_token = generate_user()
+    host, _ = generate_user()
 
-    state_id = None
-    with session_scope() as session:
-        # Create moderation state
-        state = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=4001,
-            creator_user_id=normal_user.id,
-        )
-        state_id = state.id
+    # Create a real host request
+    state_id = create_test_host_request_with_moderation(user_token, host.id)
 
     # Perform a moderation action via API
     with real_moderation_session(moderator_token) as api:
@@ -1513,18 +1412,11 @@ def test_ModerateContent_not_found(db):
 def test_ModerateContent_hide(db):
     """Test hiding content via unified moderation API"""
     super_user, super_token = generate_user(is_superuser=True)
-    normal_user, _ = generate_user()
+    normal_user, user_token = generate_user()
+    host, _ = generate_user()
 
-    state_id = None
-    with session_scope() as session:
-        # Create moderation state
-        state = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=6001,
-            creator_user_id=normal_user.id,
-        )
-        state_id = state.id
+    # Create a real host request
+    state_id = create_test_host_request_with_moderation(user_token, host.id)
 
     with real_moderation_session(super_token) as api:
         res = api.ModerateContent(
@@ -1547,17 +1439,11 @@ def test_ModerateContent_hide(db):
 def test_ModerateContent_shadow(db):
     """Test shadowing content via unified moderation API"""
     super_user, super_token = generate_user(is_superuser=True)
-    normal_user, _ = generate_user()
+    normal_user, user_token = generate_user()
+    host, _ = generate_user()
 
-    with session_scope() as session:
-        # Create moderation state
-        state = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
-            object_id=7001,
-            creator_user_id=normal_user.id,
-        )
-        state_id = state.id
+    # Create a real host request
+    state_id = create_test_host_request_with_moderation(user_token, host.id)
 
     with real_moderation_session(super_token) as api:
         res = api.ModerateContent(

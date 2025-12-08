@@ -15,6 +15,7 @@ from couchers.models import (
     GroupChat,
     HostRequest,
     Message,
+    MessageType,
     ModerationAction,
     ModerationLog,
     ModerationObjectType,
@@ -33,48 +34,6 @@ from couchers.utils import Timestamp_from_datetime, now
 logger = logging.getLogger(__name__)
 
 MAX_PAGINATION_LENGTH = 1_000
-
-
-def _get_moderated_object_info(session, moderation_state):
-    """
-    Retrieve author user ID and first message text for a moderated object.
-
-    Returns a tuple of (author_user_id, first_message_text).
-    """
-    object_type = moderation_state.object_type
-    object_id = moderation_state.object_id
-
-    # Get the moderated object and extract author
-    moderated_object = None
-    if object_type == ModerationObjectType.HOST_REQUEST:
-        moderated_object = session.execute(
-            select(HostRequest).where(HostRequest.conversation_id == object_id)
-        ).scalar_one_or_none()
-    elif object_type == ModerationObjectType.GROUP_CHAT:
-        moderated_object = session.execute(
-            select(GroupChat).where(GroupChat.conversation_id == object_id)
-        ).scalar_one_or_none()
-
-    if not moderated_object:
-        # Object was deleted or not found
-        return (None, None)
-
-    # Get author using __moderation_author_column__
-    author_column_name = moderated_object.__moderation_author_column__
-    author_user_id = getattr(moderated_object, author_column_name)
-
-    # Get the first message for this conversation
-    first_message = session.execute(
-        select(Message)
-        .where(Message.conversation_id == object_id)
-        .order_by(Message.time.asc(), Message.id.asc())
-        .limit(1)
-    ).scalar_one_or_none()
-
-    first_message_text = first_message.text if first_message else None
-
-    return (author_user_id, first_message_text)
-
 
 # Moderation enum mappings
 moderationvisibility2api = {
@@ -142,7 +101,29 @@ moderationobjecttype2sql = {
 
 def moderation_state_to_pb(state: ModerationState, session):
     """Convert ModerationState model to proto message"""
-    author_user_id, content = _get_moderated_object_info(session, state)
+    object_type = state.object_type
+    object_id = state.object_id
+
+    # Get the author user ID
+    if object_type == ModerationObjectType.HOST_REQUEST:
+        author_user_id = session.execute(
+            select(HostRequest.surfer_user_id).where(HostRequest.conversation_id == object_id)
+        ).scalar_one()
+    elif object_type == ModerationObjectType.GROUP_CHAT:
+        author_user_id = session.execute(
+            select(GroupChat.creator_id).where(GroupChat.conversation_id == object_id)
+        ).scalar_one()
+    else:
+        raise ValueError(f"Unsupported moderation object type: {object_type}")
+
+    # Get the first text message for this conversation
+    content = session.execute(
+        select(Message.text)
+        .where(Message.conversation_id == object_id)
+        .where(Message.message_type == MessageType.text)
+        .order_by(Message.id.asc())
+        .limit(1)
+    ).scalar_one_or_none()
 
     state_pb = moderation_pb2.ModerationStateInfo(
         moderation_state_id=state.id,
@@ -151,7 +132,7 @@ def moderation_state_to_pb(state: ModerationState, session):
         visibility=moderationvisibility2api[state.visibility],
         created=Timestamp_from_datetime(state.created),
         updated=Timestamp_from_datetime(state.updated),
-        author_user_id=author_user_id or 0,
+        author_user_id=author_user_id,
         content=content or "",
     )
 

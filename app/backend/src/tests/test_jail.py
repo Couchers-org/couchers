@@ -7,7 +7,7 @@ from couchers.models import users
 from couchers.proto import admin_pb2, api_pb2, jail_pb2
 from couchers.servicers import jail as servicers_jail
 from couchers.utils import create_coordinate, to_aware_datetime
-from tests.test_fixtures import (  # noqa  # noqa
+from tests.test_fixtures import (  # noqa
     db,
     email_fields,
     fast_passwords,
