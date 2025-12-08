@@ -40,7 +40,7 @@
         },
         "private": {
           "label": "Espace privé",
-          "description": " - propre chambre ou similaire"
+          "description": " -par ex. propre chambre ou similaire"
         },
         "common": {
           "label": "Pièce commune",
@@ -67,6 +67,6 @@
   "choose_search_criteria": "Saisissez un lieu ou appliquez un filtre pour rechercher.",
   "error_loading_users": "Erreur lors du chargement des utilisateurs.trices",
   "search_result": {
-    "no_user_result_message": "Aucun utilisateur trouvé. Essayez d'enlever des filtres pour plus de résultats."
+    "no_user_result_message": "Aucun membre trouvé. Essayez d'enlever des filtres pour plus de résultats."
   }
 }
