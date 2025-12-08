@@ -10,7 +10,7 @@
         "already_in_chat": "Ce membre est déjà dans le chat.",
         "already_in_community": "Vous faites déjà partie de cette communauté.",
         "already_in_group": "Vous êtes déjà dans ce groupe.",
-        "already_left_host_request_feedback": "Tu as déjà laissé des commentaires  concernant cette demande d'hébergement.",
-        "at_least_two_users_required": "Au moins 2 utilisateurs doivent être indiqués."
+        "already_left_host_request_feedback": "Vous avez déjà laissé des commentaires concernant cette demande d'hébergement !",
+        "at_least_two_users_required": "Au moins de 2 membres doivent être indiqué.e.s."
     }
 }
