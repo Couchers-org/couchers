@@ -148,7 +148,27 @@ Once submitted, the build will be available in TestFlight after automated review
 
 ### Android (Google Play Internal Testing)
 
-TBD
+To submit your Android app to Google Play Internal Testing for QA testing:
+
+```bash
+# Verify project setup (optional but recommended)
+npx expo-doctor
+
+# Build and submit to Google Play Internal Testing
+eas build --platform android --auto-submit
+```
+
+The `--auto-submit` flag will:
+1. Build your Android app using EAS
+2. Handle Google Play credentials automatically
+3. Submit the build to Internal Testing track
+
+Once submitted, the build will be immediately available for internal testing (no review required). You can then add testers in Google Play Console:
+- Go to Google Play Console → Your App → Testing → Internal testing
+- Add tester email addresses (up to 100 testers)
+- Testers receive a link to install from the Play Store
+
+**Note:** Internal Testing builds are private and NOT released to the public Play Store unless you manually promote them to a production track.
 
 ## Learn More
 
