@@ -68,8 +68,8 @@
   "error_loading_users": "Erreur lors du chargement des utilisateurs.trices",
   "search_result": {
     "no_user_result_message": "Aucun membre trouvé. Essayez d'enlever des filtres pour plus de résultats.",
-    "show_user_button_label": "Montrez {{name}} sur la carte",
-    "people_found_message": "{{currentRange}} de {{totalItems}} personnes",
+    "show_user_button_label": "Montrer {{name}} sur la carte",
+    "people_found_message": "{{currentRange}} de {{totalItems}} membres",
     "few_results_suggestion": "Par défaut, les profils vides ou qui n'hébergent pas sont cachés",
     "include_empty_profiles_button": "Afficher tous les profils"
   },
