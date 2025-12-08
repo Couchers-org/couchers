@@ -68,6 +68,8 @@ from couchers.proto import (
     iris_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
+    moderation_pb2,
+    moderation_pb2_grpc,
     notifications_pb2_grpc,
     pages_pb2_grpc,
     postal_verification_pb2_grpc,
@@ -97,6 +99,7 @@ from couchers.servicers.gis import GIS
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
+from couchers.servicers.moderation import Moderation
 from couchers.servicers.notifications import Notifications
 from couchers.servicers.pages import Pages
 from couchers.servicers.postal_verification import PostalVerification
@@ -638,6 +641,27 @@ def real_editor_session(token):
 
 
 @contextmanager
+def real_moderation_session(token):
+    """
+    Create a Moderation service for testing, using TCP sockets, uses the token for auth
+    """
+    with futures.ThreadPoolExecutor(1) as executor:
+        server = grpc.server(executor, interceptors=[CouchersMiddlewareInterceptor()])
+        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+        moderation_pb2_grpc.add_ModerationServicer_to_server(Moderation(), server)
+        server.start()
+
+        call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
+        comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
+
+        try:
+            with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
+                yield moderation_pb2_grpc.ModerationStub(channel)
+        finally:
+            server.stop(None).wait()
+
+
+@contextmanager
 def real_account_session(token: str):
     """
     Create a Account service for testing, using TCP sockets, uses the token for auth
@@ -1098,6 +1122,16 @@ def testconfig():
     config["RECAPTHCA_API_KEY"] = "..."
     config["RECAPTHCA_SITE_KEY"] = "..."
 
+    config["EXPERIMENTATION_ENABLED"] = False
+    config["EXPERIMENTATION_PASS_ALL_GATES"] = True
+    config["STATSIG_SERVER_SECRET_KEY"] = ""
+    config["STATSIG_ENVIRONMENT"] = "testing"
+
+    # Moderation auto-approval deadline - 0 disables, set in tests that need it
+    config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 0
+    # Bot user ID for automated moderation - will be set to a real user in tests that need it
+    config["MODERATION_BOT_USER_ID"] = 1
+
     yield None
 
     config.clear()
@@ -1217,3 +1251,81 @@ def push_collector():
 
     with patch("couchers.notifications.push._push_to_user", collector.push_to_user):
         yield collector
+
+
+class Moderator:
+    """
+    A test fixture that provides a moderator user and methods to exercise the moderation API.
+
+    Usage:
+        def test_example(db, moderator):
+            user, token = generate_user()
+            # ... create a host request ...
+            moderator.approve_host_request(host_request_id)
+    """
+
+    def __init__(self, user: User, token: str):
+        self.user = user
+        self.token = token
+
+    def approve_host_request(self, host_request_id: int, reason: str = "Test approval") -> None:
+        """
+        Approve a host request using the moderation API.
+
+        Args:
+            host_request_id: The conversation_id of the host request
+            reason: Optional reason for approval
+        """
+        with real_moderation_session(self.token) as api:
+            state_res = api.GetModerationState(
+                moderation_pb2.GetModerationStateReq(
+                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
+                    object_id=host_request_id,
+                )
+            )
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_res.moderation_state.moderation_state_id,
+                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    reason=reason,
+                )
+            )
+
+    def approve_group_chat(self, group_chat_id: int, reason: str = "Test approval") -> None:
+        """
+        Approve a group chat using the moderation API.
+
+        Args:
+            group_chat_id: The conversation_id of the group chat
+            reason: Optional reason for approval
+        """
+        with real_moderation_session(self.token) as api:
+            state_res = api.GetModerationState(
+                moderation_pb2.GetModerationStateReq(
+                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT,
+                    object_id=group_chat_id,
+                )
+            )
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_res.moderation_state.moderation_state_id,
+                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    reason=reason,
+                )
+            )
+
+
+@pytest.fixture
+def moderator():
+    """
+    Creates a moderator (superuser) and provides methods to exercise the moderation API.
+
+    Usage:
+        def test_example(db, moderator):
+            # ... create a host request ...
+            moderator.approve_host_request(host_request_id)
+    """
+    user, token = generate_user(is_superuser=True)
+    yield Moderator(user, token)

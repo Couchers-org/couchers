@@ -74,6 +74,7 @@ const themeOptions: ThemeOptions = {
       },
     },
   },
+  cssVariables: true,
   palette: {
     background: {
       default: "#fcfcfc",

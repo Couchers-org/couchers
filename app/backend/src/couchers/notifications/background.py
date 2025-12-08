@@ -4,10 +4,11 @@ from pathlib import Path
 from google.protobuf import empty_pb2
 from jinja2 import Environment, FileSystemLoader
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import func
+from sqlalchemy.sql import exists, func
 
 from couchers import urls
 from couchers.config import config
+from couchers.context import make_background_user_context
 from couchers.db import session_scope
 from couchers.email import queue_email
 from couchers.models import (
@@ -136,12 +137,43 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
             select(Notification).where(Notification.id == payload.notification_id)
         ).scalar_one()
 
+        # Check moderation visibility if this notification is linked to moderated content
+        if notification.moderation_state_id:
+            context = make_background_user_context(notification.user_id)
+            content_visible = session.execute(
+                select(
+                    exists(
+                        select(Notification)
+                        .where(Notification.id == notification.id)
+                        .where_moderation_state_column_visible(context, Notification.moderation_state_id)
+                    )
+                )
+            ).scalar_one()
+
+            if not content_visible:
+                # Content not visible to recipient, leave notification for later processing
+                logger.info(
+                    f"Deferring notification {notification.id}: content not visible to user {notification.user_id}"
+                )
+                return
+
         # ignore this notification if the user hasn't enabled new notifications
         user = session.execute(select(User).where(User.id == notification.user_id)).scalar_one()
 
         topic, action = notification.topic_action.unpack()
         delivery_types = get_preference(session, notification.user.id, notification.topic_action)
         for delivery_type in delivery_types:
+            # Check if delivery already exists for this notification and delivery type
+            # (this can happen if the job was queued multiple times)
+            existing_delivery = session.execute(
+                select(NotificationDelivery)
+                .where(NotificationDelivery.notification_id == notification.id)
+                .where(NotificationDelivery.delivery_type == delivery_type)
+            ).scalar_one_or_none()
+            if existing_delivery:
+                logger.info(f"Skipping {delivery_type} delivery for notification {notification.id}: already delivered")
+                continue
+
             logger.info(f"Should notify by {delivery_type}")
             if delivery_type == NotificationDeliveryType.email:
                 # for emails we don't deliver straight up, wait until the email background worker gets around to it and handles deduplication
@@ -227,12 +259,15 @@ def handle_email_digests(payload: empty_pb2.Empty) -> None:
 
         for user in users_to_send_digests_to:
             # digest notifications that haven't been delivered yet
+            # Exclude notifications linked to non-visible moderated content
+            context = make_background_user_context(user.id)
             notifications_and_deliveries = session.execute(
                 select(Notification, NotificationDelivery)
                 .join(NotificationDelivery, NotificationDelivery.notification_id == Notification.id)
                 .where(NotificationDelivery.delivery_type == NotificationDeliveryType.digest)
                 .where(NotificationDelivery.delivered == None)
                 .where(Notification.user_id == user.id)
+                .where_moderation_state_column_visible(context, Notification.moderation_state_id)
                 .order_by(Notification.created)
             ).all()
 

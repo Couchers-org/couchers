@@ -56,7 +56,11 @@ from couchers.materialized_views import (
     refresh_materialized_views,
     refresh_materialized_views_rapid,
 )
-from couchers.metrics import push_notification_counter, strong_verification_completions_counter
+from couchers.metrics import (
+    moderation_auto_approved_counter,
+    push_notification_counter,
+    strong_verification_completions_counter,
+)
 from couchers.models import (
     AccountDeletionToken,
     ActivenessProbe,
@@ -75,6 +79,15 @@ from couchers.models import (
     MeetupStatus,
     Message,
     MessageType,
+    ModerationAction,
+    ModerationLog,
+    ModerationObjectType,
+    ModerationQueueItem,
+    ModerationState,
+    ModerationTrigger,
+    ModerationVisibility,
+    Notification,
+    NotificationDelivery,
     PassportSex,
     PasswordResetToken,
     PhotoGallery,
@@ -94,7 +107,7 @@ from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
 from couchers.notifications.send_raw_push_notification import send_raw_push_notification_v2
 from couchers.postal.postcard_service import send_postcard
-from couchers.proto import notification_data_pb2
+from couchers.proto import moderation_pb2, notification_data_pb2
 from couchers.proto.internal import jobs_pb2, verification_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.api import user_model_to_pb
@@ -108,6 +121,7 @@ from couchers.servicers.events import (
     generate_event_delete_notifications,
     generate_event_update_notifications,
 )
+from couchers.servicers.moderation import Moderation
 from couchers.servicers.requests import host_request_to_pb
 from couchers.servicers.threads import generate_reply_notifications
 from couchers.sql import couchers_select as select
@@ -1350,9 +1364,238 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
         if mismatched_galleries:
             errors.append(f"Profile galleries with mismatched owner: {mismatched_galleries}")
 
+        # === Moderation System Consistency Checks ===
+
+        # Check all ModerationStates have a known object_type
+        known_object_types = [ModerationObjectType.HOST_REQUEST, ModerationObjectType.GROUP_CHAT]
+        unknown_type_states = session.execute(
+            select(ModerationState.id, ModerationState.object_type).where(
+                ModerationState.object_type.not_in(known_object_types)
+            )
+        ).all()
+        if unknown_type_states:
+            errors.append(f"ModerationStates with unknown object_type: {unknown_type_states}")
+
+        # Check resolved queue items point to log entries with resolving actions (APPROVE/HIDE, not CREATE/FLAG/UNFLAG)
+        resolving_actions = [ModerationAction.APPROVE, ModerationAction.HIDE]
+        invalid_resolved_actions = session.execute(
+            select(ModerationQueueItem.id, ModerationQueueItem.resolved_by_log_id, ModerationLog.action)
+            .join(ModerationLog, ModerationQueueItem.resolved_by_log_id == ModerationLog.id)
+            .where(ModerationQueueItem.resolved_by_log_id.is_not(None))
+            .where(ModerationLog.action.not_in(resolving_actions))
+        ).all()
+        if invalid_resolved_actions:
+            errors.append(f"Queue items resolved by non-resolving actions: {invalid_resolved_actions}")
+
+        # Check every ModerationState has at least one INITIAL_REVIEW queue item
+        # Skip items with ID < 2000000 as they were created before this check was introduced
+        states_without_initial_review = session.execute(
+            select(ModerationState.id, ModerationState.object_type, ModerationState.object_id).where(
+                ModerationState.id >= 2000000,
+                ~exists(
+                    select(1)
+                    .where(ModerationQueueItem.moderation_state_id == ModerationState.id)
+                    .where(ModerationQueueItem.trigger == ModerationTrigger.INITIAL_REVIEW)
+                ),
+            )
+        ).all()
+        if states_without_initial_review:
+            errors.append(f"ModerationStates without INITIAL_REVIEW queue item: {states_without_initial_review}")
+
+        # Check every ModerationState has a CREATE log entry
+        # Skip items with ID < 2000000 as they were created before this check was introduced
+        states_without_create_log = session.execute(
+            select(ModerationState.id, ModerationState.object_type, ModerationState.object_id).where(
+                ModerationState.id >= 2000000,
+                ~exists(
+                    select(1)
+                    .where(ModerationLog.moderation_state_id == ModerationState.id)
+                    .where(ModerationLog.action == ModerationAction.CREATE)
+                ),
+            )
+        ).all()
+        if states_without_create_log:
+            errors.append(f"ModerationStates without CREATE log entry: {states_without_create_log}")
+
+        # Check resolved queue items point to log entries for the same moderation state
+        resolved_item_log_mismatches = session.execute(
+            select(ModerationQueueItem.id, ModerationQueueItem.moderation_state_id, ModerationLog.moderation_state_id)
+            .join(ModerationLog, ModerationQueueItem.resolved_by_log_id == ModerationLog.id)
+            .where(ModerationQueueItem.resolved_by_log_id.is_not(None))
+            .where(ModerationQueueItem.moderation_state_id != ModerationLog.moderation_state_id)
+        ).all()
+        if resolved_item_log_mismatches:
+            errors.append(f"Resolved queue items with mismatched moderation_state_id: {resolved_item_log_mismatches}")
+
+        # Check every HOST_REQUEST ModerationState has exactly one HostRequest pointing to it
+        hr_states = (
+            session.execute(
+                select(ModerationState.id).where(ModerationState.object_type == ModerationObjectType.HOST_REQUEST)
+            )
+            .scalars()
+            .all()
+        )
+        for state_id in hr_states:
+            hr_count = session.execute(
+                select(func.count()).where(HostRequest.moderation_state_id == state_id)
+            ).scalar_one()
+            if hr_count != 1:
+                errors.append(f"ModerationState {state_id} (HOST_REQUEST) has {hr_count} HostRequests (expected 1)")
+
+        # Check every GROUP_CHAT ModerationState has exactly one GroupChat pointing to it
+        gc_states = (
+            session.execute(
+                select(ModerationState.id).where(ModerationState.object_type == ModerationObjectType.GROUP_CHAT)
+            )
+            .scalars()
+            .all()
+        )
+        for state_id in gc_states:
+            gc_count = session.execute(
+                select(func.count()).where(GroupChat.moderation_state_id == state_id)
+            ).scalar_one()
+            if gc_count != 1:
+                errors.append(f"ModerationState {state_id} (GROUP_CHAT) has {gc_count} GroupChats (expected 1)")
+
+        # Check ModerationState.object_id matches the actual object's ID
+        hr_object_id_mismatches = session.execute(
+            select(ModerationState.id, ModerationState.object_id, HostRequest.conversation_id)
+            .join(HostRequest, HostRequest.moderation_state_id == ModerationState.id)
+            .where(ModerationState.object_type == ModerationObjectType.HOST_REQUEST)
+            .where(ModerationState.object_id != HostRequest.conversation_id)
+        ).all()
+        if hr_object_id_mismatches:
+            errors.append(f"ModerationState object_id mismatch for HOST_REQUEST: {hr_object_id_mismatches}")
+
+        gc_object_id_mismatches = session.execute(
+            select(ModerationState.id, ModerationState.object_id, GroupChat.conversation_id)
+            .join(GroupChat, GroupChat.moderation_state_id == ModerationState.id)
+            .where(ModerationState.object_type == ModerationObjectType.GROUP_CHAT)
+            .where(ModerationState.object_id != GroupChat.conversation_id)
+        ).all()
+        if gc_object_id_mismatches:
+            errors.append(f"ModerationState object_id mismatch for GROUP_CHAT: {gc_object_id_mismatches}")
+
+        # Check reverse mapping: HostRequest's moderation_state points to correct ModerationState
+        hr_reverse_mismatches = session.execute(
+            select(
+                HostRequest.conversation_id,
+                HostRequest.moderation_state_id,
+                ModerationState.object_type,
+                ModerationState.object_id,
+            )
+            .join(ModerationState, HostRequest.moderation_state_id == ModerationState.id)
+            .where(
+                (ModerationState.object_type != ModerationObjectType.HOST_REQUEST)
+                | (ModerationState.object_id != HostRequest.conversation_id)
+            )
+        ).all()
+        if hr_reverse_mismatches:
+            errors.append(f"HostRequest points to ModerationState with wrong type/object_id: {hr_reverse_mismatches}")
+
+        # Check reverse mapping: GroupChat's moderation_state points to correct ModerationState
+        gc_reverse_mismatches = session.execute(
+            select(
+                GroupChat.conversation_id,
+                GroupChat.moderation_state_id,
+                ModerationState.object_type,
+                ModerationState.object_id,
+            )
+            .join(ModerationState, GroupChat.moderation_state_id == ModerationState.id)
+            .where(
+                (ModerationState.object_type != ModerationObjectType.GROUP_CHAT)
+                | (ModerationState.object_id != GroupChat.conversation_id)
+            )
+        ).all()
+        if gc_reverse_mismatches:
+            errors.append(f"GroupChat points to ModerationState with wrong type/object_id: {gc_reverse_mismatches}")
+
+        # Check notifications linked to VISIBLE/UNLISTED content have been processed
+        # When content becomes visible, handle_notification should create NotificationDelivery records.
+        # Notifications with moderation_state_id pointing to visible content but no delivery records are "hanging".
+        hanging_notifications = session.execute(
+            select(Notification.id, Notification.user_id, Notification.topic_action, ModerationState.visibility)
+            .join(ModerationState, Notification.moderation_state_id == ModerationState.id)
+            .where(ModerationState.visibility.in_([ModerationVisibility.VISIBLE, ModerationVisibility.UNLISTED]))
+            .where(~exists(select(1).where(NotificationDelivery.notification_id == Notification.id)))
+        ).all()
+        if hanging_notifications:
+            errors.append(
+                f"Notifications for VISIBLE/UNLISTED content without delivery records: {hanging_notifications}"
+            )
+
+        # Ensure auto-approve deadline isn't being exceeded by a significant margin
+        # The auto-approver runs every 15s, so allow 5 minutes grace before alerting
+        deadline_seconds = config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"]
+        if deadline_seconds > 0:
+            grace_period = timedelta(minutes=5)
+            stale_initial_review_items = session.execute(
+                select(
+                    ModerationQueueItem.id,
+                    ModerationQueueItem.moderation_state_id,
+                    ModerationQueueItem.time_created,
+                )
+                .where(ModerationQueueItem.trigger == ModerationTrigger.INITIAL_REVIEW)
+                .where(ModerationQueueItem.resolved_by_log_id.is_(None))
+                .where(ModerationQueueItem.time_created < now() - timedelta(seconds=deadline_seconds) - grace_period)
+            ).all()
+            if stale_initial_review_items:
+                errors.append(
+                    f"INITIAL_REVIEW items exceeding auto-approve deadline by >5min: {stale_initial_review_items}"
+                )
+
     if errors:
         raise DatabaseInconsistencyError("\n".join(errors))
 
 
 check_database_consistency.PAYLOAD = empty_pb2.Empty
 check_database_consistency.SCHEDULE = timedelta(hours=24)
+
+
+def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
+    """
+    Dead man's switch: auto-approves unresolved INITIAL_REVIEW items older than the deadline.
+    Items explicitly actioned by moderators are left alone.
+    """
+    deadline_seconds = config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"]
+    if deadline_seconds <= 0:
+        return
+
+    with session_scope() as session:
+        ctx = make_background_user_context(user_id=config["MODERATION_BOT_USER_ID"])
+
+        items = (
+            Moderation()
+            .GetModerationQueue(
+                request=moderation_pb2.GetModerationQueueReq(
+                    triggers=[moderation_pb2.MODERATION_TRIGGER_INITIAL_REVIEW],
+                    unresolved_only=True,
+                    page_size=100,
+                    created_before=Timestamp_from_datetime(now() - timedelta(seconds=deadline_seconds)),
+                ),
+                context=ctx,
+                session=session,
+            )
+            .queue_items
+        )
+
+        if not items:
+            return
+
+        logger.info(f"Auto-approving {len(items)} moderation queue items")
+        for item in items:
+            Moderation().ModerateContent(
+                request=moderation_pb2.ModerateContentReq(
+                    moderation_state_id=item.moderation_state_id,
+                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    reason=f"Auto-approved: moderation deadline of {deadline_seconds} seconds exceeded.",
+                ),
+                context=ctx,
+                session=session,
+            )
+        moderation_auto_approved_counter.inc(len(items))
+
+
+auto_approve_moderation_queue.PAYLOAD = empty_pb2.Empty
+auto_approve_moderation_queue.SCHEDULE = timedelta(seconds=15)

@@ -80,8 +80,9 @@ export default function Signup() {
           );
           router.push(signupRoute);
           return;
+        } finally {
+          setLoading(false);
         }
-        setLoading(false);
       }
     })();
     // next-router-mock router isn't memoized, so putting router in the dependencies

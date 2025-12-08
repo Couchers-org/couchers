@@ -1,7 +1,7 @@
 {
   "upload_photo": "2. Ajouter une photo (en cliquant sur l'avatar sur la page de modification)",
   "edit_profile_button_text": "Modifier votre profil",
-  "please_complete_profile": "Veuillez compléter votre profile afin d'apparaître dans les résultats de recherche :",
+  "please_complete_profile": "Veuillez compléter votre profil afin d'apparaître dans les résultats de recherche :",
   "complete_profile_dialog": {
     "description_1": "Avant de {{action_name}}, il faut <4>écrire un peu au sujet de vous</4> dans votre profile et <7>ajouter une photo de profile</7>.",
     "title": "Vous êtes presque là ; veuillez compléter votre profil afin de continuer !",
@@ -52,5 +52,6 @@
   "events_empty_state": "Aucun événement pour le moment. Pourquoi ne pas en <0>créer</0> un ✨ ?",
   "attendees_count_0": "{{count}} participant.e",
   "attendees_count_1": "{{count}} participant.e.s",
-  "attendees_count_2": "{{count}} participant.e.s"
+  "attendees_count_2": "{{count}} participant.e.s",
+  "find_your_community": "Trouvez votre communauté"
 }

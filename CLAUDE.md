@@ -71,6 +71,7 @@ make mypy
 - Use `session_scope()` for database access
 - Use fixtures from `test_fixtures.py` (e.g., `generate_user()`, `push_collector`)
 - Mock external APIs with `unittest.mock.patch`
+- Background jobs don't run automatically in tests - use `process_job()` to manually execute queued jobs
 
 ### Web Tests
 - Use fixture data from `test/fixtures/` when available

@@ -18,4 +18,6 @@ class Base(DeclarativeBase):
 
 
 communities_seq = Sequence("communities_seq")
+moderation_seq = Sequence("moderation_seq", start=2_000_000)
+
 Geom = WKBElement | WKTElement

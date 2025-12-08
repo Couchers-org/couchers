@@ -19,7 +19,7 @@ module.exports = {
   },
   fallbackLng,
   defaultNS: "global",
-  compatibilityJSON: "v3",
+  compatibilityJSON: "v4",
   debug: process.env.NODE_ENV === "development",
   ns: NAMESPACES,
   returnEmptyString: false,

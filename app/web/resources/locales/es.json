@@ -40,8 +40,9 @@
     "sign_up": "Regístrate",
     "legal_name": "Couchers, Inc.",
     "donation_banner": {
-        "message": "Couchers.org funciona gracias a la amabilidad, al igual que el couchsurfing. Esta temporada navideña ayúdanos a que siga siendo así. Estamos recaudando 5000$ para cubrir los costes de funcionamiento de Couchers.org.",
-        "button": "Dona ahora"
+        "message": "Couchers.org funciona gracias a la amabilidad, al igual que el couch surfing. Esta temporada navideña ayúdanos a que siga siendo así. Estamos recaudando 5000$ para cubrir los costes de funcionamiento de Couchers.org.",
+        "button": "Dona ahora",
+        "progress_label": "Progreso de las donaciones"
     },
     "thanks": "¡Gracias!",
     "error_loading_invite_codes": "No se pudieron obtener los detalles del código de invitación",

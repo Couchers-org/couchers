@@ -2,6 +2,16 @@
 
 set -e
 
+# Parse arguments
+SKIP_MEDIA=false
+for arg in "$@"; do
+  case $arg in
+    --skip-media)
+      SKIP_MEDIA=true
+      ;;
+  esac
+done
+
 pushd ..
 
 # we need the following vars from this .env file:
@@ -40,10 +50,14 @@ docker exec -i app-postgres-1 pg_dump -U postgres \
     aws s3 cp - s3://$AWS_BACKUP_BUCKET_NAME/db/dump-$backup_time.sql.zstd \
   && echo "Done."
 
-echo "Backing up user media..."
-sudo tar czf - data/media \
-  | AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
-    aws s3 cp - s3://$AWS_BACKUP_BUCKET_NAME/media/media-$backup_time.tar.gz \
-  && echo "Done."
+if [ "$SKIP_MEDIA" = true ]; then
+  echo "Skipping user media backup (--skip-media)"
+else
+  echo "Backing up user media..."
+  sudo tar czf - data/media \
+    | AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+      aws s3 cp - s3://$AWS_BACKUP_BUCKET_NAME/media/media-$backup_time.tar.gz \
+    && echo "Done."
+fi
 
 popd
