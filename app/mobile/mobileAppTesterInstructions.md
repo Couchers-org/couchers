@@ -5,6 +5,7 @@
 **Before you can test the app, you need to request be added as a tester.**
 
 Reach out to @aapeli or @nabramow and make sure to include:
+- Your first and last name
 - The email address associated with your Apple ID (for iOS testing)
 - The email address associated with your Google Play account (for Android testing)
 - These can be the same email or different emails
