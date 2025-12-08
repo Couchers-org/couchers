@@ -13,11 +13,10 @@
     },
     "production": {
       "autoIncrement": true,
-      "android": {
-        "image": "latest"
-      },
-      "ios": {
-        "image": "macos-sequoia-15.3-xcode-16.2"
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://api.couchers.org",
+        "EXPO_PUBLIC_WEB_BASE_URL": "https://couchers.org",
+        "EXPO_PUBLIC_COUCHERS_ENV": "prod"
       }
     }
   },
