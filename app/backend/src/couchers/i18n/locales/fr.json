@@ -1,6 +1,6 @@
 {
     "errors": {
-        "account_not_found": "Aucun compte avec ce nom d'utilisateur ou cet e-mail n'a été trouvé.",
+        "account_not_found": "Aucun compte avec ce nom d'utilisateur.trice ou ce mail n'a été trouvé.",
         "account_suspended": "Ton compte a été suspendu."
     }
 }
