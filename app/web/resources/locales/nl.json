@@ -110,7 +110,8 @@
         "label": "Een probleem doorgeven",
         "title": "Een probleem doorgeven",
         "bug": {
-            "button_label": "Een technisch probleem doorgeven"
+            "button_label": "Een technisch probleem doorgeven",
+            "title_label": "Titel van melding"
         }
     }
 }
