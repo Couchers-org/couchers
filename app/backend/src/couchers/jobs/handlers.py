@@ -1410,26 +1410,30 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
             errors.append(f"ModerationQueueItem author mismatch for GROUP_CHAT: {gc_author_mismatches}")
 
         # Check every ModerationState has at least one INITIAL_REVIEW queue item
+        # Skip items with ID < 2000000 as they were created before this check was introduced
         states_without_initial_review = session.execute(
             select(ModerationState.id, ModerationState.object_type, ModerationState.object_id).where(
+                ModerationState.id >= 2000000,
                 ~exists(
                     select(1)
                     .where(ModerationQueueItem.moderation_state_id == ModerationState.id)
                     .where(ModerationQueueItem.trigger == ModerationTrigger.INITIAL_REVIEW)
-                )
+                ),
             )
         ).all()
         if states_without_initial_review:
             errors.append(f"ModerationStates without INITIAL_REVIEW queue item: {states_without_initial_review}")
 
         # Check every ModerationState has a CREATE log entry
+        # Skip items with ID < 2000000 as they were created before this check was introduced
         states_without_create_log = session.execute(
             select(ModerationState.id, ModerationState.object_type, ModerationState.object_id).where(
+                ModerationState.id >= 2000000,
                 ~exists(
                     select(1)
                     .where(ModerationLog.moderation_state_id == ModerationState.id)
                     .where(ModerationLog.action == ModerationAction.CREATE)
-                )
+                ),
             )
         ).all()
         if states_without_create_log:

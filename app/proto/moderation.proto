@@ -15,7 +15,6 @@ service Moderation {
 
   rpc GetModerationLog(GetModerationLogReq) returns (GetModerationLogRes) {}
 
-  // Unified moderation action for hiding, shadowing, or approving content
   rpc ModerateContent(ModerateContentReq) returns (ModerateContentRes) {}
 
   rpc FlagContentForReview(FlagContentForReviewReq) returns (FlagContentForReviewRes) {}
@@ -23,14 +22,17 @@ service Moderation {
   rpc UnflagContent(UnflagContentReq) returns (UnflagContentRes) {}
 }
 
-// Unified Moderation System messages
 
 enum ModerationVisibility {
   MODERATION_VISIBILITY_UNSPECIFIED = 0;
-  MODERATION_VISIBILITY_HIDDEN = 1;      // Only visible to moderators
-  MODERATION_VISIBILITY_SHADOWED = 2;    // Visible to author & recipient, not in listings
-  MODERATION_VISIBILITY_VISIBLE = 3;     // Fully visible AND appears in listings
-  MODERATION_VISIBILITY_UNLISTED = 4;    // Visible at direct links, but not in listings
+  // Only visible to moderators
+  MODERATION_VISIBILITY_HIDDEN = 1;
+  // Visible to author & recipient, not in listings
+  MODERATION_VISIBILITY_SHADOWED = 2;
+  // Fully visible AND appears in listings
+  MODERATION_VISIBILITY_VISIBLE = 3;
+  // Visible at direct links, but not in listings
+  MODERATION_VISIBILITY_UNLISTED = 4;
 }
 
 enum ModerationTrigger {
@@ -61,8 +63,7 @@ message ModerationStateInfo {
   ModerationObjectType object_type = 2;
   int64 object_id = 3;
   ModerationVisibility visibility = 4;
-  reserved 5;  // removed: has_sent_notifications
-  google.protobuf.Timestamp created = 6;
+  google.protobuf.Timestamp created = 5;
   google.protobuf.Timestamp updated = 7;
 }
 
@@ -85,8 +86,7 @@ message ModerationLogEntryInfo {
   ModerationAction action = 4;
   int64 moderator_user_id = 5;
   ModerationVisibility new_visibility = 6;
-  reserved 7;  // removed: new_has_sent_notifications
-  string reason = 8;
+  string reason = 7;
 }
 
 message GetModerationQueueReq {
@@ -135,8 +135,10 @@ message GetModerationLogRes {
 
 message ModerateContentReq {
   int64 moderation_state_id = 1;
-  ModerationAction action = 2;  // Required: APPROVE, HIDE, etc.
-  ModerationVisibility visibility = 3;  // Required: VISIBLE, HIDDEN, SHADOWED, or UNLISTED
+  // Required
+  ModerationAction action = 2;
+  // Required
+  ModerationVisibility visibility = 3;
   string reason = 4;
 }
 
