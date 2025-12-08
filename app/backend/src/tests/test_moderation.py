@@ -32,6 +32,7 @@ from tests.test_fixtures import (  # noqa
     generate_user,
     mock_notification_email,
     moderator,
+    process_jobs,
     push_collector,
     real_moderation_session,
     requests_session,
@@ -384,21 +385,20 @@ def test_host_request_no_notification_before_approval(db, push_collector):
     today_plus_3 = (today() + timedelta(days=3)).isoformat()
 
     with requests_session(token1) as api:
-        with mock_notification_email() as mock:
-            host_request_id = api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id,
-                    from_date=today_plus_2,
-                    to_date=today_plus_3,
-                    text=valid_request_text(),
-                )
-            ).host_request_id
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
 
-    # No email notification should be sent
-    mock.assert_not_called()
+    # Process all jobs (including the notification job)
+    process_jobs()
 
     # No push notification should be sent yet (host requests are shadowed initially)
-    # push_collector.assert_user_has_no_pending_notifications(user2.id)
+    push_collector.assert_user_has_count(user2.id, 0)
 
 
 def test_shadowed_host_request_visible_to_author_only(db):
@@ -465,7 +465,7 @@ def test_approved_host_request_in_lists_and_notifications(db, push_collector):
     """Test that approved host requests appear in lists and send notifications"""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    moderator, moderator_token = generate_user(is_superuser=True)
+    mod, mod_token = generate_user(is_superuser=True)
 
     today_plus_2 = (today() + timedelta(days=2)).isoformat()
     today_plus_3 = (today() + timedelta(days=3)).isoformat()
@@ -480,6 +480,10 @@ def test_approved_host_request_in_lists_and_notifications(db, push_collector):
             )
         ).host_request_id
 
+    # Process the initial notification job - should be deferred (no notification sent)
+    process_jobs()
+    push_collector.assert_user_has_count(user2.id, 0)
+
     # Get the moderation state ID
     state_id = None
     with session_scope() as session:
@@ -489,7 +493,7 @@ def test_approved_host_request_in_lists_and_notifications(db, push_collector):
         state_id = host_request.moderation_state_id
 
     # Approve the host request via API
-    with real_moderation_session(moderator_token) as api:
+    with real_moderation_session(mod_token) as api:
         api.ModerateContent(
             moderation_pb2.ModerateContentReq(
                 moderation_state_id=state_id,
@@ -498,6 +502,9 @@ def test_approved_host_request_in_lists_and_notifications(db, push_collector):
                 reason="Looks good",
             )
         )
+
+    # Process the re-queued notification job - should now send notification
+    process_jobs()
 
     # Now surfer SHOULD see it in their sent list
     with requests_session(token1) as api:
@@ -511,10 +518,8 @@ def test_approved_host_request_in_lists_and_notifications(db, push_collector):
         assert len(res.host_requests) == 1
         assert res.host_requests[0].host_request_id == host_request_id
 
-    # TODO: When notification sending on approval is implemented, verify that
-    # host receives notification here
-    # For now, notifications are still suppressed until the approval system
-    # integrates with the notification system
+    # After approval, the host should have received a push notification
+    push_collector.assert_user_has_single_matching(user2.id, topic_action="host_request:create")
 
 
 def test_hidden_host_request_invisible_to_all(db):
