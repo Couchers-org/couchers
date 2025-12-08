@@ -107,6 +107,7 @@
         "does_not_want_to_meetup": "Kan niet afspreken"
     },
     "report": {
-        "label": "Rapporteer een probleem"
+        "label": "Een probleem doorgeven",
+        "title": "Een probleem doorgeven"
     }
 }

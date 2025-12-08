@@ -120,5 +120,8 @@
   "feedback_form": {
     "header": "Jouw mening telt",
     "skip_step_text": "Geen zin in? <2>Sla dan deze stap over</2>"
+  },
+  "jail": {
+    "title": "Meer informatie nodig"
   }
 }
