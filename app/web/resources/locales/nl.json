@@ -50,7 +50,14 @@
         "form_title": "Taal",
         "help_translate": "Help bij het vertalen van Couchers.",
         "success_message": "Jouw wijziging is opgeslagen.",
-        "select_language": "Taal uitkiezen"
+        "select_language": "Taal uitkiezen",
+        "error_loading_languages": "Taalopties konden niet worden opgehaald. Probeer het later nog eens.",
+        "translation_progress": {
+            "title": "Vertaalvoortgang",
+            "help_translate": "Help ons bij het vertalen van Couchers in jouw taal",
+            "loading": "Vertaalvoortgang aan het laden...",
+            "error_loading": "Vertaalvoortgang kon niet worden opgehaald"
+        }
     },
     "title": "titel",
     "create": "maken",
@@ -79,5 +86,9 @@
     "update": "updaten",
     "expand": "Uitklappen",
     "uses": "Gebruikt",
-    "learn_more": "Meer informatie"
+    "learn_more": "Meer informatie",
+    "donation_banner": {
+        "message": "Couchers.org draait op vriendelijkheid - net zoals couchsurfing zelf. Komende feestdagen kun je ons helpen dat zo te houden. We proberen $5000 in te zamelen om te kosten van Couchers.org te dekken.",
+        "button": "Doneer nu"
+    }
 }
