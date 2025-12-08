@@ -60,7 +60,12 @@
             "no_data": "Geen informatie over de vertalingen beschikbaar",
             "just_started": "Net begonnen",
             "early_stage": "In de beginfase",
-            "in_progress": "Wordt aan gewerkt"
+            "in_progress": "Wordt aan gewerkt",
+            "view_progress": "Vertaalvoortgang inzien",
+            "complete_percent": "{{percent}}% afgerond",
+            "midway": "Halverwege",
+            "complete": "Afgerond",
+            "almost_there": "Bijna klaar"
         }
     },
     "title": "titel",
