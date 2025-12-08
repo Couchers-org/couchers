@@ -43,17 +43,24 @@ Once you're added, you'll receive an invitation email within 24-48 hours.
 
 ## Android Testing (Google Play Internal Testing)
 
-### Step 1: Accept the Invitation
+### Step 1: Enable Internal App Sharing (One-Time Setup)
+1. Open **Play Store** on your Android device
+2. Tap your **profile picture** (top right) → **Settings**
+3. Tap **About** at the bottom
+4. Tap **Play Store version** seven times until you see "You are now a developer!"
+5. Go back to Settings → You'll now see **Internal app sharing** (turn it ON)
+
+### Step 2: Accept the Invitation
 1. You'll receive an email invitation to test the Couchers app
 2. Tap **"Become a tester"** in the email
 3. You'll be taken to the Google Play Store
 
-### Step 2: Install the App
+### Step 3: Install the App
 1. In the Play Store, tap **"Install"** or **"Update"**
 2. Wait for installation to complete
 3. Tap **"Open"**
 
-### Step 3: Open and Test
+### Step 4: Open and Test
 1. Open the **Couchers** app from your home screen
 2. Log in with your **production Couchers.org account** (same login as the website)
 3. Test the app and report any issues you find
@@ -176,7 +183,8 @@ Include:
 - ✅ Check spam/junk folder
 - ✅ Resend invitation from TestFlight
 
-### Android: "Can't access test"
+### Android: "Can't access test" or "App not installing"
+- ✅ Make sure **Internal app sharing** is enabled (see Step 1 above)
 - ✅ Make sure tester clicked the opt-in link
 - ✅ Check they're signed into correct Google account
 - ✅ Verify email is in the tester list
