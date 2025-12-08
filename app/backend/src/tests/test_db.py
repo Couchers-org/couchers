@@ -5,10 +5,14 @@ import subprocess
 from pathlib import Path
 
 import pytest
+from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
 from couchers.config import config
 from couchers.db import apply_migrations, get_parent_node_at_location, session_scope
+from couchers.jobs.handlers import DatabaseInconsistencyError, check_database_consistency
+from couchers.models import User
+from couchers.sql import couchers_select as select
 from couchers.utils import (
     is_valid_email,
     is_valid_name,
@@ -21,6 +25,7 @@ from tests.test_fixtures import (  # noqa
     create_schema_from_models,
     db,
     drop_database,
+    generate_user,
     run_migration_test,
     testconfig,
 )
@@ -213,3 +218,23 @@ def test_slugify(db):
             ).scalar_one()
             == "a-sentence-that-is-over-64-chars-long-and-where-the-last-thing"
         )
+
+
+def test_database_consistency_check(db, testconfig):
+    """The database consistency check should pass with valid user/gallery setup"""
+    # Create a few users (which auto-creates their profile galleries)
+    generate_user()
+    generate_user()
+    generate_user()
+
+    # This should not raise any exceptions
+    check_database_consistency(empty_pb2.Empty())
+
+    # Now break consistency by removing a user's profile gallery
+    with session_scope() as session:
+        user = session.execute(select(User).where(User.is_deleted == False).limit(1)).scalar_one()
+        user.profile_gallery_id = None
+
+    # This should now raise an exception
+    with pytest.raises(DatabaseInconsistencyError):
+        check_database_consistency(empty_pb2.Empty())
