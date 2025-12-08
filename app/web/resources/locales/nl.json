@@ -76,5 +76,8 @@
     "confirm": "Bevestigen",
     "copy": "Kopiëren",
     "copied": "Gekopieerd",
-    "update": "updaten"
+    "update": "updaten",
+    "expand": "Uitklappen",
+    "uses": "Aantal keer gebruikt",
+    "learn_more": "Meer informatie"
 }
