@@ -108,6 +108,9 @@
     },
     "report": {
         "label": "Een probleem doorgeven",
-        "title": "Een probleem doorgeven"
+        "title": "Een probleem doorgeven",
+        "bug": {
+            "button_label": "Rapporteer een technisch probleem"
+        }
     }
 }
