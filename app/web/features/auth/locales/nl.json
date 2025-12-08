@@ -122,6 +122,10 @@
     "skip_step_text": "Geen zin in? <2>Sla dan deze stap over</2>"
   },
   "jail": {
-    "title": "Meer informatie nodig"
+    "title": "Meer informatie nodig",
+    "description": "Controleer het volgende om door te gaan.",
+    "terms_of_service_section": {
+      "description": "We hebben onze Service voorwaarden veranderd, lees aandachtig en accepteer de nieuwe voorwaarden a.u.b. <1></1>."
+    }
   }
 }
