@@ -68,7 +68,7 @@
   "error_loading_users": "Erreur lors du chargement des utilisateurs.trices",
   "search_result": {
     "no_user_result_message": "Aucun membre trouvé. Essayez d'enlever des filtres pour plus de résultats.",
-    "show_user_button_label": "Montrer {{name}} sur la carte",
+    "show_user_button_label": "Montrez {{name}} sur la carte",
     "people_found_message": "{{currentRange}} de {{totalItems}} personnes"
   }
 }
