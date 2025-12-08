@@ -17,10 +17,12 @@ from couchers.models import (
     HostRequestStatus,
     Message,
     MessageType,
+    ModerationObjectType,
     Reference,
     ReferenceType,
     User,
 )
+from couchers.moderation.utils import create_moderation
 from couchers.proto import conversations_pb2, references_pb2, requests_pb2
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, now, to_aware_datetime, today
@@ -32,6 +34,7 @@ from tests.test_fixtures import (  # noqa
     make_friends,
     make_user_block,
     mock_notification_email,
+    moderator,
     push_collector,
     references_session,
     requests_session,
@@ -80,6 +83,14 @@ def create_host_request(
     )
     session.add(message)
     session.flush()
+
+    moderation_state = create_moderation(
+        session,
+        ModerationObjectType.HOST_REQUEST,
+        conversation.id,
+        surfer_user_id,
+    )
+
     host_request = HostRequest(
         conversation_id=conversation.id,
         surfer_user_id=surfer_user_id,
@@ -93,6 +104,7 @@ def create_host_request(
         hosting_city="Test City",
         hosting_location=create_coordinate(0, 0),
         hosting_radius=10,
+        moderation_state_id=moderation_state.id,
     )
     session.add(host_request)
     session.commit()
@@ -130,6 +142,15 @@ def create_host_request_by_date(
         text="Hi, I'm requesting to be hosted.",
         message_type=MessageType.text,
     )
+    session.add(message)
+    session.flush()
+
+    moderation_state = create_moderation(
+        session,
+        ModerationObjectType.HOST_REQUEST,
+        conversation.id,
+        surfer_user_id,
+    )
 
     host_request = HostRequest(
         conversation_id=conversation.id,
@@ -143,6 +164,7 @@ def create_host_request_by_date(
         hosting_city="Test City",
         hosting_location=create_coordinate(0, 0),
         hosting_radius=10,
+        moderation_state_id=moderation_state.id,
     )
 
     session.add(host_request)
@@ -1105,7 +1127,7 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
 
 
 @pytest.mark.parametrize("hs", ["host", "surfer"])
-def test_regression_disappearing_refs(db, hs):
+def test_regression_disappearing_refs(db, hs, moderator):
     """
     Roughly the reproduction steps are:
     * Send a host request, then have both host and surfer accept
@@ -1124,6 +1146,9 @@ def test_regression_disappearing_refs(db, hs):
             )
         )
         host_request_id = res.host_request_id
+
+        moderator.approve_host_request(host_request_id)
+
         assert (
             api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
             .host_requests[0]

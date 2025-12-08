@@ -52,6 +52,7 @@ from tests.test_fixtures import (  # noqa
     generate_user,
     make_friends,
     make_user_block,
+    moderator,
     process_jobs,
     push_collector,
     requests_session,
@@ -543,7 +544,7 @@ def test_send_message_notifications_basic(db):
         )
 
 
-def test_send_message_notifications_muted(db):
+def test_send_message_notifications_muted(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -568,6 +569,7 @@ def test_send_message_notifications_muted(db):
         group_chat_id = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
         ).group_chat_id
+    moderator.approve_group_chat(group_chat_id)
 
     with conversations_session(token3) as c:
         # mute it for user 3
@@ -583,6 +585,7 @@ def test_send_message_notifications_muted(db):
         group_chat_id = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
         ).group_chat_id
+        moderator.approve_group_chat(group_chat_id)
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 5"))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 6"))
 
@@ -627,7 +630,7 @@ def test_send_message_notifications_muted(db):
         )
 
 
-def test_send_request_notifications_host_request(db):
+def test_send_request_notifications_host_request(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -648,6 +651,7 @@ def test_send_request_notifications_host_request(db):
                 host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
             )
         ).host_request_id
+    moderator.approve_host_request(host_request_id)
 
     with session_scope() as session:
         # delete send_email BackgroundJob created by CreateHostRequest
@@ -718,7 +722,7 @@ def test_send_request_notifications_host_request(db):
         )
 
 
-def test_send_message_notifications_seen(db):
+def test_send_message_notifications_seen(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -739,6 +743,7 @@ def test_send_message_notifications_seen(db):
         group_chat_id = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
         ).group_chat_id
+        moderator.approve_group_chat(group_chat_id)
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 3"))
@@ -1233,7 +1238,7 @@ def test_update_badges(db, push_collector):
     )
 
 
-def test_send_request_notifications_blocked_users_no_notification(db):
+def test_send_request_notifications_blocked_users_no_notification(db, moderator):
     """
     Regression test: send_request_notifications should not send notifications
     when the host and surfer are not visible to each other (e.g., one blocked the other).
@@ -1251,6 +1256,7 @@ def test_send_request_notifications_blocked_users_no_notification(db):
                 host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
             )
         ).host_request_id
+    moderator.approve_host_request(host_request_id)
 
     with session_scope() as session:
         # delete send_email BackgroundJob created by CreateHostRequest

@@ -114,6 +114,10 @@ CONFIG_OPTIONS: CONFIG_T = [
     # Statsig SDK configuration
     ("STATSIG_SERVER_SECRET_KEY", str, ""),
     ("STATSIG_ENVIRONMENT", str, "development"),
+    # Moderation auto-approval deadline in seconds (0 to disable auto-approval)
+    ("MODERATION_AUTO_APPROVE_DEADLINE_SECONDS", int),
+    # User ID of the bot user for automated moderation actions
+    ("MODERATION_BOT_USER_ID", int),
 ]
 
 

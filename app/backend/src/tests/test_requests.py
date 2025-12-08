@@ -4,7 +4,6 @@ from urllib.parse import parse_qs, urlparse
 
 import grpc
 import pytest
-from sqlalchemy.sql import select
 
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.crypto import b64decode
@@ -33,6 +32,7 @@ from tests.test_fixtures import (  # noqa
     email_fields,
     generate_user,
     mock_notification_email,
+    moderator,
     push_collector,
     requests_session,
     testconfig,
@@ -54,7 +54,7 @@ def valid_request_text(text: str = "Test request") -> str:
     return text + ("_" * padding_length)  # Each "_" adds one utf16 code unit.
 
 
-def test_create_request(db):
+def test_create_request(db, moderator):
     user1, token1 = generate_user()
     hosting_city = "Morningside Heights, New York City"
     hosting_lat = 40.8086
@@ -143,7 +143,11 @@ def test_create_request(db):
                 text=valid_request_text(),
             )
         )
+        host_request_id = res.host_request_id
 
+    moderator.approve_host_request(host_request_id)
+
+    with requests_session(token1) as api:
         host_requests = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True)).host_requests
 
         assert len(host_requests) == 1
@@ -313,7 +317,7 @@ def test_GetHostRequest(db):
         assert res.latest_message.text.text == "Test message 1"
 
 
-def test_ListHostRequests(db):
+def test_ListHostRequests(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -338,6 +342,10 @@ def test_ListHostRequests(db):
             )
         ).host_request_id
 
+    moderator.approve_host_request(host_request_1)
+    moderator.approve_host_request(host_request_2)
+
+    with requests_session(token1) as api:
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
         assert res.no_more
         assert len(res.host_requests) == 2
@@ -358,14 +366,16 @@ def test_ListHostRequests(db):
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
         assert res.host_requests[0].latest_message.text.text == "Test request 1 message 3"
 
-        api.CreateHostRequest(
+        host_request_3 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user1.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text("Test request 3"),
             )
-        )
+        ).host_request_id
+
+    moderator.approve_host_request(host_request_3)
 
     add_message(db, "Test request 2 message 1", user1.id, host_request_2)
     add_message(db, "Test request 2 message 2", user3.id, host_request_2)
@@ -384,7 +394,7 @@ def test_ListHostRequests(db):
         assert len(res.host_requests) == 3
 
 
-def test_ListHostRequests_pagination_regression(db):
+def test_ListHostRequests_pagination_regression(db, moderator):
     """
     ListHostRequests was skipping a request when getting multiple pages
     """
@@ -419,6 +429,10 @@ def test_ListHostRequests_pagination_regression(db):
                 text=valid_request_text("Test request 3"),
             )
         ).host_request_id
+
+    moderator.approve_host_request(host_request_1)
+    moderator.approve_host_request(host_request_2)
+    moderator.approve_host_request(host_request_3)
 
     with requests_session(token2) as api:
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
@@ -478,7 +492,7 @@ def test_ListHostRequests_pagination_regression(db):
         assert res.host_requests[0].latest_message.text.text == "Accepting host request 2"
 
 
-def test_ListHostRequests_active_filter(db):
+def test_ListHostRequests_active_filter(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     today_plus_2 = (today() + timedelta(days=2)).isoformat()
@@ -493,6 +507,10 @@ def test_ListHostRequests_active_filter(db):
                 text=valid_request_text("Test request 1"),
             )
         ).host_request_id
+
+    moderator.approve_host_request(request_id)
+
+    with requests_session(token1) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
@@ -506,7 +524,7 @@ def test_ListHostRequests_active_filter(db):
         assert len(res.host_requests) == 0
 
 
-def test_RespondHostRequests(db):
+def test_RespondHostRequests(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -522,6 +540,8 @@ def test_RespondHostRequests(db):
                 text=valid_request_text("Test request 1"),
             )
         ).host_request_id
+
+    moderator.approve_host_request(request_id)
 
     # another user can't access
     with requests_session(token3) as api:
@@ -636,7 +656,7 @@ def test_RespondHostRequests(db):
         assert res.messages[6].WhichOneof("content") == "chat_created"
 
 
-def test_get_host_request_messages(db):
+def test_get_host_request_messages(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     today_plus_2 = (today() + timedelta(days=2)).isoformat()
@@ -651,6 +671,8 @@ def test_get_host_request_messages(db):
             )
         )
         conversation_id = res.host_request_id
+
+    moderator.approve_host_request(conversation_id)
 
     add_message(db, "Test request 1 message 1", user1.id, conversation_id)
     add_message(db, "Test request 1 message 2", user1.id, conversation_id)
@@ -706,7 +728,7 @@ def test_get_host_request_messages(db):
         assert res.messages[5].WhichOneof("content") == "chat_created"
 
 
-def test_SendHostRequestMessage(db):
+def test_SendHostRequestMessage(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -722,6 +744,9 @@ def test_SendHostRequestMessage(db):
             )
         ).host_request_id
 
+    moderator.approve_host_request(host_request_id)
+
+    with requests_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.SendHostRequestMessage(
                 requests_pb2.SendHostRequestMessageReq(host_request_id=999, text="Test message 1")
@@ -795,7 +820,7 @@ def test_SendHostRequestMessage(db):
         )
 
 
-def test_get_updates(db):
+def test_get_updates(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -811,6 +836,9 @@ def test_get_updates(db):
             )
         ).host_request_id
 
+    moderator.approve_host_request(host_request_id)
+
+    with requests_session(token1) as api:
         api.SendHostRequestMessage(
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
         )
@@ -876,7 +904,7 @@ def test_get_updates(db):
         assert len(res.updates) == 0
 
 
-def test_archive_host_request(db):
+def test_archive_host_request(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -899,6 +927,9 @@ def test_archive_host_request(db):
         api.SendHostRequestMessage(
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 2")
         )
+
+    moderator.approve_host_request(host_request_id)
+
     # happy path archiving host request
     with requests_session(token1) as api:
         api.RespondHostRequest(
@@ -918,7 +949,7 @@ def test_archive_host_request(db):
         assert len(res.host_requests) == 1
 
 
-def test_mark_last_seen(db):
+def test_mark_last_seen(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -943,6 +974,10 @@ def test_mark_last_seen(db):
             )
         ).host_request_id
 
+    moderator.approve_host_request(host_request_id)
+    moderator.approve_host_request(host_request_id_2)
+
+    with requests_session(token1) as api:
         api.SendHostRequestMessage(
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
         )
@@ -956,6 +991,9 @@ def test_mark_last_seen(db):
                 text="Test message 3",
             )
         )
+
+    moderator.approve_host_request(host_request_id)
+    moderator.approve_host_request(host_request_id_2)
 
     # test Ping unseen host request count, should be automarked after sending
     with api_session(token1) as api:
@@ -992,6 +1030,9 @@ def test_mark_last_seen(db):
             )
         ).host_request_id
 
+    moderator.approve_host_request(host_request_id_3)
+
+    with requests_session(token2) as api:
         # this should make id_2 all read
         api.SendHostRequestMessage(
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id_2, text="Test")
@@ -1012,7 +1053,7 @@ def test_mark_last_seen(db):
         assert api.Ping(api_pb2.PingReq()).unseen_sent_host_request_count == 1
 
 
-def test_response_rate(db):
+def test_response_rate(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user(delete_user=True)
@@ -1043,6 +1084,7 @@ def test_response_rate(db):
                 text=valid_request_text("Test request"),
             )
         ).host_request_id
+        moderator.approve_host_request(host_request_1)
         with session_scope() as session:
             session.execute(
                 select(Message)
@@ -1064,6 +1106,7 @@ def test_response_rate(db):
                 text=valid_request_text("Test request"),
             )
         ).host_request_id
+        moderator.approve_host_request(host_request_2)
         with session_scope() as session:
             session.execute(
                 select(Message)
@@ -1085,6 +1128,7 @@ def test_response_rate(db):
                 text=valid_request_text("Test request"),
             )
         ).host_request_id
+        moderator.approve_host_request(host_request_3)
         with session_scope() as session:
             session.execute(
                 select(Message)
@@ -1165,6 +1209,7 @@ def test_response_rate(db):
                 text=valid_request_text("Test request"),
             )
         ).host_request_id
+        moderator.approve_host_request(host_request_4)
         with session_scope() as session:
             session.execute(
                 select(Message)
@@ -1182,6 +1227,7 @@ def test_response_rate(db):
                 text=valid_request_text("Test request"),
             )
         ).host_request_id
+        moderator.approve_host_request(host_request_5)
         with session_scope() as session:
             session.execute(
                 select(Message)
@@ -1236,7 +1282,7 @@ def test_response_rate(db):
         assert res.almost_all.response_time_p66.ToTimedelta() == timedelta(hours=35)
 
 
-def test_request_notifications(db, push_collector):
+def test_request_notifications(db, push_collector, moderator):
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
@@ -1244,15 +1290,17 @@ def test_request_notifications(db, push_collector):
     today_plus_3 = (today() + timedelta(days=3)).isoformat()
 
     with requests_session(surfer_token) as api:
-        with mock_notification_email() as mock:
-            hr_id = api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=host.id,
-                    from_date=today_plus_2,
-                    to_date=today_plus_3,
-                    text=valid_request_text("can i stay plz"),
-                )
-            ).host_request_id
+        hr_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("can i stay plz"),
+            )
+        ).host_request_id
+
+    with mock_notification_email() as mock:
+        moderator.approve_host_request(hr_id)
 
     mock.assert_called_once()
     e = email_fields(mock)
@@ -1310,7 +1358,7 @@ def test_request_notifications(db, push_collector):
     )
 
 
-def test_quick_decline(db, push_collector):
+def test_quick_decline(db, push_collector, moderator):
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
@@ -1318,15 +1366,17 @@ def test_quick_decline(db, push_collector):
     today_plus_3 = (today() + timedelta(days=3)).isoformat()
 
     with requests_session(surfer_token) as api:
-        with mock_notification_email() as mock:
-            hr_id = api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=host.id,
-                    from_date=today_plus_2,
-                    to_date=today_plus_3,
-                    text=valid_request_text("can i stay plz"),
-                )
-            ).host_request_id
+        hr_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("can i stay plz"),
+            )
+        ).host_request_id
+
+    with mock_notification_email() as mock:
+        moderator.approve_host_request(hr_id)
 
     mock.assert_called_once()
     e = email_fields(mock)
@@ -1380,7 +1430,7 @@ def test_quick_decline(db, push_collector):
         assert res.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED
 
 
-def test_host_req_feedback(db):
+def test_host_req_feedback(db, moderator):
     host, host_token = generate_user(complete_profile=True)
     host2, host2_token = generate_user(complete_profile=True)
     host3, host3_token = generate_user(complete_profile=True)
@@ -1414,6 +1464,10 @@ def test_host_req_feedback(db):
                 text=valid_request_text("can i stay plz"),
             )
         ).host_request_id
+
+    moderator.approve_host_request(hr_id)
+    moderator.approve_host_request(hr2_id)
+    moderator.approve_host_request(hr3_id)
 
     with requests_session(host_token) as api:
         res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=hr_id))

@@ -28,6 +28,7 @@ from couchers.proto import (
     iris_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
+    moderation_pb2_grpc,
     notifications_pb2_grpc,
     pages_pb2_grpc,
     postal_verification_pb2_grpc,
@@ -57,6 +58,7 @@ from couchers.servicers.gis import GIS
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
+from couchers.servicers.moderation import Moderation
 from couchers.servicers.notifications import Notifications
 from couchers.servicers.pages import Pages
 from couchers.servicers.postal_verification import PostalVerification
@@ -83,6 +85,7 @@ def create_main_server(port: int) -> grpc.Server:
     account_pb2_grpc.add_AccountServicer_to_server(Account(), server)
     admin_pb2_grpc.add_AdminServicer_to_server(Admin(), server)
     api_pb2_grpc.add_APIServicer_to_server(API(), server)
+    moderation_pb2_grpc.add_ModerationServicer_to_server(Moderation(), server)
     auth_pb2_grpc.add_AuthServicer_to_server(Auth(), server)
     blocking_pb2_grpc.add_BlockingServicer_to_server(Blocking(), server)
     bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), server)

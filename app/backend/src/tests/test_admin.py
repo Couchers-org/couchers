@@ -33,6 +33,7 @@ from tests.test_fixtures import (  # noqa
     real_admin_session,
     references_session,
     reporting_session,
+    requests_session,
     testconfig,
 )
 
