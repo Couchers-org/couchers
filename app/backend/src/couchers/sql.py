@@ -146,20 +146,21 @@ class CouchersSelect(Select[Any]):
         is_list_operation: bool = False,
     ) -> Self:
         aliased_mod_state = aliased(ModerationState)
-        if is_list_operation:
-            conditions = [aliased_mod_state.visibility == ModerationVisibility.VISIBLE]
-        else:
-            conditions = [
-                aliased_mod_state.visibility == ModerationVisibility.VISIBLE,
-                aliased_mod_state.visibility == ModerationVisibility.UNLISTED,
-            ]
-            if context.is_logged_in():
-                conditions.append(
-                    and_(
-                        aliased_mod_state.visibility == ModerationVisibility.SHADOWED,
-                        getattr(table, table.__moderation_author_column__) == context.user_id,
-                    )
+        conditions = [aliased_mod_state.visibility == ModerationVisibility.VISIBLE]
+
+        # UNLISTED content is visible in single-item operations but not in lists
+        if not is_list_operation:
+            conditions.append(aliased_mod_state.visibility == ModerationVisibility.UNLISTED)
+
+        # Authors can always see their own SHADOWED content
+        if context.is_logged_in():
+            conditions.append(
+                and_(
+                    aliased_mod_state.visibility == ModerationVisibility.SHADOWED,
+                    getattr(table, table.__moderation_author_column__) == context.user_id,
                 )
+            )
+
         return self.join(aliased_mod_state, aliased_mod_state.id == table.moderation_state_id).where(or_(*conditions))
 
     def where_moderation_state_column_visible(
