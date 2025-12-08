@@ -1,7 +1,7 @@
 import logging
 
 import grpc
-from sqlalchemy import exists, not_
+from sqlalchemy import and_, exists, not_, or_
 
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import (
@@ -180,21 +180,22 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             statement = statement.where(ModerationQueueItem.time_created > created_after)
 
         if request.item_author_user_id:
-            # Filter by author - need to join with moderated objects to check author
-            # Build a subquery of moderation_state_ids that match the author
             author_user_id = request.item_author_user_id
 
-            # Get host request states where surfer (author) matches
-            hr_states = select(HostRequest.moderation_state_id).where(HostRequest.surfer_user_id == author_user_id)
-
-            # Get group chat states where creator (author) matches
-            gc_states = select(GroupChat.moderation_state_id).where(GroupChat.creator_id == author_user_id)
-
-            # Combine them - moderation_state_id must be in either list
-            statement = statement.where(
-                ModerationQueueItem.moderation_state_id.in_(hr_states)
-                | ModerationQueueItem.moderation_state_id.in_(gc_states)
+            # Use EXISTS for efficient author filtering
+            hr_exists = exists().where(
+                and_(
+                    HostRequest.moderation_state_id == ModerationQueueItem.moderation_state_id,
+                    HostRequest.surfer_user_id == author_user_id,
+                )
             )
+            gc_exists = exists().where(
+                and_(
+                    GroupChat.moderation_state_id == ModerationQueueItem.moderation_state_id,
+                    GroupChat.creator_id == author_user_id,
+                )
+            )
+            statement = statement.where(or_(hr_exists, gc_exists))
 
         # Order by time created
         if request.newest_first:
