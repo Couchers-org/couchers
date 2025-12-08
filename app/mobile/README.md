@@ -63,7 +63,20 @@ If you are testing on a device where you don't have the phone, you can set up a 
 
    We use local builds for development because they're free and faster to iterate on. They compile the native app directly on your machine. Pods are installed automatically on first build.
 
-   > **Physical device?** Connect mobile phone to computer via USB cable, enable developer mode, and be in the Apple Developer team. Run `npx expo run:ios --device`. After the initial install, you can disconnect and run wirelessly.
+   > **Physical device?** You'll need to be added to the Apple Developer team (contact @aapeli) and configure code signing in Xcode:
+   >
+   > 1. Open the workspace in Xcode:
+   >    ```bash
+   >    open ios/Couchers.xcworkspace  # ⚠️ Use .xcworkspace, NOT .xcodeproj
+   >    ```
+   > 2. Select the **Couchers** project (blue icon) → **Couchers** target → **Signing & Capabilities** tab
+   > 3. Check **"Automatically manage signing"** and select your **Team** (sign in with your Apple ID if needed)
+   > 4. Verify Bundle Identifier is `com.couchersorg.mobile` (or use a unique ID like `com.yourname.couchers` for personal testing)
+   > 5. Connect your device via USB, enable developer mode, then run:
+   >    ```bash
+   >    npx expo run:ios --device
+   >    ```
+   >    After initial install, you can disconnect and develop wirelessly. Note: You may be prompted for your password up to 3 times during the build.
 
 ## Development
 
