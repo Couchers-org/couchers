@@ -63,7 +63,7 @@ If you are testing on a device where you don't have the phone, you can set up a 
 
    We use local builds for development because they're free and faster to iterate on. They compile the native app directly on your machine. Pods are installed automatically on first build.
 
-   > **Physical device?** You'll need to configure code signing in Xcode first:
+   > **Physical device?** You'll need to be added to the Apple Developer team (contact @aapeli) and configure code signing in Xcode:
    >
    > 1. Open the workspace in Xcode:
    >    ```bash
