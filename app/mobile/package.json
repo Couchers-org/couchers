@@ -6,6 +6,7 @@
     "start": "expo start",
     "start:localhost": "expo start --localhost",
     "build:protos": "bash ./ci-build-protos.sh",
+    "eas-build-post-install": "npm run build:protos",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
