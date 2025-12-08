@@ -13,8 +13,60 @@
     "last_year": "L'année dernière"
   },
   "form": {
-    "missing_location_validation_error": "Spécifiez un endroit pour utiliser ce filtre"
+    "missing_location_validation_error": "Spécifiez un endroit pour utiliser ce filtre",
+    "location_field_label": "Proche de",
+    "keywords": {
+      "field_label": "Nom, mots clés, ou nom d'utilisateur",
+      "clear_field_action_a11y_label": "Effacer la recherche",
+      "search_this_keyword_a11y_label": "Rechercher ce mot-clé"
+    },
+    "by_keyword_filter_label": "Par mot-clé ou nom",
+    "host_filters": {
+      "last_active_field_label": "Dernière connexion",
+      "age": {
+        "field_label": "Âge de l'hôte",
+        "min_age": "Âge minimum",
+        "max_age": "Âge maximum"
+      },
+      "hosting_status_field_label": "Disponibilité pour héberger",
+      "meetup_status_field_label": "Disponibilité pour rencontres",
+      "complete_profiles_label": "Profils complets"
+    },
+    "accommodation_filters": {
+      "title": "Filtres d'hébergement",
+      "sleeping_arrangement_filters": {
+        "shared_room": {
+          "label": "Chambre partagée"
+        },
+        "private": {
+          "label": "Espace privé",
+          "description": " - propre chambre ou similaire"
+        },
+        "common": {
+          "label": "Pièce commune",
+          "description": " - par ex. canapé dans le salon"
+        }
+      }
+    },
+    "empty_profile_filters": {
+      "title": "Afficher les profils vides"
+    },
+    "general_filters": {
+      "has_references": "A des références"
+    },
+    "rules": {
+      "alcohol_allowed": "Alcool permis",
+      "kids_allowed": "Enfants permis",
+      "smokes_at_home": "Fume à la maison",
+      "pets_allowed": "Animaux de compagnie permis",
+      "title": "Règles"
+    },
+    "submit_button_label": "Appliquer",
+    "search_filters": "Filtres de recherche"
   },
   "choose_search_criteria": "Saisissez un lieu ou appliquez un filtre pour rechercher.",
-  "error_loading_users": "Erreur lors du chargement des utilisateurs.trices"
+  "error_loading_users": "Erreur lors du chargement des utilisateurs.trices",
+  "search_result": {
+    "no_user_result_message": "Aucun utilisateur trouvé. Essayez d'enlever des filtres pour plus de résultats."
+  }
 }
