@@ -81,3 +81,107 @@ Include:
 - Screenshots if possible
 - Your device model and OS version
 
+---
+
+# Admin Instructions: Adding Testers
+
+*The following section is for admins (@aapeli, @nabramow) who need to add new testers.*
+
+## Adding iOS Testers (TestFlight)
+
+### Step 1: Go to App Store Connect
+1. Navigate to: https://appstoreconnect.apple.com/
+2. Sign in with your Apple ID
+3. Click **"My Apps"**
+4. Select **"Couchers.org"** (bundle ID: `org.couchers.ios`)
+
+### Step 2: Navigate to TestFlight
+1. Click the **"TestFlight"** tab at the top
+2. In the left sidebar, under "Internal Testing", click on a test group
+   - If no group exists, create one by clicking the **"+"** button next to "Internal Testing"
+
+### Step 3: Add Testers
+1. Click **"Testers"** (or the **"+"** button)
+2. Click **"Add Testers"**
+3. Enter the tester's:
+   - **First Name**
+   - **Last Name**
+   - **Email** (must be their Apple ID email)
+4. Click **"Add"**
+
+### Step 4: Assign to Build
+1. Make sure the test group has the latest build assigned
+2. Testers will automatically receive an email invitation to test
+
+### Notes for iOS
+- **Internal testers** (Apple Developer team members): Up to 100 testers, no review needed
+- **External testers** (anyone): Up to 10,000 testers, requires Apple's review (1-2 days)
+- Testers must have TestFlight app installed on their iOS device
+
+---
+
+## Adding Android Testers (Google Play Internal Testing)
+
+### Step 1: Go to Google Play Console
+1. Navigate to: https://play.google.com/console
+2. Sign in with your Google account
+3. Select **"Couchers"** app (package: `org.couchers.android`)
+
+### Step 2: Navigate to Internal Testing
+1. In the left sidebar, go to **"Testing" → "Internal testing"**
+2. Scroll down to the **"Testers"** section
+
+### Step 3: Create or Edit Email List
+1. Click **"Create email list"** (or edit existing list)
+2. Give it a name (e.g., "Internal Testers")
+3. Add tester email addresses:
+   - Enter emails one per line, or
+   - Upload a CSV file with emails
+4. Click **"Save changes"**
+
+### Step 4: Make Release Available
+1. Make sure you have a release in the "Internal testing" track
+2. The testers will see a shareable link they can use to opt-in
+
+### Step 5: Share the Opt-In Link
+1. In the "Testers" section, you'll see a **"Copy link"** button
+2. Copy the opt-in link
+3. Send this link to your testers via email/Slack/etc.
+
+**Alternatively:** Testers can be added automatically if they're in the email list and you have auto-enrollment enabled.
+
+### Notes for Android
+- **Internal testing**: Up to 100 testers
+- Testers need a Google account and must opt-in via the link
+- No review required for internal testing
+
+---
+
+## Quick Reference
+
+| Platform | Max Testers | Review Required? | Email Required |
+|----------|-------------|------------------|----------------|
+| iOS Internal | 100 | No | Apple ID email |
+| iOS External | 10,000 | Yes (1-2 days) | Any email |
+| Android Internal | 100 | No | Google account email |
+| Android Beta | Unlimited | No | Google account email |
+
+---
+
+## Common Issues
+
+### iOS: "Tester not receiving invite"
+- ✅ Check email is correct Apple ID
+- ✅ Check spam/junk folder
+- ✅ Resend invitation from TestFlight
+
+### Android: "Can't access test"
+- ✅ Make sure tester clicked the opt-in link
+- ✅ Check they're signed into correct Google account
+- ✅ Verify email is in the tester list
+
+### Both: "Build not showing up"
+- ✅ Wait for build processing (can take 10-30 min)
+- ✅ Check build was successfully submitted
+- ✅ Check tester group has build assigned
+
