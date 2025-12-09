@@ -229,6 +229,7 @@ def test_do_not_email_security(db):
                 session,
                 user_id=user.id,
                 topic_action="password_reset:start",
+                key="",
                 data=notification_data_pb2.PasswordResetStart(
                     password_reset_token=password_reset_token,
                 ),
@@ -290,6 +291,7 @@ def test_email_prefix_config(db, monkeypatch):
                 session,
                 user_id=user.id,
                 topic_action="donation:received",
+                key="",
                 data=notification_data_pb2.DonationReceived(
                     amount=20,
                     receipt_url="https://example.com/receipt/12345",
@@ -315,6 +317,7 @@ def test_email_prefix_config(db, monkeypatch):
                 session,
                 user_id=user.id,
                 topic_action="donation:received",
+                key="",
                 data=notification_data_pb2.DonationReceived(
                     amount=20,
                     receipt_url="https://example.com/receipt/12345",
@@ -341,6 +344,7 @@ def test_send_donation_email(db, monkeypatch):
             session,
             user_id=user.id,
             topic_action="donation:received",
+            key="",
             data=notification_data_pb2.DonationReceived(
                 amount=20,
                 receipt_url="https://example.com/receipt/12345",

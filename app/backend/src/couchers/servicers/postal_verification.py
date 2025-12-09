@@ -294,6 +294,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
                 session,
                 user_id=context.user_id,
                 topic_action="postal_verification:failed",
+                key="",
                 data=notification_data_pb2.PostalVerificationFailed(
                     reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED
                 ),
@@ -314,6 +315,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
                     session,
                     user_id=context.user_id,
                     topic_action="postal_verification:failed",
+                    key="",
                     data=notification_data_pb2.PostalVerificationFailed(
                         reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS
                     ),
@@ -336,6 +338,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
             session,
             user_id=context.user_id,
             topic_action="postal_verification:success",
+            key="",
         )
 
         return postal_verification_pb2.VerifyPostalCodeRes(

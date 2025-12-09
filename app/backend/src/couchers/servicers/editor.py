@@ -68,6 +68,7 @@ def generate_new_blog_post_notifications(payload: jobs_pb2.GenerateNewBlogPostNo
                 session,
                 user_id=user_id,
                 topic_action="general:new_blog_post",
+                key=payload.url,
                 data=notification_data_pb2.GeneralNewBlogPost(
                     url=payload.url,
                     title=payload.title,

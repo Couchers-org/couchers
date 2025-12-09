@@ -299,6 +299,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                 session,
                 user_id=user.id,
                 topic_action="chat:missed_messages",
+                key="",
                 data=notification_data_pb2.ChatMissedMessages(
                     messages=[
                         notification_data_pb2.ChatMessage(
@@ -568,6 +569,7 @@ def send_reference_reminders(payload: empty_pb2.Empty) -> None:
                     session,
                     user_id=user.id,
                     topic_action="reference:reminder_surfed" if surfed else "reference:reminder_hosted",
+                    key=host_request.conversation_id,
                     data=notification_data_pb2.ReferenceReminder(
                         host_request_id=host_request.conversation_id,
                         other_user=user_model_to_pb(other_user, session, context),
@@ -614,6 +616,7 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
                 session,
                 user_id=host_request.host_user_id,
                 topic_action="host_request:reminder",
+                key=host_request.conversation_id,
                 data=notification_data_pb2.HostRequestReminder(
                     host_request=host_request_to_pb(host_request, session, context),
                     surfer=user_model_to_pb(host_request.surfer, session, context),
@@ -946,6 +949,7 @@ def finalize_strong_verification(payload: "jobs_pb2.FinalizeStrongVerificationPa
                 session,
                 user_id=verification_attempt.user_id,
                 topic_action="verification:sv_fail",
+                key="",
                 data=notification_data_pb2.VerificationSVFail(
                     reason=notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT
                 ),
@@ -983,6 +987,7 @@ def finalize_strong_verification(payload: "jobs_pb2.FinalizeStrongVerificationPa
                 session,
                 user_id=verification_attempt.user_id,
                 topic_action="verification:sv_fail",
+                key="",
                 data=notification_data_pb2.VerificationSVFail(reason=notification_data_pb2.SV_FAIL_REASON_DUPLICATE),
             )
             return
@@ -1008,12 +1013,13 @@ def finalize_strong_verification(payload: "jobs_pb2.FinalizeStrongVerificationPa
                 return
 
             user_add_badge(session, user.id, badge_id, do_notify=False)
-            notify(session, user_id=verification_attempt.user_id, topic_action="verification:sv_success")
+            notify(session, user_id=verification_attempt.user_id, topic_action="verification:sv_success", key="")
         else:
             notify(
                 session,
                 user_id=verification_attempt.user_id,
                 topic_action="verification:sv_fail",
+                key="",
                 data=notification_data_pb2.VerificationSVFail(
                     reason=notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER
                 ),
@@ -1188,6 +1194,7 @@ def send_event_reminders(payload: empty_pb2.Empty) -> None:
                     session,
                     user_id=user.id,
                     topic_action="event:reminder",
+                    key=occurrence.id,
                     data=notification_data_pb2.EventReminder(
                         event=event_to_pb(session, occurrence, context),
                         user=user_model_to_pb(user, session, context),
@@ -1319,6 +1326,7 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
                 session,
                 user_id=attempt.user_id,
                 topic_action="postal_verification:postcard_sent",
+                key="",
                 data=notification_data_pb2.PostalVerificationPostcardSent(
                     city=attempt.city,
                     country=attempt.country,
