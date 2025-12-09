@@ -12,10 +12,23 @@
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://api.couchers.org",
+        "EXPO_PUBLIC_WEB_BASE_URL": "https://couchers.org",
+        "EXPO_PUBLIC_COUCHERS_ENV": "prod"
+      }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "ascAppId": "6623776751"
+      },
+      "android": {
+        "track": "internal",
+        "releaseStatus": "completed"
+      }
+    }
   }
 }

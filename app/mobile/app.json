@@ -2,7 +2,7 @@
   "expo": {
     "name": "Couchers",
     "slug": "mobile",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "couchers",
@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.couchersorg.mobile",
+      "bundleIdentifier": "org.couchers.ios",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -21,8 +21,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "useNextNotificationsApi": true,
-      "package": "com.couchersorg.mobile"
+      "package": "org.couchers.android"
     },
     "web": {
       "bundler": "metro",
@@ -38,14 +37,6 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
-        }
-      ],
-      [
-        "@sentry/react-native/expo",
-        {
-          "url": "https://sentry.io/",
-          "project": "native",
-          "organization": "couchers"
         }
       ],
       [
