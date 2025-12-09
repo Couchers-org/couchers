@@ -132,7 +132,7 @@ def upgrade():
           AND n.topic_action::text LIKE 'host\_request\_\_%'
           AND n.key <> ''
           AND n.key ~ '^[0-9]+$'
-          AND n.key::bigint = hr.conversation_id
+          AND n.key::bigint = hr.id
     """)
 
     # Backfill moderation_state_id for chat notifications
@@ -145,7 +145,7 @@ def upgrade():
           AND n.topic_action::text LIKE 'chat\_\_%'
           AND n.key <> ''
           AND n.key ~ '^[0-9]+$'
-          AND n.key::bigint = gc.conversation_id
+          AND n.key::bigint = gc.id
     """)
 
 
