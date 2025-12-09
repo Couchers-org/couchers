@@ -23,7 +23,7 @@ def upgrade():
         SET moderation_state_id = hr.moderation_state_id
         FROM host_requests hr
         WHERE n.moderation_state_id IS NULL
-          AND n.topic_action LIKE 'host\_request\_\_%'
+          AND n.topic_action::text LIKE 'host\_request\_\_%'
           AND n.key::bigint = hr.id
     """)
 
@@ -34,7 +34,7 @@ def upgrade():
         SET moderation_state_id = gc.moderation_state_id
         FROM group_chats gc
         WHERE n.moderation_state_id IS NULL
-          AND n.topic_action LIKE 'chat\_\_%'
+          AND n.topic_action::text LIKE 'chat\_\_%'
           AND n.key::bigint = gc.id
     """)
 
