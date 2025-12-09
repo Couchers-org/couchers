@@ -9,6 +9,8 @@ Create Date: 2025-12-08 02:24:10.625443
 from alembic import op
 from sqlalchemy import text
 
+from couchers.proto import notification_data_pb2
+
 # revision identifiers, used by Alembic.
 revision = "7d04ba82351c"
 down_revision = "495d6b415d7d"
@@ -17,8 +19,6 @@ depends_on = None
 
 
 def upgrade():
-    from proto import notification_data_pb2
-
     conn = op.get_bind()
 
     # Backfill key for host_request__reminder notifications

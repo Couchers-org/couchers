@@ -405,7 +405,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                     session,
                     user_id=user.id,
                     topic_action="host_request:missed_messages",
-                    key=host_request.conversation_id,
+                    key=str(host_request.conversation_id),
                     data=notification_data_pb2.HostRequestMissedMessages(
                         host_request=host_request_to_pb(host_request, session, context),
                         user=user_model_to_pb(host_request.host, session, context),
@@ -421,7 +421,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                     session,
                     user_id=user.id,
                     topic_action="host_request:missed_messages",
-                    key=host_request.conversation_id,
+                    key=str(host_request.conversation_id),
                     data=notification_data_pb2.HostRequestMissedMessages(
                         host_request=host_request_to_pb(host_request, session, context),
                         user=user_model_to_pb(host_request.surfer, session, context),
@@ -569,7 +569,7 @@ def send_reference_reminders(payload: empty_pb2.Empty) -> None:
                     session,
                     user_id=user.id,
                     topic_action="reference:reminder_surfed" if surfed else "reference:reminder_hosted",
-                    key=host_request.conversation_id,
+                    key=str(host_request.conversation_id),
                     data=notification_data_pb2.ReferenceReminder(
                         host_request_id=host_request.conversation_id,
                         other_user=user_model_to_pb(other_user, session, context),
@@ -616,7 +616,7 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
                 session,
                 user_id=host_request.host_user_id,
                 topic_action="host_request:reminder",
-                key=host_request.conversation_id,
+                key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestReminder(
                     host_request=host_request_to_pb(host_request, session, context),
                     surfer=user_model_to_pb(host_request.surfer, session, context),
@@ -1089,7 +1089,7 @@ def send_activeness_probes(payload: empty_pb2.Empty) -> None:
                     session,
                     user_id=probe.user.id,
                     topic_action="activeness:probe",
-                    key=probe.id,
+                    key=str(probe.id),
                     data=notification_data_pb2.ActivenessProbe(
                         reminder_number=probe_number_minus_1 + 1,
                         deadline=Timestamp_from_datetime(probe.probe_initiated + ACTIVENESS_PROBE_EXPIRY_TIME),
@@ -1194,7 +1194,7 @@ def send_event_reminders(payload: empty_pb2.Empty) -> None:
                     session,
                     user_id=user.id,
                     topic_action="event:reminder",
-                    key=occurrence.id,
+                    key=str(occurrence.id),
                     data=notification_data_pb2.EventReminder(
                         event=event_to_pb(session, occurrence, context),
                         user=user_model_to_pb(user, session, context),

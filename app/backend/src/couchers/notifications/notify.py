@@ -17,7 +17,7 @@ def notify(
     *,
     user_id: int,
     topic_action: str,
-    key: str | int,
+    key: str,
     data: Message | None = None,
     moderation_state_id: int | None = None,
 ) -> None:
@@ -47,7 +47,7 @@ def notify(
     notification = Notification(
         user_id=user_id,
         topic_action=enum_from_topic_action[topic, action],
-        key=str(key),
+        key=key,
         data=(data or empty_pb2.Empty()).SerializeToString(),
         moderation_state_id=moderation_state_id,
     )
