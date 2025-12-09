@@ -16,7 +16,7 @@
   "community_standing": "Community Standing",
   "community_standing_description": "Calculated from various factors such as references and community engagement.",
   "verification_score": "Verification Score",
-  "verification_score_description": "Calculated from vouches by other users",
+  "verification_score_description": "Calculated from vouches by other couchers",
   "edit": "Edit",
   "save": "Save",
   "send": "Send",
@@ -52,13 +52,13 @@
     },
     "content": {
       "button_label": "Report inappropriate content or behaviour",
-      "dialog_message": "We are working on robust reporting and moderation tools. In the meantime, please send us an email to the below address. Include details such as the relevant user, what was inappropriate, and where you saw it.",
+      "dialog_message": "We are working on robust reporting and moderation tools. In the meantime, please send us an email to the below address. Include details such as the relevant coucher, what was inappropriate, and where you saw it.",
       "success_message": "Thank you for your report and making Couchers a better platform for everybody!"
     },
     "flag": {
-      "button_aria_label": "Report content or a user",
-      "explainer": "Use this form to confidentially report a user or content. This information will be sent to our Safety & Trust team and reviewed as soon as possible. We may follow up with you or take action without follow-up.",
-      "title": "Report content or a user",
+      "button_aria_label": "Report content or a coucher",
+      "explainer": "Use this form to confidentially report a coucher or content. This information will be sent to our Safety & Trust team and reviewed as soon as possible. We may follow up with you or take action without follow-up.",
+      "title": "Report content or a coucher",
       "reason_label": "Reason for reporting",
       "reason_helper": "Why are you reporting this content?",
       "reason_required": "Reason is required.",

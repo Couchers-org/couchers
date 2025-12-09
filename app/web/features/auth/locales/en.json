@@ -311,7 +311,7 @@
   },
   "profile_visibility": {
     "title": "Profile Visibility",
-    "choose": "Choose what information will be visible to logged-out users",
+    "choose": "Choose what information will be visible to logged-out couchers",
     "visiblility_options": {
       "nothing": "<1>Nothing</1>: hide me completely",
       "map_only": "<1>Map only</1>: show a randomized, anonymous map pin with no other information",

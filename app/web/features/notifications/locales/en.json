@@ -60,12 +60,12 @@
                 },
                 "event": {
                     "create_approved": "An event that is approved by the moderators is created in your community",
-                    "create_any": "A user creates any event in your community (not checked by an admin)",
+                    "create_any": "A coucher creates any event in your community (not checked by an admin)",
                     "update": "An event you are attending is updated",
                     "cancel": "An event you are attending is cancelled",
                     "delete": "An event you are attending is deleted",
                     "invite_organizer": "Someone invites you to co-organize an event",
-                    "comment": " A user comments on an event you are going to",
+                    "comment": " A coucher comments on an event you are going to",
                     "reminder": "Reminder that an event you are going to is happening soon"
                 },
                 "onboarding": {

@@ -4,12 +4,12 @@
   "deleted": "Deleted",
   "do_not_email": "Do not email",
   "list_users": {
-    "heading": "New users list",
-    "none_found": "No users found",
+    "heading": "New couchers list",
+    "none_found": "No couchers found",
     "load_more": "Load more"
   },
   "actions": {
-    "ban": "Ban user",
+    "ban": "Ban coucher",
     "open_in_console": "Open in console"
   },
   "panel": {

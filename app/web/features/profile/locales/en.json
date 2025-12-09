@@ -31,17 +31,17 @@
     "travel_section": "Travelled to",
     "lived_section": "Lived in",
     "map_section": "Travel map",
-    "age_verification_verified": "This user has verified their date of birth",
-    "age_verification_mismatch": "User provided date of birth does not match verified date of birth",
-    "gender_verification_verified": "This user has verified their gender",
-    "gender_verification_mismatch": "User provided gender does not match verified gender"
+    "age_verification_verified": "This coucher has verified their date of birth",
+    "age_verification_mismatch": "Coucher provided date of birth does not match verified date of birth",
+    "gender_verification_verified": "This coucher has verified their gender",
+    "gender_verification_mismatch": "Coucher provided gender does not match verified gender"
   },
   "edit": "Edit Profile",
   "helper_text": {
     "characters_remaining": "<bold>Please write at least {{count}} characters to unlock messaging and requests.</bold> Genuine profiles build a community of trust. The more you share, the easier it is to connect!",
     "missing_profile_photo": "Please add a photo to complete your profile."
   },
-  "section_tabs_a11y_label": "tabs for user's details",
+  "section_tabs_a11y_label": "tabs for coucher's details",
   "incomplete_dialog": {
     "title": "Profile Incomplete",
     "description": "You won't be able to send requests, messages or create events until you:",
@@ -156,12 +156,12 @@
   "more_profile_actions_a11y_text": "More profile actions",
   "report_details": "Details",
   "report_reason": "Reason",
-  "report_user": "Report this user",
+  "report_user": "Report this coucher",
   "leave_reference": {
     "add_a_reference": "Add a reference to {{name}}'s profile",
     "appropriate_explanation": "Your private feedback on this page, and your public reference on the next page, are vital to keeping the community safe, trustworthy, and welcoming. Thanks for doing your part to help the community!",
     "appropriate_question": "Did you feel safe with this person's behavior?",
-    "by_writing_thoughtful": "Not sure what to write? Read our guide <1>here</1>. By writing honestly and in detail about your experience with this person, you will directly help other members and contribute to safety and trust in the Couchers community.",
+    "by_writing_thoughtful": "Not sure what to write? Read our guide <1>here</1>. By writing honestly and in detail about your experience with this person, you will directly help other couchers and contribute to safety and trust in the Couchers community.",
     "did_stay_confirmation": {
       "title_hosted": "Confirm {{name}} did not stay",
       "title_surfed": "Confirm you did not stay with {{name}}",
@@ -188,8 +188,8 @@
     "writing_for_text": "You are writing a reference for the following person:",
     "reason_didnt_meetup": "Why didn't you meet up? (Optional)",
     "reference_submit_heading": "Please review your reference",
-    "reference_type_not_available": "This reference type is not available for this user.",
-    "cant_write_reference_didnt_stay": "You cannot write a reference as you indicated you didn't stay with this user.",
+    "reference_type_not_available": "This reference type is not available for this coucher.",
+    "cant_write_reference_didnt_stay": "You cannot write a reference as you indicated you didn't stay with this coucher.",
     "cant_write_reference_expired": "The time to write a reference has passed (after 14 days).",
     "required": "This step is required.",
     "text_explanation": "Leave a reference and let people know how your experience was with this person. This will help others know what to expect with this person in the future.",
@@ -219,8 +219,8 @@
     "no_not_safe": "No, I did not feel safe on one or more occasions.",
     "what_happened": "What happened?",
     "friend_reference_requires_friendship": "You can only write a friend reference for someone you're friends with.",
-    "already_wrote_reference_for_stay": "You already wrote a reference for this user and this stay. Your reference will be visible after they write a reference for you, or after 14 days",
-    "already_wrote_friend_reference": "You already wrote a friend reference for this user."
+    "already_wrote_reference_for_stay": "You already wrote a reference for this coucher and this stay. Your reference will be visible after they write a reference for you, or after 14 days",
+    "already_wrote_friend_reference": "You already wrote a friend reference for this coucher."
   },
   "request_form": {
     "send_request": "Send {{name}} a request",
@@ -257,7 +257,7 @@
   "references_filter_a11y_label": "Show references: ",
   "see_more_references": "See more references",
   "write_reference": "Write Reference",
-  "have_pending_reference_text": "You have a pending reference to write for this user",
+  "have_pending_reference_text": "You have a pending reference to write for this coucher",
   "write_friend_reference": "Write Friend Reference",
   "last_active_false": "Unknown",
   "languages_fluent_false": "Not given",
@@ -279,10 +279,10 @@
     "header_text": "Press 'Enter' to add\n<support_link>Email us</support_link> to add an entry",
     "remove_button_a11y_text": "Remove {{tag}}"
   },
-  "view_in_admin_console": "View user in admin console",
+  "view_in_admin_console": "View coucher in admin console",
   "badges": {
     "title": "Explore Couchers.org badges",
-    "subtitle": "Learn about user badges, see who has them, and learn how you can get them.",
+    "subtitle": "Learn about coucher badges, see who has them, and learn how you can get them.",
     "click_on_left": "Choose a badge on the left to learn more.",
     "no_people": "There are no people with that badge!",
     "not_found": "Badge not found"
@@ -294,7 +294,7 @@
     "references_plural": "references"
   },
   "incomplete_profile_haiku": "Blank avatar stares,\nMystery behind silence—\nWho are you, stranger?",
-  "search_indicator": "The beginning of this section is visible in search results when other members search for you",
+  "search_indicator": "The beginning of this section is visible in search results when other couchers search for you",
   "hosting_status": {
     "can_host_description": "I am eager to let people stay with me",
     "maybe_host_description": "I might be able to host, depending on the circumstances",

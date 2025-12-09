@@ -29,13 +29,13 @@
         "travel_section": "Travelled to",
         "lived_section": "Lived in",
         "map_section": "Travel map",
-        "strong_verification": "This user has verified their identity using a biometric passport",
-        "age_verification_verified": "This user has verified their date of birth",
-        "age_verification_mismatch": "User provided date of birth does not match verified date of birth",
-        "gender_verification_verified": "This user has verified their gender",
-        "gender_verification_mismatch": "User provided gender does not match verified gender"
+        "strong_verification": "This coucher has verified their identity using a biometric passport",
+        "age_verification_verified": "This coucher has verified their date of birth",
+        "age_verification_mismatch": "Coucher provided date of birth does not match verified date of birth",
+        "gender_verification_verified": "This coucher has verified their gender",
+        "gender_verification_mismatch": "Coucher provided gender does not match verified gender"
     },
-    "section_tabs_a11y_label": "tabs for user's details",
+    "section_tabs_a11y_label": "tabs for coucher's details",
     "home_info_headings": {
         "about_home": "About my home",
         "general": "General",
@@ -112,7 +112,7 @@
     "more_profile_actions_a11y_text": "More profile actions",
     "report_details": "Details",
     "report_reason": "Reason",
-    "report_user": "Report this user",
+    "report_user": "Report this coucher",
     "leave_reference": {
         "appropriate_behavior": "Appropriate Behavior",
         "appropriate_explanation": "Awesome –– We hope you had a great time! To help keep our community safe, we want to ask about your interaction with your fellow Coucher.",
@@ -139,7 +139,7 @@
         "writing_for_text": "You are writing a reference for the following person:",
         "reference_submit_heading": "Thank you for leaving a reference!",
         "reference_success": "Successfully wrote the reference!",
-        "reference_type_not_available": "This reference type is not available for this user.",
+        "reference_type_not_available": "This reference type is not available for this coucher.",
         "required": "This step is required.",
         "safety_priority": "Your safety is our priority. It is important that you remain comfortable when interacting with others within the Couchers community. Let us know how you felt regarding this person's behavior.",
         "text_explanation": "Leave a note for your fellow Coucher's Guestbook –– say thank you, or let others know if you enjoyed your time with them.",

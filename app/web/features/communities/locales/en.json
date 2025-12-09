@@ -12,7 +12,7 @@
   },
   "invite_community_dialog": {
     "title": "Request a community invite for this event",
-    "message": "Use this form to request that the moderators send a notification about this event to all nearby users.",
+    "message": "Use this form to request that the moderators send a notification about this event to all nearby couchers.",
     "toast_success": "Thanks, the request has been submitted",
     "link": "More information on this feature"
   },
@@ -74,7 +74,7 @@
   "see_more_discussions_label": "See more discussions",
   "see_more_information": "See more information",
   "see_more_places_label": "See more places",
-  "unknown_user": "Unknown user",
+  "unknown_user": "Unknown coucher",
   "upload_image": "Upload image",
   "details_subheading_colon": "Details:",
   "details_subheading": "Details",

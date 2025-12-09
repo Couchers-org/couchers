@@ -32,7 +32,7 @@
     "community_standing": "Community Standing",
     "community_standing_description": "Calculated from various factors such as references and community engagement.",
     "verification_score": "Verification Score",
-    "verification_score_description": "Calculated from vouches by other users",
+    "verification_score_description": "Calculated from vouches by other couchers",
     "edit": "Edit",
     "save": "Save",
     "save_changes": "Save changes",
@@ -102,16 +102,16 @@
         },
         "content": {
             "button_label": "Report inappropriate content or behaviour",
-            "dialog_message": "We are working on robust reporting and moderation tools. In the meantime, please send us an email to the below address. Include details such as the relevant user, what was inappropriate, and where you saw it.",
+            "dialog_message": "We are working on robust reporting and moderation tools. In the meantime, please send us an email to the below address. Include details such as the relevant coucher, what was inappropriate, and where you saw it.",
             "success_message": "Thank you for your report and making Couchers a better platform for everybody!"
         },
         "flag": {
             "block_user": "Block {{username}}",
             "block_user_explainer": "Messages and requests from this person will be blocked, and your profile, events and comments will not be visible to this person. They will not be informed that you blocked them.",
-            "button_aria_label": "Report content or a user",
-            "profile_button_aria_label": "Report content or block a user",
+            "button_aria_label": "Report content or a coucher",
+            "profile_button_aria_label": "Report content or block a coucher",
             "explainer": "Confidentially send a report to the Safety & Trust team.",
-            "title": "Report content or a user",
+            "title": "Report content or a coucher",
             "profile_title": "Report or Block",
             "reason_label": "Reason for reporting",
             "reason_helper": "Why are you reporting this content?",
@@ -252,7 +252,7 @@
         "select_location_hint": "Press Enter or click the search icon, then select a location from the list"
     },
     "strong_verification": {
-        "helper_text": "This user has verified their identity using a biometric passport"
+        "helper_text": "This coucher has verified their identity using a biometric passport"
     },
     "footer": {
         "non_profit_note": "Couchers.org is a project of Couchers, Inc. a U.S. 501(c)(3) non-profit, tax-exempt organization.",
