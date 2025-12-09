@@ -107,7 +107,7 @@
   "basic_sign_up_form": {
     "header": "Lass uns loslegen!",
     "existing_user_prompt": "Du hast bereits einen Account? <2>Einloggen</2>",
-    "sign_up_agreement_explainer": "Beim Fortfahren stimmst du unseren <2>Nutzungsvereinbarungen</2> zu, inklusive unseren Vereinbarung zur Verwendung von Cookies, E-Mail-Adresse und digitaler Informationen."
+    "sign_up_agreement_explainer": "Beim Fortfahren stimmst du unseren <2>Nutzungsbedingungen</2> zu, inklusive unseren Bedingungen zur Verwendung von Cookies, E-Mail-Adresse und digitalen Informationen."
   },
   "sign_up_completed_title": "Danke, dass du dich bei uns registriert hast!",
   "sign_up_confirmed_prompt": "Du hast alles erledigt! Falls du nicht weitergeleitet wirst, versuche dich einzuloggen.",

@@ -471,6 +471,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session,
                 user_id=user.id,
                 topic_action="password_reset:start",
+                key="",
                 data=notification_data_pb2.PasswordResetStart(
                     password_reset_token=password_reset_token.token,
                 ),
@@ -504,6 +505,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session,
                 user_id=user.id,
                 topic_action="password_reset:complete",
+                key="",
             )
 
             create_session(context, session, user, False)
@@ -533,6 +535,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             session,
             user_id=user.id,
             topic_action="email_address:verify",
+            key="",
         )
 
         return empty_pb2.Empty()
@@ -565,6 +568,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             session,
             user_id=user.id,
             topic_action="account_deletion:complete",
+            key="",
             data=notification_data_pb2.AccountDeletionComplete(
                 undelete_token=user.undelete_token,
                 undelete_days=UNDELETE_DAYS,
@@ -594,6 +598,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             session,
             user_id=user.id,
             topic_action="account_deletion:recovered",
+            key="",
         )
 
         account_recoveries_counter.labels(user.gender).inc()

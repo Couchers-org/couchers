@@ -94,7 +94,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                         session,
                         user_id=user_id,
                         topic_action="event:comment",
-                        key=occurrence.id,
+                        key=str(occurrence.id),
                         data=notification_data_pb2.EventComment(
                             reply=reply,
                             event=event_to_pb(session, occurrence, context),
@@ -119,7 +119,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                         session,
                         user_id=user_id,
                         topic_action="discussion:comment",
-                        key=discussion.id,
+                        key=str(discussion.id),
                         data=notification_data_pb2.DiscussionComment(
                             reply=reply,
                             discussion=discussion_to_pb(session, discussion, context),
@@ -174,7 +174,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                         session,
                         user_id=user_id,
                         topic_action="thread:reply",
-                        key=occurrence.id,
+                        key=str(occurrence.id),
                         data=notification_data_pb2.ThreadReply(
                             reply=reply,
                             event=event_to_pb(session, occurrence, context),
@@ -189,7 +189,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                         session,
                         user_id=user_id,
                         topic_action="thread:reply",
-                        key=discussion.id,
+                        key=str(discussion.id),
                         data=notification_data_pb2.ThreadReply(
                             reply=reply,
                             discussion=discussion_to_pb(session, discussion, context),

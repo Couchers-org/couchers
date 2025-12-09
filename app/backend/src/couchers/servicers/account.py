@@ -210,6 +210,7 @@ class Account(account_pb2_grpc.AccountServicer):
             session,
             user_id=user.id,
             topic_action="password:change",
+            key="",
         )
 
         return empty_pb2.Empty()
@@ -253,6 +254,7 @@ class Account(account_pb2_grpc.AccountServicer):
             session,
             user_id=user.id,
             topic_action="email_address:change",
+            key="",
             data=notification_data_pb2.EmailAddressChange(
                 new_email=request.new_email,
             ),
@@ -346,6 +348,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 session,
                 user_id=user.id,
                 topic_action="phone_number:change",
+                key="",
                 data=notification_data_pb2.PhoneNumberChange(
                     phone=phone,
                 ),
@@ -400,6 +403,7 @@ class Account(account_pb2_grpc.AccountServicer):
             session,
             user_id=user.id,
             topic_action="phone_number:verify",
+            key="",
             data=notification_data_pb2.PhoneNumberVerify(
                 phone=user.phone,
             ),
@@ -561,6 +565,7 @@ class Account(account_pb2_grpc.AccountServicer):
             session,
             user_id=user.id,
             topic_action="account_deletion:start",
+            key="",
             data=notification_data_pb2.AccountDeletionStart(
                 deletion_token=token.token,
             ),

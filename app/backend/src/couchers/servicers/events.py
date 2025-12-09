@@ -283,7 +283,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
                 session,
                 user_id=user.id,
                 topic_action="event:create_approved" if payload.approved else "event:create_any",
-                key=payload.occurrence_id,
+                key=str(payload.occurrence_id),
                 data=notification_data_pb2.EventCreate(
                     event=event_to_pb(session, occurrence, context),
                     inviting_user=user_model_to_pb(inviting_user, session, context),
@@ -310,7 +310,7 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
                 session,
                 user_id=user_id,
                 topic_action="event:update",
-                key=payload.occurrence_id,
+                key=str(payload.occurrence_id),
                 data=notification_data_pb2.EventUpdate(
                     event=event_to_pb(session, occurrence, context),
                     updating_user=user_model_to_pb(updating_user, session, context),
@@ -338,7 +338,7 @@ def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNot
                 session,
                 user_id=user_id,
                 topic_action="event:cancel",
-                key=payload.occurrence_id,
+                key=str(payload.occurrence_id),
                 data=notification_data_pb2.EventCancel(
                     event=event_to_pb(session, occurrence, context),
                     cancelling_user=user_model_to_pb(cancelling_user, session, context),
@@ -361,7 +361,7 @@ def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNot
                 session,
                 user_id=user_id,
                 topic_action="event:delete",
-                key=payload.occurrence_id,
+                key=str(payload.occurrence_id),
                 data=notification_data_pb2.EventDelete(
                     event=event_to_pb(session, occurrence, context),
                 ),
@@ -1151,7 +1151,7 @@ class Events(events_pb2_grpc.EventsServicer):
             session,
             user_id=request.user_id,
             topic_action="event:invite_organizer",
-            key=event.id,
+            key=str(event.id),
             data=notification_data_pb2.EventInviteOrganizer(
                 event=event_to_pb(session, occurrence, other_user_context),
                 inviting_user=user_model_to_pb(user, session, other_user_context),

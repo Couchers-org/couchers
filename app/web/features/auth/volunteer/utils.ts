@@ -1,4 +1,9 @@
-import { EmailIcon, GlobeIcon, LinkedInIcon } from "components/Icons";
+import {
+  CouchersIcon,
+  EmailIcon,
+  GlobeIcon,
+  LinkedInIcon,
+} from "components/Icons";
 import { GetMyVolunteerInfoRes } from "proto/account_pb";
 
 // Constants
@@ -34,6 +39,8 @@ export function getLinkTypeIcon(linkType: string) {
       return LinkedInIcon;
     case "email":
       return EmailIcon;
+    case "couchers":
+      return CouchersIcon;
     default:
       return GlobeIcon;
   }

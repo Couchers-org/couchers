@@ -88,6 +88,7 @@ def test_SetNotificationSettings_preferences_respected_editable(db, enabled):
             session,
             user_id=user.id,
             topic_action=topic_action.display,
+            key="",
             data=notification_data_pb2.BadgeAdd(
                 badge_id="volunteer",
                 badge_name="Active Volunteer",
@@ -165,6 +166,7 @@ def test_unsubscribe(db):
                 session,
                 user_id=user.id,
                 topic_action=topic_action.display,
+                key="",
                 data=notification_data_pb2.BadgeAdd(
                     badge_id="volunteer",
                     badge_name="Active Volunteer",
@@ -214,6 +216,7 @@ def test_unsubscribe(db):
                 session,
                 user_id=user.id,
                 topic_action=topic_action.display,
+                key="",
                 data=notification_data_pb2.BadgeAdd(
                     badge_id="volunteer",
                     badge_name="Active Volunteer",
@@ -620,6 +623,7 @@ def test_event_reminder_email_sent(db):
                 session,
                 user_id=user.id,
                 topic_action="event:reminder",
+                key="",
                 data=notification_data_pb2.EventReminder(
                     event=events_pb2.Event(
                         event_id=1,

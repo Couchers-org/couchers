@@ -281,7 +281,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             session,
             user_id=host_request.host_user_id,
             topic_action="host_request:create",
-            key=host_request.conversation_id,
+            key=str(host_request.conversation_id),
             data=notification_data_pb2.HostRequestCreate(
                 host_request=host_request_to_pb(host_request, session, context),
                 surfer=user_model_to_pb(host_request.surfer, session, context),
@@ -455,7 +455,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 session,
                 user_id=host_request.surfer_user_id,
                 topic_action="host_request:accept",
-                key=host_request.conversation_id,
+                key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestAccept(
                     host_request=host_request_to_pb(host_request, session, context),
                     host=user_model_to_pb(host_request.host, session, context),
@@ -481,7 +481,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 session,
                 user_id=host_request.surfer_user_id,
                 topic_action="host_request:reject",
-                key=host_request.conversation_id,
+                key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestReject(
                     host_request=host_request_to_pb(host_request, session, context),
                     host=user_model_to_pb(host_request.host, session, context),
@@ -506,7 +506,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 session,
                 user_id=host_request.host_user_id,
                 topic_action="host_request:confirm",
-                key=host_request.conversation_id,
+                key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestConfirm(
                     host_request=host_request_to_pb(host_request, session, context),
                     surfer=user_model_to_pb(host_request.surfer, session, context),
@@ -531,7 +531,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 session,
                 user_id=host_request.host_user_id,
                 topic_action="host_request:cancel",
-                key=host_request.conversation_id,
+                key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestCancel(
                     host_request=host_request_to_pb(host_request, session, context),
                     surfer=user_model_to_pb(host_request.surfer, session, context),
@@ -637,7 +637,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 session,
                 user_id=host_request.host_user_id,
                 topic_action="host_request:message",
-                key=host_request.conversation_id,
+                key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestMessage(
                     host_request=host_request_to_pb(host_request, session, context),
                     user=user_model_to_pb(host_request.surfer, session, context),
@@ -654,7 +654,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 session,
                 user_id=host_request.surfer_user_id,
                 topic_action="host_request:message",
-                key=host_request.conversation_id,
+                key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestMessage(
                     host_request=host_request_to_pb(host_request, session, context),
                     user=user_model_to_pb(host_request.host, session, context),

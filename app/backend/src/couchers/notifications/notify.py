@@ -17,7 +17,7 @@ def notify(
     *,
     user_id: int,
     topic_action: str,
-    key: str = "",
+    key: str,
     data: Message | None = None,
     moderation_state_id: int | None = None,
 ) -> None:
@@ -37,6 +37,9 @@ def notify(
 
     If moderation_state_id is provided, the notification delivery is deferred until the linked content
     becomes VISIBLE or UNLISTED. This is used for notifications related to moderated content.
+
+    The key parameter is required. Pass key="" for notifications that intentionally don't have a key
+    (e.g., security notifications like password changes, or aggregated notifications like chat:missed_messages).
     """
     logger.info(f"Generating notification of type {topic_action} for user {user_id}")
     topic, action = topic_action.split(":")
