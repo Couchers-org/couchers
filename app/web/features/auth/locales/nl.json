@@ -92,7 +92,7 @@
   },
   "reset_password_form": {
     "enter_email": "Gebruikersnaam of e-mailadres invullen",
-    "success_message": "Check nu je e-mail om je wachtwoord te kunnen veranderen!"
+    "success_message": "We hebben je een e-mail gestuurd met een link om je wachtwoord te kunnen resetten. De e-mail is gestuurd naar het adres dat is gekoppeld aan dit account. Check dus of dit adres bestaat en actief is. Let op: onze mail kan ook in de spam terecht zijn gekomen."
   },
   "basic_form": {
     "name": {
@@ -120,5 +120,12 @@
   "feedback_form": {
     "header": "Jouw mening telt",
     "skip_step_text": "Geen zin in? <2>Sla dan deze stap over</2>"
+  },
+  "jail": {
+    "title": "Meer informatie nodig",
+    "description": "Onderstaande doornemen om verder te gaan.",
+    "terms_of_service_section": {
+      "description": "We hebben onze servicevoorwaarden veranderd, om verder te gaan moet je ze goed doorlezen en accepteren.<1></1>."
+    }
   }
 }
