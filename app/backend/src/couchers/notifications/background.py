@@ -78,7 +78,7 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         html_unsub_section += f'<br /><a href="{dne_link}">Do not email me (disables hosting)</a>.'
 
     plain_tmplt = (template_folder / f"{rendered.email_template_name}.txt").read_text()
-    plain_template_args = {**template_args, "_plain": True}
+    plain_template_args = {**template_args, "_plain": True}  # Strip html from translations.
     plain = env.from_string(plain_tmplt + plain_unsub_section).render(plain_template_args)
 
     html_tmplt = (template_folder / "generated_html" / f"{rendered.email_template_name}.html").read_text()
