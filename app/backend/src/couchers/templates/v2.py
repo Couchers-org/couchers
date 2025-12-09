@@ -3,6 +3,7 @@ template mailer/push notification formatter v2
 """
 
 import logging
+import re
 from datetime import date, datetime
 from html import escape
 from pathlib import Path
@@ -11,13 +12,15 @@ from zoneinfo import ZoneInfo
 
 import phonenumbers
 from google.protobuf.timestamp_pb2 import Timestamp
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, pass_context
+from jinja2.runtime import Context
 from markdown_it import MarkdownIt
 from sqlalchemy.orm import Session
 
 from couchers import urls
 from couchers.config import config
 from couchers.email import queue_email
+from couchers.i18n.i18n import get_raw_translation_string
 from couchers.models import User
 from couchers.utils import get_tz_as_text, now, to_aware_datetime
 
@@ -85,6 +88,47 @@ def v2markdown(value: str) -> str:
     return md.render(value)  # type: ignore[no-any-return]
 
 
+@pass_context
+def v2translate(context: Context, key: str, **kwargs: Any) -> str:
+    """
+    Jinja2 filter to translate a string key with substitutions.
+
+    Usage in template:
+        {{ "greeting_key"|v2translate(name=user.name) }}
+    """
+
+    user: User = context.parent["user"]
+    component = context.parent.get("_component")
+    if component is None:
+        raise ValueError("Component not found in jinja context for v2translate")
+
+    # Prevent html injection
+    escaped_substitutions = {k: escape(str(v)) for k, v in kwargs.items()}
+
+    translated = get_raw_translation_string(
+        user.ui_language_preference or "en", component, key, substitutions=escaped_substitutions
+    )
+
+    # Translations may include simple formatting HTML like <b> or <a>,
+    # but those should not appear in plain text emails.
+    if context.parent.get("_plain") == True:
+
+        def replace_tag(match: re.Match) -> str:
+            tag = match.group(1)
+            inner_text = match.group(2)
+            if tag.lower() == "a":
+                # <a href="url">text</a> -> <text>
+                return f"<{inner_text}>"
+            else:
+                # <b>hello</b> -> hello
+                return inner_text
+
+        # Doesn't support nesting, but should be sufficient for our needs
+        translated = re.sub(r"<(\w+).*?>(.*?)</\1>", replace_tag, translated)
+
+    return translated
+
+
 def add_filters(env: Environment) -> None:
     env.filters["v2esc"] = v2esc
     env.filters["v2multiline"] = v2multiline
@@ -97,6 +141,7 @@ def add_filters(env: Environment) -> None:
     env.filters["v2avatar"] = v2avatar
     env.filters["v2quote"] = v2quote
     env.filters["v2markdown"] = v2markdown
+    env.filters["v2translate"] = v2translate
 
 
 add_filters(env)
@@ -118,6 +163,7 @@ def send_simple_pretty_email(
 
     plain_tmplt = (template_folder / f"{template_name}.txt").read_text()
     plain = env.from_string(plain_tmplt + plain_unsub_section).render(template_args)
+
     html_tmplt = (template_folder / "generated_html" / f"{template_name}.html").read_text()
     html = env.from_string(html_tmplt.replace("___UNSUB_SECTION___", html_unsub_section)).render(template_args)
 

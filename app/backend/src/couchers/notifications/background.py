@@ -45,6 +45,8 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     template_args = {
         "user": user,
         "time": notification.created,
+        # Lookup strings for this notification
+        "_component": f"notification_{rendered.email_template_name}",
         "_year": now().year,
         "_timezone_display": get_tz_as_text(user.timezone or "Etc/UTC"),
         **rendered.email_template_args,
@@ -76,7 +78,9 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         html_unsub_section += f'<br /><a href="{dne_link}">Do not email me (disables hosting)</a>.'
 
     plain_tmplt = (template_folder / f"{rendered.email_template_name}.txt").read_text()
-    plain = env.from_string(plain_tmplt + plain_unsub_section).render(template_args)
+    plain_template_args = {**template_args, "_plain": True}
+    plain = env.from_string(plain_tmplt + plain_unsub_section).render(plain_template_args)
+
     html_tmplt = (template_folder / "generated_html" / f"{rendered.email_template_name}.html").read_text()
     html = env.from_string(html_tmplt.replace("___UNSUB_SECTION___", html_unsub_section)).render(template_args)
 
