@@ -543,6 +543,8 @@ class API(api_pb2_grpc.APIServicer):
             else:
                 user.camping_ok = request.camping_ok.value
 
+        user.profile_last_updated = now()
+
         return empty_pb2.Empty()
 
     def ListFriends(self, request, context, session):
