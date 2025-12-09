@@ -171,6 +171,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             session,
             user_id=user.id,
             topic_action="gender:change",
+            key="",
             data=notification_data_pb2.GenderChange(
                 gender=request.gender,
             ),
@@ -189,6 +190,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             session,
             user_id=user.id,
             topic_action="birthdate:change",
+            key="",
             data=notification_data_pb2.BirthdateChange(
                 birthdate=request.birthdate,
             ),
@@ -311,6 +313,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 session,
                 user_id=user.id,
                 topic_action="modnote:create",
+                key="",
             )
 
         return _user_to_details(session, user)
@@ -348,6 +351,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             session,
             user_id=user.id,
             topic_action="api_key:create",
+            key="",
             data=notification_data_pb2.ApiKeyCreate(
                 api_key=token,
                 expiry=Timestamp_from_datetime(expiry),

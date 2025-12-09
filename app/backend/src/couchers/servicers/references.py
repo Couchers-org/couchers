@@ -266,6 +266,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             session,
             user_id=request.to_user_id,
             topic_action="reference:receive_friend",
+            key=str(reference.id),
             data=notification_data_pb2.ReferenceReceiveFriend(
                 from_user=user_model_to_pb(user, session, make_background_user_context(user_id=request.to_user_id)),
                 text=reference_text,
@@ -320,6 +321,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             session,
             user_id=reference.to_user_id,
             topic_action="reference:receive_surfed" if surfed else "reference:receive_hosted",
+            key=str(host_request.conversation_id),
             data=notification_data_pb2.ReferenceReceiveHostRequest(
                 host_request_id=host_request.conversation_id,
                 from_user=user_model_to_pb(user, session, make_background_user_context(user_id=reference.to_user_id)),
