@@ -125,6 +125,11 @@ def v2translate(context: Context, key: str, **kwargs: Any) -> str:
 
         # Doesn't support nesting, but should be sufficient for our needs
         translated = re.sub(r"<(\w+).*?>(.*?)</\1>", replace_tag, translated)
+        translated = re.sub(r"<br\s*/?>", "\n", translated)
+
+    else:
+        # HTML support
+        translated = translated.replace("\n", "<br />")
 
     return translated
 
