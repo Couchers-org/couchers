@@ -1,5 +1,5 @@
-import { useRouter } from "expo-router";
-import { useRef, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -35,6 +35,9 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     useAuthContext();
   const [hasError, setHasError] = useState(false);
 
+  // Track the current WebView URL to detect when it drifts from the expected path
+  const currentWebPathRef = useRef<string>(path);
+
   const backgroundColor =
     colorScheme === "dark"
       ? theme.palette.common.black
@@ -45,10 +48,36 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     webviewRef.current?.reload();
   };
 
-  const handleNavigationStateChange = (navState: WebViewNavigation) => {
-    const { url } = navState;
+  // When this screen gains focus, ensure WebView shows the correct path
+  useFocusEffect(
+    useCallback(() => {
+      const expectedPath = path.split("?")[0];
+      const currentPath = currentWebPathRef.current.split("?")[0];
 
-    if (!url) {
+      // If WebView drifted to a different path, navigate it back
+      if (currentPath !== expectedPath) {
+        const targetUrl = WEB_BASE_URL + path;
+        webviewRef.current?.injectJavaScript(
+          `window.location.href = "${targetUrl}"; true;`,
+        );
+        currentWebPathRef.current = path;
+      }
+    }, [path, WEB_BASE_URL]),
+  );
+
+  // Map web paths to tab names
+  const getTabNameForPath = (webPath: string): string | null => {
+    if (webPath.startsWith("/dashboard")) return "dashboard";
+    if (webPath.startsWith("/messages")) return "messages";
+    if (webPath.startsWith("/search")) return "search";
+    if (webPath.startsWith("/communities")) return "communities";
+    return null;
+  };
+
+  const handleNavigationStateChange = (navState: WebViewNavigation) => {
+    const { url, loading } = navState;
+
+    if (!url || loading) {
       return;
     }
 
@@ -57,6 +86,25 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     // Prevent navigation to external sites
     if (!normalizedUrl.startsWith(WEB_BASE_URL)) {
       webviewRef.current?.stopLoading();
+      return;
+    }
+
+    // Track the current web path
+    const webPath: string = normalizedUrl.replace(WEB_BASE_URL, "") || "/";
+    currentWebPathRef.current = webPath;
+
+    // Sync native tab highlighting when WebView navigates to a different section
+    const targetTab = getTabNameForPath(webPath);
+    const currentTab = getTabNameForPath(path);
+
+    if (targetTab !== currentTab) {
+      if (targetTab) {
+        // Navigate to a main tab
+        router.navigate(`/${targetTab}`);
+      } else {
+        // Navigate to non-tab route (deselects all tabs)
+        router.navigate(webPath as `/${string}`);
+      }
     }
   };
 
