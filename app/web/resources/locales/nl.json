@@ -65,7 +65,8 @@
             "complete_percent": "{{percent}}% afgerond",
             "midway": "Halverwege",
             "complete": "Afgerond",
-            "almost_there": "Bijna klaar"
+            "almost_there": "Bijna klaar",
+            "description": "Bekijk hoe compleet onze vertalingen zijn in andere talen. Help ons Couchers toegankelijker te maken voor meer mensen over de wereld!"
         }
     },
     "title": "titel",
@@ -113,5 +114,6 @@
             "button_label": "Een technisch probleem doorgeven",
             "title_label": "Titel van melding"
         }
-    }
+    },
+    "error_loading_invite_codes": "Kon details van uitnodigingscode niet ophalen"
 }
