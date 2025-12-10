@@ -34,6 +34,14 @@ env = Environment(loader=loader, trim_blocks=True)
 md = MarkdownIt("zero", {"typographer": True}).enable(["smartquotes", "heading", "hr", "list", "link", "emphasis"])
 
 
+# Special context values expected by v2 filters
+CONTEXT_YEAR_KEY = "_year"
+CONTEXT_TIMEZONE_DISPLAY_KEY = "_timezone_display"
+CONTEXT_COMPONENT_KEY = "_component"
+CONTEXT_LANGUAGE_KEY = "_lang"
+CONTEXT_PLAINTEXT_KEY = "_plain"
+
+
 def v2esc(value: Any) -> str:
     return escape(str(value))
 
@@ -97,21 +105,19 @@ def v2translate(context: Context, key: str, **kwargs: Any) -> str:
         {{ "greeting_key"|v2translate(name=user.name) }}
     """
 
-    user: User = context.parent["user"]
-    component = context.parent.get("_component")
-    if component is None:
-        raise ValueError("Component not found in jinja context for v2translate")
+    lang: str = context[CONTEXT_LANGUAGE_KEY]
+    component: str = context[CONTEXT_COMPONENT_KEY]
 
     # Prevent html injection
     escaped_substitutions = {k: escape(str(v)) for k, v in kwargs.items()}
 
     translated = get_raw_translation_string(
-        user.ui_language_preference or "en", component, key, substitutions=escaped_substitutions
+        lang, component, key, substitutions=escaped_substitutions
     )
 
     # Translations may include simple formatting HTML like <b> or <a>,
     # but those should not appear in plain text emails.
-    if context.parent.get("_plain") == True:
+    if context.parent.get(CONTEXT_PLAINTEXT_KEY) == True:
 
         def replace_tag(match: re.Match) -> str:
             tag = match.group(1)
@@ -160,8 +166,8 @@ def send_simple_pretty_email(
 
     It's for the few security emails where we don't have a user to email but send directly to an email address.
     """
-    template_args["_year"] = now().year
-    template_args["_timezone_display"] = get_tz_as_text("Etc/UTC")
+    template_args[CONTEXT_YEAR_KEY] = now().year
+    template_args[CONTEXT_TIMEZONE_DISPLAY_KEY] = get_tz_as_text("Etc/UTC")
 
     plain_unsub_section = "\n\n---\n\nThis is a security email, you cannot unsubscribe from it."
     html_unsub_section = "This is a security email, you cannot unsubscribe from it."

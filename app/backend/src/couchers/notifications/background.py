@@ -27,7 +27,7 @@ from couchers.notifications.render import render_notification
 from couchers.notifications.settings import get_preference
 from couchers.proto.internal import jobs_pb2
 from couchers.sql import couchers_select as select
-from couchers.templates.v2 import add_filters
+from couchers.templates.v2 import add_filters, CONTEXT_PLAINTEXT_KEY, CONTEXT_LANGUAGE_KEY, CONTEXT_COMPONENT_KEY, CONTEXT_YEAR_KEY, CONTEXT_TIMEZONE_DISPLAY_KEY
 from couchers.utils import get_tz_as_text, now
 
 logger = logging.getLogger(__name__)
@@ -46,9 +46,10 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         "user": user,
         "time": notification.created,
         # Lookup strings for this notification
-        "_component": f"notification_{rendered.email_template_name}",
-        "_year": now().year,
-        "_timezone_display": get_tz_as_text(user.timezone or "Etc/UTC"),
+        CONTEXT_LANGUAGE_KEY: user.ui_language_preference or "en",
+        CONTEXT_COMPONENT_KEY: f"notification_{rendered.email_template_name}",
+        CONTEXT_YEAR_KEY: now().year,
+        CONTEXT_TIMEZONE_DISPLAY_KEY: get_tz_as_text(user.timezone or "Etc/UTC"),
         **rendered.email_template_args,
     }
 
@@ -78,7 +79,7 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         html_unsub_section += f'<br /><a href="{dne_link}">Do not email me (disables hosting)</a>.'
 
     plain_tmplt = (template_folder / f"{rendered.email_template_name}.txt").read_text()
-    plain_template_args = {**template_args, "_plain": True}  # Strip html from translations.
+    plain_template_args = {**template_args, CONTEXT_PLAINTEXT_KEY: True}  # Strip html from translations.
     plain = env.from_string(plain_tmplt + plain_unsub_section).render(plain_template_args)
 
     html_tmplt = (template_folder / "generated_html" / f"{rendered.email_template_name}.html").read_text()
