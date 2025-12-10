@@ -117,7 +117,12 @@
             "title_helper": "Korte omschrijving van de bug",
             "problem_label": "Wat was je aan het doen toen je deze bug kreeg?",
             "problem_helper": "Korte beschrijving van het probleem en hoe dit te reproduceren is",
-            "expect_label": "Wat gebeurde er? Wat had er moeten gebeuren?"
+            "expect_label": "Wat gebeurde er? Wat had er moeten gebeuren?",
+            "expect_helper": "Korte beschrijving van wat je had verwacht dat er moest gebeuren",
+            "success_message": "Bedankt voor het rapporteren van deze bug en voor het beter maken van Couchers. De melding is doorgestuurd naar de ontwikkelaar. Het bug ID The bug is "
+        },
+        "content": {
+            "button_label": "Ongepast gedrag of ongepaste inhoud melden"
         }
     },
     "error_loading_invite_codes": "Kon details van de invite code niet laden"
