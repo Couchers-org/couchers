@@ -14,5 +14,6 @@
     "title": "Event annuleren?",
     "message": "Weet je zeker dat je dit event wilt annuleren?"
   },
-  "events_empty_state": "Er zijn geen events op dit moment. Waarom <0>plan</0> je er zelf niet eentje ✨?"
+  "events_empty_state": "Er zijn geen events op dit moment. Waarom <0>plan</0> je er zelf niet eentje ✨?",
+  "notify_attendees": "Stel aanwezigen op de hoogte van deze verandering"
 }
