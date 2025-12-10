@@ -67,7 +67,7 @@
             "complete": "Afgerond",
             "almost_there": "Bijna klaar",
             "description": "Bekijk hoe ver we zijn met het vertalen van onze website. Help ons om Couchers toegankelijker te maken voor meer mensen over de wereld!",
-            "info_text": "Talen met 50-80% voortgang worden grijs weergegeven in de taalkeuze. Talen met minder dan 50% voortgang worden verborgen in de taalkeuze. Om bijdragers aan te moedigen worden talen onder de 20% op deze site getoond."
+            "info_text": "💡 Talen die voor 50-80% klaar zijn, zijn grijs in de taalkiezer hierboven. Als een taal voor minder dan 50% klaar is, kan je hem nog niet kiezen. Omdat we heel erg blij zijn met al onze vrijwilligers en hen willen aanmoedigen, laten we hieronder ook de talen zien die voor minder dan 20% zijn vertaald."
         }
     },
     "title": "titel",
@@ -114,7 +114,7 @@
         "bug": {
             "button_label": "Een technisch probleem doorgeven",
             "title_label": "Titel van melding",
-            "title_helper": "Korte beschrijving van de bug",
+            "title_helper": "Korte omschrijving van de bug",
             "problem_label": "Wat deed je toen je deze bug kreeg?"
         }
     },
