@@ -27,7 +27,14 @@ from couchers.notifications.render import render_notification
 from couchers.notifications.settings import get_preference
 from couchers.proto.internal import jobs_pb2
 from couchers.sql import couchers_select as select
-from couchers.templates.v2 import add_filters, CONTEXT_PLAINTEXT_KEY, CONTEXT_LANGUAGE_KEY, CONTEXT_COMPONENT_KEY, CONTEXT_YEAR_KEY, CONTEXT_TIMEZONE_DISPLAY_KEY
+from couchers.templates.v2 import (
+    CONTEXT_COMPONENT_KEY,
+    CONTEXT_LANGUAGE_KEY,
+    CONTEXT_PLAINTEXT_KEY,
+    CONTEXT_TIMEZONE_DISPLAY_KEY,
+    CONTEXT_YEAR_KEY,
+    add_filters,
+)
 from couchers.utils import get_tz_as_text, now
 
 logger = logging.getLogger(__name__)

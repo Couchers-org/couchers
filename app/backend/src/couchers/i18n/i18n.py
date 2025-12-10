@@ -125,11 +125,9 @@ def get_raw_translation_string(
     except KeyError as e:
         raise MissingTranslationError(lang, component, string_name) from e
 
-    return perform_substitutions(template, substitutions)
-
-def perform_substitutions(template: str, substitutions: dict[str, str] | None = None) -> str:
-    """Replaces {{key}} placeholders with the corresponding value."""
+    # Perform substitutions by replacing {{key}} with the corresponding value
     if substitutions:
         for key, value in substitutions.items():
             template = template.replace(f"{{{{{key}}}}}", str(value))
+
     return template

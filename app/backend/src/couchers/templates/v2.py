@@ -111,9 +111,7 @@ def v2translate(context: Context, key: str, **kwargs: Any) -> str:
     # Prevent html injection
     escaped_substitutions = {k: escape(str(v)) for k, v in kwargs.items()}
 
-    translated = get_raw_translation_string(
-        lang, component, key, substitutions=escaped_substitutions
-    )
+    translated = get_raw_translation_string(lang, component, key, substitutions=escaped_substitutions)
 
     # Translations may include simple formatting HTML like <b> or <a>,
     # but those should not appear in plain text emails.
