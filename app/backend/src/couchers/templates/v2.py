@@ -132,8 +132,9 @@ def v2translate(context: Context, key: str, **kwargs: Any) -> str:
         translated = re.sub(r"<br\s*/?>", "\n", translated)
 
     else:
-        # HTML support
-        translated = translated.replace("\n", "<br />")
+        # HTML support, email flavored
+        # mjml rendering converts <br /> to <br>, so prefer that form.
+        translated = translated.replace("\n", "<br>")
 
     return translated
 

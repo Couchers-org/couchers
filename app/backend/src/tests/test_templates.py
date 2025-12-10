@@ -86,7 +86,7 @@ def test_v2translate_newlines_br() -> None:
     translated = _render_template(
         template_str='{{ "greeting"|v2translate }}', translation_dict=_greeting_dict("Hello!\nWelcome!")
     )
-    assert translated == "Hello!<br />Welcome!"
+    assert translated == "Hello!<br>Welcome!"
 
 
 def test_v2translate_plain_strip_tags() -> None:
