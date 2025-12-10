@@ -1,6 +1,6 @@
 {
   "biometrics": {
-    "login_prompt": "Log in to Couchers",
+    "login_prompt": "Authenticate to continue",
     "cancel_button": "Cancel",
     "use_password_button": "Use Password",
     "enable_title": "Enable {{biometricType}}?",
@@ -9,6 +9,9 @@
     "not_now_button": "Not Now",
     "confirm_prompt": "Confirm {{biometricType}}",
     "face_id": "Face ID",
-    "biometrics_generic": "biometrics"
+    "touch_id": "Touch ID",
+    "biometrics_generic": "biometrics",
+    "pin_prompt": "Use your device PIN to continue",
+    "pin_fallback_label": "Use device PIN"
   }
 }

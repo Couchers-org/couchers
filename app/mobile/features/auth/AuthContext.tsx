@@ -14,7 +14,7 @@ import client from "@/service/client";
 import i18n from "@/i18n";
 
 const BIOMETRICS_ENABLED_KEY = "biometrics_enabled";
-const CACHED_AUTH_STATE_KEY = "cached_auth_state";
+const SECURE_LOGIN_ENABLED_KEY = "secure_login_enabled";
 
 // Lazy import LocalAuthentication to handle Expo Go gracefully
 let LocalAuthentication: typeof import("expo-local-authentication") | null =
@@ -40,6 +40,8 @@ type AuthContextValue = {
   jailed: boolean;
   /** Whether biometrics are enabled for this app */
   biometricsEnabled: boolean;
+  /** Whether any local auth (biometrics or device credentials) is enabled */
+  secureLoginEnabled: boolean;
   /** Whether biometrics are available (native module loaded) */
   biometricsAvailable: boolean;
   markAuthenticated: () => void;
@@ -48,6 +50,8 @@ type AuthContextValue = {
   setJailed: (jailed: boolean) => void;
   /** Enable biometrics for quick login */
   enableBiometrics: () => Promise<void>;
+  /** Enable secure login using device credentials (PIN/pattern/passcode) */
+  enableSecureLogin: () => Promise<void>;
   /** Disable biometrics */
   disableBiometrics: () => Promise<void>;
 };
@@ -61,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [jailed, setJailedState] = useState(false);
   const [biometricsEnabled, setBiometricsEnabled] = useState(false);
   const [biometricsAvailable, setBiometricsAvailable] = useState(false);
+  const [secureLoginEnabled, setSecureLoginEnabled] = useState(false);
 
   // Check auth status on mount - validates session cookie with backend
   useEffect(() => {
@@ -72,6 +77,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         );
         const biometricsEnabledPref = storedBiometrics === "true";
         setBiometricsEnabled(biometricsEnabledPref);
+        const storedSecureLogin = await SecureStore.getItemAsync(
+          SECURE_LOGIN_ENABLED_KEY,
+        );
+        const secureLoginPref = storedSecureLogin === "true";
+        setSecureLoginEnabled(secureLoginPref);
 
         // Check if LocalAuthentication native module is available
         const localAuth = await getLocalAuthentication();
@@ -83,28 +93,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const authState = response.toObject();
 
         if (authState.loggedIn && authState.authRes) {
-          // Cache auth state for offline use
-          await SecureStore.setItemAsync(
-            CACHED_AUTH_STATE_KEY,
-            JSON.stringify({
-              userId: authState.authRes.userId,
-              jailed: authState.authRes.jailed,
-            }),
-          );
+          // Session is valid - check if we need local auth
+          if ((secureLoginPref || biometricsEnabledPref) && localAuth) {
+            // Check if biometrics or device credentials are available on device
+            const [isEnrolled, supportedAuthTypes, enrolledLevel] =
+              await Promise.all([
+                localAuth.isEnrolledAsync(),
+                localAuth.supportedAuthenticationTypesAsync(),
+                localAuth.getEnrolledLevelAsync(),
+              ]);
 
-          // Session is valid - check if we need biometric auth
-          if (biometricsEnabledPref && localAuth) {
-            // Check if biometrics are available on device
-            const [hasHardware, isEnrolled] = await Promise.all([
-              localAuth.hasHardwareAsync(),
-              localAuth.isEnrolledAsync(),
-            ]);
+            const hasAnyBiometric =
+              supportedAuthTypes.length > 0 &&
+              enrolledLevel !== localAuth.SecurityLevel.NONE;
+            // Use a neutral prompt when biometrics are available; PIN-specific when not
+            const promptMessage = hasAnyBiometric
+              ? i18n.t("biometrics.login_prompt")
+              : i18n.t("biometrics.pin_prompt");
+            const fallbackLabel = i18n.t("biometrics.pin_fallback_label");
+            const promptDescription = undefined;
+            const promptSubtitle = undefined;
 
-            if (hasHardware && isEnrolled) {
+            if (isEnrolled || enrolledLevel !== localAuth.SecurityLevel.NONE) {
               // Prompt for biometric authentication
               const biometricResult = await localAuth.authenticateAsync({
-                promptMessage: i18n.t("biometrics.login_prompt"),
+                promptMessage,
                 cancelLabel: i18n.t("biometrics.use_password_button"),
+                fallbackLabel,
+                promptDescription,
+                promptSubtitle,
                 disableDeviceFallback: false,
               });
 
@@ -131,30 +148,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setAuthenticated(true);
           }
         } else {
-          // Not logged in - clear cached auth state
-          await SecureStore.deleteItemAsync(CACHED_AUTH_STATE_KEY);
+          // Not logged in
+          setAuthenticated(false);
+          setUserIdState(null);
+          setJailedState(false);
         }
       } catch (error) {
-        // Network error - try to use cached auth state for offline access
+        // Network error - user must log in again
         if (__DEV__) {
           console.error("Error checking auth status:", error);
-        }
-
-        try {
-          const cachedAuthState = await SecureStore.getItemAsync(
-            CACHED_AUTH_STATE_KEY,
-          );
-          if (cachedAuthState) {
-            const { userId, jailed } = JSON.parse(cachedAuthState);
-            setUserIdState(userId);
-            setJailedState(jailed);
-            setAuthenticated(true);
-            if (__DEV__) {
-              console.log("Using cached auth state for offline access");
-            }
-          }
-        } catch {
-          // Failed to parse cached state - ignore
         }
       } finally {
         setCheckedAuthStatus(true);
@@ -172,8 +174,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthenticated(false);
     setUserIdState(null);
     setJailedState(false);
-    // Clear cached auth state on logout
-    await SecureStore.deleteItemAsync(CACHED_AUTH_STATE_KEY);
   }, []);
 
   const setUserId = useCallback((id: number | null) => {
@@ -185,13 +185,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const enableBiometrics = useCallback(async () => {
+    await SecureStore.setItemAsync(SECURE_LOGIN_ENABLED_KEY, "true");
     await SecureStore.setItemAsync(BIOMETRICS_ENABLED_KEY, "true");
     setBiometricsEnabled(true);
+    setSecureLoginEnabled(true);
+  }, []);
+
+  const enableSecureLogin = useCallback(async () => {
+    await SecureStore.setItemAsync(SECURE_LOGIN_ENABLED_KEY, "true");
+    setSecureLoginEnabled(true);
   }, []);
 
   const disableBiometrics = useCallback(async () => {
     await SecureStore.deleteItemAsync(BIOMETRICS_ENABLED_KEY);
+    await SecureStore.deleteItemAsync(SECURE_LOGIN_ENABLED_KEY);
     setBiometricsEnabled(false);
+    setSecureLoginEnabled(false);
   }, []);
 
   const value = useMemo(
@@ -201,12 +210,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       userId,
       jailed,
       biometricsEnabled,
+      secureLoginEnabled,
       biometricsAvailable,
       markAuthenticated,
       markLoggedOut,
       setUserId,
       setJailed,
       enableBiometrics,
+      enableSecureLogin,
       disableBiometrics,
     }),
     [
@@ -215,12 +226,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       userId,
       jailed,
       biometricsEnabled,
+      secureLoginEnabled,
       biometricsAvailable,
       markAuthenticated,
       markLoggedOut,
       setUserId,
       setJailed,
       enableBiometrics,
+      enableSecureLogin,
       disableBiometrics,
     ],
   );
