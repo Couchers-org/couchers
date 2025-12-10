@@ -122,7 +122,11 @@
             "success_message": "Bedankt voor het doorgeven van deze bug. Samen maken we Couchers beter! De melding is doorgestuurd naar onze developers. Het bug-nummer is "
         },
         "content": {
-            "button_label": "Ongepast gedrag of ongepaste content melden"
+            "button_label": "Ongepast gedrag of ongepaste content melden",
+            "success_message": "Bedankt voor je melding en voor het beter maken van Couchers voor iedereen!"
+        },
+        "flag": {
+            "block_user": "Blokkeer {{username}}"
         }
     },
     "error_loading_invite_codes": "Kon details van de invite code niet laden"
