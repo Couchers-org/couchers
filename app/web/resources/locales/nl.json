@@ -66,7 +66,8 @@
             "midway": "Halverwege",
             "complete": "Afgerond",
             "almost_there": "Bijna klaar",
-            "description": "Bekijk hoe ver we zijn met het vertalen van onze website. Help ons om Couchers toegankelijker te maken voor meer mensen over de wereld!"
+            "description": "Bekijk hoe ver we zijn met het vertalen van onze website. Help ons om Couchers toegankelijker te maken voor meer mensen over de wereld!",
+            "info_text": "Talen met 50-80% voortgang worden grijs weergegeven in de taalkeuze. Talen met minder dan 50% voortgang worden verborgen in de taalkeuze. Om bijdragers aan te moedigen worden talen onder de 20% op deze site getoond."
         }
     },
     "title": "titel",
@@ -112,7 +113,9 @@
         "title": "Een probleem doorgeven",
         "bug": {
             "button_label": "Een technisch probleem doorgeven",
-            "title_label": "Titel van melding"
+            "title_label": "Titel van melding",
+            "title_helper": "Korte beschrijving van de bug",
+            "problem_label": "Wat deed je toen je deze bug kreeg?"
         }
     },
     "error_loading_invite_codes": "Kon details van de invite code niet laden"
