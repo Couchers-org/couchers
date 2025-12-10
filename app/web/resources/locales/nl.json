@@ -115,9 +115,9 @@
             "button_label": "Een technisch probleem doorgeven",
             "title_label": "Titel van melding",
             "title_helper": "Korte omschrijving van de bug",
-            "problem_label": "Wat deed je toen je deze bug kreeg?",
+            "problem_label": "Wat was je aan het doen toen je deze bug kreeg?",
             "problem_helper": "Korte beschrijving van het probleem en hoe dit te reproduceren is",
-            "expect_label": "Wat is er gebeurd? Wat had er moeten gebeuren?"
+            "expect_label": "Wat gebeurde er? Wat had er moeten gebeuren?"
         }
     },
     "error_loading_invite_codes": "Kon details van de invite code niet laden"
