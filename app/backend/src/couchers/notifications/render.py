@@ -365,8 +365,14 @@ def render_notification(user: User, notification: Notification) -> RenderedNotif
             email_list_unsubscribe_url=generate_unsub_topic_action(notification),
         )
     elif notification.topic_action.display == "donation:received":
-        title = "Thank you for your donation to Couchers.org!"
-        message = f"Thank you so much for your donation of ${data.amount} to Couchers.org."
+        title = get_localized_string("notifications", "donation_received_title")
+        message = get_localized_string(
+            "notifications",
+            "donation_received_thanks_amount",
+            substitutions={
+                "amount": data.amount,
+            },
+        )
         return RenderedNotification(
             is_critical=True,
             email_subject=title,
