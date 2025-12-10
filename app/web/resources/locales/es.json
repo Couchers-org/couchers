@@ -53,9 +53,9 @@
     "cancel": "Cancelar",
     "cookie_message": "Utilizamos cookies para asegurarnos de brindarte la mejor experiencia en nuestro sitio web. Si continúas usando este sitio asumiremos que estás de acuerdo con ello. Puedes leer más sobre nuestros <1>Términos del Servicio</1>.",
     "meetup_status": {
-        "does_not_want_to_meetup": "No puedo reunirme",
-        "open_to_meetup": "Abierto a reunirme",
-        "wants_to_meetup": "Quiero reunirme",
+        "does_not_want_to_meetup": "No puedo quedar",
+        "open_to_meetup": "Abierto a quedar",
+        "wants_to_meetup": "Quiero quedar",
         "unspecified_info": "No lo especificó"
     },
     "terms_of_service": "Términos del servicio",
