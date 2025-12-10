@@ -65,7 +65,9 @@
             "complete_percent": "{{percent}}% afgerond",
             "midway": "Halverwege",
             "complete": "Afgerond",
-            "almost_there": "Bijna klaar"
+            "almost_there": "Bijna klaar",
+            "description": "Bekijk hoe ver we zijn met het vertalen van onze website. Help ons om Couchers toegankelijker te maken voor meer mensen over de wereld!",
+            "info_text": "💡 Talen die voor 50-80% klaar zijn, zijn grijs in de taalkiezer hierboven. Als een taal voor minder dan 50% klaar is, kan je hem nog niet kiezen. Omdat we heel erg blij zijn met al onze vrijwilligers en hen willen aanmoedigen, laten we hieronder ook de talen zien die voor minder dan 20% zijn vertaald."
         }
     },
     "title": "titel",
@@ -111,7 +113,21 @@
         "title": "Een probleem doorgeven",
         "bug": {
             "button_label": "Een technisch probleem doorgeven",
-            "title_label": "Titel van melding"
+            "title_label": "Titel van melding",
+            "title_helper": "Korte omschrijving van de bug",
+            "problem_label": "Wat was je aan het doen toen je deze bug kreeg?",
+            "problem_helper": "Korte beschrijving van het probleem en hoe dit te reproduceren is",
+            "expect_label": "Wat gebeurde er? Wat had er moeten gebeuren?",
+            "expect_helper": "Korte beschrijving van wat je dacht dat er eigenlijk zou gebeuren",
+            "success_message": "Bedankt voor het doorgeven van deze bug. Samen maken we Couchers beter! De melding is doorgestuurd naar onze developers. Het bug-nummer is "
+        },
+        "content": {
+            "button_label": "Ongepast gedrag of ongepaste content melden",
+            "success_message": "Bedankt voor je melding en voor het beter maken van Couchers voor iedereen!"
+        },
+        "flag": {
+            "block_user": "Blokkeer {{username}}"
         }
-    }
+    },
+    "error_loading_invite_codes": "Kon details van de invite code niet laden"
 }
