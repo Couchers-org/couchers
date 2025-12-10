@@ -37,8 +37,8 @@ md = MarkdownIt("zero", {"typographer": True}).enable(["smartquotes", "heading",
 # Special context values expected by v2 filters
 CONTEXT_YEAR_KEY = "_year"
 CONTEXT_TIMEZONE_DISPLAY_KEY = "_timezone_display"
-CONTEXT_COMPONENT_KEY = "_component"
-CONTEXT_LANGUAGE_KEY = "_lang"
+CONTEXT_TRANSLATION_COMPONENT_KEY = "_component"
+CONTEXT_TRANSLATION_LANGUAGE_KEY = "_lang"
 CONTEXT_PLAINTEXT_KEY = "_plain"
 
 
@@ -105,8 +105,8 @@ def v2translate(context: Context, key: str, **kwargs: Any) -> str:
         {{ "greeting_key"|v2translate(name=user.name) }}
     """
 
-    lang: str = context[CONTEXT_LANGUAGE_KEY]
-    component: str = context[CONTEXT_COMPONENT_KEY]
+    lang: str = context[CONTEXT_TRANSLATION_LANGUAGE_KEY]
+    component: str = context[CONTEXT_TRANSLATION_COMPONENT_KEY]
 
     # Prevent html injection
     escaped_substitutions = {k: escape(str(v)) for k, v in kwargs.items()}

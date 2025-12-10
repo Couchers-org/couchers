@@ -28,10 +28,10 @@ from couchers.notifications.settings import get_preference
 from couchers.proto.internal import jobs_pb2
 from couchers.sql import couchers_select as select
 from couchers.templates.v2 import (
-    CONTEXT_COMPONENT_KEY,
-    CONTEXT_LANGUAGE_KEY,
     CONTEXT_PLAINTEXT_KEY,
     CONTEXT_TIMEZONE_DISPLAY_KEY,
+    CONTEXT_TRANSLATION_COMPONENT_KEY,
+    CONTEXT_TRANSLATION_LANGUAGE_KEY,
     CONTEXT_YEAR_KEY,
     add_filters,
 )
@@ -52,9 +52,8 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     template_args = {
         "user": user,
         "time": notification.created,
-        # Lookup strings for this notification
-        CONTEXT_LANGUAGE_KEY: user.ui_language_preference or "en",
-        CONTEXT_COMPONENT_KEY: f"notification_{rendered.email_template_name}",
+        CONTEXT_TRANSLATION_LANGUAGE_KEY: user.ui_language_preference or "en",
+        CONTEXT_TRANSLATION_COMPONENT_KEY: "notifications",
         CONTEXT_YEAR_KEY: now().year,
         CONTEXT_TIMEZONE_DISPLAY_KEY: get_tz_as_text(user.timezone or "Etc/UTC"),
         **rendered.email_template_args,

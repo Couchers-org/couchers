@@ -1,19 +1,19 @@
-{{ "greeting"|v2translate(name=user.name) }}
+{{ "dear_name"|v2translate(name=user.name) }}
 
-{{ "thanks_donation"|v2translate(amount=amount) }}
+{{ "donation_received_thanks_amount"|v2translate(amount=amount) }}
 
-{{ "donation_purpose"|v2translate }}
+{{ "donation_received_purpose"|v2translate }}
 
 
-{{ "invoice_receipt_info"|v2translate }}
+{{ "donation_received_invoice_receipt_info"|v2translate }}
 
 <{{ receipt_url }}>
 
-{{ "questions_contact"|v2translate }}
+{{ "donation_received_questions_contact"|v2translate }}
 
-{{ "generosity_helps"|v2translate }}
+{{ "donation_received_generosity_helps"|v2translate }}
 
 
 {{ "thank_you"|v2translate }}
 
-{{ "signature"|v2translate }}
+{{ "founders_signature"|v2translate }}

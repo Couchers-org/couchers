@@ -5,7 +5,12 @@ from unittest.mock import patch
 
 from jinja2 import Environment
 
-from couchers.templates.v2 import CONTEXT_COMPONENT_KEY, CONTEXT_LANGUAGE_KEY, CONTEXT_PLAINTEXT_KEY, add_filters
+from couchers.templates.v2 import (
+    CONTEXT_PLAINTEXT_KEY,
+    CONTEXT_TRANSLATION_COMPONENT_KEY,
+    CONTEXT_TRANSLATION_LANGUAGE_KEY,
+    add_filters,
+)
 
 _env = Environment()
 add_filters(_env)
@@ -22,8 +27,8 @@ def _render_template(
     template = _env.from_string(template_str)
     template_args = {
         **(template_args or {}),
-        CONTEXT_LANGUAGE_KEY: lang,
-        CONTEXT_COMPONENT_KEY: component,
+        CONTEXT_TRANSLATION_LANGUAGE_KEY: lang,
+        CONTEXT_TRANSLATION_COMPONENT_KEY: component,
     }
     if plain:
         template_args[CONTEXT_PLAINTEXT_KEY] = True
