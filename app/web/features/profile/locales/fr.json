@@ -306,5 +306,6 @@
   "profile_changes_saved_message": "Changements au profil enregistrés !",
   "hosting_preferences_success_message": "Préférences d'hébergement enregistrés !",
   "couldnt_read_file": "Impossible de lire le fichier",
-  "select_an_image": "Sélectionner une image"
+  "select_an_image": "Sélectionner une image",
+  "names_profile_photo": "Photo de profil de {{name}}"
 }

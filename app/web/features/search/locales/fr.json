@@ -55,7 +55,8 @@
       "title": "Afficher les profils vides"
     },
     "general_filters": {
-      "has_references": "A des références"
+      "has_references": "A des références",
+      "accepts_last_minute_requests": "Accepte les requêtes de dernière minute"
     },
     "rules": {
       "alcohol_allowed": "Alcool permis",
@@ -81,5 +82,6 @@
     "list": "Liste",
     "map_and_list": "Carte et liste"
   },
-  "keyword": "Mot clé"
+  "keyword": "Mot clé",
+  "location": "Emplacement"
 }
