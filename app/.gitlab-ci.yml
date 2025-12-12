@@ -486,6 +486,7 @@ test:mobile:
   script:
     - cd app/mobile
     - npm ci
+    - npm run build:protos
     - npm test -- --ci --coverage
   after_script:
     - cp app/mobile/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/ || true
@@ -510,6 +511,7 @@ test:mobile-linting:
   script:
     - cd app/mobile
     - npm ci
+    - npm run build:protos
     - npm run lint
   rules:
     - if: $DO_CHECKS == "true"
@@ -525,6 +527,7 @@ test:mobile-typecheck:
   script:
     - cd app/mobile
     - npm ci
+    - npm run build:protos
     - npx tsc --noEmit
   rules:
     - if: $DO_CHECKS == "true"
