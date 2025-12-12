@@ -289,7 +289,7 @@
       "download_app_store": "Im App Store herunterladen",
       "download_google_play": "Bei Google Play herunterladen",
       "chip_location": {
-        "description": "Der Chipstandort variiert je nach Land. Möglicherweise musst du verschiedene Seiten ausprobieren. Hier sind einige Beispiele für Standorte:",
+        "description": "Die Position des Chips variiert je nach Land. Möglicherweise musst du verschiedene Seiten ausprobieren. Hier sind einige Beispiele für Positionen:",
         "heading": "Den NFC-Chip deines Reisepasses finden",
         "us_germany_mexico": "<strong>Brasilien, USA, Deutschland (2016), Indonesien, Mexiko:</strong> Rückseite",
         "finland_germany_new": "<strong>Finnland, Deutschland (2017+), Russland:</strong> Bildseite",

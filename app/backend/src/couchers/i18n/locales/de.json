@@ -153,7 +153,7 @@
         "not_the_host": "Du bist nicht der Host dieser Anfrage.",
         "notification_not_found": "Benachrichtigung nicht gefunden.",
         "object_not_found": "Objekt nicht gefunden.",
-        "online_event_requires_link": "Eine reine Online-Veranstaltung erfordert einen Link.",
+        "online_event_requires_link": "Ein reines Online-Event erfordert einen Link.",
         "only_admin_can_edit": "Nur Administratoren können den Chat bearbeiten.",
         "only_admin_can_make_admin": "Nur Administratoren können andere Benutzer zu Administratoren machen.",
         "only_admin_can_remove_user": "Nur Administratoren können Benutzer entfernen.",
