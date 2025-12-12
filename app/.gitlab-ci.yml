@@ -516,6 +516,21 @@ test:mobile-lint:
       changes:
         - app/mobile/**/*
 
+test:mobile-typecheck:
+  needs: ["protos"]
+  stage: test
+  image: node:22
+  inherit:
+    default: false
+  script:
+    - cd app/mobile
+    - npm ci
+    - npx tsc --noEmit
+  rules:
+    - if: $DO_CHECKS == "true"
+      changes:
+        - app/mobile/**/*
+
 test:proxy:
   needs: ["build:proxy"]
   stage: test
@@ -733,6 +748,9 @@ wait:before-release:
       artifacts: false
       optional: true
     - job: test:mobile-lint
+      artifacts: false
+      optional: true
+    - job: test:mobile-typecheck
       artifacts: false
       optional: true
 
