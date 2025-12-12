@@ -30,5 +30,6 @@
     "community_standing_description": "Calculé à partir de plusieurs facteurs comme les références et la participation dans la communauté.",
     "verification_score": "Score de vérification",
     "verification_score_description": "Calculé à partir des recommendations d'autres membres",
-    "edit": "Éditer"
+    "edit": "Éditer",
+    "save": "Sauvegarder"
 }
