@@ -18,6 +18,6 @@
         "cant_add_self": "Vous ne pouvez pas vous rajouter à un groupe de discussion.",
         "cant_block_self": "Vous ne pouvez pas vous bloquer vous-même.",
         "cant_friend_self": "Vous ne pouvez pas vous ajouter en tant qu'ami.",
-        "can_only_refer_friends": "Tu peux uniquement écrire une référence, en tant qu'ami, pour les amis confirmés."
+        "can_only_refer_friends": "Vous pouvez uniquement écrire une référence, en tant qu'ami, pour les amis confirmés."
     }
 }
