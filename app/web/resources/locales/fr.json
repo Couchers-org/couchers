@@ -24,6 +24,10 @@
     "thanks": "Merci !",
     "donation_banner": {
         "message": "Couchers.org fonctionne grace à votre générosité, comme le couch surfing. En ce temps des fêtes, aidez nous à continuer. Nous collectons 5,000$ pour couvrir les frais de fonctionnement de Couchers.org.",
-        "button": "Faire un don maintenant"
-    }
+        "button": "Faire un don maintenant",
+        "progress_label": "Progrès de la collecte de dons"
+    },
+    "community_standing_description": "Calculé à partir de plusieurs facteurs comme les références et la participation dans la communauté.",
+    "verification_score": "Pointage de vérification",
+    "verification_score_description": "Calculé à partir des recommendations d'autres utilisateurs"
 }
