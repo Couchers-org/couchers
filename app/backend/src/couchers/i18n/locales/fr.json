@@ -14,6 +14,7 @@
         "at_least_two_users_required": "Au moins de 2 membres doivent être indiqué.e.s.",
         "badge_not_found": "Badge non trouvé.",
         "bug_tool_disabled": "Outil pour les bugs désactivé",
-        "cannot_create_discussion": "Vous ne pouvez pas créer une discussion dans ce groupe ou cette communauté."
+        "cannot_create_discussion": "Vous ne pouvez pas créer une discussion dans ce groupe ou cette communauté.",
+        "cant_add_self": "Tu ne peux pas te rajouter à un discussion de groupe."
     }
 }
