@@ -501,7 +501,7 @@ test:mobile:
         - app/proto/**/*
         - app/mobile/**/*
 
-test:mobile-lint:
+test:mobile-linting:
   needs: ["protos"]
   stage: test
   image: node:22
@@ -747,7 +747,7 @@ wait:before-release:
     - job: test:mobile
       artifacts: false
       optional: true
-    - job: test:mobile-lint
+    - job: test:mobile-linting
       artifacts: false
       optional: true
     - job: test:mobile-typecheck
