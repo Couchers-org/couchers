@@ -1,4 +1,4 @@
-import { useRouter } from "expo-router";
+import { Href, useRouter } from "expo-router";
 import { useState } from "react";
 import { Alert, Platform, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -34,7 +34,7 @@ export default function LoginScreen() {
   const offerBiometricEnrollment = async () => {
     // Skip if biometrics native module isn't available (e.g., Expo Go)
     if (!biometricsAvailable) {
-      router.replace("/(tabs)/dashboard");
+      router.replace("/(tabs)/dashboard" as Href);
       return;
     }
 
@@ -51,7 +51,7 @@ export default function LoginScreen() {
 
       if (!hasHardware || !isEnrolled) {
         // Biometrics not available - just navigate
-        router.replace("/(tabs)/dashboard");
+        router.replace("/(tabs)/dashboard" as Href);
         return;
       }
 
@@ -79,7 +79,7 @@ export default function LoginScreen() {
             onPress: async () => {
               // Enable secure login via device credentials (PIN/pattern/passcode)
               await enableSecureLogin();
-              router.replace("/(tabs)/dashboard");
+              router.replace("/(tabs)/dashboard" as Href);
             },
           },
           {
@@ -96,7 +96,7 @@ export default function LoginScreen() {
               if (result.success) {
                 await enableBiometrics();
               }
-              router.replace("/(tabs)/dashboard");
+              router.replace("/(tabs)/dashboard" as Href);
             },
           },
         ],
@@ -105,7 +105,7 @@ export default function LoginScreen() {
       if (__DEV__) {
         console.error("Error offering biometric enrollment:", error);
       }
-      router.replace("/(tabs)/dashboard");
+      router.replace("/(tabs)/dashboard" as Href);
     }
   };
 
@@ -124,7 +124,7 @@ export default function LoginScreen() {
           await offerBiometricEnrollment();
         } else {
           // Already have biometrics enabled or not available - just navigate
-          router.replace("/(tabs)/dashboard");
+          router.replace("/(tabs)/dashboard" as Href);
         }
       } else if (data.type === "LOGOUT") {
         // Clear mobile auth state and reset the WebView to drop history

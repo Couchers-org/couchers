@@ -17,7 +17,7 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import * as Notifications from "expo-notifications";
-import { Stack, useRouter } from "expo-router";
+import { Href, Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -110,11 +110,10 @@ function PushNotificationsRegistrar() {
           try {
             // Extract path from full URL (e.g., "https://couchers.org/messages/" -> "/messages/")
             const path = new URL(url).pathname;
-            console.log("PATH", path);
-            router.push(`/(tabs)${path}`);
+            router.push(`/(tabs)${path}` as Href);
           } catch {
             // If URL parsing fails, use as-is
-            router.push(`/(tabs)${url}`);
+            router.push(`/(tabs)${url}` as Href);
           }
         }
       },

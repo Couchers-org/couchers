@@ -1,4 +1,4 @@
-import { useFocusEffect, useRouter } from "expo-router";
+import { Href, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -100,10 +100,10 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     if (targetTab !== currentTab) {
       if (targetTab) {
         // Navigate to a main tab
-        router.navigate(`/${targetTab}`);
+        router.navigate(`/${targetTab}` as Href);
       } else {
         // Navigate to non-tab route (deselects all tabs)
-        router.navigate(webPath as `/${string}`);
+        router.navigate(webPath as Href);
       }
     }
   };
@@ -120,7 +120,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       } else if (payload?.type === "LOGOUT") {
         // Web app says user logged out - clear mobile state and navigate to login
         markLoggedOut();
-        router.replace("/login");
+        router.replace("/login" as Href);
       }
     } catch (error) {
       // Silently ignore non-JSON messages (expected from browser/WebView internals)
@@ -143,6 +143,8 @@ export default function WebEmbed({ path }: WebEmbedProps) {
             Check your internet connection and try again.
           </Text>
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Try Again"
             style={({ pressed }) => [
               styles.retryButton,
               pressed && styles.retryButtonPressed,
