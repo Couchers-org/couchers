@@ -17,7 +17,7 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import * as Notifications from "expo-notifications";
-import { Stack } from "expo-router";
+import { Href, Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -95,6 +95,32 @@ export default function RootLayout() {
 }
 
 function PushNotificationsRegistrar() {
+  const router = useRouter();
   useRegisterPushNotifications();
+
+  useEffect(() => {
+    // Handle notification taps - navigate to the URL in the notification data
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        const url = response.notification.request.content.data?.url as
+          | string
+          | undefined;
+
+        if (url) {
+          try {
+            // Extract path from full URL (e.g., "https://couchers.org/messages/" -> "/messages/")
+            const path = new URL(url).pathname;
+            router.push(`/(tabs)${path}` as Href);
+          } catch {
+            // If URL parsing fails, use as-is
+            router.push(`/(tabs)${url}` as Href);
+          }
+        }
+      },
+    );
+
+    return () => subscription.remove();
+  }, [router]);
+
   return null;
 }

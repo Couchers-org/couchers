@@ -1,4 +1,5 @@
-import { useRouter } from "expo-router";
+import { Href, useRouter } from "expo-router";
+import { useState } from "react";
 import { Alert, Platform, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
@@ -13,31 +14,27 @@ export default function LoginScreen() {
   const { t } = useTranslation();
   const {
     markAuthenticated,
+    markLoggedOut,
     setUserId,
     setJailed,
     biometricsEnabled,
     biometricsAvailable,
     enableBiometrics,
+    enableSecureLogin,
   } = useAuthContext();
   const router = useRouter();
   const colorScheme = useColorScheme();
+  const [webViewKey, setWebViewKey] = useState<number>(0);
 
   const backgroundColor =
     colorScheme === "dark"
       ? theme.palette.common.black
       : theme.palette.common.white;
 
-  const getBiometricTypeName = (): string => {
-    if (Platform.OS === "ios") {
-      return t("biometrics.face_id");
-    }
-    return t("biometrics.biometrics_generic");
-  };
-
   const offerBiometricEnrollment = async () => {
     // Skip if biometrics native module isn't available (e.g., Expo Go)
     if (!biometricsAvailable) {
-      router.replace("/(tabs)/dashboard");
+      router.replace("/(tabs)/dashboard" as Href);
       return;
     }
 
@@ -46,18 +43,30 @@ export default function LoginScreen() {
       const LocalAuthentication = await import("expo-local-authentication");
 
       // Check if biometrics are available on device
-      const [hasHardware, isEnrolled] = await Promise.all([
+      const [hasHardware, isEnrolled, supportedTypes] = await Promise.all([
         LocalAuthentication.hasHardwareAsync(),
         LocalAuthentication.isEnrolledAsync(),
+        LocalAuthentication.supportedAuthenticationTypesAsync(),
       ]);
 
       if (!hasHardware || !isEnrolled) {
         // Biometrics not available - just navigate
-        router.replace("/(tabs)/dashboard");
+        router.replace("/(tabs)/dashboard" as Href);
         return;
       }
 
-      const biometricName = getBiometricTypeName();
+      const hasFace = supportedTypes.includes(
+        LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION,
+      );
+      const hasFingerprint = supportedTypes.includes(
+        LocalAuthentication.AuthenticationType.FINGERPRINT,
+      );
+      const biometricName =
+        Platform.OS === "ios" && hasFingerprint
+          ? t("biometrics.touch_id")
+          : hasFace
+            ? t("biometrics.face_id")
+            : t("biometrics.biometrics_generic");
 
       // Prompt user to enable biometrics
       Alert.alert(
@@ -67,8 +76,10 @@ export default function LoginScreen() {
           {
             text: t("biometrics.not_now_button"),
             style: "cancel",
-            onPress: () => {
-              router.replace("/(tabs)/dashboard");
+            onPress: async () => {
+              // Enable secure login via device credentials (PIN/pattern/passcode)
+              await enableSecureLogin();
+              router.replace("/(tabs)/dashboard" as Href);
             },
           },
           {
@@ -85,7 +96,7 @@ export default function LoginScreen() {
               if (result.success) {
                 await enableBiometrics();
               }
-              router.replace("/(tabs)/dashboard");
+              router.replace("/(tabs)/dashboard" as Href);
             },
           },
         ],
@@ -94,7 +105,7 @@ export default function LoginScreen() {
       if (__DEV__) {
         console.error("Error offering biometric enrollment:", error);
       }
-      router.replace("/(tabs)/dashboard");
+      router.replace("/(tabs)/dashboard" as Href);
     }
   };
 
@@ -113,8 +124,12 @@ export default function LoginScreen() {
           await offerBiometricEnrollment();
         } else {
           // Already have biometrics enabled or not available - just navigate
-          router.replace("/(tabs)/dashboard");
+          router.replace("/(tabs)/dashboard" as Href);
         }
+      } else if (data.type === "LOGOUT") {
+        // Clear mobile auth state and reset the WebView to drop history
+        await markLoggedOut();
+        setWebViewKey((k: number): number => k + 1);
       }
     } catch (error) {
       // Silently ignore non-JSON messages (expected from browser/WebView internals)
@@ -127,6 +142,7 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor }}>
       <WebView
+        key={webViewKey}
         source={{ uri: WEB_BASE_URL + loginRoute }}
         sharedCookiesEnabled
         onMessage={handleMessage}
