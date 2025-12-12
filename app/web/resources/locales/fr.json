@@ -31,5 +31,7 @@
     "verification_score": "Score de vérification",
     "verification_score_description": "Calculé à partir des recommendations d'autres membres",
     "edit": "Modifier",
-    "save": "Sauvegarder"
+    "save": "Sauvegarder",
+    "send": "Envoyer",
+    "save_changes": "Sauvegarder les changements"
 }
