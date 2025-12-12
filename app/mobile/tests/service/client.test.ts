@@ -1,6 +1,9 @@
 import { StatusCode } from "grpc-web";
 
-import { AuthInterceptor, setUnauthenticatedErrorHandler } from "./client";
+import {
+  AuthInterceptor,
+  setUnauthenticatedErrorHandler,
+} from "@/service/client";
 
 describe("AuthInterceptor", () => {
   it("returns a successful response", async () => {

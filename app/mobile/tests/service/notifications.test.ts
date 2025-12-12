@@ -1,7 +1,7 @@
-import { registerMobilePushNotificationSubscription } from "./notifications";
-import client from "./client";
+import { registerMobilePushNotificationSubscription } from "@/service/notifications";
+import client from "@/service/client";
 
-jest.mock("./client", () => ({
+jest.mock("@/service/client", () => ({
   notifications: {
     registerMobilePushNotificationSubscription: jest.fn(),
   },
