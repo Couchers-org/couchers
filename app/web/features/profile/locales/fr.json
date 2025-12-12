@@ -97,7 +97,8 @@
     "rating_negative": "Négatif",
     "ratings_slider_label": "échelle d'évaluation",
     "friend_reference_requires_friendship": "Vous ne pouvez écrire de référence d'ami.e qu'aux membres avec lesquels vous êtes ami.e.s.",
-    "already_wrote_reference_for_stay": "Vous avez déjà écrit une référence pour ce membre et ce séjour. Votre référence sera visible dès qu'ils vous auront écrit une référence, ou après 14 jours"
+    "already_wrote_reference_for_stay": "Vous avez déjà écrit une référence pour ce membre et ce séjour. Votre référence sera visible dès qu'ils vous auront écrit une référence, ou après 14 jours",
+    "already_wrote_friend_reference": "Vous avez déjà écrit une référence d'ami pour ce membre."
   },
   "incomplete_dialog": {
     "title": "Profil incomplet",
@@ -231,7 +232,8 @@
     "stay_type_a11y_text": "type de séjour",
     "success": "Votre demande d'hébergement a été envoyée !",
     "guest_count": "Nombre d'invités",
-    "arrival_date_empty": "Veuillez spécifier une date d'arrivée prévue"
+    "arrival_date_empty": "Veuillez spécifier une date d'arrivée prévue",
+    "request_char_length_too_short": "Veuillez entrer {{charactersRemaining}} caratères supplémentaires pour envoyer une demande d'hébergement."
   },
   "reference_badge_label": {
     "friend": "Ami(e)",
@@ -258,8 +260,8 @@
   },
   "accept_friend_label": "Accepter la demande d'ami",
   "decline_friend_label": "Refuser la demande d’ami",
-  "response_time_text_most": "Normalement de {{p33}} au {{p66}}",
-  "response_time_text_almost_all": "Normalement du {{p33}} au {{p66}}",
+  "response_time_text_most": "Normalement de {{p33}} à {{p66}}",
+  "response_time_text_almost_all": "Normalement de {{p33}} à {{p66}}",
   "no_references": "Aucune référence de ce type pour le moment !",
   "see_more_references": "Voir plus de références",
   "write_reference": "Rédiger une référence",
@@ -288,5 +290,18 @@
   "incomplete_profile_haiku": "Un avatar vide,\nMystérieux derrière—\nQui êtes-vous, en fait ?",
   "active": "Actif",
   "edit": "Modifier mon profil",
-  "what_options_mean": "Que signifient ces options"
+  "what_options_mean": "Que signifient ces options",
+  "write_friend_reference": "Écrivez une référence d'ami",
+  "hosting_status": {
+    "can_host_description": "J'aimerais héberger des surfeurs",
+    "maybe_host_description": "Je pourrais héberger, selon les circonstances",
+    "cannot_host_description": "Je ne peur pas héberger de voyageurs en ce moment"
+  },
+  "search_indicator": "Le début de cette section est visible dans les résultats de recherche lorsque d'autres membres vous cherchent",
+  "meetup_status": {
+    "wants_to_meetup_description": "J'aimerais rencontrer d'autres membres",
+    "open_to_meetup_description": "Je pourrais rencontrer d'autres personnes, selon les circonstances",
+    "does_not_want_to_meetup_description": "Je préfère ne pas rencontrer d'autres personnes"
+  },
+  "profile_changes_saved_message": "Changements au profil enregistrés!"
 }
