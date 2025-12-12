@@ -15,6 +15,7 @@
         "badge_not_found": "Badge non trouvé.",
         "bug_tool_disabled": "Outil pour les bugs désactivé",
         "cannot_create_discussion": "Vous ne pouvez pas créer une discussion dans ce groupe ou cette communauté.",
-        "cant_add_self": "Vous ne pouvez pas vous rajouter à un groupe de discussion."
+        "cant_add_self": "Vous ne pouvez pas vous rajouter à un groupe de discussion.",
+        "cant_block_self": "Tu ne peux pas te bloquer toi-même."
     }
 }
