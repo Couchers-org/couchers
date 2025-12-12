@@ -11,6 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "org.couchers.ios",
+      "icon": "./assets/images/icon_ios.png",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
