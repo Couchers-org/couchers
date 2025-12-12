@@ -124,7 +124,8 @@
     "other_info": "Informations supplémentaires",
     "household_details": "Détails de l'habitation",
     "household_habits": "Habitudes domestiques",
-    "hosting_preferences_subtitle": "Informez vos visiteurs de ce avec quoi vous êtes à l'aise"
+    "hosting_preferences_subtitle": "Informez vos visiteurs de ce avec quoi vous êtes à l'aise",
+    "parking_heading": "Parking"
   },
   "edit_profile_headings": {
     "regions_lived": "Régions dans lesquelles j'ai habitées",
@@ -168,9 +169,9 @@
     "woman": "Femme"
   },
   "helper_text": {
-    "characters_remaining_0": "<bold>Veuillez écrire {{count}} caractère supplémentaire pour compléter votre profil.</bold> Les profils authentiques construisent une communauté de confiance. Plus vous partagez, plus il est facile de faire des contacts!",
-    "characters_remaining_1": "<bold>Veuillez écrire {{count}} de caractères supplémentaires pour compléter votre profil.</bold> Les profils authentiques construisent une communauté de confiance. Plus vous partagez, plus il est facile de faire des contacts!",
-    "characters_remaining_2": "<bold>Veuillez écrire {{count}} caractères supplémentaires pour compléter votre profil.</bold> Les profils authentiques construisent une communauté de confiance. Plus vous partagez, plus il est facile de faire des contacts!",
+    "characters_remaining_0": "<bold>Veuillez écrire {{count}} caractère supplémentaire pour compléter votre profil.</bold> Les profils authentiques construisent une communauté de confiance. Plus vous partagez, plus il est facile de faire des contacts !",
+    "characters_remaining_1": "<bold>Veuillez écrire {{count}} de caractères supplémentaires pour compléter votre profil.</bold> Les profils authentiques construisent une communauté de confiance. Plus vous partagez, plus il est facile de faire des contacts !",
+    "characters_remaining_2": "<bold>Veuillez écrire {{count}} caractères supplémentaires pour compléter votre profil.</bold> Les profils authentiques construisent une communauté de confiance. Plus vous partagez, plus il est facile de faire des contacts !",
     "missing_profile_photo": "Veuillez ajouter une photo pour compléter votre profil."
   },
   "edit_profile_helper_text": "Cherchez vous de l'inspiration comment commencer ? <2>Consultez notre guide pour créer un profil exceptionnel</2>.",
@@ -264,5 +265,5 @@
   "response_time_text_some": "Peut-être en {{p33}}",
   "incomplete_profile_haiku": "Un avatar vide,\nMystérieux derrière—\nQui êtes-vous, en fait ?",
   "active": "Actif",
-  "edit": "Editer mon profil"
+  "edit": "Modifier mon profil"
 }
