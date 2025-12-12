@@ -1,1 +1,18 @@
-{}
+{
+    "title": "Herramientas de moderación",
+    "banned": "Vetado",
+    "deleted": "Eliminado",
+    "list_users": {
+        "heading": "Lista de nuevos usuarios",
+        "none_found": "No se encontraron usuarios",
+        "load_more": "Ver más"
+    },
+    "actions": {
+        "ban": "Vetar usuario",
+        "open_in_console": "Abrir en la consola"
+    },
+    "panel": {
+        "heading": "Cosas de moderadores"
+    },
+    "do_not_email": "No enviar correo electrónico"
+}

@@ -45,6 +45,12 @@
         "date_from_after_to": "La fecha de inicio no puede ser posterior a la fecha de fin.",
         "date_from_before_today": "La fecha de inicio debe ser hoy o posterior.",
         "date_to_after_one_year": "No puedes solicitar alojarte con alguien por más de un año.",
-        "discussion_not_found": "Discusión no encontrada."
+        "discussion_not_found": "Discusión no encontrada.",
+        "address_line_1_required": "La línea 1 de la dirección es obligatoria."
+    },
+    "badges": {
+        "volunteer_name": "Voluntario en activo",
+        "board_member_name": "Miembro de la Junta",
+        "past_board_member_name": "Anterior Miembro de la Junta"
     }
 }

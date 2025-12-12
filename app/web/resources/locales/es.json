@@ -32,7 +32,7 @@
     "update": "Actualizar",
     "couchers": "Couchers.org",
     "create_account": "Crear cuenta",
-    "join_us": "Únete a nosotros",
+    "join_us": "Unirse",
     "back": "Volver",
     "learn_more": "Saber más",
     "created": "Creado",
@@ -152,7 +152,7 @@
         "about": "Acerca de",
         "community": "Comunidad",
         "communities": "Comunidades",
-        "dashboard": "Tablón",
+        "dashboard": "Panel principal",
         "donate": "Donar",
         "events": "Eventos",
         "messages": "Mensajes",
@@ -239,7 +239,7 @@
             "everyone": "<bold>Para todo el mundo</bold>: comunidad, cultura, y conexión; no transacciones"
         },
         "tip_text": "¿Nuevo por aquí? Asiste a un evento local y conoce la comunidad: bajo compromiso, alta conexión.",
-        "compare_title": "¿Cómo se compara Couchers.org?",
+        "compare_title": "¿En qué se diferencia Couchers.org de otros?",
         "bottom_cta_subtitle": "Únete a Couchers.org y sé parte de una comunidad global basada en la hospitalidad y la conexión.",
         "join_couchers": "Únete a Couchers.org",
         "is_it_safe": {
@@ -353,7 +353,7 @@
             "map_is_blank": "Faltan las coordenadas, comienza buscando una ubicación con el mapa de arriba",
             "radius_text": "{{radius}} metros",
             "no_location_results_text": "Sin resultados. Intenta buscar solo la ciudad.",
-            "display_location_not_empty": "Por favor informa una dirección para mostrar",
+            "display_location_not_empty": "Por favor introduce una dirección para mostrar",
             "no_map_support": "Tu dispositivo no soporta el mapa. Por favor asegúrate de que WebGL2 está habilitado o prueba otro dispositivo/navegador. ¡Sentimos las molestias!",
             "press_enter_to_search": "Pulsa enter para buscar"
         },
