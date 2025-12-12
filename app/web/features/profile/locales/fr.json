@@ -139,7 +139,9 @@
     "parking_heading": "Parking",
     "about_home_subtitle": "Décrivez votre logement à vos invités et à quoi ils peuvent s'attendre",
     "household_details_subtitle": "Partagez plus de détails à propos de votre logement",
-    "general_subtitle": "Détails supplémentaires à propos de votre logement et du quartier"
+    "general_subtitle": "Détails supplémentaires à propos de votre logement et du quartier",
+    "home_facilities": "Équipements disponibles",
+    "household_members": "Membres de logement"
   },
   "edit_profile_headings": {
     "regions_lived": "Régions dans lesquelles j'ai habitées",
@@ -161,7 +163,8 @@
     "personal_information_subtitle": "Partagez des détails sur vous-même et votre parcours",
     "travel_experience": "Expérience de voyage",
     "travel_experience_subtitle": "Partagez vos expériences de voyage et connexions",
-    "location_subtitle": "Emplacement approximatif de votre logement"
+    "location_subtitle": "Emplacement approximatif de votre logement",
+    "about_me_subtitle": "Présentez-vous et partagez un peu aux autres . C’est comment la confiance commence. Aidez les autres à comprendre qui vous êtes vraiment. Consultez les <1>conseils pour créer un profil excellent</1>."
   },
   "more_profile_actions_a11y_text": "Plus d’actions sur le profil",
   "info_unanswered": "Demandez-moi",
@@ -206,7 +209,7 @@
     "paid_onsite": "Parking payant sur place"
   },
   "edit_profile_name_required": "Prénom requis",
-  "unspecified_info": "Demandez-moi",
+  "unspecified_info": "-",
   "cancel": "Annuler",
   "pronouns": {
     "man": "il / lui",
@@ -300,12 +303,14 @@
   "search_indicator": "Le début de cette section est visible dans les résultats de recherche lorsque d'autres membres vous cherchent",
   "meetup_status": {
     "wants_to_meetup_description": "J'aimerais rencontrer d'autres membres",
-    "open_to_meetup_description": "Je pourrais rencontrer d'autres personnes, selon les circonstances",
+    "open_to_meetup_description": "Je pourrais rencontrer d'autres membres, selon les circonstances",
     "does_not_want_to_meetup_description": "Je préfère ne pas rencontrer d'autres membres"
   },
   "profile_changes_saved_message": "Changements au profil enregistrés !",
   "hosting_preferences_success_message": "Préférences d'hébergement enregistrés !",
   "couldnt_read_file": "Impossible de lire le fichier",
   "select_an_image": "Sélectionner une image",
-  "names_profile_photo": "Photo de profil de {{name}}"
+  "names_profile_photo": "Photo de profil de {{name}}",
+  "have_pending_reference_text": "Vous avez une référence en attente à rédiger pour ce membre",
+  "avatar_photo_info": "<bold>Une photo de vous est requise pour interagir avec la communauté.</bold> Une photo claire et amicale montrant votre visage inspire confiance, aide les autres à se sentir à l’aise et augmente considérablement vos chances de recevoir une réponse."
 }

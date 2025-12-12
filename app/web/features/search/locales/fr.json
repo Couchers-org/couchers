@@ -56,7 +56,11 @@
     },
     "general_filters": {
       "has_references": "A des références",
-      "accepts_last_minute_requests": "Accepte les requêtes de dernière minute"
+      "accepts_last_minute_requests": "Accepte les demandes d'hébergement de dernière minute",
+      "has_strong_verification": "Dispose d'une vérification renforcée",
+      "same_gender_only_helper_text": "Seuls les membres fort.e.s et vérifié.e.s peuvent utiliser ce filtre.",
+      "get_strong_verification": "Obtenir une verification renforcée ici (c'est gratuit).",
+      "same_gender_only": "Afficher uniquement le même genre"
     },
     "rules": {
       "alcohol_allowed": "Alcool permis",
@@ -67,7 +71,8 @@
     },
     "submit_button_label": "Appliquer",
     "search_filters": "Filtres de recherche",
-    "by_location_filter_label": "Par localisation"
+    "by_location_filter_label": "Par localisation",
+    "clear_filters": "Effacer tous les filtres"
   },
   "choose_search_criteria": "Saisissez un lieu ou appliquez un filtre pour rechercher.",
   "error_loading_users": "Erreur lors du chargement des utilisateurs.trices",
@@ -76,12 +81,16 @@
     "show_user_button_label": "Montrer {{name}} sur la carte",
     "people_found_message": "{{currentRange}} de {{totalItems}} membres",
     "few_results_suggestion": "Par défaut, les profils vides ou qui n'hébergent pas sont cachés.",
-    "include_empty_profiles_button": "Afficher tous les profils"
+    "include_empty_profiles_button": "Afficher tous les profils",
+    "missing_about_description": "{{name}} n'a pas encore rempli son profil"
   },
   "views": {
     "list": "Liste",
-    "map_and_list": "Carte et liste"
+    "map_and_list": "Carte et liste",
+    "choose_map_view": "Choisir la vue carte"
   },
   "keyword": "Mot clé",
-  "location": "Emplacement"
+  "location": "Localisation",
+  "search_this_area": "Rechercher dans cette zone",
+  "zoom_in_to_select_user": "Zoomer pour sélectionner un.e membre"
 }
