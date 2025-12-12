@@ -303,5 +303,6 @@
     "open_to_meetup_description": "Je pourrais rencontrer d'autres personnes, selon les circonstances",
     "does_not_want_to_meetup_description": "Je préfère ne pas rencontrer d'autres membres"
   },
-  "profile_changes_saved_message": "Changements au profil enregistrés !"
+  "profile_changes_saved_message": "Changements au profil enregistrés !",
+  "hosting_preferences_success_message": "Préférences d'hébergement enregistrés!"
 }
