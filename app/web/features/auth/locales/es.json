@@ -235,5 +235,8 @@
     },
     "caveat": "Activando este ajuste, tu cuenta será configurada para no aceptar solicitudes de alojamiento. Seguirás recibiendo correos electrónicos de seguridad (como los de reestablecimiento de contraseña). Podrías seguir recibiendo la newsletter, puedes desuscribirte de ella utilizando el enlace al pie de la newsletter."
   },
-  "sign_up_need_verification_title": "¡Cási hemos terminado, una última cosa!"
+  "sign_up_need_verification_title": "¡Cási hemos terminado, una última cosa!",
+  "volunteer_management": {
+    "shown_on_team_page_current": "Mostrado en la página del equipo como miembro actual del equipo."
+  }
 }

@@ -46,14 +46,14 @@ default:
     - docker:dind
   before_script: |
     # Error out when accessing an undefined variable
-    set -u  
-    
+    set -u
+
     # All jobs that use this must have full git history to correctly set the version number.
-    if [ "$GIT_DEPTH" == "0" ]; then 
+    if [ "$GIT_DEPTH" == "0" ]; then
         export DISPLAY_VERSION=$(base_ver=$(cat app/version); if [ "$CI_COMMIT_BRANCH" == "$RELEASE_BRANCH" ]; then echo "${base_ver}.$(git rev-list --count "origin/$RELEASE_BRANCH")"; else echo "${base_ver}-$SLUG"; fi)
         echo $DISPLAY_VERSION
     fi
-    
+
     docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
 .common_functions: &common_functions |
@@ -68,10 +68,10 @@ default:
       local path="$3"
       local version="$4"
       shift 4 # Remove the N arguments so that the rest can be used in "$@" later
-      
+
       # A separate image with cached layers.
       cache_tag="${release_tag}-cache"
-  
+
       # Push image cache only on develop.
       local cache_to=""
       if [ "$CI_COMMIT_BRANCH" = "$RELEASE_BRANCH" ]; then
@@ -477,6 +477,63 @@ test:web-linting:
       changes:
         - app/web/**/*
 
+test:mobile:
+  needs: ["protos"]
+  stage: test
+  image: node:22
+  inherit:
+    default: false
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm run build:protos
+    - npm test -- --ci --coverage
+  after_script:
+    - cp app/mobile/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/ || true
+  coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: cobertura-coverage.xml
+  rules:
+    - if: $DO_CHECKS == "true"
+      changes:
+        - app/proto/**/*
+        - app/mobile/**/*
+
+test:mobile-linting:
+  needs: ["protos"]
+  stage: test
+  image: node:22
+  inherit:
+    default: false
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm run build:protos
+    - npm run lint
+  rules:
+    - if: $DO_CHECKS == "true"
+      changes:
+        - app/mobile/**/*
+
+test:mobile-typecheck:
+  needs: ["protos"]
+  stage: test
+  image: node:22
+  inherit:
+    default: false
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm run build:protos
+    - npx tsc --noEmit
+  rules:
+    - if: $DO_CHECKS == "true"
+      changes:
+        - app/mobile/**/*
+
 test:proxy:
   needs: ["build:proxy"]
   stage: test
@@ -688,6 +745,15 @@ wait:before-release:
       artifacts: false
       optional: true
     - job: test:web-linting
+      artifacts: false
+      optional: true
+    - job: test:mobile
+      artifacts: false
+      optional: true
+    - job: test:mobile-linting
+      artifacts: false
+      optional: true
+    - job: test:mobile-typecheck
       artifacts: false
       optional: true
 

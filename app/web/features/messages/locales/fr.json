@@ -21,7 +21,7 @@
     "actions_menu": {
       "items": {
         "invite_members": "Inviter à discuter",
-        "show_all_members": "Membres de la discussion",
+        "show_all_members": "Membres de discussion",
         "manage_admins": "Gérer les administrateurs du chat",
         "chat_settings": "Paramètres de discussion",
         "leave_chat": "Quitter la discussion"
@@ -37,7 +37,8 @@
       "1_day_label": "1 jour",
       "1_month_label": "1 mois",
       "forever_label": "Jusqu'à ce que je réactive le son",
-      "1_week_label": "1 semaine"
+      "1_week_label": "1 semaine",
+      "button_label": "Désactiver la discussion"
     },
     "muted_icon": {
       "a11y_label": "Muet.te"

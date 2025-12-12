@@ -153,7 +153,7 @@
         "not_the_host": "Du bist nicht der Host dieser Anfrage.",
         "notification_not_found": "Benachrichtigung nicht gefunden.",
         "object_not_found": "Objekt nicht gefunden.",
-        "online_event_requires_link": "Eine reine Online-Veranstaltung erfordert einen Link.",
+        "online_event_requires_link": "Ein reines Online-Event erfordert einen Link.",
         "only_admin_can_edit": "Nur Administratoren können den Chat bearbeiten.",
         "only_admin_can_make_admin": "Nur Administratoren können andere Benutzer zu Administratoren machen.",
         "only_admin_can_remove_user": "Nur Administratoren können Benutzer entfernen.",
@@ -258,5 +258,17 @@
         "be_kind_title": "Seid freundlich zueinander",
         "be_kind_guideline": "Couchers.org ist eine inklusive Community, in der Menschen aller Kulturen und Hintergründe zusammenkommen. Behandle alle mit gegenseitigem Respekt und Würde.",
         "no_money_guideline": "Halte es unkommerziell. Tausche kein Geld während des Surfens oder beim Hosten. Couchers.org dreht sich um Lernen, Erfahrungen und das Kennenlernen von Menschen."
+    },
+    "notifications": {
+        "donation_received_title": "Vielen Dank für deine Spende an Couchers.org!",
+        "dear_name": "Hallo {{name}},",
+        "donation_received_thanks_amount": "vielen Dank für deine Spende in höhe von ${{amount}} an Couchers.org.",
+        "donation_received_invoice_receipt_info": "Du kannst eine Rechnung und eine Quittung für die Spende hier herunterladen:",
+        "donation_received_download_invoice": "Rechnung herunterladen",
+        "donation_received_questions_contact": "Wenn du Fragen zu deiner Spende hast, schreib uns bitte eine E-Mail an <a href=\"mailto:donations@couchers.org\">donations@couchers.org</a>.",
+        "donation_received_generosity_helps": "Deine Großzügigkeit wird dazu beitragen, die Plattform für alle bereitzustellen.",
+        "thank_you": "Danke!",
+        "founders_signature": "Aapeli und Itsi,\nGründer von Couchers.org",
+        "donation_received_purpose": "Dein Beitrag wird für den Aufbau und Erhalt der Couchers.org-Plattform und Community verwendet und ist entscheidend für unser Ziel einer völlig kostenlosen und gemeinnützigen Generation des Couchsurfings."
     }
 }

@@ -60,19 +60,33 @@ const SearchResultsContainer = styled("div", {
 );
 
 const MapContainer = styled("div", {
-  shouldForwardProp: (prop) => prop !== "drawerWidth",
-})<{ drawerWidth: number }>(({ theme, drawerWidth }) => ({
-  width: `calc(100% - ${drawerWidth}px)`,
-  height: "100%",
-  position: "relative",
-  display: "flex",
-  alignItems: "center",
+  shouldForwardProp: (prop) =>
+    prop !== "drawerWidth" && prop !== "isListOnlyView",
+})<{ drawerWidth: number; isListOnlyView: boolean }>(
+  ({ theme, drawerWidth, isListOnlyView }) => ({
+    width: `calc(100% - ${drawerWidth}px)`,
+    height: "100%",
+    position: "relative",
+    display: "flex",
+    alignItems: "center",
+    ...(isListOnlyView && {
+      width: 0,
+      height: 0,
+      overflow: "hidden",
+      position: "absolute",
+      pointerEvents: "none",
+    }),
 
-  [theme.breakpoints.down("md")]: {
-    width: "100%",
-    height: `calc(55% - 18px)`,
-  },
-}));
+    [theme.breakpoints.down("md")]: {
+      width: "100%",
+      height: `calc(55% - 18px)`,
+      ...(isListOnlyView && {
+        width: 0,
+        height: 0,
+      }),
+    },
+  }),
+);
 
 const MapSearchContent = ({
   error,
@@ -139,18 +153,19 @@ const MapSearchContent = ({
           users={users}
         />
       </SearchResultsContainer>
-      {mapView !== MapViews.LIST_ONLY && (
-        <MapContainer drawerWidth={drawerWidth}>
-          <MapView
-            isDrawerExpanded={drawerWidth > DEFAULT_DRAWER_WIDTH}
-            isLoading={isLoading}
-            mapRef={mapRef}
-            onZoomIn={onZoomIn}
-            onZoomOut={onZoomOut}
-            users={users}
-          />
-        </MapContainer>
-      )}
+      <MapContainer
+        drawerWidth={drawerWidth}
+        isListOnlyView={mapView === MapViews.LIST_ONLY}
+      >
+        <MapView
+          isDrawerExpanded={drawerWidth > DEFAULT_DRAWER_WIDTH}
+          isLoading={isLoading}
+          mapRef={mapRef}
+          onZoomIn={onZoomIn}
+          onZoomOut={onZoomOut}
+          users={users}
+        />
+      </MapContainer>
     </Wrapper>
   );
 };

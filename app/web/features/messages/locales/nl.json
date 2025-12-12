@@ -26,8 +26,130 @@
     "muted_icon": {
       "a11y_label": "Gemute"
     },
-    "cannot_message_text": "Je kan geen berichten sturen in deze chat"
+    "cannot_message_text": "Je kan geen berichten sturen in deze chat",
+    "actions_menu": {
+      "a11y_label": "Meer chat opties weergeven",
+      "items": {
+        "invite_members": "Uitnodigen om te chatten",
+        "manage_admins": "Beheer chat admins",
+        "chat_settings": "Chat instellingen",
+        "leave_chat": "Chat verlaten",
+        "show_all_members": "Chat-leden"
+      }
+    },
+    "mute": {
+      "button_label": "Chat dempen",
+      "unmute_button_label": "Chat niet meer dempen",
+      "dialog_title": "Hoe lang wil je de chat dempen?",
+      "1_hour_label": "1 uur",
+      "8_hours_label": "8 uur",
+      "1_day_label": "1 dag",
+      "1_week_label": "1 week",
+      "forever_label": "Totdat ik dempen zelf ophef",
+      "1_month_label": "1 maand"
+    }
   },
   "past_request_help_text": "Dit verzoek is oud en kan niet aangepast worden, maar je kan nog wel berichten versturen.",
-  "surfer_declined_request_help_text": "<0>Lees onze handleiding</0> over hoe je het beste een verzoek doet dat wordt geaccepteerd."
+  "surfer_declined_request_help_text": "<0>Lees onze handleiding</0> over hoe je het beste een verzoek doet dat wordt geaccepteerd.",
+  "admins_dialog": {
+    "remove_admin": {
+      "title": "Admin verwijderen",
+      "action_a11y_label": "Verwijderen als admin"
+    },
+    "add_admin": {
+      "title": "Admin toevoegen",
+      "action_a11y_label": "Toevoegen als admin"
+    },
+    "step_down_confirmation_dialog": {
+      "message": "Weet je zeker dat je geen admin meer van deze groeps-chat wilt zijn? Je kan dan alleen weer admin worden als een andere admin jou die rechten geeft.",
+      "title": "Stoppen als admin?"
+    }
+  },
+  "create_chat": {
+    "dm_title": "Nieuwe chat aanmaken",
+    "group_title": "Groeps-chat aanmaken",
+    "group_title_field_label": "Titel",
+    "no_friends_found_message": "Kon geen vrienden vinden",
+    "user_load_error_message": "(Fout bij het laden van gebruikers)",
+    "friends_input_label": "Vrienden"
+  },
+  "chat_input": {
+    "label": "Bericht"
+  },
+  "group_chat_settings_dialog": {
+    "title": "Groeps-chat instellingen",
+    "chat_title": {
+      "field_label": "Titel chat"
+    },
+    "only_admins_invite": {
+      "field_label": "Alleen admins kunnen andere mensen uitnodigen om te chatten"
+    }
+  },
+  "group_chats_tab": {
+    "no_chats_message": "Nog geen groeps-chat",
+    "load_more_button_label": "Meer laden"
+  },
+  "requests_tab": {
+    "no_requests_message": "Nog geen verzoeken",
+    "load_more_button_label": "Meer laden"
+  },
+  "invite_dialog": {
+    "title": "Uitnodigen om te chatten",
+    "selected": {
+      "field_label": "Vrienden",
+      "no_options_text": "Niemand om uit te nodigen",
+      "option_load_error_text": "(Fout bij het laden van gebruikers)"
+    },
+    "invite_button_label": "Uitnodigen"
+  },
+  "leave_chat_dialog": {
+    "title": "Chat verlaten?",
+    "message": "Weet je zeker dat je deze chat wilt verlaten?"
+  },
+  "members_dialog": {
+    "title": "Chat-leden"
+  },
+  "control_message": {
+    "created_chat_text": "{{user}} heeft deze chat aangemaakt",
+    "edited_chat_text": "{{user}} heeft deze chat aangepast",
+    "user_left_chat_text": "{{user}} heeft de chat verlaten",
+    "admin_assignment_text": "{{user}} heeft {{target_user}} admin gemaakt",
+    "admin_removal_text": "{{user}} heeft {{target_user}} verwijderd als admin",
+    "unknown_message_text": "Onbekend besturingsbericht",
+    "invite_user_text": "{{user}} heeft {{target_user}} uitgenodigd",
+    "host_request_status_changed_text": "{{user}} heeft het verzoek aangepast naar {{status}}"
+  },
+  "host_request_status": {
+    "accepted": "Geaccepteerd",
+    "cancelled": "Geannuleerd",
+    "confirmed": "Bevestigd",
+    "pending": "In afwachting",
+    "rejected": "Afgewezen",
+    "past": "Oud"
+  },
+  "host_request_item": {
+    "pending": "Dit verzoek is nog in behandeling",
+    "expired": "Dit verzoek is verlopen",
+    "host_status": {
+      "accepted": "Je hebt dit verzoek geaccepteerd",
+      "confirmed": "Je hebt dit verzoek bevestigd",
+      "rejected": "Je hebt dit verzoek geweigerd",
+      "cancelled": "Je hebt dit verzoek geannuleerd"
+    },
+    "surfer_status": {
+      "accepted": "Je verzoek was geaccepteerd",
+      "cancelled": "Je verzoek was geannuleerd",
+      "confirmed": "Je verzoek was bevestigd",
+      "rejected": "Je verzoek was afgewezen"
+    }
+  },
+  "host_request_view": {
+    "error_message": "Ongeldig host verzoek-ID",
+    "back_button_a11y_label": "Terug",
+    "title_for_surfer": "Verzoek aan {{user}} - {{status}}",
+    "request_duration": "{{count}} nacht",
+    "request_duration_plural": "{{count}} nachten",
+    "title_for_host": "Verzoek van {{user}} - {{status}}"
+  },
+  "unknown_user": "Onbekende gebruiker"
 }

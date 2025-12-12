@@ -15,7 +15,10 @@
     "test": "jest"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.ts"
+    ]
   },
   "dependencies": {
     "@expo-google-fonts/ubuntu": "^0.4.1",
@@ -52,6 +55,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@testing-library/react-native": "^13.3.3",
     "@types/google-protobuf": "^3.15.12",
     "@types/jest": "29.5.14",
     "@types/node": "^24.10.1",

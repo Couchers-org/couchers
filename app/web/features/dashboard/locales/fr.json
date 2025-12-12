@@ -53,5 +53,11 @@
   "attendees_count_0": "{{count}} participant.e",
   "attendees_count_1": "{{count}} participant.e.s",
   "attendees_count_2": "{{count}} participant.e.s",
-  "find_your_community": "Trouvez votre communauté"
+  "find_your_community": "Trouvez votre communauté",
+  "find_your_community_intro_simplified": "Recherchez votre communauté ou parcourez la liste ci-dessous. <1>Vous ne trouvez pas la vôtre ? Demandez-la !</1>",
+  "browse_all_communities": "Parcourir toutes les communautés",
+  "browse_communities_text": "Cliquez sur le nom d'une région pour voir les autres communautés qu'elle contient ci-dessous. Cliquez sur le lien pour accéder à la page de la communauté de cette ville ou de cette région.",
+  "show_all_communities": "Afficher toutes les communautés",
+  "hide_all_communities": "Masquer toutes les communautés",
+  "find_your_community_intro": "Vous pouvez ci-dessous rechercher ou parcourir toutes les pages communautaires existantes. Votre pays ou votre ville manque á l'appel ? <1>Utilisez ce formulaire</1> pour en faire la demande !"
 }
