@@ -87,7 +87,17 @@
     "thank_you_donation_prompt": "Envisagez de <2>faire un don</2> ! Couchers.org est une organisation à but non lucratif 501(c)(3) et nous avons besoin de dons pour maintenir nos serveurs en fonctionnement.",
     "was_appropriate_required": "Pour nous aider à garder notre communauté sûre, cette question est obligatoire.",
     "did_stay_explanation": "Sélectionnez « Non » si vous ne vous êtes pas réellement rencontré(e)s. Vous ne pourrez pas écrire de référence publique, mais vous pouvez, si vous le souhaitez, partager des informations <strong>privées</strong> avec nous sur ce qui s'est passé. L'autre membre ne sera pas informée, mais pourra tout de même laisser une référence si il/elle affirme que vous vous êtes rencontré(e)s.",
-    "private_text_explanation_2": "Cette réponse ne sera vue que par notre équipe de sécurité et restera privée. Plus vous donnez de détails, mieux c’est, mais même une brève explication peut beaucoup aider. En savoir plus <2>ici</2>."
+    "private_text_explanation_2": "Cette réponse ne sera vue que par notre équipe de sécurité et restera privée. Plus vous donnez de détails, mieux c’est, mais même une brève explication peut beaucoup aider. En savoir plus <2>ici</2>.",
+    "cant_write_reference_expired": "Le délai pour écrire une référence s'est écoulé (après 14 jours).",
+    "cant_write_reference_didnt_stay": "Vous ne pouvez pas écrire de référence car vous avez indiqué que vous n'avez pas surfé chez ce membre.",
+    "rating_required": "Veuillez déplacer le curseur et évaluer votre expérience.",
+    "rating_neutral": "Neutre",
+    "rating_positive": "Positif",
+    "rating_amazing": "Fantastique!",
+    "rating_negative": "Négatif",
+    "ratings_slider_label": "échelle d'évaluation",
+    "friend_reference_requires_friendship": "Vous ne pouvez écrire de référence d'ami qu'aux membres avec lesquels vous êtes amis.",
+    "already_wrote_reference_for_stay": "Vous avez déjà écrit une référence pour ce membre et ce séjour. Votre référence sera visible dès qu'ils vous auront écrit une référence, ou après 14 jours"
   },
   "incomplete_dialog": {
     "title": "Profil incomplet",
@@ -127,7 +137,8 @@
     "hosting_preferences_subtitle": "Informez vos invités de ce que vous êtes à l'aise",
     "parking_heading": "Parking",
     "about_home_subtitle": "Décrivez votre logement à vos invités et à quoi ils peuvent s'attendre",
-    "household_details_subtitle": "Partagez plus de détails à propos de votre logement"
+    "household_details_subtitle": "Partagez plus de détails à propos de votre logement",
+    "general_subtitle": "Détails supplémentaires à propos de votre habitation et du quartier"
   },
   "edit_profile_headings": {
     "regions_lived": "Régions dans lesquelles j'ai habitées",
@@ -140,7 +151,16 @@
     "hometown": "Grandi.e à/en",
     "occupation": "Métier",
     "education": "Éducation",
-    "regions_visited": "Régions que j'ai visitées"
+    "regions_visited": "Régions que j'ai visitées",
+    "basic_information": "Information de base",
+    "basic_information_subtitle": "Commencez en fournissant votre photo, nom et emplacement",
+    "preferences": "Préférences",
+    "preferences_subtitle": "Informez les autres de vos préférences d'hébergement et de rencontres",
+    "personal_information": "Informations personnelles",
+    "personal_information_subtitle": "Partagez des détails sur vous-même et votre parcours",
+    "travel_experience": "Expérience de voyage",
+    "travel_experience_subtitle": "Partagez vos expériences de voyage et connexions",
+    "location_subtitle": "Emplacement approximatif de votre habitation"
   },
   "more_profile_actions_a11y_text": "Plus d’actions sur le profil",
   "info_unanswered": "Demandez-moi",
@@ -153,18 +173,18 @@
   "section_tabs_a11y_label": "onglets pour les informations de membre",
   "edit_home_questions": {
     "accept_drinking": "Permet la consommation d'alcool",
-    "accept_pets": "Permet des animaux de compagnie",
-    "accept_smoking": "Permet le tabagisme",
+    "accept_pets": "Permet les animaux de compagnie",
+    "accept_smoking": "Permet de fumer",
     "accept_kids": "Permet les enfants",
     "accept_camping": "Camping sous tente disponible"
   },
   "sleeping_arrangement": {
-    "private": "Espace privé (par ex. propre chambre ou similaire)",
+    "private": "par exemple propre chambre ou similaire",
     "private_short": "Espace privé",
     "common_short": "Espace en commun",
     "shared_room_short": "Espace partagé",
-    "common": "Espace en commun (par ex. canapé dans le salon)",
-    "shared_room": "Espace partagé (par ex. chambre à coucher partagée avec sa propre surface)"
+    "common": "par exemple canapé dans le salon",
+    "shared_room": "par exemple chambre partagée avec son propre espace"
   },
   "gender": {
     "man": "Homme",
@@ -267,5 +287,6 @@
   "response_time_text_some": "Peut-être en {{p33}}",
   "incomplete_profile_haiku": "Un avatar vide,\nMystérieux derrière—\nQui êtes-vous, en fait ?",
   "active": "Actif",
-  "edit": "Modifier mon profil"
+  "edit": "Modifier mon profil",
+  "what_options_mean": "Que signifient ces options"
 }
