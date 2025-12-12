@@ -9,8 +9,6 @@ import { registerMobilePushNotificationSubscription } from "@/service/notificati
 
 import { useRegisterPushNotifications } from "./useRegisterPushNotifications";
 
-jest.useFakeTimers();
-
 jest.mock("expo-device", () => ({
   isDevice: true,
   deviceName: "Test Device",
@@ -40,18 +38,7 @@ describe("useRegisterPushNotifications", () => {
   const mockToken = "ExponentPushToken[test-token-123]";
   const originalPlatformOS = Platform.OS;
 
-  beforeAll(() => {
-    jest.spyOn(console, "warn").mockImplementation();
-    jest.spyOn(console, "log").mockImplementation();
-    jest.spyOn(console, "error").mockImplementation();
-  });
-
-  afterAll(() => {
-    jest.restoreAllMocks();
-  });
-
   beforeEach(() => {
-    jest.clearAllMocks();
     Platform.OS = originalPlatformOS;
     (Device as { isDevice: boolean }).isDevice = true;
     (Constants as { expoConfig: unknown }).expoConfig = {

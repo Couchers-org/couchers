@@ -8,8 +8,6 @@ import { Text, View } from "react-native";
 import { useAuthContext } from "@/features/auth/AuthContext";
 import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
 
-jest.useFakeTimers();
-
 jest.mock("expo-router", () => ({
   ...jest.requireActual("expo-router"),
   useRouter: jest.fn(),

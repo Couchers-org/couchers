@@ -7,10 +7,7 @@ import { useAuthContext } from "@/features/auth/AuthContext";
 
 import WebEmbed from "./WebEmbed";
 
-jest.useFakeTimers();
-
-const mockWebBaseUrl = "https://couchers.org";
-process.env.EXPO_PUBLIC_WEB_BASE_URL = mockWebBaseUrl;
+const mockWebBaseUrl = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
 
 jest.mock("expo-router", () => ({
   ...jest.requireActual("expo-router"),
@@ -300,10 +297,8 @@ describe("WebEmbed", () => {
         capturedWebViewProps.onError?.({ nativeEvent: { code: -1 } });
       });
 
-      expect(screen.getByText("Failed to load")).toBeTruthy();
-      expect(
-        screen.getByText("Check your internet connection and try again."),
-      ).toBeTruthy();
+      expect(screen.getByText("errors.failed_to_load")).toBeTruthy();
+      expect(screen.getByText("errors.check_connection")).toBeTruthy();
     });
 
     it("allows retry after error", async () => {
@@ -313,11 +308,13 @@ describe("WebEmbed", () => {
         capturedWebViewProps.onError?.({ nativeEvent: { code: -1 } });
       });
 
-      expect(screen.getByText("Failed to load")).toBeTruthy();
+      expect(screen.getByText("errors.failed_to_load")).toBeTruthy();
 
-      await user.press(screen.getByRole("button", { name: "Try Again" }));
+      await user.press(
+        screen.getByRole("button", { name: "errors.try_again" }),
+      );
 
-      expect(screen.queryByText("Failed to load")).toBeNull();
+      expect(screen.queryByText("errors.failed_to_load")).toBeNull();
     });
   });
 

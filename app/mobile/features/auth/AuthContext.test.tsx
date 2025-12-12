@@ -28,17 +28,7 @@ function wrapper({ children }: { children: ReactNode }) {
 }
 
 describe("AuthContext", () => {
-  beforeAll(() => {
-    jest.spyOn(console, "error").mockImplementation();
-  });
-
-  afterAll(() => {
-    jest.restoreAllMocks();
-  });
-
   beforeEach(() => {
-    jest.clearAllMocks();
-
     // Default: not logged in, no stored preferences
     (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(null);
     (client.auth.getAuthState as jest.Mock).mockResolvedValue({

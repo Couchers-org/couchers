@@ -13,5 +13,21 @@
     "biometrics_generic": "biometrics",
     "pin_prompt": "Use your device PIN to continue",
     "pin_fallback_label": "Use device PIN"
+  },
+  "errors": {
+    "failed_to_load": "Failed to load",
+    "check_connection": "Check your internet connection and try again.",
+    "try_again": "Try Again"
+  },
+  "not_found": {
+    "title": "Oops!",
+    "message": "This screen does not exist.",
+    "go_home": "Go to home screen!"
+  },
+  "tabs": {
+    "home": "Home",
+    "messages": "Messages",
+    "communities": "Communities",
+    "search": "Search"
   }
 }

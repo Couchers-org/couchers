@@ -5,10 +5,7 @@ import { useAuthContext } from "@/features/auth/AuthContext";
 
 import LoginScreen from "./login";
 
-jest.useFakeTimers();
-
-const mockWebBaseUrl = "https://couchers.org";
-process.env.EXPO_PUBLIC_WEB_BASE_URL = mockWebBaseUrl;
+const mockWebBaseUrl = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
 
 jest.mock("expo-router", () => ({
   ...jest.requireActual("expo-router"),
@@ -17,10 +14,6 @@ jest.mock("expo-router", () => ({
 
 jest.mock("@/features/auth/AuthContext", () => ({
   useAuthContext: jest.fn(),
-}));
-
-jest.mock("@/i18n", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
 }));
 
 // WebView mock - captures props for test assertions

@@ -1,5 +1,6 @@
 import { Href, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   Image,
@@ -31,6 +32,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   const colorScheme = useColorScheme();
   const webviewRef = useRef<WebView>(null);
   const router = useRouter();
+  const { t } = useTranslation();
   const { markLoggedOut, setUserId, setJailed, markAuthenticated } =
     useAuthContext();
   const [hasError, setHasError] = useState(false);
@@ -138,20 +140,18 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         <View style={{ height: insets.top, backgroundColor }} />
         <View style={styles.errorContainer}>
           <Image source={errorGraphic} style={styles.errorImage} />
-          <Text style={styles.errorTitle}>Failed to load</Text>
-          <Text style={styles.errorText}>
-            Check your internet connection and try again.
-          </Text>
+          <Text style={styles.errorTitle}>{t("errors.failed_to_load")}</Text>
+          <Text style={styles.errorText}>{t("errors.check_connection")}</Text>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Try Again"
+            accessibilityLabel={t("errors.try_again")}
             style={({ pressed }) => [
               styles.retryButton,
               pressed && styles.retryButtonPressed,
             ]}
             onPress={handleRetry}
           >
-            <Text style={styles.retryButtonText}>Try Again</Text>
+            <Text style={styles.retryButtonText}>{t("errors.try_again")}</Text>
           </Pressable>
         </View>
       </View>
