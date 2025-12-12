@@ -17,6 +17,6 @@
         "cannot_create_discussion": "Vous ne pouvez pas créer une discussion dans ce groupe ou cette communauté.",
         "cant_add_self": "Vous ne pouvez pas vous rajouter à un groupe de discussion.",
         "cant_block_self": "Vous ne pouvez pas vous bloquer vous-même.",
-        "cant_friend_self": "Tu ne peux pas t'ajouter en tant qu'ami."
+        "cant_friend_self": "Vous ne pouvez pas vous ajouter en tant qu'ami."
     }
 }
