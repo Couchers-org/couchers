@@ -46,7 +46,8 @@
           "label": "Pièce commune",
           "description": " - par ex. canapé dans le salon"
         }
-      }
+      },
+      "guests_field_label": "Nombre d'invités"
     },
     "empty_profile_filters": {
       "title": "Afficher les profils vides"
