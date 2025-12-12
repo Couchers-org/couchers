@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { sessionCookieName } from "./appConstants";
 import { allLanguages } from "./i18n/allLanguages";
 
-function getBrowserLocale(
+export function getBrowserLocale(
   acceptLanguage: string | undefined,
 ): string | undefined {
   if (!acceptLanguage) return undefined;
@@ -13,17 +13,29 @@ function getBrowserLocale(
     .split(",")
     .map((lang) => {
       const [code, quality = "1"] = lang.trim().split(";q=");
-      return { code: code.split("-")[0], quality: parseFloat(quality) };
+      return { code: code.trim(), quality: parseFloat(quality) };
     })
     .sort((a, b) => b.quality - a.quality);
 
   // Find the first supported language
   for (const lang of languages) {
-    const supportedLang = allLanguages.find((supported) =>
-      supported.startsWith(lang.code),
+    // 1. Check for exact match
+    if (allLanguages.includes(lang.code)) {
+      return lang.code;
+    }
+
+    // 2. Check for base language match (e.g. "es-MX" -> "es")
+    const baseCode = lang.code.split("-")[0];
+    if (allLanguages.includes(baseCode)) {
+      return baseCode;
+    }
+
+    // 3. Fallback to first language starting with base code (e.g. "zh" -> "zh-Hans")
+    const fuzzyMatch = allLanguages.find((supported) =>
+      supported.startsWith(baseCode),
     );
-    if (supportedLang) {
-      return supportedLang;
+    if (fuzzyMatch) {
+      return fuzzyMatch;
     }
   }
 
