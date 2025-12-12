@@ -97,7 +97,7 @@
     "rating_negative": "Négatif",
     "ratings_slider_label": "échelle d'évaluation",
     "friend_reference_requires_friendship": "Vous ne pouvez écrire de référence d'ami.e qu'aux membres avec lesquels vous êtes ami.e.s.",
-    "already_wrote_reference_for_stay": "Vous avez déjà écrit une référence pour ce membre et ce séjour. Votre référence sera visible dès qu'ils vous auront écrit une référence, ou après 14 jours",
+    "already_wrote_reference_for_stay": "Vous avez déjà écrit une référence pour ce membre et ce séjour. Votre référence sera visible dès qu'il/elle vous auront écrit une référence, ou après 14 jours",
     "already_wrote_friend_reference": "Vous avez déjà écrit une référence d'ami pour ce membre."
   },
   "incomplete_dialog": {
@@ -293,7 +293,7 @@
   "what_options_mean": "Que signifient ces options",
   "write_friend_reference": "Écrivez une référence d'ami",
   "hosting_status": {
-    "can_host_description": "J'aimerais héberger des surfeurs",
+    "can_host_description": "J'aimerais héberger des surfeurs.euses",
     "maybe_host_description": "Je pourrais héberger, selon les circonstances",
     "cannot_host_description": "Je ne peur pas héberger de voyageurs en ce moment"
   },
@@ -301,7 +301,7 @@
   "meetup_status": {
     "wants_to_meetup_description": "J'aimerais rencontrer d'autres membres",
     "open_to_meetup_description": "Je pourrais rencontrer d'autres personnes, selon les circonstances",
-    "does_not_want_to_meetup_description": "Je préfère ne pas rencontrer d'autres personnes"
+    "does_not_want_to_meetup_description": "Je préfère ne pas rencontrer d'autres membres"
   },
-  "profile_changes_saved_message": "Changements au profil enregistrés!"
+  "profile_changes_saved_message": "Changements au profil enregistrés !"
 }
