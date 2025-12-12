@@ -21,5 +21,6 @@
     "open": "Inviter les membres de la communauté"
   },
   "unknown_user": "Utilisateur.trice inconnu.e",
-  "events_empty_state": "Aucun événement pour le moment. Pourquoi ne pas en <0>créer</0> un ✨ ?"
+  "events_empty_state": "Aucun événement pour le moment. Pourquoi ne pas en <0>créer</0> un ✨ ?",
+  "location": "Emplacement"
 }

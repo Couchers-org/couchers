@@ -11,13 +11,13 @@
         "already_in_community": "Vous faites déjà partie de cette communauté.",
         "already_in_group": "Vous êtes déjà dans ce groupe.",
         "already_left_host_request_feedback": "Vous avez déjà laissé des commentaires concernant cette demande d'hébergement !",
-        "at_least_two_users_required": "Au moins de 2 membres doivent être indiqué.e.s.",
+        "at_least_two_users_required": "Au moins de 2 membres doivent être indiqué.e.s",
         "badge_not_found": "Badge non trouvé.",
         "bug_tool_disabled": "Outil pour les bugs désactivé",
         "cannot_create_discussion": "Vous ne pouvez pas créer une discussion dans ce groupe ou cette communauté.",
         "cant_add_self": "Vous ne pouvez pas vous rajouter à un groupe de discussion.",
         "cant_block_self": "Vous ne pouvez pas vous bloquer vous-même.",
-        "cant_friend_self": "Vous ne pouvez pas vous ajouter en tant qu'ami.",
+        "cant_friend_self": "Vous ne pouvez pas vous ajouter en tant qu'ami.e !",
         "can_only_refer_friends": "Vous pouvez uniquement écrire une référence, en tant qu'ami, pour les amis confirmés."
     }
 }
