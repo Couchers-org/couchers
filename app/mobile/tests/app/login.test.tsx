@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 
 import { useAuthContext } from "@/features/auth/AuthContext";
 
-import LoginScreen from "./login";
+import LoginScreen from "../../app/login";
 
 const mockWebBaseUrl = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
 
