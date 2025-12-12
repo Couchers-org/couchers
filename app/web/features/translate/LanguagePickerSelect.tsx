@@ -53,7 +53,8 @@ type LanguagePickerSelectProps = {
 
 export default function LanguagePickerSelect({
   displayMode = "round",
-}: LanguagePickerSelectProps) {
+  onSelect,
+}: LanguagePickerSelectProps & { onSelect?: () => void }) {
   const router = useRouter();
   const { asPath, locale, pathname } = router;
   const { authState } = useAuthContext();
@@ -80,6 +81,7 @@ export default function LanguagePickerSelect({
 
     // Push new route with updated locale, keep the current asPath for display
     router.push({ pathname }, asPath, { locale: newLocale });
+    onSelect?.();
   };
 
   const handleTranslationProgressClick = (e: React.MouseEvent) => {
@@ -87,6 +89,7 @@ export default function LanguagePickerSelect({
 
     setIsOpen(false);
     router.push(translateRoute);
+    onSelect?.();
   };
 
   const renderFlag = (flagCode: string, percent?: number) => {

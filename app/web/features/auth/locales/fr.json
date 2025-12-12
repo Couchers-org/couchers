@@ -73,7 +73,7 @@
     "caveat": "En activant cette option, votre compte sera configuré pour refuser les demandes d'hébergement. Vous continuerez de recevoir les mails de sécurité (comme ceux pour la réinitialisation de votre mot de passe). La newsletter continuera de vous être envoyée ; vous pouvez vous désabonner de celle-ci en utilisant le lien dans le pied de page de la newsletter."
   },
   "reset_password_form": {
-    "success_message": "Verifiez le lien envoyé à votre adresse mail pour réinitialiser votre mot de passe !",
+    "success_message": "Un lien de réinitialiser votre mot de passe a été envoyé à votre adresse mail à ce compte, si elle existe et est active. Veuillez noter que ce mail peut parfois se retrouver dans vos courriers indésirables.",
     "enter_email": "Entrez votre nom d’utilisateur/adresse mail"
   },
   "sign_up_completed_title": "Merci pour votre inscription !",

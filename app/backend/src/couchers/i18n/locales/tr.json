@@ -79,6 +79,11 @@
         "invalid_birthdate": "Kayıt olmak için en az 18 yaşında olmalısınız.",
         "invalid_comment": "Boş bir yorum gönderemezsin.",
         "invalid_coordinate": "Geçersiz koordinat.",
-        "incomplete_profile_send_request": "Bir istek gönderebilmeden önce profilini tamamlamalısın."
+        "incomplete_profile_send_request": "Bir istek gönderebilmeden önce profilini tamamlamalısın.",
+        "invalid_email": "Geçersiz e-posta.",
+        "invalid_date": "Geçersiz tarih.",
+        "invalid_delivery_method": "Geçersiz teslimat yöntemi.",
+        "invalid_started_volunteering_date": "Gönüllülük için geçersiz başlangıç tarihi.",
+        "invalid_stopped_volunteering_date": "Gönüllülük için geçersiz bitiş tarihi."
     }
 }

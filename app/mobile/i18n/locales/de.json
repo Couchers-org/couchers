@@ -1,14 +1,14 @@
 {
-  "biometrics": {
-    "login_prompt": "Bei Couchers anmelden",
-    "cancel_button": "Abbrechen",
-    "use_password_button": "Passwort verwenden",
-    "enable_title": "{{biometricType}} aktivieren?",
-    "enable_message": "Möchtest du {{biometricType}} für schnellere Anmeldung nutzen?",
-    "enable_button": "Aktivieren",
-    "not_now_button": "Nicht jetzt",
-    "confirm_prompt": "{{biometricType}} bestätigen",
-    "face_id": "Face ID",
-    "biometrics_generic": "Biometrie"
-  }
+    "biometrics": {
+        "login_prompt": "Bei Couchers anmelden",
+        "cancel_button": "Abbrechen",
+        "use_password_button": "Passwort verwenden",
+        "enable_title": "{{biometricType}} aktivieren?",
+        "enable_message": "Möchtest du {{biometricType}} für schnellere Anmeldung nutzen?",
+        "enable_button": "Aktivieren",
+        "not_now_button": "Nicht jetzt",
+        "confirm_prompt": "{{biometricType}} bestätigen",
+        "face_id": "Face ID",
+        "biometrics_generic": "Biometrie"
+    }
 }
