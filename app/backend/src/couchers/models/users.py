@@ -137,6 +137,7 @@ class User(Base):
 
     joined: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     last_active: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    profile_last_updated: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     public_visibility: Mapped[ProfilePublicVisibility] = mapped_column(
         Enum(ProfilePublicVisibility), server_default="map_only"

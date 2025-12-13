@@ -607,7 +607,7 @@ def test_WriteFriendReference_requires_friendship(db):
         assert e.value.details() == "You can only write friend references for confirmed friends."
 
 
-def test_host_request_states_references(db):
+def test_host_request_states_references(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -622,6 +622,13 @@ def test_host_request_states_references(db):
         hr4 = create_host_request(session, user2.id, user1.id, timedelta(days=10), status=HostRequestStatus.confirmed)
         # can't write ref
         hr5 = create_host_request(session, user2.id, user1.id, timedelta(days=10), status=HostRequestStatus.cancelled)
+
+    # Approve host requests so both participants can see them
+    moderator.approve_host_request(hr1)
+    moderator.approve_host_request(hr2)
+    moderator.approve_host_request(hr3)
+    moderator.approve_host_request(hr4)
+    moderator.approve_host_request(hr5)
 
     with references_session(token1) as api:
         # pending
@@ -684,7 +691,7 @@ def test_host_request_states_references(db):
         assert e.value.details() == "You can't write a reference for that host request, or it wasn't found."
 
 
-def test_WriteHostRequestReference(db):
+def test_WriteHostRequestReference(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -703,6 +710,14 @@ def test_WriteHostRequestReference(db):
         hr5 = create_host_request(session, user4.id, user1.id, timedelta(days=7), host_reason_didnt_meetup="")
         # we will indicate we didn't meet
         hr6 = create_host_request(session, user4.id, user1.id, timedelta(days=8))
+
+    # Approve host requests so both participants can see them
+    moderator.approve_host_request(hr1)
+    moderator.approve_host_request(hr2)
+    moderator.approve_host_request(hr3)
+    moderator.approve_host_request(hr4)
+    moderator.approve_host_request(hr5)
+    moderator.approve_host_request(hr6)
 
     with references_session(token3) as api:
         # can write for this one
@@ -861,13 +876,14 @@ def test_WriteHostRequestReference_private_text(db, push_collector):
     )
 
 
-def test_GetHostRequestReferenceStatus(db):
+def test_GetHostRequestReferenceStatus(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
     # user1 writes; RPC returns has_given True
     with session_scope() as session:
         hr1 = create_host_request(session, user1.id, user2.id, timedelta(days=7))
+    moderator.approve_host_request(hr1)
     with references_session(token1) as api:
         api.WriteHostRequestReference(
             references_pb2.WriteHostRequestReferenceReq(
@@ -880,6 +896,7 @@ def test_GetHostRequestReferenceStatus(db):
     # false: no reference written yet
     with session_scope() as session:
         hr2 = create_host_request(session, user1.id, user2.id, timedelta(days=7))
+    moderator.approve_host_request(hr2)
     with references_session(token1) as api:
         res = api.GetHostRequestReferenceStatus(references_pb2.GetHostRequestReferenceStatusReq(host_request_id=hr2))
         assert res.has_given is False
@@ -887,6 +904,7 @@ def test_GetHostRequestReferenceStatus(db):
     # false: other user wrote a reference
     with session_scope() as session:
         hr3 = create_host_request(session, user1.id, user2.id, timedelta(days=7))
+    moderator.approve_host_request(hr3)
     with references_session(token2) as api:
         api.WriteHostRequestReference(
             references_pb2.WriteHostRequestReferenceReq(
@@ -914,6 +932,10 @@ def test_GetHostRequestReferenceStatus(db):
         hr_other_didnt_stay = create_host_request(
             session, user2.id, user1.id, timedelta(days=10), surfer_reason_didnt_meetup="No show"
         )
+
+    moderator.approve_host_request(hr_expired)
+    moderator.approve_host_request(hr_didnt_stay_host)
+    moderator.approve_host_request(hr_other_didnt_stay)
 
     # expired: is_expired true, can_write false, didnt_stay false
     with references_session(token1) as api:
@@ -946,7 +968,7 @@ def test_GetHostRequestReferenceStatus(db):
         assert res.can_write is True
 
 
-def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
+def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -985,19 +1007,19 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
         create_friend_reference(session, user1.id, user2.id, timedelta(days=1))
 
         # user5 deleted, reference won't show up as pending
-        create_host_request(session, user1.id, user5.id, timedelta(days=5))
+        hr_user5 = create_host_request(session, user1.id, user5.id, timedelta(days=5))
 
         # user6 blocked, reference won't show up as pending
-        create_host_request(session, user1.id, user6.id, timedelta(days=5))
+        hr_user6 = create_host_request(session, user1.id, user6.id, timedelta(days=5))
 
         # user7 blocking, reference won't show up as pending
-        create_host_request(session, user1.id, user7.id, timedelta(days=5))
+        hr_user7 = create_host_request(session, user1.id, user7.id, timedelta(days=5))
 
         # hosted but we indicated we didn't meet up, no reason; should not show up
-        create_host_request(session, user8.id, user1.id, timedelta(days=11), host_reason_didnt_meetup="")
+        hr_user8 = create_host_request(session, user8.id, user1.id, timedelta(days=11), host_reason_didnt_meetup="")
 
         # surfed but we indicated we didn't meet up, has reason; should not show up
-        create_host_request(
+        hr_user9 = create_host_request(
             session, user1.id, user9.id, timedelta(days=10), surfer_reason_didnt_meetup="They never showed up!"
         )
 
@@ -1008,6 +1030,20 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
         hr7 = create_host_request(
             session, user11.id, user1.id, timedelta(days=3), surfer_reason_didnt_meetup="They never showed up!!"
         )
+
+    # Approve all host requests so both participants can see them
+    moderator.approve_host_request(hr1)
+    moderator.approve_host_request(hr2)
+    moderator.approve_host_request(hr3)
+    moderator.approve_host_request(hr4)
+    moderator.approve_host_request(hr5)
+    moderator.approve_host_request(hr_user5)
+    moderator.approve_host_request(hr_user6)
+    moderator.approve_host_request(hr_user7)
+    moderator.approve_host_request(hr_user8)
+    moderator.approve_host_request(hr_user9)
+    moderator.approve_host_request(hr6)
+    moderator.approve_host_request(hr7)
 
     refresh_materialized_views_rapid(None)
 

@@ -730,6 +730,7 @@ class Account(account_pb2_grpc.AccountServicer):
             select(HostRequest.conversation_id, LiteUser)
             .join(LiteUser, LiteUser.id == HostRequest.surfer_user_id)
             .where_users_column_visible(context, HostRequest.surfer_user_id)
+            .where_moderated_content_visible(context, HostRequest, is_list_operation=True)
             .where(HostRequest.host_user_id == context.user_id)
             .where(HostRequest.status == HostRequestStatus.pending)
             .where(HostRequest.start_time > func.now())

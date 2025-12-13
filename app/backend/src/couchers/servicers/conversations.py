@@ -623,6 +623,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 )
                 .where(GroupChatSubscription.left == None)
                 .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
+                .where_moderated_content_visible(context, GroupChat, is_list_operation=False)
                 .where(GroupChat.is_dm == True)
                 .group_by(GroupChatSubscription.group_chat_id)
                 .having(count == 2)
@@ -726,7 +727,11 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         )
 
         chat = session.execute(
-            select(GroupChat).where(GroupChat.is_dm == True).where(GroupChat.conversation_id.in_(dm_chat_ids)).limit(1)
+            select(GroupChat)
+            .where_moderated_content_visible(context, GroupChat, is_list_operation=False)
+            .where(GroupChat.is_dm == True)
+            .where(GroupChat.conversation_id.in_(dm_chat_ids))
+            .limit(1)
         ).scalar_one_or_none()
 
         if not chat:

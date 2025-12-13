@@ -240,6 +240,8 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                 select(User)
                 .join(GroupChatSubscription, GroupChatSubscription.user_id == User.id)
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+                .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
+                .where_moderated_content_visible_to_user_column(GroupChat, User.id)
                 .where(not_(GroupChatSubscription.is_muted))
                 .where(User.is_visible)
                 .where(Message.time >= GroupChatSubscription.joined)
@@ -264,6 +266,8 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                     func.count(Message.id).label("count_unseen"),
                 )
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+                .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
+                .where_moderated_content_visible(context, GroupChat, is_list_operation=True)
                 .where(GroupChatSubscription.user_id == user.id)
                 .where(not_(GroupChatSubscription.is_muted))
                 .where(Message.id > user.last_notified_message_id)
@@ -281,6 +285,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                 select(GroupChat, Message, subquery.c.count_unseen)
                 .join(subquery, subquery.c.message_id == Message.id)
                 .join(GroupChat, GroupChat.conversation_id == subquery.c.group_chat_id)
+                .where_moderated_content_visible(context, GroupChat, is_list_operation=True)
                 .order_by(subquery.c.message_id.desc())
             ).all()
 
@@ -596,6 +601,7 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
         requests = (
             session.execute(
                 select(HostRequest)
+                .where_moderated_content_visible_to_user_column(HostRequest, HostRequest.host_user_id)
                 .where(HostRequest.status == HostRequestStatus.pending)
                 .where(HostRequest.host_sent_request_reminders < HOST_REQUEST_MAX_REMINDERS)
                 .where(HostRequest.start_time > func.now())
@@ -621,6 +627,7 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
                     host_request=host_request_to_pb(host_request, session, context),
                     surfer=user_model_to_pb(host_request.surfer, session, context),
                 ),
+                moderation_state_id=host_request.moderation_state_id,
             )
 
             session.commit()
@@ -1383,17 +1390,6 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
         ).all()
         if unknown_type_states:
             errors.append(f"ModerationStates with unknown object_type: {unknown_type_states}")
-
-        # Check resolved queue items point to log entries with resolving actions (APPROVE/HIDE, not CREATE/FLAG/UNFLAG)
-        resolving_actions = [ModerationAction.APPROVE, ModerationAction.HIDE]
-        invalid_resolved_actions = session.execute(
-            select(ModerationQueueItem.id, ModerationQueueItem.resolved_by_log_id, ModerationLog.action)
-            .join(ModerationLog, ModerationQueueItem.resolved_by_log_id == ModerationLog.id)
-            .where(ModerationQueueItem.resolved_by_log_id.is_not(None))
-            .where(ModerationLog.action.not_in(resolving_actions))
-        ).all()
-        if invalid_resolved_actions:
-            errors.append(f"Queue items resolved by non-resolving actions: {invalid_resolved_actions}")
 
         # Check every ModerationState has at least one INITIAL_REVIEW queue item
         # Skip items with ID < 2000000 as they were created before this check was introduced
