@@ -376,6 +376,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                 select(User, HostRequest, func.max(Message.id))
                 .where(User.id == user_id)
                 .join(HostRequest, HostRequest.surfer_user_id == User.id)
+                .where_moderated_content_visible_to_user_column(HostRequest, HostRequest.surfer_user_id)
                 .where_users_column_visible(context, HostRequest.host_user_id)
                 .join(Message, Message.conversation_id == HostRequest.conversation_id)
                 .where(Message.id > HostRequest.surfer_last_seen_message_id)
