@@ -44,6 +44,12 @@ describe("Edit profile", () => {
     getLanguagesMock.mockImplementation(getLanguages);
   });
 
+  afterEach(() => {
+    updateProfileMock.mockClear();
+    getUserMock.mockClear();
+    uploadFileMock.mockClear();
+  });
+
   it("Should update and show success toast when aboutMe and avatar filled out on first go", async () => {
     // prevent the unsavedChanged pop up by mocking window.confirm
     jest.spyOn(window, "confirm").mockImplementation(() => true);
@@ -61,7 +67,7 @@ describe("Edit profile", () => {
 
     getUserMock.mockImplementation(getUser);
 
-    renderPage();
+    await renderPage();
 
     const user = userEvent.setup();
 
@@ -116,7 +122,7 @@ describe("Edit profile", () => {
       aboutMe: "",
       thingsILike: "",
     }));
-    renderPage();
+    await renderPage();
 
     const user = userEvent.setup();
 
@@ -205,7 +211,7 @@ describe("Edit profile", () => {
       thingsILike: "",
     }));
 
-    renderPage();
+    await renderPage();
 
     const user = userEvent.setup();
 
@@ -249,7 +255,7 @@ describe("Edit profile", () => {
 
     getUserMock.mockImplementation(getUser);
 
-    renderPage();
+    await renderPage();
 
     // Wait for the form to be loaded
     await screen.findByText(t("profile:heading.about_me"));
