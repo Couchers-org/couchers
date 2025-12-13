@@ -20,7 +20,7 @@ import { useEffect, useRef, useState } from "react";
 import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
-import { timeAgo } from "utils/timeAgo";
+import { timeAgoI18n } from "utils/timeAgo";
 
 import { useThread } from "../hooks";
 import CommentForm from "./CommentForm";
@@ -126,7 +126,7 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
   }, [showCommentForm]);
 
   const replyDate = timestamp2Date(comment.createdTime!);
-  const postedTime = timeAgo(replyDate);
+  const postedTime = timeAgoI18n({ input: replyDate, t: t });
 
   return (
     <>
