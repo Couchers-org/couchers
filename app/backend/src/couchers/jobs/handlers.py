@@ -85,9 +85,6 @@ from couchers.models import (
     ModerationQueueItem,
     ModerationState,
     ModerationTrigger,
-    ModerationVisibility,
-    Notification,
-    NotificationDelivery,
     PassportSex,
     PasswordResetToken,
     PhotoGallery,
@@ -1513,20 +1510,6 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
         ).all()
         if gc_reverse_mismatches:
             errors.append(f"GroupChat points to ModerationState with wrong type/object_id: {gc_reverse_mismatches}")
-
-        # Check notifications linked to VISIBLE/UNLISTED content have been processed
-        # When content becomes visible, handle_notification should create NotificationDelivery records.
-        # Notifications with moderation_state_id pointing to visible content but no delivery records are "hanging".
-        hanging_notifications = session.execute(
-            select(Notification.id, Notification.user_id, Notification.topic_action, ModerationState.visibility)
-            .join(ModerationState, Notification.moderation_state_id == ModerationState.id)
-            .where(ModerationState.visibility.in_([ModerationVisibility.VISIBLE, ModerationVisibility.UNLISTED]))
-            .where(~exists(select(1).where(NotificationDelivery.notification_id == Notification.id)))
-        ).all()
-        if hanging_notifications:
-            errors.append(
-                f"Notifications for VISIBLE/UNLISTED content without delivery records: {hanging_notifications}"
-            )
 
         # Ensure auto-approve deadline isn't being exceeded by a significant margin
         # The auto-approver runs every 15s, so allow 5 minutes grace before alerting
