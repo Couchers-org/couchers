@@ -139,6 +139,29 @@ class CouchersSelect(Select[Any]):
             )
         )
 
+    def where_moderated_content_visible_to_user_column(
+        self,
+        table: "type[ModeratedContent]",
+        user_id_column: InstrumentedAttribute[int],
+        is_list_operation: bool = False,
+    ) -> Self:
+        aliased_mod_state = aliased(ModerationState)
+        conditions = [aliased_mod_state.visibility == ModerationVisibility.VISIBLE]
+
+        # UNLISTED content is visible in single-item operations but not in lists
+        if not is_list_operation:
+            conditions.append(aliased_mod_state.visibility == ModerationVisibility.UNLISTED)
+
+        # Authors can always see their own SHADOWED content
+        conditions.append(
+            and_(
+                aliased_mod_state.visibility == ModerationVisibility.SHADOWED,
+                getattr(table, table.__moderation_author_column__) == user_id_column,
+            )
+        )
+
+        return self.join(aliased_mod_state, aliased_mod_state.id == table.moderation_state_id).where(or_(*conditions))
+
     def where_moderated_content_visible(
         self,
         context: CouchersContext,

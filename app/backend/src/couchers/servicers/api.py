@@ -14,6 +14,7 @@ from couchers.materialized_views import LiteUser, UserResponseRate
 from couchers.models import (
     FriendRelationship,
     FriendStatus,
+    GroupChat,
     GroupChatSubscription,
     HostingStatus,
     HostRequest,
@@ -162,6 +163,7 @@ class API(api_pb2_grpc.APIServicer):
             select(HostRequest.conversation_id, HostRequest.surfer_last_seen_message_id)
             .where(HostRequest.surfer_user_id == context.user_id)
             .where_users_column_visible(context, HostRequest.host_user_id)
+            .where_moderated_content_visible(context, HostRequest, is_list_operation=True)
         ).subquery()
 
         unseen_sent_host_request_count = session.execute(
@@ -178,6 +180,7 @@ class API(api_pb2_grpc.APIServicer):
             select(HostRequest.conversation_id, HostRequest.host_last_seen_message_id)
             .where(HostRequest.host_user_id == context.user_id)
             .where_users_column_visible(context, HostRequest.surfer_user_id)
+            .where_moderated_content_visible(context, HostRequest, is_list_operation=True)
         ).subquery()
 
         unseen_received_host_request_count = session.execute(
@@ -193,6 +196,8 @@ class API(api_pb2_grpc.APIServicer):
         unseen_message_count = session.execute(
             select(func.count(Message.id))
             .outerjoin(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+            .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
+            .where_moderated_content_visible(context, GroupChat, is_list_operation=True)
             .where(GroupChatSubscription.user_id == context.user_id)
             .where(Message.time >= GroupChatSubscription.joined)
             .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))

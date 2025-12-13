@@ -1281,7 +1281,7 @@ def test_last_seen(db, moderator):
         assert res.unseen_message_count == 0
 
 
-def test_one_dm_per_pair(db):
+def test_one_dm_per_pair(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -1294,10 +1294,12 @@ def test_one_dm_per_pair(db):
         # create DM with user 2
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
         assert res.is_dm
+        dm_with_user2 = res.group_chat_id
 
         # create DM with user 3
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user3.id]))
         assert res.is_dm
+        dm_with_user3 = res.group_chat_id
 
         # can't create another group chat with just user 2
         with pytest.raises(grpc.RpcError) as e:
@@ -1313,12 +1315,15 @@ def test_one_dm_per_pair(db):
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id]))
         assert not res.is_dm
 
+    # Approve the DMs so user2 can see them (otherwise they're SHADOWED and only visible to creator)
+    moderator.approve_group_chat(dm_with_user2)
+
     with conversations_session(token2) as c:
         # can create DM with user 3
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user3.id]))
         assert res.is_dm
 
-        # can't create another group chat with just user 1
+        # can't create another group chat with just user 1 (DM was approved, so user2 can see it)
         with pytest.raises(grpc.RpcError) as e:
             res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id]))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
