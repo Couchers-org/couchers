@@ -466,7 +466,7 @@ def test_no_jobs_no_problem(db):
         assert session.execute(select(func.count()).select_from(BackgroundJob)).scalar_one() == 0
 
 
-def test_send_message_notifications_basic(db):
+def test_send_message_notifications_basic(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -488,20 +488,26 @@ def test_send_message_notifications_basic(db):
         )
 
     with conversations_session(token1) as c:
-        group_chat_id = c.CreateGroupChat(
+        group_chat_id1 = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
         ).group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 3"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 4"))
+    moderator.approve_group_chat(group_chat_id1)
+
+    with conversations_session(token1) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id1, text="Test message 1"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id1, text="Test message 2"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id1, text="Test message 3"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id1, text="Test message 4"))
 
     with conversations_session(token3) as c:
-        group_chat_id = c.CreateGroupChat(
+        group_chat_id2 = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
         ).group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 5"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 6"))
+    moderator.approve_group_chat(group_chat_id2)
+
+    with conversations_session(token3) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id2, text="Test message 5"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id2, text="Test message 6"))
 
     send_message_notifications(empty_pb2.Empty())
     process_jobs()
@@ -953,7 +959,7 @@ def test_send_reference_reminders(db):
                 assert find in html, f"Expected to find string {find} in HTML email {subject} to {address}, didn't"
 
 
-def test_send_host_request_reminders(db):
+def test_send_host_request_reminders(db, moderator):
     user1, token1 = generate_user(email="user1@couchers.org.invalid", name="User 1")
     user2, token2 = generate_user(email="user2@couchers.org.invalid", name="User 2")
     user3, token3 = generate_user(email="user3@couchers.org.invalid", name="User 3")
@@ -1063,6 +1069,15 @@ def test_send_host_request_reminders(db):
                 message_type=MessageType.text,
             )
         )
+
+    # Approve host requests so they're visible for notifications
+    moderator.approve_host_request(hr1)
+    moderator.approve_host_request(hr2)
+    moderator.approve_host_request(hr3)
+    moderator.approve_host_request(hr4)
+    moderator.approve_host_request(hr5)
+    moderator.approve_host_request(hr6)
+    moderator.approve_host_request(hr7)
 
     send_host_request_reminders(empty_pb2.Empty())
 
@@ -1316,7 +1331,7 @@ def test_send_request_notifications_blocked_users_no_notification(db, moderator)
         ), "No notification email should be sent when surfer has blocked host"
 
 
-def test_send_host_request_reminders_blocked_users_no_notification(db):
+def test_send_host_request_reminders_blocked_users_no_notification(db, moderator):
     """
     send_host_request_reminders should not send notifications when the host and surfer are not visible to each other
     (e.g., one blocked the other).
@@ -1336,6 +1351,9 @@ def test_send_host_request_reminders_blocked_users_no_notification(db):
             host_sent_request_reminders=0,
             last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
         )
+
+    # Approve the host request so it's visible for notifications
+    moderator.approve_host_request(hr)
 
     # Verify that without blocking, a reminder would be sent
     send_host_request_reminders(empty_pb2.Empty())
@@ -1371,7 +1389,7 @@ def test_send_host_request_reminders_blocked_users_no_notification(db):
         assert len(emails) == 0, "No reminder email should be sent when host has blocked surfer"
 
 
-def test_send_message_notifications_blocked_users_no_notification(db):
+def test_send_message_notifications_blocked_users_no_notification(db, moderator):
     """
     Regression test: send_message_notifications should not send notifications
     for messages from users who are blocked by the recipient.
@@ -1386,6 +1404,11 @@ def test_send_message_notifications_blocked_users_no_notification(db):
         group_chat_id = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
         ).group_chat_id
+
+    # Approve the group chat so it's visible for notifications
+    moderator.approve_group_chat(group_chat_id)
+
+    with conversations_session(token1) as c:
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
 
