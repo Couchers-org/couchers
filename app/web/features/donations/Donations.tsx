@@ -122,7 +122,7 @@ export default function Donations() {
       </StyledBanner>
       <StyledBody>
         <StyledDonationsBoxSection>
-          <DonationDriveBlock />
+          <DonationDriveBlock alwaysShow />
           <DonationsBox />
           <StyledBenefactorText>
             <Typography variant="body2">
