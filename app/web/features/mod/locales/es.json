@@ -17,7 +17,13 @@
         "has_passport_sex_gender_exception": "¿Excepción de sexo/género en el pasaporte?",
         "pending_mod_notes_count": "Notas de moderación pendientes",
         "acknowledged_mod_notes_count": "Notas de los moderadores revisadas",
-        "admin_note": "Nota del administrador"
+        "admin_note": "Nota del administrador",
+        "username": "Nombre de usuario",
+        "user_id": "ID de usuario",
+        "email": "Correo electrónico",
+        "birthdate": "Fecha de nacimiento",
+        "has_strong_verification": "Tiene verificación fuerte",
+        "birthdate_verification_status": "Verificación de fecha de nacimiento"
     },
     "do_not_email": "No enviar correo electrónico"
 }
