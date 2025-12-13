@@ -25,7 +25,7 @@
     "error_loading_invite_codes": "Couldn't get invite code details",
     "thanks": "Thanks!",
     "donation_banner": {
-        "message": "Couchers.org runs on kindness — just like couch surfing itself. This holiday season, help us keep it that way. We are raising $5000 to cover the cost of running Couchers.org.",
+        "message": "Couchers.org runs on kindness — just like couch surfing itself. This holiday season, help us keep it that way. We are raising US$5000 to cover the cost of running Couchers.org.",
         "button": "Donate now",
         "progress_label": "Donation progress"
     },
@@ -65,7 +65,7 @@
         "translation_progress": {
             "title": "Translation Progress",
             "description": "See how complete our translations are across different languages. Help us make Couchers accessible to more people around the world!",
-            "help_translate": "Help translate couchers into your language",
+            "help_translate": "Help translate Couchers into your language",
             "loading": "Loading translation progress...",
             "error_loading": "Failed to load translation progress",
             "no_data": "No translation data available",
