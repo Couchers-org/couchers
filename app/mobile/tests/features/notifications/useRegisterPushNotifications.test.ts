@@ -6,8 +6,7 @@ import { Platform } from "react-native";
 
 import { useAuthContext } from "@/features/auth/AuthContext";
 import { registerMobilePushNotificationSubscription } from "@/service/notifications";
-
-import { useRegisterPushNotifications } from "./useRegisterPushNotifications";
+import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
 
 jest.mock("expo-device", () => ({
   isDevice: true,

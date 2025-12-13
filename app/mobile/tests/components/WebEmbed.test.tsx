@@ -4,8 +4,7 @@ import React from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useAuthContext } from "@/features/auth/AuthContext";
-
-import WebEmbed from "./WebEmbed";
+import WebEmbed from "@/components/WebEmbed";
 
 const mockWebBaseUrl = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
 

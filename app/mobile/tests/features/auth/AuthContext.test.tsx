@@ -3,8 +3,7 @@ import * as SecureStore from "expo-secure-store";
 import { ReactNode } from "react";
 
 import client from "@/service/client";
-
-import { AuthProvider, useAuthContext } from "./AuthContext";
+import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
 
 jest.mock("expo-secure-store", () => ({
   getItemAsync: jest.fn(),

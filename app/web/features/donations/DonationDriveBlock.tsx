@@ -10,6 +10,7 @@ import DonationProgressBar from "./DonationProgressBar";
 export interface DonationDriveBlockProps {
   onClose?: () => void;
   action?: React.ReactNode;
+  alwaysShow?: boolean;
 }
 
 const OuterWrapper = styled("div")(({ theme }) => ({
@@ -42,11 +43,12 @@ const Message = styled("span")(({ theme }) => ({
 export default function DonationDriveBlock({
   onClose,
   action,
+  alwaysShow = false,
 }: DonationDriveBlockProps) {
   const { t } = useTranslation(GLOBAL);
   const { data: accountInfo, isLoading } = useAccountInfo();
 
-  if (isLoading || !accountInfo?.shouldShowDonationBanner) {
+  if (!alwaysShow && (isLoading || !accountInfo?.shouldShowDonationBanner)) {
     return null;
   }
 
