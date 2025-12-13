@@ -46,7 +46,8 @@
         "date_from_before_today": "La fecha de inicio debe ser hoy o posterior.",
         "date_to_after_one_year": "No puedes solicitar alojarte con alguien por más de un año.",
         "discussion_not_found": "Discusión no encontrada.",
-        "address_line_1_required": "La línea 1 de la dirección es obligatoria."
+        "address_line_1_required": "La línea 1 de la dirección es obligatoria.",
+        "can_only_refer_friends": "Solo puedes escribir referencias de amigos para amigos confirmados."
     },
     "badges": {
         "volunteer_name": "Voluntario en activo",

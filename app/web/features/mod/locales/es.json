@@ -12,7 +12,12 @@
         "open_in_console": "Abrir en la consola"
     },
     "panel": {
-        "heading": "Cosas de moderadores"
+        "heading": "Cosas de moderadores",
+        "gender_verification_status": "Verificación de género",
+        "has_passport_sex_gender_exception": "¿Excepción de sexo/género en el pasaporte?",
+        "pending_mod_notes_count": "Notas de moderación pendientes",
+        "acknowledged_mod_notes_count": "Notas de los moderadores revisadas",
+        "admin_note": "Nota del administrador"
     },
     "do_not_email": "No enviar correo electrónico"
 }

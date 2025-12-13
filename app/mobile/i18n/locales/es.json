@@ -10,5 +10,19 @@
         "biometrics_generic": "biometría",
         "enable_title": "¿Habilitar {{biometricType}}?",
         "login_prompt": "Iniciar sesión en Couchers"
+    },
+    "errors": {
+        "try_again": "Inténtalo de nuevo"
+    },
+    "not_found": {
+        "title": "¡Ups!",
+        "message": "Esta pantalla no existe.",
+        "go_home": "¡Ve a la pantalla de inicio!"
+    },
+    "tabs": {
+        "home": "Inicio",
+        "messages": "Mensajes",
+        "communities": "Comunidades",
+        "search": "Buscar"
     }
 }
