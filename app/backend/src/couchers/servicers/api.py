@@ -17,6 +17,7 @@ from couchers.context import CouchersContext
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.materialized_views import LiteUser, UserResponseRate
+from couchers.metrics import observe_moderation_action, observe_moderation_queue_item_created
 from couchers.models import (
     FriendRelationship,
     FriendStatus,
@@ -29,6 +30,13 @@ from couchers.models import (
     LanguageFluency,
     MeetupStatus,
     Message,
+    ModerationAction,
+    ModerationLog,
+    ModerationObjectType,
+    ModerationQueueItem,
+    ModerationState,
+    ModerationTrigger,
+    ModerationVisibility,
     Notification,
     NotificationDeliveryType,
     ParkingDetails,
@@ -229,6 +237,9 @@ class API(api_pb2_grpc.APIServicer):
         )
         pending_friend_request_query = pending_friend_request_query.where(
             FriendRelationship.status == FriendStatus.pending
+        )
+        pending_friend_request_query = where_moderated_content_visible(
+            pending_friend_request_query, context, FriendRelationship, is_list_operation=True
         )
         pending_friend_request_count = session.execute(pending_friend_request_query).scalar_one()
 
@@ -585,6 +596,7 @@ class API(api_pb2_grpc.APIServicer):
                 FriendRelationship.to_user_id == context.user_id,
             )
         ).where(FriendRelationship.status == FriendStatus.accepted)
+        rels_query = where_moderated_content_visible(rels_query, context, FriendRelationship, is_list_operation=True)
         rels = session.execute(rels_query).scalars().all()
         return api_pb2.ListFriendsRes(
             user_ids=[rel.from_user.id if rel.from_user.id != context.user_id else rel.to_user.id for rel in rels],
@@ -608,6 +620,7 @@ class API(api_pb2_grpc.APIServicer):
                 ),
             )
         ).where(FriendRelationship.status == FriendStatus.accepted)
+        rel_query = where_moderated_content_visible(rel_query, context, FriendRelationship)
         rel = session.execute(rel_query).scalar_one_or_none()
 
         if not rel:
@@ -635,6 +648,7 @@ class API(api_pb2_grpc.APIServicer):
             .where(FriendRelationship.to_user_id == context.user_id)
             .where(FriendRelationship.from_user_id != request.user_id)
             .where(FriendRelationship.status == FriendStatus.accepted)
+            .where_moderated_content_visible(context, FriendRelationship)
         )
 
         q2 = (
@@ -642,6 +656,7 @@ class API(api_pb2_grpc.APIServicer):
             .where(FriendRelationship.from_user_id == context.user_id)
             .where(FriendRelationship.to_user_id != request.user_id)
             .where(FriendRelationship.status == FriendStatus.accepted)
+            .where_moderated_content_visible(context, FriendRelationship)
         )
 
         q3 = (
@@ -649,6 +664,7 @@ class API(api_pb2_grpc.APIServicer):
             .where(FriendRelationship.to_user_id == request.user_id)
             .where(FriendRelationship.from_user_id != context.user_id)
             .where(FriendRelationship.status == FriendStatus.accepted)
+            .where_moderated_content_visible(context, FriendRelationship)
         )
 
         q4 = (
@@ -656,6 +672,7 @@ class API(api_pb2_grpc.APIServicer):
             .where(FriendRelationship.from_user_id == request.user_id)
             .where(FriendRelationship.to_user_id != context.user_id)
             .where(FriendRelationship.status == FriendStatus.accepted)
+            .where_moderated_content_visible(context, FriendRelationship)
         )
 
         mutual = select(intersect(union(q1, q2), union(q3, q4)).subquery())
@@ -723,11 +740,50 @@ class API(api_pb2_grpc.APIServicer):
 
         # TODO: Race condition where we can create two friend reqs, needs db constraint! See comment in table
 
+        # Create moderation state first (UMS requires this before the friend relationship)
+        # Note: object_id is set to 0 temporarily and updated after we have friend_relationship.id
+        moderation_state = ModerationState(
+            object_type=ModerationObjectType.FRIEND_REQUEST,
+            object_id=0,  # Placeholder, will be updated below
+            visibility=ModerationVisibility.SHADOWED,
+        )
+        session.add(moderation_state)
+        session.flush()
+
+        # Now create the friend relationship with the moderation_state_id
         friend_relationship = FriendRelationship(
-            from_user_id=user.id, to_user_id=to_user.id, status=FriendStatus.pending
+            from_user_id=user.id,
+            to_user_id=to_user.id,
+            status=FriendStatus.pending,
+            moderation_state_id=moderation_state.id,
         )
         session.add(friend_relationship)
         session.flush()
+
+        # Update moderation state with actual object_id and create log/queue entries
+        moderation_state.object_id = friend_relationship.id
+
+        session.add(
+            ModerationLog(
+                moderation_state_id=moderation_state.id,
+                action=ModerationAction.CREATE,
+                moderator_user_id=context.user_id,
+                new_visibility=ModerationVisibility.SHADOWED,
+                reason="Object created.",
+            )
+        )
+
+        session.add(
+            ModerationQueueItem(
+                moderation_state_id=moderation_state.id,
+                trigger=ModerationTrigger.INITIAL_REVIEW,
+                reason="Object created.",
+            )
+        )
+        session.flush()
+
+        observe_moderation_action(ModerationAction.CREATE, ModerationObjectType.FRIEND_REQUEST)
+        observe_moderation_queue_item_created(ModerationTrigger.INITIAL_REVIEW, ModerationObjectType.FRIEND_REQUEST)
 
         notify(
             session,
@@ -737,6 +793,7 @@ class API(api_pb2_grpc.APIServicer):
             data=notification_data_pb2.FriendRequestCreate(
                 other_user=user_model_to_pb(friend_relationship.from_user, session, context),
             ),
+            moderation_state_id=moderation_state.id,
         )
 
         return empty_pb2.Empty()
@@ -750,6 +807,9 @@ class API(api_pb2_grpc.APIServicer):
         sent_requests_query = sent_requests_query.where(FriendRelationship.from_user_id == context.user_id).where(
             FriendRelationship.status == FriendStatus.pending
         )
+        sent_requests_query = where_moderated_content_visible(
+            sent_requests_query, context, FriendRelationship, is_list_operation=True
+        )
         sent_requests = session.execute(sent_requests_query).scalars().all()
 
         received_requests_query = select(FriendRelationship)
@@ -758,6 +818,9 @@ class API(api_pb2_grpc.APIServicer):
         )
         received_requests_query = received_requests_query.where(FriendRelationship.to_user_id == context.user_id).where(
             FriendRelationship.status == FriendStatus.pending
+        )
+        received_requests_query = where_moderated_content_visible(
+            received_requests_query, context, FriendRelationship, is_list_operation=True
         )
         received_requests = session.execute(received_requests_query).scalars().all()
 
@@ -794,6 +857,7 @@ class API(api_pb2_grpc.APIServicer):
             .where(FriendRelationship.status == FriendStatus.pending)
             .where(FriendRelationship.id == request.friend_request_id)
         )
+        friend_request_query = where_moderated_content_visible(friend_request_query, context, FriendRelationship)
         friend_request = session.execute(friend_request_query).scalar_one_or_none()
 
         if not friend_request:
@@ -827,6 +891,7 @@ class API(api_pb2_grpc.APIServicer):
             .where(FriendRelationship.status == FriendStatus.pending)
             .where(FriendRelationship.id == request.friend_request_id)
         )
+        friend_request_query = where_moderated_content_visible(friend_request_query, context, FriendRelationship)
         friend_request = session.execute(friend_request_query).scalar_one_or_none()
 
         if not friend_request:
@@ -997,6 +1062,7 @@ def user_model_to_pb(
                     FriendRelationship.status == FriendStatus.pending,
                 )
             )
+            .where_moderated_content_visible(context, FriendRelationship)
         ).scalar_one_or_none()
 
         if friend_relationship:

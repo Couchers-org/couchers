@@ -14,6 +14,7 @@ from couchers.metrics import (
     observe_moderation_visibility_transition,
 )
 from couchers.models import (
+    FriendRelationship,
     GroupChat,
     HostRequest,
     Message,
@@ -91,12 +92,14 @@ moderationobjecttype2api = {
     None: moderation_pb2.MODERATION_OBJECT_TYPE_UNSPECIFIED,
     ModerationObjectType.host_request: moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
     ModerationObjectType.group_chat: moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT,
+    ModerationObjectType.friend_request: moderation_pb2.MODERATION_OBJECT_TYPE_FRIEND_REQUEST,
 }
 
 moderationobjecttype2sql = {
     moderation_pb2.MODERATION_OBJECT_TYPE_UNSPECIFIED: None,
     moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST: ModerationObjectType.host_request,
     moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT: ModerationObjectType.group_chat,
+    moderation_pb2.MODERATION_OBJECT_TYPE_FRIEND_REQUEST: ModerationObjectType.friend_request,
 }
 
 
@@ -105,26 +108,39 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
     object_type = state.object_type
     object_id = state.object_id
 
-    # Get the author user ID
+    # Get the author user ID and content based on object type
     if object_type == ModerationObjectType.host_request:
         author_user_id = session.execute(
             select(HostRequest.surfer_user_id).where(HostRequest.conversation_id == object_id)
         ).scalar_one()
+        # Get the first text message for this conversation
+        content = session.execute(
+            select(Message.text)
+            .where(Message.conversation_id == object_id)
+            .where(Message.message_type == MessageType.text)
+            .order_by(Message.id.asc())
+            .limit(1)
+        ).scalar_one_or_none()
     elif object_type == ModerationObjectType.group_chat:
         author_user_id = session.execute(
             select(GroupChat.creator_id).where(GroupChat.conversation_id == object_id)
         ).scalar_one()
+        # Get the first text message for this conversation
+        content = session.execute(
+            select(Message.text)
+            .where(Message.conversation_id == object_id)
+            .where(Message.message_type == MessageType.text)
+            .order_by(Message.id.asc())
+            .limit(1)
+        ).scalar_one_or_none()
+    elif object_type == ModerationObjectType.friend_request:
+        author_user_id = session.execute(
+            select(FriendRelationship.from_user_id).where(FriendRelationship.id == object_id)
+        ).scalar_one()
+        # Friend requests have no text content
+        content = None
     else:
         raise ValueError(f"Unsupported moderation object type: {object_type}")
-
-    # Get the first text message for this conversation
-    content = session.execute(
-        select(Message.text)
-        .where(Message.conversation_id == object_id)
-        .where(Message.message_type == MessageType.text)
-        .order_by(Message.id.asc())
-        .limit(1)
-    ).scalar_one_or_none()
 
     state_pb = moderation_pb2.ModerationStateInfo(
         moderation_state_id=state.id,
@@ -198,7 +214,13 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
                     GroupChat.creator_id == author_user_id,
                 )
             )
-            statement = statement.where(or_(hr_exists, gc_exists))
+            fr_exists = exists().where(
+                and_(
+                    FriendRelationship.moderation_state_id == ModerationQueueItem.moderation_state_id,
+                    FriendRelationship.from_user_id == author_user_id,
+                )
+            )
+            statement = statement.where(or_(hr_exists, gc_exists, fr_exists))
 
         # Order by time created
         if request.newest_first:
