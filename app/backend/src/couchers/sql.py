@@ -139,6 +139,21 @@ class CouchersSelect(Select[Any]):
             )
         )
 
+    def where_moderated_content_visible_to_everyone(
+        self,
+        table: "type[ModeratedContent]",
+    ) -> Self:
+        """
+        Filters to only include content visible to everyone (VISIBLE or UNLISTED).
+
+        Use this for aggregate queries like materialized views where we don't have
+        a user context and want to exclude HIDDEN and SHADOWED content.
+        """
+        aliased_mod_state = aliased(ModerationState)
+        return self.join(aliased_mod_state, aliased_mod_state.id == table.moderation_state_id).where(
+            aliased_mod_state.visibility.in_([ModerationVisibility.VISIBLE, ModerationVisibility.UNLISTED])
+        )
+
     def where_moderated_content_visible_to_user_column(
         self,
         table: "type[ModeratedContent]",

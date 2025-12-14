@@ -40,6 +40,7 @@ from couchers.models import (
     Upload,
     User,
 )
+from couchers.sql import couchers_select
 
 logger = logging.getLogger(__name__)
 
@@ -280,13 +281,14 @@ s = (
     .subquery()
 )
 all_responses = union_all(
-    # host request responses
-    sa_select(
+    # host request responses (only include requests visible to everyone)
+    couchers_select(
         HostRequest.host_user_id.label("user_id"),
         (s.c.time - t.c.time).label("response_time"),
     )
     .join(t, t.c.conversation_id == HostRequest.conversation_id)
-    .outerjoin(s, and_(s.c.conversation_id == HostRequest.conversation_id, s.c.author_id == HostRequest.host_user_id)),
+    .outerjoin(s, and_(s.c.conversation_id == HostRequest.conversation_id, s.c.author_id == HostRequest.host_user_id))
+    .where_moderated_content_visible_to_everyone(HostRequest),
     # activeness probes
     sa_select(
         ActivenessProbe.user_id,
