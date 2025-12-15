@@ -18,7 +18,8 @@
     "link": "Plus d'informations sur cette fonctionnalité"
   },
   "invite_community_dialog_buttons": {
-    "open": "Inviter les membres de la communauté"
+    "open": "Inviter les membres de la communauté",
+    "confirm": "Confirmer"
   },
   "unknown_user": "Utilisateur.trice inconnu.e",
   "events_empty_state": "Aucun événement pour le moment. Pourquoi ne pas en <0>créer</0> un ✨ ?",
