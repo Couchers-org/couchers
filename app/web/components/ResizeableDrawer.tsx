@@ -79,7 +79,7 @@ export default function ResizeableDrawer({
         <StyledDragger>
           <IconButton
             onClick={handleDrawerExpansion}
-            aria-label={t(`global:${isExpanded ? "retract" : "expand"}`)}
+            aria-label={t(`global:${isExpanded ? "expander_control_a11y_retract" : "expander_control_a11y_expand"}`)}
             sx={{
               fontSize: "24px",
               backgroundColor: theme.palette.common.white,
